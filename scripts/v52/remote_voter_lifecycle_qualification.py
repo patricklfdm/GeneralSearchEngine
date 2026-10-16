@@ -81,7 +81,7 @@ def run(output):
         done.set();thread.join(2);receipt['elapsedSeconds']=round(time.monotonic()-began,3);h.runtime.save(root/'receipt.json',receipt)
 
 
-def negatives(owner):
+def negatives(owner,*,locations=('evidence','relocated')):
     """Mutate retained metadata in isolated copies; never touch original history."""
     import shutil
     mutations={
@@ -94,7 +94,7 @@ def negatives(owner):
         'missing-lifecycle-binding':None,
     }
     results=[]
-    for location in ('evidence','relocated'):
+    for location in locations:
         original=owner.root/location
         for name,mutate in mutations.items():
             target=owner.root/'lifecycle-negatives'/location/name;shutil.copytree(original,target)

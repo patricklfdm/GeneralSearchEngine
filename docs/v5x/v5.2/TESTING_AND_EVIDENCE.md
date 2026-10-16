@@ -240,3 +240,12 @@ JAR/helper/seed capsule to each receiver, observes one detached bootstrap, and
 continues through the prior SSH voter lifecycle and portable physical replay.
 Run `scripts/verify-v52-phase6-receiver-delivery.sh --skip-build`. This remains
 loopback qualification with a shared Python checkout, not cloud acceptance.
+
+## Phase 6AI remote partition and snapshot recovery
+
+[The remote partition gate](PHASE_6_REMOTE_PARTITION.md) runs the complete frozen
+M04 follower-snapshot/carried-token history over SSH-delivered receiver inputs and
+persistent services. Original cut/heal receipts and three-receiver ACK barriers
+join the existing portable physical/query/resource replay. Run
+`scripts/verify-v52-phase6-remote-partition.sh --skip-build`. This is single-host
+loopback fault qualification; independent hosts and crash/restart are still open.

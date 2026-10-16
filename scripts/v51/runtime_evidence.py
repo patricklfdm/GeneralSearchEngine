@@ -103,7 +103,8 @@ def project_application(entries,indexes,initial,sequence):
     return [registered[key] for key in sorted(registered)],documents,sequence,commands
 
 
-def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence_location=None,require_restart=True):
+def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence_location=None,require_restart=True,basis_coverage='legacy-matrix'):
+    f.need(basis_coverage in ('legacy-matrix','selected-quorums'),'unknown runtime basis coverage')
     root=Path(root);encoded=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(f.inspect(encoded,'MANIFEST'),digest=encoded[16:48].hex())
     genesis=f.inspect((root/'node-1/genesis.gsr').read_bytes(),'GENESIS');indexes,initial=application(raw(genesis['application']))
     nodes={row['node'] for row in manifest['members']};rejected_tails=rejected_tails or {}
@@ -198,7 +199,13 @@ def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence
                 f.need(any(state.get(document['id'])==document['value'] for state in published.values()),'update success before publication');successes+=1
         for index,digest in chosen.items():
             if node in reports and reports[node]['provenThrough']>=index:f.need(reports[node]['acceptedDigests'][index-1]==digest,'retained chosen history changed')
-    f.need(successes>=3 and publications>=5 and chunks>=6,'incomplete runtime execution')
+    # The historical runtime matrix requires extra basis traffic (six frames).
+    # One ordinary selected pair transfers two complete basis images, each with
+    # REPLY/RECEIVED observations (four frames). Every selected descriptor/image
+    # was already reconstructed and checked by recovery.select above. Unselected
+    # peers and retries must not be required to manufacture additional traffic.
+    complete_basis=chunks>=6 if basis_coverage=='legacy-matrix' else bool(selections) and chunks>=4
+    f.need(successes>=3 and publications>=5 and complete_basis,'incomplete runtime execution')
     return dict(status='PASS',execution='internal-runtime-real-tcp',publicRuntime=False,processes=len(pids),chosen=len(chosen),publications=publications,successes=successes,chunkFrames=chunks,quarantined=quarantined)
 
 

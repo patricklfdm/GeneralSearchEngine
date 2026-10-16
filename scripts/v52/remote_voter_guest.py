@@ -156,6 +156,9 @@ def selected(root,node):
 
 def collect(control,config):
     terminal=inspection(control,config);need(terminal['state']=='STOPPED','lifecycle collection requires stopped original processes')
+    if 'remotePartition' in config['binding']:
+        from . import remote_partition_guest
+        remote_partition_guest.seal(control,config)
     root=Path(config['root']);archive=root/'voter-collection.tar.gz';manifest=root/'voter-collection.json'
     index=selected(root,config['node']);sha=digest(encoded(config))
     if manifest.exists():

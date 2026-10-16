@@ -71,6 +71,18 @@ cloud admission remain open. The milestones below
 retain their original validation scope and source; earlier pending statements
 describe those historical stages, not the current hosted cohort result.
 
+[SSH partition and snapshot recovery](v5.2/PHASE_6_REMOTE_PARTITION.md) adds the
+complete frozen M04 follower snapshot/carried-token history to the delivered
+receiver/service backend. Original remote cut/heal claims, all-receiver ACK barriers
+and separately recorded failure cleanup supplement the unchanged physical/query
+replay. This remains single-host qualification; SIGKILL/retained restart and
+independent hosts are not enabled by its exact-profile admission.
+The final gate passed in 106.028 seconds with four original reads, four updates,
+six original receiver transitions and 76 negative rejections. All 430 V5.2 Python,
+31 affected V5.1 fault and 21 CI suite tests pass. Serial-control timing failure
+and the historical six-frame completeness failure remain retained; parallel
+preconnected control and explicit selected-quorum M04 coverage were qualified.
+
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,
 36 skipped suite placeholders). See the [acceptance checklist](v5.2/PHASE_0_CHECKLIST.md).

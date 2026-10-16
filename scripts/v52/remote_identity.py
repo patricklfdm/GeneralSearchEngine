@@ -23,6 +23,10 @@ def location(root,binding):
         (Path(root)/(node+'-delivery.json')).exists() for node in topology.NODES):
         from . import remote_delivery_evidence
         remote_delivery_evidence.validate(root,binding)
+    if 'remotePartition' in binding or (Path(root)/'partition-control.json').exists() or any(
+        (Path(root)/(node+'-control/partition')).exists() for node in topology.NODES):
+        from . import remote_partition_evidence
+        remote_partition_evidence.validate(root,binding)
     result=authority.EvidenceLocation(root,binding['remoteReceivers'])
     for node in topology.NODES:
         path=Path(root)/node/'manifest.gsr'

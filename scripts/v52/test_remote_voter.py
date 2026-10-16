@@ -133,7 +133,7 @@ class VoterServiceTest(unittest.TestCase):
         with patch.object(v.host,'observe',return_value={}):
             with self.assertRaisesRegex(ValueError,'local topology'):v.validate_config(value,self.root/'node-1-control')
             value['binding']['measurementProfile']={}
-            with self.assertRaisesRegex(ValueError,'only untimed'):v.validate_config(value,self.root/'node-1-control')
+            with self.assertRaisesRegex(ValueError,'exact M04 profile'):v.validate_config(value,self.root/'node-1-control')
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaisesRegex(ValueError,'whole smoke only'):q.Receivers(Path(directory)/'run','candidate-minimum-r1',{})
 

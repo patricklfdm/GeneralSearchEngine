@@ -49,8 +49,10 @@ def validate_config(value,control,*,fresh_socket=True):
     need(value['node'] in h.topology.NODES,'voter node');c.hex_value(value['session'],32,'voter session')
     root=host.path(value['root'])
     need(control==root/(value['node']+'-control') and host.observe(control)==value['host'],'voter host changed')
-    bound=value['binding'];need(bound['mode'] in h.runtime.model.MODES and bound.get('driverExercise') is True and
-        'measurementProfile' not in bound,'voter service admits only untimed histories')
+    from . import remote_partition_scope as scope
+    bound=value['binding'];need(bound['mode'] in h.runtime.model.MODES,'voter service mode')
+    recovery=scope.history(bound)
+    if recovery:need(bound.get('remotePartition')==scope.EXECUTION,'voter recovery control binding')
     need(bound.get('remoteVoterControl')=='local-persistent-voters-v1','voter control binding')
     need(bound['remoteTopology']['placement']=='local-no-gcp' and h.topology.read(root)==bound['remoteTopology'],'voter local topology')
     need(bound['remoteReceivers'][value['node']]['originalRoot']==str(root),'voter root binding')
@@ -60,7 +62,9 @@ def validate_config(value,control,*,fresh_socket=True):
             if section=='classes' and name.startswith('control-classes/'):continue
             path=root/(prefix+name)
             need(not path.is_symlink() and h.bundle.sha_file(path)==sha,'voter delivered bytes changed')
-    need(not (root/h.options.FILE).exists() and not (root/h.recovery.FILE).exists(),'voter unexpected parameters')
+    need(not (root/h.options.FILE).exists(),'voter unexpected parameters')
+    if recovery:need(c.read(root/h.recovery.FILE)==recovery['faultParameters'],'voter recovery parameters')
+    else:need(not (root/h.recovery.FILE).exists(),'voter unexpected parameters')
     if 'remoteDelivery' in bound or (root/(value['node']+'-delivery.json')).exists():
         from . import remote_delivery_evidence
         remote_delivery_evidence.live(root,bound,value['node'])

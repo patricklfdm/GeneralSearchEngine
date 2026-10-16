@@ -33,7 +33,9 @@ class LostResultClient(v.Client):
 class Receivers(h.Receivers):
     def __init__(self,*args):
         super().__init__(*args,worker_factory=self.start_service)
-        need(self.spec['family']=='UNTIMED','voter qualification whole smoke only')
+        self.admit_spec()
+
+    def admit_spec(self):need(self.spec['family']=='UNTIMED','voter qualification whole smoke only')
 
     def start_service(self,root,node,cp,mode,history,generation):
         need(generation==1,'voter service restart not qualified')

@@ -156,9 +156,7 @@ class Receivers:
             except BaseException as error:errors.append(dict(node=node,type=type(error).__name__,message=str(error)))
         retain('reserved-ports',self.release_ports)
         if self.name==recovery.CASES[1]:
-            # Independently heal all prepared roots even if one cleanup write fails.
-            for node,own in self.roots.items():retain(node,lambda own=own:recovery.partition(own))
-            retain('collected-network-controls',lambda:recovery.partition(self.collected))
+            self.cleanup_partition(retain)
         for node,worker in self.workers.items():
             retain(node,worker.stop);self.record(worker)
         for node,own in self.roots.items():
@@ -167,6 +165,11 @@ class Receivers:
         runtime.save(self.collected/'execution.json',dict(status='STOPPED' if failure is None and not errors else 'FAIL',
             failure=failure,closeErrors=errors,qualifiedMeasurement=False,paidCloud=False))
         if errors and failure is None:raise ValueError('remote receiver cleanup failed: '+json.dumps(errors))
+
+    def cleanup_partition(self,retain):
+        # Independently heal all prepared roots even if one cleanup write fails.
+        for node,own in self.roots.items():retain(node,lambda own=own:recovery.partition(own))
+        retain('collected-network-controls',lambda:recovery.partition(self.collected))
 
     def collect_receiver(self,node,own):
         need(all(p['exitCode'] is not None for p in self.processes if p['node']==node),'remote collecting active process')

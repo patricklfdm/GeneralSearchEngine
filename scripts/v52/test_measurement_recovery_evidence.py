@@ -9,6 +9,20 @@ from .test_measurement_samples import rows as sample_rows
 
 
 class MeasurementRecoveryEvidenceTest(unittest.TestCase):
+    def test_m04_explicitly_requires_selected_quorum_basis_coverage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);world=World(controller.CASES[1]);world.run(root);scenario=e.reads.read(root/'scenario.json')
+            binding=dict(measurementProfile=controller.profile(controller.CASES[1]));(root/'node-1').mkdir();(root/'node-1/manifest.gsr').write_bytes(b'x'*48)
+            stopped=dict(status='STOPPED',qualifiedMeasurement=False,paidCloud=False,failure=None,closeErrors=[])
+            with patch.object(e,'identity',return_value=(binding,[],None)),patch.object(e,'metadata',return_value=stopped),\
+                 patch.object(e.physical.f,'inspect',return_value={}),patch.object(e.budget,'validate'),\
+                 patch.object(e.identities,'evidence_location',return_value=None),\
+                 patch.object(e.physical,'validate',side_effect=ValueError('physical sentinel')) as physical:
+                with self.assertRaisesRegex(ValueError,'physical sentinel'):
+                    e.validate(root,binding,history=world.history,scenario=scenario,traces={})
+                self.assertEqual('selected-quorums',physical.call_args.kwargs['basis_coverage'])
+                self.assertFalse(physical.call_args.kwargs['require_restart'])
+
     def test_authority_budget_runs_before_general_collectors(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);world=World(controller.CASES[1]);world.run(root);scenario=e.reads.read(root/'scenario.json')
