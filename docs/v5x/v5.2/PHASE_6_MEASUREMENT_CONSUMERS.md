@@ -64,6 +64,48 @@ rejections run again after relocation. The short gate additionally caps each
 decoded node trace at 64 MiB/65,536 rows before in-memory negative mutation. It
 does not materialize the larger future measured traces under these smoke rules.
 
+## Bounded public close after measurement
+
+Operator freeze `752968c` passed all preceding local/adapter gates and two M01
+members. The third published V5.1 member completed its 1,980 offered requests,
+then node 1 returned `DEADLINE_EXCEEDED: runtime close pending` during shutdown.
+The original consumer called close explicitly inside try-with-resources: even
+if implicit cleanup subsequently completed, the first exception still failed the
+process and prevented its `CLOSED` observation. The failed history remains at
+`target/v52-local-acceptance/runs/prepare-20261016T045013Z-3560646/cohort/histories/published-v51-legacy-strong-r3`.
+
+The [public V5.1 contract](../v5.1/API_FORMAT_AND_COMPATIBILITY.md) permits retrying
+close while ownership is retained after a timeout. The common external consumer
+now owns that sequence explicitly for both published and candidate engines:
+
+- At most eight public close calls, with a 20-second window for starting retries
+  and 100 ms between them. The existing Python 35-second process exit bound stays
+  in force; the retry window does not abort an in-progress public call.
+- Retry only `AutomaticReplicationException(DEADLINE_EXCEEDED, NOT_APPLICABLE)`
+  with no cause or a direct `TimeoutException`, and never when interrupted.
+  Storage/integrity failures, wrapped execution errors, other outcomes and unknown
+  exceptions propagate immediately. Backoff interruption preserves the interrupt.
+- Retain attempt/failure events and earlier exceptions on exhaustion. Emit
+  `CLOSED` only after public close returns successfully. Implicit cleanup cannot
+  add another attempt after the explicit allowance is exhausted. An original
+  workload exception remains primary if cleanup also fails.
+- Normal close begins after executor/future drain and `CLIENT_IDLE`. There is no
+  business retry, replacement workload or erasure of rejected/uncertain results.
+
+`measurement_close.py` compiles eleven deterministic shutdown cases against both
+public API artifacts. The existing foundation gate runs these checks, including
+attempt/window exhaustion, interruption, original-failure preservation and
+nonretryable nested causes. The machine freeze records the same policy and its
+compiled consumer hashes. Short consumer execution still requires clean process
+exit, released ownership, physical/query replay and exact evidence negatives.
+
+The failed published history contains 660 successful offered reads, 1,028 client
+executor rejections and 112 classified read rejections, plus 167 successful updates
+and 13 not-submitted updates. Its setup read also succeeds. These remain real
+performance outcomes; the close correction does not improve or relabel them.
+No close stack establishes why the host experienced that load, and the failed
+history cannot qualify without the required clean shutdown and independent replay.
+
 ## Local results and retained failures
 
 The complete gate passes at `target/v52-measurement-runtime/run.O9v1LP/evidence`:

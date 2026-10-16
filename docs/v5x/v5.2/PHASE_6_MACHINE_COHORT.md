@@ -16,6 +16,12 @@ keeps that cohort failed and requires a fresh freeze. The new contract binds the
 2,048-transfer measured profile directly from the publication validator, retaining
 the existing snapshot byte limits and all 28 histories/439 negative definitions.
 
+The next freeze `752968c` passes two members and stops at published V5.1 r3's
+post-window public close timeout. The [consumer shutdown correction](PHASE_6_MEASUREMENT_CONSUMERS.md#bounded-public-close-after-measurement)
+uses the already documented repeatable-close contract, retains every measured
+failure, and binds a finite cleanup retry policy in the next freeze. The old
+cohort remains failed; no passing histories are spliced into a new source cohort.
+
 ## Freeze implementation before measurement
 
 `measurement_machine.py` requires a clean committed checkout and the existing

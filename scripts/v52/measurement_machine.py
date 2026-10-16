@@ -19,7 +19,7 @@ from . import measurement_m01 as m01,measurement_m01_evidence as m01_evidence,me
 from . import measurement_minimum as minimum,measurement_minimum_evidence as minimum_evidence
 from . import measurement_recovery as recovery,measurement_recovery_evidence as recovery_evidence
 from . import measurement_trace as trace,measurement_bundle as bundle,measurement_authority_budget as budget,measurement_oracle as oracle,measurement_verified as verified
-from . import measurement_publication as publication
+from . import measurement_publication as publication,measurement_close
 from .evidence import need,digest,encoded
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -63,6 +63,7 @@ def contract():
             preReopenFiles=4096,preReopenBytes=64<<20,preReopenMemberBytes=8<<20,
             queryRequests=oracle.MAX_REQUESTS,queryInputBytes=oracle.MAX_INPUT_BYTES,queryOutputBytes=oracle.MAX_OUTPUT_BYTES,queryRowBytes=oracle.MAX_ROW_BYTES),
         execution=dict(order=list(specs),concurrentHistories=1,businessRetries=0,workloadRetries=0,stopAfterFailedMember=True,
+            consumerClose=measurement_close.POLICY,
             minimumFreeBytes=MINIMUM_FREE_BYTES,paidCloud=False,nominalM01Seconds=2700,totalHistories=28,
             acceptance='complete original and relocated physical/public/query/resource replay plus exact negatives; no speedup or latency SLA',
             timing='controller and each JVM clock remain separate; every offered outcome retained',

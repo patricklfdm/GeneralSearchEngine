@@ -32,6 +32,55 @@ public final class V52MeasurementConsumer {
     }
     private static synchronized void print(Object row){System.out.println(AdmissionJson.canonical(row));System.out.flush();}
     public static void event(String name,Map<String,Object> row){observer.accept(name,row);}
+    /** The public close contract retains ownership on timeout and permits retry.
+     * Runs only after the client executor/futures have drained, or during failure
+     * cleanup. Never reissues a business call or changes an observed outcome.
+     */
+    static final class Close implements AutoCloseable {
+        static final int ATTEMPTS=8;
+        static final long WINDOW_MILLIS=20_000, BACKOFF_MILLIS=100;
+        interface Pause {void sleep(long millis) throws InterruptedException;}
+        private final Runnable action;
+        private final LongSupplier clock;
+        private final Pause pause;
+        private boolean attempted;
+        Close(Runnable action){this(action,System::nanoTime,Thread::sleep);}
+        Close(Runnable action,LongSupplier clock,Pause pause){this.action=action;this.clock=clock;this.pause=pause;}
+        private static AutomaticReplicationException retained(AutomaticReplicationException failure,List<AutomaticReplicationException> earlier) {
+            Set<AutomaticReplicationException> seen=Collections.newSetFromMap(new IdentityHashMap<>());seen.add(failure);
+            for(var previous:earlier)if(seen.add(previous))failure.addSuppressed(previous);
+            return failure;
+        }
+        public void close() throws InterruptedException {
+            // try-with-resources must not silently make a ninth attempt after
+            // explicit close exhausted its allowance (or suppress its own error).
+            if(attempted)return;attempted=true;
+            long start=clock.getAsLong();var failures=new ArrayList<AutomaticReplicationException>();
+            for(int attempt=1;attempt<=ATTEMPTS;attempt++) {
+                event("CLIENT_CLOSE_ATTEMPT",Map.of("attempt",attempt));
+                try {action.run();}
+                catch(AutomaticReplicationException failure) {
+                    long elapsed=clock.getAsLong()-start;
+                    boolean retryable=failure.reason()==AutomaticReplicationException.Reason.DEADLINE_EXCEEDED &&
+                            failure.outcome()==AutomaticReplicationException.Outcome.NOT_APPLICABLE &&
+                            (failure.getCause()==null || failure.getCause() instanceof TimeoutException) &&
+                            !Thread.currentThread().isInterrupted();
+                    event("CLIENT_CLOSE_FAILURE",Map.of("attempt",attempt,"elapsedNanos",elapsed,
+                            "reasonCode",failure.reason().name(),"outcome",failure.outcome().name(),
+                            "reason",failure.toString(),"retryable",retryable));
+                    if(!retryable || attempt==ATTEMPTS || elapsed>=TimeUnit.MILLISECONDS.toNanos(WINDOW_MILLIS))throw retained(failure,failures);
+                    failures.add(failure);
+                    try {pause.sleep(BACKOFF_MILLIS);}
+                    catch(InterruptedException interrupted){Thread.currentThread().interrupt();interrupted.addSuppressed(failure);throw interrupted;}
+                    // The window limits starting another close, not the duration
+                    // of an already running public call. Python still bounds exit.
+                    if(clock.getAsLong()-start>=TimeUnit.MILLISECONDS.toNanos(WINDOW_MILLIS))throw retained(failure,failures);
+                    continue;
+                }
+                event("CLOSED",Map.of("closeAttempts",attempt,"closeElapsedNanos",clock.getAsLong()-start));return;
+            }
+        }
+    }
     private static Map<String,Object> status(AutomaticReplicatedSearchEngine<Integer,Doc> engine) {
         var s=engine.leadershipStatus();return Map.of("state",s.state().name(),"epoch",s.promisedEpoch(),"provenIndex",s.provenIndex(),
                 "publishedIndex",s.appliedIndex(),"sequence",s.applicationSequence());
@@ -70,7 +119,9 @@ public final class V52MeasurementConsumer {
         if(!parameters.family().equals("M01")&&!mode.equals("candidate-minimum"))throw new IllegalArgumentException("measurement parameter/mode mismatch");
         var executor=new ThreadPoolExecutor(8,8,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(64),new ThreadPoolExecutor.AbortPolicy());
         var pending=new ArrayList<CompletableFuture<?>>();var ids=new HashSet<String>();
-        try(var engine=AutomaticReplicatedSearchEngines.builder(measurementBuilder(),configs(root).get(ordinal-1)).build()) {
+        try {
+        var engine=AutomaticReplicatedSearchEngines.builder(measurementBuilder(),configs(root).get(ordinal-1)).build();
+        try(var closing=new Close(engine::close)) {
             Reads reads=mode.endsWith("legacy-strong")?request->CompletableFuture.completedFuture(Map.of("answer",answer(core(engine),(Map<String,Object>)request.get("query")))):
                     (Reads)Class.forName("io.github.patricklfdm.generalsearch.admission.V52MeasuredExplicitReads").getConstructor(AutomaticReplicatedSearchEngine.class,String.class,int.class).newInstance(engine,mode,parameters.waitTimeoutMillis());
             engine.start().get(15,TimeUnit.SECONDS);
@@ -122,7 +173,8 @@ public final class V52MeasurementConsumer {
             CompletableFuture.allOf(pending.toArray(CompletableFuture<?>[]::new)).get(30,TimeUnit.SECONDS);
             }
             event("CLIENT_IDLE",Map.of("queues",diagnostics.apply(engine),"retainedBytes",engine.durabilityMetrics().retainedBytes()));
-            engine.close();event("CLOSED",Map.of());
+            closing.close();
+        }
         } finally {executor.shutdownNow();}
     }
 }

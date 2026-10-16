@@ -8,7 +8,7 @@ import subprocess
 from scripts import ci_v51_bundle as build
 from scripts.build_coordinates import current
 from scripts.v51 import public_qualification_harness as q
-from . import controls,measurement_model as model,measurement_oracle as oracle
+from . import controls,measurement_model as model,measurement_oracle as oracle,measurement_close
 from .evidence import need,digest,encoded
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -71,6 +71,7 @@ def run(output):
                      'tail updates changed earlier query answers: '+label)
             results[name]=value
         need(results['published-v44']==results['candidate-core'],'candidate queries differ from actual published core')
+        receipt['consumerClose']=measurement_close.run(root/'consumer-close')
         receipt.update(status='PASS',states=5,queriesPerCore=5*len(model.queries()),updatesPerCore=180,persistentOracleQueriesPerCore=690,selectedOracleQueriesPerCore=828,
                        terminalUpdateCasesPerCore=2)
     except BaseException as error:receipt['failure']=dict(type=type(error).__name__,message=str(error));raise
