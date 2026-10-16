@@ -626,9 +626,12 @@ real exchanges; they neither manufacture successful reads nor mutate runtime sta
   the old node enters CANDIDATE. Both already queued local policies and new calls
   then reject NOT_READY. The other two voters activate and write successfully;
   the original callback still returns its captured prefix.
-- For each local policy, hold a follower callback while the intact selected pair
-  publishes a later write and establishes its recovery floor. Heal the excluded
-  follower and observe an actual REJOIN_INSTALLED plus RECOVERING state. Queued
+- For each local policy, defer new snapshot offers to the follower outside the
+  selected pair, before receiver allocation; already admitted transfers may finish.
+  The intact pair publishes a later write and establishes its recovery floor before
+  the follower captures and holds its older cut. Observe a real deferred offer,
+  queue both local read policies, release offers and require an actual
+  REJOIN_INSTALLED plus RECOVERING state. Queued
   and new local calls reject NOT_READY. The existing captured callback survives;
   after release and actual publication, a new minimum returns the newer document.
 - For both local policies, send a real higher PREPARE before capture and after
@@ -656,6 +659,33 @@ then checks UNAVAILABLE and the subsequent campaign. No runtime change was neede
 
 Logs, JUnit reports and hashes are retained at `target/v52-read-authority/`.
 The complete targeted negative matrix and final source qualification remain open.
+
+### Local preparation regression: snapshot scheduling
+
+The operator preparation `prepare-20261016T070835Z-3866457` failed one of 444
+replication tests: the stale-policy snapshot case did not observe installation
+plus RECOVERING within 30 seconds. The other parameter passed. A diagnostic-only
+rerun passed both parameters; the original report has no transport trace, so it
+does not establish which exchange was delayed or a production recovery defect.
+
+Inspection identified two fixture hazards. Whole-peer isolation could interrupt
+an already allocated snapshot, leaving its legitimate 60-second transfer lease
+active while the test expected a different transfer within 30 seconds. Also, the
+captured callback's 25-second hold included source preparation and was shorter
+than the subsequent observation alone. The fixture now gates only outbound new
+SNAPSHOT_OFFER messages, drains admitted chunks/install and leaves source exchange
+and heartbeats intact. Source preparation precedes capture; that callback has a
+60-second bounded hold covering the unchanged 30-second install observation and
+rejection checks, with unconditional release in finally. Runtime timing and read
+semantics are unchanged, and no business call is retried.
+
+A deterministic gate regression covers arming after an offer was sent: the old
+offer, its chunks/install, source traffic and the healthy peer must remain usable,
+while a new offer to the chosen follower fails until release. Both real-TCP policy
+cases still require the original queued/new-read rejections, captured old value
+and post-install new value. All three focused tests pass; original reports and
+new logs are retained at `target/v52-snapshot-authority-review/`. A fresh complete
+operator preparation and acceptance remain required.
 
 ## 4D10: complete targeted physical-negative families
 

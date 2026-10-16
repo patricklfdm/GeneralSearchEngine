@@ -40,8 +40,41 @@ class V52PublicReadAuthorityTest {
         assertTrue(condition.getAsBoolean(),message);
     }
     static void hold(CountDownLatch release) throws IOException {
-        try {if(!release.await(25,TimeUnit.SECONDS))throw new IOException("qualification barrier not released");}
+        hold(release,25);
+    }
+    static void hold(CountDownLatch release,long seconds) throws IOException {
+        try {if(!release.await(seconds,TimeUnit.SECONDS))throw new IOException("qualification barrier not released");}
         catch(InterruptedException e){Thread.currentThread().interrupt();throw new IOException(e);}
+    }
+    // This read-state scenario delays a new transfer before the receiver allocates
+    // it. Dropping chunks/install of an existing transfer would instead exercise
+    // its 60-second lease, outside the queued-read observation being qualified.
+    static final class SnapshotOfferGate implements Network {
+        final AtomicReference<String> peer=new AtomicReference<>();
+        final AtomicInteger rejectedOffers=new AtomicInteger();
+        @Override public void at(String node,String barrier,Map<String,Object> request,Map<String,Object> response) throws IOException {
+            if(barrier.equals("BEFORE_REQUEST_WRITE")&&request.get("recipient").equals(peer.get())&&request.get("type").equals("SNAPSHOT_OFFER")) {
+                rejectedOffers.incrementAndGet();throw new IOException("defer new snapshot before receiver allocation");
+            }
+        }
+    }
+
+    @Test void snapshotOfferGateDrainsAnAdmittedTransferWithoutInterruptingIt() throws Exception {
+        var gate=new SnapshotOfferGate();
+        var offer=Map.<String,Object>of("type","SNAPSHOT_OFFER","sender","node-1","recipient","node-3");
+        gate.at("node-1","BEFORE_REQUEST_WRITE",offer,Map.of()); // already on the wire when the gate is armed
+        gate.peer.set("node-3");
+        gate.at("node-3","AFTER_REQUEST_READ",offer,Map.of());
+        assertThrows(IOException.class,()->gate.at("node-1","BEFORE_REQUEST_WRITE",offer,Map.of()));
+        for(String type:List.of("SNAPSHOT_CHUNK","REJOIN_INSTALL","SOURCE_OFFER","SOURCE_CHUNK","HEARTBEAT"))
+            for(String barrier:List.of("BEFORE_REQUEST_WRITE","AFTER_REQUEST_READ","BEFORE_RESPONSE_WRITE","AFTER_RESPONSE_READ")) {
+                var request=Map.<String,Object>of("type",type,"sender","node-1","recipient","node-3");
+                gate.at("node-1",barrier,request,Map.of());
+            }
+        gate.at("node-1","BEFORE_REQUEST_WRITE",Map.of("type","SNAPSHOT_OFFER","sender","node-1","recipient","node-2"),Map.of());
+        gate.at("node-3","BEFORE_REQUEST_WRITE",Map.of("type","SNAPSHOT_OFFER","sender","node-3","recipient","node-1"),Map.of());
+        gate.peer.set(null);gate.at("node-1","BEFORE_REQUEST_WRITE",offer,Map.of());
+        assertEquals(1,gate.rejectedOffers.get());
     }
     final class Group implements AutoCloseable {
         final List<AutomaticReplicationGroupConfig<Integer,Doc>> configs;
@@ -237,7 +270,7 @@ class V52PublicReadAuthorityTest {
 
     @ParameterizedTest @ValueSource(booleans={false,true})
     void verifiedSnapshotRecoveryRejectsQueuedReadsButPreservesAnAlreadyCapturedCut(boolean minimumPolicy) throws Exception {
-        var isolated=new AtomicReference<String>();var entered=new CountDownLatch(1);var release=new CountDownLatch(1);
+        var gate=new SnapshotOfferGate();var entered=new CountDownLatch(1);var release=new CountDownLatch(1);
         var pairs=new ConcurrentHashMap<String,Set<String>>();var installed=new ConcurrentHashMap<String,Long>();
         try(var group=new Group()) {
             group.events=(node,event,value)->{
@@ -251,38 +284,45 @@ class V52PublicReadAuthorityTest {
                     installed.put(node,(long)list(snapshot.value().get("anchors")).size());
                 }
             };
-            group.network=(node,barrier,request,response)->{
-                String excluded=isolated.get();
-                if(excluded!=null&&(barrier.equals("BEFORE_REQUEST_WRITE")||barrier.equals("AFTER_REQUEST_READ"))&&
-                        (excluded.equals(request.get("sender"))||excluded.equals(request.get("recipient"))))throw new IOException("qualification partition");
-            };
+            group.network=gate;
             group.start(3);var leader=group.leader("");var token=group.baseline(leader);
             String peer=group.configs.stream().map(c->c.localNodeId().value()).filter(n->!pairs.get(group.name(leader)).contains(n)).findFirst().orElseThrow();
-            var follower=group.node(peer);
+            var follower=group.node(peer);gate.peer.set(peer);
+            // Complete source preparation before pinning the old application cut.
+            // Old transfers may drain, but the new cut cannot start installation.
+            leader.add(new Doc(2,"new snapshot publication")).get(10,TimeUnit.SECONDS);
+            var later=leader.read(STALE,v->v.get(2)).get(5,TimeUnit.SECONDS).progress();
+            until(()->group.floors.getOrDefault(group.name(leader),-1L)>=later.index(),"new snapshot source unavailable");
+            until(()->gate.rejectedOffers.get()>0,"new snapshot offer was not actually deferred");
             var captured=follower.read(minimumPolicy?minimum(token,0):STALE,v->{
-                var before=v.get(1);entered.countDown();try {hold(release);}catch(IOException e){throw new java.io.UncheckedIOException(e);}
+                var before=v.get(1);assertNull(v.get(2));entered.countDown();
+                // Cover the 30-second install observation plus rejection checks.
+                // The test always releases in finally; runtime deadlines are unchanged.
+                try {hold(release,60);}catch(IOException e){throw new java.io.UncheckedIOException(e);}
                 assertEquals(before,v.get(1));assertNull(v.get(2));return before;
             });
-            ReplicaReadToken later;
             try {
-                await(entered);isolated.set(peer);
+                await(entered);
                 var queued=follower.read(STALE,v->fail("queued read captured during snapshot recovery"));
                 var queuedMinimum=follower.read(minimum(token,0),v->fail("queued minimum captured during snapshot recovery"));
-                leader.add(new Doc(2,"new snapshot publication")).get(10,TimeUnit.SECONDS);
-                later=leader.read(STALE,v->v.get(2)).get(5,TimeUnit.SECONDS).progress();
-                until(()->group.floors.getOrDefault(group.name(leader),-1L)>=later.index(),"new snapshot source unavailable");
-                isolated.set(null);
-                until(()->installed.getOrDefault(peer,-1L)>=later.index()&&follower.leadershipStatus().state()==RECOVERING,"verified install did not enter recovering state");
+                assertFalse(queued.isDone());assertFalse(queuedMinimum.isDone());
+                gate.peer.set(null);
+                try {
+                    until(()->installed.getOrDefault(peer,-1L)>=later.index()&&follower.leadershipStatus().state()==RECOVERING,"verified install did not enter recovering state");
+                } catch(AssertionError error) {
+                    throw new AssertionError("peer="+peer+" installed="+installed+" captured="+captured+" queued="+queued+
+                            " queuedMinimum="+queuedMinimum+" "+group.retirementDiagnostic(later),error);
+                }
                 rejected(NOT_READY,NOT_APPLICABLE,queued::join);rejected(NOT_READY,NOT_APPLICABLE,queuedMinimum::join);
                 for(var options:List.of(STALE,minimum(token,0)))
                     rejected(NOT_READY,NOT_APPLICABLE,()->follower.read(options,v->fail("new capture during recovery")).join());
                 assertFalse(captured.isDone());
-            } finally {isolated.set(null);release.countDown();}
+            } finally {gate.peer.set(null);release.countDown();}
             var result=captured.get(5,TimeUnit.SECONDS);assertEquals(token,result.progress());assertEquals(1,result.applicationSequence());
             until(()->follower.leadershipStatus().state()==FOLLOWER&&follower.leadershipStatus().appliedIndex()>=later.index(),"snapshot did not publish after release");
             var recovered=follower.read(minimum(later,0),v->v.get(2)).get(5,TimeUnit.SECONDS);
             assertEquals(new Doc(2,"new snapshot publication"),recovered.value());assertEquals(2,recovered.applicationSequence());
-        } finally {isolated.set(null);release.countDown();}
+        } finally {gate.peer.set(null);release.countDown();}
     }
 
     @ParameterizedTest @CsvSource({"false,false","false,true","true,false","true,true"})
