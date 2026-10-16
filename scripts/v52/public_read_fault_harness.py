@@ -22,6 +22,25 @@ def published(worker,index):
     faults.wait_for(ready,'public follower publication unavailable',40)
 
 
+def isolate_observed(root,node,nodes,manifest):
+    """Keep the partition installed until new real traffic meets its rule."""
+    def identity(row):return {k:row[k] for k in ('pid','generation','order')}
+    after={n:identity(public_trace.live_rows(root,n)[-1]) for n in nodes}
+    faults.partition(root,node)
+    isolation=dict(after=after,installedNanos=time.monotonic_ns())
+    def observed():
+        for owner in nodes:
+            for row in public_trace.live_rows(root,owner):
+                mark=after[owner]
+                if (row['pid'],row['generation'])!=(mark['pid'],mark['generation']) or row['order']<=mark['order']:continue
+                if public_read_fault_evidence.partition_drop(row,node,manifest):
+                    return dict(node=owner,**identity(row))
+        return None
+    isolation['witness']=faults.wait_for(observed,'partition not observed on real transport within 40s',40)
+    isolation['observedNanos']=time.monotonic_ns()
+    return isolation
+
+
 def baseline(root,cp,workers,history,*,keys=(20,30,40)):
     workers['node-1']=q.Worker(root,'node-1',cp,history,consumer='replica-read')
     workers['node-1'].call('read',policy='STALE_ALLOWED')
@@ -68,18 +87,20 @@ def scenario(root,name):
             # Keep the actual selected quorum intact. Isolating its peer would test
             # failover/indeterminate mutation instead of a healthy-majority stale read.
             selected=next(r['selected'] for r in reversed(public_trace.live_rows(root,leader)) if r['event']=='PROMISE_QUORUM')
-            decision=evidence.physical.frame(selected,'SELECTED',evidence.context(root,{n:public_trace.live_rows(root,n) for n in workers})[0])
+            manifest=evidence.context(root,{n:public_trace.live_rows(root,n) for n in workers})[0]
+            decision=evidence.physical.frame(selected,'SELECTED',manifest)
             node=next(n for n in workers if n not in {b['node'] for b in decision['bases']})
             fault['selectedBeforeIsolation']=selected
             worker=workers[node];before=worker.call('read',policy='STALE_ALLOWED')
-            faults.partition(root,node)
+            fault['isolation']=isolate_observed(root,node,workers,manifest)
             active.call('addAll',documents=[dict(id=80,value='majority later search'),dict(id=81,value='majority later java')])
             later=active.call('read',policy='LEADER_STRONG')
             stale=worker.call('read',policy='STALE_ALLOWED')
             denied=worker.send('read',policy='AT_LEAST_INDEX',minimum=later['token'],waitTimeoutMillis=0).result(timeout=10)
             need(denied and denied.get('reasonCode')=='PROGRESS_NOT_REACHED','isolated future bound did not reject')
             fault.update(node=node,beforeOp=before['opId'],laterOp=later['opId'],staleOp=stale['opId'],deniedOp=denied['opId'])
-            faults.partition(root);published(worker,token.decode(evidence.physical.raw(later['token']))['index'])
+            faults.partition(root);fault['isolation']['healedNanos']=time.monotonic_ns()
+            published(worker,token.decode(evidence.physical.raw(later['token']))['index'])
             caught=worker.call('read',policy='AT_LEAST_INDEX',minimum=later['token'],waitTimeoutMillis=5000);fault['caughtOp']=caught['opId']
         else:
             node=next(n for n in workers if n not in (leader,'node-3'));worker=workers[node];cut='BEFORE_LOCAL_PUBLISH'

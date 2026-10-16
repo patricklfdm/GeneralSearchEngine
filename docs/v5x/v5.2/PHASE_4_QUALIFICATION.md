@@ -72,7 +72,8 @@ six independent histories, using only public bootstrap/start/mutation/read calls
 2. SIGKILL at the same capture boundary.
 3. Halt after actual view release but before client response.
 4. SIGKILL after that release.
-5. Isolate the follower outside the actual selected pair, commit a later bulk on
+5. Isolate the follower outside the actual selected pair, wait for a new real
+   transport drop involving that follower, then commit a later bulk on
    that intact majority, prove the isolated stale cut remains old, reject a zero
    wait for the later token, then heal and issue a new minimum read.
 6. Pause a real follower publication. A behind minimum cannot expose its future
@@ -127,6 +128,18 @@ fault writer; no truncation or silently repaired authority is permitted.
   now observes the selected pair and isolates its other follower; it does not retry
   that failed write. `run.67eNO1` preserves the failure; targeted `run.I5CgY6` passes
   the corrected isolation and all thirteen negatives.
+- The operator run `run-20261016T064233Z-3809473` failed before formal measurement:
+  all isolated read outcomes were correct, but the fast majority/local-read path
+  finished without any transport exchange hitting the partition rule. Evidence
+  remains at `target/v52-public-faults/run.unFPjR/evidence`; no NETWORK_DROP exists
+  on any voter. Installing a rule alone is not proof that a partition was exercised.
+  The schedule now waits, within the existing 40-second fixture wait bound, for a
+  new matching drop before making the majority write and isolated read assertions.
+  It retains per-process trace positions, the exact drop identity, and controller
+  installation/observation/heal times. Replay checks the decoded sender/recipient,
+  actual transport barrier, process generation, trace order and public-call order.
+  Old, unrelated or missing drops cannot qualify. This is a fixture synchronization
+  correction; it neither retries business calls nor changes runtime timing limits.
 
 ### Final 4B local verification
 

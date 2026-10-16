@@ -5,6 +5,28 @@ from .evidence import need
 from scripts.v51 import performance_bundle as bundle
 
 
+def partition_drop(row,node,manifest):
+    if row['event']!='NETWORK_DROP' or row.get('barrier') not in ('BEFORE_REQUEST_WRITE','AFTER_RESPONSE_READ'):return False
+    request=e.physical.f.wire(e.physical.raw(row['request']),manifest)
+    return request['sender']==row['node'] and request['sender']!=request['recipient'] and node in (request['sender'],request['recipient'])
+
+
+def check_partition_witness(traces,node,manifest,isolation):
+    need(isinstance(isolation,dict),'partition not observed: missing isolation schedule')
+    times=[isolation.get(k) for k in ('installedNanos','observedNanos','healedNanos')]
+    need(all(type(t) is int and t>0 for t in times) and times==sorted(times),'partition observation/heal order')
+    after=isolation.get('after',{});witness=isolation.get('witness',{})
+    need(set(after)==set(traces) and witness.get('node') in traces,'partition not observed: trace binding')
+    def same(row,mark):return all(row.get(k)==mark.get(k) for k in ('pid','generation','order'))
+    for owner,mark in after.items():
+        need(any(same(r,mark) for r in traces[owner]),'partition not observed: missing pre-isolation trace')
+    owner=witness['node'];mark=after[owner]
+    rows=[r for r in traces[owner] if same(r,witness)]
+    need(len(rows)==1 and (witness['pid'],witness['generation'])==(mark['pid'],mark['generation']) and
+         witness['order']>mark['order'] and partition_drop(rows[0],node,manifest),
+         'partition not observed on real transport after isolation')
+
+
 def schedule(root,name,traces,history,processes,*,fault=None):
     fault=e.read(root/'fault.json') if fault is None else fault;need(fault['scenario']==name,'read fault scenario binding')
     by_id={a['opId']:a for a in history};node=fault['node'];own=traces[node]
@@ -62,7 +84,10 @@ def schedule(root,name,traces,history,processes,*,fault=None):
         need(before['documents']==stale['documents'] and before['token']==stale['token'],'isolated stale cut changed')
         need(token.decode(e.physical.raw(stale['token']))['index']<token.decode(e.physical.raw(later['token']))['index'],'isolated cut was not behind')
         need(caught['documents']==later['documents'] and call('caughtOp')['minimum']==later['token'],'healed carried read differs')
-        need(any(r['event']=='NETWORK_DROP' for rows in traces.values() for r in rows),'partition not observed on real transport')
+        isolation=fault.get('isolation');check_partition_witness(traces,node,e.context(root,traces)[0],isolation)
+        need(call('beforeOp')['endNanos']<=isolation['installedNanos']<=isolation['observedNanos']<=call('laterOp')['startNanos'] and
+             call('deniedOp')['endNanos']<=isolation['healedNanos']<=call('caughtOp')['startNanos'],
+             'partition observation outside isolated public calls')
         rejected('deniedOp','PROGRESS_NOT_REACHED')
         need(call('deniedOp')['minimum']==later['token'] and call('deniedOp')['waitTimeoutMillis']==0,'isolation lower bound changed')
         need(all(a['outcome']=='SUCCESS' or a['opId']==fault['deniedOp'] for a in history),'undeclared unsuccessful isolation call')
