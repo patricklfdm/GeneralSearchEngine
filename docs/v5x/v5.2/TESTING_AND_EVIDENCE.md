@@ -216,3 +216,10 @@ local voter services, loses one original update response and queries it over a n
 stream without resubmission. Original/relocated physical/query and message-edge
 checks remain mandatory. It does not replace the complete measured cohort or
 qualify SSH routing across three hosts.
+
+## Persistent SSH voter transport
+
+The optional [Phase 6AF gate](PHASE_6_SSH_VOTERS.md) qualifies three pinned SSH
+streams, a lost update response and observation-only reconnect against the same
+original history. Both portable replays require route and sequence evidence.
+Service launch and file delivery remain local; this does not admit cloud hosts.

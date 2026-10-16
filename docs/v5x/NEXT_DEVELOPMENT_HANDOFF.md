@@ -45,7 +45,13 @@ three local JVM owners from the controller and add bounded persistent streams,
 original-result reattachment and process-local clock/message evidence. Three services
 and three JVMs passed one 11-read/3-update smoke, 548 message edges and 48 original/
 relocated physical/query negatives; 344 V5.2 Python tests and 21 CI tests passed.
-This remains an untimed local lifecycle backend; per-host SSH routing is still open.
+This remains an untimed local lifecycle backend.
+[Per-voter SSH streams](v5.2/PHASE_6_SSH_VOTERS.md) now connect the original
+controller to each existing service with pinned persistent channels and exact
+resume cursors. Its real loopback gate passed eleven reads, three updates and
+48 original/relocated negatives with all service/JVM/SSH processes stopped.
+Preparation, process launch and collection remain local; remote lifecycle and
+independent-host qualification remain open.
 Cross-host transport/identity, complete owned members, protected full CI and fresh
 cloud admission remain open. The milestones below
 retain their original validation scope and source; earlier pending statements

@@ -85,6 +85,9 @@ def validate(root,binding):
         own=[call for call in history if call['node']==node]
         need(all(call['pid']==identity['jvm']['pid'] for call in own),'voter controller process binding')
         results[node]=edges(events,own,node)
+        if 'remoteVoterTransport' in binding or (control/'ssh-streams.json').exists():
+            from . import remote_voter_ssh_evidence
+            remote_voter_ssh_evidence.validate(control,binding,config,sha,events)
     need(not services & jvms and all(v[1]!=controller['process']['pid'] for v in services|jvms),'voter independent process owners')
     need(sum(v['operations'] for v in results.values())==len(history),'voter foreign controller call')
     return dict(status='PASS',execution='local-persistent-voter-message-edges-only',nodes=results,

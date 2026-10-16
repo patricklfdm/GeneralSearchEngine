@@ -43,7 +43,7 @@ def process(pid):
     return dict(bootId=c.boot_id(),pid=pid,startTicks=int(fields[19]))
 
 
-def validate_config(value,control):
+def validate_config(value,control,*,fresh_socket=True):
     need(type(value) is dict and set(value)=={'schema','execution','node','root','host','binding','socket','session'},'voter config fields')
     need(value['schema']==SCHEMA and value['execution']=='local-persistent-voters-only','voter scope')
     need(value['node'] in h.topology.NODES,'voter node');c.hex_value(value['session'],32,'voter session')
@@ -62,7 +62,8 @@ def validate_config(value,control):
             need(not path.is_symlink() and h.bundle.sha_file(path)==sha,'voter delivered bytes changed')
     need(not (root/h.options.FILE).exists() and not (root/h.recovery.FILE).exists(),'voter unexpected parameters')
     endpoint=host.path(value['socket']);host.observe(endpoint.parent)
-    need(len(os.fsencode(endpoint))<100 and not endpoint.exists(),'voter socket path')
+    need(type(fresh_socket) is bool and len(os.fsencode(endpoint))<100 and
+         (not fresh_socket or not endpoint.exists()),'voter socket path')
     return root
 
 
@@ -224,11 +225,17 @@ class Client:
             self.connect()
         except BaseException:self.abort();raise
 
+    def open_channel(self):
+        channel=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM);channel.settimeout(10)
+        try:
+            channel.connect(self.config['socket']);return channel
+        except BaseException:channel.close();raise
+
     def connect(self):
         need(self.channel is None,'voter channel already connected')
-        channel=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM);channel.settimeout(10);stream=None
+        channel=self.open_channel();stream=None
         try:
-            channel.connect(self.config['socket']);stream=channel.makefile('rb')
+            stream=channel.makefile('rb')
             send(channel,dict(configSha256=self.sha,after=self.cursor));identity=receive(stream)
             expected=c.read(self.control/'identity.json')
             need(identity==dict(kind='IDENTITY',configSha256=self.sha,identity=expected),'voter channel identity')
