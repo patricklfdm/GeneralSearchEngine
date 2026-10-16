@@ -15,6 +15,10 @@ def location(root,binding):
     need(topology.read(root)==value,'remote retained topology changed')
     need(metadata(Path(root),'execution.json',1<<20,label='remote measurement')==dict(status='STOPPED',failure=None,closeErrors=[],qualifiedMeasurement=False,paidCloud=False),
          'remote receiver execution incomplete')
+    if ('remoteVoterControl' in binding or (Path(root)/'controller-domain.json').exists() or
+        any((Path(root)/(node+'-control')).exists() for node in topology.NODES)):
+        from . import remote_voter_evidence
+        remote_voter_evidence.validate(root,binding)
     result=authority.EvidenceLocation(root,binding['remoteReceivers'])
     for node in topology.NODES:
         path=Path(root)/node/'manifest.gsr'

@@ -40,6 +40,12 @@ entry, durable detached launch ownership and boot/user/directory identity checks
 Its real loopback SSH qualification passed nine control cases and one original
 11-read/3-update history with 48 physical evidence negatives. All 322 V5.2 Python
 tests and 21 CI suite tests passed. This is separate from three-host cloud acceptance.
+[Persistent per-voter services](v5.2/PHASE_6_PERSISTENT_VOTERS.md) now separate
+three local JVM owners from the controller and add bounded persistent streams,
+original-result reattachment and process-local clock/message evidence. Three services
+and three JVMs passed one 11-read/3-update smoke, 548 message edges and 48 original/
+relocated physical/query negatives; 344 V5.2 Python tests and 21 CI tests passed.
+This remains an untimed local lifecycle backend; per-host SSH routing is still open.
 Cross-host transport/identity, complete owned members, protected full CI and fresh
 cloud admission remain open. The milestones below
 retain their original validation scope and source; earlier pending statements

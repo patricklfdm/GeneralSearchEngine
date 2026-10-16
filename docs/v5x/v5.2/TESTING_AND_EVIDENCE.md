@@ -208,3 +208,11 @@ Add the V5.2 consumer in its own qualification phase; do not rewrite historic
 fixtures or hashes. Small receipts remain local and raw evidence follows the existing
 archive policy, with checksummed links to its retained location. CI evidence retention
 must support review of failed attempts as well as the final accepted source.
+
+## Persistent voter lifecycle qualification
+
+The optional [Phase 6AE gate](PHASE_6_PERSISTENT_VOTERS.md) executes three independent
+local voter services, loses one original update response and queries it over a new
+stream without resubmission. Original/relocated physical/query and message-edge
+checks remain mandatory. It does not replace the complete measured cohort or
+qualify SSH routing across three hosts.

@@ -39,12 +39,13 @@ def original_counts(result,spec):
 
 class Receivers:
     """One owner for preparation, every process generation and stopped collection."""
-    def __init__(self,root,name,expected):
+    def __init__(self,root,name,expected,*,worker_factory=None):
         self.root=Path(root).resolve();self.name=name;self.spec=specification(name);self.expected=expected
         self.root.mkdir(parents=True,exist_ok=False)
         self.producer=self.root/'producer';self.collected=self.root/'evidence';self.collected.mkdir()
         self.roots={};self.classpath={};self.workers={};self.history=[];self.processes=[];self.sockets=[]
         self.binding=None;self.generations={};self.prepared=False;self.finished=False
+        self.worker_factory=worker_factory
 
     def prepare(self):
         spec=self.spec;family=spec['family'];mode=spec['mode']
@@ -98,7 +99,7 @@ class Receivers:
         need(type(generation) is int and (generation==1 and node not in self.generations or
              generation==2 and self.name==recovery.CASES[0] and self.generations.get(node)==1 and
              any(p['node']==node and p['exitCode']==-9 for p in self.processes)), 'remote undeclared voter generation')
-        own=self.roots[node];worker=Worker(own,node,self.classpath[node],self.spec['mode'],self.history,generation)
+        own=self.roots[node];worker=(self.worker_factory or Worker)(own,node,self.classpath[node],self.spec['mode'],self.history,generation)
         self.workers[node]=worker;self.generations[node]=generation
         for component in ('core','replication'):
             path=Path(worker.identity[component+'Source'])
@@ -182,8 +183,8 @@ def source():
     return runtime.build.binding(ROOT,runtime.subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip())
 
 
-def run(root,name,expected,*,progress=lambda stage:None):
-    owner=Receivers(root,name,expected);failure=None
+def run(root,name,expected,*,progress=lambda stage:None,receiver_factory=None):
+    owner=(receiver_factory or Receivers)(root,name,expected);failure=None
     try:
         progress('preparation');owner.prepare()
         need(source()==expected,'remote source changed before execution')
