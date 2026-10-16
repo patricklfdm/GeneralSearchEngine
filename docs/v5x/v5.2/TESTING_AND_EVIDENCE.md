@@ -286,3 +286,12 @@ See [Phase 6AM](PHASE_6_REMOTE_PYTHON_RUNTIME.md) for the source-bound capsule,
 isolated children, full smoke receipt and retained failures. Run
 `scripts/verify-v52-phase6-remote-python.sh --skip-build` after the reactor artifacts
 are available. This is local loopback qualification, not three-host acceptance.
+
+## Complete histories over installed helpers
+
+[Phase 6AN](PHASE_6_INSTALLED_HISTORIES.md) connects the same source-pinned capsule
+to the existing formal and M04 controllers. Run
+`scripts/verify-v52-phase6-installed-histories.sh --skip-build` for the four complete
+representative histories. An explicitly selected subset retains its exact names;
+it cannot stand in for the default matrix, all 33 histories or three-host cloud
+acceptance. Failed matrices are never resumed by splicing successful fragments.

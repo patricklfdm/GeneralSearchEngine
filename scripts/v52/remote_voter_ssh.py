@@ -1,5 +1,6 @@
 """Pinned persistent per-voter SSH streams. Local launch and delivery only."""
 import os
+from copy import deepcopy
 from pathlib import Path
 import select
 import shlex
@@ -100,7 +101,9 @@ class Endpoint(ssh.Endpoint):
     protocol=relay
     python_entry='relay'
     def __init__(self,target,checkout,*,python_context=None):
-        super().__init__(target,checkout);self.python_context=python_context
+        super().__init__(target,checkout)
+        from . import remote_python_context as context
+        self.python_context=None if python_context is None else deepcopy(context.selection(python_context))
     def launch(self,args):
         if self.python_context is None:return ['python3','-I','-c',self.protocol.LAUNCH,str(self.checkout),*map(str,args)]
         from . import remote_python_context as context

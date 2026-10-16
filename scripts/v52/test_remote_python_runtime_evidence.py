@@ -68,6 +68,10 @@ class PythonRuntimeEvidenceTest(unittest.TestCase):
         self.binding['remotePython']['descriptorSha256']='c'*64
         with self.assertRaisesRegex(ValueError,'source changed'):evidence.validate(self.root,self.binding)
 
+    def test_arbitrary_restart_marker_does_not_authorize_extra_generations(self):
+        self.binding['remoteRestart']='not-an-admitted-restart'
+        with self.assertRaisesRegex(ValueError,'restart scope'):evidence.validate(self.root,self.binding)
+
     def test_second_generation_is_only_accepted_when_the_history_declares_restart(self):
         self.write('node-1-control-g2/python-runtime.json',{})
         with self.assertRaisesRegex(ValueError,'control generations'):evidence.validate(self.root,self.binding)

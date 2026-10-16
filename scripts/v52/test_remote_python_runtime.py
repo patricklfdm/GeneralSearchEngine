@@ -73,6 +73,15 @@ class PythonRuntimeTest(unittest.TestCase):
         result=self.isolated("path=root/'files/pom.xml'\npath.chmod(0o600)\npath.write_bytes(path.read_bytes()+b' ')\ncontext.child('delivery','unsafe legacy',['probe',root.parent])")
         self.assertNotEqual(0,result.returncode);self.assertIn('Python capsule read bound',result.stderr)
 
+    def test_endpoint_keeps_original_source_pin_after_caller_dictionary_changes(self):
+        from . import remote_voter_ssh as stream
+        value=dict(self.value)
+        with patch.object(stream.ssh.Endpoint,'__init__',return_value=None):
+            endpoint=stream.Endpoint({},ROOT,python_context=value)
+        value['descriptorSha256']='0'*64
+        args=endpoint.launch(['control','c'*64])
+        self.assertEqual(self.value['descriptorSha256'],args[-4])
+
     def test_unknown_entry_and_malformed_context_reject(self):
         with self.assertRaisesRegex(ValueError,'launch entry'):context.command(self.value,'arbitrary-command',[])
         for value in (None,{},[],('a',),('a',1)):

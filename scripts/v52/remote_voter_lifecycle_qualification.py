@@ -22,9 +22,10 @@ class Receivers(previous.Receivers):
     def prepare(self):
         super().prepare()
         self.binding['remoteVoterLifecycle']=guest.EXECUTION;h.runtime.save(self.collected/'binding.json',self.binding)
+    def python_context(self,node):return None
     def start_service(self,root,node,cp,mode,history,generation):
         need(generation==1,'lifecycle restart not qualified')
-        client=LostResultClient(root,node,self.binding,history,target=self.targets[node],discard_launch=node=='node-1')
+        client=LostResultClient(root,node,self.binding,history,target=self.targets[node],discard_launch=node=='node-1',python_context=self.python_context(node))
         self.clients.append(client);return client
     def collect_receiver(self,node,own):
         need(node in self.workers,'lifecycle no successful owner to collect')

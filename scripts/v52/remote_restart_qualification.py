@@ -26,7 +26,7 @@ class Receivers(previous.Receivers):
     def start_service(self,root,node,cp,mode,history,generation):
         before=time.monotonic_ns()
         worker=client.Client(root,node,self.binding,history,target=self.targets[node],generation=generation,
-                             discard_launch=generation==2)
+                             discard_launch=generation==2,python_context=self.python_context(node))
         self.clients.append(worker)
         if generation==2:
             self.restart_record['restart']=dict(configSha256=worker.sha,generation=2,startNanos=before,endNanos=time.monotonic_ns())

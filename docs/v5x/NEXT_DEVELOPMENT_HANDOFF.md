@@ -117,8 +117,14 @@ relocated replay, 48 ordinary negatives, 18 Python-source negatives and all
 28 delivery/lifecycle negatives. The whole gate passes in 159.016 seconds;
 all 498 V5.2 Python tests pass. Its separate source snapshot preserves the still
 running formal gate's worktree and retains its own immutable source identity.
-Formal/fault histories over installed helpers and independent-host qualification
-remain open.
+[Complete histories over installed helpers](v5.2/PHASE_6_INSTALLED_HISTORIES.md)
+now selects all 33 exact frozen histories through their original controllers,
+including second-generation restart and prepared fault channels. Its representative
+four-history local gate passes in 577.630 seconds: 24 original reads, 15 updates,
+338 negative rejections and all 13 service/JVM owners stopped. All 508 V5.2 Python
+tests pass on the final development worktree. The actual run retains its separate
+source snapshot and is not relabelled as protected acceptance. Independent-host
+identity, clock/routing qualification, owned members and cloud admission remain open.
 
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,

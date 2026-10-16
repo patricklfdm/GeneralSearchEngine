@@ -2,6 +2,7 @@
 from pathlib import Path
 from . import remote_python_receiver as r, remote_command as c
 from .remote_host import validate_pin
+from .remote_voter_scope import RESTART_EXECUTION
 
 SCHEMA='gse-v52-python-receivers-v1'
 FILE='python-capsule.json'
@@ -25,6 +26,7 @@ def validate(root,binding):
     payload=root/PAYLOAD
     r.need(payload.is_file() and not payload.is_symlink() and payload.stat().st_size==value['bytes'],'Python retained payload length/type')
     r.payload(payload.read_bytes(),value)
+    r.need('remoteRestart' not in binding or binding['remoteRestart']==RESTART_EXECUTION,'Python retained restart scope')
     roots=set();parents=set()
     for node,receipt in scope['nodes'].items():
         r.need(type(receipt) is dict and set(receipt)=={'schema','descriptorSha256','root','host','filesSha256'} and
@@ -41,7 +43,7 @@ def validate(root,binding):
         r.need(all(receipt['host'][k]==host[k] for k in ('bootId','uid')),'Python receiver host changed')
         runtime(c.read(root/(node+'-python-bootstrap.json')),receipt,value['source'],delivery['process'],'delivery')
         controls=sorted(root.glob(node+'-control*'))
-        allowed={node+'-control'}|({node+'-control-g2'} if 'remoteRestart' in binding else set())
+        allowed={node+'-control'}|({node+'-control-g2'} if binding.get('remoteRestart')==RESTART_EXECUTION else set())
         r.need(node+'-control' in {p.name for p in controls} and all(p.is_dir() and p.name in allowed for p in controls),
                'Python retained control generations')
         for control in controls:
