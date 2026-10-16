@@ -5,9 +5,10 @@ from .evidence import need,digest,encoded
 
 
 def configuration(config,preparation,root):
-    need(type(config) is dict and set(config)=={'schema','execution','node','root','host','binding','socket','session'} and
+    need(type(config) is dict and set(config)==v.scope.fields(config) and
          config['schema']==v.SCHEMA and config['execution']=='local-persistent-voters-only' and config['root']==root and
          all(config[k]==preparation[k] for k in ('node','binding','session')),'lifecycle prepared configuration')
+    need(v.scope.generation(config)==v.scope.generation(preparation),'lifecycle prepared generation')
     v.host.validate_pin(config['host']);v.c.hex_value(config['session'],32,'lifecycle session')
     need(config['host']['bootId']==preparation['host']['bootId'] and config['host']['uid']==preparation['host']['uid'],
          'lifecycle prepared host')
@@ -16,7 +17,7 @@ def configuration(config,preparation,root):
 
 def observation(value,config,sha):
     need(type(value) is dict and set(value)=={'state','started','identity','stopped','exited','serviceAlive','jvmAlive'} and
-         value['state'] in ('PREPARED','STARTING','READY','EXITING','STOPPED','FAILED','UNCERTAIN') and
+         value['state'] in ('PREPARED','STARTING','READY','EXITING','STOPPED','CRASHED','FAILED','UNCERTAIN') and
          type(value['serviceAlive']) is bool and type(value['jvmAlive']) is bool,'lifecycle observation fields')
     started=value['started'];identity=value['identity'];stop=value['stopped'];exited=value['exited']
     if started:
@@ -39,6 +40,10 @@ def observation(value,config,sha):
     if value['state']=='STOPPED':
         need(stop and stop['exitCode']==0 and stop['failure'] is None and exited and exited['exitCode']==0 and
              not value['serviceAlive'] and not value['jvmAlive'],'lifecycle stopped process observation')
+    if value['state']=='CRASHED':
+        need(config['binding'].get('remoteRestart')==v.scope.RESTART_EXECUTION and v.scope.generation(config)==1 and
+             stop and stop['exitCode']==-9 and stop['failure'] is None and exited and exited['exitCode']==0 and
+             not value['serviceAlive'] and not value['jvmAlive'],'lifecycle crashed process observation')
     if value['state']=='FAILED':need(exited and not value['serviceAlive'] and not value['jvmAlive'],'lifecycle failed process observation')
     return value
 
@@ -52,13 +57,17 @@ def manifest(value,config,sha):
     need(len(members)<=guest.MAX_FILES and total<=guest.MAX_ARCHIVE,'lifecycle inventory bound')
     node=config['node']
     need(all(name.split('/')[0]==node or name.split('/')[0].startswith(node+'-') for name in members),'lifecycle foreign collection path')
-    need(node+'-control/lifecycle.json' not in members and node+'-control/ssh-streams.json' not in members,'lifecycle circular collection metadata')
+    need(not metadata(node) & set(members),'lifecycle circular collection metadata')
     observation(value['terminal'],config,sha);need(value['terminal']['state']=='STOPPED','lifecycle incomplete collection')
     return value
 
 
+def metadata(node):
+    return {v.scope.control_name(node,g)+'/'+name for g in (1,2) for name in ('lifecycle.json','ssh-streams.json')}
+
+
 def validate(root,binding,config,sha):
-    root=Path(root);node=config['node'];control=root/(node+'-control')
+    root=Path(root);node=config['node'];control=root/v.scope.control_name(node,v.scope.generation(config))
     need(binding.get('remoteVoterLifecycle')==guest.EXECUTION,'lifecycle retained scope')
     ssh.binding(binding['remoteVoterTransport'])
     value=v.c.read(control/'lifecycle.json',v.c.RESPONSE_BYTES)
@@ -67,7 +76,7 @@ def validate(root,binding,config,sha):
          type(value['launchSubmissions']) is int and value['launchSubmissions']==1 and type(value['launchReplyLost']) is bool,
          'lifecycle retained launch/export')
     preparation=v.c.read(control/'preparation.json',v.c.REQUEST_BYTES)
-    need(type(preparation) is dict and set(preparation)=={'node','binding','session','host'},'lifecycle retained preparation')
+    need(type(preparation) is dict and set(preparation)=={'node','binding','session','host'}|({'generation'} if 'generation' in config else set()),'lifecycle retained preparation')
     v.host.validate_pin(preparation['host']);configuration(config,preparation,config['root'])
     meta=manifest(value['collection'],config,sha)
     for key in ('started','identity','stopped','exited'):
@@ -75,6 +84,6 @@ def validate(root,binding,config,sha):
     index=v.h.bundle.inventory(root)
     observed={name:record for name,record in index.items() if
         (name.split('/')[0]==node or name.split('/')[0].startswith(node+'-')) and
-        name not in (node+'-control/lifecycle.json',node+'-control/ssh-streams.json')}
+        name not in metadata(node)}
     need(observed==meta['members'],'lifecycle collected bytes differ')
     return dict(files=len(observed),bytes=sum(r['bytes'] for r in observed.values()))

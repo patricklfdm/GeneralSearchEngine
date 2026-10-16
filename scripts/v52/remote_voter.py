@@ -18,6 +18,7 @@ import time
 from types import SimpleNamespace
 from . import remote_command as c, remote_host as host, remote_history as h
 from . import measurement_history as ledger
+from . import remote_voter_scope as scope
 from .evidence import need, encoded, digest, strict
 
 SCHEMA='gse-v52-voter-service-v1'
@@ -44,15 +45,17 @@ def process(pid):
 
 
 def validate_config(value,control,*,fresh_socket=True):
-    need(type(value) is dict and set(value)=={'schema','execution','node','root','host','binding','socket','session'},'voter config fields')
+    need(type(value) is dict and set(value)==scope.fields(value),'voter config fields')
     need(value['schema']==SCHEMA and value['execution']=='local-persistent-voters-only','voter scope')
     need(value['node'] in h.topology.NODES,'voter node');c.hex_value(value['session'],32,'voter session')
     root=host.path(value['root'])
-    need(control==root/(value['node']+'-control') and host.observe(control)==value['host'],'voter host changed')
-    from . import remote_partition_scope as scope
+    gen=scope.generation(value)
+    need(control==root/scope.control_name(value['node'],gen) and host.observe(control)==value['host'],'voter host changed')
     bound=value['binding'];need(bound['mode'] in h.runtime.model.MODES,'voter service mode')
     recovery=scope.history(bound)
-    if recovery:need(bound.get('remotePartition')==scope.EXECUTION,'voter recovery control binding')
+    if recovery:
+        marker,execution=('remoteRestart',scope.RESTART_EXECUTION) if recovery['case']==scope.RESTART_CASE else ('remotePartition',scope.partition.EXECUTION)
+        need(bound.get(marker)==execution,'voter recovery control binding')
     need(bound.get('remoteVoterControl')=='local-persistent-voters-v1','voter control binding')
     need(bound['remoteTopology']['placement']=='local-no-gcp' and h.topology.read(root)==bound['remoteTopology'],'voter local topology')
     need(bound['remoteReceivers'][value['node']]['originalRoot']==str(root),'voter root binding')
@@ -68,6 +71,9 @@ def validate_config(value,control,*,fresh_socket=True):
     if 'remoteDelivery' in bound or (root/(value['node']+'-delivery.json')).exists():
         from . import remote_delivery_evidence
         remote_delivery_evidence.live(root,bound,value['node'])
+    if gen==2:
+        from . import remote_restart_guest
+        remote_restart_guest.predecessor(root,value['node'],bound,check_live=fresh_socket)
     endpoint=host.path(value['socket']);host.observe(endpoint.parent)
     need(type(fresh_socket) is bool and len(os.fsencode(endpoint))<100 and
          (not fresh_socket or not endpoint.exists()),'voter socket path')
@@ -76,11 +82,12 @@ def validate_config(value,control,*,fresh_socket=True):
 
 class Engine:
     """Bounded, append-only dispatch/result ledger, independent of connections."""
-    def __init__(self,worker,control,config_sha,identity):
+    def __init__(self,worker,control,config_sha,identity,*,crash_allowed=False):
         self.worker=worker;self.control=control;self.sha=config_sha;self.identity=identity
         self.condition=threading.Condition(threading.RLock());self.events=[];self.serial=0
         self.pending=set();self.bytes=0;self.closing=False;self.closed=False;self.failure=None
         self.journal=(control/'events.jsonl').open('xb')
+        self.crash_allowed=crash_allowed
 
     def event(self,kind,**fields):
         with self.condition:
@@ -93,7 +100,7 @@ class Engine:
         with self.condition:
             need(not self.closing and self.failure is None,'voter stopping/failed')
             need(type(request) is dict and ledger.request(request)==request,'voter request fields')
-            need(request.get('opId')==f'{self.worker.node}-g1-{self.serial+1}','voter consumed/out-of-order operation')
+            need(request.get('opId')==f'{self.worker.node}-g{getattr(self.worker,"generation",1)}-{self.serial+1}','voter consumed/out-of-order operation')
             need(self.serial<MAX_CALLS and len(self.pending)<MAX_PENDING,'voter operation bound')
             need(len(encoded(request))+1<=16384,'voter public request bound')
             # Reserve worst-case response space before touching the public API.
@@ -120,13 +127,20 @@ class Engine:
             except BaseException:
                 self.failure='RESPONSE_UNCERTAIN';self.condition.notify_all()
 
-    def close(self):
+    def close(self,kill=False):
         with self.condition:
             if self.closing:return
+            if kill:
+                need(self.crash_allowed and not self.pending and self.failure is None,'voter undeclared/nonquiescent crash')
+                c.write_once(self.control/'crash-request.json',dict(configSha256=self.sha,identity=self.identity))
             self.closing=True
         try:
-            self.worker.stop()
+            if kill:self.worker.stop(kill=True)
+            else:self.worker.stop()
             need(not self.pending and self.failure is None,'voter incomplete original operations')
+            if kill:
+                from . import remote_restart_guest
+                remote_restart_guest.capture(self.worker,self.control,self.sha,self.identity)
         except BaseException as error:
             self.failure=repr(error)[:2000]
         finally:
@@ -169,6 +183,11 @@ class Engine:
                 if value is None:break
                 if set(value)=={'close'} and value['close'] is True:
                     threading.Thread(target=self.close,daemon=True).start()
+                elif set(value)=={'crash'} and value['crash'] is True:
+                    need(self.crash_allowed,'voter undeclared crash')
+                    # This service owns the original Popen; it never signals a
+                    # controller-supplied PID. No pending public call is lost.
+                    self.close(kill=True)
                 else:self.submit(value)
         except (OSError,ValueError,KeyError,TypeError):
             # Reject this channel; never erase operations or restart its voter.
@@ -190,11 +209,11 @@ def serve(control):
     c.write_once(control/'started.json',dict(configSha256=sha,service=process(os.getpid())))
     worker=None;engine=None
     try:
-        worker=h.Worker(root,value['node'],h.Receivers.paths(root,value['binding']),value['binding']['mode'],[])
+        worker=h.Worker(root,value['node'],h.Receivers.paths(root,value['binding']),value['binding']['mode'],[],scope.generation(value))
         identity=dict(service=process(os.getpid()),jvm=process(worker.proc.pid),consumer=worker.identity,
                       host=host.observe(control),session=value['session'])
         c.write_once(control/'identity.json',identity)
-        engine=Engine(worker,control,sha,identity)
+        engine=Engine(worker,control,sha,identity,crash_allowed=value['binding'].get('remoteRestart')==scope.RESTART_EXECUTION and scope.generation(value)==1)
         with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as listener:
             listener.bind(value['socket']);os.chmod(value['socket'],0o600);listener.listen(1);listener.settimeout(1)
             while not engine.closed:
@@ -210,9 +229,9 @@ def serve(control):
 
 class Client:
     """One persistent stream. Reconnect reads results; submit is never retried."""
-    def initialize(self,root,node,history):
-        self.root,self.node,self.generation,self.history=Path(root),node,1,history
-        self.control=self.root/(node+'-control')
+    def initialize(self,root,node,history,generation=1):
+        self.root,self.node,self.generation,self.history=Path(root),node,generation,history
+        self.control=self.root/scope.control_name(node,generation)
         self.lock=threading.RLock();self.pending={};self.serial=0;self.cursor=0
         self.channel=None;self.reader=None;self.error=None;self.terminal=Future();self.agent=None
         self.proc=SimpleNamespace(pid=0,returncode=None,poll=lambda:self.proc.returncode)
@@ -300,8 +319,8 @@ class Client:
     def submit(self,kind,**values):
         with self.lock:
             need(self.channel is not None and self.error is None and self.reader.is_alive(),'voter stream unavailable; query original')
-            self.serial+=1;op=f'{self.node}-g1-{self.serial}';request=dict(opId=op,kind=kind,**values)
-            record=dict(request,node=self.node,pid=self.proc.pid,generation=1,startNanos=time.monotonic_ns(),endNanos=None,outcome='PENDING')
+            self.serial+=1;op=f'{self.node}-g{self.generation}-{self.serial}';request=dict(opId=op,kind=kind,**values)
+            record=dict(request,node=self.node,pid=self.proc.pid,generation=self.generation,startNanos=time.monotonic_ns(),endNanos=None,outcome='PENDING')
             future=Future();self.pending[op]=(future,record);self.history.append(record)
             send(self.channel,request);return op,future
 

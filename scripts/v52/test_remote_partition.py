@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import tempfile
 import threading
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock,patch
@@ -11,6 +12,7 @@ from . import remote_partition_guest as g,remote_partition as client,remote_part
 from . import remote_partition_qualification as q,remote_delivery_package as package
 from . import remote_voter as v,remote_voter_lifecycle as lifecycle,remote_partition_evidence as evidence
 from . import test_remote_delivery as delivery_fixture
+from . import test_remote_voter_ssh as ssh_fixture
 
 
 class Fixture(unittest.TestCase):
@@ -215,6 +217,63 @@ class ScopeTest(delivery_fixture.Fixture):
         with self.assertRaisesRegex(ValueError,'closed file'):package.validate(bad)
         bad=deepcopy(meta);bad['members'].pop(scope.recovery.FILE)
         with self.assertRaisesRegex(ValueError,'closed file'):package.validate(bad)
+
+
+class PreparedChannelTest(unittest.TestCase):
+    setUp=ssh_fixture.EndpointTest.setUp
+    def test_fixed_partition_entry_and_reuse_do_not_spawn_per_transition(self):
+        endpoint=client.Endpoint(self.target,v.h.ROOT);self.addCleanup(endpoint.close)
+        channel=Mock();sha='a'*64;host=v.host.observe(self.root)
+        ready=dict(ready=True,configSha256=sha,host=host,process=v.process(os.getpid()));reply=dict(configSha256=sha,host=host,answer={})
+        with patch.object(endpoint,'open',return_value=channel) as opened,patch.object(endpoint,'answer',side_effect=[ready,reply,reply]):
+            value=dict(configSha256=sha,request=dict(operation='cleanup',target=None))
+            endpoint.exchange('query',self.root,value,time.monotonic()+30)
+            endpoint.exchange('query',self.root,value,time.monotonic()+30)
+            opened.assert_called_once();self.assertEqual(2,channel.sendall.call_count)
+        self.assertEqual(g.STREAM_LAUNCH,endpoint.protocol.LAUNCH)
+        endpoint.close();channel.finish.assert_called_once()
+
+    def test_changed_credential_on_existing_channel_rejects_before_send(self):
+        endpoint=client.Endpoint(self.target,v.h.ROOT);self.addCleanup(endpoint.close)
+        channel=Mock();endpoint.channel=channel;endpoint.control=self.root;endpoint.sha='a'*64
+        (self.root/'key').write_text('changed')
+        with self.assertRaisesRegex(ValueError,'credentials changed'):
+            endpoint.exchange('apply',self.root,dict(configSha256='a'*64,request={}),time.monotonic()+30)
+        channel.sendall.assert_not_called()
+
+    def test_uncertain_stream_is_closed_without_internal_resubmit(self):
+        endpoint=client.Endpoint(self.target,v.h.ROOT);self.addCleanup(endpoint.close)
+        channel=Mock();endpoint.channel=channel;endpoint.control=self.root;endpoint.sha='a'*64
+        with patch.object(endpoint,'answer',side_effect=ConnectionError('lost')):
+            with self.assertRaises(ConnectionError):endpoint.exchange('apply',self.root,dict(configSha256='a'*64,request={}),time.monotonic()+30)
+        channel.sendall.assert_called_once();channel.finish.assert_called_once();self.assertIsNone(endpoint.channel)
+
+    def test_channel_exhaustion_fails_before_opening_or_sending(self):
+        endpoint=client.Endpoint(self.target,v.h.ROOT);self.addCleanup(endpoint.close);endpoint.streams=[None]*4
+        with patch.object(endpoint,'open') as opened:
+            with self.assertRaisesRegex(ValueError,'channels exhausted'):
+                endpoint.exchange('query',self.root,dict(configSha256='a'*64,request={}),time.monotonic()+30)
+            opened.assert_not_called()
+
+    def test_prepared_guest_rechecks_exact_config_and_owner_before_fault(self):
+        config=dict(host={},binding={});sha=v.digest(v.encoded(config));value=dict(configSha256=sha,request={})
+        with patch.object(v.c,'read',return_value={}),patch.object(g,'apply') as apply:
+            with self.assertRaisesRegex(ValueError,'owner changed'):g.prepared_exchange('apply',self.root,value,config)
+            apply.assert_not_called()
+        with patch.object(v.c,'read',return_value=config),patch.object(v.host,'observe',return_value={'changed':True}),patch.object(g,'apply') as apply:
+            with self.assertRaisesRegex(ValueError,'owner changed'):g.prepared_exchange('apply',self.root,value,config)
+            apply.assert_not_called()
+
+    def test_prepared_guest_checks_scope_without_reloading_source_per_command(self):
+        bound=dict(remotePartition=scope.EXECUTION);plan=scope.recovery.profile(scope.CASE)
+        bound.update(measurementProfile=plan,faultParameters=plan['faultParameters'],mode='candidate-minimum',
+                     readParameters=scope.options.parameters(),programSha256=scope.model.PLAN_SHA)
+        config=dict(host={},binding=bound);value=dict(configSha256=v.digest(v.encoded(config)),request={})
+        with patch.object(v.c,'read',return_value=config),patch.object(v.host,'observe',return_value={}),\
+             patch.object(g,'query',return_value='original') as query,patch.object(g.lifecycle,'load') as load:
+            self.assertEqual('original',g.prepared_exchange('query',self.root,value,config)['answer'])
+            query.assert_called_once();load.assert_not_called()
+            with self.assertRaisesRegex(ValueError,'envelope'):g.prepared_exchange('apply',self.root,dict(value,pid=1),config)
 
 
 if __name__=='__main__':unittest.main()

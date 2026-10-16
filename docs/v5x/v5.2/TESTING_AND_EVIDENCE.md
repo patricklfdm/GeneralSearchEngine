@@ -248,4 +248,14 @@ M04 follower-snapshot/carried-token history over SSH-delivered receiver inputs a
 persistent services. Original cut/heal receipts and three-receiver ACK barriers
 join the existing portable physical/query/resource replay. Run
 `scripts/verify-v52-phase6-remote-partition.sh --skip-build`. This is single-host
-loopback fault qualification; independent hosts and crash/restart are still open.
+loopback fault qualification; independent hosts remain open. The second M04
+crash/restart history is qualified separately below.
+
+## Phase 6AJ remote retained restart
+
+[The remote restart gate](PHASE_6_REMOTE_RESTART.md) executes the complete frozen
+M04 leader SIGKILL/retained-reopen history through the SSH service owner. It binds
+the original crash, pre-reopen bytes, two service generations and lost-reply
+queries to the existing portable physical/query/resource replay. Run
+`scripts/verify-v52-phase6-remote-restart.sh --skip-build`. This remains single-host
+qualification with shared Python sources; it is not cloud member acceptance.

@@ -173,7 +173,9 @@ def run(output):
             need(all(w.final['state']=='STOPPED' and w.released and w.endpoint.closed and w.lifecycle.closed and
                  not v.c.process_alive(w.owner_identity['service']) and not v.c.process_alive(w.owner_identity['jvm']) and
                  not Path(w.config['socket']).parent.exists() and all(ch.proc.poll() is not None for ch in w.channels) for w in workers) and
-                 all(c.endpoint.closed for c in controllers) and all(not v.c.process_alive(r['process']) for r in own.bootstraps.values()),
+                 all(c.endpoint.closed and all(ch.proc.poll() is not None for ch in c.endpoint.streams) and
+                     all(not v.c.process_alive(p) for p in c.endpoint.owners) for c in controllers) and
+                 all(not v.c.process_alive(r['process']) for r in own.bootstraps.values()),
                  'partition owned-process cleanup incomplete')
             locations=('evidence','portable/relocated')
             receipt['lifecycleNegatives']=previous.previous.negatives(own,locations=locations)

@@ -51,10 +51,10 @@ def original_launch(start,query,*,lost=lambda:None):
 
 
 class Client(stream.Client):
-    def __init__(self,root,node,binding,history,*,target,discard_launch=False):
+    def __init__(self,root,node,binding,history,*,target,discard_launch=False,generation=1):
         need(binding.get('remoteVoterLifecycle')==guest.EXECUTION and
              binding['remoteVoterTransport']['nodes'][node]==stream.public_target(target),'lifecycle target binding')
-        self.initialize(root,node,history)
+        self.initialize(root,node,history,generation)
         self.endpoint=stream.Endpoint(target,v.h.ROOT);self.lifecycle=Endpoint(target,v.h.ROOT)
         self.channels=[];self.active_stream=None;self.recorded=[];self.config=None;self.sha=None
         self.final=None;self.launch_lost=False;self.discard_launch=discard_launch;self.launch_submissions=0;self.released=False
@@ -62,6 +62,8 @@ class Client(stream.Client):
             probe=self.lifecycle.exchange('probe',self.root,None,time.monotonic()+30)
             need(type(probe) is dict and set(probe)=={'host'},'lifecycle probe response')
             value=dict(node=node,binding=binding,session=v.os.urandom(16).hex(),host=v.host.validate_pin(probe['host']))
+            if 'remoteRestart' in binding:value['generation']=generation
+            else:need(generation==1,'lifecycle undeclared generation')
             prepared=self.lifecycle.exchange('prepare',self.root,value,time.monotonic()+30)
             need(type(prepared) is dict and set(prepared)=={'config'},'lifecycle prepare response')
             self.config=prepared['config'];evidence.configuration(self.config,value,str(self.root))
@@ -92,7 +94,7 @@ class Client(stream.Client):
         while True:
             evidence.observation(observed,self.config,self.sha)
             if observed['state'] in states:return observed
-            need(observed['state'] not in ('FAILED','UNCERTAIN','PREPARED','STOPPED'),'lifecycle original service failed: '+observed['state'])
+            need(observed['state'] not in ('FAILED','UNCERTAIN','PREPARED','STOPPED','CRASHED'),'lifecycle original service failed: '+observed['state'])
             need(time.monotonic()<deadline,'lifecycle service transition timeout; launch remains consumed')
             time.sleep(.1);observed=self.control_call('query')
 
@@ -114,7 +116,7 @@ class Client(stream.Client):
             self.disconnect()
             if self.config is not None and self.sha is not None and self.final is None:
                 seen=self.control_call('abort');evidence.observation(seen,self.config,self.sha)
-                self.final=self.await_state(seen,{'STOPPED','FAILED'},15)
+                self.final=self.await_state(seen,{'STOPPED','FAILED','CRASHED'},15)
         finally:self.endpoint.close()
 
     def collect(self,destination,staging):
@@ -133,17 +135,23 @@ class Client(stream.Client):
             target=Path(destination)/path.name;need(not target.exists() and not target.is_symlink(),'lifecycle destination occupied')
             if path.is_dir():shutil.copytree(path,target)
             else:shutil.copyfile(path,target)
-        control=Path(destination)/(self.node+'-control')
-        v.c.write_once(control/'ssh-streams.json',dict(schema='gse-v52-voter-ssh-streams-v1',target=stream.public_target(self.endpoint.target),
-            configSha256=self.sha,channels=self.recorded))
+        control=Path(destination)/v.scope.control_name(self.node,self.generation)
+        self.record_stream(destination)
         v.c.write_once(control/'lifecycle.json',dict(schema=guest.SCHEMA,execution=guest.EXECUTION,configSha256=self.sha,
             launchSubmissions=self.launch_submissions,launchReplyLost=self.launch_lost,collection=meta),v.c.RESPONSE_BYTES)
         need(self.control_call('release')==dict(released=True),'lifecycle socket cleanup');self.released=True
         return meta
 
+    def stream_record(self):
+        return dict(schema='gse-v52-voter-ssh-streams-v1',target=stream.public_target(self.endpoint.target),
+                    configSha256=self.sha,channels=self.recorded)
+
+    def record_stream(self,destination):
+        v.c.write_once(Path(destination)/v.scope.control_name(self.node,self.generation)/'ssh-streams.json',self.stream_record())
+
     def close_transport(self):
         try:
-            if self.final and self.final['state'] in ('STOPPED','FAILED') and not self.released:
+            if self.final and self.final['state'] in ('STOPPED','FAILED','CRASHED') and not self.released:
                 need(self.control_call('release')==dict(released=True),'lifecycle socket cleanup');self.released=True
         finally:
             try:self.endpoint.close()

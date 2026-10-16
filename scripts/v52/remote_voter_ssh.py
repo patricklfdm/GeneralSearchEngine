@@ -97,6 +97,7 @@ class Stream:
 
 
 class Endpoint(ssh.Endpoint):
+    protocol=relay
     def open(self,control,sha,deadline):
         need(not self.closed and 0<deadline-time.monotonic()<=300,'SSH voter endpoint deadline/closed')
         need(ssh.ssh_args(self.target)==self.args,'SSH V5.2 target changed')
@@ -109,7 +110,7 @@ class Endpoint(ssh.Endpoint):
             # A lost multiplexing socket must fail this channel, never open an
             # unnoticed replacement connection or resubmit its bytes.
             args=[v if not v.startswith('ProxyCommand=') else 'ProxyCommand=false' for v in self.master.args]
-            remote=['python3','-I','-c',relay.LAUNCH,str(self.checkout),str(control),sha]
+            remote=['python3','-I','-c',self.protocol.LAUNCH,str(self.checkout),str(control),sha]
             return Stream([*args,shlex.join(remote)],self.master,deadline)
         except BaseException:self.disconnect();raise
 

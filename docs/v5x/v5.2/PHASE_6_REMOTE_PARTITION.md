@@ -85,6 +85,13 @@ shared and all three voters are on one Linux host. SIGKILL/retained restart,
 independent hosts/clocks, complete owned members, protected full CI and fresh
 provider admission remain pending.
 
+The later [Phase 6AJ](PHASE_6_REMOTE_RESTART.md) separately qualifies the frozen
+SIGKILL/retained-restart profile and its explicit second service generation.
+Its regression also replaces per-transition Python startup with a bounded
+prepared control process. Source/artifact checks run before READY; each transition
+still checks exact configuration/host ownership and original receipts. See that
+stage's retained regression failure and correction for the actual source scope.
+
 Acceptance records are retained under `target/v52-remote-partition/` and will name
 the actual source/working-tree fingerprint, original failures and validation scope.
 

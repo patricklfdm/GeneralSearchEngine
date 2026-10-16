@@ -83,6 +83,22 @@ six original receiver transitions and 76 negative rejections. All 430 V5.2 Pytho
 and the historical six-frame completeness failure remain retained; parallel
 preconnected control and explicit selected-quorum M04 coverage were qualified.
 
+[SSH retained leader restart](v5.2/PHASE_6_REMOTE_RESTART.md) completes the second
+M04 service profile. One guest-owned SIGKILL, forced pre-reopen authority copy and
+exact dead-predecessor admission permit one explicit generation-2 reopen. Lost
+terminal/launch replies query original receipts without repeating kill or launch.
+The real gate passed in 104.727 seconds, with four original reads, four updates,
+four stopped services/JVMs and 68 original/relocated negative rejections. All 442
+initial V5.2 Python and 21 CI suite tests passed. A further partition regression
+retained a snapshot failure after a 2.459-second heal barrier. Prepared persistent
+control now removes repeated process/import/source setup from each transition;
+the corrected complete history passed in 100.497 seconds with 0.418/0.423-second
+cut/heal barriers and all 76 negatives. The final Python suite passes 448 tests.
+The final shared SSH implementation also passed a fresh complete restart history
+in 102.110 seconds, with all 68 negatives and all original owners stopped.
+General M01–M03 service profiles, independent
+hosts/clocks, complete owned members and protected CI/provider admission remain.
+
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,
 36 skipped suite placeholders). See the [acceptance checklist](v5.2/PHASE_0_CHECKLIST.md).

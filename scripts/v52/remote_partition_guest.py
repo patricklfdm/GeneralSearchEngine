@@ -17,6 +17,7 @@ ACTIONS={'apply','query'}
 ERROR_SCHEMA='gse-v52-partition-error-v1'
 ERRORS=lifecycle.ERRORS
 LAUNCH="import sys;sys.path.insert(0,sys.argv.pop(1));from scripts.v52.remote_partition_guest import main;main()"
+STREAM_LAUNCH="import sys;sys.path.insert(0,sys.argv.pop(1));from scripts.v52.remote_partition_guest import stream_main;stream_main()"
 FILE='network-blocks.txt'
 
 
@@ -115,6 +116,43 @@ def exchange(action,control,value):
          'partition undeclared history')
     answer={'apply':apply,'query':query}[action](control,config,value['request'])
     return dict(configSha256=value['configSha256'],host=config['host'],answer=answer)
+
+
+def prepared_exchange(action,control,value,config):
+    """An already-loaded owner executes fixed commands; no per-fault imports.
+
+    Source/artifact admission ran before READY. The existing service owns its
+    already-loaded JVM, while every command still checks immutable configuration,
+    directory identity, original lifecycle and consumed transition receipts.
+    """
+    need(action in ACTIONS and type(value) is dict and set(value)=={'configSha256','request'} and
+         value['configSha256']==digest(encoded(config)),'partition envelope fields')
+    need(v.c.read(control/'config.json',v.c.REQUEST_BYTES)==config and v.host.observe(control)==config['host'],
+         'partition prepared owner changed')
+    need(config['binding'].get('remotePartition')==scope.EXECUTION and scope.history(config['binding']) is not None,
+         'partition undeclared history')
+    answer={'apply':apply,'query':query}[action](control,config,value['request'])
+    return dict(configSha256=value['configSha256'],host=config['host'],answer=answer)
+
+
+def stream_main():
+    parser=argparse.ArgumentParser();parser.add_argument('control');parser.add_argument('sha');args=parser.parse_args()
+    def write(value):
+        raw=encoded(value)+b'\n';need(len(raw)<=v.FRAME,'partition stream response bound')
+        sys.stdout.buffer.write(raw);sys.stdout.buffer.flush()
+    try:
+        control=v.host.path(args.control);config=lifecycle.load(control,args.sha)
+        need(config['binding'].get('remotePartition')==scope.EXECUTION and scope.history(config['binding']) is not None,
+             'partition undeclared history')
+        write(dict(ready=True,configSha256=args.sha,host=config['host'],process=v.process(os.getpid())))
+        for _ in range(8):
+            value=v.receive(sys.stdin.buffer)
+            if value is None:return
+            need(set(value)=={'action','value'},'partition stream fields')
+            write(prepared_exchange(value['action'],control,value['value'],config))
+        # Bounded original control session. Additional observations require a
+        # freshly authenticated channel, never an implicit repeated mutation.
+    except Exception as error:write(dict(schema=ERROR_SCHEMA,code=lifecycle.error_code(error)))
 
 
 def seal(control,config):

@@ -1,11 +1,11 @@
-"""Closed JAR/helper/seed capsule for untimed loopback receiver preparation."""
+"""Closed JAR/helper/seed capsule for untimed and frozen M04 loopback receivers."""
 from copy import deepcopy
 import hashlib
 from pathlib import Path
 import shutil
 import tarfile
 from . import remote_history as h,remote_command as c,remote_host as host
-from . import remote_partition_scope as scope
+from . import remote_voter_scope as scope
 from .evidence import need,encoded,digest,strict
 
 SCHEMA='gse-v52-receiver-package-v1'

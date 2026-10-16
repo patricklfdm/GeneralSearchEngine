@@ -1,6 +1,7 @@
-"""Fixed loopback SSH lifecycle for an already staged untimed receiver.
+"""Fixed loopback SSH lifecycle for a closed delivered receiver profile.
 
-No shell payloads, package installation, cloud admission or voter restart.
+No shell payloads, package installation or cloud admission. Only exact M04
+retained restart can admit a second generation after its original crash receipt.
 Launch publication consumes the identity even if its reply or worker is lost.
 """
 import argparse
@@ -21,7 +22,7 @@ EXECUTION='loopback-ssh-voter-lifecycle-only'
 SCHEMA='gse-v52-voter-lifecycle-v1'
 ERROR_SCHEMA='gse-v52-voter-lifecycle-error-v1'
 ERRORS={'HOST_CHANGED','SOURCE_CHANGED','REQUEST_REJECTED','GUEST_IO_FAILURE'}
-ACTIONS={'probe','prepare','start','query','abort','collect','chunk','release'}
+ACTIONS={'probe','prepare','start','query','abort','collect','chunk','release','crash-terminal'}
 CHUNK=512<<10
 MAX_ARCHIVE=64<<20
 MAX_FILES=4096
@@ -29,19 +30,23 @@ LAUNCH="import sys;sys.path.insert(0,sys.argv.pop(1));from scripts.v52.remote_vo
 
 
 def preparation(root,value):
-    need(type(value) is dict and set(value)=={'node','binding','session','host'},'lifecycle prepare fields')
+    need(type(value) is dict and set(value)=={'node','binding','session','host'}|({'generation'} if 'generation' in value else set()),'lifecycle prepare fields')
     node=value['node'];need(node in h.topology.NODES,'lifecycle node');c.hex_value(value['session'],32,'lifecycle session')
     bound=value['binding'];need(bound.get('remoteVoterLifecycle')==EXECUTION,'lifecycle scope')
     need(bound['remoteReceivers'][node]['originalRoot']==str(root),'lifecycle receiver root')
     need(host.observe(root)==host.validate_pin(value['host']),'lifecycle host changed')
     source=h.source();need(all(source[k]==bound[k] for k in source),'voter source changed')
-    control=root/(node+'-control')
+    gen=v.scope.generation(value);control=root/v.scope.control_name(node,gen)
+    if gen==2 and not control.exists():
+        from . import remote_restart_guest
+        remote_restart_guest.predecessor(root,node,bound,check_live=True)
     if not control.exists() and not control.is_symlink():
         control.mkdir(mode=0o700);c.sync_directory(root)
         c.write_once(control/'preparation.json',value,c.REQUEST_BYTES)
         socket_dir=Path(tempfile.mkdtemp(prefix='v52-remote-voter-'))
         config=dict(schema=v.SCHEMA,execution='local-persistent-voters-only',node=node,root=str(root),
                     host=host.observe(control),binding=bound,socket=str(socket_dir/'channel'),session=value['session'])
+        if 'generation' in value:config['generation']=gen
         try:
             v.validate_config(config,control)
             c.write_once(control/'config.json',config,c.REQUEST_BYTES)
@@ -88,9 +93,12 @@ def inspection(control,config):
         answer['state']='EXITING' if answer['serviceAlive'] else 'FAILED'
         if not answer['serviceAlive'] and not answer['jvmAlive'] and answer['exited']['exitCode']==0:
             stop=answer['stopped']
-            need(stop and stop['configSha256']==sha and stop['identity']==identity and stop['exitCode']==0 and
+            need(stop and stop['configSha256']==sha and stop['identity']==identity and stop['exitCode'] in (0,-9) and
                  stop['failure'] is None,'lifecycle terminal binding')
-            answer['state']='STOPPED'
+            if stop['exitCode']==-9:
+                from . import remote_restart_guest
+                remote_restart_guest.crash_receipt(Path(config['root']),config,sha);answer['state']='CRASHED'
+            else:answer['state']='STOPPED'
     elif started and not answer['serviceAlive']:answer['state']='UNCERTAIN'
     elif identity and answer['serviceAlive'] and answer['jvmAlive'] and Path(config['socket']).exists():answer['state']='READY'
     return answer
@@ -192,7 +200,7 @@ def chunk(control,config,value):
 
 def release(control,config):
     seen=inspection(control,config)
-    need(seen['state'] in ('STOPPED','FAILED') and not seen['serviceAlive'] and not seen['jvmAlive'],
+    need(seen['state'] in ('STOPPED','FAILED','CRASHED') and not seen['serviceAlive'] and not seen['jvmAlive'],
          'lifecycle release requires stopped owner')
     socket_dir=host.path(config['socket']).parent;host.observe(socket_dir)
     socket_dir.rmdir();return dict(released=True)
@@ -207,7 +215,10 @@ def exchange(action,root,value):
     if action=='chunk':answer=chunk(root,config,request)
     else:
         need(request is None,'lifecycle action payload')
-        answer={'start':start,'query':inspection,'abort':abort,'collect':collect,'release':release}[action](root,config)
+        if action=='crash-terminal':
+            from . import remote_restart_guest
+            answer=remote_restart_guest.terminal(root,config)
+        else:answer={'start':start,'query':inspection,'abort':abort,'collect':collect,'release':release}[action](root,config)
     return dict(configSha256=digest(encoded(config)),host=config['host'],answer=answer)
 
 
