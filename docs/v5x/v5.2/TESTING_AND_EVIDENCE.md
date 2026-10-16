@@ -295,3 +295,13 @@ to the existing formal and M04 controllers. Run
 representative histories. An explicitly selected subset retains its exact names;
 it cannot stand in for the default matrix, all 33 histories or three-host cloud
 acceptance. Failed matrices are never resumed by splicing successful fragments.
+
+## Bound host and process domains
+
+[Phase 6AO](PHASE_6_HOST_PROCESS_DOMAINS.md) adds explicit resource/boot/process
+identities to the common history/read validators, while leaving local and V5.1
+defaults intact. The measurement gate includes domain/PID/clock and physical
+generation regressions. Same-path installed helpers require separately bound
+hosts. Synthetic independent-domain tests and retained authority replay are
+recorded separately from actual three-host qualification; live private execution
+remains closed until the owner, delivery and complete replay chain is connected.

@@ -57,6 +57,7 @@ def initial_publication(history,scenario,offered,traces,mode):
 
 def validate(root,expected,answers=None,*,traces=None,history=None,offered=None,scenario=None):
     root=Path(root).resolve();binding,processes=identity(root,expected);mode=binding['mode'];p=binding['measurementProfile']
+    domains=identities.process_domains(root,binding,processes)
     history=metadata(root,'history.json',32<<20) if history is None else history
     offered=metadata(root,'offered.json',32<<20) if offered is None else offered
     scenario=metadata(root,'scenario.json',1<<20) if scenario is None else scenario
@@ -71,14 +72,14 @@ def validate(root,expected,answers=None,*,traces=None,history=None,offered=None,
     # Aggregate limits precede every general authority collector/reconstructor.
     authority_budget=budget.validate(traces,manifest)
     base=physical.validate(root,traces,evidence_location=identities.evidence_location(root,binding),require_restart=False,
-                           basis_coverage='selected-quorums')
+                           basis_coverage='selected-quorums',process_generations=domains is not None)
     manifest,genesis,entries=reads.context(root,traces)
     calls={c['opId']:c for c in history if c['kind'] in ('read','update')}
     updates=[c for c in calls.values() if c['kind']=='update'];state=projection.Projection(manifest,genesis,entries,updates)
     authority=publication.validate(traces,manifest,state,mode,selector_limit=budget.MAX_SELECTORS,
                                    transfer_limit=publication.MAX_MEASURED_TRANSFERS)
-    ledger=lifecycle.validate(traces,processes,history,mode)
-    observed=cuts.validate(traces,processes,calls,manifest,entries,state,mode,answers)
+    ledger=lifecycle.validate(traces,processes,history,mode,domains=domains)
+    observed=cuts.validate(traces,processes,calls,manifest,entries,state,mode,answers,domains=domains)
     initial=initial_publication(history,scenario,offered,traces,mode)
     markers=load.validate_markers(offered,m01.MARKERS,history,traces);resources={}
     for node,rows in traces.items():

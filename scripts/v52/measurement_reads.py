@@ -16,9 +16,9 @@ def publication_generation(row,mode):
 
 
 
-def validate(traces,processes,calls,manifest,entries,projection,mode,answers=None,*,pending_limit=64,minimum_wait_millis=5000,restarted=None,restorations=None):
+def validate(traces,processes,calls,manifest,entries,projection,mode,answers=None,*,pending_limit=64,minimum_wait_millis=5000,restarted=None,restorations=None,domains=None):
     need(type(minimum_wait_millis) is int and minimum_wait_millis in (0,1000,5000,60000),'measurement cut wait profile')
-    generations.validate(processes,restarted);restorations=restorations or {}
+    generations.validate(processes,restarted,domains=domains);restorations=restorations or {}
     cuts=[];successes={};timings={};crash_transport={}
     for process in processes:
         node=process['node'];invoked={};captures={};entered={};released={};callbacks={};client_invocations={};force_order={};promised=0;barriers=set();latest=None;idle=False;reservations={}

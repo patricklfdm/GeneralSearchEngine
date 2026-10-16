@@ -6,6 +6,7 @@ from .evidence import need,digest,encoded
 
 SCHEMA='gse-v52-voter-ssh-binding-v1'
 EXECUTION='loopback-ssh-persistent-voters-only'
+BOUND_EXECUTION='bound-host-ssh-persistent-voters-only'
 
 
 def target(value):
@@ -18,7 +19,7 @@ def target(value):
 
 def binding(value):
     need(type(value) is dict and set(value)=={'schema','execution','nodes'} and value['schema']==SCHEMA and
-         value['execution']==EXECUTION and type(value['nodes']) is dict and set(value['nodes'])==set(topology.NODES),
+         value['execution'] in (EXECUTION,BOUND_EXECUTION) and type(value['nodes']) is dict and set(value['nodes'])==set(topology.NODES),
          'SSH voter transport binding')
     for row in value['nodes'].values():target(row)
     need(len({row['alias'] for row in value['nodes'].values()})==3,'SSH voter duplicate route alias')
@@ -50,6 +51,9 @@ def channels(value,expected,sha,events,*,crashed=False):
 
 def validate(root,full_binding,config,sha,events):
     root=Path(root);transport=full_binding.get('remoteVoterTransport');binding(transport)
+    from . import remote_host_domains as domains
+    if domains.validate(full_binding) is None:need(transport['execution']==EXECUTION,'SSH voter local scope changed')
+    else:domains.routes(full_binding)
     value=c.read(root/'ssh-streams.json',64<<10)
     from . import remote_voter_scope as scope
     crashed=full_binding.get('remoteRestart')==scope.RESTART_EXECUTION and scope.generation(config)==1

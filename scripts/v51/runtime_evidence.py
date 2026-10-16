@@ -103,7 +103,12 @@ def project_application(entries,indexes,initial,sequence):
     return [registered[key] for key in sorted(registered)],documents,sequence,commands
 
 
-def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence_location=None,require_restart=True,basis_coverage='legacy-matrix'):
+def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence_location=None,require_restart=True,basis_coverage='legacy-matrix',process_generations=False):
+    f.need(type(process_generations) is bool,'runtime process generation mode')
+    def process(row):
+        if not process_generations:return row['pid']
+        f.need(type(row.get('generation')) is int and row['generation'] in (1,2),'runtime process generation')
+        return row['pid'],row['generation']
     f.need(basis_coverage in ('legacy-matrix','selected-quorums'),'unknown runtime basis coverage')
     root=Path(root);encoded=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(f.inspect(encoded,'MANIFEST'),digest=encoded[16:48].hex())
     genesis=f.inspect((root/'node-1/genesis.gsr').read_bytes(),'GENESIS');indexes,initial=application(raw(genesis['application']))
@@ -122,7 +127,7 @@ def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence
     entries={};accepted={};chosen={};reply_frames=set();pids=set();basis_bytes={};parts={};selections={}
     for node,rows in traces.items():
         for row in rows:
-            pids.add((node,row['pid']))
+            pids.add((node,process(row)))
             if row['event']=='REPLY':reply_frames.add(storage.sha(raw(row['frame'])))
             if row['event'] in ('REPLY','RECEIVED'):
                 message=f.wire(raw(row['frame']),manifest);payload=message['payload']
@@ -153,7 +158,7 @@ def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence
     for node,rows in traces.items():
         forced=set();votes=set();received=set();published={};previous={};received_votes=set()
         for row in rows:
-            pid=row['pid'];f.need(row['order']>previous.get(pid,0),'process trace order');previous[pid]=row['order']
+            pid=process(row);f.need(row['order']>previous.get(pid,0),'process trace order');previous[pid]=row['order']
             event=row['event']
             if event=='FORCE':
                 value=frame(row['record'],row['kind'],manifest);forced.add((row['kind'],storage.sha(raw(row['record']))))

@@ -3,6 +3,7 @@ from pathlib import Path
 from scripts.v51.performance_model import strict_json
 from . import measurement_model as model,measurement_bundle as bundle,measurement_generations as generations
 from .evidence import need
+from .remote_host_domains import processes as process_domains
 
 
 def metadata(root,name,maximum,*,label="measurement M01"):
@@ -45,10 +46,11 @@ def identity(root,expected,check_profile,*,label,restarted=None):
     need(set(binding['artifacts'])=={cores[0],'general-search-engine-replication-'+version+'.jar','general-search-engine-4.4.0.jar'},
          label+' artifact set')
     processes=metadata(root,'processes.json',64<<10,label=label)
+    domains=process_domains(root,binding,processes)
     if restarted is None:
-        need(len(processes)==3 and len({p['pid'] for p in processes})==3 and {p['node'] for p in processes}=={'node-1','node-2','node-3'} and
+        need(len(processes)==3 and (domains is not None or len({p['pid'] for p in processes})==3) and {p['node'] for p in processes}=={'node-1','node-2','node-3'} and
              all(p['generation']==1 and p['exitCode']==0 for p in processes),label+' three stopped JVMs')
-    generations.validate(processes,restarted,label=label)
+    generations.validate(processes,restarted,label=label,domains=domains)
     if 'remoteTopology' in binding or 'remoteReceivers' in binding:
         # Validate the retained map before using receiver-local loaded paths.
         evidence_location(root,binding)

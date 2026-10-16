@@ -106,12 +106,12 @@ def failure(call,response,invocation,captured,callbacks,mode,*,allow_progress_no
     return reason
 
 
-def validate(traces,processes,history,mode,*,pending_limit=64,minimum_wait_millis=5000,allow_progress_not_reached=False,restarted=None):
+def validate(traces,processes,history,mode,*,pending_limit=64,minimum_wait_millis=5000,allow_progress_not_reached=False,restarted=None,domains=None):
     need(mode in model.MODES,'measurement ledger mode')
     need(type(minimum_wait_millis) is int and minimum_wait_millis in (0,1000,5000,60000) and
          type(allow_progress_not_reached) is bool and (not allow_progress_not_reached or minimum_wait_millis==0),
          'measurement ledger wait profile')
-    generations.validate(processes,restarted)
+    generations.validate(processes,restarted,domains=domains)
     need(type(history) is list and len(history)<=len(processes)*MAX_CALLS_PER_PROCESS,'measurement controller ledger bound')
     need(set(traces)=={p['node'] for p in processes},'measurement ledger trace voter set')
     calls={c['opId']:c for c in history}

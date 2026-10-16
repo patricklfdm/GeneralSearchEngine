@@ -1,6 +1,6 @@
 """Retained installed-source bindings, independent of original filesystem paths."""
 from pathlib import Path
-from . import remote_python_receiver as r, remote_command as c
+from . import remote_python_receiver as r, remote_command as c,remote_host_domains as domains
 from .remote_host import validate_pin
 from .remote_voter_scope import RESTART_EXECUTION
 
@@ -17,7 +17,7 @@ def runtime(value,receipt,source,process,entry):
 
 
 def validate(root,binding):
-    root=Path(root);scope=binding.get('remotePython')
+    root=Path(root);scope=binding.get('remotePython');hosts=domains.validate(binding)
     r.need(type(scope) is dict and set(scope)=={'schema','descriptorSha256','nodes'} and scope['schema']==SCHEMA and
            set(scope['nodes'])=={'node-1','node-2','node-3'},'Python retained receiver binding')
     value=r.descriptor(c.read(root/FILE,r.MAX_MANIFEST))
@@ -32,10 +32,15 @@ def validate(root,binding):
         r.need(type(receipt) is dict and set(receipt)=={'schema','descriptorSha256','root','host','filesSha256'} and
                receipt['schema']==r.RECEIPT and receipt['descriptorSha256']==scope['descriptorSha256'] and
                receipt['filesSha256']==r.digest(r.encoded(value['files'])),'Python retained installation')
-        path=Path(receipt['root'])
-        r.need(path.is_absolute() and '..' not in path.parts and path.name=='python-'+value['sha256'] and
-               str(path) not in roots,'Python retained installation root');roots.add(str(path))
         validate_pin(receipt['host'])
+        owner=None
+        if hosts is not None:
+            expected=hosts['nodes'][node]
+            r.need(all(receipt['host'][k]==expected[k] for k in ('bootId','uid')),'Python bound installation host changed')
+            owner=expected['resourceIdentitySha256'],expected['bootId']
+        path=Path(receipt['root']);key=(owner,str(path))
+        r.need(path.is_absolute() and '..' not in path.parts and path.name=='python-'+value['sha256'] and
+               key not in roots,'Python retained installation root');roots.add(key)
         parent=tuple(receipt['host'][k] for k in ('bootId','uid','parentDevice','parentInode'))
         r.need(parent not in parents,'Python shared receiver directory');parents.add(parent)
         delivery=c.read(root/(node+'-delivery.json'),c.REQUEST_BYTES)

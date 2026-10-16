@@ -5,7 +5,7 @@ query, offered-window or cross-host replication causality validation.
 """
 from pathlib import Path
 from . import remote_voter as voter, remote_command as c, remote_host as host
-from . import measurement_history as ledger, remote_topology as topology
+from . import measurement_history as ledger, remote_topology as topology,remote_host_domains as domains
 from .evidence import need, encoded, digest
 
 
@@ -45,8 +45,9 @@ def edges(events,calls,node,*,generation=1,exit_code=0):
 
 
 def validate(root,binding):
-    root=Path(root);need(binding['remoteTopology']['placement']=='local-no-gcp','voter cross-host qualification unavailable')
-    need(binding.get('remoteVoterControl')=='local-persistent-voters-v1','voter control binding')
+    root=Path(root);hosts=domains.validate(binding)
+    need(binding['remoteTopology']['placement'] in ('local-no-gcp','owned-private-hosts'),'voter placement')
+    need(binding.get('remoteVoterControl')==('local-persistent-voters-v1' if hosts is None else 'bound-host-persistent-voters-v1'),'voter control binding')
     voter.h.bundle.inventory(root)
     if 'remotePython' in binding or (root/'python-capsule.json').exists():
         from . import remote_python_runtime_evidence
@@ -56,6 +57,10 @@ def validate(root,binding):
     controller=c.read(root/'controller-domain.json',4096)
     need(set(controller)=={'clock','process','session'} and controller['clock']=='python-monotonic-ns','voter controller domain')
     c.hex_value(controller['session'],32,'controller session');c.validate_process(controller['process'],controller['process'])
+    domains.boot(controller['process']['bootId'])
+    if hosts is not None:
+        domains.routes(binding)
+        need(controller['process']['bootId'] not in {h['bootId'] for h in hosts['nodes'].values()},'voter controller shares guest boot')
     results={};services=set();jvms=set()
     restart=binding.get('remoteRestart')==voter.scope.RESTART_EXECUTION
     crashed=[p for p in processes if p['exitCode']==-9]
@@ -71,7 +76,7 @@ def validate(root,binding):
         exit_code=-9 if restart and (node,generation)==(crashed[0]['node'],1) else 0
         control=root/voter.scope.control_name(node,generation);config=c.read(control/'config.json',c.REQUEST_BYTES);sha=digest(encoded(config))
         need(set(config)==voter.scope.fields(config) and voter.scope.generation(config)==generation and
-             config['schema']==voter.SCHEMA and config['execution']=='local-persistent-voters-only' and
+             config['schema']==voter.SCHEMA and config['execution']==('local-persistent-voters-only' if hosts is None else 'bound-host-persistent-voters-only') and
              config['binding']==binding and config['node']==node and config['root']==binding['remoteReceivers'][node]['originalRoot'],
              'voter retained config binding')
         host.validate_pin(config['host']);c.hex_value(config['session'],32,'voter session')
@@ -81,8 +86,15 @@ def validate(root,binding):
              identity['session']==config['session'],'voter retained identity')
         for kind,seen in (('service',services),('jvm',jvms)):
             value=identity[kind];c.validate_process(value,config['host'])
-            need(value['bootId']==controller['process']['bootId'],'voter local-only boot binding')
-            key=tuple(value[k] for k in ('bootId','pid','startTicks'));need(key not in seen,'voter duplicate process identity');seen.add(key)
+            if hosts is None:
+                need(value['bootId']==controller['process']['bootId'],'voter local-only boot binding')
+                key=tuple(value[k] for k in ('bootId','pid','startTicks'))
+            else:
+                expected_host=hosts['nodes'][node]
+                need(all(config['host'][k]==expected_host[k] for k in ('bootId','uid')),'voter bound host changed')
+                key=domains.process_key(dict(resourceIdentitySha256=expected_host['resourceIdentitySha256'],**value))
+            need(key not in seen,'voter duplicate process identity');seen.add(key)
+        need(identity['service']['pid']!=identity['jvm']['pid'],'voter service and JVM share process')
         need(started==dict(configSha256=sha,service=identity['service']),'voter retained start')
         records=[p for p in processes if p['node']==node and p['generation']==generation]
         need(len(records)==1 and records[0]==dict(node=node,generation=generation,pid=identity['jvm']['pid'],exitCode=exit_code,identity=identity['consumer']),
@@ -105,10 +117,11 @@ def validate(root,binding):
         if 'remoteVoterTransport' in binding or (control/'ssh-streams.json').exists():
             from . import remote_voter_ssh_evidence
             remote_voter_ssh_evidence.validate(control,binding,config,sha,events)
-    need(not services & jvms and all(v[1]!=controller['process']['pid'] for v in services|jvms),'voter independent process owners')
+    need(not services & jvms and (hosts is not None or all(v[1]!=controller['process']['pid'] for v in services|jvms)),'voter independent process owners')
+    if hosts is not None:domains.check_processes(processes,domains.processes(root,binding,processes))
     need(sum(v['operations'] for v in results.values())==len(history),'voter foreign controller call')
     if restart:
         from . import remote_restart_evidence
         remote_restart_evidence.validate(root,binding)
-    return dict(status='PASS',execution='local-persistent-voter-message-edges-only',nodes=results,
+    return dict(status='PASS',execution='local-persistent-voter-message-edges-only' if hosts is None else 'bound-host-voter-message-edges-only',nodes=results,
                 qualifiedMeasurement=False,fullRemoteQualification=False,paidCloud=False)

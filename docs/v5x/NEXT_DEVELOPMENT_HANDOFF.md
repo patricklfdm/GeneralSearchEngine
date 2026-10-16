@@ -126,6 +126,18 @@ tests pass on the final development worktree. The actual run retains its separat
 source snapshot and is not relabelled as protected acceptance. Independent-host
 identity, clock/routing qualification, owned members and cloud admission remain open.
 
+[Bound host and process domains](v5.2/PHASE_6_HOST_PROCESS_DOMAINS.md) now distinguish
+equal cross-host PIDs and retained PID reuse through explicit resource/boot/start
+identities. Independent clock offsets preserve message/local-order checks, and
+installed Python paths are scoped to the expected host. These component checks
+and retained physical replay do not enable private-host execution; provider/lease
+ownership, live routing, whole owned members and cloud admission remain next.
+
+The previously running five-history formal SSH gate also completed: all five
+original/relocated replays pass in 3,950.755 seconds, with 3,704 reads, 372 updates,
+158 negative rejections and all 15 service/JVM pairs stopped. Its original
+`5d183ca` source plus recorded checkout hash remain bound to that evidence.
+
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,
 36 skipped suite placeholders). See the [acceptance checklist](v5.2/PHASE_0_CHECKLIST.md).

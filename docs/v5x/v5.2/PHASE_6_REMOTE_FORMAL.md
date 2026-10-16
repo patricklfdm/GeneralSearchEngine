@@ -123,14 +123,27 @@ reported as an uninterrupted green reactor attempt. All 476 V5.2 Python tests,
 All five reactor modules then package successfully from the corrected source;
 that packaging command skips tests already covered above.
 
-The final rebuilt gate at `run.u16QUK` remains in progress. Its M02 above/1000,
-M03 P=4 and M03 P=65 histories pass complete original/relocated replay; candidate
-explicit-strong M01 also passes original replay, while its relocated replay and
-the published control are pending. This is not a completed five-history gate.
+The final rebuilt gate at `run.u16QUK` passes all five complete histories in
+3,950.755 seconds. All original and relocated physical/query replay and all 158
+negative rejections pass, preserving 3,704 reads and 372 updates. All 15 service/
+JVM pairs stop cleanly. Per-history elapsed times include preparation, execution,
+collection and replay; they are not workload latency measurements.
+
+| Complete history | Seconds | Reads / updates | Negatives per location |
+| --- | ---: | ---: | ---: |
+| M02 above/1000 | 72.708 | 31 / 4 | 15 |
+| M03 P=4 | 71.750 | 5 / 4 | 16 |
+| M03 P=65 | 100.377 | 66 / 4 | 16 |
+| Candidate explicit-strong M01 r1 | 2802.773 | 1801 / 180 | 18 |
+| Published V5.1 legacy-strong M01 r1 | 902.591 | 1801 / 180 | 14 |
+
 The run binds source `5d183cac51e44ad393fc3583158b3a7e868617be` and checkout
 `b3e2cc4e0d6c8299532adaa8949a011088e54c2332d90030002cb0a4da0eae08`.
-The implementation is committed in an isolated linked worktree while that exact
-original source remains unchanged; later results must retain the original binding. The current implementation has 13 new
+Its receipt SHA-256 is
+`bc0413628fe47e8938e3b462b19bd0509c5188a76da2c5d4ad6e7cb3649fa014`.
+All 26 files in the recorded execution index remained unchanged until exit.
+Later development continued in an isolated linked worktree; this evidence retains
+its original binding and shared-Python local scope. The implementation has 13 new
 Python tests covering exact profile/parameter admission, large-export bounds,
 foreign/circular inventories and verification before extraction. These lightweight
 tests join the existing measurement CI command; the expensive SSH gate remains

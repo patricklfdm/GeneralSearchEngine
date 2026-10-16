@@ -4,7 +4,7 @@ from .evidence import need
 NODES={'node-1','node-2','node-3'}
 
 
-def validate(processes,restarted=None,*,label='measurement ledger'):
+def validate(processes,restarted=None,*,label='measurement ledger',domains=None):
     need(restarted is None or restarted in NODES,label+' restarted voter')
     expected={(n,1):(-9 if n==restarted else 0) for n in NODES}
     if restarted is not None:expected[restarted,2]=0
@@ -13,7 +13,11 @@ def validate(processes,restarted=None,*,label='measurement ledger'):
         need(type(p['pid']) is int and p['pid']>0 and type(p['generation']) is int and type(p['exitCode']) is int,
              label+' process identity types')
         key=p['node'],p['generation'];need(key not in observed,label+' duplicate process generation');observed[key]=p['exitCode']
-    need(observed==expected and len({p['pid'] for p in processes})==len(expected),
+    if domains is None:distinct=len({p['pid'] for p in processes})==len(expected)
+    else:
+        from . import remote_host_domains
+        remote_host_domains.check_processes(processes,domains);distinct=True
+    need(observed==expected and distinct,
          label+(' clean processes' if restarted is None else ' owned SIGKILL/reopen processes'))
     return {(p['node'],p['generation'],p['pid']) for p in processes}
 

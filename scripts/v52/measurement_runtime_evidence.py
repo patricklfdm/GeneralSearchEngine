@@ -13,6 +13,7 @@ from . import measurement_load as load,measurement_samples as samples,measuremen
 from . import measurement_projection,measurement_stream,measurement_history,measurement_publication,measurement_reads
 from . import measurement_options as options
 from .measurement_reads import publication_generation
+from . import measurement_identity as identities,measurement_generations as generations
 from .evidence import need,digest,encoded
 
 DRIVER_MARKERS=(dict(name='warmup-start',offsetNanos=0),dict(name='measured-start',offsetNanos=500_000_000),
@@ -34,7 +35,9 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
     need(all(digest((root/'artifacts'/name).read_bytes())==sha for name,sha in binding['artifacts'].items()),'measurement artifact hashes')
     need(all(digest((root/name).read_bytes())==sha for name,sha in binding['classes'].items()),'measurement consumer hashes')
     history=reads.read(root/'history.json') if history is None else history;processes=reads.read(root/'processes.json');scenario=reads.read(root/'scenario.json')
-    need(len(processes)==3 and len({v['pid'] for v in processes})==3 and {v['node'] for v in processes}=={'node-1','node-2','node-3'} and
+    domains=identities.process_domains(root,binding,processes)
+    generations.validate(processes,domains=domains)
+    need(len(processes)==3 and (domains is not None or len({v['pid'] for v in processes})==3) and {v['node'] for v in processes}=={'node-1','node-2','node-3'} and
          all(v['generation']==1 and v['exitCode']==0 for v in processes),'measurement three stopped public JVMs')
     need(binding['mode'] in model.MODES and scenario['mode']==binding['mode'] and binding['programSha256']==model.PLAN_SHA,'measurement smoke mode/program')
     traces=traces if traces is not None else {p['node']:stream(root,p['node']) for p in processes}
@@ -56,7 +59,7 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
                  not (root/options.FILE).exists() and 'faultParameters' not in binding and not (root/'measurement-fault.json').exists(),
                  'measurement smoke read parameters changed')
     location=remote if remote is not None else (performance_artifacts if package is bundle else package).EvidenceLocation(root,binding['origin'])
-    base=physical.validate(root,traces,evidence_location=location,require_restart=False,basis_coverage='selected-quorums')
+    base=physical.validate(root,traces,evidence_location=location,require_restart=False,basis_coverage='selected-quorums',process_generations=domains is not None)
     manifest,genesis,entries=reads.context(root,traces)
     calls={r['opId']:r for r in history if r['kind'] in ('read','update')}
     need(len(calls)==14 and len([r for r in calls.values() if r['kind']=='read'])==11 and
@@ -87,9 +90,9 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
     if 'publicationAuthority' in binding:
         need(binding['publicationAuthority']=='forced-generation-v1','measurement unknown publication authority profile')
         authority=measurement_publication.validate(traces,manifest,projection,binding['mode'])
-    observed=measurement_reads.validate(traces,processes,calls,manifest,entries,projection,binding['mode'],answers)
+    observed=measurement_reads.validate(traces,processes,calls,manifest,entries,projection,binding['mode'],answers,domains=domains)
     cuts=observed['cuts'];timings=observed['timings']
-    ledger=measurement_history.validate(traces,processes,history,binding['mode'])
+    ledger=measurement_history.validate(traces,processes,history,binding['mode'],domains=domains)
     driver=None
     if binding.get('driverExercise',False):
         offered=reads.read(root/'offered.json')

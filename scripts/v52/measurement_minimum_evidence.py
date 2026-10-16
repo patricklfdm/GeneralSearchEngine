@@ -31,6 +31,7 @@ def identity(root,expected):
 
 def validate(root,expected,answers=None,*,traces=None,history=None,scenario=None,observed=None):
     root=Path(root).resolve();binding,processes=identity(root,expected);plan=binding['measurementProfile'];parameters=plan['parameters']
+    domains=identities.process_domains(root,binding,processes)
     history=metadata(root,'history.json',32<<20) if history is None else history
     scenario=metadata(root,'scenario.json',1<<20) if scenario is None else scenario
     observed=metadata(root,'observed.json',4<<20) if observed is None else observed
@@ -41,15 +42,15 @@ def validate(root,expected,answers=None,*,traces=None,history=None,scenario=None
     raw=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(physical.f.inspect(raw,'MANIFEST'),digest=raw[16:48].hex())
     authority_budget=budget.validate(traces,manifest)
     base=physical.validate(root,traces,evidence_location=identities.evidence_location(root,binding),require_restart=False,
-                           basis_coverage='selected-quorums')
+                           basis_coverage='selected-quorums',process_generations=domains is not None)
     manifest,genesis,entries=reads.context(root,traces);calls={c['opId']:c for c in history if c['kind'] in ('read','update')}
     state=projection.Projection(manifest,genesis,entries,[c for c in calls.values() if c['kind']=='update'])
     authority=publication.validate(traces,manifest,state,controller.MODE,selector_limit=budget.MAX_SELECTORS,
                                    transfer_limit=publication.MAX_MEASURED_TRANSFERS)
     ledger=lifecycle.validate(traces,processes,history,controller.MODE,pending_limit=parameters['pendingLimit'],
-        minimum_wait_millis=parameters['waitTimeoutMillis'],allow_progress_not_reached=plan['family']=='M02' and parameters['waitTimeoutMillis']==0)
+        minimum_wait_millis=parameters['waitTimeoutMillis'],allow_progress_not_reached=plan['family']=='M02' and parameters['waitTimeoutMillis']==0,domains=domains)
     successful=cuts.validate(traces,processes,calls,manifest,entries,state,controller.MODE,answers,
-        pending_limit=parameters['pendingLimit'],minimum_wait_millis=parameters['waitTimeoutMillis'])
+        pending_limit=parameters['pendingLimit'],minimum_wait_millis=parameters['waitTimeoutMillis'],domains=domains)
     gate_result=gates.validate(history,scenario,observed,traces,manifest,plan)
     if plan['releaseUpdate']:
         chosen=state.update_entries[scenario['releaseUpdate']]

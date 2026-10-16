@@ -63,6 +63,7 @@ def resources(traces,processes,history,scenario):
 def validate(root,expected,answers=None,*,traces=None,history=None,scenario=None):
     root=Path(root).resolve();scenario=metadata(root,'scenario.json',1<<20) if scenario is None else scenario
     binding,processes,restarted=identity(root,expected,scenario);plan=binding['measurementProfile']
+    domains=identities.process_domains(root,binding,processes)
     history=metadata(root,'history.json',32<<20) if history is None else history
     need(metadata(root,'execution.json',1<<20)==dict(status='STOPPED',qualifiedMeasurement=False,paidCloud=False,failure=None,closeErrors=[]),
          'recovery incomplete process execution')
@@ -71,15 +72,15 @@ def validate(root,expected,answers=None,*,traces=None,history=None,scenario=None
     raw=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(physical.f.inspect(raw,'MANIFEST'),digest=raw[16:48].hex())
     bounds=budget.validate(traces,manifest)
     base=physical.validate(root,traces,evidence_location=identities.evidence_location(root,binding),require_restart=restarted is not None,
-                           basis_coverage='selected-quorums')
+                           basis_coverage='selected-quorums',process_generations=domains is not None)
     manifest,genesis,entries=reads.context(root,traces);calls={c['opId']:c for c in history if c['kind'] in ('read','update')}
     state=projection.Projection(manifest,genesis,entries,[c for c in calls.values() if c['kind']=='update'])
     restorations={};retained_report=None
     if restarted is not None:restorations,retained_report=retained.validate(root,binding,dict(scenario,initialIndex=schedule['initialIndex']),traces,manifest,genesis,state)
     authority=publication.validate(traces,manifest,state,'candidate-minimum',selector_limit=budget.MAX_SELECTORS,
                                    transfer_limit=publication.MAX_MEASURED_TRANSFERS,restorations=restorations)
-    life=lifecycle.validate(traces,processes,history,'candidate-minimum',restarted=restarted)
-    successful=cuts.validate(traces,processes,calls,manifest,entries,state,'candidate-minimum',answers,restarted=restarted,restorations=restorations)
+    life=lifecycle.validate(traces,processes,history,'candidate-minimum',restarted=restarted,domains=domains)
+    successful=cuts.validate(traces,processes,calls,manifest,entries,state,'candidate-minimum',answers,restarted=restarted,restorations=restorations,domains=domains)
     fault=ledger.gates(history,scenario,plan,traces,processes,manifest)
     need(state.ordinals==[0,1,2,3] and life['outcomes']['read']==life['outcomes']['update']=={'SUCCESS':4} and
          successful['successfulReads']==successful['successfulUpdates']==4,'recovery complete outcome reconciliation')

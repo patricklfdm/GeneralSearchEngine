@@ -76,5 +76,34 @@ class PythonRuntimeEvidenceTest(unittest.TestCase):
         self.write('node-1-control-g2/python-runtime.json',{})
         with self.assertRaisesRegex(ValueError,'control generations'):evidence.validate(self.root,self.binding)
 
+    def bound_hosts(self):
+        from .test_remote_host_domains import fixture
+        self.binding.update(fixture())
+        for node,receipt in self.binding['remotePython']['nodes'].items():
+            receipt['root']='/same/path/python-'+self.descriptor['sha256']
+            receipt['host']['bootId']=self.binding['remoteHostDomains']['nodes'][node]['bootId']
+            for name in (node+'-python-bootstrap.json',node+'-control/python-runtime.json'):
+                def rewrite(value):
+                    value['installation']=deepcopy(receipt);value['selection']['root']=receipt['root']
+                self.mutate(name,rewrite)
+            self.mutate(node+'-delivery.json',lambda v:v['receiverHost'].update(bootId=receipt['host']['bootId']))
+
+    def test_same_install_path_is_valid_on_separately_bound_hosts(self):
+        self.bound_hosts()
+        self.assertEqual('PASS',evidence.validate(self.root,self.binding)['status'])
+
+    def test_local_duplicate_path_still_rejects_without_host_domains(self):
+        rows=self.binding['remotePython']['nodes'];rows['node-2']['root']=rows['node-1']['root']
+        with self.assertRaisesRegex(ValueError,'installation root'):evidence.validate(self.root,self.binding)
+
+    def test_installation_cannot_move_to_another_boot_or_user(self):
+        self.bound_hosts()
+        # A rewritten receipt chain is not an authority to replace the expected host.
+        for key,value in (('bootId','00000000-0000-4000-8000-000000000009'),('uid',1001)):
+            receipt=self.binding['remotePython']['nodes']['node-1'];old=receipt['host'][key];receipt['host'][key]=value
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'Python bound installation host changed'):
+                evidence.validate(self.root,self.binding)
+            receipt['host'][key]=old
+
 
 if __name__=='__main__':unittest.main()
