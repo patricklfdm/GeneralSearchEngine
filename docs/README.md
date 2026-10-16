@@ -65,6 +65,7 @@ qualification, protected full CI and cloud acceptance remain pending.
 - [Phase 6AA durable command ownership](v5x/v5.2/PHASE_6_REMOTE_COMMANDS.md)
 - [Phase 6AB stable command slots and owned history](v5x/v5.2/PHASE_6_REMOTE_OWNED_HISTORY.md)
 - [Phase 6AC complete receiver histories and portable replay](v5x/v5.2/PHASE_6_REMOTE_HISTORIES.md)
+- [Phase 6AD pinned SSH commands and guest identity](v5x/v5.2/PHASE_6_SSH_HISTORY.md)
 - [Complete hosted M01–M04 acceptance](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 

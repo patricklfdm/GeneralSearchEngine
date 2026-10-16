@@ -35,6 +35,11 @@ Five complete representative histories passed original/relocated replay and all
 158 negative rejections, preserving 1,845 original read and 196 update outcomes.
 The existing five smoke modes and default detached entry also passed; all 305
 V5.2 Python tests and 21 CI tests passed. These remain local receiver checks.
+[Pinned SSH command transport](v5.2/PHASE_6_SSH_HISTORY.md) adds a fixed guest
+entry, durable detached launch ownership and boot/user/directory identity checks.
+Its real loopback SSH qualification passed nine control cases and one original
+11-read/3-update history with 48 physical evidence negatives. All 322 V5.2 Python
+tests and 21 CI suite tests passed. This is separate from three-host cloud acceptance.
 Cross-host transport/identity, complete owned members, protected full CI and fresh
 cloud admission remain open. The milestones below
 retain their original validation scope and source; earlier pending statements
