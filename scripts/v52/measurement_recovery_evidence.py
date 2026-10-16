@@ -70,7 +70,7 @@ def validate(root,expected,answers=None,*,traces=None,history=None,scenario=None
     traces=traces if traces is not None else {f'node-{i}':trace.Trace(root/f'node-{i}-trace.jsonl',node=f'node-{i}') for i in (1,2,3)}
     raw=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(physical.f.inspect(raw,'MANIFEST'),digest=raw[16:48].hex())
     bounds=budget.validate(traces,manifest)
-    base=physical.validate(root,traces,evidence_location=bundle.EvidenceLocation(root,binding['origin']),require_restart=restarted is not None)
+    base=physical.validate(root,traces,evidence_location=identities.evidence_location(root,binding),require_restart=restarted is not None)
     manifest,genesis,entries=reads.context(root,traces);calls={c['opId']:c for c in history if c['kind'] in ('read','update')}
     state=projection.Projection(manifest,genesis,entries,[c for c in calls.values() if c['kind']=='update'])
     restorations={};retained_report=None

@@ -2,7 +2,7 @@
 import base64
 from pathlib import Path
 from scripts.v51 import storage_inspector as storage,recovery_inspector as recovery,runtime_evidence as physical
-from . import measurement_bundle as bundle
+from . import measurement_bundle as bundle,measurement_identity as identities
 from .evidence import need,digest,encoded
 
 
@@ -12,7 +12,7 @@ def validate(root,binding,scenario,traces,manifest,genesis,projection):
     need(inventory==crash['preReopen'] and 0<len(inventory)<=4096 and
          sum(v['bytes'] for v in inventory.values())<=64<<20 and all(v['bytes']<=8<<20 for v in inventory.values()),
          'recovery pre-reopen inventory/bound')
-    report=storage._inspect(directory,64<<20,8<<20,Path(binding['origin'])/node)
+    report=storage._inspect(directory,64<<20,8<<20,identities.original_root(binding,node)/node)
     need(report['node']==node and report['manifestDigest']==manifest['digest'] and report['applicationSequence']==4 and
          report['provenThrough']>=scenario['initialIndex'],'recovery pre-reopen committed cut')
     active,base,_,_=recovery.state(directory,manifest,node,genesis)

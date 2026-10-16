@@ -13,6 +13,21 @@ def metadata(root,name,maximum,*,label="measurement M01"):
     return strict_json(raw)
 
 
+def original_root(binding,node):
+    if 'remoteTopology' in binding or 'remoteReceivers' in binding:
+        from . import remote_identity
+        need('remoteTopology' in binding and 'remoteReceivers' in binding,'remote measurement binding fields')
+        return remote_identity.original_root(binding,node)
+    return Path(binding['origin'])
+
+
+def evidence_location(root,binding):
+    if 'remoteTopology' in binding or 'remoteReceivers' in binding:
+        from . import remote_identity
+        return remote_identity.location(root,binding)
+    return bundle.EvidenceLocation(root,binding['origin'])
+
+
 def identity(root,expected,check_profile,*,label,restarted=None):
     model.load();binding=metadata(root,'binding.json',4<<20,label=label)
     need(binding==expected,label+' source/build/attempt binding')
@@ -34,6 +49,9 @@ def identity(root,expected,check_profile,*,label,restarted=None):
         need(len(processes)==3 and len({p['pid'] for p in processes})==3 and {p['node'] for p in processes}=={'node-1','node-2','node-3'} and
              all(p['generation']==1 and p['exitCode']==0 for p in processes),label+' three stopped JVMs')
     generations.validate(processes,restarted,label=label)
+    if 'remoteTopology' in binding or 'remoteReceivers' in binding:
+        # Validate the retained map before using receiver-local loaded paths.
+        evidence_location(root,binding)
     for process in processes:
         value=process['identity']
         need(all(value[k]==process[k] for k in ('node','pid')) and value['mode']==mode,label+' startup identity')
@@ -41,6 +59,6 @@ def identity(root,expected,check_profile,*,label,restarted=None):
              label+' JVM differs from build identity')
         need(value.get('readParameters')==binding['readParameters'],label+' observed read parameters differ')
         for component,name in (('core',cores[0]),('replication','general-search-engine-replication-'+version+'.jar')):
-            need(value[component+'Source']==str(Path(binding['origin'])/'artifacts'/name),label+' loaded artifact source')
+            need(value[component+'Source']==str(original_root(binding,process['node'])/'artifacts'/name),label+' loaded artifact source')
     return binding,processes
 

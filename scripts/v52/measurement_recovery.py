@@ -35,8 +35,9 @@ def partition(root,node=None):
 def prepare(root,case):return runtime.prepare(Path(root),'candidate-minimum',recovery_case=case)
 
 
-def observe(root,workers,history,case,crash,restart,*,clock=time.monotonic_ns,sleep=time.sleep):
+def observe(root,workers,history,case,crash,restart,*,clock=time.monotonic_ns,sleep=time.sleep,partition_control=None):
     root=Path(root);plan=profile(case);details=dict(case=case,family='M04',stage='activation')
+    cut=partition_control if partition_control is not None else lambda node=None:partition(root,node)
     receipt=dict(status='FAIL',execution='recovery-controller-only',qualifiedMeasurement=False,paidCloud=False,case=case)
     def wait(probe,label,seconds):
         until=clock()+seconds*1_000_000_000
@@ -91,13 +92,13 @@ def observe(root,workers,history,case,crash,restart,*,clock=time.monotonic_ns,sl
                  'measurement recovery selected pair changed')
             follower=next(n for n in workers if not mask&(1<<(int(n[-1])-1)));target=workers[follower]
             details.update(target=follower,selectedProbe=probe['opId'],selectedStatus=status['opId'])
-            partition(root,follower);details['partitionNanos']=clock();details['isolatedStatus']=target.call('status')
+            cut(follower);details['partitionNanos']=clock();details['isolatedStatus']=target.call('status')
             write=active.call('update',document=updates[3]);details['progressWrite']=write['opId']
             later=active.call('read',query=model.query(1),setupToken=True);details['laterStrong']=later['opId']
             later_index=token.decode(base64.b64decode(later['token'],validate=True))['index']
             details['sourceFloors']=wait(lambda:floors(set(workers)-{follower},later_index),'snapshot source floor',plan['recoverySeconds'])
             held=target.call('status');need(held['sequence']==4 and held['publishedIndex']<later_index,'measurement recovery target did not lag')
-            details['heldStatus']=held;details['healIssuedNanos']=clock();partition(root);details['healCompletedNanos']=clock()
+            details['heldStatus']=held;details['healIssuedNanos']=clock();cut();details['healCompletedNanos']=clock()
             details['installed']=wait(lambda:published(follower,later_index,5,True),'snapshot install/publication',plan['recoverySeconds'])
             need(details['installed']['status']['state']=='FOLLOWER','measurement recovery snapshot target became leader')
             details['publicationObservedNanos']=clock()

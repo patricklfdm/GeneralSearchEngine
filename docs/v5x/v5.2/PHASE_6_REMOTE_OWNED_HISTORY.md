@@ -3,6 +3,9 @@
 **Status:** the complete integrated local gate passed on 2026-10-16. This stage
 connects the command store to one real untimed `candidate-minimum` history.
 It does not qualify a full remote member or a paid cloud run.
+[Phase 6AC](PHASE_6_REMOTE_HISTORIES.md) extends the same local command owner to
+all closed histories and adds complete M01–M04 receiver qualification probes.
+The record below describes this original untimed stage.
 
 ## Stable semantic slots
 

@@ -10,12 +10,12 @@ from .test_remote_slots import owner
 class OwnedHistoryTest(unittest.TestCase):
     def test_local_backend_rejects_source_mode_or_coordinator_drift(self):
         bound=owner();expected={k:bound['selection']['binding'][k] for k in ('source','checkoutSha256')}
-        self.assertEqual(bound['selection']['member']['profiles'][bound['history']]['mode'],h.validate_local_owner(bound,expected))
+        self.assertEqual(bound['selection']['member']['profiles'][bound['history']],h.validate_local_owner(bound,expected))
         for changed in (dict(expected,source='f'*40),dict(expected,checkoutSha256='f'*64)):
             with self.assertRaisesRegex(ValueError,'source drift'):h.validate_local_owner(bound,changed)
         with self.assertRaisesRegex(ValueError,'coordinator'):h.validate_local_owner(dict(bound,node='node-2'),expected)
         bound=owner('canonical-1');expected={k:bound['selection']['binding'][k] for k in ('source','checkoutSha256')}
-        with self.assertRaisesRegex(ValueError,'untimed qualification'):h.validate_local_owner(bound,expected)
+        self.assertEqual('M01',h.validate_local_owner(bound,expected)['family'])
 
     def test_source_failure_is_retained_and_stable_slot_cannot_repeat_work(self):
         with tempfile.TemporaryDirectory() as directory:

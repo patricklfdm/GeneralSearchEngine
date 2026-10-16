@@ -29,8 +29,14 @@ fixes and recovered pre-cloud stages now share the development worktree.
 connect the existing receiver and command foundations. The integrated local gate
 passed both five-mode entries, six receiver bootstraps, four command subprocess
 cases and the one-submission real history; all 292 V5.2 Python tests passed.
-Complete remote M01–M04,
-protected full CI and fresh cloud admission remain open. The milestones below
+[Whole-history receiver execution](v5.2/PHASE_6_REMOTE_HISTORIES.md) now connects
+the unchanged M01–M04 controllers, per-receiver paths and owned recovery lifecycle.
+Five complete representative histories passed original/relocated replay and all
+158 negative rejections, preserving 1,845 original read and 196 update outcomes.
+The existing five smoke modes and default detached entry also passed; all 305
+V5.2 Python tests and 21 CI tests passed. These remain local receiver checks.
+Cross-host transport/identity, complete owned members, protected full CI and fresh
+cloud admission remain open. The milestones below
 retain their original validation scope and source; earlier pending statements
 describe those historical stages, not the current hosted cohort result.
 

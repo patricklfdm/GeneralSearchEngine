@@ -70,7 +70,7 @@ def validate(root,expected,answers=None,*,traces=None,history=None,offered=None,
     raw=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(physical.f.inspect(raw,'MANIFEST'),digest=raw[16:48].hex())
     # Aggregate limits precede every general authority collector/reconstructor.
     authority_budget=budget.validate(traces,manifest)
-    base=physical.validate(root,traces,evidence_location=bundle.EvidenceLocation(root,binding['origin']),require_restart=False)
+    base=physical.validate(root,traces,evidence_location=identities.evidence_location(root,binding),require_restart=False)
     manifest,genesis,entries=reads.context(root,traces)
     calls={c['opId']:c for c in history if c['kind'] in ('read','update')}
     updates=[c for c in calls.values() if c['kind']=='update'];state=projection.Projection(manifest,genesis,entries,updates)
