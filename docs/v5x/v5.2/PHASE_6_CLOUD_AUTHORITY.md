@@ -73,6 +73,8 @@ Immutable cleanup receipts and original completion precede terminal ledger appen
 and conditional lease release. Retention or deletion failure keeps the lease for
 reconciliation. A later successful cleanup does not rewrite the original failed
 completion. A lost release reply is observed; a replacement lease is never deleted.
+An updated generation of the same original lease is not proof of release and
+cannot produce a successful release receipt.
 An interrupted acquisition before any charge/intent can release its empty lease,
 while attempted resources without their original reservation block cleanup.
 
@@ -91,7 +93,20 @@ responses, unresolved operations, foreign/reused IDs, missing charges, failed
 retention, lost release replies and preservation of old V5.1 objects.
 
 The new modules are included in the existing V5.2 measurement unit-test gate.
+Implementation `ecbe215` passes all 578 V5.2 Python tests (126.540 seconds), including
+40 new control regressions. All 30 CI classification tests, the V5.0 documentation
+contract, changed Markdown links/fences, Python/shell syntax and whitespace checks
+also pass. No Maven or engine history rerun was needed for these control-only
+changes.
+
 Results and executed source hashes are retained in `target/v52-cloud-authority/`.
+The first complete suite retained one stale diagnostic expectation: a new
+post-insert checkpoint correctly fences the owner before the later CAS conflict.
+The updated assertion preserves rejection and no-second-insert checks. A separate
+new release regression failed before the correction and passed afterward: a new
+generation of the same lease must not be mistaken for a released lease. Both
+original failure logs and the pre-correction control implementation are retained.
+The later documentation commit does not replace the tested implementation.
 Unit/control receipts are not engine or independent-host qualification. The earlier
 four-history SSH receipt still belongs to implementation `2649555`, not this source.
 
