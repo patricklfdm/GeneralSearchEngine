@@ -333,3 +333,12 @@ resource and operation mapping through the same owner/reconciler, including dura
 submission fencing and reconstructible cleanup. It performs no network or workload
 execution and does not qualify native provider compatibility. Original failure and
 corrected-source test receipts are retained in `target/v52-cloud-provider/`.
+
+### Fresh provider guest identity
+
+[Phase 6AS](PHASE_6_PROVIDER_GUEST_IDENTITY.md) adds `test_cloud_identity` to the
+measurement unit gate. Bound public SSH access is part of the original request;
+complete instance/boot/data observations bracket host-key discovery and preserve
+the stable allocation claim across renewals. The qualified HTTP fixture supplies
+provider observations, while local key generation/checking uses real files and
+`ssh-keygen`. Neither result qualifies IAP, guest mounts or paid execution.

@@ -1047,3 +1047,9 @@ create-only submission markers and finite original exchanges. Concrete offline H
 fault tests preserve exact-ID and generation fencing. No native API or cloud
 admission exists yet; next connect qualified credentials and fresh provider/guest/
 IAP observations before the complete owned member/aggregate entry.
+
+[Phase 6AS attempt access and provider identity](v5.2/PHASE_6_PROVIDER_GUEST_IDENTITY.md)
+binds per-attempt SSH public access before creation and derives private topology
+from three fresh instance/disk/host-key observations. Resource changes and fenced
+ownership reject; missing host keys are pending only after the second full sample.
+Native credentials, owned IAP and actual guest/mount observations remain next.

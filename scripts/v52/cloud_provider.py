@@ -184,6 +184,9 @@ class Provider:
                     serviceAccounts=[], disks=[], metadata=dict(items=[dict(key=k,value=v) for k,v in (
                         ('block-project-ssh-keys','TRUE'), ('enable-oslogin','FALSE'), ('enable-guest-attributes','TRUE'))]),
                     scheduling=dict(provisioningModel='STANDARD', automaticRestart=False))
+                if 'guestAccess' in self.request:
+                    from .cloud_access import metadata
+                    body['metadata']['items'] = metadata(self.request['guestAccess'])
                 for purpose in ('boot','data'):
                     disk = next(s for s in self.specs.values() if s['kind']=='disk' and s['node']==spec['node'] and s['purpose']==purpose)
                     body['disks'].append(dict(source=self.endpoint(disk), boot=purpose=='boot', autoDelete=False,

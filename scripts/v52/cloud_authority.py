@@ -61,13 +61,26 @@ def request(selection, configuration_sha256, resource_layout, ownership_policy, 
 
 
 def validate_request(value, *, domain):
-    fields(value, 'schema execution paidCloud selection configurationSha256 layout policy createdAt', 'request')
-    need(domain in DOMAINS and value['schema'] == 'gse-v52-owned-request-v1' and
+    extended = type(value) is dict and value.get('schema') == 'gse-v52-owned-request-v2'
+    fields(value, 'schema execution paidCloud selection configurationSha256 layout policy createdAt'+
+           (' guestAccess' if extended else ''), 'request')
+    need(domain in DOMAINS and value['schema'] in ('gse-v52-owned-request-v1','gse-v52-owned-request-v2') and
          value['execution'] == DOMAINS[domain] and value['paidCloud'] is (domain == 'native'), 'V5.2 request domain')
     suite.validate_selection(value['selection']); hex_value(value['configurationSha256'])
+    if extended:
+        from .cloud_access import validate
+        validate(value['guestAccess'], value['selection']['attempt'])
     layout(value['layout']); policy(value['policy'])
     integer(value['createdAt'], 1, MAX_INTEGER-value['policy']['leaseSeconds']-value['policy']['operationGraceSeconds'])
     return digest(encoded(value))
+
+
+def with_access(value, access):
+    """Bind per-attempt public access before allocation, preserving cohort identity."""
+    validate_request(value, domain=domain(value))
+    need(value['schema']=='gse-v52-owned-request-v1', 'V5.2 access already bound')
+    result=deepcopy(value);result.update(schema='gse-v52-owned-request-v2',guestAccess=deepcopy(access))
+    validate_request(result, domain=domain(result));return result
 
 
 def domain(value):

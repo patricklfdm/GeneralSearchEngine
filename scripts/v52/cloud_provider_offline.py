@@ -15,7 +15,7 @@ class Server:
 
     def __init__(self, configuration):
         self.config = deepcopy(configuration); self.objects = {}; self.resources = {}; self.operations = {}
-        self.events = []; self.serial = 100; self.seconds = 10.0; self.lock = threading.RLock()
+        self.host_keys = {}; self.events = []; self.serial = 100; self.seconds = 10.0; self.lock = threading.RLock()
         self.fault = lambda stage, request: None
         self.image = dict(name=configuration['imageName'],id=configuration['imageId'],status='READY')
 
@@ -72,6 +72,10 @@ class Server:
             need(set(q)=={'filter','maxResults'} and q['maxResults']=='100','offline operation query')
             match=re.fullmatch('clientOperationId = "([0-9a-f-]{36})"',q['filter']);need(match is not None,'offline operation filter')
             return 200,encoded(dict(items=[v for (s,_),v in self.operations.items() if s==scope and v['clientOperationId']==match[1]]))
+        if len(suffix)==3 and suffix[0]=='instances' and suffix[2]=='getGuestAttributes':
+            need(method=='GET' and q=={'queryPath':'hostkeys/'},'offline host-key query')
+            value=self.host_keys.get(suffix[1])
+            return (404,b'') if value is None else (200,encoded(value))
         kind=suffix[0];need(kind in ('firewalls','disks','instances'),'offline resource kind')
         if method=='POST':
             need(len(suffix)==1 and set(q)=={'requestId'},'offline insert target');value=strict(body);name=value['name']
@@ -84,6 +88,10 @@ class Server:
             if kind=='instances':
                 observed['status']='RUNNING';observed['networkInterfaces'][0]['networkIP']='10.0.0.'+str(self.serial%200+1)
             self.resources[key]=observed
+            if kind=='instances':
+                for attachment in observed['disks']:
+                    disk_name=attachment['source'].rsplit('/',1)[1]
+                    self.resources[(scope,'disks',disk_name)]['users']=['https://www.googleapis.com'+scope+'/instances/'+name]
             return 200,encoded(self.operation(scope,kind,name,identity,q['requestId'],'insert'))
         need(len(suffix)==2,'offline resource address');address=suffix[1]
         matches=[(k,v) for k,v in self.resources.items() if k[:2]==(scope,kind) and (v['id']==address or k[2]==address)]
