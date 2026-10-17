@@ -21,24 +21,26 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6AZ cleanup provenance](v5.2/PHASE_6_CLEANUP_PROVENANCE.md)
-adds the fixed manual workflow, pre-authentication identity selection, bounded
-cleanup evidence and exact-master/original-attempt GitHub provenance. The latest
-failed or WAITING execution cannot fall back to older green evidence. The shared
-owner now retains original provider context before its first lease CAS, closing
-the acquisition crash gap without changing resource/measurement limits.
+Latest local stage: [Phase 6BA native Runner resources](v5.2/PHASE_6_NATIVE_RUNNER.md)
+connects original full-CI/build/package, recent manual cleanup, fresh provider and
+exact prepared approval to a concrete native resource owner. It independently
+replays the collected bytes and rechecks original ledger generations after token
+refresh before acquisition/reservation. A session owns renewal, exact-ID cleanup
+and its credentials; stopping without qualified workload evidence retains FAIL
+and the original cost. Neither local resource fixtures nor cleanup PASS qualify
+an engine workload.
 
-The workflow exists in source only; configuration, protected environment and
-identities are not deployed. All native external I/O in this stage's tests is
-mocked. An idle PASS remains a cleanup-entry observation, not effective-IAM or
-real-deletion qualification. Native Runner provisioning/workload admission remain
-closed. Next join fresh CI/build/package, cleanup, provider and exact prepared
-approval in one concrete owned Runner factory, then complete owned IAP/guest,
-immutable whole-member evidence and the five-member acceptance set. Original
-failure logs, final tested-source hashes and validation results are retained at
-`target/v52-native-admission/validation-summary.json`.
-Local validation passed all 893 V5.2 Python tests, 171 related CI/V5.1 contracts
-and all 137 focused control-boundary tests, including 36 new cases.
+The manual workflow remains source-only; tracked provider configuration, protected
+identities/environments and the whole Runner workflow are not deployed. External
+I/O in native tests is mocked. Next connect strict IAP/guest identity and mounted
+storage to the existing installed Placement, then immutable independently replayed
+whole-member retention and the complete five-member set. Existing whole-history,
+one-source/sequence and any-order-member constraints remain. Local validation,
+original review failures and source hashes are recorded under
+`target/v52-native-runner/validation-summary.json`.
+All 920 V5.2 Python tests, including 27 new cases, and 171 related CI/V5.1
+contracts pass. The final suite uses unchanged executable source; its native
+external I/O is mocked and does not establish live-cloud acceptance.
 
 The [hosted acceptance record](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) binds successful
 run `38888573888`, attempt 1: 28 histories, 27,373 reads, 2,745 updates and 878

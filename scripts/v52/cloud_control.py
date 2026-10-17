@@ -98,7 +98,8 @@ def clean(store, provider, generation, lease):
         generation = put(store, a.LEASE, lease, generation)
     from .cloud_wire_policy import ScopedOfflineApi
     from .cloud_native_cleanup import NativeCleanupApi
-    redact = hasattr(store,'api') and type(store.api) in (ScopedOfflineApi, NativeCleanupApi)
+    from .cloud_native_runner import NativeRunnerApi
+    redact = hasattr(store,'api') and type(store.api) in (ScopedOfflineApi, NativeCleanupApi, NativeRunnerApi)
     outcome = exact_cleanup(provider, lease, persist, authority=a, redact=redact)
     result = dict(status='FAIL', scope=store_domain(store)+'-v52-cleanup-only', cleanup=outcome,
                   leaseReleased=False, fullRemoteQualification=False, paidCloud=store_domain(store)=='native')

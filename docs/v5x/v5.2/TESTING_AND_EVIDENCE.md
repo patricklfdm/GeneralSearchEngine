@@ -423,3 +423,20 @@ not establish live permissions, deployment or paid acceptance. The manual workfl
 is source-controlled but has not been pushed or triggered. An idle PASS cannot
 certify resource deletion. Local validation and the three original implementation
 failures are retained in `target/v52-native-admission/`; no workload was rerun.
+
+### Owned native Runner admission and resource lifetime
+
+[Phase 6BA](PHASE_6_NATIVE_RUNNER.md) adds `test_cloud_native_runner` to the
+existing measurement unit gate. The native factory executes actual GitHub artifact
+and cleanup parsers, package inspection, prepared approval, provider preflight,
+credential exchange, request-scoped wire policy and original ownership control,
+with external source/credential/GitHub/provider I/O replaced by local fixtures.
+Synthetic JAR bytes are inspected, never executed or claimed as hosted evidence.
+
+The suite checks first-member canonical selection, fresh generation checks after
+credential exchange, context/acquisition/reservation boundaries, original lost-ACK
+observation, partial-resource and unresolved-operation cleanup, failed-cost
+preservation, renewal/close and rejection before writes. Resource preparation has
+no workload PASS or paid-evidence qualification. The original clock-fixture and
+unresolved-insert expectation failures remain alongside corrected-source results
+in `target/v52-native-runner/`. No real cloud operation is performed by this gate.

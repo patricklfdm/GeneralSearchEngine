@@ -1,7 +1,4 @@
-"""V5.2 provider mapping for concrete offline or factory-owned cleanup APIs.
-
-Native provisioning and workload admission remain closed.
-"""
+"""V5.2 provider mapping for concrete offline or factory-owned native APIs."""
 from copy import deepcopy
 import math
 import re
@@ -55,7 +52,8 @@ class OfflineApi(Api):
 def api_guard(api):
     from .cloud_wire_policy import ScopedOfflineApi
     from .cloud_native_cleanup import NativeCleanupApi
-    if type(api) in (ScopedOfflineApi, NativeCleanupApi):
+    from .cloud_native_runner import NativeRunnerApi
+    if type(api) in (ScopedOfflineApi, NativeCleanupApi, NativeRunnerApi):
         api.validate_adapter(); return
     need(type(api) is OfflineApi, 'V5.2 live HTTP entry not admitted')
     api.authorize('GET', '', None)
@@ -64,7 +62,8 @@ def api_guard(api):
 def api_domain(api):
     api_guard(api)
     from .cloud_native_cleanup import NativeCleanupApi
-    return 'native' if type(api) is NativeCleanupApi else 'offline'
+    from .cloud_native_runner import NativeRunnerApi
+    return 'native' if type(api) in (NativeCleanupApi, NativeRunnerApi) else 'offline'
 
 
 class Store:
