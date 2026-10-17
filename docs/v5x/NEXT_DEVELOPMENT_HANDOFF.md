@@ -1070,3 +1070,11 @@ consumption, conditional lease/ledger transitions and final absence scans enforc
 the boundary independently of higher-level callers. Native mutable entry remains
 closed until fresh admission and explicit domain-aware control are connected;
 then continue IAP, guest preparation, whole members and independent aggregation.
+
+[Phase 6AV prepared inputs](v5.2/PHASE_6_PREPARED_INPUTS.md) now verifies original
+shared-build archives and pinned published controls, packages the same bytes
+deterministically and binds one complete member to its exact operator approval,
+input package and ledger generation. Preparation/review remains non-executing;
+fresh original GitHub artifact/attempt and exact-master full-CI provenance,
+provider/IAM/cleanup observations and domain-aware native control are still
+required before IAP/guest integration and complete owned member/set qualification.

@@ -361,3 +361,13 @@ request bodies/IDs, control transitions, fresh checks after token refresh,
 conditional immutable retention, lost replies and conservative unknown outcomes.
 The concrete entry remains offline; no cloud permission or workload result is
 inferred from its synthetic HTTP observations.
+
+### Prepared build inputs and approval
+
+[Phase 6AV](PHASE_6_PREPARED_INPUTS.md) adds `test_cloud_inputs` and
+`test_cloud_prepared` to the same measurement unit gate. They check original build
+and pinned-control bytes, deterministic packaging, clean-source observations,
+exact approval and ledger-generation comparisons, arbitrary first-member selection
+and unchanged soft cost policy. Copied PASS receipts cannot establish provenance;
+these checks create neither native capabilities nor workload evidence. Original
+GitHub artifact/attempt and fresh provider/cleanup admission remain separate.
