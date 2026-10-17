@@ -21,6 +21,15 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
+Latest local stage: [Phase 6AW CI provenance](v5.2/PHASE_6_CI_PROVENANCE.md)
+adds exact-master full-CI and original shared-build artifact collection. It
+preserves producing attempts across carried builds and retains original API/ZIP
+evidence. Its checks are locally qualified, not current-source protected CI or
+paid admission. Fresh provider/cleanup observations and the native owner are next.
+Local validation passes 799 V5.2 Python and 64 existing CI/producer-contract tests,
+including 43 new provenance tests; no workflow, runtime Java or frozen program
+parameter changes are made by this stage.
+
 The [hosted acceptance record](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) binds successful
 run `38888573888`, attempt 1: 28 histories, 27,373 reads, 2,745 updates and 878
 negative rejections. All 21 original artifacts are archived. The measurement
@@ -1078,3 +1087,12 @@ input package and ledger generation. Preparation/review remains non-executing;
 fresh original GitHub artifact/attempt and exact-master full-CI provenance,
 provider/IAM/cleanup observations and domain-aware native control are still
 required before IAP/guest integration and complete owned member/set qualification.
+
+[Phase 6AW CI provenance](v5.2/PHASE_6_CI_PROVENANCE.md) now supplies the fixed
+read-only GitHub collector. It derives all 51 expanded jobs from the existing
+registry, requires the latest exact-master full-CI attempt and authenticates the
+original shared-build ZIP against its actual producing job. Carried successful
+builds retain their original attempt; newer failures do not fall back to old green
+runs. Local fixtures and subprocess tests preserve the non-admission boundary.
+Fresh provider/network/image/necessary-permission and manual-cleanup observations,
+concrete native ownership, IAP/guest binding and complete owned members remain open.

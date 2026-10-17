@@ -371,3 +371,14 @@ exact approval and ledger-generation comparisons, arbitrary first-member selecti
 and unchanged soft cost policy. Copied PASS receipts cannot establish provenance;
 these checks create neither native capabilities nor workload evidence. Original
 GitHub artifact/attempt and fresh provider/cleanup admission remain separate.
+
+### Original full CI and shared-build provenance
+
+[Phase 6AW](PHASE_6_CI_PROVENANCE.md) adds `test_cloud_ci` and
+`test_cloud_artifacts` to the measurement unit gate. The new read-only collector
+requires the current master source, complete full CI, original producing attempt
+and original artifact ZIP bytes. Pagination, partial-rerun carried builds,
+source/attempt drift, archive substitution and subprocess limits are qualified
+with synthetic GitHub records and local subprocesses. No hosted CI or provider
+request is executed by these tests; replayed receipts remain NOT_ADMITTED.
+Provider/cleanup observation and concrete native ownership are the next boundary.
