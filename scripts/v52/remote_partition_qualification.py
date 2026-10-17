@@ -25,7 +25,7 @@ class Receivers(previous.Receivers):
         need(self.name==scope.CASE and self.spec['family']=='M04' and self.spec['profile']==scope.recovery.profile(scope.CASE),
              'partition receiver exact declared history')
     def prepare(self):
-        super().prepare();self.binding['remotePartition']=scope.EXECUTION
+        super().prepare();self.binding['remotePartition']=v.scope.domains.execution(self.binding,scope.EXECUTION)
         h.runtime.save(self.collected/'binding.json',self.binding)
     def start_service(self,root,node,cp,mode,history,generation):
         worker=super().start_service(root,node,cp,mode,history,generation)

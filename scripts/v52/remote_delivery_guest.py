@@ -122,7 +122,7 @@ def worker(store):
         h.bundle.unpack(archive,destination);destination.chmod(0o700);p.installed(destination,meta)
         answer=strict(h.q.command(['java','-cp',h.Receivers.paths(destination,meta),h.PACKAGE+'V52RemoteBootstrap',destination,value['node']],store,'bootstrap').stdout)
         p.bootstrap_answer(answer,value);p.installed(destination,meta);p.check(value)
-        receipt=dict(schema='gse-v52-receiver-bootstrap-v1',execution=p.EXECUTION,descriptor=value,descriptorSha256=sha,
+        receipt=dict(schema='gse-v52-receiver-bootstrap-v1',execution=p.execution(value['package']),descriptor=value,descriptorSha256=sha,
                      process=identity,receiverHost=host.observe(destination),answer=answer)
         python_context.record(destination/(value['node']+'-python-bootstrap.json'))
         c.write_once(destination/(value['node']+'-delivery.json'),receipt,c.REQUEST_BYTES)

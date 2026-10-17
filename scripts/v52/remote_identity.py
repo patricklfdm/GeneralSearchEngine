@@ -4,14 +4,15 @@ from scripts.v51 import storage_inspector as storage
 from . import remote_topology as topology,remote_bootstrap_evidence as authority,measurement_bundle as bundle
 from .evidence import need
 from .measurement_identity import metadata
+from . import remote_host_domains as domains
 
 
 def location(root,binding):
     need('remoteTopology' in binding and 'remoteReceivers' in binding,'remote measurement binding fields')
     value=topology.validate(binding['remoteTopology'])
-    # This first bridge proves separate receiver roots and real TCP locally.
-    # It cannot silently promote that to three owned cloud hosts.
-    need(value['placement']=='local-no-gcp','remote runtime host qualification not implemented')
+    # Private placement requires the complete expected execution chain. These
+    # collected records do not replace the caller's live provider/lease admission.
+    domains.chain(binding)
     need(topology.read(root)==value,'remote retained topology changed')
     need(metadata(Path(root),'execution.json',1<<20,label='remote measurement')==dict(status='STOPPED',failure=None,closeErrors=[],qualifiedMeasurement=False,paidCloud=False),
          'remote receiver execution incomplete')

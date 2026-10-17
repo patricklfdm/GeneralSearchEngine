@@ -125,13 +125,14 @@ class VoterServiceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'frame bound'):v.send(channel,{'big':'x'*v.FRAME})
         channel.sendall.assert_not_called()
 
-    def test_service_scope_rejects_private_topology_and_formal_windows(self):
+    def test_service_scope_rejects_unbound_private_topology_and_malformed_formal_windows(self):
         value=dict(schema=v.SCHEMA,execution='local-persistent-voters-only',node='node-1',root=str(self.root),
                    host={},binding={'mode':'candidate-minimum','driverExercise':True,'remoteVoterControl':'local-persistent-voters-v1',
                                     'remoteTopology':{'placement':'owned-private-hosts'}},
                    socket=str(self.root/'channel'),session='a'*32)
         with patch.object(v.host,'observe',return_value={}):
-            with self.assertRaisesRegex(ValueError,'local topology'):v.validate_config(value,self.root/'node-1-control')
+            with self.assertRaisesRegex(ValueError,'missing independent host domains'):v.validate_config(value,self.root/'node-1-control')
+            value['binding']['remoteTopology']={'placement':'local-no-gcp'}
             value['binding']['measurementProfile']={}
             with self.assertRaisesRegex(ValueError,'exact M04 profile'):v.validate_config(value,self.root/'node-1-control')
         with tempfile.TemporaryDirectory() as directory:

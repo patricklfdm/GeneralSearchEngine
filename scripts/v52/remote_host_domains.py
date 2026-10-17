@@ -11,6 +11,49 @@ from .evidence import need
 SCHEMA='gse-v52-host-domains-v1'
 FIELD='remoteHostDomains'
 HOST_FIELDS={'resourceIdentitySha256','privateAddress','bootId','uid','sshHostPinSha256'}
+EXECUTIONS={
+    'local-persistent-voters-v1':'bound-host-persistent-voters-v1',
+    'local-persistent-voters-only':'bound-host-persistent-voters-only',
+    'loopback-ssh-persistent-voters-only':'bound-host-ssh-persistent-voters-only',
+    'loopback-ssh-voter-lifecycle-only':'bound-host-voter-lifecycle-only',
+    'loopback-ssh-receiver-delivery-only':'bound-host-receiver-delivery-only',
+    'loopback-ssh-formal-histories-only':'bound-host-formal-histories-only',
+    'loopback-ssh-retained-restart-only':'bound-host-retained-restart-only',
+    'loopback-ssh-partition-history-only':'bound-host-partition-history-only',
+}
+
+
+def execution(binding,local):
+    need(local in EXECUTIONS,'unknown host execution scope')
+    return local if validate(binding) is None else EXECUTIONS[local]
+
+
+def matches(binding,key,local):return binding.get(key)==execution(binding,local)
+
+
+def observed(binding,node,host):
+    """Check a fixed guest's observed boot/user; this is not provider admission."""
+    from .remote_host import validate_pin
+    validate_pin(host);value=validate(binding)
+    if value is not None:
+        need(node in value['nodes'] and all(host[k]==value['nodes'][node][k] for k in ('bootId','uid')),
+             'bound guest host changed')
+    return host
+
+
+def chain(binding):
+    """Required evidence components before private-host execution/replay.
+
+    The owner supplies this expected binding. Its provider/lease authority must
+    still be independently admitted; this function never grants that authority.
+    """
+    if validate(binding) is None:return
+    need(all(k in binding for k in ('remoteVoterControl','remoteVoterLifecycle','remoteDelivery','remotePython')),
+         'bound host execution chain incomplete')
+    routes(binding)
+    need(matches(binding,'remoteVoterControl','local-persistent-voters-v1') and
+         matches(binding,'remoteVoterLifecycle','loopback-ssh-voter-lifecycle-only'),
+         'bound host execution scope changed')
 
 
 def boot(value):

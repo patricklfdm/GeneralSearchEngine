@@ -54,7 +54,7 @@ def original_launch(start,query,*,lost=lambda:None):
 
 class Client(stream.Client):
     def __init__(self,root,node,binding,history,*,target,discard_launch=False,generation=1,python_context=None):
-        need(binding.get('remoteVoterLifecycle')==guest.EXECUTION and
+        need(v.scope.domains.matches(binding,'remoteVoterLifecycle',guest.EXECUTION) and
              binding['remoteVoterTransport']['nodes'][node]==stream.public_target(target),'lifecycle target binding')
         self.initialize(root,node,history,generation)
         self.endpoint=stream.Endpoint(target,v.h.ROOT,python_context=python_context);self.lifecycle=Endpoint(target,v.h.ROOT,python_context=python_context)
@@ -142,7 +142,7 @@ class Client(stream.Client):
             else:shutil.copyfile(path,target)
         control=Path(destination)/v.scope.control_name(self.node,self.generation)
         self.record_stream(destination)
-        v.c.write_once(control/'lifecycle.json',dict(schema=guest.SCHEMA,execution=guest.EXECUTION,configSha256=self.sha,
+        v.c.write_once(control/'lifecycle.json',dict(schema=guest.SCHEMA,execution=v.scope.domains.execution(self.config['binding'],guest.EXECUTION),configSha256=self.sha,
             launchSubmissions=self.launch_submissions,launchReplyLost=self.launch_lost,collection=meta),v.c.RESPONSE_BYTES)
         need(self.control_call('release')==dict(released=True),'lifecycle socket cleanup');self.released=True
         return meta

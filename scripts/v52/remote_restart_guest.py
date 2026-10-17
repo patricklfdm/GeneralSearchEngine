@@ -37,7 +37,7 @@ def capture(worker,control,sha,identity):
 
 def crash_receipt(root,config,sha):
     root=Path(root);control=root/scope.control_name(config['node'],1)
-    need(config['binding'].get('remoteRestart')==scope.RESTART_EXECUTION and scope.generation(config)==1,'restart declared crash scope')
+    need(scope.domains.matches(config['binding'],'remoteRestart',scope.RESTART_EXECUTION) and scope.generation(config)==1,'restart declared crash scope')
     value=v.c.read(control/'crash.json',v.c.RESPONSE_BYTES)
     need(type(value) is dict and set(value)=={'configSha256','identity','generation','exitCode','preReopen'} and
          value['configSha256']==sha and value['generation']==1 and value['exitCode']==-9 and

@@ -19,7 +19,7 @@ class Receivers(previous.Receivers):
     def prepare(self):
         (self.root/'receivers').mkdir(mode=0o700)
         super().prepare()
-        self.binding['remoteDelivery']=dict(schema='gse-v52-delivered-receivers-v1',execution=package.EXECUTION,package=self.meta,
+        self.binding['remoteDelivery']=dict(schema='gse-v52-delivered-receivers-v1',execution=package.execution(self.meta),package=self.meta,
             nodes={node:dict(descriptorSha256=value['descriptorSha256'],receiptSha256=digest(encoded(value))) for node,value in self.bootstraps.items()})
         evidence.selection(self.binding);h.runtime.save(self.collected/'binding.json',self.binding)
     def prepare_receiver(self,node,own,plan,original):

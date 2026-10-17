@@ -305,3 +305,13 @@ generation regressions. Same-path installed helpers require separately bound
 hosts. Synthetic independent-domain tests and retained authority replay are
 recorded separately from actual three-host qualification; live private execution
 remains closed until the owner, delivery and complete replay chain is connected.
+
+## Bound receiver backend
+
+[Phase 6AP](PHASE_6_BOUND_RECEIVERS.md) now connects the domain checks through
+delivery/lifecycle/fault/export and all original controller families. The unit
+suite covers all 33 exact selections and rejects source, host, route, context or
+consumption drift before execution. Run the existing complete installed-history
+gate for local compatibility; it does not establish three-host or provider
+admission. The paid owner, complete member aggregate and exact-master cloud
+entry remain separate gates.

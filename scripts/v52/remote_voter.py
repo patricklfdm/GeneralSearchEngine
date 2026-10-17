@@ -47,7 +47,7 @@ def process(pid):
 
 def validate_config(value,control,*,fresh_socket=True):
     need(type(value) is dict and set(value)==scope.fields(value),'voter config fields')
-    need(value['schema']==SCHEMA and value['execution']=='local-persistent-voters-only','voter scope')
+    need(value['schema']==SCHEMA and value['execution']==scope.domains.execution(value['binding'],'local-persistent-voters-only'),'voter scope')
     need(value['node'] in h.topology.NODES,'voter node');c.hex_value(value['session'],32,'voter session')
     root=host.path(value['root'])
     gen=scope.generation(value)
@@ -57,10 +57,11 @@ def validate_config(value,control,*,fresh_socket=True):
     recovery=profile if profile and profile['family']=='M04' else None
     if recovery:
         marker,execution=('remoteRestart',scope.RESTART_EXECUTION) if recovery['case']==scope.RESTART_CASE else ('remotePartition',scope.partition.EXECUTION)
-        need(bound.get(marker)==execution,'voter recovery control binding')
+        need(scope.domains.matches(bound,marker,execution),'voter recovery control binding')
     elif profile:need(scope.formal(bound),'voter formal control binding')
-    need(bound.get('remoteVoterControl')=='local-persistent-voters-v1','voter control binding')
-    need(bound['remoteTopology']['placement']=='local-no-gcp' and h.topology.read(root)==bound['remoteTopology'],'voter local topology')
+    need(scope.domains.matches(bound,'remoteVoterControl','local-persistent-voters-v1'),'voter control binding')
+    scope.domains.chain(bound);scope.domains.observed(bound,value['node'],value['host'])
+    need(h.topology.read(root)==bound['remoteTopology'],'voter local topology')
     need(bound['remoteReceivers'][value['node']]['originalRoot']==str(root),'voter root binding')
     python_context.require_binding(bound,value['node'])
     source=h.source();need(all(source[k]==bound[k] for k in source),'voter source changed')
@@ -220,7 +221,7 @@ def serve(control):
         identity=dict(service=process(os.getpid()),jvm=process(worker.proc.pid),consumer=worker.identity,
                       host=host.observe(control),session=value['session'])
         c.write_once(control/'identity.json',identity)
-        engine=Engine(worker,control,sha,identity,crash_allowed=value['binding'].get('remoteRestart')==scope.RESTART_EXECUTION and scope.generation(value)==1)
+        engine=Engine(worker,control,sha,identity,crash_allowed=scope.domains.matches(value['binding'],'remoteRestart',scope.RESTART_EXECUTION) and scope.generation(value)==1)
         with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as listener:
             listener.bind(value['socket']);os.chmod(value['socket'],0o600);listener.listen(1);listener.settimeout(1)
             while not engine.closed:
@@ -245,6 +246,7 @@ class Client:
         self.events=[];self.owner_identity=None;self.identity=None;self.connections=0
 
     def __init__(self,root,node,binding,history):
+        need(scope.domains.validate(binding) is None,'local voter cannot launch bound host service')
         self.initialize(root,node,history);self.control.mkdir(mode=0o700)
         self.socket_dir=tempfile.TemporaryDirectory(prefix='v52-voter-')
         self.config=dict(schema=SCHEMA,execution='local-persistent-voters-only',node=node,root=str(self.root),

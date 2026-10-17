@@ -19,7 +19,7 @@ class Receivers(local.Receivers):
     def __init__(self,*args,targets):self.targets=targets;super().__init__(*args)
     def prepare(self):
         super().prepare()
-        self.binding['remoteVoterTransport']=dict(schema=evidence.SCHEMA,execution=evidence.EXECUTION,
+        self.binding['remoteVoterTransport']=dict(schema=evidence.SCHEMA,execution=v.scope.domains.execution(self.binding,evidence.EXECUTION),
             nodes={node:ssh.public_target(target) for node,target in self.targets.items()})
         evidence.binding(self.binding['remoteVoterTransport']);h.runtime.save(self.collected/'binding.json',self.binding)
     def start_service(self,root,node,cp,mode,history,generation):

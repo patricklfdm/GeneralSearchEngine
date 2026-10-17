@@ -19,7 +19,7 @@ class Receivers(previous.Receivers):
         need(self.spec['family'] in ('M01','M02','M03') and scope.profile(self.spec['profile'])==self.spec['profile'],
              'formal receiver exact declared history')
     def prepare(self):
-        super().prepare();self.binding['remoteFormal']=scope.FORMAL_EXECUTION;h.runtime.save(self.collected/'binding.json',self.binding)
+        super().prepare();self.binding['remoteFormal']=scope.domains.execution(self.binding,scope.FORMAL_EXECUTION);h.runtime.save(self.collected/'binding.json',self.binding)
     def start_service(self,root,node,cp,mode,history,generation):
         need(generation==1,'formal undeclared generation')
         # Launch-loss qualification happens before original observation starts.

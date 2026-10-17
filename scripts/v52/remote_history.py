@@ -64,20 +64,25 @@ class Receivers:
             shutil.copytree(self.producer/directory,self.collected/directory)
         for name in (options.FILE,recovery.FILE):
             if (self.producer/name).exists():shutil.copyfile(self.producer/name,self.collected/name)
-        for _ in topology.NODES:
-            sock=socket.socket();self.sockets.append(sock);sock.bind(('127.0.0.1',0))
-        plan=dict(schema=topology.SCHEMA,placement='local-no-gcp',groupId=str(uuid.uuid4()),
-                  members=[dict(node=node,host='127.0.0.1',port=sock.getsockname()[1]) for node,sock in zip(topology.NODES,self.sockets)])
+        plan=self.topology_plan()
         topology.validate(plan);self.binding['remoteTopology']=plan;runtime.save(self.collected/topology.FILE,plan)
         receivers={}
         for node in topology.NODES:
-            own=self.root/'receivers'/node;self.roots[node]=own
+            own=self.receiver_root(node);self.roots[node]=own
             answer=self.prepare_receiver(node,own,plan,original)
             need(answer['status']=='PREPARED_NOT_STARTED' and answer['node']==node and answer['topology']==plan and
                  answer['originalRoot']==str(own),'remote prepared receiver identity')
             receivers[node]={k:answer[k] for k in ('originalRoot','manifestSha256','genesisSha256')}
         self.binding['remoteReceivers']=receivers;runtime.save(self.collected/'binding.json',self.binding)
         self.release_ports();self.prepared=True
+
+    def topology_plan(self):
+        for _ in topology.NODES:
+            sock=socket.socket();self.sockets.append(sock);sock.bind(('127.0.0.1',0))
+        return dict(schema=topology.SCHEMA,placement='local-no-gcp',groupId=str(uuid.uuid4()),
+            members=[dict(node=node,host='127.0.0.1',port=sock.getsockname()[1]) for node,sock in zip(topology.NODES,self.sockets)])
+
+    def receiver_root(self,node):return self.root/'receivers'/node
 
     def prepare_receiver(self,node,own,plan,original):
         own.mkdir(mode=0o700,parents=True)

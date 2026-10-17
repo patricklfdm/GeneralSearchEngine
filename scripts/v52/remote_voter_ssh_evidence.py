@@ -56,5 +56,5 @@ def validate(root,full_binding,config,sha,events):
     else:domains.routes(full_binding)
     value=c.read(root/'ssh-streams.json',64<<10)
     from . import remote_voter_scope as scope
-    crashed=full_binding.get('remoteRestart')==scope.RESTART_EXECUTION and scope.generation(config)==1
+    crashed=domains.matches(full_binding,'remoteRestart',scope.RESTART_EXECUTION) and scope.generation(config)==1
     return channels(value,transport['nodes'][config['node']],sha,events,crashed=crashed)

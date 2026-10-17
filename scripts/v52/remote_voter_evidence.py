@@ -62,7 +62,7 @@ def validate(root,binding):
         domains.routes(binding)
         need(controller['process']['bootId'] not in {h['bootId'] for h in hosts['nodes'].values()},'voter controller shares guest boot')
     results={};services=set();jvms=set()
-    restart=binding.get('remoteRestart')==voter.scope.RESTART_EXECUTION
+    restart=domains.matches(binding,'remoteRestart',voter.scope.RESTART_EXECUTION)
     crashed=[p for p in processes if p['exitCode']==-9]
     need(len(processes)==(4 if restart else 3) and len(crashed)==(1 if restart else 0),'voter generation/exit set')
     if restart:

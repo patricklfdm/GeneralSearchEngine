@@ -41,7 +41,14 @@ def observed(value,descriptor):
 
 class Delivery:
     def __init__(self,target,parent,node,meta,*,python_context=None):
+        domains=p.scope.domains.validate(p.host_binding(meta))
+        if domains is not None:
+            need(python_context is not None,'bound delivery requires installed Python')
         self.endpoint=Endpoint(target,p.h.ROOT,python_context=python_context);self.parent=Path(parent);self.value=None;self.calls=[];self.losses=[]
+        if domains is not None:
+            try:need(digest(self.endpoint.pins['knownHosts'])==domains['nodes'][node]['sshHostPinSha256'],
+                     'bound delivery SSH pin changed')
+            except BaseException:self.endpoint.close();raise
         self.node=node;self.meta=deepcopy(meta);self.discarded=set()
     def close(self):self.endpoint.close()
     def exchange(self,action,payload=None):
@@ -62,7 +69,7 @@ class Delivery:
     def run(self,archive,*,discard_part=False,discard_install=False):
         pin=self.endpoint.exchange('probe',self.parent,None,time.monotonic()+30)
         need(type(pin) is dict and set(pin)=={'host'},'delivery parent probe');p.host.validate_pin(pin['host'])
-        self.value=dict(schema='gse-v52-receiver-delivery-v1',execution=p.EXECUTION,parent=str(self.parent),host=pin['host'],
+        self.value=dict(schema='gse-v52-receiver-delivery-v1',execution=p.execution(self.meta),parent=str(self.parent),host=pin['host'],
                         node=self.node,session=uuid.uuid4().hex,package=self.meta);p.descriptor(self.value)
         p.verify_archive(archive,self.meta)
         first=self.once('begin');need(first['state']=='UPLOADING' and first['completedParts']==0,'delivery fresh destination required')

@@ -43,7 +43,7 @@ class Receivers(h.Receivers):
 
     def prepare(self):
         super().prepare()
-        self.binding['remoteVoterControl']='local-persistent-voters-v1'
+        self.binding['remoteVoterControl']=v.scope.domains.execution(self.binding,'local-persistent-voters-v1')
         h.runtime.save(self.collected/'binding.json',self.binding)
         h.runtime.save(self.collected/'controller-domain.json',dict(clock='python-monotonic-ns',
                        process=v.process(v.os.getpid()),session=v.os.urandom(16).hex()))

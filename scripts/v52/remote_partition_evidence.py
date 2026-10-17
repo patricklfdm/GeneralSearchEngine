@@ -8,7 +8,7 @@ FILE='partition-control.json'
 
 def validate(root,binding):
     root=Path(root)
-    need(binding.get('remotePartition')==scope.EXECUTION and scope.history(binding) is not None,
+    need(v.scope.domains.matches(binding,'remotePartition',scope.EXECUTION) and scope.history(binding) is not None,
          'partition retained scope')
     v.h.bundle.inventory(root)
     scenario=v.c.read(root/'scenario.json',1<<20);record=v.c.read(root/FILE,v.c.REQUEST_BYTES)

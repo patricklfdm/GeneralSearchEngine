@@ -85,7 +85,7 @@ class HostDomainTest(unittest.TestCase):
         from . import remote_identity
         with tempfile.TemporaryDirectory() as directory:
             bound=fixture();bound['remoteReceivers']={}
-            with self.assertRaisesRegex(ValueError,'host qualification not implemented'):remote_identity.location(directory,bound)
+            with self.assertRaisesRegex(ValueError,'bound host execution chain incomplete'):remote_identity.location(directory,bound)
 
 
 def rows_with_exit(rows):return [dict(r,exitCode=0) for r in rows]

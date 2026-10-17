@@ -2,6 +2,7 @@
 from . import remote_partition_scope as partition
 from . import measurement_m01 as m01,measurement_minimum as minimum
 from .evidence import need,encoded
+from . import remote_host_domains as domains
 
 RESTART_CASE=partition.recovery.CASES[0]
 RESTART_EXECUTION='loopback-ssh-retained-restart-only'
@@ -36,7 +37,7 @@ def history(binding):
 def formal(binding):
     if 'remoteFormal' not in binding:return False
     value=history(binding)
-    need(binding['remoteFormal']==FORMAL_EXECUTION and value is not None and value['family'] in ('M01','M02','M03'),
+    need(domains.matches(binding,'remoteFormal',FORMAL_EXECUTION) and value is not None and value['family'] in ('M01','M02','M03'),
          'remote formal service binding');return True
 
 
@@ -45,7 +46,7 @@ def generation(config):
     need(type(value) is int and value in (1,2),'voter generation')
     if 'generation' in config:
         bound=config['binding']
-        need(bound.get('remoteRestart')==RESTART_EXECUTION and history(bound)['case']==RESTART_CASE,
+        need(domains.matches(bound,'remoteRestart',RESTART_EXECUTION) and history(bound)['case']==RESTART_CASE,
              'voter undeclared generation')
     return value
 

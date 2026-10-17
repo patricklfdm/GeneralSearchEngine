@@ -6,8 +6,9 @@ from .evidence import need,digest,encoded
 
 def receipt(value,expected=None):
     need(type(value) is dict and set(value)=={'schema','execution','descriptor','descriptorSha256','process','receiverHost','answer'} and
-         value['schema']=='gse-v52-receiver-bootstrap-v1' and value['execution']==p.EXECUTION,'delivery receipt fields')
+         value['schema']=='gse-v52-receiver-bootstrap-v1','delivery receipt fields')
     desc=p.descriptor(value['descriptor']);need(expected is None or desc==expected,'delivery receipt descriptor changed')
+    need(value['execution']==p.execution(desc['package']),'delivery receipt scope changed')
     need(value['descriptorSha256']==digest(encoded(desc)),'delivery receipt hash')
     p.c.validate_process(value['process'],desc['host']);p.host.validate_pin(value['receiverHost'])
     need(all(value['receiverHost'][k]==desc['host'][k] for k in ('bootId','uid')),'delivery receiver host changed')
@@ -17,8 +18,9 @@ def receipt(value,expected=None):
 def selection(binding):
     value=binding.get('remoteDelivery')
     need(type(value) is dict and set(value)=={'schema','execution','package','nodes'} and value['schema']=='gse-v52-delivered-receivers-v1' and
-         value['execution']==p.EXECUTION and set(value['nodes'])==set(p.h.topology.NODES),'delivery retained selection')
+         value['execution']==p.scope.domains.execution(binding,p.EXECUTION) and set(value['nodes'])==set(p.h.topology.NODES),'delivery retained selection')
     meta=p.validate(value['package'])
+    need(meta.get('hostDomains')==binding.get('remoteHostDomains'),'delivery host domain binding changed')
     need(meta.get('recovery',meta.get('measurement'))==p.scope.history(binding),'delivery history scope changed')
     need(meta['source']=={k:binding[k] for k in p.SOURCE_KEYS} and meta['mode']==binding['mode'] and
          meta['topology']==binding['remoteTopology'] and meta['artifacts']==binding['artifacts'] and

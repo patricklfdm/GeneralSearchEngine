@@ -138,6 +138,13 @@ original/relocated replays pass in 3,950.755 seconds, with 3,704 reads, 372 upda
 158 negative rejections and all 15 service/JVM pairs stopped. Its original
 `5d183ca` source plus recorded checkout hash remain bound to that evidence.
 
+[Bound receiver execution](v5.2/PHASE_6_BOUND_RECEIVERS.md) connects the explicit
+host domains to the original UNTIMED/M01–M04 controllers, capsule delivery,
+guest launch, faults, collection and physical replay. One placement consumes one
+whole history; independently owned routes and fresh paths are mandatory. Local
+defaults remain intact. Provider/lease admission, owned route lifetime and the
+complete member/aggregate entry are still separate unfinished requirements.
+
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,
 36 skipped suite placeholders). See the [acceptance checklist](v5.2/PHASE_0_CHECKLIST.md).

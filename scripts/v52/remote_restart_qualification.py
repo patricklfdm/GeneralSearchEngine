@@ -22,7 +22,7 @@ class Receivers(previous.Receivers):
         need(self.name==scope.RESTART_CASE and self.spec['family']=='M04' and self.spec['profile']==scope.partition.recovery.profile(scope.RESTART_CASE),
              'restart receiver exact declared history')
     def prepare(self):
-        super().prepare();self.binding['remoteRestart']=scope.RESTART_EXECUTION;h.runtime.save(self.collected/'binding.json',self.binding)
+        super().prepare();self.binding['remoteRestart']=scope.domains.execution(self.binding,scope.RESTART_EXECUTION);h.runtime.save(self.collected/'binding.json',self.binding)
     def start_service(self,root,node,cp,mode,history,generation):
         before=time.monotonic_ns()
         worker=client.Client(root,node,self.binding,history,target=self.targets[node],generation=generation,

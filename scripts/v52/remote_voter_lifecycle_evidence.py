@@ -7,7 +7,7 @@ from .evidence import need,digest,encoded
 
 def configuration(config,preparation,root):
     need(type(config) is dict and set(config)==v.scope.fields(config) and
-         config['schema']==v.SCHEMA and config['execution']=='local-persistent-voters-only' and config['root']==root and
+         config['schema']==v.SCHEMA and config['execution']==v.scope.domains.execution(config['binding'],'local-persistent-voters-only') and config['root']==root and
          all(config[k]==preparation[k] for k in ('node','binding','session')),'lifecycle prepared configuration')
     need(v.scope.generation(config)==v.scope.generation(preparation),'lifecycle prepared generation')
     v.host.validate_pin(config['host']);v.c.hex_value(config['session'],32,'lifecycle session')
@@ -42,7 +42,7 @@ def observation(value,config,sha):
         need(stop and stop['exitCode']==0 and stop['failure'] is None and exited and exited['exitCode']==0 and
              not value['serviceAlive'] and not value['jvmAlive'],'lifecycle stopped process observation')
     if value['state']=='CRASHED':
-        need(config['binding'].get('remoteRestart')==v.scope.RESTART_EXECUTION and v.scope.generation(config)==1 and
+        need(v.scope.domains.matches(config['binding'],'remoteRestart',v.scope.RESTART_EXECUTION) and v.scope.generation(config)==1 and
              stop and stop['exitCode']==-9 and stop['failure'] is None and exited and exited['exitCode']==0 and
              not value['serviceAlive'] and not value['jvmAlive'],'lifecycle crashed process observation')
     if value['state']=='FAILED':need(exited and not value['serviceAlive'] and not value['jvmAlive'],'lifecycle failed process observation')
@@ -72,11 +72,11 @@ def metadata(node):
 
 def validate(root,binding,config,sha):
     root=Path(root);node=config['node'];control=root/v.scope.control_name(node,v.scope.generation(config))
-    need(binding.get('remoteVoterLifecycle')==guest.EXECUTION,'lifecycle retained scope')
+    need(v.scope.domains.matches(binding,'remoteVoterLifecycle',guest.EXECUTION),'lifecycle retained scope')
     ssh.binding(binding['remoteVoterTransport'])
     value=v.c.read(control/'lifecycle.json',v.c.RESPONSE_BYTES)
     need(type(value) is dict and set(value)=={'schema','execution','configSha256','launchSubmissions','launchReplyLost','collection'} and
-         value['schema']==guest.SCHEMA and value['execution']==guest.EXECUTION and value['configSha256']==sha and
+         value['schema']==guest.SCHEMA and value['execution']==v.scope.domains.execution(binding,guest.EXECUTION) and value['configSha256']==sha and
          type(value['launchSubmissions']) is int and value['launchSubmissions']==1 and type(value['launchReplyLost']) is bool,
          'lifecycle retained launch/export')
     preparation=v.c.read(control/'preparation.json',v.c.REQUEST_BYTES)

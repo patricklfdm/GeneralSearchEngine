@@ -18,9 +18,18 @@ SOURCE_KEYS=('source','checkoutSha256','java')
 SEED={'control/seed/gse-backup-manifest','control/seed/gse-backup-checkpoint','control/seed/gse-backup-metadata'}
 
 
+def host_binding(meta):
+    return dict(meta['source'],remoteTopology=meta['topology'],**(
+        {'remoteHostDomains':meta['hostDomains']} if 'hostDomains' in meta else {}))
+
+
+def execution(meta):return scope.domains.execution(host_binding(meta),EXECUTION)
+
+
 def validate(meta):
     need(type(meta) is dict and set(meta)=={'schema','source','mode','topology','artifacts','classes','members','bytes','sha256','parts'} |
-         ({'recovery'} if 'recovery' in meta else set()) | ({'measurement'} if 'measurement' in meta else set()),'delivery package fields')
+         ({'recovery'} if 'recovery' in meta else set()) | ({'measurement'} if 'measurement' in meta else set()) |
+         ({'hostDomains'} if 'hostDomains' in meta else set()),'delivery package fields')
     need(not {'recovery','measurement'}<=set(meta),'delivery mixed profiles')
     if 'recovery' in meta:
         scope.profile(meta['recovery']);need(meta['recovery']['family']=='M04' and meta['mode']=='candidate-minimum','delivery recovery mode')
@@ -32,7 +41,7 @@ def validate(meta):
     c.hex_value(source['source'],40,'delivery source');c.hex_value(source['checkoutSha256'],64,'delivery checkout')
     need(type(source['java']) is dict and set(source['java'])=={'java.runtime.version','java.vendor'} and
          all(type(v) is str and 0<len(v)<=256 for v in source['java'].values()),'delivery Java binding')
-    need(h.topology.validate(meta['topology'])['placement']=='local-no-gcp','delivery remote host scope')
+    h.topology.validate(meta['topology']);scope.domains.validate(host_binding(meta))
     need(type(meta['bytes']) is int and 0<meta['bytes']<=MAX_BYTES,'delivery archive bound');c.hex_value(meta['sha256'],64,'delivery archive hash')
     members=meta['members'];total=h.bundle.validate_index(members)
     need(0<len(members)<=MAX_FILES and total<=MAX_BYTES and len(encoded(meta))+1<=c.REQUEST_BYTES,'delivery manifest bound')
@@ -73,6 +82,7 @@ def create(producer,target,binding):
         topology=deepcopy(binding['remoteTopology']),artifacts=deepcopy(binding['artifacts']),
         classes={k:v for k,v in binding['classes'].items() if not k.startswith('control-classes/')},members=members,
         bytes=archive.stat().st_size,sha256=h.bundle.sha_file(archive),parts=parts)
+    if 'remoteHostDomains' in binding:meta['hostDomains']=deepcopy(binding['remoteHostDomains'])
     if plan:meta['recovery' if plan['family']=='M04' else 'measurement']=plan
     validate(meta);verify_archive(archive,meta);return archive,meta
 
@@ -120,8 +130,10 @@ def installed(root,meta):
 
 def descriptor(value):
     need(type(value) is dict and set(value)=={'schema','execution','parent','host','node','session','package'},'delivery descriptor fields')
-    need(value['schema']=='gse-v52-receiver-delivery-v1' and value['execution']==EXECUTION and value['node'] in h.topology.NODES,'delivery descriptor scope')
+    validate(value['package'])
+    need(value['schema']=='gse-v52-receiver-delivery-v1' and value['execution']==execution(value['package']) and value['node'] in h.topology.NODES,'delivery descriptor scope')
     host.path(value['parent']);host.validate_pin(value['host']);c.hex_value(value['session'],32,'delivery session');validate(value['package'])
+    scope.domains.observed(host_binding(value['package']),value['node'],value['host'])
     need(len(encoded(value))+1<=c.REQUEST_BYTES,'delivery descriptor bound');return value
 
 

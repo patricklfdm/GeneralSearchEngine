@@ -21,7 +21,7 @@ class Receivers(previous.Receivers):
         self.clients=[];self.exports={};super().__init__(*args,targets=targets)
     def prepare(self):
         super().prepare()
-        self.binding['remoteVoterLifecycle']=guest.EXECUTION;h.runtime.save(self.collected/'binding.json',self.binding)
+        self.binding['remoteVoterLifecycle']=v.scope.domains.execution(self.binding,guest.EXECUTION);h.runtime.save(self.collected/'binding.json',self.binding)
     def python_context(self,node):return None
     def start_service(self,root,node,cp,mode,history,generation):
         need(generation==1,'lifecycle restart not qualified')

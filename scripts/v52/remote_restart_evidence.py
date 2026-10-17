@@ -8,7 +8,7 @@ FILE='restart-control.json'
 
 def validate(root,binding):
     root=Path(root);scope=v.scope
-    need(binding.get('remoteRestart')==scope.RESTART_EXECUTION and scope.history(binding)['case']==scope.RESTART_CASE,
+    need(scope.domains.matches(binding,'remoteRestart',scope.RESTART_EXECUTION) and scope.history(binding)['case']==scope.RESTART_CASE,
          'restart retained scope')
     value=v.c.read(root/FILE);scenario=v.c.read(root/'scenario.json');node=scenario['leader']
     need(type(value) is dict and set(value)=={'schema','case','node','crash','restart'} and

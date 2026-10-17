@@ -112,7 +112,7 @@ def apply(control,config,command):
 def exchange(action,control,value):
     need(action in ACTIONS and type(value) is dict and set(value)=={'configSha256','request'},'partition envelope fields')
     config=lifecycle.load(control,value['configSha256'])
-    need(config['binding'].get('remotePartition')==scope.EXECUTION and scope.history(config['binding']) is not None,
+    need(v.scope.domains.matches(config['binding'],'remotePartition',scope.EXECUTION) and scope.history(config['binding']) is not None,
          'partition undeclared history')
     answer={'apply':apply,'query':query}[action](control,config,value['request'])
     return dict(configSha256=value['configSha256'],host=config['host'],answer=answer)
@@ -129,7 +129,7 @@ def prepared_exchange(action,control,value,config):
          value['configSha256']==digest(encoded(config)),'partition envelope fields')
     need(v.c.read(control/'config.json',v.c.REQUEST_BYTES)==config and v.host.observe(control)==config['host'],
          'partition prepared owner changed')
-    need(config['binding'].get('remotePartition')==scope.EXECUTION and scope.history(config['binding']) is not None,
+    need(v.scope.domains.matches(config['binding'],'remotePartition',scope.EXECUTION) and scope.history(config['binding']) is not None,
          'partition undeclared history')
     answer={'apply':apply,'query':query}[action](control,config,value['request'])
     return dict(configSha256=value['configSha256'],host=config['host'],answer=answer)
@@ -142,7 +142,7 @@ def stream_main():
         sys.stdout.buffer.write(raw);sys.stdout.buffer.flush()
     try:
         control=v.host.path(args.control);config=lifecycle.load(control,args.sha)
-        need(config['binding'].get('remotePartition')==scope.EXECUTION and scope.history(config['binding']) is not None,
+        need(v.scope.domains.matches(config['binding'],'remotePartition',scope.EXECUTION) and scope.history(config['binding']) is not None,
              'partition undeclared history')
         write(dict(ready=True,configSha256=args.sha,host=config['host'],process=v.process(os.getpid())))
         for _ in range(8):

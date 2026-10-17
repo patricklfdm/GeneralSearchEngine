@@ -10,7 +10,7 @@ class RemoteIdentityTest(unittest.TestCase):
     def test_private_address_structure_does_not_qualify_real_cloud_hosts(self):
         with tempfile.TemporaryDirectory() as directory:
             binding=dict(remoteTopology=fixture('owned-private-hosts'),remoteReceivers={})
-            with self.assertRaisesRegex(ValueError,'host qualification not implemented'):r.location(Path(directory),binding)
+            with self.assertRaisesRegex(ValueError,'missing independent host domains'):r.location(Path(directory),binding)
 
     def test_missing_topology_or_receivers_cannot_fall_back_to_local_paths(self):
         with tempfile.TemporaryDirectory() as directory:

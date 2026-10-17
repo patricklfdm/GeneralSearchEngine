@@ -34,9 +34,11 @@ LAUNCH="import sys;sys.path.insert(0,sys.argv.pop(1));from scripts.v52.remote_vo
 def preparation(root,value):
     need(type(value) is dict and set(value)=={'node','binding','session','host'}|({'generation'} if 'generation' in value else set()),'lifecycle prepare fields')
     node=value['node'];need(node in h.topology.NODES,'lifecycle node');c.hex_value(value['session'],32,'lifecycle session')
-    bound=value['binding'];need(bound.get('remoteVoterLifecycle')==EXECUTION,'lifecycle scope')
+    bound=value['binding'];need(v.scope.domains.matches(bound,'remoteVoterLifecycle',EXECUTION),'lifecycle scope')
     need(bound['remoteReceivers'][node]['originalRoot']==str(root),'lifecycle receiver root')
     need(host.observe(root)==host.validate_pin(value['host']),'lifecycle host changed')
+    v.scope.domains.chain(bound);v.scope.domains.observed(bound,node,value['host'])
+    python_context.require_binding(bound,node)
     source=h.source();need(all(source[k]==bound[k] for k in source),'voter source changed')
     gen=v.scope.generation(value);control=root/v.scope.control_name(node,gen)
     if gen==2 and not control.exists():
@@ -46,7 +48,7 @@ def preparation(root,value):
         control.mkdir(mode=0o700);c.sync_directory(root)
         c.write_once(control/'preparation.json',value,c.REQUEST_BYTES)
         socket_dir=Path(tempfile.mkdtemp(prefix='v52-remote-voter-'))
-        config=dict(schema=v.SCHEMA,execution='local-persistent-voters-only',node=node,root=str(root),
+        config=dict(schema=v.SCHEMA,execution=v.scope.domains.execution(bound,'local-persistent-voters-only'),node=node,root=str(root),
                     host=host.observe(control),binding=bound,socket=str(socket_dir/'channel'),session=value['session'])
         if 'generation' in value:config['generation']=gen
         try:
@@ -63,7 +65,7 @@ def load(control,sha):
     c.hex_value(sha,64,'lifecycle configuration digest')
     config=c.read(c.directory(control)/'config.json',c.REQUEST_BYTES)
     need(digest(encoded(config))==sha,'lifecycle configuration changed')
-    need(config['binding'].get('remoteVoterLifecycle')==EXECUTION,'lifecycle scope')
+    need(v.scope.domains.matches(config['binding'],'remoteVoterLifecycle',EXECUTION),'lifecycle scope')
     v.validate_config(config,control,fresh_socket=False)
     return config
 
