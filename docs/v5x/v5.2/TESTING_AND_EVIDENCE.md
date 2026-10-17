@@ -351,3 +351,13 @@ workflow/source/run/attempt context, fresh descriptors, refresh deadlines and
 closed diagnostics. They neither request real tokens nor establish IAM, protected
 CI or paid admission. V5.1 exchange primitives and all workload parameters remain
 unchanged; the V5.2 native provider remains closed pending separate admission.
+
+### Request-scoped provider wire policy
+
+[Phase 6AU](PHASE_6_REQUEST_WIRE_POLICY.md) qualifies the scoped HTTP boundary
+through complete owner/reconciliation calls. The unit gate adds
+`test_cloud_wire_policy` and preserves all prior checks. It covers original
+request bodies/IDs, control transitions, fresh checks after token refresh,
+conditional immutable retention, lost replies and conservative unknown outcomes.
+The concrete entry remains offline; no cloud permission or workload result is
+inferred from its synthetic HTTP observations.

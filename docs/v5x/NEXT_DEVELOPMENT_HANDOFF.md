@@ -1062,3 +1062,11 @@ stage budgets. Native wiring is tested with mocked IO only. No V5.2 identities o
 workflows are deployed, and the provider mutation entry remains closed. Next
 connect independently admitted native capabilities, owned IAP and actual guest
 observations, then complete members/aggregation and protected operator entry.
+
+[Phase 6AU request wire policy](v5.2/PHASE_6_REQUEST_WIRE_POLICY.md) now connects
+closed request/object/resource scopes to actual owner and cleanup calls through a
+concrete offline HTTP gate. Fresh post-credential checks, original submission
+consumption, conditional lease/ledger transitions and final absence scans enforce
+the boundary independently of higher-level callers. Native mutable entry remains
+closed until fresh admission and explicit domain-aware control are connected;
+then continue IAP, guest preparation, whole members and independent aggregation.

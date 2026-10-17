@@ -54,6 +54,9 @@ class OfflineApi(Api):
 
 
 def api_guard(api):
+    from .cloud_wire_policy import ScopedOfflineApi
+    if type(api) is ScopedOfflineApi:
+        api.validate_adapter(); return
     need(type(api) is OfflineApi, 'V5.2 live HTTP entry not admitted')
     api.authorize('GET', '', None)
 
@@ -65,6 +68,7 @@ class Store:
         config(configuration); api_guard(api)
         self.config, self.api = deepcopy(configuration), api
         self.base = STORAGE+'storage/v1/b/'+self.config['bucket']+'/o/'
+        if hasattr(api, 'bind_store'): api.bind_store(self)
 
     def endpoint(self, key):
         need(type(key) is str and key.startswith(a.PREFIX) and len(key) <= 1024 and
@@ -130,22 +134,17 @@ def reconstruct(store, req):
     return Provider(store, req)
 
 
-class Provider:
-    execution = a.DOMAINS['offline']
-
-    def __init__(self, store, req, *, wall=time.time, sleep=time.sleep):
-        need(type(store) is Store, 'V5.2 provider store type'); api_guard(store.api)
-        self.context = context(store.config, req)
-        self.store, self.api, self.request = store, store.api, deepcopy(req)
-        self.config, self.wall, self.sleep = deepcopy(store.config), wall, sleep
-        self.specs = {s['name']:s for s in a.resources(req)}
-        self.base = COMPUTE+self.config['project']; self.cleaning = False
+class Plan:
+    """Pure request-bound wire shapes. Native intent is data, not admission."""
+    def __init__(self, configuration, req):
+        a.validate_request(req, domain=a.domain(req))
+        need(config(configuration)==req['configurationSha256'], 'V5.2 configuration digest changed')
+        self.config,self.request=deepcopy(configuration),deepcopy(req)
+        self.specs={s['name']:s for s in a.resources(req)}
+        self.base=COMPUTE+self.config['project']
 
     def spec(self, spec):
-        need(type(spec) is dict and self.specs.get(spec.get('name')) == spec, 'V5.2 foreign resource intent')
-        api_guard(self.api)
-        need(self.config == self.store.config == self.context['configuration'] and self.request == self.context['request'],
-             'V5.2 provider configuration changed')
+        need(type(spec) is dict and self.specs.get(spec.get('name'))==spec, 'V5.2 foreign resource intent')
 
     def scope(self, spec):
         self.spec(spec)
@@ -229,22 +228,6 @@ class Provider:
                      'V5.2 instance hard lifetime changed')
         return dict(spec=deepcopy(spec), id=identity)
 
-    def describe(self, spec, *, identity=None, deadline=None):
-        try: value = self.api.call('GET', self.endpoint(spec,identity), deadline=deadline or self.api.clock()+30)
-        except ApiError as error:
-            if error.status == 404: return None
-            raise
-        result = self.inspect(spec,value)
-        need(identity is None or result['id'] == identity, 'V5.2 exact resource ID changed')
-        return result
-
-    def prepare_context(self, req):
-        from .cloud_control import retain
-        need(req == self.request, 'V5.2 provider request changed')
-        retain(self.store, context_key(req), self.context)
-
-    def begin_cleanup(self): self.cleaning = True
-
     def decode(self, spec, op, action='insert', identity=None):
         need(type(op) is dict and op.get('clientOperationId') == self.operation_id(spec,action,identity) and
              op.get('operationType') == action, 'V5.2 operation request binding')
@@ -260,6 +243,38 @@ class Provider:
         if op.get('error'): need(action=='insert' and target is None, 'V5.2 unresolved operation failure')
         else: a.numeric(target)
         return dict(spec=deepcopy(spec),state='DONE',id=target)
+
+class Provider(Plan):
+    execution = a.DOMAINS['offline']
+
+    def __init__(self, store, req, *, wall=time.time, sleep=time.sleep):
+        need(type(store) is Store, 'V5.2 provider store type'); api_guard(store.api)
+        self.context = context(store.config, req)
+        super().__init__(store.config, req)
+        self.store, self.api = store, store.api
+        self.wall, self.sleep = wall, sleep; self.cleaning = False
+        if hasattr(self.api, 'bind_provider'): self.api.bind_provider(self)
+
+    def spec(self, spec):
+        super().spec(spec); api_guard(self.api)
+        need(self.config == self.store.config == self.context['configuration'] and self.request == self.context['request'],
+             'V5.2 provider configuration changed')
+
+    def describe(self, spec, *, identity=None, deadline=None):
+        try: value = self.api.call('GET', self.endpoint(spec,identity), deadline=deadline or self.api.clock()+30)
+        except ApiError as error:
+            if error.status == 404: return None
+            raise
+        result = self.inspect(spec,value)
+        need(identity is None or result['id'] == identity, 'V5.2 exact resource ID changed')
+        return result
+
+    def prepare_context(self, req):
+        from .cloud_control import retain
+        need(req == self.request, 'V5.2 provider request changed')
+        retain(self.store, context_key(req), self.context)
+
+    def begin_cleanup(self): self.cleaning = True
 
     def receipt_key(self, spec):
         return a.PREFIX+'attempts/'+spec['requestSha256']+'/operations/'+spec['operationId']+'.json'
@@ -286,7 +301,8 @@ class Provider:
         if saved is not None:
             need(saved[1] == value,'V5.2 unsubmitted proof changed'); return True
         submission = self.store.get(self.receipt_key(spec).replace('.json','-submitted.json'))
-        if submission is not None: return False
+        if submission is not None and not (hasattr(self.api,'can_prove_unsubmitted') and
+                                          self.api.can_prove_unsubmitted(spec,submission[1])): return False
         retained = self.store.get(context_key(self.request))
         need(retained is not None and retained[1] == self.context,'V5.2 unsubmitted context missing/changed')
         retain(self.store,key,value)
@@ -353,7 +369,9 @@ class Provider:
         self.owned_insert(spec)
         submission = self.receipt_key(spec).replace('.json','-submitted.json')
         need(self.store.get(submission) is None,'V5.2 original insert already submitted')
-        put(self.store,submission,dict(schema='gse-v52-provider-submission-v1',spec=spec),0)
+        marker = (self.api.submission_value(spec) if hasattr(self.api,'submission_value') else
+                  dict(schema='gse-v52-provider-submission-v1',spec=spec))
+        put(self.store,submission,marker,0)
         self.owned_insert(spec)
         endpoint = query(self.endpoint(spec).rsplit('/',1)[0],requestId=self.operation_id(spec))
         # Each mutation is sent once. An uncertain response leaves the retained

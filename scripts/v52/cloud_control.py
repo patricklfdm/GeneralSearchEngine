@@ -89,7 +89,9 @@ def clean(store, provider, generation, lease):
         nonlocal generation
         a.validate_lease(lease)
         generation = put(store, a.LEASE, lease, generation)
-    outcome = exact_cleanup(provider, lease, persist, authority=a)
+    from .cloud_wire_policy import ScopedOfflineApi
+    redact = hasattr(store,'api') and type(store.api) is ScopedOfflineApi
+    outcome = exact_cleanup(provider, lease, persist, authority=a, redact=redact)
     result = dict(status='FAIL', scope='offline-v52-cleanup-only', cleanup=outcome,
                   leaseReleased=False, fullRemoteQualification=False, paidCloud=False)
     key = attempt_key(lease['request'])
