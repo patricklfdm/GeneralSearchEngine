@@ -40,6 +40,8 @@ class Provider:
         self.store = store; self.objects = {}; self.operations = {}; self.events = []
         self.fault = lambda *args: None
 
+    def prepare_context(self, req): a.validate_request(req, domain='offline')
+
     def begin_cleanup(self): pass
 
     def describe(self, spec):

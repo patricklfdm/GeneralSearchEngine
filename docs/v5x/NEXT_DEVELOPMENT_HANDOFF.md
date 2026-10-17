@@ -1040,3 +1040,10 @@ V5.2 ledger, renewable owner and shared exact-ID reconciliation. Offline fault
 qualification covers lost writes/inserts, competing owners, expiry, retention and
 replacement identities. It grants no native or workload admission. Next connect
 fresh provider/guest/IAP ownership, whole members/aggregate and protected entry.
+
+[Phase 6AR provider HTTP mapping](v5.2/PHASE_6_PROVIDER_HTTP.md) connects that owner
+to a dedicated V5.2 wire adapter, with retained context/operation recovery,
+create-only submission markers and finite original exchanges. Concrete offline HTTP
+fault tests preserve exact-ID and generation fencing. No native API or cloud
+admission exists yet; next connect qualified credentials and fresh provider/guest/
+IAP observations before the complete owned member/aggregate entry.

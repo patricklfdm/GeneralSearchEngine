@@ -115,3 +115,8 @@ owned IAP routes and credential lifetime, fresh guest/mount identity, complete
 owned members and five-member independent aggregate, then dedicated exact-master
 full-CI and fresh permission/image/cleanup admission. Push, merge and any paid
 trigger remain operator-owned; there is no live CLI or workflow in this stage.
+
+The subsequent [Phase 6AR HTTP mapping](PHASE_6_PROVIDER_HTTP.md) adds a second
+concrete offline adapter and retained provider context before resource submission.
+Its wire qualification does not alter the source-bound results above or enable
+native execution.

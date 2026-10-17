@@ -324,3 +324,12 @@ share expiry/grace and exact-ID checks; cost/time policy remains soft while expi
 ownership rejects. The measurement unit gate includes `test_cloud_authority` and
 `test_cloud_control`. These tests do not enable a live adapter or claim remote
 qualification. Native provider/lease/IAP and complete owned suite replay remain open.
+
+### Provider HTTP mapping
+
+[Phase 6AR](PHASE_6_PROVIDER_HTTP.md) adds `test_cloud_provider` to the measurement
+unit gate. A concrete in-process HTTP fixture exercises the actual V5.2 storage,
+resource and operation mapping through the same owner/reconciler, including durable
+submission fencing and reconstructible cleanup. It performs no network or workload
+execution and does not qualify native provider compatibility. Original failure and
+corrected-source test receipts are retained in `target/v52-cloud-provider/`.

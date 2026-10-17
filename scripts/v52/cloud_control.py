@@ -1,4 +1,4 @@
-"""V5.2 renewable ownership and exact-ID cleanup, qualified offline entry only.
+"""V5.2 renewable ownership and exact-ID cleanup, qualified memory/HTTP offline entries only.
 
 No engine work or paid admission is claimed here. The shared V5.1 deletion
 algorithm is namespace-free; all keys, requests and ledger formats below are V5.2.
@@ -13,9 +13,11 @@ from .evidence import need, encoded, digest
 UNCERTAIN = (ConnectionError, TimeoutError)
 
 
-def adapters(store, provider):
-    need(type(store) is offline.Store and type(provider) is offline.Provider and provider.store is store,
-         'V5.2 live control entry not admitted')
+def adapters(store, provider, req=None):
+    from . import cloud_provider
+    memory = type(store) is offline.Store and type(provider) is offline.Provider and provider.store is store
+    need(memory or cloud_provider.qualified(store, provider), 'V5.2 live control entry not admitted')
+    if not memory and req is not None: need(provider.request == req, 'V5.2 provider request changed')
 
 
 def put(store, key, value, expected):
@@ -127,7 +129,7 @@ def reconcile(store, provider, *, trigger, now):
 class OfflineOwner:
     """Original provisioning owner. No workload can be marked PASS by this entry."""
     def __init__(self, store, provider, req, *, wall=lambda: int(time.time())):
-        adapters(store, provider); a.validate_request(req, domain='offline')
+        adapters(store, provider, req); a.validate_request(req, domain='offline')
         self.store, self.provider, self.request = store, provider, deepcopy(req)
         self.wall = wall; self.lease = None; self.generation = None; self.closed = False; self.consumed = False
         self.lock = threading.RLock(); self.preparation_failure = None; self.cleanup_result = None
@@ -166,6 +168,7 @@ class OfflineOwner:
             self.generation = put(self.store, a.LEASE, lease, 0); self.lease = lease
             put(self.store, a.LEDGER, reserved, version)
             lease = deepcopy(lease); lease['phase'] = 'ACTIVE'; self.persist(lease)
+            self.provider.prepare_context(self.request)
             self.checkpoint(); return a.budget_warning(self.request, reserved)
 
     def provision(self):
