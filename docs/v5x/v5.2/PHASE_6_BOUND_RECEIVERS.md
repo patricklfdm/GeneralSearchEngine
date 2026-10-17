@@ -61,10 +61,33 @@ local-topology rejection; its unbound private input now fails earlier for missin
 host domains. The updated test separately retains malformed-profile rejection.
 Original failure logs are retained under `target/v52-remote-python/bound-backend-*`.
 
-The four-history installed-helper gate is the real local compatibility check for
-this chain. Its result must retain the source on which it actually executes;
-synthetic bound-host tests cannot count as three-host qualification. The earlier
-Phase 6AN and Phase 6AK receipts remain bound to their own source and scope.
+All 538 V5.2 Python tests and 21 CI-related tests pass, including 14 new bound-host
+regressions. The installed-helper entry also passes its 88 unit tests. The real
+four-history SSH gate then passes on implementation commit
+`2649555919b50f0a73330d30d2d5bff661c95617`, checkout hash
+`d32938e08560b84e1c05242c73c61ce14273094cdb603456b7786e2b2554b946`:
+
+| Complete history | Seconds | Original reads / updates | Stopped service/JVM pairs |
+| --- | ---: | ---: | ---: |
+| candidate-minimum-untimed-smoke | 144.814 | 11 / 3 | 3 |
+| m03-p4 | 110.291 | 5 / 4 | 3 |
+| leader-sigkill-retained-restart | 144.717 | 4 / 4 | 4 |
+| follower-snapshot-carried-token | 145.976 | 4 / 4 | 3 |
+
+Total wall time is 546.553 seconds. All 24 original reads, 15 updates and 338
+evidence mutation rejections pass, including original and relocated validation;
+all 13 service/JVM pairs stop. This run uses installed isolated Python inputs and
+local pinned SSH. It does not establish independent-host or full cloud acceptance.
+No failed workload was rerun to obtain this result.
+
+The original receipt is retained at
+`target/v52-installed-histories/run.8wHsmE/evidence/receipt.json`, SHA-256
+`7913335a5ca29ed1f6d2fe9a713e25a61c35f3040cd6be81246c31d382747302`.
+The source index, test logs and result summary are under
+`target/v52-remote-python/bound-backend-*`. The later documentation commit does
+not replace the execution source. Earlier Phase 6AN and Phase 6AK receipts also
+remain bound to their own source and scope. Protected exact-source CI and actual
+independent-host qualification remain pending.
 
 The caller must still independently admit and retain provider/lease authority,
 prepare the exact three instances and mounted storage, own and recheck the SSH/IAP
