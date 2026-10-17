@@ -315,3 +315,12 @@ consumption drift before execution. Run the existing complete installed-history
 gate for local compatibility; it does not establish three-host or provider
 admission. The paid owner, complete member aggregate and exact-master cloud
 entry remain separate gates.
+
+### V5.2 resource and lease authority
+
+[Phase 6AQ](PHASE_6_CLOUD_AUTHORITY.md) qualifies the V5.2 control model with in-memory
+CAS/provider faults, independently of engine measurements. Both cleanup triggers
+share expiry/grace and exact-ID checks; cost/time policy remains soft while expired
+ownership rejects. The measurement unit gate includes `test_cloud_authority` and
+`test_cloud_control`. These tests do not enable a live adapter or claim remote
+qualification. Native provider/lease/IAP and complete owned suite replay remain open.

@@ -1034,3 +1034,9 @@ bounded failure thresholds and dead/reused-process detection. Twenty-one unit
 cases and four real subprocess cases pass; no engine or cloud workload is claimed
 by those markers. Next connect stable semantic command slots and persistent guest
 execution, then complete cross-host identity and M01–M04 portable qualification.
+
+[Phase 6AQ resource/lease authority](v5.2/PHASE_6_CLOUD_AUTHORITY.md) adds an isolated
+V5.2 ledger, renewable owner and shared exact-ID reconciliation. Offline fault
+qualification covers lost writes/inserts, competing owners, expiry, retention and
+replacement identities. It grants no native or workload admission. Next connect
+fresh provider/guest/IAP ownership, whole members/aggregate and protected entry.
