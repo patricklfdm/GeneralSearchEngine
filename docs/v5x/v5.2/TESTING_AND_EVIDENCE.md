@@ -382,3 +382,13 @@ source/attempt drift, archive substitution and subprocess limits are qualified
 with synthetic GitHub records and local subprocesses. No hosted CI or provider
 request is executed by these tests; replayed receipts remain NOT_ADMITTED.
 Provider/cleanup observation and concrete native ownership are the next boundary.
+
+### Fixed provider facts and permission preflight
+
+[Phase 6AX](PHASE_6_PROVIDER_PREFLIGHT.md) adds `test_cloud_preflight` to the same
+unit gate. Concrete offline credential/provider fixtures and mocked fixed native
+wiring test role scope, exact invocation, original control generations, private
+topology, pinned-image policy, quota headroom, soft costs and bounded reads. No
+real permission, provider allocation, cleanup success or cloud evidence is
+established by those tests. Recent actual manual reconciliation and concrete
+native ownership still precede IAP/guest and whole-member qualification.

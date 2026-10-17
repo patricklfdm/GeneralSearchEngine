@@ -21,14 +21,16 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6AW CI provenance](v5.2/PHASE_6_CI_PROVENANCE.md)
-adds exact-master full-CI and original shared-build artifact collection. It
-preserves producing attempts across carried builds and retains original API/ZIP
-evidence. Its checks are locally qualified, not current-source protected CI or
-paid admission. Fresh provider/cleanup observations and the native owner are next.
-Local validation passes 799 V5.2 Python and 64 existing CI/producer-contract tests,
-including 43 new provenance tests; no workflow, runtime Java or frozen program
-parameter changes are made by this stage.
+Latest local stage: [Phase 6AX provider preflight](v5.2/PHASE_6_PROVIDER_PREFLIGHT.md)
+adds a fixed read-only provider/permission entry under dedicated V5.2 credentials,
+with repeated original ledger/lease generations and explicit NOT_ADMITTED results.
+It preserves necessary-permission scope, soft cost warnings and historical native
+leases for cleanup inspection. Actual manual reconciliation, native ownership and
+owned IAP/guest/workload integration remain next; no V5.2 identity or workflow is
+deployed and no current-source hosted/cloud result is claimed.
+Local validation passes 827 V5.2 Python tests, including 28 new preflight tests,
+and 100 existing CI/V5.1 preflight/permission/image-policy tests. Original source
+indices and both reproduced review failures remain retained.
 
 The [hosted acceptance record](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) binds successful
 run `38888573888`, attempt 1: 28 histories, 27,373 reads, 2,745 updates and 878
@@ -1096,3 +1098,12 @@ builds retain their original attempt; newer failures do not fall back to old gre
 runs. Local fixtures and subprocess tests preserve the non-admission boundary.
 Fresh provider/network/image/necessary-permission and manual-cleanup observations,
 concrete native ownership, IAP/guest binding and complete owned members remain open.
+
+[Phase 6AX provider preflight](v5.2/PHASE_6_PROVIDER_PREFLIGHT.md) supplies fixed
+provider GETs and diagnostic permission probes, with source/run/attempt-bound
+credential exchange and generation-selected control snapshots. It checks private
+topology, pinned usable images, machine-family quotas and control-history retention
+without requesting organization IAM or extra image-list access. Local synthetic
+and mocked native qualification grant no cloud capability. Fresh manual cleanup,
+concrete native ownership, actual conditional permissions and complete whole-member
+qualification remain open; schedule is optional and budget overruns remain soft.
