@@ -406,3 +406,20 @@ orphan-reservation false PASS is reproduced before its shared-controller fix.
 These local tests do not certify GCP deletion, IAM or a deployed workflow. Native
 Runner admission, immutable workload evidence and owned whole-set qualification
 remain separate requirements.
+
+### Cleanup workflow provenance and acquisition crash recovery
+
+[Phase 6AZ](PHASE_6_CLEANUP_PROVENANCE.md) adds `test_cloud_acquisition_context`,
+`test_cloud_cleanup_bundle` and `test_cloud_recent_cleanup` to the same measurement
+unit gate, retaining all existing checks. Tests cover abrupt loss at context,
+lease, reservation and ACTIVE boundaries; exact native cleanup evidence; source
+changes during sealing; WAITING decision time; ledger cost/history preservation;
+and complete original GitHub run/attempt/job/step/artifact provenance. Failed,
+cancelled, queued, stale or WAITING latest executions never borrow earlier PASS.
+Original ZIP size/digest/inventory and source workflow bytes remain bound.
+
+These tests execute actual native factory code with mocked external I/O and do
+not establish live permissions, deployment or paid acceptance. The manual workflow
+is source-controlled but has not been pushed or triggered. An idle PASS cannot
+certify resource deletion. Local validation and the three original implementation
+failures are retained in `target/v52-native-admission/`; no workload was rerun.

@@ -221,8 +221,10 @@ class Network:
                 '-H', 'Accept: application/vnd.github+json', '-H', 'X-GitHub-Api-Version: 2022-11-28',
                 'repos/'+credentials.REPOSITORY+'/'+path]
 
+    def authorize_path(self, path): allowed_path(path)
+
     def get(self, path):
-        allowed_path(path); need(self.calls < 256, 'V5.2 GitHub observation call bound'); self.calls += 1
+        self.authorize_path(path); need(self.calls < 256, 'V5.2 GitHub observation call bound'); self.calls += 1
         target = self.output/f'{self.calls:03}.json'
         bounded_command(self.command(path), target, MAX_JSON, 30)
         value = read(target); save(self.output/f'{self.calls:03}-request.json', dict(method='GET', path=path)); return value

@@ -96,6 +96,7 @@ def reconcile_native(source, output, *, role='manual'):
         ledger = original['ledger']; lease = original['lease']
         view = a.inspect_ledger(ledger['value'] if ledger else a.empty_ledger(domain='native'), domain='native')
         pending = [row for row in view['attempts'].values() if row['status'] == 'PENDING']
+        decision = int(time.time())
         result = dict(status='PASS', scope='native-v52-cleanup-only', activeLease=lease is not None,
                       fullRemoteQualification=False, paidCloud=True)
         if lease is None:
@@ -106,7 +107,7 @@ def reconcile_native(source, output, *, role='manual'):
             need(not pending or len(pending) == 1 and pending[0]['request'] == req, 'V5.2 cleanup pending owner mismatch')
             need(row is not None and row['request'] == req or not any(v['attempted'] for v in value['resources']),
                  'V5.2 cleanup reservation missing')
-            if value['phase'] != 'CLEANING' and int(time.time()) < value['expiresAt']+value['graceSeconds']:
+            if value['phase'] != 'CLEANING' and decision < value['expiresAt']+value['graceSeconds']:
                 result.update(status='WAITING', expiresAt=value['expiresAt'], graceSeconds=value['graceSeconds'])
             else:
                 phase = 'original-context'; context = reader.original_context(lease)
@@ -121,7 +122,8 @@ def reconcile_native(source, output, *, role='manual'):
                     api = NativeCleanupApi(reader, context, log, _CAPABILITY)
                     store = p.Store(context['value']['configuration'], api)
                     provider = p.reconstruct(store, req)
-                    result = c.reconcile(store, provider, trigger=credentials.ROLES[role][2], now=int(time.time()))
+                    decision = int(time.time())
+                    result = c.reconcile(store, provider, trigger=credentials.ROLES[role][2], now=decision)
                 artifacts.save(output/'reconciliation.json', result)
         phase = 'final-observation'
         if api is None: control(reader, original)
@@ -136,7 +138,7 @@ def reconcile_native(source, output, *, role='manual'):
         token = reader.tokens.receipt()
         f.credential_receipt(token,reader.context['credentialSelection'],source,reader.execution)
         result.update(schema='gse-v52-native-cleanup-v1', source=source, role=role, trigger=credentials.ROLES[role][2],
-            checkedAt=int(time.time()), context=reader.context, credentials=token,
+            checkedAt=int(time.time()), decisionAt=decision, context=reader.context, credentials=token,
             originalRequestSha256=a.validate_request(lease['value']['request'],domain='native') if lease else None,
             observationsSha256=digest(encoded(observations)), controlBefore=original, controlAfter=final,
             providerWrites=api.writes if api else 0, resourceDeletesSubmitted=api.deletes if api else 0,

@@ -139,11 +139,12 @@ def reconcile(store, provider, *, trigger, now):
     return dict(clean(store, provider, generation, lease), trigger=trigger)
 
 
-class OfflineOwner:
-    """Original provisioning owner. No workload can be marked PASS by this entry."""
+class _OwnedLifecycle:
+    """Shared original lifecycle; concrete constructors supply the authority domain."""
     def __init__(self, store, provider, req, *, wall=lambda: int(time.time())):
-        adapters(store, provider, req); a.validate_request(req, domain='offline')
+        adapters(store, provider, req); a.validate_request(req, domain=store_domain(store))
         self.store, self.provider, self.request = store, provider, deepcopy(req)
+        self.domain = store_domain(store)
         self.wall = wall; self.lease = None; self.generation = None; self.closed = False; self.consumed = False
         self.lock = threading.RLock(); self.preparation_failure = None; self.cleanup_result = None
 
@@ -175,13 +176,15 @@ class OfflineOwner:
             need(not self.closed and not self.consumed and self.generation is None, 'V5.2 owner already consumed')
             self.consumed = True
             need(self.store.get(a.LEASE) is None, 'V5.2 unreconciled active lease')
-            current = self.store.get(a.LEDGER); version, ledger = current if current else (0, a.empty_ledger(domain='offline'))
+            current = self.store.get(a.LEDGER); version, ledger = current if current else (0, a.empty_ledger(domain=store_domain(self.store)))
             reserved = a.reserve(ledger, self.request, previous_cost=previous_cost, cost=cost)
+            # Context is immutable and retained before the first lease CAS. A
+            # crash after acquisition must not strand an unreconstructable lease.
+            self.provider.prepare_context(self.request)
             lease = a.lease(self.request, self.wall())
             self.generation = put(self.store, a.LEASE, lease, 0); self.lease = lease
             put(self.store, a.LEDGER, reserved, version)
             lease = deepcopy(lease); lease['phase'] = 'ACTIVE'; self.persist(lease)
-            self.provider.prepare_context(self.request)
             self.checkpoint(); return a.budget_warning(self.request, reserved)
 
     def provision(self):
@@ -215,15 +218,17 @@ class OfflineOwner:
         try:
             self.provision()
             return dict(status='RESOURCES_PREPARED_NOT_QUALIFIED', warning=warning,
-                        lease=deepcopy(self.lease), fullRemoteQualification=False, paidCloud=False)
+                        lease=deepcopy(self.lease), fullRemoteQualification=False, paidCloud=store_domain(self.store)=='native')
         except BaseException as error:
             self.failed(error); raise
 
     def failed(self, error):
-        self.preparation_failure = dict(type=type(error).__name__, message=str(error))
+        self.preparation_failure = dict(type=type(error).__name__)
+        if self.domain=='offline': self.preparation_failure['message']=str(error)
         try: self.close()
         except BaseException as cleanup_error:
-            self.cleanup_result = dict(status='FAIL', failure=dict(type=type(cleanup_error).__name__, message=str(cleanup_error)))
+            self.cleanup_result = dict(status='FAIL', failure=dict(type=type(cleanup_error).__name__))
+            if self.domain=='offline': self.cleanup_result['failure']['message']=str(cleanup_error)
 
     def close(self):
         with self.lock:
@@ -232,3 +237,11 @@ class OfflineOwner:
             if self.generation is None: return None
             self.cleanup_result = clean(self.store, self.provider, self.generation, self.lease)
             return deepcopy(self.cleanup_result)
+
+
+class OfflineOwner(_OwnedLifecycle):
+    """Concrete offline entry; native request dictionaries cannot enable it."""
+    def __init__(self, store, provider, req, *, wall=lambda: int(time.time())):
+        adapters(store,provider,req);a.validate_request(req,domain='offline')
+        need(store_domain(store)=='offline','V5.2 offline owner domain')
+        super().__init__(store,provider,req,wall=wall)

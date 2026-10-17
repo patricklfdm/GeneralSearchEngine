@@ -143,6 +143,8 @@ class Policy:
                  body['startedAt']<=now<body['expiresAt'],'V5.2 wire initial lease')
             ledger=self.store.get(a.LEDGER);ledger=ledger[1] if ledger else a.empty_ledger(domain=self.domain)
             a.reserve(ledger,self.req,previous_cost=self.previous_cost,cost=self.cost)
+            context=self.store.get(self.prefix+'provider-context.json')
+            need(context is not None and context[1]==self.context(),'V5.2 initial lease requires retained context')
             return
         generation,previous=old;a.validate_lease(previous)
         need(generation==expected and previous['request']==self.req,'V5.2 wire lease generation/owner changed')
@@ -223,10 +225,16 @@ class Policy:
                          'V5.2 wire terminal ledger')
                 return
             need(expected==0,'V5.2 wire immutable overwrite')
-            _,lease=self.current()
             if kind=='context':
-                need(self.role=='runner' and body==self.context(),'V5.2 wire context changed');self.current(active=True,charged=True)
-            elif kind=='submitted':
+                need(self.role=='runner' and body==self.context(),'V5.2 wire context changed')
+                current=self.store.get(a.LEASE)
+                if current is None:
+                    old=self.store.get(a.LEDGER);ledger=old[1] if old else a.empty_ledger(domain=self.domain)
+                    a.reserve(ledger,self.req,previous_cost=self.previous_cost,cost=self.cost)
+                else:self.current(active=True,charged=True)
+                return
+            _,lease=self.current()
+            if kind=='submitted':
                 need(self.role=='runner' and body==self.original(kind,spec),'V5.2 wire submission marker')
                 _,lease=self.current(active=True,charged=True);row=self.row(lease,spec)
                 need(row['attempted'] and row['id'] is None and spec['name'] not in self.marker_tickets,'V5.2 wire duplicate submission marker')

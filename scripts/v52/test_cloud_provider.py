@@ -88,7 +88,13 @@ class ProviderTest(unittest.TestCase):
             if stage=='before' and 'upload/storage' in event['url'] and 'provider-context.json' in event['url']:return 403,b''
         self.server.fault=fault
         with self.assertRaises(ApiError):self.prepare()
-        self.assertEqual([],self.compute_mutations());self.assertEqual('PASS',self.owner.cleanup_result['status'])
+        self.assertEqual([],self.compute_mutations())
+        # Context now precedes the initial lease CAS. A denied context write
+        # leaves no owner or charge to reconcile, rather than an empty cleanup.
+        self.assertIsNone(self.owner.cleanup_result);self.assertTrue(self.owner.closed)
+        self.assertEqual('ApiError',self.owner.preparation_failure['type'])
+        self.assertIsNone(self.store.get(a.LEASE));self.assertIsNone(self.store.get(a.LEDGER))
+        self.assertEqual({},self.server.objects);self.assertEqual({},self.server.resources)
 
     def test_v51_or_escaped_object_paths_are_rejected_before_http(self):
         for key in ('v5.1-automatic/control/active.json',a.PREFIX+'../foreign',a.PREFIX+'x%2fy',a.PREFIX+'x?alt=media',a.PREFIX+'x//y'):
