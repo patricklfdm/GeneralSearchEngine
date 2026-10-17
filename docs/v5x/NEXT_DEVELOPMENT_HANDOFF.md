@@ -1053,3 +1053,12 @@ binds per-attempt SSH public access before creation and derives private topology
 from three fresh instance/disk/host-key observations. Resource changes and fenced
 ownership reject; missing host keys are pending only after the second full sample.
 Native credentials, owned IAP and actual guest/mount observations remain next.
+
+[Phase 6AT credential entry](v5.2/PHASE_6_CREDENTIAL_ENTRY.md) now binds dedicated
+V5.2 roles to the clean source, workflow/environment and exact GitHub run/attempt.
+Each refresh re-observes the original run and validates the auth-action descriptor;
+fixed exchange deadlines and sanitized diagnostics remain separate from soft
+stage budgets. Native wiring is tested with mocked IO only. No V5.2 identities or
+workflows are deployed, and the provider mutation entry remains closed. Next
+connect independently admitted native capabilities, owned IAP and actual guest
+observations, then complete members/aggregation and protected operator entry.

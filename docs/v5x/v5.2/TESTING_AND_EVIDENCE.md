@@ -342,3 +342,12 @@ complete instance/boot/data observations bracket host-key discovery and preserve
 the stable allocation claim across renewals. The qualified HTTP fixture supplies
 provider observations, while local key generation/checking uses real files and
 `ssh-keygen`. Neither result qualifies IAP, guest mounts or paid execution.
+
+### Dedicated credential entry
+
+[Phase 6AT](PHASE_6_CREDENTIAL_ENTRY.md) adds `test_cloud_credentials` to the same
+unit gate. Synthetic issuer tests and mocked native wiring cover exact
+workflow/source/run/attempt context, fresh descriptors, refresh deadlines and
+closed diagnostics. They neither request real tokens nor establish IAM, protected
+CI or paid admission. V5.1 exchange primitives and all workload parameters remain
+unchanged; the V5.2 native provider remains closed pending separate admission.
