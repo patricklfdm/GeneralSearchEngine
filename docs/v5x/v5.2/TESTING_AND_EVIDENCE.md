@@ -392,3 +392,17 @@ topology, pinned-image policy, quota headroom, soft costs and bounded reads. No
 real permission, provider allocation, cleanup success or cloud evidence is
 established by those tests. Recent actual manual reconciliation and concrete
 native ownership still precede IAP/guest and whole-member qualification.
+
+### Native cleanup factory and original ownership
+
+[Phase 6AY](PHASE_6_NATIVE_CLEANUP.md) adds `test_cloud_native_cleanup` to the
+existing unit gate. Its actual native factory and NetworkCredentials path run
+with external I/O mocked: original source/configuration and thirteen exact resource
+IDs, expired/grace/CLEANING leases, changed generations, orphan reservations,
+credential-refresh fencing, uncertain CAS/delete outcomes, final-source drift,
+manual/schedule parity, input/adaptor rejection and redacted diagnostics. An empty
+PASS is distinct from an exercised deletion path. The original implementation's
+orphan-reservation false PASS is reproduced before its shared-controller fix.
+These local tests do not certify GCP deletion, IAM or a deployed workflow. Native
+Runner admission, immutable workload evidence and owned whole-set qualification
+remain separate requirements.

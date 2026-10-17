@@ -21,16 +21,20 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6AX provider preflight](v5.2/PHASE_6_PROVIDER_PREFLIGHT.md)
-adds a fixed read-only provider/permission entry under dedicated V5.2 credentials,
-with repeated original ledger/lease generations and explicit NOT_ADMITTED results.
-It preserves necessary-permission scope, soft cost warnings and historical native
-leases for cleanup inspection. Actual manual reconciliation, native ownership and
-owned IAP/guest/workload integration remain next; no V5.2 identity or workflow is
-deployed and no current-source hosted/cloud result is claimed.
-Local validation passes 827 V5.2 Python tests, including 28 new preflight tests,
-and 100 existing CI/V5.1 preflight/permission/image-policy tests. Original source
-indices and both reproduced review failures remain retained.
+Latest local stage: [Phase 6AY native cleanup](v5.2/PHASE_6_NATIVE_CLEANUP.md)
+connects the fixed native credential/observation factory to the shared expired-lease
+reconciler. Active leases wait, original source/configuration and numeric resource
+IDs remain authoritative, and orphan pending reservations cannot report empty PASS.
+Native Runner provisioning/workload admission remain closed. Local external-I/O
+fixtures exercise native wiring; no V5.2 identity/workflow is deployed, and no
+actual provider cleanup or current-source hosted/cloud result is claimed.
+The factory preserves old failures and charges, rechecks ownership after credential
+refresh, and does not require Runner's build/CI/image admission to clean resources.
+Next join independently observed recent cleanup to exact prepared Runner admission,
+then owned IAP/guest, immutable member evidence and complete whole-member/set gates.
+Local validation passes all 857 V5.2 Python tests (including 30 new native-cleanup
+cases) and 100 existing CI/V5.1 control/HTTP tests under Python 3.11. Original
+review failures, final tested-source hashes and raw logs remain retained.
 
 The [hosted acceptance record](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) binds successful
 run `38888573888`, attempt 1: 28 histories, 27,373 reads, 2,745 updates and 878

@@ -1,4 +1,4 @@
-"""V5.2 renewable ownership and exact-ID cleanup, qualified memory/HTTP offline entries only.
+"""V5.2 renewable ownership and exact-ID cleanup, concrete offline/native cleanup entries.
 
 No engine work or paid admission is claimed here. The shared V5.1 deletion
 algorithm is namespace-free; all keys, requests and ledger formats below are V5.2.
@@ -44,13 +44,20 @@ def retain(store, key, value):
     return digest(encoded(value))
 
 
-def attempt_key(req): return a.PREFIX+'attempts/'+a.validate_request(req, domain='offline')+'/'
+def store_domain(store):
+    if type(store) is offline.Store: return 'offline'
+    from . import cloud_provider as p
+    need(type(store) is p.Store, 'V5.2 control store type')
+    return p.api_domain(store.api)
+
+
+def attempt_key(req): return a.PREFIX+'attempts/'+a.validate_request(req, domain=a.domain(req))+'/'
 
 
 def reservation(store, lease):
-    a.validate_lease(lease); req = lease['request']; sha = a.validate_request(req, domain='offline')
+    a.validate_lease(lease); req = lease['request']; sha = a.validate_request(req, domain=store_domain(store))
     observed = store.get(a.LEDGER)
-    view = a.inspect_ledger(observed[1], domain='offline') if observed else dict(attempts={})
+    view = a.inspect_ledger(observed[1], domain=store_domain(store)) if observed else dict(attempts={})
     row = view['attempts'].get(sha)
     need(row is None and not any(r['attempted'] for r in lease['resources']) or
          row is not None and row['request'] == req, 'V5.2 missing/changed resource reservation')
@@ -63,7 +70,7 @@ def release(store, generation, lease):
         if current is None: return True
         if current[0] == generation: return False
         a.validate_lease(current[1]); req = current[1]['request']
-        a.validate_request(req, domain='offline')
+        a.validate_request(req, domain=store_domain(store))
         # Another reconciler can advance the same lease's generation. That is
         # fencing, not proof that the original lease was released.
         return req['selection']['attempt'] != lease['request']['selection']['attempt']
@@ -90,15 +97,16 @@ def clean(store, provider, generation, lease):
         a.validate_lease(lease)
         generation = put(store, a.LEASE, lease, generation)
     from .cloud_wire_policy import ScopedOfflineApi
-    redact = hasattr(store,'api') and type(store.api) is ScopedOfflineApi
+    from .cloud_native_cleanup import NativeCleanupApi
+    redact = hasattr(store,'api') and type(store.api) in (ScopedOfflineApi, NativeCleanupApi)
     outcome = exact_cleanup(provider, lease, persist, authority=a, redact=redact)
-    result = dict(status='FAIL', scope='offline-v52-cleanup-only', cleanup=outcome,
-                  leaseReleased=False, fullRemoteQualification=False, paidCloud=False)
+    result = dict(status='FAIL', scope=store_domain(store)+'-v52-cleanup-only', cleanup=outcome,
+                  leaseReleased=False, fullRemoteQualification=False, paidCloud=store_domain(store)=='native')
     key = attempt_key(lease['request'])
     # A failed cleanup remains retryable by reconciliation. Its immutable record
     # is retained separately from the immutable original workload completion.
     cleanup_sha = retain(store, key+f'cleanup-{claim}.json', outcome)
-    req = lease['request']; sha = a.validate_request(req, domain='offline')
+    req = lease['request']; sha = a.validate_request(req, domain=store_domain(store))
     old = store.get(key+'completion.json')
     completion = old[1] if old else dict(schema='gse-v52-owned-completion-v1', execution=req['execution'],
         requestSha256=sha, status='FAIL', evidenceSha256=None, cleanupSha256=cleanup_sha)
@@ -119,12 +127,15 @@ def reconcile(store, provider, *, trigger, now):
     adapters(store, provider); need(trigger in ('schedule', 'workflow_dispatch'), 'V5.2 cleanup trigger')
     a.integer(now, 1); current = store.get(a.LEASE)
     if current is None:
-        return dict(status='PASS', scope='offline-v52-cleanup-only', trigger=trigger, activeLease=False,
-                    paidCloud=False, fullRemoteQualification=False)
+        ledger=store.get(a.LEDGER)
+        view=a.inspect_ledger(ledger[1] if ledger else a.empty_ledger(domain=store_domain(store)),domain=store_domain(store))
+        need(not any(row['status']=='PENDING' for row in view['attempts'].values()), 'V5.2 orphan pending reservation')
+        return dict(status='PASS', scope=store_domain(store)+'-v52-cleanup-only', trigger=trigger, activeLease=False,
+                    paidCloud=store_domain(store)=='native', fullRemoteQualification=False)
     generation, lease = current; a.validate_lease(lease); reservation(store, lease)
     if lease['phase'] != 'CLEANING' and now < lease['expiresAt']+lease['graceSeconds']:
-        return dict(status='WAITING', scope='offline-v52-cleanup-only', trigger=trigger, activeLease=True,
-                    paidCloud=False, fullRemoteQualification=False)
+        return dict(status='WAITING', scope=store_domain(store)+'-v52-cleanup-only', trigger=trigger, activeLease=True,
+                    paidCloud=store_domain(store)=='native', fullRemoteQualification=False)
     return dict(clean(store, provider, generation, lease), trigger=trigger)
 
 

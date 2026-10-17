@@ -116,6 +116,15 @@ def permissions(value, role, name):
 def control_query(cfg, name, generation=None):
     configuration(cfg); need(name in ('ledger','lease'), 'V5.2 control observation name')
     key = a.LEDGER if name == 'ledger' else a.LEASE
+    return _object_query(cfg, key, generation)
+
+
+def original_context_query(cfg, req, generation=None):
+    configuration(cfg); a.validate_request(req, domain='native')
+    return _object_query(cfg, p.context_key(req), generation)
+
+
+def _object_query(cfg, key, generation):
     endpoint = p.STORAGE+'storage/v1/b/'+cfg['provider']['bucket']+'/o/'+quote(key, safe='')
     if generation is None:
         return query(endpoint+'?'+urlencode(dict(fields='name,bucket,generation,size,contentType,temporaryHold,eventBasedHold')),
@@ -125,8 +134,18 @@ def control_query(cfg, name, generation=None):
 
 
 def control_metadata(cfg, name, value):
-    if value is None: return None
+    need(name in ('ledger','lease'), 'V5.2 control observation name')
     key = a.LEDGER if name == 'ledger' else a.LEASE
+    return _object_metadata(cfg, key, value)
+
+
+def original_context_metadata(cfg, req, value):
+    a.validate_request(req, domain='native')
+    return _object_metadata(cfg, p.context_key(req), value)
+
+
+def _object_metadata(cfg, key, value):
+    if value is None: return None
     need(type(value) is dict and value['name'] == key and value['bucket'] == cfg['provider']['bucket'] and
          value['contentType'] == 'application/json' and not value.get('temporaryHold') and not value.get('eventBasedHold'),
          'V5.2 control object identity/type/hold')

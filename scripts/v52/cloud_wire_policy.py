@@ -1,7 +1,7 @@
 """Closed V5.2 request-scoped HTTP policy, exercised through real control calls.
 
-The only concrete entry is offline. This policy validates wire scope and original
-ownership; it cannot supply deployment, permission, CI or paid-admission proof.
+Concrete entries are offline and factory-owned native cleanup. This policy cannot
+supply deployment, CI, provisioning or paid-workload admission proof.
 """
 from copy import deepcopy
 import math
@@ -399,29 +399,18 @@ class _Gate:
             api.policy.before(route,value)
             left=deadline-api.clock();need(left>0,'V5.2 wire original exchange deadline')
             if route['operation']=='insert':api.policy.dispatched.add(route['spec']['name'])
-            result=self.server.send(method,endpoint,headers,body,left,maximum)
+            result=self.exchange(method,endpoint,headers,body,left,maximum)
             need(api.clock()<=deadline,'V5.2 wire late response')
             status,raw=result;need(type(raw) is bytes and len(raw)<=maximum,'V5.2 wire response bound')
             api.policy.observe(route,status,raw);return result
         finally:api.deadline=previous
 
+    def exchange(self,method,endpoint,headers,body,timeout,maximum):
+        return self.server.send(method,endpoint,headers,body,timeout,maximum)
 
-class ScopedOfflineApi(h.Api):
-    """Concrete offline qualification of the same policy needed by native entry."""
-    def __init__(self,server,request,*,role='runner',previous_cost=0,cost=1,wall):
-        from .cloud_provider_offline import Server
-        need(type(server) is Server,'V5.2 scoped HTTP server not admitted')
-        a.validate_request(request,domain='offline')
-        self.policy=Policy(server.config,request,role=role,previous_cost=previous_cost,cost=cost,wall=wall)
-        self.lock=threading.RLock();self.deadline=math.inf
-        super().__init__(transport=_Gate(self,server),tokens=lambda timeout:'offline-not-a-credential',clock=server.clock)
 
-    def validate_adapter(self):
-        from .cloud_provider_offline import Server
-        need(type(self.transport) is _Gate and self.transport.api is self and type(self.transport.server) is Server and
-             self.clock==self.transport.server.clock and self.policy.cfg==self.transport.server.config and
-             self.policy.domain=='offline','V5.2 scoped HTTP adapter changed')
-
+class _ScopedApi(h.Api):
+    """Shared request binding; concrete adapters must validate their own authority."""
     def bind_store(self,store):
         need(type(store) is p.Store and store.config==self.policy.cfg and
              (self.policy.store is None or self.policy.store is store),'V5.2 scoped store changed')
@@ -450,3 +439,20 @@ class ScopedOfflineApi(h.Api):
             previous=self.deadline;self.deadline=min(previous,deadline)
             try:return super().call(method,endpoint,body,deadline=self.deadline,**kwargs)
             finally:self.deadline=previous
+
+
+class ScopedOfflineApi(_ScopedApi):
+    """Concrete offline qualification of the same policy needed by native entry."""
+    def __init__(self,server,request,*,role='runner',previous_cost=0,cost=1,wall):
+        from .cloud_provider_offline import Server
+        need(type(server) is Server,'V5.2 scoped HTTP server not admitted')
+        a.validate_request(request,domain='offline')
+        self.policy=Policy(server.config,request,role=role,previous_cost=previous_cost,cost=cost,wall=wall)
+        self.lock=threading.RLock();self.deadline=math.inf
+        super().__init__(transport=_Gate(self,server),tokens=lambda timeout:'offline-not-a-credential',clock=server.clock)
+
+    def validate_adapter(self):
+        from .cloud_provider_offline import Server
+        need(type(self.transport) is _Gate and self.transport.api is self and type(self.transport.server) is Server and
+             self.clock==self.transport.server.clock and self.policy.cfg==self.transport.server.config and
+             self.policy.domain=='offline','V5.2 scoped HTTP adapter changed')

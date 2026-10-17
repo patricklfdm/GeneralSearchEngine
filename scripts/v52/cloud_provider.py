@@ -1,7 +1,6 @@
-"""V5.2 provider wire mapping, admitted only with the concrete offline HTTP server.
+"""V5.2 provider mapping for concrete offline or factory-owned cleanup APIs.
 
-No credential discovery, network factory, native admission or workload success is
-provided. Configuration is expected data; fresh provider/IAM admission is separate.
+Native provisioning and workload admission remain closed.
 """
 from copy import deepcopy
 import math
@@ -55,14 +54,22 @@ class OfflineApi(Api):
 
 def api_guard(api):
     from .cloud_wire_policy import ScopedOfflineApi
-    if type(api) is ScopedOfflineApi:
+    from .cloud_native_cleanup import NativeCleanupApi
+    if type(api) in (ScopedOfflineApi, NativeCleanupApi):
         api.validate_adapter(); return
     need(type(api) is OfflineApi, 'V5.2 live HTTP entry not admitted')
     api.authorize('GET', '', None)
 
 
+def api_domain(api):
+    api_guard(api)
+    from .cloud_native_cleanup import NativeCleanupApi
+    return 'native' if type(api) is NativeCleanupApi else 'offline'
+
+
 class Store:
-    execution = a.DOMAINS['offline']
+    @property
+    def execution(self): return a.DOMAINS[api_domain(self.api)]
 
     def __init__(self, configuration, api):
         config(configuration); api_guard(api)
@@ -113,15 +120,15 @@ class Store:
         # The controller observes absence without deleting a newer owner.
 
 
-def context(configuration, req):
-    sha = a.validate_request(req, domain='offline')
+def context(configuration, req, *, domain='offline'):
+    sha = a.validate_request(req, domain=domain)
     need(config(configuration) == req['configurationSha256'], 'V5.2 configuration digest changed')
     return dict(schema='gse-v52-provider-context-v1', requestSha256=sha,
                 request=deepcopy(req), configuration=deepcopy(configuration))
 
 
 def context_key(req):
-    return a.PREFIX+'attempts/'+a.validate_request(req, domain='offline')+'/provider-context.json'
+    return a.PREFIX+'attempts/'+a.validate_request(req, domain=a.domain(req))+'/provider-context.json'
 
 
 def reconstruct(store, req):
@@ -129,7 +136,7 @@ def reconstruct(store, req):
     need(type(store) is Store, 'V5.2 context store type'); api_guard(store.api)
     found = store.get(context_key(req)); need(found is not None, 'V5.2 missing provider context')
     value = found[1]; a.fields(value, 'schema requestSha256 request configuration', 'provider context')
-    need(value == context(value['configuration'], req) and value['configuration'] == store.config,
+    need(value == context(value['configuration'], req, domain=api_domain(store.api)) and value['configuration'] == store.config,
          'V5.2 provider context changed')
     return Provider(store, req)
 
@@ -245,11 +252,13 @@ class Plan:
         return dict(spec=deepcopy(spec),state='DONE',id=target)
 
 class Provider(Plan):
-    execution = a.DOMAINS['offline']
+    @property
+    def execution(self): return self.store.execution
 
     def __init__(self, store, req, *, wall=time.time, sleep=time.sleep):
         need(type(store) is Store, 'V5.2 provider store type'); api_guard(store.api)
-        self.context = context(store.config, req)
+        a.validate_request(req, domain=api_domain(store.api))
+        self.context = context(store.config, req, domain=api_domain(store.api))
         super().__init__(store.config, req)
         self.store, self.api = store, store.api
         self.wall, self.sleep = wall, sleep; self.cleaning = False
@@ -349,7 +358,7 @@ class Provider(Plan):
         current = self.store.get(a.LEASE); ledger = self.store.get(a.LEDGER)
         need(current is not None and ledger is not None,'V5.2 missing original ownership')
         lease = a.validate_lease(current[1]); row = next(r for r in lease['resources'] if r['spec']==spec)
-        charged = a.inspect_ledger(ledger[1],domain='offline')['attempts'].get(spec['requestSha256'])
+        charged = a.inspect_ledger(ledger[1],domain=api_domain(self.api))['attempts'].get(spec['requestSha256'])
         need(lease['request']==self.request and lease['phase']=='ACTIVE' and lease['renewedAt']<=self.wall()<lease['expiresAt'] and
              row['attempted'] and row['id'] is None and charged is not None and charged['status']=='PENDING', 'V5.2 insert not owned/charged')
 
@@ -402,4 +411,5 @@ class Provider(Plan):
 def qualified(store, provider):
     if type(store) is not Store or type(provider) is not Provider or provider.store is not store: return False
     api_guard(store.api)
-    return provider.api is store.api and provider.config == store.config
+    return (provider.api is store.api and provider.config == store.config and
+            a.domain(provider.request) == api_domain(store.api))

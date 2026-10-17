@@ -20,6 +20,7 @@ class _Reader:
         self.source, self.role = source, role
         self.tokens, self.transport, self.clock = tokens, transport, clock
         self.token = None; self.closed = False; self.calls = 0; self.phase = 'initial'
+        self.original_request = None
         self.output = Path(output) if output is not None else None
         if self.output is not None: self.output.mkdir()
 
@@ -39,6 +40,10 @@ class _Reader:
     def request(self, name, generation=None):
         self.guard()
         if name in ('lease','ledger'): return f.control_query(self.configuration, name, generation)
+        if name == 'original-context':
+            need(self.role in ('manual','schedule') and self.original_request is not None,
+                 'V5.2 original context not bound')
+            return f.original_context_query(self.configuration, self.original_request, generation)
         need(generation is None, 'V5.2 unexpected read generation')
         queries = f.plan(self.configuration, self.role); need(name in queries, 'V5.2 provider read outside scope')
         return queries[name]
@@ -92,6 +97,32 @@ class _Reader:
         value=strict(raw); second=self.read(name,deadline=end)
         need(second is not None and encoded(strict(second))==encoded(first), 'V5.2 control metadata changed')
         return f.snapshot(dict(generation=int(generation),value=value),name)
+
+    def original_context(self, original):
+        """Read only the context named by a freshly re-observed original lease."""
+        self.guard(); f.snapshot(original, 'lease')
+        need(original is not None and self.object('lease') == original, 'V5.2 original lease changed')
+        req = original['value']['request']
+        need(self.original_request is None or encoded(self.original_request) == encoded(req),
+             'V5.2 original context rebound')
+        self.original_request = deepcopy(req); end = self.clock()+30
+        raw = self.read('original-context', deadline=end)
+        first = strict(raw) if raw is not None else None
+        identity = f.original_context_metadata(self.configuration, req, first)
+        need(identity is not None, 'V5.2 original provider context missing')
+        generation, size = identity
+        raw = self.read('original-context', generation=generation, deadline=end)
+        need(len(raw) == size, 'V5.2 original context truncated')
+        value = strict(raw); second = self.read('original-context', deadline=end)
+        need(second is not None and encoded(strict(second)) == encoded(first), 'V5.2 original context metadata changed')
+        a.fields(value, 'schema requestSha256 request configuration', 'provider context')
+        need(encoded(value) == encoded(f.p.context(value['configuration'], req, domain='native')), 'V5.2 original context changed')
+        # Current workflow may use a new image/layout/zone, but cannot acquire
+        # authority over a different project or control bucket.
+        need(all(value['configuration'][k] == self.configuration['provider'][k] for k in ('project','bucket')),
+             'V5.2 original control location changed')
+        need(self.object('lease') == original, 'V5.2 original lease changed')
+        return dict(generation=int(generation), value=value)
 
     def close(self):
         if self.closed:return
