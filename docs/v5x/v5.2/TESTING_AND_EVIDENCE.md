@@ -465,3 +465,22 @@ The completed local suite passes 948 V5.2 tests (28 new) in 1070.913 seconds;
 source. Static/docs checks and 1,846 unchanged executable hashes are indexed in
 `target/v52-native-guests/validation-summary.json`. An earlier incomplete test
 session is retained separately and contributes no passing result.
+
+### Native storage and installed whole-history Placement
+
+[Phase 6BC](PHASE_6_NATIVE_STORAGE.md) adds `test_cloud_volume` and
+`test_cloud_storage` to the measurement unit gate. The existing native factory
+runs through data-volume preparation, capsule installation and original member
+Placement with external I/O and block writes modeled. Original response loss,
+partial claims, failed formatting, changed mounts/installation, expired grants,
+late read-only responses and final diagnostic-volume failure cannot replay
+initialization, grant a false Placement or bypass exact-resource cleanup.
+
+The same gate runs `cloud_volume_qualification --allow-sudo-namespace`: eight
+cases using actual root file/account/process checks inside the existing private
+chroot/mount namespace. System binds are recursively read-only, metadata and
+block devices remain modeled, and no host device is written. Receiver/model hashes,
+closed exchange records and original failed/successful logs remain in
+`target/v52-native-volumes/`; these are local implementation tests, not real cloud
+mount or workload acceptance. Whole-member execution/retention and protected
+hosted qualification remain pending.

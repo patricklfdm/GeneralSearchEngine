@@ -21,26 +21,31 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6BB native guest identity](v5.2/PHASE_6_NATIVE_GUESTS.md)
-connects the owned resource Session to private IAP/SSH routes and fixed guest
-metadata/boot/UID observations. Each accepted SSH connection gets one SDK process
-and a fresh scoped credential; owned streams never replay business requests.
-Provider identity is checked again after credential refresh, and same-owner guest
-identity cannot silently change between history scopes. Renewal/fencing/pin failure
-closes routes; guest-close errors cannot bypass fenced resource cleanup.
+Latest local stage: [Phase 6BC native storage](v5.2/PHASE_6_NATIVE_STORAGE.md)
+connects the original native resource/guest Session to one-shot data-disk setup,
+independent retained/current mount replay, immutable Python installation and
+declared whole-history Placement. It preserves the original input-proof Java
+binding. Lost responses can only query the original claim; failed, killed or
+uncertain initialization cannot reformat. Final receipt failure cannot grant
+storage readiness, and original resource cleanup still runs.
 
-Local stream tests use real loopback TCP/pipe/OpenSSH. Native factory external I/O
-is mocked, and neither those tests nor identity receipts establish live IAM,
-mounted storage, engine execution or paid qualification. The fixed provider
-configuration, protected identities/environments and whole Runner workflow remain
-undeployed. Next connect one-shot data-disk initialization and observed mounts,
-source-bound installed Placement, immutable independently replayed whole-member
-retention and the complete five-member set. Original validation/failure records
-and tested source hashes are retained at
-`target/v52-native-guests/validation-summary.json`.
-All 948 V5.2 Python tests (28 new) and 96 related CI/V5.1 tests pass on the
-unchanged executable source; documentation/static checks also pass. The earlier
-incomplete full-suite session remains retained and is not counted as a PASS.
+Native factory external I/O and block devices are modeled. Root file/account/
+process checks additionally run in a private chroot/mount namespace with read-only
+system binds. No host disk or real cloud resource is modified. Storage receipts
+remain NOT_QUALIFIED and do not establish engine execution or workload PASS.
+Original local failures, source hashes and completed results are retained at
+`target/v52-native-volumes/validation-summary.json`.
+Final targeted validation passes 123 tests (29 new), eight isolated-root cases
+and 69 CI/provenance regressions, with unchanged executed-source hashes.
+
+Next connect original input staging, owned complete members, independent replay
+and immutable qualified retention, then the complete five-member set and protected
+Runner/operator entry. Provider configuration and identities remain undeployed.
+Before pushing, split the expanding Python gate into required CI lanes while
+preserving all tests and exact-source provenance (both foundation discovery and
+the measurement gate currently run overlapping Python suites): the prior 948-test local run
+already took 1070.913 seconds, close to the current job's 20-minute total limit.
+This observation does not predict hosted CI timing or change qualification bounds.
 
 The [hosted acceptance record](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) binds successful
 run `38888573888`, attempt 1: 28 histories, 27,373 reads, 2,745 updates and 878

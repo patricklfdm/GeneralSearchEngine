@@ -356,6 +356,10 @@ class Guests:
                 nodes={n:ssh.public_target(t) for n,t in self.targets.items()}))
         domains.validate(value);domains.routes(value);self.checkpoint();return deepcopy(value)
 
+    def prepare_storage(self,output):
+        from . import cloud_storage
+        self.checkpoint();return cloud_storage.prepare_native(self,output)
+
     def close(self):
         with self.lock:
             if self.closed:return

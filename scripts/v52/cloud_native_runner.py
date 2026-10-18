@@ -156,7 +156,7 @@ class Session:
     def __init__(self,reader,api,owner,log,output,package,ticket):
         need(ticket is _CAPABILITY and type(api) is NativeRunnerApi and type(owner) is NativeOwner,'V5.2 Runner session factory required')
         self.reader=reader;self.api=api;self.owner=owner;self.log=log;self.output=output;self.package=package
-        self.closed=False;self.result=None;self.guests=None;self.guest_identity=None
+        self.closed=False;self.result=None;self.guests=None;self.guest_identity=None;self.storage=None
         self.heartbeat=_Heartbeat(owner);owner.heartbeat=self.heartbeat
 
     def start(self):
