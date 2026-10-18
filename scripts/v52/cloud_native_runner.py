@@ -103,7 +103,7 @@ class NativeRunnerApi(w._ScopedApi):
              type(admission) is _Admission,'V5.2 native Runner factory required')
         reader.guard();need(reader.source==admission.source and reader.configuration==admission.cfg,'V5.2 Runner reader binding')
         need(reader.tokens.binding['runId']!=admission.clean['runId'],'V5.2 Runner cannot be its own completed cleanup')
-        self.reader=reader;self.admission=admission;self.closed=False
+        self.reader=reader;self.admission=admission;self.closed=False;self.retained=None
         reservation=admission.plan['reservation']
         self.policy=w.Policy(admission.cfg['provider'],admission.request,role='runner',
             previous_cost=reservation['previousCostMicrousd'],cost=reservation['costMicrousd'],wall=time.time)
@@ -152,12 +152,12 @@ class _Heartbeat:
 
 
 class Session:
-    """One admitted member's resource lifetime; no method can certify workload PASS."""
+    """One admitted member; completion requires retained evidence and cleanup."""
     def __init__(self,reader,api,owner,log,output,package,ticket):
         need(ticket is _CAPABILITY and type(api) is NativeRunnerApi and type(owner) is NativeOwner,'V5.2 Runner session factory required')
         self.reader=reader;self.api=api;self.owner=owner;self.log=log;self.output=output;self.package=package
         self.closed=False;self.result=None;self.guests=None;self.guest_identity=None;self.storage=None
-        self.staged=None;self.java=None;self.member_started=False;self.member_lock=threading.Lock()
+        self.staged=None;self.java=None;self.member_started=False;self.member_lock=threading.Lock();self.member_capture=None;self.retention_started=False
         self.heartbeat=_Heartbeat(owner);owner.heartbeat=self.heartbeat
 
     def start(self):
@@ -175,6 +175,10 @@ class Session:
     def open_guests(self,key,output):
         from . import cloud_iap
         self.checkpoint();return cloud_iap.open_native(self,key,output)
+
+    def retain_member(self,output):
+        from . import cloud_retention
+        return cloud_retention.publish(self,output)
 
     def run_member(self,key,output):
         from . import cloud_member
@@ -222,9 +226,9 @@ class Session:
 def open_native(source,plan_path,approval_path,confirmation,package_path,output,*,prepare_workload=False):
     """Own all observations and resources. Caller must close or use `with`.
 
-    There is deliberately no provisioning-only CLI. The eventual whole-member
-    entry uses this resource scope; exiting it records FAIL unless a separately
-    qualified immutable workload completion already exists.
+    There is deliberately no provisioning-only CLI. The whole-member entry uses
+    this scope; exiting records FAIL unless its original evidence was retained
+    and the same scope completes exact-ID cleanup. Full-set replay is separate.
     """
     output=Path(output);need(not any(p.is_symlink() for p in (output,*output.parents)),'V5.2 Runner output symlink')
     output.mkdir(parents=True,exist_ok=False);phase='source';reader=api=session=log=staged=None;java=None

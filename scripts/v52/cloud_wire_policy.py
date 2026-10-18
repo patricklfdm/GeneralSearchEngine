@@ -26,6 +26,7 @@ class Policy:
         self.objects=p.STORAGE+'storage/v1/b/'+self.cfg['bucket']+'/o/'
         self.upload=p.STORAGE+'upload/storage/v1/b/'+self.cfg['bucket']+'/o'
         self.store=None;self.metadata={};self.ids={};self.polls={};self.pages={}
+        self.evidence_manifest=None;self.retained=None
         self.completed={};self.resolved={};self.absent=set();self.marker_tickets=set();self.sent=set()
         self.submitter=uuid.uuid4().hex;self.dispatched=set()
         self.cleanup={};self.empty_operations=set();self.list_seen={};self.page_seen={};self.seen_operations=set();self.targets={}
@@ -35,6 +36,12 @@ class Policy:
         if key in (a.LEASE,a.LEDGER):return key,None
         if key==self.prefix+'provider-context.json':return 'context',None
         if key==self.prefix+'completion.json':return 'completion',None
+        if key==self.prefix+'evidence/manifest.json':return 'evidence-manifest',None
+        part=re.fullmatch(re.escape(self.prefix)+r'evidence/chunk-([0-9]{5})\.json',key)
+        if part:
+            from . import cloud_evidence_parts as evidence
+            index=int(part[1]);need(index<evidence.MAX_PARTS,'V5.2 evidence part key bound')
+            return 'evidence-part',index
         if re.fullmatch(re.escape(self.prefix)+r'cleanup-[1-9][0-9]{0,19}\.json',key):return 'cleanup',None
         for base,spec in self.operation_keys.items():
             for suffix,kind in (('.json','operation'),('-submitted.json','submitted'),('-unsubmitted.json','unsubmitted')):
@@ -254,11 +261,29 @@ class Policy:
                      'V5.2 wire unsubmitted proof not observed')
                 retained=self.store.get(self.prefix+'provider-context.json')
                 need(retained is not None and retained[1]==self.context(),'V5.2 wire missing original context')
+            elif kind in ('evidence-manifest','evidence-part'):
+                from . import cloud_evidence_parts as evidence
+                need(self.role=='runner','V5.2 cleanup cannot publish member evidence')
+                self.current(active=True,charged=True)
+                if kind=='evidence-manifest':evidence.validate(body,self.req)
+                else:
+                    need(self.evidence_manifest is not None,'V5.2 evidence original manifest missing')
+                    evidence.decode(body,self.evidence_manifest,spec)
             elif kind=='cleanup':self.cleanup_value(body)
             elif kind=='completion':
                 a.validate_completion(body,self.req)
-                need(lease['phase']=='CLEANING' and body['status']=='FAIL' and body['evidenceSha256'] is None and
-                     body['cleanupSha256'] in self.cleanup,'V5.2 wire completion without retained cleanup')
+                need(lease['phase']=='CLEANING' and body['cleanupSha256'] in self.cleanup,
+                     'V5.2 wire completion without retained cleanup')
+                if body['status']=='FAIL':need(body['evidenceSha256'] is None,'V5.2 failed completion evidence claim')
+                else:
+                    from . import cloud_retention as evidence
+                    need(self.role=='runner' and type(self.retained) is evidence.Retained and
+                         self.cleanup[body['cleanupSha256']]['status']=='PASS' and
+                         body==self.retained.completion(self.store.api,self.req,body['cleanupSha256']),
+                         'V5.2 wire PASS requires original qualified retention and cleanup')
+                    need(self.store.get(self.prefix+'evidence/manifest.json')==
+                         (self.retained.generations['manifest'],self.retained.manifest),
+                         'V5.2 wire original retained manifest changed')
             return
         _,lease=self.current(active=operation=='insert',charged=operation=='insert')
         if operation=='release':
@@ -364,6 +389,13 @@ class Policy:
                 # Strict shape here; fresh absence is required again before any
                 # new PASS retention or release, never inferred from this receipt.
                 a.fields(value,'status checks errors leftovers','retained cleanup');self.cleanup[digest(encoded(value))]=deepcopy(value)
+            elif kind=='evidence-manifest':
+                from . import cloud_evidence_parts as evidence
+                evidence.validate(value,self.req);self.evidence_manifest=deepcopy(value)
+            elif kind=='evidence-part':
+                from . import cloud_evidence_parts as evidence
+                need(self.evidence_manifest is not None,'V5.2 evidence original manifest missing')
+                evidence.decode(value,self.evidence_manifest,spec)
             elif kind=='completion':a.validate_completion(value,self.req)
             return
         if operation=='resource':

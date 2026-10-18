@@ -109,8 +109,13 @@ def clean(store, provider, generation, lease):
     cleanup_sha = retain(store, key+f'cleanup-{claim}.json', outcome)
     req = lease['request']; sha = a.validate_request(req, domain=store_domain(store))
     old = store.get(key+'completion.json')
-    completion = old[1] if old else dict(schema='gse-v52-owned-completion-v1', execution=req['execution'],
-        requestSha256=sha, status='FAIL', evidenceSha256=None, cleanupSha256=cleanup_sha)
+    if old:completion=old[1]
+    else:
+        from . import cloud_retention
+        completion=cloud_retention.completion(getattr(store,'api',None),req,cleanup_sha,outcome)
+        if completion is None:
+            completion=dict(schema='gse-v52-owned-completion-v1',execution=req['execution'],
+                requestSha256=sha,status='FAIL',evidenceSha256=None,cleanupSha256=cleanup_sha)
     a.validate_completion(completion, req)
     retain(store, key+'completion.json', completion)
     current, row = reservation(store, lease)

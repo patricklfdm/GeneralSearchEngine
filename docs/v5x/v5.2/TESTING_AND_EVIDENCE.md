@@ -514,5 +514,18 @@ input substitution, partial preparation, cleanup and no-retry behavior. Bound
 Placement suppresses qualification-only transport loss, while existing local
 qualification keeps its default injection checks. Local installed-Java histories
 without artificial losses are retained separately from provider models. Native
-qualification still requires original immutable retention and cleanup, complete
-five-member replay and protected acceptance.
+qualification still requires complete five-member replay and protected acceptance.
+
+### Native original evidence retention
+
+[Phase 6BF retention](PHASE_6_NATIVE_RETENTION.md) adds `test_cloud_evidence_parts`
+and `test_cloud_retention` to the measurement unit gate. Closed file/part bounds,
+source/request/manifest binding, original capture drift, one-shot uploads and
+generation-pinned read-back precede any completion. Tests execute actual native
+ownership/wire/cleanup/ledger code with external provider and workload inputs
+modeled. Partial upload, failed cleanup and substituted manifest cannot grant
+PASS; interrupted terminal accounting preserves its original immutable result.
+Separate framing qualification restores byte-identical earlier local SSH/JVM
+archives without executing or promoting those histories. Logs and exact scope are
+under `target/v52-native-retention`. Independent retained five-member replay,
+required CI partitioning, operator entry and protected/native qualification remain.

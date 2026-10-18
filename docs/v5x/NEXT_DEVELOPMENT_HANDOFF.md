@@ -21,7 +21,18 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6BE original inputs and whole members](v5.2/PHASE_6_NATIVE_MEMBERS.md)
+Latest local stage: [Phase 6BF original evidence retention](v5.2/PHASE_6_NATIVE_RETENTION.md)
+connects the live whole-member capture to bounded immutable manifest/parts,
+generation-pinned read-back and exact-ID cleanup before member completion.
+Partial retention or failed cleanup cannot grant PASS; reconciliation can finish
+an already retained original completion but cannot construct one from copied
+evidence. Source, claims, build/input bytes, costs and complete histories remain
+bound. Local models and earlier-archive byte round-trips are retained separately
+under `target/v52-native-retention`; no cloud or protected acceptance is claimed.
+Independent five-member portable replay, required CI partitioning and protected
+operator entry remain open. There is no paid member CLI at this stage.
+
+The preceding [Phase 6BE original inputs and whole members](v5.2/PHASE_6_NATIVE_MEMBERS.md)
 connects verified five-JAR staging and pre-acquisition Java preparation to the
 existing native Session. The internal member entry consumes its selected whole
 histories once, retains each original result, independently replays evidence and
@@ -29,9 +40,8 @@ reports progress at least once a minute. Native Placement disables qualification
 transport-loss injections and downloads; declared M04 faults and original-result
 recovery remain. Its result is still `MEMBER_EXECUTED_NOT_QUALIFIED`.
 Validation scope, source hashes and original failure logs are retained under
-`target/v52-native-members`. Immutable qualified retention and complete set replay,
-required CI partitioning and protected operator entry remain open. There is no
-paid member CLI or cloud acceptance claim at this stage.
+`target/v52-native-members`. These are original local execution results, not
+native cloud or protected acceptance.
 
 The preceding [Phase 6BD installed Java](v5.2/PHASE_6_NATIVE_JAVA.md)
 connects original-version/hash-pinned Java images to native storage and the
@@ -53,9 +63,9 @@ or paid resource was executed.
 The prior [storage stage](v5.2/PHASE_6_NATIVE_STORAGE.md) retains its own root/device
 model qualification; no host disk was modified.
 
-Next connect original input staging, owned complete members, independent replay
-and immutable qualified retention, then the complete five-member set and protected
-Runner/operator entry. Provider configuration and identities remain undeployed.
+Next connect independent portable acceptance of the complete five-member set and
+the protected Runner/operator entry. Provider configuration and identities remain
+undeployed.
 Before pushing, split the expanding Python gate into required CI lanes while
 preserving all tests and exact-source provenance (both foundation discovery and
 the measurement gate currently run overlapping Python suites): the prior 948-test local run

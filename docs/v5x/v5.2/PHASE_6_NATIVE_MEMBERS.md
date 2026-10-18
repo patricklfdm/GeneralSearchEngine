@@ -2,8 +2,9 @@
 
 This local pre-cloud stage connects the native Session to the existing complete
 history controllers. It does not expose a paid Runner command or grant cloud
-qualification. Immutable qualified retention, independent five-member acceptance,
-protected CI partitioning and the operator workflow remain required.
+qualification. [Original retention](PHASE_6_NATIVE_RETENTION.md) is connected in
+the subsequent stage; independent five-member acceptance, protected CI partitioning
+and the operator workflow remain required.
 
 ## Original input preparation
 
@@ -47,9 +48,10 @@ any guest-close failure. The caller retains the original Session through subsequ
 immutable evidence retention and cleanup.
 
 The successful local execution receipt is `MEMBER_EXECUTED_NOT_QUALIFIED`.
-Resource-only or execution-only Session exit still records a failed cloud attempt
-until qualified immutable completion is implemented. No operator should invoke
-this internal scope as a paid experiment yet.
+Resource-only or execution-only Session exit still records a failed cloud attempt.
+The subsequent retention stage requires complete original read-back and exact-ID
+cleanup before member completion. No operator should invoke this internal scope
+as a paid experiment yet.
 
 ## Qualification losses versus declared faults
 

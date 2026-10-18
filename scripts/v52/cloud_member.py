@@ -14,6 +14,16 @@ from . import remote_history as history,remote_host_domains as domains,measureme
 from .evidence import need,encoded,digest
 
 
+_CAPTURE=object()
+
+
+class Captured:
+    """Created only after original replay, all histories and guest closure."""
+    def __init__(self,session,root,receipt,histories,ticket):
+        need(ticket is _CAPTURE,'V5.2 original member capture required')
+        self.session=session;self.root=Path(root).absolute();self.receipt=deepcopy(receipt);self.histories=deepcopy(histories)
+
+
 class Progress:
     def __init__(self,member,*,emit=None,interval=60):
         self.member=member;self.history=None;self.stage='starting';self.completed=0
@@ -81,7 +91,7 @@ def run(session,key,output):
     receipt=dict(schema='gse-v52-native-member-execution-v1',status='FAIL',selection=selection,
         source=expected,resourceClaimSha256=digest(encoded(claim)),histories=[],
         fullRemoteQualification=False,paidCloud=True)
-    failure=None;progress.thread.start()
+    failure=None;captured={};progress.thread.start()
     try:
         progress.update('guest-identity');guests=session.open_guests(key,root/'guests')
         progress.update('storage');storage=guests.prepare_storage(root/'storage')
@@ -95,6 +105,7 @@ def run(session,key,output):
             # Store the original result immediately, before any further history.
             native.artifacts.save(own/'result.json',result)
             row=correlate(own,result,name,placement,expected,storage.java,session.staged.files)
+            captured[name]=dict(result=deepcopy(result),placement=deepcopy(placement.binding))
             session.staged.check();guests.checkpoint()
             receipt['histories'].append(row);native.artifacts.save(root/('completed-%02d.json'%len(receipt['histories'])),receipt)
             progress.update('history-complete',completed=len(receipt['histories']))
@@ -118,4 +129,5 @@ def run(session,key,output):
             progress.close();receipt['elapsedSeconds']=round(time.monotonic()-progress.began,3)
             if failure is None and 'guestCloseFailure' not in receipt:native.artifacts.save(root/'receipt.json',receipt)
             else:native.diagnostic(root/'receipt.json',receipt)
+    session.member_capture=Captured(session,root,receipt,captured,_CAPTURE)
     return receipt
