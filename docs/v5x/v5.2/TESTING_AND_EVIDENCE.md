@@ -440,3 +440,28 @@ preservation, renewal/close and rejection before writes. Resource preparation ha
 no workload PASS or paid-evidence qualification. The original clock-fixture and
 unresolved-insert expectation failures remain alongside corrected-source results
 in `target/v52-native-runner/`. No real cloud operation is performed by this gate.
+
+
+### Native private routes and guest identity
+
+[Phase 6BB](PHASE_6_NATIVE_GUESTS.md) adds `test_cloud_iap` to the existing
+measurement gate. It includes real local TCP/pipe and isolated OpenSSH validation:
+byte integrity, half-close, parent/descendant cleanup, strict host keys, bounded
+diagnostics and original connection deadlines. Native factories also run with
+external GitHub/GCP/credential/SSH I/O mocked, checking exact provider/guest IDs,
+post-refresh changes, independent boots, fixed SDK credentials/environment,
+renewal failure, same-owner identity and preservation of existing evidence.
+
+The retained native identity receipt expressly leaves mounted storage and full
+workload qualification false. No disks are formatted or cloud workflows triggered.
+Original development failures remain in `target/v52-native-guests/`; they include
+the isolated sshd's correct rejection of a test key below world-writable `/tmp`.
+The corrected test uses an owned repository-target directory with StrictModes
+still enabled. Tests do not assert that mocked provider facts are real cloud
+observations, and the earlier hosted cohort remains bound to its original source.
+
+The completed local suite passes 948 V5.2 tests (28 new) in 1070.913 seconds;
+96 related CI/V5.1 regressions pass in 48.696 seconds on the same executable
+source. Static/docs checks and 1,846 unchanged executable hashes are indexed in
+`target/v52-native-guests/validation-summary.json`. An earlier incomplete test
+session is retained separately and contributes no passing result.

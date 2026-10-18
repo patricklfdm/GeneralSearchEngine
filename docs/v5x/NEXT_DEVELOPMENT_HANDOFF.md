@@ -21,26 +21,26 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6BA native Runner resources](v5.2/PHASE_6_NATIVE_RUNNER.md)
-connects original full-CI/build/package, recent manual cleanup, fresh provider and
-exact prepared approval to a concrete native resource owner. It independently
-replays the collected bytes and rechecks original ledger generations after token
-refresh before acquisition/reservation. A session owns renewal, exact-ID cleanup
-and its credentials; stopping without qualified workload evidence retains FAIL
-and the original cost. Neither local resource fixtures nor cleanup PASS qualify
-an engine workload.
+Latest local stage: [Phase 6BB native guest identity](v5.2/PHASE_6_NATIVE_GUESTS.md)
+connects the owned resource Session to private IAP/SSH routes and fixed guest
+metadata/boot/UID observations. Each accepted SSH connection gets one SDK process
+and a fresh scoped credential; owned streams never replay business requests.
+Provider identity is checked again after credential refresh, and same-owner guest
+identity cannot silently change between history scopes. Renewal/fencing/pin failure
+closes routes; guest-close errors cannot bypass fenced resource cleanup.
 
-The manual workflow remains source-only; tracked provider configuration, protected
-identities/environments and the whole Runner workflow are not deployed. External
-I/O in native tests is mocked. Next connect strict IAP/guest identity and mounted
-storage to the existing installed Placement, then immutable independently replayed
-whole-member retention and the complete five-member set. Existing whole-history,
-one-source/sequence and any-order-member constraints remain. Local validation,
-original review failures and source hashes are recorded under
-`target/v52-native-runner/validation-summary.json`.
-All 920 V5.2 Python tests, including 27 new cases, and 171 related CI/V5.1
-contracts pass. The final suite uses unchanged executable source; its native
-external I/O is mocked and does not establish live-cloud acceptance.
+Local stream tests use real loopback TCP/pipe/OpenSSH. Native factory external I/O
+is mocked, and neither those tests nor identity receipts establish live IAM,
+mounted storage, engine execution or paid qualification. The fixed provider
+configuration, protected identities/environments and whole Runner workflow remain
+undeployed. Next connect one-shot data-disk initialization and observed mounts,
+source-bound installed Placement, immutable independently replayed whole-member
+retention and the complete five-member set. Original validation/failure records
+and tested source hashes are retained at
+`target/v52-native-guests/validation-summary.json`.
+All 948 V5.2 Python tests (28 new) and 96 related CI/V5.1 tests pass on the
+unchanged executable source; documentation/static checks also pass. The earlier
+incomplete full-suite session remains retained and is not counted as a PASS.
 
 The [hosted acceptance record](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) binds successful
 run `38888573888`, attempt 1: 28 histories, 27,373 reads, 2,745 updates and 878

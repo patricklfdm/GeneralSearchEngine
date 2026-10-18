@@ -156,7 +156,8 @@ class Session:
     def __init__(self,reader,api,owner,log,output,package,ticket):
         need(ticket is _CAPABILITY and type(api) is NativeRunnerApi and type(owner) is NativeOwner,'V5.2 Runner session factory required')
         self.reader=reader;self.api=api;self.owner=owner;self.log=log;self.output=output;self.package=package
-        self.closed=False;self.result=None;self.heartbeat=_Heartbeat(owner);owner.heartbeat=self.heartbeat
+        self.closed=False;self.result=None;self.guests=None;self.guest_identity=None
+        self.heartbeat=_Heartbeat(owner);owner.heartbeat=self.heartbeat
 
     def start(self):
         cost=self.api.admission.plan['reservation']
@@ -170,15 +171,25 @@ class Session:
     def checkpoint(self):
         need(not self.closed,'V5.2 Runner session closed');return self.owner.resource_claim()
 
+    def open_guests(self,key,output):
+        from . import cloud_iap
+        self.checkpoint();return cloud_iap.open_native(self,key,output)
+
     def close(self):
         if self.closed:return
-        self.closed=True;self.heartbeat.close()
+        self.closed=True;guest_error=None
+        try:
+            if self.guests is not None:self.guests.close()
+        except BaseException as error:guest_error=error
+        self.heartbeat.close()
         try:
             result=self.owner.close()
             artifacts.save(self.output/'cleanup.json',dict(status='NOT_ACQUIRED' if result is None else result['status'],
                 result=result,renewalFailure=self.heartbeat.failure,providerWrites=self.api.writes,
-                resourceDeletesSubmitted=self.api.deletes,fullRemoteQualification=False))
+                resourceDeletesSubmitted=self.api.deletes,guestCloseFailure=None if guest_error is None else type(guest_error).__name__,
+                fullRemoteQualification=False))
             need(result is None or result['status']=='PASS','V5.2 Runner resource cleanup incomplete')
+            if guest_error is not None:raise guest_error
         finally:
             try:self.api.close()
             finally:

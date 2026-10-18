@@ -18,7 +18,7 @@ def current(provider, expected):
          'V5.2 guest lease inactive/changed')
     claim=a.resource_claim(lease);need(claim==expected,'V5.2 guest allocation changed')
     ledger=provider.store.get(a.LEDGER);need(ledger is not None,'V5.2 guest charge absent')
-    row=a.inspect_ledger(ledger[1],domain='offline')['attempts'].get(claim['requestSha256'])
+    row=a.inspect_ledger(ledger[1],domain=p.api_domain(provider.api))['attempts'].get(claim['requestSha256'])
     need(row is not None and row['status']=='PENDING' and row['request']==req,'V5.2 guest charge changed')
     return lease
 
@@ -70,7 +70,8 @@ def observe(provider, expected, node, *, deadline):
     need(first==second and provider.api.clock()<deadline,'V5.2 guest observation changed/late')
     if pending is not None:raise pending
     alias=access.alias(claim['requestSha256'],node,first['instanceId'])
-    return dict(schema=SCHEMA,execution='offline-v52-provider-observation',paidCloud=False,
+    domain=p.api_domain(provider.api)
+    return dict(schema=SCHEMA,execution=domain+'-v52-provider-observation',paidCloud=domain=='native',
         requestSha256=claim['requestSha256'],resourceClaimSha256=digest(encoded(claim)),
         resourceIdentitySha256=identity['resourceIdentitySha256'],node=node,
         source=deepcopy(claim['source']),attempt=claim['attempt'],configurationSha256=provider.request['configurationSha256'],
@@ -93,5 +94,6 @@ def observe_group(provider, expected, group_id, *, deadline):
               members=[dict(node=n,host=rows[n]['facts']['privateAddress'],port=provider.config['port']) for n in topology.NODES])
     topology.validate(plan);current(provider,expected)
     need(provider.api.clock()<deadline,'V5.2 guest group late observation')
-    return dict(schema='gse-v52-provider-group-observation-v1',execution='offline-v52-provider-observation',
-        paidCloud=False,guestObserved=False,resourceClaimSha256=digest(encoded(expected)),nodes=rows,topology=plan)
+    domain=p.api_domain(provider.api)
+    return dict(schema='gse-v52-provider-group-observation-v1',execution=domain+'-v52-provider-observation',
+        paidCloud=domain=='native',guestObserved=False,resourceClaimSha256=digest(encoded(expected)),nodes=rows,topology=plan)

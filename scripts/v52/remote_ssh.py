@@ -20,7 +20,12 @@ class Rejected(ValueError):
 
 
 def ssh_args(target):
-    need(type(target) is dict and set(target)=={'host','port','user','key','knownHosts','alias'},'SSH V5.2 target fields')
+    fields={'host','port','user','key','knownHosts','alias'}
+    need(type(target) is dict and set(target) in (fields,fields|{'connectSeconds'}),'SSH V5.2 target fields')
+    # Native loopback forwards first perform owned IAP admission. Preserve the
+    # existing local default; this does not extend an Endpoint's original deadline.
+    connect=target.get('connectSeconds',10)
+    need(type(connect) is int and connect in (10,30),'SSH V5.2 connection allowance')
     # This stage has neither independent cloud facts nor three-host clock domains.
     need(target['host']=='127.0.0.1' and type(target['port']) is int and 1024<=target['port']<=65535,
          'SSH V5.2 live host execution not admitted')
@@ -37,7 +42,7 @@ def ssh_args(target):
             '-o','UpdateHostKeys=no','-o','ForwardAgent=no','-o','ClearAllForwardings=yes',
             '-o','ControlMaster=no','-o','ControlPath=none','-o','StrictHostKeyChecking=yes',
             '-o','UserKnownHostsFile='+target['knownHosts'],'-o','GlobalKnownHostsFile=/dev/null',
-            '-o','HostKeyAlias='+target['alias'],'-o','ConnectTimeout=10','-o','ServerAliveInterval=15',
+            '-o','HostKeyAlias='+target['alias'],'-o','ConnectTimeout='+str(connect),'-o','ServerAliveInterval=15',
             '-o','ServerAliveCountMax=2','-o','ProxyCommand=none',target['user']+'@'+target['host'],'']
 
 
