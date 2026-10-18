@@ -97,7 +97,7 @@ class Worker:
             public_trace.finish(self.root,self.node,self.proc,self.generation)
 
 
-def prepare(root,mode,*,exercise_load=False,m01_repetition=None,read_profile=None,recovery_case=None):
+def prepare(root,mode,*,exercise_load=False,m01_repetition=None,read_profile=None,recovery_case=None,allow_control_download=True):
     need(mode in model.MODES,'measurement unknown preparation mode')
     if recovery_case is not None:
         from . import measurement_recovery as recovery
@@ -112,7 +112,7 @@ def prepare(root,mode,*,exercise_load=False,m01_repetition=None,read_profile=Non
     if read_profile is not None:
         need(parameters['family'] in ('M02','M03') and mode=='candidate-minimum' and not exercise_load,
              'measurement read configuration profile mismatch')
-    root.mkdir(parents=True,exist_ok=False);model.load();published=controls.resolve(ROOT/'target/v52-controls')
+    root.mkdir(parents=True,exist_ok=False);model.load();published=controls.resolve(ROOT/'target/v52-controls',allow_download=allow_control_download)
     if read_profile is not None:save(root/options.FILE,parameters)
     if recovery_case is not None:save(root/recovery.FILE,recovery_profile['faultParameters'])
     save(root/'corpus.json',model.corpus());(root/'group-id.txt').write_text(str(uuid.uuid4())+'\n')

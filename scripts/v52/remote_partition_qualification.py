@@ -51,7 +51,7 @@ class Receivers(previous.Receivers):
             # finite exchange bounds still apply; never replay the fault.
             with ThreadPoolExecutor(max_workers=3) as pool:
                 futures={pool.submit(self.controls[node].transition,command,
-                    discard=(op,node) in {('cut','node-1'),('heal','node-2')}):node for node in h.topology.NODES}
+                    discard=self.qualify_transport and (op,node) in {('cut','node-1'),('heal','node-2')}):node for node in h.topology.NODES}
                 for future in as_completed(futures):
                     node=futures[future]
                     try:answers[node]=future.result()

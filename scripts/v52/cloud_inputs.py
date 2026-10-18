@@ -126,7 +126,7 @@ def pack(path, meta, files):
                 output.addfile(item, io.BytesIO(raw))
 
 
-def verify_archive(path, binding, build_raw, controls_raw, candidate, pins):
+def verify_archive(path, binding, build_raw, controls_raw, candidate, pins, *, include_files=False):
     raw = regular(path, MAX_BYTES); files = {}; meta = None
     sizes = {}; expected = {'artifacts/'+name for name in (*candidate, *pins)} | {
         'source.json', 'build-manifest.json', 'published-controls.json'}
@@ -153,9 +153,10 @@ def verify_archive(path, binding, build_raw, controls_raw, candidate, pins):
     wanted = payload(binding, build_raw, controls_raw, candidate, {name: files['artifacts/'+name] for name in pins})
     need(files == wanted and encoded(meta) == encoded(manifest(binding, build_raw, controls_raw, wanted)),
          'V5.2 package source/build/input drift')
-    return dict(schema=PROOF, status='INPUTS_VERIFIED_NOT_ADMITTED', source=deepcopy(binding),
+    proof = dict(schema=PROOF, status='INPUTS_VERIFIED_NOT_ADMITTED', source=deepcopy(binding),
         buildManifestSha256=digest(build_raw), controlsManifestSha256=digest(controls_raw),
         packageSha256=digest(raw), packageBytes=len(raw), inputManifestSha256=digest(encoded(meta)), **FLAGS)
+    return (proof, wanted) if include_files else proof
 
 
 def validate_proof(value):
@@ -169,13 +170,18 @@ def validate_proof(value):
     return value
 
 
-def inspect(root, source, build_directory, package):
+def verified_files(root, source, build_directory, package):
+    """Return original bytes only after the same complete inspection as inspect."""
     root = Path(root); bound = checkout(root, source)
     build_raw, candidate = build_files(build_directory, bound, build.layout(root))
     controls_raw, pins = controls(root)
-    result = verify_archive(package, bound, build_raw, controls_raw, candidate, pins)
+    result, files = verify_archive(package, bound, build_raw, controls_raw, candidate, pins, include_files=True)
     need(checkout(root, source) == bound, 'V5.2 checkout changed during input inspection')
-    return validate_proof(result)
+    return validate_proof(result), files
+
+
+def inspect(root, source, build_directory, package):
+    return verified_files(root, source, build_directory, package)[0]
 
 
 def create(root, source, build_directory, controls_directory, output):

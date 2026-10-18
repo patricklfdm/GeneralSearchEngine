@@ -53,6 +53,8 @@ class Placement:
     def factory(self,name):
         base=installed.receiver_type(name);placement=self
         class Receivers(base):
+            qualify_transport=False
+            allow_control_download=False
             def __init__(self,root,selected,expected):
                 need(type(expected) is dict and set(expected)=={'source','checkoutSha256','java'} and
                      selected==name and all(placement.binding.get(k)==v for k,v in expected.items()),

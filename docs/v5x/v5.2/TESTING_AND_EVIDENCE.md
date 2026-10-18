@@ -502,3 +502,17 @@ seconds. Original evidence and exact source/toolchain remain under
 qualification. Existing source-only/local launch behavior remains supported.
 Whole-member execution, required CI partitioning and hosted acceptance are still
 pending; the entire measurement gate has not been rerun for this change.
+
+### Native original inputs and whole-member connection
+
+[Original staging and whole members](PHASE_6_NATIVE_MEMBERS.md) add exclusive,
+non-overwriting five-JAR preparation before acquisition, native offline control
+resolution, one-consumption member orchestration and periodic progress. The
+existing whole-history controllers retain physical/history/portable replay.
+`test_cloud_staging`, `test_cloud_member` and `test_cloud_member_factory` cover
+input substitution, partial preparation, cleanup and no-retry behavior. Bound
+Placement suppresses qualification-only transport loss, while existing local
+qualification keeps its default injection checks. Local installed-Java histories
+without artificial losses are retained separately from provider models. Native
+qualification still requires original immutable retention and cleanup, complete
+five-member replay and protected acceptance.

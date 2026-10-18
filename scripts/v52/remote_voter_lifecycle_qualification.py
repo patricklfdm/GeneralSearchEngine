@@ -25,7 +25,8 @@ class Receivers(previous.Receivers):
     def python_context(self,node):return None
     def start_service(self,root,node,cp,mode,history,generation):
         need(generation==1,'lifecycle restart not qualified')
-        client=LostResultClient(root,node,self.binding,history,target=self.targets[node],discard_launch=node=='node-1',python_context=self.python_context(node))
+        client_type=LostResultClient if self.qualify_transport else lifecycle.Client
+        client=client_type(root,node,self.binding,history,target=self.targets[node],discard_launch=self.qualify_transport and node=='node-1',python_context=self.python_context(node))
         self.clients.append(client);return client
     def collect_receiver(self,node,own):
         need(node in self.workers,'lifecycle no successful owner to collect')

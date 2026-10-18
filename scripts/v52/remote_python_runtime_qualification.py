@@ -90,12 +90,12 @@ def negatives(owner,*,locations=('evidence','relocated')):
     h.runtime.save(owner.root/'python-negatives/results.json',results);return results
 
 
-def run(output,name='candidate-minimum-untimed-smoke',*,java_runtime=False):
+def run(output,name='candidate-minimum-untimed-smoke',*,java_runtime=False,transport_losses=True):
     factory_type=receiver_type(name);spec=h.specification(name)
     root=Path(output).resolve();root.mkdir(parents=True,exist_ok=False)
     source=h.source();began=time.monotonic();done=threading.Event();stage='python-package';owners=[]
     receipt=dict(status='FAIL',execution='loopback-ssh-installed-python-only',sourceBinding=source,history=name,family=spec['family'],
-        sharedPythonCheckout=False,independentHosts=False,qualifiedMeasurement=False,fullRemoteQualification=False,paidCloud=False)
+        transportLossInjection=transport_losses,sharedPythonCheckout=False,independentHosts=False,qualifiedMeasurement=False,fullRemoteQualification=False,paidCloud=False)
     def progress(value):
         nonlocal stage
         stage=value;print(json.dumps(dict(stage=stage,elapsedSeconds=round(time.monotonic()-began,1))),flush=True)
@@ -122,12 +122,12 @@ def run(output,name='candidate-minimum-untimed-smoke',*,java_runtime=False):
                 targets[node]=target;parent=root/'private-python'/node;parent.mkdir(mode=0o700)
                 endpoint=ssh.Installer(target,descriptor);installers.append(endpoint)
                 progress('python-install-'+node)
-                try:installations[node]=endpoint.install(parent,raw,discard_reply=node=='node-1')
+                try:installations[node]=endpoint.install(parent,raw,discard_reply=transport_losses and node=='node-1')
                 finally:endpoint.close()
                 if java is not None:
                     progress('java-install-'+node)
                     endpoint=js.Installer(target,java['descriptor']);java_installers.append(endpoint)
-                    try:java['installations'][node]=endpoint.install(parent,java['archive'],discard_reply=node=='node-1')
+                    try:java['installations'][node]=endpoint.install(parent,java['archive'],discard_reply=transport_losses and node=='node-1')
                     finally:endpoint.close()
             if java is not None:
                 from .remote_java_evidence import selection
@@ -135,15 +135,16 @@ def run(output,name='candidate-minimum-untimed-smoke',*,java_runtime=False):
                              java=selection(java['installations']['node-1']))
                 jq.probes(context,root/'private-python/node-1',root)
             def factory(*args):
-                owner=factory_type(*args,targets=targets,installations=installations,descriptor=descriptor,payload=raw,java=java);owners.append(owner);return owner
+                owner=factory_type(*args,targets=targets,installations=installations,descriptor=descriptor,payload=raw,java=java);owner.qualify_transport=transport_losses;owner.allow_control_download=transport_losses
+                owners.append(owner);return owner
             result=h.run(root/'history',name,source,progress=progress,receiver_factory=factory)
             own=owners[0];workers=own.clients
-            need([i.calls for i in installers]==[['install','verify'],['install'],['install']] and all(i.closed for i in installers),
+            need([i.calls for i in installers]==([['install','verify'],['install'],['install']] if transport_losses else [['install']]*3) and all(i.closed for i in installers),
                  'Python installation resubmitted/transport leaked')
             is_restart=factory_type is RestartReceivers;count=4 if is_restart else 3
-            need(len(workers)==count and sum(w.launch_lost for w in workers)==1 and all(w.launch_submissions==1 for w in workers),
+            need(len(workers)==count and sum(w.launch_lost for w in workers)==int(transport_losses) and all(w.launch_submissions==1 for w in workers),
                  'Python original voter recovery')
-            need(sum(bool(getattr(w,'injected',False) and getattr(w,'recovered',False)) for w in workers)==int(spec['family']=='UNTIMED' or factory_type is PartitionReceivers),
+            need(sum(bool(getattr(w,'injected',False) and getattr(w,'recovered',False)) for w in workers)==int(transport_losses and (spec['family']=='UNTIMED' or factory_type is PartitionReceivers)),
                  'Python original result recovery')
             expected=(11,3) if spec['family']=='UNTIMED' else (4,4) if spec['family']=='M04' else formal.counts(spec)
             need((result['originalReads'],result['originalUpdates'])==expected,'Python unchanged whole-history counts')
@@ -159,16 +160,16 @@ def run(output,name='candidate-minimum-untimed-smoke',*,java_runtime=False):
                 need(not (Path(value['root'])/'files/.git').exists(),'Python receiver contains Git checkout')
             locations=('evidence','relocated' if spec['family']=='UNTIMED' else 'portable/relocated')
             if java is not None:
-                need([i.calls for i in java_installers]==[['install','verify'],['install'],['install']] and all(i.closed for i in java_installers),
+                need([i.calls for i in java_installers]==([['install','verify'],['install'],['install']] if transport_losses else [['install']]*3) and all(i.closed for i in java_installers),
                      'Java installation resubmitted/transport leaked')
                 receipt.update(javaInstallations=java['installations'],javaDescriptorSha256=receiver.digest(receiver.encoded(java['descriptor'])),
                                javaNegatives=jq.negatives(own,locations=locations),ambientJavaUsed=False)
             if is_restart:
-                need(own.crashed.crash_submissions==1 and own.crashed.terminal_lost and own.crashed.terminal_query is not None,'Python retained restart original terminal')
+                need(own.crashed.crash_submissions==1 and (not transport_losses or own.crashed.terminal_lost and own.crashed.terminal_query is not None),'Python retained restart original terminal')
                 receipt['faultNegatives']=restart.negatives(own)
             elif factory_type is PartitionReceivers:
                 controllers=list(own.controls.values())
-                need(len(controllers)==3 and [c.losses for c in controllers]==[['cut'],['heal'],[]] and
+                need(len(controllers)==3 and [c.losses for c in controllers]==([['cut'],['heal'],[]] if transport_losses else [[],[],[]]) and
                      all([r['request']['operation'] for r in c.calls if r['action']=='apply']==['cut','heal'] for c in controllers) and
                      not own.partition_record['cleanup'],'Python original partition transitions')
                 need(all(c.endpoint.closed and all(ch.proc.poll() is not None for ch in c.endpoint.streams) and
@@ -180,7 +181,7 @@ def run(output,name='candidate-minimum-untimed-smoke',*,java_runtime=False):
                 deliveryNegatives=previous.negatives(own,locations=locations),
                 lifecycleNegatives=lifecycle.negatives(own,locations=locations) if spec['family']=='UNTIMED' or factory_type is PartitionReceivers else [],
                 package=built,installations=installations,archiveSha256=result['archiveSha256'],
-                stoppedServices=count,stoppedJvms=count,lostInstallReplyRecovered=True)
+                stoppedServices=count,stoppedJvms=count,lostInstallReplyRecovered=transport_losses)
             need(h.source()==source,'Python source changed during qualification')
         need(server.process.poll() is not None,'Python sshd cleanup');receipt['status']='PASS';return receipt
     except BaseException as error:receipt['failure']=dict(type=type(error).__name__,message=str(error));raise

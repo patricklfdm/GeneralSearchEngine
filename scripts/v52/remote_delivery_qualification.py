@@ -27,7 +27,7 @@ class Receivers(previous.Receivers):
             self.capsule,self.meta=package.create(self.producer,self.root/'delivery-source',self.binding)
             shutil.copyfile(self.capsule,self.collected/package.CAPSULE)
         endpoint=self.delivery_client(node,own);self.deliveries.append(endpoint)
-        try:value=endpoint.run(self.capsule,discard_part=node=='node-1',discard_install=node=='node-2')
+        try:value=endpoint.run(self.capsule,discard_part=self.qualify_transport and node=='node-1',discard_install=self.qualify_transport and node=='node-2')
         finally:endpoint.close()
         self.bootstraps[node]=value;self.classpath[node]=self.paths(own,original);return value['answer']
     def delivery_client(self,node,own):

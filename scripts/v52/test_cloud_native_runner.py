@@ -73,9 +73,9 @@ class NativeRunnerTest(unittest.TestCase):
     def download(self,identity,out,size):
         self.on_download(identity);return (self.git if identity==501 else self.clean).download(identity,out,size)
 
-    def open(self):
+    def open(self,**kwargs):
         self.count+=1;self.output=self.root/f'run-{self.count}'
-        result=n.open_native(SOURCE,self.plan_path,self.approval_path,self.confirmation,self.package,self.output)
+        result=n.open_native(SOURCE,self.plan_path,self.approval_path,self.confirmation,self.package,self.output,**kwargs)
         self.addCleanup(result.close);return result
 
     def state(self):return n.a.inspect_ledger(self.case.get(n.a.LEDGER),domain='native')

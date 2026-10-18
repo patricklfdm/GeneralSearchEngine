@@ -5,12 +5,13 @@ from .evidence import need,encoded,digest
 
 
 class Client(lifecycle.Client):
-    def __init__(self,*args,**kwargs):
+    def __init__(self,*args,discard_terminal=True,**kwargs):
+        self.discard_terminal=discard_terminal
         self.crash_submissions=0;self.terminal_lost=False;self.terminal_query=None;self.crash_answer=None
         super().__init__(*args,**kwargs)
 
     def receive_event(self,row):
-        if row['kind']=='STOPPED' and row['exitCode']==-9:
+        if self.discard_terminal and row['kind']=='STOPPED' and row['exitCode']==-9:
             self.terminal_lost=True
             raise ConnectionError('qualification discarded original crash terminal response')
         super().receive_event(row)
@@ -29,12 +30,21 @@ class Client(lifecycle.Client):
              answer['crash']['configSha256']==self.sha and answer['crash']['identity']==self.owner_identity and
              answer['crash']['generation']==1 and answer['crash']['exitCode']==-9,'restart terminal response identity')
         event=answer['event']
-        need(event['seq']==self.cursor+1 and event['kind']=='STOPPED' and event['exitCode']==-9 and event['failure'] is None,
-             'restart missing original events before terminal')
-        self.terminal_query=dict(configSha256=self.sha,after=self.cursor,through=event['seq'],eventSha256=digest(encoded(event)))
-        # Do not claim that the stream received this event. Its recorded cursor
-        # remains unchanged; a separate exact terminal query supplies the edge.
-        v.Client.receive_event(self,event);self.crash_answer=answer
+        need(event['kind']=='STOPPED' and event['exitCode']==-9 and event['failure'] is None,
+             'restart invalid original terminal event')
+        if event['seq']==self.cursor:
+            # The normal stream already observed the terminal event. The query
+            # must match it exactly, and cannot invent a second stream edge.
+            need(bool(self.events) and self.events[-1]==event and self.terminal.done(),
+                 'restart original terminal response changed')
+        else:
+            need(event['seq']==self.cursor+1,'restart missing original events before terminal')
+            self.terminal_lost=True
+            self.terminal_query=dict(configSha256=self.sha,after=self.cursor,through=event['seq'],eventSha256=digest(encoded(event)))
+            # Query supplies only this exact last event; recorded stream cursor
+            # stays unchanged. Earlier missing events are never manufactured.
+            v.Client.receive_event(self,event)
+        self.crash_answer=answer
         self.close_transport();return answer
 
     def stream_record(self):

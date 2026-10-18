@@ -32,7 +32,8 @@ def partition(root,node=None):
     temporary.replace(root/'network-blocks.txt')
 
 
-def prepare(root,case):return runtime.prepare(Path(root),'candidate-minimum',recovery_case=case)
+def prepare(root,case,*,allow_control_download=True):
+    return runtime.prepare(Path(root),'candidate-minimum',recovery_case=case,allow_control_download=allow_control_download)
 
 
 def observe(root,workers,history,case,crash,restart,*,clock=time.monotonic_ns,sleep=time.sleep,partition_control=None):

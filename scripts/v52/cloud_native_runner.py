@@ -157,6 +157,7 @@ class Session:
         need(ticket is _CAPABILITY and type(api) is NativeRunnerApi and type(owner) is NativeOwner,'V5.2 Runner session factory required')
         self.reader=reader;self.api=api;self.owner=owner;self.log=log;self.output=output;self.package=package
         self.closed=False;self.result=None;self.guests=None;self.guest_identity=None;self.storage=None
+        self.staged=None;self.java=None;self.member_started=False;self.member_lock=threading.Lock()
         self.heartbeat=_Heartbeat(owner);owner.heartbeat=self.heartbeat
 
     def start(self):
@@ -174,6 +175,10 @@ class Session:
     def open_guests(self,key,output):
         from . import cloud_iap
         self.checkpoint();return cloud_iap.open_native(self,key,output)
+
+    def run_member(self,key,output):
+        from . import cloud_member
+        return cloud_member.run(self,key,output)
 
     def close(self):
         if self.closed:return
@@ -194,7 +199,9 @@ class Session:
             try:self.api.close()
             finally:
                 try:self.reader.close()
-                finally:self.log.close()
+                finally:
+                    self.log.close()
+                    if self.staged is not None:self.staged.close()
 
     def close_after_error(self):
         try:self.close()
@@ -212,7 +219,7 @@ class Session:
         return False
 
 
-def open_native(source,plan_path,approval_path,confirmation,package_path,output):
+def open_native(source,plan_path,approval_path,confirmation,package_path,output,*,prepare_workload=False):
     """Own all observations and resources. Caller must close or use `with`.
 
     There is deliberately no provisioning-only CLI. The eventual whole-member
@@ -220,7 +227,7 @@ def open_native(source,plan_path,approval_path,confirmation,package_path,output)
     qualified immutable workload completion already exists.
     """
     output=Path(output);need(not any(p.is_symlink() for p in (output,*output.parents)),'V5.2 Runner output symlink')
-    output.mkdir(parents=True,exist_ok=False);phase='source';reader=api=session=log=None
+    output.mkdir(parents=True,exist_ok=False);phase='source';reader=api=session=log=staged=None;java=None
     try:
         started=int(time.time());cfg=reads.source_configuration(source)
         plan=strict(inputs.regular(plan_path,8<<20));approval=strict(inputs.regular(approval_path,65536))
@@ -234,6 +241,14 @@ def open_native(source,plan_path,approval_path,confirmation,package_path,output)
         phase='package';package=output/'inputs.tar.gz'
         with package.open('xb') as stream:stream.write(inputs.regular(package_path,inputs.MAX_BYTES))
         proof=inputs.inspect(ci.ROOT,source,output/'build-provenance'/'build',package)
+        if prepare_workload:
+            from . import cloud_staging,remote_java_package
+            phase='original-staging'
+            staged=cloud_staging.stage(ci.ROOT,source,output/'build-provenance'/'build',package,output/'staging',expected=proof)
+            phase='java-package'
+            java=dict(descriptor=remote_java_package.create(ci.ROOT,bound,output/'java-package'),
+                      archive=str(output/'java-package'/'runtime.tar.gz'))
+            staged.check()
         phase='recent-cleanup';recent.collect_native(source,output/'recent-cleanup')
         clean=recent.validate(artifacts.read(output/'recent-cleanup'/'observation.json'),cfg,source,
             output/'recent-cleanup'/'cleanup.zip',int(time.time()))
@@ -245,10 +260,13 @@ def open_native(source,plan_path,approval_path,confirmation,package_path,output)
         phase='final-source';need(reads.source_configuration(source)==cfg and inputs.checkout(ci.ROOT,source)==bound and
             ci.contract()==shape,'V5.2 Runner source changed')
         reader.tokens.recheck(time.monotonic()+30)
+        if staged is not None:staged.check()
         phase='resources';log=(output/'exchanges.jsonl').open('xb');api=NativeRunnerApi(reader,admission,log,_CAPABILITY)
         store=p.Store(cfg['provider'],api);provider=p.Provider(store,admission.request,wall=lambda:int(time.time()),sleep=time.sleep)
         owner=NativeOwner(store,provider,admission.request,_CAPABILITY)
-        session=Session(reader,api,owner,log,output,package,_CAPABILITY);return session.start()
+        session=Session(reader,api,owner,log,output,package,_CAPABILITY)
+        session.staged=staged;session.java=java
+        return session.start()
     except BaseException as error:
         failure=dict(status='FAIL',phase=phase,code='V52_RUNNER_'+phase.upper().replace('-','_')+'_REJECTED',
             errorType=type(error).__name__,fullRemoteQualification=False)
@@ -266,4 +284,5 @@ def open_native(source,plan_path,approval_path,confirmation,package_path,output)
                     if reader is not None:reader.close()
                 finally:
                     if log is not None:log.close()
+                    if staged is not None:staged.close()
         raise

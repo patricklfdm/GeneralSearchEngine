@@ -21,7 +21,19 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6BD installed Java](v5.2/PHASE_6_NATIVE_JAVA.md)
+Latest local stage: [Phase 6BE original inputs and whole members](v5.2/PHASE_6_NATIVE_MEMBERS.md)
+connects verified five-JAR staging and pre-acquisition Java preparation to the
+existing native Session. The internal member entry consumes its selected whole
+histories once, retains each original result, independently replays evidence and
+reports progress at least once a minute. Native Placement disables qualification
+transport-loss injections and downloads; declared M04 faults and original-result
+recovery remain. Its result is still `MEMBER_EXECUTED_NOT_QUALIFIED`.
+Validation scope, source hashes and original failure logs are retained under
+`target/v52-native-members`. Immutable qualified retention and complete set replay,
+required CI partitioning and protected operator entry remain open. There is no
+paid member CLI or cloud acceptance claim at this stage.
+
+The preceding [Phase 6BD installed Java](v5.2/PHASE_6_NATIVE_JAVA.md)
 connects original-version/hash-pinned Java images to native storage and the
 existing complete-history Placement. The standalone image installer consumes its
 destination once, streams bounded bytes, and only queries original results after

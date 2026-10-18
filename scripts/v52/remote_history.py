@@ -39,6 +39,9 @@ def original_counts(result,spec):
 
 class Receivers:
     """One owner for preparation, every process generation and stopped collection."""
+    qualify_transport=True
+    allow_control_download=True
+
     def __init__(self,root,name,expected,*,worker_factory=None):
         self.root=Path(root).resolve();self.name=name;self.spec=specification(name);self.expected=expected
         self.root.mkdir(parents=True,exist_ok=False)
@@ -49,10 +52,11 @@ class Receivers:
 
     def prepare(self):
         spec=self.spec;family=spec['family'];mode=spec['mode']
-        if family=='UNTIMED':original,_,_=runtime.prepare(self.producer,mode,exercise_load=True)
-        elif family=='M01':original,_,_=runtime.prepare(self.producer,mode,m01_repetition=spec['profile']['repetition'])
-        elif family in ('M02','M03'):original,_,_=minimum.prepare(self.producer,self.name)
-        else:original,_,_=recovery.prepare(self.producer,self.name)
+        offline=dict(allow_control_download=self.allow_control_download)
+        if family=='UNTIMED':original,_,_=runtime.prepare(self.producer,mode,exercise_load=True,**offline)
+        elif family=='M01':original,_,_=runtime.prepare(self.producer,mode,m01_repetition=spec['profile']['repetition'],**offline)
+        elif family in ('M02','M03'):original,_,_=minimum.prepare(self.producer,self.name,**offline)
+        else:original,_,_=recovery.prepare(self.producer,self.name,**offline)
         need({k:original[k] for k in self.expected}==self.expected,'remote preparation source changed')
         cp=self.paths(self.producer,original);java=ROOT/'scripts/v52/java'
         q.command(['javac','--release','21','-proc:none','-cp',cp,'-d',self.producer/'consumer',java/'V52RemoteTopology.java',java/'V52RemoteBootstrap.java'],self.producer,'compile-remote-consumer')

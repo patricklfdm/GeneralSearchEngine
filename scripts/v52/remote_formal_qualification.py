@@ -25,7 +25,7 @@ class Receivers(previous.Receivers):
         # Launch-loss qualification happens before original observation starts.
         # No stream-loss injection, blocking submit retry or new offered clock is
         # inserted into the unchanged formal workload controller.
-        worker=lifecycle.Client(root,node,self.binding,history,target=self.targets[node],discard_launch=node=='node-1',python_context=self.python_context(node))
+        worker=lifecycle.Client(root,node,self.binding,history,target=self.targets[node],discard_launch=self.qualify_transport and node=='node-1',python_context=self.python_context(node))
         self.clients.append(worker);return worker
     def collect_receiver(self,node,own):
         need(node in self.workers and node not in self.exports,'formal collection ownership')

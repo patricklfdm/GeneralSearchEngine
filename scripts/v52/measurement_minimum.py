@@ -41,8 +41,8 @@ def lower_bound(carried,index,relation):
     return base64.b64encode(token.encode(value)).decode()
 
 
-def prepare(root,case):
-    plan=profile(case);binding,cp,control=runtime.prepare(root,MODE,read_profile=plan['parameters'])
+def prepare(root,case,*,allow_control_download=True):
+    plan=profile(case);binding,cp,control=runtime.prepare(root,MODE,read_profile=plan['parameters'],allow_control_download=allow_control_download)
     binding.pop('readConfigurationOnly');binding['measurementProfile']=plan
     runtime.save(root/'binding.json',binding);return binding,cp,control
 

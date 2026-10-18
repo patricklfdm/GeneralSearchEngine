@@ -141,6 +141,7 @@ class BoundPlacementTest(unittest.TestCase):
             self.assertEqual([],own.sockets);self.assertEqual(Path(self.roots['node-2']),own.receiver_root('node-2'))
             self.assertIsInstance(own,bound.installed.receiver_type(name))
             self.assertEqual(spec,own.spec)
+            self.assertFalse(own.qualify_transport);self.assertFalse(own.allow_control_download)
             self.assertEqual(self.installs['node-2']['root'],own.python_context('node-2')['root'])
 
     def test_source_history_pin_installation_and_path_substitution_reject(self):
