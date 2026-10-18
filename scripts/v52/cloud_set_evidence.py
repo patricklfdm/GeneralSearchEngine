@@ -78,9 +78,12 @@ def results(values,selected,source,cfg,ledger):
         ledgerReservedCostMicrousd=a.inspect_ledger(ledger,domain='native')['reservedCostMicrousd'],ledgerSha256=digest(encoded(ledger)))
 
 
-def replay(values,source,cfg,ledger,output,*,progress=lambda stage,**kw:None):
+def replay(values,source,cfg,ledger,output,*,progress=lambda stage,**kw:None,expected_invocations=None):
     """All members share one separately selected ledger; no fragments or retries."""
     selected,_,paths=inputs(values,source,cfg,ledger);output=Path(output)
+    if expected_invocations is not None:
+        need(type(expected_invocations) is dict and set(expected_invocations)==set(suite.MEMBERS),
+             'V5.2 protected original invocation inventory')
     need(not any(p.is_symlink() for p in (output,*output.parents)) and all(
         output.resolve()!=p and output.resolve() not in p.parents and p not in output.resolve().parents for p in paths),
         'V5.2 set replay output overlap')
@@ -91,6 +94,8 @@ def replay(values,source,cfg,ledger,output,*,progress=lambda stage,**kw:None):
             name=value['request']['selection']['member']['name'];progress('member-replay',name=name,completed=len(replayed))
             replayed[name]=member.replay(value['root'],value['request'],value['manifest'],value['completed'],value['cleanup'],
                 ledger,source,cfg,output/name,progress=progress)
+            if expected_invocations is not None:
+                need(replayed[name]['invocation']==expected_invocations[name],'V5.2 replayed member not original protected invocation')
         receipt=results(replayed,selected,source,cfg,ledger)
         receipt['memberReceiptHashes']={name:digest((output/name/'receipt.json').read_bytes()) for name in replayed}
         return receipt

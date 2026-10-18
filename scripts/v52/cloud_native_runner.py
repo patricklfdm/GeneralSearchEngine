@@ -157,6 +157,7 @@ class Session:
         need(ticket is _CAPABILITY and type(api) is NativeRunnerApi and type(owner) is NativeOwner,'V5.2 Runner session factory required')
         self.reader=reader;self.api=api;self.owner=owner;self.log=log;self.output=output;self.package=package
         self.closed=False;self.result=None;self.guests=None;self.guest_identity=None;self.storage=None
+        self.started_at=int(time.time());self.original_seal=None
         self.staged=None;self.java=None;self.member_started=False;self.member_lock=threading.Lock();self.member_capture=None;self.retention_started=False
         self.heartbeat=_Heartbeat(owner);owner.heartbeat=self.heartbeat
 
@@ -186,7 +187,7 @@ class Session:
 
     def close(self):
         if self.closed:return
-        self.closed=True;guest_error=None
+        self.closed=True;guest_error=None;seal=None
         try:
             if self.guests is not None:self.guests.close()
         except BaseException as error:guest_error=error
@@ -199,6 +200,9 @@ class Session:
                 fullRemoteQualification=False))
             need(result is None or result['status']=='PASS','V5.2 Runner resource cleanup incomplete')
             if guest_error is not None:raise guest_error
+            if self.api.retained is not None:
+                from . import cloud_member_seal
+                seal=cloud_member_seal.capture(self,result)
         finally:
             try:self.api.close()
             finally:
@@ -206,6 +210,9 @@ class Session:
                 finally:
                     self.log.close()
                     if self.staged is not None:self.staged.close()
+        # No success capability survives a failed cleanup, terminal readback or
+        # local close. Reconciliation cannot retroactively seal a failed scope.
+        self.original_seal=seal
 
     def close_after_error(self):
         try:self.close()

@@ -135,12 +135,19 @@ class NativeRetentionTest(unittest.TestCase):
         self.assertTrue(lost);self.assertEqual([0,1],posted)
         self.assertFalse(result['fullRemoteQualification']);self.assertIsNone(self.base.case.get(c.attempt_key(self.session.owner.request)+'completion.json'))
         with self.assertRaisesRegex(ValueError,'already consumed'):self.session.retain_member(self.root/'again')
+        self.assertIsNone(self.session.original_seal)
         self.session.close()
         self.assertEqual({},self.base.case.server.resources);self.assertIsNone(self.base.case.get(c.a.LEASE))
         ledger=self.base.state();self.assertEqual({'PASS'},{row['status'] for row in ledger['attempts'].values()})
         completed=self.base.case.get(c.attempt_key(self.session.owner.request)+'completion.json')
         self.assertEqual(result['manifestSha256'],completed['evidenceSha256'])
         self.assertEqual(4_000_000,ledger['reservedCostMicrousd'])
+        from . import cloud_member_seal
+        sealed=cloud_member_seal.publish(self.session,self.root/'public')
+        self.assertEqual(completed['evidenceSha256'],sealed['manifestSha256'])
+        self.assertEqual(r.digest(r.encoded(completed)),sealed['completionSha256'])
+        self.assertEqual(654321,sealed['credentialContext']['runId'])
+        self.assertEqual(['member-seal.json'],[path.name for path in (self.root/'public').iterdir()])
     def test_partial_or_uncertain_upload_never_grants_pass_and_is_not_resubmitted(self):
         posted=[]
         def fault(stage,row):
@@ -155,6 +162,16 @@ class NativeRetentionTest(unittest.TestCase):
         self.base.case.server.fault=lambda *args:None;self.session.close()
         self.assertEqual({'FAIL'},{row['status'] for row in self.base.state()['attempts'].values()})
         self.assertEqual({},self.base.case.server.resources)
+
+    def test_failed_local_close_cannot_publish_even_after_original_terminal_pass(self):
+        self.publish();self.session.staged.close.side_effect=ValueError('modeled local close failure')
+        with self.assertRaisesRegex(ValueError,'local close failure'):self.session.close()
+        self.assertIsNone(self.session.original_seal)
+        self.assertTrue(self.session.api.closed)
+        self.assertEqual({'PASS'},{row['status'] for row in self.base.state()['attempts'].values()})
+        from . import cloud_member_seal
+        with self.assertRaisesRegex(ValueError,'closed session'):cloud_member_seal.publish(self.session,self.root/'public')
+        self.assertFalse((self.root/'public').exists())
 
     def test_completed_upload_with_failed_cleanup_remains_failed_after_reconciliation(self):
         self.publish();self.session.heartbeat.close()

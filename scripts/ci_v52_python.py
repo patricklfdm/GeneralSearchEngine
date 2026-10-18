@@ -16,7 +16,7 @@ NATIVE={
     'native-evidence':('cloud_member_factory','cloud_retention','cloud_member_evidence'),
 }
 PROVENANCE=('cloud_inputs','cloud_artifacts','cloud_ci','cloud_prepared','cloud_credentials',
-            'cloud_preflight','cloud_recent_cleanup','cloud_cleanup_bundle')
+            'cloud_preflight','cloud_recent_cleanup','cloud_cleanup_bundle','cloud_member_seal','cloud_runner_provenance')
 EXTRA='scripts.v51.test_runtime_process_generations'
 
 

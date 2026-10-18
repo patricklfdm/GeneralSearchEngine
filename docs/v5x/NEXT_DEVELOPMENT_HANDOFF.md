@@ -21,7 +21,20 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6BH required CI partitions](v5.2/PHASE_6_CI_PARTITIONS.md)
+Latest local stage: [Phase 6BI original Runner provenance](v5.2/PHASE_6_PROTECTED_RUNNER.md)
+seals only successfully closed original native members, authenticates the exact
+original GitHub run/attempt and joins its compact seal to separately restored
+immutable provider evidence. The native complete-set join replays every whole
+member and checks actual runtime invocation against protected provenance before
+qualification. Local synthetic/IO-modeled tests are not native acceptance.
+Validation is retained under `target/v52-protected-runner`.
+
+Next connect prepare/run/verify workflow operations, authenticated prepared
+artifacts and configuration/identity review material. The actual Runner workflow
+and provider configuration are still absent, so its internal provenance/acceptance
+factory fails closed. No cloud dispatch or push has occurred.
+
+The preceding [Phase 6BH required CI partitions](v5.2/PHASE_6_CI_PARTITIONS.md)
 moves all 1,087 Python cases into eight required partitions and splits measurement
 qualification into three complete runtime lanes. Source-bound build provenance,
 all original commands and failure artifacts remain. Full CI now has 62 expanded
@@ -34,8 +47,8 @@ replays complete members plus the five-member set in any order. A GET-only
 restorer pins selected original objects by generation and preserves ledger history;
 content-addressed cleanup copies avoid object listing. Local models and six
 unchanged earlier SSH/JVM archives (including M01/M02/M03) are retained under `target/v52-retained-replay`.
-All results remain NOT_QUALIFIED pending protected original Runner provenance and
-operator integration. Configuration/identity
+Standalone byte replays remain NOT_QUALIFIED; Phase 6BI supplies the internal
+protected-original join, with operator integration still pending. Configuration/identity
 review remain open; no paid Runner CLI or cloud dispatch is enabled.
 
 The preceding [Phase 6BF original evidence retention](v5.2/PHASE_6_NATIVE_RETENTION.md)
@@ -80,14 +93,10 @@ or paid resource was executed.
 The prior [storage stage](v5.2/PHASE_6_NATIVE_STORAGE.md) retains its own root/device
 model qualification; no host disk was modified.
 
-Next connect protected Runner provenance and operator entry to complete original
-set replay. Provider configuration and identities remain
-undeployed.
-Before pushing, split the expanding Python gate into required CI lanes while
-preserving all tests and exact-source provenance (both foundation discovery and
-the measurement gate currently run overlapping Python suites): the prior 948-test local run
-already took 1070.913 seconds, close to the current job's 20-minute total limit.
-This observation does not predict hosted CI timing or change qualification bounds.
+Provider configuration and identities remain undeployed. Phase 6BH already split
+the growing Python inventory and runtime gates into required lanes; do not repeat
+that migration. The prior 948-test serial run took 1070.913 seconds. That historical
+local observation does not predict hosted CI timing or change qualification bounds.
 
 The [hosted acceptance record](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) binds successful
 run `38888573888`, attempt 1: 28 histories, 27,373 reads, 2,745 updates and 878

@@ -14,7 +14,7 @@ remains included. New modules enter conservative default partitions; duplicate
 or foreign module names reject. Test discovery failures are test errors, and an
 empty suite or a mismatch between discovered and executed counts fails.
 
-| Partition | Current cases | Responsibility |
+| Partition | Migration snapshot cases | Responsibility |
 | --- | ---: | --- |
 | core | 64 | Public read and token evidence |
 | measurement | 181 | Frozen measurement, histories, replay and aggregation |
@@ -25,13 +25,15 @@ empty suite or a mismatch between discovered and executed counts fails.
 | native-storage | 43 | IAP, original storage and installed Java factories |
 | native-evidence | 26 | Whole-member staging, retention and member replay |
 
-The 1,087 cases are 1,082 V5.2 tests plus five existing process-generation cases.
+At migration commit `1b814da`, the 1,087 cases were 1,082 V5.2 tests plus five
+existing process-generation cases. New source modules continue to enter the
+exhaustive inventory; this table preserves that measured validation snapshot.
 These are inventory counts, not an assertion that a hosted run has passed.
 Each job retains discovered/executed/failed/skipped counts and per-test timings,
 including failure, and prints progress every minute. Python is pinned to 3.11;
 these tests use modeled provider effects and do not acquire native credentials.
 
-At this tree, retaining both old Python entry points would execute 1,082
+At that migration tree, retaining both old Python entry points would execute 1,082
 foundation cases plus 1,023 measurement-wrapper cases. Their union is 1,087,
 so moving that union removes 1,018 duplicate invocations. This is a source-based
 comparison of those two entry points, not a measured hosted saving. Other existing

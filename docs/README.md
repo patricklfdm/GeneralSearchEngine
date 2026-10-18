@@ -591,6 +591,10 @@ documentation.
 
 ### V5.2 read foundation
 
+The latest pre-cloud stage is [original Runner provenance and the complete-set
+join](v5x/v5.2/PHASE_6_PROTECTED_RUNNER.md). Operator workflow/configuration
+integration and actual protected/cloud acceptance remain pending.
+
 The [Phase 1 implementation](v5x/v5.2/PHASE_1_FOUNDATION.md) records the initial
 disabled API, token fixtures, independent model, compatibility and CI integration.
 The [Phase 2 kernel](v5x/v5.2/PHASE_2_CAPTURE_KERNEL.md) is locally verified and
