@@ -21,7 +21,24 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6BF original evidence retention](v5.2/PHASE_6_NATIVE_RETENTION.md)
+Latest local stage: [Phase 6BH required CI partitions](v5.2/PHASE_6_CI_PARTITIONS.md)
+moves all 1,087 Python cases into eight required partitions and splits measurement
+qualification into three complete runtime lanes. Source-bound build provenance,
+all original commands and failure artifacts remain. Full CI now has 62 expanded
+jobs; local migration/partition receipts live under `target/v52-ci-partitions`.
+Hosted timing and exact-source protected qualification remain pending.
+
+The preceding [Phase 6BG retained replay](v5.2/PHASE_6_RETAINED_REPLAY.md)
+independently reconstructs original admission, resource/guest/storage bindings and
+replays complete members plus the five-member set in any order. A GET-only
+restorer pins selected original objects by generation and preserves ledger history;
+content-addressed cleanup copies avoid object listing. Local models and six
+unchanged earlier SSH/JVM archives (including M01/M02/M03) are retained under `target/v52-retained-replay`.
+All results remain NOT_QUALIFIED pending protected original Runner provenance and
+operator integration. Configuration/identity
+review remain open; no paid Runner CLI or cloud dispatch is enabled.
+
+The preceding [Phase 6BF original evidence retention](v5.2/PHASE_6_NATIVE_RETENTION.md)
 connects the live whole-member capture to bounded immutable manifest/parts,
 generation-pinned read-back and exact-ID cleanup before member completion.
 Partial retention or failed cleanup cannot grant PASS; reconciliation can finish
@@ -29,8 +46,8 @@ an already retained original completion but cannot construct one from copied
 evidence. Source, claims, build/input bytes, costs and complete histories remain
 bound. Local models and earlier-archive byte round-trips are retained separately
 under `target/v52-native-retention`; no cloud or protected acceptance is claimed.
-Independent five-member portable replay, required CI partitioning and protected
-operator entry remain open. There is no paid member CLI at this stage.
+This retention layer alone grants no independent five-member acceptance. There
+is no paid member CLI at this stage.
 
 The preceding [Phase 6BE original inputs and whole members](v5.2/PHASE_6_NATIVE_MEMBERS.md)
 connects verified five-JAR staging and pre-acquisition Java preparation to the
@@ -63,8 +80,8 @@ or paid resource was executed.
 The prior [storage stage](v5.2/PHASE_6_NATIVE_STORAGE.md) retains its own root/device
 model qualification; no host disk was modified.
 
-Next connect independent portable acceptance of the complete five-member set and
-the protected Runner/operator entry. Provider configuration and identities remain
+Next connect protected Runner provenance and operator entry to complete original
+set replay. Provider configuration and identities remain
 undeployed.
 Before pushing, split the expanding Python gate into required CI lanes while
 preserving all tests and exact-source provenance (both foundation discovery and

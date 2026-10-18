@@ -43,6 +43,8 @@ class Policy:
             index=int(part[1]);need(index<evidence.MAX_PARTS,'V5.2 evidence part key bound')
             return 'evidence-part',index
         if re.fullmatch(re.escape(self.prefix)+r'cleanup-[1-9][0-9]{0,19}\.json',key):return 'cleanup',None
+        cleanup=re.fullmatch(re.escape(self.prefix)+r'cleanups/([0-9a-f]{64})\.json',key)
+        if cleanup:return 'cleanup',cleanup[1]
         for base,spec in self.operation_keys.items():
             for suffix,kind in (('.json','operation'),('-submitted.json','submitted'),('-unsubmitted.json','unsubmitted')):
                 if key==base+suffix:return kind,spec
@@ -269,7 +271,9 @@ class Policy:
                 else:
                     need(self.evidence_manifest is not None,'V5.2 evidence original manifest missing')
                     evidence.decode(body,self.evidence_manifest,spec)
-            elif kind=='cleanup':self.cleanup_value(body)
+            elif kind=='cleanup':
+                need(spec is None or spec==digest(encoded(body)),'V5.2 wire cleanup content address')
+                self.cleanup_value(body)
             elif kind=='completion':
                 a.validate_completion(body,self.req)
                 need(lease['phase']=='CLEANING' and body['cleanupSha256'] in self.cleanup,
@@ -388,7 +392,9 @@ class Policy:
             elif kind=='cleanup':
                 # Strict shape here; fresh absence is required again before any
                 # new PASS retention or release, never inferred from this receipt.
-                a.fields(value,'status checks errors leftovers','retained cleanup');self.cleanup[digest(encoded(value))]=deepcopy(value)
+                a.fields(value,'status checks errors leftovers','retained cleanup')
+                need(spec is None or spec==digest(encoded(value)),'V5.2 wire cleanup content address')
+                self.cleanup[digest(encoded(value))]=deepcopy(value)
             elif kind=='evidence-manifest':
                 from . import cloud_evidence_parts as evidence
                 evidence.validate(value,self.req);self.evidence_manifest=deepcopy(value)

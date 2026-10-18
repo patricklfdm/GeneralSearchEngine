@@ -51,12 +51,12 @@ run/source context or failure to produce a valid plan fails Change scope/Require
 
 The current [generated job inventory](CI_JOB_INVENTORY.md) is checked against the
 actual workflow, local actions and [suite registry](../scripts/ci_suite_registry.json).
-It lists **36 suites plus Change scope and Required: 38 static IDs, 46 expanded
-full jobs**. Docs mode has two successful meta jobs and 36 skipped placeholders;
-it does not have 46 executed jobs. Integration executes 43 instances, leaving the
+It lists **52 suites plus Change scope and Required: 54 static IDs, 62 expanded
+full jobs**. Docs mode has two successful meta jobs and 52 skipped placeholders;
+it does not have 62 executed jobs. Integration executes 59 instances, leaving the
 canonical suite deliberately skipped. The diagnostic [shadow report](CI_SHADOW_PLANNER.md)
 does not grant qualification. Required independently replays the versioned execution
-plan against source/workflow/policy/registry and all 36 suite results. The legacy
+plan against source/workflow/policy/registry and all 52 suite results. The legacy
 `run_full_ci=true` means ordinary suites run, including in integration; it alone
 does not establish full qualification.
 
@@ -86,6 +86,7 @@ operator action, not a substitute for a PR's required status check.
 | V5.0 / V4 / soak | V5.0's two independent reactor domains and V4/JMH ordering remain separate. Soak/example commands build their own prerequisites. |
 | Compatibility | Packaged API/reflection checks, published baselines and all six V1–V5.1 consumers, including V1 compile-only. |
 | Release artifacts | Independent canonical build, nine JARs/three POMs, frozen hashes/toolchain and exact-source receipt. Release evidence retains 90 days. |
+| V5.2 checks | Eight exhaustive Python partitions and eight shared-build runtime lanes; whole histories remain intact. See [V5.2 partition contracts](v5x/v5.2/PHASE_6_CI_PARTITIONS.md). |
 | Python/cloud without GCP | Exhaustive disjoint Python partitions and separate preflight/storage/provider/cleanup gates; no paid cloud resources or cloud credentials. |
 
 The registry lists each lane's exact dependencies, fixed matrix, job ceiling,

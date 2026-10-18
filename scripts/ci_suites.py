@@ -32,6 +32,7 @@ DOWNLOAD_STEP = "Download this run's exact-source verification inputs"
 BUILD_ID = "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}"
 BUILD_CONSUMERS = frozenset((
     "v52-foundation", "v52-read-faults", "v52-read-lifecycle", "v52-read-protocol", "v52-read-hardening",
+    "v52-measurement-consumers", "v52-owned-commands", "v52-installed-runtime",
     "v51-foundation", "v51-remote-faults", "v51-admission-resources", "v51-promise-crashes",
     "v51-public-reads-faults", "v51-public-recovery-pressure", "v51-public-hardening",
     "v51-protocol-selection", "v51-candidate-crashes", "v51-reclamation", "v51-full-size-runtime",

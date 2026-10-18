@@ -33,6 +33,28 @@ class ControlTest(unittest.TestCase):
         self.assertEqual('FAIL', next(iter(self.ledger()['attempts'].values()))['status'])
         self.assertEqual(result, self.owner.close())
 
+    def test_completion_cleanup_is_retrievable_by_digest_without_listing(self):
+        self.prepare();result=self.owner.close()
+        completed=self.store.get(c.attempt_key(self.req)+'completion.json')[1]
+        key=c.cleanup_key(self.req,completed['cleanupSha256'])
+        self.assertEqual(result['cleanup'],self.store.get(key)[1])
+        self.assertEqual(completed['cleanupSha256'],a.digest(a.encoded(self.store.get(key)[1])))
+        self.assertTrue(any(e['action']=='put' and '/cleanup-' in e['key'] for e in self.store.events))
+
+    def test_interrupted_cleanup_digest_copy_preserves_failure_then_reconciles(self):
+        self.prepare()
+        def fail(action,key,value):
+            if action=='before-put' and '/cleanups/' in key:raise ConnectionError('lost original copy')
+        self.store.fault=fail
+        with self.assertRaisesRegex(ValueError,'original CAS outcome unresolved'):self.owner.close()
+        self.store.fault=lambda *args:None
+        self.assertIsNone(self.store.get(c.attempt_key(self.req)+'completion.json'))
+        self.assertEqual('PENDING',next(iter(self.ledger()['attempts'].values()))['status'])
+        self.assertEqual('PASS',self.cleanup()['status'])
+        completed=self.store.get(c.attempt_key(self.req)+'completion.json')[1]
+        self.assertEqual('FAIL',completed['status'])
+        self.assertEqual(completed['cleanupSha256'],a.digest(a.encoded(self.store.get(c.cleanup_key(self.req,completed['cleanupSha256']))[1])))
+
     def test_native_records_and_lookalike_adapters_cannot_enable_network_entry(self):
         with self.assertRaisesRegex(ValueError, 'request domain'):
             c.OfflineOwner(self.store, self.provider, fixture(domain='native'))

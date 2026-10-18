@@ -68,7 +68,8 @@ class FullCiTest(unittest.TestCase):
     def test_existing_registry_expands_all_current_suites_and_visible_required_steps(self):
         registry = c.suites.check()
         self.assertEqual(set(c.suites.expanded_names(registry)), set(self.shape['jobs']))
-        self.assertEqual(5, sum(row['id'].startswith('v52-') for row in self.shape['jobs'].values()))
+        self.assertEqual(8, sum(row['id'].startswith('v52-') for row in self.shape['jobs'].values()))
+        self.assertEqual(8, sum(row['id'].startswith('python-v52-') for row in self.shape['jobs'].values()))
         self.assertIn(c.BUILD_STEP, self.shape['jobs'][c.BUILD]['steps'])
         self.assertNotIn('Validate documentation-only contract changes', self.shape['jobs']['Change scope']['steps'])
 
@@ -109,8 +110,8 @@ class FullCiTest(unittest.TestCase):
     def test_successful_job_cannot_hide_skipped_or_missing_verification_step(self):
         original = self.observe()
         for key, val in (('conclusion','skipped'), ('status','in_progress'), ('number',True), ('started_at',at(NOW+1))):
-            value = deepcopy(original); job = next(v for v in value['jobs'] if v['name'] == 'V5.2 combined read hardening')
-            step = next(s for s in job['steps'] if s['name'] == 'Verify V5.2 measurement consumers without timed windows')
+            value = deepcopy(original); job = next(v for v in value['jobs'] if v['name'] == 'V5.2 measurement consumers')
+            step = next(s for s in job['steps'] if s['name'] == 'Verify complete V5.2 consumers qualification')
             step[key] = val
             with self.assertRaises(ValueError): c.validate(value, SOURCE, self.shape, NOW)
         value = deepcopy(original); value['jobs'][0]['steps'].pop()

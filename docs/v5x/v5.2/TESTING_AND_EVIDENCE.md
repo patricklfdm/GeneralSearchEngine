@@ -529,3 +529,31 @@ Separate framing qualification restores byte-identical earlier local SSH/JVM
 archives without executing or promoting those histories. Logs and exact scope are
 under `target/v52-native-retention`. Independent retained five-member replay,
 required CI partitioning, operator entry and protected/native qualification remain.
+
+### Retained authority, complete-set replay and restoration
+
+[Phase 6BG retained replay](PHASE_6_RETAINED_REPLAY.md) adds
+`test_cloud_member_evidence`, `test_cloud_set_evidence` and
+`test_cloud_evidence_read` to the measurement gate. The tests cover original
+admission/build/package correlation, exact guest/storage/placement identity,
+complete member inventory, physical-result equality, all-five ordering and reuse
+checks, original invocation maps, bounded GET-only restoration, generation drift,
+missing parts, and preserved failed-attempt costs. Control/wire regressions cover
+content-addressed cleanup retention and interrupted publication. Local M01 tests
+retain their strict single-invocation default.
+
+Synthetic member/download tests are distinct from actual archive replay. Two
+unchanged earlier local SSH/JVM archives pass the new physical replay helper with
+results identical to their original validation: smoke 11 reads/3 updates and
+SIGKILL/restart 4 reads/4 updates. No workload was rerun and these original-source
+histories do not qualify the current source or GCP. Detailed logs and original
+failed fixture runs are retained at `target/v52-retained-replay`.
+
+## Required CI partition execution
+
+[Phase 6BH](PHASE_6_CI_PARTITIONS.md) assigns the full discovered V5.2 Python
+inventory to eight required partitions, including the existing cross-version
+process tests. `scripts.test_ci_v52_python` verifies exact discovered test IDs,
+workflow calls and unchanged complete runtime commands. Default local wrappers
+still execute their original full sequences. Per-test timings and counts are
+retained by each CI job; no hosted timing improvement is claimed before execution.

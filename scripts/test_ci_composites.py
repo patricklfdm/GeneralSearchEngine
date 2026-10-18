@@ -47,7 +47,7 @@ class CompositeTest(unittest.TestCase):
     def test_actual_consumers_match_independent_inline_fixture(self):
         callers = {job for job, body in self.jobs.items() if s.RESTORE_ACTION in body or s.RETAIN_ACTION in body}
         self.assertEqual(s.BUILD_CONSUMERS, callers)
-        self.assertEqual(16, len(callers))
+        self.assertEqual(19, len(callers))
         for job in callers:
             with self.subTest(job=job):
                 expanded = s.steps(s.fields(effective_job(self.jobs[job], job), 4)["steps"])
@@ -56,7 +56,7 @@ class CompositeTest(unittest.TestCase):
                 order = list(expanded)
                 start = order.index(s.DOWNLOAD_STEP)
                 self.assertEqual(list(original), order[start:start+3])
-        self.assertEqual(51, len(self.check()))
+        self.assertEqual(62, len(self.check()))
 
     def test_artifact_inventory_unchanged_after_expansion(self):
         uploads = downloads = 0
@@ -67,7 +67,7 @@ class CompositeTest(unittest.TestCase):
             self.assertEqual(suite["inputs"], actual_in)
             self.assertEqual(suite["evidence"], actual_out)
             downloads += len(actual_in); uploads += len(actual_out)
-        self.assertEqual((29, 117), (downloads, uploads))
+        self.assertEqual((32, 130), (downloads, uploads))
 
     def test_wrong_or_missing_producer_id_never_falls_back_to_a_name(self):
         original = "artifact-id: " + s.BUILD_ID

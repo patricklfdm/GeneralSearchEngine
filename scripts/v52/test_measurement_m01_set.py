@@ -27,6 +27,19 @@ def fixtures():
 
 
 class MeasurementM01SetTest(unittest.TestCase):
+    def test_cloud_invocations_must_be_independently_selected_and_local_default_stays_strict(self):
+        values,members=fixtures();invocations={}
+        for key,binding in values.items():
+            invocation=dict(run=str(100+binding['measurementProfile']['repetition']),attempt=2)
+            binding.update(invocation);members[key]['binding'].update(invocation);invocations[key]=invocation
+        with self.assertRaisesRegex(ValueError,'mixed source'):s.validate_results(members,values)
+        result=s.validate_results(members,values,invocations=invocations)
+        self.assertEqual(15,result['histories']);self.assertNotIn('run',result['cohort'])
+        key=next(iter(values));values[key]['attempt']+=1
+        with self.assertRaisesRegex(ValueError,'original admitted invocation'):s.bindings(values,invocations=invocations)
+        for wrong in ({},dict(invocations,extra={'run':'1','attempt':1}),dict(invocations,**{key:{'run':'1','attempt':True}})):
+            with self.assertRaisesRegex(ValueError,'admitted invocation map'):s.bindings(values,invocations=wrong)
+
     def test_full_set_counts_original_offers_and_does_not_claim_complete_measurement(self):
         expected,members=fixtures();result=s.validate_results(members,expected)
         self.assertEqual(15,result['histories']);self.assertEqual(29700,result['completedOfferedCalls'])

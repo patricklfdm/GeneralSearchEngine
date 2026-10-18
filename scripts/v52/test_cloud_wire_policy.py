@@ -22,6 +22,17 @@ class RouteTest(unittest.TestCase):
 
     def route(self,method,endpoint,body=None):return self.scope.route(method,endpoint,body)
 
+    def test_cleanup_digest_path_is_exact_and_readback_rejects_different_bytes(self):
+        value=dict(status='PASS',checks=[],errors=[],leftovers=[]);sha=digest(encoded(value))
+        key=c.cleanup_key(self.req,sha);endpoint=self.scope.objects+p.url.quote(key,safe='')
+        route=self.route('GET',endpoint);self.assertEqual(('cleanup',sha),(route['kind'],route['spec']))
+        raw=encoded(value);self.scope.metadata[key]=dict(size=str(len(raw)),generation='42')
+        media=self.route('GET',p.query(endpoint,alt='media',generation='42',ifGenerationMatch='42'))
+        self.scope.observe(media,200,raw)
+        changed=encoded(dict(value,status='FAIL'));self.scope.metadata[key]['size']=str(len(changed))
+        with self.assertRaisesRegex(ValueError,'content address'):self.scope.observe(media,200,changed)
+        with self.assertRaisesRegex(ValueError,'outside original request'):self.route('GET',endpoint.replace(sha,'not-a-digest'))
+
     def test_pure_plan_preserves_every_original_body_and_operation_without_admission(self):
         server=Server(self.cfg);provider=p.Provider(p.Store(self.cfg,p.OfflineApi(server)),self.req)
         for spec in self.plan.specs.values():

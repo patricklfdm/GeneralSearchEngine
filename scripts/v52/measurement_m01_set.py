@@ -15,9 +15,17 @@ def name(mode,repetition):return mode+'-r'+str(repetition)
 MEMBERS=tuple((mode,repetition) for mode in model.MODES for repetition in (1,2,3))
 
 
-def bindings(values):
+def bindings(values, *, invocations=None):
     model.load();expected={name(mode,repetition) for mode,repetition in MEMBERS}
     need(type(values) is dict and set(values)==expected,'measurement M01 incomplete/extra member set')
+    # Cloud repetitions have independently admitted workflow invocations. Local
+    # cohorts retain their original single-run contract unless the caller supplies
+    # the complete separately verified map; never derive it from member bindings.
+    if invocations is not None:
+        need(type(invocations) is dict and set(invocations)==expected and all(
+            type(v) is dict and set(v)=={'run','attempt'} and type(v['run']) is str and v['run'] and
+            type(v['attempt']) is int and v['attempt']>=1 for v in invocations.values()),
+            'measurement M01 admitted invocation map')
     common=None;controls=evidence.reads.read(model.PLAN.parent/'published-controls.json')
     published={v['artifact']+'-'+v['version']+'.jar':v['sha256'] for v in controls['artifacts']}
     compiled={};artifacts={};origins=set()
@@ -29,7 +37,11 @@ def bindings(values):
         need(re.fullmatch('[0-9a-f]{40}',value['source']) and re.fullmatch('[0-9a-f]{64}',value['checkoutSha256']) and
              type(value['attempt']) is int and value['attempt']>=1 and isinstance(value['run'],str) and value['run'],
              'measurement M01 source/attempt shape')
-        cohort={k:value[k] for k in ('source','checkoutSha256','java','run','attempt')}
+        if invocations is not None:
+            need({k:value[k] for k in ('run','attempt')}==invocations[name(mode,repetition)],
+                 'measurement M01 original admitted invocation changed')
+        cohort={k:value[k] for k in (('source','checkoutSha256','java') if invocations is not None else
+                                     ('source','checkoutSha256','java','run','attempt'))}
         if common is None:common=cohort
         else:need(cohort==common,'measurement M01 mixed source/build/JVM/run/attempt')
         need(isinstance(value['origin'],str) and Path(value['origin']).is_absolute() and value['origin'] not in origins,
@@ -75,9 +87,9 @@ def portable_member(source,expected,output):
     finally:(output/'receipt.json').write_bytes(encoded(receipt)+b'\n')
 
 
-def validate_results(members,expected):
+def validate_results(members,expected, *, invocations=None):
     """Cross-check independently replayed members, not self-attested input files."""
-    admitted=bindings(expected);need(set(members)==set(expected),'measurement M01 replayed member set')
+    admitted=bindings(expected,invocations=invocations);need(set(members)==set(expected),'measurement M01 replayed member set')
     groups=set();histories=set();manifests=set();outcomes={};total=0
     for mode,repetition in MEMBERS:
         key=name(mode,repetition);member=members[key]

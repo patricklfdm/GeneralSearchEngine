@@ -376,18 +376,6 @@
           }
         },
         {
-          "step": "Retain V5.2 measurement consumer evidence including failures",
-          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
-          "id": null,
-          "if": "${{ always() }}",
-          "with": {
-            "name": "v52-measurement-runtime-${{ github.sha }}",
-            "path": "target/v52-measurement-runtime",
-            "if-no-files-found": "warn",
-            "retention-days": "14"
-          }
-        },
-        {
           "step": "Retain V5.2 read hardening evidence including failures",
           "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
           "id": null,
@@ -1045,6 +1033,400 @@
       "evidence": [
         {"step": "Retain V5.1 remote control qualification including failed attempts", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-foundation-${{ github.sha }}", "path": "target/v51-remote-foundation", "if-no-files-found": "warn", "retention-days": "14"}},
         {"step": "Retain V5.1 cloud control qualification including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-control-${{ github.sha }}", "path": "target/v51-cloud-control", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "v52-measurement-consumers",
+      "name": "V5.2 measurement consumers",
+      "needs": [
+        "changes",
+        "v51-verification-build"
+      ],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 20,
+      "inputs": [
+        {
+          "step": "Download this run's exact-source verification inputs",
+          "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+          "id": null,
+          "if": null,
+          "with": {
+            "artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}",
+            "merge-multiple": "true",
+            "path": "target/ci-v51-build"
+          }
+        }
+      ],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain restored build provenance including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-measurement-consumers-build-inputs-${{ github.sha }}",
+            "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        },
+        {
+          "step": "Retain complete qualification evidence including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-measurement-runtime-${{ github.sha }}",
+            "path": "target/v52-measurement-runtime",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "v52-owned-commands",
+      "name": "V5.2 owned command history",
+      "needs": [
+        "changes",
+        "v51-verification-build"
+      ],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 20,
+      "inputs": [
+        {
+          "step": "Download this run's exact-source verification inputs",
+          "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+          "id": null,
+          "if": null,
+          "with": {
+            "artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}",
+            "merge-multiple": "true",
+            "path": "target/ci-v51-build"
+          }
+        }
+      ],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain restored build provenance including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-owned-commands-build-inputs-${{ github.sha }}",
+            "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        },
+        {
+          "step": "Retain complete qualification evidence including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-owned-command-runtime-${{ github.sha }}",
+            "path": "target/v52-measurement-runtime",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "v52-installed-runtime",
+      "name": "V5.2 installed runtime",
+      "needs": [
+        "changes",
+        "v51-verification-build"
+      ],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 20,
+      "inputs": [
+        {
+          "step": "Download this run's exact-source verification inputs",
+          "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+          "id": null,
+          "if": null,
+          "with": {
+            "artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}",
+            "merge-multiple": "true",
+            "path": "target/ci-v51-build"
+          }
+        }
+      ],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain restored build provenance including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-installed-runtime-build-inputs-${{ github.sha }}",
+            "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        },
+        {
+          "step": "Retain complete qualification evidence including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-installed-runtime-${{ github.sha }}",
+            "path": "target/v52-measurement-runtime",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "python-v52-core",
+      "name": "V5.2 Python core",
+      "needs": [
+        "changes"
+      ],
+      "matrix": null,
+      "domain": "v52-python",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain test counts and per-test timing including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "python-v52-core-${{ github.sha }}",
+            "path": "target/python-v52-core",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "python-v52-measurement",
+      "name": "V5.2 Python measurement",
+      "needs": [
+        "changes"
+      ],
+      "matrix": null,
+      "domain": "v52-python",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain test counts and per-test timing including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "python-v52-measurement-${{ github.sha }}",
+            "path": "target/python-v52-measurement",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "python-v52-transport",
+      "name": "V5.2 Python transport",
+      "needs": [
+        "changes"
+      ],
+      "matrix": null,
+      "domain": "v52-python",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain test counts and per-test timing including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "python-v52-transport-${{ github.sha }}",
+            "path": "target/python-v52-transport",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "python-v52-cloud-provenance",
+      "name": "V5.2 Python cloud-provenance",
+      "needs": [
+        "changes"
+      ],
+      "matrix": null,
+      "domain": "v52-python",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain test counts and per-test timing including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "python-v52-cloud-provenance-${{ github.sha }}",
+            "path": "target/python-v52-cloud-provenance",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "python-v52-cloud-control",
+      "name": "V5.2 Python cloud-control",
+      "needs": [
+        "changes"
+      ],
+      "matrix": null,
+      "domain": "v52-python",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain test counts and per-test timing including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "python-v52-cloud-control-${{ github.sha }}",
+            "path": "target/python-v52-cloud-control",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "python-v52-native-admission",
+      "name": "V5.2 Python native-admission",
+      "needs": [
+        "changes"
+      ],
+      "matrix": null,
+      "domain": "v52-python",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain test counts and per-test timing including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "python-v52-native-admission-${{ github.sha }}",
+            "path": "target/python-v52-native-admission",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "python-v52-native-storage",
+      "name": "V5.2 Python native-storage",
+      "needs": [
+        "changes"
+      ],
+      "matrix": null,
+      "domain": "v52-python",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain test counts and per-test timing including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "python-v52-native-storage-${{ github.sha }}",
+            "path": "target/python-v52-native-storage",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
+      "id": "python-v52-native-evidence",
+      "name": "V5.2 Python native-evidence",
+      "needs": [
+        "changes"
+      ],
+      "matrix": null,
+      "domain": "v52-python",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain test counts and per-test timing including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "python-v52-native-evidence-${{ github.sha }}",
+            "path": "target/python-v52-native-evidence",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
       ],
       "fullResult": "success",
       "docsResult": "skipped",

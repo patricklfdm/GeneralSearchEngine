@@ -175,7 +175,8 @@ class WorkflowTopologyTest(unittest.TestCase):
             with self.subTest(job=name):
                 body = self.jobs[name]
                 shared = name.startswith("v51-") and name != "v51-verification-build" or name in (
-                    "v52-foundation", "v52-read-faults", "v52-read-lifecycle", "v52-read-protocol", "v52-read-hardening")
+                    "v52-foundation", "v52-read-faults", "v52-read-lifecycle", "v52-read-protocol", "v52-read-hardening",
+                    "v52-measurement-consumers", "v52-owned-commands", "v52-installed-runtime")
                 needs = "[changes, v51-verification-build]" if shared else "changes"
                 if name == "v51-remote-rich-shards":
                     needs = "[changes, v51-verification-build, v51-remote-rich-inputs]"

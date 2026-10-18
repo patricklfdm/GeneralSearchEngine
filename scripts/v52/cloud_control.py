@@ -54,6 +54,9 @@ def store_domain(store):
 def attempt_key(req): return a.PREFIX+'attempts/'+a.validate_request(req, domain=a.domain(req))+'/'
 
 
+def cleanup_key(req,sha):return attempt_key(req)+'cleanups/'+a.hex_value(sha)+'.json'
+
+
 def reservation(store, lease):
     a.validate_lease(lease); req = lease['request']; sha = a.validate_request(req, domain=store_domain(store))
     observed = store.get(a.LEDGER)
@@ -108,6 +111,9 @@ def clean(store, provider, generation, lease):
     # is retained separately from the immutable original workload completion.
     cleanup_sha = retain(store, key+f'cleanup-{claim}.json', outcome)
     req = lease['request']; sha = a.validate_request(req, domain=store_domain(store))
+    # Completion retains only the digest. A content-addressed immutable copy
+    # permits exact retrieval without listing or guessing lease generations.
+    retain(store, cleanup_key(req,cleanup_sha), outcome)
     old = store.get(key+'completion.json')
     if old:completion=old[1]
     else:

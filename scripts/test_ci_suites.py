@@ -31,9 +31,9 @@ class SuiteContractTest(unittest.TestCase):
 
     def test_actual_inventory_matches_independent_cloud_consumer(self):
         names = self.check()
-        self.assertEqual(41, len(self.registry["suites"]))
-        self.assertEqual(43, len(s.job_blocks(self.workflow)))
-        self.assertEqual(51, len(names))
+        self.assertEqual(52, len(self.registry["suites"]))
+        self.assertEqual(54, len(s.job_blocks(self.workflow)))
+        self.assertEqual(62, len(names))
         self.assertCountEqual(cloud_ci.expected_jobs(self.workflow), names)
         for key in ("v51-remote-rich-shards", "v51-owned-canonical-tapes", "v51-owned-canonical"):
             self.assertIsNotNone(next(v["matrix"] for v in self.registry["suites"] if v["id"] == key))
@@ -47,7 +47,10 @@ class SuiteContractTest(unittest.TestCase):
             "v52-read-faults": ("phase4-public-faults", "phase4-read-identity", "phase4-read-import"),
             "v52-read-lifecycle": ("phase4-public-lifecycle", "phase4-read-resource"),
             "v52-read-protocol": ("phase4-read-protocol", "phase4-read-negatives"),
-            "v52-read-hardening": ("phase5-hardening", "phase6-measurement-runtime"),
+            "v52-read-hardening": ("phase5-hardening",),
+            "v52-measurement-consumers": ("phase6-measurement-runtime",),
+            "v52-owned-commands": ("phase6-measurement-runtime",),
+            "v52-installed-runtime": ("phase6-measurement-runtime",),
         }
         jobs = s.job_blocks(self.workflow)
         actual = {}
@@ -57,8 +60,11 @@ class SuiteContractTest(unittest.TestCase):
                      if "run" in values and "scripts/verify-v52-" in "".join(values["run"])]
             if calls:
                 actual[job] = calls
-        self.assertEqual({job: ["scripts/verify-v52-" + gate + ".sh --skip-build" for gate in gates]
-                          for job, gates in commands.items()}, actual)
+        expected={job:["scripts/verify-v52-"+gate+".sh --skip-build" for gate in gates] for job,gates in commands.items()}
+        expected['v52-foundation'][0]+=' --skip-python'
+        for job,lane in (('v52-measurement-consumers','consumers'),('v52-owned-commands','commands'),('v52-installed-runtime','installed')):
+            expected[job][0]+=' --lane '+lane
+        self.assertEqual(expected,actual)
         rows = {row["id"]: row for row in self.registry["suites"]}
         for job in commands:
             row = rows[job]
@@ -76,7 +82,7 @@ class SuiteContractTest(unittest.TestCase):
                 with self.assertRaises(FileNotFoundError):ci_inventory.check_document(root)
                 document.write_text(ci_inventory.render(root), encoding='utf-8')
                 ci_inventory.check_document(root)
-                document.write_text(document.read_text().replace('51 expanded full jobs', '38 expanded full jobs'), encoding='utf-8')
+                document.write_text(document.read_text().replace('62 expanded full jobs', '38 expanded full jobs'), encoding='utf-8')
                 with self.assertRaisesRegex(ValueError, 'stale'):ci_inventory.check_document(root)
 
     def test_inventory_generation_propagates_invalid_source_contract(self):
