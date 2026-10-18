@@ -2,8 +2,9 @@
 
 Phase 6BJ adds the source-controlled **V5.2 Replication Runner** workflow and
 prepare/run/verify-set operations. This is local implementation, not deployment
-or paid acceptance. Provider configuration and dedicated identity/environment
-setup review remain next. The current branch has not been pushed or dispatched.
+or paid acceptance. [Phase 6BK](PHASE_6_CLOUD_SETUP.md) adds the fixed provider
+configuration and dedicated identity/environment setup review. Deployment and
+protected cloud acceptance remain pending.
 
 ## Preconditions and operation boundaries
 
@@ -159,6 +160,6 @@ groups overlap with earlier local runs. Exhaustive CI discovery contains 1,139
 cases across the unchanged eight partitions; this batch did not rerun every
 case or the long physical/runtime matrix.
 
-The next batch must finish the source-owned configuration/setup review and
-pre-cloud completion audit. Real deployment, full protected CI on final master
-and paid experiment dispatch remain operator actions.
+The [setup review and pre-cloud checklist](PHASE_6_CLOUD_SETUP.md) now supply
+the remaining local configuration and deployment materials. Real deployment,
+full protected CI on final master and paid dispatch remain operator actions.

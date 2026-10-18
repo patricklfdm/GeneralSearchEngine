@@ -592,6 +592,7 @@ documentation.
 ### V5.2 read foundation
 
 The latest pre-cloud stage is the [protected operator workflow](v5x/v5.2/PHASE_6_OPERATOR_ENTRY.md),
+- [Phase 6BK source-owned cloud configuration and setup review](v5x/v5.2/PHASE_6_CLOUD_SETUP.md)
 using [original Runner provenance and the complete-set join](v5x/v5.2/PHASE_6_PROTECTED_RUNNER.md).
 Configuration/setup review and actual protected/cloud acceptance remain pending.
 

@@ -1,0 +1,28 @@
+{
+  "schema": "gse-v52-preflight-config-v1",
+  "provider": {
+    "schema": "gse-v52-provider-config-v1",
+    "project": "gse-benchmark",
+    "bucket": "gse-benchmark-evidence-266952534277",
+    "network": "default",
+    "subnetwork": "default",
+    "region": "us-west4",
+    "port": 19752,
+    "zone": "us-west4-a",
+    "imageProject": "ubuntu-os-cloud",
+    "imageName": "ubuntu-2404-noble-amd64-v20260918",
+    "imageId": "763874002631433611",
+    "machineType": "n2-standard-8",
+    "diskType": "pd-ssd"
+  },
+  "projectNumber": "266952534277",
+  "layout": {
+    "bootDiskGiB": 50,
+    "dataDiskGiB": 100
+  },
+  "policy": {
+    "leaseSeconds": 3600,
+    "operationGraceSeconds": 300,
+    "budgetMicrousd": 200000000
+  }
+}

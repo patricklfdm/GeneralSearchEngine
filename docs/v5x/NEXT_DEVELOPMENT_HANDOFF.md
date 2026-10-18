@@ -2,8 +2,8 @@
 
 Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
 V5.2 Phases 1–5 are locally verified and the complete hosted M01–M04 cohort passed;
-pre-cloud adapter integration and complete remote qualification are next.
-Full protected acceptance remains pending.
+local pre-cloud integration is implemented; exact-master protected CI, deployment
+and the complete paid cloud cohort remain pending.
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
 PR #321 at `9c03356ab343fc5aafcefbbfcc0e33382d19eef0` with the operator's one-time
@@ -21,18 +21,24 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6BJ operator workflow](v5.2/PHASE_6_OPERATOR_ENTRY.md)
-adds the actual manual master-only Runner workflow and prepare/run/verify-set
-operations. Original preparation artifacts are independently authenticated and
-their exact plan hashes require explicit operator confirmation. Public artifact
-inventories exclude private workspaces, credentials and keys. Safe summaries and
-minute progress cover all three operations. Local evidence is under
-`target/v52-operator-entry`; the workflow has not been deployed or dispatched.
+Latest local stage: [Phase 6BK setup review](v5.2/PHASE_6_CLOUD_SETUP.md)
+adds the fixed provider configuration and offline, byte-checked deployment
+materials for dedicated Runner/manual-cleanup identities and environments.
+The inherited project/image values are historical settings, not current provider
+observations. Native V5.2 quota policy uses `pd-ssd`; the $200 cumulative budget
+remains soft and the one-hour lease is renewable. Schedule is optional.
 
-Next finish configuration/identity/environment setup review and the pre-cloud
-completion audit. The fixed provider configuration is still absent; native entry
-rejects until it is reviewed and tracked. No push, paid run or real settings
-change has occurred.
+[Phase 6BJ operator workflow](v5.2/PHASE_6_OPERATOR_ENTRY.md) supplies the actual
+master-only prepare/run/verify-set workflow, original prepared-artifact checks,
+explicit plan-hash approval, safe reports and minute progress. Both manual
+workflows now have a source-owned configuration. No push, deployment, protected
+final-source CI or paid dispatch has occurred.
+
+The next boundary is operator push/merge and full exact-master CI, followed by
+live setup review/activation, recent manual cleanup, explicit priced preparation
+and manual paid dispatch. Preserve the single source/configuration/sequence
+across all five original members and independently verify the complete set.
+Local setup tests and review files live under `target/v52-cloud-setup`.
 
 The preceding [Phase 6BI original Runner provenance](v5.2/PHASE_6_PROTECTED_RUNNER.md)
 seals only successfully closed original native members, authenticates the exact
@@ -42,8 +48,9 @@ member and checks actual runtime invocation against protected provenance before
 qualification. Local synthetic/IO-modeled tests are not native acceptance.
 Validation is retained under `target/v52-protected-runner`.
 
-Phase 6BJ connects its operator workflow and prepared-artifact transfer. Actual
-protected/cloud acceptance and configuration/identity review remain open.
+Phase 6BJ connects its operator workflow and prepared-artifact transfer. Phase
+6BK supplies local configuration/setup review; live deployment and actual
+protected/cloud acceptance remain open.
 
 The preceding [Phase 6BH required CI partitions](v5.2/PHASE_6_CI_PARTITIONS.md)
 moves all 1,087 Python cases into eight required partitions and splits measurement
@@ -58,9 +65,9 @@ replays complete members plus the five-member set in any order. A GET-only
 restorer pins selected original objects by generation and preserves ledger history;
 content-addressed cleanup copies avoid object listing. Local models and six
 unchanged earlier SSH/JVM archives (including M01/M02/M03) are retained under `target/v52-retained-replay`.
-Standalone byte replays remain NOT_QUALIFIED; Phase 6BI supplies the internal
-protected-original join, with operator integration still pending. Configuration/identity
-review remain open; no paid Runner CLI or cloud dispatch is enabled.
+Standalone byte replays remain NOT_QUALIFIED. Phase 6BI supplies the internal
+protected-original join; 6BJ/6BK subsequently supply operator/configuration entry.
+These historical byte replays do not establish deployment or cloud acceptance.
 
 The preceding [Phase 6BF original evidence retention](v5.2/PHASE_6_NATIVE_RETENTION.md)
 connects the live whole-member capture to bounded immutable manifest/parts,
