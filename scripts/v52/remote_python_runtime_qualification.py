@@ -17,12 +17,17 @@ from .evidence import need
 
 
 class Installed:
-    def __init__(self,*args,targets,installations,descriptor,payload):
+    def __init__(self,*args,targets,installations,descriptor,payload,java=None):
         self.installations=installations;self.descriptor=descriptor;self.payload=payload
+        self.java=java
         super().__init__(*args,targets=targets)
     def python_context(self,node):
         value=self.installations[node]
-        return dict(root=value['root'],descriptorSha256=value['descriptorSha256'])
+        result=dict(root=value['root'],descriptorSha256=value['descriptorSha256'])
+        if self.java is not None:
+            from . import remote_java_evidence as j
+            result['java']=j.selection(self.java['installations'][node])
+        return result
     def delivery_client(self,node,own):
         return delivery.Delivery(self.targets[node],own.parent,node,self.meta,python_context=self.python_context(node))
     def prepare(self):
@@ -31,6 +36,16 @@ class Installed:
             descriptorSha256=receiver.digest(receiver.encoded(self.descriptor)),nodes=self.installations)
         h.runtime.save(self.collected/evidence.FILE,self.descriptor)
         (self.collected/evidence.PAYLOAD).write_bytes(self.payload)
+        if self.java is not None:
+            from . import remote_java_evidence as j
+            descriptor=self.java['descriptor']
+            self.binding['remoteJava']=dict(schema=j.SCHEMA,descriptorSha256=receiver.digest(receiver.encoded(descriptor)),
+                                           nodes=self.java['installations'])
+            j.receipts(descriptor,self.binding['remoteJava'],self.binding)
+            j.r.verify_archive(self.java['archive'],descriptor)
+            h.runtime.save(self.collected/j.FILE,descriptor)
+            shutil.copyfile(self.java['archive'],self.collected/j.ARCHIVE)
+            j.r.verify_archive(self.collected/j.ARCHIVE,descriptor)
         h.runtime.save(self.collected/'binding.json',self.binding)
 
 
@@ -75,7 +90,7 @@ def negatives(owner,*,locations=('evidence','relocated')):
     h.runtime.save(owner.root/'python-negatives/results.json',results);return results
 
 
-def run(output,name='candidate-minimum-untimed-smoke'):
+def run(output,name='candidate-minimum-untimed-smoke',*,java_runtime=False):
     factory_type=receiver_type(name);spec=h.specification(name)
     root=Path(output).resolve();root.mkdir(parents=True,exist_ok=False)
     source=h.source();began=time.monotonic();done=threading.Event();stage='python-package';owners=[]
@@ -92,6 +107,11 @@ def run(output,name='candidate-minimum-untimed-smoke'):
         descriptor=receiver.decode((root/'python-package/descriptor.json').read_bytes())
         raw=(root/'python-package/payload.json').read_bytes()
         need(built['source']==source,'Python controller source changed')
+        java=None;java_installers=[]
+        if java_runtime:
+            from . import remote_java_package as jp,remote_java_ssh as js,remote_java_qualification as jq
+            progress('java-package')
+            java=dict(descriptor=jp.create(h.ROOT,source,root/'java-package'),archive=str(root/'java-package/runtime.tar.gz'),installations={})
         (root/'private-python').mkdir(mode=0o700)
         with tempfile.TemporaryDirectory(prefix='v52-python-keys-',dir=h.ROOT/'target') as private,Server(private,root) as server:
             targets={};installations={};installers=[]
@@ -104,8 +124,18 @@ def run(output,name='candidate-minimum-untimed-smoke'):
                 progress('python-install-'+node)
                 try:installations[node]=endpoint.install(parent,raw,discard_reply=node=='node-1')
                 finally:endpoint.close()
+                if java is not None:
+                    progress('java-install-'+node)
+                    endpoint=js.Installer(target,java['descriptor']);java_installers.append(endpoint)
+                    try:java['installations'][node]=endpoint.install(parent,java['archive'],discard_reply=node=='node-1')
+                    finally:endpoint.close()
+            if java is not None:
+                from .remote_java_evidence import selection
+                context=dict(root=installations['node-1']['root'],descriptorSha256=installations['node-1']['descriptorSha256'],
+                             java=selection(java['installations']['node-1']))
+                jq.probes(context,root/'private-python/node-1',root)
             def factory(*args):
-                owner=factory_type(*args,targets=targets,installations=installations,descriptor=descriptor,payload=raw);owners.append(owner);return owner
+                owner=factory_type(*args,targets=targets,installations=installations,descriptor=descriptor,payload=raw,java=java);owners.append(owner);return owner
             result=h.run(root/'history',name,source,progress=progress,receiver_factory=factory)
             own=owners[0];workers=own.clients
             need([i.calls for i in installers]==[['install','verify'],['install'],['install']] and all(i.closed for i in installers),
@@ -128,6 +158,11 @@ def run(output,name='candidate-minimum-untimed-smoke'):
                 receiver.installed(Path(value['root']),descriptor)
                 need(not (Path(value['root'])/'files/.git').exists(),'Python receiver contains Git checkout')
             locations=('evidence','relocated' if spec['family']=='UNTIMED' else 'portable/relocated')
+            if java is not None:
+                need([i.calls for i in java_installers]==[['install','verify'],['install'],['install']] and all(i.closed for i in java_installers),
+                     'Java installation resubmitted/transport leaked')
+                receipt.update(javaInstallations=java['installations'],javaDescriptorSha256=receiver.digest(receiver.encoded(java['descriptor'])),
+                               javaNegatives=jq.negatives(own,locations=locations),ambientJavaUsed=False)
             if is_restart:
                 need(own.crashed.crash_submissions==1 and own.crashed.terminal_lost and own.crashed.terminal_query is not None,'Python retained restart original terminal')
                 receipt['faultNegatives']=restart.negatives(own)

@@ -134,12 +134,18 @@ class BootstrapTest(Fixture):
 
     def test_failed_bootstrap_retains_failure_and_original_destination(self):
         self.upload();p.c.write_once(self.store/'launch.json',dict(descriptorSha256=p.digest(p.encoded(self.value))))
-        with patch.object(p.h,'source',return_value=self.source),patch.object(p.h.q,'command',side_effect=ValueError('bootstrap failure')) as boot:
+        closed={'PATH':'/usr/bin:/bin','LANG':'C','LC_ALL':'C'}
+        result=type('Result',(),dict(returncode=1,stdout='',stderr='bootstrap failure'))()
+        with patch.object(p.h,'source',return_value=self.source),patch.object(g.subprocess,'run',return_value=result) as boot,\
+             patch.object(g.python_context,'java',return_value='/installed/files/bin/java'),\
+             patch.object(g.python_context,'environment',return_value=closed):
             with self.assertRaisesRegex(ValueError,'bootstrap failure'):g.worker(self.store)
             with self.assertRaises(FileExistsError):g.worker(self.store)
             boot.assert_called_once()
+            self.assertEqual('/installed/files/bin/java',boot.call_args.args[0][0]);self.assertEqual(closed,boot.call_args.kwargs['env'])
         record=p.c.read(self.store/'terminal.json');self.assertEqual('FAILED',record['state'])
         self.assertEqual('INSTALL_FAILED',record['error']);self.assertTrue((self.parent/'node-1/artifacts').is_dir())
+        self.assertEqual('bootstrap failure',(self.store/'bootstrap.stderr').read_text())
 
     def test_unknown_actions_and_raw_argv_cannot_execute(self):
         for action,value in (('shell',{}),('install',{'argv':['sh']}),('query',{'pid':12})):

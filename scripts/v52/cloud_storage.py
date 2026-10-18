@@ -145,6 +145,7 @@ class Storage:
         self.volume_source=trusted_source('volume');self.paths_source=trusted_source('paths')
         self.records={};self.endpoints={};self.installations={};self.claimed=set();self.ready=False
         self.descriptor=self.payload=None
+        self.java=None;self.java_started=False
 
     def checkpoint(self,guests):
         need(type(guests) is iap.Guests and guests.session is self.session and self.session.guests is guests and
@@ -190,8 +191,39 @@ class Storage:
         self.ready=True
         return self
 
+    def install_java(self,guests,descriptor,archive):
+        from . import remote_java_receiver as j,remote_java_ssh as js
+        self.checkpoint(guests);need(self.ready and not self.java_started,'V5.2 Java installation not ready/already consumed')
+        descriptor=deepcopy(j.descriptor(descriptor));need(descriptor['source']==self.source,'V5.2 Java original input source changed')
+        j.verify_archive(archive,descriptor);self.java_started=True
+        retained=self.output/'java-runtime.tar.gz'
+        # Retain the exact originally built image before any guest submission.
+        with Path(archive).open('rb') as source,retained.open('xb') as out:
+            while raw:=source.read(j.PIECE):out.write(raw)
+        j.verify_archive(retained,descriptor);runner.artifacts.save(self.output/'java-image.json',descriptor)
+        installations={}
+        try:
+            for node in iap.topology.NODES:
+                endpoint=VolumeEndpoint(self,guests,node);endpoint.check(self.records[node]['startup'])
+                installer=js.Installer(guests.targets[node],descriptor)
+                try:receipt=installer.install(volume.MOUNT,retained)
+                finally:installer.close()
+                self.checkpoint(guests);host.validate_pin(receipt['host'])
+                need(receipt['host']==self.installations[node]['host'],'V5.2 Java original installation host/directory changed')
+                installations[node]=receipt;runner.artifacts.save(self.output/(node+'-java.json'),receipt)
+                endpoint.check(self.records[node]['startup'])
+            self.checkpoint(guests)
+            runner.artifacts.save(self.output/'java-receipt.json',dict(status='JAVA_READY_NOT_QUALIFIED',source=self.source,
+                descriptorSha256=digest(encoded(descriptor)),nodes=installations,engineWorkloadExecuted=False,fullRemoteQualification=False))
+            self.java=dict(descriptor=descriptor,archive=str(retained),installations=installations)
+        except BaseException as error:
+            runner.diagnostic(self.output/'java-failure.json',dict(status='FAIL',errorType=type(error).__name__,installedNodes=list(installations)))
+            raise
+        return self
+
     def placement(self,guests,name):
         self.checkpoint(guests);need(self.ready,'V5.2 storage not ready')
+        need(not self.java_started or self.java is not None,'V5.2 original Java installation incomplete')
         need(name in self.session.owner.request['selection']['member']['histories'] and name not in self.claimed,
              'V5.2 original whole history already claimed/undeclared');self.claimed.add(name)
         history=digest(encoded([self.claim['requestSha256'],name]));roots={}
@@ -203,6 +235,12 @@ class Storage:
             try:current=readonly(lambda:installer.exchange('verify',volume.MOUNT,None),time.monotonic()+90)
             finally:installer.close()
             need(current==self.installations[node],'V5.2 history installed capsule changed')
+            if self.java is not None:
+                from . import remote_java_ssh as js
+                installer=js.Installer(guests.targets[node],self.java['descriptor'])
+                try:current_java=readonly(lambda:installer.exchange('verify',volume.MOUNT),time.monotonic()+90)
+                finally:installer.close()
+                need(current_java==self.java['installations'][node],'V5.2 history installed Java changed')
             data=dict(request=endpoint.value,volume=startup['volume'],history=history);end=time.monotonic()+60
             answer=None
             try:answer=self.exchange(guests,node,'paths','prepare',data,end)
@@ -220,7 +258,7 @@ class Storage:
             runner.artifacts.save(self.output/(history+'-'+node+'.json'),dict(parent=answer,installation=current))
         binding=guests.binding(str(uuid.UUID(hex=history[:32])))
         binding.update(deepcopy(self.source));self.checkpoint(guests)
-        return bound.Placement(binding,guests.targets,roots,self.installations,self.descriptor,self.payload)
+        return bound.Placement(binding,guests.targets,roots,self.installations,self.descriptor,self.payload,java=self.java)
 
 
 def prepare_native(guests,output):

@@ -24,9 +24,12 @@ class InstalledHistoryTest(unittest.TestCase):
     def test_same_explicit_installation_is_propagated_to_every_receiver_family(self):
         for cls in (runtime.Receivers,runtime.FormalReceivers,runtime.RestartReceivers,runtime.PartitionReceivers):
             own=object.__new__(cls);own.installations={'node-1':dict(root='/private/python',descriptorSha256='a'*64)}
+            own.java=None
             self.assertEqual(own.installations['node-1'],own.python_context('node-1'))
             changed=own.python_context('node-1');changed['descriptorSha256']='b'*64
             self.assertEqual('a'*64,own.python_context('node-1')['descriptorSha256'])
+            own.java={'installations':{'node-1':dict(root='/private/java',descriptorSha256='c'*64)}}
+            self.assertEqual(own.java['installations']['node-1'],own.python_context('node-1')['java'])
         self.assertIsNone(legacy.Receivers.python_context(None,'node-1'))
 
     def test_restart_still_uses_its_original_crash_owner_and_formal_keeps_nonretrying_client(self):

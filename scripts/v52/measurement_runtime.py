@@ -33,12 +33,12 @@ STOP_TIMEOUT_SECONDS=55
 class Worker:
     ENTRY=q.PACKAGE+'replication.V52MeasurementWorker'
 
-    def __init__(self,root,node,cp,mode,history,generation=1):
+    def __init__(self,root,node,cp,mode,history,generation=1,*,java='java',env=None):
         self.root,self.node,self.history,self.generation=root,node,history,generation
         self.lock=threading.Lock();self.pending={};self.serial=0;self.startup=queue.Queue(1);self.error=None
         self.log=(root/(node+'-stderr.log')).open('ab');self.output=(root/(node+'-stdout.jsonl')).open('ab')
-        self.proc=subprocess.Popen(['java','-cp',cp,self.ENTRY,str(root),node[-1],mode,str(generation)],
-                                   stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=self.log)
+        self.proc=subprocess.Popen([java,'-cp',cp,self.ENTRY,str(root),node[-1],mode,str(generation)],
+                                   stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=self.log,env=env)
         self.reader=threading.Thread(target=self.receive,daemon=True);self.reader.start()
         try:
             self.identity=self.startup.get(timeout=30)

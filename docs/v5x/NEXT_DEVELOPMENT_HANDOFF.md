@@ -21,22 +21,25 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6BC native storage](v5.2/PHASE_6_NATIVE_STORAGE.md)
-connects the original native resource/guest Session to one-shot data-disk setup,
-independent retained/current mount replay, immutable Python installation and
-declared whole-history Placement. It preserves the original input-proof Java
-binding. Lost responses can only query the original claim; failed, killed or
-uncertain initialization cannot reformat. Final receipt failure cannot grant
-storage readiness, and original resource cleanup still runs.
+Latest local stage: [Phase 6BD installed Java](v5.2/PHASE_6_NATIVE_JAVA.md)
+connects original-version/hash-pinned Java images to native storage and the
+existing complete-history Placement. The standalone image installer consumes its
+destination once, streams bounded bytes, and only queries original results after
+response loss. Installed helpers and child JVMs use the explicit image with a
+closed environment; retained replay correlates its bytes and actual JVM process.
+Native partial installation cannot fall back to ambient Java or grant workload
+readiness. Storage/Java readiness receipts remain NOT_QUALIFIED.
 
-Native factory external I/O and block devices are modeled. Root file/account/
-process checks additionally run in a private chroot/mount namespace with read-only
-system binds. No host disk or real cloud resource is modified. Storage receipts
-remain NOT_QUALIFIED and do not establish engine execution or workload PASS.
-Original local failures, source hashes and completed results are retained at
-`target/v52-native-volumes/validation-summary.json`.
-Final targeted validation passes 123 tests (29 new), eight isolated-root cases
-and 69 CI/provenance regressions, with unchanged executed-source hashes.
+Actual loopback SSH qualification passed in 277.161 seconds with 11 reads, three
+updates, three stopped JVMs, original/portable replay and 16 Java-specific negative
+rejections. The two native factory tests passed in 323.922 seconds with provider/
+SSH I/O modeled. Original logs, receipts and source hashes are retained in
+`target/v52-native-java/validation-summary.json`. Final targeted regressions pass
+166 source/transport/process cases, the 13 unchanged storage cases and 69 CI
+contracts; original failed mixed-run logs remain separate. No native cloud history
+or paid resource was executed.
+The prior [storage stage](v5.2/PHASE_6_NATIVE_STORAGE.md) retains its own root/device
+model qualification; no host disk was modified.
 
 Next connect original input staging, owned complete members, independent replay
 and immutable qualified retention, then the complete five-member set and protected

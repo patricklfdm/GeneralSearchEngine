@@ -99,6 +99,18 @@ class PythonRuntimeTest(unittest.TestCase):
         self.assertNotEqual(0,result.returncode);self.assertIn('Python capsule receiver binding',result.stderr)
         with self.assertRaisesRegex(ValueError,'requires explicit launch'):context.require_binding({'remotePython':{}},'node-1')
 
+    def test_explicit_java_cannot_fall_back_to_ambient_java_or_unbound_context(self):
+        value=dict(self.value,java=dict(root='/does-not-exist/java',descriptorSha256='f'*64))
+        result=self.probe(value);self.assertNotEqual(0,result.returncode);self.assertEqual(b'',result.stdout)
+        with patch.object(sys,context.JAVA_ATTRIBUTE,('/missing/java','f'*64),create=True):
+            with self.assertRaisesRegex(ValueError,'requires installed Python'):context.java()
+        with self.assertRaisesRegex(ValueError,'requires explicit launch'):context.require_binding({'remoteJava':{}},'node-1')
+
+    def test_legacy_java_keeps_original_toolchain_path_but_installed_java_uses_closed_environment(self):
+        self.assertIsNone(context.environment());self.assertEqual('java',context.java())
+        with patch.object(sys,context.JAVA_ATTRIBUTE,('/unit/java','f'*64),create=True):
+            self.assertEqual({'PATH':'/usr/bin:/bin','LANG':'C','LC_ALL':'C'},context.environment())
+
 
 class CapsuleStreamTest(unittest.TestCase):
     def channel(self,reply=b'{}\n',tail=b''):

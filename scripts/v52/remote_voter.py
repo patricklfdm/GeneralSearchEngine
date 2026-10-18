@@ -217,9 +217,11 @@ def serve(control):
     python_context.record(control/'python-runtime.json')
     worker=None;engine=None
     try:
-        worker=h.Worker(root,value['node'],h.Receivers.paths(root,value['binding']),value['binding']['mode'],[],scope.generation(value))
+        worker=h.Worker(root,value['node'],h.Receivers.paths(root,value['binding']),value['binding']['mode'],[],scope.generation(value),
+                        java=python_context.java(),env=python_context.environment())
         identity=dict(service=process(os.getpid()),jvm=process(worker.proc.pid),consumer=worker.identity,
                       host=host.observe(control),session=value['session'])
+        python_context.record_java_process(control,identity['jvm'])
         c.write_once(control/'identity.json',identity)
         engine=Engine(worker,control,sha,identity,crash_allowed=scope.domains.matches(value['binding'],'remoteRestart',scope.RESTART_EXECUTION) and scope.generation(value)==1)
         with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as listener:

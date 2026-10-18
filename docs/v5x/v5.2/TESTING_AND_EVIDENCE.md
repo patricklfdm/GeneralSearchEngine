@@ -484,3 +484,21 @@ closed exchange records and original failed/successful logs remain in
 `target/v52-native-volumes/`; these are local implementation tests, not real cloud
 mount or workload acceptance. Whole-member execution/retention and protected
 hosted qualification remain pending.
+
+### Installed Java runtime and native Placement
+
+[Phase 6BD](PHASE_6_NATIVE_JAVA.md) adds `test_remote_java`,
+`test_remote_java_evidence` and `test_cloud_java` to the measurement gate, plus
+`remote_java_qualification`. The latter builds a bounded jlink image, uses actual
+pinned loopback SSH, recovers one lost installation reply without resubmission,
+and runs one unchanged complete untimed history. Original/relocated replay
+requires retained Java bytes and actual JVM binary/process correlation. It rejects
+16 Java mutations after first validating each original evidence root.
+
+The complete local history passed in 277.161 seconds (11 reads, three updates,
+three stopped JVMs); the native factory's success/failure tests passed in 323.922
+seconds. Original evidence and exact source/toolchain remain under
+`target/v52-native-java/`; these are not independent cloud hosts or full remote
+qualification. Existing source-only/local launch behavior remains supported.
+Whole-member execution, required CI partitioning and hosted acceptance are still
+pending; the entire measurement gate has not been rerun for this change.

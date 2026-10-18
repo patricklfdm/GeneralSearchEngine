@@ -15,11 +15,12 @@ from .evidence import need,encoded,digest
 
 
 class Placement:
-    def __init__(self,binding,targets,roots,installations,descriptor,payload):
+    def __init__(self,binding,targets,roots,installations,descriptor,payload,*,java=None):
         # Copy every mutable input before using it; the owner cannot switch a
         # target, source or path after a capsule/stream has been selected.
         self.binding=deepcopy(binding);self.targets=deepcopy(targets);self.roots=deepcopy(roots)
         self.installations=deepcopy(installations);self.descriptor=deepcopy(descriptor);self.payload=payload
+        self.java=deepcopy(java)
         self.claimed=False;self.lock=threading.Lock()
         value=domains.validate(self.binding);need(value is not None,'bound placement requires independent hosts')
         domains.routes(self.binding);python.descriptor(self.descriptor);python.payload(payload,self.descriptor)
@@ -39,6 +40,15 @@ class Placement:
             need(own.name=='python-'+self.descriptor['sha256'] and own!=path and own not in path.parents and
                  path not in own.parents,'bound placement installation overlaps receiver')
             domains.observed(self.binding,node,receipt['host'])
+        if self.java is not None:
+            from . import remote_java_evidence as j
+            need(type(self.java) is dict and set(self.java)=={'descriptor','archive','installations'},'bound placement Java inputs')
+            desc=self.java['descriptor'];scope=dict(schema=j.SCHEMA,descriptorSha256=digest(encoded(desc)),nodes=self.java['installations'])
+            j.receipts(desc,scope,self.binding);j.r.verify_archive(self.java['archive'],desc)
+            for node,receipt in self.java['installations'].items():
+                own=host.path(receipt['root']);path=host.path(self.roots[node]);python_root=host.path(self.installations[node]['root'])
+                need(own not in (path,python_root) and own not in path.parents and path not in own.parents and
+                     own not in python_root.parents and python_root not in own.parents,'bound placement Java overlaps receiver')
 
     def factory(self,name):
         base=installed.receiver_type(name);placement=self
@@ -50,7 +60,8 @@ class Placement:
                 with placement.lock:
                     need(not placement.claimed,'bound placement already consumed');placement.claimed=True
                 super().__init__(root,selected,expected,targets=deepcopy(placement.targets),
-                    installations=deepcopy(placement.installations),descriptor=deepcopy(placement.descriptor),payload=placement.payload)
+                    installations=deepcopy(placement.installations),descriptor=deepcopy(placement.descriptor),payload=placement.payload,
+                    java=deepcopy(placement.java))
             def topology_plan(self):
                 for node in domains.topology.NODES:
                     need(ssh.public_target(self.targets[node])==placement.binding['remoteVoterTransport']['nodes'][node],

@@ -120,7 +120,10 @@ def worker(store):
             out.flush();os.fsync(out.fileno())
         p.verify_archive(archive,meta);destination=Path(value['parent'])/value['node']
         h.bundle.unpack(archive,destination);destination.chmod(0o700);p.installed(destination,meta)
-        answer=strict(h.q.command(['java','-cp',h.Receivers.paths(destination,meta),h.PACKAGE+'V52RemoteBootstrap',destination,value['node']],store,'bootstrap').stdout)
+        command=[python_context.java(),'-cp',h.Receivers.paths(destination,meta),h.PACKAGE+'V52RemoteBootstrap',str(destination),value['node']]
+        observed=subprocess.run(command,cwd=h.ROOT,capture_output=True,text=True,timeout=120,env=python_context.environment())
+        (store/'bootstrap.stdout').write_text(observed.stdout);(store/'bootstrap.stderr').write_text(observed.stderr)
+        need(observed.returncode==0,'bootstrap: '+observed.stderr[-6000:]);answer=strict(observed.stdout)
         p.bootstrap_answer(answer,value);p.installed(destination,meta);p.check(value)
         receipt=dict(schema='gse-v52-receiver-bootstrap-v1',execution=p.execution(value['package']),descriptor=value,descriptorSha256=sha,
                      process=identity,receiverHost=host.observe(destination),answer=answer)
