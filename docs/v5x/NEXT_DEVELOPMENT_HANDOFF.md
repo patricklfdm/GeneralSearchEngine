@@ -21,7 +21,20 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Current batch: V5.2 Phase 6 remote integration
 
-Latest local stage: [Phase 6BI original Runner provenance](v5.2/PHASE_6_PROTECTED_RUNNER.md)
+Latest local stage: [Phase 6BJ operator workflow](v5.2/PHASE_6_OPERATOR_ENTRY.md)
+adds the actual manual master-only Runner workflow and prepare/run/verify-set
+operations. Original preparation artifacts are independently authenticated and
+their exact plan hashes require explicit operator confirmation. Public artifact
+inventories exclude private workspaces, credentials and keys. Safe summaries and
+minute progress cover all three operations. Local evidence is under
+`target/v52-operator-entry`; the workflow has not been deployed or dispatched.
+
+Next finish configuration/identity/environment setup review and the pre-cloud
+completion audit. The fixed provider configuration is still absent; native entry
+rejects until it is reviewed and tracked. No push, paid run or real settings
+change has occurred.
+
+The preceding [Phase 6BI original Runner provenance](v5.2/PHASE_6_PROTECTED_RUNNER.md)
 seals only successfully closed original native members, authenticates the exact
 original GitHub run/attempt and joins its compact seal to separately restored
 immutable provider evidence. The native complete-set join replays every whole
@@ -29,10 +42,8 @@ member and checks actual runtime invocation against protected provenance before
 qualification. Local synthetic/IO-modeled tests are not native acceptance.
 Validation is retained under `target/v52-protected-runner`.
 
-Next connect prepare/run/verify workflow operations, authenticated prepared
-artifacts and configuration/identity review material. The actual Runner workflow
-and provider configuration are still absent, so its internal provenance/acceptance
-factory fails closed. No cloud dispatch or push has occurred.
+Phase 6BJ connects its operator workflow and prepared-artifact transfer. Actual
+protected/cloud acceptance and configuration/identity review remain open.
 
 The preceding [Phase 6BH required CI partitions](v5.2/PHASE_6_CI_PARTITIONS.md)
 moves all 1,087 Python cases into eight required partitions and splits measurement

@@ -78,9 +78,9 @@ def job(rows, run, now):
     return row, times
 
 
-def metadata(record, run, chosen, times, now):
-    a.integer(record['id'], 1); a.integer(record['size_in_bytes'], 1, MAX_ZIP)
-    need(record['name'] == name(chosen) and record['expired'] is False and ci.stamp(record['expires_at']) > now,
+def metadata(record, run, chosen, times, now, *, artifact_name=None, maximum=MAX_ZIP):
+    a.integer(record['id'], 1); a.integer(record['size_in_bytes'], 1, maximum)
+    need(record['name'] == (name(chosen) if artifact_name is None else artifact_name) and record['expired'] is False and ci.stamp(record['expires_at']) > now,
          'V5.2 Runner original artifact name/expiry')
     origin = record['workflow_run']
     for key in ('id', 'repository_id', 'head_repository_id'): a.integer(origin[key], 1)
@@ -93,12 +93,12 @@ def metadata(record, run, chosen, times, now):
     return sha[7:]
 
 
-def select(rows, run, chosen, times, now):
+def select(rows, run, chosen, times, now, *, artifact_name=None, maximum=MAX_ZIP):
     need(type(rows) is list and len(rows) <= ci.MAX_ROWS and len({a.integer(r['id'], 1) for r in rows}) == len(rows),
          'V5.2 Runner artifact inventory')
-    matches = [row for row in rows if row['name'] == name(chosen)]
+    matches = [row for row in rows if row['name'] == (name(chosen) if artifact_name is None else artifact_name)]
     need(len(matches) == 1, 'V5.2 Runner original artifact missing/ambiguous')
-    metadata(matches[0], run, chosen, times, now); return matches[0]
+    metadata(matches[0], run, chosen, times, now, artifact_name=artifact_name, maximum=maximum); return matches[0]
 
 
 def contents(path, record, sha):

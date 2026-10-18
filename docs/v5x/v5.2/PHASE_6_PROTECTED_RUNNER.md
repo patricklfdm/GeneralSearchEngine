@@ -3,7 +3,9 @@
 Phase 6BI connects original native closure, protected GitHub provenance and
 independent provider restoration to the existing whole-member/set replay.
 This is locally qualified internal implementation. No V5.2 cloud experiment or
-protected acceptance has occurred, and the operator workflow is not installed yet.
+protected acceptance has occurred. The subsequent
+[Phase 6BJ operator entry](PHASE_6_OPERATOR_ENTRY.md) supplies the source-owned
+workflow; deployment and configuration review remain pending.
 
 ## Original member closure
 
@@ -56,9 +58,10 @@ Original completed experiments have no artificial recency limit. Current
 collection observations are limited to 900 seconds and artifact availability is
 still required. Current admission/cleanup freshness rules remain separate.
 
-The native factory reads the actual protected workflow from disk. It currently
-fails closed because that workflow has not been added; the test workflow is a
-synthetic fixture, not a deployed entry or a future workflow represented as fact.
+The native factory reads the actual protected workflow from disk. At the original
+Phase 6BI snapshot it failed closed because that file was absent. Phase 6BJ adds
+the actual workflow. Synthetic provenance fixtures remain distinct from its
+source contract and from a future deployed execution.
 
 ## Complete-set acceptance boundary
 
@@ -102,10 +105,10 @@ and new failed-local-close case. These groups overlap. The exhaustive CI invento
 now contains 1,115 cases; this batch did not rerun that entire inventory. Initial
 fixture errors remain recorded separately and did not weaken production checks.
 
-Next connect source-controlled prepare/run/verify workflow actions, authenticated
-prepared-artifact transfer, operator-readable summaries and setup/configuration
-review material. The new workflow must use this exact provenance contract and
-publish only the compact seal for successful member runs. Preparation and set
-verification artifacts must have separate names/inventories. Full protected CI,
-provider/identity deployment and fresh admission remain required after the
-operator pushes and merges; all paid dispatches remain operator-owned.
+Phase 6BJ connects source-controlled prepare/run/verify actions, authenticated
+prepared-artifact transfer and operator summaries with this provenance contract.
+Successful member runs publish only the compact seal; preparation and set
+verification artifacts have separate names/inventories. Setup/configuration
+review, full protected CI, provider/identity deployment and fresh admission
+remain required after the operator pushes and merges; all paid dispatches
+remain operator-owned.

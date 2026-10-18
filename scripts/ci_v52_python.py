@@ -11,12 +11,13 @@ ROOT=Path(__file__).resolve().parents[1]
 LANES=('core','measurement','transport','cloud-provenance','cloud-control',
        'native-admission','native-storage','native-evidence')
 NATIVE={
-    'native-admission':('cloud_acquisition_context','cloud_native_cleanup','cloud_native_runner'),
+    'native-admission':('cloud_acquisition_context','cloud_native_cleanup','cloud_native_runner','cloud_prepare'),
     'native-storage':('cloud_iap','cloud_storage','cloud_java'),
     'native-evidence':('cloud_member_factory','cloud_retention','cloud_member_evidence'),
 }
 PROVENANCE=('cloud_inputs','cloud_artifacts','cloud_ci','cloud_prepared','cloud_credentials',
-            'cloud_preflight','cloud_recent_cleanup','cloud_cleanup_bundle','cloud_member_seal','cloud_runner_provenance')
+            'cloud_preflight','cloud_recent_cleanup','cloud_cleanup_bundle','cloud_member_seal','cloud_runner_provenance',
+            'cloud_prepared_artifact','cloud_runner_workflow')
 EXTRA='scripts.v51.test_runtime_process_generations'
 
 

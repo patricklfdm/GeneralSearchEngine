@@ -591,9 +591,9 @@ documentation.
 
 ### V5.2 read foundation
 
-The latest pre-cloud stage is [original Runner provenance and the complete-set
-join](v5x/v5.2/PHASE_6_PROTECTED_RUNNER.md). Operator workflow/configuration
-integration and actual protected/cloud acceptance remain pending.
+The latest pre-cloud stage is the [protected operator workflow](v5x/v5.2/PHASE_6_OPERATOR_ENTRY.md),
+using [original Runner provenance and the complete-set join](v5x/v5.2/PHASE_6_PROTECTED_RUNNER.md).
+Configuration/setup review and actual protected/cloud acceptance remain pending.
 
 The [Phase 1 implementation](v5x/v5.2/PHASE_1_FOUNDATION.md) records the initial
 disabled API, token fixtures, independent model, compatibility and CI integration.
