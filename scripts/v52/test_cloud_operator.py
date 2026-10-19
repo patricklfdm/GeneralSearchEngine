@@ -89,7 +89,9 @@ class OperatorTest(unittest.TestCase):
         @contextmanager
         def changed(): yield self.root/'private-key',public_key(9)
         self.key=changed
-        with self.assertRaisesRegex(ValueError,'SSH key changed'):self.execute('run',self.request())
+        with self.assertRaises(o.access.PrivateKeyError) as error:self.execute('run',self.request())
+        self.assertEqual('V52_SSH_KEY_MISMATCH',error.exception.code)
+        self.assertEqual(error.exception.code,o.artifacts.read(self.output/'diagnostics/failure.json')['causeCode'])
         self.run.assert_not_called();self.assertFalse((self.output/'result').exists())
     def test_key_failure_has_safe_distinct_phase_before_prepare_or_paid_entry(self):
         @contextmanager
@@ -103,7 +105,28 @@ class OperatorTest(unittest.TestCase):
             report=o.artifacts.read(self.output/'diagnostics/failure.json')
             self.assertEqual(operation+'-key',report['phase'])
             self.assertEqual('V52_OPERATOR_'+operation.upper()+'_KEY_REJECTED',report['code'])
+            self.assertNotIn('causeCode',report)
             self.assertNotIn('never-public',str(report));self.assertFalse((self.output/'result').exists())
+        self.prepare.assert_not_called();self.run.assert_not_called()
+    def test_key_failure_reports_only_closed_reason_code_in_both_operations(self):
+        for reason in o.access.KEY_FAILURES:
+            @contextmanager
+            def failed_key():
+                raise o.access.PrivateKeyError(reason)
+                yield
+            self.key=failed_key
+            for operation,request in (('prepare',dict(member='experiment',sequence='c'*32,estimate=self.plan['estimate'])),
+                                      ('run',self.request())):
+                with self.subTest(reason=reason,operation=operation),self.assertRaises(o.access.PrivateKeyError):
+                    self.execute(operation,request)
+                report=o.artifacts.read(self.output/'diagnostics/failure.json')
+                self.assertEqual('V52_SSH_'+reason,report['causeCode'])
+                self.assertEqual(operation+'-key',report['phase'])
+                self.assertFalse((self.output/'result').exists())
+                text=io.StringIO()
+                with redirect_stdout(text):o.summary(self.output)
+                self.assertIn(report['causeCode'],text.getvalue())
+                self.assertNotIn('never-retain-secret',text.getvalue())
         self.prepare.assert_not_called();self.run.assert_not_called()
     def test_verify_set_has_no_key_or_paid_entry_and_keeps_all_original_selections(self):
         chosen={name:dict(requestSha256=f'{i:064x}',runId=1000+i,runAttempt=1) for i,name in enumerate(o.acceptance.suite.MEMBERS,1)}
@@ -134,6 +157,53 @@ class OperatorTest(unittest.TestCase):
 
 
 class SecretLifetimeTest(unittest.TestCase):
+    def test_cli_trimmed_secret_keeps_same_key_for_prepare_and_run(self):
+        # gh secret set v2.101.0 reads stdin then bytes.TrimRight(body, "\r\n").
+        for comment in ('', 'gse-v52-experiment operator comment'):
+            with self.subTest(comment=comment),tempfile.TemporaryDirectory() as directory:
+                original=Path(directory)/'original'
+                subprocess.run(['ssh-keygen','-q','-t','ed25519','-N','','-C',comment,'-f',str(original)],check=True,timeout=10)
+                data=original.read_bytes();secret=data.rstrip(b'\r\n').decode('ascii')
+                expected=' '.join(Path(str(original)+'.pub').read_text().split()[:2])
+                descriptor=o.access.descriptor('a'*32,expected)
+                for operation in ('prepare','run'):
+                    with self.subTest(operation=operation),patch.dict(os.environ,{'V52_SSH_KEY':secret}):
+                        with o.private_key() as (path,public):
+                            self.assertEqual(data,path.read_bytes())
+                            self.assertEqual(expected,public)
+                            self.assertEqual(0,path.stat().st_mode&0o077)
+                            self.assertEqual(0,path.parent.stat().st_mode&0o077)
+                            self.assertNotIn('V52_SSH_KEY',os.environ)
+                            o.access.check_private_key(path,descriptor)
+                        self.assertFalse(path.exists());self.assertFalse(path.parent.exists())
+    def test_invalid_secret_or_normalized_size_overflow_fails_before_keygen(self):
+        header='-----BEGIN OPENSSH PRIVATE KEY-----\n'
+        cases=(None,'',header+'x'*(4096-len(header)),header+'x'*4096,' '+header,
+               header.replace('\n','\r\n'),header+'\udcff')
+        for secret in cases:
+            env={} if secret is None else {'V52_SSH_KEY':secret}
+            with self.subTest(length=None if secret is None else len(secret)),patch.dict(os.environ,env,clear=True), \
+                 patch.object(o.access,'private_public_key') as keygen:
+                with self.assertRaises(o.access.PrivateKeyError) as error:
+                    with o.private_key():self.fail('invalid secret accepted')
+                self.assertEqual('V52_SSH_SECRET_INVALID',error.exception.code)
+                keygen.assert_not_called();self.assertNotIn('V52_SSH_KEY',os.environ)
+    def test_corrupt_or_truncated_secret_is_not_repaired_and_private_directory_is_removed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            original=Path(directory)/'original'
+            subprocess.run(['ssh-keygen','-q','-t','ed25519','-N','','-C','','-f',str(original)],check=True,timeout=10)
+            data=original.read_text();made=[];real_temp=tempfile.TemporaryDirectory
+            def tracked_temp(**kwargs):
+                temp=real_temp(**kwargs);made.append(Path(temp.name));return temp
+            bad=(data.replace('-----END OPENSSH PRIVATE KEY-----',''),
+                 data.replace(data.splitlines()[1],'!invalid-body!').rstrip('\n'))
+            for secret in bad:
+                with patch.dict(os.environ,{'V52_SSH_KEY':secret}),patch.object(o.tempfile,'TemporaryDirectory',tracked_temp):
+                    with self.assertRaises(o.access.PrivateKeyError) as error:
+                        with o.private_key():self.fail('damaged secret accepted')
+                    self.assertEqual('V52_SSH_KEY_UNREADABLE',error.exception.code)
+                    self.assertNotIn('V52_SSH_KEY',os.environ)
+            self.assertEqual(2,len(made));self.assertTrue(all(not path.exists() for path in made))
     def test_actual_key_is_private_removed_and_not_inherited_by_children(self):
         with tempfile.TemporaryDirectory() as directory:
             original=Path(directory)/'original'
@@ -164,11 +234,13 @@ class SecretLifetimeTest(unittest.TestCase):
             original=Path(directory)/'original'
             subprocess.run(['ssh-keygen','-q','-t','ed25519','-N','test-only-passphrase','-C','never-public-comment',
                             '-f',str(original)],check=True,timeout=10)
-            with patch.dict(os.environ,{'V52_SSH_KEY':original.read_text()}):
-                with self.assertRaisesRegex(ValueError,'private SSH key could not be read') as error:
-                    with o.private_key():self.fail('encrypted secret accepted')
-                self.assertNotIn('V52_SSH_KEY',os.environ)
-                self.assertNotIn('never-public',str(error.exception))
+            for secret in (original.read_text(),original.read_text().rstrip('\r\n')):
+                with patch.dict(os.environ,{'V52_SSH_KEY':secret}):
+                    with self.assertRaisesRegex(ValueError,'private SSH key could not be read') as error:
+                        with o.private_key():self.fail('encrypted secret accepted')
+                    self.assertEqual('V52_SSH_KEY_UNREADABLE',error.exception.code)
+                    self.assertNotIn('V52_SSH_KEY',os.environ)
+                    self.assertNotIn('never-public',str(error.exception))
     def test_bad_secret_cannot_be_logged_or_left_in_environment(self):
         with patch.dict(os.environ,{'V52_SSH_KEY':'invalid-secret'}):
             with self.assertRaisesRegex(ValueError,'missing/invalid') as error:

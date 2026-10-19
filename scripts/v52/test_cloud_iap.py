@@ -332,6 +332,23 @@ class NativeGuestFactoryTest(unittest.TestCase):
 
     def open(self):return self.session.open_guests(self.key,self.root/'guests')
 
+    def test_operator_trimmed_secret_matches_native_iap_key_checks(self):
+        from . import cloud_operator as operator
+        subprocess.run(['ssh-keygen','-c','-P','','-C','gse-v52-experiment','-f',str(self.key)],
+                       check=True,capture_output=True,timeout=10)
+        secret=self.key.read_text().rstrip('\r\n')
+        with patch.dict(os.environ,{'V52_SSH_KEY':secret}):
+            with operator.private_key() as (key,public):
+                self.assertEqual(self.access['publicKey'],public);self.key=key
+                with self.open() as group:
+                    self.assertEqual(3,len(group.guests));group.checkpoint()
+                    self.assertNotIn('V52_SSH_KEY',os.environ)
+                    self.assertEqual(secret+'\n',key.read_text())
+                self.assertTrue(group.closed)
+            self.assertFalse(key.exists());self.assertFalse(key.parent.exists())
+        self.session.close();self.assertEqual({},self.base.case.server.resources)
+        self.assertIsNone(self.base.case.get(iap.runner.a.LEASE))
+
     def test_native_identity_scoped_token_environment_binding_and_close_order(self):
         # The deployment key may carry a comment; IAP must compare only its wire key.
         subprocess.run(['ssh-keygen','-c','-P','','-C','gse-v52-experiment','-f',str(self.key)],

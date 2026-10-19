@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from . import cloud_access as access, cloud_authority as a, cloud_provider as p, cloud_control as c, cloud_identity as identity
 from .cloud_provider_offline import Server
 from .test_cloud_authority import fixture, completion
@@ -22,6 +23,29 @@ def bound_request(attempt='b'*32, member='experiment'):
 
 
 class AccessTest(unittest.TestCase):
+    def test_key_reader_failures_have_fixed_codes_without_subprocess_details(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/'identity';path.write_bytes(b'private-test-marker');path.chmod(0o600)
+            secret=b'never-public-process-detail'
+            cases=(
+                ('KEYGEN_UNAVAILABLE',OSError(secret.decode())),
+                ('KEYGEN_TIMEOUT',access.subprocess.TimeoutExpired(['ssh-keygen'],10,output=secret,stderr=secret)),
+                ('KEY_UNREADABLE',access.subprocess.CompletedProcess([],1,stdout=secret,stderr=secret)),
+                ('PUBLIC_KEY_INVALID',access.subprocess.CompletedProcess([],0,stdout=secret,stderr=secret)),
+            )
+            for reason,result in cases:
+                options={'side_effect':result} if isinstance(result,Exception) else {'return_value':result}
+                with self.subTest(reason=reason),patch.object(access.subprocess,'run',**options) as run:
+                    with self.assertRaises(access.PrivateKeyError) as error:access.private_public_key(path)
+                    self.assertEqual('V52_SSH_'+reason,error.exception.code)
+                    self.assertNotIn('never-public',str(error.exception))
+                    self.assertNotIn(str(path),str(error.exception))
+                    run.assert_called_once_with(['ssh-keygen','-y','-P','','-f',str(path)],
+                        stdin=access.subprocess.DEVNULL,capture_output=True,timeout=10)
+            path.chmod(0o644)
+            with patch.object(access.subprocess,'run') as run:
+                with self.assertRaises(access.PrivateKeyError) as error:access.private_public_key(path)
+                self.assertEqual('V52_SSH_FILE_INVALID',error.exception.code);run.assert_not_called()
     def test_keygen_comment_normalization_keeps_wire_and_evidence_keys_strict(self):
         key=public_key();raw=key.encode()
         for suffix in (b'',b'\n',b' gse-v52-experiment\n',b' operator\tcomment', ' \u6d4b\u8bd5\n'.encode()):
@@ -74,7 +98,8 @@ class AccessTest(unittest.TestCase):
             self.assertEqual(digest((root/'host-key').read_bytes()),record['sha256'])
             with self.assertRaises(FileExistsError):access.pin(root/'host-key',name,public_key(3))
             wrong=deepcopy(value);wrong['publicKey']=public_key(3)
-            with self.assertRaises(ValueError):access.check_private_key(root/'keys/identity',wrong)
+            with self.assertRaises(access.PrivateKeyError) as error:access.check_private_key(root/'keys/identity',wrong)
+            self.assertEqual('V52_SSH_KEY_MISMATCH',error.exception.code)
             link=root/'linked-key';link.symlink_to(root/'keys/identity')
             with self.assertRaises(ValueError):access.check_private_key(link,value)
             (root/'keys/identity').chmod(0o644)
