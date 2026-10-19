@@ -1,4 +1,6 @@
 """Control-flow tests with external native entry modeled; no guest workloads."""
+from contextlib import contextmanager
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -6,8 +8,16 @@ from unittest.mock import patch
 from . import cloud_execution as e
 
 
+@contextmanager
+def chdir(path):
+    previous=Path.cwd()
+    try:
+        os.chdir(path);yield
+    finally:os.chdir(previous)
+
+
 class ExecutionTest(unittest.TestCase):
-    def execute(self, failure=None):
+    def execute(self, failure=None, relative=False):
         temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); self.output = Path(temp.name)/'execution'
         self.calls = []; calls = self.calls
         def record(name):
@@ -15,17 +25,25 @@ class ExecutionTest(unittest.TestCase):
             if failure == name: raise ValueError('synthetic original failure, never public detail')
         class Session:
             def __enter__(self): record('enter'); return self
-            def run_member(self, key, output): record('member')
-            def retain_member(self, output): record('retention')
+            def run_member(self, key, output):
+                self_case.assertEqual(self_case.output/'member',output);record('member')
+            def retain_member(self, output):
+                self_case.assertEqual(self_case.output/'retention',output);record('retention')
             def __exit__(self, *args): record('close')
         def opened(*args, **kw):
+            self.assertEqual(self.output/'native',args[-1])
             record('open'); self.asserted = kw['prepare_workload']; return Session()
         def publish(session, output):
             record('seal'); output.mkdir(); (output/'member-seal.json').write_text('modeled public seal')
             return dict(status='ORIGINAL_MEMBER_CLOSED_NOT_QUALIFIED', requestSha256='a'*64)
-        with patch.object(e.native, 'open_native', side_effect=opened), patch.object(e.seal, 'publish', side_effect=publish), \
+        self_case=self
+        with chdir(temp.name),patch.object(e.native, 'open_native', side_effect=opened), patch.object(e.seal, 'publish', side_effect=publish), \
              patch.object(e.member.Progress, 'report'):
-            return e.run_native('a'*40, 'plan', 'approval', 'confirmation', 'package', 'private-key', self.output)
+            return e.run_native('a'*40, 'plan', 'approval', 'confirmation', 'package', 'private-key',
+                                Path('execution') if relative else self.output)
+    def test_direct_relative_entry_keeps_absolute_paths_through_retention_and_seal(self):
+        self.execute(relative=True)
+        self.assertEqual(['open','enter','member','retention','close','seal'],self.calls)
     def test_original_member_retention_close_then_public_seal_once(self):
         result = self.execute(); self.assertTrue(self.asserted)
         self.assertEqual(['open', 'enter', 'member', 'retention', 'close', 'seal'], self.calls)

@@ -15,6 +15,13 @@ from .evidence import need,encoded,digest
 
 
 _CAPTURE=object()
+FAILURE_PHASES=frozenset(('guest-identity','storage','java-installation','placement','history','correlation','completion','guest-close'))
+
+
+def failure_record(root,phase,error):
+    native.diagnostic(root/'failure.json',dict(status='FAIL',phase=phase,
+        code='V52_MEMBER_'+phase.upper().replace('-','_')+'_REJECTED',
+        errorType=type(error).__name__,fullRemoteQualification=False))
 
 
 class Captured:
@@ -91,17 +98,19 @@ def run(session,key,output):
     receipt=dict(schema='gse-v52-native-member-execution-v1',status='FAIL',selection=selection,
         source=expected,resourceClaimSha256=digest(encoded(claim)),histories=[],
         fullRemoteQualification=False,paidCloud=True)
-    failure=None;captured={};progress.thread.start()
+    failure=None;captured={};phase='guest-identity';progress.thread.start()
     try:
-        progress.update('guest-identity');guests=session.open_guests(key,root/'guests')
-        progress.update('storage');storage=guests.prepare_storage(root/'storage')
-        progress.update('java-installation');storage.install_java(guests,session.java['descriptor'],session.java['archive'])
+        progress.update(phase);guests=session.open_guests(key,root/'guests')
+        phase='storage';progress.update(phase);storage=guests.prepare_storage(root/'storage')
+        phase='java-installation';progress.update(phase);storage.install_java(guests,session.java['descriptor'],session.java['archive'])
         need(storage.java is not None,'V5.2 member installed Java missing')
         for name in member['histories']:
-            progress.update('placement',name=name);session.staged.check()
+            phase='placement';progress.update(phase,name=name);session.staged.check()
             need(session.checkpoint()==claim,'V5.2 member original resources changed')
             placement=storage.placement(guests,name);own=root/name
-            result=history.run(own,name,expected,progress=progress.update,receiver_factory=placement.factory(name))
+            receiver=placement.factory(name);phase='history'
+            result=history.run(own,name,expected,progress=progress.update,receiver_factory=receiver)
+            phase='correlation'
             # Store the original result immediately, before any further history.
             native.artifacts.save(own/'result.json',result)
             row=correlate(own,result,name,placement,expected,storage.java,session.staged.files)
@@ -109,6 +118,7 @@ def run(session,key,output):
             session.staged.check();guests.checkpoint()
             receipt['histories'].append(row);native.artifacts.save(root/('completed-%02d.json'%len(receipt['histories'])),receipt)
             progress.update('history-complete',completed=len(receipt['histories']))
+        phase='completion'
         need([r['history'] for r in receipt['histories']]==member['histories'] and
              sum(r['reads'] for r in receipt['histories'])==member['reads'] and
              sum(r['updates'] for r in receipt['histories'])==member['updates'],
@@ -117,6 +127,7 @@ def run(session,key,output):
         receipt['status']='MEMBER_EXECUTED_NOT_QUALIFIED'
     except BaseException as error:
         failure=error;receipt['failure']=dict(type=type(error).__name__)
+        failure_record(root,phase,error)
         raise
     finally:
         try:
@@ -124,7 +135,9 @@ def run(session,key,output):
             if guests is not None:guests.close()
         except BaseException as error:
             receipt['status']='FAIL';receipt['guestCloseFailure']=type(error).__name__
-            if failure is None:raise
+            if failure is None:
+                failure_record(root,'guest-close',error)
+                raise
         finally:
             progress.close();receipt['elapsedSeconds']=round(time.monotonic()-progress.began,3)
             if failure is None and 'guestCloseFailure' not in receipt:native.artifacts.save(root/'receipt.json',receipt)

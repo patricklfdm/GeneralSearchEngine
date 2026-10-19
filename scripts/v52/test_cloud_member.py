@@ -81,6 +81,34 @@ class MemberTest(unittest.TestCase):
         self.storage.install_java.side_effect=ValueError('partial Java')
         with self.assertRaisesRegex(ValueError,'partial Java'):m.run(self.session,'key',self.root/'run')
         self.run.assert_not_called();self.guests.close.assert_called_once()
+    def test_guest_failure_keeps_original_phase_and_fixed_code(self):
+        original=ValueError('private guest diagnostic must not be retained')
+        self.session.open_guests.side_effect=original
+        with self.assertRaises(ValueError) as error:m.run(self.session,'key',self.root/'run')
+        self.assertIs(original,error.exception);self.run.assert_not_called()
+        failure=m.native.artifacts.read(self.root/'run/failure.json')
+        self.assertEqual('guest-identity',failure['phase'])
+        self.assertEqual('V52_MEMBER_GUEST_IDENTITY_REJECTED',failure['code'])
+        self.assertNotIn('private guest',str(failure));self.assertFalse(failure['fullRemoteQualification'])
+    def test_cleanup_failure_does_not_replace_original_history_phase(self):
+        self.failure='first';self.guests.close.side_effect=OSError('private cleanup detail')
+        with self.assertRaisesRegex(ValueError,'original work failed'):m.run(self.session,'key',self.root/'run')
+        failure=m.native.artifacts.read(self.root/'run/failure.json')
+        self.assertEqual('history',failure['phase']);self.assertEqual('V52_MEMBER_HISTORY_REJECTED',failure['code'])
+        self.assertNotIn('private cleanup',str(failure))
+    def test_guest_close_only_failure_has_own_phase(self):
+        self.guests.close.side_effect=OSError('private cleanup detail')
+        with self.assertRaises(OSError):m.run(self.session,'key',self.root/'run')
+        failure=m.native.artifacts.read(self.root/'run/failure.json')
+        self.assertEqual('guest-close',failure['phase']);self.assertEqual('V52_MEMBER_GUEST_CLOSE_REJECTED',failure['code'])
+    def test_diagnostic_write_failure_preserves_original_error_and_guest_close(self):
+        self.failure='first';save=m.native.artifacts.save
+        def write(path,value):
+            if path.name=='failure.json':raise OSError('diagnostic write failed')
+            return save(path,value)
+        with patch.object(m.native.artifacts,'save',side_effect=write),self.assertRaisesRegex(ValueError,'original work failed'):
+            m.run(self.session,'key',self.root/'run')
+        self.guests.close.assert_called_once();self.assertEqual(['first'],self.rows)
     def test_mid_member_input_drift_cannot_continue(self):
         calls=0
         def check():

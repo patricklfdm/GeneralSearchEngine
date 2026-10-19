@@ -15,6 +15,14 @@ bytes, repository/owner, job/environment and original in-progress run/attempt.
 Inputs pass through environment variables and strict JSON parsing; input text is
 never interpolated into a shell command. There is no force mode or rerun fallback.
 
+The operator accepts ordinary relative output directories such as the workflow's
+`target/v52-runner`. It anchors that directory to the current working directory
+before any operation and passes absolute paths through admission, guest identity,
+storage, Java installation, retention and sealing. The direct execution entry
+does the same. Parent traversal (`..`) and symbolic links in any path component
+reject before admission; conversion does not resolve links or overwrite an
+existing run directory.
+
 Before any native operation, the exact source must include reviewed
 `docs/v5x/v5.2/cloud-provider.json`; its absence rejects at identity bootstrap.
 The setup review must cover the dedicated WIF/IAM identities, environment and
@@ -160,6 +168,24 @@ private work tree, raw SSH/provider diagnostics, credentials or keys. The job
 summary prefers a failure record over any earlier report and escapes table text.
 Failures after resource acquisition remain subject to the original Session's
 cleanup; an upload or summary success cannot make the entire job successful.
+
+Member failures additionally report a fixed `V52_MEMBER_<PHASE>_REJECTED` code
+and `memberPhase`: guest identity, storage, Java installation, placement, history,
+correlation, completion or guest closure. A subsequent guest-close failure does
+not replace the original failing phase. These fields contain no exception text.
+When available, the failure summary also projects the original resource cleanup's
+status, lease-release flag and delete count. Missing or malformed cleanup evidence
+cannot become a PASS; a recorded cleanup exception takes precedence over an
+earlier cleanup receipt. This summary remains diagnostic, not cloud acceptance.
+
+Run `39334536942` exposed a relative/absolute path mismatch at guest identity,
+before its first history. The unchanged path boundary was reproduced locally;
+its original retained cleanup reports 13 absent resources and no leftovers.
+Regression coverage now uses the workflow's relative directory through the
+operator and execution into the original IAP constructor, and checks relative
+prepare/verify-set entry points and direct execution through retention/sealing.
+External admission and guest effects in these tests are modeled. Corrected-source
+protected CI and a new explicitly approved cloud run remain required.
 
 ## Validation scope
 
