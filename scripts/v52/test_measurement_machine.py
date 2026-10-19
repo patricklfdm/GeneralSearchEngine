@@ -1,5 +1,6 @@
 import copy
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -76,18 +77,33 @@ class MeasurementMachineTest(unittest.TestCase):
             with self.subTest(fault=fault),self.assertRaisesRegex(ValueError,reason):cohort.validate_results(value,actual,expected,results)
 
     def test_failed_execution_is_not_retried_and_retains_partial_receipt(self):
+        for run,attempt in (('local',1),('39177909775',2)):
+            with self.subTest(run=run,attempt=attempt):
+                self.failed_execution(run,attempt)
+
+    def test_mismatched_launch_run_or_attempt_rejects_before_original_execution(self):
+        for mismatch in ('run','attempt'):
+            with self.subTest(mismatch=mismatch):self.failed_execution('39177909775',2,mismatch)
+
+    def failed_execution(self,run,attempt,mismatch=None):
         value,actual,expected,_=fixture();launched=[]
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);value['storageRoot']=str(root)
             def prepare(case,mode,m01_repetition):
-                case.mkdir();name=case.name;b=copy.deepcopy(expected[name]);b['origin']=str(case);return b,'unused','unused'
+                case.mkdir();name=case.name;b=copy.deepcopy(expected[name]);b.update(origin=str(case),run=run,attempt=attempt)
+                if mismatch=='run':b['run']='other'
+                if mismatch=='attempt':b['attempt']=attempt+1
+                return b,'unused','unused'
             def execute(case,binding,cp):launched.append(case.name);raise ValueError('original history failed')
-            with patch.object(m,'admit',return_value=(value,actual)),patch.object(m,'verify_launch'),\
+            reason='measurement launch run/attempt changed' if mismatch else 'original history failed'
+            with patch.dict(os.environ,GITHUB_RUN_ID=run,GITHUB_RUN_ATTEMPT=str(attempt)),\
+                 patch.object(m,'admit',return_value=(value,actual)),patch.object(m,'verify_launch'),\
                  patch.object(cohort.runtime,'prepare',side_effect=prepare),patch.object(cohort.m01,'execute_prepared',side_effect=execute),\
                  patch.object(cohort.shutil,'disk_usage',return_value=type('Disk',(),{'free':100<<30})()),patch.object(cohort,'replay_member') as replay:
-                with self.assertRaisesRegex(ValueError,'original history failed'):cohort.run()
-            self.assertEqual(1,len(launched));replay.assert_not_called();receipt=json.loads((root/'cohort.json').read_bytes())
-            self.assertEqual('FAIL',receipt['status']);self.assertEqual([],receipt['completed']);self.assertEqual('original history failed',receipt['failure']['message'])
+                with self.assertRaisesRegex(ValueError,reason):cohort.run()
+            self.assertEqual(0 if mismatch else 1,len(launched));replay.assert_not_called();receipt=json.loads((root/'cohort.json').read_bytes())
+            self.assertEqual('FAIL',receipt['status']);self.assertEqual([],receipt['completed']);self.assertEqual(reason,receipt['failure']['message'])
+            self.assertEqual((run,attempt),(receipt['run'],receipt['attempt']))
 
     def test_exact_git_parent_and_archived_checkout_prevent_self_referential_or_mixed_freeze(self):
         with tempfile.TemporaryDirectory() as directory:

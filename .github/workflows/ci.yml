@@ -533,12 +533,19 @@ jobs:
       - name: Verify complete V5.2 installed qualification
         run: scripts/verify-v52-phase6-measurement-runtime.sh --skip-build --lane installed
 
+      - name: Package V5.2 installed evidence without following fixture symlinks
+        if: ${{ always() }}
+        run: |
+          if [[ -d target/v52-measurement-runtime ]]; then
+            python3 -m scripts.v51.provider_artifacts target/v52-measurement-runtime target/v52-installed-runtime.tar.gz
+          fi
+
       - name: Retain complete qualification evidence including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: v52-installed-runtime-${{ github.sha }}
-          path: target/v52-measurement-runtime
+          path: target/v52-installed-runtime.tar.gz
           if-no-files-found: warn
           retention-days: 14
 

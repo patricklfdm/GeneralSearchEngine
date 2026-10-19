@@ -59,6 +59,12 @@ Each lane restores the exact producer artifact ID, validates source/JDK/build
 hashes, and retains its restore provenance and complete failure evidence. The
 consumer lane preserves the `v52-measurement-runtime-<sha>` artifact name; the
 command and installed lanes add distinct artifact names. Evidence retains 14 days.
+The installed lane packages its entire evidence directory as
+`v52-installed-runtime.tar.gz` before upload, including on qualification failure.
+It uses the existing provider-evidence packer with symlink dereferencing disabled:
+the intentional volume-rejection fixture linking to `/var` stays link metadata,
+and host files outside the evidence directory are not traversed. Artifact name
+and retention are unchanged; no fixture is deleted to make the upload succeed.
 No individual history, lease, source or fault/recovery sequence crosses jobs.
 All seven original runtime commands and their arguments/timeouts remain.
 
@@ -106,3 +112,26 @@ isolate hosted execution cost.
 Hosted duration, runner queue effects and total runner-minutes remain unmeasured
 for this split. More parallel jobs can increase startup/artifact overhead; no
 specific wall-time reduction is claimed before exact-source CI completes.
+
+### Hosted fixture and artifact correction
+
+[CI run 39177909775](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/39177909775)
+attempt 2 still failed three jobs. The measurement failure test supplied a local
+launch identity while the runner supplied a GitHub run/attempt; the V4.4 Java
+selector test omitted the eight registered Python lanes from its no-Java set;
+and installed qualification passed but artifact upload followed its deliberate
+fixture link into the host's protected `/var` tree. These require fixture and
+packaging corrections rather than repeating the unchanged run.
+
+The measurement regression now covers local and hosted identities, verifies one
+failed execution with no retry, and rejects mismatched run/attempt before launch.
+The V4.4 selector check derives only registered Python domains from the suite
+registry; unknown lanes and Java selector drift still reject. The archive
+regression executes the workflow's actual packaging command against a failed
+receipt and an inaccessible external-link fixture, checking upload wiring,
+retained bytes and absence of external content. Production execution and exact
+run/attempt checks, workload parameters and Required outcomes are unchanged.
+
+Original logs and local correction checks are retained under
+`target/v52-ci-fix-39177909775`. Corrected-source protected CI remains required;
+local checks do not turn the failed hosted run into acceptance evidence.

@@ -4,6 +4,7 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
+import tarfile
 import unittest
 from scripts import ci_v52_python as lanes
 from scripts.test_ci_v51_python import ids
@@ -77,6 +78,37 @@ class PartitionTest(unittest.TestCase):
             ('verify-v52-phase6-measurement-runtime.sh',['--lane','unit','--lane','consumers'])):
             result=subprocess.run(['bash',str(lanes.ROOT/'scripts'/script),*args],capture_output=True,text=True)
             self.assertEqual(2,result.returncode)
+
+    def test_installed_failure_artifact_packages_fixture_links_without_traversal(self):
+        jobs=ci_suites.job_blocks((lanes.ROOT/ci_suites.WORKFLOW).read_text())
+        steps=ci_suites.steps(ci_suites.fields(jobs['v52-installed-runtime'],4)['steps'])
+        name='Package V5.2 installed evidence without following fixture symlinks'
+        self.assertLess(list(steps).index('Verify complete V5.2 installed qualification'),list(steps).index(name))
+        self.assertLess(list(steps).index(name),list(steps).index('Retain complete qualification evidence including failures'))
+        self.assertEqual(ci_suites.ALWAYS,ci_suites.scalar(steps[name]['if']))
+        upload=steps['Retain complete qualification evidence including failures']
+        self.assertEqual(ci_suites.ALWAYS,ci_suites.scalar(upload['if']))
+        self.assertEqual('target/v52-installed-runtime.tar.gz',
+                         ci_suites.scalar(ci_suites.fields(upload['with'][1],10)['path']))
+        self.assertEqual('|',steps[name]['run'][0])
+        script=steps[name]['run'][1]
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);source=root/'target/v52-measurement-runtime';source.mkdir(parents=True)
+            outside=root/'outside';outside.mkdir();(outside/'never-upload').write_bytes(b'private host bytes')
+            path=source/'run/native-storage-root/symlink-parent/rootfs/var/lib/gse-v52-volume'
+            path.parent.mkdir(parents=True);path.symlink_to(outside)
+            (source/'receipt.json').write_text('{"status":"FAIL","original":true}\n')
+            outside.chmod(0)
+            try:
+                result=subprocess.run(['bash','-e','-c',script],cwd=root,
+                    env=dict(os.environ,PYTHONPATH=str(lanes.ROOT)),capture_output=True,text=True)
+            finally:outside.chmod(0o700)
+            self.assertEqual(0,result.returncode,result.stderr)
+            with tarfile.open(root/'target/v52-installed-runtime.tar.gz','r:gz') as archive:
+                self.assertTrue(archive.getmember('v52-measurement-runtime/'+str(path.relative_to(source))).issym())
+                self.assertFalse(any('never-upload' in v.name for v in archive.getmembers()))
+                self.assertEqual((source/'receipt.json').read_bytes(),archive.extractfile('v52-measurement-runtime/receipt.json').read())
+            self.assertTrue(path.is_symlink());self.assertEqual(b'private host bytes',(outside/'never-upload').read_bytes())
 
 
 if __name__=='__main__':unittest.main()

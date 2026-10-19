@@ -1190,7 +1190,7 @@
           "if": "${{ always() }}",
           "with": {
             "name": "v52-installed-runtime-${{ github.sha }}",
-            "path": "target/v52-measurement-runtime",
+            "path": "target/v52-installed-runtime.tar.gz",
             "if-no-files-found": "warn",
             "retention-days": "14"
           }
