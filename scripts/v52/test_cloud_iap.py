@@ -333,6 +333,9 @@ class NativeGuestFactoryTest(unittest.TestCase):
     def open(self):return self.session.open_guests(self.key,self.root/'guests')
 
     def test_native_identity_scoped_token_environment_binding_and_close_order(self):
+        # The deployment key may carry a comment; IAP must compare only its wire key.
+        subprocess.run(['ssh-keygen','-c','-P','','-C','gse-v52-experiment','-f',str(self.key)],
+                       check=True,capture_output=True,timeout=10)
         with self.open() as group:
             self.assertTrue(all(v['paidCloud'] for v in group.observations.values()))
             self.assertTrue(all(v['execution']=='native-v52-provider-observation' for v in group.observations.values()))

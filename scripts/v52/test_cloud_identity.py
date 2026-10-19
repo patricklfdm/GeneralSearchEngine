@@ -22,6 +22,16 @@ def bound_request(attempt='b'*32, member='experiment'):
 
 
 class AccessTest(unittest.TestCase):
+    def test_keygen_comment_normalization_keeps_wire_and_evidence_keys_strict(self):
+        key=public_key();raw=key.encode()
+        for suffix in (b'',b'\n',b' gse-v52-experiment\n',b' operator\tcomment', ' \u6d4b\u8bd5\n'.encode()):
+            with self.subTest(suffix=suffix):self.assertEqual(key,access._keygen_public_key(raw+suffix))
+        for invalid in (b'',raw+b'\n'+raw+b'\n',raw+b'\n\n',raw+b' comment\r\n',b' '+raw,
+                        b'no-pty '+raw,b'ssh-rsa '+raw.split()[1],b'ssh-ed25519 AAAA\n',
+                        raw+b'=',raw+b' '+b'x'*4096):
+            with self.subTest(length=len(invalid)),self.assertRaises(ValueError):access._keygen_public_key(invalid)
+        with self.assertRaises(ValueError):access.ed25519(key+' comment')
+
     def test_access_extends_request_without_changing_shared_cohort_identity(self):
         req=fixture();value=access.descriptor(req['selection']['attempt'],public_key());bound=a.with_access(req,value)
         self.assertEqual(a.identity(req),a.identity(bound))
@@ -65,6 +75,8 @@ class AccessTest(unittest.TestCase):
             with self.assertRaises(FileExistsError):access.pin(root/'host-key',name,public_key(3))
             wrong=deepcopy(value);wrong['publicKey']=public_key(3)
             with self.assertRaises(ValueError):access.check_private_key(root/'keys/identity',wrong)
+            link=root/'linked-key';link.symlink_to(root/'keys/identity')
+            with self.assertRaises(ValueError):access.check_private_key(link,value)
             (root/'keys/identity').chmod(0o644)
             with self.assertRaises(ValueError):access.check_private_key(root/'keys/identity',value)
 

@@ -5,7 +5,6 @@ import html
 import os
 from pathlib import Path
 import re
-import subprocess
 import tempfile
 import time
 from . import cloud_prepare as preparation, cloud_prepared_artifact as downloaded, cloud_prepared as prepared
@@ -42,10 +41,7 @@ def private_key():
         fd = os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW, 0o600)
         with os.fdopen(fd, 'wb') as stream: stream.write(data)
         data = None
-        result = subprocess.run(['ssh-keygen', '-y', '-P', '', '-f', str(path)], stdin=subprocess.DEVNULL,
-                                capture_output=True, timeout=10)
-        need(result.returncode == 0, 'V5.2 private SSH key could not be read')
-        public = access.ed25519(result.stdout.decode().strip())
+        public = access.private_public_key(path)
         yield path, public
 
 
@@ -60,8 +56,10 @@ def execute_native(source, output):
         bound = credentials.identity(cfg['provider'], cfg['projectNumber'], dict(os.environ), role='runner', source=source, checkout=source)
         chosen = {key:bound[key] for key in ('runId', 'runAttempt')}
         if operation == 'prepare':
-            phase = 'prepare'; progress.update(phase)
-            with private_key() as (_, public): result = preparation.prepare_native(source, request, public, output/'prepare')
+            phase = 'prepare-key'; progress.update(phase)
+            with private_key() as (_, public):
+                phase = 'prepare'; progress.update(phase)
+                result = preparation.prepare_native(source, request, public, output/'prepare')
             public_root = output/'prepare/public'; artifact_name = downloaded.name(chosen)
         elif operation == 'run':
             phase = 'prepared-download'; progress.update(phase)
@@ -71,10 +69,11 @@ def execute_native(source, output):
             need(sha == request['confirmation'], 'V5.2 selected prepared plan confirmation changed')
             approval = prepared.approval_template(plan); approval['confirmed'] = True
             artifacts.save(output/'approval.json', approval)
-            phase = 'run'; progress.update(phase)
+            phase = 'run-key'; progress.update(phase)
             with private_key() as (key, public):
                 need(public == plan['request']['guestAccess']['publicKey'], 'V5.2 prepared SSH key changed')
                 access.check_private_key(key, plan['request']['guestAccess'])
+                phase = 'run'; progress.update(phase)
                 result = execution.run_native(source, files/'plan.json', output/'approval.json', sha, files/'inputs.tar.gz', key, output/'run')
             public_root = output/'run/public'; artifact_name = origin.name(chosen)
         else:

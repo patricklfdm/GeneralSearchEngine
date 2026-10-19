@@ -3,6 +3,7 @@ import base64
 import os
 from pathlib import Path
 import re
+import subprocess
 from .evidence import need, encoded, digest
 from . import remote_command as command, remote_host as host
 
@@ -46,9 +47,29 @@ def generate(directory, attempt):
     return value
 
 
+def _keygen_public_key(raw):
+    """Discard only the local keygen comment; evidence keys remain canonical."""
+    need(type(raw) is bytes and 0 < len(raw) <= 4096, 'V5.2 keygen output bound')
+    match = re.fullmatch(rb'ssh-ed25519 ([A-Za-z0-9+/]+={0,2})(?:[ \t][^\r\n]*)?\n?', raw)
+    need(match is not None, 'V5.2 keygen public key line')
+    return ed25519('ssh-ed25519 '+match.group(1).decode('ascii'))
+
+
+def private_public_key(path):
+    """Read an owned, unencrypted private key without exposing keygen stderr."""
+    path = Path(path); command.directory(path.parent)
+    need(path.is_absolute() and path.is_file() and not path.is_symlink() and
+         path.stat().st_uid == os.getuid() and path.stat().st_mode & 0o077 == 0 and
+         path.stat().st_size <= 4096, 'V5.2 SSH owned private key')
+    result = subprocess.run(['ssh-keygen', '-y', '-P', '', '-f', str(path)], stdin=subprocess.DEVNULL,
+                            capture_output=True, timeout=10)
+    need(result.returncode == 0, 'V5.2 private SSH key could not be read')
+    return _keygen_public_key(result.stdout)
+
+
 def check_private_key(path, value):
-    from scripts.v51.guest_setup import check_private_key as original
-    validate(value); original(path,{k:value[k] for k in ('attempt','user','publicKey')})
+    validate(value)
+    need(private_public_key(path) == value['publicKey'], 'V5.2 SSH private/public key mismatch')
 
 
 class HostKeyPending(ValueError): pass

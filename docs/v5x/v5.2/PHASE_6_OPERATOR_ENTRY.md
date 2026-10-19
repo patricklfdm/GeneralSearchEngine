@@ -71,7 +71,12 @@ each preparation generates a fresh attempt/access identity.
 
 The `V52_EXPERIMENT_SSH_KEY` environment secret must contain one valid, unencrypted
 Ed25519 OpenSSH private key. Preparation derives its public key; run checks the
-same key against the authenticated original plan. Rotation between those steps
+same key against the authenticated original plan. An optional OpenSSH key comment
+is removed only from local `ssh-keygen -y` output in both paths; descriptors and
+host pins still require the exact comment-free Ed25519 wire key. Key loading or
+matching failures report `prepare-key` / `run-key` before entering preparation or
+paid execution, without publishing key material or subprocess diagnostics.
+Rotation between those steps
 rejects before acquiring resources. The secret is removed from the Python process
 environment before child commands run, written only into a private temporary
 directory and removed on scope exit. It is never an artifact input or report field.
