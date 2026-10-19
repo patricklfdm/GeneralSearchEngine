@@ -54,7 +54,7 @@ def private_key():
 
 
 def execute_native(source, output):
-    output = Path(output); need(not any(p.is_symlink() for p in (output, *output.parents)), 'V5.2 operator output link')
+    output = execution.output_path(output)
     output.mkdir(parents=True, mode=0o700, exist_ok=False); (output/'diagnostics').mkdir()
     phase = 'input'; result = dict(status='FAIL', fullRemoteQualification=False); operation = None
     progress = member.Progress('operator'); progress.thread.start()
@@ -102,7 +102,8 @@ def execute_native(source, output):
         failure = dict(status='FAIL', operation=operation, phase=phase, source=source,
             code='V52_OPERATOR_'+phase.upper().replace('-', '_')+'_REJECTED', errorType=type(error).__name__, fullRemoteQualification=False)
         if isinstance(error, access.PrivateKeyError): failure['causeCode'] = error.code
-        for relative in ('prepare/failure.json', 'prepared/failure.json', 'run/failure.json', 'run/native/failure.json'):
+        for relative in ('prepare/failure.json', 'prepared/failure.json', 'run/failure.json', 'run/native/failure.json',
+                         'run/member/failure.json'):
             path = output/relative
             if path.is_file():
                 try:
@@ -111,7 +112,11 @@ def execute_native(source, output):
                     if type(code) is str and re.fullmatch('V52_[A-Z0-9_]{1,128}', code): failure['causeCode'] = code
                     status = inner.get('httpStatus')
                     if type(status) is int and 100 <= status <= 599: failure['httpStatus'] = status
+                    if relative=='run/member/failure.json' and inner.get('phase') in member.FAILURE_PHASES:
+                        failure['memberPhase']=inner['phase']
                 except Exception: pass  # A broken diagnostic cannot mask the original operation failure.
+        cleanup=cleanup_report(output/'run/native')
+        if cleanup is not None:failure['cleanup']=cleanup
         native.diagnostic(output/'diagnostics/failure.json', failure)
         # Do not publish a result when a final source/output/summary check fails.
         # GitHub also requires the original entire job to complete successfully.
@@ -119,6 +124,27 @@ def execute_native(source, output):
     finally:
         os.environ.pop('V52_SSH_KEY', None)
         progress.close()
+
+
+def cleanup_report(root):
+    """Project closed cleanup fields only; this is a diagnostic, not acceptance."""
+    try:
+        if (root/'cleanup-failure.json').is_file():return dict(status='FAIL')
+        path=root/'cleanup.json'
+        if not path.is_file():return None
+        value=strict(inputs.regular(path,65536));status=value.get('status');count=value.get('resourceDeletesSubmitted')
+        if status not in ('PASS','FAIL','NOT_ACQUIRED') or type(count) is not int or not 0<=count<=10000:return None
+        result=value.get('result')
+        if status=='NOT_ACQUIRED':
+            if result is not None:return None
+            return dict(status=status,resourceDeletesSubmitted=count)
+        if type(result) is not dict or result.get('status')!=status or type(result.get('leaseReleased')) is not bool:return None
+        if status=='PASS':
+            cleanup=result.get('cleanup')
+            if not result['leaseReleased'] or type(cleanup) is not dict or cleanup.get('status')!='PASS' or \
+               cleanup.get('leftovers')!=[] or cleanup.get('errors')!=[]:return None
+        return dict(status=status,leaseReleased=result['leaseReleased'],resourceDeletesSubmitted=count)
+    except Exception:return None
 
 
 def report_data(operation, source, result, output):

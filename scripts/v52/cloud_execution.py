@@ -6,12 +6,21 @@ prepare/download entries are connected separately.
 """
 from pathlib import Path
 from . import cloud_native_runner as native, cloud_member as member, cloud_member_seal as seal
+from . import remote_host as host
 from .evidence import need
 
 
+def output_path(value):
+    """Anchor CLI paths before any paid entry without resolving away links."""
+    path=Path(value)
+    need('..' not in path.parts,'V5.2 execution output traversal')
+    path=host.path(str(path.absolute()))
+    need(not any(p.is_symlink() for p in (path,*path.parents)),'V5.2 execution output link')
+    return path
+
+
 def run_native(source, plan, approval, confirmation, package, key, output):
-    output = Path(output)
-    need(not any(p.is_symlink() for p in (output, *output.parents)), 'V5.2 execution output link')
+    output = output_path(output)
     output.mkdir(parents=True, mode=0o700, exist_ok=False)
     progress = member.Progress('original-member'); progress.thread.start(); phase = 'admission'
     try:

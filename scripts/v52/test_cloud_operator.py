@@ -11,6 +11,7 @@ from unittest.mock import patch, Mock
 from . import cloud_operator as o, cloud_credentials_offline as auth
 from .test_cloud_prepared_artifact import fixture
 from .test_cloud_member_seal import fixture as sealed_fixture
+from .test_cloud_execution import chdir
 
 
 class OperatorTest(unittest.TestCase):
@@ -45,15 +46,16 @@ class OperatorTest(unittest.TestCase):
     @contextmanager
     def key(self):
         self.key_calls+=1; yield self.root/'private-key',self.plan['request']['guestAccess']['publicKey']
-    def execute(self,operation,value):
+    def execute(self,operation,value,output=None):
         self.env.update(V52_OPERATION=operation,V52_REQUEST=o.encoded(value).decode())
-        self.output=self.root/('operator-'+str(len(list(self.root.iterdir()))))
+        output=output if output is not None else self.root/('operator-'+str(len(list(self.root.iterdir()))))
+        self.output=Path(output).absolute()
         with patch.dict(os.environ,self.env,clear=True), patch.object(o.reads,'source_configuration',return_value=deepcopy(self.cfg)), \
              patch.object(o.preparation,'prepare_native',self.prepare),patch.object(o.downloaded,'collect_native',self.download), \
              patch.object(o.execution,'run_native',self.run),patch.object(o.acceptance,'verify_native',self.verify), \
              patch.object(o,'private_key',self.key),patch.object(o.access,'check_private_key'), \
              patch.object(o.time,'time',return_value=1200),patch.object(o.member.Progress,'report'):
-            return o.execute_native('a'*40,self.output)
+            return o.execute_native('a'*40,output)
     def request(self):return dict(preparedRun=123456,preparedAttempt=2,confirmation=o.prepared.validate(self.plan,1200))
     def test_prepare_exports_only_exact_public_files_and_reviewable_unconfirmed_request(self):
         value=dict(member='experiment',sequence='c'*32,estimate=self.plan['estimate'])
@@ -67,6 +69,59 @@ class OperatorTest(unittest.TestCase):
         self.assertFalse(result['fullRemoteQualification']); self.assertEqual(1,self.key_calls)
         self.assertEqual({'member-seal.json'},{p.name for p in (self.output/'result').iterdir()})
         self.assertIn('artifactName=v52-runner-654321-2',(self.root/'actions-output').read_text())
+    def test_workflow_relative_output_reaches_original_iap_path_boundary(self):
+        from . import cloud_iap as iap
+        class ReachedGuestAuthority(Exception): pass
+        guest_session=object.__new__(o.native.Session);guest_session.api=object.__new__(o.native.NativeRunnerApi)
+        guest_session.guests=None;guest_session.checkpoint=Mock(side_effect=ReachedGuestAuthority)
+        closed=[];paths=[]
+        class Session:
+            def __enter__(self):return self
+            def __exit__(self,*args):closed.append(True)
+            def run_member(self,key,output):
+                paths.append(output);return iap.open_native(guest_session,key,output/'guests')
+        # Keep the original execution and IAP path checks. Only paid admission
+        # and the authority checkpoint are modeled; no SDK/network is started.
+        self.run.side_effect=o.execution.run_native
+        with chdir(self.root),patch.object(o.native,'open_native',return_value=Session()) as admission, \
+             patch.object(iap,'_gcloud') as sdk:
+            with self.assertRaises(ReachedGuestAuthority):self.execute('run',self.request(),Path('target/v52-runner'))
+        self.assertEqual([self.root/'target/v52-runner/run/member'],paths)
+        self.assertTrue(admission.call_args.args[-1].is_absolute());self.assertEqual([True],closed)
+        guest_session.checkpoint.assert_called_once();sdk.assert_not_called();self.run.assert_called_once()
+        self.assertFalse((self.output/'result').exists())
+    def test_relative_prepare_and_verify_outputs_are_absolute(self):
+        selected={name:dict(requestSha256=f'{i:064x}',runId=1000+i,runAttempt=1) for i,name in enumerate(o.acceptance.suite.MEMBERS,1)}
+        with chdir(self.root):
+            self.execute('prepare',dict(member='experiment',sequence='c'*32,estimate=self.plan['estimate']),Path('target/prepare'))
+            self.assertEqual(self.root/'target/prepare/prepare',self.prepare.call_args.args[-1])
+            self.execute('verify-set',selected,Path('target/verify'))
+            self.assertEqual(self.root/'target/verify/verify-set',self.verify.call_args.args[-1])
+    def test_unsafe_output_rejects_before_identity_or_paid_factory(self):
+        self.env.update(V52_OPERATION='run',V52_REQUEST=o.encoded(self.request()).decode())
+        with tempfile.TemporaryDirectory() as outside:
+            (self.root/'link').symlink_to(outside,target_is_directory=True)
+            with chdir(self.root),patch.dict(os.environ,self.env,clear=True),patch.object(o.reads,'source_configuration') as source:
+                for path in ('link/run','link/../run','../run'):
+                    with self.subTest(path=path),self.assertRaises(ValueError):o.execute_native('a'*40,Path(path))
+            source.assert_not_called();self.assertEqual([],list(Path(outside).iterdir()))
+        self.run.assert_not_called();self.prepare.assert_not_called()
+    def test_member_phase_and_cleanup_are_retained_without_private_details(self):
+        def fail(*args):
+            path=args[-1];(path/'native').mkdir(parents=True);(path/'member').mkdir()
+            o.artifacts.save(path/'member/failure.json',dict(status='FAIL',phase='guest-identity',
+                code='V52_MEMBER_GUEST_IDENTITY_REJECTED',errorType='ValueError',secret='never-public'))
+            o.artifacts.save(path/'native/cleanup.json',dict(status='PASS',resourceDeletesSubmitted=13,
+                result=dict(status='PASS',leaseReleased=True,cleanup=dict(status='PASS',leftovers=[],errors=[])),
+                secret='never-public'))
+            raise ValueError('never-public-original-error')
+        self.run.side_effect=fail
+        with self.assertRaises(ValueError):self.execute('run',self.request())
+        result=o.artifacts.read(self.output/'diagnostics/failure.json')
+        self.assertEqual('V52_MEMBER_GUEST_IDENTITY_REJECTED',result['causeCode'])
+        self.assertEqual('guest-identity',result['memberPhase'])
+        self.assertEqual(dict(status='PASS',leaseReleased=True,resourceDeletesSubmitted=13),result['cleanup'])
+        self.assertNotIn('never-public',str(result));self.assertFalse((self.output/'result').exists())
     def test_changed_confirmation_or_failed_download_never_opens_paid_entry(self):
         request=self.request();request['confirmation']='f'*64
         with self.assertRaisesRegex(ValueError,'confirmation changed'):self.execute('run',request)
@@ -154,6 +209,36 @@ class OperatorTest(unittest.TestCase):
             result=o.prepare_request('a'*40,'canonical-3','c'*32,12_000_000,21600,14400,self.root/'draft')
         self.assertEqual(12_000_000,result['estimate']['costMicrousd']);self.assertEqual(15400,result['estimate']['expiresAt'])
         self.assertFalse(o.artifacts.read(self.root/'draft/receipt.json')['livePricesVerified'])
+
+
+class CleanupReportTest(unittest.TestCase):
+    def setUp(self):
+        temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);self.root=Path(temp.name)
+        self.clean=dict(status='PASS',resourceDeletesSubmitted=13,result=dict(status='PASS',leaseReleased=True,
+            cleanup=dict(status='PASS',leftovers=[],errors=[])),private='never-public')
+    def report(self,value):
+        (self.root/'cleanup.json').write_bytes(o.encoded(value));return o.cleanup_report(self.root)
+    def test_pass_failed_and_not_acquired_have_distinct_closed_fields(self):
+        self.assertEqual(dict(status='PASS',leaseReleased=True,resourceDeletesSubmitted=13),self.report(self.clean))
+        self.assertEqual(dict(status='FAIL',leaseReleased=False,resourceDeletesSubmitted=2),self.report(dict(
+            status='FAIL',resourceDeletesSubmitted=2,result=dict(status='FAIL',leaseReleased=False),private='never-public')))
+        self.assertEqual(dict(status='NOT_ACQUIRED',resourceDeletesSubmitted=0),self.report(dict(
+            status='NOT_ACQUIRED',resourceDeletesSubmitted=0,result=None)))
+    def test_incomplete_changed_or_linked_cleanup_cannot_claim_pass(self):
+        self.assertIsNone(o.cleanup_report(self.root))
+        changes=[lambda v:v.update(resourceDeletesSubmitted=True),lambda v:v.update(status='PRIVATE'),
+                 lambda v:v.update(result=None),lambda v:v['result'].update(status='FAIL'),
+                 lambda v:v['result'].update(leaseReleased=False),lambda v:v['result']['cleanup'].update(status='FAIL'),
+                 lambda v:v['result']['cleanup'].update(leftovers=['resource']),
+                 lambda v:v['result']['cleanup'].update(errors=['never-public'])]
+        for change in changes:
+            value=deepcopy(self.clean);change(value);self.assertIsNone(self.report(value))
+        (self.root/'cleanup.json').write_text('not json');self.assertIsNone(o.cleanup_report(self.root))
+        (self.root/'cleanup.json').unlink();(self.root/'cleanup.json').symlink_to(self.root/'elsewhere')
+        o.artifacts.save(self.root/'elsewhere',self.clean);self.assertIsNone(o.cleanup_report(self.root))
+    def test_late_cleanup_failure_overrides_an_earlier_pass(self):
+        self.report(self.clean);o.artifacts.save(self.root/'cleanup-failure.json',dict(private='never-public'))
+        self.assertEqual(dict(status='FAIL'),o.cleanup_report(self.root))
 
 
 class SecretLifetimeTest(unittest.TestCase):
