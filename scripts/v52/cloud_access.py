@@ -8,6 +8,22 @@ from .evidence import need, encoded, digest
 from . import remote_command as command, remote_host as host
 
 SCHEMA = 'gse-v52-guest-access-v1'
+KEY_FAILURES = {
+    'SECRET_INVALID': 'V5.2 private SSH secret missing/invalid',
+    'FILE_INVALID': 'V5.2 SSH owned private key',
+    'KEYGEN_UNAVAILABLE': 'V5.2 SSH key reader unavailable',
+    'KEYGEN_TIMEOUT': 'V5.2 SSH key reader timed out',
+    'KEY_UNREADABLE': 'V5.2 private SSH key could not be read',
+    'PUBLIC_KEY_INVALID': 'V5.2 keygen Ed25519 public key invalid',
+    'KEY_MISMATCH': 'V5.2 SSH private/public key mismatch',
+}
+
+
+class PrivateKeyError(ValueError):
+    """Only fixed codes/messages may cross the operator diagnostic boundary."""
+    def __init__(self, reason):
+        super().__init__(KEY_FAILURES[reason])
+        self.code = 'V52_SSH_'+reason
 
 
 def ed25519(value):
@@ -57,19 +73,29 @@ def _keygen_public_key(raw):
 
 def private_public_key(path):
     """Read an owned, unencrypted private key without exposing keygen stderr."""
-    path = Path(path); command.directory(path.parent)
-    need(path.is_absolute() and path.is_file() and not path.is_symlink() and
-         path.stat().st_uid == os.getuid() and path.stat().st_mode & 0o077 == 0 and
-         path.stat().st_size <= 4096, 'V5.2 SSH owned private key')
-    result = subprocess.run(['ssh-keygen', '-y', '-P', '', '-f', str(path)], stdin=subprocess.DEVNULL,
-                            capture_output=True, timeout=10)
-    need(result.returncode == 0, 'V5.2 private SSH key could not be read')
-    return _keygen_public_key(result.stdout)
+    path = Path(path)
+    try:
+        command.directory(path.parent)
+        need(path.is_absolute() and path.is_file() and not path.is_symlink() and
+             path.stat().st_uid == os.getuid() and path.stat().st_mode & 0o077 == 0 and
+             path.stat().st_size <= 4096, 'V5.2 SSH owned private key')
+    except (OSError, ValueError):
+        raise PrivateKeyError('FILE_INVALID') from None
+    try:
+        result = subprocess.run(['ssh-keygen', '-y', '-P', '', '-f', str(path)], stdin=subprocess.DEVNULL,
+                                capture_output=True, timeout=10)
+    except subprocess.TimeoutExpired:
+        raise PrivateKeyError('KEYGEN_TIMEOUT') from None
+    except OSError:
+        raise PrivateKeyError('KEYGEN_UNAVAILABLE') from None
+    if result.returncode != 0: raise PrivateKeyError('KEY_UNREADABLE')
+    try: return _keygen_public_key(result.stdout)
+    except ValueError: raise PrivateKeyError('PUBLIC_KEY_INVALID') from None
 
 
 def check_private_key(path, value):
     validate(value)
-    need(private_public_key(path) == value['publicKey'], 'V5.2 SSH private/public key mismatch')
+    if private_public_key(path) != value['publicKey']: raise PrivateKeyError('KEY_MISMATCH')
 
 
 class HostKeyPending(ValueError): pass

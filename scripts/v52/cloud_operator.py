@@ -34,10 +34,18 @@ def environment(env):
 def private_key():
     """Consume the secret once; children never inherit its raw environment value."""
     raw = os.environ.pop('V52_SSH_KEY', None)
-    need(type(raw) is str and 1 <= len(raw.encode()) <= 4096 and raw.startswith('-----BEGIN OPENSSH PRIVATE KEY-----\n'),
-         'V5.2 private SSH secret missing/invalid')
+    try:
+        need(type(raw) is str and 1 <= len(raw.encode()) <= 4096 and raw.startswith('-----BEGIN OPENSSH PRIVATE KEY-----\n'),
+             'V5.2 private SSH secret missing/invalid')
+        data = raw.encode(); raw = None
+        # gh secret set trims trailing CR/LF from stdin. OpenSSH still needs the
+        # final LF in the temporary file. Never strip/rewrite the key body.
+        if not data.endswith(b'\n'): data += b'\n'
+        need(len(data) <= 4096, 'V5.2 private SSH secret bound')
+    except ValueError:
+        raise access.PrivateKeyError('SECRET_INVALID') from None
     with tempfile.TemporaryDirectory(prefix='gse-v52-operator-key-') as directory:
-        path = Path(directory)/'identity'; data = raw.encode(); raw = None
+        path = Path(directory)/'identity'
         fd = os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW, 0o600)
         with os.fdopen(fd, 'wb') as stream: stream.write(data)
         data = None
@@ -71,7 +79,7 @@ def execute_native(source, output):
             artifacts.save(output/'approval.json', approval)
             phase = 'run-key'; progress.update(phase)
             with private_key() as (key, public):
-                need(public == plan['request']['guestAccess']['publicKey'], 'V5.2 prepared SSH key changed')
+                if public != plan['request']['guestAccess']['publicKey']: raise access.PrivateKeyError('KEY_MISMATCH')
                 access.check_private_key(key, plan['request']['guestAccess'])
                 phase = 'run'; progress.update(phase)
                 result = execution.run_native(source, files/'plan.json', output/'approval.json', sha, files/'inputs.tar.gz', key, output/'run')
@@ -93,6 +101,7 @@ def execute_native(source, output):
     except BaseException as error:
         failure = dict(status='FAIL', operation=operation, phase=phase, source=source,
             code='V52_OPERATOR_'+phase.upper().replace('-', '_')+'_REJECTED', errorType=type(error).__name__, fullRemoteQualification=False)
+        if isinstance(error, access.PrivateKeyError): failure['causeCode'] = error.code
         for relative in ('prepare/failure.json', 'prepared/failure.json', 'run/failure.json', 'run/native/failure.json'):
             path = output/relative
             if path.is_file():
