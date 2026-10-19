@@ -18,9 +18,10 @@ def fencing_before_settlement(rows,traces,node,epoch,start,end,release,manifest)
     """A peer's correlated durable promise can fence before our own force.
 
     Keep local promise persistence inside the held-dispatch interval mandatory.
-    A response is causal evidence only with matching peer REPLY and an earlier
-    force of that exact ballot in the responder's own process. Never compare
-    order counters or clocks across processes.
+    A STALE_EPOCH rejection or nonce-bound AUTHORITY_STATUS response is causal
+    evidence only with matching peer REPLY and an earlier force of that exact
+    ballot in the responder's own process. Never compare order counters or
+    clocks across processes.
     """
     def ballot(value):return tuple(value[k] for k in ('epoch','proposer','incarnation'))
     promises=crossing(rows,epoch,start,release)
@@ -28,11 +29,17 @@ def fencing_before_settlement(rows,traces,node,epoch,start,end,release,manifest)
     for row in rows:
         if row['event']!='RECEIVED' or not start<row['order']<end:continue
         response=e.physical.f.wire(e.physical.raw(row['frame']),manifest)
-        if response['type']!='REJECT' or response['payload'].get('reason')!='STALE_EPOCH':continue
+        status=response['type']=='AUTHORITY_STATUS'
+        if not status and (response['type']!='REJECT' or response['payload'].get('reason')!='STALE_EPOCH'):continue
         request=e.physical.f.wire(e.physical.raw(row['request']),manifest)
+        if status:
+            if request['type']!='AUTHORITY_STATUS_PROBE':continue
+            nonce=request['payload'].get('nonce')
+            need(isinstance(nonce,str) and nonce and nonce==response['payload'].get('nonce'),
+                 'uncorrelated read fencing status nonce')
         need(all(request[k]==response[k] for k in ('groupId','configurationId','manifestDigest','traceId','eventSequence','epoch','incarnationId','proposer')) and
              request['sender']==response['recipient']==node and request['recipient']==response['sender']!=node,
-             'uncorrelated read fencing rejection')
+             'uncorrelated read fencing response')
         promised=response['payload']['promised']
         if request['epoch']!=epoch or promised['epoch']<=epoch:continue
         peer=traces.get(response['sender'],[])
@@ -41,7 +48,7 @@ def fencing_before_settlement(rows,traces,node,epoch,start,end,release,manifest)
         need(any(force['event']=='FORCE' and force['kind']=='PROMISE' and force['pid']==reply['pid'] and
                  force['order']<reply['order'] and ballot(e.physical.frame(force['record'],'PROMISE',manifest))==ballot(promised)
                  for reply in replies for force in peer),'read fencing reply lacks earlier durable peer promise')
-        return 'peer-promise'
+        return 'peer-status-promise' if status else 'peer-promise'
     raise ValueError('missing higher promise before read settlement')
 
 

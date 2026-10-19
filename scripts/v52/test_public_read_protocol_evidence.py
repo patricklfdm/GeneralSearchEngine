@@ -101,5 +101,71 @@ class EarlyPromiseFencingTest(unittest.TestCase):
             self.wires['response']=changed
             with self.subTest(changed=changed),self.assertRaisesRegex(ValueError,'before read settlement'):self.check()
 
+    def use_status(self):
+        self.request.update(type='AUTHORITY_STATUS_PROBE',payload=dict(nonce='probe'))
+        self.response.update(type='AUTHORITY_STATUS',payload=dict(nonce='probe',promised=self.ballot))
+
+    def test_peer_authority_status_can_fence_before_local_persistence(self):
+        self.use_status()
+        self.assertEqual('peer-status-promise',self.check())
+        self.records['local']=dict(epoch=9,proposer='node-3',incarnation='later')
+        self.assertEqual('peer-status-promise',self.check())
+
+    def test_status_requires_the_original_probe_nonce(self):
+        self.use_status()
+        for request,response in (({},{}),({'nonce':''},{'nonce':''}),({'nonce':1},{'nonce':1}),
+                                 ({'nonce':'probe'},{}),({}, {'nonce':'probe'}),
+                                 ({'nonce':'probe'},{'nonce':'other'})):
+            self.request['payload']=request;self.response['payload']=dict(response,promised=self.ballot)
+            with self.subTest(request=request,response=response),self.assertRaisesRegex(ValueError,'status nonce'):self.check()
+
+    def test_status_requires_a_probe_and_higher_promise_for_the_held_epoch(self):
+        self.use_status()
+        for request_type,response_type,request_epoch,promised_epoch in (
+                ('HEARTBEAT','AUTHORITY_STATUS',2,6),('AUTHORITY_STATUS_PROBE','OTHER',2,6),
+                ('AUTHORITY_STATUS_PROBE','AUTHORITY_STATUS',3,6),
+                ('AUTHORITY_STATUS_PROBE','AUTHORITY_STATUS',2,2),
+                ('AUTHORITY_STATUS_PROBE','AUTHORITY_STATUS',2,1)):
+            self.request.update(type=request_type,epoch=request_epoch)
+            self.response.update(type=response_type,epoch=request_epoch)
+            self.response['payload']['promised']=dict(self.ballot,epoch=promised_epoch)
+            with self.subTest(request_type=request_type,response_type=response_type,epoch=request_epoch,promise=promised_epoch), \
+                 self.assertRaisesRegex(ValueError,'before read settlement'):self.check()
+
+    def test_status_requires_correlated_envelope(self):
+        self.use_status();original=copy.deepcopy(self.response)
+        for key in ('groupId','configurationId','manifestDigest','traceId','eventSequence','epoch','incarnationId','proposer','sender','recipient'):
+            self.wires['response']=dict(original,**{key:'changed'})
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'uncorrelated'):self.check()
+
+    def test_status_requires_exact_peer_reply_and_earlier_same_process_force(self):
+        self.use_status();original=copy.deepcopy(self.peer)
+        for peer,reason in ((original[:1],'unobserved'),(original[1:],'earlier durable'),
+                            ([original[0],dict(original[1],frame='other')],'unobserved'),
+                            ([original[0],dict(original[1],request='other')],'unobserved'),
+                            ([dict(original[0],order=200),original[1]],'earlier durable'),
+                            ([dict(original[0],order=201),original[1]],'earlier durable'),
+                            ([dict(original[0],pid=99),original[1]],'earlier durable')):
+            self.peer=peer
+            with self.subTest(peer=peer),self.assertRaisesRegex(ValueError,reason):self.check()
+
+    def test_status_requires_exact_durable_ballot(self):
+        self.use_status();original=copy.deepcopy(self.records)
+        for key,value in (('epoch',7),('proposer','node-3'),('incarnation','other')):
+            self.records=copy.deepcopy(original);self.records['peer'][key]=value
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'earlier durable'):self.check()
+
+    def test_status_must_arrive_inside_the_pre_settlement_interval(self):
+        self.use_status()
+        for order in (9,10,30,31):
+            self.rows[0]['order']=order
+            with self.subTest(order=order),self.assertRaisesRegex(ValueError,'before read settlement'):self.check()
+
+    def test_status_cannot_replace_local_persistence_within_the_hold(self):
+        self.use_status()
+        for order in (9,10,50,51):
+            self.rows[1]['order']=order
+            with self.subTest(order=order),self.assertRaisesRegex(ValueError,'crossing higher promise'):self.check()
+
 
 if __name__=='__main__':unittest.main()
