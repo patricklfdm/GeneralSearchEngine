@@ -12,7 +12,7 @@ import tempfile
 import threading
 import time
 import unittest
-from unittest.mock import Mock,patch
+from unittest.mock import Mock,mock_open,patch
 from . import cloud_iap as iap,cloud_guest_identity as guest,cloud_identity as identity
 from . import test_cloud_native_runner as runner_test
 from .test_cloud_identity import public_key
@@ -26,6 +26,39 @@ def until(predicate,seconds=5):
     while not predicate():
         if time.monotonic()>=end:raise AssertionError('local helper did not reach expected state')
         time.sleep(.01)
+
+
+def process_exited(pid):
+    # Reaping can remove the process after stat is opened but before read().
+    try:return Path('/proc/'+str(pid)+'/stat').read_text().rsplit(')',1)[1].split()[0] in ('Z','X')
+    except (FileNotFoundError,ProcessLookupError):return True
+
+
+class ProcessExitObservationTest(unittest.TestCase):
+    def test_process_disappearance_at_open_or_read_means_exited(self):
+        for stage in ('open','read'):
+            for error in (FileNotFoundError(2,'No such file'),ProcessLookupError(3,'No such process')):
+                opened=mock_open()
+                if stage=='open':opened.side_effect=error
+                else:opened.return_value.read.side_effect=error
+                with self.subTest(stage=stage,error=type(error).__name__),patch.object(Path,'open',opened):
+                    self.assertTrue(process_exited(123))
+
+    def test_running_and_sleeping_children_are_not_mistaken_for_exited(self):
+        for state,exited in (('R',False),('S',False),('D',False),('T',False),('Z',True),('X',True)):
+            with self.subTest(state=state),patch.object(Path,'open',mock_open(read_data='123 (helper with ) in name) '+state+' 1 2 3')):
+                self.assertEqual(exited,process_exited(123))
+
+    def test_permission_and_io_errors_are_not_mistaken_for_exited(self):
+        for stage in ('open','read'):
+            for error in (PermissionError(13,'Permission denied'),OSError(5,'I/O error')):
+                opened=mock_open()
+                if stage=='open':opened.side_effect=error
+                else:opened.return_value.read.side_effect=error
+                with self.subTest(stage=stage,error=type(error).__name__),patch.object(Path,'open',opened), \
+                     self.assertRaises(type(error)) as raised:
+                    process_exited(123)
+                self.assertIs(error,raised.exception)
 
 
 class GuestProbeTest(unittest.TestCase):
@@ -193,10 +226,7 @@ class LocalForwardTest(unittest.TestCase):
             except ProcessLookupError:pass
         self.addCleanup(stop)
         self.forward.channels[0].proc.wait(timeout=5);self.forward.close()
-        def dead():
-            try:return Path('/proc/'+str(pid)+'/stat').read_text().rsplit(')',1)[1].split()[0] in ('Z','X')
-            except FileNotFoundError:return True
-        until(dead);self.assertEqual(1,len(self.calls))
+        until(lambda:process_exited(pid));self.assertEqual(1,len(self.calls))
 
 
 class RealSshForwardTest(unittest.TestCase):
