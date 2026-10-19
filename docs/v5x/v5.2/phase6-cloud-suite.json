@@ -1,0 +1,3270 @@
+{
+  "schema": "gse-v52-cloud-suite-v1",
+  "status": "LOGICAL_PLAN_NOT_ADMISSION",
+  "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+  "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+  "members": {
+    "experiment": {
+      "histories": [
+        "published-v51-legacy-strong-untimed-smoke",
+        "candidate-legacy-strong-untimed-smoke",
+        "candidate-explicit-strong-untimed-smoke",
+        "candidate-stale-untimed-smoke",
+        "candidate-minimum-untimed-smoke"
+      ],
+      "reads": 55,
+      "updates": 15,
+      "nominalM01Seconds": 0
+    },
+    "failure-drill": {
+      "histories": [
+        "m02-below-0",
+        "m02-below-1000",
+        "m02-below-5000",
+        "m02-equal-0",
+        "m02-equal-1000",
+        "m02-equal-5000",
+        "m02-above-0",
+        "m02-above-1000",
+        "m02-above-5000",
+        "m03-p4",
+        "m03-p65",
+        "leader-sigkill-retained-restart",
+        "follower-snapshot-carried-token"
+      ],
+      "reads": 358,
+      "updates": 45,
+      "nominalM01Seconds": 0
+    },
+    "canonical-1": {
+      "histories": [
+        "published-v51-legacy-strong-r1",
+        "candidate-legacy-strong-r1",
+        "candidate-explicit-strong-r1",
+        "candidate-stale-r1",
+        "candidate-minimum-r1"
+      ],
+      "reads": 9005,
+      "updates": 900,
+      "nominalM01Seconds": 900
+    },
+    "canonical-2": {
+      "histories": [
+        "published-v51-legacy-strong-r2",
+        "candidate-legacy-strong-r2",
+        "candidate-explicit-strong-r2",
+        "candidate-stale-r2",
+        "candidate-minimum-r2"
+      ],
+      "reads": 9005,
+      "updates": 900,
+      "nominalM01Seconds": 900
+    },
+    "canonical-3": {
+      "histories": [
+        "published-v51-legacy-strong-r3",
+        "candidate-legacy-strong-r3",
+        "candidate-explicit-strong-r3",
+        "candidate-stale-r3",
+        "candidate-minimum-r3"
+      ],
+      "reads": 9005,
+      "updates": 900,
+      "nominalM01Seconds": 900
+    }
+  },
+  "histories": {
+    "published-v51-legacy-strong-r1": {
+      "family": "M01",
+      "mode": "published-v51-legacy-strong",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "published-v51-legacy-strong",
+        "repetition": 1,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "published-v51-legacy-strong-r2": {
+      "family": "M01",
+      "mode": "published-v51-legacy-strong",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "published-v51-legacy-strong",
+        "repetition": 2,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "published-v51-legacy-strong-r3": {
+      "family": "M01",
+      "mode": "published-v51-legacy-strong",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "published-v51-legacy-strong",
+        "repetition": 3,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-legacy-strong-r1": {
+      "family": "M01",
+      "mode": "candidate-legacy-strong",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-legacy-strong",
+        "repetition": 1,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-legacy-strong-r2": {
+      "family": "M01",
+      "mode": "candidate-legacy-strong",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-legacy-strong",
+        "repetition": 2,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-legacy-strong-r3": {
+      "family": "M01",
+      "mode": "candidate-legacy-strong",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-legacy-strong",
+        "repetition": 3,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-explicit-strong-r1": {
+      "family": "M01",
+      "mode": "candidate-explicit-strong",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-explicit-strong",
+        "repetition": 1,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-explicit-strong-r2": {
+      "family": "M01",
+      "mode": "candidate-explicit-strong",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-explicit-strong",
+        "repetition": 2,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-explicit-strong-r3": {
+      "family": "M01",
+      "mode": "candidate-explicit-strong",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-explicit-strong",
+        "repetition": 3,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-stale-r1": {
+      "family": "M01",
+      "mode": "candidate-stale",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-stale",
+        "repetition": 1,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-stale-r2": {
+      "family": "M01",
+      "mode": "candidate-stale",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-stale",
+        "repetition": 2,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-stale-r3": {
+      "family": "M01",
+      "mode": "candidate-stale",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-stale",
+        "repetition": 3,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-minimum-r1": {
+      "family": "M01",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-minimum",
+        "repetition": 1,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-minimum-r2": {
+      "family": "M01",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-minimum",
+        "repetition": 2,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "candidate-minimum-r3": {
+      "family": "M01",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-m01-controller-v1",
+        "family": "M01",
+        "mode": "candidate-minimum",
+        "repetition": 3,
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "durationNanos": 180000000000,
+        "markers": [
+          {
+            "name": "warmup-start",
+            "offsetNanos": 0
+          },
+          {
+            "name": "measured-start",
+            "offsetNanos": 60000000000
+          },
+          {
+            "name": "measured-end",
+            "offsetNanos": 180000000000
+          }
+        ],
+        "initialization": "initial-strong-read-and-sequence-one-targets",
+        "activationSeconds": 40,
+        "publicationSeconds": 40,
+        "drainSeconds": 125,
+        "businessRetries": 0
+      }
+    },
+    "m02-below-0": {
+      "family": "M02",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m02-below-0",
+        "family": "M02",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M02",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 0,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "below",
+        "readCount": 30,
+        "setupUpdates": 3,
+        "readTarget": "selected-quorum-follower",
+        "releaseUpdate": false,
+        "releaseDelayNanos": 0,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 35,
+        "businessRetries": 0
+      }
+    },
+    "m02-below-1000": {
+      "family": "M02",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m02-below-1000",
+        "family": "M02",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M02",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 1000,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "below",
+        "readCount": 30,
+        "setupUpdates": 3,
+        "readTarget": "selected-quorum-follower",
+        "releaseUpdate": false,
+        "releaseDelayNanos": 0,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 35,
+        "businessRetries": 0
+      }
+    },
+    "m02-below-5000": {
+      "family": "M02",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m02-below-5000",
+        "family": "M02",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M02",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 5000,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "below",
+        "readCount": 30,
+        "setupUpdates": 3,
+        "readTarget": "selected-quorum-follower",
+        "releaseUpdate": false,
+        "releaseDelayNanos": 0,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 35,
+        "businessRetries": 0
+      }
+    },
+    "m02-equal-0": {
+      "family": "M02",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m02-equal-0",
+        "family": "M02",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M02",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 0,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "equal",
+        "readCount": 30,
+        "setupUpdates": 3,
+        "readTarget": "selected-quorum-follower",
+        "releaseUpdate": false,
+        "releaseDelayNanos": 0,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 35,
+        "businessRetries": 0
+      }
+    },
+    "m02-equal-1000": {
+      "family": "M02",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m02-equal-1000",
+        "family": "M02",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M02",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 1000,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "equal",
+        "readCount": 30,
+        "setupUpdates": 3,
+        "readTarget": "selected-quorum-follower",
+        "releaseUpdate": false,
+        "releaseDelayNanos": 0,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 35,
+        "businessRetries": 0
+      }
+    },
+    "m02-equal-5000": {
+      "family": "M02",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m02-equal-5000",
+        "family": "M02",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M02",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 5000,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "equal",
+        "readCount": 30,
+        "setupUpdates": 3,
+        "readTarget": "selected-quorum-follower",
+        "releaseUpdate": false,
+        "releaseDelayNanos": 0,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 35,
+        "businessRetries": 0
+      }
+    },
+    "m02-above-0": {
+      "family": "M02",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m02-above-0",
+        "family": "M02",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M02",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 0,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "above",
+        "readCount": 30,
+        "setupUpdates": 3,
+        "readTarget": "selected-quorum-follower",
+        "releaseUpdate": false,
+        "releaseDelayNanos": 0,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 35,
+        "businessRetries": 0
+      }
+    },
+    "m02-above-1000": {
+      "family": "M02",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m02-above-1000",
+        "family": "M02",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M02",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 1000,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "above",
+        "readCount": 30,
+        "setupUpdates": 3,
+        "readTarget": "selected-quorum-follower",
+        "releaseUpdate": true,
+        "releaseDelayNanos": 250000000,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 35,
+        "businessRetries": 0
+      }
+    },
+    "m02-above-5000": {
+      "family": "M02",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m02-above-5000",
+        "family": "M02",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M02",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 5000,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "above",
+        "readCount": 30,
+        "setupUpdates": 3,
+        "readTarget": "selected-quorum-follower",
+        "releaseUpdate": true,
+        "releaseDelayNanos": 250000000,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 35,
+        "businessRetries": 0
+      }
+    },
+    "m03-p4": {
+      "family": "M03",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m03-p4",
+        "family": "M03",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M03",
+          "pendingLimit": 4,
+          "waitTimeoutMillis": 60000,
+          "operationTimeoutMillis": 120000
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "above",
+        "readCount": 3,
+        "setupUpdates": 3,
+        "readTarget": "initial-leader",
+        "releaseUpdate": true,
+        "releaseDelayNanos": 0,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 75,
+        "businessRetries": 0
+      }
+    },
+    "m03-p65": {
+      "family": "M03",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-minimum-controller-v1",
+        "case": "m03-p65",
+        "family": "M03",
+        "mode": "candidate-minimum",
+        "parameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M03",
+          "pendingLimit": 65,
+          "waitTimeoutMillis": 60000,
+          "operationTimeoutMillis": 120000
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "relation": "above",
+        "readCount": 64,
+        "setupUpdates": 3,
+        "readTarget": "initial-leader",
+        "releaseUpdate": true,
+        "releaseDelayNanos": 0,
+        "activationSeconds": 40,
+        "floorSeconds": 80,
+        "gateSeconds": 10,
+        "pollIntervalNanos": 100000000,
+        "drainSeconds": 75,
+        "businessRetries": 0
+      }
+    },
+    "leader-sigkill-retained-restart": {
+      "family": "M04",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-recovery-controller-v1",
+        "family": "M04",
+        "case": "leader-sigkill-retained-restart",
+        "mode": "candidate-minimum",
+        "faultParameters": {
+          "schema": "gse-v52-recovery-fault-v1",
+          "case": "leader-sigkill-retained-restart"
+        },
+        "readParameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M01",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 5000,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "setupUpdates": 3,
+        "activationSeconds": 40,
+        "recoverySeconds": 80,
+        "pollIntervalNanos": 100000000,
+        "businessRetries": 0,
+        "resourceSampling": "per-process-start-stop-or-declared-sigkill-prefix"
+      }
+    },
+    "follower-snapshot-carried-token": {
+      "family": "M04",
+      "mode": "candidate-minimum",
+      "profile": {
+        "schema": "gse-v52-recovery-controller-v1",
+        "family": "M04",
+        "case": "follower-snapshot-carried-token",
+        "mode": "candidate-minimum",
+        "faultParameters": {
+          "schema": "gse-v52-recovery-fault-v1",
+          "case": "follower-snapshot-carried-token"
+        },
+        "readParameters": {
+          "schema": "gse-v52-read-measurement-parameters-v1",
+          "family": "M01",
+          "pendingLimit": 64,
+          "waitTimeoutMillis": 5000,
+          "operationTimeoutMillis": 9600
+        },
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "setupUpdates": 3,
+        "activationSeconds": 40,
+        "recoverySeconds": 80,
+        "pollIntervalNanos": 100000000,
+        "businessRetries": 0,
+        "resourceSampling": "per-process-start-stop-or-declared-sigkill-prefix"
+      }
+    },
+    "published-v51-legacy-strong-untimed-smoke": {
+      "family": "UNTIMED",
+      "mode": "published-v51-legacy-strong",
+      "reads": 11,
+      "updates": 3,
+      "initialization": "read-write-targets-confirmed-updates-v1",
+      "measurement": false
+    },
+    "candidate-legacy-strong-untimed-smoke": {
+      "family": "UNTIMED",
+      "mode": "candidate-legacy-strong",
+      "reads": 11,
+      "updates": 3,
+      "initialization": "read-write-targets-confirmed-updates-v1",
+      "measurement": false
+    },
+    "candidate-explicit-strong-untimed-smoke": {
+      "family": "UNTIMED",
+      "mode": "candidate-explicit-strong",
+      "reads": 11,
+      "updates": 3,
+      "initialization": "read-write-targets-confirmed-updates-v1",
+      "measurement": false
+    },
+    "candidate-stale-untimed-smoke": {
+      "family": "UNTIMED",
+      "mode": "candidate-stale",
+      "reads": 11,
+      "updates": 3,
+      "initialization": "read-write-targets-confirmed-updates-v1",
+      "measurement": false
+    },
+    "candidate-minimum-untimed-smoke": {
+      "family": "UNTIMED",
+      "mode": "candidate-minimum",
+      "reads": 11,
+      "updates": 3,
+      "initialization": "read-write-targets-confirmed-updates-v1",
+      "measurement": false
+    }
+  },
+  "formalNegativeRules": {
+    "published-v51-legacy-strong-r1": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      }
+    ],
+    "published-v51-legacy-strong-r2": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      }
+    ],
+    "published-v51-legacy-strong-r3": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      }
+    ],
+    "candidate-legacy-strong-r1": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      }
+    ],
+    "candidate-legacy-strong-r2": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      }
+    ],
+    "candidate-legacy-strong-r3": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      }
+    ],
+    "candidate-explicit-strong-r1": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      },
+      {
+        "case": "changed-capture-sequence",
+        "status": "REJECTED",
+        "reason": "measurement capture differs from local publication"
+      },
+      {
+        "case": "changed-strong-epoch",
+        "status": "REJECTED",
+        "reason": "measurement strong barrier not fresh"
+      },
+      {
+        "case": "changed-settling-count",
+        "status": "REJECTED",
+        "reason": "measurement ownership accounting differs from transitions"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      }
+    ],
+    "candidate-explicit-strong-r2": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      },
+      {
+        "case": "changed-capture-sequence",
+        "status": "REJECTED",
+        "reason": "measurement capture differs from local publication"
+      },
+      {
+        "case": "changed-strong-epoch",
+        "status": "REJECTED",
+        "reason": "measurement strong barrier not fresh"
+      },
+      {
+        "case": "changed-settling-count",
+        "status": "REJECTED",
+        "reason": "measurement ownership accounting differs from transitions"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      }
+    ],
+    "candidate-explicit-strong-r3": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      },
+      {
+        "case": "changed-capture-sequence",
+        "status": "REJECTED",
+        "reason": "measurement capture differs from local publication"
+      },
+      {
+        "case": "changed-strong-epoch",
+        "status": "REJECTED",
+        "reason": "measurement strong barrier not fresh"
+      },
+      {
+        "case": "changed-settling-count",
+        "status": "REJECTED",
+        "reason": "measurement ownership accounting differs from transitions"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      }
+    ],
+    "candidate-stale-r1": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      },
+      {
+        "case": "changed-capture-sequence",
+        "status": "REJECTED",
+        "reason": "measurement capture differs from local publication"
+      },
+      {
+        "case": "changed-strong-epoch",
+        "status": "REJECTED",
+        "reason": "measurement strong barrier not fresh"
+      },
+      {
+        "case": "changed-settling-count",
+        "status": "REJECTED",
+        "reason": "measurement ownership accounting differs from transitions"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      }
+    ],
+    "candidate-stale-r2": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      },
+      {
+        "case": "changed-capture-sequence",
+        "status": "REJECTED",
+        "reason": "measurement capture differs from local publication"
+      },
+      {
+        "case": "changed-strong-epoch",
+        "status": "REJECTED",
+        "reason": "measurement strong barrier not fresh"
+      },
+      {
+        "case": "changed-settling-count",
+        "status": "REJECTED",
+        "reason": "measurement ownership accounting differs from transitions"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      }
+    ],
+    "candidate-stale-r3": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      },
+      {
+        "case": "changed-capture-sequence",
+        "status": "REJECTED",
+        "reason": "measurement capture differs from local publication"
+      },
+      {
+        "case": "changed-strong-epoch",
+        "status": "REJECTED",
+        "reason": "measurement strong barrier not fresh"
+      },
+      {
+        "case": "changed-settling-count",
+        "status": "REJECTED",
+        "reason": "measurement ownership accounting differs from transitions"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      }
+    ],
+    "candidate-minimum-r1": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      },
+      {
+        "case": "changed-capture-sequence",
+        "status": "REJECTED",
+        "reason": "measurement capture differs from local publication"
+      },
+      {
+        "case": "changed-strong-epoch",
+        "status": "REJECTED",
+        "reason": "measurement strong barrier not fresh"
+      },
+      {
+        "case": "changed-settling-count",
+        "status": "REJECTED",
+        "reason": "measurement ownership accounting differs from transitions"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-carried-token",
+        "status": "REJECTED",
+        "reason": "measurement changed carried initial token"
+      }
+    ],
+    "candidate-minimum-r2": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      },
+      {
+        "case": "changed-capture-sequence",
+        "status": "REJECTED",
+        "reason": "measurement capture differs from local publication"
+      },
+      {
+        "case": "changed-strong-epoch",
+        "status": "REJECTED",
+        "reason": "measurement strong barrier not fresh"
+      },
+      {
+        "case": "changed-settling-count",
+        "status": "REJECTED",
+        "reason": "measurement ownership accounting differs from transitions"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-carried-token",
+        "status": "REJECTED",
+        "reason": "measurement changed carried initial token"
+      }
+    ],
+    "candidate-minimum-r3": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "load offered count"
+      },
+      {
+        "case": "shortened-window",
+        "status": "REJECTED",
+        "reason": "load incomplete dispatch"
+      },
+      {
+        "case": "shifted-due-time",
+        "status": "REJECTED",
+        "reason": "load changed offered request"
+      },
+      {
+        "case": "hidden-business-retry",
+        "status": "REJECTED",
+        "reason": "measurement undeclared/missing offered business call"
+      },
+      {
+        "case": "changed-read-target",
+        "status": "REJECTED",
+        "reason": "measurement offered target/setup substitution"
+      },
+      {
+        "case": "changed-controller-answer",
+        "status": "REJECTED",
+        "reason": "measurement ledger response binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-command-receipt",
+        "status": "REJECTED",
+        "reason": "measurement duplicate/unreceived invocation"
+      },
+      {
+        "case": "leaked-admission-permit",
+        "status": "REJECTED",
+        "reason": "measurement idle admission leak"
+      },
+      {
+        "case": "missing-leader-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-resource-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "fabricated-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-resource-boundary",
+        "status": "REJECTED",
+        "reason": "sample incomplete/out-of-order window markers"
+      },
+      {
+        "case": "missing-read-capture",
+        "status": "REJECTED",
+        "reason": "measurement missing/duplicate entered view"
+      },
+      {
+        "case": "changed-capture-sequence",
+        "status": "REJECTED",
+        "reason": "measurement capture differs from local publication"
+      },
+      {
+        "case": "changed-strong-epoch",
+        "status": "REJECTED",
+        "reason": "measurement strong barrier not fresh"
+      },
+      {
+        "case": "changed-settling-count",
+        "status": "REJECTED",
+        "reason": "measurement ownership accounting differs from transitions"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-carried-token",
+        "status": "REJECTED",
+        "reason": "measurement changed carried initial token"
+      }
+    ],
+    "m02-below-0": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      }
+    ],
+    "m02-below-1000": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      }
+    ],
+    "m02-below-5000": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      }
+    ],
+    "m02-equal-0": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      }
+    ],
+    "m02-equal-1000": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      }
+    ],
+    "m02-equal-5000": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      }
+    ],
+    "m02-above-0": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      }
+    ],
+    "m02-above-1000": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      },
+      {
+        "case": "early-progress-release",
+        "status": "REJECTED",
+        "reason": "minimum progress release preceded gate/delay"
+      }
+    ],
+    "m02-above-5000": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      },
+      {
+        "case": "early-progress-release",
+        "status": "REJECTED",
+        "reason": "minimum progress release preceded gate/delay"
+      }
+    ],
+    "m03-p4": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      },
+      {
+        "case": "early-progress-release",
+        "status": "REJECTED",
+        "reason": "minimum progress release preceded gate/delay"
+      },
+      {
+        "case": "missing-reserved-slot",
+        "status": "REJECTED",
+        "reason": "minimum saturation queue gate"
+      }
+    ],
+    "m03-p65": [
+      {
+        "case": "missing-offer",
+        "status": "REJECTED",
+        "reason": "minimum incomplete offered ledger"
+      },
+      {
+        "case": "hidden-business-call",
+        "status": "REJECTED",
+        "reason": "minimum undeclared business call"
+      },
+      {
+        "case": "changed-response",
+        "status": "REJECTED",
+        "reason": "minimum offered response/clock binding"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "changed-bound",
+        "status": "REJECTED",
+        "reason": "INVALID_TOKEN"
+      },
+      {
+        "case": "early-gate",
+        "status": "REJECTED",
+        "reason": "minimum gate controller order"
+      },
+      {
+        "case": "fabricated-admission-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated admission counter"
+      },
+      {
+        "case": "fabricated-floor-counter",
+        "status": "REJECTED",
+        "reason": "minimum fabricated recovery floor counter"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      },
+      {
+        "case": "early-progress-release",
+        "status": "REJECTED",
+        "reason": "minimum progress release preceded gate/delay"
+      },
+      {
+        "case": "missing-reserved-slot",
+        "status": "REJECTED",
+        "reason": "minimum saturation queue gate"
+      }
+    ],
+    "leader-sigkill-retained-restart": [
+      {
+        "case": "hidden-business",
+        "status": "REJECTED",
+        "reason": "recovery undeclared business call"
+      },
+      {
+        "case": "changed-carried-token",
+        "status": "REJECTED",
+        "reason": "recovery initial strong token"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-fault-configuration",
+        "status": "REJECTED",
+        "reason": "recovery fault configuration observation"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      },
+      {
+        "case": "foreign-process-row",
+        "status": "REJECTED",
+        "reason": "measurement undeclared trace process"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "changed-crash-pid",
+        "status": "REJECTED",
+        "reason": "recovery crash process binding"
+      },
+      {
+        "case": "changed-retained-inventory",
+        "status": "REJECTED",
+        "reason": "recovery pre-reopen inventory/bound"
+      },
+      {
+        "case": "missing-restored-generation",
+        "status": "REJECTED",
+        "reason": "recovery missing/duplicate retained restoration"
+      },
+      {
+        "case": "early-restart",
+        "status": "REJECTED",
+        "reason": "recovery crash/restart milestone order"
+      },
+      {
+        "case": "fabricated-abrupt-stop",
+        "status": "REJECTED",
+        "reason": "sample start/stop coverage"
+      }
+    ],
+    "follower-snapshot-carried-token": [
+      {
+        "case": "hidden-business",
+        "status": "REJECTED",
+        "reason": "recovery undeclared business call"
+      },
+      {
+        "case": "changed-carried-token",
+        "status": "REJECTED",
+        "reason": "recovery initial strong token"
+      },
+      {
+        "case": "forged-query-answer",
+        "status": "REJECTED",
+        "reason": "measurement query differs from actual published core"
+      },
+      {
+        "case": "missing-fault-configuration",
+        "status": "REJECTED",
+        "reason": "recovery fault configuration observation"
+      },
+      {
+        "case": "missing-proof-force",
+        "status": "REJECTED",
+        "reason": "publication before local proof/remote ACK"
+      },
+      {
+        "case": "missing-generation-bytes",
+        "status": "REJECTED",
+        "reason": "measurement selector lacks generation bytes"
+      },
+      {
+        "case": "premature-permit-release",
+        "status": "REJECTED",
+        "reason": "measurement premature ownership release"
+      },
+      {
+        "case": "changed-wait",
+        "status": "REJECTED",
+        "reason": "measurement invoked policy/options changed"
+      },
+      {
+        "case": "foreign-process-row",
+        "status": "REJECTED",
+        "reason": "measurement undeclared trace process"
+      },
+      {
+        "case": "missing-sample",
+        "status": "REJECTED",
+        "reason": "sample missing/duplicate ordinal"
+      },
+      {
+        "case": "invented-allocation",
+        "status": "REJECTED",
+        "reason": "sample fabricated unavailable metric: allocatedBytes"
+      },
+      {
+        "case": "early-heal",
+        "status": "REJECTED",
+        "reason": "recovery partition/held publication order"
+      },
+      {
+        "case": "changed-target",
+        "status": "REJECTED",
+        "reason": "recovery snapshot target identity"
+      },
+      {
+        "case": "fabricated-install-hint",
+        "status": "REJECTED",
+        "reason": "recovery missing/reordered physical snapshot install"
+      }
+    ]
+  },
+  "totals": {
+    "members": 5,
+    "histories": 33,
+    "formalHistories": 28,
+    "reads": 27428,
+    "updates": 2760,
+    "nominalM01Seconds": 2700,
+    "formalNegativesPerLocation": 439
+  },
+  "topology": {
+    "voters": 3,
+    "hosts": 3,
+    "placement": "one voter per owned host",
+    "bootstrap": "same immutable source backup; public bootstrap on every receiver",
+    "addresses": "explicit admitted private peer addresses",
+    "paths": "per-node original roots and receiver-local seals"
+  },
+  "execution": {
+    "memberOrder": "any",
+    "concurrentMembers": 1,
+    "concurrentHistories": 1,
+    "businessRetries": 0,
+    "workloadRetries": 0,
+    "responseLoss": "observe original command only; never resubmit business work",
+    "failedAttempts": "retain separately; never splice successful history fragments",
+    "historyBoundary": "one complete history, original session and retained lease"
+  },
+  "qualification": {
+    "requiredMembers": [
+      "experiment",
+      "failure-drill",
+      "canonical-1",
+      "canonical-2",
+      "canonical-3"
+    ],
+    "source": "one exact source and sequence",
+    "crossSourceContinuation": false,
+    "replay": "original and relocated physical/public/query/resource evidence plus exact negatives",
+    "incompleteSet": "NOT_QUALIFIED",
+    "localReceiptIsCloudEvidence": false
+  },
+  "budgets": {
+    "operationalTime": "soft warning",
+    "operationalCost": "soft warning",
+    "apiReadDeadlines": "unchanged finite semantic outcomes",
+    "authorityAndDecoderLimits": "finite enforced bounds"
+  },
+  "liveAdmission": "separate exact-master full CI, provider facts, permissions, cleanup, lease and operator authorization"
+}

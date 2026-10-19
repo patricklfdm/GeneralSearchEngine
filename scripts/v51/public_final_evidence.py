@@ -15,9 +15,12 @@ def refused(operations, identities, node, after):
     need(len(identities)==2 and len(set(identities))==2, 'missing independent read/write refusal')
     for identity, kind, outcome in zip(identities, ('read', 'addAll'), ('NOT_APPLICABLE', 'NOT_SUBMITTED')):
         op = operations[identity]
+        # A fenced handle can be campaigning or recovering rather than FOLLOWER.
+        # Its public admission then reports NOT_READY; outcomes and independent
+        # scenario-specific causal witnesses must still prove refusal.
         need(op['node']==node and op['kind']==kind and op['outcome']==outcome
              and op['startNanos']>after and op['endNanos']>op['startNanos']
-             and op.get('reasonCode') in ('NOT_LEADER', 'QUORUM_UNAVAILABLE', 'STALE_EPOCH'), 'unsafe public refusal')
+             and op.get('reasonCode') in ('NOT_LEADER', 'NOT_READY', 'QUORUM_UNAVAILABLE', 'STALE_EPOCH'), 'unsafe public refusal')
 
 
 def validate(root, traces, history, receipt):

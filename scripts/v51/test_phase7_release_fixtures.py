@@ -8,6 +8,7 @@ import unittest
 import xml.etree.ElementTree as ET
 from . import artifact_version as version, candidate_artifacts as candidate, canonical_reproducibility as canonical
 from .toolchain_manifest import validate
+from scripts.build_coordinates import current as build_version
 
 ROOT = Path(__file__).resolve().parents[2]
 NS = {'m': 'http://maven.apache.org/POM/4.0.0'}
@@ -22,13 +23,16 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
         self.assertEqual(canonical.ARTIFACTS,set(candidate.read_manifest(ROOT/candidate.MANIFEST)))
 
     def test_final_coordinates_are_aligned_in_all_applications(self):
-        self.assertEqual('5.1.0',version.current())
+        current=build_version()
+        self.assertEqual(('5.1.0-SNAPSHOT','5.1.0'),version.VERSIONS)
         for name in ('pom.xml','general-search-engine-processor/pom.xml','general-search-engine-replication/pom.xml',
                      'reactor/pom.xml','examples/travel-search/pom.xml'):
-            self.assertEqual('5.1.0',ET.parse(ROOT/name).getroot().findtext('m:version',namespaces=NS),name)
+            self.assertEqual(current,ET.parse(ROOT/name).getroot().findtext('m:version',namespaces=NS),name)
         consumers=list((ROOT/'compatibility').glob('*-style-consumer/pom.xml'))
-        self.assertEqual(6,len(consumers))
-        for path in consumers:self.assertEqual('5.1.0',ET.parse(path).getroot().findtext('m:properties/m:gse.version',namespaces=NS))
+        expected={'v1','v2','v3','v4','v5','v51'}
+        if current=='5.2.0-SNAPSHOT':expected.add('v52')
+        self.assertEqual({v+'-style-consumer' for v in expected},{p.parent.name for p in consumers})
+        for path in consumers:self.assertEqual(current,ET.parse(path).getroot().findtext('m:properties/m:gse.version',namespaces=NS))
 
     def test_ci_and_release_require_exact_commit_canonical_receipt(self):
         for name in ('ci.yml','release.yml'):

@@ -23,7 +23,7 @@ class V51RejoinCompletionTest {
         final AutomaticRejoin[] exchanges=new AutomaticRejoin[2];
         final AtomicLong ids=new AtomicLong();
         final List<String> requests=new ArrayList<>();
-        int installed;boolean loseAck,badAck,failProbe;Long reportedIndex;
+        int installed;boolean loseAck,badAck,failProbe,failAbort;Long reportedIndex;
         final AutomaticRejoin.Control control=new AutomaticRejoin.Control() {
             public <R> R call(Callable<R> task)throws Exception{return task.call();}
         };
@@ -53,21 +53,29 @@ class V51RejoinCompletionTest {
         }
         AutomaticRejoin sender() {
             return new AutomaticRejoin(stores[0],protocols[0],control,request->{
+                // Exercise the actual closed wire schema in both directions;
+                // map-only exchanges can accidentally accept unsendable cleanup.
+                request=wire(request);
                 String type=text(request,"type");requests.add(type);
                 if(type.equals("AUTHORITY_STATUS_PROBE")&&failProbe)throw new IOException("status unavailable");
+                if(type.equals("SNAPSHOT_ABORT")&&failAbort)throw new IOException("abort unavailable");
                 var response=exchanges[1].handle(request);
                 if(type.equals("AUTHORITY_STATUS_PROBE")&&reportedIndex!=null) {
                     var payload=new LinkedHashMap<>(object(response.get("payload")));
                     payload.put("provenIndex",reportedIndex);
-                    return AutomaticWire.reply(request,"AUTHORITY_STATUS",payload);
+                    return wire(AutomaticWire.reply(request,"AUTHORITY_STATUS",payload));
                 }
                 if(type.equals("REJOIN_INSTALL")&&loseAck) {loseAck=false;throw new IOException("lost install ACK");}
                 if(type.equals("REJOIN_INSTALL")&&badAck) {
                     badAck=false;var payload=new LinkedHashMap<>(object(response.get("payload")));payload.put("transferId",UUID.randomUUID().toString());
-                    return AutomaticWire.reply(request,type,payload);
+                    return wire(AutomaticWire.reply(request,type,payload));
                 }
-                return response;
+                return wire(response);
             },()->0L,ids::incrementAndGet,AutomaticRuntime.Events.NONE);
+        }
+        Map<String,Object> wire(Map<String,Object> message) {
+            var record=decode(manifest,"MANIFEST");int bound=ReplicationBounds.defaults().maxFrameBytes();
+            return AutomaticWire.decode(AutomaticWire.encode(message,record,bound),record,bound);
         }
         void catchup(Record snapshot) throws Exception {
             Class<?> cut=Class.forName(AutomaticRejoin.class.getName()+"$Cut");
@@ -143,6 +151,34 @@ class V51RejoinCompletionTest {
             // refuses that offer in the same ballot; a fresh controller must
             // attempt recovery rather than inherit the old in-memory success.
             assertThrows(AutomaticReplicationException.class,()->p.catchup(snapshot));assertEquals(2,p.offers());
+        }
+    }
+    @Test void rejectedInstallationReleasesItsTransferBeforeTheNextProvenCut() throws Exception {
+        try(var p=new Pair()) {
+            // The snapshot was captured before a concurrent ACCEPT reached the
+            // follower. Installation must retain that tail, then relinquish only
+            // this transfer so a newer proven snapshot can arrive immediately.
+            var stale=p.snapshot();byte[] entry=entry(p.manifest,1,null,9,new byte[0]);
+            p.stores[1].accept(accept(p.manifest,entry,2));
+            var failure=assertThrows(AutomaticReplicationException.class,()->p.catchup(stale));
+            assertEquals(AutomaticReplicationException.Reason.CAPACITY_EXCEEDED,failure.reason());
+            assertEquals(0,p.installed);
+            var next=p.advance();p.stores[1].prove(proof(p.manifest,entry,2));
+            p.catchup(next);
+            assertEquals(1,p.installed);assertEquals(2,p.offers());
+            assertArrayEquals(next.bytes(),p.stores[1].currentSource().snapshot().bytes());
+        }
+    }
+    @Test void failedTransferAbortPreservesTheOriginalInstallationFailure() throws Exception {
+        try(var p=new Pair()) {
+            p.stores[1].accept(accept(p.manifest,entry(p.manifest,1,null,9,new byte[0]),2));
+            p.failAbort=true;
+            var failure=assertThrows(AutomaticReplicationException.class,()->p.catchup(p.snapshot()));
+            assertEquals(AutomaticReplicationException.Reason.CAPACITY_EXCEEDED,failure.reason());
+            assertEquals(1,failure.getSuppressed().length);
+            assertEquals("abort unavailable",failure.getSuppressed()[0].getMessage());
+            assertEquals(1,p.requests.stream().filter("SNAPSHOT_ABORT"::equals).count());
+            assertEquals(0,p.installed);
         }
     }
 }

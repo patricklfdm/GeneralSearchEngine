@@ -1,6 +1,6 @@
 # GeneralSearchEngine development roadmap
 
-## Current milestone: V5.1 published; V5.2 contract candidate in review
+## Current milestone: V5.1 published; V5.2 local read qualification complete
 
 **Latest milestone:** V5.1 [Phases 7 and 8](docs/v5x/v5.1/RELEASE_CHECKLIST.md)
 are complete. PR #322 and exact-master CI `38482900297` accepted source
@@ -12,13 +12,15 @@ The accepted [Phase 6 cloud baseline](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANC
 preserves its measured sources/sequences and historical failures/costs. The
 one-time Phase 7A CI skip remains recorded separately from successful Phase 7B CI.
 
-**Current:** the [V5.2 Phase 0 candidate](docs/v5x/v5.2/PHASE_0_CONTRACT.md) follows
-entry PR #334. Six documents define explicit read policies, history-bound tokens,
-capture/wait/view lifetimes, compatibility and independent evidence. Protected
-acceptance is pending; the [next foundation batch](docs/v5x/v5.2/PHASE_1_ENTRY_PLAN.md)
-adds guarded declarations/model work only after acceptance and user instruction.
-Runtime implementation follows those gates. The chronology
-below preserves earlier milestones and acceptance boundaries.
+**Current:** Phase 0 PR #335 accepted the [V5.2 read contract](docs/v5x/v5.2/PHASE_0_CONTRACT.md).
+The capture/waiter kernel and three explicit policies are implemented at
+`5.2.0-SNAPSHOT`. [Phase 4](docs/v5x/v5.2/PHASE_4_QUALIFICATION.md) completes local
+correctness and compatibility qualification, with an explicit
+[schedule-to-evidence map](docs/v5x/v5.2/PHASE_4_SCHEDULE_RESULTS.md).
+[Phase 5 combined hardening](docs/v5x/v5.2/PHASE_5_HARDENING.md) is locally verified.
+The authorized local sequence continues through measurement freeze and pre-cloud
+preparation. Protected full CI and manual cloud admission remain
+required before paid execution. Earlier milestones follow below.
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI

@@ -38,7 +38,7 @@ jobs:
           fetch-depth: 0
 
       - name: Test change detection, required gates and Maven infrastructure retries
-        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle scripts.test_ci_v51_python scripts.test_ci_suites scripts.test_ci_required scripts.test_ci_composites scripts.test_ci_shadow_plan scripts.test_ci_plan scripts.test_ci_observation scripts.test_ci_health
+        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle scripts.test_ci_v51_python scripts.test_ci_v52_python scripts.test_ci_suites scripts.test_ci_required scripts.test_ci_composites scripts.test_ci_shadow_plan scripts.test_ci_plan scripts.test_ci_observation scripts.test_ci_health
 
       - name: Classify the complete change set
         id: scope
@@ -176,6 +176,568 @@ jobs:
         with:
           name: maven-infra-v51-verification-build-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-foundation:
+    name: V5.2 read foundation
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-foundation-build-inputs-${{ github.sha }}
+      - name: Verify V5.2 read API and independent foundation
+        run: scripts/verify-v52-phase1-foundation.sh --skip-build --skip-python
+
+      - name: Verify V5.2 public replica reads and published query oracle
+        run: scripts/verify-v52-phase3-public-reads.sh --skip-build
+
+      - name: Verify V5.2 paused query views and application lifecycle
+        run: scripts/verify-v52-phase4-read-application.sh --skip-build
+
+      - name: Verify V5.2 carried tokens below the retired log floor
+        run: scripts/verify-v52-phase4-read-compaction.sh --skip-build
+
+      - name: Retain V5.2 read compaction evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-read-compaction-${{ github.sha }}
+          path: target/v52-public-read-compaction
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.2 read application evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-read-application-${{ github.sha }}
+          path: target/v52-public-read-application
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.2 public read evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-reads-${{ github.sha }}
+          path: target/v52-public-reads
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.2 foundation including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-foundation-${{ github.sha }}
+          path: target/v52-foundation
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-read-faults:
+    name: V5.2 carried read faults
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-read-faults-build-inputs-${{ github.sha }}
+      - name: Verify V5.2 public read faults and carried tokens
+        run: scripts/verify-v52-phase4-public-faults.sh --skip-build
+
+      - name: Verify V5.2 token identity and malformed admission
+        run: scripts/verify-v52-phase4-read-identity.sh --skip-build
+
+      - name: Verify V5.2 public backup and new-group token identity
+        run: scripts/verify-v52-phase4-read-import.sh --skip-build
+
+      - name: Retain V5.2 read backup import evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-read-import-${{ github.sha }}
+          path: target/v52-public-read-import
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.2 read identity evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-read-identity-${{ github.sha }}
+          path: target/v52-public-read-identity
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.2 public read faults including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-faults-${{ github.sha }}
+          path: target/v52-public-faults
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-read-lifecycle:
+    name: V5.2 read lifecycle
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-read-lifecycle-build-inputs-${{ github.sha }}
+      - name: Verify V5.2 public cancellation and cooperative close
+        run: scripts/verify-v52-phase4-public-lifecycle.sh --skip-build
+
+      - name: Verify V5.2 read capacity and reserved writer progress
+        run: scripts/verify-v52-phase4-read-resource.sh --skip-build
+
+      - name: Retain V5.2 read resource evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-read-resource-${{ github.sha }}
+          path: target/v52-public-read-resource
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.2 public read lifecycle including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-lifecycle-${{ github.sha }}
+          path: target/v52-public-lifecycle
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-read-protocol:
+    name: V5.2 promise and install reads
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-read-protocol-build-inputs-${{ github.sha }}
+      - name: Verify V5.2 promise and snapshot install read races
+        run: scripts/verify-v52-phase4-read-protocol.sh --skip-build
+      - name: Verify V5.2 targeted physical read evidence negatives
+        run: scripts/verify-v52-phase4-read-negatives.sh --skip-build
+
+      - name: Retain V5.2 read protocol evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-read-protocol-${{ github.sha }}
+          path: target/v52-public-read-protocol
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.2 targeted read negative evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-read-negatives-${{ github.sha }}
+          path: target/v52-public-read-negatives
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-read-hardening:
+    name: V5.2 combined read hardening
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-read-hardening-build-inputs-${{ github.sha }}
+      - name: Verify V5.2 combined read hardening
+        run: scripts/verify-v52-phase5-hardening.sh --skip-build
+
+      - name: Retain V5.2 read hardening evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-read-hardening-${{ github.sha }}
+          path: target/v52-read-hardening
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-measurement-consumers:
+    name: V5.2 measurement consumers
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-measurement-consumers-build-inputs-${{ github.sha }}
+      - name: Verify complete V5.2 consumers qualification
+        run: scripts/verify-v52-phase6-measurement-runtime.sh --skip-build --lane consumers
+
+      - name: Retain complete qualification evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-measurement-runtime-${{ github.sha }}
+          path: target/v52-measurement-runtime
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-owned-commands:
+    name: V5.2 owned command history
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-owned-commands-build-inputs-${{ github.sha }}
+      - name: Verify complete V5.2 commands qualification
+        run: scripts/verify-v52-phase6-measurement-runtime.sh --skip-build --lane commands
+
+      - name: Retain complete qualification evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-owned-command-runtime-${{ github.sha }}
+          path: target/v52-measurement-runtime
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-installed-runtime:
+    name: V5.2 installed runtime
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-installed-runtime-build-inputs-${{ github.sha }}
+      - name: Verify complete V5.2 installed qualification
+        run: scripts/verify-v52-phase6-measurement-runtime.sh --skip-build --lane installed
+
+      - name: Package V5.2 installed evidence without following fixture symlinks
+        if: ${{ always() }}
+        run: |
+          if [[ -d target/v52-measurement-runtime ]]; then
+            python3 -m scripts.v51.provider_artifacts target/v52-measurement-runtime target/v52-installed-runtime.tar.gz
+          fi
+
+      - name: Retain complete qualification evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-installed-runtime-${{ github.sha }}
+          path: target/v52-installed-runtime.tar.gz
+          if-no-files-found: warn
+          retention-days: 14
+
+  python-v52-core:
+    name: V5.2 Python core
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Run the complete V5.2 Python core partition
+        run: python3 -m scripts.ci_v52_python core --output target/python-v52-core
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v52-core-${{ github.sha }}
+          path: target/python-v52-core
+          if-no-files-found: warn
+          retention-days: 14
+
+  python-v52-measurement:
+    name: V5.2 Python measurement
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Run the complete V5.2 Python measurement partition
+        run: python3 -m scripts.ci_v52_python measurement --output target/python-v52-measurement
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v52-measurement-${{ github.sha }}
+          path: target/python-v52-measurement
+          if-no-files-found: warn
+          retention-days: 14
+
+  python-v52-transport:
+    name: V5.2 Python transport
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Run the complete V5.2 Python transport partition
+        run: python3 -m scripts.ci_v52_python transport --output target/python-v52-transport
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v52-transport-${{ github.sha }}
+          path: target/python-v52-transport
+          if-no-files-found: warn
+          retention-days: 14
+
+  python-v52-cloud-provenance:
+    name: V5.2 Python cloud-provenance
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Run the complete V5.2 Python cloud-provenance partition
+        run: python3 -m scripts.ci_v52_python cloud-provenance --output target/python-v52-cloud-provenance
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v52-cloud-provenance-${{ github.sha }}
+          path: target/python-v52-cloud-provenance
+          if-no-files-found: warn
+          retention-days: 14
+
+  python-v52-cloud-control:
+    name: V5.2 Python cloud-control
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Run the complete V5.2 Python cloud-control partition
+        run: python3 -m scripts.ci_v52_python cloud-control --output target/python-v52-cloud-control
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v52-cloud-control-${{ github.sha }}
+          path: target/python-v52-cloud-control
+          if-no-files-found: warn
+          retention-days: 14
+
+  python-v52-native-admission:
+    name: V5.2 Python native-admission
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Run the complete V5.2 Python native-admission partition
+        run: python3 -m scripts.ci_v52_python native-admission --output target/python-v52-native-admission
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v52-native-admission-${{ github.sha }}
+          path: target/python-v52-native-admission
+          if-no-files-found: warn
+          retention-days: 14
+
+  python-v52-native-storage:
+    name: V5.2 Python native-storage
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Run the complete V5.2 Python native-storage partition
+        run: python3 -m scripts.ci_v52_python native-storage --output target/python-v52-native-storage
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v52-native-storage-${{ github.sha }}
+          path: target/python-v52-native-storage
+          if-no-files-found: warn
+          retention-days: 14
+
+  python-v52-native-evidence:
+    name: V5.2 Python native-evidence
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Run the complete V5.2 Python native-evidence partition
+        run: python3 -m scripts.ci_v52_python native-evidence --output target/python-v52-native-evidence
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v52-native-evidence-${{ github.sha }}
+          path: target/python-v52-native-evidence
           if-no-files-found: warn
           retention-days: 14
 
@@ -2592,6 +3154,22 @@ jobs:
       - reactor-core
       - v51-verification-build
       - v51-foundation
+      - v52-foundation
+      - v52-read-faults
+      - v52-read-lifecycle
+      - v52-read-protocol
+      - v52-read-hardening
+      - v52-measurement-consumers
+      - v52-owned-commands
+      - v52-installed-runtime
+      - python-v52-core
+      - python-v52-measurement
+      - python-v52-transport
+      - python-v52-cloud-provenance
+      - python-v52-cloud-control
+      - python-v52-native-admission
+      - python-v52-native-storage
+      - python-v52-native-evidence
       - v51-guest-services
       - v51-owned-experiment
       - v51-owned-network-faults

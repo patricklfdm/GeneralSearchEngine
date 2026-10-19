@@ -1,0 +1,206 @@
+package io.github.patricklfdm.generalsearch.admission;
+
+import static io.github.patricklfdm.generalsearch.admission.V52ReadQueries.*;
+import static io.github.patricklfdm.generalsearch.admission.V52MeasurementQueries.*;
+import io.github.patricklfdm.generalsearch.replication.*;
+import java.io.*;
+import java.net.ServerSocket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+
+/** Common external consumer compiled independently against published V5.1 and candidate. */
+public final class V52MeasurementConsumer {
+    public interface Reads {CompletableFuture<Map<String,Object>> read(Map<String,Object> request);}
+    public static final ThreadLocal<String> callId=new ThreadLocal<>();
+    public static BiConsumer<String,Map<String,Object>> observer=(name,row)->{};
+    public static Function<Object,Map<String,Object>> diagnostics=engine->Map.of();
+    public static final Set<String> MODES=Set.of("published-v51-legacy-strong","candidate-legacy-strong","candidate-explicit-strong","candidate-stale","candidate-minimum");
+    public static ReplicationBounds bounds(){return bounds(64);}
+    private static ReplicationBounds bounds(int pending){return new ReplicationBounds(1<<20,100,8,pending,2,1200,25,65536,64L<<20,64L<<20);}
+    public static List<AutomaticReplicationGroupConfig<Integer,Doc>> configs(Path root) throws IOException {
+        var parameters=V52MeasurementConfiguration.read(root);
+        var lines=Files.readAllLines(root.resolve("ports.txt"));var members=new ArrayList<ReplicationMember>();
+        if(lines.size()!=3)throw new IllegalArgumentException("measurement member count");
+        for(int i=0;i<3;i++)members.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint("127.0.0.1",Integer.parseInt(lines.get(i)))));
+        var group=new ReplicationGroupId(UUID.fromString(Files.readString(root.resolve("group-id.txt")).trim()));
+        return members.stream().map(m->new AutomaticReplicationGroupConfig<>(group,"v52-measurement",m.nodeId(),members,
+                root.resolve(m.nodeId().value()),V52MeasurementQueries.storage(root.resolve("app-"+m.nodeId().value())),bounds(parameters.pendingLimit()),
+                new AutomaticLeadershipPolicy(1200,3600,6000,parameters.operationTimeoutMillis()))).toList();
+    }
+    private static synchronized void print(Object row){System.out.println(AdmissionJson.canonical(row));System.out.flush();}
+    public static void event(String name,Map<String,Object> row){observer.accept(name,row);}
+    /** The public close contract retains ownership on timeout and permits retry.
+     * Runs only after the client executor/futures have drained, or during failure
+     * cleanup. Never reissues a business call or changes an observed outcome.
+     */
+    static final class Close implements AutoCloseable {
+        static final int ATTEMPTS=8;
+        static final long WINDOW_MILLIS=20_000, BACKOFF_MILLIS=100;
+        interface Pause {void sleep(long millis) throws InterruptedException;}
+        private final Runnable action;
+        private final LongSupplier clock;
+        private final Pause pause;
+        private boolean attempted;
+        Close(Runnable action){this(action,System::nanoTime,Thread::sleep);}
+        Close(Runnable action,LongSupplier clock,Pause pause){this.action=action;this.clock=clock;this.pause=pause;}
+        private static AutomaticReplicationException retained(AutomaticReplicationException failure,List<AutomaticReplicationException> earlier) {
+            Set<AutomaticReplicationException> seen=Collections.newSetFromMap(new IdentityHashMap<>());seen.add(failure);
+            for(var previous:earlier)if(seen.add(previous))failure.addSuppressed(previous);
+            return failure;
+        }
+        public void close() throws InterruptedException {
+            // try-with-resources must not silently make a ninth attempt after
+            // explicit close exhausted its allowance (or suppress its own error).
+            if(attempted)return;attempted=true;
+            long start=clock.getAsLong();var failures=new ArrayList<AutomaticReplicationException>();
+            for(int attempt=1;attempt<=ATTEMPTS;attempt++) {
+                event("CLIENT_CLOSE_ATTEMPT",Map.of("attempt",attempt));
+                try {action.run();}
+                catch(AutomaticReplicationException failure) {
+                    long elapsed=clock.getAsLong()-start;
+                    boolean retryable=failure.reason()==AutomaticReplicationException.Reason.DEADLINE_EXCEEDED &&
+                            failure.outcome()==AutomaticReplicationException.Outcome.NOT_APPLICABLE &&
+                            (failure.getCause()==null || failure.getCause() instanceof TimeoutException) &&
+                            !Thread.currentThread().isInterrupted();
+                    event("CLIENT_CLOSE_FAILURE",Map.of("attempt",attempt,"elapsedNanos",elapsed,
+                            "reasonCode",failure.reason().name(),"outcome",failure.outcome().name(),
+                            "reason",failure.toString(),"retryable",retryable));
+                    if(!retryable || attempt==ATTEMPTS || elapsed>=TimeUnit.MILLISECONDS.toNanos(WINDOW_MILLIS))throw retained(failure,failures);
+                    failures.add(failure);
+                    try {pause.sleep(BACKOFF_MILLIS);}
+                    catch(InterruptedException interrupted){Thread.currentThread().interrupt();interrupted.addSuppressed(failure);throw interrupted;}
+                    // The window limits starting another close, not the duration
+                    // of an already running public call. Python still bounds exit.
+                    if(clock.getAsLong()-start>=TimeUnit.MILLISECONDS.toNanos(WINDOW_MILLIS))throw retained(failure,failures);
+                    continue;
+                }
+                event("CLOSED",Map.of("closeAttempts",attempt,"closeElapsedNanos",clock.getAsLong()-start));return;
+            }
+        }
+    }
+    /** A completed client future may still own an in-flight strong barrier.
+     * Observe real ownership after consumer callbacks return; never claim idle
+     * just because all response lines have been written.
+     */
+    static final long IDLE_WINDOW_MILLIS=20_000;
+    static Map<String,Object> awaitIdle(int pending,Supplier<Map<String,Object>> snapshot,
+            LongSupplier clock,Close.Pause pause) throws IOException,InterruptedException {
+        long start=clock.getAsLong();
+        for(;;) {
+            var queues=snapshot.get();
+            boolean idle=queues.get("admissionAvailable") instanceof Number permits && permits.intValue()==pending;
+            // Published V5.1 has no explicit read counters. Candidate diagnostics
+            // must include the complete counter set if any of it is present.
+            var counters=List.of("readsOwned","readsWaiting","readsCaptured","readsSettling","readsAlarms","readsMarker");
+            if(counters.stream().anyMatch(queues::containsKey))
+                idle &= counters.stream().allMatch(k->queues.get(k) instanceof Number n && n.longValue()==0);
+            if(idle)return queues;
+            if(clock.getAsLong()-start>=TimeUnit.MILLISECONDS.toNanos(IDLE_WINDOW_MILLIS))throw new IOException("measurement runtime ownership did not drain: "+queues);
+            pause.sleep(10);
+        }
+    }
+    private static Map<String,Object> status(AutomaticReplicatedSearchEngine<Integer,Doc> engine) {
+        var s=engine.leadershipStatus();return Map.of("state",s.state().name(),"epoch",s.promisedEpoch(),"provenIndex",s.provenIndex(),
+                "publishedIndex",s.appliedIndex(),"sequence",s.applicationSequence());
+    }
+    private static void finish(Map<String,Object> request,long received,long invoked,Map<String,Object> value,Throwable failure) {
+        var row=new LinkedHashMap<String,Object>();row.put("opId",request.get("opId"));row.put("kind",request.get("kind"));
+        row.put("receivedNanos",received);row.put("apiStartNanos",invoked);row.put("apiEndNanos",System.nanoTime());
+        if(request.containsKey("document"))row.put("document",request.get("document"));
+        if(failure==null){row.putAll(value);row.put("outcome","SUCCESS");}
+        else {
+            while((failure instanceof CompletionException||failure instanceof ExecutionException)&&failure.getCause()!=null)failure=failure.getCause();
+            row.put("reason",failure.toString());row.put("outcome","VALIDATION_FAILURE");row.put("reasonCode",failure.getClass().getSimpleName());
+            if(failure instanceof AutomaticReplicationException auto){row.put("reasonCode",auto.reason().name());row.put("outcome",auto.outcome().name());}
+            else if(failure instanceof CancellationException)row.put("outcome","CANCELLED");
+            else try {row.put("reasonCode",failure.getClass().getMethod("reason").invoke(failure).toString());row.put("outcome","REJECTED");}
+                catch(ReflectiveOperationException absent){/* Published V5.1 has no explicit-read error type. */}
+        }
+        event(failure==null?"CLIENT_SUCCESS":"CLIENT_FAILURE",row);print(row);
+    }
+    @SuppressWarnings("unchecked") public static void main(String[] args) throws Exception {
+        Path root=Path.of(args[0]).toAbsolutePath();String action=args[1];
+        if(action.equals("setup")) {
+            var sockets=new ArrayList<ServerSocket>();
+            try {for(int i=0;i<3;i++)sockets.add(new ServerSocket(0));Files.write(root.resolve("ports.txt"),sockets.stream().map(s->Integer.toString(s.getLocalPort())).toList());}
+            finally {for(var socket:sockets)socket.close();}
+            var request=new AutomaticReplicationBootstrapRequest<>(ReplicationBootstrapSource.VERIFIED_V44_BACKUP,root.resolve("control/seed"),configs(root),root.resolve("operation"),1L<<30,1L<<30);
+            AutomaticReplicationStorageOperations.applyBootstrap(measurementBuilder(),request,AutomaticReplicationStorageOperations.planBootstrap(measurementBuilder(),request));
+            print(Map.of("status","SETUP"));return;
+        }
+        if(action.equals("configuration")) {
+            var config=configs(root).get(0);print(Map.of("parameters",V52MeasurementConfiguration.read(root).value(),
+                    "pendingLimit",config.bounds().maxPendingClientOperations(),"operationTimeoutMillis",config.leadershipPolicy().operationTimeoutMillis()));return;
+        }
+        serve(root,Integer.parseInt(action),args[2],configs(root));
+    }
+    /** Same public call loop for a caller-supplied, independently admitted configuration. */
+    @SuppressWarnings("unchecked") public static void serve(Path root,int ordinal,String mode,List<AutomaticReplicationGroupConfig<Integer,Doc>> configs) throws Exception {
+        if(!MODES.contains(mode)||ordinal<1||ordinal>3||configs.size()!=3)throw new IllegalArgumentException("measurement mode/ordinal/configuration");
+        var parameters=V52MeasurementConfiguration.read(root);
+        if(!parameters.family().equals("M01")&&!mode.equals("candidate-minimum"))throw new IllegalArgumentException("measurement parameter/mode mismatch");
+        var executor=new ThreadPoolExecutor(8,8,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(64),new ThreadPoolExecutor.AbortPolicy());
+        var pending=new ArrayList<CompletableFuture<?>>();var ids=new HashSet<String>();
+        try {
+        var engine=AutomaticReplicatedSearchEngines.builder(measurementBuilder(),configs.get(ordinal-1)).build();
+        try(var closing=new Close(engine::close)) {
+            Reads reads=mode.endsWith("legacy-strong")?request->CompletableFuture.completedFuture(Map.of("answer",answer(core(engine),(Map<String,Object>)request.get("query")))):
+                    (Reads)Class.forName("io.github.patricklfdm.generalsearch.admission.V52MeasuredExplicitReads").getConstructor(AutomaticReplicatedSearchEngine.class,String.class,int.class).newInstance(engine,mode,parameters.waitTimeoutMillis());
+            engine.start().get(15,TimeUnit.SECONDS);
+            var identity=new LinkedHashMap<String,Object>();identity.put("status","STARTED");identity.put("pid",ProcessHandle.current().pid());
+            identity.put("node","node-"+ordinal);identity.put("mode",mode);identity.put("javaRuntime",System.getProperty("java.runtime.version"));identity.put("javaVendor",System.getProperty("java.vendor"));
+            identity.put("readParameters",parameters.value());
+            identity.put("coreSource",Path.of(io.github.patricklfdm.generalsearch.engine.SearchEngine.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toString());
+            identity.put("replicationSource",Path.of(AutomaticReplicatedSearchEngine.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toString());
+            event("STARTED",identity);print(identity);
+            try(var sampler=new V52MeasurementSampler(()->diagnostics.apply(engine),()->engine.durabilityMetrics().retainedBytes(),executor)) {
+            try(var input=new BufferedReader(new InputStreamReader(System.in,StandardCharsets.UTF_8))) {
+                String line;while((line=input.readLine())!=null) {
+                    if(line.length()>16384)throw new IllegalArgumentException("measurement command bound");
+                    var request=(Map<String,Object>)AdmissionJson.parse(line);String kind=(String)request.get("kind");
+                    if(kind.equals("close"))break;
+                    long received=System.nanoTime();String id=(String)request.get("opId");
+                    if(id==null||id.length()>128||ids.size()>=4096||!ids.add(id))throw new IllegalArgumentException("measurement command identity/count");
+                    if(!Set.of("status","probe","update","read","sample-start","sample-mark","sample-stop").contains(kind))throw new IllegalArgumentException("measurement command kind");
+                    event("CLIENT_RECEIVED",request);var completion=new CompletableFuture<Void>();pending.add(completion);
+                    Runnable invoke=()->{
+                        long invoked=System.nanoTime();callId.set(id);
+                        try {
+                            event("CLIENT_INVOKE",request);
+                            CompletableFuture<Map<String,Object>> result;
+                            if(kind.equals("status"))result=CompletableFuture.completedFuture(status(engine));
+                            else if(kind.equals("probe"))result=CompletableFuture.completedFuture(Map.of("queues",diagnostics.apply(engine),"retainedBytes",engine.durabilityMetrics().retainedBytes()));
+                            else if(kind.equals("sample-start"))result=CompletableFuture.completedFuture(Map.of("sample",sampler.start()));
+                            else if(kind.equals("sample-mark"))result=CompletableFuture.completedFuture(Map.of("sample",sampler.mark((String)request.get("marker"))));
+                            else if(kind.equals("sample-stop"))result=CompletableFuture.completedFuture(Map.of("sample",sampler.stop()));
+                            else if(kind.equals("update")) {
+                                var doc=(Map<String,Object>)request.get("document");
+                                result=engine.update(new Doc(((Number)doc.get("id")).intValue(),(String)doc.get("value"))).thenApply(ignored->Map.of());
+                            } else result=reads.read(request);
+                            result.whenComplete((value,failure)->{
+                                try {finish(request,received,invoked,value,failure);completion.complete(null);}
+                                catch(Throwable observerFailure){completion.completeExceptionally(observerFailure);}
+                            });
+                        } catch(Throwable failure) {
+                            try {finish(request,received,invoked,Map.of(),failure);completion.complete(null);}
+                            catch(Throwable observerFailure){completion.completeExceptionally(observerFailure);}
+                        } finally {callId.remove();}
+                    };
+                    if(!kind.equals("read"))invoke.run(); // Preserve offered mutation invocation order.
+                    else try {executor.execute(invoke);}
+                    catch(RejectedExecutionException rejected){finish(request,received,received,Map.of(),rejected);completion.complete(null);}
+                }
+            }
+            executor.shutdown();if(!executor.awaitTermination(30,TimeUnit.SECONDS))throw new IOException("measurement client executor did not stop");
+            CompletableFuture.allOf(pending.toArray(CompletableFuture<?>[]::new)).get(30,TimeUnit.SECONDS);
+            }
+            var idle=awaitIdle(parameters.pendingLimit(),()->diagnostics.apply(engine),System::nanoTime,Thread::sleep);
+            event("CLIENT_IDLE",Map.of("queues",idle,"retainedBytes",engine.durabilityMetrics().retainedBytes()));
+            closing.close();
+        }
+        } finally {executor.shutdownNow();}
+    }
+}

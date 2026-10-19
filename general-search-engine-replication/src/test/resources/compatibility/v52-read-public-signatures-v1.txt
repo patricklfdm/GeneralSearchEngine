@@ -1,0 +1,75 @@
+constructor public io.github.patricklfdm.generalsearch.replication.ReplicaReadException(io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason,java.lang.String)
+constructor public io.github.patricklfdm.generalsearch.replication.ReplicaReadException(io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason,java.lang.String,java.lang.Throwable)
+constructor public io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions(io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy,java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicaReadToken>,int)
+constructor public io.github.patricklfdm.generalsearch.replication.ReplicaReadResult(R,io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy,io.github.patricklfdm.generalsearch.replication.ReplicaReadToken,long)
+constructor public io.github.patricklfdm.generalsearch.replication.ReplicaReadToken(int,io.github.patricklfdm.generalsearch.replication.ReplicationGroupId,java.util.UUID,java.lang.String,long)
+enum-values io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason INVALID_TOKEN,UNSUPPORTED_TOKEN_VERSION,INCOMPATIBLE_HISTORY,PROGRESS_NOT_REACHED,VIEW_NOT_ACTIVE
+enum-values io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy LEADER_STRONG,STALE_ALLOWED,AT_LEAST_INDEX
+field public static final io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason.INCOMPATIBLE_HISTORY
+field public static final io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason.INVALID_TOKEN
+field public static final io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason.PROGRESS_NOT_REACHED
+field public static final io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason.UNSUPPORTED_TOKEN_VERSION
+field public static final io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason.VIEW_NOT_ACTIVE
+field public static final io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy.AT_LEAST_INDEX
+field public static final io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy.LEADER_STRONG
+field public static final io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy.STALE_ALLOWED
+method public R io.github.patricklfdm.generalsearch.replication.ReplicaReadResult.value()
+method public abstract T io.github.patricklfdm.generalsearch.replication.ReplicaReadView.get(K)
+method public abstract io.github.patricklfdm.generalsearch.search.HighlightedSearchResult<T> io.github.patricklfdm.generalsearch.replication.ReplicaReadView.search(io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest<T>)
+method public abstract io.github.patricklfdm.generalsearch.search.SearchResult<T> io.github.patricklfdm.generalsearch.replication.ReplicaReadView.search(io.github.patricklfdm.generalsearch.search.SearchRequest<T>)
+method public abstract java.util.List<T> io.github.patricklfdm.generalsearch.replication.ReplicaReadView.search(io.github.patricklfdm.generalsearch.query.Query<T>)
+method public abstract java.util.List<io.github.patricklfdm.generalsearch.ranking.SearchHit<T>> io.github.patricklfdm.generalsearch.replication.ReplicaReadView.searchTopK(io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest<T>)
+method public abstract java.util.Optional<io.github.patricklfdm.generalsearch.search.SearchExplanation<T>> io.github.patricklfdm.generalsearch.replication.ReplicaReadView.explain(io.github.patricklfdm.generalsearch.search.SearchRequest<T>,K)
+method public abstract long io.github.patricklfdm.generalsearch.replication.ReplicaReadView.currentSequence()
+method public byte[] io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.encode()
+method public final boolean io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.ReplicaReadResult.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.equals(java.lang.Object)
+method public final int io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.ReplicaReadResult.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.hashCode()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicaReadResult.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.toString()
+method public int io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions.waitTimeoutMillis()
+method public int io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.version()
+method public io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason io.github.patricklfdm.generalsearch.replication.ReplicaReadException.reason()
+method public io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions.policy()
+method public io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy io.github.patricklfdm.generalsearch.replication.ReplicaReadResult.policy()
+method public io.github.patricklfdm.generalsearch.replication.ReplicaReadToken io.github.patricklfdm.generalsearch.replication.ReplicaReadResult.progress()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationGroupId io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.groupId()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.manifestDigest()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicaReadToken> io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions.minimum()
+method public java.util.UUID io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.historyId()
+method public long io.github.patricklfdm.generalsearch.replication.ReplicaReadResult.applicationSequence()
+method public long io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.index()
+method public static io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason[] io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason.values()
+method public static io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy[] io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy.values()
+method public static io.github.patricklfdm.generalsearch.replication.ReplicaReadToken io.github.patricklfdm.generalsearch.replication.ReplicaReadToken.decode(byte[])
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions 0 io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy policy
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions 1 java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicaReadToken> minimum
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions 2 int waitTimeoutMillis
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadResult 0 R value
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadResult 1 io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy policy
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadResult 2 io.github.patricklfdm.generalsearch.replication.ReplicaReadToken progress
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadResult 3 long applicationSequence
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadToken 0 int version
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadToken 1 io.github.patricklfdm.generalsearch.replication.ReplicationGroupId groupId
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadToken 2 java.util.UUID historyId
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadToken 3 java.lang.String manifestDigest
+record-component io.github.patricklfdm.generalsearch.replication.ReplicaReadToken 4 long index
+super io.github.patricklfdm.generalsearch.replication.ReplicaReadException java.lang.RuntimeException
+super io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason java.lang.Enum<io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason>
+super io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy java.lang.Enum<io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy>
+super io.github.patricklfdm.generalsearch.replication.ReplicaReadResult java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.ReplicaReadToken java.lang.Record
+type public abstract interface io.github.patricklfdm.generalsearch.replication.ReplicaReadView<K,T>
+type public final class io.github.patricklfdm.generalsearch.replication.ReplicaReadException
+type public final enum io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy
+type public final record io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions
+type public final record io.github.patricklfdm.generalsearch.replication.ReplicaReadResult<R>
+type public final record io.github.patricklfdm.generalsearch.replication.ReplicaReadToken
+type public static final enum io.github.patricklfdm.generalsearch.replication.ReplicaReadException$Reason

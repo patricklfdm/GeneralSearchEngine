@@ -25,6 +25,7 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
     private final ScheduledThreadPoolExecutor deadlines;
     private final Object lifecycle=new Object(), closingLock=new Object();
     private volatile AutomaticRuntime<K,T> node;
+    private volatile AutomaticReadQueue<K,T> reads;
     private volatile AutomaticReplicationState state=AutomaticReplicationState.STOPPED;
     private volatile boolean closing;
     private CompletableFuture<AutomaticReplicationStatus> starting;
@@ -77,6 +78,7 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
                 return new AutomaticRuntime<>(config,application,manifest,hooks.storage(),hooks.network(),hooks.events(),this);
             }));
             node=opened;
+            reads=opened.readQueue(admission,deadlines,completions);
             var status=await(opened.started(),deadline(),NOT_APPLICABLE);
             synchronized(lifecycle) {
                 if(closing)throw error(CLOSED,NOT_APPLICABLE);
@@ -127,7 +129,8 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
         try {return result.join();}catch(CompletionException failure){throw classify(failure,NOT_APPLICABLE);}
     }
     private interface Work<R> {R run(long deadline);}
-    private final class Request<R> implements Runnable {
+    private interface Queued extends Runnable {void queuedFailure(AutomaticReplicationException.Reason reason);}
+    private final class Request<R> implements Queued {
         final CompletableFuture<R> result=new CompletableFuture<>();
         final AtomicInteger phase=new AtomicInteger(); // queued, running, settled
         final Work<R> work;
@@ -136,7 +139,7 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
         volatile Future<?> alarm;
         Request(boolean mutation,boolean leader,Work<R> work) {this.mutation=mutation;this.leader=leader;this.work=work;}
         AutomaticReplicationException.Outcome unsubmitted() {return mutation?NOT_SUBMITTED:NOT_APPLICABLE;}
-        void queuedFailure(AutomaticReplicationException.Reason reason) {
+        @Override public void queuedFailure(AutomaticReplicationException.Reason reason) {
             if(phase.compareAndSet(0,2)) {ordered.remove(this);if(alarm!=null)alarm.cancel(false);finish(null,error(reason,unsubmitted()));}
         }
         void finish(R value,Throwable failure) {
@@ -171,11 +174,73 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
             }
         } catch(RuntimeException error){return CompletableFuture.failedFuture(error);}
     }
+
+    /** A fresh barrier keeps writer ordering through capture; the callback runs on the application worker. */
+    private final class ReadBarrier<R> implements Queued {
+        final AutomaticReadQueue<K,T>.Request<R> request;
+        final AtomicInteger phase=new AtomicInteger();
+        ReadBarrier(AutomaticReadQueue<K,T>.Request<R> request) {this.request=request;}
+        @Override public void queuedFailure(AutomaticReplicationException.Reason reason) {
+            if(phase.compareAndSet(0,2)){ordered.remove(this);request.fail(error(reason,NOT_APPLICABLE));}
+        }
+        @Override public void run() {
+            if(!phase.compareAndSet(0,1))return;
+            boolean submitted=false;
+            try {
+                if(request.future().isDone())throw error(DEADLINE_EXCEEDED,NOT_APPLICABLE);
+                if(System.nanoTime()>=request.deadline)throw error(DEADLINE_EXCEEDED,NOT_APPLICABLE);
+                var runtime=available(true,NOT_APPLICABLE);long epoch=runtime.status().promisedEpoch();
+                var barrier=runtime.submit(9,app->new byte[0]);submitted=true;
+                barrier.whenComplete((index,failed)->{
+                    if(failed==null)request.barrier(epoch,index);else request.fail(classify(failed,NOT_APPLICABLE));
+                });
+                // A client timeout cannot cancel this ownership observation: the actual NO_OP
+                // may still be preparing. Its original runtime deadline/settlement releases it.
+                await(barrier,request.deadline,NOT_APPLICABLE);
+                // The next ordered write must not replace this barrier's exact application cut
+                // before capture. Release at capture, not at callback or Future-handler return.
+                try {
+                    if(!request.awaitCapture(request.deadline-System.nanoTime()))throw error(DEADLINE_EXCEEDED,NOT_APPLICABLE);
+                } catch(InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();throw error(DEADLINE_EXCEEDED,NOT_APPLICABLE);
+                }
+            } catch(Throwable failed) {
+                var error=classify(failed,NOT_APPLICABLE);
+                if(submitted)request.reject(error);else request.fail(error);
+            } finally {phase.set(2);}
+        }
+    }
+
+    @Override public <R> CompletableFuture<ReplicaReadResult<R>> read(
+            ReplicaReadOptions options,Function<ReplicaReadView<K,T>,R> reader) {
+        Objects.requireNonNull(options,"options");Objects.requireNonNull(reader,"reader");
+        long wait=config.leadershipPolicy().operationTimeoutMillis();
+        if(options.policy()==ReplicaReadPolicy.AT_LEAST_INDEX&&options.waitTimeoutMillis()>0)
+            wait=Math.min(wait,options.waitTimeoutMillis());
+        long until=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(wait);
+        try {
+            context(NOT_APPLICABLE);available(options.policy()==ReplicaReadPolicy.LEADER_STRONG,NOT_APPLICABLE);
+            synchronized(lifecycle) {
+                if(closing)throw error(CLOSED,NOT_APPLICABLE);
+                var request=reads.submit(options,reader,until);
+                if(options.policy()==ReplicaReadPolicy.LEADER_STRONG) {
+                    var barrier=new ReadBarrier<>(request);
+                    request.future().whenComplete((v,e)->{if(e!=null)barrier.queuedFailure(CLOSED);});
+                    try {if(barrier.phase.get()==0)ordered.execute(barrier);}
+                    catch(RejectedExecutionException failure){barrier.queuedFailure(closing?CLOSED:CAPACITY_EXCEEDED);}
+                }
+                return request.future();
+            }
+        } catch(RuntimeException failure){return CompletableFuture.failedFuture(failure);}
+    }
     private CompletableFuture<Void> mutate(String operation,Function<ReplicaApplication<K,T>,byte[]> encoder) {
         return enqueue(true,true,until->{
             var submitted=available(true,NOT_SUBMITTED).submit(ReplicaEntry.OPERATIONS.indexOf(operation)+1,encoder);
-            try {await(submitted,until,INDETERMINATE);return null;}
-            catch(RuntimeException error){submitted.cancel(false);throw error;}
+            // The public deadline includes time in the ordered queue. Once
+            // submitted, the protocol owns a separate bounded operation which
+            // may already be proven. A client timeout cannot cancel that proof
+            // or depose the leader; retain the original INDETERMINATE outcome.
+            await(submitted,until,INDETERMINATE);return null;
         });
     }
     private <R> R capture(long until,Function<AutomaticApplication<K,T>,R> action) {
@@ -184,7 +249,9 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
     private <R> R capture(long until,Function<AutomaticApplication<K,T>,R> action,long readId) {
         var value=available(true,NOT_APPLICABLE);long epoch=value.status().promisedEpoch();
         var barrier=value.submit(9,app->new byte[0]);long cut;
-        try {cut=await(barrier,until,NOT_APPLICABLE);}catch(RuntimeException error){barrier.cancel(false);throw error;}
+        // As with explicit strong reads, an issued NO_OP outlives a shorter
+        // public queue deadline and settles under the runtime's own ownership.
+        cut=await(barrier,until,NOT_APPLICABLE);
         var captured=value.capture(epoch,cut,until,action,readId);
         try {await(captured.begun(),until,NOT_APPLICABLE);}catch(RuntimeException error){captured.result().cancel(false);throw error;}
         // The deadline bounds admission/barrier/capture. An active user query is cooperative.
@@ -271,8 +338,9 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
             Thread opening;
             synchronized(lifecycle) {
                 closing=true;opening=starter;
+                if(reads!=null)reads.close();
                 for(Runnable queued:ordered.getQueue().toArray(Runnable[]::new)) {
-                    @SuppressWarnings("unchecked") var request=(Request<Object>)queued;request.queuedFailure(CLOSED);
+                    ((Queued)queued).queuedFailure(CLOSED);
                 }
                 ordered.shutdown();deadlines.shutdownNow();
             }

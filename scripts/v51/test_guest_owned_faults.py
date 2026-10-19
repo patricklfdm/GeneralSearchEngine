@@ -247,6 +247,10 @@ class EvidenceTest(unittest.TestCase):
             # while the independent execution-completeness check still rejects them.
             with patch.object(runtime,'application',return_value=([],{})):
                 with self.assertRaisesRegex(ValueError,'incomplete runtime execution'):runtime.validate(root,traces,require_restart=False)
+                with self.assertRaisesRegex(ValueError,'incomplete runtime execution'):
+                    runtime.validate(root,traces,require_restart=False,basis_coverage='selected-quorums')
+                with self.assertRaisesRegex(ValueError,'unknown runtime basis coverage'):
+                    runtime.validate(root,traces,require_restart=False,basis_coverage='skip')
                 with self.assertRaisesRegex(ValueError,'retained-disk restart required'):runtime.validate(root,traces)
                 traces['node-1'].append(dict(pid=43,event='DIAGNOSTIC',order=1))
                 with self.assertRaisesRegex(ValueError,'incomplete runtime execution'):runtime.validate(root,traces)

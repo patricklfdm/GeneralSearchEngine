@@ -103,9 +103,17 @@ class EntryTest(unittest.TestCase):
             with self.assertRaises(ValueError):e.secret_parent({'RUNNER_TEMP':str(parent)},root)
         self.assertEqual(self.root,e.secret_parent({'RUNNER_TEMP':str(self.root)},root))
 
+    def test_new_coordinate_rejected_before_paid_reads(self):
+        pom=self.root/'pom.xml';pom.write_text('<project xmlns="http://maven.apache.org/POM/4.0.0"><version>5.2.0-SNAPSHOT</version></project>')
+        with patch.object(e.ci,'ROOT',self.root),patch.object(e,'guard',return_value=(self.binding,'prepare')),patch.object(e.precheck,'collect_jobs') as reads:
+            with self.assertRaisesRegex(ValueError,'V5.1 preparation version'):
+                e.current(self.f['cfg'],self.env,q.pq.SOURCE,q.pq.SOURCE,self.f['preflight'],self.f['root'])
+            reads.assert_not_called()
+
     def test_current_precheck_expiry_is_checked_after_ci_reads(self):
         expires=self.f['clock'].wall()+1
-        with patch.object(e.precheck,'collect_jobs',return_value={}),\
+        with patch.object(e.artifact_version,'current',return_value='5.1.0'),\
+             patch.object(e.precheck,'collect_jobs',return_value={}),\
              patch.object(e.storage,'check_inputs',return_value=dict(expiresAt=expires)),\
              patch.object(e.ci,'collect',return_value=self.f['github']),\
              patch.object(e.time,'time',return_value=expires),self.assertRaisesRegex(ValueError,'expired during CI'):

@@ -1,8 +1,12 @@
 # V5.2 API, token format and compatibility
 
-**Status:** design candidate, revision 0.1. These are proposed declarations;
+**Status:** accepted design, revision 0.1. These declarations were planned in Phase 0;
 no Java/API/version/format implementation is delivered in Phase 0.
 See [contract](PHASE_0_CONTRACT.md) and [lifecycle](READ_AUTHORITY_AND_LIFECYCLE.md).
+
+Accepted in PR #335; see the [acceptance record](PHASE_0_CHECKLIST.md) and
+[current Phase 1 implementation](PHASE_1_FOUNDATION.md). Statements about unexecuted
+work below describe the original Phase 0 delivery; runtime qualification remains pending.
 
 ## Exact additive inventory
 

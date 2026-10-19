@@ -46,6 +46,28 @@ changes the epoch/archive/cut/order, drops a startup attempt or substitutes an
 unpublished control. Common history negatives also reject stale/partial/reordered
 reads, borrowed barriers and missing proof forces. A PASS receipt alone is insufficient.
 
+### Recovery-state refusal qualification
+
+After a higher promise, the old handle may report `NOT_READY` while campaigning
+or recovering, or `NOT_LEADER` while following. The public admission mapping
+already permits both. The refusal oracle accepts these alongside
+`QUORUM_UNAVAILABLE` and `STALE_EPOCH`; it still requires `NOT_APPLICABLE` for
+reads and `NOT_SUBMITTED` for writes, the exact old node and post-fence timing.
+Heartbeat cases independently retain the higher durable promise, exact delayed
+message/delivery order, retained restart and later successful service. Physical
+replay still rejects effects from a refused mutation. Unrelated errors such as
+storage failure, capacity, deadline or closed-handle rejection do not prove fencing.
+
+[CI 39183847107](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/39183847107)
+failed both attempts because this oracle omitted `NOT_READY`. The original
+artifacts contain three rejected heartbeat histories with this legal reason;
+the fourth returned `NOT_LEADER` and passed. Replaying the unchanged four histories
+with the corrected oracle passes all four causal checks and their 20 scenario
+negative mutations. The regression covers each read/write reason combination
+and continues to reject success, uncertainty, wrong node/order and unrelated
+reasons. Original archives and before/after replay receipts are retained under
+`target/v52-ci-debug-39183847107`; corrected-source protected CI remains pending.
+
 ## E01–E12 disposition
 
 The model gate remains the Phase 1 bounded scheduler and I01–I08 mutation checks.

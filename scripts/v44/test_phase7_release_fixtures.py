@@ -10,6 +10,7 @@ from scripts.v44.canonical_reproducibility import ARTIFACTS, VERSION
 from scripts.v44.cloud_set import BASELINE, read_registry
 from scripts.v44.final_matrix import validate as validate_matrix
 from scripts.v44.toolchain_manifest import validate as validate_toolchain
+from scripts.ci_suites import load_registry
 
 
 PROJECT = Path(__file__).resolve().parents[2]
@@ -86,11 +87,10 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
         # Inspect explicit job/step blocks without adding a YAML dependency to CI.
         parts = re.split(r"^  ([\w-]+):\n", workflow.split("\njobs:\n", 1)[1], flags=re.MULTILINE)
         jobs = dict(zip(parts[1::2], parts[2::2]))
+        python_jobs = {row['id'] for row in load_registry()['suites']
+                       if row['domain'] in ('python-no-gcp', 'v52-python')}
         expected_jobs = ({"validate", "publish"} if release else
-                         set(jobs) - {"changes", "required", "cloud-runner-tests",
-                                      "python-v51-core", "python-v51-admission", "python-v51-storage",
-                                      "cloud-preflight-tests", "cloud-cleanup-fixture-tests",
-                                      "cloud-storage-tests", "cloud-provider-tests"})
+                         set(jobs) - {"changes", "required"} - python_jobs)
         java_jobs = {name for name, body in jobs.items() if "uses: actions/setup-java@" in body}
         self.assertEqual(expected_jobs, java_jobs)
         selector = "21.0.12+8.0.LTS"
@@ -122,6 +122,12 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
                          ("uses: actions/setup-java@", "uses: actions/missing-java@")):
             with self.subTest(drift=new), self.assertRaises(AssertionError):
                 self.check_workflow_java_selectors(workflow.replace(old, new, 1))
+
+    def test_unregistered_python_lane_does_not_get_an_implicit_java_exemption(self) -> None:
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        lane = re.search(r"^  python-v52-core:\n.*?(?=^  [\w-]+:\n)", workflow, re.MULTILINE | re.DOTALL).group()
+        with self.assertRaises(AssertionError):
+            self.check_workflow_java_selectors(workflow + lane.replace("  python-v52-core:\n", "  python-v52-unknown:\n", 1))
 
 
 if __name__ == "__main__":

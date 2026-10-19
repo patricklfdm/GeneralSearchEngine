@@ -42,12 +42,28 @@ class FinalEvidenceTest(unittest.TestCase):
 
     def test_distinct_public_refusals_after_loss(self): e.refused(self.refusals(),['0','1'],'node-1',10)
 
+    def test_recovering_handle_may_refuse_each_call_as_not_ready(self):
+        # A higher promise may leave the old handle recovering between calls.
+        for read_reason in ('NOT_LEADER','NOT_READY','QUORUM_UNAVAILABLE','STALE_EPOCH'):
+            for write_reason in ('NOT_LEADER','NOT_READY','QUORUM_UNAVAILABLE','STALE_EPOCH'):
+                rows=self.refusals();rows['0']['reasonCode']=read_reason;rows['1']['reasonCode']=write_reason
+                with self.subTest(read=read_reason,write=write_reason):e.refused(rows,['0','1'],'node-1',10)
+
     def test_missing_duplicate_success_uncertainty_or_early_refusal_rejected(self):
         for ids in (['0'],['0','0']):
             with self.assertRaises(ValueError): e.refused(self.refusals(),ids,'node-1',10)
-        for key,value in [('outcome','SUCCESS'),('outcome','INDETERMINATE'),('kind','read'),('node','node-2'),('startNanos',9),('endNanos',19),('reasonCode','CLOSED')]:
-            rows=copy.deepcopy(self.refusals());rows['1'][key]=value
-            with self.subTest(key=key,value=value),self.assertRaises(ValueError): e.refused(rows,['0','1'],'node-1',10)
+        for reason in ('NOT_LEADER','NOT_READY'):
+            for key,value in [('outcome','SUCCESS'),('outcome','INDETERMINATE'),('kind','read'),('node','node-2'),('startNanos',9),('endNanos',19)]:
+                rows=copy.deepcopy(self.refusals());rows['1']['reasonCode']=reason;rows['1'][key]=value
+                with self.subTest(reason=reason,key=key,value=value),self.assertRaises(ValueError): e.refused(rows,['0','1'],'node-1',10)
+
+    def test_unrelated_or_missing_failure_reason_does_not_prove_fencing(self):
+        for identity in ('0','1'):
+            for reason in ('CLOSED','STORAGE_FAILURE','CAPACITY_EXCEEDED','DEADLINE_EXCEEDED','UNKNOWN',None):
+                rows=self.refusals();rows[identity]['reasonCode']=reason
+                with self.subTest(identity=identity,reason=reason),self.assertRaises(ValueError):e.refused(rows,['0','1'],'node-1',10)
+            rows=self.refusals();del rows[identity]['reasonCode']
+            with self.assertRaises(ValueError):e.refused(rows,['0','1'],'node-1',10)
 
 
 if __name__=='__main__': unittest.main()

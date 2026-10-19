@@ -1,0 +1,6 @@
+enum io.github.patricklfdm.generalsearch.replication.ReplicaReadPolicy
+record io.github.patricklfdm.generalsearch.replication.ReplicaReadToken
+record io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions
+record io.github.patricklfdm.generalsearch.replication.ReplicaReadResult
+interface io.github.patricklfdm.generalsearch.replication.ReplicaReadView
+class io.github.patricklfdm.generalsearch.replication.ReplicaReadException

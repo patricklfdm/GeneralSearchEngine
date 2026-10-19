@@ -23,7 +23,11 @@ Configured-leader mode remains available. The
 records qualification under the frozen workload. Public follower reads, dynamic
 membership and mixed-version rolling upgrades remain unsupported. See the
 [V5.1 migration guide](docs/v5x/v5.1/MIGRATION_GUIDE.md) for explicit mode selection
-and new-group transfer requirements. V5.2 replica-read contract design is next.
+and new-group transfer requirements. The unreleased V5.2 automatic handle enables
+explicit strong, stale-allowed and minimum-progress reads. Its
+[local correctness qualification](docs/v5x/v5.2/PHASE_4_QUALIFICATION.md) is complete;
+[combined hardening](docs/v5x/v5.2/PHASE_5_HARDENING.md) is also locally verified.
+Measurements and protected hosted acceptance remain pending.
 
 V5.0 adds an optional replication artifact with exactly three fixed voters, a
 configured leader, durable quorum commit proof, explicit activation, catch-up and

@@ -148,16 +148,27 @@ final class AutomaticRejoin implements AutoCloseable {
         }
         byte[] bytes=AutomaticRecovery.image(manifest,cut.snapshot(),null);String id=UUID.randomUUID().toString();long deadline=clock.getAsLong()+lifetime;
         var offer=Map.<String,Object>of("transferId",id,"imageBytes",(long)bytes.length,"imageDigest",digest(bytes),"response",false);
-        var offered=request(cut.ballot(),peer,"SNAPSHOT_OFFER",offer);echo(offered,"SNAPSHOT_OFFER",offer);
-        for(int offset=0;offset<bytes.length;) {
-            need(clock.getAsLong()<deadline,"rejoin total deadline");int count=Math.min(chunkSize(),bytes.length-offset);byte[] chunk=Arrays.copyOfRange(bytes,offset,offset+count);
-            var body=chunk(id,"DATA",offset,chunkSize(),chunk);var ack=request(cut.ballot(),peer,"SNAPSHOT_CHUNK",body);
-            need(ack.get("type").equals("SNAPSHOT_CHUNK"),"snapshot chunk response");var result=object(ack.get("payload"));
-            var expected=new LinkedHashMap<>(body);expected.put("action","ACK");expected.put("chunk","");need(expected.equals(result),"exact durable snapshot chunk ACK");offset+=count;
-        }
         var install=Map.<String,Object>of("transferId",id,"imageDigest",digest(bytes),"response",false);
-        echo(request(cut.ballot(),peer,"REJOIN_INSTALL",install),"REJOIN_INSTALL",install);
-        completedInstalls.put(peer,identity);
+        try {
+            var offered=request(cut.ballot(),peer,"SNAPSHOT_OFFER",offer);echo(offered,"SNAPSHOT_OFFER",offer);
+            for(int offset=0;offset<bytes.length;) {
+                need(clock.getAsLong()<deadline,"rejoin total deadline");int count=Math.min(chunkSize(),bytes.length-offset);byte[] chunk=Arrays.copyOfRange(bytes,offset,offset+count);
+                var body=chunk(id,"DATA",offset,chunkSize(),chunk);var ack=request(cut.ballot(),peer,"SNAPSHOT_CHUNK",body);
+                need(ack.get("type").equals("SNAPSHOT_CHUNK"),"snapshot chunk response");var result=object(ack.get("payload"));
+                var expected=new LinkedHashMap<>(body);expected.put("action","ACK");expected.put("chunk","");need(expected.equals(result),"exact durable snapshot chunk ACK");offset+=count;
+            }
+            echo(request(cut.ballot(),peer,"REJOIN_INSTALL",install),"REJOIN_INSTALL",install);
+            completedInstalls.put(peer,identity);
+        } catch(Exception failure) {
+            // A concurrent acceptance can reject this older cut. Relinquish only
+            // our transfer instead of blocking a newer cut until lease expiry.
+            // Abort never removes accepted/proven authority or confirms install.
+            // The original failure survives an unavailable/fenced cleanup path.
+            var abort=Map.<String,Object>of("transferId",id,"response",false);
+            try {echo(request(cut.ballot(),peer,"SNAPSHOT_ABORT",abort),"SNAPSHOT_ABORT",abort);}
+            catch(Exception cleanup) {failure.addSuppressed(cleanup);}
+            throw failure;
+        }
     }
     private void echo(Map<String,Object> response,String type,Map<String,Object> request) {
         var expected=new LinkedHashMap<>(request);expected.put("response",true);need(response.get("type").equals(type)&&expected.equals(response.get("payload")),"recovery exact response");

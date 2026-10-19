@@ -31,7 +31,16 @@ public final class V51PerformanceObserver {
             result.put("admissionAvailable",((Semaphore)field(engine,"admission")).availablePermits());
             for(String name:List.of("ordered","deadlines"))result.put(name+"Queue",((ThreadPoolExecutor)field(engine,name)).getQueue().size());
             for(String name:List.of("inputs","completions"))result.put(name+"Queue",((BlockingQueue<?>)field(runtime,name)).size());
-            for(String name:List.of("network","app","clients"))result.put(name+"Queue",((ThreadPoolExecutor)field(runtime,name)).getQueue().size());
+            for(String name:List.of("network","app","clients")) {
+                Object executor=field(runtime,name);
+                if(executor instanceof ThreadPoolExecutor pool)result.put(name+"Queue",pool.getQueue().size());
+                else {
+                    if(!name.equals("app"))throw new IllegalStateException("unknown executor shape");
+                    synchronized(field(executor,"lock")) {
+                        result.put(name+"Queue",((Collection<?>)field(executor,"ordinary")).size()+(field(executor,"read")==null?0:1));
+                    }
+                }
+            }
             result.put("queuedBytes",((AtomicLong)field(transport,"queuedBytes")).get());
             result.put("inboundAvailable",((Semaphore)field(transport,"inbound")).availablePermits());
             var outbound=new TreeMap<String,Object>();

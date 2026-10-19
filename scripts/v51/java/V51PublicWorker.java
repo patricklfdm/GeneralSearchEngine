@@ -12,7 +12,7 @@ public final class V51PublicWorker {
     private static Object field(Object owner,String name) throws ReflectiveOperationException {
         var value=owner.getClass().getDeclaredField(name);value.setAccessible(true);return value.get(owner);
     }
-    private static Map<String,Object> queues(Object engine) {
+    static Map<String,Object> queues(Object engine) {
         try {
             var result=new LinkedHashMap<String,Object>();Object runtime=field(engine,"node");
             result.put("admissionAvailable",((java.util.concurrent.Semaphore)field(engine,"admission")).availablePermits());
@@ -23,12 +23,38 @@ public final class V51PublicWorker {
                 var queue=(java.util.concurrent.BlockingQueue<?>)field(runtime,name);result.put(name+"Queue",queue.size());result.put(name+"Remaining",queue.remainingCapacity());
             }
             for(String name:List.of("network","app","clients")) {
-                var pool=(java.util.concurrent.ThreadPoolExecutor)field(runtime,name);result.put(name+"Queue",pool.getQueue().size());result.put(name+"Active",pool.getActiveCount());
+                Object executor=field(runtime,name);
+                if(executor instanceof java.util.concurrent.ThreadPoolExecutor pool) {
+                    result.put(name+"Queue",pool.getQueue().size());result.put(name+"Active",pool.getActiveCount());
+                } else {
+                    // V5.2 keeps the application worker but separates one explicit-read marker.
+                    // Reflection preserves compilation/replay against the published V5.1 JAR.
+                    if(!name.equals("app"))throw new IllegalStateException("unknown executor shape");
+                    synchronized(field(executor,"lock")) {
+                        result.put(name+"Queue",((Collection<?>)field(executor,"ordinary")).size()+(field(executor,"read")==null?0:1));
+                    }
+                    result.put(name+"Active",((java.util.concurrent.ThreadPoolExecutor)field(executor,"worker")).getActiveCount());
+                }
             }
+            // Optional read-only V5.2 counters. Keep this observer compilable against
+            // the published V5.1 artifact, which has no explicit read queue.
+            try {
+                synchronized(field(runtime,"protocol")) {
+                    Object reads=field(runtime,"explicitReads");
+                    if(reads!=null) {
+                        var count=reads.getClass().getDeclaredMethod("counts");count.setAccessible(true);Object snapshot=count.invoke(reads);
+                        for(String name:List.of("owned","waiting","captured","settling","alarms","marker","highWater")) {
+                            var accessor=snapshot.getClass().getDeclaredMethod(name);accessor.setAccessible(true);
+                            result.put("reads"+Character.toUpperCase(name.charAt(0))+name.substring(1),accessor.invoke(snapshot));
+                        }
+                        result.put("admissionAvailable",((java.util.concurrent.Semaphore)field(engine,"admission")).availablePermits());
+                    }
+                }
+            }catch(NoSuchFieldException publishedV51){/* No V5.2 counters in the old artifact. */}
             return result;
         }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
     }
-    private static byte[] lastJournal(Path directory,String kind) throws IOException {
+    static byte[] lastJournal(Path directory,String kind) throws IOException {
         if(!kind.equals("PROMISE")&&Files.exists(directory.resolve("current.gsr")))
             directory=directory.resolve(text(decode(Files.readAllBytes(directory.resolve("current.gsr")),"SELECTOR").value(),"generation"));
         byte[] bytes=Files.readAllBytes(directory.resolve(kind.equals("PROMISE")?"promises.gsr":kind.equals("ACCEPT")?"accepted.gsr":"proofs.gsr"));
@@ -98,6 +124,7 @@ public final class V51PublicWorker {
                 row.put("generation",generation);row.put("localNanos",System.nanoTime());
                 row.put("node",node);row.put("groupId",group);row.put("manifestDigest",manifestDigest);
                 byte[] json=canonical(row),line=Arrays.copyOf(json,json.length+1);line[json.length]='\n';
+                line=encodeLine(line); // Default is byte-identical; measured traces may encode losslessly.
                 checkAppend(line); // Reject a known bound before publishing pending bytes.
                 // Test telemetry only, outside replica authority. Publish the complete
                 // observation before SIGKILL can interrupt its JSONL append.
@@ -112,6 +139,7 @@ public final class V51PublicWorker {
             }catch(IOException error){failure=error;throw error;}
         }
         void checkAppend(byte[] line) throws IOException {}
+        byte[] encodeLine(byte[] line) throws IOException {return line;}
         void append(byte[] line) throws IOException {
             Files.write(path,line,StandardOpenOption.CREATE,StandardOpenOption.APPEND);
         }
@@ -162,7 +190,7 @@ public final class V51PublicWorker {
         var manifest=decode(Files.readAllBytes(root.resolve(local+"/manifest.gsr")),"MANIFEST");
         Path tracePath=root.resolve(local+"-trace.jsonl"),armPath=root.resolve(local+"-arm.txt");
         int generation=args.length>3?Integer.parseInt(args[3]):1;
-        Trace trace=args.length>2&&args[2].equals("remote-fault")
+        Trace trace=args.length>2&&Set.of("remote-fault","replica-read").contains(args[2])
             ?new FaultTrace(tracePath,armPath,generation,local,manifest)
             :new Trace(tracePath,armPath,generation,local,manifest);
         trace.pauseSeconds=pauseSeconds;
@@ -207,6 +235,14 @@ public final class V51PublicWorker {
                     }
                     if(Set.of("FLOOR_BEFORE_WRITE","FLOOR_AFTER_FORCE","FLOOR_BEFORE_ACK","SELECTOR_BEFORE_ACK","SOURCE_BEFORE_ACK","WITNESS_BEFORE_ACK","TRANSFER_PROGRESS_BEFORE_ACK").contains(event)||event.startsWith("DELETE_AFTER_")) {
                         var values=new LinkedHashMap<String,Object>();values.put("cut",event);
+                        if(event.equals("SELECTOR_BEFORE_ACK")&&Files.exists(root.resolve("replica-read-evidence"))) {
+                            Path directory=root.resolve(local);byte[] selector=Files.readAllBytes(directory.resolve("current.gsr"));
+                            Path generationDirectory=directory.resolve(text(decode(selector,"SELECTOR").value(),"generation"));
+                            var source=new ArrayList<Map<String,Object>>();source.add(Map.of("name","current.gsr","bytes",b64(selector)));
+                            for(String name:List.of("generation.gsr","snapshot.gsr","accepted.gsr","proofs.gsr"))
+                                source.add(Map.of("name",name,"bytes",b64(Files.readAllBytes(generationDirectory.resolve(name)))));
+                            values.put("readGeneration",source);
+                        }
                         if(Files.exists(root.resolve("reclamation-evidence"))&&(event.startsWith("FLOOR_")||event.startsWith("DELETE_AFTER_")))
                             values.put("authority",reclamationFiles(root.resolve(local)));
                         trace.event("STORAGE_CUT",values);
@@ -274,7 +310,9 @@ public final class V51PublicWorker {
                 }
             }
         },(name,values)->{
-            if(name.equals("READ_CAPTURE_VALIDATED"))trace.write(name,values); // Observation only; never pause under the protocol monitor.
+            if(Set.of("READ_CAPTURE_VALIDATED","REPLICA_READ_ADMITTED","REPLICA_READ_CAPTURE_VALIDATED",
+                    "REPLICA_READ_SETTLING","REPLICA_READ_OWNERSHIP_RELEASED").contains(name))
+                trace.write(name,values); // Observation only; never pause under the protocol monitor.
             else trace.event(name,values);
         }));
         io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.observer=(name,values)->{try{trace.event(name,values);}catch(IOException e){throw new UncheckedIOException(e);}};
@@ -286,7 +324,9 @@ public final class V51PublicWorker {
                 catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
             };
         }
-        if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")||(args[2].equals("performance-small")||args[2].equals("remote-fault"))))
+        if(args.length>2&&args[2].equals("replica-read"))
+            Class.forName("io.github.patricklfdm.generalsearch.admission.V52PublicReadConsumer").getMethod("main",String[].class).invoke(null,(Object)args);
+        else if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")||(args[2].equals("performance-small")||args[2].equals("remote-fault"))))
             Class.forName("io.github.patricklfdm.generalsearch.admission."+(args[2].equals("remote-fault")?"V51RemoteFaultConsumer":args[2].equals("performance-small")?"V51SmallPerformanceConsumer":args[2].equals("lifecycle")?"PublicLifecycleConsumer":args[2].equals("backpressure")?"PublicBackpressureConsumer":"PublicQualificationConsumer")).getMethod("main",String[].class).invoke(null,(Object)args);
         else io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.main(args);
     }

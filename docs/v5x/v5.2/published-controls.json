@@ -1,0 +1,20 @@
+{
+  "schema": "gse-v52-published-controls-v1",
+  "artifacts": [
+    {
+      "artifact": "general-search-engine",
+      "version": "4.4.0",
+      "sha256": "0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5"
+    },
+    {
+      "artifact": "general-search-engine",
+      "version": "5.1.0",
+      "sha256": "fb97c837092776f3f2b4558c7ed0250b5be3841e2e81644f0e71fddd3cae62fc"
+    },
+    {
+      "artifact": "general-search-engine-replication",
+      "version": "5.1.0",
+      "sha256": "162b0ff926a85db348f4bd08d853a39528763998d28bfd02fe4f5068032dfd12"
+    }
+  ]
+}

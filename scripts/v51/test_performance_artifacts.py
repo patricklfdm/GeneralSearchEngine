@@ -38,6 +38,19 @@ class RelocatedArtifactTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'candidate version'):self.validate()
         self.validate()
 
+    def test_current_new_coordinate_replay_requires_exact_pom_binding(self):
+        from scripts import build_coordinates as build
+        for artifact in self.adapter['artifacts']:
+            old=Path(artifact['path']).name;new=old.replace('5.1.0-SNAPSHOT',build.current())
+            (self.root/'artifacts'/old).rename(self.root/'artifacts'/new)
+            artifact['path']=str(self.original/'artifacts'/new)
+            self.adapter['cp']=self.adapter['cp'].replace(old,new)
+        source={'probe.java':'a'*64,'pom.xml':m.sha((build.ROOT/'pom.xml').read_bytes())}
+        e.artifacts(self.root,self.mode,self.adapter,{},source)
+        for changed in ({'probe.java':'a'*64},dict(source,**{'pom.xml':'f'*64})):
+            with self.assertRaisesRegex(ValueError,'candidate version'):
+                e.artifacts(self.root,self.mode,self.adapter,{},changed)
+
     def test_tampered_or_missing_retained_bytes_fail(self):
         p=self.root/'artifacts'/Path(self.adapter['artifacts'][0]['path']).name
         p.write_bytes(b'changed')

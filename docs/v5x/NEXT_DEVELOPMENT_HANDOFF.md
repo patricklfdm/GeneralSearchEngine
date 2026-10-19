@@ -1,7 +1,9 @@
 # Next-development documentation handoff
 
 Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
-next is V5.2 Phase 0 replica-read contract and evidence design.
+V5.2 Phases 1–5 are locally verified and the complete hosted M01–M04 cohort passed;
+local pre-cloud integration is implemented; exact-master protected CI, deployment
+and the complete paid cloud cohort remain pending.
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
 PR #321 at `9c03356ab343fc5aafcefbbfcc0e33382d19eef0` with the operator's one-time
@@ -13,39 +15,380 @@ check passes twelve signatures/checksums, twelve canonical hashes and all six
 fresh remote consumer modules (22 tests, V1 compile-only). Stable is **5.1.0**.
 The Phase 7A skip did not carry forward to final-candidate or release validation.
 
-## Next batch: V5.2 Phase 0
+<a id="next-batch-v52-phase-0"></a>
 
-The [entry plan](v5.2/PHASE_0_ENTRY_PLAN.md) was accepted in PR #334 at master
-`fd5bf155994887a5d5adc114000afc9e770960ae`. Its implementation task has produced a
-[six-document Phase 0 candidate](v5.2/PHASE_0_CONTRACT.md), with ten selected design
-decisions, nine evidence families, thirty concrete correctness schedules and sixteen
-evidence negatives. Contract acceptance is still pending; these are planned checks,
-not executed replica-read evidence. Original CI failures and remaining
-[Tiered CI observations](../CI_TIERED_ACCEPTANCE.md) stay separate.
+<a id="current-batch-v52-phase-1"></a>
 
-Review the contract with the [charter](DEVELOPMENT_CHARTER.md#v52--replica-reads),
-[proposed read-policy refinement](NEXT_DEVELOPMENT_ADDENDUM.md#v52-explicit-read-policies),
-and [V5.1 migration limits](v5.1/MIGRATION_GUIDE.md). The candidate selects:
+## Current batch: V5.2 Phase 6 remote integration
 
-- Strong leader, explicitly stale-allowed and history-bound at-least-index policies.
-- Progress tokens bound to group/history identity, published-state admission and
-  exact wait/reject behavior during lag, leadership changes, restore and restart.
-- Bounded waiters and callback-scoped views; explicit paging is excluded while
-  existing leader paging remains unchanged. Cancellation/close retain real ownership.
-- Adversarial history and physical evidence proving that followers never expose
-  uncommitted state or mislabel stale state as a stronger read.
+Latest local stage: [Phase 6BK setup review](v5.2/PHASE_6_CLOUD_SETUP.md)
+adds the fixed provider configuration and offline, byte-checked deployment
+materials for dedicated Runner/manual-cleanup identities and environments.
+The inherited project/image values are historical settings, not current provider
+observations. Native V5.2 quota policy uses `pd-ssd`; the $200 cumulative budget
+remains soft and the one-hour lease is renewable. Schedule is optional.
 
-Published `5.1.0` becomes the immediate replication reference for V5.2; inherited
-V4.4 search/storage behavior and earlier configured-mode guarantees remain.
-V5.2 runtime work follows acceptance of its own Phase 0. Review
-[API/bytes](v5.2/API_FORMAT_AND_COMPATIBILITY.md),
-[authority/lifecycle](v5.2/READ_AUTHORITY_AND_LIFECYCLE.md) and
-[evidence](v5.2/TESTING_AND_EVIDENCE.md), then record protected acceptance in the
-[checklist](v5.2/PHASE_0_CHECKLIST.md). After acceptance and the user's instruction,
-the next implementation batch is the [Phase 1 foundation](v5.2/PHASE_1_ENTRY_PLAN.md),
-keeping explicit runtime reads disabled until later public qualification. This batch changes documentation only;
-no V5.2 version bump or runtime work has started.
-Commit/push/PR/tag operations remain operator-owned, and paid runs remain manual.
+[Phase 6BJ operator workflow](v5.2/PHASE_6_OPERATOR_ENTRY.md) supplies the actual
+master-only prepare/run/verify-set workflow, original prepared-artifact checks,
+explicit plan-hash approval, safe reports and minute progress. Both manual
+workflows now have a source-owned configuration. No push, deployment, protected
+final-source CI or paid dispatch has occurred.
+
+The next boundary is operator push/merge and full exact-master CI, followed by
+live setup review/activation, recent manual cleanup, explicit priced preparation
+and manual paid dispatch. Preserve the single source/configuration/sequence
+across all five original members and independently verify the complete set.
+Local setup tests and review files live under `target/v52-cloud-setup`.
+
+The preceding [Phase 6BI original Runner provenance](v5.2/PHASE_6_PROTECTED_RUNNER.md)
+seals only successfully closed original native members, authenticates the exact
+original GitHub run/attempt and joins its compact seal to separately restored
+immutable provider evidence. The native complete-set join replays every whole
+member and checks actual runtime invocation against protected provenance before
+qualification. Local synthetic/IO-modeled tests are not native acceptance.
+Validation is retained under `target/v52-protected-runner`.
+
+Phase 6BJ connects its operator workflow and prepared-artifact transfer. Phase
+6BK supplies local configuration/setup review; live deployment and actual
+protected/cloud acceptance remain open.
+
+The preceding [Phase 6BH required CI partitions](v5.2/PHASE_6_CI_PARTITIONS.md)
+moves all 1,087 Python cases into eight required partitions and splits measurement
+qualification into three complete runtime lanes. Source-bound build provenance,
+all original commands and failure artifacts remain. Full CI now has 62 expanded
+jobs; local migration/partition receipts live under `target/v52-ci-partitions`.
+Hosted timing and exact-source protected qualification remain pending.
+
+The preceding [Phase 6BG retained replay](v5.2/PHASE_6_RETAINED_REPLAY.md)
+independently reconstructs original admission, resource/guest/storage bindings and
+replays complete members plus the five-member set in any order. A GET-only
+restorer pins selected original objects by generation and preserves ledger history;
+content-addressed cleanup copies avoid object listing. Local models and six
+unchanged earlier SSH/JVM archives (including M01/M02/M03) are retained under `target/v52-retained-replay`.
+Standalone byte replays remain NOT_QUALIFIED. Phase 6BI supplies the internal
+protected-original join; 6BJ/6BK subsequently supply operator/configuration entry.
+These historical byte replays do not establish deployment or cloud acceptance.
+
+The preceding [Phase 6BF original evidence retention](v5.2/PHASE_6_NATIVE_RETENTION.md)
+connects the live whole-member capture to bounded immutable manifest/parts,
+generation-pinned read-back and exact-ID cleanup before member completion.
+Partial retention or failed cleanup cannot grant PASS; reconciliation can finish
+an already retained original completion but cannot construct one from copied
+evidence. Source, claims, build/input bytes, costs and complete histories remain
+bound. Local models and earlier-archive byte round-trips are retained separately
+under `target/v52-native-retention`; no cloud or protected acceptance is claimed.
+This retention layer alone grants no independent five-member acceptance. There
+is no paid member CLI at this stage.
+
+The preceding [Phase 6BE original inputs and whole members](v5.2/PHASE_6_NATIVE_MEMBERS.md)
+connects verified five-JAR staging and pre-acquisition Java preparation to the
+existing native Session. The internal member entry consumes its selected whole
+histories once, retains each original result, independently replays evidence and
+reports progress at least once a minute. Native Placement disables qualification
+transport-loss injections and downloads; declared M04 faults and original-result
+recovery remain. Its result is still `MEMBER_EXECUTED_NOT_QUALIFIED`.
+Validation scope, source hashes and original failure logs are retained under
+`target/v52-native-members`. These are original local execution results, not
+native cloud or protected acceptance.
+
+The preceding [Phase 6BD installed Java](v5.2/PHASE_6_NATIVE_JAVA.md)
+connects original-version/hash-pinned Java images to native storage and the
+existing complete-history Placement. The standalone image installer consumes its
+destination once, streams bounded bytes, and only queries original results after
+response loss. Installed helpers and child JVMs use the explicit image with a
+closed environment; retained replay correlates its bytes and actual JVM process.
+Native partial installation cannot fall back to ambient Java or grant workload
+readiness. Storage/Java readiness receipts remain NOT_QUALIFIED.
+
+Actual loopback SSH qualification passed in 277.161 seconds with 11 reads, three
+updates, three stopped JVMs, original/portable replay and 16 Java-specific negative
+rejections. The two native factory tests passed in 323.922 seconds with provider/
+SSH I/O modeled. Original logs, receipts and source hashes are retained in
+`target/v52-native-java/validation-summary.json`. Final targeted regressions pass
+166 source/transport/process cases, the 13 unchanged storage cases and 69 CI
+contracts; original failed mixed-run logs remain separate. No native cloud history
+or paid resource was executed.
+The prior [storage stage](v5.2/PHASE_6_NATIVE_STORAGE.md) retains its own root/device
+model qualification; no host disk was modified.
+
+Provider configuration and identities remain undeployed. Phase 6BH already split
+the growing Python inventory and runtime gates into required lanes; do not repeat
+that migration. The prior 948-test serial run took 1070.913 seconds. That historical
+local observation does not predict hosted CI timing or change qualification bounds.
+
+The [hosted acceptance record](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) binds successful
+run `38888573888`, attempt 1: 28 histories, 27,373 reads, 2,745 updates and 878
+negative rejections. All 21 original artifacts are archived. The measurement
+fixes and recovered pre-cloud stages now share the development worktree.
+[Stable command slots and one owned real history](v5.2/PHASE_6_REMOTE_OWNED_HISTORY.md)
+connect the existing receiver and command foundations. The integrated local gate
+passed both five-mode entries, six receiver bootstraps, four command subprocess
+cases and the one-submission real history; all 292 V5.2 Python tests passed.
+[Whole-history receiver execution](v5.2/PHASE_6_REMOTE_HISTORIES.md) now connects
+the unchanged M01–M04 controllers, per-receiver paths and owned recovery lifecycle.
+Five complete representative histories passed original/relocated replay and all
+158 negative rejections, preserving 1,845 original read and 196 update outcomes.
+The existing five smoke modes and default detached entry also passed; all 305
+V5.2 Python tests and 21 CI tests passed. These remain local receiver checks.
+[Pinned SSH command transport](v5.2/PHASE_6_SSH_HISTORY.md) adds a fixed guest
+entry, durable detached launch ownership and boot/user/directory identity checks.
+Its real loopback SSH qualification passed nine control cases and one original
+11-read/3-update history with 48 physical evidence negatives. All 322 V5.2 Python
+tests and 21 CI suite tests passed. This is separate from three-host cloud acceptance.
+[Persistent per-voter services](v5.2/PHASE_6_PERSISTENT_VOTERS.md) now separate
+three local JVM owners from the controller and add bounded persistent streams,
+original-result reattachment and process-local clock/message evidence. Three services
+and three JVMs passed one 11-read/3-update smoke, 548 message edges and 48 original/
+relocated physical/query negatives; 344 V5.2 Python tests and 21 CI tests passed.
+This remains an untimed local lifecycle backend.
+[Per-voter SSH streams](v5.2/PHASE_6_SSH_VOTERS.md) now connect the original
+controller to each existing service with pinned persistent channels and exact
+resume cursors. Its real loopback gate passed eleven reads, three updates and
+48 original/relocated negatives with all service/JVM/SSH processes stopped.
+That stage retained local process launch and collection.
+[SSH service lifecycle and evidence export](v5.2/PHASE_6_VOTER_LIFECYCLE.md)
+now adds fixed remote preparation/start/query/stop ownership and bounded stopped
+archive download, with one consumed launch and original-result reattachment.
+Artifact/seed staging and public bootstrap still remain local; independent-host
+qualification and formal fault lifecycle remain open. Its final real SSH gate
+passed eleven reads, three updates, 48 original/relocated physical/query negatives
+and 14 lifecycle negatives in 61.792 seconds. All 385 V5.2 Python tests and 21
+CI suite tests pass; source and evidence hashes remain bound to that local receipt.
+[Receiver capsule delivery and bootstrap](v5.2/PHASE_6_RECEIVER_DELIVERY.md)
+now connects bounded pinned SSH uploads and one detached public bootstrap per
+receiver to that service lifecycle. Receiver inputs are transferred; the Python
+checkout is still shared on one host. Its real gate passed in 109.172 seconds:
+three one-submission bootstraps, eleven reads, three updates, 48 physical/query
+negatives, 14 lifecycle negatives and 14 delivery negatives. All 406 V5.2 Python
+tests and 21 CI suite tests pass; its receipt retains the actual source binding.
+Cross-host transport/identity, complete owned members, protected full CI and fresh
+cloud admission remain open. The milestones below
+retain their original validation scope and source; earlier pending statements
+describe those historical stages, not the current hosted cohort result.
+
+[SSH partition and snapshot recovery](v5.2/PHASE_6_REMOTE_PARTITION.md) adds the
+complete frozen M04 follower snapshot/carried-token history to the delivered
+receiver/service backend. Original remote cut/heal claims, all-receiver ACK barriers
+and separately recorded failure cleanup supplement the unchanged physical/query
+replay. This remains single-host qualification; SIGKILL/retained restart and
+independent hosts are not enabled by its exact-profile admission.
+The final gate passed in 106.028 seconds with four original reads, four updates,
+six original receiver transitions and 76 negative rejections. All 430 V5.2 Python,
+31 affected V5.1 fault and 21 CI suite tests pass. Serial-control timing failure
+and the historical six-frame completeness failure remain retained; parallel
+preconnected control and explicit selected-quorum M04 coverage were qualified.
+
+[SSH retained leader restart](v5.2/PHASE_6_REMOTE_RESTART.md) completes the second
+M04 service profile. One guest-owned SIGKILL, forced pre-reopen authority copy and
+exact dead-predecessor admission permit one explicit generation-2 reopen. Lost
+terminal/launch replies query original receipts without repeating kill or launch.
+The real gate passed in 104.727 seconds, with four original reads, four updates,
+four stopped services/JVMs and 68 original/relocated negative rejections. All 442
+initial V5.2 Python and 21 CI suite tests passed. A further partition regression
+retained a snapshot failure after a 2.459-second heal barrier. Prepared persistent
+control now removes repeated process/import/source setup from each transition;
+the corrected complete history passed in 100.497 seconds with 0.418/0.423-second
+cut/heal barriers and all 76 negatives. The final Python suite passes 448 tests.
+The final shared SSH implementation also passed a fresh complete restart history
+in 102.110 seconds, with all 68 negatives and all original owners stopped.
+[Formal SSH histories](v5.2/PHASE_6_REMOTE_FORMAL.md) add exact M01–M03 admission,
+parameter delivery and large stopped exports with the existing bundle bounds.
+The first real gate passed M02 and exposed a stale snapshot transfer occupying
+one M03 follower after an install rejection. A deterministic regression reproduces
+that failure; failed exchanges now abort their own transfer while preserving the
+original failure and accepted/proven authority. Rebuilt five-history qualification
+is pending. Independent hosts/clocks, complete owned members and protected
+CI/provider admission remain.
+
+[Independent Python source packaging](v5.2/PHASE_6_REMOTE_PYTHON.md) supplies the
+next deployment foundation: a static guest dependency closure, bounded standalone
+installer, exact source/file hashes and isolated imports without a Git checkout.
+Its actual source-bound gate passes with 159 files and 84 loaded modules;
+all 476 V5.2 Python tests and 21 CI suite tests pass.
+[Installed Python runtime over SSH](v5.2/PHASE_6_REMOTE_PYTHON_RUNTIME.md) now
+replaces that shared path for the complete smoke history. Three independently
+installed capsules, explicit source pins and isolated children pass original and
+relocated replay, 48 ordinary negatives, 18 Python-source negatives and all
+28 delivery/lifecycle negatives. The whole gate passes in 159.016 seconds;
+all 498 V5.2 Python tests pass. Its separate source snapshot preserves the still
+running formal gate's worktree and retains its own immutable source identity.
+[Complete histories over installed helpers](v5.2/PHASE_6_INSTALLED_HISTORIES.md)
+now selects all 33 exact frozen histories through their original controllers,
+including second-generation restart and prepared fault channels. Its representative
+four-history local gate passes in 577.630 seconds: 24 original reads, 15 updates,
+338 negative rejections and all 13 service/JVM owners stopped. All 508 V5.2 Python
+tests pass on the final development worktree. The actual run retains its separate
+source snapshot and is not relabelled as protected acceptance. Independent-host
+identity, clock/routing qualification, owned members and cloud admission remain open.
+
+[Bound host and process domains](v5.2/PHASE_6_HOST_PROCESS_DOMAINS.md) now distinguish
+equal cross-host PIDs and retained PID reuse through explicit resource/boot/start
+identities. Independent clock offsets preserve message/local-order checks, and
+installed Python paths are scoped to the expected host. These component checks
+and retained physical replay do not enable private-host execution; provider/lease
+ownership, live routing, whole owned members and cloud admission remain next.
+
+The previously running five-history formal SSH gate also completed: all five
+original/relocated replays pass in 3,950.755 seconds, with 3,704 reads, 372 updates,
+158 negative rejections and all 15 service/JVM pairs stopped. Its original
+`5d183ca` source plus recorded checkout hash remain bound to that evidence.
+
+[Bound receiver execution](v5.2/PHASE_6_BOUND_RECEIVERS.md) connects the explicit
+host domains to the original UNTIMED/M01–M04 controllers, capsule delivery,
+guest launch, faults, collection and physical replay. One placement consumes one
+whole history; independently owned routes and fresh paths are mandatory. Local
+defaults remain intact. Provider/lease admission, owned route lifetime and the
+complete member/aggregate entry are still separate unfinished requirements.
+
+Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
+Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,
+36 skipped suite placeholders). See the [acceptance checklist](v5.2/PHASE_0_CHECKLIST.md).
+
+The [Phase 1 foundation](v5.2/PHASE_1_FOUNDATION.md) implements six public types,
+one disabled default read method, independent token/model/evidence checks and an
+external V5.2 consumer, at `5.2.0-SNAPSHOT`. Full protected PR/master qualification
+is pending. The [schedule map](v5.2/PHASE_1_SCHEDULE_MAP.md) preserves S01–S30 for
+later runtime work; synthetic evidence does not complete those schedules.
+
+The operator authorized [locally verified sequential commits](v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
+without intermediate pushes. The [Phase 2 capture/waiter kernel](v5.2/PHASE_2_CAPTURE_KERNEL.md)
+passes deterministic ownership and real runtime tests. [Phase 3 public reads](v5.2/PHASE_3_PUBLIC_READS.md)
+implements all three policies and verified follower publication. The external
+three-process gate now passes with actual published V4.4 query replay, portable
+physical evidence and eleven rejection checks. Phase 4 completes the broader
+fault/lifecycle/resource schedules; the healthy gate does not close that matrix.
+Local 4B now passes six carried-token/partition/publication fault cases. Local 4C1
+passes eleven original-Future cancellation and cooperative-close process cases,
+including halt/SIGKILL and independent ownership accounting. Local 4C2 passes
+seven higher-promise/snapshot-install process cases. Phase 4D0 wires all existing
+V5.2 gates into four required shared-build lanes. Phase 4D1 adds three-policy
+physical application/query lifecycle qualification, including update/delete and
+index create/drop. Phase 4D2 qualifies public token identity/format rejections and
+maximum-index/wait ownership. Phase 4D3 links an actual public backup to a new
+group with preserved application sequence and rejected old tokens. Phase 4D4
+qualifies old tokens after actual two-source retirement and follower snapshot
+installation. Phase 4D5 qualifies three public capacity configurations and reserved
+writer progress with independently replayed ownership counters. Phase 4D6 confirms
+P=1 rejects all explicit policies while legacy reads/writes retain their slot.
+Phase 4D7 adds public cursor lifecycle tests and reruns seven consumer modules,
+published default/API checks and negative compilation. Phase 4D8 adds real public
+corrupt-startup and fatal-I/O before/after-capture tests. Phase 4D9 adds nine
+public accepted-only, isolated-leader, higher-promise and candidate/snapshot
+state-transition tests. Phase 4D10 completes 28 targeted physical negatives across
+N01–N16, including portable replay and an independently checked confirmation
+edge. Phase 4D11 completes the [schedule mapping](v5.2/PHASE_4_SCHEDULE_RESULTS.md),
+the confirmed-bulk/lagging-follower public read case, sustained worker fairness
+and final local reactor/consumer/API validation. The complete reactor passes
+997 tests (four existing skips); seven consumers pass 25 tests. Individual process
+receipts retain their original source/build bindings; they are not relabelled as
+one run on the final source. Phase 5 combined hardening and Phase 6 preparation
+follow under the local commit authorization.
+[Phase 5 hardening](v5.2/PHASE_5_HARDENING.md) now passes both combined
+partition/restart crash modes and sixteen continuous bounded-pressure rounds,
+with 122 public reads and complete portable physical/query validation. Freeze
+M01–M04 before measurements; no paid cloud execution is authorized here.
+The [Phase 6A program/query foundation](v5.2/PHASE_6_MEASUREMENT_PROGRAM.md) fixes
+the offered requests and checks all 138 query descriptors against published V4.4
+at five actual application states. This is untimed; complete execution freeze,
+replicated measurements and portable measurement evidence remain open.
+The [Phase 6B trace foundation](v5.2/PHASE_6_MEASUREMENT_TRACE.md) now verifies
+lossless bounded encoding, real SIGKILL append recovery, published V5.1 compatibility
+and relocation. Existing observer encoding is unchanged by default. The measurement
+execution harness and physical/query replay are still required before timed runs.
+The [Phase 6C advancing query replay](v5.2/PHASE_6_MEASUREMENT_REPLAY.md) checks
+690 queries against each actual core using one ordered update replay, with
+independent application-state hashes. All 71 V5.2 Python tests pass; physical
+measurement-cut binding and the actual replicated offered-load harness are next.
+The [Phase 6D public measurement consumers](v5.2/PHASE_6_MEASUREMENT_CONSUMERS.md)
+now pass five short three-JVM histories (55 reads/15 updates), actual published
+query truth and portable physical replay. The final checker rejects 43 mutations
+per location. These are untimed integration histories; full offered-load windows,
+allocation sampling, M02–M04 execution and the complete measurement freeze remain
+pending. No paid execution or push has occurred.
+Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
+operations remain operator-owned; paid runs remain manual.
+The V5.1 published baseline and historical CI failures stay retained.
+
+The [Phase 6E offered driver and sampler](v5.2/PHASE_6_MEASUREMENT_LOAD.md)
+now retain original due times, every outcome and process-wide resource observations.
+Five short integration histories pass physical/query replay before and after
+relocation. Full-size evidence packaging, M02–M04 schedules and the complete
+execution freeze remain open; no formal measured window has run.
+
+The [Phase 6F package/replay qualification](v5.2/PHASE_6_MEASUREMENT_PACKAGING.md)
+adds a separate bounded large-history archive and original-path authority replay.
+The short driver now confirms its actual read/write targets have published the
+prepared updates; retained failures explain both that correction and the old V5.1
+follower boundary. Full measured validation and M02–M04 execution remain pending.
+
+The [Phase 6G projector and streaming negatives](v5.2/PHASE_6_MEASUREMENT_PROJECTION.md)
+now preserve rejected/uncertain update semantics and distinguish offered ordinals
+from chosen application sequences. The old strict query format remains intact;
+new selected-update replay passes actual V4.4/candidate queries. Ten retained
+original/relocated inputs preserve all 124 existing rejection results without
+materializing whole traces. Full measured-history admission remains open.
+
+The [Phase 6H consumer ledger](v5.2/PHASE_6_MEASUREMENT_HISTORY.md) binds every
+received/invoked/completed call and reconstructs explicit-read permit transitions.
+Transient rejection outcomes remain failures, distinct from successful query cuts;
+fatal or incomplete histories reject. The short smoke still requires all calls to
+succeed. Formal workload coverage, fault schedules and execution freeze remain open.
+
+The [Phase 6I durable publication profile](v5.2/PHASE_6_MEASUREMENT_PUBLICATION.md)
+now retains forced generation bytes and reconstructs received snapshot images before
+qualifying follower publication. Fresh five-mode and large-package replay passes;
+earlier control timing and checker-compatibility failures remain retained. The
+complete measured-window path and M02–M04 schedules are next; no formal M01 ran.
+
+The [Phase 6J window ledger](v5.2/PHASE_6_MEASUREMENT_WINDOWS.md) now validates
+the full 1,980-call offered program and retains rejected/late calls in statistics.
+Successful cut validation is shared with the short gate; all ten old results and
+190 negatives remain identical. Resource-window binding, full execution and fault
+schedules still precede the complete machine freeze and formal measurements.
+
+The [Phase 6K asynchronous boundaries](v5.2/PHASE_6_MEASUREMENT_RESOURCE_WINDOWS.md)
+now bind resource observations to original controller marker tasks and actual
+process-local warmup/measured boundaries. Five short histories retain all 45 marker
+calls and 30 resource-window reports, with portable physical/query validation and
+200 negatives. Full M01 execution, M02–M04 schedules and the machine freeze remain
+open; the short three-second gate is not a formal measured history.
+
+The [Phase 6L M01 controller](v5.2/PHASE_6_M01_CONTROLLER.md) now connects the
+full 1,980-call clock, initial-target preparation, asynchronous markers, common
+drain and unconditional process cleanup. Virtual-clock coverage includes all 15
+members and partial failures. Controller completion remains OBSERVED, with full
+physical M01 admission and M02–M04 schedules required before the execution freeze.
+
+The [Phase 6M member validator](v5.2/PHASE_6_M01_EVIDENCE.md) connects complete
+offered windows to physical/query/ownership/resource checks and selected-update
+replay. Its streaming aggregate admission runs before physical reconstruction.
+Full-size member and portable negative qualification still await the machine
+freeze; unchanged short histories only validate shared components.
+
+The [Phase 6N portable set wrapper](v5.2/PHASE_6_M01_SET.md) now requires all 15
+fresh M01 histories with one source/build/JVM/run/attempt, exact compiled controls,
+and independent original/relocated member replay. It preserves all failures and
+never substitutes a PASS receipt for raw evidence. Fixture validation is complete;
+actual full-size execution still waits for M02–M04 and the machine freeze.
+
+The [Phase 6O wait/capacity configuration](v5.2/PHASE_6_WAIT_CAPACITY_PARAMETERS.md)
+separates M02's zero/1s/5s waits and M03's P=4/P=65 fixture from unchanged M01
+defaults. Java startup and replay bind the declared values; zero-wait progress
+rejection requires its explicit profile. Relation/saturation schedules, M04 and
+the machine freeze are still required before any formal measurement.
+
+The [Phase 6P minimum controllers](v5.2/PHASE_6_MINIMUM_CONTROLLERS.md) now execute
+all nine M02 and both M03 schedules using original futures, cumulative admission
+gates and reserved writer capacity. Fresh development histories pass the shared
+physical/lifecycle checks. Scenario-specific admission, M04 and the complete
+machine freeze still precede formal measurements; these observations are not a
+formal M02/M03 acceptance set.
+
+The [Phase 6Q independent minimum validator](v5.2/PHASE_6_MINIMUM_EVIDENCE.md)
+connects complete M02/M03 histories to physical/query/lifetime/resource replay and
+reconstructs each live gate from raw events. Portable replay preserves original
+bindings and exact negative results. M04, complete machine freeze and fresh formal
+measurement histories remain required before cloud preparation.
 
 ## Accepted V5.1 cloud evidence
 
@@ -710,3 +1053,141 @@ design documents are comparisons, not evidence of GSE protocol correctness.
 Report the exact reviewed source, local changes, commands/results, actual conflicts,
 incomplete checks and unresolved design decisions. Record protected-review and
 exact-master CI acceptance only after they occur. Stop at the assigned phase boundary.
+
+The [Phase 6R recovery controllers](v5.2/PHASE_6_RECOVERY_CONTROLLERS.md) now execute
+both M04 fault schedules with closed observer controls, exact original calls,
+retained pre-reopen bytes and owned-process cleanup. Two fresh development
+histories pass general physical validation. Independent generation/token/query,
+resource and portable M04 admission remains open before the complete machine
+freeze and formal measurements. No production Java or workflow topology changes.
+
+The [Phase 6S recovery evidence](v5.2/PHASE_6_RECOVERY_EVIDENCE.md) binds M04's exact
+process generations, pre-reopen proven authority, fault schedule, actual query
+results and per-process resources, retaining the SIGKILL sampling prefix explicitly.
+Portable original/relocated replay and negative cases are implemented. The full
+machine freeze and fresh formal 28-history M01–M04 cohort remain next; no paid run,
+production Java change or push is authorized by this evidence stage.
+
+The [Phase 6T machine/cohort entry](v5.2/PHASE_6_MACHINE_COHORT.md) now binds a
+separate committed implementation and machine-only freeze commit, with complete
+28-history original/relocated qualification. Unit fixtures are not measurements.
+Next build the exact committed implementation, commit its machine plan, execute
+the fresh full cohort and retain every original failure. Hosted acceptance and
+fresh cloud admission remain required; paid execution remains operator-owned.
+
+The [Phase 6U replay optimization](v5.2/PHASE_6_REPLAY_EFFICIENCY.md) follows the
+first frozen cohort's agent-aborted independent replay. Its first complete M01
+window and failure receipt remain intact. Verified temporary trace bytes remove
+repeated chunk reconstruction while preserving every semantic check. A new
+exact-source freeze and fresh full cohort are required; the old history is used
+only to qualify replay equivalence, not to fill a new measured repetition.
+
+The [Phase 6V M01 drain correction](v5.2/PHASE_6_M01_DRAIN.md) follows the second
+cohort's retained observation failure. All original requests were dispatched;
+seven queued legacy responses completed after the former 35-second drain.
+The revised 125-second common observation allowance accounts for the unchanged
+consumer queue and API interval. Frozen business parameters and M02–M04 remain
+unchanged. Controller regressions pass; a fresh complete cohort remains required.
+
+The [Phase 6W baseline observer correction](v5.2/PHASE_6_BASELINE_RETIREMENT.md)
+follows a retained reactor-test preparation failure. A deterministic lost-source
+response reproduces the mismatch between a 60-second recovery lease and the
+former 30-second baseline observation. The fixture now covers the original lease
+plus its convergence allowance and retains bounded rejection diagnostics. The
+original transport cause remains unconfirmed; new exact-source build and complete
+measurements remain required before cloud preparation.
+
+The [Phase 6X cloud suite contract](v5.2/PHASE_6_CLOUD_SUITE.md) groups the unchanged
+28 formal histories and five separate untimed readiness histories into experiment,
+failure-drill and three canonical members. Members may be selected in any order;
+the closed set binds one exact source/sequence/build/package/control identity and
+rejects duplicate attempts or partial histories. Selection is not admission or
+execution evidence. Local complete measurement, remote transport/bootstrap/replay,
+owned no-GCP qualification and final exact-master/provider admission remain open.
+
+The [Phase 6Y remote preparation boundary](v5.2/PHASE_6_REMOTE_BOOTSTRAP.md)
+now validates explicit topology and performs receiver-local public bootstrap from
+one immutable V4.4 seed under both published V5.1 and candidate V5.2 JARs. Six
+unstarted receiver authorities pass original and relocated inspection; duplicate
+preparation and wrong seal paths reject. This is preparation qualification only.
+Persistent remote commands, actual remote voter operation, complete no-GCP
+workloads and live cloud admission are still required.
+
+The [Phase 6Z receiver pipe bridge](v5.2/PHASE_6_REMOTE_RUNTIME.md) reuses the
+existing public consumer, observation hooks and whole untimed smoke program over
+three receiver-local bootstrap roots. Its separate validator checks receiver paths,
+actual topology and loaded artifacts before applying the same physical/query/read
+checks. Development source drift was retained as an invalidated attempt; source
+checks now stop on drift before accepting a member. Both five-mode entries and
+the existing large-package replay pass locally, with 100 receiver negative variants
+at each location. Cross-host command ownership and cloud qualification remain open.
+
+The [Phase 6AA command foundation](v5.2/PHASE_6_REMOTE_COMMANDS.md) now retains
+immutable V5.2 history/node/session claims and queries original results after a
+lost response. Soft total time warnings coexist with finite exchange deadlines,
+bounded failure thresholds and dead/reused-process detection. Twenty-one unit
+cases and four real subprocess cases pass; no engine or cloud workload is claimed
+by those markers. Next connect stable semantic command slots and persistent guest
+execution, then complete cross-host identity and M01–M04 portable qualification.
+
+[Phase 6AQ resource/lease authority](v5.2/PHASE_6_CLOUD_AUTHORITY.md) adds an isolated
+V5.2 ledger, renewable owner and shared exact-ID reconciliation. Offline fault
+qualification covers lost writes/inserts, competing owners, expiry, retention and
+replacement identities. It grants no native or workload admission. Next connect
+fresh provider/guest/IAP ownership, whole members/aggregate and protected entry.
+
+[Phase 6AR provider HTTP mapping](v5.2/PHASE_6_PROVIDER_HTTP.md) connects that owner
+to a dedicated V5.2 wire adapter, with retained context/operation recovery,
+create-only submission markers and finite original exchanges. Concrete offline HTTP
+fault tests preserve exact-ID and generation fencing. No native API or cloud
+admission exists yet; next connect qualified credentials and fresh provider/guest/
+IAP observations before the complete owned member/aggregate entry.
+
+[Phase 6AS attempt access and provider identity](v5.2/PHASE_6_PROVIDER_GUEST_IDENTITY.md)
+binds per-attempt SSH public access before creation and derives private topology
+from three fresh instance/disk/host-key observations. Resource changes and fenced
+ownership reject; missing host keys are pending only after the second full sample.
+Native credentials, owned IAP and actual guest/mount observations remain next.
+
+[Phase 6AT credential entry](v5.2/PHASE_6_CREDENTIAL_ENTRY.md) now binds dedicated
+V5.2 roles to the clean source, workflow/environment and exact GitHub run/attempt.
+Each refresh re-observes the original run and validates the auth-action descriptor;
+fixed exchange deadlines and sanitized diagnostics remain separate from soft
+stage budgets. Native wiring is tested with mocked IO only. No V5.2 identities or
+workflows are deployed, and the provider mutation entry remains closed. Next
+connect independently admitted native capabilities, owned IAP and actual guest
+observations, then complete members/aggregation and protected operator entry.
+
+[Phase 6AU request wire policy](v5.2/PHASE_6_REQUEST_WIRE_POLICY.md) now connects
+closed request/object/resource scopes to actual owner and cleanup calls through a
+concrete offline HTTP gate. Fresh post-credential checks, original submission
+consumption, conditional lease/ledger transitions and final absence scans enforce
+the boundary independently of higher-level callers. Native mutable entry remains
+closed until fresh admission and explicit domain-aware control are connected;
+then continue IAP, guest preparation, whole members and independent aggregation.
+
+[Phase 6AV prepared inputs](v5.2/PHASE_6_PREPARED_INPUTS.md) now verifies original
+shared-build archives and pinned published controls, packages the same bytes
+deterministically and binds one complete member to its exact operator approval,
+input package and ledger generation. Preparation/review remains non-executing;
+fresh original GitHub artifact/attempt and exact-master full-CI provenance,
+provider/IAM/cleanup observations and domain-aware native control are still
+required before IAP/guest integration and complete owned member/set qualification.
+
+[Phase 6AW CI provenance](v5.2/PHASE_6_CI_PROVENANCE.md) now supplies the fixed
+read-only GitHub collector. It derives all 51 expanded jobs from the existing
+registry, requires the latest exact-master full-CI attempt and authenticates the
+original shared-build ZIP against its actual producing job. Carried successful
+builds retain their original attempt; newer failures do not fall back to old green
+runs. Local fixtures and subprocess tests preserve the non-admission boundary.
+Fresh provider/network/image/necessary-permission and manual-cleanup observations,
+concrete native ownership, IAP/guest binding and complete owned members remain open.
+
+[Phase 6AX provider preflight](v5.2/PHASE_6_PROVIDER_PREFLIGHT.md) supplies fixed
+provider GETs and diagnostic permission probes, with source/run/attempt-bound
+credential exchange and generation-selected control snapshots. It checks private
+topology, pinned usable images, machine-family quotas and control-history retention
+without requesting organization IAM or extra image-list access. Local synthetic
+and mocked native qualification grant no cloud capability. Fresh manual cleanup,
+concrete native ownership, actual conditional permissions and complete whole-member
+qualification remain open; schedule is optional and budget overruns remain soft.

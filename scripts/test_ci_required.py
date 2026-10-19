@@ -47,7 +47,7 @@ class RequiredTest(unittest.TestCase):
         return result
 
     def test_full_and_docs_match_legacy_success(self):
-        self.assertEqual(set(self.ids) | {"changes"}, {job for _, job in self.bindings})
+        self.assertEqual((set(self.ids) - {job for job in self.ids if job.startswith(("v52-", "python-v52-"))}) | {"changes"}, {job for _, job in self.bindings})
         for full in (True, False):
             value = self.needs(full)
             self.assertTrue(self.legacy_result(value))
@@ -64,8 +64,9 @@ class RequiredTest(unittest.TestCase):
                             del value[job]
                         else:
                             value[job]["result"] = actual
-                        self.assertEqual(actual == expected, self.legacy_result(value))
-                        self.assertEqual(self.legacy_result(value), self.result(value)["status"] == "PASS")
+                        if not job.startswith(("v52-", "python-v52-")):
+                            self.assertEqual(actual == expected, self.legacy_result(value))
+                        self.assertEqual(actual == expected, self.result(value)["status"] == "PASS")
                         if actual != expected:
                             self.assert_rejected(value, job)
 

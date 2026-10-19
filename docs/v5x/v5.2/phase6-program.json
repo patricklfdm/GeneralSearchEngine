@@ -1,0 +1,141 @@
+{
+  "schema": "gse-v52-measurement-program-v1",
+  "stage": "FROZEN_PROGRAM_ONLY",
+  "seed": 52,
+  "paidCloud": false,
+  "corpus": {
+    "documents": 64,
+    "initialRevision": 0,
+    "baseSequence": 1,
+    "codec": "v52-measured-read-codec/1",
+    "maximumDocumentBytes": 128,
+    "sha256": "61eafc7968f30fe1e37b72caabf240a392a2d5a5d67f7f48f615d1126abe0ce0"
+  },
+  "m01": {
+    "repetitions": [
+      1,
+      2,
+      3
+    ],
+    "warmupSeconds": 60,
+    "measuredSeconds": 120,
+    "offeredReadsPerSecond": 10,
+    "offeredUpdatesPerSecond": 1,
+    "writeOffsetNanos": 50000000,
+    "queryKinds": [
+      "get",
+      "filter",
+      "ranked",
+      "highlight",
+      "explain"
+    ],
+    "queryPercentages": [
+      20,
+      20,
+      20,
+      20,
+      20
+    ],
+    "programSha256": "e1ef1f74440ab87f62181963f16526986bcffa3c3b4cc6aec8c6d005b153cf9e",
+    "modes": [
+      {
+        "name": "published-v51-legacy-strong",
+        "readTarget": "initial-leader",
+        "writeTarget": "initial-leader",
+        "policy": "legacy-strong",
+        "minimum": null
+      },
+      {
+        "name": "candidate-legacy-strong",
+        "readTarget": "initial-leader",
+        "writeTarget": "initial-leader",
+        "policy": "legacy-strong",
+        "minimum": null
+      },
+      {
+        "name": "candidate-explicit-strong",
+        "readTarget": "initial-leader",
+        "writeTarget": "initial-leader",
+        "policy": "LEADER_STRONG",
+        "minimum": null
+      },
+      {
+        "name": "candidate-stale",
+        "readTarget": "highest-ordinal-initial-follower",
+        "writeTarget": "initial-leader",
+        "policy": "STALE_ALLOWED",
+        "minimum": null
+      },
+      {
+        "name": "candidate-minimum",
+        "readTarget": "highest-ordinal-initial-follower",
+        "writeTarget": "initial-leader",
+        "policy": "AT_LEAST_INDEX",
+        "minimum": "initial-strong-token"
+      }
+    ],
+    "minimumWaitTimeoutMillis": 5000
+  },
+  "m02": {
+    "relations": [
+      "below",
+      "equal",
+      "above"
+    ],
+    "waitTimeoutMillis": [
+      0,
+      1000,
+      5000
+    ],
+    "readsPerVariant": 30,
+    "histories": 9,
+    "target": "selected-follower",
+    "gates": "actual-local-publication-and-all-requests-admitted"
+  },
+  "m03": {
+    "pendingLimits": [
+      4,
+      65
+    ],
+    "readLimit": "min(64,P-1)",
+    "excessReads": 1,
+    "reservedWrites": 1,
+    "histories": 2
+  },
+  "m04": {
+    "cases": [
+      "leader-sigkill-retained-restart",
+      "follower-snapshot-carried-token"
+    ],
+    "histories": 2
+  },
+  "acceptance": {
+    "correctness": true,
+    "completeOfferedLedger": true,
+    "noSilentFallback": true,
+    "noBusinessRetries": true,
+    "speedupThreshold": null,
+    "latencySla": null,
+    "windowShortening": false,
+    "paidExecution": false
+  },
+  "executionFreezeRequired": [
+    "exact-source-and-checkout",
+    "candidate-and-control-jar-hashes",
+    "compiled-query-consumer-observer-hashes",
+    "host-jvm-storage-and-clock-identity",
+    "numeric-runtime-and-evidence-bounds",
+    "canonical-query-descriptors-and-corpus",
+    "complete-fault-schedules-and-outcome-rules",
+    "portable-independent-replay-and-negative-rules"
+  ],
+  "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+  "coreConfiguration": {
+    "queueCapacity": 64,
+    "maxBatchSize": 64,
+    "maxBatchWaitMillis": 1,
+    "maxDocuments": 64,
+    "maxBulkElements": 100,
+    "maxEncodedDocumentBytes": 128
+  }
+}

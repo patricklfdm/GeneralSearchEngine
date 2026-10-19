@@ -26,6 +26,7 @@ class V51PublicApiInventoryTest {
         assertEquals(10, additions.size());
         assertTrue(java.util.Collections.disjoint(expected, additions));
         expected.addAll(additions);
+        expected.addAll(types("v52-read-public-api-v1.txt"));
         assertEquals(expected, new V50PublicApiInventoryTest().compiledTopLevelTypes());
         assertEquals("gse-replication/1.1", ReplicatedSearchEngines.PROTOCOL);
         assertEquals("gse-replication/1.2", AutomaticReplicatedSearchEngines.PROTOCOL);
@@ -36,6 +37,7 @@ class V51PublicApiInventoryTest {
     private static String signatures() throws Exception {
         var lines = new TreeSet<String>();var helper = new V50PublicApiInventoryTest();
         for (String name : types("v51-automatic-public-api-v1.txt")) helper.collectSignatures(Class.forName(name), lines);
+        lines.removeAll(fixture("v52-read-method-delta.txt").lines().toList());
         return String.join("\n", lines) + "\n";
     }
     /** Explicit generation for review only; test execution never updates fixtures. */

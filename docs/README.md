@@ -15,11 +15,14 @@ point; [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) indexes phase histo
 current planning. Accepted version-specific charters and contracts govern their
 scope. Proposed documents are not accepted merely because they are linked here.
 
-Current development is [V5.2 Phase 0 replica-read contract review](v5x/v5.2/PHASE_0_CONTRACT.md).
-The six-document candidate follows entry PR #334; protected acceptance and runtime
-implementation remain pending.
+Current development is V5.2 explicit replica reads. The accepted Phase 0 contract
+now has implemented public policies and completed
+[local Phase 4 qualification](v5x/v5.2/PHASE_4_QUALIFICATION.md), followed by
+[combined Phase 5 hardening](v5x/v5.2/PHASE_5_HARDENING.md). The complete
+[hosted M01–M04 cohort](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) passed; remote adapter
+qualification, protected full CI and cloud acceptance remain pending.
 
-## v5.2 — replica-read design candidate
+## v5.2 — unreleased replica reads
 
 - [Source-reviewed entry and requirements](v5x/v5.2/PHASE_0_ENTRY_PLAN.md)
 - [Phase 0 contract and decisions](v5x/v5.2/PHASE_0_CONTRACT.md)
@@ -28,6 +31,43 @@ implementation remain pending.
 - [Independent testing and evidence matrix](v5x/v5.2/TESTING_AND_EVIDENCE.md)
 - [Phase 0 review and acceptance checklist](v5x/v5.2/PHASE_0_CHECKLIST.md)
 - [Phase 1 guarded foundation entry](v5x/v5.2/PHASE_1_ENTRY_PLAN.md)
+- [Phase 2 application capture and bounded requests](v5x/v5.2/PHASE_2_CAPTURE_KERNEL.md)
+- [Phase 3 public read implementation and qualification](v5x/v5.2/PHASE_3_PUBLIC_READS.md)
+- [Phase 4 correctness, resources and compatibility qualification](v5x/v5.2/PHASE_4_QUALIFICATION.md)
+- [Phase 4 S01–S30 evidence mapping](v5x/v5.2/PHASE_4_SCHEDULE_RESULTS.md)
+- [Phase 5 combined fault and bounded-pressure hardening](v5x/v5.2/PHASE_5_HARDENING.md)
+- [Phase 6A offered measurement program and query foundation](v5x/v5.2/PHASE_6_MEASUREMENT_PROGRAM.md)
+- [Phase 6B lossless bounded measurement observation encoding](v5x/v5.2/PHASE_6_MEASUREMENT_TRACE.md)
+- [Phase 6C advancing independent measurement query replay](v5x/v5.2/PHASE_6_MEASUREMENT_REPLAY.md)
+- [Phase 6D public measurement consumers and portable physical replay](v5x/v5.2/PHASE_6_MEASUREMENT_CONSUMERS.md)
+- [Phase 6E offered-load driver and process resource observations](v5x/v5.2/PHASE_6_MEASUREMENT_LOAD.md)
+- [Phase 6F large measurement packages and prepared read/write targets](v5x/v5.2/PHASE_6_MEASUREMENT_PACKAGING.md)
+- [Phase 6G chosen-update projection and streaming negative replay](v5x/v5.2/PHASE_6_MEASUREMENT_PROJECTION.md)
+- [Phase 6H complete consumer ledger and read ownership replay](v5x/v5.2/PHASE_6_MEASUREMENT_HISTORY.md)
+- [Phase 6I local durable publication and snapshot transfer authority](v5x/v5.2/PHASE_6_MEASUREMENT_PUBLICATION.md)
+- [Phase 6J complete offered-window accounting and shared query cuts](v5x/v5.2/PHASE_6_MEASUREMENT_WINDOWS.md)
+- [Phase 6K asynchronous phase boundaries and resource windows](v5x/v5.2/PHASE_6_MEASUREMENT_RESOURCE_WINDOWS.md)
+- [Phase 6L complete M01 controller](v5x/v5.2/PHASE_6_M01_CONTROLLER.md)
+- [Phase 6M full M01 member evidence](v5x/v5.2/PHASE_6_M01_EVIDENCE.md)
+- [Phase 6N portable M01 set admission](v5x/v5.2/PHASE_6_M01_SET.md)
+- [Phase 6O read-wait and capacity parameters](v5x/v5.2/PHASE_6_WAIT_CAPACITY_PARAMETERS.md)
+- [Phase 6P minimum-wait and saturation controllers](v5x/v5.2/PHASE_6_MINIMUM_CONTROLLERS.md)
+- [Phase 6Q independent minimum-wait and saturation evidence](v5x/v5.2/PHASE_6_MINIMUM_EVIDENCE.md)
+- [Phase 6R recovery controllers](v5x/v5.2/PHASE_6_RECOVERY_CONTROLLERS.md)
+- [Phase 6S independent recovery evidence](v5x/v5.2/PHASE_6_RECOVERY_EVIDENCE.md)
+- [Phase 6T machine freeze and complete local cohort](v5x/v5.2/PHASE_6_MACHINE_COHORT.md)
+- [Phase 6U bounded verified trace replay](v5x/v5.2/PHASE_6_REPLAY_EFFICIENCY.md)
+- [Phase 6V queued-response observation](v5x/v5.2/PHASE_6_M01_DRAIN.md)
+- [Phase 6W baseline retirement observation](v5x/v5.2/PHASE_6_BASELINE_RETIREMENT.md)
+- [Phase 6X cloud suite selection contract](v5x/v5.2/PHASE_6_CLOUD_SUITE.md)
+- [Phase 6Y receiver-local bootstrap and collection](v5x/v5.2/PHASE_6_REMOTE_BOOTSTRAP.md)
+- [Phase 6Z receiver-local public consumer bridge](v5x/v5.2/PHASE_6_REMOTE_RUNTIME.md)
+- [Phase 6AA durable command ownership](v5x/v5.2/PHASE_6_REMOTE_COMMANDS.md)
+- [Phase 6AB stable command slots and owned history](v5x/v5.2/PHASE_6_REMOTE_OWNED_HISTORY.md)
+- [Phase 6AC complete receiver histories and portable replay](v5x/v5.2/PHASE_6_REMOTE_HISTORIES.md)
+- [Phase 6AD pinned SSH commands and guest identity](v5x/v5.2/PHASE_6_SSH_HISTORY.md)
+- [Complete hosted M01–M04 acceptance](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md)
+- [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
 ## v5.1 — current stable automatic leadership
 
@@ -548,3 +588,16 @@ documentation.
 - [V5.1 complete owned canonical qualification](v5x/v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md): all three offline repetitions accepted through PR #310; native admission remains separate.
 - [V5.1 native full-preset integration](v5x/v5.1/PHASE_6_NATIVE_PRESET_REVIEW.md): PR #311 accepted; native experiment passed. [Complete native drill](v5x/v5.1/PHASE_6_NATIVE_DRILL_RECOVERY.md) passed after PR #314. The [canonical window observation correction](v5x/v5.1/PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#canonical-window-observation-correction) awaits protected CI and paid validation. Full Phase 6 remains open.
 - [V5.1 complete owned failure drill](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md): twelve-cell offline guest qualification; native integration requires separate acceptance.
+
+### V5.2 read foundation
+
+The latest pre-cloud stage is the [protected operator workflow](v5x/v5.2/PHASE_6_OPERATOR_ENTRY.md),
+- [Phase 6BK source-owned cloud configuration and setup review](v5x/v5.2/PHASE_6_CLOUD_SETUP.md)
+using [original Runner provenance and the complete-set join](v5x/v5.2/PHASE_6_PROTECTED_RUNNER.md).
+Configuration/setup review and actual protected/cloud acceptance remain pending.
+
+The [Phase 1 implementation](v5x/v5.2/PHASE_1_FOUNDATION.md) records the initial
+disabled API, token fixtures, independent model, compatibility and CI integration.
+The [Phase 2 kernel](v5x/v5.2/PHASE_2_CAPTURE_KERNEL.md) is locally verified and
+[Phase 3 public enablement](v5x/v5.2/PHASE_3_PUBLIC_READS.md) is under qualification. See
+the [S01–S30 map](v5x/v5.2/PHASE_1_SCHEDULE_MAP.md) for pending runtime coverage.

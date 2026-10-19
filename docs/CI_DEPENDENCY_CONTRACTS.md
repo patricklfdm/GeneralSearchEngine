@@ -109,3 +109,11 @@ Use the [future-suite onboarding procedure](CI_SUITE_ONBOARDING.md) for new
 version modules and the [operational handoff](CI_REFACTOR_HANDOFF.md) for final
 acceptance, failure accounting and rollback. The generated inventory is checked
 by the existing suite-contract tests; it is never an execution plan.
+
+## V5.2 foundation addition
+
+The [Phase 1 review](v5x/v5.2/PHASE_1_FOUNDATION.md#ci-integration-and-version-migration)
+adds `v52-foundation` to the unchanged tested-build producer and Required. Its two
+14-day artifacts are independent of existing suites. Current source-bound 5.2
+regression coordinates are separate from closed historical V5.1 evidence versions.
+The generated [inventory](CI_JOB_INVENTORY.md) is authoritative for current counts.

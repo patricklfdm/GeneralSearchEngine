@@ -41,6 +41,7 @@ checks=(
     "compatibility/v4-style-consumer/pom.xml:gse.version"
     "compatibility/v5-style-consumer/pom.xml:gse.version"
     "compatibility/v51-style-consumer/pom.xml:gse.version"
+    "compatibility/v52-style-consumer/pom.xml:gse.version"
 )
 
 for check in "${checks[@]}"; do

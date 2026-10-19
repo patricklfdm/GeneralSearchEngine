@@ -1,0 +1,66 @@
+"""Retained installed-source bindings, independent of original filesystem paths."""
+from pathlib import Path
+from . import remote_python_receiver as r, remote_command as c,remote_host_domains as domains
+from .remote_host import validate_pin
+from .remote_voter_scope import RESTART_EXECUTION
+
+SCHEMA='gse-v52-python-receivers-v1'
+FILE='python-capsule.json'
+PAYLOAD='python-capsule-payload.json'
+
+
+def runtime(value,receipt,source,process,entry,java=None):
+    r.need(type(value) is dict and set(value)=={'schema','selection','source','installation','process','isolated','noSite'}|({'java'} if java else set()) and
+           value['schema']=='gse-v52-python-runtime-v1' and value['selection']==dict(root=receipt['root'],descriptorSha256=receipt['descriptorSha256']) and
+           value['source']==source and value['installation']==receipt and value['process']==dict(pid=process['pid'],entry='gse-v52-'+entry) and
+           value['isolated'] is True and value['noSite'] is True,'Python retained runtime identity')
+    if java is not None:
+        from . import remote_java_evidence as j
+        r.need(value['java']==dict(selection=j.selection(java),installation=java),'Java retained runtime selection')
+
+
+def validate(root,binding):
+    root=Path(root);scope=binding.get('remotePython');hosts=domains.validate(binding)
+    r.need(type(scope) is dict and set(scope)=={'schema','descriptorSha256','nodes'} and scope['schema']==SCHEMA and
+           set(scope['nodes'])=={'node-1','node-2','node-3'},'Python retained receiver binding')
+    value=r.descriptor(c.read(root/FILE,r.MAX_MANIFEST))
+    r.need(r.digest(r.encoded(value))==scope['descriptorSha256'] and
+           all(binding[k]==v for k,v in value['source'].items()),'Python retained source changed')
+    payload=root/PAYLOAD
+    r.need(payload.is_file() and not payload.is_symlink() and payload.stat().st_size==value['bytes'],'Python retained payload length/type')
+    r.payload(payload.read_bytes(),value)
+    java_value=None;java_nodes={}
+    if 'remoteJava' in binding:
+        from . import remote_java_evidence as j
+        java_value,java_nodes=j.validate(root,binding)
+    r.need('remoteRestart' not in binding or domains.matches(binding,'remoteRestart',RESTART_EXECUTION),'Python retained restart scope')
+    roots=set();parents=set()
+    for node,receipt in scope['nodes'].items():
+        r.need(type(receipt) is dict and set(receipt)=={'schema','descriptorSha256','root','host','filesSha256'} and
+               receipt['schema']==r.RECEIPT and receipt['descriptorSha256']==scope['descriptorSha256'] and
+               receipt['filesSha256']==r.digest(r.encoded(value['files'])),'Python retained installation')
+        validate_pin(receipt['host'])
+        owner=None
+        if hosts is not None:
+            expected=hosts['nodes'][node]
+            r.need(all(receipt['host'][k]==expected[k] for k in ('bootId','uid')),'Python bound installation host changed')
+            owner=expected['resourceIdentitySha256'],expected['bootId']
+        path=Path(receipt['root']);key=(owner,str(path))
+        r.need(path.is_absolute() and '..' not in path.parts and path.name=='python-'+value['sha256'] and
+               key not in roots,'Python retained installation root');roots.add(key)
+        parent=tuple(receipt['host'][k] for k in ('bootId','uid','parentDevice','parentInode'))
+        r.need(parent not in parents,'Python shared receiver directory');parents.add(parent)
+        delivery=c.read(root/(node+'-delivery.json'),c.REQUEST_BYTES)
+        host=delivery['receiverHost']
+        r.need(all(receipt['host'][k]==host[k] for k in ('bootId','uid')),'Python receiver host changed')
+        runtime(c.read(root/(node+'-python-bootstrap.json')),receipt,value['source'],delivery['process'],'delivery',java_nodes.get(node))
+        controls=sorted(root.glob(node+'-control*'))
+        allowed={node+'-control'}|({node+'-control-g2'} if domains.matches(binding,'remoteRestart',RESTART_EXECUTION) else set())
+        r.need(node+'-control' in {p.name for p in controls} and all(p.is_dir() and p.name in allowed for p in controls),
+               'Python retained control generations')
+        for control in controls:
+            identity=c.read(control/'identity.json')
+            runtime(c.read(control/'python-runtime.json'),receipt,value['source'],identity['service'],'voter',java_nodes.get(node))
+            if java_value is not None:j.process(c.read(control/'java-process.json'),identity['jvm'],java_nodes[node],java_value)
+    return dict(status='PASS',execution='retained-python-source-bindings-only',nodes=3,
+                descriptorSha256=scope['descriptorSha256'],fullRemoteQualification=False,paidCloud=False)

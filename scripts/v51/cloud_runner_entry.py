@@ -19,7 +19,7 @@ from . import cloud_runner_owned as owned, cloud_runner_precheck as precheck
 from . import cloud_runner_storage_entry as storage, cloud_runner_review as workflow
 from . import cloud_preflight as p, cloud_ci as ci, cloud_authority as a
 from . import guest_setup, performance_model as m, remote_command as c
-from . import cloud_runner_diagnostics as diagnostics
+from . import cloud_runner_diagnostics as diagnostics, artifact_version
 
 SCHEMA='gse-v51-runner-experiment-entry-v1'
 STEP='Run exact approved native V5.1 experiment'
@@ -116,6 +116,8 @@ def private_key(secret, parent):
 def current(cfg, env, source, checkout, preflight, precheck_root):
     binding,mode=guard(cfg,env,source,checkout)
     m.need(mode!='off','experiment not selected')
+    # Current regression coordinates do not authorize a new paid V5.1 run.
+    artifact_version.current(ci.ROOT)
     jobs=precheck.collect_jobs(binding)
     proof=storage.check_inputs(cfg,env,binding,preflight,precheck_root,jobs,now=int(time.time()))
     github=ci.collect(source);ci.check(github,source,int(time.time()),(ci.ROOT/ci.WORKFLOW).read_text())

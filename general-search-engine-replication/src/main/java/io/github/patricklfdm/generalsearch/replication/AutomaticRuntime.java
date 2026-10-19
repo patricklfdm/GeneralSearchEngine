@@ -24,6 +24,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     private final AutomaticStore store;
     private final AutomaticProtocol protocol;
     private final AutomaticApplication<K,T> application;
+    private final AutomaticReadCut readIdentity;
+    private volatile AutomaticReadCut publishedReadCut;
+    private volatile AutomaticReadQueue<K,T> explicitReads;
     private final AutomaticTransport transport;
     private final AutomaticRejoin rejoin;
     private final Record manifest;
@@ -47,7 +50,8 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     private final AtomicLong ids=new AtomicLong();
     private final long origin=System.nanoTime();
     private final ArrayBlockingQueue<Runnable> inputs=new ArrayBlockingQueue<>(32),completions=new ArrayBlockingQueue<>(16);
-    private final ThreadPoolExecutor network=pool("network",4,4),app=pool("application",1,4),clients=pool("completion",1,2);
+    private final ThreadPoolExecutor network=pool("network",4,4),clients=pool("completion",1,2);
+    private final AutomaticApplicationWorker app=new AutomaticApplicationWorker(4);
     private final Semaphore submission=new Semaphore(1);
     private final Map<Long,CompletableFuture<AutomaticProtocol.Message>> incoming=new HashMap<>();
     private final Map<Long,CompletableFuture<Long>> requests=new HashMap<>();
@@ -92,9 +96,13 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
             });
             if(callbackOwner!=null) {
                 var replay=store.replay();startupReplayedRecords=replay.entries().size();
-                byte[] restored=application.reconstruct(replay);application.publish(store.provenSnapshot(restored));protocol.restored(restored);
+                byte[] restored=application.reconstruct(replay);var snapshot=store.provenSnapshot(restored);
+                application.publish(snapshot);protocol.restored(restored);
+                try {events.at("APPLICATION_RESTORED",Map.of("snapshot",b64(snapshot.bytes()),"applicationGeneration",application.readCut().generation()));}
+                catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
                 publishedSequence=application.sequence();
             }
+            readIdentity=publishedReadCut=application.readCut();
             startupRebuildDuration=Duration.ofNanos(System.nanoTime()-rebuildBegin);
             startupRecoveryDuration=Duration.ofNanos(System.nanoTime()-startupBegin);
             promise=protocol.promise();view=protocol.view();
@@ -122,6 +130,59 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     AutomaticReplicationStatus status() {return publicStatus;}
     DurabilityMetrics durability() {return durability;}
     private void applicationTask(Runnable task) {app.execute(()->AutomaticContext.run(callbackOwner,task));}
+
+    /** Internal Phase 2 port. Public enablement owns the shared executors/permits in Phase 3. */
+    AutomaticReadQueue<K,T> readQueue(Semaphore admission,ScheduledThreadPoolExecutor deadlines,Executor completions) {
+        synchronized(protocol) {
+            if(explicitReads!=null)throw new IllegalStateException("replica read queue already attached");
+            protocol.enableReplicaReads();
+            explicitReads=new AutomaticReadQueue<>(protocol,readIdentity,new AutomaticReadQueue.Access<>() {
+                public void check(ReplicaReadOptions options,long epoch,boolean barrierReady) {checkReadState(options,epoch,barrierReady);}
+                public long publishedIndex() {return publishedReadCut.index();}
+                public AutomaticReadCut capture(ReplicaReadOptions options,long epoch,long index) {
+                    checkReadState(options,epoch,options.policy()==ReplicaReadPolicy.LEADER_STRONG);
+                    var cut=application.readCut();var state=protocol.view();
+                    if(options.policy()==ReplicaReadPolicy.LEADER_STRONG&&
+                            (state.promisedEpoch()!=epoch||cut.index()!=index))throw outcome(STALE_EPOCH,NOT_APPLICABLE);
+                    return cut;
+                }
+                public <R> R read(AutomaticReadCut cut,Function<ReplicaReadView<K,T>,R> action) {
+                    return application.readCut(cut,action);
+                }
+                public long invoked(ReplicaReadOptions options,long deadline) {
+                    if(events==Events.NONE)return 0;
+                    long id=observedReads.incrementAndGet();capacity(id>0,"read observation identity exhausted");
+                    observe("REPLICA_READ_INVOKED",Map.of("readId",id,"policy",options.policy().name(),"deadlineNanos",deadline,
+                            "waitTimeoutMillis",options.waitTimeoutMillis(),"minimum",options.minimum().map(t->b64(t.encode())).orElse("")));
+                    return id;
+                }
+                public void observe(String event,Map<String,Object> values) {
+                    try {events.at(event,values);}catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+                }
+                public void beforeDispatch() {
+                    if(events!=Events.NONE)observe("REPLICA_READ_BEFORE_DISPATCH",Map.of());
+                }
+            },admission,bounds.maxPendingClientOperations(),System::nanoTime,(deadline,task)->{
+                var alarm=deadlines.schedule(task,Math.max(0,deadline-System.nanoTime()),TimeUnit.NANOSECONDS);
+                return ()->alarm.cancel(false);
+            },task->app.executeRead(()->AutomaticContext.run(callbackOwner,task)),completions);
+            return explicitReads;
+        }
+    }
+
+    private void checkReadState(ReplicaReadOptions options,long epoch,boolean barrierReady) {
+        if(closing)throw outcome(CLOSED,NOT_APPLICABLE);
+        var state=protocol.view().state();
+        if(failure!=null||state==AutomaticReplicationState.FAILED)throw outcome(STORAGE_FAILURE,NOT_APPLICABLE);
+        if(state==AutomaticReplicationState.CLOSED)throw outcome(CLOSED,NOT_APPLICABLE);
+        if(options.policy()==ReplicaReadPolicy.LEADER_STRONG) {
+            if(barrierReady&&(state!=AutomaticReplicationState.LEADER_READY||protocol.view().promisedEpoch()!=epoch))
+                throw outcome(STALE_EPOCH,NOT_APPLICABLE);
+            if(state!=AutomaticReplicationState.LEADER_READY)throw outcome(state==AutomaticReplicationState.FOLLOWER?NOT_LEADER:
+                    state==AutomaticReplicationState.UNAVAILABLE?QUORUM_UNAVAILABLE:NOT_READY,NOT_APPLICABLE);
+        } else if(state!=AutomaticReplicationState.LEADER_READY&&state!=AutomaticReplicationState.FOLLOWER&&state!=AutomaticReplicationState.UNAVAILABLE)
+            throw outcome(NOT_READY,NOT_APPLICABLE);
+    }
     // Test/internal inspection only; this is deliberately not a public strong-read implementation.
     <R> CompletableFuture<R> inspectLocal(Function<SearchEngine<K,T>,R> action) {
         var result=new CompletableFuture<R>();
@@ -232,8 +293,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                 applicationTask(()->{byte[] image=null;Throwable failure=null;try{events.at("RECONSTRUCT_BEGIN",cut);image=application.reconstruct(rebuild.replay());events.at("RECONSTRUCT_END",cut);}catch(Throwable e){failure=e;}
                     byte[] value=image;Throwable error=failure;complete(()->protocol.reconstructed(rebuild.id(),value,error,now()));});
             }else if(action instanceof AutomaticProtocol.Publish publish) {
-                applicationTask(()->{Throwable failure=null;try{events.at("BEFORE_PUBLISH",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));
-                    application.publish(publish.snapshot());events.at("PUBLISHED",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));}catch(Throwable e){failure=e;}
+                applicationTask(()->{Throwable failure=null;try{events.at(publish.local()?"BEFORE_LOCAL_PUBLISH":"BEFORE_PUBLISH",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));
+                    application.publish(publish.snapshot());publishedReadCut=application.readCut();events.at(publish.local()?"LOCAL_PUBLISHED":"PUBLISHED",
+                            Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes()),"applicationGeneration",publishedReadCut.generation()));}catch(Throwable e){failure=e;}
                     Throwable error=failure;complete(()->{protocol.published(publish.id(),error,now());
                         if(error==null&&protocol.view().publishedIndex()==AutomaticRecovery.index(publish.snapshot()))publishedSequence=number(publish.snapshot().value(),"applicationSequence");});});
             }else if(action instanceof AutomaticProtocol.Completed done) {
@@ -277,6 +339,7 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
             var snapshot=publicStatus;
             clients.execute(()->{if(snapshot.state()==AutomaticReplicationState.FAILED||snapshot.state()==AutomaticReplicationState.CLOSED)started.completeExceptionally(outcome(NOT_READY,NOT_APPLICABLE));else started.complete(snapshot);});
         }
+        var reads=explicitReads;if(reads!=null)reads.changed();
     }
 
     // Process-local diagnostic identity only: never encoded into authority or wire.
@@ -478,6 +541,7 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     }
     @Override public synchronized void close() {
         if(terminated)return;closing=true;
+        var reads=explicitReads;if(reads!=null)reads.close();
         var stop=new CompletableFuture<Void>();complete(()->{
             try {rejoin.stop();protocol.quiesce();flush();
                 if(pendingMaintenance!=null){pendingMaintenance.answer.completeExceptionally(outcome(CLOSED,NOT_APPLICABLE));pendingMaintenance=null;}
