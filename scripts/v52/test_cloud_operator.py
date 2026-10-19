@@ -91,6 +91,20 @@ class OperatorTest(unittest.TestCase):
         self.key=changed
         with self.assertRaisesRegex(ValueError,'SSH key changed'):self.execute('run',self.request())
         self.run.assert_not_called();self.assertFalse((self.output/'result').exists())
+    def test_key_failure_has_safe_distinct_phase_before_prepare_or_paid_entry(self):
+        @contextmanager
+        def failed_key():
+            raise ValueError('never-public-key-detail')
+            yield
+        self.key=failed_key
+        for operation,request in (('prepare',dict(member='experiment',sequence='c'*32,estimate=self.plan['estimate'])),
+                                  ('run',self.request())):
+            with self.subTest(operation=operation),self.assertRaises(ValueError):self.execute(operation,request)
+            report=o.artifacts.read(self.output/'diagnostics/failure.json')
+            self.assertEqual(operation+'-key',report['phase'])
+            self.assertEqual('V52_OPERATOR_'+operation.upper()+'_KEY_REJECTED',report['code'])
+            self.assertNotIn('never-public',str(report));self.assertFalse((self.output/'result').exists())
+        self.prepare.assert_not_called();self.run.assert_not_called()
     def test_verify_set_has_no_key_or_paid_entry_and_keeps_all_original_selections(self):
         chosen={name:dict(requestSha256=f'{i:064x}',runId=1000+i,runAttempt=1) for i,name in enumerate(o.acceptance.suite.MEMBERS,1)}
         result=self.execute('verify-set',chosen);self.assertTrue(result['fullRemoteQualification']);self.assertEqual(0,self.key_calls)
@@ -129,6 +143,32 @@ class SecretLifetimeTest(unittest.TestCase):
                     self.assertEqual(0,path.stat().st_mode&0o077);self.assertNotIn('V52_SSH_KEY',os.environ)
                     o.access.check_private_key(path,o.access.descriptor('a'*32,public))
                 self.assertFalse(path.exists())
+    def test_commented_key_is_canonical_in_prepare_and_matches_again_for_run(self):
+        with tempfile.TemporaryDirectory() as directory:
+            original=Path(directory)/'original'
+            subprocess.run(['ssh-keygen','-q','-t','ed25519','-N','','-C','gse-v52-experiment operator comment',
+                            '-f',str(original)],check=True,timeout=10)
+            expected=' '.join(Path(str(original)+'.pub').read_text().split()[:2])
+            # Preparation derives the public key from the actual secret.
+            with patch.dict(os.environ,{'V52_SSH_KEY':original.read_text()}):
+                with o.private_key() as (path,public):
+                    self.assertEqual(expected,public)
+                    descriptor=o.access.descriptor('a'*32,public)
+                    self.assertNotIn('operator comment',str(descriptor))
+                    self.assertNotIn('V52_SSH_KEY',os.environ)
+                self.assertFalse(path.exists())
+            # A later run/IAP open checks the same commented private key again.
+            o.access.check_private_key(original,descriptor)
+    def test_encrypted_secret_fails_without_prompt_or_keygen_diagnostics(self):
+        with tempfile.TemporaryDirectory() as directory:
+            original=Path(directory)/'original'
+            subprocess.run(['ssh-keygen','-q','-t','ed25519','-N','test-only-passphrase','-C','never-public-comment',
+                            '-f',str(original)],check=True,timeout=10)
+            with patch.dict(os.environ,{'V52_SSH_KEY':original.read_text()}):
+                with self.assertRaisesRegex(ValueError,'private SSH key could not be read') as error:
+                    with o.private_key():self.fail('encrypted secret accepted')
+                self.assertNotIn('V52_SSH_KEY',os.environ)
+                self.assertNotIn('never-public',str(error.exception))
     def test_bad_secret_cannot_be_logged_or_left_in_environment(self):
         with patch.dict(os.environ,{'V52_SSH_KEY':'invalid-secret'}):
             with self.assertRaisesRegex(ValueError,'missing/invalid') as error:
