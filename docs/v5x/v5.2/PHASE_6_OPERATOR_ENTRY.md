@@ -178,6 +178,36 @@ status, lease-release flag and delete count. Missing or malformed cleanup eviden
 cannot become a PASS; a recorded cleanup exception takes precedence over an
 earlier cleanup receipt. This summary remains diagnostic, not cloud acceptance.
 
+IAP capacity applies to **four active connections per node**, including channels
+still cleaning up their process and private credentials. Completed channels free
+their slots; there is no lifetime connection-count limit. Every newly accepted
+connection still checks the original authority and opens at most one SDK tunnel.
+The forwarder never retries a business request or replays bytes. Terminal errors
+stop all routes; the outer guest scope joins their threads before deleting the
+private credential directory.
+
+The private `gse-v52-iap-connections-v2` diagnostic retains only the latest 64
+completed records per node, plus at most four active records. Cumulative counters
+and the last safe failure code survive record eviction. The public failure
+summary projects only fixed node names, accepted/completed/failed/active counts,
+peak concurrency, capacity rejections, completed-channel byte totals, dropped
+record counts and allowlisted failure codes. It excludes command text, stderr,
+credentials, paths, PIDs and individual records; missing or malformed diagnostics
+are omitted and cannot mask the original failure. These observations do not
+qualify a workload or change cleanup, lease, source or history boundaries.
+
+Run `39351687369` completed four experiment histories and failed during the
+fifth history's placement. Source analysis gives a no-retry lower bound of 57
+connections per node after four histories; the next placement needs eight more.
+The old forwarder retained completed channels and silently refused connection 65.
+That defect was reproduced with real local sockets and child processes. The
+hosted artifact did not retain its connection counters, so attribution of that
+specific hosted failure remains an inference. Regression coverage now exercises
+70 sequential connections, active-capacity rejection and reuse, delayed credential
+cleanup, bounded diagnostic eviction and simultaneous terminal shutdown. Original
+failed cloud evidence and reservations remain unchanged; this correction still
+requires protected CI on the new source and a new approved experiment.
+
 Run `39334536942` exposed a relative/absolute path mismatch at guest identity,
 before its first history. The unchanged path boundary was reproduced locally;
 its original retained cleanup reports 13 absent resources and no leftovers.

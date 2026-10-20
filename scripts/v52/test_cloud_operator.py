@@ -109,6 +109,8 @@ class OperatorTest(unittest.TestCase):
     def test_member_phase_and_cleanup_are_retained_without_private_details(self):
         def fail(*args):
             path=args[-1];(path/'native').mkdir(parents=True);(path/'member').mkdir()
+            (path/'member/guests').mkdir()
+            o.artifacts.save(path/'member/guests/connections.json',iap_diagnostic())
             o.artifacts.save(path/'member/failure.json',dict(status='FAIL',phase='guest-identity',
                 code='V52_MEMBER_GUEST_IDENTITY_REJECTED',errorType='ValueError',secret='never-public'))
             o.artifacts.save(path/'native/cleanup.json',dict(status='PASS',resourceDeletesSubmitted=13,
@@ -121,7 +123,14 @@ class OperatorTest(unittest.TestCase):
         self.assertEqual('V52_MEMBER_GUEST_IDENTITY_REJECTED',result['causeCode'])
         self.assertEqual('guest-identity',result['memberPhase'])
         self.assertEqual(dict(status='PASS',leaseReleased=True,resourceDeletesSubmitted=13),result['cleanup'])
+        self.assertEqual(70,result['iap']['nodes']['node-1']['accepted'])
+        self.assertEqual('SSH_DISCONNECTED',result['iap']['nodes']['node-1']['lastFailureCode'])
+        self.assertNotIn('recent',str(result['iap']));self.assertNotIn('pid',str(result['iap']))
         self.assertNotIn('never-public',str(result));self.assertFalse((self.output/'result').exists())
+        self.run.assert_called_once()
+        out=io.StringIO()
+        with redirect_stdout(out):o.summary(self.output)
+        self.assertIn('capacityRejections',out.getvalue());self.assertNotIn('never-public',out.getvalue())
     def test_changed_confirmation_or_failed_download_never_opens_paid_entry(self):
         request=self.request();request['confirmation']='f'*64
         with self.assertRaisesRegex(ValueError,'confirmation changed'):self.execute('run',request)
@@ -209,6 +218,55 @@ class OperatorTest(unittest.TestCase):
             result=o.prepare_request('a'*40,'canonical-3','c'*32,12_000_000,21600,14400,self.root/'draft')
         self.assertEqual(12_000_000,result['estimate']['costMicrousd']);self.assertEqual(15400,result['estimate']['expiresAt'])
         self.assertFalse(o.artifacts.read(self.root/'draft/receipt.json')['livePricesVerified'])
+
+
+def iap_diagnostic():
+    return dict(schema='gse-v52-iap-connections-v2',status='CLOSED',failureCode=None,closeFailure=None,
+        fullRemoteQualification=False,private='never-public',nodes={'node-1':dict(accepted=70,completed=70,
+            failed=1,active=0,peakActive=4,capacityRejections=2,sentBytes=100,receivedBytes=200,historyDropped=6,
+            lastFailureCode='SSH_DISCONNECTED',recent=[dict(pid=123,private='never-public')],activeRecords=[])})
+
+
+class IapReportTest(unittest.TestCase):
+    def setUp(self):
+        temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);self.root=Path(temp.name)
+    def report(self,value):
+        (self.root/'connections.json').write_bytes(o.encoded(value));return o.iap_report(self.root)
+    def test_only_closed_codes_and_counter_projection_are_public(self):
+        value=iap_diagnostic();report=self.report(value)
+        self.assertEqual('CLOSED',report['status']);self.assertFalse(report['closeFailed'])
+        self.assertEqual(70,report['nodes']['node-1']['accepted'])
+        self.assertNotIn('never-public',str(report));self.assertNotIn('recent',report['nodes']['node-1'])
+        for code in ('IAP_PERMISSION','IAP_PROVIDER_HTTP_403','V52_CREDENTIAL_CLOSED','IAP_CLOSE_INCOMPLETE'):
+            value['failureCode']=code;self.assertEqual(code,self.report(value)['failureCode'])
+        for code in ('IAP_PERMISSION_secret','IAP_PROVIDER_HTTP_999','V52_CREDENTIAL_secret',{'private':'never-public'}):
+            value['failureCode']=code;value['nodes']['node-1']['lastFailureCode']=code
+            report=self.report(value);self.assertEqual('IAP_UNCLASSIFIED',report['failureCode'])
+            self.assertEqual('IAP_UNCLASSIFIED',report['nodes']['node-1']['lastFailureCode'])
+            self.assertNotIn('secret',str(report));self.assertNotIn('never-public',str(report))
+        value['closeFailure']='never-public';self.assertTrue(self.report(value)['closeFailed'])
+        self.assertNotIn('never-public',str(self.report(value)))
+    def test_missing_malformed_unbounded_or_linked_diagnostic_is_ignored(self):
+        self.assertIsNone(o.iap_report(self.root))
+        value=iap_diagnostic()
+        for field,bad in (('accepted',True),('completed',71),('active',5),('peakActive',5),('failed',71),
+                          ('capacityRejections',-1),('sentBytes',2**63),('receivedBytes','secret'),('historyDropped',7)):
+            changed=deepcopy(value);changed['nodes']['node-1'][field]=bad
+            with self.subTest(field=field):self.assertIsNone(self.report(changed))
+        for change in (dict(schema='old'),dict(status='secret'),dict(fullRemoteQualification=True),
+                       dict(nodes={'private-host':value['nodes']['node-1']}),dict(nodes=[])):
+            self.assertIsNone(self.report(dict(value,**change)))
+        path=self.root/'connections.json'
+        for raw in (b'not json',b'x'*131073):
+            path.write_bytes(raw);self.assertIsNone(o.iap_report(self.root))
+        path.unlink();(self.root/'original').write_bytes(o.encoded(value));path.symlink_to(self.root/'original')
+        self.assertIsNone(o.iap_report(self.root))
+    def test_partial_open_and_failed_close_remain_diagnostics(self):
+        value=iap_diagnostic();value.update(status='FAIL',failureCode='IAP_CLOSE_INCOMPLETE',closeFailure='OSError')
+        value['nodes']['node-1'].update(accepted=71,active=1)
+        report=self.report(value);self.assertEqual(1,report['nodes']['node-1']['active'])
+        self.assertTrue(report['closeFailed']);self.assertEqual('FAIL',report['status'])
+        value['nodes']={};self.assertEqual({},self.report(value)['nodes'])
 
 
 class CleanupReportTest(unittest.TestCase):
