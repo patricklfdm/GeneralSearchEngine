@@ -196,6 +196,28 @@ credentials, paths, PIDs and individual records; missing or malformed diagnostic
 are omitted and cannot mask the original failure. These observations do not
 qualify a workload or change cleanup, lease, source or history boundaries.
 
+Storage preparation now emits fixed node/operation milestones alongside the
+minute heartbeat. Its failure summary projects a bounded
+`gse-v52-storage-diagnostic-v1` record: node, operation, exchange action/stage,
+closed reason code, known source module/line and initialized/Python-installed/
+Java-installed nodes. It never exports exception messages, stack locals, raw
+receipts, commands, stderr or credentials. Malformed diagnostics are omitted;
+diagnostic write failure cannot replace the original exception or skip cleanup.
+The existing always-uploaded diagnostics artifact carries this projection,
+including failures during Java installation or subsequent history placement.
+
+Run `39375349697` failed in storage preparation before any history. Its retained
+cleanup reports PASS and a released lease; IAP counters report no failed
+connections or capacity rejection. Detailed storage exchanges were not uploaded,
+so the exact failed assertion is unavailable. Connection/byte counts suggest
+node-2 installation or subsequent checks, but do not establish that location or
+a timeout root cause. Local regressions separately expose the shared 30-second
+Python connect/upload allowance, renewed query deadlines, misclassified upload
+timeouts and acceptance of buffered late Python replies. The corrected installer
+uses the original operation grant described in
+[native storage](PHASE_6_NATIVE_STORAGE.md). This does not retrospectively prove
+the hosted cause; corrected-source CI and a new approved experiment are required.
+
 Run `39351687369` completed four experiment histories and failed during the
 fifth history's placement. Source analysis gives a no-retry lower bound of 57
 connections per node after four histories; the next placement needs eight more.

@@ -56,6 +56,15 @@ The existing soft total time and cost policy is unchanged.
 
 ## Immutable installation and whole-history parents
 
+Python installation has one 300-second exchange grant covering IAP/SSH connection,
+capsule upload and durable writes, matching the existing Java installation grant.
+Recovery queries use that same absolute deadline; they cannot renew it or submit
+installation again. Later standalone Python verification has a 60-second exchange
+bound. Per-write progress limits and terminal identity/integrity rejection remain
+in force. These are individual operation limits, not stage or experiment budgets.
+Python and Java upload/late-response expiry raises transport uncertainty; malformed
+receipts remain terminal validation failures. Buffered late success is rejected.
+
 The Python capsule is composed from the original checkout and installed with the
 existing one-submission protocol. A lost installation reply can only verify that
 installation. Host boot/UID and original installation identity remain bound; mount

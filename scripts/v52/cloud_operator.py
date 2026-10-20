@@ -119,6 +119,8 @@ def execute_native(source, output):
         if cleanup is not None:failure['cleanup']=cleanup
         iap=iap_report(output/'run/member/guests')
         if iap is not None:failure['iap']=iap
+        storage=storage_report(output/'run/member/storage')
+        if storage is not None:failure['storage']=storage
         native.diagnostic(output/'diagnostics/failure.json', failure)
         # Do not publish a result when a final source/output/summary check fails.
         # GitHub also requires the original entire job to complete successfully.
@@ -126,6 +128,12 @@ def execute_native(source, output):
     finally:
         os.environ.pop('V52_SSH_KEY', None)
         progress.close()
+
+
+def storage_report(root):
+    from . import cloud_storage_diagnostics as diagnostic
+    try:return diagnostic.project(strict(inputs.regular(root/'diagnostic.json',16384)))
+    except Exception:return None
 
 
 def cleanup_report(root):
