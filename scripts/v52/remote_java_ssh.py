@@ -31,13 +31,13 @@ def transfer(channel,value,archive,deadline):
                 info=os.fstat(stream.fileno());r.p.need(stat.S_ISREG(info.st_mode) and info.st_size==value['bytes'],'Java upload archive size/type')
                 sha=hashlib.sha256();remaining=value['bytes']
                 while remaining:
-                    r.p.need(time.monotonic()<deadline,'Java original upload deadline')
+                    python.remaining(deadline,'Java original upload deadline')
                     raw=stream.read(min(remaining,r.PIECE));r.p.need(raw,'Java upload truncated');remaining-=len(raw);sha.update(raw)
                     channel.sendall(raw,deadline=deadline)
                 r.p.need(not stream.read(1) and sha.hexdigest()==value['sha256'],'Java original upload changed')
         channel.proc.stdin.close();raw=channel.reader.readline(8193)
         r.p.need(0<len(raw)<=8192 and raw.endswith(b'\n') and channel.reader.readline(2)==b'','Java install response bound')
-        channel.check_exit();r.p.need(time.monotonic()<deadline,'Java late response');return r.p.decode(raw)
+        channel.check_exit();python.remaining(deadline,'Java late response');return r.p.decode(raw)
     finally:channel.finish()
 
 
@@ -52,7 +52,7 @@ class Installer(ssh.Endpoint):
         r.p.need(ssh.ssh_args(self.target)==self.args and all(Path(self.target[k]).read_bytes()==v for k,v in self.pins.items()),
                  'Java SSH target changed')
         deadline=self.end if self.end is not None else time.monotonic()+60
-        r.p.need(time.monotonic()<deadline,'Java original installation deadline');self.calls.append(action)
+        python.remaining(deadline,'Java original installation deadline');self.calls.append(action)
         remote=['/usr/bin/python3','-I','-S','-c',trusted(),action,str(parent),self.pin]
         try:
             if self.master is None:

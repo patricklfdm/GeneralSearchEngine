@@ -6,6 +6,7 @@ and installation are submitted once; only original-result queries may reconnect.
 """
 import base64
 from copy import deepcopy
+from functools import wraps
 import math
 from pathlib import Path
 import secrets
@@ -17,10 +18,22 @@ from . import cloud_iap as iap, cloud_native_runner as runner, cloud_inputs as i
 from . import cloud_guest_identity as guest, cloud_volume_guest as volume, cloud_volume_paths as paths
 from . import remote_python_package as package,remote_python_receiver as python,remote_python_ssh as install
 from . import remote_bound_receivers as bound,remote_host as host
+from . import cloud_storage_diagnostics as diagnostic
 from .evidence import need,encoded,digest,strict
 
 _TICKET=object()
 ROOT=Path(__file__).resolve().parents[2]
+
+
+def recorded(method):
+    @wraps(method)
+    def run(self,*args,**kwargs):
+        try:return method(self,*args,**kwargs)
+        except BaseException as error:
+            try:self.retain_failure(error)
+            except Exception:pass  # Diagnostics must never replace the original failure.
+            raise
+    return run
 
 
 def trusted_source(kind):
@@ -73,6 +86,7 @@ class VolumeEndpoint:
         need(request(self.guests,self.node)==self.value,'V5.2 storage guest binding changed')
 
     def call(self,action,token,end):
+        self.storage.note(self.node,'volume',action,'precheck')
         self.checkpoint();need(time.monotonic()<end,'V5.2 storage original exchange deadline')
         self.calls.append(action);need(len(self.calls)<=256,'V5.2 storage connection bound')
         try:value=self.storage.exchange(self.guests,self.node,'volume',action,dict(request=self.value,token=token),end)
@@ -80,7 +94,9 @@ class VolumeEndpoint:
             self.trace.append(dict(action=action,errorType=type(error).__name__))
             raise
         self.trace.append(dict(action=action,answer=deepcopy(value)))
-        self.checkpoint();need(time.monotonic()<end,'V5.2 storage late exchange');return value
+        self.storage.note(self.node,'volume',action,'postcheck')
+        self.checkpoint();need(time.monotonic()<end,'V5.2 storage late exchange')
+        self.storage.note(self.node,'volume',action,'reply');return value
 
     def clock(self,seconds):
         # This is the original operation's grant, not a whole-experiment cap.
@@ -146,6 +162,24 @@ class Storage:
         self.records={};self.endpoints={};self.installations={};self.claimed=set();self.ready=False
         self.descriptor=self.payload=None
         self.java=None;self.java_started=False
+        self.context=dict(node=None,operation='source',stage='begin',kind=None,action=None)
+        self.failure=None;self.java_installations={}
+
+    def stage(self,node,operation):
+        need(node in (None,*iap.topology.NODES) and operation in diagnostic.OPERATIONS,'V5.2 storage diagnostic context')
+        self.context=dict(node=node,operation=operation,stage='begin',kind=None,action=None)
+        # Short explicit milestones complement the member's minute heartbeat.
+        print(encoded(dict(stage='storage-progress',node=node,operation=operation)).decode(),flush=True)
+
+    def note(self,node,kind,action,stage):
+        self.context.update(node=node,kind=kind,action=action,stage=stage)
+
+    def retain_failure(self,error):
+        if self.failure is not None:return
+        self.failure=dict(schema=diagnostic.SCHEMA,status='FAIL',**self.context,
+            reasonCode=diagnostic.reason(error),errorType=diagnostic.error_type(error),origin=diagnostic.origin(error),
+            initializedNodes=list(self.records),pythonInstalledNodes=list(self.installations),javaInstalledNodes=list(self.java_installations))
+        runner.diagnostic(self.output/'diagnostic.json',self.failure)
 
     def checkpoint(self,guests):
         need(type(guests) is iap.Guests and guests.session is self.session and self.session.guests is guests and
@@ -155,14 +189,19 @@ class Storage:
         need(trusted_source('volume')==self.volume_source and trusted_source('paths')==self.paths_source,'V5.2 storage receiver source changed')
 
     def exchange(self,guests,node,kind,action,data,end):
+        self.note(node,kind,action,'precheck')
         self.checkpoint(guests);args=iap.ssh.ssh.ssh_args(guests.targets[node])
         command=['/usr/bin/python3','-I','-S','-c',self.volume_source if kind=='volume' else self.paths_source,action]
         if kind=='volume':command=['sudo','-n','-u','root','-g','root','--',*command]
         args[-1]=shlex.join(command)
+        self.note(node,kind,action,'transport')
         raw=iap.transport.process(args,encoded(data),end,maximum=volume.MAX_BYTES,env={'PATH':'/usr/bin:/bin','LANG':'C','LC_ALL':'C'})
-        self.checkpoint(guests);return strict(raw)
+        self.note(node,kind,action,'postcheck');self.checkpoint(guests)
+        self.note(node,kind,action,'reply');return strict(raw)
 
+    @recorded
     def start(self,guests):
+        self.stage(None,'source')
         self.checkpoint(guests)
         need(inputs.checkout(ROOT,self.source['source'])==self.source,'V5.2 storage checkout/toolchain changed')
         raw=inputs.regular(self.session.package,inputs.MAX_BYTES)
@@ -171,18 +210,21 @@ class Storage:
         need(inputs.checkout(ROOT,self.source['source'])==self.source,'V5.2 storage packaging source changed')
         runner.artifacts.save(self.output/'python-descriptor.json',self.descriptor)
         for node in iap.topology.NODES:
+            self.stage(node,'volume-initialize')
             endpoint=VolumeEndpoint(self,guests,node);self.endpoints[node]=endpoint
             runner.artifacts.save(self.output/(node+'-request.json'),endpoint.value)
             mounted=endpoint.prepare();self.records[node]=mounted
             runner.artifacts.save(self.output/(node+'-volume.json'),mounted)
-            endpoint.checkpoint();installer=install.Installer(guests.targets[node],self.descriptor)
+            self.stage(node,'python-install');endpoint.checkpoint();installer=install.Installer(guests.targets[node],self.descriptor)
             try:receipt=installer.install(volume.MOUNT,self.payload)
             finally:installer.close()
             host.validate_pin(receipt['host'])
             need(all(receipt['host'][k]==endpoint.value['guest'][k] for k in ('bootId','uid')),'V5.2 installed guest changed')
             self.installations[node]=receipt
             runner.artifacts.save(self.output/(node+'-python.json'),receipt)
+            self.stage(node,'volume-ready')
             final=endpoint.check(mounted['startup']);runner.artifacts.save(self.output/(node+'-ready.json'),final)
+        self.stage(None,'storage-receipt')
         self.checkpoint(guests)
         runner.artifacts.save(self.output/'receipt.json',dict(schema='gse-v52-native-storage-v1',status='STORAGE_READY_NOT_QUALIFIED',
             source=self.source,resourceClaimSha256=digest(encoded(self.claim)),pythonDescriptorSha256=digest(encoded(self.descriptor)),
@@ -191,8 +233,10 @@ class Storage:
         self.ready=True
         return self
 
+    @recorded
     def install_java(self,guests,descriptor,archive):
         from . import remote_java_receiver as j,remote_java_ssh as js
+        self.stage(None,'java-image')
         self.checkpoint(guests);need(self.ready and not self.java_started,'V5.2 Java installation not ready/already consumed')
         descriptor=deepcopy(j.descriptor(descriptor));need(descriptor['source']==self.source,'V5.2 Java original input source changed')
         j.verify_archive(archive,descriptor);self.java_started=True
@@ -201,17 +245,21 @@ class Storage:
         with Path(archive).open('rb') as source,retained.open('xb') as out:
             while raw:=source.read(j.PIECE):out.write(raw)
         j.verify_archive(retained,descriptor);runner.artifacts.save(self.output/'java-image.json',descriptor)
-        installations={}
+        installations=self.java_installations
         try:
             for node in iap.topology.NODES:
+                self.stage(node,'java-volume-before')
                 endpoint=VolumeEndpoint(self,guests,node);endpoint.check(self.records[node]['startup'])
+                self.stage(node,'java-install')
                 installer=js.Installer(guests.targets[node],descriptor)
                 try:receipt=installer.install(volume.MOUNT,retained)
                 finally:installer.close()
                 self.checkpoint(guests);host.validate_pin(receipt['host'])
                 need(receipt['host']==self.installations[node]['host'],'V5.2 Java original installation host/directory changed')
                 installations[node]=receipt;runner.artifacts.save(self.output/(node+'-java.json'),receipt)
+                self.stage(node,'java-volume-after')
                 endpoint.check(self.records[node]['startup'])
+            self.stage(None,'java-receipt')
             self.checkpoint(guests)
             runner.artifacts.save(self.output/'java-receipt.json',dict(status='JAVA_READY_NOT_QUALIFIED',source=self.source,
                 descriptorSha256=digest(encoded(descriptor)),nodes=installations,engineWorkloadExecuted=False,fullRemoteQualification=False))
@@ -221,26 +269,32 @@ class Storage:
             raise
         return self
 
+    @recorded
     def placement(self,guests,name):
+        self.stage(None,'placement-source')
         self.checkpoint(guests);need(self.ready,'V5.2 storage not ready')
         need(not self.java_started or self.java is not None,'V5.2 original Java installation incomplete')
         need(name in self.session.owner.request['selection']['member']['histories'] and name not in self.claimed,
              'V5.2 original whole history already claimed/undeclared');self.claimed.add(name)
         history=digest(encoded([self.claim['requestSha256'],name]));roots={}
         for node in iap.topology.NODES:
+            self.stage(node,'placement-volume')
             endpoint=VolumeEndpoint(self,guests,node)
             need(endpoint.value==self.endpoints[node].value,'V5.2 history changed original volume')
             startup=self.records[node]['startup'];endpoint.check(startup)
+            self.stage(node,'placement-python')
             installer=install.Installer(guests.targets[node],self.descriptor)
             try:current=readonly(lambda:installer.exchange('verify',volume.MOUNT,None),time.monotonic()+90)
             finally:installer.close()
             need(current==self.installations[node],'V5.2 history installed capsule changed')
             if self.java is not None:
                 from . import remote_java_ssh as js
+                self.stage(node,'placement-java')
                 installer=js.Installer(guests.targets[node],self.java['descriptor'])
                 try:current_java=readonly(lambda:installer.exchange('verify',volume.MOUNT),time.monotonic()+90)
                 finally:installer.close()
                 need(current_java==self.java['installations'][node],'V5.2 history installed Java changed')
+            self.stage(node,'placement-parent')
             data=dict(request=endpoint.value,volume=startup['volume'],history=history);end=time.monotonic()+60
             answer=None
             try:answer=self.exchange(guests,node,'paths','prepare',data,end)
@@ -256,6 +310,7 @@ class Storage:
                 answer['host']['parentDevice']==current['host']['parentDevice'],'V5.2 history parent guest/device changed')
             roots[node]=expected;endpoint.check(startup)
             runner.artifacts.save(self.output/(history+'-'+node+'.json'),dict(parent=answer,installation=current))
+        self.stage(None,'placement-binding')
         binding=guests.binding(str(uuid.UUID(hex=history[:32])))
         binding.update(deepcopy(self.source));self.checkpoint(guests)
         return bound.Placement(binding,guests.targets,roots,self.installations,self.descriptor,self.payload,java=self.java)

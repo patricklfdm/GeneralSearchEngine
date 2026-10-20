@@ -110,6 +110,8 @@ class OperatorTest(unittest.TestCase):
         def fail(*args):
             path=args[-1];(path/'native').mkdir(parents=True);(path/'member').mkdir()
             (path/'member/guests').mkdir()
+            (path/'member/storage').mkdir()
+            o.artifacts.save(path/'member/storage/diagnostic.json',storage_diagnostic())
             o.artifacts.save(path/'member/guests/connections.json',iap_diagnostic())
             o.artifacts.save(path/'member/failure.json',dict(status='FAIL',phase='guest-identity',
                 code='V52_MEMBER_GUEST_IDENTITY_REJECTED',errorType='ValueError',secret='never-public'))
@@ -126,11 +128,15 @@ class OperatorTest(unittest.TestCase):
         self.assertEqual(70,result['iap']['nodes']['node-1']['accepted'])
         self.assertEqual('SSH_DISCONNECTED',result['iap']['nodes']['node-1']['lastFailureCode'])
         self.assertNotIn('recent',str(result['iap']));self.assertNotIn('pid',str(result['iap']))
+        self.assertEqual('python-install',result['storage']['operation'])
+        self.assertEqual('node-2',result['storage']['node'])
+        self.assertEqual('V52_STORAGE_EXCHANGE_TIMEOUT',result['storage']['reasonCode'])
         self.assertNotIn('never-public',str(result));self.assertFalse((self.output/'result').exists())
         self.run.assert_called_once()
         out=io.StringIO()
         with redirect_stdout(out):o.summary(self.output)
         self.assertIn('capacityRejections',out.getvalue());self.assertNotIn('never-public',out.getvalue())
+        self.assertIn('python-install',out.getvalue())
     def test_changed_confirmation_or_failed_download_never_opens_paid_entry(self):
         request=self.request();request['confirmation']='f'*64
         with self.assertRaisesRegex(ValueError,'confirmation changed'):self.execute('run',request)
@@ -218,6 +224,51 @@ class OperatorTest(unittest.TestCase):
             result=o.prepare_request('a'*40,'canonical-3','c'*32,12_000_000,21600,14400,self.root/'draft')
         self.assertEqual(12_000_000,result['estimate']['costMicrousd']);self.assertEqual(15400,result['estimate']['expiresAt'])
         self.assertFalse(o.artifacts.read(self.root/'draft/receipt.json')['livePricesVerified'])
+
+
+def storage_diagnostic():
+    from . import cloud_storage_diagnostics as d
+    return dict(schema=d.SCHEMA,status='FAIL',node='node-2',operation='python-install',stage='begin',kind=None,action=None,
+        reasonCode='V52_STORAGE_EXCHANGE_TIMEOUT',errorType='TimeoutError',
+        origin=dict(module='remote_python_ssh',line=22),initializedNodes=['node-1','node-2'],
+        pythonInstalledNodes=['node-1'],javaInstalledNodes=[],secret='never-public')
+
+
+class StorageDiagnosticTest(unittest.TestCase):
+    def setUp(self):
+        tmp=tempfile.TemporaryDirectory();self.addCleanup(tmp.cleanup);self.root=Path(tmp.name)
+
+    def report(self,value):
+        (self.root/'diagnostic.json').write_bytes(o.encoded(value))
+        return o.storage_report(self.root)
+
+    def test_only_closed_fields_are_projected(self):
+        value=storage_diagnostic();report=self.report(value)
+        self.assertIsNotNone(report);self.assertNotIn('never-public',str(report))
+        self.assertEqual('remote_python_ssh',report['origin']['module'])
+
+    def test_unknown_codes_nodes_operations_and_sites_are_omitted(self):
+        for field in ('node','operation','stage','kind','action','reasonCode','errorType'):
+            value=storage_diagnostic();value[field]='never-public'
+            with self.subTest(field=field):self.assertIsNone(self.report(value))
+        for site in (dict(module='private-key',line=1),dict(module='cloud_storage',line=True),
+                     dict(module='cloud_storage',line=10001),dict(module='cloud_storage',line=1,secret='never-public')):
+            value=storage_diagnostic();value['origin']=site
+            self.assertIsNone(self.report(value))
+
+    def test_invalid_node_progress_and_partial_exchange_are_omitted(self):
+        for changes in (dict(initializedNodes=[]),dict(pythonInstalledNodes=['node-1','node-1']),
+                        dict(javaInstalledNodes=['node-3']),dict(action='check')):
+            value=storage_diagnostic();value.update(changes)
+            self.assertIsNone(self.report(value))
+
+    def test_missing_malformed_linked_oversized_diagnostic_is_not_published(self):
+        self.assertIsNone(o.storage_report(self.root))
+        path=self.root/'diagnostic.json'
+        for raw in (b'not json',b'x'*16385,b'[]'):
+            path.write_bytes(raw);self.assertIsNone(o.storage_report(self.root))
+        path.unlink();(self.root/'private').write_bytes(o.encoded(storage_diagnostic()));path.symlink_to(self.root/'private')
+        self.assertIsNone(o.storage_report(self.root))
 
 
 def iap_diagnostic():

@@ -130,9 +130,9 @@ class CapsuleStreamTest(unittest.TestCase):
         self.assertTrue(channel.finished and channel.checked and channel.proc.stdin.closed)
 
     def test_oversized_request_and_deadline_fail_before_writing(self):
-        for request,deadline in ((b'x'*(receiver.MAX_REQUEST+1),time.monotonic()+30),(b'x',time.monotonic()-1)):
+        for request,deadline,error in ((b'x'*(receiver.MAX_REQUEST+1),time.monotonic()+30,ValueError),(b'x',time.monotonic()-1,TimeoutError)):
             channel=self.channel()
-            with self.assertRaises(ValueError):ssh.transfer(channel,request,deadline)
+            with self.assertRaises(error):ssh.transfer(channel,request,deadline)
             self.assertEqual([],channel.parts);self.assertTrue(channel.finished)
 
     def test_stream_writer_preserves_absolute_deadline(self):

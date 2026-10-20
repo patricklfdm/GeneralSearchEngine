@@ -57,6 +57,11 @@ class NativeJavaTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'original partial'):self.storage.install_java(self.group,self.value,self.path)
         self.assertIsNone(self.storage.java);self.assertTrue(self.storage.java_started)
         self.assertEqual(['node-1'],s.strict((self.storage.output/'java-failure.json').read_bytes())['installedNodes'])
+        report=s.diagnostic.project(s.strict((self.storage.output/'diagnostic.json').read_bytes()))
+        self.assertEqual(('node-2','java-install','V52_STORAGE_VALIDATION_REJECTED'),
+            tuple(report[k] for k in ('node','operation','reasonCode')))
+        self.assertEqual(['node-1'],report['javaInstalledNodes'])
+        self.assertEqual(list(s.iap.topology.NODES),report['pythonInstalledNodes'])
         name=self.base.session.owner.request['selection']['member']['histories'][0]
         before=list(self.calls)
         with self.assertRaisesRegex(ValueError,'installation incomplete'):self.storage.placement(self.group,name)

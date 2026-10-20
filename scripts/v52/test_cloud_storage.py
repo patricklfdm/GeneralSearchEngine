@@ -17,7 +17,7 @@ class EndpointTest(unittest.TestCase):
         self.base=volume_fixture.VolumeTest('test_original_blank_device_and_independent_retained_and_current_replay')
         self.base.setUp();self.addCleanup(self.base.doCleanups);self.value=self.base.value;self.events=[]
         self.fault=lambda action,result:result
-        self.parent=SimpleNamespace(exchange=self.exchange)
+        self.parent=SimpleNamespace(exchange=self.exchange,note=Mock())
         self.guests=SimpleNamespace(session=SimpleNamespace(owner=SimpleNamespace(checkpoint=lambda:dict(
             expiresAt=int(time.time())+600,graceSeconds=60))))
         with patch.object(s,'request',return_value=self.value):self.endpoint=s.VolumeEndpoint(self.parent,self.guests,'node-1')
@@ -166,10 +166,35 @@ class NativeStorageTest(unittest.TestCase):
         self.change_reply=fail
         with self.assertRaisesRegex(ValueError,'unresolved/failed'):self.prepare()
         self.assertFalse(self.session.storage.ready);self.assertTrue((self.root/'storage/failure.json').exists())
+        report=s.diagnostic.project(s.strict((self.root/'storage/diagnostic.json').read_bytes()))
+        self.assertEqual(('node-2','volume-initialize','prepare','reply'),
+            tuple(report[k] for k in ('node','operation','action','stage')))
+        self.assertEqual(['node-1'],report['initializedNodes']);self.assertEqual(['node-1'],report['pythonInstalledNodes'])
+        self.assertEqual('V52_STORAGE_VALIDATION_REJECTED',report['reasonCode'])
+        self.assertEqual('cloud_storage',report['origin']['module'])
         exchanges=s.strict((self.root/'storage/node-2-exchanges.json').read_bytes())['exchanges']
         self.assertEqual('FAILED',exchanges[-1]['answer']['state'])
         with self.assertRaisesRegex(ValueError,'already consumed'):self.group.prepare_storage(self.root/'second')
         self.assertNotIn('node-3',self.models);self.assertTrue(all(m.formats==1 for m in self.models.values()))
+        self.session.close();self.assertEqual({},self.base.base.case.server.resources)
+
+    def test_python_failure_retains_operation_and_cleans_without_private_exception(self):
+        class Installer:
+            def __init__(self,*args):pass
+            def install(self,*args):raise TimeoutError('secret raw command and private key')
+            def close(self):pass
+        with patch.object(s.install,'Installer',Installer),self.assertRaises(TimeoutError):self.prepare()
+        report=s.diagnostic.project(s.strict((self.root/'storage/diagnostic.json').read_bytes()))
+        self.assertEqual(('node-1','python-install','V52_STORAGE_EXCHANGE_TIMEOUT'),
+            tuple(report[k] for k in ('node','operation','reasonCode')))
+        self.assertEqual(['node-1'],report['initializedNodes']);self.assertEqual([],report['pythonInstalledNodes'])
+        self.assertNotIn('secret',str(report));self.assertIsNone(report['action'])
+        self.session.close();self.assertEqual({},self.base.base.case.server.resources)
+
+    def test_diagnostic_write_failure_cannot_mask_original_or_skip_cleanup(self):
+        self.change_reply=lambda node,action,result:result.update(state='FAILED') if action=='prepare' else None
+        with patch.object(s.Storage,'retain_failure',side_effect=OSError('diagnostic disk full')), \
+             self.assertRaisesRegex(ValueError,'unresolved/failed'):self.prepare()
         self.session.close();self.assertEqual({},self.base.base.case.server.resources)
 
     def test_final_receipt_failure_cannot_grant_placement_or_bypass_cleanup(self):
@@ -193,6 +218,8 @@ class NativeStorageTest(unittest.TestCase):
         storage=self.prepare();self.changed_install=True
         name=self.session.owner.request['selection']['member']['histories'][0]
         with self.assertRaisesRegex(ValueError,'installed capsule changed'):storage.placement(self.group,name)
+        report=s.diagnostic.project(s.strict((self.root/'storage/diagnostic.json').read_bytes()))
+        self.assertEqual('placement-python',report['operation'])
         self.assertFalse(any(kind=='paths' for _,kind,_ in self.actions));self.assertTrue(all(m.formats==1 for m in self.models.values()))
         self.session.close();self.assertEqual({},self.base.base.case.server.resources)
 

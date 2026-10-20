@@ -5,19 +5,29 @@ import shlex
 from .remote_voter_ssh import Stream
 from . import remote_ssh as ssh, remote_python_receiver as receiver
 
+INSTALL_SECONDS=300
+VERIFY_SECONDS=60
+
+
+def remaining(deadline, label):
+    # Timeout is transport uncertainty, never a malformed receipt. Only the
+    # original installation's verification may follow it; never resubmit.
+    if time.monotonic()>=deadline:raise TimeoutError(label)
+
 
 class Installer(ssh.Endpoint):
     def __init__(self,target,descriptor):
         super().__init__(target,Path(__file__).resolve().parents[2])
         receiver.descriptor(descriptor)
         self.descriptor=descriptor;self.sha=receiver.digest(receiver.encoded(descriptor))
-        self.calls=[];self.reply_lost=False
+        self.calls=[];self.reply_lost=False;self.end=None
 
     def exchange(self,action,parent,payload):
         receiver.need(action in ('install','verify') and not self.closed,'Python SSH action/closed')
         receiver.need(ssh.ssh_args(self.target)==self.args and
                       all(Path(self.target[k]).read_bytes()==v for k,v in self.pins.items()),'Python SSH target changed')
-        deadline=time.monotonic()+30
+        deadline=self.end if self.end is not None else time.monotonic()+VERIFY_SECONDS
+        remaining(deadline,'Python original installation deadline')
         self.calls.append(action)
         remote=['python3','-I','-S','-c',Path(receiver.__file__).read_text(),action,str(parent),self.sha]
         request=receiver.encoded(dict(descriptor=self.descriptor,payload=payload))
@@ -40,7 +50,10 @@ class Installer(ssh.Endpoint):
 
     def install(self,parent,raw,*,discard_reply=False):
         receiver.payload(raw,self.descriptor)
-        receiver.need(not self.calls,'Python SSH installation already consumed')
+        receiver.need(not self.calls and self.end is None,'Python SSH installation already consumed')
+        # Include connection admission, bounded upload and durable file writes.
+        # A result query shares this grant; it cannot renew the install budget.
+        self.end=time.monotonic()+INSTALL_SECONDS
         def submit():
             value=self.exchange('install',parent,raw.decode('ascii'))
             if discard_reply:
@@ -57,11 +70,11 @@ def transfer(channel,request,deadline):
     try:
         receiver.need(type(request) is bytes and len(request)<=receiver.MAX_REQUEST,'Python SSH request bound')
         for offset in range(0,len(request),64<<10):
-            receiver.need(time.monotonic()<deadline,'Python SSH transfer deadline')
+            remaining(deadline,'Python SSH transfer deadline')
             channel.sendall(request[offset:offset+(64<<10)],deadline=deadline)
         channel.proc.stdin.close()
         raw=channel.reader.readline(8193)
         receiver.need(0<len(raw)<=8192 and raw.endswith(b'\n'),'Python SSH response bound')
         receiver.need(channel.reader.readline(2)==b'','Python SSH trailing response')
-        channel.check_exit();return raw
+        channel.check_exit();remaining(deadline,'Python late response');return raw
     finally:channel.finish()
