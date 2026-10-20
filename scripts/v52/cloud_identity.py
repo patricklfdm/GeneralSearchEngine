@@ -12,10 +12,11 @@ def current(provider, expected):
     need(type(provider) is p.Provider and p.qualified(provider.store,provider),'V5.2 unqualified guest observer')
     req=provider.request;need(req['schema']=='gse-v52-owned-request-v2','V5.2 missing bound guest access')
     access.validate(req['guestAccess'],req['selection']['attempt'])
-    stored=provider.store.get(a.LEASE);need(stored is not None,'V5.2 guest lease absent')
+    stored=provider.store.get(a.LEASE)
+    p.read_need(stored is not None,'V52_CONTROL_LEASE_ABSENT')
     lease=a.validate_lease(stored[1])
-    need(lease['request']==req and lease['phase']=='ACTIVE' and lease['renewedAt']<=provider.wall()<lease['expiresAt'],
-         'V5.2 guest lease inactive/changed')
+    p.read_need(lease['request']==req and lease['phase']=='ACTIVE' and lease['renewedAt']<=provider.wall()<lease['expiresAt'],
+                'V52_CONTROL_LEASE_INACTIVE')
     claim=a.resource_claim(lease);need(claim==expected,'V5.2 guest allocation changed')
     ledger=provider.store.get(a.LEDGER);need(ledger is not None,'V5.2 guest charge absent')
     row=a.inspect_ledger(ledger[1],domain=p.api_domain(provider.api))['attempts'].get(claim['requestSha256'])

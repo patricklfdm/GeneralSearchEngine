@@ -78,7 +78,7 @@ class Policy:
             need(set(q)=={'alt','generation','ifGenerationMatch'} and q['alt']=='media' and
                  q['generation']==q['ifGenerationMatch'],'V5.2 wire pinned media')
             generation=int(a.numeric(q['generation']));meta=self.metadata.get(key)
-            need(meta is not None and meta['generation']==q['generation'],'V5.2 wire unobserved media generation')
+            p.read_need(meta is not None and meta['generation']==q['generation'],'V52_CONTROL_READ_GENERATION')
             return dict(kind=kind,spec=spec,key=key,expected=generation,operation='media')
         image=p.COMPUTE+self.cfg['imageProject']+'/global/images/'+self.cfg['imageName']
         if base==image:
@@ -372,7 +372,7 @@ class Policy:
                  value.get('contentType')=='application/json','V5.2 wire object metadata bounds/type')
             self.metadata[key]=deepcopy(value);return
         if operation=='media':
-            need(len(raw)==int(self.metadata[key]['size']),'V5.2 wire control bytes truncated')
+            p.read_need(len(raw)==int(self.metadata[key]['size']),'V52_CONTROL_READ_TRUNCATED')
             kind=route['kind']
             if kind==a.LEASE:
                 a.validate_lease(value)
