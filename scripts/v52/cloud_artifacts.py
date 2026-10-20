@@ -23,6 +23,91 @@ MAX_JSON = 16 << 20
 SCHEMA = 'gse-v52-build-provenance-v1'
 BUILD_PREFIX = 'v51-verification-build-'
 EXECUTION_FIELDS = ('name', 'run_id', 'head_sha', 'started_at', 'completed_at', 'status', 'conclusion', 'steps')
+PHASES = ('source', 'full-ci', 'artifact-selection', 'build-producer', 'artifact-download',
+          'artifact-bytes', 'final-ci', 'artifact-replay', 'final-source')
+MAX_ATTEMPTS = 3
+MAX_STDERR = 16384
+READ_CODES = ('HTTP_REJECTED', 'TRANSPORT', 'PROCESS_FAILED', 'DEADLINE', 'BYTE_BOUND',
+              'STDERR_BOUND', 'START_FAILED', 'CALL_BOUND', 'JSON_INVALID', 'INCOMPLETE')
+REQUEST_KINDS = ('master', 'source', 'runs', 'run', 'attempt', 'jobs', 'artifacts', 'artifact', 'download')
+STOPS = ('terminal', 'attempt-limit', 'deadline', 'call-limit')
+
+
+class GitHubReadError(ValueError):
+    """Closed diagnostics only: never retain CLI stderr, token or signed URL."""
+    def __init__(self, reason, status=None):
+        need(reason in READ_CODES, 'V5.2 GitHub error code')
+        self.code = 'V52_GITHUB_'+reason
+        self.http_status = status
+        self.request = None
+        detail = {'DEADLINE':'deadline', 'BYTE_BOUND':'byte bound'}.get(reason, 'failed')
+        super().__init__('V5.2 GitHub original read '+detail+' ('+self.code+')')
+
+    @property
+    def retryable(self):
+        return self.code == 'V52_GITHUB_TRANSPORT' or (
+            self.code == 'V52_GITHUB_HTTP_REJECTED' and self.http_status in (500, 502, 503, 504))
+
+
+def command_error(stderr, exit_code):
+    # gh api emits its HTTP error with this suffix. Conflicting/unknown output
+    # fails closed. Body/error strings are never used as validation evidence.
+    statuses = re.findall(rb'^gh: (?:[^\r\n]* \()?HTTP ([1-5][0-9]{2})\)?\r?$', stderr, re.M)
+    if len(statuses) == 1: return GitHubReadError('HTTP_REJECTED', int(statuses[0]))
+    transport = (b'connection reset by peer', b'TLS handshake timeout', b'i/o timeout',
+                 b'context deadline exceeded', b'unexpected EOF', b'no such host',
+                 b'error connecting to api.github.com')
+    if not statuses and exit_code == 1 and any(word in stderr for word in transport):
+        return GitHubReadError('TRANSPORT')
+    return GitHubReadError('PROCESS_FAILED')
+
+
+def request_kind(path):
+    if path == 'branches/master': return 'master'
+    if path.startswith('contents/'): return 'source'
+    part = path.split('?', 1)[0].rsplit('/', 1)[-1]
+    if part in ('runs', 'jobs', 'artifacts'): return part
+    if part == 'zip': return 'download'
+    if path.startswith('actions/artifacts/'): return 'artifact'
+    return 'attempt' if '/attempts/' in path else 'run'
+
+
+def failure_details(error, phase):
+    """Project the last owned check location, never exception text or locals."""
+    value = dict(phase=phase, code='V52_PROVENANCE_'+phase.upper().replace('-', '_')+'_REJECTED')
+    modules = (__name__, ci.__name__, inputs.__name__, inputs.build.__name__)
+    trace = error.__traceback__
+    while trace is not None:
+        module = trace.tb_frame.f_globals.get('__name__')
+        if module in modules: value['checkSite'] = dict(module=module, line=trace.tb_lineno)
+        trace = trace.tb_next
+    if isinstance(error, GitHubReadError):
+        value['reasonCode'] = error.code
+        if error.http_status is not None: value['httpStatus'] = error.http_status
+        if error.request is not None: value['request'] = error.request
+    return value
+
+
+def public_failure(value):
+    """Revalidate the private receipt before adding it to the public summary."""
+    if type(value) is not dict or value.get('phase') not in PHASES: return None
+    phase = value['phase']; code = 'V52_PROVENANCE_'+phase.upper().replace('-', '_')+'_REJECTED'
+    if value.get('status') != 'FAIL' or value.get('code') != code: return None
+    result = dict(phase=phase, code=code)
+    site = value.get('checkSite')
+    if type(site) is dict and site.get('module') in (__name__, ci.__name__, inputs.__name__, inputs.build.__name__) and \
+            type(site.get('line')) is int and 0 < site['line'] <= 100000:
+        result['checkSite'] = dict(module=site['module'], line=site['line'])
+    if value.get('reasonCode') in tuple('V52_GITHUB_'+v for v in READ_CODES):
+        result['reasonCode'] = value['reasonCode']
+    status = value.get('httpStatus')
+    if type(status) is int and 100 <= status <= 599: result['httpStatus'] = status
+    row = value.get('request')
+    if type(row) is dict and row.get('kind') in REQUEST_KINDS and row.get('stop') in STOPS and \
+            type(row.get('attempts')) is int and 1 <= row['attempts'] <= MAX_ATTEMPTS and \
+            type(row.get('ordinal')) is int and 1 <= row['ordinal'] <= 256:
+        result['request'] = {key:row[key] for key in ('kind', 'stop', 'attempts', 'ordinal')}
+    return result
 
 
 def current_job(observation):
@@ -175,27 +260,41 @@ def _collect(directory, source, shape, binding, client, wall, *, progress=None):
 
 def bounded_command(command, path, maximum, timeout):
     """Own and reap one read subprocess; bound bytes while streaming, not after."""
-    process = None; success = False
+    process = None; success = False; end = time.monotonic()+timeout
     with Path(path).open('xb') as output:
         try:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, start_new_session=True)
-            end = time.monotonic()+timeout; total = 0
+            try:
+                process = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE, start_new_session=True)
+            except OSError: raise GitHubReadError('START_FAILED') from None
+            total = 0; stderr = bytearray()
             with selectors.DefaultSelector() as selector:
                 selector.register(process.stdout, selectors.EVENT_READ)
-                while True:
-                    remaining = end-time.monotonic(); need(remaining > 0, 'V5.2 GitHub original read deadline')
-                    if not selector.select(min(1, remaining)): continue
-                    raw = os.read(process.stdout.fileno(), min(65536, maximum-total+1))
-                    if not raw: break
-                    total += len(raw); need(total <= maximum, 'V5.2 GitHub original read byte bound'); output.write(raw)
-            remaining = end-time.monotonic(); need(remaining > 0, 'V5.2 GitHub original read deadline')
-            need(process.wait(timeout=remaining) == 0, 'V5.2 GitHub original read failed'); success = True
+                selector.register(process.stderr, selectors.EVENT_READ)
+                while selector.get_map():
+                    remaining = end-time.monotonic()
+                    if remaining <= 0: raise GitHubReadError('DEADLINE')
+                    for key, _ in selector.select(min(1, remaining)):
+                        diagnostic = key.fileobj is process.stderr
+                        bound = MAX_STDERR-len(stderr) if diagnostic else maximum-total
+                        raw = os.read(key.fd, min(65536, bound+1))
+                        if not raw: selector.unregister(key.fileobj); continue
+                        if len(raw) > bound: raise GitHubReadError('STDERR_BOUND' if diagnostic else 'BYTE_BOUND')
+                        if diagnostic: stderr.extend(raw)
+                        else: total += len(raw); output.write(raw)
+            remaining = end-time.monotonic()
+            if remaining <= 0: raise GitHubReadError('DEADLINE')
+            try: status = process.wait(timeout=remaining)
+            except subprocess.TimeoutExpired: raise GitHubReadError('DEADLINE') from None
+            if status != 0: raise command_error(stderr, status)
+            success = True
         finally:
             if process is not None:
                 if not success:
                     try: os.killpg(process.pid, signal.SIGKILL)
                     except ProcessLookupError: pass
                 if process.stdout is not None: process.stdout.close()
+                if process.stderr is not None: process.stderr.close()
                 process.wait()
 
 
@@ -223,16 +322,58 @@ class Network:
 
     def authorize_path(self, path): allowed_path(path)
 
+    def _read(self, path, maximum, timeout, *, download=False):
+        """Retry only failed GET exchanges, within one original deadline.
+
+        Each physical attempt consumes the call bound and retains a distinct
+        body/closed receipt. Validation and whole collections are never retried.
+        """
+        end = time.monotonic()+timeout
+        for attempt in range(1, MAX_ATTEMPTS+1):
+            if self.calls >= 256: raise GitHubReadError('CALL_BOUND')
+            remaining = end-time.monotonic()
+            if remaining <= 0: raise GitHubReadError('DEADLINE')
+            self.calls += 1; ordinal = self.calls
+            target = self.output/f'{ordinal:03}.{"zip" if download else "json"}'
+            record = dict(method='GET', path=path, kind=request_kind(path), attempt=attempt, ordinal=ordinal)
+            error = None
+            try:
+                bounded_command(self.command(path), target, maximum, remaining)
+                if time.monotonic() >= end: raise GitHubReadError('DEADLINE')
+            except GitHubReadError as failure:
+                error = failure
+            if error is None:
+                save(self.output/f'{ordinal:03}-request.json', dict(record, status='PASS'))
+                return target
+            delay = attempt  # 1 second, then 2 seconds; never reset the deadline.
+            if not error.retryable: stop = 'deadline' if error.code == 'V52_GITHUB_DEADLINE' else 'terminal'
+            elif attempt == MAX_ATTEMPTS: stop = 'attempt-limit'
+            elif self.calls >= 256: stop = 'call-limit'
+            elif end-time.monotonic() <= delay: stop = 'deadline'
+            else: stop = None
+            detail = dict(record, status='FAIL', reasonCode=error.code, retry=stop is None, stop=stop)
+            if error.http_status is not None: detail['httpStatus'] = error.http_status
+            save(self.output/f'{ordinal:03}-request.json', detail)
+            # Progress is intentionally closed and excludes request URLs/body.
+            print(encoded({key:value for key,value in detail.items() if key not in ('path', 'method')}).decode(), flush=True)
+            if stop is not None:
+                error.request = dict(kind=record['kind'], attempts=attempt, ordinal=ordinal, stop=stop)
+                raise error
+            time.sleep(delay)
+
     def get(self, path):
-        self.authorize_path(path); need(self.calls < 256, 'V5.2 GitHub observation call bound'); self.calls += 1
-        target = self.output/f'{self.calls:03}.json'
-        bounded_command(self.command(path), target, MAX_JSON, 30)
-        value = read(target); save(self.output/f'{self.calls:03}-request.json', dict(method='GET', path=path)); return value
+        self.authorize_path(path)
+        target = self._read(path, MAX_JSON, 30)
+        try: return read(target)
+        except ValueError: raise GitHubReadError('JSON_INVALID') from None
 
     def download(self, identity, output, size):
         a.integer(identity, 1); a.integer(size, 1, MAX_ZIP)
-        bounded_command(self.command(f'actions/artifacts/{identity}/zip'), output, size, 300)
-        need(Path(output).stat().st_size == size, 'V5.2 original artifact download incomplete')
+        output = Path(output)
+        if output.exists() or output.is_symlink(): raise FileExistsError(output)
+        target = self._read(f'actions/artifacts/{identity}/zip', size, 300, download=True)
+        if target.stat().st_size != size: raise GitHubReadError('INCOMPLETE')
+        os.link(target, output)  # Publish one complete response, never concatenate partial attempts or overwrite.
 
 
 def collect_native(source, output):
@@ -249,9 +390,10 @@ def collect_native(source, output):
         receipt = dict(execution='native-v52-github-read-only', checkedAt=int(time.time()), **result)
         save(output/'receipt.json', receipt); return receipt
     except BaseException as error:
-        save(output/'failure.json', dict(status='FAIL', phase=progress['phase'],
-                                        code='V52_PROVENANCE_'+progress['phase'].upper().replace('-', '_')+'_REJECTED', type=type(error).__name__,
-                                        paidAdmission=False, fullRemoteQualification=False))
+        try:
+            save(output/'failure.json', dict(status='FAIL', **failure_details(error, progress['phase']),
+                                            type=type(error).__name__, paidAdmission=False, fullRemoteQualification=False))
+        except Exception: print('v52GitHubDiagnosticRetention=FAIL', flush=True)
         raise
 
 

@@ -64,6 +64,30 @@ class OperatorTest(unittest.TestCase):
         self.assertEqual(dict(preparedRun=654321,preparedAttempt=2,confirmation=result['planSha256']),result['runRequest'])
         self.assertIn('artifactName=v52-prepared-654321-2',(self.root/'actions-output').read_text())
         self.assertNotIn('never-retain',str(result)); self.assertFalse(o.artifacts.read(self.output/'result/approval.json')['confirmed'])
+    def test_original_build_failure_projects_nested_phase_status_attempts_and_check_site(self):
+        def fail(source,request,public,output):
+            (output/'build').mkdir(parents=True)
+            o.artifacts.save(output/'failure.json',dict(code='V52_PREPARE_ORIGINAL_BUILD_REJECTED'))
+            o.artifacts.save(output/'build/failure.json',dict(status='FAIL',phase='full-ci',
+                code='V52_PROVENANCE_FULL_CI_REJECTED',reasonCode='V52_GITHUB_HTTP_REJECTED',httpStatus=503,
+                checkSite=dict(module=o.artifacts.ci.__name__,line=123,secret='never-public'),
+                request=dict(kind='jobs',ordinal=7,attempts=3,stop='attempt-limit',url='never-public'),
+                stderr='never-public'))
+            raise ValueError('never-public-original-error')
+        self.prepare.side_effect=fail
+        with self.assertRaises(ValueError):
+            self.execute('prepare',dict(member='experiment',sequence='c'*32,estimate=self.plan['estimate']))
+        result=o.artifacts.read(self.output/'diagnostics/failure.json')
+        self.assertEqual('V52_PREPARE_ORIGINAL_BUILD_REJECTED',result['causeCode'])
+        detail=result['buildProvenance']; self.assertEqual('full-ci',detail['phase'])
+        self.assertEqual(503,detail['httpStatus']); self.assertEqual(3,detail['request']['attempts'])
+        self.assertEqual('jobs',detail['request']['kind']); self.assertEqual(123,detail['checkSite']['line'])
+        self.assertNotIn('never-public',str(result));self.assertFalse((self.output/'result').exists())
+        self.run.assert_not_called();self.prepare.assert_called_once()
+        out=io.StringIO()
+        with redirect_stdout(out):o.summary(self.output)
+        self.assertIn('buildProvenance',out.getvalue());self.assertIn('503',out.getvalue())
+        self.assertNotIn('never-public',out.getvalue())
     def test_run_confirms_only_downloaded_exact_plan_then_executes_once(self):
         result=self.execute('run',self.request());self.download.assert_called_once();self.run.assert_called_once()
         self.assertFalse(result['fullRemoteQualification']); self.assertEqual(1,self.key_calls)

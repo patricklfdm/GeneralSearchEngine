@@ -115,6 +115,11 @@ def execute_native(source, output):
                     if relative=='run/member/failure.json' and inner.get('phase') in member.FAILURE_PHASES:
                         failure['memberPhase']=inner['phase']
                 except Exception: pass  # A broken diagnostic cannot mask the original operation failure.
+        if phase == 'prepare':
+            try:
+                build = artifacts.public_failure(artifacts.read(output/'prepare/build/failure.json'))
+                if build is not None: failure['buildProvenance'] = build
+            except Exception: pass
         cleanup=cleanup_report(output/'run/native')
         if cleanup is not None:failure['cleanup']=cleanup
         iap=iap_report(output/'run/member/guests')
