@@ -117,6 +117,8 @@ def execute_native(source, output):
                 except Exception: pass  # A broken diagnostic cannot mask the original operation failure.
         cleanup=cleanup_report(output/'run/native')
         if cleanup is not None:failure['cleanup']=cleanup
+        iap=iap_report(output/'run/member/guests')
+        if iap is not None:failure['iap']=iap
         native.diagnostic(output/'diagnostics/failure.json', failure)
         # Do not publish a result when a final source/output/summary check fails.
         # GitHub also requires the original entire job to complete successfully.
@@ -144,6 +146,36 @@ def cleanup_report(root):
             if not result['leaseReleased'] or type(cleanup) is not dict or cleanup.get('status')!='PASS' or \
                cleanup.get('leftovers')!=[] or cleanup.get('errors')!=[]:return None
         return dict(status=status,leaseReleased=result['leaseReleased'],resourceDeletesSubmitted=count)
+    except Exception:return None
+
+
+def iap_report(root):
+    """Keep bounded counters and closed codes, never raw channel diagnostics."""
+    from . import cloud_iap as iap
+    codes=set(iap.transport.FAILURE_DETAILS)|{'IAP_ORIGINAL_CONNECT_TIMEOUT','IAP_IDENTITY_OR_AUTHORITY_REJECTED',
+        'IAP_LISTENER_CLOSED','IAP_CLOSE_INCOMPLETE','IAP_OWNER_OR_PIN_CHANGED'}
+    codes.update('V52_CREDENTIAL_'+code for code in credentials.CODES)
+    def code(value):
+        if value is None:return None
+        if type(value) is str and (value in codes or re.fullmatch(r'IAP_PROVIDER_HTTP_[1-5][0-9]{2}',value)):return value
+        return 'IAP_UNCLASSIFIED'
+    try:
+        value=strict(inputs.regular(root/'connections.json',131072))
+        if value.get('schema')!='gse-v52-iap-connections-v2' or value.get('status') not in ('CLOSED','FAIL') or \
+           value.get('fullRemoteQualification') is not False:return None
+        nodes=value.get('nodes')
+        if type(nodes) is not dict or not set(nodes)<=set(iap.topology.NODES):return None
+        rows={}
+        for node,row in nodes.items():
+            counts={key:row[key] for key in ('accepted','completed','failed','active','peakActive','capacityRejections',
+                                           'sentBytes','receivedBytes','historyDropped')}
+            if any(type(v) is not int or not 0<=v<2**63 for v in counts.values()):return None
+            if counts['completed']+counts['active']!=counts['accepted'] or counts['failed']>counts['completed'] or \
+               not counts['active']<=counts['peakActive']<=min(iap.MAX_ACTIVE,counts['accepted']) or \
+               counts['historyDropped']!=max(0,counts['completed']-iap.MAX_RECENT):return None
+            rows[node]=dict(counts,lastFailureCode=code(row.get('lastFailureCode')))
+        return dict(status=value['status'],failureCode=code(value.get('failureCode')),
+                    closeFailed=value.get('closeFailure') is not None,nodes=rows)
     except Exception:return None
 
 

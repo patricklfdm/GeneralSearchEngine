@@ -163,7 +163,7 @@ class LocalForwardTest(unittest.TestCase):
             client=self.connect();client.sendall(bytes([number]));self.assertEqual(bytes([number]),client.recv(1));client.close()
         self.forward.close();self.assertEqual(2,len(self.calls))
         self.assertEqual(2,len({path for _,path,_ in self.calls}))
-        self.assertEqual(2,len({c.proc.pid for c in self.forward.channels}))
+        self.assertEqual(2,len({r['pid'] for r in self.forward.snapshot()['recent']}))
 
     def test_denied_authority_never_starts_process_and_closes_socket(self):
         self.group.authorize=Mock(side_effect=ValueError('sensitive provider body'))
@@ -208,11 +208,93 @@ class LocalForwardTest(unittest.TestCase):
         self.assertEqual('IAP_ORIGINAL_CONNECT_TIMEOUT',self.forward.channels[0].record['failureCode'])
         self.assertEqual(1,len(self.calls))
 
-    def test_connection_count_is_bounded_without_starting_extra_sdk(self):
-        with patch.object(iap,'MAX_CONNECTIONS',1):
-            first=self.connect();first.sendall(b'1');self.assertEqual(b'1',first.recv(1))
-            second=self.connect();self.assertEqual(b'',second.recv(1))
-        self.assertEqual(1,len(self.calls));self.assertEqual(1,len(self.forward.channels))
+    def test_sequential_connections_reuse_slots_beyond_old_lifetime_limit(self):
+        # The fifth experiment history crosses 64 even without retries. Exercise
+        # actual sockets, SDK stand-ins, byte delivery and credential cleanup.
+        pids=set()
+        for number in range(70):
+            with self.subTest(connection=number+1):
+                client=self.connect();client.sendall(b'x');self.assertEqual(b'x',client.recv(1))
+                channel=self.forward.channels[-1];pids.add(channel.proc.pid)
+                client.shutdown(socket.SHUT_WR);self.assertEqual(b'',client.recv(1));client.close()
+                until(lambda:not channel.thread.is_alive())
+                self.assertIsNotNone(channel.proc.returncode)
+                self.assertEqual([],list(Path(self.private.name).iterdir()))
+                self.assertLessEqual(len(self.forward.channels),4)
+        self.forward.close();report=self.forward.snapshot()
+        self.assertEqual(70,len(self.calls));self.assertEqual(70,len(pids))
+        self.assertEqual(70,len({path for _,path,_ in self.calls}))
+        self.assertEqual(70,report['accepted']);self.assertEqual(70,report['completed'])
+        self.assertEqual(0,report['active']);self.assertEqual(0,report['failed'])
+        self.assertEqual(0,report['capacityRejections']);self.assertEqual(1,report['peakActive'])
+        self.assertEqual(70,report['sentBytes']);self.assertEqual(70,report['receivedBytes'])
+        self.assertEqual(list(range(7,71)),[r['ordinal'] for r in report['recent']])
+        self.assertEqual(6,report['historyDropped']);self.assertEqual([],self.forward.channels)
+        self.assertEqual([],self.failures)
+
+    def test_active_limit_rejects_without_spawn_then_reuses_a_completed_slot(self):
+        clients=[]
+        for _ in range(4):
+            client=self.connect();client.sendall(b'x');self.assertEqual(b'x',client.recv(1));clients.append(client)
+        denied=self.connect();self.assertEqual(b'',denied.recv(1))
+        self.assertEqual(4,len(self.calls));channel=self.forward.channels[0]
+        clients[0].shutdown(socket.SHUT_WR);self.assertEqual(b'',clients[0].recv(1));clients[0].close()
+        until(lambda:not channel.thread.is_alive())
+        replacement=self.connect();replacement.sendall(b'y');self.assertEqual(b'y',replacement.recv(1))
+        report=self.forward.snapshot()
+        self.assertEqual(5,report['accepted']);self.assertEqual(4,report['active'])
+        self.assertEqual(4,report['peakActive']);self.assertEqual(1,report['capacityRejections'])
+        self.assertEqual(1,report['completed']);self.assertEqual(5,len(self.calls))
+        self.forward.close();report=self.forward.snapshot()
+        self.assertEqual(5,report['completed']);self.assertEqual(0,report['active'])
+        self.assertEqual([],list(Path(self.private.name).iterdir()));self.assertEqual([],self.failures)
+
+    def test_slot_is_held_until_private_cleanup_finishes(self):
+        entered=threading.Event();release=threading.Event();self.addCleanup(release.set)
+        original=iap.tempfile.TemporaryDirectory.cleanup
+        def cleanup(directory):
+            if Path(directory.name).parent==Path(self.private.name):
+                entered.set();release.wait(5)
+            original(directory)
+        with patch.object(iap,'MAX_ACTIVE',1),patch.object(iap.tempfile.TemporaryDirectory,'cleanup',cleanup):
+            client=self.connect();client.sendall(b'x');self.assertEqual(b'x',client.recv(1))
+            channel=self.forward.channels[0];client.shutdown(socket.SHUT_WR);self.assertEqual(b'',client.recv(1))
+            self.assertTrue(entered.wait(5))
+            denied=self.connect();self.assertEqual(b'',denied.recv(1));self.assertEqual(1,len(self.calls))
+            self.assertEqual(1,self.forward.snapshot()['active'])
+            release.set();until(lambda:not channel.thread.is_alive())
+            replacement=self.connect();replacement.sendall(b'y');self.assertEqual(b'y',replacement.recv(1))
+        self.forward.close();self.assertEqual(2,self.forward.snapshot()['completed'])
+
+    def test_failure_counts_survive_bounded_history_eviction(self):
+        self.program='import os;os.write(2,b"connection reset");raise SystemExit(1)'
+        failed=self.connect();self.assertEqual(b'',failed.recv(1))
+        until(lambda:not self.forward.channels[0].thread.is_alive());self.program=ECHO
+        # A small ring makes eviction quick without changing active capacity.
+        self.forward.recent=iap.deque(maxlen=2)
+        for _ in range(3):
+            client=self.connect();client.sendall(b'x');self.assertEqual(b'x',client.recv(1))
+            channel=self.forward.channels[-1];client.close();until(lambda:not channel.thread.is_alive())
+        self.forward.close();report=self.forward.snapshot()
+        self.assertEqual(1,report['failed']);self.assertEqual('SSH_DISCONNECTED',report['lastFailureCode'])
+        self.assertEqual(2,report['historyDropped']);self.assertEqual([3,4],[r['ordinal'] for r in report['recent']])
+        self.assertTrue(all(r['failureCode'] is None for r in report['recent']))
+
+    def test_simultaneous_terminal_failures_stop_all_routes_without_join_deadlock(self):
+        barrier=threading.Barrier(2);original=self.authorize
+        def denied(*args):
+            original(*args);barrier.wait(5);raise ValueError('never-public-authority')
+        self.group.authorize=denied;self.group.lock=threading.RLock();self.group.stop=threading.Event()
+        self.group.failure=None;self.group.forwards={'node-1':self.forward}
+        self.group.fail=lambda code:iap.Guests.fail(self.group,code)
+        first=self.connect();second=self.connect()
+        until(lambda:len(self.calls)==2)
+        until(lambda:all(not c.thread.is_alive() for c in self.forward.channels))
+        self.assertEqual(b'',first.recv(1));self.assertEqual(b'',second.recv(1))
+        self.forward.close();report=self.forward.snapshot()
+        self.assertTrue(self.group.stop.is_set());self.assertEqual('IAP_IDENTITY_OR_AUTHORITY_REJECTED',self.group.failure)
+        self.assertEqual(2,report['completed']);self.assertGreaterEqual(report['failed'],1)
+        self.assertEqual([],list(Path(self.private.name).iterdir()))
 
     def test_close_stops_process_group_even_after_sdk_parent_exits(self):
         self.program='import os,time\npid=os.fork()\nif pid==0:time.sleep(60)\nelse:os.write(1,str(pid).encode()+b"\\n");os._exit(0)'
@@ -271,13 +353,17 @@ class RealSshForwardTest(unittest.TestCase):
             for seconds in (True,0,60,300):
                 with self.assertRaisesRegex(ValueError,'connection allowance'):iap.ssh.ssh.ssh_args(dict(target,connectSeconds=seconds))
         helper.forward.close();self.assertEqual(2,len(helper.calls))
-        self.assertTrue(all(not c.thread.is_alive() and c.proc.poll() is not None for c in helper.forward.channels))
+        self.assertEqual([],helper.forward.channels);self.assertEqual(2,helper.forward.snapshot()['completed'])
+        self.assertEqual([],list(Path(helper.private.name).iterdir()))
 
 
 class DummyForward:
     def __init__(self,group,node):self.group=group;self.node=node;self.port=21000+int(node[-1]);self.channels=[];self.closed=False
     def start(self):pass
     def close(self):self.closed=True
+    def stop_channels(self):self.closed=True
+    def snapshot(self):return dict(accepted=0,completed=0,failed=0,active=0,peakActive=0,capacityRejections=0,
+                                  sentBytes=0,receivedBytes=0,historyDropped=0,lastFailureCode=None,recent=[],activeRecords=[])
 
 
 class GuestsLifecycleTest(unittest.TestCase):

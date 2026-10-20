@@ -5,6 +5,7 @@ one SDK stdin tunnel with its own current credential. Neither this transport nor
 its lifetime watcher retries a business request or replays connection bytes.
 """
 from copy import deepcopy
+from collections import deque
 import os
 from pathlib import Path
 import selectors
@@ -26,7 +27,7 @@ from scripts.v51 import guest_transport as transport
 
 _TICKET=object()
 BUFFER=64<<10
-MAX_CONNECTIONS=64
+MAX_RECENT=64
 MAX_ACTIVE=4
 CONNECT_SECONDS=30
 
@@ -171,6 +172,9 @@ class _Channel:
 class _Forward:
     def __init__(self,group,node):
         self.group=group;self.node=node;self.stop=threading.Event();self.channels=[];self.lock=threading.Lock()
+        self.recent=deque(maxlen=MAX_RECENT)
+        self.totals=dict(accepted=0,completed=0,failed=0,peakActive=0,capacityRejections=0,
+                         sentBytes=0,receivedBytes=0,lastFailureCode=None)
         self.sock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         try:
             self.sock.bind(('127.0.0.1',0));self.sock.listen(MAX_ACTIVE);self.sock.settimeout(.1)
@@ -180,6 +184,26 @@ class _Forward:
 
     def start(self):self.thread.start()
 
+    def reap(self):
+        # Caller holds lock. A stopped thread has finished process reaping and
+        # private credential cleanup; merely closing its socket is insufficient.
+        active=[]
+        for channel in self.channels:
+            if channel.thread.is_alive():active.append(channel);continue
+            row=dict(channel.record);self.recent.append(row);self.totals['completed']+=1
+            for key in ('sentBytes','receivedBytes'):self.totals[key]+=row[key]
+            if row['failureCode'] is not None:
+                self.totals['failed']+=1;self.totals['lastFailureCode']=row['failureCode']
+        self.channels=active
+
+    def snapshot(self):
+        with self.lock:
+            self.reap()
+            return dict(self.totals,active=len(self.channels),
+                        historyDropped=self.totals['completed']-len(self.recent),
+                        recent=[dict(row) for row in self.recent],
+                        activeRecords=[dict(c.record) for c in self.channels])
+
     def run(self):
         while not self.stop.is_set():
             try:connection,_=self.sock.accept()
@@ -188,17 +212,29 @@ class _Forward:
                 if not self.stop.is_set():self.group.fail('IAP_LISTENER_CLOSED')
                 return
             with self.lock:
-                if (self.stop.is_set() or len(self.channels)>=MAX_CONNECTIONS or
-                    sum(c.thread.is_alive() for c in self.channels)>=MAX_ACTIVE):
+                self.reap()
+                if self.stop.is_set():connection.close();continue
+                if len(self.channels)>=MAX_ACTIVE:
+                    self.totals['capacityRejections']+=1
                     connection.close();continue
-                channel=_Channel(self,connection,len(self.channels)+1);self.channels.append(channel);channel.start()
+                self.totals['accepted']+=1
+                channel=_Channel(self,connection,self.totals['accepted']);self.channels.append(channel);channel.start()
+                self.totals['peakActive']=max(self.totals['peakActive'],len(self.channels))
 
-    def close(self):
+    def stop_channels(self):
+        # Terminal failures can arrive on several channel threads together.
+        # Signal every owner here; only the outer scope joins threads, avoiding
+        # two failing channels joining each other during fail-closed shutdown.
         self.stop.set();self.sock.close()
-        if self.thread.ident is not None and self.thread is not threading.current_thread():self.thread.join()
         with self.lock:channels=list(self.channels)
         for channel in channels:channel.terminate()
+
+    def close(self):
+        self.stop_channels()
+        if self.thread.ident is not None and self.thread is not threading.current_thread():self.thread.join()
+        with self.lock:channels=list(self.channels)
         for channel in channels:channel.close()
+        with self.lock:self.reap()
 
 
 class Guests:
@@ -237,7 +273,7 @@ class Guests:
             if self.failure is None:self.failure=code
             self.stop.set()
         for forward in list(self.forwards.values()):
-            try:forward.close()
+            try:forward.stop_channels()
             except BaseException:self.failure='IAP_CLOSE_INCOMPLETE'
 
     def watch(self):
@@ -373,10 +409,10 @@ class Guests:
             if self.watch_thread.ident is not None and self.watch_thread is not threading.current_thread():self.watch_thread.join()
         finally:
             self.private.cleanup()
-            self.diagnostic('connections.json',dict(schema='gse-v52-iap-connections-v1',
+            self.diagnostic('connections.json',dict(schema='gse-v52-iap-connections-v2',
                 status='FAIL' if self.failure or error else 'CLOSED',failureCode=self.failure,
                 closeFailure=None if error is None else type(error).__name__,
-                nodes={n:[c.record for c in f.channels] for n,f in self.forwards.items()},fullRemoteQualification=False))
+                nodes={n:f.snapshot() for n,f in self.forwards.items()},fullRemoteQualification=False))
         if error is not None:raise error
 
     def diagnostic(self,name,value):
