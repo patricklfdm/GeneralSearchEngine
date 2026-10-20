@@ -1,6 +1,7 @@
 """Closed storage diagnostics, independent of receipts that grant acceptance."""
 from pathlib import Path
 from scripts.v51 import guest_transport as transport
+from . import cloud_provider as provider
 
 SCHEMA='gse-v52-storage-diagnostic-v1'
 OPERATIONS=frozenset(('source','volume-initialize','python-install','volume-ready','storage-receipt',
@@ -11,16 +12,17 @@ ACTIONS=frozenset(('clock','prepare','query','check'))
 KINDS=frozenset(('volume','paths'))
 NODES=('node-1','node-2','node-3')
 ERRORS=frozenset(('V52_STORAGE_EXCHANGE_TIMEOUT','V52_STORAGE_CONNECTION_LOST','V52_STORAGE_VALIDATION_REJECTED',
-    'V52_STORAGE_IO_FAILED','V52_STORAGE_UNCLASSIFIED')) | frozenset(transport.FAILURE_DETAILS)
+    'V52_STORAGE_IO_FAILED','V52_STORAGE_UNCLASSIFIED')) | frozenset(transport.FAILURE_DETAILS) | frozenset(provider.READ_FAILURES)
 MODULES=frozenset(('cloud_storage','cloud_volume_guest','cloud_volume_paths','cloud_iap','cloud_identity',
     'cloud_native_runner','cloud_owner','cloud_credentials','remote_python_ssh','remote_python_receiver',
     'remote_java_ssh','remote_java_receiver','remote_voter_ssh','remote_host','remote_python_package',
-    'remote_ssh','evidence'))
-TYPES=frozenset(('TimeoutError','ConnectionError','ValueError','OSError','ProcessError','ProcessRejected','OTHER'))
+    'remote_ssh','evidence','cloud_provider','cloud_wire_policy','cloud_control','cloud_native_cleanup'))
+TYPES=frozenset(('TimeoutError','ConnectionError','ValueError','ControlReadError','OSError','ProcessError','ProcessRejected','OTHER'))
 
 
 def reason(error):
     if type(error) in (transport.ProcessError,transport.ProcessRejected):return error.code
+    if type(error) is provider.ControlReadError and error.code in provider.READ_FAILURES:return error.code
     if isinstance(error,TimeoutError):return 'V52_STORAGE_EXCHANGE_TIMEOUT'
     if isinstance(error,ConnectionError):return 'V52_STORAGE_CONNECTION_LOST'
     if isinstance(error,ValueError):return 'V52_STORAGE_VALIDATION_REJECTED'
@@ -38,7 +40,8 @@ def origin(error):
     root=Path(__file__).resolve().parent;trace=error.__traceback__;found=None
     while trace is not None:
         path=Path(trace.tb_frame.f_code.co_filename)
-        if path.parent==root and path.stem in MODULES and path.stem!='evidence' and 0<trace.tb_lineno<=10000:
+        helper=path.stem=='cloud_provider' and trace.tb_frame.f_code.co_name=='read_need'
+        if path.parent==root and path.stem in MODULES and path.stem!='evidence' and not helper and 0<trace.tb_lineno<=10000:
             found=dict(module=path.stem,line=trace.tb_lineno)
         trace=trace.tb_next
     return found

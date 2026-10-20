@@ -247,6 +247,22 @@ class StorageDiagnosticTest(unittest.TestCase):
         self.assertIsNotNone(report);self.assertNotIn('never-public',str(report))
         self.assertEqual('remote_python_ssh',report['origin']['module'])
 
+    def test_control_read_codes_survive_projection_without_exception_text(self):
+        from . import cloud_provider as p, cloud_storage_diagnostics as d
+        for code in p.READ_FAILURES:
+            error=p.ControlReadError(code)
+            # Public projection uses the closed code, never even a modified
+            # exception's text or any additional private diagnostic fields.
+            error.args=('never-public-provider-response',)
+            value=storage_diagnostic()
+            value.update(reasonCode=d.reason(error),errorType=d.error_type(error),
+                         origin=dict(module='cloud_wire_policy',line=81))
+            report=self.report(value)
+            self.assertEqual(code,report['reasonCode'])
+            self.assertEqual('ControlReadError',report['errorType'])
+            self.assertNotIn('never-public',str(report))
+        with self.assertRaises(ValueError):p.ControlReadError('never-public-unknown-code')
+
     def test_unknown_codes_nodes_operations_and_sites_are_omitted(self):
         for field in ('node','operation','stage','kind','action','reasonCode','errorType'):
             value=storage_diagnostic();value[field]='never-public'

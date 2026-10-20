@@ -206,6 +206,34 @@ diagnostic write failure cannot replace the original exception or skip cleanup.
 The existing always-uploaded diagnostics artifact carries this projection,
 including failures during Java installation or subsequent history placement.
 
+Control-read failures distinguish `V52_CONTROL_READ_GENERATION` (the pinned
+generation is no longer the policy's observation), `V52_CONTROL_READ_TRUNCATED`,
+`V52_CONTROL_LEASE_ABSENT` and `V52_CONTROL_LEASE_INACTIVE` (changed owner, inactive
+phase or expired lease). Their exception type is `ControlReadError`, a validation
+error. Known provider, wire-policy and controller modules are included in source
+locations; the shared assertion helper is skipped to retain the meaningful
+caller. Unknown codes and private exception text still cannot enter the public
+projection. Provider HTTP errors remain errors, not evidence of an absent lease.
+
+Run `39406318322` (attempt 1, source `567d0d6`) completed four of thirteen
+failure-drill histories and failed in `m02-equal-1000` placement before that
+history's workload. Its diagnostic identifies node-2's volume-clock postcheck,
+with cleanup PASS, a released lease and no IAP failures or capacity rejections.
+The reported `cloud_identity` line combined the control read and absence check;
+deeper provider/policy locations and the actual exception text were omitted.
+It therefore does not establish that the lease was absent.
+
+A deterministic local two-thread regression reproduces renewal between metadata
+and body as a generation rejection with the same original diagnostic location,
+while preserving the ACTIVE lease and allocation. The corrected
+[control read](PHASE_6_NATIVE_STORAGE.md#control-reads-during-lease-renewal)
+excludes that local interleaving and retains distinct diagnostic causes for any
+later failure. This proves the implementation race, not the unique cause of the
+hosted failure. Original evidence and charged reservations remain retained.
+Corrected-source protected CI and new approved cloud execution are still needed;
+the prior successful experiment belongs to its original source and is not
+automatically joined to a changed-source cohort.
+
 Run `39375349697` failed in storage preparation before any history. Its retained
 cleanup reports PASS and a released lease; IAP counters report no failed
 connections or capacity rejection. Detailed storage exchanges were not uploaded,

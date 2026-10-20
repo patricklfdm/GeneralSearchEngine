@@ -54,6 +54,30 @@ arrive before the original controller deadline. These are individual privileged
 operation/exchange bounds, not a hard cap on a cloud stage or the experiment.
 The existing soft total time and cost policy is unchanged.
 
+## Control reads during lease renewal
+
+Each scoped control-object read holds the API's existing reentrant lock from
+metadata lookup through generation-pinned body validation. The original owner's
+heartbeat cannot replace the policy's observed generation between those two
+requests. Nested policy reads reuse that same lock; the read path never acquires
+the owner's lifecycle lock. The lock order remains owner, then API.
+
+Lock waiting consumes the existing 30-second control-read deadline. Expiry or
+failed lock acquisition sends no request; every acquired lock is released on
+success or failure. This is an individual exchange boundary, not a stage budget.
+External replacement/deletion still rejects the pinned read, and ownership,
+lease expiry, exact resource IDs and cleanup fencing remain mandatory. There is
+no new HTTP or workload retry.
+
+`test_cloud_control_reads` deterministically starts the real offline scoped
+owner's renewal after metadata arrives. The original implementation rejects the
+subsequent body even though the lease remains ACTIVE and the allocation is
+unchanged. The corrected read completes at the original generation before the
+heartbeat proceeds. Separate tests cover lock deadline/exhaustion, reentrant
+policy reads, changed claims, external 404/412 responses, malformed metadata,
+truncated bodies, absent/expired leases and safe diagnostic projection. These
+are local concurrency and boundary tests, not hosted workload qualification.
+
 ## Immutable installation and whole-history parents
 
 Python installation has one 300-second exchange grant covering IAP/SSH connection,

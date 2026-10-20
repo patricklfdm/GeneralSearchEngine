@@ -14,6 +14,24 @@ STORAGE = 'https://storage.googleapis.com/'
 MAX_OBJECT = 8 << 20
 CONFIG_FIELDS = ('schema project bucket network subnetwork region zone imageProject imageName imageId '
                  'machineType diskType port')
+READ_FAILURES = {
+    'V52_CONTROL_READ_GENERATION': 'V5.2 wire unobserved media generation',
+    'V52_CONTROL_READ_TRUNCATED': 'V5.2 control object bytes truncated',
+    'V52_CONTROL_LEASE_ABSENT': 'V5.2 guest lease absent',
+    'V52_CONTROL_LEASE_INACTIVE': 'V5.2 guest lease inactive/changed',
+}
+
+
+class ControlReadError(ValueError):
+    """Closed diagnostic cause; never retain provider text or control contents."""
+    def __init__(self, code):
+        need(code in READ_FAILURES, 'V5.2 unknown control read failure')
+        self.code = code
+        super().__init__(READ_FAILURES[code])
+
+
+def read_need(value, code):
+    if not value: raise ControlReadError(code)
 
 
 def config(value):
@@ -84,6 +102,23 @@ class Store:
 
     def get(self, key):
         api_guard(self.api); endpoint = self.endpoint(key); deadline = self.api.clock()+30
+        if type(self.api) is OfflineApi:
+            return self._get(key, endpoint, deadline)
+        # Metadata and its pinned body share the scoped API's existing RLock.
+        # A heartbeat must not replace Policy.metadata between these two calls.
+        # Reuse that lock: policy validation performs nested reads while holding
+        # it already. This path never acquires the owner's lifecycle lock.
+        lock = self.api.lock
+        if not lock.acquire(timeout=max(0, deadline-self.api.clock())):
+            raise TimeoutError('V5.2 control read lock deadline')
+        try:
+            if self.api.clock() >= deadline:
+                raise TimeoutError('V5.2 control read lock deadline')
+            return self._get(key, endpoint, deadline)
+        finally:
+            lock.release()
+
+    def _get(self, key, endpoint, deadline):
         try: metadata = self.api.call('GET', endpoint, deadline=deadline)
         except ApiError as error:
             if error.status == 404: return None
@@ -97,7 +132,7 @@ class Store:
         need(metadata.get('contentType') == 'application/json', 'V5.2 control object content type')
         raw = self.api.call('GET', query(endpoint, alt='media', generation=generation, ifGenerationMatch=generation),
                             deadline=deadline, raw=True, maximum=MAX_OBJECT)
-        need(len(raw) == int(size), 'V5.2 object truncated')
+        read_need(len(raw) == int(size), 'V52_CONTROL_READ_TRUNCATED')
         value = strict(raw); need(type(value) is dict, 'V5.2 control object shape')
         return int(generation), value
 
