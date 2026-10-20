@@ -28,7 +28,12 @@ def prepare_native(source, value, public_key, output):
         workflow = origin.contract()
         phase = 'original-build'; progress.update(phase)
         artifacts.collect_native(source, output/'build')
-        built = artifacts.replay(output/'build', source, ci.contract(), bound, now=int(time.time()))
+        try:
+            built = artifacts.replay(output/'build', source, ci.contract(), bound, now=int(time.time()))
+        except BaseException as error:
+            native.diagnostic(output/'build/failure.json', dict(status='FAIL',
+                **artifacts.failure_details(error, 'artifact-replay'), paidAdmission=False, fullRemoteQualification=False))
+            raise
         phase = 'published-controls'; progress.update(phase)
         inputs.controls(ci.ROOT); controls.resolve(output/'controls')
         phase = 'input-package'; progress.update(phase)

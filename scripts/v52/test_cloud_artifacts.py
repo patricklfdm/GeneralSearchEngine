@@ -1,5 +1,6 @@
 """Fixture API data and subprocess tests, with no GitHub/GCP calls or Java runs."""
 from copy import deepcopy
+from contextlib import redirect_stdout
 import io
 import json
 from pathlib import Path
@@ -235,9 +236,154 @@ class ArtifactTest(unittest.TestCase):
             self.assertEqual({'test':1}, client.get('actions/runs/10'))
             client.download(501, self.root/'original.zip', 7)
         self.assertEqual('GET', strict((self.root/'reads/001-request.json').read_bytes())['method'])
-        self.assertEqual(p.MAX_JSON, commands[0][1]); self.assertEqual(30, commands[0][2])
+        self.assertEqual(p.MAX_JSON, commands[0][1]); self.assertTrue(0 < commands[0][2] <= 30)
         self.assertEqual('repos/'+ci.credentials.REPOSITORY+'/actions/artifacts/501/zip', commands[1][0][-1])
-        self.assertEqual((7, 300), commands[1][1:])
+        self.assertEqual(7, commands[1][1]); self.assertTrue(0 < commands[1][2] <= 300)
+
+    def test_native_http_failure_retains_subphase_and_closed_request_details(self):
+        error = p.GitHubReadError('HTTP_REJECTED', 503)
+        error.request = dict(kind='jobs', attempts=3, ordinal=7, stop='attempt-limit')
+        with patch.object(p.inputs, 'checkout', return_value=binding()), \
+             patch.object(p.Network, 'get', side_effect=error):
+            with self.assertRaises(p.GitHubReadError): p.collect_native(SOURCE, self.out)
+        result = p.public_failure(p.read(self.out/'failure.json'))
+        self.assertEqual('full-ci', result['phase']); self.assertEqual(503, result['httpStatus'])
+        self.assertEqual(error.request, result['request'])
+        self.assertEqual(ci.__name__, result['checkSite']['module'])
+        self.assertFalse((self.out/'receipt.json').exists())
+
+    def test_diagnostic_write_failure_does_not_replace_original_collection_error(self):
+        with patch.object(p.inputs, 'checkout', side_effect=ValueError('original-failure')), \
+             patch.object(p, 'save', side_effect=OSError('private-disk-error')), redirect_stdout(io.StringIO()) as output:
+            with self.assertRaisesRegex(ValueError, 'original-failure'): p.collect_native(SOURCE, self.out)
+        self.assertEqual('v52GitHubDiagnosticRetention=FAIL\n',output.getvalue())
+
+
+class NetworkRetryTest(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(); self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name); self.client = p.Network(self.root/'reads')
+        self.clock = 100.; self.waits = []; self.calls = []; self.output = io.StringIO()
+        self.actions = []
+        for name, value in (('monotonic', lambda:self.clock), ('sleep', self.sleep)):
+            patched = patch.object(p.time, name, side_effect=value); patched.start(); self.addCleanup(patched.stop)
+        patched = patch.object(p, 'bounded_command', side_effect=self.command)
+        patched.start(); self.addCleanup(patched.stop)
+        redirected = redirect_stdout(self.output); redirected.__enter__(); self.addCleanup(redirected.__exit__, None, None, None)
+
+    def sleep(self, delay): self.waits.append(delay); self.clock += delay
+
+    def command(self, args, path, maximum, timeout):
+        self.calls.append((args, maximum, timeout))
+        delay, raw, error = self.actions.pop(0); self.clock += delay
+        Path(path).write_bytes(raw)
+        if error is not None: raise error
+
+    def fail(self, status=503, delay=0):
+        return (delay, b'partial-private-response', p.GitHubReadError('HTTP_REJECTED', status))
+
+    def test_transient_get_retry_retains_every_attempt_and_one_original_deadline(self):
+        self.actions = [self.fail(delay=5), self.fail(502, delay=3), (0, b'{"ok":true}', None)]
+        self.assertEqual({'ok':True}, self.client.get('actions/runs/10'))
+        self.assertEqual([1,2], self.waits); self.assertEqual([30,24,19], [v[2] for v in self.calls])
+        self.assertEqual(3, self.client.calls)
+        self.assertEqual(b'partial-private-response', (self.client.output/'001.json').read_bytes())
+        for index in (1,2,3):
+            receipt = p.read(self.client.output/f'{index:03}-request.json')
+            self.assertEqual(index, receipt['attempt']); self.assertEqual('GET', receipt['method'])
+            self.assertEqual('actions/runs/10', receipt['path'])
+        self.assertNotIn('private-response', self.output.getvalue())
+        self.assertNotIn('actions/runs/10', self.output.getvalue())
+        self.assertTrue(all(args[args.index('--method')+1]=='GET' for args,_,_ in self.calls))
+
+    def test_transport_failure_can_retry_but_never_more_than_three_attempts(self):
+        self.actions = [(0,b'',p.GitHubReadError('TRANSPORT')) for _ in range(3)]
+        with self.assertRaises(p.GitHubReadError) as caught: self.client.get('branches/master')
+        self.assertEqual('attempt-limit', caught.exception.request['stop'])
+        self.assertEqual(3, caught.exception.request['attempts']); self.assertEqual([1,2], self.waits)
+        self.assertEqual(3,len(self.calls))
+
+    def test_terminal_http_errors_and_unknown_failures_do_not_retry(self):
+        for code in (401,403,404,409,422,429,501,505):
+            self.actions = [self.fail(code)]
+            with self.subTest(code=code), self.assertRaises(p.GitHubReadError) as caught:
+                self.client.get('actions/artifacts/501')
+            self.assertEqual(code,caught.exception.http_status); self.assertEqual('terminal',caught.exception.request['stop'])
+        for reason in ('PROCESS_FAILED','START_FAILED','BYTE_BOUND','STDERR_BOUND'):
+            self.actions = [(0,b'',p.GitHubReadError(reason))]
+            with self.assertRaises(p.GitHubReadError): self.client.get('branches/master')
+        self.assertEqual([],self.waits); self.assertEqual(12,len(self.calls))
+
+    def test_exhausted_original_deadline_does_not_sleep_or_launch_again(self):
+        self.actions = [self.fail(delay=29.5)]
+        with self.assertRaises(p.GitHubReadError) as caught: self.client.get('branches/master')
+        self.assertEqual('deadline',caught.exception.request['stop']); self.assertEqual([],self.waits)
+        self.assertEqual(1,len(self.calls))
+
+    def test_owned_timeout_is_terminal_even_if_it_returns_early(self):
+        self.actions = [(1,b'',p.GitHubReadError('DEADLINE'))]
+        with self.assertRaises(p.GitHubReadError) as caught: self.client.get('branches/master')
+        self.assertEqual('deadline',caught.exception.request['stop']); self.assertEqual([],self.waits)
+
+    def test_success_returned_after_the_shared_deadline_is_rejected(self):
+        self.actions=[(31,b'{"ok":true}',None)]
+        with self.assertRaises(p.GitHubReadError) as caught:self.client.get('branches/master')
+        self.assertEqual('V52_GITHUB_DEADLINE',caught.exception.code);self.assertEqual([],self.waits)
+
+    def test_each_retry_counts_toward_the_global_call_bound(self):
+        self.client.calls = 255; self.actions = [self.fail()]
+        with self.assertRaises(p.GitHubReadError) as caught: self.client.get('branches/master')
+        self.assertEqual('call-limit',caught.exception.request['stop']); self.assertEqual(256,self.client.calls)
+        with self.assertRaises(p.GitHubReadError): self.client.get('branches/master')
+        self.assertEqual(1,len(self.calls)); self.assertEqual([],self.waits)
+
+    def test_invalid_json_is_not_retried_even_after_a_transient_error(self):
+        self.actions = [self.fail(), (0,b'{"broken":',None)]
+        with self.assertRaises(p.GitHubReadError) as caught: self.client.get('branches/master')
+        self.assertEqual('V52_GITHUB_JSON_INVALID',caught.exception.code)
+        self.assertEqual(2,len(self.calls)); self.assertEqual([1],self.waits)
+
+    def test_download_retries_never_append_partial_bytes_or_replace_an_existing_file(self):
+        self.actions = [(2,b'bad',p.GitHubReadError('TRANSPORT')), (0,b'original',None)]
+        target = self.root/'original.zip'; self.client.download(501,target,8)
+        self.assertEqual(b'original',target.read_bytes()); self.assertEqual(b'bad',(self.client.output/'001.zip').read_bytes())
+        self.assertEqual([300,297],[v[2] for v in self.calls]); self.assertEqual([1],self.waits)
+        with self.assertRaises(FileExistsError): self.client.download(501,target,8)
+        self.assertEqual(2,len(self.calls)); self.assertEqual(b'original',target.read_bytes())
+
+    def test_short_successful_download_and_invalid_path_fail_without_retry(self):
+        self.actions = [(0,b'short',None)]; target = self.root/'original.zip'
+        with self.assertRaises(p.GitHubReadError) as caught: self.client.download(501,target,8)
+        self.assertEqual('V52_GITHUB_INCOMPLETE',caught.exception.code); self.assertFalse(target.exists())
+        with self.assertRaises(ValueError): self.client.get('actions/runs/10/rerun')
+        self.assertEqual(1,len(self.calls)); self.assertEqual([],self.waits)
+
+
+class DiagnosticTest(unittest.TestCase):
+    def test_cli_http_and_network_classification_is_closed(self):
+        for status in (500,502,503,504,401,403,404,429,501):
+            for raw in (f'gh: private-server-detail (HTTP {status})\n', f'gh: HTTP {status}\n'):
+                error=p.command_error(raw.encode(),1)
+                self.assertEqual(status,error.http_status)
+                self.assertEqual(status in (500,502,503,504),error.retryable)
+                self.assertNotIn('private',str(error))
+        self.assertTrue(p.command_error(b'Get "private-url": connection reset by peer',1).retryable)
+        for raw in (b'gh: denied (HTTP 403)\nconnection reset by peer', b'gh: HTTP 403\ngh: HTTP 503',
+                    b'gh: private error', b'x509: certificate signed by unknown authority'):
+            self.assertFalse(p.command_error(raw,1).retryable)
+        self.assertFalse(p.command_error(b'connection reset by peer',4).retryable)
+
+    def test_public_projection_drops_unknown_fields_and_malformed_details(self):
+        value=dict(status='FAIL',phase='full-ci',code='V52_PROVENANCE_FULL_CI_REJECTED',
+            reasonCode='V52_GITHUB_HTTP_REJECTED',httpStatus=503,
+            request=dict(kind='jobs',stop='attempt-limit',attempts=3,ordinal=7,url='private-url'),
+            checkSite=dict(module=ci.__name__,line=123,secret='private-token'),stderr='private-stderr')
+        projected=p.public_failure(value)
+        self.assertEqual(503,projected['httpStatus']); self.assertNotIn('private',str(projected))
+        self.assertIsNone(p.public_failure(dict(value,phase='private-phase')))
+        invalid=dict(value,reasonCode='private-code',httpStatus=True,
+                     request=dict(value['request'],attempts=True),checkSite=dict(module='private-module',line=1))
+        self.assertEqual({'phase':value['phase'],'code':value['code']},p.public_failure(invalid))
 
 
 class BoundedReadTest(unittest.TestCase):
@@ -260,6 +406,31 @@ class BoundedReadTest(unittest.TestCase):
     def test_read_deadline_kills_owned_process(self):
         with self.assertRaisesRegex(ValueError, 'read deadline'):
             p.bounded_command([sys.executable, '-c', 'import time;time.sleep(10)'], self.path, 10, .05)
+
+    def test_real_cli_failure_extracts_status_without_retaining_stderr(self):
+        script='import sys;print("body");print("gh: private-token (HTTP 503)",file=sys.stderr);sys.exit(1)'
+        with self.assertRaises(p.GitHubReadError) as caught:
+            p.bounded_command([sys.executable,'-c',script],self.path,100,2)
+        self.assertEqual(503,caught.exception.http_status); self.assertTrue(caught.exception.retryable)
+        self.assertNotIn('private-token',str(caught.exception)); self.assertEqual(b'body\n',self.path.read_bytes())
+        self.assertEqual([self.path],list(self.path.parent.iterdir()))
+
+    def test_stderr_flood_is_bounded_and_owned_process_reaped(self):
+        children=[]; original=p.subprocess.Popen
+        def launch(*args,**kwargs):
+            child=original(*args,**kwargs);children.append(child);return child
+        with patch.object(p.subprocess,'Popen',side_effect=launch):
+            with self.assertRaises(p.GitHubReadError) as caught:
+                p.bounded_command([sys.executable,'-c','import sys,time;sys.stderr.write("x"*100000);time.sleep(10)'],
+                                  self.path,100,2)
+        self.assertEqual('V52_GITHUB_STDERR_BOUND',caught.exception.code)
+        self.assertFalse(caught.exception.retryable);self.assertIsNotNone(children[0].returncode)
+        self.assertTrue(children[0].stdout.closed);self.assertTrue(children[0].stderr.closed)
+
+    def test_both_pipes_are_drained_without_deadlock(self):
+        script='import sys;sys.stderr.write("private"*1000);sys.stdout.write("ok")'
+        p.bounded_command([sys.executable,'-c',script],self.path,2,2)
+        self.assertEqual(b'ok',self.path.read_bytes())
 
 
 if __name__ == '__main__': unittest.main()

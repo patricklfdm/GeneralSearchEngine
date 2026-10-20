@@ -36,6 +36,19 @@ class PrepareTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'native preflight unavailable'): self.execute()
         self.assertEqual(original,self.base.case.server.objects); self.assertEqual([], self.base.mutations())
         self.assertFalse((self.output/'public').exists()); self.assertTrue((self.output/'failure.json').exists())
+    def test_independent_second_build_replay_keeps_check_diagnostics(self):
+        original=p.artifacts.replay; calls=[]
+        def replay(*args,**kwargs):
+            calls.append(True)
+            if len(calls)==2: raise ValueError('private-check-detail')
+            return original(*args,**kwargs)
+        with patch.object(p.artifacts,'replay',side_effect=replay):
+            with self.assertRaisesRegex(ValueError,'private-check-detail'): self.execute()
+        failure=p.artifacts.read(self.output/'build/failure.json')
+        self.assertEqual('artifact-replay',failure['phase'])
+        self.assertEqual('V52_PROVENANCE_ARTIFACT_REPLAY_REJECTED',failure['code'])
+        self.assertNotIn('private-check-detail',str(failure));self.assertEqual(2,len(calls))
+        self.assertFalse((self.output/'public').exists());self.assertEqual([],self.base.mutations())
     def test_expired_or_foreign_estimate_rejects_without_public_plan_or_resources(self):
         self.request['estimate']['configurationSha256'] = 'f'*64
         with self.assertRaisesRegex(ValueError, 'configuration/layout'): self.execute()

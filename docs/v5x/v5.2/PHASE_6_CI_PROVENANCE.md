@@ -69,10 +69,31 @@ download host, token, transport, observation or clock in its native entry.
 Each JSON request has a 30-second exchange deadline and 16 MiB streamed bound.
 The single original ZIP download has a 300-second deadline and its exact API
 size bound, at most 288 MiB. Its expanded build archive retains the existing
-256 MiB bound. There are at most 256 JSON reads; no request is automatically
-retried. A failed subprocess is stopped and reaped, with partial output retained.
+256 MiB bound. The fixed client permits at most 256 physical requests, including
+download attempts. A failed subprocess is stopped and reaped, with partial output retained.
 These are individual read/decoder limits, not a hard whole-experiment duration
 or a change to soft cost/time policy.
+
+An individual read-only GET may make at most three attempts for HTTP
+500/502/503/504 or recognized transient transport failures. The 1-second and
+2-second backoffs and all attempts share the original 30/300-second deadline;
+an exhausted deadline is terminal. Every attempt counts toward the request
+bound and keeps its own partial body and closed request receipt. Downloads
+publish only a complete single response and never concatenate partial bodies.
+Authentication/authorization failures, 404, 429, unknown failures, byte bounds,
+invalid JSON, incomplete successful downloads and all source/attempt/hash/
+inventory validation failures exit without retry. Rate-limit responses do not
+start a blind retry loop. No entire collection, workflow or cloud operation is
+retried by this client. Existing cleanup, prepared-artifact and runner-provenance
+readers inherit this transport behavior while retaining their own path allowlists.
+
+The client drains stdout and stderr concurrently. Stderr has a 16 KiB memory
+bound and is discarded after classification. HTTP diagnostics recognize the
+CLI's closed status suffix or plain HTTP status; unknown formats fail closed
+([GitHub CLI API implementation](https://github.com/cli/cli/blob/trunk/pkg/cmd/api/api.go)).
+Raw exception messages, credentials, signed URLs and stderr never enter public
+progress or diagnostic receipts. Only a request kind, ordinal, attempt count,
+closed reason/stop code and HTTP status are exposed.
 
 Use a fresh ignored output directory on the exact clean master checkout, with
 the same Java toolchain as the shared build:
@@ -87,9 +108,27 @@ credentials or contact GCP. The local source is checked before and after reads.
 The output retains raw API responses, original ZIP, repeated observations,
 original producer identity and inspection results. Failure retains a closed
 `V52_PROVENANCE_<PHASE>_REJECTED` code without copying exception text into the
-failure receipt. Existing output directories are never overwritten. Replay of
+failure receipt. The last owned check's module and line identify a failed
+validation without copying its exception text or locals. The operator's existing
+diagnostic artifact and summary expose the nested original-build subphase and
+these safe details, including failures in the independent preparation replay.
+Diagnostic retention failure does not replace the original exception. Existing
+output directories are never overwritten. Replay of
 a retained collection is an integrity check; it does not establish freshness or
 provider admission, and a failed collection cannot be replayed as success.
+
+### Repeated preparation failures on 2026-10-20
+
+Original prepare runs `39486934560`, `39487956554` and `39488959713` all reported
+only `V52_PREPARE_ORIGINAL_BUILD_REJECTED` on source
+`be4aa3e1d3f1434cd811735ba98456bad1b700c1`. Their public diagnostics did not retain
+the nested check or HTTP response, so their exact causes remain unproven.
+A local read of the exact-attempt jobs endpoint observed `Server Error`; a later
+complete read-only collector replay passed the 62-job CI attempt and original
+build artifact checks. That replay used the authenticated manifest's hosted
+Java binding; it did not execute hosted Temurin or establish native admission.
+The change adds actionable diagnostics and bounded transient read retries; it
+does not claim that all three original failures had the same network cause.
 
 ## Validation and next connection
 

@@ -169,6 +169,16 @@ summary prefers a failure record over any earlier report and escapes table text.
 Failures after resource acquisition remain subject to the original Session's
 cleanup; an upload or summary success cannot make the entire job successful.
 
+Preparation failures under `original-build` additionally project
+`buildProvenance`: the precise collection subphase, last owned check's module and
+line, and (for read failures) closed reason, HTTP status, request kind/ordinal,
+attempt count and stopping reason. This includes the second independent build
+replay. Unknown fields and raw error text are excluded. The existing diagnostic
+artifact carries these fields without uploading the private work tree. See the
+[bounded original GitHub reads](PHASE_6_CI_PROVENANCE.md#bounded-reads-and-retained-diagnostics)
+for the three-attempt transient GET policy; authentication, source, attempt and
+artifact validation failures remain terminal. Time and cost budgets remain soft.
+
 Member failures additionally report a fixed `V52_MEMBER_<PHASE>_REJECTED` code
 and `memberPhase`: guest identity, storage, Java installation, placement, history,
 correlation, completion or guest closure. A subsequent guest-close failure does
