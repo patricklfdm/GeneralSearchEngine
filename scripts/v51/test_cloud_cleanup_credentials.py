@@ -56,6 +56,15 @@ class CleanupCredentialsTest(unittest.TestCase):
         self.assertEqual(['oidc','sts','impersonation'], [v['stage'] for v in self.issuer.calls])
         self.assertNotIn(f.ACCOUNT_SECRET, repr(value))
 
+    def test_small_clock_skew_never_extends_requested_token_lifetime(self):
+        for lifetime in (3600.001,3601.465,3605):
+            self.issuer.lifetime=lifetime
+            with self.subTest(lifetime=lifetime):
+                self.assertEqual(self.clock.seconds()+3540,self.credentials()(30).usable_until)
+        self.issuer.lifetime=3605.001
+        with self.assertRaises(c.CredentialError) as caught:self.credentials()(30)
+        self.assertEqual('lifetime',caught.exception.failure_kind)
+
     def test_runtime_paths_are_opaque_and_preserved_through_exchange(self):
         # Synthetic routes: neither the toolkit nor pinned auth action requires
         # /idtoken to be the last segment. Do not infer a private service route.
@@ -178,7 +187,7 @@ class CleanupCredentialsTest(unittest.TestCase):
             self.issuer.response_changes={stage:changes}
             with self.subTest(stage=stage,changes=changes),self.assertRaises(ValueError):self.credentials()(30)
         self.issuer.response_changes={}
-        for lifetime in (-1,60,3601):
+        for lifetime in (-1,60,3605.001):
             self.issuer.lifetime=lifetime
             with self.subTest(lifetime=lifetime),self.assertRaises(ValueError):self.credentials()(30)
 

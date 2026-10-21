@@ -36,6 +36,20 @@ class PrepareTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'native preflight unavailable'): self.execute()
         self.assertEqual(original,self.base.case.server.objects); self.assertEqual([], self.base.mutations())
         self.assertFalse((self.output/'public').exists()); self.assertTrue((self.output/'failure.json').exists())
+
+    def test_preparation_accepts_successful_build_while_full_ci_is_unfinished(self):
+        self.base.git.run.update(status='in_progress',conclusion=None);self.base.git.install()
+        self.assertEqual('PREPARED_NOT_ADMITTED',self.execute()['status'])
+        proof=p.artifacts.read(self.output/'build/inspection.json')
+        self.assertEqual('BUILD_CI_VERIFIED_NOT_ADMITTED',proof['ci']['status'])
+        self.assertFalse(proof['ci']['fullCiRequired']);self.assertEqual([],self.base.mutations())
+
+    def test_preparation_accepts_standalone_build_without_a_ci_run(self):
+        self.base.git.use_standalone()
+        self.assertEqual('PREPARED_NOT_ADMITTED',self.execute()['status'])
+        proof=p.artifacts.read(self.output/'build/inspection.json')
+        self.assertEqual(p.artifacts.ci.standalone.WORKFLOW,proof['ci']['workflow'])
+        self.assertEqual([],self.base.mutations())
     def test_independent_second_build_replay_keeps_check_diagnostics(self):
         original=p.artifacts.replay; calls=[]
         def replay(*args,**kwargs):

@@ -27,8 +27,19 @@ Before any native operation, the exact source must include reviewed
 `docs/v5x/v5.2/cloud-provider.json`; its absence rejects at identity bootstrap.
 The setup review must cover the dedicated WIF/IAM identities, environment and
 secret, private networking/image, conditional object permissions and evidence
-retention. Protected exact-master full CI and recent successful manual cleanup
+retention. The successful exact-master build and recent successful manual cleanup
 are independently checked for preparation and again at original Runner admission.
+The [temporary V5.2 CI policy](PHASE_6_CI_PROVENANCE.md) suspends the requirement
+for the remaining full-CI jobs to finish/pass. The original build and artifact
+remain mandatory, and summaries expose `fullCiRequired: false`.
+After a merge that skipped normal CI, manually run
+`gh workflow run v52-cloud-build.yml --ref master` and wait for the build job to
+succeed before cleanup and preparation. This separate build executes Java tests
+and uploads the original bundle; it does not start an experiment. The latest
+manual build for this SHA takes precedence over regular CI, including failed or
+pending attempts. Only sources without a manual build use the latest regular CI
+producer. Reuse that build across the sequence; a new build/attempt after
+preparation requires fresh preparation.
 Scheduled cleanup is optional and cannot substitute for missing original data.
 
 | Operation | Input JSON | Effect | Public artifact |
@@ -426,4 +437,4 @@ existing development-repository archive cron does not cover this new distro.
 Deployment checks (Linux permissions, private staging, local hook lifecycle,
 GitHub connectivity and Runner registration) are separate from a hosted job or
 paid-cloud qualification. First protected execution after merge still needs
-exact-source full CI, recent cleanup, fresh preparation and operator approval.
+the successful exact-source build, recent cleanup, fresh preparation and operator approval.

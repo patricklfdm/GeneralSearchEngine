@@ -36,6 +36,25 @@ class ContextError(ValueError):
         super().__init__(self.reason_code)
 
 
+def public_failure(value):
+    """Project closed diagnostic fields only; never echo exchange response text."""
+    if type(value) is not dict:return {}
+    code=value.get('credentialCode')
+    if type(code) is not str or code not in exchange.DIAGNOSTICS and code not in {'V52_CREDENTIAL_'+v for v in CODES}:return {}
+    result=dict(credentialCode=code)
+    kind=value.get('credentialFailureKind');status=value.get('credentialHttpStatus')
+    if code in exchange.DIAGNOSTICS and type(kind) is str and kind in exchange.FAILURE_KINDS:
+        result['credentialFailureKind']=kind
+        if kind=='http' and type(status) is int and 100<=status<=599:result['credentialHttpStatus']=status
+    return result
+
+
+def failure(error):
+    if type(error) not in (ContextError,exchange.CredentialError):return {}
+    return public_failure(dict(credentialCode=getattr(error,'reason_code',None),
+        credentialFailureKind=getattr(error,'failure_kind',None),credentialHttpStatus=getattr(error,'http_status',None)))
+
+
 def remaining(deadline, clock):
     left=deadline-clock()
     if not 0<left<=30 or not math.isfinite(left):raise ContextError('DEADLINE')
@@ -156,7 +175,9 @@ class _Credentials:
             # Rebuild a known exception from its closed code. Never pass through
             # arbitrary adapter text or accept a lookalike reason_code attribute.
             if type(error) is exchange.CredentialError and type(code) is str and code in exchange.DIAGNOSTICS:
-                safe=exchange.CredentialError(code)
+                detail=failure(error)
+                safe=exchange.CredentialError(code,failure_kind=detail.get('credentialFailureKind'),
+                                              http_status=detail.get('credentialHttpStatus'))
             elif type(error) is ContextError and type(code) is str and code in {'V52_CREDENTIAL_'+v for v in CODES}:
                 safe=ContextError(code.removeprefix('V52_CREDENTIAL_'))
             else:safe=ContextError('UNCLASSIFIED')

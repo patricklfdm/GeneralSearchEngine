@@ -81,6 +81,67 @@ class NativeRunnerTest(unittest.TestCase):
     def state(self):return n.a.inspect_ledger(self.case.get(n.a.LEDGER),domain='native')
     def mutations(self):return self.case.mutations()
 
+    def test_valid_preflight_token_is_reused_without_a_second_exchange(self):
+        def fail_second_exchange(method,url,body):
+            if self.clients:self.case.issuer.fail='oidc'
+        self.case.change=fail_second_exchange
+        with self.open() as session:
+            self.assertEqual(1,session.reader.tokens.exchanges)
+            self.assertLessEqual(session.api.expires,session.reader.token.usable_until)
+            self.assertLessEqual(session.api.expires,self.case.clock.seconds()+2400)
+        self.assertEqual({},self.case.server.resources)
+
+    def test_successful_build_admits_resources_without_waiting_for_full_ci(self):
+        self.git.run.update(status='in_progress',conclusion=None);self.git.install()
+        with self.open() as session:
+            self.assertTrue(session.result['resourceAdmission'])
+            self.assertEqual(13,len(self.case.server.resources))
+            self.assertFalse(session.api.admission.build['ci']['fullCiRequired'])
+        self.assertEqual({},self.case.server.resources);self.assertIsNone(self.case.get(n.a.LEASE))
+
+    def test_standalone_build_admits_and_cleans_mock_resources_without_ci(self):
+        self.git.use_standalone()
+        with self.open() as session:
+            self.assertTrue(session.result['resourceAdmission'])
+            self.assertEqual(13,len(self.case.server.resources))
+            self.assertEqual(n.ci.standalone.WORKFLOW,session.api.admission.build['ci']['workflow'])
+        self.assertEqual({},self.case.server.resources);self.assertIsNone(self.case.get(n.a.LEASE))
+
+    def test_provider_credential_failure_retains_closed_diagnostics_before_any_write(self):
+        self.case.issuer.fail='sts'
+        with self.assertRaises(credentials.exchange.CredentialError):self.open()
+        report=strict((self.output/'failure.json').read_bytes())
+        self.assertEqual('provider',report['phase'])
+        self.assertEqual('STS_EXCHANGE_FAILED',report['credentialCode'])
+        self.assertEqual('http',report['credentialFailureKind'])
+        self.assertEqual(403,report['credentialHttpStatus'])
+        self.assertEqual([],self.mutations());self.assertIsNone(self.case.get(n.a.LEDGER))
+        self.assertNotIn(auth.issuer.SUBJECT_SECRET,str(report))
+
+    def test_expired_preflight_token_refresh_failure_is_retained_without_acquisition(self):
+        original=n.NativeRunnerApi.__init__
+        def expire(api,reader,*args):
+            reader.token=n.h.AccessToken(reader.token.value,self.case.clock.seconds())
+            self.case.issuer.fail='impersonation'
+            original(api,reader,*args)
+        with patch.object(n.NativeRunnerApi,'__init__',new=expire),self.assertRaises(credentials.exchange.CredentialError):self.open()
+        report=strict((self.output/'failure.json').read_bytes())
+        self.assertEqual('resources',report['phase'])
+        self.assertEqual('IMPERSONATION_EXCHANGE_FAILED',report['credentialCode'])
+        self.assertEqual(403,report['credentialHttpStatus'])
+        self.assertEqual('NOT_ACQUIRED',strict((self.output/'cleanup.json').read_bytes())['status'])
+        self.assertEqual([],self.mutations());self.assertIsNone(self.case.get(n.a.LEDGER))
+
+    def test_cached_token_get_401_refreshes_once_before_acquisition(self):
+        rejected=False
+        def reject(stage,row):
+            nonlocal rejected
+            if stage=='before' and row['method']=='GET' and not rejected:
+                rejected=True;return 401,b'private-provider-body'
+        self.case.server.fault=reject
+        with self.open() as session:self.assertEqual(2,session.reader.tokens.exchanges)
+        self.assertTrue(rejected);self.assertEqual({},self.case.server.resources)
+
     def test_complete_native_factory_original_inputs_resources_and_final_cleanup(self):
         with self.open() as session:
             self.assertEqual('RESOURCES_PREPARED_NOT_QUALIFIED',session.result['status'])
@@ -103,11 +164,11 @@ class NativeRunnerTest(unittest.TestCase):
         with self.assertRaises(Exception):self.open()
         self.assertEqual([],self.mutations())
 
-    def test_failed_full_ci_or_latest_cleanup_cannot_write(self):
-        path='actions/runs/10';self.git.data[path]['conclusion']='failure'
+    def test_failed_build_or_latest_cleanup_cannot_write(self):
+        self.git.current['conclusion']='failure';self.git.install()
         with self.assertRaises(ValueError):self.open()
         self.assertEqual([],self.mutations());self.assertEqual([],self.case.calls)
-        self.git.install();self.clean.data['actions/runs/123456']['conclusion']='failure'
+        self.git.current['conclusion']='success';self.git.install();self.clean.data['actions/runs/123456']['conclusion']='failure'
         with self.assertRaises(ValueError):self.open()
         self.assertEqual([],self.mutations());self.assertEqual([],self.case.calls)
 
@@ -139,7 +200,9 @@ class NativeRunnerTest(unittest.TestCase):
             if self.clients and not changed and 'iamcredentials.googleapis.com' in url:
                 changed=True;self.case.put(n.a.LEDGER,n.a.empty_ledger(domain='native'))
         self.case.change=change
-        with self.assertRaisesRegex(ValueError,'ledger generation'):self.open()
+        original=n.NativeRunnerApi.__init__
+        def expire(api,*args):original(api,*args);api.expires=0
+        with patch.object(n.NativeRunnerApi,'__init__',new=expire),self.assertRaisesRegex(ValueError,'ledger generation'):self.open()
         self.assertTrue(changed)
         self.assertEqual([],self.mutations());self.assertIsNone(self.case.get(n.a.LEASE))
 

@@ -43,8 +43,8 @@ GitHub cannot change immediately afterward.
 
 This binds the original master execution, not a continuously unchanged master
 tip. A later commit must not independently disable an already running cleanup or
-credential refresh. Protected exact-master CI and paid admission will be checked
-separately before starting work. A credential receipt cannot establish either.
+credential refresh. Exact-master build provenance under the [current CI policy](PHASE_6_CI_PROVENANCE.md)
+and paid admission are checked separately before starting work. A credential receipt cannot establish either.
 
 ## Fixed exchange and refresh
 
@@ -53,9 +53,8 @@ file opened without following its final symlink, limited to 128 KiB and strict
 JSON. There is no ADC discovery, gcloud account fallback, service-account key,
 caller-selected token supplier or native transport override.
 
-The existing generic V5.1 descriptor/exchange implementation is reused without
-modification. It pins the opaque runtime GitHub OIDC route, including repeated
-slashes or suffixes after `idtoken`, its authorization header and exact audience.
+The shared V5.1 descriptor/exchange implementation pins the opaque runtime
+GitHub OIDC route, including repeated slashes or suffixes after `idtoken`, its authorization header and exact audience.
 It binds the immutable repository subject and all source/run/attempt claims.
 Decoding a JWT does not authenticate its signature: Google STS must do that,
 followed by impersonation of the one selected account. Federated credentials are
@@ -64,13 +63,27 @@ never provider access tokens. The refresh reads and validates the descriptor ane
 Token acquisition is serialized. Lock wait, source/run checks and all three
 exchanges share one caller deadline of at most 30 seconds. Individual credential
 exchanges have no automatic retry. This is a finite request bound, independent of
-the soft total stage/cost budgets. Access tokens retain the existing 60-second
-expiry margin. The generic API can cache them and refresh on expiry or one GET
-401; mutation requests are never automatically replayed.
+the soft total stage/cost budgets. The issuer's one-hour expiry may appear up to
+five seconds farther away on a slightly slower runner wall clock. The shared
+exchange permits that bounded skew, then clamps the remaining lifetime to the
+requested 3600 seconds before subtracting the existing 60-second safety margin.
+It never extends usable lifetime by the skew allowance. Expired/near-expiry
+tokens and excess beyond five seconds still reject. The generic API can cache
+tokens and refresh on expiry or one GET 401; mutation requests are never automatically replayed.
 
 Known failures are rebuilt from closed diagnostic codes, and unexpected failures
 become `V52_CREDENTIAL_UNCLASSIFIED` with no original exception chain in formatted
-output. Receipts contain no environment, descriptor, URL query, request token,
+output. The shared exchange also attaches a closed failure kind (`http`,
+`timeout`, `transport`, `deadline`, `response`, or `lifetime`) and, only for an
+HTTP rejection, the numeric status. V5.2 retains these as `credentialCode`,
+`credentialFailureKind` and `credentialHttpStatus` in native admission failures
+and public operator diagnostics. These fields distinguish credential service
+failures from Compute/Storage `httpStatus`; they never contain an issuer body,
+exception message or URL. Unknown codes/fields and forged error types are omitted.
+This diagnostic extension does not change accepted identities, requested token
+lifetime, the original exchange deadline or retry behavior.
+
+Receipts contain no environment, descriptor, URL query, request token,
 JWT, federated token or access-token value. Receipt snapshots and closing share
 the exchange lock; closing is idempotent and prevents new acquisition. It does not
 revoke already issued tokens or delete the auth action's descriptor file.

@@ -21,9 +21,13 @@ Before creating resources, the factory:
 1. Checks actual clean source and the fixed tracked provider configuration. It
    validates the complete prepared plan and exact confirmed approval early, before
    any remote observation.
-2. Collects and independently replays the original exact-master full CI, producing
-   attempt, uploaded ZIP and extracted shared-build bytes. It inspects an owned
-   package copy against those bytes and the pinned published controls.
+2. Collects and independently replays the original exact-master build job, producing
+   attempt, uploaded ZIP and extracted shared-build bytes. The temporary
+   [CI admission policy](PHASE_6_CI_PROVENANCE.md) does not wait for other CI jobs.
+   It accepts the dedicated manual cloud build, or the regular CI producer when
+   no dedicated build exists for this source. Workflow identity, exact attempt
+   and original producer execution remain independently bound.
+   It inspects an owned package copy against those bytes and the pinned published controls.
 3. Collects and independently replays the latest original manual-cleanup artifact.
    WAITING, stale, failed and substituted attempts cannot stand in for recent PASS.
    The Runner cannot use its own in-progress run as a completed cleanup execution.
@@ -32,6 +36,22 @@ Before creating resources, the factory:
    including exact image, disk layout and original ledger generation/absence.
 5. Rechecks source, build contract and exact credential invocation before opening
    a native API. Existing per-exchange deadlines and decoder bounds remain hard.
+
+The native API transfers the still-valid preflight access token from that exact
+in-memory reader after these checks. It does not request a second token merely
+because observation and resource calls use different clients. Its cache expires
+no later than the original token's usable deadline or the existing 2400-second
+API cache limit. Missing/expired tokens still require a fresh, context-bound
+exchange; a GET 401 still permits one refresh. Mutation requests are not replayed.
+Tokens never come from a receipt, another workflow invocation or persisted cache.
+
+The two failed self-hosted runs `39556724370/1` and `39557495298/1` both stopped
+before resource writes. The latter completed preflight, then failed its redundant
+second credential exchange. Their old failure files retained `CredentialError`
+but lost its reason code, so neither an IAM denial nor a timeout is established.
+The cache correction removes that extra exchange; the diagnostic correction
+makes any remaining initial/refresh failure classifiable. Local synthetic tests
+exercise the native factories but cannot certify live WIF or IAM availability.
 
 The factory retains original observations and an admission review, not just a
 boolean. Its admission window is at most 15 minutes, also bounded by approval,
@@ -85,7 +105,10 @@ preserves the lease; a denied submission-marker write before dispatch instead
 allows the existing fenced non-submission proof and cleanup.
 
 Failure files use closed phase codes, exception types and HTTP status where
-applicable, without provider bodies or tokens. Generated request routes and
+applicable, without provider bodies or tokens. Credential failures additionally
+retain the closed [exchange diagnostics](PHASE_6_CREDENTIAL_ENTRY.md), including
+the failing service code, failure kind and credential-service HTTP status.
+Generated request routes and
 send/response/uncertain journal entries retain the original attempt. The full
 original observations, failed completion and charges are never reset or rebound
 to a later source. Package bytes and synthetic fixtures are not run as Java code

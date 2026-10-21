@@ -111,7 +111,7 @@ def public_failure(value):
 
 
 def current_job(observation):
-    rows = [job for job in observation['jobs'] if job['name'] == ci.BUILD]
+    rows = [job for job in observation['jobs'] if job['name'] == ci.build_name(observation['run'])]
     need(len(rows) == 1, 'V5.2 build job missing/duplicate'); return rows[0]
 
 
@@ -152,10 +152,11 @@ def select(rows, observation, now):
 def producer(original_run, original, record, observation, shape, now):
     run = observation['run']; current = current_job(observation)
     attempt, _ = metadata(record, observation, now)
-    ci.run_identity(original_run, run['head_sha'], green=False)
+    ci.run_identity(original_run, run['head_sha'], green=False,allow_unfinished=not ci.REQUIRE_FULL_CI,
+                    allow_standalone=not ci.REQUIRE_FULL_CI)
     need(original_run['id'] == run['id'] and original_run['run_attempt'] == attempt and
          all(original_run[key] == run[key] for key in ('workflow_id', 'event', 'path')), 'V5.2 original build run/attempt')
-    ci.job_identity(original, original_run, now=now, required=shape['jobs'][ci.BUILD]['steps'])
+    ci.job_identity(original, original_run, now=now, required=ci.build_contract(shape,run)['steps'])
     need(encoded({k: original[k] for k in EXECUTION_FIELDS}) == encoded({k: current[k] for k in EXECUTION_FIELDS}),
          'V5.2 original build execution replaced')
     if original['id'] != current['id']:
@@ -195,7 +196,7 @@ def replay(directory, source, shape, binding, *, now):
     directory = Path(directory)
     need(not (directory/'failure.json').exists(), 'V5.2 original provenance collection failed')
     before, after = read(directory/'ci-before.json'), read(directory/'ci-after.json')
-    first, last = [ci.validate(v, source, shape, now) for v in (before, after)]
+    first, last = [ci.validate(v, source, shape, now,require_full=ci.REQUIRE_FULL_CI) for v in (before, after)]
     need(first == last, 'V5.2 accepted CI changed during artifact collection')
     record = read(directory/'artifact.json')
     need(encoded(record) == encoded(read(directory/'artifact-after.json')), 'V5.2 artifact metadata changed')
@@ -208,7 +209,7 @@ def replay(directory, source, shape, binding, *, now):
     original_jobs = read(directory/'producer-jobs.json')['jobs']
     need(type(original_jobs) is list and 0 < len(original_jobs) <= ci.MAX_ROWS and
          len({a.integer(job['id'], 1) for job in original_jobs}) == len(original_jobs), 'V5.2 original job inventory')
-    need(encoded([job for job in original_jobs if job['name'] == ci.BUILD]) == encoded([original_job]),
+    need(encoded([job for job in original_jobs if job['name'] == ci.build_name(before['run'])]) == encoded([original_job]),
          'V5.2 original build job observation changed')
     origin = producer(original_run, original_job, record, before, shape, now)
     files = zip_contents(directory/'build.zip', record, before, now)
@@ -227,7 +228,7 @@ def replay(directory, source, shape, binding, *, now):
 def _collect(directory, source, shape, binding, client, wall, *, progress=None):
     directory = Path(directory); progress = {} if progress is None else progress
     progress['phase'] = 'full-ci'
-    before = ci.observe(source, shape, client.get, wall); save(directory/'ci-before.json', before)
+    before = ci.observe(source, shape, client.get, wall,require_full=ci.REQUIRE_FULL_CI); save(directory/'ci-before.json', before)
     progress['phase'] = 'artifact-selection'
     rows = ci.pages(client.get, f"actions/runs/{before['run']['id']}/artifacts", 'artifacts')
     save(directory/'artifacts-before.json', dict(artifacts=rows))
@@ -238,7 +239,7 @@ def _collect(directory, source, shape, binding, client, wall, *, progress=None):
     run = client.get(f"actions/runs/{before['run']['id']}/attempts/{attempt}"); save(directory/'producer-run.json', run)
     originals = ci.jobs(client.get, before['run'], attempt)
     save(directory/'producer-jobs.json', dict(jobs=originals))
-    matches = [job for job in originals if job['name'] == ci.BUILD]
+    matches = [job for job in originals if job['name'] == ci.build_name(before['run'])]
     need(len(matches) == 1, 'V5.2 original build job missing/duplicate')
     origin = matches[0]; producer(run, origin, record, before, shape, int(wall())); save(directory/'producer-job.json', origin)
     progress['phase'] = 'artifact-download'
@@ -252,7 +253,7 @@ def _collect(directory, source, shape, binding, client, wall, *, progress=None):
     rows_after = ci.pages(client.get, f"actions/runs/{before['run']['id']}/artifacts", 'artifacts')
     save(directory/'artifacts-after.json', dict(artifacts=rows_after))
     progress['phase'] = 'final-ci'
-    save(directory/'ci-after.json', ci.observe(source, shape, client.get, wall))
+    save(directory/'ci-after.json', ci.observe(source, shape, client.get, wall,require_full=ci.REQUIRE_FULL_CI))
     progress['phase'] = 'artifact-replay'
     result = replay(directory, source, shape, binding, now=int(wall()))
     save(directory/'inspection.json', result); return result
@@ -301,7 +302,7 @@ def bounded_command(command, path, maximum, timeout):
 def allowed_path(path):
     need(type(path) is str, 'V5.2 GitHub read path')
     number = r'[1-9][0-9]{0,19}'; page = r'[1-9][0-9]?'
-    patterns = (r'branches/master', r'actions/workflows/ci\.yml/runs\?branch=master&head_sha=[0-9a-f]{40}&per_page=100&page='+page,
+    patterns = (r'branches/master', r'actions/workflows/(?:ci\.yml|v52-cloud-build\.yml)/runs\?branch=master&head_sha=[0-9a-f]{40}&per_page=100&page='+page,
         r'actions/runs/'+number+r'(?:/attempts/'+number+r')?',
         r'actions/runs/'+number+r'/attempts/'+number+r'/jobs\?per_page=100&page='+page,
         r'actions/runs/'+number+r'/artifacts\?per_page=100&page='+page, r'actions/artifacts/'+number)

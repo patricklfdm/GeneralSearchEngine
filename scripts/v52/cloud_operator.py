@@ -100,14 +100,17 @@ def execute_native(source, output):
         return report
     except BaseException as error:
         failure = dict(status='FAIL', operation=operation, phase=phase, source=source,
-            code='V52_OPERATOR_'+phase.upper().replace('-', '_')+'_REJECTED', errorType=type(error).__name__, fullRemoteQualification=False)
+            code='V52_OPERATOR_'+phase.upper().replace('-', '_')+'_REJECTED', errorType=type(error).__name__,
+            fullCiRequired=native.ci.REQUIRE_FULL_CI, fullRemoteQualification=False)
         if isinstance(error, access.PrivateKeyError): failure['causeCode'] = error.code
+        failure.update(credentials.failure(error))
         for relative in ('prepare/failure.json', 'prepared/failure.json', 'run/failure.json', 'run/native/failure.json',
                          'run/member/failure.json'):
             path = output/relative
             if path.is_file():
                 try:
                     inner = artifacts.read(path)
+                    failure.update(credentials.public_failure(inner))
                     code = inner.get('code')
                     if type(code) is str and re.fullmatch('V52_[A-Z0-9_]{1,128}', code): failure['causeCode'] = code
                     status = inner.get('httpStatus')
@@ -203,7 +206,8 @@ def iap_report(root):
 
 
 def report_data(operation, source, result, output):
-    row = dict(status=result['status'], operation=operation, source=source, fullRemoteQualification=result.get('fullRemoteQualification', False))
+    row = dict(status=result['status'], operation=operation, source=source, fullCiRequired=native.ci.REQUIRE_FULL_CI,
+               fullRemoteQualification=result.get('fullRemoteQualification', False))
     if operation == 'prepare':
         plan = artifacts.read(output/'result/plan.json'); approval = prepared.approval_template(plan)
         row.update(member=plan['request']['selection']['member']['name'], sequence=plan['request']['selection']['binding']['sequence'],
