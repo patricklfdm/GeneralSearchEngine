@@ -1,0 +1,133 @@
+{
+  "assumptions": [
+    "receipts are authentic durable acknowledgements",
+    "expected configuration and claim were independently established"
+  ],
+  "counterexamples": {
+    "direct-switch": {
+      "new": [
+        "node-1",
+        "node-2",
+        "node-4"
+      ],
+      "newVotes": [
+        "node-2",
+        "node-4"
+      ],
+      "old": [
+        "node-1",
+        "node-2",
+        "node-3"
+      ],
+      "oldVotes": [
+        "node-1",
+        "node-3"
+      ]
+    },
+    "either-majority": {
+      "new": [
+        "node-1",
+        "node-2",
+        "node-4"
+      ],
+      "old": [
+        "node-1",
+        "node-2",
+        "node-3"
+      ],
+      "votes": [
+        "node-1",
+        "node-3"
+      ]
+    },
+    "union-majority": {
+      "new": [
+        "node-1",
+        "node-2",
+        "node-3",
+        "node-5"
+      ],
+      "old": [
+        "node-1",
+        "node-2",
+        "node-3",
+        "node-4"
+      ],
+      "votes": [
+        "node-1",
+        "node-2",
+        "node-4"
+      ]
+    }
+  },
+  "counts": {
+    "add": 90,
+    "certificateChecks": 53760,
+    "configurations": 41,
+    "expectedTransitions": 510,
+    "intersectionChecks": 82770,
+    "receiptSubsets": 12480,
+    "remove": 90,
+    "replace": 330,
+    "transitions": 510
+  },
+  "excluded": [
+    "configuration activation",
+    "elections",
+    "network schedules",
+    "crashes",
+    "recovery",
+    "storage bytes",
+    "token continuity",
+    "liveness",
+    "performance",
+    "cloud"
+  ],
+  "execution": "finite-quorum-arithmetic-only",
+  "negativeCases": {
+    "duplicate-voter": "duplicate certificate voter",
+    "foreign-ballot": "foreign certificate context",
+    "foreign-entry_digest": "foreign certificate context",
+    "foreign-generation": "foreign certificate context",
+    "foreign-group": "foreign certificate context",
+    "foreign-history": "foreign certificate context",
+    "foreign-incarnation": "foreign certificate context",
+    "foreign-index": "foreign certificate context",
+    "foreign-new": "foreign certificate context",
+    "foreign-old": "foreign certificate context",
+    "foreign-operation": "foreign certificate context",
+    "foreign-phase": "foreign certificate context",
+    "foreign-proposer": "foreign certificate context",
+    "foreign-stage": "foreign certificate context",
+    "foreign-voter": "ineligible certificate voter",
+    "insufficient-quorum": "insufficient certificate quorum",
+    "learner-voter": "ineligible certificate voter",
+    "one-foreign-receipt": "foreign certificate context",
+    "removed-voter": "ineligible certificate voter"
+  },
+  "nodes": [
+    "node-1",
+    "node-2",
+    "node-3",
+    "node-4",
+    "node-5",
+    "node-6"
+  ],
+  "phase0Accepted": false,
+  "productionQualified": false,
+  "schema": "gse-v53-membership-research-v1",
+  "source": {
+    "files": {
+      "scripts/v53/__init__.py": "78a166fcc8136c3949b1afcf5e91db0543fcd0006821f6e555c92034a568daa1",
+      "scripts/v53/membership_model.py": "e38dbb81bbf6c9d27aa0d0fd689be8b6d682502d0d7bc98ceaf5220e92fc9e17",
+      "scripts/v53/test_membership_model.py": "907ed18bcdc81f8ed41906a1915f10b88c6331d02523ef1161fb9dcc46578d72"
+    },
+    "head": "0326655d1c9033aefebf3b2ea628a3825e297dd5",
+    "worktreeDirty": true
+  },
+  "status": "PASS",
+  "voterBounds": [
+    3,
+    5
+  ]
+}

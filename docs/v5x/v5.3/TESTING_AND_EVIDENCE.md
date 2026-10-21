@@ -2,6 +2,11 @@
 
 ## Entry model scope
 
+Implementation: [membership model](../../../scripts/v53/membership_model.py),
+[counterexample tests](../../../scripts/v53/test_membership_model.py).
+Invocation and retained results are in the [entry index](README.md) and
+[status record](DEVELOPMENT_STATUS.md).
+
 The first executable research model covers every stable set of 3–5 voters chosen
 from six labelled identities, every allowed one-voter add/remove/replace transition,
 and every distinct receipt subset of its old/new union. This includes four-voter
@@ -20,6 +25,18 @@ A complete bounded result is `PASS` with `productionQualified=false`. A traversa
 limit produces `INCOMPLETE` and a failing command exit. Neither result is a network,
 storage, crash, election, read, performance or cloud qualification. Validation
 must use explicit exceptions and still work with Python assertions disabled.
+
+The 2026-10-21 complete run checked 41 configurations, 510 directed transitions
+(90 add, 90 remove, 330 replace), 12,480 receipt subsets, 53,760 synthetic
+certificate checks and 82,770 quorum intersections. It also rejected 19 contextual
+or voter mutations after accepting their unmodified originals. These numbers
+describe this six-identity domain, not 510 physical cluster executions.
+
+All 18 unit tests pass. Three deliberate implementation mutants independently
+show that the checker detects either-side/union-majority substitution and omission
+of receipt context validation. The CLI test confirms incomplete exploration exits
+with failure and cannot overwrite a previous evidence directory. An optimized
+Python subprocess confirms duplicate/foreign receipt rejection survives `-O`.
 
 ## Later foundation and runtime coverage
 

@@ -22,3 +22,16 @@ define the direction: non-voting catch-up, controlled membership, restartable
 operations and same-version maintenance. Search semantics remain inherited from
 published V4.4; automatic leadership and explicit read guarantees remain inherited
 from their version-specific contracts. This directory does not amend V5.2 evidence.
+
+## Run the lightweight local research checks
+
+```bash
+python3 -m unittest scripts.v53.test_membership_model
+python3 -m scripts.v53.membership_model \
+  --output "target/v53-membership-model/run-$(date -u +%Y%m%dT%H%M%SZ)"
+```
+
+Run from the repository root. The output directory must be new. These commands
+need no Maven build, sudo, network, cloud credentials or running GSE processes.
+They check the declared finite model only. See the retained
+[research receipt](membership-research.json) and [coverage limits](TESTING_AND_EVIDENCE.md).
