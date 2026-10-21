@@ -22,6 +22,7 @@ from . import cloud_native_runner as runner, cloud_identity as identity, cloud_a
 from . import remote_command as command, remote_host as host, remote_host_domains as domains
 from . import remote_topology as topology, remote_voter_ssh as ssh, remote_voter_ssh_evidence as routes
 from . import cloud_guest_identity as probe
+from . import cloud_iap_diagnostics as diagnostics
 from .evidence import need, encoded, digest, strict
 from scripts.v51 import guest_transport as transport
 
@@ -29,7 +30,11 @@ _TICKET=object()
 BUFFER=64<<10
 MAX_RECENT=64
 MAX_ACTIVE=4
-CONNECT_SECONDS=30
+CONNECT_SECONDS=60
+ADMISSION_SECONDS=30
+ADMISSION_ATTEMPTS=2
+ADMISSION_BACKOFF=1
+HALF_CLOSE_SECONDS=30
 
 
 def _gcloud():
@@ -48,9 +53,24 @@ def _safe(error):
     if type(error) is runner.h.ApiError and type(error.status) is int and 100<=error.status<=599:
         return 'IAP_PROVIDER_HTTP_'+str(error.status)
     if type(error) is runner.credentials.ContextError:return error.reason_code
+    if type(error) is runner.credentials.exchange.CredentialError:return error.reason_code
+    if type(error) is runner.p.ControlReadError:return error.code
     if isinstance(error,TimeoutError):return 'IAP_ORIGINAL_CONNECT_TIMEOUT'
     if isinstance(error,ConnectionError):return 'SSH_DISCONNECTED'
     return 'IAP_IDENTITY_OR_AUTHORITY_REJECTED'
+
+
+def _remaining(deadline):
+    left=deadline-time.monotonic()
+    if left<=0:raise TimeoutError('V5.2 IAP admission deadline')
+    return left
+
+
+def _retry_admission(error):
+    # Before SDK spawn only. Unknown errors, denied credentials and changed
+    # ownership are terminal even when they happen near a deadline.
+    return type(error) in (TimeoutError,ConnectionError) or (type(error) is runner.credentials.ContextError and
+                                          error.reason_code=='V52_CREDENTIAL_DEADLINE')
 
 
 class _Channel:
@@ -58,6 +78,7 @@ class _Channel:
         self.forward=forward;self.connection=connection;self.ordinal=ordinal
         self.stop=threading.Event();self.proc=None;self.lock=threading.Lock();self.killed=False
         self.record=dict(ordinal=ordinal,status='STARTING',failureCode=None,sentBytes=0,receivedBytes=0)
+        self.admission=[]
         self.thread=threading.Thread(target=self.run,name='v52-iap-channel',daemon=True)
 
     def start(self):self.thread.start()
@@ -66,10 +87,37 @@ class _Channel:
         deadline=time.monotonic()+CONNECT_SECONDS
         temporary=None
         try:
-            temporary=tempfile.TemporaryDirectory(prefix='channel-',dir=self.forward.group.private.name)
-            with self.lock:
-                need(not self.stop.is_set(),'V5.2 IAP channel stopped before authentication')
-            args,env=self.forward.group.authorize(self.forward.node,Path(temporary.name),deadline)
+            for attempt in range(1,ADMISSION_ATTEMPTS+1):
+                if self.stop.is_set():return
+                _remaining(deadline)
+                temporary=tempfile.TemporaryDirectory(prefix='channel-',dir=self.forward.group.private.name)
+                began=time.monotonic();phase='directory';phase_began=began;durations={}
+                def progress(next_phase):
+                    nonlocal phase,phase_began
+                    need(next_phase in diagnostics.PHASES,'V5.2 IAP diagnostic phase')
+                    now=time.monotonic()
+                    durations[phase]=durations.get(phase,0)+max(0,round((now-phase_began)*1000))
+                    phase,phase_began=next_phase,now
+                try:
+                    attempt_end=min(deadline,began+ADMISSION_SECONDS)
+                    args,env=self.forward.group.authorize(self.forward.node,Path(temporary.name),
+                        attempt_end,progress=progress)
+                    _remaining(attempt_end)
+                except BaseException as error:
+                    progress(phase)
+                    row=diagnostics.attempt(attempt,phase,began,durations,error,_safe(error))
+                    self.admission.append(row)
+                    retry=attempt<ADMISSION_ATTEMPTS and _retry_admission(error) and not self.stop.is_set() and \
+                          deadline-time.monotonic()>ADMISSION_BACKOFF
+                    try:print(encoded(dict(stage='iap-admission',node=self.forward.node,retry=retry,**row)).decode(),flush=True)
+                    except Exception:pass  # Diagnostic output cannot replace the original error.
+                    temporary.cleanup();temporary=None
+                    if not retry:raise
+                    if self.stop.wait(ADMISSION_BACKOFF):return
+                    continue
+                progress(phase)
+                self.admission.append(diagnostics.attempt(attempt,phase,began,durations))
+                break
             with self.lock:
                 need(not self.stop.is_set(),'V5.2 IAP channel closed before spawn')
                 self.proc=subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
@@ -83,6 +131,7 @@ class _Channel:
             if not self.stop.is_set() and not (isinstance(error,(ConnectionError,TimeoutError)) and getattr(error,'retryable',True)):
                 self.forward.group.fail(self.record['failureCode'])
         finally:
+            if self.stop.is_set() and self.record['status'] in ('STARTING','OPEN'):self.record['status']='CLOSED'
             self.terminate()
             try:
                 proc=self.proc
@@ -146,7 +195,7 @@ class _Channel:
                     # Closing a channel never starts another SDK process.
                     try:selector.unregister(proc.stdin)
                     except KeyError:pass
-                    proc.stdin.close();stdin_closed=True;closing=time.monotonic()+CONNECT_SECONDS
+                    proc.stdin.close();stdin_closed=True;closing=time.monotonic()+HALF_CLOSE_SECONDS
                 if server_eof and not incoming and stderr_eof:
                     code=proc.poll()
                     if code is None:
@@ -174,7 +223,8 @@ class _Forward:
         self.group=group;self.node=node;self.stop=threading.Event();self.channels=[];self.lock=threading.Lock()
         self.recent=deque(maxlen=MAX_RECENT)
         self.totals=dict(accepted=0,completed=0,failed=0,peakActive=0,capacityRejections=0,
-                         sentBytes=0,receivedBytes=0,lastFailureCode=None)
+                         sentBytes=0,receivedBytes=0,lastFailureCode=None,
+                         admissionRetries=0,admissionMillis=0,lastAdmission=None)
         self.sock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         try:
             self.sock.bind(('127.0.0.1',0));self.sock.listen(MAX_ACTIVE);self.sock.settimeout(.1)
@@ -191,6 +241,10 @@ class _Forward:
         for channel in self.channels:
             if channel.thread.is_alive():active.append(channel);continue
             row=dict(channel.record);self.recent.append(row);self.totals['completed']+=1
+            self.totals['admissionRetries']+=max(0,len(channel.admission)-1)
+            self.totals['admissionMillis']+=sum(v['elapsedMillis'] for v in channel.admission)
+            if channel.admission and (len(channel.admission)>1 or channel.admission[-1]['status']=='FAIL'):
+                self.totals['lastAdmission']=deepcopy(channel.admission)
             for key in ('sentBytes','receivedBytes'):self.totals[key]+=row[key]
             if row['failureCode'] is not None:
                 self.totals['failed']+=1;self.totals['lastFailureCode']=row['failureCode']
@@ -293,26 +347,34 @@ class Guests:
         if node in self.observations:need(value==self.observations[node],'V5.2 IAP provider identity changed')
         return value
 
-    def authorize(self,node,directory,deadline):
-        need(node in self.observations and time.monotonic()<deadline,'V5.2 IAP original connect deadline')
+    def authorize(self,node,directory,deadline,*,progress=lambda stage:None):
+        need(node in self.observations,'V5.2 IAP unknown guest');_remaining(deadline)
+        progress('directory')
         directory=host.path(str(directory));command.directory(directory)
         info=directory.stat()
         need(directory.parent==Path(self.private.name) and info.st_uid==os.getuid() and info.st_mode&0o077==0,
              'V5.2 IAP credential directory outside owned scope')
         owner=self.session.owner
-        need(owner.lock.acquire(timeout=max(0,deadline-time.monotonic())),'V5.2 IAP authority queue deadline')
+        progress('owner-lock')
+        if not owner.lock.acquire(timeout=_remaining(deadline)):raise TimeoutError('V5.2 IAP authority queue deadline')
         api=self.session.api;locked=False;original=None
         try:
-            need(api.lock.acquire(timeout=max(0,deadline-time.monotonic())),'V5.2 IAP API queue deadline');locked=True
+            progress('api-lock')
+            if not api.lock.acquire(timeout=_remaining(deadline)):raise TimeoutError('V5.2 IAP API queue deadline')
+            locked=True
             original=api.deadline;api.deadline=min(original,deadline)
+            progress('identity-before');_remaining(deadline)
             self.cheap_check();value=self.observe(node,deadline)
             # Match owner -> API lock order used by renewal. A later socket gets
             # a new credential epoch; no ambient SDK/ADC identity is accepted.
-            token=api.tokens(min(30,deadline-time.monotonic()))
+            progress('credentials')
+            token=api.tokens(min(30,_remaining(deadline)))
             need(type(token) is runner.h.AccessToken and token.usable_until>time.monotonic()+10,
                  'V5.2 IAP credential lifetime')
             api.token,api.expires=token.value,token.usable_until
-            self.observe(node,deadline);need(time.monotonic()<deadline,'V5.2 IAP late credential')
+            progress('identity-after');_remaining(deadline)
+            self.observe(node,deadline);_remaining(deadline)
+            progress('credential-file')
             config=directory/'config';config.mkdir(mode=0o700);path=directory/'token'
             need(type(token.value) is str and 0<len(token.value)<=16384 and all(33<=ord(c)<=126 for c in token.value),
                  'V5.2 IAP token shape')
@@ -357,7 +419,7 @@ class Guests:
                     time.sleep(min(3,max(0,deadline-time.monotonic())))
             row=self.observations[node];known=self.output/(node+'.known_hosts');access.pin(known,row['alias'],row['hostKey'])
             forward=_Forward(self,node);self.forwards[node]=forward
-            self.targets[node]=dict(host='127.0.0.1',port=forward.port,connectSeconds=30,user=self.session.owner.request['guestAccess']['user'],
+            self.targets[node]=dict(host='127.0.0.1',port=forward.port,connectSeconds=CONNECT_SECONDS,user=self.session.owner.request['guestAccess']['user'],
                 key=str(self.key),knownHosts=str(known),alias=row['alias'])
             self.original_targets[node]=deepcopy(self.targets[node]);forward.start()
         self.watch_thread.start()

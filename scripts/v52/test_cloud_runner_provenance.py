@@ -22,7 +22,8 @@ jobs:
     name: V5.2 replication runner
     if: ${{ github.ref == 'refs/heads/master' }}
     environment: v52-cloud-benchmark
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Linux, X64, gse-v52-cloud-d-wsl]
+    timeout-minutes: 1380
     steps:
 '''+''.join('      - name: '+v+'\n        run: fixture-only\n' for v in p.REQUIRED)
 
@@ -127,6 +128,8 @@ class ProvenanceTest(unittest.TestCase):
         path = self.root/p.PATH; path.parent.mkdir(parents=True)
         path.write_text(WORKFLOW); self.assertEqual(WORKFLOW, p.contract(self.root))
         for old, new in (('workflow_dispatch:', 'push:'), ('v52-cloud-benchmark', 'other'),
+                         ('[self-hosted, Linux, X64, gse-v52-cloud-d-wsl]', 'ubuntu-latest'),
+                         ('gse-v52-cloud-d-wsl', 'unbound-runner'), ('timeout-minutes: 1380', 'timeout-minutes: 360'),
                          ("github.ref == 'refs/heads/master'", 'true'), ('  runner:', '  other:'),
                          ('        run: fixture-only', '        if: always()\n        run: fixture-only')):
             path.write_text(WORKFLOW.replace(old, new))

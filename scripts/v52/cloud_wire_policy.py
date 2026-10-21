@@ -443,11 +443,16 @@ class _Gate:
         previous=api.deadline;api.deadline=deadline
         try:
             api.policy.before(route,value)
-            left=deadline-api.clock();need(left>0,'V5.2 wire original exchange deadline')
+            left=deadline-api.clock()
+            if left<=0:raise TimeoutError('V5.2 wire original exchange deadline')
             if route['operation']=='insert':api.policy.dispatched.add(route['spec']['name'])
             result=self.exchange(method,endpoint,headers,body,left,maximum)
-            need(api.clock()<=deadline,'V5.2 wire late response')
             status,raw=result;need(type(raw) is bytes and len(raw)<=maximum,'V5.2 wire response bound')
+            if api.clock()>deadline:
+                # A received denial must not become a retryable timeout merely
+                # because it arrived late. Never observe a late response as proof.
+                if type(status) is int and 400<=status<=599:raise h.ApiError(status,method)
+                raise TimeoutError('V5.2 wire late response')
             api.policy.observe(route,status,raw);return result
         finally:api.deadline=previous
 
@@ -483,7 +488,9 @@ class _ScopedApi(h.Api):
         need(type(deadline) in (int,float) and math.isfinite(deadline),'V5.2 scoped original deadline')
         with self.lock:
             previous=self.deadline;self.deadline=min(previous,deadline)
-            try:return super().call(method,endpoint,body,deadline=self.deadline,**kwargs)
+            try:
+                if self.clock()>=self.deadline:raise TimeoutError('V5.2 scoped original deadline')
+                return super().call(method,endpoint,body,deadline=self.deadline,**kwargs)
             finally:self.deadline=previous
 
 

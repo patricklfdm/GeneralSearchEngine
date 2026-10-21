@@ -45,8 +45,9 @@ not executed again. A rerun is never used as a substitute for a selected origina
 
 Time and accumulated cost budgets remain soft warnings. Each operation prints
 progress at least every minute, including during prepared-artifact download.
-The workflow uses GitHub's 360-minute hosted-job limit; that platform ceiling is
-not a new per-stage timeout. Request/parser/storage bounds, approval expiry,
+The workflow routes all three operations to the dedicated D-backed Linux
+self-hosted Runner (`gse-v52-cloud-d-wsl`) with a 1,380-minute job ceiling. That
+administrative ceiling is not a new per-stage timeout. Request/parser/storage bounds, approval expiry,
 credential freshness and lease/grace checks remain hard. Cancellation/interruption
 still requires the original lease's safe cleanup path; active leases are not
 force-deleted.
@@ -192,6 +193,13 @@ IAP capacity applies to **four active connections per node**, including channels
 still cleaning up their process and private credentials. Completed channels free
 their slots; there is no lifetime connection-count limit. Every newly accepted
 connection still checks the original authority and opens at most one SDK tunnel.
+Before that tunnel starts, a typed timeout or plain connection interruption may
+receive one admission retry: at most two 30-second attempts, one one-second
+backoff and a shared 60-second connection ceiling. Shorter outer command deadlines
+still apply. Every retry repeats the original checks using a fresh private
+credential directory. Explicit denials, identity/ownership drift and malformed or
+unknown errors remain terminal. These are connection bounds, not experiment time
+or cost budgets.
 The forwarder never retries a business request or replays bytes. Terminal errors
 stop all routes; the outer guest scope joins their threads before deleting the
 private credential directory.
@@ -205,6 +213,26 @@ record counts and allowlisted failure codes. It excludes command text, stderr,
 credentials, paths, PIDs and individual records; missing or malformed diagnostics
 are omitted and cannot mask the original failure. These observations do not
 qualify a workload or change cleanup, lease, source or history boundaries.
+
+The same summary also retains cumulative admission milliseconds/retry counts and
+the latest failed/retried admission (at most two records per node). Each record
+contains an allowlisted phase, elapsed/phase milliseconds, reason/type and source
+module/line. Phases distinguish owner/API lock waiting, identity checks before and
+after credentials, credential refresh and local credential-file preparation.
+Historical receipts without these optional fields remain readable. This allows
+a deadline to be distinguished from a permission failure without publishing
+private provider or SDK text.
+
+Run `39503311609` on source `30b17fe46c5791a5e04c0d32b445fe928a491b04`
+finished seven histories and failed preparing `m02-above-1000`, before its
+original workload, after about 3h30m total job time. Its retained diagnostic
+reported node-1 `IAP_IDENTITY_OR_AUTHORITY_REJECTED`, cleanup PASS, 13 delete
+submissions and a released lease. That old code also covered untyped deadline
+errors, so it does not establish an IAM denial or the precise original cause.
+This was not the hosted six-hour ceiling. The seven completed histories averaged
+1368.5 seconds, including 764.1 seconds of placement and about 303 seconds of
+preparation; these measured costs motivate admission timing diagnostics, not
+removal of authority checks. Corrected-source cloud qualification remains pending.
 
 Storage preparation now emits fixed node/operation milestones alongside the
 minute heartbeat. Its failure summary projects a bounded
@@ -296,3 +324,65 @@ case or the long physical/runtime matrix.
 The [setup review and pre-cloud checklist](PHASE_6_CLOUD_SETUP.md) now supply
 the remaining local configuration and deployment materials. Real deployment,
 full protected CI on final master and paid dispatch remain operator actions.
+
+
+## D-backed self-hosted operator Runner
+
+The manual `prepare`, `run` and `verify-set` operations use
+`[self-hosted, Linux, X64, gse-v52-cloud-d-wsl]`. The original workflow path,
+job name, protected environment, exact-master/exact-attempt binding, OIDC
+identity, required step ordering, public artifact inventories and 90-day
+retention are unchanged. Ordinary CI and manual cleanup remain GitHub-hosted;
+cleanup remains available when the operator machine is offline. No experiment
+is dispatched by installation or registration.
+
+The dedicated Ubuntu 24.04 WSL2 distro is `GSE-Runner`, backed by
+`D:\GSE-Runner\Ubuntu\ext4.vhdx`. Run the Linux Runner as the unprivileged
+`gse-runner` account. Keep its work, tool cache, temporary data and retained
+results on the native ext4 filesystem. Direct `/mnt/d` workspaces do not satisfy
+the existing private-directory and immutable-file contracts. Windows drive
+automount and Windows executable interoperability are disabled in this distro.
+Manage this dedicated distro from Windows PowerShell. WSL distributions share
+kernel components, so this setup is not a VM security boundary.
+The existing development distro is separate and is not moved.
+
+Bootstrap dependencies with
+[`v52-bootstrap.sh`](../../../scripts/self-hosted/v52-bootstrap.sh), **only as root
+inside the dedicated distro**. Install the reviewed
+[`cloud_self_hosted.py`](../../../scripts/v52/cloud_self_hosted.py) as
+`/opt/gse-runner/cloud_self_hosted.py`, owned by root and readable by the Runner.
+Register the official hash-verified Runner package using a short-lived GitHub
+registration token; never put that token in a command transcript, repository,
+archive or report. The installed root-owned hooks check the exact manual master
+workflow before checkout. Runner labels are routing, not a sandbox for untrusted
+pull requests; this persistent host is reserved for trusted operator work.
+
+The Windows launcher
+[`v52-start.ps1`](../../../scripts/self-hosted/v52-start.ps1) starts the service,
+keeps a WSL process alive and requests system wakefulness while its window is
+open. It reports actual D-drive free space every minute and warns below 20 GiB.
+The operation reports Linux free space every minute and warns below 30 GiB.
+The launcher also publishes a root-owned D-drive observation into the distro,
+so Actions logs show physical host free space separately from virtual Linux
+capacity. A fresh observation (at most 180 seconds old) is required before a new
+job starts; a later stale monitor or low-space observation only warns.
+These warnings do not interrupt the current experiment. WSL's virtual filesystem
+capacity does not establish available Windows host storage. Do not sleep,
+restart Windows or terminate the distro during an active job. The 23-hour job
+ceiling leaves room below the normal job token's 24-hour lifetime; stage/time/cost
+budgets remain soft and cannot override a platform/job-token limit.
+
+After all steps and action credential cleanup, the installed completion hook
+atomically moves `target/v52-runner` to
+`/home/gse-runner/evidence-archives/<run>-<attempt>/evidence` on the same D-backed
+filesystem. This preserves failed and successful private working evidence
+without a second full copy. It does not upload the private tree or grant PASS.
+The next start refuses to let checkout erase any unpreserved prior result.
+These local archives are retained without automatic deletion or compression;
+monitor cumulative occupancy and archive reviewed old runs separately. The
+existing development-repository archive cron does not cover this new distro.
+
+Deployment checks (Linux permissions, private staging, local hook lifecycle,
+GitHub connectivity and Runner registration) are separate from a hosted job or
+paid-cloud qualification. First protected execution after merge still needs
+exact-source full CI, recent cleanup, fresh preparation and operator approval.
