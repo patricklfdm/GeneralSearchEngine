@@ -1,7 +1,7 @@
 """Closed pre-tunnel diagnostics; no credentials, URLs or exception messages."""
 import time
 from . import cloud_storage_diagnostics as storage, cloud_credentials as credentials
-from . import cloud_provider as provider
+from . import cloud_provider as provider, cloud_read_retry
 from scripts.v51 import guest_transport as transport
 
 PHASES=frozenset(('directory','owner-lock','api-lock','identity-before','credentials','identity-after','credential-file'))
@@ -9,7 +9,7 @@ TYPES=storage.TYPES|frozenset(('ContextError','CredentialError','ApiError'))
 CODES=frozenset(transport.FAILURE_DETAILS)|frozenset(provider.READ_FAILURES)|frozenset(credentials.exchange.DIAGNOSTICS)|frozenset(
     'V52_CREDENTIAL_'+code for code in credentials.CODES)|frozenset((
     'IAP_ORIGINAL_CONNECT_TIMEOUT','IAP_IDENTITY_OR_AUTHORITY_REJECTED'))|frozenset(
-    'IAP_PROVIDER_HTTP_'+str(status) for status in range(100,600))
+    'IAP_PROVIDER_HTTP_'+str(status) for status in range(100,600))|cloud_read_retry.CODES
 
 
 def attempt(number,phase,began,durations,error=None,code=None):

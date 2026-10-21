@@ -22,7 +22,7 @@ from . import remote_command as command, remote_host as host, remote_host_domain
 from . import remote_topology as topology, remote_voter_ssh as ssh, remote_voter_ssh_evidence as routes
 from . import cloud_guest_identity as probe
 from . import cloud_iap_diagnostics as diagnostics
-from . import cloud_sdk_runtime as sdk_runtime
+from . import cloud_sdk_runtime as sdk_runtime, cloud_read_retry
 from .evidence import need, encoded, digest, strict
 from scripts.v51 import guest_transport as transport
 
@@ -47,6 +47,7 @@ def _private(path,raw):
 
 
 def _safe(error):
+    if type(error) is cloud_read_retry.ReadError:return error.code
     if type(error) is sdk_runtime.SdkError:return error.code
     if type(error) in (transport.ProcessError,transport.ProcessRejected):return error.code
     if type(error) is runner.h.ApiError and type(error.status) is int and 100<=error.status<=599:

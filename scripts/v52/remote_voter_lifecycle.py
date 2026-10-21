@@ -49,7 +49,9 @@ def original_launch(start,query,*,lost=lambda:None):
     except stream.ssh.transport.ProcessError as error:
         if not error.retryable:raise
         lost();return query()
-    except (TimeoutError,ConnectionError):lost();return query()
+    except (TimeoutError,ConnectionError) as error:
+        if getattr(error,'retryable',True) is False:raise
+        lost();return query()
 
 
 class Client(stream.Client):

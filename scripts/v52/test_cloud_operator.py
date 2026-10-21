@@ -338,6 +338,15 @@ class StorageDiagnosticTest(unittest.TestCase):
             value=storage_diagnostic();value['origin']=site
             self.assertIsNone(self.report(value))
 
+    def test_exhausted_read_diagnostics_remain_closed(self):
+        from . import cloud_read_retry as retry,cloud_storage_diagnostics as d
+        error=retry.ReadError('provider-read',3,'connection','attempt-limit');error.args=('never-public',)
+        value=storage_diagnostic()
+        value.update(reasonCode=d.reason(error),errorType=d.error_type(error),origin=dict(module='cloud_read_retry',line=1))
+        report=self.report(value)
+        self.assertEqual('V52_READ_RETRIES_EXHAUSTED',report['reasonCode']);self.assertEqual('ReadError',report['errorType'])
+        self.assertNotIn('never-public',str(report))
+
     def test_invalid_node_progress_and_partial_exchange_are_omitted(self):
         for changes in (dict(initializedNodes=[]),dict(pythonInstalledNodes=['node-1','node-1']),
                         dict(javaInstalledNodes=['node-3']),dict(action='check')):

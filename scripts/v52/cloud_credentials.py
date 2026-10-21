@@ -9,11 +9,12 @@ import math
 from pathlib import Path
 import re
 import subprocess
+import tempfile
 import threading
 import time
 from scripts.v51 import cloud_cleanup_credentials as exchange, cloud_http as http
 from scripts.v51.cloud_cleanup_entry import credential_file
-from . import cloud_authority as a, cloud_provider as provider
+from . import cloud_authority as a, cloud_provider as provider, cloud_read_retry
 from .evidence import need, encoded, digest, strict
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -46,13 +47,15 @@ def public_failure(value):
     if code in exchange.DIAGNOSTICS and type(kind) is str and kind in exchange.FAILURE_KINDS:
         result['credentialFailureKind']=kind
         if kind=='http' and type(status) is int and 100<=status<=599:result['credentialHttpStatus']=status
+    result.update(cloud_read_retry.public_failure(value))
     return result
 
 
 def failure(error):
     if type(error) not in (ContextError,exchange.CredentialError):return {}
     return public_failure(dict(credentialCode=getattr(error,'reason_code',None),
-        credentialFailureKind=getattr(error,'failure_kind',None),credentialHttpStatus=getattr(error,'http_status',None)))
+        credentialFailureKind=getattr(error,'failure_kind',None),credentialHttpStatus=getattr(error,'http_status',None),
+        readRetry=getattr(error,'read_retry',None)))
 
 
 def remaining(deadline, clock):
@@ -141,16 +144,44 @@ def github(path, deadline, clock):
     need(type(path) is str and re.fullmatch(r'actions/runs/[1-9][0-9]{0,19}(/attempts/[1-9][0-9]{0,19})?',path),
          'V5.2 credential GitHub path')
     try:
-        result=subprocess.run(['gh','api','--method','GET','repos/'+REPOSITORY+'/'+path],cwd=ROOT,
-                              capture_output=True,timeout=remaining(deadline,clock))
-        need(result.returncode==0 and len(result.stdout)<=16<<20,'GitHub read')
-        remaining(deadline,clock);return strict(result.stdout)
+        # Reuse the bounded GitHub GET implementation and its closed diagnostics.
+        # This observes the same exact run/attempt; it never dispatches or reruns.
+        from . import cloud_artifacts
+        with tempfile.TemporaryDirectory(prefix='gse-v52-credential-run-') as directory:
+            client=cloud_artifacts.Network(Path(directory)/'reads')
+            client.authorize_path(path)
+            target=client._read(path,16<<20,remaining(deadline,clock))
+            remaining(deadline,clock);return strict(target.read_bytes())
     except ContextError:raise
     except Exception:raise ContextError('RUN_OBSERVATION') from None
 
 
+class _RetryExchange(exchange._Exchange):
+    """Retry only one transient token-service exchange, not the credential chain."""
+    def request(self, phase, method, url, headers, body, deadline):
+        original=super().request;last=None
+        def classify(error):
+            nonlocal last
+            if type(error) is not exchange.CredentialError:return None
+            last=error
+            if error.failure_kind=='transport':return 'connection'
+            if error.failure_kind=='timeout':return 'timeout'
+            if error.failure_kind=='http' and error.http_status in cloud_read_retry.STATUSES:
+                return 'http-'+str(error.http_status)
+            return None
+        try:
+            return cloud_read_retry.run(lambda:original(phase,method,url,headers,body,deadline),
+                deadline=deadline,clock=self.clock,scope='credential-'+phase,classify=classify)
+        except cloud_read_retry.ReadError as error:
+            code={'oidc':'OIDC_EXCHANGE_FAILED','sts':'STS_EXCHANGE_FAILED','impersonation':'IMPERSONATION_EXCHANGE_FAILED'}[phase]
+            safe=exchange.CredentialError(code,failure_kind='deadline' if last is None else last.failure_kind,
+                http_status=None if last is None else last.http_status)
+            safe.read_retry=error.detail
+            raise safe from None
+
+
 class _Credentials:
-    """Serial token epochs; no provider calls and no automatic exchange retry."""
+    """Serial token epochs with bounded transient retries inside each exchange."""
     def __init__(self, configuration, project_number, env, binding, *, clock, wall):
         self.configuration,self.project_number=deepcopy(configuration),project_number
         self.env,self.binding=deepcopy(env),deepcopy(binding)
@@ -178,6 +209,7 @@ class _Credentials:
                 detail=failure(error)
                 safe=exchange.CredentialError(code,failure_kind=detail.get('credentialFailureKind'),
                                               http_status=detail.get('credentialHttpStatus'))
+                if 'readRetry' in detail:safe.read_retry=detail['readRetry']
             elif type(error) is ContextError and type(code) is str and code in {'V52_CREDENTIAL_'+v for v in CODES}:
                 safe=ContextError(code.removeprefix('V52_CREDENTIAL_'))
             else:safe=ContextError('UNCLASSIFIED')
@@ -217,7 +249,7 @@ class OfflineCredentials(_Credentials):
         self.observation=collect_run(self.binding,self.invocation.get,end,self.clock)
 
     def exchange(self, end):
-        return exchange.Credentials(self.binding,self.env,self.value,transport=self.issuer,clock=self.clock,wall=self.wall)
+        return _RetryExchange(self.binding,self.env,self.value,transport=self.issuer,clock=self.clock,wall=self.wall)
 
 
 _NATIVE=object()
@@ -245,7 +277,7 @@ class NetworkCredentials(_Credentials):
         remaining(end,self.clock)
         value=credential_file(self.env)
         # No ADC, gcloud account, caller-supplied transport or token provider.
-        return exchange._Exchange(self.binding,self.env,value,transport=self.transport,clock=self.clock,wall=self.wall)
+        return _RetryExchange(self.binding,self.env,value,transport=self.transport,clock=self.clock,wall=self.wall)
 
 
 def open_network(configuration, project_number, env, *, role, source):

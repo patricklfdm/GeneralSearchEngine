@@ -1,5 +1,9 @@
 # V5.2 Phase 6BA owned native Runner resources
 
+Transient resource/control reads now use [bounded read retries](PHASE_6_READ_RETRIES.md),
+including guest identity checks, lease renewal reads, cleanup and evidence readback.
+Resource mutations retain their original single-submission/reconciliation semantics.
+
 This stage connects [prepared inputs](PHASE_6_PREPARED_INPUTS.md),
 [original CI/build provenance](PHASE_6_CI_PROVENANCE.md),
 [provider preflight](PHASE_6_PROVIDER_PREFLIGHT.md) and

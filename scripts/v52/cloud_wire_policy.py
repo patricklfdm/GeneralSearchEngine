@@ -10,7 +10,7 @@ import threading
 import urllib.parse as url
 import uuid
 from scripts.v51 import cloud_http as h
-from . import cloud_authority as a, cloud_provider as p
+from . import cloud_authority as a, cloud_provider as p, cloud_read_retry
 from .evidence import need, encoded, digest, strict
 
 
@@ -460,7 +460,7 @@ class _Gate:
         return self.server.send(method,endpoint,headers,body,timeout,maximum)
 
 
-class _ScopedApi(h.Api):
+class _ScopedApi(cloud_read_retry.Api):
     """Shared request binding; concrete adapters must validate their own authority."""
     def bind_store(self,store):
         need(type(store) is p.Store and store.config==self.policy.cfg and

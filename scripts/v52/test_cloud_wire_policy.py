@@ -306,7 +306,7 @@ class LifecycleTest(unittest.TestCase):
         def delay(stage,event):
             if stage=='after' and event['method']=='GET':self.server.seconds+=16
         self.server.fault=delay
-        with self.assertRaisesRegex(TimeoutError,'late response|deadline'):self.store.put(a.LEASE,lease,generation)
+        with self.assertRaisesRegex(w.cloud_read_retry.ReadError,'V52_READ_DEADLINE'):self.store.put(a.LEASE,lease,generation)
         self.assertEqual([],self.mutations())
 
     def test_late_explicit_denial_is_not_converted_to_retryable_timeout(self):

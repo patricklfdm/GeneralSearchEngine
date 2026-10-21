@@ -400,19 +400,34 @@ class CredentialTest(unittest.TestCase):
         self.assert_sanitized(''.join(traceback.format_exception(error.exception)))
 
     def test_github_read_commands_are_fixed_and_errors_do_not_leak_output(self):
+        from . import cloud_artifacts
         value=json.dumps(self.invocation.value).encode()
-        with patch.object(c.subprocess,'run',return_value=subprocess.CompletedProcess([],0,value,b'')) as run:
+        def write(command,path,maximum,timeout):Path(path).write_bytes(value)
+        with patch.object(cloud_artifacts,'bounded_command',side_effect=write) as run:
             self.assertEqual(self.invocation.value,c.github('actions/runs/123456/attempts/2',40,self.clock.seconds))
-            self.assertEqual(['gh','api','--method','GET','repos/'+c.REPOSITORY+'/actions/runs/123456/attempts/2'],run.call_args.args[0])
-        for result in (subprocess.CompletedProcess([],1,b'secret-exception',b'secret-exception'),
-                       subprocess.CompletedProcess([],0,b'{"a":1,"a":2}',b'')):
-            with patch.object(c.subprocess,'run',return_value=result):
+            self.assertEqual(cloud_artifacts.Network.command('actions/runs/123456/attempts/2'),run.call_args.args[0])
+        def reject(*args):raise cloud_artifacts.GitHubReadError('HTTP_REJECTED',403)
+        def invalid(command,path,maximum,timeout):Path(path).write_bytes(b'{"a":1,"a":2}')
+        for effect in (reject,invalid):
+            with patch.object(cloud_artifacts,'bounded_command',side_effect=effect) as run:
                 with self.assertRaisesRegex(c.ContextError,'RUN_OBSERVATION') as error:c.github('actions/runs/123456',40,self.clock.seconds)
                 self.assert_sanitized(''.join(traceback.format_exception(error.exception)))
-        with patch.object(c.subprocess,'run') as run:
+                self.assertEqual(1,run.call_count)
+        with patch.object(cloud_artifacts,'bounded_command') as run:
             for path in ('actions/workflows/x/dispatches','actions/runs/1/rerun','actions/runs/1?x=2','../x'):
                 with self.assertRaises(ValueError):c.github(path,40,self.clock.seconds)
             run.assert_not_called()
+
+    def test_credential_run_read_recovers_without_changing_exact_attempt(self):
+        from . import cloud_artifacts
+        calls=[]
+        def reply(command,path,maximum,timeout):
+            calls.append(command)
+            if len(calls)<3:raise cloud_artifacts.GitHubReadError('TRANSPORT')
+            Path(path).write_bytes(json.dumps(self.invocation.value).encode())
+        with patch.object(cloud_artifacts,'bounded_command',side_effect=reply),patch.object(cloud_artifacts.time,'sleep'):
+            self.assertEqual(self.invocation.value,c.github('actions/runs/123456/attempts/2',40,self.clock.seconds))
+        self.assertEqual(3,len(calls));self.assertEqual(calls[0],calls[1]);self.assertEqual(calls[1],calls[2])
 
     def test_only_auth_action_regular_bounded_descriptor_file_is_read(self):
         with tempfile.TemporaryDirectory(prefix='v52-credentials-') as temp:

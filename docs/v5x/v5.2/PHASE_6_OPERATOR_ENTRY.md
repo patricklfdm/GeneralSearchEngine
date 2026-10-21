@@ -327,6 +327,12 @@ protected CI and a new explicitly approved cloud run remain required.
 
 ## Validation scope
 
+The control-plane disconnect in run `39640228986/1` is addressed by
+[bounded read retries](PHASE_6_READ_RETRIES.md). Retry progress identifies the
+scope, attempt, closed failure reason and terminal stop without exposing tokens
+or response bodies. This does not replay a failed measurement or change soft
+stage/cost budgets.
+
 Local evidence is recorded under `target/v52-operator-entry`. Tests use actual
 workflow bytes, strict ZIP/JSON decoding and original native preparation code
 with external GitHub/GCP/control downloads modeled. Real local `ssh-keygen`
