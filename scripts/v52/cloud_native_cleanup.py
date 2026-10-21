@@ -14,7 +14,7 @@ import time
 from scripts.v51 import cloud_http as h, cloud_cleanup_credentials as exchange
 from . import cloud_authority as a, cloud_control as c, cloud_provider as p
 from . import cloud_preflight as f, cloud_preflight_read as r, cloud_credentials as credentials
-from . import cloud_artifacts as artifacts, cloud_wire_policy as w
+from . import cloud_artifacts as artifacts, cloud_wire_policy as w, cloud_read_retry
 from .evidence import need, encoded, digest
 
 _CAPABILITY = object()
@@ -151,6 +151,7 @@ def reconcile_native(source, output, *, role='manual'):
                        errorType=type(error).__name__, paidAdmission=False, fullRemoteQualification=False)
         if type(error) is h.ApiError: failure['httpStatus'] = error.status
         failure.update(credentials.failure(error))
+        failure.update(cloud_read_retry.failure(error))
         artifacts.save(output/'failure.json', failure)
         raise
     finally:

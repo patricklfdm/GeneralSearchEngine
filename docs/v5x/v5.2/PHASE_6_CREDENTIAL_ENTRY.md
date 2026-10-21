@@ -61,8 +61,12 @@ followed by impersonation of the one selected account. Federated credentials are
 never provider access tokens. The refresh reads and validates the descriptor anew.
 
 Token acquisition is serialized. Lock wait, source/run checks and all three
-exchanges share one caller deadline of at most 30 seconds. Individual credential
-exchanges have no automatic retry. This is a finite request bound, independent of
+exchanges share one caller deadline of at most 30 seconds. Each V5.2 credential
+stage now permits at most three attempts for transport/timeout or HTTP
+408/429/500/502/503/504, with 0.25/0.5-second backoffs. Only that exact stage is
+retried; the OIDC → STS → impersonation chain is not restarted. Claims, denials,
+decoding and lifetime failures remain terminal. See [read retries](PHASE_6_READ_RETRIES.md).
+This is a finite request bound, independent of
 the soft total stage/cost budgets. The issuer's one-hour expiry may appear up to
 five seconds farther away on a slightly slower runner wall clock. The shared
 exchange permits that bounded skew, then clamps the remaining lifetime to the
@@ -81,7 +85,9 @@ and public operator diagnostics. These fields distinguish credential service
 failures from Compute/Storage `httpStatus`; they never contain an issuer body,
 exception message or URL. Unknown codes/fields and forged error types are omitted.
 This diagnostic extension does not change accepted identities, requested token
-lifetime, the original exchange deadline or retry behavior.
+lifetime or the original exchange deadline. Exhausted transient retries also
+retain a closed `readRetry` record (scope, attempts, reason and stop), without
+issuer URLs, response bodies or tokens.
 
 Receipts contain no environment, descriptor, URL query, request token,
 JWT, federated token or access-token value. Receipt snapshots and closing share

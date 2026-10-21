@@ -12,7 +12,7 @@ from . import cloud_execution as execution, cloud_acceptance as acceptance, clou
 from . import cloud_runner_workflow as workflow, cloud_runner_provenance as origin
 from . import cloud_credentials as credentials, cloud_artifacts as artifacts, cloud_preflight_read as reads
 from . import cloud_authority as a, cloud_inputs as inputs, cloud_native_runner as native
-from . import cloud_member as member, cloud_sdk_runtime as sdk_runtime
+from . import cloud_member as member, cloud_sdk_runtime as sdk_runtime, cloud_read_retry
 from .evidence import need, encoded, digest, strict
 
 OPERATIONS = ('prepare', 'run', 'verify-set')
@@ -105,6 +105,7 @@ def execute_native(source, output):
         if isinstance(error, access.PrivateKeyError): failure['causeCode'] = error.code
         failure.update(credentials.failure(error))
         failure.update(sdk_runtime.failure(error))
+        failure.update(cloud_read_retry.failure(error))
         for relative in ('prepare/failure.json', 'prepared/failure.json', 'run/failure.json', 'run/native/failure.json',
                          'run/member/failure.json'):
             path = output/relative
@@ -113,6 +114,7 @@ def execute_native(source, output):
                     inner = artifacts.read(path)
                     failure.update(credentials.public_failure(inner))
                     failure.update(sdk_runtime.public_failure(inner))
+                    failure.update(cloud_read_retry.public_failure(inner))
                     code = inner.get('code')
                     if type(code) is str and re.fullmatch('V52_[A-Z0-9_]{1,128}', code): failure['causeCode'] = code
                     status = inner.get('httpStatus')

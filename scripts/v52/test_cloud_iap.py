@@ -106,7 +106,7 @@ class GuestProbeTest(unittest.TestCase):
         self.assertEqual({},build.call_args.args[0].proxies)
         for call in opener.open.call_args_list:
             self.assertTrue(call.args[0].full_url.startswith('http://169.254.169.254/computeMetadata/v1/instance/'))
-            self.assertEqual(3,call.kwargs['timeout'])
+            self.assertTrue(0<call.kwargs['timeout']<=3)
         with self.assertRaises(ValueError):build.call_args.args[1].redirect_request(None,None,None,None,None,None)
         response.headers={}
         with patch.object(guest.urllib.request,'build_opener',return_value=opener),self.assertRaises(ValueError):guest.metadata()
@@ -595,6 +595,35 @@ class NativeGuestFactoryTest(unittest.TestCase):
             self.assertEqual([],list(outside.iterdir()))
         self.assertTrue(all(f.closed for f in group.forwards.values()));self.assertFalse(group.watch_thread.is_alive())
         self.assertFalse(Path(group.private.name).exists());self.session.close();self.assertEqual({},self.base.case.server.resources)
+        self.assertIsNone(self.base.case.get(iap.runner.a.LEASE))
+
+    def test_numeric_disk_disconnect_recovers_then_persistent_failure_stops_without_mutation(self):
+        from . import cloud_read_retry as retry
+        with self.open() as group:
+            row=next(r for r in self.session.owner.lease['resources'] if r['spec']['kind']=='disk' and
+                     r['spec']['purpose']=='data' and r['spec']['node']==2)
+            endpoint=self.session.owner.provider.endpoint(row['spec'],row['id']);faults=[]
+            def transient(method,url,body):
+                if method=='GET' and url==endpoint and not faults:
+                    faults.append(url);raise ConnectionError('reproduced numeric-disk GET disconnect')
+            # The owner's independent heartbeat may renew its lease while a
+            # read backs off. It is not a replay of a resource/ledger mutation.
+            def mutations():return [event for event in self.base.mutations() if
+                iap.runner.a.LEASE not in iap.runner.p.url.unquote(event['url'])]
+            before=len(mutations());self.base.case.change=transient
+            group.observe('node-2',iap.time.monotonic()+30)
+            self.assertEqual([endpoint],faults);self.assertEqual(before,len(mutations()))
+            attempts=[]
+            def persistent(method,url,body):
+                if method=='GET' and url==endpoint:
+                    attempts.append(url);raise ConnectionError('repeated disconnect')
+            self.base.case.change=persistent
+            try:
+                with self.assertRaises(retry.ReadError) as caught:group.observe('node-2',iap.time.monotonic()+30)
+                self.assertEqual(3,len(attempts));self.assertFalse(caught.exception.retryable)
+                self.assertEqual(before,len(mutations()))
+            finally:self.base.case.change=lambda *args:None
+        self.session.close();self.assertEqual({},self.base.case.server.resources)
         self.assertIsNone(self.base.case.get(iap.runner.a.LEASE))
 
     def test_changed_guest_identity_closes_all_forwards_without_qualifying(self):

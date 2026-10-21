@@ -216,15 +216,15 @@ class PreflightTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'configuration changed'):self.reader.read('bucket')
         self.assertEqual([],self.server.calls)
 
-    def test_one_401_refresh_is_bounded_and_other_failures_are_not_retried(self):
+    def test_401_refresh_and_transient_read_retries_are_bounded(self):
         self.server.change=lambda server,call:setattr(server,'reply',(401,b'') if len(server.calls)==1 else None)
         self.reader.read('bucket');self.assertEqual(2,len(self.server.calls));self.assertEqual(2,self.reader.tokens.exchanges)
         self.server.reply=(500,b'');self.server.change=lambda s,c:None
-        with self.assertRaises(r.http.ApiError):self.reader.read('bucket')
-        self.assertEqual(3,len(self.server.calls))
+        with self.assertRaises(r.cloud_read_retry.ReadError) as error:self.reader.read('bucket')
+        self.assertEqual(3,error.exception.detail['attempts']);self.assertEqual(5,len(self.server.calls))
         self.server.reply=(401,b'')
         with self.assertRaises(r.http.ApiError):self.reader.read('bucket')
-        self.assertEqual(5,len(self.server.calls))
+        self.assertEqual(7,len(self.server.calls))
 
     def test_read_deadline_bytes_and_post_refresh_expiry_fail_before_any_retry(self):
         self.server.change=lambda s,c:self.clock.sleep(31)
@@ -234,6 +234,18 @@ class PreflightTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'bound/type'):self.reader.read('bucketPermissions')
         self.reader.close()
         with self.assertRaisesRegex(ValueError,'closed'):self.reader.read('bucket')
+
+    def test_fixed_permission_post_retries_and_rechecks_scope(self):
+        self.server.change=lambda server,call:setattr(server,'reply',(503,b'') if len(server.calls)==1 else None)
+        self.reader.read('bucketPermissions');self.assertEqual(2,len(self.server.calls))
+        self.assertEqual(self.server.calls[0],self.server.calls[1])
+        self.make()
+        def change(server,call):
+            self.reader.configuration['provider']['bucket']='other-bucket'
+            raise ConnectionError('lost')
+        self.server.change=change
+        with self.assertRaisesRegex(ValueError,'configuration changed'):self.reader.read('bucketPermissions')
+        self.assertEqual(1,len(self.server.calls))
 
     def test_native_factory_has_no_injection_and_retains_no_error_body(self):
         def send(_,method,url,headers,body,timeout,maximum):

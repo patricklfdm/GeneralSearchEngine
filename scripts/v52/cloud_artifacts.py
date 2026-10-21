@@ -16,6 +16,7 @@ import subprocess
 import time
 import zipfile
 from . import cloud_authority as a, cloud_ci as ci, cloud_inputs as inputs, cloud_credentials as credentials
+from . import cloud_read_retry
 from .evidence import need, encoded, digest, strict
 
 MAX_ZIP = 288 << 20
@@ -46,7 +47,7 @@ class GitHubReadError(ValueError):
     @property
     def retryable(self):
         return self.code == 'V52_GITHUB_TRANSPORT' or (
-            self.code == 'V52_GITHUB_HTTP_REJECTED' and self.http_status in (500, 502, 503, 504))
+            self.code == 'V52_GITHUB_HTTP_REJECTED' and self.http_status in cloud_read_retry.STATUSES)
 
 
 def command_error(stderr, exit_code):

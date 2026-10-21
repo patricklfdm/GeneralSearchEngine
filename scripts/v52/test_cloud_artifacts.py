@@ -362,7 +362,7 @@ class NetworkRetryTest(unittest.TestCase):
         self.assertEqual(3,len(self.calls))
 
     def test_terminal_http_errors_and_unknown_failures_do_not_retry(self):
-        for code in (401,403,404,409,422,429,501,505):
+        for code in (401,403,404,409,422,501,505):
             self.actions = [self.fail(code)]
             with self.subTest(code=code), self.assertRaises(p.GitHubReadError) as caught:
                 self.client.get('actions/artifacts/501')
@@ -370,7 +370,12 @@ class NetworkRetryTest(unittest.TestCase):
         for reason in ('PROCESS_FAILED','START_FAILED','BYTE_BOUND','STDERR_BOUND'):
             self.actions = [(0,b'',p.GitHubReadError(reason))]
             with self.assertRaises(p.GitHubReadError): self.client.get('branches/master')
-        self.assertEqual([],self.waits); self.assertEqual(12,len(self.calls))
+        self.assertEqual([],self.waits); self.assertEqual(11,len(self.calls))
+
+    def test_read_timeout_and_rate_limit_recover_inside_original_deadline(self):
+        self.actions=[self.fail(408),self.fail(429),(0,b'{"ok":true}',None)]
+        self.assertEqual({'ok':True},self.client.get('branches/master'))
+        self.assertEqual(3,len(self.calls));self.assertEqual([1,2],self.waits)
 
     def test_exhausted_original_deadline_does_not_sleep_or_launch_again(self):
         self.actions = [self.fail(delay=29.5)]
@@ -419,11 +424,11 @@ class NetworkRetryTest(unittest.TestCase):
 
 class DiagnosticTest(unittest.TestCase):
     def test_cli_http_and_network_classification_is_closed(self):
-        for status in (500,502,503,504,401,403,404,429,501):
+        for status in (408,429,500,502,503,504,401,403,404,501):
             for raw in (f'gh: private-server-detail (HTTP {status})\n', f'gh: HTTP {status}\n'):
                 error=p.command_error(raw.encode(),1)
                 self.assertEqual(status,error.http_status)
-                self.assertEqual(status in (500,502,503,504),error.retryable)
+                self.assertEqual(status in (408,429,500,502,503,504),error.retryable)
                 self.assertNotIn('private',str(error))
         self.assertTrue(p.command_error(b'Get "private-url": connection reset by peer',1).retryable)
         for raw in (b'gh: denied (HTTP 403)\nconnection reset by peer', b'gh: HTTP 403\ngh: HTTP 503',

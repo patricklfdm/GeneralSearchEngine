@@ -4,12 +4,15 @@ No repository import, shell, caller-selected URL/path or remote mutation. Provid
 authority and the original lease are checked by the controller on both sides.
 """
 import ipaddress
+import http.client
 import json
 import os
 from pathlib import Path
 import pwd
 import re
 import sys
+import time
+import urllib.error
 import urllib.request
 import uuid
 
@@ -33,6 +36,26 @@ def validate(value):
     return value
 
 
+def metadata_read(opener,request):
+    # Fixed link-local GET only. A body/identity/redirect rejection is terminal.
+    # Keep this probe standalone: it executes before any capsule is trusted.
+    end=time.monotonic()+3
+    for attempt in range(3):
+        left=end-time.monotonic();need(left>0)
+        try:
+            with opener.open(request,timeout=min(3,left)) as response:
+                need(response.status==200 and response.headers.get('Metadata-Flavor')=='Google')
+                raw=response.read(8193);need(0<len(raw)<=8192 and time.monotonic()<end)
+                return raw.decode('ascii')
+        except urllib.error.HTTPError as error:
+            if error.code not in (408,429,500,502,503,504):raise
+            error.close()
+        except (urllib.error.URLError,ConnectionError,TimeoutError,http.client.HTTPException):pass
+        delay=.25*(attempt+1)
+        need(attempt<2 and end-time.monotonic()>delay)
+        time.sleep(delay)
+
+
 def metadata():
     # Disable environment proxies and redirects for this fixed metadata origin.
     class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -44,9 +67,7 @@ def metadata():
     for key,path in paths.items():
         request=urllib.request.Request('http://169.254.169.254/computeMetadata/v1/instance/'+path,
                                       headers={'Metadata-Flavor':'Google'})
-        with opener.open(request,timeout=3) as response:
-            need(response.status==200 and response.headers.get('Metadata-Flavor')=='Google')
-            raw=response.read(8193);need(0<len(raw)<=8192);values[key]=raw.decode('ascii')
+        values[key]=metadata_read(opener,request)
     return values
 
 

@@ -25,10 +25,13 @@ def put(store, key, value, expected):
     try:
         generation = store.put(key, deepcopy(value), expected)
         need(store.get(key) == (generation, value), 'V5.2 CAS read-back changed')
-    except UNCERTAIN:
+    except UNCERTAIN as error:
+        if getattr(error,'retryable',True) is False:raise
         for _ in range(3):
             try: seen = store.get(key)
-            except UNCERTAIN: continue
+            except UNCERTAIN as error:
+                if getattr(error,'retryable',True) is False:raise
+                continue
             if seen is not None and seen[0] > expected and seen[1] == value:
                 return seen[0]
         raise ValueError('V5.2 original CAS outcome unresolved') from None
@@ -79,10 +82,13 @@ def release(store, generation, lease):
         return req['selection']['attempt'] != lease['request']['selection']['attempt']
     need(store.get(a.LEASE) == (generation, lease), 'V5.2 lease release ownership changed')
     try: store.delete(a.LEASE, generation)
-    except UNCERTAIN:
+    except UNCERTAIN as error:
+        if getattr(error,'retryable',True) is False:raise
         for _ in range(3):
             try: current = store.get(a.LEASE)
-            except UNCERTAIN: continue
+            except UNCERTAIN as error:
+                if getattr(error,'retryable',True) is False:raise
+                continue
             if original_absent(current): return
         raise ValueError('V5.2 original lease release unresolved') from None
     current = store.get(a.LEASE)

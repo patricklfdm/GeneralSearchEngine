@@ -97,6 +97,26 @@ class ReadTest(unittest.TestCase):
         self.assertEqual(1,len(queried));receipt=r.artifacts.read(self.root/'restored/receipt.json')
         self.assertEqual('FAIL',receipt['status']);self.assertEqual([],receipt['restoredMembers'])
 
+    def test_transient_original_part_read_recovers_without_changing_generation(self):
+        failed=[]
+        def fault(stage,row):
+            if stage=='before' and 'chunk-' in row['url'] and '?alt=media' in row['url'] and not failed:
+                failed.append(row['url']);raise ConnectionError('lost response')
+        self.server.fault=fault
+        result=self.run_restore()
+        self.assertEqual('ORIGINALS_RESTORED_NOT_QUALIFIED',result['receipt']['status']);self.assertEqual(1,len(failed))
+        self.assertEqual(2,sum(row['url']==failed[0] for row in self.server.events))
+        self.assertTrue(all(row['method']=='GET' for row in self.server.events))
+
+    def test_persistent_read_failure_is_retained_and_not_retried_by_restore(self):
+        def fault(stage,row):
+            if stage=='before':raise ConnectionError('private')
+        self.server.fault=fault
+        with self.assertRaises(r.cloud_read_retry.ReadError):self.run_restore()
+        receipt=r.artifacts.read(self.root/'restored/receipt.json')
+        self.assertEqual(3,len(self.server.events));self.assertEqual([],receipt['restoredMembers'])
+        self.assertEqual(3,receipt['failure']['readRetry']['attempts'])
+
     def test_altered_part_never_finishes_restoration(self):
         key=r.retention.chunk_key(self.requests['canonical-3'],0);value=r.strict(self.server.objects[key][1]);value['data']='A'*len(value['data']);self.seed(key,value)
         with self.assertRaisesRegex(ValueError,'chunk bytes'):self.run_restore()

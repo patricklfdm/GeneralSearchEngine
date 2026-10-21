@@ -7,7 +7,7 @@ from pathlib import Path
 import time
 from scripts.v51 import cloud_http as http, cloud_cleanup_credentials as exchange
 from . import cloud_preflight as f, cloud_credentials as credentials, cloud_authority as a, cloud_inputs as inputs
-from . import cloud_artifacts as artifacts
+from . import cloud_artifacts as artifacts, cloud_read_retry
 from .evidence import need, encoded, strict
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -54,6 +54,11 @@ class _Reader:
         return value
 
     def read(self, name, *, generation=None, deadline=None):
+        end=self.clock()+30 if deadline is None else deadline
+        return cloud_read_retry.run(lambda:self._read(name,generation=generation,deadline=end),
+            deadline=end,clock=self.clock,scope='preflight-read')
+
+    def _read(self, name, *, generation=None, deadline=None):
         query = self.request(name, generation); self.phase = name
         end = self.clock()+30 if deadline is None else deadline
         for attempt in range(2):
@@ -195,6 +200,7 @@ def collect_native(source, output, *, role='runner'):
         result=dict(status='FAIL',phase=label,code='V52_PREFLIGHT_'+label.upper().replace('-','_')+'_REJECTED',
                     errorType=type(error).__name__,**f.FLAGS)
         if type(error) is http.ApiError:result['httpStatus']=error.status
+        result.update(cloud_read_retry.failure(error))
         result.update(credentials.failure(error))
         artifacts.save(output/'failure.json',result)
         raise

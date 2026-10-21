@@ -12,10 +12,12 @@ from scripts.v51 import cloud_http as h
 from . import cloud_authority as a,cloud_control as control,cloud_provider as p,cloud_suite as suite
 from . import cloud_credentials as credentials,cloud_preflight_read as preflight,cloud_inputs as inputs
 from . import cloud_artifacts as artifacts,cloud_evidence_parts as parts,cloud_retention as retention
+from . import cloud_read_retry
 from .evidence import need,encoded,digest,strict
 
 
-class _Api(h.Api):
+class _Api(cloud_read_retry.Api):
+    read_scope='evidence-read'
     def __init__(self,owner,**kw):self.owner=owner;super().__init__(**kw)
     def authorize(self,method,endpoint,body):
         self.owner.guard()
@@ -138,7 +140,7 @@ def restore(reader,chosen,output,*,progress=lambda stage,**kw:None):
             finalLedgerSha256=digest(encoded(final)),readIndexSha256=digest(encoded(reader.receipts)))
         return dict(inputs=rows,ledger=final['value'],receipt=receipt)
     except BaseException as error:
-        receipt['failure']=dict(type=type(error).__name__);raise
+        receipt['failure']=dict(type=type(error).__name__,**cloud_read_retry.failure(error));raise
     finally:
         receipt['restoredMembers']=[v['request']['selection']['member']['name'] for v in rows]
         artifacts.save(output/'receipt.json',receipt)
