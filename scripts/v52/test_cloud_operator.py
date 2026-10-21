@@ -60,6 +60,7 @@ class OperatorTest(unittest.TestCase):
     def test_prepare_exports_only_exact_public_files_and_reviewable_unconfirmed_request(self):
         value=dict(member='experiment',sequence='c'*32,estimate=self.plan['estimate'])
         result=self.execute('prepare',value); self.prepare.assert_called_once(); self.run.assert_not_called()
+        self.assertFalse(result['fullCiRequired'])
         self.assertEqual(set(o.downloaded.LIMITS),{p.name for p in (self.output/'result').iterdir()})
         self.assertEqual(dict(preparedRun=654321,preparedAttempt=2,confirmation=result['planSha256']),result['runRequest'])
         self.assertIn('artifactName=v52-prepared-654321-2',(self.root/'actions-output').read_text())
@@ -187,6 +188,33 @@ class OperatorTest(unittest.TestCase):
         self.assertEqual('V52_SSH_KEY_MISMATCH',error.exception.code)
         self.assertEqual(error.exception.code,o.artifacts.read(self.output/'diagnostics/failure.json')['causeCode'])
         self.run.assert_not_called();self.assertFalse((self.output/'result').exists())
+
+    def test_native_credential_diagnostics_reach_public_failure_without_secrets(self):
+        def fail(*args):
+            path=args[-1];(path/'native').mkdir(parents=True)
+            o.artifacts.save(path/'native/failure.json',dict(code='V52_RUNNER_RESOURCES_REJECTED',
+                credentialCode='IMPERSONATION_EXCHANGE_FAILED',credentialFailureKind='http',
+                credentialHttpStatus=403,credentialDetail='never-public-secret'))
+            raise ValueError('never-public-secret')
+        self.run.side_effect=fail
+        with self.assertRaises(ValueError):self.execute('run',self.request())
+        report=o.artifacts.read(self.output/'diagnostics/failure.json')
+        self.assertEqual('IMPERSONATION_EXCHANGE_FAILED',report['credentialCode'])
+        self.assertEqual('http',report['credentialFailureKind']);self.assertEqual(403,report['credentialHttpStatus'])
+        self.assertNotIn('never-public',str(report));self.run.assert_called_once()
+
+    def test_unknown_credential_diagnostics_are_not_projected(self):
+        def fail(*args):
+            path=args[-1];(path/'native').mkdir(parents=True)
+            o.artifacts.save(path/'native/failure.json',dict(credentialCode='STS_EXCHANGE_FAILED',
+                credentialFailureKind='never-public-secret',credentialHttpStatus=True))
+            raise ValueError('never-public-secret')
+        self.run.side_effect=fail
+        with self.assertRaises(ValueError):self.execute('run',self.request())
+        report=o.artifacts.read(self.output/'diagnostics/failure.json')
+        self.assertEqual('STS_EXCHANGE_FAILED',report['credentialCode'])
+        self.assertNotIn('credentialFailureKind',report);self.assertNotIn('credentialHttpStatus',report)
+        self.assertNotIn('never-public',str(report))
     def test_key_failure_has_safe_distinct_phase_before_prepare_or_paid_entry(self):
         @contextmanager
         def failed_key():

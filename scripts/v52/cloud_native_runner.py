@@ -109,6 +109,16 @@ class NativeRunnerApi(w._ScopedApi):
             previous_cost=reservation['previousCostMicrousd'],cost=reservation['costMicrousd'],wall=time.time)
         self.lock=threading.RLock();self.deadline=math.inf;self.calls=self.writes=self.deletes=0;self.log=log
         super().__init__(transport=_RunnerGate(self,reader.transport),tokens=reader.tokens,clock=time.monotonic)
+        # This exact reader already authenticated the same account/run/source.
+        # Transfer its in-memory token once, preserving expiry and normal GET-401
+        # refresh. Never seed a cache from a receipt, disk or another invocation.
+        token=reader.token
+        if token is not None:
+            need(type(token) is h.AccessToken and type(token.usable_until) in (int,float) and
+                 math.isfinite(token.usable_until),'V5.2 Runner preflight token shape')
+            if token.usable_until>self.clock():
+                credentials.exchange.bearer(token.value)
+                self.token=token.value;self.expires=min(token.usable_until,self.clock()+2400)
 
     def validate_adapter(self):
         need(not self.closed and type(self.reader) is reads.NetworkReader,'V5.2 native Runner closed/reader');self.reader.guard()
@@ -282,6 +292,7 @@ def open_native(source,plan_path,approval_path,confirmation,package_path,output,
         failure=dict(status='FAIL',phase=phase,code='V52_RUNNER_'+phase.upper().replace('-','_')+'_REJECTED',
             errorType=type(error).__name__,fullRemoteQualification=False)
         if type(error) is h.ApiError:failure['httpStatus']=error.status
+        failure.update(credentials.failure(error))
         diagnostic(output/'failure.json',failure)
         if session is not None:
             try:session.close()

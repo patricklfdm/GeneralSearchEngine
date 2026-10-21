@@ -195,7 +195,7 @@ def collect_native(source, output, *, role='runner'):
         result=dict(status='FAIL',phase=label,code='V52_PREFLIGHT_'+label.upper().replace('-','_')+'_REJECTED',
                     errorType=type(error).__name__,**f.FLAGS)
         if type(error) is http.ApiError:result['httpStatus']=error.status
-        if type(error) in (credentials.ContextError,exchange.CredentialError):result['credentialCode']=error.reason_code
+        result.update(credentials.failure(error))
         artifacts.save(output/'failure.json',result)
         raise
     finally:

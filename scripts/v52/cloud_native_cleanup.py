@@ -150,7 +150,7 @@ def reconcile_native(source, output, *, role='manual'):
         failure = dict(status='FAIL', phase=phase, code='V52_CLEANUP_'+phase.upper().replace('-','_')+'_REJECTED',
                        errorType=type(error).__name__, paidAdmission=False, fullRemoteQualification=False)
         if type(error) is h.ApiError: failure['httpStatus'] = error.status
-        if type(error) in (credentials.ContextError,exchange.CredentialError): failure['credentialCode'] = error.reason_code
+        failure.update(credentials.failure(error))
         artifacts.save(output/'failure.json', failure)
         raise
     finally:

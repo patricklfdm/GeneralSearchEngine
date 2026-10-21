@@ -10,12 +10,16 @@ from datetime import datetime
 import re
 import time
 from urllib.parse import parse_qsl, urlencode, urlsplit
+from urllib.error import URLError
 from . import cloud_http as http, performance_model as m
 
 STS = 'https://sts.googleapis.com/v1/token'
 SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
 JWT = 'urn:ietf:params:oauth:token-type:jwt'
 ACCESS = 'urn:ietf:params:oauth:token-type:access_token'
+TOKEN_SECONDS = 3600
+TOKEN_CLOCK_SKEW_SECONDS = 5
+FAILURE_KINDS = frozenset(('http','timeout','transport','deadline','response','lifetime'))
 DIAGNOSTICS = {
     'CREDENTIAL_FILE_PATH':'The auth action credential path is missing or not absolute.',
     'CREDENTIAL_FILE_OPEN':'The credential file cannot be opened without following symlinks.',
@@ -55,10 +59,15 @@ DIAGNOSTICS = {
 
 class CredentialError(ValueError):
     """Only a code from this closed inventory may reach receipts or summaries."""
-    def __init__(self, reason_code):
+    def __init__(self, reason_code, *, failure_kind=None, http_status=None):
         if type(reason_code) is not str or reason_code not in DIAGNOSTICS:
             raise ValueError('unknown credential diagnostic code')
         self.reason_code = reason_code
+        if failure_kind is not None and (type(failure_kind) is not str or failure_kind not in FAILURE_KINDS):
+            raise ValueError('unknown credential failure kind')
+        if http_status is not None and (failure_kind != 'http' or type(http_status) is not int or not 100 <= http_status <= 599):
+            raise ValueError('invalid credential HTTP status')
+        self.failure_kind, self.http_status = failure_kind, http_status
         phase = 'file' if reason_code.startswith('CREDENTIAL_FILE_') else 'exchange' if reason_code.endswith(
             ('EXCHANGE_FAILED','RESPONSE_INVALID','CLAIMS_REJECTED')) else 'descriptor'
         super().__init__('cleanup credential '+phase+' rejected: '+reason_code)
@@ -181,16 +190,23 @@ class _Exchange:
 
     def request(self, phase, method, url, headers, body, deadline):
         remaining = deadline-self.clock()
-        m.need(remaining > 0, 'cleanup credential original deadline')
+        code = {'oidc':'OIDC_EXCHANGE_FAILED','sts':'STS_EXCHANGE_FAILED',
+                'impersonation':'IMPERSONATION_EXCHANGE_FAILED'}[phase]
+        if remaining <= 0: raise CredentialError(code, failure_kind='deadline')
         try:
             status, raw = self.transport.send(method, url, headers, body, min(30, remaining), 128 << 10)
-            m.need(self.clock() <= deadline, 'late credential response')
-            m.need(status == 200 and type(raw) is bytes and len(raw) <= 128 << 10, 'credential response')
+        except Exception as error:
+            timed_out = isinstance(error, TimeoutError) or (isinstance(error, URLError) and isinstance(error.reason, TimeoutError))
+            raise CredentialError(code, failure_kind='timeout' if timed_out else 'transport') from None
+        if self.clock() > deadline: raise CredentialError(code, failure_kind='deadline')
+        if type(status) is int and 100 <= status <= 599 and status != 200:
+            raise CredentialError(code, failure_kind='http', http_status=status)
+        try:
+            m.need(type(status) is int and status == 200 and type(raw) is bytes and len(raw) <= 128 << 10, 'credential response')
             return m.strict_json(raw)
         except Exception:
             # Never retain response text, subject tokens, Authorization or URL query.
-            raise CredentialError({'oidc':'OIDC_EXCHANGE_FAILED','sts':'STS_EXCHANGE_FAILED',
-                'impersonation':'IMPERSONATION_EXCHANGE_FAILED'}[phase]) from None
+            raise CredentialError(code, failure_kind='response') from None
 
     def __call__(self, timeout):
         m.need(type(timeout) in (int,float) and 0 < timeout <= 30, 'cleanup credential timeout')
@@ -214,12 +230,16 @@ class _Exchange:
             rejected = 'IMPERSONATION_RESPONSE_INVALID'
             result = self.request('impersonation', 'POST', self.value['service_account_impersonation_url'],
                 {'Content-Type':'application/json', 'Authorization':'Bearer '+federated},
-                m.canonical(dict(scope=[SCOPE], lifetime='3600s')), deadline)
+                m.canonical(dict(scope=[SCOPE], lifetime=str(TOKEN_SECONDS)+'s')), deadline)
             expires = result['expireTime']
             m.need(isinstance(expires,str) and expires.endswith('Z'), 'cleanup token expiry')
             remaining = datetime.fromisoformat(expires[:-1]+'+00:00').timestamp()-self.wall()
-            m.need(60 < remaining <= 3600, 'cleanup token lifetime')
-            token = http.AccessToken(bearer(result['accessToken']), self.clock()+remaining-60)
+            if not 60 < remaining <= TOKEN_SECONDS+TOKEN_CLOCK_SKEW_SECONDS:
+                raise CredentialError(rejected, failure_kind='lifetime')
+            # Google and the runner use different wall clocks. A small positive
+            # skew must not reject a requested one-hour token. Never add that
+            # skew to its usable lifetime; retain the full expiry safety margin.
+            token = http.AccessToken(bearer(result['accessToken']), self.clock()+min(remaining,TOKEN_SECONDS)-60)
             self.exchanges += 1
             return token
         except CredentialError:raise

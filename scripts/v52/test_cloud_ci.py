@@ -3,6 +3,8 @@ import base64
 from copy import deepcopy
 from datetime import datetime, timezone
 import hashlib
+from pathlib import Path
+import tempfile
 import unittest
 from . import cloud_ci as c
 from .evidence import encoded
@@ -44,7 +46,9 @@ class Fixture:
 
     def install(self):
         self.data['branches/master'] = dict(commit=dict(sha=SOURCE))
-        self.page('actions/workflows/ci.yml/runs?branch=master&head_sha='+SOURCE, 'workflow_runs', [self.run])
+        for path in (c.WORKFLOW, c.standalone.WORKFLOW):
+            self.page('actions/workflows/'+path.rsplit('/',1)[1]+'/runs?branch=master&head_sha='+SOURCE,
+                      'workflow_runs', [self.run] if self.run['path'] == path else [])
         self.data['actions/runs/10'] = deepcopy(self.run); self.data['actions/runs/10/attempts/2'] = deepcopy(self.run)
         self.page('actions/runs/10/attempts/2/jobs', 'jobs', self.jobs)
         for path, text in self.shape['sourceFiles'].items():
@@ -192,6 +196,154 @@ class FullCiTest(unittest.TestCase):
         for key, val in (('started_at',at(NOW+1)), ('completed_at',at(NOW+1)), ('started_at','2026-01-01T00:00:00')):
             value = self.observe(); value['jobs'][0][key] = val
             with self.assertRaises(ValueError): c.validate(value, SOURCE, self.shape, NOW)
+
+
+class BuildAdmissionTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):cls.shape=c.contract()
+
+    def setUp(self):self.f=Fixture(self.shape)
+
+    def observe(self):return c.observe(SOURCE,self.shape,self.f.get,lambda:NOW,require_full=False)
+
+    def validate(self,value):return c.validate(value,SOURCE,self.shape,NOW,require_full=False)
+
+    def test_temporary_cloud_policy_does_not_claim_full_ci(self):
+        self.assertFalse(c.REQUIRE_FULL_CI)
+        for status,conclusion in (('in_progress',None),('completed','failure'),('completed','cancelled')):
+            self.f.run.update(status=status,conclusion=conclusion)
+            self.f.jobs=[job for job in self.f.jobs if job['name']==c.BUILD]
+            self.f.install();proof=self.validate(self.observe())
+            self.assertEqual('BUILD_CI_VERIFIED_NOT_ADMITTED',proof['status'])
+            self.assertEqual(1,proof['jobs']);self.assertFalse(proof['fullCiRequired'])
+            self.assertFalse(proof['paidAdmission']);self.assertFalse(proof['fullRemoteQualification'])
+
+    def test_unrelated_jobs_and_overall_result_can_change_during_collection(self):
+        self.f.run.update(status='in_progress',conclusion=None);self.f.install()
+        completed=dict(self.f.run,status='completed',conclusion='failure')
+        self.f.queues['actions/runs/10']=[self.f.run,completed]
+        path='actions/runs/10/attempts/2/jobs?per_page=100&page=1'
+        changed=deepcopy(self.f.data[path])
+        for job in changed['jobs']:
+            if job['name']!=c.BUILD:job.update(status='in_progress',conclusion=None,completed_at=None)
+        self.f.queues[path]=[self.f.data[path],changed]
+        self.validate(self.observe())
+
+    def test_missing_failed_skipped_unfinished_or_replaced_build_still_rejects(self):
+        original=self.observe()
+        for change in (
+            lambda v:v.update(jobs=[j for j in v['jobs'] if j['name']!=c.BUILD]),
+            lambda v:next(j for j in v['jobs'] if j['name']==c.BUILD).update(conclusion='failure'),
+            lambda v:next(j for j in v['jobs'] if j['name']==c.BUILD).update(conclusion='skipped'),
+            lambda v:next(j for j in v['jobs'] if j['name']==c.BUILD).update(status='in_progress'),
+            lambda v:next(j for j in v['jobs'] if j['name']==c.BUILD)['steps'].pop(),
+            lambda v:next(j for j in v['jobsAfter'] if j['name']==c.BUILD).update(id=999999),
+        ):
+            value=deepcopy(original);change(value)
+            with self.assertRaises(ValueError):self.validate(value)
+
+    def test_source_attempt_repository_and_latest_run_bindings_still_reject(self):
+        original=self.observe()
+        for change in (
+            lambda v:v.update(masterAfter='f'*40),
+            lambda v:v['runAfter'].update(run_attempt=3),
+            lambda v:v['runAttempt'].update(head_sha='f'*40),
+            lambda v:v['run']['repository'].update(id=1),
+            lambda v:v['run'].update(event='pull_request'),
+            lambda v:v['runsAfter'].append(run(11)),
+            lambda v:v['sourceContents'][c.WORKFLOW].update(sha='f'*40),
+        ):
+            value=deepcopy(original);change(value)
+            with self.assertRaises(ValueError):self.validate(value)
+
+    def test_manual_build_appearing_while_observing_ci_changes_selected_source(self):
+        path='actions/workflows/v52-cloud-build.yml/runs?branch=master&head_sha='+SOURCE+'&per_page=100&page=1'
+        manual=dict(run(11),path=c.standalone.WORKFLOW,event='workflow_dispatch',workflow_id=456)
+        self.f.queues[path]=[dict(total_count=0,workflow_runs=[]),dict(total_count=1,workflow_runs=[manual])]
+        with self.assertRaisesRegex(ValueError,'latest run changed'):self.observe()
+
+
+class StandaloneBuildTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls): cls.shape=c.contract()
+
+    def setUp(self):
+        self.f=Fixture(self.shape)
+        self.f.run.update(path=c.standalone.WORKFLOW,event='workflow_dispatch',workflow_id=456)
+        self.f.jobs=jobs(dict(jobs=self.shape['standaloneJobs']),self.f.run);self.f.install()
+
+    def observe(self):return c.observe(SOURCE,self.shape,self.f.get,lambda:NOW,require_full=False)
+
+    def test_manual_build_without_any_normal_ci_run_is_verified(self):
+        proof=c.validate(self.observe(),SOURCE,self.shape,NOW,require_full=False)
+        self.assertEqual(c.standalone.WORKFLOW,proof['workflow']);self.assertEqual(1,proof['jobs'])
+        self.assertFalse(proof['fullCiRequired']);self.assertFalse(proof['paidAdmission'])
+
+    def test_manual_build_has_priority_even_over_newer_ci(self):
+        self.f.page('actions/workflows/ci.yml/runs?branch=master&head_sha='+SOURCE,'workflow_runs',[run(20)])
+        self.assertEqual(10,self.observe()['run']['id'])
+
+    def test_failed_manual_build_cannot_fall_back_to_green_ci(self):
+        self.f.run['conclusion']='failure';self.f.jobs[0]['conclusion']='failure';self.f.install()
+        self.f.page('actions/workflows/ci.yml/runs?branch=master&head_sha='+SOURCE,'workflow_runs',[run(20)])
+        with self.assertRaisesRegex(ValueError,'failed/skipped'):self.observe()
+
+    def test_pending_skipped_missing_or_incomplete_producer_rejects(self):
+        original=self.observe()
+        for change in (lambda v:v.update(jobs=[]),
+                       lambda v:v['jobs'][0].update(status='in_progress',conclusion=None),
+                       lambda v:v['jobs'][0].update(conclusion='skipped'),
+                       lambda v:v['jobs'][0]['steps'].pop()):
+            value=deepcopy(original);change(value)
+            with self.assertRaises(ValueError):c.validate(value,SOURCE,self.shape,NOW,require_full=False)
+
+    def test_new_manual_run_during_collection_rejects(self):
+        path='actions/workflows/v52-cloud-build.yml/runs?branch=master&head_sha='+SOURCE+'&per_page=100&page=1'
+        self.f.queues[path]=[deepcopy(self.f.data[path]),dict(total_count=2,workflow_runs=[self.f.run,dict(self.f.run,id=11)])]
+        with self.assertRaisesRegex(ValueError,'latest run changed'):self.observe()
+
+    def test_source_repository_event_attempt_and_workflow_substitution_reject(self):
+        original=self.observe()
+        for change in (lambda v:v['run'].update(head_branch='branch'),
+                       lambda v:v['run'].update(event='push'),lambda v:v['run'].update(event='pull_request'),
+                       lambda v:v['run']['head_repository'].update(id=99),
+                       lambda v:v['runAfter'].update(run_attempt=3),
+                       lambda v:v['runAttempt'].update(path=c.WORKFLOW),
+                       lambda v:v['sourceContents'][c.standalone.WORKFLOW].update(sha='f'*40)):
+            value=deepcopy(original);change(value)
+            with self.assertRaises(ValueError):c.validate(value,SOURCE,self.shape,NOW,require_full=False)
+
+    def test_full_policy_never_uses_manual_build_in_place_of_ci(self):
+        with self.assertRaisesRegex(ValueError,'no exact-master'):
+            c.observe(SOURCE,self.shape,self.f.get,lambda:NOW,require_full=True)
+        with self.assertRaises(ValueError):c.validate(self.observe(),SOURCE,self.shape,NOW)
+
+    def test_both_producer_lists_are_completely_paginated(self):
+        path='actions/workflows/v52-cloud-build.yml/runs?branch=master&head_sha='+SOURCE
+        rows=[dict(self.f.run,id=100+i) for i in range(205)]
+        self.f.page(path,'workflow_runs',rows)
+        self.f.page('actions/workflows/ci.yml/runs?branch=master&head_sha='+SOURCE,'workflow_runs',[run()])
+        result=c.listing(self.f.get,SOURCE,require_full=False)
+        self.assertEqual(206,len(result));self.assertEqual(304,c.latest(result,SOURCE,require_full=False)['id'])
+        self.assertIn(path+'&per_page=100&page=3',self.f.calls)
+
+    def test_workflow_contract_keeps_original_build_tests_and_uploads(self):
+        workflow=c.standalone.render();self.assertEqual(workflow,c.suites.read(c.ROOT,c.standalone.WORKFLOW))
+        self.assertIn("if: ${{ github.ref == 'refs/heads/master' }}",workflow)
+        self.assertIn('  workflow_dispatch:',workflow);self.assertEqual(4,workflow.count('retention-days: 90'))
+        for forbidden in ('  push:','  pull_request:','  schedule:','id-token:', 'environment:', '-DskipTests', 'self-hosted'):
+            self.assertNotIn(forbidden,workflow)
+        self.assertIn('clean package',workflow)
+        self.assertEqual(self.shape['jobs'][c.BUILD]['steps'],self.shape['standaloneJobs'][c.standalone.JOB]['steps'])
+
+    def test_workflow_drift_cannot_silently_drop_tests_or_grant_cloud_access(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'.github/workflows').mkdir(parents=True)
+            (root/c.WORKFLOW).write_text(c.suites.read(c.ROOT,c.WORKFLOW))
+            for old,new in (('clean package','clean package -DskipTests'),('contents: read','id-token: write'),
+                            ('retention-days: 90','retention-days: 1')):
+                (root/c.standalone.WORKFLOW).write_text(c.standalone.render().replace(old,new))
+                with self.assertRaisesRegex(ValueError,'workflow changed'):c.standalone.contract(root)
 
 
 if __name__ == '__main__': unittest.main()

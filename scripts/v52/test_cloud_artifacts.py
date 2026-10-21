@@ -38,6 +38,15 @@ class ArtifactFixture(Fixture):
             self.data[f'actions/runs/10/attempts/{attempt}'] = deepcopy(self.original_run)
             self.page(f'actions/runs/10/attempts/{attempt}/jobs','jobs',[self.origin])
 
+    def use_standalone(self):
+        for run in (self.run,self.original_run):
+            run.update(path=ci.standalone.WORKFLOW,event='workflow_dispatch',workflow_id=456)
+        for job in (self.current,self.origin):job['name']=ci.standalone.JOB
+        self.jobs=[self.current];self.install()
+        if self.origin['run_attempt'] != self.run['run_attempt']:
+            self.data['actions/runs/10/attempts/1']=deepcopy(self.original_run)
+            self.page('actions/runs/10/attempts/1/jobs','jobs',[self.origin])
+
     def rezip(self, entries):
         buffer = io.BytesIO()
         with warnings.catch_warnings():
@@ -82,6 +91,26 @@ class ArtifactTest(unittest.TestCase):
         self.f = ArtifactFixture(self.shape, new_root, carried=False)
         result = self.collect(); self.assertEqual(2, result['producer']['attempt'])
 
+    def test_standalone_original_and_carried_attempt_artifacts_replay(self):
+        for carried in (True,False):
+            root=self.root/str(carried);root.mkdir();self.f=ArtifactFixture(self.shape,root,carried=carried)
+            self.out=root/'out';self.f.use_standalone();proof=self.collect()
+            self.assertEqual(ci.standalone.WORKFLOW,proof['ci']['workflow'])
+            self.assertEqual(1 if carried else 2,proof['producer']['attempt'])
+            self.assertEqual(proof,self.replay());self.assertEqual([501],self.f.downloads)
+            for path in self.f.calls:p.allowed_path(path)
+
+    def test_standalone_producer_cannot_borrow_original_attempt_from_ci(self):
+        self.f.use_standalone()
+        self.f.data['actions/runs/10/attempts/1']['path']=ci.WORKFLOW
+        with self.assertRaises(ValueError):self.collect()
+        self.assertEqual([],self.f.downloads)
+
+    def test_standalone_artifact_digest_failure_is_not_retried_or_substituted(self):
+        self.f.use_standalone();self.f.raw=self.f.raw[:-1]+bytes([self.f.raw[-1]^1])
+        with self.assertRaisesRegex(ValueError,'ZIP bytes'):self.collect()
+        self.assertEqual([501],self.f.downloads)
+
     def test_original_artifact_and_producing_job_can_be_on_later_pages(self):
         rows = [dict(id=10000+i, name='unrelated-'+str(i)) for i in range(204)]+[self.f.record]
         self.f.page('actions/runs/10/artifacts', 'artifacts', rows)
@@ -118,7 +147,7 @@ class ArtifactTest(unittest.TestCase):
     def test_original_attempt_run_is_bound_even_if_its_overall_conclusion_failed(self):
         observation = self.observation()
         for key, val in (('id',11), ('run_attempt',2), ('head_sha','f'*40), ('workflow_id',999),
-                         ('event','pull_request'), ('status','in_progress')):
+                         ('event','pull_request'), ('status','invalid')):
             wrong = dict(self.f.original_run, **{key:val})
             with self.assertRaises(ValueError): p.producer(wrong, self.f.origin, self.f.record, observation, self.shape, NOW)
 
@@ -155,8 +184,37 @@ class ArtifactTest(unittest.TestCase):
     def test_new_full_run_or_failed_rerun_after_download_invalidates_whole_collection(self):
         path = 'actions/runs/10'; changed = dict(self.f.run, run_attempt=3, conclusion='failure')
         self.f.queues[path] = [self.f.run, self.f.run, changed]
-        with self.assertRaisesRegex(ValueError, 'not completed green'): self.collect()
+        with self.assertRaisesRegex(ValueError, 'selection changed|run/attempt changed'): self.collect()
         self.assertEqual([501], self.f.downloads)
+
+    def test_current_build_artifact_is_accepted_while_full_ci_is_running(self):
+        root=self.root/'unfinished';root.mkdir();self.f=ArtifactFixture(self.shape,root,carried=False)
+        self.f.run.update(status='in_progress',conclusion=None);self.f.install()
+        result=self.collect()
+        self.assertFalse(result['ci']['fullCiRequired']);self.assertEqual(1,result['ci']['jobs'])
+        self.assertEqual('BUILD_CI_VERIFIED_NOT_ADMITTED',result['ci']['status'])
+        self.assertEqual(result,self.replay());self.assertEqual([501],self.f.downloads)
+
+    def test_full_ci_failure_does_not_block_original_successful_build(self):
+        self.f.run.update(conclusion='failure');self.f.install()
+        for job in self.f.jobs:
+            if job['name']!=ci.BUILD:job['conclusion']='failure'
+        self.f.install();self.assertEqual('BUILD_PROVENANCE_VERIFIED_NOT_ADMITTED',self.collect()['status'])
+
+    def test_full_ci_finishing_during_artifact_download_is_not_identity_drift(self):
+        self.f.run.update(status='in_progress',conclusion=None);self.f.install()
+        original=self.f.download
+        def download(*args):
+            original(*args);self.f.run.update(status='completed',conclusion='failure');self.f.install()
+        self.f.download=download
+        self.assertEqual(1,self.collect()['ci']['jobs'])
+
+    def test_restoring_full_ci_policy_rejects_unfinished_or_failed_full_run(self):
+        for status,conclusion in (('in_progress',None),('completed','failure')):
+            self.f.run.update(status=status,conclusion=conclusion);self.f.install()
+            self.out=self.root/status
+            with patch.object(ci,'REQUIRE_FULL_CI',True),self.assertRaisesRegex(ValueError,'not completed green'):self.collect()
+        self.assertEqual([],self.f.downloads)
 
     def test_zip_hash_size_symlink_and_original_extracted_bytes_are_independent(self):
         self.collect(); path = self.out/'build.zip'; original = path.read_bytes()

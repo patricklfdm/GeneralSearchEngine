@@ -1,32 +1,58 @@
 # V5.2 Phase 6AW original CI and build provenance
 
 This stage connects the [prepared input checks](PHASE_6_PREPARED_INPUTS.md) to a
-fixed read-only GitHub collector. It checks the current master source, complete
-full CI and the original shared-build artifact. Its result remains
+fixed read-only GitHub collector. It checks the current master source and the
+original shared-build artifact. Its result remains
 `BUILD_PROVENANCE_VERIFIED_NOT_ADMITTED`: it creates no provider capability,
 resource, lease, approval or workload result.
 
-## Source and complete CI
+## Temporary V5.2 cloud admission policy
 
-`scripts.v52.cloud_ci` reuses the existing closed `ci_suites` parser and registry.
-At this stage the 41 registered suites expand to 51 jobs, including the five
-V5.2 lanes and the existing control jobs. Workflow names, matrices, shared-build
-steps, Required, tiered dispatch and V5.1 consumers are unchanged.
+The operator explicitly suspended the **whole master full-CI completion/pass**
+prerequisite for V5.2 cloud experiments. `scripts.v52.cloud_ci.REQUIRE_FULL_CI`
+is currently `False`. Preparation and original Runner admission therefore require
+only a successful exact-source build producer and all of that job's required
+steps, including the original build and upload. Other jobs may
+still be running, fail, be cancelled or be skipped without blocking admission.
+This policy does not change normal CI triggers, Required, V5.1 cloud admission,
+release checks, workload acceptance, cleanup, permissions or operator approval.
 
-The collector brackets its observations with the current master SHA. It selects
-the latest CI run for that exact source and accepts only master push, manual or
-scheduled full CI. A newer failed, cancelled or pending run blocks acceptance;
-an earlier green run is not a fallback. PR, docs-only and integration runs cannot
-substitute for the complete successful job set.
+The producer and original artifact must still exist. After skipping normal CI,
+the operator can use the separate manual build below. A missing, failed, cancelled,
+skipped or unfinished producer blocks admission. Local JARs cannot replace the
+original authenticated artifact.
 
-The latest run, exact attempt and repeated run/job inventories must agree. Every
-expected job and unconditional verification step must have succeeded, with
-consistent source, attempt and execution times. Composite actions retain their
-visible caller-step names while the source contract checks their implementation.
-The current workflow, registry, release workflow and two shared-build composite
-actions are compared with GitHub's source bytes and Git blob hashes. Repository
-and owner IDs are pinned; unrelated metadata such as repository stars is not an
-execution identity.
+The collector brackets its observations with the current master SHA. It reads
+both workflow run inventories for that exact source and prefers the latest
+`v52-cloud-build.yml` manual run. If that source has no manual build, it selects
+the latest `ci.yml` run (master push, manual or schedule). A failed/pending manual
+producer never falls back to CI or an older green build. It never selects a PR
+build. A new selected run, changed attempt, different source/repository, changed
+producer execution or invalid build/upload step still rejects. Unrelated job and
+overall-run status transitions during collection are allowed.
+
+The source-controlled registry still validates the complete workflow structure,
+names, matrices and shared-build contract. The current workflow, registry,
+manual build workflow, release workflow and two shared-build composite actions are compared with
+GitHub's source bytes and Git blob hashes. Repository and owner IDs stay pinned.
+
+Receipts use `BUILD_CI_VERIFIED_NOT_ADMITTED`, `fullCiRequired: false`, and a
+one-job verification digest. Raw complete API inventories remain retained, but
+are not certified as successful full CI. Public Runner summaries also expose
+`fullCiRequired: false`. The inspection also records the selected `workflow`.
+Source/build provenance is revalidated at preparation
+and original execution; no copied PASS receipt grants admission.
+
+### Restoring the full-CI prerequisite
+
+Set `REQUIRE_FULL_CI = True` in a reviewed source change. The original complete
+CI validator remains available and tested: it requires a completed green latest
+run, all registered jobs/required steps, and stable complete job inventories.
+There is no workflow input or environment override. Retained build-only evidence
+cannot assert full-CI verification after restoring the policy. Fresh preparation
+must use the restored source and its regular CI build; the standalone workflow
+cannot substitute for full CI under that policy. This temporary admission exception
+does not close any pending full-CI or release qualification.
 
 All lists are paginated, checked for changing totals, truncation and duplicate
 IDs, and bounded at 1,000 records. Filtered run searches reject the 1,000-record
@@ -34,10 +60,40 @@ boundary because GitHub caps those searches. This follows the documented
 [workflow-run API](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28)
 and [explicit-attempt job API](https://docs.github.com/en/rest/actions/workflow-jobs).
 
+## Independent manual build
+
+After the workflow is merged into master, run:
+
+```bash
+gh workflow run v52-cloud-build.yml --ref master
+```
+
+`V5.2 Cloud Build` only accepts manual dispatch and its job only executes on
+master. It uses a GitHub-hosted Ubuntu runner with read-only repository permission;
+it has no cloud environment, WIF token permission or GCP operation. It checks out
+the dispatch SHA, runs the existing Maven reactor `clean package` with Java tests,
+and uses `scripts.ci_v51_bundle` to prepare and create the original manifest and
+archive. It does not execute the long regression or cloud experiments. The build
+job has a 60-minute execution limit; cloud experiment time/cost budgets remain soft.
+
+The workflow is generated from the current regular CI producer by
+`python3 -m scripts.v52.cloud_build_workflow`. Contract tests reject drift in
+commands, toolchain, pinned actions, master restriction or permissions. Both
+producers retain the same artifact format and internal step names. The independent
+workflow retains its bundle, Java test reports, provenance and infrastructure
+attempt logs for 90 days, including failure diagnostics where available.
+
+Wait for `V5.2 cloud build` to succeed, then obtain recent manual cleanup PASS
+and prepare/run the selected member. One build can serve all five members of the
+same source/sequence; do not rebuild between preparation and execution. A newer
+manual run or attempt changes selected provenance and requires fresh preparation.
+This workflow does not disable ordinary push/PR CI or change branch protection;
+any operator-approved CI skip/bypass is a separate repository operation.
+
 ## Original artifact and producing attempt
 
-The existing producer remains `V5.1 verification build`; it already builds
-V5.2. Its artifact remains
+The producers are `V5.1 verification build` in `ci.yml` (which already builds
+V5.2) and `V5.2 cloud build` in the standalone workflow. Their artifact remains
 `v51-verification-build-<source>-attempt-<original-attempt>`. The collector finds
 exactly one artifact in that accepted build's original upload interval. It
 requires the exact run/source/repository, an unexpired artifact and its API
@@ -57,7 +113,7 @@ extraction. The build manifest, original archive, every member and executed-test
 report prerequisites are then checked by `cloud_inputs` against the separately
 observed clean checkout and Java binding. A local JAR or copied PASS receipt is
 not a replacement for the original artifact bytes. Artifact metadata/listing and
-the complete CI observation are repeated after download to detect changes.
+the source/producer observation are repeated after download to detect changes.
 
 The [GitHub artifact API](https://docs.github.com/en/rest/actions/artifacts?apiVersion=2022-11-28)
 provides the digest, expiry and fixed artifact-ID download endpoint. The adapter

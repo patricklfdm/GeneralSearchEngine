@@ -175,6 +175,34 @@ class CredentialTest(unittest.TestCase):
             self.assertEqual(phase.upper()+'_EXCHANGE_FAILED',tokens.receipt()['reasonCode'])
             self.assert_sanitized(''.join(traceback.format_exception(error.exception))+json.dumps(tokens.receipt()))
 
+    def test_native_exchange_failure_distinguishes_http_timeout_and_invalid_response(self):
+        from contextlib import ExitStack
+        cases=((403,b'private issuer error','http',403),
+               (503,b'private issuer error','http',503),
+               (200,b'private invalid JSON','response',None))
+        for status,raw,kind,http_status in cases:
+            with self.subTest(status=status),ExitStack() as stack:
+                tokens=self.native(stack)[0]
+                stack.enter_context(patch.object(tokens.transport,'send',return_value=(status,raw)))
+                with self.assertRaises(exchange.CredentialError) as caught:tokens(30)
+                report=c.failure(caught.exception)
+                self.assertEqual('OIDC_EXCHANGE_FAILED',report['credentialCode'])
+                self.assertEqual(kind,report['credentialFailureKind'])
+                self.assertEqual(http_status,report.get('credentialHttpStatus'));self.assert_sanitized(str(report))
+        with ExitStack() as stack:
+            tokens=self.native(stack)[0]
+            stack.enter_context(patch.object(tokens.transport,'send',side_effect=TimeoutError('private issuer timeout')))
+            with self.assertRaises(exchange.CredentialError) as caught:tokens(30)
+            self.assertEqual('timeout',c.failure(caught.exception)['credentialFailureKind'])
+
+    def test_forged_or_mutated_credential_errors_cannot_export_private_fields(self):
+        error=ValueError('private issuer');error.reason_code='STS_EXCHANGE_FAILED'
+        self.assertEqual({},c.failure(error))
+        error=exchange.CredentialError('STS_EXCHANGE_FAILED')
+        error.failure_kind='private issuer';error.http_status=True
+        self.assertEqual({'credentialCode':'STS_EXCHANGE_FAILED'},c.failure(error))
+        error.reason_code='private issuer';self.assertEqual({},c.failure(error))
+
     def test_malformed_sts_or_impersonation_response_never_returns_token(self):
         for phase,change,code in (
             ('sts',dict(token_type='Basic'),'STS_RESPONSE_INVALID'),
@@ -190,9 +218,20 @@ class CredentialTest(unittest.TestCase):
         tokens=self.tokens();token=tokens(30)
         self.assertEqual(self.clock.seconds()+3540,token.usable_until)
         self.assert_sanitized(repr(token)+json.dumps(tokens.receipt()))
-        for lifetime in (0,60,3601):
+        for lifetime in (0,60,3605.001):
             self.issuer.lifetime=lifetime
             with self.assertRaisesRegex(exchange.CredentialError,'IMPERSONATION_RESPONSE_INVALID'):tokens(30)
+
+    def test_small_issuer_clock_skew_is_clamped_without_extending_usable_lifetime(self):
+        tokens=self.tokens()
+        for lifetime in (3600.001,3601.465,3605):
+            self.issuer.lifetime=lifetime
+            with self.subTest(lifetime=lifetime):
+                token=tokens(30)
+                self.assertEqual(self.clock.seconds()+3540,token.usable_until)
+        self.issuer.lifetime=3605.001
+        with self.assertRaises(exchange.CredentialError) as caught:tokens(30)
+        self.assertEqual('lifetime',c.failure(caught.exception)['credentialFailureKind'])
 
     def test_original_deadline_covers_run_observation_and_entire_exchange(self):
         def delayed(number,value):self.clock.sleep(2);return value
