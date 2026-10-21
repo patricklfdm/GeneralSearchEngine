@@ -55,6 +55,14 @@ production changes; an arithmetic quorum test closes only part of D02.
 | D09 | Finite storage, voter/learner/transfer/queue/tombstone bounds and overflow handling, including peak old/new union |
 | D10 | Deterministic schedules, real public consumers, independent physical checker, performance and cloud workload freeze |
 
+## Research progress on blocking decisions
+
+The [durable ballot/handoff batch](BALLOT_AND_HANDOFF_RESEARCH.md) narrows D01/D03
+with explicit identity/ballot proposals and tests one-slot persistent recovery.
+D02/D06 now have a retained cross-view fork counterexample and an explicit list of
+handoff obligations. These are partial research results; no blocking row is marked
+complete, and the Phase 0 contract is not frozen.
+
 ## Phase 0 deliverables still to freeze
 
 - `PHASE_0_CONTRACT.md`: resolved decisions and authority/state matrix.

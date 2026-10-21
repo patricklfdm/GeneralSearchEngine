@@ -38,6 +38,19 @@ of receipt context validation. The CLI test confirms incomplete exploration exit
 with failure and cannot overwrite a previous evidence directory. An optimized
 Python subprocess confirms duplicate/foreign receipt rejection survives `-O`.
 
+## Durable single-slot research
+
+The [ballot/handoff research](BALLOT_AND_HANDOFF_RESEARCH.md) adds separate message,
+force and crash events, frozen recovery bases, and a history oracle. Its 21-context,
+2,884-case schedule matrix preserves chosen values despite lost ACKs and partial
+writes. Five unsafe implementation mutants are detected by specific safety checks.
+The direct-switch example passes each local configuration check but fails the
+combined root/index check, so individual-view success cannot close reconfiguration.
+
+This extends entry research. It does not meet the complete Phase 1 transition,
+multi-slot recovery or physical storage gate. See the exact assumptions, excluded
+schedules, retained JSON replay and [receipt](ballot-research.json).
+
 ## Later foundation and runtime coverage
 
 | Family | Required schedules and independent observations |

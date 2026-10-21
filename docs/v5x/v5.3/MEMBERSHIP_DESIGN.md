@@ -68,6 +68,15 @@ bases differ from Raft's log/commit model. A complete design must show:
 No finalization quorum rule, ballot byte layout or public success point is frozen
 by this entry. They are blocking D02/D03/D06 work, not implementation details.
 
+## Executable ballot research update
+
+[Durable ballot/handoff research](BALLOT_AND_HANDOFF_RESEARCH.md) now gives a
+concrete root/configuration separation proposal, an ordered ballot independent of
+three-voter rank, and a crash/lost-ACK model for one slot under an established view.
+Its direct-switch counterexample shows why these results still do not choose a
+safe activation or finalization rule. D01–D03/D06 remain open at the integration,
+byte-format and multi-slot transition boundaries described there.
+
 ## Operation and maintenance requirements
 
 Bind the caller's operation ID to group/history, expected configuration identity,

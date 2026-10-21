@@ -35,12 +35,45 @@ No production model was imported by this research checker. No Maven workload,
 cloud operation or existing CI job was run or changed for this batch. Documentation
 paths and whitespace checks passed. There is no hosted acceptance result.
 
+## 2026-10-21 — durable ballot and recovery research
+
+- Added a single-slot event model with distinct message delivery, disk force,
+  frozen-basis replies, crash/restart, ballot selection and ACCEPT/PROOF phases.
+  It uses an already established old/joint/new view; it does not activate views.
+- **40 tests PASS** across both research suites. New coverage includes two live
+  candidates racing PREPARE/ACCEPT at their shared voter, all six before/after-force
+  crash cuts, duplicate/lost/delayed replies, removed/learner exclusion, optimized
+  Python rejection, retained failure traces and non-overwriting CLI output.
+- The history oracle catches five deliberately unsafe implementations with their
+  specific safety exceptions. An executable direct-switch counterexample passes
+  isolated configuration checks but fails the combined root/index check.
+- Complete declared schedule matrix: **2,884 cases, 21 contexts, 340,850 events,
+  2,884 recovered publications**. Four fault/recovery families cover all ordered
+  pairs of inclusion-minimal quorums in seven size/change profiles and three views.
+  This is not an enumeration of every asynchronous interleaving.
+- **14 retained histories replayed** from JSON: 12 positive examples and the two
+  conflicting direct-switch histories. Trace digest and exact model/test hashes
+  are recorded in [ballot-research.json](ballot-research.json).
+- Evidence: `target/v53-ballot-research/qualification/`, test log
+  `target/v53-ballot-research/unit-tests-qualification.log`, resource log
+  `target/v53-ballot-research/qualification-resources.log`. Earlier local attempts
+  remain in the same parent directory, including the intermediate CLI inventory
+  test failure corrected before final qualification.
+- The receipt binds parent `4b9935641b777b35928eebe6d232ba4fe328ad66` and exact
+  then-uncommitted source/test bytes. It is local evidence, not clean-source hosted
+  CI. No production Java, POM, workflow, release pin or V5.2 cloud operation changed.
+
+The [ballot/handoff research](BALLOT_AND_HANDOFF_RESEARCH.md) records the D01/D03
+identity and ballot proposals and the remaining D02/D06 handoff obligations.
+**Phase 0 remains OPEN**; this is not production or full distributed-transition
+qualification. Only local commits are authorized for this development branch.
+
 ## Next local batch
 
-Resolve D01–D03 and D06 first: configuration identity versus immutable read-token
-root, globally ordered ballots, configuration activation/finalization and recovery
-of partial transitions. Extend the independent model to asynchronous replicas,
-durable promises and competing operations before choosing production byte formats.
-Then freeze the complete Phase 0 contract and progress through the locally tested
-stages in [the sequence](LOCAL_DEVELOPMENT_SEQUENCE.md). Quorum intersection alone
-does not close those protocol obligations.
+Build the multi-slot, predecessor-certified configuration-transition model, with
+competing intent descriptors, partial joint/final proofs, local view adoption and
+old-era fencing. Evaluate the proposed conservative final seal rather than merely
+changing quorum counts. Add snapshot/compaction authority before declaring D02/D06
+resolved, and specify durable ballot allocation, exact formats and D04–D10 before
+freezing Phase 0. The current single-slot model is a reusable component of that
+work, not a substitute for it.

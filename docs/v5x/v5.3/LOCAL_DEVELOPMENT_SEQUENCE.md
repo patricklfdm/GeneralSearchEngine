@@ -36,7 +36,7 @@ on the base source and the separate D-backed self-hosted Runner.
 
 | Stage | Deliverable / local exit |
 | --- | --- |
-| Entry research | Actual fixed-membership audit, bounded quorum exploration, explicit protocol gaps |
+| Entry research | Fixed-membership audit and arithmetic complete locally; single-slot durable-ballot matrix complete; full handoff remains open |
 | Phase 0 | Complete authority/transition/recovery contract, exact API and bytes, resource limits, adversarial schedules; resolve all blocking decisions |
 | Phase 1 | Aligned coordinates, declaration-only APIs, independent election/transition model, byte fixtures, process/network scaffolding |
 | Phase 2 | Configuration-aware storage, promises, proof validation, snapshot and recovery; reject ambiguous authority |
@@ -46,8 +46,10 @@ on the base source and the separate D-backed self-hosted Runner.
 | Phase 6 | Freeze and execute local workloads; prepare the separately authorized cloud plan |
 | Integration | Incorporate released V5.2, pin actual controls, run unified compatibility/build/runtime/evidence acceptance, then request push/PR |
 
-Phases may have several local commits. The entry model checks quorum arithmetic
-only; it does not satisfy the Phase 1 distributed election/recovery model gate.
+Phases may have several local commits. Entry research now includes quorum arithmetic
+and a single-slot durable-ballot model. It still does not satisfy the Phase 1 full
+distributed transition/prefix-recovery model gate; see
+[the precise limits](BALLOT_AND_HANDOFF_RESEARCH.md).
 
 ## Integrating the released predecessor
 
