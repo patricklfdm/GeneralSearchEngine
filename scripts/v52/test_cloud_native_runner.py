@@ -36,6 +36,9 @@ class NativeRunnerTest(unittest.TestCase):
         n.os.environ.clear();n.os.environ.update(self.case.env)
         self.shape=n.ci.contract();self.git=ArtifactFixture(self.shape,self.root);self.clean=FixtureCleanup(self.cleanup_files)
         self.stack=self.case.stack
+        self.sdk=self.stack.enter_context(patch.object(n.cloud_sdk_runtime,'check',return_value=dict(
+            schema='gse-v52-sdk-runtime-v1',status='PASS',pythonVersion='3.11.17',sdkVersion='1.0.0',
+            credentialEnvironmentInherited=False,cloudOperationExecuted=False)))
         self.stack.enter_context(patch.object(inputs,'checkout',return_value=binding()))
         self.stack.enter_context(patch.object(artifacts.Network,'get',new=lambda client,path:self.github(path)))
         self.stack.enter_context(patch.object(artifacts.Network,'download',new=lambda client,identity,out,size:self.download(identity,out,size)))
@@ -144,6 +147,7 @@ class NativeRunnerTest(unittest.TestCase):
 
     def test_complete_native_factory_original_inputs_resources_and_final_cleanup(self):
         with self.open() as session:
+            self.sdk.assert_called_once_with()
             self.assertEqual('RESOURCES_PREPARED_NOT_QUALIFIED',session.result['status'])
             self.assertFalse(session.result['fullRemoteQualification']);self.assertFalse(session.result['engineWorkloadExecuted'])
             self.assertTrue(session.result['resourceAdmission']);self.assertEqual(13,len(self.case.server.resources))
@@ -155,6 +159,17 @@ class NativeRunnerTest(unittest.TestCase):
         self.assertTrue(session.reader.closed);self.assertTrue(session.api.closed);self.assertTrue(session.reader.tokens.closed)
         self.assertFalse(session.heartbeat.thread.is_alive());self.assertTrue(session.log.closed)
         self.assertEqual(13,strict((self.output/'cleanup.json').read_bytes())['resourceDeletesSubmitted'])
+
+    def test_sdk_startup_failure_precedes_build_provider_lease_and_ledger(self):
+        self.sdk.side_effect=n.cloud_sdk_runtime.SdkError('PYTHON_START_FAILED')
+        with self.assertRaises(n.cloud_sdk_runtime.SdkError):self.open()
+        self.sdk.assert_called_once_with()
+        self.assertEqual([],self.git.calls);self.assertEqual([],self.case.calls)
+        self.assertEqual([],self.mutations());self.assertEqual({},self.case.server.resources)
+        self.assertIsNone(self.case.get(n.a.LEASE));self.assertIsNone(self.case.get(n.a.LEDGER))
+        report=strict((self.output/'failure.json').read_bytes())
+        self.assertEqual('sdk-runtime',report['phase']);self.assertEqual('V52_SDK_PYTHON_START_FAILED',report['sdkCode'])
+        self.assertFalse((self.output/'sdk-runtime.json').exists())
 
     def test_wrong_operator_approval_and_package_bytes_cannot_write(self):
         self.approval['confirmed']=False;self.write_plan()

@@ -479,6 +479,20 @@ class AdmissionDeadlineTest(unittest.TestCase):
         self.assertTrue(iap._retry_admission(result.exception));self.api.tokens.assert_not_called()
         self.owner.lock.release.assert_not_called();self.assertEqual('owner-lock',self.phases[-1])
 
+    def test_sdk_environment_preserves_runtime_without_ambient_credentials(self):
+        self.group.sdk='/fixed/sdk/gcloud'
+        self.group.observe.return_value=dict(facts=dict(instance='vm'),project='project',zone='zone')
+        self.api.tokens.return_value=iap.runner.h.AccessToken('synthetic-token',time.monotonic()+300)
+        with patch.dict(os.environ,{'LD_LIBRARY_PATH':'/untrusted/lib','PYTHONPATH':'/untrusted/python',
+                                    'GOOGLE_APPLICATION_CREDENTIALS':'private-credentials','GH_TOKEN':'private-token'}):
+            args,env=self.group.authorize('node-1',self.directory,time.monotonic()+5)
+        self.assertEqual(str(Path(sys.base_prefix).resolve()/'lib'),env.get('LD_LIBRARY_PATH'))
+        self.assertEqual(sys.executable,env['CLOUDSDK_PYTHON'])
+        self.assertEqual(str(self.directory/'config'),env['CLOUDSDK_CONFIG'])
+        for name in ('GOOGLE_APPLICATION_CREDENTIALS','GH_TOKEN','PYTHONPATH','LD_PRELOAD'):
+            self.assertNotIn(name,env)
+        self.assertNotIn('/untrusted',str(env));self.assertNotIn('synthetic-token',' '.join(args))
+
     def test_api_queue_timeout_releases_owner_without_releasing_unowned_lock(self):
         self.owner.lock=Mock();self.api.lock=Mock();self.api.lock.acquire.return_value=False
         with self.assertRaises(TimeoutError):self.authorize()

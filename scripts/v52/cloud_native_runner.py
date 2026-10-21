@@ -15,7 +15,7 @@ from scripts.v51 import cloud_http as h
 from . import cloud_authority as a, cloud_control as c, cloud_provider as p, cloud_wire_policy as w
 from . import cloud_preflight as f, cloud_preflight_read as reads, cloud_credentials as credentials
 from . import cloud_inputs as inputs, cloud_prepared as prepared, cloud_ci as ci, cloud_artifacts as artifacts
-from . import cloud_recent_cleanup as recent, cloud_native_cleanup as cleanup
+from . import cloud_recent_cleanup as recent, cloud_native_cleanup as cleanup, cloud_sdk_runtime
 from .evidence import need, encoded, digest, strict
 
 _CAPABILITY = object()
@@ -256,6 +256,7 @@ def open_native(source,plan_path,approval_path,confirmation,package_path,output,
         a.validate_request(plan['request'],domain='native')
         expected=prepared.approval_template(plan);expected['confirmed']=True
         need(encoded(approval)==encoded(expected) and confirmation==expected['planSha256'],'V5.2 exact operator approval missing/changed')
+        phase='sdk-runtime';artifacts.save(output/'sdk-runtime.json',cloud_sdk_runtime.check())
         phase='original-build';artifacts.collect_native(source,output/'build-provenance')
         bound=inputs.checkout(ci.ROOT,source);shape=ci.contract()
         build=artifacts.replay(output/'build-provenance',source,shape,bound,now=int(time.time()))
@@ -293,6 +294,7 @@ def open_native(source,plan_path,approval_path,confirmation,package_path,output,
             errorType=type(error).__name__,fullRemoteQualification=False)
         if type(error) is h.ApiError:failure['httpStatus']=error.status
         failure.update(credentials.failure(error))
+        failure.update(cloud_sdk_runtime.failure(error))
         diagnostic(output/'failure.json',failure)
         if session is not None:
             try:session.close()

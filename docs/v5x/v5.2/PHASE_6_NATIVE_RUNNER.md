@@ -21,6 +21,12 @@ Before creating resources, the factory:
 1. Checks actual clean source and the fixed tracked provider configuration. It
    validates the complete prepared plan and exact confirmed approval early, before
    any remote observation.
+   Then starts the current Python and runs local `gcloud version` under the same
+   minimal environment used by IAP. This credential-free check precedes original
+   build retrieval, provider access, lease acquisition, ledger reservation and VM
+   creation. It retains `sdk-runtime.json` with Python/SDK versions. Both local
+   commands share one 30-second deadline; this is a bounded startup exchange, not
+   an experiment-stage time budget.
 2. Collects and independently replays the original exact-master build job, producing
    attempt, uploaded ZIP and extracted shared-build bytes. The temporary
    [CI admission policy](PHASE_6_CI_PROVENANCE.md) does not wait for other CI jobs.
@@ -108,11 +114,25 @@ Failure files use closed phase codes, exception types and HTTP status where
 applicable, without provider bodies or tokens. Credential failures additionally
 retain the closed [exchange diagnostics](PHASE_6_CREDENTIAL_ENTRY.md), including
 the failing service code, failure kind and credential-service HTTP status.
+Local SDK failures report phase `sdk-runtime`, code
+`V52_RUNNER_SDK_RUNTIME_REJECTED` and a closed `sdkCode` distinguishing missing
+executable, invalid Python environment, Python/SDK startup failure, timeout or
+invalid response. Raw subprocess stderr and credential environment are excluded.
 Generated request routes and
 send/response/uncertain journal entries retain the original attempt. The full
 original observations, failed completion and charges are never reset or rebound
 to a later source. Package bytes and synthetic fixtures are not run as Java code
 by the native-factory tests.
+
+The dedicated self-hosted Python needs its relocated installation's `lib`
+directory in `LD_LIBRARY_PATH`. IAP derives this from `sys.base_prefix`; it does
+not inherit ambient library paths or use `sysconfig`'s stale build-time prefix.
+The precheck and real tunnel share that environment builder and disable SDK
+update checks, usage reporting and file logging. Run `39569654971/1` stopped at
+guest identity before workload histories; local reproduction on its actual
+Python returned exit 127 without the library path and succeeded with it. Its
+original SDK stderr was not retained, so the reproduction establishes the
+environment defect without recovering that run's exact stderr.
 
 ## Local validation and remaining connection
 

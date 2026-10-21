@@ -63,6 +63,15 @@ credential freshness and lease/grace checks remain hard. Cancellation/interrupti
 still requires the original lease's safe cleanup path; active leases are not
 force-deleted.
 
+Before native resource admission, the Runner checks Python and local SDK startup
+using IAP's isolated environment. This does not authenticate or call a cloud API.
+Failures expose `V52_RUNNER_SDK_RUNTIME_REJECTED` and a closed `sdkCode` through
+the operator failure artifact, before lease/ledger/resource writes. Successful
+checks retain `run/native/sdk-runtime.json`. A corrected source requires fresh
+build provenance and preparation; an earlier plan cannot be rebound to it.
+See [native admission](PHASE_6_NATIVE_RUNNER.md) for the environment and diagnostic
+contract. Experiment time and cost budgets remain soft.
+
 ## Prepare an explicit estimate
 
 The draft helper reads the committed provider configuration locally and renders
