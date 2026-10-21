@@ -68,12 +68,42 @@ identity and ballot proposals and the remaining D02/D06 handoff obligations.
 **Phase 0 remains OPEN**; this is not production or full distributed-transition
 qualification. Only local commits are authorized for this development branch.
 
+## 2026-10-21 — predecessor-certified transition model
+
+- Added an executable multi-slot protocol candidate: old-majority INTENT, joint
+  PREPARE/ACCEPT/PROOF for FINAL, then new-majority data. Every receiver derives
+  authority from its own forced predecessor chain; no speculative next-slot votes.
+- Competing target descriptors share one old-authority slot. Recovery preserves a
+  chosen intent even after every acknowledgement is lost. Certificate witness-set
+  or ballot changes cannot alter that entry's logical identity.
+- **61 tests PASS** across all three research suites. New checks cover learner
+  adoption before/after force, lagging/removed leaders, serialized prefix install,
+  missing/foreign authority, preserved promises, certificate representation and
+  three deliberately unsafe implementations detected by the independent oracle.
+- Complete declared transition matrix: **196 cases, 73,835 events, 784 publications**.
+  A separate **13-slot** 3→4→5→4→3 walk completed all four changes. This is a bounded
+  schedule matrix, not an exhaustive search of asynchronous interleavings.
+- **15 retained histories replayed from compressed JSON**. Receipt:
+  [transition-research.json](transition-research.json). Evidence directory:
+  `target/v53-transition-research/qualification/`; logs:
+  `target/v53-transition-research/unit-tests-final.log` and
+  `target/v53-transition-research/qualification-resources.log`. The complete command
+  took 15.04 seconds, peaked at 100,816 KiB, and retained 159,044 bytes of compressed
+  example histories.
+- The receipt binds parent `ee0967e` (full SHA inside the receipt) and the exact
+  then-uncommitted model/test hashes. Earlier local runs remain in the evidence
+  directory. No protected CI, Maven, Java/POM/workflow change or cloud operation.
+
+The [transition research](TRANSITION_CHAIN_RESEARCH.md) records the candidate and
+its limits. Its full-chain transfer does not qualify application snapshots or
+compaction. D02/D06 have concrete progress but **Phase 0 remains OPEN**. The model
+also assumes unique ballot allocation; production global-promise integration,
+read policies, operation IDs and physical storage still need their contracts.
+
 ## Next local batch
 
-Build the multi-slot, predecessor-certified configuration-transition model, with
-competing intent descriptors, partial joint/final proofs, local view adoption and
-old-era fencing. Evaluate the proposed conservative final seal rather than merely
-changing quorum counts. Add snapshot/compaction authority before declaring D02/D06
-resolved, and specify durable ballot allocation, exact formats and D04–D10 before
-freezing Phase 0. The current single-slot model is a reusable component of that
-work, not a substitute for it.
+Specify and model snapshot/floor authority, bounded configuration-history retention
+and unresolved-acceptance preservation. Map this chain protocol to GSE's global
+promise, selected-prefix and activation semantics before freezing D02/D03/D06.
+Then complete learner/operation/read/API/resource decisions D04–D10. Continue local
+commits only and leave the V5.2 release/cloud path untouched.

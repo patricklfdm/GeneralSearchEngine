@@ -14,8 +14,9 @@ development predecessor; its eventual published artifacts are not yet pinned.
 2. [Phase 0 entry and actual source audit](PHASE_0_ENTRY_PLAN.md)
 3. [Membership design decisions and open protocol obligations](MEMBERSHIP_DESIGN.md)
 4. [Durable ballot research and handoff boundary](BALLOT_AND_HANDOFF_RESEARCH.md)
-5. [Independent model and later evidence requirements](TESTING_AND_EVIDENCE.md)
-6. [Development status](DEVELOPMENT_STATUS.md)
+5. [Predecessor-certified transition research](TRANSITION_CHAIN_RESEARCH.md)
+6. [Independent model and later evidence requirements](TESTING_AND_EVIDENCE.md)
+7. [Development status](DEVELOPMENT_STATUS.md)
 
 The accepted [V5 charter](../DEVELOPMENT_CHARTER.md) and the V5.3 section of the
 [development addendum](../NEXT_DEVELOPMENT_ADDENDUM.md#v53-controlled-operations)
@@ -27,11 +28,13 @@ from their version-specific contracts. This directory does not amend V5.2 eviden
 ## Run the lightweight local research checks
 
 ```bash
-python3 -m unittest scripts.v53.test_membership_model scripts.v53.test_ballot_model
+python3 -m unittest discover -s scripts/v53 -t . -p 'test_*.py'
 python3 -m scripts.v53.membership_model \
   --output "target/v53-membership-model/run-$(date -u +%Y%m%dT%H%M%SZ)"
 python3 -m scripts.v53.ballot_research \
   --output "target/v53-ballot-research/run-$(date -u +%Y%m%dT%H%M%SZ)"
+python3 -m scripts.v53.transition_research \
+  --output "target/v53-transition-research/run-$(date -u +%Y%m%dT%H%M%SZ)"
 ```
 
 Run from the repository root. The output directory must be new. These commands

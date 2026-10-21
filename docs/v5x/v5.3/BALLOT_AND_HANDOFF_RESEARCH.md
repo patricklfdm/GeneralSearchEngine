@@ -121,6 +121,14 @@ seal. This is **a candidate for the next multi-slot model**, not an implemented 
 accepted availability policy. It must be compared with alternative handoffs before
 freezing D02/D06; it must not be described as Raft's finalization rule.
 
+## Follow-up implementation
+
+The [transition-chain research](TRANSITION_CHAIN_RESEARCH.md) now implements and
+checks the conservative handoff candidate across multiple slots. It adds local
+prefix adoption, competing targets, finalization and removed-voter checks. Its
+results are recorded separately; the single-slot receipt below retains its original
+scope. Snapshot/floor compaction and production integration remain open.
+
 ## Declared finite matrix and limits
 
 [Schedule driver](../../../scripts/v53/ballot_research.py),

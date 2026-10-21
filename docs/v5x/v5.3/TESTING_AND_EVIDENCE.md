@@ -51,6 +51,20 @@ This extends entry research. It does not meet the complete Phase 1 transition,
 multi-slot recovery or physical storage gate. See the exact assumptions, excluded
 schedules, retained JSON replay and [receipt](ballot-research.json).
 
+## Predecessor-certified transition research
+
+The [multi-slot model](TRANSITION_CHAIN_RESEARCH.md) adds locally forced authority
+chains and a conservative old/joint/new handoff. The complete 196-case matrix and
+13-slot size walk pass; 15 representative histories replay from compressed JSON.
+Three unsafe implementation variants are rejected by a separate chronological
+chain/local-view checker. Current receipts and source hashes are in
+[transition-research.json](transition-research.json).
+
+Full-chain transfer here retains every certificate and durable vote. It does not
+model application snapshots, compaction, byte-level atomicity or the existing
+production global-promise/activation machinery. Physical and public gates below
+remain required; model results cannot substitute for those observations.
+
 ## Later foundation and runtime coverage
 
 | Family | Required schedules and independent observations |

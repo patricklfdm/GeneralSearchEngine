@@ -1,0 +1,94 @@
+{
+  "allInterleavings": false,
+  "assumptions": [
+    "atomic forced prefix installation; full authority chain retained",
+    "authentic ACKs and immutable genesis",
+    "one unresolved slot; no leader pipelining or lease reads",
+    "unique ballot allocation; finite named voters"
+  ],
+  "counts": {
+    "cases": 196,
+    "events": 73835,
+    "expectedCases": 196,
+    "publications": 784
+  },
+  "cuts": [
+    "prepare-staged",
+    "prepare-forced",
+    "accept-staged",
+    "accept-forced",
+    "proof-staged",
+    "proof-partial",
+    "proof-forced"
+  ],
+  "examplesFile": "examples.json.gz",
+  "examplesSha256": "d50fd16ac41d3681c5ffb923f558c9a9402c1b23efcb93769b4711c0b5b12cd5",
+  "excluded": [
+    "application-state transfer",
+    "snapshot compaction",
+    "disk/wire bytes",
+    "liveness",
+    "production recovery integration",
+    "operation cancellation/idempotency",
+    "physical qualification"
+  ],
+  "execution": "sequential-certificate-chain-model",
+  "phase0Accepted": false,
+  "productionQualified": false,
+  "profiles": [
+    [
+      3,
+      3
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      4,
+      3
+    ],
+    [
+      4,
+      4
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      5,
+      4
+    ],
+    [
+      5,
+      5
+    ]
+  ],
+  "replay": {
+    "events": 5172,
+    "histories": 15,
+    "publications": 69
+  },
+  "schema": "gse-v53-transition-research-v1",
+  "source": {
+    "files": {
+      "scripts/v53/__init__.py": "78a166fcc8136c3949b1afcf5e91db0543fcd0006821f6e555c92034a568daa1",
+      "scripts/v53/ballot_model.py": "9e8b383740ef6d7466eece3505f570e28e8c6027e692d6606be66061e149bfc4",
+      "scripts/v53/membership_model.py": "e38dbb81bbf6c9d27aa0d0fd689be8b6d682502d0d7bc98ceaf5220e92fc9e17",
+      "scripts/v53/test_transition_model.py": "e8d7ee78ac3eb8291fbbba373efc1dcc93aa663bb05f1ff52873a0070b46ebfe",
+      "scripts/v53/transition_model.py": "0f63129665ad38f0f31e63f99fdfb16f9a26d5fad17df73821ac73ca1f8fe432",
+      "scripts/v53/transition_research.py": "8838c8e2614b2da3c7daa20a47526ab3c0e7ed4dc15ac8d7fa02d1b778cc8969"
+    },
+    "head": "ee0967ef5d1a92a22bd5c8e3e1d8fe969279d547",
+    "worktreeDirty": true
+  },
+  "status": "PASS",
+  "traceSha256": "1ed985109acbf329cbee61e83761f82ae9a9e12aa6b2ee1e3239cd1770cf06e9",
+  "walk": {
+    "events": 964,
+    "longestPrefix": 13,
+    "publications": 13,
+    "slots": 13
+  }
+}

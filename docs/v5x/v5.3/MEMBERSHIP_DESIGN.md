@@ -77,6 +77,20 @@ Its direct-switch counterexample shows why these results still do not choose a
 safe activation or finalization rule. D01–D03/D06 remain open at the integration,
 byte-format and multi-slot transition boundaries described there.
 
+## Executable transition candidate
+
+The [predecessor-certified chain](TRANSITION_CHAIN_RESEARCH.md) now evaluates one
+conservative rule: a stable INTENT is certified by the old majority; its matching
+FINAL requires both majorities; the first new stable slot requires the final
+certificate. Each receiver must force the complete predecessor chain before voting.
+No later slot may be pipelined over an uncertified parent. Competing targets are
+values in one slot, never separate authority contexts selected by their proposers.
+
+This is a tested research candidate, not the frozen production protocol. The
+learner's data materialization, snapshot/floor compaction and adaptation to GSE's
+current global promise/activation remain open. The logical entry ID excludes proof
+receipt sets and ballots so that re-proof does not fork the successor context.
+
 ## Operation and maintenance requirements
 
 Bind the caller's operation ID to group/history, expected configuration identity,

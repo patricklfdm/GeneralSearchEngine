@@ -63,6 +63,12 @@ D02/D06 now have a retained cross-view fork counterexample and an explicit list 
 handoff obligations. These are partial research results; no blocking row is marked
 complete, and the Phase 0 contract is not frozen.
 
+The next [transition-chain batch](TRANSITION_CHAIN_RESEARCH.md) adds a multi-slot
+candidate with local forced-prefix adoption and old/joint/new authority. It tests
+196 directed schedules and a 13-slot expansion/contraction walk. D02/D06 now have
+an executable handoff, while snapshot/compaction and production promise/activation
+integration remain explicit blockers.
+
 ## Phase 0 deliverables still to freeze
 
 - `PHASE_0_CONTRACT.md`: resolved decisions and authority/state matrix.
