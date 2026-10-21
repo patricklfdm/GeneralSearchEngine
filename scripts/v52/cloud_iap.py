@@ -10,7 +10,6 @@ import os
 from pathlib import Path
 import selectors
 import shlex
-import shutil
 import signal
 import socket
 import subprocess
@@ -23,6 +22,7 @@ from . import remote_command as command, remote_host as host, remote_host_domain
 from . import remote_topology as topology, remote_voter_ssh as ssh, remote_voter_ssh_evidence as routes
 from . import cloud_guest_identity as probe
 from . import cloud_iap_diagnostics as diagnostics
+from . import cloud_sdk_runtime as sdk_runtime
 from .evidence import need, encoded, digest, strict
 from scripts.v51 import guest_transport as transport
 
@@ -38,9 +38,7 @@ HALF_CLOSE_SECONDS=30
 
 
 def _gcloud():
-    value=shutil.which('gcloud');need(value is not None,'V5.2 IAP SDK unavailable')
-    path=Path(value).resolve();need(path.is_file() and os.access(path,os.X_OK),'V5.2 IAP SDK unavailable')
-    return str(path)
+    return sdk_runtime.executable()
 
 
 def _private(path,raw):
@@ -49,6 +47,7 @@ def _private(path,raw):
 
 
 def _safe(error):
+    if type(error) is sdk_runtime.SdkError:return error.code
     if type(error) in (transport.ProcessError,transport.ProcessRejected):return error.code
     if type(error) is runner.h.ApiError and type(error.status) is int and 100<=error.status<=599:
         return 'IAP_PROVIDER_HTTP_'+str(error.status)
@@ -379,8 +378,7 @@ class Guests:
             need(type(token.value) is str and 0<len(token.value)<=16384 and all(33<=ord(c)<=126 for c in token.value),
                  'V5.2 IAP token shape')
             _private(path,token.value.encode('ascii'))
-            env=dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',CLOUDSDK_CONFIG=str(config),
-                CLOUDSDK_CORE_DISABLE_PROMPTS='1',CLOUDSDK_CORE_DISABLE_USAGE_REPORTING='true',CLOUDSDK_PYTHON=sys.executable)
+            env=sdk_runtime.environment(config)
             args=[self.sdk,'compute','start-iap-tunnel',value['facts']['instance'],'22','--listen-on-stdin',
                   '--project='+value['project'],'--zone='+value['zone'],'--access-token-file='+str(path),
                   '--quiet','--verbosity=error']

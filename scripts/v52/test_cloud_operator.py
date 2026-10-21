@@ -94,6 +94,20 @@ class OperatorTest(unittest.TestCase):
         self.assertFalse(result['fullRemoteQualification']); self.assertEqual(1,self.key_calls)
         self.assertEqual({'member-seal.json'},{p.name for p in (self.output/'result').iterdir()})
         self.assertIn('artifactName=v52-runner-654321-2',(self.root/'actions-output').read_text())
+
+    def test_sdk_startup_code_survives_native_and_operator_boundaries(self):
+        def fail(*args):
+            path=args[-1];(path/'native').mkdir(parents=True)
+            o.artifacts.save(path/'native/failure.json',dict(code='V52_RUNNER_SDK_RUNTIME_REJECTED',
+                sdkCode='V52_SDK_PYTHON_START_FAILED',stderr='never-public',token='never-public'))
+            raise ValueError('never-public')
+        self.run.side_effect=fail
+        with self.assertRaises(ValueError):self.execute('run',self.request())
+        result=o.artifacts.read(self.output/'diagnostics/failure.json')
+        self.assertEqual('V52_RUNNER_SDK_RUNTIME_REJECTED',result['causeCode'])
+        self.assertEqual('V52_SDK_PYTHON_START_FAILED',result['sdkCode'])
+        self.assertNotIn('never-public',str(result));self.run.assert_called_once()
+        self.assertFalse((self.output/'result').exists())
     def test_workflow_relative_output_reaches_original_iap_path_boundary(self):
         from . import cloud_iap as iap
         class ReachedGuestAuthority(Exception): pass
