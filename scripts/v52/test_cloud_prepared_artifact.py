@@ -55,6 +55,12 @@ class PreparedArtifactTest(unittest.TestCase):
         self.assertEqual(self.files, files); self.assertEqual('PREPARED_ARTIFACT_VERIFIED_NOT_ADMITTED', receipt['status'])
         self.assertFalse(receipt['paidAdmission']); self.assertFalse(p.strict(files['approval.json'])['confirmed'])
         self.assertEqual([901], self.client.downloads)
+    def test_one_second_service_clock_boundary_preserves_prepare_validation(self):
+        self.client.record.update(created_at=at(1121), updated_at=at(1121)); self.client.rezip()
+        files, receipt = self.collect()
+        self.assertEqual(self.files, files); self.assertFalse(receipt['paidAdmission'])
+        self.assertFalse(p.strict(files['approval.json'])['confirmed'])
+        with self.assertRaises(ValueError): self.collect(now=5000)
     def test_expired_plan_or_confirmed_approval_forged_package_or_configuration_reject(self):
         with self.assertRaises(ValueError): self.collect(now=5000)
         for name, mutate in (
@@ -72,7 +78,7 @@ class PreparedArtifactTest(unittest.TestCase):
         for changes in (dict(run_attempt=3), dict(conclusion='failure'), dict(head_branch='branch')):
             self.client = PrepareFixture(self.files); self.client.data['actions/runs/123456/attempts/2'].update(changes)
             with self.assertRaises(ValueError): self.collect()
-        for change in (dict(name='v52-prepared-123456-3'), dict(created_at=at(1109)), dict(expired=True)):
+        for change in (dict(name='v52-prepared-123456-3'), dict(created_at=at(1104)), dict(expired=True)):
             self.client = PrepareFixture(self.files); self.client.record.update(change); self.client.rezip()
             with self.assertRaises(ValueError): self.collect()
     def test_missing_extra_duplicate_symlink_traversal_inventory_rejects(self):
