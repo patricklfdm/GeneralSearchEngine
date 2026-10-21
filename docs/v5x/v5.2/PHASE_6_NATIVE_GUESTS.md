@@ -19,9 +19,28 @@ read. The current ACTIVE lease and pending charge must match the stable allocati
 Only a missing host key is a readiness condition; denial, malformed keys and ID
 changes fail. Pending observations have an original finite allowance, not a new
 experiment duration cap.
-A native loopback target selects a 30-second SSH connection allowance for its IAP
+A native loopback target selects a 60-second SSH connection allowance for its IAP
 admission; existing local targets retain 10 seconds. Endpoint/command deadlines
 still bound each original exchange, so this option cannot extend them.
+
+Before the SDK process exists, admission permits at most two attempts, each
+bounded by 30 seconds and the same original 60-second connection deadline, with
+one interruptible one-second backoff. Only typed timeouts, plain provider
+connection interruptions and the exact credential-context `DEADLINE` code permit
+another attempt. Each attempt repeats ownership, resource identity and fresh
+credential checks, releasing locks and removing its private directory first.
+Denials, changed identities/leases, malformed replies and unknown failures stop
+immediately. An SDK process is started at most once; its errors and all business
+operations are outside this retry loop. The original 30-second half-close drain
+and running stream lifetimes are unchanged.
+
+Queue and identity-observation expiry now raise `TimeoutError` instead of a
+generic validation error. The scoped HTTP adapter distinguishes late successful
+responses from explicit HTTP denials; a late denial cannot trigger timeout retry.
+The private diagnostic and public summary retain closed admission phases, attempt
+counts, elapsed/phase milliseconds and allowlisted source module/line locations.
+Credential/provider error codes survive projection. No exception message, token,
+SDK stderr, arbitrary path or raw request is exported.
 
 Each route listens on an exclusively owned ephemeral loopback port. A new local
 SSH connection creates exactly one SDK stdin tunnel to the original VM's SSH port,

@@ -359,6 +359,27 @@ class IapReportTest(unittest.TestCase):
         self.assertTrue(report['closeFailed']);self.assertEqual('FAIL',report['status'])
         value['nodes']={};self.assertEqual({},self.report(value)['nodes'])
 
+    def test_admission_failure_site_timing_and_retry_count_survive_projection(self):
+        value=iap_diagnostic();row=value['nodes']['node-1']
+        attempt=dict(attempt=1,status='FAIL',phase='owner-lock',elapsedMillis=25000,phaseMillis={'owner-lock':25000},
+            reasonCode='IAP_ORIGINAL_CONNECT_TIMEOUT',errorType='TimeoutError',origin=dict(module='cloud_iap',line=123))
+        row.update(admissionRetries=0,admissionMillis=25000,lastAdmission=[attempt])
+        report=self.report(value)['nodes']['node-1']
+        self.assertEqual([attempt],report['lastAdmission']);self.assertEqual(25000,report['admissionMillis'])
+        self.assertNotIn('never-public',str(report))
+
+    def test_private_or_invalid_admission_diagnostics_never_propagate(self):
+        base=dict(attempt=1,status='FAIL',phase='credentials',elapsedMillis=3,phaseMillis={'credentials':3},
+            reasonCode='V52_CREDENTIAL_DEADLINE',errorType='ContextError',origin=None)
+        for change in (dict(phase='secret'),dict(reasonCode='secret'),dict(errorType='secret'),dict(attempt=True),
+                       dict(elapsedMillis=-1),dict(phaseMillis={'secret':3}),dict(message='secret'),
+                       dict(origin=dict(module='private-key',line=1)),dict(origin=dict(module='cloud_iap',line=True))):
+            value=iap_diagnostic();value['nodes']['node-1'].update(admissionRetries=0,admissionMillis=3,
+                lastAdmission=[dict(base,**change)])
+            with self.subTest(change=change):self.assertIsNone(self.report(value))
+        value=iap_diagnostic();value['nodes']['node-1'].update(admissionRetries=71,admissionMillis=3,lastAdmission=[base])
+        self.assertIsNone(self.report(value))
+
 
 class CleanupReportTest(unittest.TestCase):
     def setUp(self):

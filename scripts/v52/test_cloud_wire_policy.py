@@ -306,8 +306,22 @@ class LifecycleTest(unittest.TestCase):
         def delay(stage,event):
             if stage=='after' and event['method']=='GET':self.server.seconds+=16
         self.server.fault=delay
-        with self.assertRaisesRegex(ValueError,'late response|deadline'):self.store.put(a.LEASE,lease,generation)
+        with self.assertRaisesRegex(TimeoutError,'late response|deadline'):self.store.put(a.LEASE,lease,generation)
         self.assertEqual([],self.mutations())
+
+    def test_late_explicit_denial_is_not_converted_to_retryable_timeout(self):
+        def denied(*args):
+            self.server.seconds+=31
+            return 403,b''
+        with patch.object(w._Gate,'exchange',side_effect=denied):
+            with self.assertRaises(h.ApiError) as error:self.store.get(a.LEASE)
+        self.assertEqual(403,error.exception.status)
+        self.assertEqual([],self.mutations())
+
+    def test_expired_scoped_call_is_typed_without_any_exchange(self):
+        count=len(self.server.events)
+        with self.assertRaises(TimeoutError):self.api.call('GET',self.store.endpoint(a.LEASE),deadline=self.api.clock())
+        self.assertEqual(count,len(self.server.events))
 
     def test_adapter_replacement_and_cross_request_store_binding_reject(self):
         class Lookalike:offline=True

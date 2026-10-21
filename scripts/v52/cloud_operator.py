@@ -168,6 +168,7 @@ def iap_report(root):
     codes=set(iap.transport.FAILURE_DETAILS)|{'IAP_ORIGINAL_CONNECT_TIMEOUT','IAP_IDENTITY_OR_AUTHORITY_REJECTED',
         'IAP_LISTENER_CLOSED','IAP_CLOSE_INCOMPLETE','IAP_OWNER_OR_PIN_CHANGED'}
     codes.update('V52_CREDENTIAL_'+code for code in credentials.CODES)
+    codes.update(iap.diagnostics.CODES)
     def code(value):
         if value is None:return None
         if type(value) is str and (value in codes or re.fullmatch(r'IAP_PROVIDER_HTTP_[1-5][0-9]{2}',value)):return value
@@ -187,6 +188,15 @@ def iap_report(root):
                not counts['active']<=counts['peakActive']<=min(iap.MAX_ACTIVE,counts['accepted']) or \
                counts['historyDropped']!=max(0,counts['completed']-iap.MAX_RECENT):return None
             rows[node]=dict(counts,lastFailureCode=code(row.get('lastFailureCode')))
+            # Optional fields keep historical receipts readable. Project only
+            # closed phases/codes/origins; never export the connection ring.
+            if 'admissionRetries' in row or 'admissionMillis' in row or 'lastAdmission' in row:
+                retries=row.get('admissionRetries');millis=row.get('admissionMillis')
+                if type(retries) is not int or not 0<=retries<=counts['completed'] or \
+                   type(millis) is not int or not 0<=millis<2**63:return None
+                attempts=None if row.get('lastAdmission') is None else iap.diagnostics.project(row['lastAdmission'])
+                if row.get('lastAdmission') is not None and attempts is None:return None
+                rows[node].update(admissionRetries=retries,admissionMillis=millis,lastAdmission=attempts)
         return dict(status=value['status'],failureCode=code(value.get('failureCode')),
                     closeFailed=value.get('closeFailure') is not None,nodes=rows)
     except Exception:return None

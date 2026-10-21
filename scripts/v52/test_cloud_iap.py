@@ -125,7 +125,7 @@ class LocalForwardTest(unittest.TestCase):
         self.group=SimpleNamespace(private=self.private,authorize=self.authorize,fail=self.failures.append)
         self.forward=iap._Forward(self.group,'node-1');self.addCleanup(self.forward.close);self.forward.start()
 
-    def authorize(self,node,path,deadline):
+    def authorize(self,node,path,deadline,*,progress=lambda stage:None):
         self.calls.append((node,path,deadline));iap._private(path/'token',b'local-test-not-a-credential')
         return [sys.executable,'-I','-S','-u','-c',self.program],{'PATH':'/usr/bin:/bin'}
 
@@ -186,6 +186,72 @@ class LocalForwardTest(unittest.TestCase):
         until(lambda:not self.forward.channels[0].thread.is_alive())
         self.assertEqual('SSH_DISCONNECTED',self.forward.channels[0].record['failureCode'])
         self.assertEqual([],self.failures);self.assertEqual(1,len(self.calls))
+
+    def test_admission_timeout_retries_before_only_sdk_spawn_and_original_bytes(self):
+        original=self.authorize;attempts=[]
+        def authorize(node,path,deadline,*,progress=lambda stage:None):
+            if attempts:self.assertFalse(attempts[0].exists())
+            attempts.append(path);progress('identity-before')
+            if len(attempts)==1:
+                iap._private(path/'token',b'never-public');raise TimeoutError('never-public-provider-body')
+            return original(node,path,deadline,progress=progress)
+        self.group.authorize=authorize
+        with patch.object(iap,'ADMISSION_BACKOFF',.01),patch.object(iap.subprocess,'Popen',wraps=subprocess.Popen) as spawn:
+            client=self.connect();client.sendall(b'one original request');self.assertEqual(b'one original request',client.recv(128))
+            client.close();self.forward.close()
+            self.assertEqual(1,spawn.call_count)
+        report=self.forward.snapshot()
+        self.assertEqual(2,len(attempts));self.assertEqual(1,report['admissionRetries'])
+        self.assertEqual(['FAIL','PASS'],[r['status'] for r in report['lastAdmission']])
+        self.assertEqual('identity-before',report['lastAdmission'][0]['phase'])
+        self.assertNotIn('never-public',str(report));self.assertEqual([],list(Path(self.private.name).iterdir()))
+
+    def test_repeated_admission_timeouts_stop_after_two_without_sdk(self):
+        def authorize(*args,progress=lambda stage:None):progress('credentials');raise TimeoutError('never-public')
+        self.group.authorize=Mock(side_effect=authorize)
+        with patch.object(iap,'ADMISSION_BACKOFF',.01),patch.object(iap.subprocess,'Popen') as spawn:
+            client=self.connect();self.assertEqual(b'',client.recv(1));self.forward.close();spawn.assert_not_called()
+        self.assertEqual(2,self.group.authorize.call_count)
+        report=self.forward.snapshot();self.assertEqual(1,report['failed'])
+        self.assertEqual('IAP_ORIGINAL_CONNECT_TIMEOUT',report['lastFailureCode'])
+        self.assertEqual(['FAIL','FAIL'],[r['status'] for r in report['lastAdmission']])
+        self.assertEqual([],self.failures)
+
+    def test_permission_after_timeout_is_terminal_without_sdk(self):
+        self.group.authorize=Mock(side_effect=[TimeoutError(),iap.runner.h.ApiError(403,'GET')])
+        with patch.object(iap,'ADMISSION_BACKOFF',.01),patch.object(iap.subprocess,'Popen') as spawn:
+            client=self.connect();self.assertEqual(b'',client.recv(1));self.forward.close();spawn.assert_not_called()
+        self.assertEqual(2,self.group.authorize.call_count)
+        self.assertEqual(['IAP_PROVIDER_HTTP_403'],self.failures)
+
+    def test_admission_cancellation_interrupts_backoff_without_second_attempt(self):
+        self.group.authorize=Mock(side_effect=TimeoutError())
+        with patch.object(iap,'ADMISSION_BACKOFF',10),patch.object(iap.subprocess,'Popen') as spawn:
+            self.connect();until(lambda:self.forward.channels and len(self.forward.channels[0].admission)==1)
+            self.forward.close();spawn.assert_not_called()
+        self.assertEqual(1,self.group.authorize.call_count)
+        self.assertEqual('CLOSED',self.forward.snapshot()['recent'][0]['status'])
+
+    def test_expired_shared_deadline_never_restarts_full_allowance(self):
+        deadlines=[]
+        def authorize(node,path,deadline,*,progress=lambda stage:None):
+            deadlines.append(deadline);time.sleep(max(0,deadline-time.monotonic())+.01);raise TimeoutError()
+        self.group.authorize=authorize
+        with patch.object(iap,'CONNECT_SECONDS',.04),patch.object(iap,'ADMISSION_BACKOFF',.001), \
+             patch.object(iap.subprocess,'Popen') as spawn:
+            client=self.connect();self.assertEqual(b'',client.recv(1));self.forward.close();spawn.assert_not_called()
+        self.assertEqual(1,len(deadlines))
+
+    def test_late_successful_authorization_cannot_spawn_sdk(self):
+        original=self.authorize
+        def late(node,path,deadline,*,progress=lambda stage:None):
+            args=original(node,path,deadline,progress=progress)
+            time.sleep(max(0,deadline-time.monotonic())+.01);return args
+        self.group.authorize=late
+        with patch.object(iap,'ADMISSION_SECONDS',.02),patch.object(iap,'ADMISSION_BACKOFF',.001), \
+             patch.object(iap.subprocess,'Popen') as spawn:
+            client=self.connect();self.assertEqual(b'',client.recv(1));self.forward.close();spawn.assert_not_called()
+        self.assertEqual(2,len(self.calls));self.assertTrue(all(not path.exists() for _,path,_ in self.calls))
 
     def test_diagnostic_bound_fails_closed_and_reaps_process(self):
         self.program='import os,time;os.write(2,b"x"*70000);time.sleep(60)'
@@ -282,8 +348,8 @@ class LocalForwardTest(unittest.TestCase):
 
     def test_simultaneous_terminal_failures_stop_all_routes_without_join_deadlock(self):
         barrier=threading.Barrier(2);original=self.authorize
-        def denied(*args):
-            original(*args);barrier.wait(5);raise ValueError('never-public-authority')
+        def denied(*args,**kwargs):
+            original(*args,**kwargs);barrier.wait(5);raise ValueError('never-public-authority')
         self.group.authorize=denied;self.group.lock=threading.RLock();self.group.stop=threading.Event()
         self.group.failure=None;self.group.forwards={'node-1':self.forward}
         self.group.fail=lambda code:iap.Guests.fail(self.group,code)
@@ -350,7 +416,8 @@ class RealSshForwardTest(unittest.TestCase):
             self.assertEqual('SSH_HOST_KEY',error.exception.code)
             self.assertIn('ConnectTimeout=30',iap.ssh.ssh.ssh_args(dict(target,connectSeconds=30)))
             self.assertIn('ConnectTimeout=10',iap.ssh.ssh.ssh_args(target))
-            for seconds in (True,0,60,300):
+            self.assertIn('ConnectTimeout=60',iap.ssh.ssh.ssh_args(dict(target,connectSeconds=60)))
+            for seconds in (True,0,61,300):
                 with self.assertRaisesRegex(ValueError,'connection allowance'):iap.ssh.ssh.ssh_args(dict(target,connectSeconds=seconds))
         helper.forward.close();self.assertEqual(2,len(helper.calls))
         self.assertEqual([],helper.forward.channels);self.assertEqual(2,helper.forward.snapshot()['completed'])
@@ -389,6 +456,54 @@ class GuestsLifecycleTest(unittest.TestCase):
         with self.assertRaises(RuntimeError) as result:
             with group:raise original
         self.assertIs(original,result.exception);group.close.assert_called_once_with()
+
+
+class AdmissionDeadlineTest(unittest.TestCase):
+    def setUp(self):
+        self.private=tempfile.TemporaryDirectory();self.addCleanup(self.private.cleanup)
+        self.directory=Path(self.private.name)/'channel';self.directory.mkdir(mode=0o700)
+        self.api=SimpleNamespace(lock=threading.RLock(),deadline=float('inf'),tokens=Mock())
+        self.owner=SimpleNamespace(lock=threading.RLock())
+        self.group=object.__new__(iap.Guests);self.group.private=self.private
+        self.group.session=SimpleNamespace(owner=self.owner,api=self.api)
+        self.group.observations={'node-1':{}}
+        self.group.cheap_check=Mock();self.group.observe=Mock(return_value={})
+
+    def authorize(self):
+        self.phases=[]
+        return self.group.authorize('node-1',self.directory,time.monotonic()+.05,progress=self.phases.append)
+
+    def test_authority_queue_timeout_is_typed_and_does_not_touch_api(self):
+        self.owner.lock=Mock();self.owner.lock.acquire.return_value=False
+        with self.assertRaises(TimeoutError) as result:self.authorize()
+        self.assertTrue(iap._retry_admission(result.exception));self.api.tokens.assert_not_called()
+        self.owner.lock.release.assert_not_called();self.assertEqual('owner-lock',self.phases[-1])
+
+    def test_api_queue_timeout_releases_owner_without_releasing_unowned_lock(self):
+        self.owner.lock=Mock();self.api.lock=Mock();self.api.lock.acquire.return_value=False
+        with self.assertRaises(TimeoutError):self.authorize()
+        self.owner.lock.release.assert_called_once_with();self.api.lock.release.assert_not_called()
+        self.assertEqual('api-lock',self.phases[-1]);self.api.tokens.assert_not_called()
+
+    def test_late_identity_cannot_request_token_or_write_credential(self):
+        self.group.observe.side_effect=lambda node,end:time.sleep(max(0,end-time.monotonic())+.01)
+        with self.assertRaises(TimeoutError):self.authorize()
+        self.assertEqual(float('inf'),self.api.deadline);self.api.tokens.assert_not_called()
+        self.assertEqual([],list(self.directory.iterdir()))
+
+    def test_known_credential_timeout_is_retryable_but_security_rejections_are_not(self):
+        for error in (TimeoutError(),ConnectionError(),iap.runner.credentials.ContextError('DEADLINE')):
+            self.assertTrue(iap._retry_admission(error))
+        for error in (ValueError('deadline'),iap.runner.credentials.ContextError('RUN_OBSERVATION'),
+                      iap.transport.ProcessError('IAP_PERMISSION'),iap.transport.ProcessError('SSH_HOST_KEY'),
+                      iap.runner.h.ApiError(403,'GET'),iap.runner.h.ApiError(404,'GET'),
+                      iap.runner.p.ControlReadError('V52_CONTROL_LEASE_INACTIVE')):
+            self.assertFalse(iap._retry_admission(error))
+        self.assertEqual('V52_CONTROL_LEASE_INACTIVE',iap._safe(iap.runner.p.ControlReadError('V52_CONTROL_LEASE_INACTIVE')))
+
+    def test_original_credential_failure_code_survives_without_becoming_retryable(self):
+        error=iap.runner.credentials.exchange.CredentialError('OIDC_URL_PATH')
+        self.assertEqual('OIDC_URL_PATH',iap._safe(error));self.assertFalse(iap._retry_admission(error))
 
 
 class NativeGuestFactoryTest(unittest.TestCase):

@@ -31,8 +31,9 @@ def observe(provider, expected, node, *, deadline):
     allowance. Permissions, malformed keys, ID drift and ownership expiry reject.
     """
     need(type(node) is str and node in ('node-1','node-2','node-3'),'V5.2 guest node')
-    need(type(deadline) in (int,float) and math.isfinite(deadline) and 0<deadline-provider.api.clock()<=300,
+    need(type(deadline) in (int,float) and math.isfinite(deadline) and deadline-provider.api.clock()<=300,
          'V5.2 guest observation deadline')
+    if deadline<=provider.api.clock():raise TimeoutError('V5.2 guest observation deadline')
     current(provider,expected);claim=deepcopy(expected);identity=claim['nodes'][node]
     rows=identity['identity']['resources'];vmrow=next(r for r in rows if r['spec']['kind']=='instance')
     disks=[r for r in rows if r['spec']['kind']=='disk']
@@ -68,7 +69,8 @@ def observe(provider, expected, node, *, deadline):
         pending=access.HostKeyPending('V5.2 host-key attributes not yet available')
     except access.HostKeyPending as error:pending=error
     second=sample();current(provider,claim)
-    need(first==second and provider.api.clock()<deadline,'V5.2 guest observation changed/late')
+    need(first==second,'V5.2 guest observation changed')
+    if provider.api.clock()>=deadline:raise TimeoutError('V5.2 guest observation deadline')
     if pending is not None:raise pending
     alias=access.alias(claim['requestSha256'],node,first['instanceId'])
     domain=p.api_domain(provider.api)

@@ -192,6 +192,13 @@ IAP capacity applies to **four active connections per node**, including channels
 still cleaning up their process and private credentials. Completed channels free
 their slots; there is no lifetime connection-count limit. Every newly accepted
 connection still checks the original authority and opens at most one SDK tunnel.
+Before that tunnel starts, a typed timeout or plain connection interruption may
+receive one admission retry: at most two 30-second attempts, one one-second
+backoff and a shared 60-second connection ceiling. Shorter outer command deadlines
+still apply. Every retry repeats the original checks using a fresh private
+credential directory. Explicit denials, identity/ownership drift and malformed or
+unknown errors remain terminal. These are connection bounds, not experiment time
+or cost budgets.
 The forwarder never retries a business request or replays bytes. Terminal errors
 stop all routes; the outer guest scope joins their threads before deleting the
 private credential directory.
@@ -205,6 +212,26 @@ record counts and allowlisted failure codes. It excludes command text, stderr,
 credentials, paths, PIDs and individual records; missing or malformed diagnostics
 are omitted and cannot mask the original failure. These observations do not
 qualify a workload or change cleanup, lease, source or history boundaries.
+
+The same summary also retains cumulative admission milliseconds/retry counts and
+the latest failed/retried admission (at most two records per node). Each record
+contains an allowlisted phase, elapsed/phase milliseconds, reason/type and source
+module/line. Phases distinguish owner/API lock waiting, identity checks before and
+after credentials, credential refresh and local credential-file preparation.
+Historical receipts without these optional fields remain readable. This allows
+a deadline to be distinguished from a permission failure without publishing
+private provider or SDK text.
+
+Run `39503311609` on source `30b17fe46c5791a5e04c0d32b445fe928a491b04`
+finished seven histories and failed preparing `m02-above-1000`, before its
+original workload, after about 3h30m total job time. Its retained diagnostic
+reported node-1 `IAP_IDENTITY_OR_AUTHORITY_REJECTED`, cleanup PASS, 13 delete
+submissions and a released lease. That old code also covered untyped deadline
+errors, so it does not establish an IAM denial or the precise original cause.
+This was not the hosted six-hour ceiling. The seven completed histories averaged
+1368.5 seconds, including 764.1 seconds of placement and about 303 seconds of
+preparation; these measured costs motivate admission timing diagnostics, not
+removal of authority checks. Corrected-source cloud qualification remains pending.
 
 Storage preparation now emits fixed node/operation milestones alongside the
 minute heartbeat. Its failure summary projects a bounded

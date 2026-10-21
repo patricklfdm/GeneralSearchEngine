@@ -25,7 +25,7 @@ def ssh_args(target):
     # Native loopback forwards first perform owned IAP admission. Preserve the
     # existing local default; this does not extend an Endpoint's original deadline.
     connect=target.get('connectSeconds',10)
-    need(type(connect) is int and connect in (10,30),'SSH V5.2 connection allowance')
+    need(type(connect) is int and connect in (10,30,60),'SSH V5.2 connection allowance')
     # This stage has neither independent cloud facts nor three-host clock domains.
     need(target['host']=='127.0.0.1' and type(target['port']) is int and 1024<=target['port']<=65535,
          'SSH V5.2 live host execution not admitted')
