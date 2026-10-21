@@ -40,6 +40,8 @@ def contract(root=ci.ROOT):
     need(yaml.scalar(job['name']) == JOB and yaml.scalar(job['environment']) == 'v52-cloud-benchmark' and
          yaml.scalar(job['if']) == "${{ github.ref == 'refs/heads/master' }}" and
          'continue-on-error' not in job and 'strategy' not in job, 'V5.2 Runner job identity contract')
+    need(job['runs-on'] == ('[self-hosted, Linux, X64, gse-v52-cloud-d-wsl]', '') and
+         yaml.scalar(job['timeout-minutes']) == '1380', 'V5.2 dedicated Runner routing/time contract')
     steps = yaml.steps(job['steps'])
     need(tuple(name for name in steps if name in REQUIRED) == REQUIRED, 'V5.2 Runner ordered required steps contract')
     need(all('if' not in steps[name] for name in REQUIRED), 'V5.2 Runner conditional required step')

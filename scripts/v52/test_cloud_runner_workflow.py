@@ -14,7 +14,10 @@ from .evidence import encoded
 class WorkflowTest(unittest.TestCase):
     def test_actual_source_is_manual_master_only_and_uses_exact_required_job_steps(self):
         source=w.contract();self.assertEqual(w.render(),source)
-        self.assertIn('timeout-minutes: 360',source);self.assertNotIn('timeout --signal',source)
+        self.assertIn('timeout-minutes: 1380',source);self.assertNotIn('timeout --signal',source)
+        self.assertIn('runs-on: [self-hosted, Linux, X64, gse-v52-cloud-d-wsl]',source)
+        self.assertIn('python -u -m scripts.v52.cloud_self_hosted execute',source)
+        self.assertLess(source.index('name: Verify dedicated self-hosted Runner'),source.index('name: '+w.origin.IDENTITY))
         self.assertIn('cancel-in-progress: false',source);self.assertEqual(2,source.count('retention-days: 90'))
         self.assertIn('path: target/v52-runner/result',source);self.assertIn('path: target/v52-runner/diagnostics',source)
         self.assertNotIn('path: target/v52-runner\n',source)

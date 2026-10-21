@@ -42,8 +42,8 @@ jobs:
   runner:
     name: V5.2 replication runner
     if: ${{ github.ref == 'refs/heads/master' }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 360
+    runs-on: [self-hosted, Linux, X64, gse-v52-cloud-d-wsl]
+    timeout-minutes: 1380
     environment: v52-cloud-benchmark
     permissions:
       contents: read
@@ -72,6 +72,9 @@ jobs:
           distribution: temurin
           java-version: 21.0.12+8.0.LTS
 
+      - name: Verify dedicated self-hosted Runner
+        run: python -m scripts.v52.cloud_self_hosted check
+
       - name: Bind V5.2 Runner identity
         id: identity
         run: |
@@ -95,7 +98,7 @@ jobs:
         env:
           V52_SSH_KEY: ${{ inputs.operation != 'verify-set' && secrets.V52_EXPERIMENT_SSH_KEY || '' }}
         run: |
-          python -u -m scripts.v52.cloud_operator execute --source "$GITHUB_SHA" \\
+          python -u -m scripts.v52.cloud_self_hosted execute --source "$GITHUB_SHA" \\
             --output target/v52-runner
 
       - name: Retain V5.2 Runner result
