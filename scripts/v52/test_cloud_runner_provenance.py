@@ -95,11 +95,32 @@ class ProvenanceTest(unittest.TestCase):
             with self.assertRaises(ValueError): self.collect()
     def test_wrong_upload_attempt_expiry_digest_or_original_step_reject(self):
         for changes in (dict(name='v52-runner-123456-3'), dict(expired=True), dict(digest='missing'),
-                        dict(created_at=at(1100)), dict(updated_at=at(1121)), dict(expires_at=at(1200))):
+                        dict(created_at=at(1100)), dict(updated_at=at(1126)), dict(expires_at=at(1200))):
             self.client = RunnerFixture(self.seal); self.client.record.update(changes)
             self.client.data['actions/artifacts/901'] = deepcopy(self.client.record)
             self.client.page('actions/runs/123456/artifacts', 'artifacts', [self.client.record])
             with self.subTest(changes=changes), self.assertRaises(ValueError): self.collect()
+    def test_upload_clock_tolerance_is_bounded_and_does_not_accept_future_or_reversed_times(self):
+        for created, updated, valid in ((1105,1125,True), (1110,1121,True), (1104,1120,False),
+                                        (1110,1126,False), (1115,1114,False)):
+            self.client = RunnerFixture(self.seal)
+            self.client.record.update(created_at=at(created), updated_at=at(updated)); self.client.rezip()
+            with self.subTest(created=created, updated=updated):
+                if valid: self.collect()
+                else:
+                    with self.assertRaisesRegex(ValueError, 'outside original upload'): self.collect()
+        _, times = p.job(self.client.jobs, self.client.run, 1200)
+        record = dict(self.client.record, created_at=at(1110), updated_at=at(1125))
+        with self.assertRaisesRegex(ValueError, 'outside original upload'):
+            p.metadata(record, self.client.run, self.chosen, times, 1124)
+    def test_original_self_hosted_upload_boundary_regression(self):
+        # Observed on prepare 39544678816/1: API artifact creation was one second
+        # after upload-step completion. This is a metadata fixture, not admission.
+        times = {p.UPLOAD: (p.ci.stamp('2026-10-21T04:37:23Z'), p.ci.stamp('2026-10-21T04:37:26Z'))}
+        record = dict(self.client.record, created_at='2026-10-21T04:37:27Z',
+                      updated_at='2026-10-21T04:37:27Z', expires_at='2027-01-19T04:33:21Z')
+        self.assertEqual(record['digest'][7:], p.metadata(record, self.client.run, self.chosen, times,
+                                                        p.ci.stamp('2026-10-21T04:38:00Z')))
     def test_complete_pagination_and_duplicate_or_truncated_inventory(self):
         records = [dict(id=2000+i, name='other-'+str(i)) for i in range(205)]+[self.client.record]
         self.client.page('actions/runs/123456/artifacts', 'artifacts', records); self.collect()

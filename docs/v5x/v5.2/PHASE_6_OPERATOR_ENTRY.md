@@ -372,6 +372,47 @@ restart Windows or terminate the distro during an active job. The 23-hour job
 ceiling leaves room below the normal job token's 24-hour lifetime; stage/time/cost
 budgets remain soft and cannot override a platform/job-token limit.
 
+Install `v52-start.ps1` as `D:\GSE-Runner\Start-GSE-Runner.ps1`. From Windows
+PowerShell, start it with a process-scoped execution policy:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File D:\GSE-Runner\Start-GSE-Runner.ps1
+```
+
+Append `-CheckOnly` for one publication check without starting the service or
+requesting wakefulness. Do not use that option as a long-running monitor.
+Each publication call has a 20-second timeout and at most three attempts with
+two-second retry delays. An exhausted periodic cycle warns and the next cycle
+tries again; it does not exit the monitor, release wakefulness, stop the Runner
+or replay the experiment. Initial publication is still required before this
+launcher starts the service. Management stdout/stderr are drained concurrently;
+errors include exit/timeout codes and bounded stderr. Small per-launch logs are
+retained under `D:\GSE-Runner\monitor-logs`. A log-write failure only warns.
+
+Only child WSL management calls clear `WSLENV` and use a local Windows working
+directory, preventing inherited VS Code paths from being translated into the
+isolated distro. The parent environment and distro interop/automount settings
+are unchanged. Linux stamps disk observations when received, so its freshness
+check does not compare Windows and Linux wall clocks. This does not change the
+clock used for measurement or relax the 180-second freshness requirement.
+Native Windows regression checks (no WSL/service/cloud mutations) are available:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\self-hosted\test-v52-start.ps1
+```
+
+Original prepare/member artifact provenance allows **five seconds** on either
+side of its exact original upload step because Runner and artifact-service
+timestamps come from separate clocks at whole-second API precision. Creation
+must still precede update; neither may be in the future. Source, repository,
+run, attempt, required steps, expiry, inventory and SHA-256 remain exact. The
+tolerance does not apply to workload execution windows, approvals or leases.
+Prepare `39544678816/1` exposed this boundary: upload ended at `04:37:26Z` but
+the original artifact was recorded at `04:37:27Z` on 2026-10-21. Offline replay
+of its unchanged ZIP passes this correlation and the original package checks;
+it is not a new admission or paid execution. New source still requires fresh
+preparation after protected master CI and recent cleanup.
+
 After all steps and action credential cleanup, the installed completion hook
 atomically moves `target/v52-runner` to
 `/home/gse-runner/evidence-archives/<run>-<attempt>/evidence` on the same D-backed

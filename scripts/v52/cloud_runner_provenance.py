@@ -27,6 +27,10 @@ UPLOAD = 'Retain V5.2 Runner result'
 REQUIRED = (IDENTITY, AUTH, EXECUTE, UPLOAD)
 MAX_ZIP = 128 << 10
 OBSERVATION_SECONDS = 900
+# Runner step times and GitHub artifact service times use separate clocks and
+# whole-second API timestamps. Bound only this correlation, never execution,
+# expiry, source/attempt identity or the original artifact's immutable bytes.
+UPLOAD_CLOCK_TOLERANCE_SECONDS = 5
 
 
 def contract(root=ci.ROOT):
@@ -90,7 +94,9 @@ def metadata(record, run, chosen, times, now, *, artifact_name=None, maximum=MAX
          origin['head_sha'] == run['head_sha'] and origin['head_branch'] == 'master', 'V5.2 Runner artifact original execution')
     sha = record['digest']; need(type(sha) is str and sha.startswith('sha256:'), 'V5.2 Runner artifact digest missing')
     a.hex_value(sha[7:])
-    need(times[UPLOAD][0] <= ci.stamp(record['created_at']) <= ci.stamp(record['updated_at']) <= times[UPLOAD][1],
+    created, updated = ci.stamp(record['created_at']), ci.stamp(record['updated_at'])
+    need(times[UPLOAD][0] - UPLOAD_CLOCK_TOLERANCE_SECONDS <= created <= updated <=
+         min(now, times[UPLOAD][1] + UPLOAD_CLOCK_TOLERANCE_SECONDS),
          'V5.2 Runner artifact outside original upload')
     return sha[7:]
 
