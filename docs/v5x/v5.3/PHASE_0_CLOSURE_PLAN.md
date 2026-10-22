@@ -42,3 +42,8 @@ why a replacement result supersedes them.
   histories; see [candidate](INTEGRATED_PROTOCOL_RESEARCH.md) and
   [receipt](integrated-research.json). Steady-state rounds, bounded metadata,
   formats/resources and the final contract register remain.
+
+- Stable round/catalog batch: fixed-source sequential round extension and complete
+  metadata capsules now have directed counterexamples and 49 portable histories.
+  See [decisions](STEADY_ROUNDS_AND_CATALOG.md) and [receipt](continuity-research.json).
+  Exact formats/resources, acceptance register and final contract audit remain.

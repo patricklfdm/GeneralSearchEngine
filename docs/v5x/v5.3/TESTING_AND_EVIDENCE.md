@@ -140,3 +140,11 @@ Freeze workloads, repetitions, control versions and exact bounds before formal
 measurements. Later protected CI and cloud consumers need coherent source/artifact
 inventories; don't append a workflow job while forgetting their exact-name/attempt
 checks. V5.2's current 28-history or cloud results are predecessor evidence only.
+
+## Stable round and complete metadata composition
+
+[Stable-round/catalog research](STEADY_ROUNDS_AND_CATALOG.md) adds 49 portable
+histories. It preserves fixed selected sources and independent entry proofs across
+round reuse, and binds complete metadata to new checkpoint endorsements. Every
+original integrated source passes before evidence mutations are tested. The
+[receipt](continuity-research.json) records source hashes and the exact local scope.

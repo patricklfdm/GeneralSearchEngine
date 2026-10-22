@@ -120,3 +120,9 @@ reference restrictions; steady-state rounds and compacted metadata still need de
 The entry batch intentionally leaves these files absent rather than publishing
 empty or supposedly accepted contracts. Progress is recorded in
 [development status](DEVELOPMENT_STATUS.md).
+
+[Stable rounds and catalog retention](STEADY_ROUNDS_AND_CATALOG.md) now specify
+fixed-source sequential round reuse, fresh activation across membership changes,
+and checkpoint endorsements binding complete operation metadata. The 49 portable
+histories cover these reference compositions. Byte budgets and the final acceptance
+register remain; this does not enable production compaction or round reuse.

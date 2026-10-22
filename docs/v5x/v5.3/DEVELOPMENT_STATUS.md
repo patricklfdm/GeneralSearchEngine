@@ -276,3 +276,20 @@ See [integrated protocol research](INTEGRATED_PROTOCOL_RESEARCH.md). Fresh recov
 ballots per command and complete retained prefixes are explicit reference choices.
 Steady-state round reuse and incremental metadata compaction remain to be specified
 and tested before the local contract can freeze. **Phase 0 remains OPEN.**
+
+## 2026-10-21 — stable rounds and complete catalog capsules
+
+- Added stable-round extension seeded by the validated global-activation model.
+  Selected sources and original basis stay fixed; every slot requires new durable
+  ACCEPT/PROOF. INTENT and leader restart end the round; late callbacks are refused.
+- Added checkpoint statements binding application and full catalog state, with
+  original membership certificates/full sealed descriptors retained after query
+  result retirement. Future/unforced endorsements and hidden boundaries reject.
+- 17 new regressions; 49 portable histories replayed, 252 publications, 70 capsules
+  and 5,504 extension/endorsement observations. Receipt binds parent `53ac701` and
+  exact local source bytes: [continuity-research.json](continuity-research.json).
+  Outputs and unit log: `target/v53-continuity-research/`.
+- [Decisions and limits](STEADY_ROUNDS_AND_CATALOG.md) distinguish reference models
+  from future same-round catalog integration and physical incremental compaction.
+  No Java, POM, workflow, Maven or cloud changes. Phase 0 remains **OPEN** pending
+  formats/resources, the frozen acceptance register and final requirement audit.

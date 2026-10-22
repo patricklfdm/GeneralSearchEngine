@@ -20,9 +20,10 @@ development predecessor; its eventual published artifacts are not yet pinned.
 8. [Authority retention and learner identity](AUTHORITY_AND_LEARNER_RESEARCH.md)
 9. [Queryable operations and maintenance](OPERATION_AND_MAINTENANCE.md)
 10. [Certified operations and learner admission](INTEGRATED_PROTOCOL_RESEARCH.md)
-11. [Phase 0 closure worklist](PHASE_0_CLOSURE_PLAN.md)
-12. [Independent model and later evidence requirements](TESTING_AND_EVIDENCE.md)
-13. [Development status](DEVELOPMENT_STATUS.md)
+11. [Stable rounds and complete catalog capsules](STEADY_ROUNDS_AND_CATALOG.md)
+12. [Phase 0 closure worklist](PHASE_0_CLOSURE_PLAN.md)
+13. [Independent model and later evidence requirements](TESTING_AND_EVIDENCE.md)
+14. [Development status](DEVELOPMENT_STATUS.md)
 
 The accepted [V5 charter](../DEVELOPMENT_CHARTER.md) and the V5.3 section of the
 [development addendum](../NEXT_DEVELOPMENT_ADDENDUM.md#v53-controlled-operations)
@@ -52,6 +53,8 @@ python3 -m scripts.v53.operation_research \
 python3 -m scripts.v53.integrated_research \
   --output "target/v53-integrated-research/run-$(date -u +%Y%m%dT%H%M%SZ)"
 ```
+
+The additional composition driver is `python3 -m scripts.v53.continuity_research --output <new-directory>`.
 
 Run from the repository root. The output directory must be new. These commands
 need no Maven build, sudo, network, cloud credentials or running GSE processes.
