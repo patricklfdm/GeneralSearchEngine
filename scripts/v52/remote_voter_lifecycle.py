@@ -63,12 +63,12 @@ class Client(stream.Client):
         self.channels=[];self.active_stream=None;self.recorded=[];self.config=None;self.sha=None
         self.final=None;self.launch_lost=False;self.discard_launch=discard_launch;self.launch_submissions=0;self.released=False
         try:
-            probe=self.lifecycle.exchange('probe',self.root,None,time.monotonic()+30)
+            probe=self.lifecycle.exchange('probe',self.root,None,self.lifecycle.control_deadline())
             need(type(probe) is dict and set(probe)=={'host'},'lifecycle probe response')
             value=dict(node=node,binding=binding,session=v.os.urandom(16).hex(),host=v.host.validate_pin(probe['host']))
             if 'remoteRestart' in binding:value['generation']=generation
             else:need(generation==1,'lifecycle undeclared generation')
-            prepared=self.lifecycle.exchange('prepare',self.root,value,time.monotonic()+30)
+            prepared=self.lifecycle.exchange('prepare',self.root,value,self.lifecycle.control_deadline())
             need(type(prepared) is dict and set(prepared)=={'config'},'lifecycle prepare response')
             self.config=prepared['config'];evidence.configuration(self.config,value,str(self.root))
             self.sha=digest(encoded(self.config))
@@ -88,7 +88,7 @@ class Client(stream.Client):
     def lost_launch(self):self.launch_lost=True
 
     def control_call(self,action,request=None):
-        result=self.lifecycle.exchange(action,self.control,dict(configSha256=self.sha,request=request),time.monotonic()+30)
+        result=self.lifecycle.exchange(action,self.control,dict(configSha256=self.sha,request=request),self.lifecycle.control_deadline())
         need(type(result) is dict and set(result)=={'configSha256','host','answer'} and
              result['configSha256']==self.sha and result['host']==self.config['host'],'lifecycle response binding')
         return result['answer']

@@ -175,6 +175,28 @@ class EndpointTest(unittest.TestCase):
 
 
 class ControllerTest(Fixture):
+    def test_native_probe_survives_slow_iap_before_any_delivery_submission(self):
+        target_root=self.root/'keys';target_root.mkdir(mode=0o700)
+        key=target_root/'key';key.write_text('fixture-key');key.chmod(0o600)
+        known=target_root/'known';alias='gse-v52-'+'a'*32
+        known.write_text(alias+' ssh-ed25519 AAAA\n');known.chmod(0o600)
+        target=dict(host='127.0.0.1',port=12345,user='operator',key=str(key),knownHosts=str(known),alias=alias,connectSeconds=60)
+        obj=d.Delivery(target,self.parent,'node-1',self.meta);self.addCleanup(obj.close)
+        clock=[100.0];master=Mock();master.exchange.return_value=p.encoded(dict(host=self.value['host']))
+        def connect(*args,connect_deadline,**kwargs):
+            clock[0]+=35
+            if clock[0]>=connect_deadline:raise TimeoutError('SSH master original deadline')
+            return master
+        class ProbeCompleted(Exception):pass
+        with patch.object(d.time,'monotonic',side_effect=lambda:clock[0]), \
+             patch.object(lifecycle.stream.ssh.master,'Master',side_effect=connect) as spawn, \
+             patch.object(p,'descriptor',side_effect=ProbeCompleted):
+            with self.assertRaises(ProbeCompleted):obj.run(self.archive)
+        spawn.assert_called_once();master.exchange.assert_called_once()
+        self.assertEqual('probe',master.exchange.call_args.args[0][-2])
+        self.assertEqual([],obj.calls)
+        self.assertFalse(self.store.exists())
+
     def test_uncertain_part_and_install_only_query_original(self):
         obj=object.__new__(d.Delivery);obj.endpoint=Mock();obj.discarded=set();obj.losses=[];obj.exchange=Mock(side_effect=[{'state':'RUNNING'},{'state':'SUCCEEDED'}])
         self.assertEqual({'state':'SUCCEEDED'},obj.once('install',discard=True))

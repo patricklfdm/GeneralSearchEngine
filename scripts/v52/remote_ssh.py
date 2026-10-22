@@ -55,6 +55,19 @@ class Endpoint:
         self.pins={name:Path(target[name]).read_bytes() for name in ('key','knownHosts')}
         self.config=None;self.closed=False
 
+    def control_deadline(self, seconds=30):
+        """Budget a new control call, including explicit native connection time.
+
+        Cold IAP routes need their full connect allowance before the command.
+        Warm/local channels keep their existing command allowance. Callers with
+        an existing operation/lease deadline still pass that deadline unchanged.
+        """
+        connect=self.target.get('connectSeconds',0) if self.master is None else 0
+        need(not self.closed and type(connect) is int and connect in (0,10,30,60) and
+             type(seconds) in (int,float) and math.isfinite(seconds) and 0<seconds<=300-connect,
+             'SSH control deadline bound/closed')
+        return time.monotonic()+connect+seconds
+
     def disconnect(self):
         if self.master is not None:self.master.close();self.master=None
 

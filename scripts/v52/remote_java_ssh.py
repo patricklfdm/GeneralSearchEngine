@@ -51,7 +51,7 @@ class Installer(ssh.Endpoint):
         r.p.need(action in ('install','verify') and not self.closed,'Java SSH action/closed')
         r.p.need(ssh.ssh_args(self.target)==self.args and all(Path(self.target[k]).read_bytes()==v for k,v in self.pins.items()),
                  'Java SSH target changed')
-        deadline=self.end if self.end is not None else time.monotonic()+60
+        deadline=self.end if self.end is not None else self.control_deadline(60)
         python.remaining(deadline,'Java original installation deadline');self.calls.append(action)
         remote=['/usr/bin/python3','-I','-S','-c',trusted(),action,str(parent),self.pin]
         try:
