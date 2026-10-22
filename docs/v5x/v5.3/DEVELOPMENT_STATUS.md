@@ -219,8 +219,34 @@ or the integrated readiness-before-INTENT/global-promise protocol.
 
 ## Next local batch
 
-Specify operation identity/query/cancel and bounded terminal-record retention,
-including prepared-cut revisions and identity reservations. Define removed-node
-read/maintenance behavior, then connect learner readiness and authority capsules
-to the transition/global-promise adapter. Freeze exact API/byte/resource decisions
-before Phase 0 completion. Continue local commits only and preserve V5.2's path.
+Connect certified operation records, learner readiness and authority capsules to
+the transition/global-promise adapter. Freeze exact API/byte/resource decisions
+and the full acceptance register, then audit Phase 0 against all D01–D10 obligations.
+Continue local commits under the explicit closure instruction; preserve V5.2's path.
+
+## 2026-10-21 — continuous Phase 0 closure, operation lifecycle
+
+- The operator authorized continuing to Phase 0 closure with intermediate local
+  commits. [Closure worklist](PHASE_0_CLOSURE_PLAN.md) separates local contract exit
+  from the deferred protected/runtime acceptance and prohibits push/cloud changes.
+- Defined stable sequential client operation IDs, exact duplicate/conflict behavior,
+  separately versioned preparations, forced learner receipts and a certified SEAL
+  boundary before INTENT. Client timeout detaches only; explicit CANCEL must commit
+  before SEAL. Terminal retirement retains a monotonic high watermark and permanent
+  bounded identity reservations, including cancelled learners.
+- Defined known-removed/draining capture refusal and same-version maintenance with
+  a fresh challenge and surviving majority excluding the target. An isolated node
+  unaware of removal retains only the already explicit local-read semantics.
+- Added isolated committed-operation reducer and independent replay. **160 V5.3
+  tests passed**; the final focused 25-test rerun also covers unknown/start/stop
+  role refusal. **308 cases, 2,436 committed controls/data entries and 6,290 events**
+  passed and all 308 histories replayed from serialized evidence. These are
+  certified-application assumptions, not observations of consensus or real disks.
+- Receipt: [operation-research.json](operation-research.json); retained output
+  `target/v53-operation-research/qualified/`, with `unit.log` and
+  `unit-focused-final.log` in its parent. Receipt binds `acba545` plus exact dirty
+  source/test hashes. Previous outputs remain intact. No production/CI/POM change.
+
+See [operation and maintenance decisions](OPERATION_AND_MAINTENANCE.md). D05/D07
+have concrete candidate selections and counterexamples; **Phase 0 remains OPEN**
+while certification integration, formats, resources and the final audit continue.

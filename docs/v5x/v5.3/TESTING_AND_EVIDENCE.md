@@ -94,6 +94,13 @@ local/abstract scope. No production disk, service-read, timing or cloud claim fo
 
 ## Later foundation and runtime coverage
 
+[Operation/maintenance research](OPERATION_AND_MAINTENANCE.md) adds a committed
+control-state reducer with an independent observer. Its 308 complete/cancel/reprepare
+crash schedules all replay from serialized histories. Identity conflict, stale
+revision, result retirement, future receipt, post-SEAL cancellation and maintenance
+challenge counterexamples qualify the reducer rules only. Accepted-only tails and
+actual quorum certification belong to the integrated protocol gate.
+
 The [authority/learner research](AUTHORITY_AND_LEARNER_RESEARCH.md) adds a distinct
 majority-endorsed stable-range representation and durable learner eligibility gate.
 Its observer checks original proof history, complete membership boundaries, forced

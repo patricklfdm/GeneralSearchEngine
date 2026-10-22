@@ -90,6 +90,13 @@ The lifetime change cap affects new changes, not ordinary data. Incremental phys
 compaction, replicated identity catalogs, readiness-before-INTENT integration,
 public operation revisions and actual vote/read activation remain open.
 
+[Operation/maintenance decisions](OPERATION_AND_MAINTENANCE.md) now separate stable
+client operation identity from changing prepared cuts, define certified reservation,
+SEAL/CANCEL ordering and terminal retirement, and retain cancelled identity tombstones.
+Removed-node capture and fresh surviving-majority maintenance rules are explicit.
+The 308-case committed-state reducer still needs integration with actual selected
+control entries; it does not itself prove consensus or readiness-before-INTENT.
+
 ## Phase 0 deliverables still to freeze
 
 - `PHASE_0_CONTRACT.md`: resolved decisions and authority/state matrix.
