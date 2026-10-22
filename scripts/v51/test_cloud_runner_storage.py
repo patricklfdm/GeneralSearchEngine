@@ -205,7 +205,7 @@ class RunnerStorageTest(unittest.TestCase):
             if method == 'POST': self.clock.sleep(2)
             return result
         self.http.send = late
-        with self.assertRaisesRegex(ValueError, 'late response'):
+        with self.assertRaisesRegex(TimeoutError, 'late response'):
             store.put(self.api.keys['created'], s.canary(self.api.req, 'created'), 0)
         self.assertIn(self.api.keys['created'], self.http.objects)
         self.assertIn(n.LEASE, self.http.objects)

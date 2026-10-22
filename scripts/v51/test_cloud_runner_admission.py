@@ -149,7 +149,9 @@ class RunnerAdmissionTest(unittest.TestCase):
         def late(method,url,*args):
             self.f['clock'].sleep(181); return send(method,url,*args)
         http.send = late
-        with self.assertRaisesRegex(ValueError,'late response'): self.inspect()
+        with self.assertRaises(r.diagnostics.AdmissionError) as caught: self.inspect()
+        self.assertEqual('ADMISSION_TIMEOUT',caught.exception.code)
+        self.assertEqual('TimeoutError',caught.exception.error_type)
 
     def test_mutation_and_foreign_reads_block_even_via_base_api(self):
         api = self.inspect().api; before = deepcopy(self.f['http'].requests)

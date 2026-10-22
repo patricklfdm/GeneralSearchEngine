@@ -267,9 +267,8 @@ class ObservationTest(unittest.TestCase):
         def fault(stage,event):
             if stage=='after' and '/getGuestAttributes' in event['url']:self.server.seconds+=31
         self.server.fault=fault
-        # This fixture uses the historical unscoped HTTP adapter. Native scoped
-        # calls additionally classify their own deadline as TimeoutError.
-        with self.assertRaisesRegex(ValueError,'late response'):self.observe()
+        # Both the shared HTTP and native scoped adapters retain typed expiry.
+        with self.assertRaisesRegex(TimeoutError,'late response'):self.observe()
         self.assertEqual(1,len([e for e in self.server.events if '/getGuestAttributes' in e['url']]))
         for deadline in (True,float('inf'),self.api.clock()+301):
             with self.assertRaises(ValueError):self.observe(deadline=deadline)

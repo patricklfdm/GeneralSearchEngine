@@ -75,7 +75,8 @@ class ReadRetryTest(unittest.TestCase):
     def test_success_after_deadline_is_not_accepted_or_retried(self):
         def send(*args):self.now=31;return 200,b'{}'
         self.transport.send.side_effect=send
-        with self.assertRaisesRegex(ValueError,'late response'):self.call()
+        with self.assertRaises(r.ReadError) as caught:self.call()
+        self.assertEqual('deadline',caught.exception.detail['stop'])
         self.assertEqual(1,self.transport.send.call_count)
 
     def test_reauthorization_runs_before_another_wire_attempt(self):
@@ -132,6 +133,34 @@ class CredentialRetryTest(unittest.TestCase):
         self.addCleanup(self.tokens.close);self.addCleanup(patch.stopall)
         patch.object(r.time,'sleep',side_effect=self.clock.sleep).start()
         patch.object(http.Network,'send',side_effect=AssertionError('network forbidden')).start()
+
+    def test_late_provider_denial_is_not_reclassified_as_credential_transport_failure(self):
+        for phase,method,url in (('oidc','GET','https://pipelines.actions.githubusercontent.com/fixed'),
+                                  ('sts','POST',c.exchange.STS),
+                                  ('impersonation','POST','https://iamcredentials.googleapis.com/fixed')):
+            for raised in (False,True):
+                with self.subTest(phase=phase,raised=raised):
+                    def send(*args):
+                        self.clock.sleep(31)
+                        if raised:raise http.ApiError(403,method)
+                        return 403,b'private-body'
+                    # This is the real bounded credential retry wrapper, without a live issuer.
+                    wire=self.tokens.exchange(self.clock.seconds()+30)
+                    with patch.object(self.issuer,'send',side_effect=send) as sender:
+                        with self.assertRaises(c.exchange.CredentialError) as caught:
+                            wire.request(phase,method,url,{},None,self.clock.seconds()+30)
+                    self.assertEqual('http',caught.exception.failure_kind)
+                    self.assertEqual(403,caught.exception.http_status);sender.assert_called_once()
+                    self.assertNotIn('private',str(caught.exception))
+
+    def test_credential_transport_validation_is_not_retried(self):
+        wire=self.tokens.exchange(self.clock.seconds()+30)
+        with patch.object(self.issuer,'send',side_effect=ValueError('provider redirect forbidden')) as sender:
+            with self.assertRaises(c.exchange.CredentialError) as caught:
+                wire.request('oidc','GET','https://pipelines.actions.githubusercontent.com/fixed',{},None,
+                             self.clock.seconds()+30)
+        self.assertEqual('response',caught.exception.failure_kind);sender.assert_called_once()
+        self.assertFalse(hasattr(caught.exception,'read_retry'))
 
     def test_each_stage_retries_only_its_fixed_exchange_and_keeps_identity_checks(self):
         original=self.issuer.send

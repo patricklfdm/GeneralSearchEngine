@@ -195,12 +195,16 @@ class _Exchange:
         if remaining <= 0: raise CredentialError(code, failure_kind='deadline')
         try:
             status, raw = self.transport.send(method, url, headers, body, min(30, remaining), 128 << 10)
+        except http.ApiError as error:
+            raise CredentialError(code, failure_kind='http', http_status=error.status) from None
+        except ValueError:
+            raise CredentialError(code, failure_kind='response') from None
         except Exception as error:
             timed_out = isinstance(error, TimeoutError) or (isinstance(error, URLError) and isinstance(error.reason, TimeoutError))
             raise CredentialError(code, failure_kind='timeout' if timed_out else 'transport') from None
-        if self.clock() > deadline: raise CredentialError(code, failure_kind='deadline')
         if type(status) is int and 100 <= status <= 599 and status != 200:
             raise CredentialError(code, failure_kind='http', http_status=status)
+        if self.clock() > deadline: raise CredentialError(code, failure_kind='deadline')
         try:
             m.need(type(status) is int and status == 200 and type(raw) is bytes and len(raw) <= 128 << 10, 'credential response')
             return m.strict_json(raw)

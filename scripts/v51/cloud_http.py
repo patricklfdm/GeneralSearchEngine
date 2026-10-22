@@ -25,6 +25,14 @@ class ApiError(RuntimeError):
         super().__init__(f'provider {method} returned HTTP {status}')
 
 
+def response_deadline(method, status, deadline, clock, message):
+    """A late reply cannot prove success or hide a received denial/redirect."""
+    if 300 <= status < 400: raise ValueError('provider redirect forbidden')
+    if clock() > deadline:
+        if 400 <= status < 600: raise ApiError(status, method)
+        raise TimeoutError(message)
+
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, *args, **kwargs):
         raise ValueError('provider redirect forbidden')
@@ -48,26 +56,24 @@ class Network:
         except Exception: pass
 
     def send(self, method, url, headers, body, timeout, maximum):
+        m.need(type(timeout) in (int, float) and math.isfinite(timeout) and timeout > 0, 'provider transport timeout bound')
         parsed = urllib.parse.urlsplit(url)
-        # Preserve the existing proxy behavior. Direct GCP traffic reuses one
-        # verified TLS connection per origin; no response/authority is cached.
-        # OIDC/STS/impersonation also use Network, with their own exact endpoint
-        # admission. Keep those exchanges on the existing unpooled transport.
+        # Preserve proxy/token endpoint routing. Only direct GCP connections pool;
+        # every exchange keeps its original timeout and mutations are never replayed.
         if (parsed.scheme != 'https' or parsed.netloc not in ('compute.googleapis.com', 'storage.googleapis.com') or
                 parsed.fragment or urllib.request.getproxies().get('https') and not urllib.request.proxy_bypass(parsed.hostname)):
             return self._unpooled(method, url, headers, body, timeout, maximum)
         end = time.monotonic()+timeout
-        with self.lock:
+        if not self.lock.acquire(timeout=timeout): raise TimeoutError('provider transport queue deadline')
+        try:
             host = parsed.netloc; now = time.monotonic()
             previous = self.connections.pop(host, None)
-            # Mutations always start with a fresh connection. A failed exchange
-            # is never automatically replayed, including on a reused GET socket.
             if previous is not None and (method != 'GET' or now-previous[1] >= 10):
                 previous[0].close(); previous = None
             connection = previous[0] if previous else None
             try:
                 left = end-time.monotonic()
-                m.need(left > 0, 'provider transport deadline')
+                if left <= 0: raise TimeoutError('provider transport deadline')
                 if connection is None:
                     connection = HTTPSConnection(host, timeout=left); self.opened += 1
                 else:
@@ -77,29 +83,57 @@ class Network:
                                    body=body, headers=headers)
                 with connection.getresponse() as response:
                     status = response.status
-                    data = response.read(maximum+1)
-                    m.need(time.monotonic() <= end, 'provider transport late response')
                     if 300 <= status < 400: raise ValueError('provider redirect forbidden')
-                    if len(data) <= maximum and response.length not in (None,0):
-                        raise http.client.IncompleteRead(b'')
-                    if len(data) <= maximum and not response.will_close and connection.sock is not None:
-                        self.connections[host] = (connection, time.monotonic()); connection = None
+                    try: data = response.read(maximum+1)
+                    except (http.client.HTTPException, OSError):
+                        if 400 <= status < 600: raise ApiError(status, method) from None
+                        raise
+                    # Oversized bodies go to the caller's existing size check;
+                    # neither a late clock nor a cached socket can hide that error.
+                    if len(data) <= maximum:
+                        response_deadline(method, status, end, time.monotonic, 'provider transport late response')
+                        if response.length not in (None,0):
+                            if 400 <= status < 600: raise ApiError(status, method)
+                            raise http.client.IncompleteRead(b'')
+                        if not response.will_close and connection.sock is not None:
+                            self.connections[host] = (connection, time.monotonic()); connection = None
                     return status, data if 200 <= status < 300 else b''
+            except TimeoutError:
+                # TimeoutError is an OSError: keep this before the broad catch.
+                raise TimeoutError('provider transport deadline; original operation remains unresolved') from None
             except (http.client.HTTPException, OSError):
                 raise ConnectionError('provider transport interrupted; original operation remains unresolved') from None
             finally:
                 if connection is not None: connection.close()
+        finally: self.lock.release()
 
     @staticmethod
     def _unpooled(method, url, headers, body, timeout, maximum):
+        end = time.monotonic()+timeout
         request = urllib.request.Request(url, data=body, headers=headers, method=method)
         try:
             with urllib.request.build_opener(NoRedirect).open(request, timeout=timeout) as response:
-                return response.status, response.read(maximum+1)
+                status = response.status
+                if 300 <= status < 400: raise ValueError('provider redirect forbidden')
+                try: data = response.read(maximum+1)
+                except (http.client.HTTPException, OSError):
+                    if 400 <= status < 600: raise ApiError(status, method) from None
+                    raise
+                if len(data) <= maximum:
+                    response_deadline(method, status, end, time.monotonic, 'provider transport late response')
+                return status, data if 200 <= status < 300 else b''
         except urllib.error.HTTPError as error:
-            try: return error.code, b''
+            try:
+                response_deadline(method, error.code, end, time.monotonic, 'provider transport late response')
+                return error.code, b''
             finally: error.close()
-        except (urllib.error.URLError, OSError):
+        except TimeoutError:
+            raise TimeoutError('provider transport deadline; original operation remains unresolved') from None
+        except urllib.error.URLError as error:
+            if isinstance(error.reason, TimeoutError):
+                raise TimeoutError('provider transport deadline; original operation remains unresolved') from None
+            raise ConnectionError('provider transport interrupted; original operation remains unresolved') from None
+        except (http.client.HTTPException, OSError):
             raise ConnectionError('provider transport interrupted; original operation remains unresolved') from None
 
 
@@ -126,12 +160,13 @@ class Api:
         m.need(parsed.scheme == 'https' and parsed.netloc in ('compute.googleapis.com', 'storage.googleapis.com') and
                not parsed.fragment and not parsed.username, 'provider endpoint')
         m.need(method in ('GET', 'POST', 'DELETE'), 'provider method')
+        m.need(type(deadline) in (int, float) and math.isfinite(deadline), 'provider deadline bound')
         self.authorize(method, url, body)
         m.need(type(maximum) is int and 0 < maximum <= 16 << 20, 'provider response bound')
         payload = body if isinstance(body, bytes) else m.canonical(body) if body is not None else None
         for attempt in range(2):
             remaining = deadline-self.clock()
-            m.need(remaining > 0, 'provider original deadline')
+            if remaining <= 0: raise TimeoutError('provider original deadline')
             if self.token is None or self.clock() >= self.expires:
                 credential_value = self.tokens(min(30, remaining))
                 if isinstance(credential_value, AccessToken):
@@ -143,16 +178,16 @@ class Api:
                 m.need(isinstance(token, str) and token and all(33 <= ord(c) <= 126 for c in token), 'provider credential shape')
                 self.token, self.expires = token, expires
             remaining = deadline-self.clock()
-            m.need(remaining > 0, 'provider original deadline')
+            if remaining <= 0: raise TimeoutError('provider original deadline')
             headers = {'Authorization': 'Bearer '+self.token,
                        'Content-Type': 'application/octet-stream' if isinstance(body, bytes) else 'application/json'}
             status, data = self.transport.send(method, url, headers, payload, min(30, remaining), maximum)
-            m.need(self.clock() <= deadline, 'provider late response')
+            m.need(isinstance(data, bytes) and len(data) <= maximum, 'provider response size/type')
+            response_deadline(method, status, deadline, self.clock, 'provider late response')
             if status == 401:
                 self.token, self.expires = None, 0
                 # A mutation is submitted once. Even an explicit authentication
                 # response is retained for operation reconciliation, never replayed.
                 if method == 'GET' and attempt == 0: continue
             if not 200 <= status < 300: raise ApiError(status, method)
-            m.need(isinstance(data, bytes) and len(data) <= maximum, 'provider response size/type')
             return data if raw else m.strict_json(data) if data else {}

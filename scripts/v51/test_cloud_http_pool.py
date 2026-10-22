@@ -83,7 +83,7 @@ class PoolTest(unittest.TestCase):
         self.send();response=self.connections[0].response
         def late(maximum):self.now+=6;return b'{}'
         response.read=late
-        with self.assertRaisesRegex(ValueError,'late response'):self.send()
+        with self.assertRaisesRegex(TimeoutError,'transport deadline'):self.send()
         self.assertFalse(self.network.connections)
     def test_close_releases_all_origins_and_later_owner_can_open_fresh(self):
         self.send();self.send(host='compute.googleapis.com');self.network.close()
