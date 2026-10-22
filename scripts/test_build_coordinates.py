@@ -49,9 +49,14 @@ class BuildCoordinatesTest(unittest.TestCase):
         files={name:b'jar' for name in roots[:2]}
         for worker in ('V51StorageWorker','V51ProtocolWorker','V51RuntimeWorker'):
             files[ci_v51_bundle.CLASSES+'/pkg/'+worker+'.class']=b'class'
+        for worker in ('V53FormatWorker', 'V53FormatTest', 'V53ContextWorker', 'V53ContextFixture',
+                       'V53DeclarationsTest', 'V53SourcePacketWorker', 'V53SourcePacketTest',
+                       'V53SourcePacketTest$Fixture', 'V53CapsuleWorker', 'V53CapsuleFixture'):
+            files[ci_v51_bundle.CLASSES+'/io/github/patricklfdm/generalsearch/replication/'+worker+'.class']=b'class'
+        files[ci_v51_bundle.CLASSES+'/replication/v53/byte-fixtures.json']=b'fixture'
         required=ci_v51_bundle.REQUIRED_SUITES | {'V52ReadTokenTest','V52PublicApiInventoryTest',
             'V51PublicApiInventoryTest','V53DeclarationsTest','V53PublicApiInventoryTest','V53FormatTest',
-            'V53ContextTest','V53ResourceTransferTest','V53SourcePacketTest'}
+            'V53ContextTest','V53ResourceTransferTest','V53SourcePacketTest', 'V53CapsuleTest'}
         for name in required:
             files[ci_v51_bundle.REPORTS+'/TEST-'+name+'.xml']=f'<testsuite name="pkg.{name}" tests="1" failures="0" errors="0" skipped="0"/>'.encode()
         ci_v51_bundle.prerequisites(files,roots)

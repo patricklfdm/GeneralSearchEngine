@@ -89,7 +89,13 @@ def prerequisites(files, roots):
     required = REQUIRED_SUITES | ({'V52ReadTokenTest', 'V52PublicApiInventoryTest', 'V51PublicApiInventoryTest'} if roots[0].endswith(('5.2.0-SNAPSHOT.jar', '5.3.0-SNAPSHOT.jar')) else set())
     if roots[0].endswith('5.3.0-SNAPSHOT.jar'):
         required |= {'V53DeclarationsTest', 'V53PublicApiInventoryTest', 'V53FormatTest',
-                     'V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest'}
+                     'V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest', 'V53CapsuleTest'}
+        package = CLASSES + '/io/github/patricklfdm/generalsearch/replication/'
+        for worker in ('V53FormatWorker', 'V53FormatTest', 'V53ContextWorker', 'V53ContextFixture',
+                       'V53DeclarationsTest', 'V53SourcePacketWorker', 'V53SourcePacketTest',
+                       'V53SourcePacketTest$Fixture', 'V53CapsuleWorker', 'V53CapsuleFixture'):
+            need(package + worker + '.class' in files, 'missing membership fixture class: ' + worker)
+        need(CLASSES + '/replication/v53/byte-fixtures.json' in files, 'missing membership byte fixtures')
     suites = set()
     for name, data in files.items():
         if name.startswith(REPORTS + '/TEST-') and name.endswith('.xml'):

@@ -382,3 +382,18 @@ workflow, release or V5.2 runner operation was performed.
 The [full capsule authority walk](PHASE_1_SOURCE_PACKET.md), original frozen-source
 selection, same-round/catalog/compacted-source model and closure audit remain open.
 New runtime stays disabled; work is committed locally only.
+
+## 2026-10-21 — Phase 1 complete capsule verification
+
+- Added the conditional ROOT-to-current capsule walk, historical governing-view
+  certificate verification, explicit member edges and next-view checkpoint quorums.
+- Actual compacted fixtures cover all seven profiles at cuts 0..9: 70 packets,
+  524 checkpoint ACK copies, 16 original-first corruption variants and relocation.
+  Ordinary entries and historical full catalogs are absent from packed inventories.
+- 45 focused Java and 34 Python tests pass. Build bundles require the additional
+  executed suite and exact fixture classes/resources. [Receipt](phase1-evidence/capsules.json).
+
+The verifier assumes authenticated owned-record observations; fixture force logs
+do not establish live replica/crash durability. [Scope and remaining work](PHASE_1_CAPSULES.md)
+keep frozen-source selection, full model composition/S-N inventory and closure
+audit pending. New runtime remains disabled; local commit only.

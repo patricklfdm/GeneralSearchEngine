@@ -1,7 +1,8 @@
 # Phase 1 bounded source packet
 
-Status: **transport inventory locally qualified; capsule authority and selection
-remain pending**. This implements the previously unspecified packing syntax for
+Status: **transport inventory locally qualified**. The separate
+[complete capsule walk](PHASE_1_CAPSULES.md) checks conditional authority;
+source selection remains pending. This implements the previously unspecified packing syntax for
 the complete bounded inventory required by the 1.3 contract. It adds no 25th storage
 kind, no 22nd wire kind, and no public API. The 24/21 golden frames remain unchanged.
 
@@ -74,11 +75,13 @@ the same container without importing the production decoder. Fresh JVM fixtures
 cover an initial source and a source with one original accepted BARRIER; portable
 replay and 30 original-first malformed packet/basis variants are checked.
 
-Successful decoding is **not** a verified capsule. It does not yet walk every
+Successful packet decoding is **not** a verified capsule. It does not walk every
 checkpoint range and explicit membership edge, check their actual owned endorsements,
 establish the entire verified ancestry, authorize recovery selection, force a
-selector, or delete a generation. Those remain the next Phase 1 capsule/selection
-obligations. Every receipt says `capsuleAuthorityVerified: false`.
+selector, or delete a generation. Invoke the separate capsule verifier with
+authenticated ownership observations for that walk; selection and storage
+integration remain separate obligations. Packet receipts continue to say
+`capsuleAuthorityVerified: false`.
 
 ```bash
 mvn -o --batch-mode --no-transfer-progress -f reactor/pom.xml \

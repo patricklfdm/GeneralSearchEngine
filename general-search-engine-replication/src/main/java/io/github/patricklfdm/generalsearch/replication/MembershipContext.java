@@ -98,8 +98,10 @@ final class MembershipContext {
     }
     static String cutDigest(Map<String,Object> cut) { return hash(canonical(cut,16384)); }
     String authority() { return viewDigest(root,view); }
-    void quorum(Collection<String> voters) {
-        var unique=new HashSet<>(voters);require(unique.size()==voters.size() && voters().containsAll(unique),"duplicate/foreign quorum voter");
+    void quorum(Collection<String> voters) {quorum(view,voters);}
+    static void quorum(Map<String,Object> view,Collection<String> voters) {
+        var eligible=new HashSet<>(nodes(view,"old"));eligible.addAll(nodes(view,"new"));
+        var unique=new HashSet<>(voters);require(unique.size()==voters.size() && eligible.containsAll(unique),"duplicate/foreign quorum voter");
         for(String side:List.of("old","new")) {
             var members=nodes(view,side);
             require(unique.stream().filter(members::contains).count()>members.size()/2,"both governing majorities required");
@@ -177,11 +179,12 @@ final class MembershipContext {
         byte[] bytes=inventory.get(digest);require(bytes!=null,"missing content-addressed object");
         var record=decode(bytes,"records",kind);require(root.equals(record.value().get("root")),"foreign record root");return record;
     }
-    Map<String,Object> ballot(Object value,boolean currentVoter) {
+    Map<String,Object> ballot(Object value,boolean currentVoter) {return ballot(value,view,currentVoter);}
+    private Map<String,Object> ballot(Object value,Map<String,Object> view,boolean currentVoter) {
         var ballot=object(value);checkType(ballot,"ballot");position(number(ballot.get("counter")));
         String proposer=(String)ballot.get("proposer");var id=identities.get(proposer);
         require(id!=null && id.storageId().toString().equals(ballot.get("incarnation")),"ballot durable identity");
-        require(!currentVoter || voters().contains(proposer),"ballot proposer outside view");return ballot;
+        require(!currentVoter || nodes(view,"old").contains(proposer) || nodes(view,"new").contains(proposer),"ballot proposer outside view");return ballot;
     }
     static int compareBallot(Map<String,Object> a,Map<String,Object> b) {
         int result=Long.compare(number(a.get("counter")),number(b.get("counter")));
@@ -189,22 +192,29 @@ final class MembershipContext {
         if(result==0)result=((String)a.get("incarnation")).compareTo((String)b.get("incarnation"));return result;
     }
     void certificate(MembershipFormat.Decoded certificate,Set<Owned> owned) {
+        var entry=certificateAt(certificate,owned,cut).value();
+        control((String)entry.get("kind"),command((String)entry.get("kind"),inventory.get((String)entry.get("payload"))));
+    }
+    /** Historical proof verification; the caller must separately establish this parent cut. */
+    Decoded certificateAt(Decoded certificate,Set<Owned> owned,Map<String,Object> parent) {
+        checkType(parent,"cut");var governing=object(parent.get("view"));checkView(governing);
+        String authority=viewDigest(root,governing);
         require(certificate.family().equals("records") && certificate.kind().equals("CERTIFICATE"),"certificate kind");
-        var cert=certificate.value();require(root.equals(cert.get("root")) && authority().equals(cert.get("authority")),"certificate context");
-        require(number(cut.get("index"))<MAX && number(cert.get("index"))==number(cut.get("index"))+1,"certificate parent index");
-        var current=ballot(cert.get("ballot"),true);var entry=record((String)cert.get("entry"),"ENTRY");var value=entry.value();
-        require(value.get("authority").equals(authority()) && value.get("index").equals(cert.get("index"))
-                && value.get("previous").equals(cut.get("entry")),"entry governing parent");
-        require(compareBallot(ballot(value.get("origin"),true),current)<=0,"entry origin beyond proof ballot");
+        var cert=certificate.value();require(root.equals(cert.get("root")) && authority.equals(cert.get("authority")),"certificate context");
+        require(number(parent.get("index"))<MAX && number(cert.get("index"))==number(parent.get("index"))+1,"certificate parent index");
+        var current=ballot(cert.get("ballot"),governing,true);var entry=record((String)cert.get("entry"),"ENTRY");var value=entry.value();
+        require(value.get("authority").equals(authority) && value.get("index").equals(cert.get("index"))
+                && value.get("previous").equals(parent.get("entry")),"entry governing parent");
+        require(compareBallot(ballot(value.get("origin"),governing,true),current)<=0,"entry origin beyond proof ballot");
         byte[] payload=inventory.get((String)value.get("payload"));require(payload!=null,"missing original entry payload");
-        Object control=command((String)value.get("kind"),payload);
-        control((String)value.get("kind"),control);
+        command((String)value.get("kind"),payload);
         var accept=new TreeMap<>(cert);accept.remove("accepts");accept.remove("proofs");
         byte[] acceptance=encode("records","ACCEPT",accept);var proof=new TreeMap<>(accept);proof.put("accepts",cert.get("accepts"));
         byte[] proofBytes=encode("records","PROOF",proof);
         require(Arrays.equals(inventory.get(hash(acceptance)),acceptance) && Arrays.equals(inventory.get(hash(proofBytes)),proofBytes),"missing exact phased record");
-        witnesses(list(cert.get("accepts")),"ACCEPT",hash(acceptance),owned);
-        witnesses(list(cert.get("proofs")),"PROOF",hash(proofBytes),owned);
+        witnesses(list(cert.get("accepts")),"ACCEPT",hash(acceptance),owned,parent);
+        witnesses(list(cert.get("proofs")),"PROOF",hash(proofBytes),owned,parent);
+        return entry;
     }
     private Map<String,Object> activeOperation() {
         if(catalog.get("active")==null)return null;
@@ -271,16 +281,16 @@ final class MembershipContext {
             default -> throw new IllegalArgumentException("unexpected control");
         }
     }
-    private void witnesses(List<?> witnesses,String phase,String record,Set<Owned> owned) {
+    private void witnesses(List<?> witnesses,String phase,String record,Set<Owned> owned,Map<String,Object> parent) {
         var nodes=new ArrayList<String>();
         for(Object value:witnesses) {
             var witness=object(value);String voter=(String)witness.get("voter");var id=identities.get(voter);
             require(id!=null && id.storageId().toString().equals(witness.get("incarnation")),"witness disk identity");nodes.add(voter);
             var receipt=Map.of("root",root,"voter",voter,"incarnation",witness.get("incarnation"),"phase",phase,"record",record);
             require(witness.get("receipt").equals(hash(canonical(receipt,2048))),"witness phased record binding");
-            require(owned.contains(new Owned(voter,id.storageId(),record,cutDigest(cut))),"missing owned phased record/applied parent");
+            require(owned.contains(new Owned(voter,id.storageId(),record,cutDigest(parent))),"missing owned phased record/applied parent");
         }
-        orderedNodes(nodes);quorum(nodes);
+        orderedNodes(nodes);quorum(object(parent.get("view")),nodes);
     }
     void wire(MembershipFormat.Decoded frame,MembershipIdentity authenticatedSender,MembershipIdentity recipient,
               Map<String,Object> expectedBallot,UUID trace,long sequence) {
