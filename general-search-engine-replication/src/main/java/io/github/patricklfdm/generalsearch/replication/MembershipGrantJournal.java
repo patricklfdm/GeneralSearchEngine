@@ -222,7 +222,8 @@ final class MembershipGrantJournal implements AutoCloseable {
                 journal.appliedEnd=new MembershipAppliedEndFiles(path.resolve(MembershipAppliedEndFiles.DIRECTORY),resources,MembershipAppliedEndFiles.METADATA);
                 require(!journal.replayFiles.present() && !journal.appliedEnd.present() || journal.pendingAccept.active()!=null
                         && journal.pendingAccept.active().certificate()!=null,"application files without original local certificate");
-                if(journal.pendingAccept.active()!=null || journal.pendingAccept.pending())journal.reserveApplicationCompletion();
+                if(journal.coveredVote(journal.pendingAccept.active()))require(!journal.replayFiles.present(),"published generation cannot retain replay scratch");
+                else if(journal.pendingAccept.active()!=null || journal.pendingAccept.pending())journal.reserveApplicationCompletion();
             }
             journal.checkOwner();
             if(withVotes)journal.recoverVote();
@@ -244,12 +245,31 @@ final class MembershipGrantJournal implements AutoCloseable {
         inactive=new MembershipGenerationFiles(directory,current.generation,resources);
     }
 
-    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes())+applicationMetadata;}
+    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata;}
     private void reserveApplicationCompletion() {
         if(appliedEnd!=null){appliedEnd.reserveCompletion();replayFiles.reserveCompletion();}
     }
-    private void verifyVote(MembershipPendingAccept.Vote vote) {
-        MembershipPendingAccept.verify(vote,current,identity,promises.values(),selections.values());
+    private boolean coveredVote(MembershipPendingAccept.Vote vote)throws IOException {
+        return vote!=null && vote.certificate()!=null && current.publishedCertificate().filter(vote.certificate().digest()::equals).isPresent();
+    }
+    private void verifyVote(MembershipPendingAccept.Vote vote)throws IOException {
+        if(applicationMetadata>0 && coveredVote(vote))verifyCoveredVote(vote);
+        else MembershipPendingAccept.verify(vote,current,identity,promises.values(),selections.values());
+    }
+    private void verifyCoveredVote(MembershipPendingAccept.Vote vote)throws IOException {
+        require(coveredVote(vote) && !inactive.pending(),"pending vote lacks exact covering selector");
+        var originals=inactive.originalFiles();var old=originalGeneration(originals);
+        require(current.publishedParent().equals(old.capsule.terminal()),"covering generation changed original parent state");
+        var selector=vote.selector().value();
+        require(selector.get("generation").equals(inactive.slot()) && selector.get("digest").equals(old.generation.digest())
+                && selector.get("root").equals(root.manifestDigest()) && selector.get("node").equals(identity.nodeId().value()),"covered vote original selector");
+        require(Arrays.equals(originals.get("promise.gsr"),vote.promise().bytes()) && Arrays.equals(originals.get("selected.gsr"),vote.selected().bytes())
+                && current.manifest.value().get("selection").equals(vote.selected().digest()) && current.manifest.value().get("promise").equals(vote.promise().digest()),"covered vote original decision changed");
+        MembershipPendingAccept.verify(vote,old.capsule,identity,promises.values(),selections.values());
+        for(var frame:List.of(vote.entry(),vote.accept(),vote.proof(),vote.certificate()))
+            require(Arrays.equals(frame.bytes(),current.capsule.packet.objectBytes(frame.digest())),"covered vote missing original phase");
+        require(Arrays.equals(vote.payload(),current.capsule.packet.objectBytes((String)vote.entry().value().get("payload")))
+                && current.capsule.context.cut.get("entry").equals(vote.entry().digest()) && current.capsule.context.cut.get("index").equals(vote.entry().value().get("index")),"covered vote exact published entry");
     }
     private String voteAccepted(){return MembershipPendingAccept.accepted(current,pendingAccept==null?null:pendingAccept.active());}
     private MembershipSourcePacket votePacket(){return MembershipPendingAccept.packet(current,pendingAccept==null?null:pendingAccept.active());}
@@ -265,8 +285,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         return pendingAccept==null || pendingAccept.active()==null?current.capsule:verifiedPacket(votePacket());
     }
     private void voteTransactionIdle()throws IOException {
+        applicationTransactionIdle();require(!inactive.pending(),"pending ACCEPT conflicts with pending selector");
+    }
+    private void applicationTransactionIdle()throws IOException {
         require(!capture.pending() && !sourceRetirement.pending() && !rotation.pending()
-                && !floors.pending() && !floors.releasing() && !retirement.pending() && !inactive.pending(),"pending ACCEPT conflicts with other authority transaction");
+                && !floors.pending() && !floors.releasing() && !retirement.pending(),"pending ACCEPT conflicts with other authority transaction");
     }
     private void bindVoteCandidate(MembershipPendingAccept.Vote vote)throws IOException {
         verifyVote(vote);voteTransactionIdle();
@@ -296,6 +319,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void recoverVote()throws IOException {
         verifyVote(pendingAccept.active());
+        if(appliedEnd!=null && coveredVote(pendingAccept.active()))retireCoveredApplication();
         if(pendingAccept.pending()) {
             voteTransactionIdle();var complete=pendingAccept.completeCandidate();
             if(complete.isPresent()) {
@@ -396,7 +420,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Real local certificate + typed replay + forced end. This is not selector publication or public readiness. */
     synchronized <K,T> Applied applyCurrent(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations)throws IOException {
-        require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();voteTransactionIdle();
+        require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();applicationTransactionIdle();
         require(!pendingAccept.pending(),"application requires completed original certificate");var vote=pendingAccept.active();
         require(vote!=null && vote.certificate()!=null,"application requires actual local certificate");
         require(observations.size()<=12,"application phased observation count");var owned=Set.copyOf(observations);
@@ -416,6 +440,57 @@ final class MembershipGrantJournal implements AutoCloseable {
             guard.check();var endorsement=appliedEnd.force(plan,vote.selector(),identity,guard,cut);
             guard.check();return new Applied(plan,endorsement);
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+
+    /** Force an exact complete checkpoint under the actual original vote/end owner, then retire only covered staging. */
+    synchronized Decoded publishCurrent(Applied applied,List<Decoded> acknowledgements,Set<Owned> checkpoints,List<MembershipSelection.Bridge> bridges)throws IOException {
+        require(appliedEnd!=null && replayFiles!=null,"publication storage owner required");checkOwner();applicationTransactionIdle();
+        require(!pendingAccept.pending(),"publication requires complete original certificate");var vote=pendingAccept.active();
+        boolean installed=current.publishedCertificate().filter(applied.plan().originalCertificate().digest()::equals).isPresent();
+        Decoded originalPromise,originalBasis,originalSelection;
+        if(installed) {
+            var files=current.copyFiles();originalPromise=decode(files.get("promise.gsr"),"records","PROMISE");
+            originalBasis=decode(files.get("basis.gsr"),"records","BASIS");originalSelection=decode(files.get("selected.gsr"),"records","SELECTED");
+        }else {
+            require(vote!=null && vote.certificate()!=null && Arrays.equals(vote.certificate().bytes(),applied.plan().originalCertificate().bytes())
+                    && current.capsule.terminal().equals(applied.plan().originalParent()),"publication requires exact original applied certificate");
+            require(promise!=null && basis!=null && selection!=null && Arrays.equals(promise.bytes(),vote.promise().bytes())
+                    && Arrays.equals(selection.bytes(),vote.selected().bytes()) && Arrays.equals(current.selector.bytes(),vote.selector().bytes()),"publication original authority changed");
+            originalPromise=promise;originalBasis=basis;originalSelection=selection;
+            appliedEnd.completed(applied.plan(),vote.selector(),identity,applied.endorsement());require(!replayFiles.present(),"publication replay scratch must be removed");
+        }
+        var bound=object(originalPromise.value().get("ballot"));fence(bound);
+        var plan=MembershipGenerationPlan.published(root,identity,installed?current.generation:inactive.slot(),originalPromise,originalBasis,originalSelection,
+                applied.plan(),acknowledgements,checkpoints,bridges);
+        var parents=new ArrayList<MembershipCapsule.Anchor>();parents.add(applied.plan().originalParent());addFloorParent(parents);
+        for(var original:bases.values()) {
+            var cap=sources.original(original).packet().capsule().value();parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
+        }
+        plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,parents);checkOwner();fence(bound);
+        if(installed)require(Arrays.equals(current.manifest.bytes(),plan.manifest.bytes()) && !inactive.pending(),"publication differs from original completed representation");
+        else inactive.checkPlan(plan);
+        try {
+            cut.at("PUBLICATION_VALIDATED");checkOwner();fence(bound);
+            if(!installed) {
+                inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(bound);},current::check,cut);
+                reloadGenerations();cut.at("PUBLICATION_SELECTOR_FORCED");checkOwner();fence(bound);
+            }
+            if(pendingAccept.active()!=null)retireCoveredApplication();
+            cut.at("PUBLICATION_BEFORE_RETURN");checkOwner();fence(bound);return current.manifest;
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    private void retireCoveredApplication()throws IOException {
+        applicationTransactionIdle();var original=pendingAccept.active();verifyCoveredVote(original);
+        pendingAccept.checkCoveredCandidate(original);
+        require(!replayFiles.present(),"covered application has unexpected replay scratch");
+        MembershipGenerationFiles.Guard guard=()->{
+            checkOwner();verifyCoveredVote(original);
+            require(pendingAccept.active()==null || Arrays.equals(pendingAccept.active().bytes(),original.bytes()),"covered vote changed during retirement");
+        };
+        cut.at("PUBLICATION_COVERAGE_VALIDATED");guard.check();
+        appliedEnd.retireCovered(current.capsule,current.images(),original,identity,guard,cut);
+        pendingAccept.clearCovered(original,guard,cut);replayFiles.releaseCompletion();
+        cut.at("PUBLICATION_RETIRED");checkOwner();
     }
 
     private Object key() throws IOException {

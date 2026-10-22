@@ -66,19 +66,51 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         }
     }
     private static SortedMap<String,byte[]> materialization(MembershipCheckpointPlan plan,Decoded originalSelector,MembershipIdentity identity) {
-        var selector=decode(originalSelector.bytes(),"records","SELECTOR");String root=(String)plan.catalog.value().get("root");
+        return materialization(plan.catalog,plan.statement,plan.originalCertificate(),plan.application.image(),originalSelector,identity);
+    }
+    private static SortedMap<String,byte[]> materialization(Decoded catalog,Decoded statement,Decoded certificate,byte[] image,Decoded originalSelector,MembershipIdentity identity) {
+        var selector=decode(originalSelector.bytes(),"records","SELECTOR");String root=(String)catalog.value().get("root");
         require(selector.value().get("root").equals(root) && selector.value().get("node").equals(identity.nodeId().value()),"applied-end original selector owner");
-        var cut=object(plan.catalog.value().get("cut"));var view=object(cut.get("view"));
-        var registered=list(plan.catalog.value().get("identities")).stream().map(MembershipFormat::object).map(MembershipContext::identity).toList();
+        var cut=object(catalog.value().get("cut"));var view=object(cut.get("view"));
+        var registered=list(catalog.value().get("identities")).stream().map(MembershipFormat::object).map(MembershipContext::identity).toList();
         require(registered.contains(identity) && (nodes(view,"old").contains(identity.nodeId().value()) || nodes(view,"new").contains(identity.nodeId().value())),"applied-end next-authority identity");
-        byte[] image=plan.application.image();require(hash(image).equals(plan.catalog.value().get("application")),"applied-end exact image");
-        var ack=decode(encode("records","CHECKPOINT_ACK",Map.of("root",root,"cut",cut,"statement",plan.statement.digest(),
+        require(hash(image).equals(catalog.value().get("application")),"applied-end exact image");
+        var ack=decode(encode("records","CHECKPOINT_ACK",Map.of("root",root,"cut",cut,"statement",statement.digest(),
                 "voter",identity.nodeId().value(),"incarnation",identity.storageId().toString())),"records","CHECKPOINT_ACK");
-        var result=new TreeMap<String,byte[]>();result.put("selector.gsr",selector.bytes());result.put("certificate.gsr",plan.originalCertificate().bytes());
-        result.put("catalog.gsr",plan.catalog.bytes());result.put("statement.gsr",plan.statement.bytes());result.put(IMAGE,image);result.put(ACK,ack.bytes());
+        var result=new TreeMap<String,byte[]>();result.put("selector.gsr",selector.bytes());result.put("certificate.gsr",certificate.bytes());
+        result.put("catalog.gsr",catalog.bytes());result.put("statement.gsr",statement.bytes());result.put(IMAGE,image);result.put(ACK,ack.bytes());
         var inventory=new ArrayList<Map<String,Object>>();result.forEach((name,bytes)->inventory.add(Map.of("path",name,"sha256",hash(bytes),"bytes",(long)bytes.length)));
         result.put(PLAN,canonical(Map.of("schema","gse-v53-applied-end/1.3","root",root,"node",identity.nodeId().value(),"files",inventory),4096));
         for(var row:result.entrySet())require(row.getValue().length<=limit(row.getKey()),"applied-end member capacity");return result;
+    }
+    void completed(MembershipCheckpointPlan plan,Decoded selector,MembershipIdentity identity,Endorsement endorsement)throws IOException {
+        check();var expected=materialization(plan,selector,identity);
+        require(exists && files.keySet().equals(expected.keySet()),"publication requires complete applied end");
+        for(var row:expected.entrySet())require(files.get(row.getKey()).bytes()==row.getValue().length && files.get(row.getKey()).digest().equals(hash(row.getValue())),"publication differs from original applied end");
+        var ack=decode(expected.get(ACK),"records","CHECKPOINT_ACK");
+        require(Arrays.equals(ack.bytes(),endorsement.acknowledgement().bytes()) && endorsement.owned().equals(
+                new Owned(identity.nodeId().value(),identity.storageId(),ack.digest(),cutDigest(object(plan.catalog.value().get("cut"))))),"publication original local end observation");
+    }
+    /** The durable covering generation is authority; PLAN is kept until all listed members are gone. */
+    void retireCovered(MembershipCapsule capsule,Map<String,byte[]> images,MembershipPendingAccept.Vote vote,MembershipIdentity identity,
+            MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
+        check();guard.check();var cap=capsule.packet.capsule().value();var last=object(list(cap.get("items")).getLast());
+        var expected=materialization(capsule.context.record((String)cap.get("catalog"),"CATALOG"),capsule.context.record((String)last.get("statement"),"CHECKPOINT"),
+                vote.certificate(),images.get(cap.get("application")),vote.selector(),identity);
+        require(files.isEmpty() || files.containsKey(PLAN),"covered end lost original plan before members");
+        for(var row:files.entrySet())require(expected.containsKey(row.getKey()) && row.getValue().bytes()==expected.get(row.getKey()).length
+                && row.getValue().digest().equals(hash(expected.get(row.getKey()))),"covered end differs from exact published state");
+        event("COVERED_END_VALIDATED",guard,cut);
+        var names=new ArrayList<>(files.keySet());names.remove(PLAN);if(files.containsKey(PLAN))names.add(PLAN);
+        for(String name:names) {
+            event("COVERED_END_BEFORE_DELETE",guard,cut);Files.delete(path.resolve(name));files.remove(name);
+            AdmissionPaths.forceDirectory(path);event("COVERED_END_FILE_DELETED",guard,cut);
+        }
+        if(exists) {
+            event("COVERED_END_BEFORE_DIRECTORY_DELETE",guard,cut);Files.delete(path);exists=false;directoryKey=null;
+            AdmissionPaths.forceDirectory(path.getParent());event("COVERED_END_DIRECTORY_DELETED",guard,cut);
+        }
+        if(imageLease!=null){imageLease.close();imageLease=null;}
     }
     /** Guard must verify actual original selector/certificate ownership and the unchanged promise/fence at every call. */
     Endorsement force(MembershipCheckpointPlan plan,Decoded selector,MembershipIdentity identity,

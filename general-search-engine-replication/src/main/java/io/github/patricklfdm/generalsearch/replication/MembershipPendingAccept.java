@@ -53,6 +53,7 @@ final class MembershipPendingAccept {
     Vote active(){return active;}
     boolean pending(){return nextIdentity!=null;}
     long bytes(){return activeBytes.length+(nextBytes==null?0:nextBytes.length);}
+    long clearAllowance(){return Math.max(0,PREFIX-(nextBytes==null?0:nextBytes.length));}
     int activeLength(){return activeBytes.length;}
     Set<String> protectedPromises() {
         return active==null?Set.of():Set.of(active.promise().digest());
@@ -95,7 +96,10 @@ final class MembershipPendingAccept {
         return MembershipFormat.decode(bytes,"records",kind);
     }
     static void verify(Vote vote,MembershipCurrentGeneration current,MembershipIdentity local,Collection<Decoded> promises,Collection<Decoded> selections) {
-        if(vote==null)return;var context=current.capsule.context;var e=vote.entry().value();var a=vote.accept().value();
+        verify(vote,current.capsule,local,promises,selections);
+    }
+    static void verify(Vote vote,MembershipCapsule original,MembershipIdentity local,Collection<Decoded> promises,Collection<Decoded> selections) {
+        if(vote==null)return;var context=original.context;var e=vote.entry().value();var a=vote.accept().value();
         var s=vote.selected().value();var p=vote.promise().value();
         require(vote.selector().value().get("root").equals(context.root) && vote.selector().value().get("node").equals(local.nodeId().value()),"pending original selector owner");
         require(promises.stream().anyMatch(v->Arrays.equals(v.bytes(),vote.promise().bytes()))
@@ -146,6 +150,18 @@ final class MembershipPendingAccept {
     }
     void install(Vote vote,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         check();owner.check();matches(vote);byte[] expected=vote.bytes();String phase=vote.phase();
+        replace(vote,expected,phase,owner,cut);
+    }
+    /** Only a complete forced selector covering this exact certificate can authorize the caller's guard. */
+    void clearCovered(Vote original,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
+        owner.check();checkCoveredCandidate(original);
+        replace(null,empty(),"COVERED_VOTE",owner,cut);
+    }
+    void checkCoveredCandidate(Vote original)throws IOException {
+        check();require(active!=null && original.certificate()!=null && Arrays.equals(activeBytes,original.bytes()),"covered vote original changed");
+        byte[] expected=empty();require(nextBytes==null || nextBytes.length<=expected.length && Arrays.equals(nextBytes,Arrays.copyOf(expected,nextBytes.length)),"covered vote candidate differs from exact empty state");
+    }
+    private void replace(Vote vote,byte[] expected,String phase,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));if(!pending())options.add(StandardOpenOption.CREATE_NEW);
         try(var channel=FileChannel.open(parent.resolve(NEXT),options)) {
             if(!pending()){snapshotNext(new byte[0]);cut.at(phase+"_CANDIDATE_CREATED");check();owner.check();}

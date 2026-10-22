@@ -28,6 +28,7 @@ final class MembershipReplayFiles implements AutoCloseable {
         try {members=scan();if(!members.isEmpty())reserve();}catch(IOException|RuntimeException|Error error){close();throw error;}
     }
     void reserveCompletion(){require(!closed,"replay files closed");reserve();}
+    void releaseCompletion()throws IOException {check();require(!present(),"replay files still present");release();}
     private void reserve() {
         if(!leases.isEmpty())return;
         try {

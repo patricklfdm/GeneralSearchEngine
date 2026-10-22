@@ -1044,3 +1044,24 @@ and same-round next-slot progression still require integration. Maintenance must
 free inactive-generation/floor capacity before accepting work that reserves replay
 completion. Full-size/all-profile lifetime qualification remains open. Continue
 locally with no push or cloud dispatch.
+
+## 2026-10-22 — actual first-slot publication and covered cleanup
+
+The [journal publication transaction](PHASE_2_JOURNAL_PUBLICATION.md) now binds the
+actual original vote and forced applied end, publishes the complete selector, then
+retires only its covered staging and pending vote. Recovery revalidates the exact
+previous immutable generation and original parent catalog/application. Unknown or
+changed remaining files and foreign candidates refuse before deletion. The end
+plan is deleted last; the empty-vote replacement is atomic and prefix-resumable.
+
+Final qualification: **89 Java tests PASS**, including actual DATA/INTENT/FINAL
+publication, later governing-floor retirement and fresh captures. **16 process
+cases / 48 fresh JVMs**, eight evidence mutations, portable replay and Python `-O`
+pass. The earlier focused suite covers 30 publication/cleanup interruption labels
+and repeated recovery. [Exact source/build/evidence index](phase2-evidence/journal-publication.json).
+
+Next: stable same-round continuation while retaining the original selected choice,
+actual extra ancestry ACK issuance and full bounded storage lifetime. Removed-member
+recovery, complete bootstrap and the Phase 2 closure audit remain open. Continue
+local commits toward pre-cloud completion; public runtime, push and cloud dispatch
+remain disabled.

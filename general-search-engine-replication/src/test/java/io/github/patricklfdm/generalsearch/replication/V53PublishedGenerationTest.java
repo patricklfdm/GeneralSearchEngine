@@ -175,7 +175,8 @@ class V53PublishedGenerationTest {
                 assertThrows(IllegalArgumentException.class,()->MembershipFloor.Copy.verify(current.manifest,current.capsule,V53DeclarationsTest.node(1),Set.of(),current.copyFiles()));
             }
             for(var row:originals.entrySet())if(!row.getKey().equals("selector.gsr"))assertEquals(row.getValue(),hash(Files.readAllBytes(node.resolve(row.getKey()))),row.getKey());
-            // This component does not prematurely discard covered pending votes or enable the journal/public runtime.
+            // Reopening with the historical-only verifier cannot authenticate the new vote/end observations.
+            // Actual covered cleanup is exercised separately by V53JournalPublicationTest.
             assertThrows(IllegalArgumentException.class,()->f.open(root,1,f.f.f.resources(),e->{}));
         }
     }

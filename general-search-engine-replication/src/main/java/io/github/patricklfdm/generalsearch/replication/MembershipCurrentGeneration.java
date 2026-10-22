@@ -164,6 +164,16 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         result.put(MANIFEST,manifest.bytes());check();return result;
     }
     Map<String,byte[]> images() throws IOException {check();var images=materialize(capsule.packet);capsule.packet.verifyImages(images);return images;}
+    Optional<String> publishedCertificate()throws IOException {
+        check();if(!files.containsKey(MembershipSelectionCoverage.FILE))return Optional.empty();
+        var coverage=object(parse(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM),MembershipSelectionCoverage.MAXIMUM));
+        return Optional.of((String)coverage.get("certificate"));
+    }
+    MembershipCapsule.Anchor publishedParent()throws IOException {
+        check();require(files.containsKey(MembershipSelectionCoverage.FILE),"published parent requires coverage");
+        var coverage=object(parse(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM),MembershipSelectionCoverage.MAXIMUM));
+        var p=object(coverage.get("parent"));return new MembershipCapsule.Anchor(object(p.get("cut")),(String)p.get("catalog"),(String)p.get("application"));
+    }
     Optional<Owned> ownedTail() throws IOException {
         check();return accepted==null?Optional.empty():Optional.of(new Owned(identity.nodeId().value(),identity.storageId(),accepted,cutDigest(capsule.context.cut)));
     }

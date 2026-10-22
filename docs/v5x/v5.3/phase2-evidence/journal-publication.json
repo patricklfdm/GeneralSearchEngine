@@ -1,0 +1,93 @@
+{
+  "distinctMethods": 93,
+  "focusedTests": 7,
+  "freshJvms": 48,
+  "independent": {
+    "cases": 16,
+    "freshJvms": 48,
+    "negatives": [
+      "missing-vote",
+      "false-observation",
+      "altered-original-end",
+      "changed-coverage",
+      "early-selector",
+      "early-vote-clear",
+      "missing-force",
+      "unrelated-file-deleted"
+    ],
+    "originalObservations": "actual-local-votes-and-ends",
+    "portableReplay": "PASS",
+    "selectorPublication": true,
+    "status": "PASS"
+  },
+  "intermediateQualification": "focused.log predates exact original parent equality; final qualification adds that guard, authenticated reopen negatives and post-publication governing-floor retirement",
+  "interruptedPublicationCuts": 30,
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "46401371715a7678e36bafbdd40d6a60df370462f0cd0c40e35f4cf1455b7f8c",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "limitations": [
+    "first selected slot only; same-round subsequent slots remain pending",
+    "bootstrap/earlier history remains a private fixture; no network authentication claim",
+    "full-size/all-profile resource lifetime, removed-member recovery and additional ancestry ACK issuance remain pending",
+    "process halt/SIGKILL, not power-loss qualification"
+  ],
+  "logs": {
+    "build.log": "22a43b7f00d52b72de16808161ba6295538890077ac25c7b954e06f813715635",
+    "contract-tests.log": "a626407facf1102b512cc38f00f6e7d889aa6280a5c03d1722ac6d1c4eb08dc5",
+    "contract.log": "0e61c383ce3d4fb8d511d5bce6d96cfa4e720b4b36e7b639bc86d38077015aca",
+    "first-paths.log": "dd50b4d94792e8f17cf061ea49c9a37421700c06f233a50f995ee563549ec46f",
+    "focused.log": "3e060a0ab8dd0bdcd8ee5c3937c014618c4ac75f080bd2ac0c77d5ba661bab49",
+    "qualification.log": "c613868e96f164d5438a7a99dce6634dadf6468ae1ec5b7d5d4c8a4c7a48de21"
+  },
+  "optimizedReplay": "PASS",
+  "paidCloud": false,
+  "processCases": 16,
+  "protectedCI": false,
+  "qualificationTests": 89,
+  "rawIndexSha256": "54daa5cd71d41a452f158d9540f842865088fa597e6939056cd4bea8b30f9110",
+  "reports": {
+    "focused-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalPublicationTest.xml": "597edb1381cb3c4f0f360f59d38b342b93e0d4024a58f1bb8c0a8db25e914854",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.xml": "88123319d9f895e9bd816c035b54580daa7db28192c987392cce508e39917845",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53AppliedEndFilesTest.xml": "68fbacb12464a1bc5e8ed2d013e05ce5421e626cd267b42d4c02dd64419f750e",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest.xml": "72f5927467ca094b21acd2fa039170aea1a21177587fc69717693c17616152b9",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalApplicationTest.xml": "37890d8166b5d298f11bb471c81e34f117629a98575b7594b4852f17ff894fae",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalBackpressureTest.xml": "815f90bd992d95be464fe9b69a8cf7ce7bc34a2f7e6b5677a39ed8674a5ec0a0",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalPublicationTest.xml": "06f991abab6b4ea4217fed031fcc7b3b12e303fe7de719ad1bce195111704b43",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalRotationTest.xml": "6d53e8135cbb354bd1bbaf91db6c449fb3effbe8b65416d2630ce18d08ab4f98",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingAcceptTest.xml": "f7912f9d161f71c2c16965ffed25da4b6f0434ddcaa1f6e1667f96872e341a8c",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingCertificateTest.xml": "8e36b0c014e1b960e19f2f362edf2fbcebb690b648993bcb6f2038a2aad05e92",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingProofTest.xml": "4eb1ebfcbc3790516cee279cbc07fdf31f881fdc024e9833144fadb895e0846e",
+    "qualification-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PublishedGenerationTest.xml": "52daf63f50f225a03277f158816ff88e400f1475b2f164857387afa9dd723d86"
+  },
+  "retainedLocal": "target/v53-journal-publication",
+  "retainedProcesses": "general-search-engine-replication/target/v53-journal-publication-process/run-cdaae548-00b9-47c1-b2fb-1b1558bff186",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-journal-publication-index-v1",
+  "sourceHead": "3c5623a472f80cd2e0cb701848764da494826870",
+  "status": "PASS",
+  "suites": {
+    "io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest": 3,
+    "io.github.patricklfdm.generalsearch.replication.V53AppliedEndFilesTest": 9,
+    "io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest": 9,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalApplicationTest": 8,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalBackpressureTest": 8,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalPublicationTest": 4,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalRotationTest": 10,
+    "io.github.patricklfdm.generalsearch.replication.V53PendingAcceptTest": 13,
+    "io.github.patricklfdm.generalsearch.replication.V53PendingCertificateTest": 8,
+    "io.github.patricklfdm.generalsearch.replication.V53PendingProofTest": 9,
+    "io.github.patricklfdm.generalsearch.replication.V53PublishedGenerationTest": 8
+  },
+  "worktreeImplementation": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": "4b0356ee89c1fbceb6afc2c13cf1d15179e57531d23e9bca6d0c59ff9a65cfa1",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java": "0fa750509b1aa37925dc127207e432c40d7e1a69541cc74d02fffbfefd1450bb",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "1b31bd7bc5d836cbff57afd26e03706845fd78a1b5f9a8cfc603d1135ab793f2",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingAccept.java": "42b66623bbe36ccc949e9275b1d5766c82001b261598f2da53bd581bb721b85b",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReplayFiles.java": "5296fe84ca06a0743a4df394bf8f655996328381f908d7d4c8ac4f377da2d8c9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalPublicationTest.java": "c8bd33e4bfc78eb4c093c223c1ab0e4cfd3ee48949629189909a5c6f119f59ab",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalPublicationWorker.java": "e7d4b1ca686210092b48e8d7d8a43cb83f23c59ecd87170c62116dcf1617b62a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublishedGenerationTest.java": "01717d813bc751dbbcbe86fc3d25749d27ebac5707f9e4521bf98f61579871ab",
+    "scripts/v53/journal_publication_evidence.py": "5e82d35948e80e28109d9fda939aed3ddcccdc36e592eeea8e999f61caa6931c"
+  }
+}

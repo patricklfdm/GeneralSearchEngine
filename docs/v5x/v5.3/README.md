@@ -50,8 +50,7 @@ expanded continuous local development scope.
 including exact reaccept/recovery and fresh-grant capture. [Original pending PROOF](PHASE_2_PENDING_PROOF.md)
 now passes 45 process scenarios with actual local voter ACCEPTs, repeated recovery
 and source capture. [Pending certificate](PHASE_2_PENDING_CERTIFICATE.md) now passes
-45 scenarios over actual ACCEPT/PROOF quorums; application publication and
-covered-tail integration remain open. [Complete application images](PHASE_2_APPLICATION_IMAGE.md) now preserve
+45 scenarios over actual ACCEPT/PROOF quorums. [Complete application images](PHASE_2_APPLICATION_IMAGE.md) now preserve
 actual core backup state with deterministic administrative metadata. [Private application replay](PHASE_2_APPLICATION_REPLAY.md)
 now preserves exact results across intermediate recovery cuts. [Exact catalog projection](PHASE_2_CATALOG_PROJECTION.md)
 now covers every control transition and binds READY to the prepared image.
@@ -60,8 +59,10 @@ and requires new exact range endorsements. [Applied-end/ACK storage](PHASE_2_APP
 now forces the exact image/catalog before its local ACK. [Actual journal application](PHASE_2_JOURNAL_APPLICATION.md)
 connects original local certificates, typed replay, bounded scratch recovery and guarded ACKs.
 [Complete generation materialization](PHASE_2_PUBLISHED_GENERATION.md) now preserves the original selected
-parent and certified first slot through component installation/reopen; the journal publication/retirement
-transaction remains pending.
+parent and certified first slot through component installation/reopen.
+[Actual journal publication](PHASE_2_JOURNAL_PUBLICATION.md) connects the forced selector to exact covered
+vote/end cleanup and interrupted recovery. Subsequent same-round slots, ancestry ACK issuance and
+complete resource lifetime remain pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

@@ -73,11 +73,10 @@ python3 -m scripts.v53.published_generation_evidence <v53PublishedGenerationEvid
 
 ## Next integration
 
-The journal still deliberately refuses a moved selector with an unresolved old
-pending vote. It has no publication method yet. The next owner transaction must
-bind the actual staged end, exact complete capsule/ancestry and original decision,
-force publication, recognize covered original votes on reopen, and retire only
-those covered vote/staging bytes under durable authority. Same-round subsequent
+The component evidence above does not itself qualify journal publication. The
+follow-on [actual journal transaction](PHASE_2_JOURNAL_PUBLICATION.md) binds the
+staged end and original decision, forces publication and recognizes exact covered
+vote/staging cleanup on reopen. Its evidence is recorded separately. Same-round subsequent
 slots need a separate extension of first-slot coverage. Issuing additional ancestry
 ACKs must use real forced ends, not inferred observations. These requirements, full
 coordinated resource lifetime and public runtime remain OPEN. No push, protected CI
