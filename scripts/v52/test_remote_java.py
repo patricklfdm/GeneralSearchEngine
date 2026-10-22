@@ -146,6 +146,7 @@ class JavaStreamTest(unittest.TestCase):
     def test_install_is_submitted_once_and_lost_reply_only_queries(self):
         value,raw=fixture()
         with patch.object(ssh.ssh.Endpoint,'__init__',return_value=None):endpoint=ssh.Installer({},value)
+        endpoint.target={}
         def exchange(action,*args):endpoint.calls.append(action);return {'original':True}
         with patch.object(endpoint,'exchange',side_effect=exchange),patch.object(endpoint,'disconnect'):
             self.assertEqual({'original':True},endpoint.install('/unit','unused',discard_reply=True))
@@ -155,6 +156,7 @@ class JavaStreamTest(unittest.TestCase):
     def test_failed_original_verification_does_not_resubmit_install(self):
         value,_=fixture()
         with patch.object(ssh.ssh.Endpoint,'__init__',return_value=None):endpoint=ssh.Installer({},value)
+        endpoint.target={}
         def exchange(action,*args):
             endpoint.calls.append(action)
             if action=='install':raise ConnectionError('lost')

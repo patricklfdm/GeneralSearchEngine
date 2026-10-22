@@ -556,6 +556,51 @@ class GuestsLifecycleTest(unittest.TestCase):
         self.assertIs(original,result.exception);group.close.assert_called_once_with()
 
 
+class ColdAdmissionHeadroomTest(unittest.TestCase):
+    def test_two_admissions_leave_time_for_sdk_and_ssh_without_replaying(self):
+        now=[100.0];ends=[];paths=[]
+        with tempfile.TemporaryDirectory() as directory:
+            def authorize(node,path,deadline,*,progress):
+                paths.append(path);ends.append(deadline);progress('identity-after')
+                if len(ends)==1:
+                    now[0]=deadline;raise TimeoutError('first identity read deadline')
+                self.assertFalse(paths[0].exists())
+                now[0]+=45  # Successful but slower than the old 30-second admission.
+                return ['fixture-sdk'],{}
+            group=SimpleNamespace(private=SimpleNamespace(name=directory),authorize=authorize,fail=Mock())
+            channel=iap._Channel(SimpleNamespace(group=group,node='node-1'),Mock(),1)
+            def wait(seconds):now[0]+=seconds;return False
+            def pump(deadline):
+                now[0]+=50  # SDK startup/SSH banner must retain their own headroom.
+                iap._remaining(deadline)
+            with patch.object(iap.time,'monotonic',side_effect=lambda:now[0]), \
+                 patch.object(channel.stop,'wait',side_effect=wait),patch.object(channel,'terminate'), \
+                 patch.object(channel,'pump',side_effect=pump) as stream,patch.object(iap.subprocess,'Popen') as spawn:
+                channel.run()
+            self.assertEqual('CLOSED',channel.record['status'])
+            self.assertEqual([190,281],ends);spawn.assert_called_once();stream.assert_called_once_with(340)
+            self.assertEqual(['FAIL','PASS'],[row['status'] for row in channel.admission])
+            self.assertEqual([],list(Path(directory).iterdir()));group.fail.assert_not_called()
+
+
+    def test_native_guest_probe_keeps_full_cold_connection_and_command_allowance(self):
+        now=[100.0];group=object.__new__(iap.Guests)
+        group.probe_source=Path(guest.__file__).read_text();group.guests={}
+        group.targets={'node-1':{'connectSeconds':240}}
+        facts=dict(instanceId='123456',privateAddress='10.77.0.11')
+        group.observations={'node-1':{'facts':facts}};group.observe=Mock()
+        group.session=SimpleNamespace(owner=SimpleNamespace(request={'guestAccess':{'user':'gse-'+'a'*24,'publicKey':public_key(1)}}))
+        response=dict(schema=guest.SCHEMA,**facts,user='gse-'+'a'*24,bootId='00000000-0000-4000-8000-000000000001',uid=1001,gid=1002)
+        def process(args,data,deadline,**kwargs):
+            now[0]+=250;iap._remaining(deadline);return encoded(response)
+        with patch.object(iap.time,'monotonic',side_effect=lambda:now[0]), \
+             patch.object(iap.ssh.ssh,'ssh_args',return_value=['ssh','fixed']), \
+             patch.object(iap.transport,'process',side_effect=process) as exchange:
+            self.assertEqual(response,group.probe('node-1'))
+        exchange.assert_called_once();self.assertEqual(400,exchange.call_args.args[2])
+        self.assertEqual([190,440],[call.args[1] for call in group.observe.call_args_list])
+
+
 class AdmissionDeadlineTest(unittest.TestCase):
     def setUp(self):
         self.private=tempfile.TemporaryDirectory();self.addCleanup(self.private.cleanup)

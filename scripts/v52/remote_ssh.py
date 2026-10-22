@@ -12,6 +12,24 @@ from . import remote_command as c,remote_slots as slots,remote_host as host,remo
 from .evidence import need,encoded
 
 
+NATIVE_CONNECT_SECONDS=240
+CONNECT_ALLOWANCES=(10,30,60,NATIVE_CONNECT_SECONDS)
+
+
+def connection_deadline(target,seconds):
+    """One new cold operation: explicit connection time plus bounded work time.
+
+    Call only when creating an original grant. Retries and result queries must
+    reuse that absolute deadline. Targets without an allowance keep local timing.
+    """
+    connect=target.get('connectSeconds',0)
+    need(type(connect) is int and (connect in CONNECT_ALLOWANCES or
+         (connect==0 and 'connectSeconds' not in target)) and
+         type(seconds) in (int,float) and math.isfinite(seconds) and 0<seconds<=300,
+         'SSH connection/operation deadline bound')
+    return time.monotonic()+connect+seconds
+
+
 class Rejected(ValueError):
     retryable=False
     def __init__(self,code):
@@ -25,7 +43,7 @@ def ssh_args(target):
     # Native loopback forwards first perform owned IAP admission. Preserve the
     # existing local default; this does not extend an Endpoint's original deadline.
     connect=target.get('connectSeconds',10)
-    need(type(connect) is int and connect in (10,30,60),'SSH V5.2 connection allowance')
+    need(type(connect) is int and connect in CONNECT_ALLOWANCES,'SSH V5.2 connection allowance')
     # This stage has neither independent cloud facts nor three-host clock domains.
     need(target['host']=='127.0.0.1' and type(target['port']) is int and 1024<=target['port']<=65535,
          'SSH V5.2 live host execution not admitted')
@@ -63,7 +81,7 @@ class Endpoint:
         an existing operation/lease deadline still pass that deadline unchanged.
         """
         connect=self.target.get('connectSeconds',0) if self.master is None else 0
-        need(not self.closed and type(connect) is int and connect in (0,10,30,60) and
+        need(not self.closed and type(connect) is int and connect in (0,*CONNECT_ALLOWANCES) and
              type(seconds) in (int,float) and math.isfinite(seconds) and 0<seconds<=300-connect,
              'SSH control deadline bound/closed')
         return time.monotonic()+connect+seconds

@@ -30,8 +30,10 @@ _TICKET=object()
 BUFFER=64<<10
 MAX_RECENT=64
 MAX_ACTIVE=4
-CONNECT_SECONDS=60
-ADMISSION_SECONDS=30
+# Two complete admissions plus 59 seconds for SDK startup/SSH banner. This is
+# one connection grant, not a renewable stage or workload time limit.
+CONNECT_SECONDS=ssh.ssh.NATIVE_CONNECT_SECONDS
+ADMISSION_SECONDS=90
 ADMISSION_ATTEMPTS=2
 ADMISSION_BACKOFF=1
 HALF_CLOSE_SECONDS=30
@@ -397,17 +399,17 @@ class Guests:
             owner.lock.release()
 
     def probe(self,node):
-        self.observe(node,time.monotonic()+30);row=self.observations[node]
+        self.observe(node,time.monotonic()+ADMISSION_SECONDS);row=self.observations[node]
         need(Path(probe.__file__).read_text()==self.probe_source,'V5.2 IAP probe source changed')
         expected=dict(instanceId=row['facts']['instanceId'],privateAddress=row['facts']['privateAddress'],
             user=self.session.owner.request['guestAccess']['user'],publicKey=self.session.owner.request['guestAccess']['publicKey'])
         args=ssh.ssh.ssh_args(self.targets[node]);args[-1]=shlex.join(['python3','-I','-S','-c',self.probe_source])
-        try:raw=transport.process(args,encoded(expected),time.monotonic()+60,maximum=4096,
+        try:raw=transport.process(args,encoded(expected),ssh.ssh.connection_deadline(self.targets[node],60),maximum=4096,
                                   env=dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C'))
         except Exception as error:raise ValueError('V5.2 IAP probe failed: '+_safe(error)) from None
         value=probe.validate(strict(raw))
         need(all(value[k]==expected[k] for k in ('instanceId','privateAddress','user')),'V5.2 IAP wrong guest')
-        self.observe(node,time.monotonic()+30)
+        self.observe(node,time.monotonic()+ADMISSION_SECONDS)
         if node in self.guests:need(value==self.guests[node],'V5.2 IAP guest boot/user changed')
         return value
 
@@ -418,7 +420,7 @@ class Guests:
         for node in topology.NODES:
             pending=0
             while True:
-                try:self.observations[node]=self.observe(node,min(deadline,time.monotonic()+30));break
+                try:self.observations[node]=self.observe(node,min(deadline,time.monotonic()+ADMISSION_SECONDS));break
                 except access.HostKeyPending:
                     pending+=1;need(pending<30 and time.monotonic()<deadline,'V5.2 IAP host-key readiness exhausted')
                     time.sleep(min(3,max(0,deadline-time.monotonic())))

@@ -67,7 +67,7 @@ class Installer(ssh.Endpoint):
             'Java SSH installation receipt');ssh.host.validate_pin(result['host']);return result
 
     def install(self,parent,archive,*,discard_reply=False):
-        r.p.need(not self.calls and self.end is None,'Java installation already consumed');self.end=time.monotonic()+300
+        r.p.need(not self.calls and self.end is None,'Java installation already consumed');self.end=ssh.connection_deadline(self.target,300)
         def submit():
             result=self.exchange('install',parent,archive)
             if discard_reply:self.disconnect();raise ConnectionError('qualification discarded original Java installation reply')

@@ -78,6 +78,39 @@ class InstallationDeadlineTest(unittest.TestCase):
         self.assertEqual(1,transfer.call_count);self.assertEqual(['install'],self.endpoint.calls)
         self.assertEqual([400],self.grants)
 
+    def test_native_python_install_keeps_upload_time_and_one_grant_after_lost_reply(self):
+        self.endpoint.target={'connectSeconds':240};ends=[]
+        def transfer(channel,request,deadline):
+            try:
+                ends.append(deadline)
+                if len(ends)==1:
+                    self.now=500;raise ConnectionError('original reply lost after cold upload')
+                p.remaining(deadline,'query deadline');return p.receiver.encoded(self.receipt)
+            finally:channel.finish()
+        with patch.object(p,'transfer',side_effect=transfer):
+            self.assertEqual(self.receipt,self.endpoint.install('/unit',self.payload))
+        self.assertEqual([640,640],ends);self.assertEqual([640,640],self.grants)
+        self.assertEqual(['install','verify'],self.endpoint.calls)
+
+    def test_native_java_install_query_keeps_original_grant_and_never_resubmits(self):
+        value,_=fixture();endpoint=j.Installer({},value);endpoint.target={'connectSeconds':240}
+        ends=[]
+        def exchange(action,*args):
+            p.remaining(endpoint.end,'original grant');ends.append(endpoint.end);endpoint.calls.append(action)
+            if action=='install':self.now=500;raise ConnectionError('original reply lost after cold upload')
+            return {'verified':True}
+        with patch.object(endpoint,'exchange',side_effect=exchange):
+            self.assertEqual({'verified':True},endpoint.install('/unit','unused'))
+        self.assertEqual([640,640],ends);self.assertEqual(['install','verify'],endpoint.calls)
+
+    def test_native_install_expiry_cannot_restart_the_540_second_grant(self):
+        self.endpoint.target={'connectSeconds':240}
+        def exhausted(*args,**kwargs):self.now=641;raise TimeoutError('original reply lost')
+        with patch.object(p,'transfer',side_effect=exhausted) as transfer,self.assertRaises(TimeoutError):
+            self.endpoint.install('/unit',self.payload)
+        self.assertEqual(640,self.endpoint.end);self.assertEqual([640],self.grants)
+        self.assertEqual(['install'],self.endpoint.calls);transfer.assert_called_once()
+
     def test_terminal_validation_does_not_query_or_resubmit(self):
         with patch.object(p,'transfer',side_effect=ValueError('altered bytes')) as transfer,self.assertRaises(ValueError):
             self.endpoint.install('/unit',self.payload)

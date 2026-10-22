@@ -125,12 +125,17 @@ are local concurrency and boundary tests, not hosted workload qualification.
 
 ## Immutable installation and whole-history parents
 
-Python installation has one 300-second exchange grant covering IAP/SSH connection,
-capsule upload and durable writes, matching the existing Java installation grant.
-Recovery queries use that same absolute deadline; they cannot renew it or submit
-installation again. Later standalone Python verification has a 60-second exchange
-bound. Per-write progress limits and terminal identity/integrity rejection remain
-in force. These are individual operation limits, not stage or experiment budgets.
+Native Python and Java installations reserve 240 seconds for cold IAP/SSH
+connection in addition to 300 seconds for upload, durable writes and result
+recovery. All exchanges share that one 540-second grant; local targets without an
+explicit connection allowance keep 300 seconds. Recovery queries cannot renew
+the grant or submit installation again. Later standalone Python/Java verification
+and history-parent creation/query reserve 240 seconds plus 60 seconds of work.
+Verification retries share the first absolute deadline instead of recalculating
+it after a lost read. Direct identity pre/postchecks allow 90 seconds, while mount
+initialization and mount-check grants remain 300 seconds and lease bounded.
+Per-write progress limits and terminal identity/integrity rejection remain in
+force. These are individual operation limits, not stage or experiment budgets.
 Python and Java upload/late-response expiry raises transport uncertainty; malformed
 receipts remain terminal validation failures. Buffered late success is rejected.
 
