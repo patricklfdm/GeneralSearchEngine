@@ -1,0 +1,128 @@
+{
+  "cases": 54,
+  "classes": {
+    "V53BallotAllocatorWorker.class": "21b43bdda3bd5d2b1bab4f6c43bf65a5f88b3ff664fa8b77633250420a6b26a4",
+    "V53CapsuleFixture.class": "261fe862031793f9c1b6b94b57fcb56838bffc5a9cf8e5089b18951fc36461d7",
+    "V53ContextFixture.class": "f67122ee25080457207f2abc741a9b401449aaa2deb8f3b4b398dbbc10ac1bef",
+    "V53CurrentGenerationFixture.class": "8a024d4aac913adbbf867d6693c2771288932d14a9139b6a106294ecd8232abd",
+    "V53DeclarationsTest.class": "33e7524dc32775d8136860161ddd75d2ec05e82f3e8e50a4af0e944bf8f061e2",
+    "V53DurableSelectionWorker.class": "4053993ffb7dd65def8bbcfdde9191a7d4ed5419968717a0e216c32e07083a63",
+    "V53SelectionFixture.class": "746d0b7ee923e3207eb5c438ab187bbb33f20234b6331116674c34252c3b4f03"
+  },
+  "developmentCorrections": [
+    "The first passing matrix reused remote fixture basis UUIDs across distinct ballots. The worker now assigns distinct deterministic ballot/node UUIDs, the reader rejects reuse, and the final matrix plus regressions were executed again. The earlier result is retained but superseded."
+  ],
+  "documentationContract": {
+    "byteFixtures": 45,
+    "commandFixtures": 9,
+    "localLinks": 279,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "elapsedSeconds": 161.472,
+  "evidenceInventoriesVerified": true,
+  "execution": "private-durable-selection",
+  "focusedPythonTests": 58,
+  "freshProcesses": 270,
+  "implementationFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources.java": "ae7442ea868a4404587c0971646d1e201ceea61e1e2e93cfee892986d77dfb98",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "4dea556b49e8242c855c3a21f6feb6fc60b8d95c3e6ffcdf809b1a5153d9816e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DurableSelectionTest.java": "5ed1798ad6e099a0b500a7771845346ce21e2074d8fadcef6a8990e606b15767",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DurableSelectionWorker.java": "ffbe478f89ae61d902f1f378c03aa243eeaf824d73f41811a76895bcf37c1263",
+    "scripts/ci_v51_bundle.py": "52bb55bef6ec9f43210e1ff6c03f5d94e66cab5f6916f34d9a9e3cdc8da4d361",
+    "scripts/test_ci_v51_bundle.py": "f1b8f149542af91b3d81b4079b6018cce9d17d9e8b210a12f2b3d4a17ca031f8",
+    "scripts/v53/durable_selection_evidence.py": "ee063d9929e1dfc723e32ee86d2a09e0adbc867dad55efd70c478ed401a9cf70",
+    "scripts/v53/durable_selection_negatives.py": "56ed1fae129b53b847c41d676bd85c557aadee6cf7378ec7632f8b307f0b805c",
+    "scripts/v53/durable_selection_qualification.py": "c43b75b52628d45069d817e142932351cdcd88b1ba0b4740c2cf339e9fb9d555",
+    "scripts/v53/grant_evidence.py": "ed977c1c7cb6aebde2306e738db0ee7c7249a810a8bdff6dd07f6d6da9d1cfb7",
+    "scripts/v53/test_durable_selection_evidence.py": "995856f70e4116d2a42980d7da0eb888579c19d4cd624cc56cfeec4054141a23"
+  },
+  "installationAck": false,
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "1dd5812e45b156beab022b2c0305d925179fe1ec99a30a8594de7f524784f028",
+      "size": 768291
+    }
+  ],
+  "javaTests": 98,
+  "limitations": [
+    "SELECTED is a recorded decision, not a forced generation or installation ACK. Remote source loss still requires a fresh campaign after installation fails.",
+    "Only local original grant/tail ownership observations come from this storage owner. Remote capsule/certificate observations remain conditional inputs.",
+    "No selector switching, adoption, ACCEPT/PROOF persistence, floor, retirement, journal rotation or public bootstrap is completed by this batch.",
+    "Process halt/SIGKILL is not power loss. Complete storage qualification across old/joint/new views remains required."
+  ],
+  "localEvidence": "target/v53-phase2-selection",
+  "logs": {
+    "contract-final.log": "b8ead747032218008461dd6c32c3514a6f7dc87c4798a5fb7e07bf0387b09d92",
+    "current-regression.log": "c23a1b885eac69bb426e29d7d1507945d69ea62a2675fec14e8c2fd848351485",
+    "grant-regression.log": "2ef6aecab6425413fcbaa77f512737d780bfd5c69ab53f5e4a3073af82064ffa",
+    "python-final.log": "bd067746d4243ef594bea95159c462efc16abeb0be36d51d303cfda24cb9b41d",
+    "python-optimized-final.log": "abef94b7ec813325906de4dcb634ae371ef5183a566c63f1e96900278655782a",
+    "python-optimized.log": "a706f33d76ef5d7d065a2a8e8a6eaa897f658928aa73f589d439fb78727738f9",
+    "python.log": "3e9d2c09f7dad33896690227a86c97879cf05fbb552730871dd72aac62c52cac",
+    "qualified-final.log": "311ea4731c3d82ea4d63245d870a43378479e0f9fb127d8447d057731704d517",
+    "qualified.log": "01c2f8255c8f8c087c5fe0fcaeb951215514b818d3e76ee03bf1cc4bfb9edefe",
+    "reactor-initial.log": "5ade77f2be6a5987e772eb7c8edbbc6b840b8d3b6dc1b1c7f685219e6b649fd9",
+    "reactor-qualified.log": "e0847e8722c3e88477d4b9f1172a403edc2adce7b67fb0f2bc16ee8b88670b64",
+    "reactor-worker.log": "5ec872668315354e2a771c236f831aefa8bea2a8d55ee74aedfb92dcac4617f5"
+  },
+  "negativeCases": 11,
+  "optimizedPythonTests": 42,
+  "powerLossTested": false,
+  "publicBootstrap": false,
+  "receipts": {
+    "current-regression": {
+      "path": "target/v53-phase2-selection/current-regression/receipt.json",
+      "sha256": "cedaebe6b1e12f274ca149b6875ae67e7d02ab0f8254458bfc11eed88ceb01e3"
+    },
+    "grant-regression": {
+      "path": "target/v53-phase2-selection/grant-regression/receipt.json",
+      "sha256": "ed994b7a29acec72f0c57d521ed2f8275fb4af30abc4baf7d7153a552c2e3832"
+    },
+    "qualified-final": {
+      "path": "target/v53-phase2-selection/qualified-final/receipt.json",
+      "sha256": "3f147bdc931a0e7ae4ed971d819bf41a05bd0e00d0d5e1f617a6bdfab412a265"
+    }
+  },
+  "regressions": {
+    "current-regression": {
+      "cases": 90,
+      "elapsedSeconds": 157.557,
+      "freshProcesses": 360,
+      "negativeCases": 13,
+      "relocatedReplay": "PASS",
+      "status": "PASS"
+    },
+    "grant-regression": {
+      "cases": 45,
+      "elapsedSeconds": 47.624,
+      "freshProcesses": 180,
+      "negativeCases": 8,
+      "relocatedReplay": "PASS",
+      "status": "PASS"
+    }
+  },
+  "relocatedReplay": "PASS",
+  "remoteOwnershipVerified": false,
+  "runtimeEnabled": false,
+  "schema": "gse-v53-durable-selection-local-summary-v1",
+  "source": {
+    "checkoutSha256": "502e390371a0b0ee68d664cf884ed6d1135e940c6d771ca483372a3e3ec0a73b",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "8c46f92b87d6631e3c30a0cbf726a0c695da6bc5"
+  },
+  "sourceBindingNote": "Final qualification precedes reporting/docs. Implementation hashes identify the validated bytes; this is not clean-HEAD protected CI.",
+  "status": "PASS"
+}

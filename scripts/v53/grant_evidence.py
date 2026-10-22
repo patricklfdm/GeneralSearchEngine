@@ -24,11 +24,26 @@ def read(path,maximum):
 def order(ballot):return ballot['counter'],ballot['proposer'],ballot['incarnation']
 
 
+def selected_binding(value,promise,basis,basis_raw,node):
+    need(promise is not None and basis is not None,'selection without local grant')
+    need(all(value[k]==promise[k] for k in ('root','view','ballot')),'selection grant binding')
+    cut,own=value['cut'],basis['cut']
+    need(cut['view']==own['view'] and own['index']<=cut['index']<=2**63-2,'selection cut/view')
+    need(cut['index']!=own['index'] or cut==own,'selection conflicting local parent')
+    sources=value['sources'];voters=[s['voter'] for s in sources];view=own['view']
+    need(voters==sorted(set(voters)) and set(voters)<=set(view['old'])|set(view['new'])
+         and all(len(set(voters)&set(view[k]))>len(view[k])//2 for k in ('old','new')),'selection eligible quorum')
+    need(len({s['basisId'] for s in sources})==len(sources),'selection duplicate basis identity')
+    need(node in voters and promise['ballot']['proposer'] in voters,'selection missing local voter/proposer')
+    local=next(s for s in sources if s['voter']==node)
+    need(local['basisId']==basis['basisId'] and local['basisDigest']==hashlib.sha256(basis_raw).hexdigest(),'selection original local basis')
+
+
 def journal(data,root,node):
-    need(len(data)<=LIMIT,'grant journal size');rows=[];offset=0;promise=None;basis=None
+    need(len(data)<=LIMIT,'grant journal size');rows=[];offset=0;promise=None;basis=None;basis_raw=None;selected=None
     while offset<len(data):
         need(len(data)-offset>=48,'torn grant journal header')
-        kind={3:'PROMISE',4:'BASIS'}.get(int.from_bytes(data[offset+8:offset+10],'big'))
+        kind={3:'PROMISE',4:'BASIS',5:'SELECTED'}.get(int.from_bytes(data[offset+8:offset+10],'big'))
         need(kind is not None,'unknown grant journal record')
         length=48+int.from_bytes(data[offset+12:offset+16],'big')
         need(48<length<=f.catalog()['records'][kind]['maximum'],'grant frame bound')
@@ -37,8 +52,8 @@ def journal(data,root,node):
         if kind=='PROMISE':
             need(value['basisId'] is not None and value['ballot']['counter']<=2**63-2,'grant promise identity/capacity')
             need(promise is None or order(value['ballot'])>order(promise['ballot']),'non-increasing grant promise')
-            promise=value;basis=None
-        else:
+            promise=value;basis=None;basis_raw=None;selected=None
+        elif kind=='BASIS':
             need(promise is not None and basis is None,'orphan/duplicate grant basis')
             need(all(value[k]==promise[k] for k in ('root','view','ballot','basisId')),'grant basis binding')
             need(value['voter']==node,'grant basis owner')
@@ -47,7 +62,10 @@ def journal(data,root,node):
                  and len(set(old)|set(new))<=6 and (old==new)==(view['operation'] is None)
                  and len(set(old)-set(new))<=1 and len(set(new)-set(old))<=1,'grant basis membership view')
             need(value['cut']['index']<=2**63-2 and value['view']==hashlib.sha256(f.canonical(dict(root=root,**value['cut']['view']))).hexdigest(),'grant basis cut/view')
-            basis=value
+            basis=value;basis_raw=raw
+        else:
+            need(selected is None,'duplicate persisted selection')
+            selected_binding(value,promise,basis,basis_raw,node);selected=value
         rows.append((kind,raw,value))
     return rows
 

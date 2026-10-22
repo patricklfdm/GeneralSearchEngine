@@ -551,3 +551,26 @@ repair or reclamation API is exposed here; inactive/selected-installation genera
 are refused. Public bootstrap, power-loss qualification, complete physical S/N and
 unified acceptance remain pending. No inherited runtime, frozen format, public API,
 POM, workflow or V5.2 experiment changed. Work and commit remain local, without push.
+
+## 2026-10-22 — Phase 2C1 durable original selection
+
+Added [SELECTED persistence](PHASE_2_DURABLE_SELECTION.md) to the existing private
+journal. It derives local original-source ownership from retained bytes, recomputes
+the complete decision, forces it once, and refuses same-ballot reselection through
+reopen/lost response. Selected followers validate their own original grant and
+proposer inclusion. Higher observations fence write/force/return without waiting
+for the writer monitor. Selection metadata alone grants no installation ACK.
+
+98 focused Java, 58 Python/build-contract and 42 optimized-Python tests passed.
+The final physical matrix passed 54 cases / 270 JVMs, eleven exact negatives and
+portable replay. Current-generation (90 / 360 / 13) and grant (45 / 180 / 8)
+regressions passed with portable replay. All raw receipt inventories were verified;
+the [summary](phase2-evidence/durable-selection.json) records exact local bytes and
+the superseded first fixture run with reused cross-ballot remote basis UUIDs.
+
+The operator now authorizes continuing locally through Phase 2 closure and committing
+each validated batch. The [closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) preserves
+all remaining installation/adoption/proof/floor/retirement/rotation/provisioning
+and physical audit obligations. Phase 2 is **OPEN**; remote ownership is still
+conditional, and full S/N runtime qualification remains pending. No push, workflow,
+POM, frozen format, inherited runtime or V5.2 cloud action occurred.

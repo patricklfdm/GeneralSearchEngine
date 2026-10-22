@@ -9,6 +9,10 @@ rechecks actual packet/image files before BASIS. The metadata-only mode describe
 here remains a separately qualified private component; neither mode establishes
 the current selected generation or authenticated remote ownership.
 
+Subsequent batches add [current local generation capture](PHASE_2_CURRENT_GENERATION.md)
+and [durable SELECTED recording](PHASE_2_DURABLE_SELECTION.md). The metadata-only
+scope and historical results below describe 2B1, not the full current storage entry.
+
 ## One owner and a bounded journal
 
 `MembershipGrantJournal` shares the Phase 2A allocator's exact exclusive directory

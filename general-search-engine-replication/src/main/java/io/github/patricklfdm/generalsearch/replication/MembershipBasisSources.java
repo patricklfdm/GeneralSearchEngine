@@ -99,6 +99,14 @@ final class MembershipBasisSources implements AutoCloseable {
             }
         }
     }
+    record Original(MembershipSourcePacket packet,Map<String,byte[]> images) {}
+    Original original(Decoded basis) throws IOException {
+        check();String id=(String)basis.value().get("basisId");require(retained.containsKey(id),"original basis source absent");
+        Path path=directory.resolve(id);var packet=MembershipSourcePacket.decode(AdmissionPaths.read(path.resolve(PACKET),MembershipSourcePacket.MAXIMUM));
+        packet.bind(basis);var images=new TreeMap<String,byte[]>();
+        for(var image:packet.images().entrySet())images.put(image.getKey(),AdmissionPaths.read(path.resolve(image.getKey()+".image"),Math.toIntExact(image.getValue())));
+        packet.verifyImages(images);check();return new Original(packet,Map.copyOf(images));
+    }
     private List<MembershipResources.Lease> reserve(String id,long size,Map<String,Long> images) {
         var result=new ArrayList<MembershipResources.Lease>();
         try {

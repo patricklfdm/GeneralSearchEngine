@@ -24,10 +24,11 @@ final class MembershipGrantJournal implements AutoCloseable {
     private final int maximum;
     private final AtomicReference<Map<String,Object>> observed=new AtomicReference<>();
     private byte[] journal;
-    private Decoded promise,basis;
+    private Decoded promise,basis,selection;
     private final Map<String,Decoded> promises=new TreeMap<>(), bases=new TreeMap<>();
     private MembershipBasisSources sources;
     private MembershipCurrentGeneration current;
+    private MembershipCurrentGeneration.Verifier capsuleVerifier;
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -76,6 +77,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         try {
             journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);
             journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);
+            journal.capsuleVerifier=verifier;
             journal.current=new MembershipCurrentGeneration(path,root,identity,resources,journal.promises.values(),journal.bases.values(),verifier,cut);
             journal.checkOwner();return journal;
         }catch(IOException | RuntimeException | Error error) {
@@ -108,13 +110,31 @@ final class MembershipGrantJournal implements AutoCloseable {
         var cut=object(b.get("cut"));var view=object(cut.get("view"));checkView(view);
         require(number(cut.get("index"))<=MembershipBallotAllocator.MAX && b.get("view").equals(viewDigest(root.manifestDigest(),view)),"grant basis cut/view");
     }
+    private void checkSelection(Decoded selected) {
+        require(promise!=null && basis!=null,"selection without complete local grant");var value=selected.value();
+        for(String field:List.of("root","view","ballot"))require(value.get(field).equals(promise.value().get(field)),"selection grant binding: "+field);
+        var selectedCut=object(value.get("cut"));var ownCut=object(basis.value().get("cut"));var view=object(ownCut.get("view"));
+        require(selectedCut.get("view").equals(view) && number(selectedCut.get("index"))<=MembershipBallotAllocator.MAX
+                && number(selectedCut.get("index"))>=number(ownCut.get("index")),"selection cut/view");
+        if(selectedCut.get("index").equals(ownCut.get("index")))require(selectedCut.equals(ownCut),"selection conflicting local parent");
+        var voters=new ArrayList<String>();boolean local=false;var ids=new HashSet<String>();
+        for(Object row:list(value.get("sources"))) {
+            var source=object(row);String voter=(String)source.get("voter");voters.add(voter);
+            require(ids.add((String)source.get("basisId")),"selection duplicate basis identity");
+            if(voter.equals(identity.nodeId().value())) {
+                require(source.get("basisId").equals(basis.value().get("basisId")) && source.get("basisDigest").equals(basis.digest()),"selection original local basis");local=true;
+            }
+        }
+        orderedNodes(voters);quorum(view,voters);
+        require(local && voters.contains(object(value.get("ballot")).get("proposer")),"selection missing local voter/proposer");
+    }
     private void replay() {
         int offset=0;
         while(offset<journal.length) {
             require(journal.length-offset>=HEADER,"torn grant journal header");
             byte[] header=Arrays.copyOfRange(journal,offset,offset+HEADER);
             int kind=Short.toUnsignedInt(ByteBuffer.wrap(header).getShort(8));
-            require(kind==3 || kind==4,"unknown grant journal record");String name=kind==3?"PROMISE":"BASIS";
+            require(kind==3 || kind==4 || kind==5,"unknown grant journal record");String name=kind==3?"PROMISE":kind==4?"BASIS":"SELECTED";
             int length=HEADER+header(header,"records",name);
             require(length<=journal.length-offset,"torn grant journal body");
             var value=decode(Arrays.copyOfRange(journal,offset,offset+length),"records",name);offset+=length;
@@ -122,8 +142,9 @@ final class MembershipGrantJournal implements AutoCloseable {
                 checkPromise(value);
                 require(promise==null || compareBallot(object(value.value().get("ballot")),object(promise.value().get("ballot")))>0,"non-increasing grant promise");
                 require(promises.putIfAbsent((String)value.value().get("basisId"),value)==null,"reused original basis identity");
-                promise=value;basis=null;
-            } else {require(basis==null,"duplicate grant basis");checkBasis(value,promise);basis=value;bases.put((String)value.value().get("basisId"),value);}
+                promise=value;basis=null;selection=null;
+            } else if(name.equals("BASIS")) {require(basis==null,"duplicate grant basis");checkBasis(value,promise);basis=value;bases.put((String)value.value().get("basisId"),value);}
+            else {require(selection==null,"duplicate persisted selection");checkSelection(value);selection=value;}
         }
     }
 
@@ -164,6 +185,40 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Owned> currentOwnedTail() throws IOException {
         require(current!=null,"current generation required");checkOwner();return current.ownedTail();
     }
+    /** Observation of this owner's forced original grant, not an assertion of remote force. */
+    synchronized MembershipSelection.Source originalSource() throws IOException {
+        require(current!=null && basis!=null,"complete current grant required");checkOwner();
+        var original=sources.original(basis);var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        var capsule=Objects.requireNonNull(capsuleVerifier.verify(localRoot,original.packet(),original.images()));
+        require(Arrays.equals(capsule.packet.bytes(),original.packet().bytes()),"original verifier substituted source");
+        var reference=Map.<String,Object>of("voter",identity.nodeId().value(),"basisId",basis.value().get("basisId"),"basisDigest",basis.digest());
+        var owned=new HashSet<Owned>();String parent=cutDigest(object(basis.value().get("cut")));
+        owned.add(new Owned(identity.nodeId().value(),identity.storageId(),basis.digest(),parent));
+        if(basis.value().get("accepted")!=null)owned.add(new Owned(identity.nodeId().value(),identity.storageId(),(String)basis.value().get("accepted"),parent));
+        var result=MembershipSelection.Source.verify(capsule,basis,reference,identity,owned);checkOwner();return result;
+    }
+    /** Records the immutable selection only. No installation, ACCEPT or installation ACK is authorized. */
+    synchronized Decoded selectCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
+        require(current!=null && promise!=null && basis!=null,"complete current grant required");checkOwner();
+        var ballot=object(promise.value().get("ballot"));fence(ballot);var local=originalSource();
+        require(offered.size()>=2 && offered.size()<=6 && bridges.size()<=6,"selected source/ancestry capacity");
+        var verified=new ArrayList<MembershipSelection.Source>();MembershipSelection.Source proposer=null;
+        for(var source:offered) {
+            if(source.owner.nodeId().equals(identity.nodeId())) {
+                require(Arrays.equals(source.basis.bytes(),local.basis.bytes()) && Arrays.equals(source.capsule.packet.bytes(),local.capsule.packet.bytes()),"selection substituted local source");
+                source=local;
+            }
+            verified.add(source);if(source.owner.nodeId().value().equals(ballot.get("proposer")))proposer=source;
+        }
+        require(proposer!=null,"selection missing proposer");
+        var selected=new MembershipSelection.Campaign(proposer).select(verified,bridges).selected();checkSelection(selected);fence(ballot);checkOwner();
+        if(selection!=null) {require(Arrays.equals(selection.bytes(),selected.bytes()),"selection already fixed; fresh ballot required");return selection;}
+        if(selected.bytes().length>maximum-journal.length)throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
+                AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),"selection journal rotation required",null);
+        try {
+            append(selected,ballot);selection=selected;cut.at("SELECTED_BEFORE_RETURN");checkOwner();fence(ballot);return selected;
+        }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
+    }
     private Decoded prepareBound(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images) throws IOException {
         require((sources==null)==(images==null),"grant source mode mismatch");
         live();var context=source.context;
@@ -189,9 +244,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         var reservation=sources==null?null:sources.prepare(frozen,source,images);
         try(var retained=reservation) {
-            append(grant,next);promise=grant;basis=null;
+            append(grant,next);promise=grant;basis=null;selection=null;promises.put((String)grant.value().get("basisId"),grant);
             if(retained!=null){retained.capture();fence(next);}
-            append(frozen,next);basis=frozen;cut.at("GRANT_BEFORE_RETURN");checkOwner();fence(next);return frozen;
+            append(frozen,next);basis=frozen;bases.put((String)frozen.value().get("basisId"),frozen);cut.at("GRANT_BEFORE_RETURN");checkOwner();fence(next);return frozen;
         } catch(IOException | RuntimeException | Error error) {failed=true;throw error;}
     }
 
@@ -208,6 +263,7 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     synchronized Optional<Decoded> promised() {live();return Optional.ofNullable(promise);}
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
+    synchronized Optional<Decoded> originalSelection() {live();return Optional.ofNullable(selection);}
     @Override public synchronized void close() throws IOException {
         if(!closed){closed=true;try{if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }

@@ -21,9 +21,12 @@ qualification. The new membership runtime remains disabled. [Phase 2 storage](PH
 is open, with [private durable allocation and exclusive ownership](PHASE_2_STORAGE_FOUNDATION.md)
 and the [promise/original-basis metadata journal](PHASE_2_GRANT_JOURNAL.md), now with
 [physical original-source retention](PHASE_2_BASIS_SOURCES.md) and
-[current local generation capture](PHASE_2_CURRENT_GENERATION.md).
+[current local generation capture](PHASE_2_CURRENT_GENERATION.md), followed by
+[durable original selection](PHASE_2_DURABLE_SELECTION.md).
 Generation installation/switching, complete recovery and remote ownership verification
 remain pending.
+The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
+storage work and the final requirement-by-requirement audit.
 
 ## Historical research in order
 
