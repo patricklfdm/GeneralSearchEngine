@@ -1,0 +1,54 @@
+{
+  "applicationPublication": false,
+  "byteExactFixtureTransitions": 63,
+  "crashQualification": false,
+  "focusedJavaTests": 60,
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "69e2de3b693c36ec45f4ba3b5becd2369df217097576c9f913aa17b531a92f7e",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "limitations": [
+    "pure state projection, not certificate/learner ownership or durable publication",
+    "63 byte comparisons use existing historical transition fixtures",
+    "one actual core DATA replay; no complete bootstrap",
+    "expected red test exposes missing READY image binding; original failure retained"
+  ],
+  "logs": {
+    "final.log": "446e2406d5636d99a52b27b6c60b3e9de69512caa321ac5fe631aaa417113f82",
+    "focused.log": "dc3a82e11a71c628329c5308dbaed0a1ff97203a73627ce8a57119e3eaba3d23",
+    "red.log": "b99ec181fb26d4c15310e51d4a80fd99a63b478bfe551f6f2c5aab8da1093998"
+  },
+  "newCatalogTests": 7,
+  "protectedCI": false,
+  "reports": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.xml": "9f7daf62c28ff98801d7620e87fdac1188f0a9410c0ff663a9d8d8298438d959",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest.xml": "0858cbfec63ab2081d63623e6616bfda6049a71c045dd25b0cb036bc6458988e",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationReplayTest.xml": "90e09ae6b0bae3a270e6c38b2fb061b8af74f97f29952fcf020fa9aef591bf08",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53CapsuleTest.xml": "6b8ae466645fcd6cf523be4b7edb7965bb49de690b1e2d2ec83b742b02ef333a",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53CatalogTest.xml": "b579060b0d112c000f9355199c3b9ce891cebb4126af94de75cddd05cf2780f1",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ContextTest.xml": "9fac83f46a79e86216591db8b498968b4fc8a443b68d38261964b7e768c17ed1",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53DeclarationsTest.xml": "df589cbe4aa602858fe3d6fd5446c432c3d2e98a8746ff27391246a21bcfd69e",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53FormatTest.xml": "ca06bf7d837a5a2a1de1e32b75d6b0fedb03f5952b48e8042cfa87f338cc9f49",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53SelectionTest.xml": "d42a131508cc32c0db7b3a30e872edd638cf25e386e3452850a3158c2fe7d433",
+    "io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.txt": "ed49f368b1f0dd20fe403d49b2c2a161d896c4d3eec80d0d34f06d3d7ce17ff9",
+    "io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest.txt": "7db024404acc35e1c2d0e737a0ca31943561d2b50476a6c671d98229f635904a",
+    "io.github.patricklfdm.generalsearch.replication.V53ApplicationReplayTest.txt": "dec5d39659d68985d70babcf618afcb59d9e73ffcd421933fad7a346325319f4",
+    "io.github.patricklfdm.generalsearch.replication.V53CapsuleTest.txt": "88fbad60b2ae9c1a8767d2791bd66a123691511f5a21548922b1a5dea02a05f9",
+    "io.github.patricklfdm.generalsearch.replication.V53CatalogTest.txt": "e9a33ab46f21a8daf21e10ddd20da57560b79228710ec6b717b6c79be8a0f62b",
+    "io.github.patricklfdm.generalsearch.replication.V53ContextTest.txt": "2b58cc677bb08d2c0f3846947613a11658cb6ff05efcad54806b291d3f87eb15",
+    "io.github.patricklfdm.generalsearch.replication.V53DeclarationsTest.txt": "aba89c71d480a462e1abd1e81936e6c45956c4d529b352bc9c22adcf1d3d6555",
+    "io.github.patricklfdm.generalsearch.replication.V53FormatTest.txt": "af0bfcd2ae99b7cff418b24d55a4d3e7778af0be7f34d841e51dda07cb1c89d2",
+    "io.github.patricklfdm.generalsearch.replication.V53SelectionTest.txt": "ea99a446dedfb4692887e66c52b0a4e066b15b2cc855c3a6452e7a7ddbdcc689"
+  },
+  "retainedLocal": "target/v53-catalog-projection",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-catalog-projection-index-v1",
+  "sourceHead": "49744e552f48721e65d9311b184a610f81b4c079",
+  "status": "PASS",
+  "worktreeImplementation": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipApplicationReplay.java": "bff55fe627edef108cabad5564f410da3b301ad4c79456cb6ee2d7d01e1ad060",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCatalog.java": "24509936a46f66e8a154f48ad977b06aa16ca5a845b1a76874f2d05c0d74e757",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipContext.java": "a63f8d60763c68a15536d8ee59d845a401ea2463a3b6aa4280e6cf399282cd09",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CatalogTest.java": "fc65207f90e3b7108d763e87713b12a73db78b83c01d43e3811d8e2eb6a58435"
+  }
+}

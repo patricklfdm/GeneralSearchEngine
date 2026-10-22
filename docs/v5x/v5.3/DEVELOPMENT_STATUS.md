@@ -952,3 +952,18 @@ prerequisite after backup. The fixture now waits within a finite bound, then kee
 its exact original error/outcome assertions; the corrected run passed. No old
 production election/read behavior changed. Catalog reduction, original certified
 publication/checkpoint/source lifetime and full storage closure remain required.
+
+
+## 2026-10-22 — Phase 2C5d exact catalog projection
+
+The reducer now binds ENTRY/application results and projects every frozen control
+transition without mutating inputs. **60 focused Java tests** passed, including
+seven new tests and 63 byte-exact historical transition comparisons. Actual DATA
+replay integration, allocator exhaustion and permanent identity checks are covered.
+A retained red test exposed READY accepting another inventoried image; admission
+and catalog reopen now require the exact prepared image. [Scope](PHASE_2_CATALOG_PROJECTION.md),
+[evidence index](phase2-evidence/catalog-projection.json).
+
+Actual checkpoint ownership, forced publication under original selected ancestry,
+covered-tail retirement and full lifetime/bootstrap integration remain pending.
+Phase 2/public runtime/pre-cloud closure remain OPEN. Work and commits stay local.

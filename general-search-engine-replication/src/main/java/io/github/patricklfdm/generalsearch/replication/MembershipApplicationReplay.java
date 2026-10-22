@@ -15,7 +15,7 @@ final class MembershipApplicationReplay {
         @Override public byte[] payload(){return payload.clone();}
     }
     record Result(long index,long sequence,byte[] image) {
-        Result {image=image.clone();}
+        Result {position(index);position(sequence);require(image.length>0 && image.length<=MembershipApplicationImage.MAXIMUM,"application result capacity");image=image.clone();}
         @Override public byte[] image(){return image.clone();}
     }
     static byte[] data(String operation,byte[] body) {

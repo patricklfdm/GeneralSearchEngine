@@ -141,6 +141,7 @@ final class MembershipContext {
                 var r=object(receipt);
                 require(prepared!=null && r.get("root").equals(root) && number(r.get("number"))==number
                         && r.get("prepared").equals(prepared) && r.get("request").equals(hash(canonical(request,8192)))
+                        && r.get("image").equals(object(prepared).get("application"))
                         && targets.contains(identity(object(r.get("identity")))),"learner receipt context");
             }
             require(!phase.equals("RESERVED") && !phase.equals("PREPARING") || receipt==null,"premature learner receipt");
@@ -266,6 +267,7 @@ final class MembershipContext {
                     var r=object(receipt);require(joining.size()==1 && joining.contains(identity(object(r.get("identity"))))
                             && root.equals(r.get("root")) && number(r.get("number"))==number(catalog.get("active"))
                             && r.get("prepared").equals(active.get("prepared"))
+                            && r.get("image").equals(object(active.get("prepared")).get("application"))
                             && r.get("request").equals(hash(canonical(active.get("request"),8192))),"ready exact prepared identity");
                     require(images.contains((String)r.get("image")),"missing learner materialization bytes");
                 }
