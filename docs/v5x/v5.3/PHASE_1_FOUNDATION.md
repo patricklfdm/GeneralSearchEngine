@@ -1,8 +1,9 @@
 # V5.3 Phase 1 foundation
 
-Status: **in progress**, local isolated development only. The operator authorized
-continuing through local Phase 1 closure with intermediate commits. No push,
-protected CI, paid experiment or release is included.
+Status: **LOCALLY CLOSED — 2026-10-21**, local isolated development only.
+The [final requirement audit](PHASE_1_CLOSURE_AUDIT.md) and
+[closure receipt](phase1-evidence/closure.json) record the completed local checks.
+No push, protected CI, paid experiment or release is included.
 
 ## Worklist and boundaries
 
@@ -12,7 +13,7 @@ protected CI, paid experiment or release is included.
 | 2 | 24 storage / 21 wire kinds, exact bytes, bounded transfers, independent contextual readers | [Syntax](PHASE_1_BYTES.md), [context/transfer](PHASE_1_CONTEXT.md), [packet inventory](PHASE_1_SOURCE_PACKET.md) [conditional capsule walk](PHASE_1_CAPSULES.md) and [frozen-source selection](PHASE_1_SELECTION.md) PASS locally |
 | 3 | Same-round/catalog/compacted-source composition; complete S/N inventory | [112 causal histories / 17 negatives](PHASE_1_COMPOSITION.md) PASS; [3,310 S / 24 N planned rows](PHASE_1_CASE_INVENTORY.md) materialized |
 | 4 | Fresh public process scaffold, source/JAR binding, portable negatives | Disabled-entry scaffold, three JVMs and ten portable negatives PASS; later runtime evidence pending |
-| Closure | Requirement-by-requirement audit and retained receipts | Pending; Phase 1 is not closed |
+| Closure | Requirement-by-requirement audit and retained receipts | [PASS locally](PHASE_1_CLOSURE_AUDIT.md); Phase 2 has not started |
 
 The [entry plan](PHASE_1_ENTRY_PLAN.md) remains the acceptance checklist. Separate
 Phase 0 references are not relabelled as the composed Phase 1 model. Declared

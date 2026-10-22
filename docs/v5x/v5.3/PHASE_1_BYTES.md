@@ -1,5 +1,9 @@
 # Phase 1 byte-format foundation
 
+Historical batch record. Later completion and remaining runtime gates are recorded
+in the [Phase 1 closure audit](PHASE_1_CLOSURE_AUDIT.md); pending statements below
+refer to this batch, not the final local Phase 1 state.
+
 Status: **syntax codec locally qualified**. The subsequent
 [context/transfer foundation](PHASE_1_CONTEXT.md) is separately qualified;
 complete frozen-source capsule/selection work remains pending.

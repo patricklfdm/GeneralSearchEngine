@@ -1,5 +1,9 @@
 # Phase 1 deterministic protocol composition
 
+Historical batch record. Later completion and remaining runtime gates are recorded
+in the [Phase 1 closure audit](PHASE_1_CLOSURE_AUDIT.md); pending statements below
+refer to this batch, not the final local Phase 1 state.
+
 This qualification joins global promises, frozen-source selection, stable rounds,
 operation catalogs, learner preparation, membership transitions and compacted
 recovery in one causal execution. It is a deterministic model, not an enabled

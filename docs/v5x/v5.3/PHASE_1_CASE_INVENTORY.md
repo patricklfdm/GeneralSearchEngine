@@ -1,5 +1,9 @@
 # Phase 1 finite acceptance inventory
 
+Historical batch record. Later completion and remaining runtime gates are recorded
+in the [Phase 1 closure audit](PHASE_1_CLOSURE_AUDIT.md); pending statements below
+refer to this batch, not the final local Phase 1 state.
+
 The frozen acceptance plan now has a deterministic, materialized **3,310-row S01–S10
 inventory** and **24 negative-family rows**. This is planning coverage only. No
 physical/runtime/crash case becomes PASS by generating this file; required Phase 5

@@ -1,5 +1,9 @@
 # Phase 1 complete capsule walk
 
+Historical batch record. Later completion and remaining runtime gates are recorded
+in the [Phase 1 closure audit](PHASE_1_CLOSURE_AUDIT.md); pending statements below
+refer to this batch, not the final local Phase 1 state.
+
 Status: **locally qualified conditional verifier and physical byte fixtures**.
 The membership runtime remains disabled. This is not live replica/crash acceptance
 and Phase 1 is not closed.

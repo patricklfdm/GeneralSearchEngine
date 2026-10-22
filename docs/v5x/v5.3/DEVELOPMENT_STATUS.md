@@ -436,3 +436,23 @@ consult the whole audit archive. Missing ancestry and selected-source loss refus
 or require a fresh ballot. Model forces are abstract and physical S/N rows remain
 PLANNED. No Java runtime, workflow or V5.2 experiment changed. The final Phase 1
 requirement/compatibility audit is next; this batch alone does not close Phase 1.
+
+## 2026-10-21 — Phase 1 locally closed
+
+The [requirement audit](PHASE_1_CLOSURE_AUDIT.md) and
+[closure receipt](phase1-evidence/closure.json) close the operator-authorized local
+Phase 1 scope. Fresh final validation passed 64 focused Java tests, 26 tests across
+eight consumers, 242 V5.3 Python tests and 29 build-contract tests. Three fresh
+public JVMs and every syntax/context/packet/capsule/selection fixture gate passed
+against the current JARs; original-first negatives and portable replay passed.
+
+The final 112-history composition and 3,310 S / 24 N inventory match their retained
+sources. The physical S/N rows remain planned. Current thirteen POM coordinates
+agree, inherited production code and predecessor workflow/cloud inputs are unchanged,
+and the new runtime stays disabled. Existing V5.1 fixture tests changed only to
+recognize the explicitly aligned current consumer coordinates.
+
+Work remains local on `feat/v53-cluster-operations`; no push or experiment action
+was performed. Phase 2 storage and the later real protocol/public/fault gates have
+not started. Actual V5.2 publication/integration and unified protected acceptance
+remain required before release readiness.

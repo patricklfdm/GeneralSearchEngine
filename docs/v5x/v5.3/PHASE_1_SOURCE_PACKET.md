@@ -1,5 +1,9 @@
 # Phase 1 bounded source packet
 
+Historical batch record. Later completion and remaining runtime gates are recorded
+in the [Phase 1 closure audit](PHASE_1_CLOSURE_AUDIT.md); pending statements below
+refer to this batch, not the final local Phase 1 state.
+
 Status: **transport inventory locally qualified**. The separate
 [complete capsule walk](PHASE_1_CAPSULES.md) checks conditional authority;
 source selection remains pending. This implements the previously unspecified packing syntax for

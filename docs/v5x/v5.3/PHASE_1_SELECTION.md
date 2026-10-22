@@ -1,5 +1,9 @@
 # Phase 1 original frozen-source selection
 
+Historical batch record. Later completion and remaining runtime gates are recorded
+in the [Phase 1 closure audit](PHASE_1_CLOSURE_AUDIT.md); pending statements below
+refer to this batch, not the final local Phase 1 state.
+
 Status: local conditional byte calculation and independent fixtures. No membership
 runtime, PREPARE grant, durable SELECTED write, installation ACK or READY is enabled.
 The full same-round/catalog/recovery model remains a separate Phase 1 obligation.

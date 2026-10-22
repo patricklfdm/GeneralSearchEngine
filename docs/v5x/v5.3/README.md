@@ -1,6 +1,6 @@
 # V5.3 — controlled cluster operations
 
-**Status:** local development branch, started 2026-10-21. Phase 0 is locally closed;
+**Status:** local development branch, started 2026-10-21. Phases 0 and 1 are locally closed;
 no V5.3 runtime, release, protected CI or cloud acceptance is claimed.
 
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
@@ -15,8 +15,10 @@ development predecessor; its eventual published artifacts are not yet pinned.
 - [Acceptance register](ACCEPTANCE_REGISTER.md), [checklist](PHASE_0_CHECKLIST.md), [Phase 1 entry](PHASE_1_ENTRY_PLAN.md)
 
 [Closure audit and evidence](PHASE_0_CLOSURE_AUDIT.md) record 198 tests and all nine
-research matrices on the final script bytes. [Phase 1 foundation](PHASE_1_FOUNDATION.md)
-is in progress on the local branch; the new membership runtime remains disabled.
+research matrices on the final script bytes. The [Phase 1 closure audit](PHASE_1_CLOSURE_AUDIT.md)
+records current compatibility, byte, source-selection and complete causal-model
+qualification. The new membership runtime remains disabled. Phase 2 storage is next
+and has not started.
 
 ## Historical research in order
 

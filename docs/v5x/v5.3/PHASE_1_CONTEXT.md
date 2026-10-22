@@ -1,5 +1,9 @@
 # Phase 1 context, transfer and resource foundation
 
+Historical batch record. Later completion and remaining runtime gates are recorded
+in the [Phase 1 closure audit](PHASE_1_CLOSURE_AUDIT.md); pending statements below
+refer to this batch, not the final local Phase 1 state.
+
 Status: **locally qualified foundation, Phase 1 still open**. New internal helpers
 are not connected to a live runtime. The existing 1.1/1.2 paths and public API
 fixtures are unchanged.
