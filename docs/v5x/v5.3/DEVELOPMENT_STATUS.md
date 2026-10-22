@@ -780,3 +780,25 @@ component from the pending durable transaction. No source is deleted and no stor
 reservation is freed. Continue forced cleanup/recovery, incomplete source capture,
 full lifetime headroom and phased vote/application storage. Phase 2 and the overall
 pre-cloud goal remain OPEN. Local only, no workflow or V5.2 experiment changes.
+
+
+## 2026-10-22 — Phase 2C4c4b durable original-source retirement
+
+Added explicit reclaiming open: force a bounded exact original decision, compact
+that source's journal group before deletion, force every removal and clear cleanup
+authority last. Complete decisions resume on reopen; incomplete unforced decisions
+block other mutations and require the named intact original to resume. All current,
+floor and newer source authority stays intact, including unresolved owned tails.
+No extra source/image slot is needed; repeated cleanup returns only the obsolete
+source reservations. A deterministic regression exposed release/reacquisition of
+surviving leases in the initial implementation; the correction preserves their
+identities continuously. Earlier physical evidence remains retained separately.
+
+**297 cases / 1206 fresh JVMs**, **15 exact negatives** and portable replay
+PASS in 958.164 seconds. **209 Java tests**, including 14 source-release
+tests, and **41 Python/build tests** normally and under `-O` passed.
+[Scope/reproduction](PHASE_2_SOURCE_RELEASE.md), [hash index](phase2-evidence/source-release.json).
+
+This does not reclaim incomplete original captures or close maximal source/image
+headroom, actual phased vote/application storage or Phase 2. No public runtime,
+network ACK, power-loss, workflow, cloud or V5.2 Runner claim. Local commit only.

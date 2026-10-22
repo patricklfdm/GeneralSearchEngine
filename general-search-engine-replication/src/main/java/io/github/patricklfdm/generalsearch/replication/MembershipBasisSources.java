@@ -22,19 +22,33 @@ final class MembershipBasisSources implements AutoCloseable {
     private final Map<String,Map<String,FileIdentity>> retained=new TreeMap<>();
     private final Map<String,Object> subdirectories=new TreeMap<>();
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
+    private final Map<String,List<MembershipResources.Lease>> sourceLeases=new TreeMap<>();
     record FileIdentity(Object key,long bytes,String digest) {}
 
     MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
             Map<String,Decoded> promises,Map<String,Decoded> bases) throws IOException {
+        this(parent,resources,cut,promises,bases,null);
+    }
+    MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
+            Map<String,Decoded> promises,Map<String,Decoded> bases,MembershipSourceRetirementFiles.Decision retiring) throws IOException {
         directory=parent.resolve(DIRECTORY);this.resources=resources;this.cut=cut;
         root=AdmissionPaths.read(parent.resolve("root.gsr"),16384);directoryKey=key(directory);
         try {
             leases.add(resources.reserve(MembershipResources.Unit.JOURNAL,"membership-grants",MembershipGrantJournal.MAXIMUM));
             Set<String> ids=children(directory,6);
-            require(promises.keySet().containsAll(ids) && ids.containsAll(bases.keySet()),"missing or unbound original source");
+            var allowed=new HashSet<>(promises.keySet());if(retiring!=null)allowed.add(retiring.id());
+            require(allowed.containsAll(ids) && ids.containsAll(bases.keySet()),"missing or unbound original source");
             for(String id:ids) {
-                Path path=directory.resolve(id);var packet=load(path,promises.get(id),bases.get(id));
-                leases.addAll(reserve(id,Files.size(path.resolve(PACKET)),packet.images()));
+                Path path=directory.resolve(id);
+                if(retiring!=null && id.equals(retiring.id()) && !bases.containsKey(id)) {
+                    var expected=retirementInventory(retiring);var actual=new TreeMap<String,FileIdentity>();
+                    require(expected.keySet().containsAll(children(path,8)),"source retirement unlisted member");
+                    for(String name:children(path,8)){var item=expected.get(name);actual.put(name,inspect(path.resolve(name),number(item.get("size")),(String)item.get("sha256")));}
+                    var images=new TreeMap<String,Long>();for(var file:expected.entrySet())if(file.getKey().endsWith(".image"))images.put((String)file.getValue().get("sha256"),number(file.getValue().get("size")));
+                    retainLeases(id,reserve(id,number(expected.get(PACKET).get("size")),images));retained.put(id,Map.copyOf(actual));subdirectories.put(id,key(path));continue;
+                }
+                var packet=load(path,promises.get(id),bases.get(id));
+                retainLeases(id,reserve(id,Files.size(path.resolve(PACKET)),packet.images()));
                 retained.put(id,snapshot(path,packet));subdirectories.put(id,key(path));
             }
             // Validate the entire inventory before sealing bytes made visible by an interrupted process.
@@ -101,6 +115,31 @@ final class MembershipBasisSources implements AutoCloseable {
             }
         }
     }
+    private static Map<String,Map<String,Object>> retirementInventory(MembershipSourceRetirementFiles.Decision decision) {
+        var result=new TreeMap<String,Map<String,Object>>();String prefix="sources/"+decision.id()+"/";
+        for(Object row:list(decision.record().value().get("files"))){var file=object(row);String full=(String)file.get("path");require(full.startsWith(prefix),"source retirement foreign path");result.put(full.substring(prefix.length()),file);}
+        return result;
+    }
+    void deleteRetired(MembershipSourceRetirementFiles.Decision decision,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
+        String id=decision.id();var expected=retirementInventory(decision);check();owner.check();
+        if(!retained.containsKey(id)){require(!Files.exists(directory.resolve(id),LinkOption.NOFOLLOW_LINKS),"source retirement untracked directory");return;}
+        Path path=directory.resolve(id);
+        for(String name:new TreeSet<>(retained.get(id).keySet())) {
+            check();owner.check();var actual=retained.get(id).get(name);var wanted=expected.get(name);
+            require(wanted!=null && actual.bytes()==number(wanted.get("size")) && actual.digest().equals(wanted.get("sha256")),"source retirement remaining original changed");
+            Files.delete(path.resolve(name));var remaining=new TreeMap<>(retained.get(id));remaining.remove(name);retained.put(id,Map.copyOf(remaining));
+            AdmissionPaths.forceDirectory(path);cut.at("SOURCE_RETIREMENT_FILE_DELETED");check();owner.check();
+        }
+        check();owner.check();require(children(path,8).isEmpty(),"source retirement directory not empty");Files.delete(path);retained.remove(id);subdirectories.remove(id);
+        AdmissionPaths.forceDirectory(directory);cut.at("SOURCE_RETIREMENT_DIRECTORY_DELETED");check();owner.check();
+    }
+    private void retainLeases(String id,List<MembershipResources.Lease> reserved) {
+        require(!sourceLeases.containsKey(id),"source leases already retained");leases.addAll(reserved);sourceLeases.put(id,List.copyOf(reserved));
+    }
+    void releaseRetiredLeases(String id)throws IOException {
+        check();require(!retained.containsKey(id) && !Files.exists(directory.resolve(id),LinkOption.NOFOLLOW_LINKS),"source files still own reservations");
+        var obsolete=sourceLeases.remove(id);if(obsolete!=null){obsolete.forEach(MembershipResources.Lease::close);leases.removeAll(obsolete);}
+    }
     Set<String> retainedIdentities(){return Set.copyOf(retained.keySet());}
     record Original(MembershipSourcePacket packet,Map<String,byte[]> images) {}
     Original original(Decoded basis) throws IOException {
@@ -137,7 +176,7 @@ final class MembershipBasisSources implements AutoCloseable {
             this.id=id;this.source=source;this.packet=packet;this.images=images;this.reserved=reserved;
         }
         void capture() throws IOException {
-            check();captured=true;leases.addAll(reserved);Path path=directory.resolve(id);
+            check();captured=true;retainLeases(id,reserved);Path path=directory.resolve(id);
             cut.at("SOURCE_BEFORE_CREATE");Files.createDirectory(path);cut.at("SOURCE_CREATED");
             write(path.resolve(PACKET),packet,"SOURCE_PACKET");
             for(var image:images.entrySet())write(path.resolve(image.getKey()+".image"),image.getValue(),"SOURCE_IMAGE");
@@ -155,5 +194,5 @@ final class MembershipBasisSources implements AutoCloseable {
     static void force(Path path) throws IOException {
         AdmissionPaths.regular(path);try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
     }
-    @Override public void close() {leases.forEach(MembershipResources.Lease::close);leases.clear();}
+    @Override public void close() {leases.forEach(MembershipResources.Lease::close);leases.clear();sourceLeases.clear();}
 }
