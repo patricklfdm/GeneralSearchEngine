@@ -36,7 +36,9 @@ and recovery. [Exact journal compaction](PHASE_2_JOURNAL_ROTATION.md) passes
 passes 261 cases and returns its reservations before another complete floor. Actual
 vote/application persistence and original-source lifetime progress remain open.
 [Automatic journal backpressure](PHASE_2_JOURNAL_BACKPRESSURE.md) now attempts one
-safe compaction before refusing an exhausted admission. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
+safe compaction before refusing an exhausted admission.
+[Original-source retirement planning](PHASE_2_SOURCE_RETIREMENT_PLAN.md) now checks
+exact floor/selector/ancestry and retained tail ownership; deletion is not enabled. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
 expanded continuous local development scope.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated

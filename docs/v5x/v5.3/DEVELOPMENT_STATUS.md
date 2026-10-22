@@ -762,3 +762,21 @@ this caller-level qualification from the earlier source's physical rotation matr
 No full 32 MiB soak, public runtime or Phase 2 closure is claimed. Continue actual
 phased vote/application storage, original-source lifetimes and complete-store
 physical acceptance. Local commit only; no cloud or V5.2 Runner operation.
+
+
+## 2026-10-22 — Phase 2C4c4a original-source retirement decision
+
+The maintenance owner can plan removal of a completed obsolete original BASIS only
+after a newer durable PROMISE and exact governing floor. Current/local-floor grant
+references remain protected. Both ancestry and exact above-floor bytes/unresolved
+ownership are required. The existing RETIREMENT frame lists only the original
+packet/images; a separate in-memory journal candidate removes that exact old group,
+including its SELECTED frame, while retaining surviving sources and highest promise.
+
+All **195 Java tests**, including **11 new tests**, and **20 build-contract Python
+tests**, also under `-O`, passed. [Scope](PHASE_2_SOURCE_RETIREMENT_PLAN.md) and
+[hash index](phase2-evidence/source-retirement-plan.json) distinguish this read-only
+component from the pending durable transaction. No source is deleted and no storage
+reservation is freed. Continue forced cleanup/recovery, incomplete source capture,
+full lifetime headroom and phased vote/application storage. Phase 2 and the overall
+pre-cloud goal remain OPEN. Local only, no workflow or V5.2 experiment changes.

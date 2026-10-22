@@ -57,7 +57,7 @@ class BuildCoordinatesTest(unittest.TestCase):
         files[ci_v51_bundle.CLASSES+'/replication/v53/byte-fixtures.json']=b'fixture'
         required=ci_v51_bundle.REQUIRED_SUITES | {'V52ReadTokenTest','V52PublicApiInventoryTest',
             'V51PublicApiInventoryTest','V53DeclarationsTest','V53PublicApiInventoryTest','V53FormatTest',
-            'V53ContextTest','V53ResourceTransferTest','V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest', 'V53GenerationInstallTest', 'V53AdoptionFenceTest', 'V53AdoptionInstallTest', 'V53FloorTest', 'V53FloorFilesTest', 'V53RetirementTest', 'V53JournalRotationTest', 'V53FloorReleaseTest', 'V53JournalBackpressureTest'}
+            'V53ContextTest','V53ResourceTransferTest','V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest', 'V53GenerationInstallTest', 'V53AdoptionFenceTest', 'V53AdoptionInstallTest', 'V53FloorTest', 'V53FloorFilesTest', 'V53RetirementTest', 'V53JournalRotationTest', 'V53FloorReleaseTest', 'V53JournalBackpressureTest', 'V53SourceRetirementPlanTest'}
         for name in required:
             files[ci_v51_bundle.REPORTS+'/TEST-'+name+'.xml']=f'<testsuite name="pkg.{name}" tests="1" failures="0" errors="0" skipped="0"/>'.encode()
         ci_v51_bundle.prerequisites(files,roots)

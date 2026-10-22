@@ -13,6 +13,28 @@ final class MembershipJournalRotation {
     static final int MAXIMUM=1024*1024;
     static final int WORST_CASE=6*(8192+16384+65536)+3*8192;
     private MembershipJournalRotation() {}
+    /** Candidate only: a forced source-retirement transaction must own publication/deletion. */
+    static byte[] excludingSource(byte[] original,Set<String> protectedPromises,Set<String> retainedSources,MembershipSourceRetirementPlan plan) {
+        compact(original,protectedPromises,retainedSources); // Validate every original group first.
+        require(retainedSources.contains(plan.basisId) && !protectedPromises.contains(plan.promise.digest()),"source rotation protected or absent source");
+        var out=new ByteArrayOutputStream();boolean skip=false,found=false,basisFound=false;int offset=0;
+        while(offset<original.length) {
+            int kind=Short.toUnsignedInt(ByteBuffer.wrap(original,offset,HEADER).getShort(offset+8));
+            String name=switch(kind){case 3->"PROMISE";case 4->"BASIS";case 5->"SELECTED";default->throw new IllegalArgumentException("source rotation record kind");};
+            int length=HEADER+header(Arrays.copyOfRange(original,offset,offset+HEADER),"records",name);
+            var row=decode(Arrays.copyOfRange(original,offset,offset+length),"records",name);offset+=length;
+            if(name.equals("PROMISE")) {
+                skip=plan.basisId.equals(row.value().get("basisId"));
+                if(skip){require(!found && Arrays.equals(row.bytes(),plan.promise.bytes()),"source rotation original promise changed");found=true;}
+            }else if(skip && name.equals("BASIS")) {
+                require(!basisFound && Arrays.equals(row.bytes(),plan.basis.bytes()),"source rotation original basis changed");basisFound=true;
+            }
+            if(!skip)out.writeBytes(row.bytes());
+        }
+        require(found && basisFound && !skip,"source rotation cannot drop highest grant");
+        var retained=new HashSet<>(retainedSources);retained.remove(plan.basisId);
+        return compact(out.toByteArray(),protectedPromises,retained);
+    }
     static byte[] compact(byte[] original,Set<String> protectedPromises,Set<String> retainedSources) {
         require(original.length<=MembershipGrantJournal.MAXIMUM && protectedPromises.size()<=2 && retainedSources.size()<=6,"journal rotation input capacity");
         var groups=new ArrayList<List<Decoded>>();int offset=0;Decoded previous=null;var found=new HashSet<String>();var sourceIds=new HashSet<String>();int bases=0;

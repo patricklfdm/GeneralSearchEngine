@@ -248,6 +248,19 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(!floors.exists())return;floors.release(current,this::checkOwner,cut);cut.at("FLOOR_RELEASE_BEFORE_RETURN");checkOwner();
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
+    /** Read-only decision for a completed original source; does not publish deletion authority. */
+    synchronized MembershipSourceRetirementPlan planSourceRetirement(String id) throws IOException {
+        require(floorReleaseEnabled && floors!=null && retirement!=null && rotation!=null,"source retirement maintenance owner required");
+        checkOwner();floorIdle();require(!inactive.exists() && !inactive.pending(),"inactive generation must retire before source planning");
+        require(promise!=null && (promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest())),"uninstalled adoption fence; prefix recovery required");
+        var originalBasis=bases.get(id);require(originalBasis!=null,"source retirement requires complete original basis");
+        var retained=floors.retained().orElseThrow(()->new IllegalArgumentException("durable governing floor required before source retirement"));
+        var original=sources.original(originalBasis);var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        var capsule=Objects.requireNonNull(capsuleVerifier.verify(rootRecord,original.packet(),original.images()));
+        require(Arrays.equals(capsule.packet.bytes(),original.packet().bytes()),"source retirement verifier substituted source");
+        var plan=MembershipSourceRetirementPlan.create(root,identity,current,retained,promise,promises.get(id),originalBasis,capsule,original.images());
+        checkOwner();return plan;
+    }
     /** Compact exact original frames, retaining every original BASIS/SELECTED and live promise. */
     synchronized String rotateJournal() throws IOException {
         require(rotation!=null && current!=null && floors!=null && retirement!=null,"rotation storage owner required");checkOwner();
