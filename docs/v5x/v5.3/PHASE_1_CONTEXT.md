@@ -105,7 +105,8 @@ on the corrected source.
 
 ## Remaining Phase 1 obligations
 
-Complete packed capsule/inventory validation and original frozen-basis selection
+The [bounded packet inventory](PHASE_1_SOURCE_PACKET.md) is now separately qualified.
+Complete capsule authority validation and original frozen-basis selection
 are still pending; mere presence of referenced hashes is insufficient. Their
 future API must accept verified complete sources, with no resampling during one
 campaign. Same-round/catalog/compacted-source composition, full S/N case coverage

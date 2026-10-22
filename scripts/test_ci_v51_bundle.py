@@ -156,7 +156,7 @@ class BundleTest(unittest.TestCase):
         files = {str(p.relative_to(self.root)): p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
         for name in roots[:2]: files[name] = b'v53 jar fixture'
         added = ('V52ReadTokenTest', 'V52PublicApiInventoryTest', 'V51PublicApiInventoryTest',
-                 'V53DeclarationsTest', 'V53PublicApiInventoryTest', 'V53FormatTest', 'V53ContextTest', 'V53ResourceTransferTest')
+                 'V53DeclarationsTest', 'V53PublicApiInventoryTest', 'V53FormatTest', 'V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest')
         for name in added:
             files[b.REPORTS+'/TEST-package.'+name+'.xml'] = f'<testsuite name="package.{name}" tests="1" errors="0" failures="0" skipped="0"/>'.encode()
         b.prerequisites(files, roots)
@@ -164,7 +164,7 @@ class BundleTest(unittest.TestCase):
             path = b.REPORTS+'/TEST-package.'+name+'.xml'
             with self.assertRaisesRegex(ValueError, 'missing executed'):
                 b.prerequisites({p: data for p, data in files.items() if p != path}, roots)
-        for name in ('V53ContextTest', 'V53ResourceTransferTest'):
+        for name in ('V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest'):
             bad = dict(files); path = b.REPORTS+'/TEST-package.'+name+'.xml'
             bad[path] = bad[path].replace(b'skipped="0"', b'skipped="1"')
             with self.assertRaisesRegex(ValueError, 'skipped prerequisite'): b.prerequisites(bad, roots)

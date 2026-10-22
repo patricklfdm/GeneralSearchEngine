@@ -1,0 +1,68 @@
+{
+  "capsuleAuthorityVerified": false,
+  "cases": {
+    "accepted-tail": {
+      "capsuleAuthorityVerified": false,
+      "images": 1,
+      "objects": 6,
+      "originalBasisBinding": true,
+      "packetBytes": 4374,
+      "runtimeEnabled": false,
+      "status": "PASS"
+    },
+    "initial": {
+      "capsuleAuthorityVerified": false,
+      "images": 1,
+      "objects": 3,
+      "originalBasisBinding": true,
+      "packetBytes": 3243,
+      "runtimeEnabled": false,
+      "status": "PASS"
+    }
+  },
+  "focusedPythonTests": 31,
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "26b38c24d2b944413374fdab56957f9d6347b4c41e3813c3972b6f4947ff3335",
+      "size": 708878
+    }
+  ],
+  "javaTests": 23,
+  "localEvidence": "target/v53-phase1-packets",
+  "logs": {
+    "java-3.log": "2436e76ec45771b136a3190e72f05889d9920ae923074f38807c61bd4e5cc3e8",
+    "python-final.log": "1e614b441fb03ff979c1bd56616d4ea4b13c3da785b6a838336d0082805858a4",
+    "qualification-final/negatives.json": "f337f92334aaece6e3b83e32bf807b8c31cdb19af9d5ab745a4f799f971f3697",
+    "qualification-final/receipt.json": "7ad79219802eee0765df7b2361993bb4e0194fe3a41c7c1eebdf4616c520d495",
+    "qualification-final/validation.json": "1eb60a7be9cc891f8777dd6ffbc1f1e1c282a98e549671e133745e2c4b67409e"
+  },
+  "negativeCases": 30,
+  "packetFiles": {
+    "physical/accepted-tail/basis.bin": "587d9ccb3a541d2a6d626b6ef685b6fa75167056270b5d3d8a742142734617c7",
+    "physical/accepted-tail/images/80f6e61c1ad6f43810911a3db420e9bd51fc528c923b3fa648c6cc6deda73266.bin": "80f6e61c1ad6f43810911a3db420e9bd51fc528c923b3fa648c6cc6deda73266",
+    "physical/accepted-tail/packet.bin": "296725912438dc416aef721673c968681326c6840044158628efbaa92fcec22c",
+    "physical/initial/basis.bin": "2de46bc91a60472e39c7715f284bcfdb7d3b0e29bdb595b3824b3067266a0689",
+    "physical/initial/images/80f6e61c1ad6f43810911a3db420e9bd51fc528c923b3fa648c6cc6deda73266.bin": "80f6e61c1ad6f43810911a3db420e9bd51fc528c923b3fa648c6cc6deda73266",
+    "physical/initial/packet.bin": "12906a3952b72dfee7b0b523299bf1cdc936049cdaf8fd009ce9db624bf4e7a9"
+  },
+  "phase1Closed": false,
+  "relocatedReplay": "PASS",
+  "reportingNote": "Source binding precedes this tracked summary and final reporting edits. No clean-source CI or capsule authority claim.",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-phase1-source-packet-evidence-v1",
+  "source": {
+    "checkoutSha256": "cbbb3cb25837d14a744ea8a6f6670de3409594fabbca3d1252d3609ab200f0cc",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "f4c53d256adeb46761ed2250981bd5e807802a76"
+  },
+  "status": "PASS"
+}

@@ -51,7 +51,7 @@ class BuildCoordinatesTest(unittest.TestCase):
             files[ci_v51_bundle.CLASSES+'/pkg/'+worker+'.class']=b'class'
         required=ci_v51_bundle.REQUIRED_SUITES | {'V52ReadTokenTest','V52PublicApiInventoryTest',
             'V51PublicApiInventoryTest','V53DeclarationsTest','V53PublicApiInventoryTest','V53FormatTest',
-            'V53ContextTest','V53ResourceTransferTest'}
+            'V53ContextTest','V53ResourceTransferTest','V53SourcePacketTest'}
         for name in required:
             files[ci_v51_bundle.REPORTS+'/TEST-'+name+'.xml']=f'<testsuite name="pkg.{name}" tests="1" failures="0" errors="0" skipped="0"/>'.encode()
         ci_v51_bundle.prerequisites(files,roots)

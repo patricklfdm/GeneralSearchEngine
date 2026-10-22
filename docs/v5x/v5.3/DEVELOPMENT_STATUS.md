@@ -367,3 +367,18 @@ ownership and the composed model remain pending. No runtime or hosted activation
 Phase 1 remains open for complete frozen-source capsules/selection, full model
 composition and its finite S/N coverage, and the final requirement audit. No push,
 workflow, release or V5.2 runner operation was performed.
+
+## 2026-10-21 — Phase 1 source packet inventory
+
+- Defined the previously unspecified bounded GSCP inventory container with separate
+  application transfers and nonrecursive capsule/index/transfer digest bindings.
+  No storage/wire kind or public API fixture changed.
+- Java and independent Python readers checked real initial and accepted-tail byte
+  packets. All 30 malformed variants and relocated replay passed; 23 focused Java
+  tests and 31 Python checks passed. [Receipt](phase1-evidence/source-packet.json).
+- Basic tail checks preserve exact ENTRY/payload/root/view/parent and ballot order.
+  The packet cannot establish checkpoint authority or authorize source selection.
+
+The [full capsule authority walk](PHASE_1_SOURCE_PACKET.md), original frozen-source
+selection, same-round/catalog/compacted-source model and closure audit remain open.
+New runtime stays disabled; work is committed locally only.

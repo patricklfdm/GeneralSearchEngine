@@ -1,4 +1,4 @@
-# Phase 1 declaration review amendments
+# Phase 1 implementation review amendments
 
 The Phase 0 closure at `1a7c2b6` is historical local research acceptance. Its retained
 hashes are not reissued for these changed declarations. Phase 1 is separately
@@ -58,3 +58,13 @@ new executed suites in addition to the V5.2 read prerequisites. Historical relea
 allowlists, published fixtures, V5.2 cloud input identity, measurement candidate
 versions, exact source/attempt evidence and active Runner checkout are unchanged.
 V5.2 paid/measurement gates intentionally do not accept 5.3 artifacts as 5.2 evidence.
+
+## A03: explicit bounded inventory packing
+
+The Phase 0 contract required a complete inventory-checked capsule file but did
+not specify the container bytes or resolve its digest self-reference. The separate
+[GSCP 1.3 packet contract](PHASE_1_SOURCE_PACKET.md) now defines the header, ordered
+index, separate materializations and nonrecursive capsule/index/transfer digests.
+It preserves the frozen 24 storage and 21 wire frame schemas and byte fixtures.
+Passing the container checks does not establish capsule authority; the full
+range/edge/endorsement walk and frozen-source selection remain required.

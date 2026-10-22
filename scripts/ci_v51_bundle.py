@@ -89,7 +89,7 @@ def prerequisites(files, roots):
     required = REQUIRED_SUITES | ({'V52ReadTokenTest', 'V52PublicApiInventoryTest', 'V51PublicApiInventoryTest'} if roots[0].endswith(('5.2.0-SNAPSHOT.jar', '5.3.0-SNAPSHOT.jar')) else set())
     if roots[0].endswith('5.3.0-SNAPSHOT.jar'):
         required |= {'V53DeclarationsTest', 'V53PublicApiInventoryTest', 'V53FormatTest',
-                     'V53ContextTest', 'V53ResourceTransferTest'}
+                     'V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest'}
     suites = set()
     for name, data in files.items():
         if name.startswith(REPORTS + '/TEST-') and name.endswith('.xml'):
