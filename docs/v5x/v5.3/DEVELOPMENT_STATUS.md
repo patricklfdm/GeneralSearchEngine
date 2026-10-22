@@ -1023,3 +1023,24 @@ Initial provisioning remains a private fixture; selector publication, covered-ta
 retirement, stable next-slot progression and coordinated lifetime work remain open.
 No runtime enablement, protected CI, push or V5.2 cloud change. Continue local work
 under the [pre-cloud closure checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md).
+
+## 2026-10-22 — original selected parent in complete published generations
+
+The [complete generation component](PHASE_2_PUBLISHED_GENERATION.md) now carries
+the original selected parent and exact certified first slot without rewriting
+SELECTED. Complete checkpoint construction, generation reading and floor-copy
+validation agree across stable, joint and successor stable views. Private coverage
+metadata and retained certificate/ancestry remain within existing limits.
+
+All 63 profile transitions, actual local journal DATA/INTENT/FINAL ends, installation
+interruptions and eight fresh-process crash cases have local qualification. The
+independent replay derives the control projection and exact new file inventory;
+five mutations, portable replay and optimized Python checks pass. Exact tests,
+source/build hashes and original failed development attempts are in the
+[evidence index](phase2-evidence/published-generation.json).
+
+Journal publication, covered-vote/stage retirement, additional ancestry ACK issuance
+and same-round next-slot progression still require integration. Maintenance must
+free inactive-generation/floor capacity before accepting work that reserves replay
+completion. Full-size/all-profile lifetime qualification remains open. Continue
+locally with no push or cloud dispatch.

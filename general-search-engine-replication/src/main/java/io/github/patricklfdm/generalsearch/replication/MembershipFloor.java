@@ -34,7 +34,7 @@ final class MembershipFloor {
             for(Object row:list(value.get("files"))) {
                 var file=object(row);String name=(String)file.get("path");
                 require(name.equals("source.gscp") || name.equals("promise.gsr") || name.equals("basis.gsr") || name.equals("selected.gsr")
-                        || name.equals("owned-tail.gsr") || name.equals("ancestry.gsr") || name.equals(MembershipGenerationPlan.ADOPTION)
+                        || name.equals("owned-tail.gsr") || name.equals("ancestry.gsr") || name.equals(MembershipGenerationPlan.ADOPTION) || name.equals(MembershipSelectionCoverage.FILE)
                         || name.matches("[0-9a-f]{64}\\.image"),"floor source member path");
                 require(previous==null || previous.compareTo(name)<0,"floor source inventory order");previous=name;expected.add(name);
                 byte[] bytes=files.get(name);require(bytes!=null && bytes.length>0 && bytes.length<=MembershipGenerationFiles.limit(name) && bytes.length==number(file.get("size")) && hash(bytes).equals(file.get("sha256")),"floor source member bytes");
@@ -46,9 +46,12 @@ final class MembershipFloor {
             var names=new TreeSet<String>(Set.of("generation.gsr","source.gscp","promise.gsr"));
             capsule.packet.images().keySet().forEach(h->names.add(h+".image"));
             boolean adopted=files.containsKey(MembershipGenerationPlan.ADOPTION);
+            boolean published=files.containsKey(MembershipSelectionCoverage.FILE);
+            require(!published || !adopted && value.get("selection")!=null && value.get("ownedTail")==null,"floor publication selection binding");
             require((value.get("basis")==null)==(value.get("selection")==null),"floor incomplete selection binding");
             if(value.get("selection")!=null){names.add("basis.gsr");names.add("selected.gsr");}
             if(adopted)names.add(MembershipGenerationPlan.ADOPTION);
+            if(published)names.add(MembershipSelectionCoverage.FILE);
             if((adopted || value.get("selection")!=null) && files.containsKey("ancestry.gsr"))names.add("ancestry.gsr");
             if(value.get("ownedTail")!=null)names.add("owned-tail.gsr");
             require(names.equals(files.keySet()),"floor materialization inventory");
@@ -59,7 +62,7 @@ final class MembershipFloor {
                 var certificate=capsule.membershipCertificateFence().orElseThrow(()->new IllegalArgumentException("floor adoption certificate absent"));
                 require(Arrays.equals(certificate.bytes(),files.get(MembershipGenerationPlan.ADOPTION))
                         && compareBallot(object(promise.value().get("ballot")),object(certificate.value().get("ballot")))>=0,"floor adopted promise below certificate");
-            }else {
+            }else if(!published) {
                 require(promise.value().get("view").equals(capsule.context.authority()),"floor source promise view");
                 capsule.context.ballot(promise.value().get("ballot"),true);
             }
@@ -69,7 +72,8 @@ final class MembershipFloor {
                 for(String field:List.of("root","view","ballot"))require(basis.value().get(field).equals(promise.value().get(field))
                         && selected.value().get(field).equals(promise.value().get(field)),"floor selected promise binding");
                 require(basis.value().get("voter").equals(owner.nodeId().value()) && basis.value().get("basisId").equals(promise.value().get("basisId"))
-                        && selected.value().get("cut").equals(capsule.context.cut),"floor selected original owner");
+                        && (published || selected.value().get("cut").equals(capsule.context.cut)),"floor selected original owner");
+                if(published)MembershipSelectionCoverage.verify(files.get(MembershipSelectionCoverage.FILE),capsule,promise,selected,files.getOrDefault("ancestry.gsr",new byte[0]));
                 var voters=new ArrayList<String>();boolean own=false;
                 for(Object row:list(selected.value().get("sources"))) {
                     var source=object(row);String voter=(String)source.get("voter");voters.add(voter);
@@ -77,9 +81,9 @@ final class MembershipFloor {
                         require(source.get("basisId").equals(basis.value().get("basisId")) && source.get("basisDigest").equals(basis.digest()),"floor selected local basis");own=true;
                     }
                 }
-                orderedNodes(voters);capsule.context.quorum(voters);
+                orderedNodes(voters);quorum(object(object(selected.value().get("cut")).get("view")),voters);
                 require(own && voters.contains(object(promise.value().get("ballot")).get("proposer")),"floor selected quorum owner");
-                if(value.get("ownedTail")==null)require(selected.value().get("nextEntry")==null,"floor selected tail missing");
+                if(value.get("ownedTail")==null)require(published || selected.value().get("nextEntry")==null,"floor selected tail missing");
                 else require(selected.value().get("nextEntry").equals(decode(files.get("owned-tail.gsr"),"records","ACCEPT").value().get("entry")),"floor selected tail mismatch");
             }
             // Original ancestry evidence is retained and decoded even when no local old

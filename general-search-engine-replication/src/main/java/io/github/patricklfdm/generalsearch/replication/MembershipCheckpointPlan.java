@@ -20,6 +20,7 @@ final class MembershipCheckpointPlan {
     private final List<Map<String,Object>> retained;
     private final String descriptor;
     Decoded originalCertificate(){return certificate;}
+    MembershipCapsule.Anchor originalParent(){return before.terminal();}
 
     static <K,T> MembershipCheckpointPlan replay(SearchEngineConfiguration<K,T> captured,DurableStorageConfig<K,T> storage,
             MembershipCapsule before,MembershipSourcePacket certified,Decoded certificate,Map<String,byte[]> images,Set<Owned> votes,Path scratch)throws IOException {
@@ -116,6 +117,24 @@ final class MembershipCheckpointPlan {
     }
     private void copy(Map<String,byte[]> objects,String digest) {
         byte[] bytes=originals.get(digest);require(bytes!=null,"checkpoint missing exact original");objects.put(digest,bytes.clone());
+    }
+    /** Retain one selected-slot proof and bounded, separately endorsed ancestry for local publication.
+     * Normal source compaction remains unchanged; no receipt is inferred from witness hashes. */
+    MembershipCapsule publication(List<Decoded> acknowledgements,Set<Owned> checkpoints,List<MembershipSelection.Bridge> bridges) {
+        require(bridges.size()<=6,"publication ancestry count");
+        var complete=complete(acknowledgements,checkpoints);var objects=objects(complete.packet);
+        for(String digest:List.of(certificate.digest(),entry.digest(),(String)entry.value().get("payload")))copy(objects,digest);
+        var accept=new TreeMap<>(certificate.value());accept.remove("accepts");accept.remove("proofs");copy(objects,hash(encode("records","ACCEPT",accept)));
+        accept.put("accepts",certificate.value().get("accepts"));copy(objects,hash(encode("records","PROOF",accept)));
+        var owned=new HashSet<>(votes);owned.addAll(checkpoints);
+        for(var bridge:bridges) {
+            objects.put(bridge.statement.digest(),bridge.statement.bytes());
+            for(var ack:bridge.acknowledgements)objects.put(ack.digest(),ack.bytes());owned.addAll(bridge.owned);
+        }
+        var value=new TreeMap<>(complete.packet.capsule().value());value.put("inventory",hash(MembershipSourcePacket.index(objects,complete.packet.images())));
+        var packet=MembershipSourcePacket.decode(MembershipSourcePacket.encode(decode(encode("records","CAPSULE",value),"records","CAPSULE"),objects,complete.packet.images()));
+        var result=before.verifyExtension(packet,Map.of(hash(application.image()),application.image()),owned);
+        result.verifyAncestry(MembershipGenerationPlan.ancestry(bridges),List.of(before.terminal()));return result;
     }
     private void copyItem(Map<String,byte[]> objects,Map<String,Object> item) {
         copy(objects,(String)item.get("statement"));for(Object ack:list(item.get("endorsements")))copy(objects,(String)ack);

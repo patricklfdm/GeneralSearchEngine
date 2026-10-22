@@ -58,8 +58,10 @@ now covers every control transition and binds READY to the prepared image.
 [Certified checkpoint construction](PHASE_2_CHECKPOINT_EXTENSION.md) now preserves explicit membership edges
 and requires new exact range endorsements. [Applied-end/ACK storage](PHASE_2_APPLIED_END.md)
 now forces the exact image/catalog before its local ACK. [Actual journal application](PHASE_2_JOURNAL_APPLICATION.md)
-connects original local certificates, typed replay, bounded scratch recovery and guarded ACKs;
-complete selector publication remains pending.
+connects original local certificates, typed replay, bounded scratch recovery and guarded ACKs.
+[Complete generation materialization](PHASE_2_PUBLISHED_GENERATION.md) now preserves the original selected
+parent and certified first slot through component installation/reopen; the journal publication/retirement
+transaction remains pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

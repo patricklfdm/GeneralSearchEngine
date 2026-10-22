@@ -49,14 +49,17 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         for(Object row:list(value.get("files"))) {
             var file=object(row);String name=(String)file.get("path");
             require(name.equals(PACKET) || name.equals("promise.gsr") || name.equals("owned-tail.gsr") || name.matches("[0-9a-f]{64}\\.image")
-                    || installations && Set.of("basis.gsr","selected.gsr","ancestry.gsr",MembershipGenerationPlan.ADOPTION).contains(name),"current file path");
+                    || installations && Set.of("basis.gsr","selected.gsr","ancestry.gsr",MembershipGenerationPlan.ADOPTION,MembershipSelectionCoverage.FILE).contains(name),"current file path");
             require(previous==null || previous.compareTo(name)<0,"current file inventory order");previous=name;inventory.put(name,file);
             long size=number(file.get("size"));long maximum=name.endsWith(".image")?MembershipResources.Unit.APPLICATION.bytes:
-                    name.equals(PACKET)?MembershipSourcePacket.MAXIMUM:name.equals("ancestry.gsr")?96*1024:name.equals("selected.gsr")?65536:Set.of("basis.gsr",MembershipGenerationPlan.ADOPTION).contains(name)?16384:8192;
+                    name.equals(PACKET)?MembershipSourcePacket.MAXIMUM:name.equals("ancestry.gsr")?96*1024:name.equals("selected.gsr")?65536:
+                    name.equals(MembershipSelectionCoverage.FILE)?MembershipSelectionCoverage.MAXIMUM:Set.of("basis.gsr",MembershipGenerationPlan.ADOPTION).contains(name)?16384:8192;
             require(size>0 && size<=maximum,"current file capacity");
             if(!name.endsWith(".image")){require(size<=MembershipResources.Unit.GENERATION.bytes-metadata,"complete generation metadata capacity");metadata+=size;}
         }
         adopted=inventory.containsKey(MembershipGenerationPlan.ADOPTION);
+        boolean published=inventory.containsKey(MembershipSelectionCoverage.FILE);
+        require(!published || installations && !adopted && value.get("selection")!=null && value.get("ownedTail")==null,"publication requires original selection without pending tail");
         require(!adopted || installations && value.get("selection")==null && value.get("basis")==null && value.get("ownedTail")==null,"adoption is not a selected grant");
         var expected=new TreeSet<>(inventory.keySet());expected.add(MANIFEST);
         require(children(path,32).equals(expected) && inventory.containsKey(PACKET) && inventory.containsKey("promise.gsr"),"current file inventory");
@@ -75,6 +78,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             require(value.get("capsule").equals(packet.capsule().digest()),"current capsule digest");
             var names=new TreeSet<>(Set.of(PACKET,"promise.gsr"));packet.images().keySet().forEach(h->names.add(h+".image"));
             if(value.get("selection")!=null){names.add("basis.gsr");names.add("selected.gsr");}
+            if(published)names.add(MembershipSelectionCoverage.FILE);
             if(adopted)names.add(MembershipGenerationPlan.ADOPTION);
             if((adopted || value.get("selection")!=null) && inventory.containsKey("ancestry.gsr"))names.add("ancestry.gsr");
             accepted=(String)value.get("ownedTail");if(accepted!=null)names.add("owned-tail.gsr");
@@ -92,7 +96,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
                 var certificate=capsule.membershipCertificateFence().orElseThrow(()->new IllegalArgumentException("adopted certificate missing from capsule"));
                 require(Arrays.equals(certificate.bytes(),AdmissionPaths.read(path.resolve(MembershipGenerationPlan.ADOPTION),16384)),"adopted certificate binding");
                 require(compareBallot(object(promise.value().get("ballot")),object(certificate.value().get("ballot")))>=0,"adopted promise below certificate");
-            }else {
+            }else if(!published) {
                 require(promise.value().get("view").equals(capsule.context.authority()),"current promise view");
                 capsule.context.ballot(promise.value().get("ballot"),true);
             }
@@ -103,7 +107,9 @@ final class MembershipCurrentGeneration implements AutoCloseable {
                 require(basis.digest().equals(value.get("basis")) && bases.stream().anyMatch(b->Arrays.equals(b.bytes(),basis.bytes())),"installed original basis absent from journal");
                 require(installed.digest().equals(value.get("selection")) && selections.stream().anyMatch(s->Arrays.equals(s.bytes(),selectedBytes)),"installed selection absent from journal");
                 for(String field:List.of("root","view","ballot"))require(installed.value().get(field).equals(promise.value().get(field)),"installed selection promise binding");
-                require(basis.value().get("basisId").equals(promise.value().get("basisId")) && installed.value().get("cut").equals(capsule.context.cut),"installed selection parent");
+                require(basis.value().get("basisId").equals(promise.value().get("basisId")) && (published || installed.value().get("cut").equals(capsule.context.cut)),"installed selection parent");
+                if(published)MembershipSelectionCoverage.verify(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM),
+                        capsule,promise,installed,inventory.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0]);
             }
             if(adopted || installed!=null) {
                 var ancestors=new ArrayList<MembershipCapsule.Anchor>();
@@ -124,7 +130,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
                 capsule.context.control((String)entry.value().get("kind"),command((String)entry.value().get("kind"),packet.objectBytes((String)entry.value().get("payload"))));
                 if(installed!=null)require(entry.digest().equals(installed.value().get("nextEntry")),"installed tail differs from selected choice");
             }
-            if(installed!=null && accepted==null)require(installed.value().get("nextEntry")==null,"installed selected tail missing");
+            if(installed!=null && accepted==null && !published)require(installed.value().get("nextEntry")==null,"installed selected tail missing");
             check();cut.at("CURRENT_VALIDATED");
             for(String name:files.keySet())force(path.resolve(name));cut.at("CURRENT_FILES_FORCED");
             force(path.resolve(MANIFEST));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(directory);cut.at("CURRENT_GENERATION_FORCED");

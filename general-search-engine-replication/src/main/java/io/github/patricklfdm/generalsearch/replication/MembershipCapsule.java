@@ -33,6 +33,10 @@ final class MembershipCapsule {
     }
     /** Only certificates actually authenticated while walking membership edges, never inventory extras. */
     Optional<Decoded> membershipCertificateFence(){return Optional.ofNullable(highestMembershipCertificate);}
+    /** A publication must retain the exact phases and independently owned observations, including for DATA. */
+    Decoded publicationCertificate(Decoded certificate,Map<String,Object> parent) {
+        return context.certificateAt(certificate,observations,parent);
+    }
 
     static MembershipCapsule verify(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,Set<Owned> owned) {
         require(root.family().equals("records") && root.kind().equals("ROOT"),"capsule ROOT kind");packet.verifyImages(images);

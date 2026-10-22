@@ -42,7 +42,8 @@ final class MembershipGenerationFiles implements AutoCloseable {
     static long limit(String name) {
         if(name.matches("[0-9a-f]{64}\\.image"))return MembershipResources.Unit.APPLICATION.bytes;
         return switch(name){case "source.gscp"->MembershipResources.Unit.GENERATION.bytes;case "generation.gsr","selected.gsr"->65536;
-            case "ancestry.gsr"->96*1024;case "basis.gsr","adopted-certificate.gsr"->16384;case "promise.gsr","owned-tail.gsr"->8192;default->throw new IllegalArgumentException("unknown staged generation file");};
+            case "ancestry.gsr"->96*1024;case MembershipSelectionCoverage.FILE->MembershipSelectionCoverage.MAXIMUM;
+            case "basis.gsr","adopted-certificate.gsr"->16384;case "promise.gsr","owned-tail.gsr"->8192;default->throw new IllegalArgumentException("unknown staged generation file");};
     }
     private void capture() throws IOException {
         files.clear();exists=Files.exists(path,LinkOption.NOFOLLOW_LINKS);pathKey=exists?key(path):null;
