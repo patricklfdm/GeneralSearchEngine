@@ -22,13 +22,15 @@ final class MembershipBallotAllocator implements AutoCloseable {
     private final Object directoryKey, lockKey;
     private final Map<String,byte[]> immutable;
     private final Cut cut;
+    private final Set<String> additional;
     private byte[] current;
     private long counter;
     private boolean failed, closed;
 
     private MembershipBallotAllocator(Path directory, MembershipRoot root, MembershipIdentity identity,
-            AdmissionPaths.Owner owner, Cut cut) throws IOException {
+            AdmissionPaths.Owner owner, Cut cut, Set<String> additional) throws IOException {
         this.directory=directory; this.root=root; this.identity=identity; this.owner=owner; this.cut=cut;
+        this.additional=additional;
         pathBinding=AdmissionPaths.binding(directory); directoryKey=key(directory); lockKey=key(directory.resolve("replica.lock"));
         immutable=Map.of("root.gsr",AdmissionPaths.read(directory.resolve("root.gsr"),16384),
                 "genesis.gsr",AdmissionPaths.read(directory.resolve("genesis.gsr"),65536),
@@ -56,14 +58,22 @@ final class MembershipBallotAllocator implements AutoCloseable {
     }
 
     static MembershipBallotAllocator open(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut) throws IOException {
+        return open(requested,root,identity,cut,Set.of());
+    }
+
+    static MembershipBallotAllocator openWithGrantJournal(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut) throws IOException {
+        return open(requested,root,identity,cut,Set.of("grants.gsr"));
+    }
+
+    private static MembershipBallotAllocator open(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut, Set<String> additional) throws IOException {
         Objects.requireNonNull(root); Objects.requireNonNull(identity); Objects.requireNonNull(cut);
         Path directory=AdmissionPaths.safe(requested);
         require(Files.isDirectory(directory,LinkOption.NOFOLLOW_LINKS),"allocator directory absent");
         // No CREATE and no repair from arguments: a missing root/lock/counter is lost authority.
-        inventory(directory);
+        inventory(directory,additional);
         var owner=AdmissionPaths.own(directory.resolve("replica.lock"),false);
         try {
-            var allocator=new MembershipBallotAllocator(directory,root,identity,owner,cut);
+            var allocator=new MembershipBallotAllocator(directory,root,identity,owner,cut,additional);
             allocator.recover(); return allocator;
         } catch(IOException | RuntimeException | Error error) {
             try { owner.close(); } catch(IOException close) { error.addSuppressed(close); }
@@ -76,15 +86,17 @@ final class MembershipBallotAllocator implements AutoCloseable {
         require(key!=null,"allocator file identity unavailable"); return key;
     }
 
-    private static void inventory(Path directory) throws IOException {
+    private static void inventory(Path directory,Set<String> additional) throws IOException {
         Set<String> seen=new HashSet<>();
         try(var stream=Files.newDirectoryStream(directory)) {
             for(Path path:stream) {
-                require(seen.size()<FILES.size() && FILES.contains(path.getFileName().toString()),"unknown allocator authority file");
+                require(seen.size()<FILES.size()+additional.size() && (FILES.contains(path.getFileName().toString())
+                        || additional.contains(path.getFileName().toString())),"unknown allocator authority file");
                 AdmissionPaths.regular(path); seen.add(path.getFileName().toString());
             }
         }
         require(seen.containsAll(Set.of("replica.lock","root.gsr","genesis.gsr","node.gsr",CURRENT)),"incomplete allocator authority");
+        require(seen.containsAll(additional),"incomplete grant authority");
     }
 
     private long decodeCounter(byte[] bytes) {
@@ -93,11 +105,11 @@ final class MembershipBallotAllocator implements AutoCloseable {
         long valueCounter=number(value.get("counter")); require(valueCounter>=0 && valueCounter<=MAX,"allocator counter capacity"); return valueCounter;
     }
 
-    private void checkOwner() throws IOException {
+    synchronized void checkOwner() throws IOException {
         require(!closed && !failed && owner.lock().isValid(),"allocator closed or failed");
         AdmissionPaths.recheck(pathBinding);
         require(key(directory).equals(directoryKey) && key(directory.resolve("replica.lock")).equals(lockKey),"allocator owner path changed");
-        inventory(directory);
+        inventory(directory,additional);
         for(var entry:immutable.entrySet()) AdmissionPaths.exact(directory.resolve(entry.getKey()),entry.getValue());
         AdmissionPaths.exact(directory.resolve(CURRENT),current);
     }

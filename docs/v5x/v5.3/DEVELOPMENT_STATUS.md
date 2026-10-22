@@ -479,3 +479,26 @@ disabled. Phase 2 is **OPEN**; root-wide promise/original basis storage is next.
 No inherited production file, POM, frozen format, workflow or V5.2 experiment was
 changed. Shared 5.3 build prerequisites add the new suite/worker; legacy gates
 remain intact. Work and commit remain local with no push.
+
+## 2026-10-22 — Phase 2B1 durable grant metadata
+
+Completed the [private grant journal](PHASE_2_GRANT_JOURNAL.md): one shared directory
+owner, separately forced PROMISE/BASIS frames, original duplicate replies, no
+same-ballot resampling after an incomplete grant, and an atomic observation fence
+checked across writes/forces/return. Reserve both frames before the first write;
+reject unknown/corrupt/truncated/conflicting records without journal repair.
+
+72 focused Java tests, 32 Python/build-contract tests and 16 optimized-Python tests
+passed. The fresh-process grant matrix passed all 45 cases / 180 JVMs, eight exact
+evidence negatives and relocated replay. All 48 previous allocator cases / 186
+JVMs plus ten negatives passed against the changed shared owner. The
+[receipt](phase2-evidence/grants.json) records parent `40e0866`, exact local bytes,
+development corrections and retained outputs at `target/v53-phase2-grants/`.
+
+The journal records references; it does not yet retain/establish current physical
+capsule/application/accepted-tail ownership. Phase 2B2 must provide those sources
+and lifetimes before any wire grant can use them. Adoption floors, SELECTED,
+complete generation/floor recovery and rotation remain later work. Phase 2 is
+**OPEN**; the public runtime is disabled and physical S/N rows remain PLANNED.
+No inherited runtime, frozen byte catalog, POM, workflow or V5.2 experiment changed.
+Only local commit is authorized; nothing was pushed or dispatched.

@@ -1,0 +1,78 @@
+{
+  "allocatorRegression": {
+    "cases": 48,
+    "elapsedSeconds": 28.741,
+    "freshProcesses": 186,
+    "negativeCases": 10,
+    "status": "PASS"
+  },
+  "cases": 45,
+  "developmentCorrections": [
+    "Used canonical parse to normalize immutable ballot maps; private codec freeze is not exported.",
+    "Corrected the removed-voter test fixture to bind both NODE and ALLOCATOR to node-3 before testing voter eligibility."
+  ],
+  "elapsedSeconds": 47.966,
+  "execution": "private-grant-metadata",
+  "focusedPythonTests": 32,
+  "freshProcesses": 180,
+  "implementationFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "69cf62a08563ac2f61cf07b8582006f6db3c779e2c4c9aa02700b793938398ec",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "4c67e8ccd011611fd9d9885bd608b93c45e38e25fb1c010210b6cb934b590603",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GrantJournalTest.java": "7458e1cd8c88c3f8cdc99f07e339eeab2854d237e9a5fbc68936cba608ac5dab",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GrantJournalWorker.java": "7d810f98e8ee0123e3ba585c5a469ddde120e3a41691eff9fe8421740100d07f",
+    "scripts/ci_v51_bundle.py": "1aad2cf1ccc3c28a423b648cbe9e494d4fb4f6dd2b62ab2430aaf580c9a03f9b",
+    "scripts/test_ci_v51_bundle.py": "aaeb0152d5cc6bdfd06acd341b37743ffbad55f4eee8aa804ee9c3f9ed9eeecf",
+    "scripts/v53/grant_evidence.py": "1eea753daf650eec31ea5106174be01740c972588d716dd6ab7eb7820d72a45e",
+    "scripts/v53/grant_negatives.py": "db509c6872482321c2973bfae4dbc56590b9b39499118073fc3118f446fed00a",
+    "scripts/v53/grant_qualification.py": "d7ee0e8a841e6274eb852f751c476479320de390435817afda13a6a0572cb6f7",
+    "scripts/v53/test_grant_evidence.py": "5879ed0588b4525c1c9e8bf2f972b276cf6a8b2a4f8501da113df0d7c266ccf4"
+  },
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "9387548a5a81a5d6f0841793ee4c26f0e3c565fd3df7ac80bf4044421160f8b9",
+      "size": 743600
+    }
+  ],
+  "javaTests": 72,
+  "localEvidence": "target/v53-phase2-grants",
+  "logs": {
+    "allocator-regression.log": "c98079533c6be457456b9648ba0a02717c21e41603e6aee638a114cb173870ff",
+    "allocator-regression/receipt.json": "ef2319ec18357412a882c447826620ddbde253f692d35bd2547c3c876b8d5a62",
+    "java-focused.log": "874ae9ddfc80f6af0aa770168efc5d81fcab912123d8c1373a22fbcb152b3527",
+    "java-initial.log": "d558a51e285959b390fa0ae3b1932939be6c9d467672cc66335c30d14d41f686",
+    "java-second.log": "3b49a412ec9bd5c1ff48542823642e39c43029b036962db92a9af53f21d5c609",
+    "java-third.log": "3da6f0db022757dcd07b3b7fc95e959c2715efaba63c7e1025e19d9944e4300a",
+    "python-focused.log": "5b181fa5ab328a3775980dd38a13e508151d272f6d47f7ab299d8f40e57bbf06",
+    "python-optimized.log": "faf79d777902b8ceacc6c594764330d83f1b3829c629614e0da2ffc1c428c06d",
+    "qualification.log": "c9ff6ffd87f78697d23e59e9bd59759a6000900b9b3d83503775a1290e0b1425",
+    "qualified/negatives.json": "bdbf52f7d1eda781948c7ef19c13ee5367fa4e4519e3f76245369c0a85eaaeb6",
+    "qualified/receipt.json": "2f5ba27c8dcf55f1cb7d26297b34cfc6cbd43cb6b481ac946fc122d0569f684f",
+    "qualified/validation.json": "2c5ada853fb596d369a0048a0ec62ac9cdb1d409ba3d34c57aba5e8972932ed8"
+  },
+  "negativeCases": 8,
+  "optimizedPythonTests": 16,
+  "phase2BClosed": false,
+  "phase2Closed": false,
+  "powerLossTested": false,
+  "publicBootstrap": false,
+  "relocatedReplay": "PASS",
+  "reportingNote": "Parent plus exact local bytes before this summary/final documentation. Private grant metadata only; referenced source ownership/retention remains pending. No clean-HEAD CI, physical power-loss or public runtime result.",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-phase2-grant-evidence-v1",
+  "source": {
+    "checkoutSha256": "91f59d5b608abdd7bf32a148beb0f3f77f753d98c5e068edc8a5fb319b909073",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "40e08667cbdaa9486c91b575118eed4c3956af85"
+  },
+  "sourceOwnershipVerified": false,
+  "status": "PASS"
+}
