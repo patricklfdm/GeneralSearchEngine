@@ -41,6 +41,12 @@ Before creating resources, the factory:
 3. Collects and independently replays the latest original manual-cleanup artifact.
    WAITING, stale, failed and substituted attempts cannot stand in for recent PASS.
    The Runner cannot use its own in-progress run as a completed cleanup execution.
+   Before provider access, `retention-readiness` checks all 18 original provenance
+   files (the package, 14 build files and three cleanup files) with the same
+   regular-file, link and size rules used by final retention. A failure reports
+   `V52_RUNNER_RETENTION_READINESS_REJECTED` before provider credentials, lease acquisition,
+   ledger reservation or resource creation. Final capture repeats the check;
+   passing this early check never grants workload or retention qualification.
 4. Creates its dedicated runner-role credentials and read-only provider observer.
    The approved layout/policy must equal the source-controlled configuration,
    including exact image, disk layout and original ledger generation/absence.

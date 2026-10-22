@@ -414,6 +414,59 @@ class NetworkRetryTest(unittest.TestCase):
         with self.assertRaises(FileExistsError): self.client.download(501,target,8)
         self.assertEqual(2,len(self.calls)); self.assertEqual(b'original',target.read_bytes())
 
+    def test_download_can_be_retained_without_aliasing_the_original_response(self):
+        from . import cloud_evidence_parts as parts
+        from .test_cloud_authority import fixture
+        raw=b'original archive bytes'; self.actions=[(0,raw,None)]
+        target=self.root/'original.zip'; self.client.download(501,target,len(raw))
+        response=self.client.output/'001.zip'
+        manifest=parts.scan({'build.zip':target},fixture(domain='native'))
+        chunks=dict(parts.chunks({'build.zip':target},manifest))
+        self.assertEqual(raw,parts.decode(chunks[0],manifest,0))
+        self.assertEqual(1,target.stat().st_nlink); self.assertEqual(1,response.stat().st_nlink)
+        self.assertFalse(target.samefile(response)); self.assertEqual(raw,response.read_bytes())
+        response.write_bytes(b'changed retained response')
+        self.assertEqual(raw,target.read_bytes())
+
+    def test_publication_failure_preserves_response_without_partial_output(self):
+        self.actions=[(0,b'original',None)]; target=self.root/'original.zip'
+        with patch.object(p.os,'link',side_effect=OSError('disk full')):
+            with self.assertRaises(OSError): self.client.download(501,target,8)
+        self.assertFalse(target.exists()); self.assertEqual([self.client.output],list(self.root.iterdir()))
+        self.assertEqual(b'original',(self.client.output/'001.zip').read_bytes())
+        self.assertEqual(1,len(self.calls)); self.assertEqual([],self.waits)
+
+    def test_racing_destination_is_not_replaced_or_removed(self):
+        self.actions=[(0,b'original',None)]; target=self.root/'original.zip'; link=p.os.link
+        def race(source,destination):
+            self.assertFalse(target.exists())
+            self.assertEqual(b'original',Path(source).read_bytes())
+            target.write_bytes(b'existing destination'); link(source,destination)
+        with patch.object(p.os,'link',side_effect=race):
+            with self.assertRaises(FileExistsError): self.client.download(501,target,8)
+        self.assertEqual(b'existing destination',target.read_bytes())
+        self.assertEqual(b'original',(self.client.output/'001.zip').read_bytes())
+        self.assertEqual({'reads','original.zip'},{v.name for v in self.root.iterdir()})
+
+    def test_changed_copy_length_fails_without_publishing_or_retrying(self):
+        target=self.root/'original.zip'; original_open=Path.open
+        for changed in (b'short',b'longer than original'):
+            self.actions=[(0,b'original',None)]
+            def changed_stream(path,*args,**kwargs):
+                if path.parent==self.client.output and args==('rb',):return io.BytesIO(changed)
+                return original_open(path,*args,**kwargs)
+            with self.subTest(changed=changed),patch.object(Path,'open',new=changed_stream):
+                with self.assertRaises(p.GitHubReadError) as caught:self.client.download(501,target,8)
+            self.assertEqual('V52_GITHUB_INCOMPLETE',caught.exception.code)
+            self.assertFalse(target.exists());self.assertEqual([self.client.output],list(self.root.iterdir()))
+        self.assertEqual(2,len(self.calls));self.assertEqual([],self.waits)
+
+    def test_dangling_destination_symlink_is_not_followed(self):
+        target=self.root/'original.zip'; target.symlink_to(self.root/'absent')
+        with self.assertRaises(FileExistsError): self.client.download(501,target,8)
+        self.assertTrue(target.is_symlink()); self.assertFalse((self.root/'absent').exists())
+        self.assertEqual([],self.calls)
+
     def test_short_successful_download_and_invalid_path_fail_without_retry(self):
         self.actions = [(0,b'short',None)]; target = self.root/'original.zip'
         with self.assertRaises(p.GitHubReadError) as caught: self.client.download(501,target,8)

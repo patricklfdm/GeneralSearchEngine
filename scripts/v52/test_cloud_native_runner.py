@@ -41,6 +41,7 @@ class NativeRunnerTest(unittest.TestCase):
             credentialEnvironmentInherited=False,cloudOperationExecuted=False)))
         self.stack.enter_context(patch.object(inputs,'checkout',return_value=binding()))
         self.stack.enter_context(patch.object(artifacts.Network,'get',new=lambda client,path:self.github(path)))
+        self.network_download=artifacts.Network.download
         self.stack.enter_context(patch.object(artifacts.Network,'download',new=lambda client,identity,out,size:self.download(identity,out,size)))
         raw,candidate=inputs.build_files(self.root/'shared',binding(),roots())
         controls=(inputs.suite.PLAN.parent/'published-controls.json').read_bytes()
@@ -109,6 +110,39 @@ class NativeRunnerTest(unittest.TestCase):
             self.assertEqual(13,len(self.case.server.resources))
             self.assertEqual(n.ci.standalone.WORKFLOW,session.api.admission.build['ci']['workflow'])
         self.assertEqual({},self.case.server.resources);self.assertIsNone(self.case.get(n.a.LEASE))
+
+    def test_real_download_publication_and_native_provenance_pass_retention_framing(self):
+        from . import cloud_retention as retention,cloud_evidence_parts as parts
+        def download(command,path,maximum,timeout):
+            identity=int(command[-1].split('/')[-2]); self.download(identity,path,maximum)
+        with patch.object(artifacts.Network,'download',new=self.network_download), \
+             patch.object(artifacts,'bounded_command',side_effect=download):
+            with self.open() as session:
+                files=retention.provenance_files(session.output,session.package)
+                manifest=parts.scan(files,session.owner.request)
+                chunks=dict(parts.chunks(files,manifest))
+                restored=parts.restore(manifest,session.owner.request,chunks.__getitem__,self.root/'restored')
+                self.assertEqual(18,len(files))
+                for name,path in files.items():self.assertEqual(path.read_bytes(),(restored/name).read_bytes())
+                for folder in ('build-provenance','recent-cleanup'):
+                    response=session.output/folder/'requests/001.zip'
+                    self.assertEqual(1,response.stat().st_nlink)
+        self.assertEqual({},self.case.server.resources); self.assertIsNone(self.case.get(n.a.LEASE))
+
+    def test_hardlinked_build_or_cleanup_fails_before_provider_lease_ledger_and_resources(self):
+        for linked in (501,901):
+            def download(client,identity,path,size):
+                self.download(identity,path,size)
+                if identity==linked:n.os.link(path,Path(path).with_suffix('.alias'))
+            with self.subTest(identity=linked),patch.object(artifacts.Network,'download',new=download):
+                with self.assertRaisesRegex(ValueError,'original regular file'):self.open()
+                report=strict((self.output/'failure.json').read_bytes())
+                self.assertEqual('retention-readiness',report['phase'])
+                self.assertEqual('V52_RUNNER_RETENTION_READINESS_REJECTED',report['code'])
+                self.assertFalse(report['fullRemoteQualification'])
+                self.assertEqual([],self.case.calls); self.assertEqual([],self.clients)
+                self.assertEqual({},self.case.server.resources); self.assertEqual([],self.mutations())
+                self.assertIsNone(self.case.get(n.a.LEASE)); self.assertIsNone(self.case.get(n.a.LEDGER))
 
     def test_provider_credential_failure_retains_closed_diagnostics_before_any_write(self):
         self.case.issuer.fail='sts'

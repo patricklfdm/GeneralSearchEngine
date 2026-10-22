@@ -1,6 +1,7 @@
 """Modeled workload inputs through actual native storage/wire/cleanup code."""
 from copy import deepcopy
 from pathlib import Path
+import os
 from types import SimpleNamespace
 import tempfile
 import unittest
@@ -50,6 +51,23 @@ class OriginalCaptureTest(unittest.TestCase):
         authority=r.artifacts.read(files['authority.json'])
         self.assertEqual(self.claim,authority['claim']);self.assertEqual(self.case.placement.binding,authority['placements'][self.case.name])
         self.assertEqual(self.session.package,files['inputs.tar.gz'])
+
+    def test_every_provenance_file_is_checked_and_late_aliases_are_rejected(self):
+        files=r.provenance_files(self.session.output,self.session.package)
+        self.assertEqual(18,len(files))
+        captured=r.capture_files(self.session,self.output)
+        self.assertEqual(files,{name:captured[name] for name in files})
+        for name,path in files.items():
+            alias=self.root/'unexpected-alias'
+            with self.subTest(name=name):
+                os.link(path,alias)
+                try:
+                    with self.assertRaisesRegex(ValueError,'original regular file'):
+                        r.provenance_files(self.session.output,self.session.package)
+                finally:alias.unlink()
+        # A clean admission is not a cached exemption at the final capture.
+        os.link(files['provenance/build.zip'],self.root/'late-alias')
+        with self.assertRaisesRegex(ValueError,'original regular file'):r.capture_files(self.session,self.output)
 
     def test_copied_capture_running_guest_and_guest_close_failure_are_rejected(self):
         captured=self.session.member_capture

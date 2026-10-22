@@ -13,6 +13,7 @@ import selectors
 import signal
 import stat
 import subprocess
+import tempfile
 import time
 import zipfile
 from . import cloud_authority as a, cloud_ci as ci, cloud_inputs as inputs, cloud_credentials as credentials
@@ -375,7 +376,19 @@ class Network:
         if output.exists() or output.is_symlink(): raise FileExistsError(output)
         target = self._read(f'actions/artifacts/{identity}/zip', size, 300, download=True)
         if target.stat().st_size != size: raise GitHubReadError('INCOMPLETE')
-        os.link(target, output)  # Publish one complete response, never concatenate partial attempts or overwrite.
+        # Keep the HTTP response and published ZIP on independent inodes: the
+        # original-evidence validator deliberately rejects retained hardlinks.
+        # Only link a private, complete copy into place, then remove the temporary
+        # link before returning. This preserves atomic no-overwrite publication.
+        with tempfile.TemporaryDirectory(prefix='.v52-download-', dir=output.parent) as directory:
+            copied = Path(directory)/'complete.zip'; count = 0
+            with target.open('rb') as source, copied.open('xb') as destination:
+                while raw := source.read(min(1 << 20, size-count+1)):
+                    count += len(raw)
+                    if count > size: raise GitHubReadError('INCOMPLETE')
+                    destination.write(raw)
+            if count != size: raise GitHubReadError('INCOMPLETE')
+            os.link(copied, output)
 
 
 def collect_native(source, output):
