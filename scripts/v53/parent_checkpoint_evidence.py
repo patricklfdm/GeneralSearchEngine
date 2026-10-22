@@ -25,26 +25,47 @@ CUTS = ('APPLY_PARENT_STATEMENT_PREFIX_WRITTEN', 'APPLY_PARENT_ACK_PREFIX_WRITTE
 FILES = ('plan.json', 'selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'parent-statement.gsr', 'application.image', 'ack.gsr', 'parent-ack.gsr')
 
 
-def original_plan(root, original):
+def original_plan(root, original, renewal=False):
+    at = 4 if renewal else 2
     frames, values = vote(original['pending.accept']); old = p.decode(original['generations/b/source.gscp']); cap = old['capsule']; root_hash = cap['root']
-    need(cap['cut'] == values['SELECTED']['cut'] and cap['cut']['index'] == 2 and len(cap['items']) == 1 and cap['items'][0]['kind'] == 'RANGE', 'parent original compacted fixture')
+    need(cap['cut'] == values['SELECTED']['cut'] and cap['cut']['index'] == at and len(cap['items']) == 1 and cap['items'][0]['kind'] == 'RANGE', 'parent original compacted fixture')
     need(original['selector.gsr'] == frames['SELECTOR'] and all(original['generations/b/'+k.lower()+'.gsr'] == frames[k] for k in ('PROMISE', 'SELECTED')), 'parent original decision')
-    basis_bytes = original['generations/b/basis.gsr']; basis = f.decode(basis_bytes, 'records', 'BASIS', root_hash); p.bind(old, basis_bytes)
+    basis_bytes = original['generations/b/basis.gsr']; basis = f.decode(basis_bytes, 'records', 'BASIS', root_hash)
+    p.bind(p.decode(original['sources/'+basis['basisId']+'/source.gscp']) if renewal else old, basis_bytes)
     need(dict(voter='node-1', basisId=basis['basisId'], basisDigest=digest(basis_bytes)) in values['SELECTED']['sources'], 'parent original local source')
     majority(cap['cut']['view'], [s['voter'] for s in values['SELECTED']['sources']])
     before = f.decode(old['objects'][cap['catalog']], 'records', 'CATALOG', root_hash)
     peer = inventory(root/'node-2'); image = peer['applied-end/application.image']; entry = values['ENTRY']; cert = values['CERTIFICATE']
-    need(entry['kind'] == 'DATA' and entry['index'] == 3 and entry['previous'] == cap['cut']['entry'] and before['applicationSequence'] == 41
+    need(entry['kind'] == 'DATA' and entry['index'] == at+1 and entry['previous'] == cap['cut']['entry'] and before['applicationSequence'] == 41
          and cap['application'] == digest(read(root/'base.image', 64*1024*1024)), 'parent original DATA base')
-    after = copy.deepcopy(before); after.update(application=digest(image), applicationSequence=42, lastDataIndex=3, cut=dict(before['cut'], index=3, entry=digest(frames['ENTRY'])))
+    after = copy.deepcopy(before); after.update(application=digest(image), applicationSequence=42, lastDataIndex=at+1, cut=dict(before['cut'], index=at+1, entry=digest(frames['ENTRY'])))
     catalog = f.encode('records', 'CATALOG', after)
     prior = f.decode(old['objects'][cap['items'][0]['statement']], 'records', 'CHECKPOINT', root_hash)
     need(prior['end'] == cap['cut'] and prior['catalogAfter'] == cap['catalog'] and prior['applicationAfter'] == cap['application'], 'parent original range end')
     statement = dict(prior, end=after['cut'], catalogAfter=digest(catalog), applicationAfter=after['application']); statement_bytes = f.encode('records', 'CHECKPOINT', statement)
     parent = dict(statement, start=cap['cut'], catalogBefore=cap['catalog'], applicationBefore=cap['application']); parent_bytes = f.encode('records', 'CHECKPOINT', parent)
     need(prior['start']['index'] == 0 and parent['start']['view'] == parent['end']['view'] and parent['start']['view']['operation'] is None
-         and parent_bytes == read(root/'parent-statement.gsr'), 'parent derived same-era statement')
-    observations = json.loads(read(root/'observations.json')); need(set(observations) == {'accepts', 'proofs', 'checkpoints', 'parents'}, 'parent observation inventory')
+         and parent_bytes == read(root/('bridge-4-statement.gsr' if renewal else 'parent-statement.gsr')), 'parent derived same-era statement')
+    observations = json.loads(read(root/'observations.json')); need(set(observations) == ({'accepts', 'proofs', 'checkpoints', 'bridges', 'historical'} if renewal else {'accepts', 'proofs', 'checkpoints', 'parents'}), 'parent observation inventory')
+    lowers = []; extra_statements = []; extra_acks = [[], []] if renewal else []
+    if renewal:
+        ids_before = {v['node']: v['storage'] for v in before['identities'] if v['node'] in cap['cut']['view']['old']}; old_bytes = b''
+        for number, physical in ((1, original), (2, peer)):
+            basis_raw = physical['generations/b/basis.gsr']; frozen = f.decode(basis_raw, 'records', 'BASIS', root_hash)
+            packet = p.decode(physical['sources/'+frozen['basisId']+'/source.gscp']); p.bind(packet, basis_raw); cut = packet['capsule']
+            need(cut['cut']['index'] == number and frozen['voter'] == 'node-'+str(number) and frozen['ballot'] == values['SELECTED']['ballot']
+                 and dict(voter=frozen['voter'], basisId=frozen['basisId'], basisDigest=digest(basis_raw)) in values['SELECTED']['sources'], 'ancestor actual original source binding')
+            for h, size in packet['images'].items():
+                raw = physical['sources/'+frozen['basisId']+'/'+h+'.image']; need(len(raw) == size and digest(raw) == h, 'ancestor original source image')
+            lower = {k: cut[k] for k in ('cut', 'catalog', 'application')}; lowers.append(lower)
+            old_statement = dict(prior, start=lower['cut'], catalogBefore=lower['catalog'], applicationBefore=lower['application'])
+            raw = f.encode('records', 'CHECKPOINT', old_statement); old_bytes += raw
+            for n, storage in sorted(ids_before.items()):
+                ack = f.encode('records', 'CHECKPOINT_ACK', dict(root=root_hash, voter=n, incarnation=storage, cut=cap['cut'], statement=digest(raw)))
+                need(dict(voter=n, storage=storage, record=digest(ack), parent=digest(f.canonical(cap['cut']))) in observations['historical'], 'ancestor historical endorsement binding'); old_bytes += ack
+            renewed = f.encode('records', 'CHECKPOINT', dict(statement, start=lower['cut'], catalogBefore=lower['catalog'], applicationBefore=lower['application']))
+            need(renewed == read(root/('bridge-'+str(number)+'-statement.gsr')), 'ancestor exact renewal'); extra_statements.append(renewed)
+        need(original['generations/b/ancestry.gsr'] == old_bytes, 'ancestor original complete bridge inventory')
     ids = {}; acks = []; parents = []; local_end = None
     for n in ('node-1', 'node-2', 'node-3'):
         physical = original if n == 'node-1' else inventory(root/n); local_frames, _ = vote(physical['pending.accept'])
@@ -55,37 +76,47 @@ def original_plan(root, original):
         main_ack, parent_ack = ack(statement_bytes), ack(parent_bytes)
         end = {'selector.gsr': physical['selector.gsr'], 'certificate.gsr': frames['CERTIFICATE'], 'catalog.gsr': catalog, 'statement.gsr': statement_bytes,
                'parent-statement.gsr': parent_bytes, 'application.image': image, 'ack.gsr': main_ack, 'parent-ack.gsr': parent_ack}
+        for i, raw in enumerate(extra_statements):
+            end['ancestor-'+str(i)+'-statement.gsr'] = raw; end['ancestor-'+str(i)+'-ack.gsr'] = ack(raw)
         end['plan.json'] = f.canonical(dict(schema='gse-v53-applied-end/1.3', root=root_hash, node=n,
                 files=[dict(path=k, bytes=len(v), sha256=digest(v)) for k, v in sorted(end.items())]))
         if n == 'node-1':
             need(not any(k == 'applied-end' or k.startswith('applied-end/') for k in physical), 'parent original local end absent'); local_end = end
         else:
             need({k.removeprefix('applied-end/'): v for k, v in physical.items() if k.startswith('applied-end/')} == end, 'parent real peer materialization')
-            need(main_ack == read(root/('ack-'+n+'.gsr')) and parent_ack == read(root/('parent-'+n+'.gsr')), 'parent real retained ACKs')
+            need(main_ack == read(root/('ack-'+n+'.gsr')) and parent_ack == read(root/(('bridge-4-' if renewal else 'parent-')+n+'.gsr')), 'parent real retained ACKs')
             acks.append(main_ack); parents.append(parent_ack)
+            for i, raw in enumerate(extra_statements):
+                extra_acks[i].append(ack(raw)); need(ack(raw) == read(root/('bridge-'+str(i+1)+'-'+n+'.gsr')), 'ancestor actual renewed ACK')
     for label, phase in (('accepts', 'ACCEPT'), ('proofs', 'PROOF')):
         need(observations[label] == [dict(voter=n, storage=s, record=digest(frames[phase]), parent=digest(f.canonical(cap['cut']))) for n, s in sorted(ids.items())], 'parent original phase observations')
         witnesses = [dict(voter=n, incarnation=s, receipt=digest(f.canonical(dict(root=root_hash, voter=n, incarnation=s, phase=phase, record=digest(frames[phase]))))) for n, s in sorted(ids.items())]
         need(cert[label] == witnesses, 'parent original phase witnesses'); majority(cap['cut']['view'], sorted(ids))
-    for label, records in (('checkpoints', acks), ('parents', parents)):
+    for label, records in ((('checkpoints', acks),) if renewal else (('checkpoints', acks), ('parents', parents))):
         need(observations[label] == [dict(voter=n, storage=ids[n], record=digest(a), parent=digest(f.canonical(after['cut']))) for n, a in zip(('node-2', 'node-3'), records)], 'parent physical end observations: '+label)
         majority(after['cut']['view'], ['node-2', 'node-3'])
+    if renewal:
+        expected_observations = [dict(voter=n, storage=ids[n], record=digest(a), parent=digest(f.canonical(after['cut']))) for group in [*extra_acks, parents] for n, a in zip(('node-2', 'node-3'), group)]
+        need(observations['bridges'] == sorted(expected_observations, key=lambda v: (v['record'], v['voter'])), 'ancestor actual renewal observations')
     objects = {h: raw for h, raw in old['objects'].items() if raw == original['root.gsr'] or h == cap['initial']}
-    for raw in [catalog, statement_bytes, parent_bytes, *acks, *parents, *[frames[k] for k in ('ENTRY', 'ACCEPT', 'PROOF', 'CERTIFICATE')]]: objects[digest(raw)] = raw
+    for raw in [catalog, statement_bytes, parent_bytes, *extra_statements, *[a for group in extra_acks for a in group], *acks, *parents, *[frames[k] for k in ('ENTRY', 'ACCEPT', 'PROOF', 'CERTIFICATE')]]: objects[digest(raw)] = raw
     offset = 12 + sum(len(frames[k]) for k in ('SELECTOR', 'PROMISE', 'SELECTED', 'ENTRY', 'ACCEPT'))
     count = int.from_bytes(original['pending.accept'][offset:offset+4], 'big'); payload = original['pending.accept'][offset+4:offset+4+count]; objects[digest(payload)] = payload
     item = dict(kind='RANGE', statement=digest(statement_bytes), endorsements=[digest(a) for a in acks], certificate=None, descriptor=None)
     source = packet_bytes(dict(cap, cut=after['cut'], catalog=digest(catalog), application=after['application'], items=[item]), objects, {after['application']: len(image)})
     packet = p.decode(source)
-    coverage = f.canonical(dict(schema='gse-v53-selected-coverage/1.3', selection=digest(frames['SELECTED']), parent={k: cap[k] for k in ('cut', 'catalog', 'application')}, certificate=digest(frames['CERTIFICATE'])))
+    coverage_value = dict(schema='gse-v53-selected-coverage/1.3', selection=digest(frames['SELECTED']), parent={k: cap[k] for k in ('cut', 'catalog', 'application')}, certificate=digest(frames['CERTIFICATE']))
+    if renewal: coverage_value['ancestors'] = lowers
+    coverage = f.canonical(coverage_value)
+    packed_ancestry = b''.join(raw+b''.join(group) for raw, group in zip(extra_statements, extra_acks)) + parent_bytes+b''.join(parents)
     files = {'source.gscp': source, 'promise.gsr': frames['PROMISE'], 'basis.gsr': basis_bytes, 'selected.gsr': frames['SELECTED'], COVERAGE: coverage,
-             'ancestry.gsr': parent_bytes+b''.join(parents), after['application']+'.image': image}
+             'ancestry.gsr': packed_ancestry, after['application']+'.image': image}
     manifest = dict(root=root_hash, node='node-1', generation='a', **{k: packet['capsule'][k] for k in ('cut', 'catalog', 'application')},
                     capsule=digest(packet['capsuleBytes']), promise=digest(frames['PROMISE']), basis=digest(basis_bytes), selection=digest(frames['SELECTED']), ownedTail=None,
                     files=[dict(path=n, size=len(v), sha256=digest(v)) for n, v in sorted(files.items())])
     files['generation.gsr'] = f.encode('records', 'GENERATION', manifest)
     selector = f.encode('records', 'SELECTOR', dict(root=root_hash, node='node-1', generation='a', digest=digest(files['generation.gsr'])))
-    need(sum(len(v) for k, v in files.items() if not k.endswith('.image')) <= 32*1024*1024 and len(files['ancestry.gsr']) <= 16*1024, 'parent bounded publication')
+    need(sum(len(v) for k, v in files.items() if not k.endswith('.image')) <= 32*1024*1024 and len(files['ancestry.gsr']) <= (3 if renewal else 1)*16*1024, 'parent bounded publication')
     return files, selector, local_end
 
 
@@ -96,9 +127,14 @@ def application(expected, original, exists, stop):
     if not exists:
         exists = True
         if event('APPLY_DIRECTORY_CREATED'): return current, exists, events
-    for name in FILES:
+    count = sum('ancestor-'+str(i)+'-statement.gsr' in expected for i in range(5))
+    names = FILES[:6] + tuple('ancestor-'+str(i)+'-statement.gsr' for i in range(count)) + FILES[6:] + tuple('ancestor-'+str(i)+'-ack.gsr' for i in range(count))
+    need(set(names) == set(expected), 'ancestor bounded end inventory')
+    for name in names:
         label = {'plan.json': 'APPLY_PLAN', 'application.image': 'APPLY_IMAGE', 'ack.gsr': 'APPLY_ACK',
                  'parent-statement.gsr': 'APPLY_PARENT_STATEMENT', 'parent-ack.gsr': 'APPLY_PARENT_ACK'}.get(name, 'APPLY_METADATA')
+        if name.startswith('ancestor-'):
+            parts = name.split('-'); label = 'APPLY_ANCESTOR_'+parts[1]+('_ACK' if parts[2] == 'ack.gsr' else '_STATEMENT')
         if name == 'ack.gsr' and event('APPLY_END_FORCED'): return current, exists, events
         if name not in current:
             current[name] = b''
@@ -113,10 +149,10 @@ def application(expected, original, exists, stop):
     event('APPLY_BEFORE_RETURN'); return current, exists, events
 
 
-def validate_case(root, row):
-    root = Path(root); current = inventory(root/'original'); files, selector, end = original_plan(root, current)
+def validate_case(root, row, renewal=False):
+    root = Path(root); current = inventory(root/'original'); files, selector, end = original_plan(root, current, renewal)
     need(row['status'] == 'PASS' and row['manifest'] == digest(files['generation.gsr']) and row['recoveryCut'] ==
-         ('APPLY_PARENT_ACK_PREFIX_WRITTEN' if row['cut'].startswith('APPLY_') else 'COVERED_VOTE_CANDIDATE_FORCED'), 'parent repeated recovery identity')
+         (('APPLY_ANCESTOR_1_ACK_PREFIX_WRITTEN' if renewal else 'APPLY_PARENT_ACK_PREFIX_WRITTEN') if row['cut'].startswith('APPLY_') else 'COVERED_VOTE_CANDIDATE_FORCED'), 'parent repeated recovery identity')
     for label, stop, snapshot, mode in (('fault', row['cut'], 'crash', row['mode']), ('recovery-fault', row['recoveryCut'], 'recovery-crash', 'halt'), ('resume', None, 'final', None)):
         need(read(root/(label+'.stderr')) == b'', 'parent worker stderr'); rows = [json.loads(line) for line in read(root/(label+'.stdout'), 2*1024*1024).splitlines()]
         names = [r.get('event', '') for r in rows]; applied_stop = stop is not None and stop.startswith('APPLY_')
@@ -142,7 +178,7 @@ def validate_case(root, row):
                   ('ACCEPT_ACTIVE_FORCED', 'ACCEPT_ACTIVE_PARENT_FORCED', 'CERTIFICATE_ACTIVE_FORCED', 'CERTIFICATE_ACTIVE_PARENT_FORCED', 'FLOOR_COPY_BEFORE_RETURN')]
         need(actual == expected, 'parent exact publication/deletion order: '+label)
         if mode is None:
-            need(rows[-1] == dict(status='PASS', manifest=row['manifest'], selectedIndex=3, journalPublication=True) and sum('status' in r for r in rows) == 1, 'parent final receipt')
+            need(rows[-1] == dict(status='PASS', manifest=row['manifest'], selectedIndex=5 if renewal else 3, journalPublication=True) and sum('status' in r for r in rows) == 1, 'parent final receipt')
         else:
             need(not any('status' in r for r in rows) and rows[-1] == (dict(event='AWAITING_KILL', cut=stop) if mode == 'kill' else dict(event=stop)), 'parent premature success or wrong cut')
         need(inventory(root/snapshot) == resulting, 'parent exact surviving bytes: '+label)

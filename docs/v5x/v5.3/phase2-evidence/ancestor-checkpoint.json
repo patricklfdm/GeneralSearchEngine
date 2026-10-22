@@ -1,0 +1,123 @@
+{
+  "distinctMethods": 43,
+  "freshJvms": 36,
+  "inProcessAdditionalWriteFaultLabels": 16,
+  "independent": {
+    "cases": 12,
+    "earlierAuthority": "conditional-fixture",
+    "freshJvms": 36,
+    "negatives": [
+      "missing-original-basis",
+      "missing-prior-bridge",
+      "false-current-observation",
+      "wrong-lower",
+      "substituted-ack",
+      "early-ack",
+      "missing-force",
+      "changed-coverage",
+      "changed-ancestry",
+      "unrelated-delete"
+    ],
+    "originalSources": [
+      1,
+      2,
+      4
+    ],
+    "portableReplay": "PASS",
+    "publishedEnd": 5,
+    "renewedGroups": 3,
+    "status": "PASS"
+  },
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "804e8b7437ca127e5023a5c1f14c156412da5480168f43cc2bc7db5d69132152",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "limitations": [
+    "first selected slot only; stable continuation and ancestry admission/pruning lifetime remain pending",
+    "bootstrap and earlier checkpoint observations remain conditional; new owner votes/ends and original BASIS captures are actual",
+    "full-size/profile lifetime and public runtime are not qualified",
+    "process halt/SIGKILL, not power-loss qualification"
+  ],
+  "logs": {
+    "capacity-regression.log": "ec3abe8ffe1f4a4c4be165104639a05cd0f9433c7c82e3dccf04aeb5f22d9d43",
+    "contract-tests.log": "c346f1228fe88f4ab3cb336ffa610dc3a34ec7c7bb7d05df7a1c222f2d928881",
+    "contract.log": "1e1784baa486578dca9306899e9238a15a198337d0cb8b4e4f7b5d9bcf22d5dc",
+    "first-paths-2.log": "9ceabdb05d6d879d2a9cc341ff8d02104b97d870aacf9222df387ecb6f8f0e10",
+    "first-paths.log": "1cfbb3f50686e803eafe0e5c03d9e2921328b295b03b7e8728eb2dc6f9f944a5",
+    "focused.log": "17a2abb410876c2fd6b3ff272757d9b9ed79d71b7addfb904530cc35a372b5dc"
+  },
+  "optimizedReplay": "PASS",
+  "paidCloud": false,
+  "preservedDevelopmentFailures": {
+    "first-paths.log": "test fixture used hash strings as bytes; fixed before qualification",
+    "independent.stderr": "old bridges stored in ancestry.gsr rather than required as duplicate packet objects; corrected, unchanged raw replayed"
+  },
+  "priorParentReplay": {
+    "cases": 12,
+    "freshJvms": 36,
+    "negatives": [
+      "missing-peer-ack",
+      "false-observation",
+      "wrong-parent",
+      "main-ack-as-parent",
+      "early-ack",
+      "missing-force",
+      "changed-ancestry",
+      "unrelated-delete"
+    ],
+    "originalObservations": "actual-local-votes-and-parent-ends",
+    "portableReplay": "PASS",
+    "selectorPublication": true,
+    "status": "PASS"
+  },
+  "processCases": 12,
+  "protectedCI": false,
+  "qualificationTests": 43,
+  "rawIndexSha256": "58e0a2ad17cc8162502cbec6a5ffade29d849eef5866ba4479af70a7644d2427",
+  "reports": {
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.xml": "bc6263f75ab4863b71e7a27306e9ddea01b6a95a613019086f2720f84c82f7c4",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53AncestorCapacityTest.xml": "86ae256fa4a1bc14530852efd490f1bf288253ad6c465acc91fa18853b1e8f0e",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53AncestorCheckpointTest.xml": "9b09dba0991dbdd9c55cc0efda93b8a57e35f87badd9377ec1da7755bc8cc566",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CapsuleTest.xml": "698e33320296ea35b79ff71de923977fe1fa059d097f315704aaa8adfe3b6067",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CheckpointPlanTest.xml": "230c90afff0643034d8bb942f8903db7c0610edb4487c8a2942da8dcb20ec2b7",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest.xml": "db3c114cb00546cd1d1c1d4be1a964506b53c1ce476b6a4250049c8dda287b23",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalApplicationTest.xml": "c28cce3ea5dd9f2fd1bd657d81256fd03e9e47dc066a809a4fb05c9289c9bb79",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalPublicationTest.xml": "55f3dd156b501b5a1b518a252fe8413359516bde58bf966598770800e47f9a93",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ParentCheckpointTest.xml": "d65946e8827e8964a5d3fc3dd6551daa9c2300dd7df3af1d5a079e8fec025ef9",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PublishedGenerationTest.xml": "e01757eb21246a34fa2155708e840104cbc978b27b5bd4cca35bb842c07d4d42"
+  },
+  "retainedLocal": "target/v53-ancestor-checkpoint",
+  "retainedProcesses": "general-search-engine-replication/target/v53-ancestor-checkpoint-process/run-9550a556-fd52-49d4-a2ed-1c389bda36ac",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-ancestor-renewal-index-v1",
+  "sourceHead": "82655aa5fd0215125aecb9feb32396ee68c61f6b",
+  "status": "PASS",
+  "suites": {
+    "io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest": 3,
+    "io.github.patricklfdm.generalsearch.replication.V53AncestorCapacityTest": 2,
+    "io.github.patricklfdm.generalsearch.replication.V53AncestorCheckpointTest": 5,
+    "io.github.patricklfdm.generalsearch.replication.V53CapsuleTest": 4,
+    "io.github.patricklfdm.generalsearch.replication.V53CheckpointPlanTest": 7,
+    "io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest": 9,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalApplicationTest": 2,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalPublicationTest": 1,
+    "io.github.patricklfdm.generalsearch.replication.V53ParentCheckpointTest": 2,
+    "io.github.patricklfdm.generalsearch.replication.V53PublishedGenerationTest": 8
+  },
+  "worktreeImplementation": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": "60b15a6ea6575891d38d00933a47dead84ce5a7e17ae95de3816f70ae5ddc035",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java": "2abfdb99a62a3a1658f6a59d43fd7122f7adba2b9ccbb7284ae12c1a2fcb1e6e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCheckpointPlan.java": "c941dccd4014caa3606779431b93ba5ad373358b6240d5790dfac9efc0711aed",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java": "ad718d3aaed2b02cbfc08de52567ae0ea9e41938d351aaf2e6d2251c0a0b7358",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java": "4e6eb1efbe71a711a5abe8d5398cc660d1128d017f3c259a748567845077f5fd",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "68c686d1ef40e1c96d2e7f1ce089a4b316e3362c8badf5be4d02b8a30b6717df",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectionCoverage.java": "3cf800482983a2637ff696af949e84890a0f5c0204e10cae341f8382fa0e6070",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AncestorCapacityTest.java": "103be9f1efca6ca1563f9e07922c2e8598b62708e64b0ea99683858c13c78fdc",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AncestorCheckpointTest.java": "d52550389c35c033cf4d96f0b232123c9be9bb97d318730f16794da6c79ad1a6",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AncestorCheckpointWorker.java": "90bf5e1229da25e5846a3d33e372fb15345748c4eae9be65b20c915cf74633ec",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalPublicationTest.java": "4f2744ac2ef4074b2294969edc7a7d2199f3b463d97aeac6d71d1a0e3b73e412",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingProofFixture.java": "01d91357d822c7366a4cfbb2758bb350d0b17e2a351b31a86dabf66e33f77ec9",
+    "scripts/v53/ancestor_checkpoint_evidence.py": "7e525ba6225c36e0a6cb53606caa50fd140d885a550dd91e969fd355aced2e4f",
+    "scripts/v53/parent_checkpoint_evidence.py": "b941523f22558306faf3cbcac4a19435fe97498e85a66277eeaaeca6ddad2472"
+  }
+}

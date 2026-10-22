@@ -19,8 +19,36 @@ final class MembershipCheckpointPlan {
     private final Set<Owned> votes;
     private final List<Map<String,Object>> retained;
     private final String descriptor;
+    private final List<MembershipCapsule.Anchor> additionalParents;
     Decoded originalCertificate(){return certificate;}
     MembershipCapsule.Anchor originalParent(){return before.terminal();}
+    List<MembershipCapsule.Anchor> additionalParents(){return additionalParents;}
+    /** Renew only authenticated original endpoints hidden inside the newly enlarged RANGE. */
+    MembershipCheckpointPlan renewAncestors(Collection<MembershipCapsule.Anchor> required,byte[] originalAncestry) {
+        require(required.size()<=16,"checkpoint ancestor input count");before.verifyAncestry(originalAncestry,required);
+        var unique=new TreeMap<Long,MembershipCapsule.Anchor>();var value=statement.value();
+        if(value.get("scope").equals("RANGE"))for(var lower:required) {
+            long index=number(lower.cut().get("index"));
+            if(index>number(object(value.get("start")).get("index")) && index<number(before.context.cut.get("index"))) {
+                require(object(value.get("start")).get("view").equals(lower.cut().get("view")),"checkpoint ancestor changed stable era");
+                var prior=unique.putIfAbsent(index,lower);require(prior==null || prior.equals(lower),"checkpoint conflicting ancestor");
+            }
+        }
+        require(unique.size()+(parentStatement().isPresent()?1:0)<=6,"checkpoint renewed ancestry count");
+        return new MembershipCheckpointPlan(this,List.copyOf(unique.values()));
+    }
+    private MembershipCheckpointPlan(MembershipCheckpointPlan original,List<MembershipCapsule.Anchor> parents) {
+        before=original.before;root=original.root;certificate=original.certificate;entry=original.entry;catalog=original.catalog;
+        statement=original.statement;application=original.application;votes=original.votes;originals=original.originals;
+        retained=original.retained;descriptor=original.descriptor;additionalParents=List.copyOf(parents);
+    }
+    static Decoded ancestorStatement(Decoded statement,MembershipCapsule.Anchor parent,MembershipCapsule.Anchor lower) {
+        var value=statement.value();var start=object(value.get("start"));var view=object(start.get("view"));
+        require(parentStatement(statement,parent).isPresent() && number(lower.cut().get("index"))>number(start.get("index"))
+                && number(lower.cut().get("index"))<number(parent.cut().get("index")) && view.equals(lower.cut().get("view")),"checkpoint exact hidden earlier ancestor");
+        var renewed=new TreeMap<>(value);renewed.put("start",lower.cut());renewed.put("catalogBefore",lower.catalog());renewed.put("applicationBefore",lower.application());
+        return decode(encode("records","CHECKPOINT",renewed),"records","CHECKPOINT");
+    }
 
     /** A compacted RANGE hides the actual certified parent. Its supplemental statement
      * is derived from that exact original state, never from a caller-supplied cut. */
@@ -86,6 +114,7 @@ final class MembershipCheckpointPlan {
             Decoded catalog,MembershipApplicationReplay.Result application,Set<Owned> votes) {
         this.before=before;this.root=root(before);this.certificate=certificate;this.entry=entry;this.catalog=catalog;this.application=application;
         this.votes=Set.copyOf(votes);this.originals=objects(certified);originals.put(catalog.digest(),catalog.bytes());
+        additionalParents=List.of();
         String kind=(String)entry.value().get("kind");boolean membership=Set.of("INTENT","FINAL").contains(kind);
         var items=new ArrayList<Map<String,Object>>();for(Object item:list(before.packet.capsule().value().get("items")))items.add(object(item));
         Map<String,Object> start=before.context.cut;String catalogBefore=(String)before.packet.capsule().value().get("catalog");

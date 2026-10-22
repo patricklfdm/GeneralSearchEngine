@@ -62,6 +62,10 @@ remain open. No public READY, distributed authentication, power-loss guarantee,
 protected CI or cloud acceptance follows from these tests. Independent image
 semantics remain the separate typed-core replay obligation.
 
+The later [ancestor renewal batch](PHASE_2_ANCESTOR_RENEWAL.md) integrates bounded
+older endpoints and extends the stage to at most 19 members. The nine-member
+layout and qualification above describe this original parent-only batch.
+
 ```bash
 mvn -o --batch-mode --no-transfer-progress -f reactor/pom.xml \
   '-Dtest=V53ParentCheckpointTest' -Dsurefire.failIfNoSpecifiedTests=false package

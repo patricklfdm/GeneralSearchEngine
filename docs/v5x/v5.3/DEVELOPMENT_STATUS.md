@@ -1085,3 +1085,23 @@ This advances first-slot publication only. Renewal for older hidden BASIS/floor
 ancestors and authenticated stable same-round continuation remain next, followed
 by the remaining coordinated-lifetime, bootstrap/recovery and Phase 2 audit work.
 Public runtime and all later cloud acceptance remain open.
+
+## 2026-10-22 — bounded original ancestor renewal
+
+[Ancestor renewal](PHASE_2_ANCESTOR_RENEWAL.md) now preserves older authenticated
+BASIS/floor endpoints through an enlarged RANGE. Each new local endorsement follows
+the actual forced application end. Publication and covered cleanup bind the exact
+extra statements and ACKs, with at most six groups, nineteen stage files and one
+application image under the existing global limits.
+
+Targeted qualification: **43 Java tests PASS**, sixteen extra write interruption
+labels and **12 process cases / 36 fresh JVMs**. Independent original-first replay,
+ten evidence mutations, portable replay, Python `-O` and replay of the previous
+parent-only evidence pass. The [evidence index](phase2-evidence/ancestor-checkpoint.json)
+retains source/build/raw hashes and both failed development attempts. Historical
+checkpoint/bootstrap authority remains conditional; new votes, captures and end
+forces are actual.
+
+Phase 2 remains OPEN. Next are safe ancestry pruning and pre-ACCEPT publication
+headroom, original-choice-preserving stable continuation, and complete bounded
+lifetime/bootstrap/recovery qualification. No public runtime, push or cloud action.

@@ -432,11 +432,18 @@ final class MembershipGrantJournal implements AutoCloseable {
                     && Arrays.equals(pendingAccept.active().bytes(),vote.bytes()) && !pendingAccept.pending(),"application original authority changed");
         };
         guard.check();var packet=votePacket();verifiedPacket(packet).context.certificate(vote.certificate(),owned);
+        byte[] ancestry=current.ancestry();var parents=new ArrayList<>(current.capsule.ancestryAnchors(ancestry).values());
+        addFloorParent(parents);
+        for(var original:bases.values()) {
+            var cap=sources.original(original).packet().capsule().value();parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
+        }
+        current.verifyParents(parents);
         AdmissionPaths.disjoint(List.of(directory,storage.directory()));reserveApplicationCompletion();
         try {
             cut.at("APPLICATION_AUTHORITY_VALIDATED");guard.check();
             var plan=replayFiles.executeRetained(vote.selector(),vote.certificate(),identity,work->MembershipCheckpointPlan.replay(configuration,storage,
                     current.capsule,packet,vote.certificate(),current.images(),owned,work),guard,cut);
+            plan=plan.renewAncestors(parents,ancestry);
             guard.check();var endorsement=appliedEnd.force(plan,vote.selector(),identity,guard,cut);
             guard.check();return new Applied(plan,endorsement);
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
@@ -488,7 +495,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             require(pendingAccept.active()==null || Arrays.equals(pendingAccept.active().bytes(),original.bytes()),"covered vote changed during retirement");
         };
         cut.at("PUBLICATION_COVERAGE_VALIDATED");guard.check();
-        appliedEnd.retireCovered(current.capsule,current.images(),current.publishedParent(),original,identity,guard,cut);
+        appliedEnd.retireCovered(current.capsule,current.images(),current.publishedParent(),current.publishedAncestors(),original,identity,guard,cut);
         pendingAccept.clearCovered(original,guard,cut);replayFiles.releaseCompletion();
         cut.at("PUBLICATION_RETIRED");checkOwner();
     }

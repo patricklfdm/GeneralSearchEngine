@@ -29,15 +29,16 @@ final class V53PendingProofFixture {
     }
     void provision(Path root)throws Exception {
         Files.createDirectories(root);
-        for(int node:nodes) {
-            Path path=node(root,node);f.provision(path);String name="node-"+node;
+        for(int node:nodes)provisionNode(f,node(root,node),node);
+    }
+    static void provisionNode(V53CurrentGenerationFixture f,Path path,int node)throws Exception {
+            f.provision(path);String name="node-"+node;
             Files.write(path.resolve("node.gsr"),encode("records","NODE",Map.of("identity",V53ContextFixture.member(node),"root",f.root().manifestDigest())));
             Files.write(path.resolve(MembershipBallotAllocator.CURRENT),encode("records","ALLOCATOR",Map.of("counter",0L,"node",name,"root",f.root().manifestDigest())));
             var manifest=new TreeMap<>(decode(Files.readAllBytes(path.resolve("generations/a/generation.gsr")),"records","GENERATION").value());manifest.put("node",name);
             byte[] raw=encode("records","GENERATION",manifest);Files.write(path.resolve("generations/a/generation.gsr"),raw);
             Files.write(path.resolve("selector.gsr"),encode("records","SELECTOR",Map.of("root",f.root().manifestDigest(),"node",name,"generation","a","digest",hash(raw))));
             AdmissionPaths.write(path.resolve(MembershipPendingAccept.FILE),MembershipPendingAccept.empty());AdmissionPaths.forceDirectory(path);
-        }
     }
     void install(Path root)throws Exception {
         var sources=new ArrayList<MembershipSelection.Source>();

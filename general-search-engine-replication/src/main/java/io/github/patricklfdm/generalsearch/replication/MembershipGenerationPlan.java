@@ -50,7 +50,7 @@ final class MembershipGenerationPlan {
         var capsule=checkpoint.publication(acknowledgements,observations,bridges);
         require(capsule.context.root.equals(root.manifestDigest()) && local.equals(capsule.context.identities.get(local.nodeId().value()))
                 && capsule.context.voters().contains(local.nodeId().value()),"publication local eligible identity");
-        byte[] coverage=MembershipSelectionCoverage.encodeCoverage(selected,checkpoint.originalParent(),checkpoint.originalCertificate());
+        byte[] coverage=MembershipSelectionCoverage.encodeCoverage(selected,checkpoint.originalParent(),checkpoint.originalCertificate(),checkpoint.additionalParents());
         byte[] ancestry=ancestry(bridges);MembershipSelectionCoverage.verify(coverage,capsule,promise,selected,ancestry);
         var files=new TreeMap<String,byte[]>();files.put("source.gscp",capsule.packet.bytes());files.put("promise.gsr",promise.bytes());
         files.put("basis.gsr",basis.bytes());files.put("selected.gsr",selected.bytes());files.put(MembershipSelectionCoverage.FILE,coverage);

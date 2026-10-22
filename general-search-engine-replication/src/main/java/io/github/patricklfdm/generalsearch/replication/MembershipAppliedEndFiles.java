@@ -13,10 +13,18 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipAppliedEndFiles implements AutoCloseable {
     static final String DIRECTORY="applied-end",PLAN="plan.json",IMAGE="application.image",ACK="ack.gsr";
     static final String PARENT_STATEMENT="parent-statement.gsr",PARENT_ACK="parent-ack.gsr";
-    static final int METADATA=4096*2+16384*3+2*1024*1024+2048*2;
-    private static final Set<String> NAMES=Set.of(PLAN,IMAGE,ACK,"selector.gsr","certificate.gsr","catalog.gsr","statement.gsr",PARENT_STATEMENT,PARENT_ACK);
+    static final int METADATA=4096*2+16384*8+2*1024*1024+2048*7;
+    private static final Set<String> NAMES;
+    static {
+        var names=new HashSet<>(Set.of(PLAN,IMAGE,ACK,"selector.gsr","certificate.gsr","catalog.gsr","statement.gsr",PARENT_STATEMENT,PARENT_ACK));
+        for(int i=0;i<5;i++){names.add(ancestor(i,false));names.add(ancestor(i,true));}NAMES=Set.copyOf(names);
+    }
+    private static String ancestor(int n,boolean ack){return "ancestor-"+n+(ack?"-ack.gsr":"-statement.gsr");}
     record ParentEndorsement(Decoded statement,Decoded acknowledgement,Owned owned) {}
-    record Endorsement(Decoded acknowledgement,Owned owned,Optional<ParentEndorsement> parent) {}
+    record Endorsement(Decoded acknowledgement,Owned owned,Optional<ParentEndorsement> parent,List<ParentEndorsement> ancestors) {
+        Endorsement {ancestors=List.copyOf(ancestors);}
+        Endorsement(Decoded acknowledgement,Owned owned,Optional<ParentEndorsement> parent){this(acknowledgement,owned,parent,List.of());}
+    }
     private final Path path;
     private final Map<String,Object> binding;
     private final MembershipResources resources;
@@ -34,6 +42,7 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         try {snapshot();if(exists)reserve();}catch(IOException|RuntimeException|Error error){close();throw error;}
     }
     static int limit(String name) {
+        if(name.startsWith("ancestor-") && NAMES.contains(name))return name.endsWith("-ack.gsr")?2048:16384;
         return switch(name) {
             case PLAN,"selector.gsr" -> 4096;
             case "certificate.gsr","statement.gsr",PARENT_STATEMENT -> 16384;
@@ -68,9 +77,10 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         }
     }
     private static SortedMap<String,byte[]> materialization(MembershipCheckpointPlan plan,Decoded originalSelector,MembershipIdentity identity) {
-        return materialization(plan.catalog,plan.statement,plan.originalParent(),plan.originalCertificate(),plan.application.image(),originalSelector,identity);
+        return materialization(plan.catalog,plan.statement,plan.originalParent(),plan.additionalParents(),plan.originalCertificate(),plan.application.image(),originalSelector,identity);
     }
-    private static SortedMap<String,byte[]> materialization(Decoded catalog,Decoded statement,MembershipCapsule.Anchor parent,Decoded certificate,byte[] image,Decoded originalSelector,MembershipIdentity identity) {
+    private static SortedMap<String,byte[]> materialization(Decoded catalog,Decoded statement,MembershipCapsule.Anchor parent,List<MembershipCapsule.Anchor> ancestors,
+            Decoded certificate,byte[] image,Decoded originalSelector,MembershipIdentity identity) {
         var selector=decode(originalSelector.bytes(),"records","SELECTOR");String root=(String)catalog.value().get("root");
         require(selector.value().get("root").equals(root) && selector.value().get("node").equals(identity.nodeId().value()),"applied-end original selector owner");
         var cut=object(catalog.value().get("cut"));var view=object(cut.get("view"));
@@ -83,6 +93,12 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         MembershipCheckpointPlan.parentStatement(statement,parent).ifPresent(bridge->{
             result.put(PARENT_STATEMENT,bridge.bytes());result.put(PARENT_ACK,acknowledgement(bridge,identity).bytes());
         });
+        require(ancestors.size()<=5,"applied-end ancestor capacity");long prior=-1;
+        for(int i=0;i<ancestors.size();i++) {
+            var lower=ancestors.get(i);long index=number(lower.cut().get("index"));require(index>prior,"applied-end ordered distinct ancestors");prior=index;
+            var bridge=MembershipCheckpointPlan.ancestorStatement(statement,parent,lower);
+            result.put(ancestor(i,false),bridge.bytes());result.put(ancestor(i,true),acknowledgement(bridge,identity).bytes());
+        }
         var inventory=new ArrayList<Map<String,Object>>();result.forEach((name,bytes)->inventory.add(Map.of("path",name,"sha256",hash(bytes),"bytes",(long)bytes.length)));
         result.put(PLAN,canonical(Map.of("schema","gse-v53-applied-end/1.3","root",root,"node",identity.nodeId().value(),"files",inventory),4096));
         for(var row:result.entrySet())require(row.getValue().length<=limit(row.getKey()),"applied-end member capacity");return result;
@@ -99,6 +115,18 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         var ack=decode(expected.get(PARENT_ACK),"records","CHECKPOINT_ACK");
         return Optional.of(new ParentEndorsement(decode(expected.get(PARENT_STATEMENT),"records","CHECKPOINT"),ack,observation(ack,identity)));
     }
+    private static List<ParentEndorsement> ancestorEndorsements(Map<String,byte[]> expected,MembershipIdentity identity) {
+        var result=new ArrayList<ParentEndorsement>();
+        for(int i=0;i<5 && expected.containsKey(ancestor(i,false));i++) {
+            var ack=decode(expected.get(ancestor(i,true)),"records","CHECKPOINT_ACK");
+            result.add(new ParentEndorsement(decode(expected.get(ancestor(i,false)),"records","CHECKPOINT"),ack,observation(ack,identity)));
+        }
+        return List.copyOf(result);
+    }
+    private static void sameEndorsement(ParentEndorsement wanted,ParentEndorsement actual) {
+        require(Arrays.equals(wanted.statement().bytes(),actual.statement().bytes()) && Arrays.equals(wanted.acknowledgement().bytes(),actual.acknowledgement().bytes())
+                && wanted.owned().equals(actual.owned()),"publication original parent endorsement");
+    }
     void completed(MembershipCheckpointPlan plan,Decoded selector,MembershipIdentity identity,Endorsement endorsement)throws IOException {
         check();var expected=materialization(plan,selector,identity);
         require(exists && files.keySet().equals(expected.keySet()),"publication requires complete applied end");
@@ -107,17 +135,17 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         require(Arrays.equals(ack.bytes(),endorsement.acknowledgement().bytes()) && endorsement.owned().equals(observation(ack,identity)),"publication original local end observation");
         var parent=parentEndorsement(expected,identity);require(parent.isPresent()==endorsement.parent().isPresent(),"publication original parent endorsement presence");
         if(parent.isPresent()) {
-            var wanted=parent.orElseThrow();var actual=endorsement.parent().orElseThrow();
-            require(Arrays.equals(wanted.statement().bytes(),actual.statement().bytes()) && Arrays.equals(wanted.acknowledgement().bytes(),actual.acknowledgement().bytes())
-                    && wanted.owned().equals(actual.owned()),"publication original parent endorsement");
+            sameEndorsement(parent.orElseThrow(),endorsement.parent().orElseThrow());
         }
+        var ancestors=ancestorEndorsements(expected,identity);require(ancestors.size()==endorsement.ancestors().size(),"publication local ancestor observations");
+        for(int i=0;i<ancestors.size();i++)sameEndorsement(ancestors.get(i),endorsement.ancestors().get(i));
     }
     /** The durable covering generation is authority; PLAN is kept until all listed members are gone. */
-    void retireCovered(MembershipCapsule capsule,Map<String,byte[]> images,MembershipCapsule.Anchor parent,MembershipPendingAccept.Vote vote,MembershipIdentity identity,
+    void retireCovered(MembershipCapsule capsule,Map<String,byte[]> images,MembershipCapsule.Anchor parent,List<MembershipCapsule.Anchor> ancestors,MembershipPendingAccept.Vote vote,MembershipIdentity identity,
             MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
         check();guard.check();var cap=capsule.packet.capsule().value();var last=object(list(cap.get("items")).getLast());
         var expected=materialization(capsule.context.record((String)cap.get("catalog"),"CATALOG"),capsule.context.record((String)last.get("statement"),"CHECKPOINT"),
-                parent,vote.certificate(),images.get(cap.get("application")),vote.selector(),identity);
+                parent,ancestors,vote.certificate(),images.get(cap.get("application")),vote.selector(),identity);
         require(files.isEmpty() || files.containsKey(PLAN),"covered end lost original plan before members");
         for(var row:files.entrySet())require(expected.containsKey(row.getKey()) && row.getValue().bytes()==expected.get(row.getKey()).length
                 && row.getValue().digest().equals(hash(expected.get(row.getKey()))),"covered end differs from exact published state");
@@ -141,24 +169,30 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         require(metadata<=maximumMetadata,"applied-end completion journal capacity");
         for(var row:files.entrySet())require(expected.containsKey(row.getKey()) && prefix(AdmissionPaths.read(path.resolve(row.getKey()),limit(row.getKey())),expected.get(row.getKey())),"applied-end requires exact original plan");
         // An ACK (even a torn one) can only follow a complete exact forced end.
-        if(files.containsKey(ACK) || files.containsKey(PARENT_ACK))for(var row:expected.entrySet())if(!Set.of(ACK,PARENT_ACK).contains(row.getKey()))
+        var ackNames=new ArrayList<>(List.of(ACK));if(expected.containsKey(PARENT_ACK))ackNames.add(PARENT_ACK);
+        for(int i=0;i<5 && expected.containsKey(ancestor(i,true));i++)ackNames.add(ancestor(i,true));
+        if(ackNames.stream().anyMatch(files::containsKey))for(var row:expected.entrySet())if(!ackNames.contains(row.getKey()))
             require(files.containsKey(row.getKey()) && files.get(row.getKey()).bytes()==row.getValue().length
                     && files.get(row.getKey()).digest().equals(hash(row.getValue())),"applied-end ACK without complete original end");
-        if(files.containsKey(PARENT_ACK))require(files.containsKey(ACK) && files.get(ACK).bytes()==expected.get(ACK).length
-                && files.get(ACK).digest().equals(hash(expected.get(ACK))),"parent ACK without completed range ACK");
+        for(int i=1;i<ackNames.size();i++)if(files.containsKey(ackNames.get(i)))for(int j=0;j<i;j++) {
+            String name=ackNames.get(j);require(files.containsKey(name) && files.get(name).bytes()==expected.get(name).length
+                    && files.get(name).digest().equals(hash(expected.get(name))),"ancestor ACK without preceding complete ACK");
+        }
         reserve();event("APPLY_VALIDATED",guard,cut);
         if(!exists){Files.createDirectory(path);snapshot();event("APPLY_DIRECTORY_CREATED",guard,cut);}
         complete(PLAN,expected.get(PLAN),"APPLY_PLAN",guard,cut);
         for(String name:List.of("selector.gsr","certificate.gsr","catalog.gsr","statement.gsr"))complete(name,expected.get(name),"APPLY_METADATA",guard,cut);
         if(expected.containsKey(PARENT_STATEMENT))complete(PARENT_STATEMENT,expected.get(PARENT_STATEMENT),"APPLY_PARENT_STATEMENT",guard,cut);
+        for(int i=0;i<5 && expected.containsKey(ancestor(i,false));i++)complete(ancestor(i,false),expected.get(ancestor(i,false)),"APPLY_ANCESTOR_"+i+"_STATEMENT",guard,cut);
         complete(IMAGE,expected.get(IMAGE),"APPLY_IMAGE",guard,cut);
         AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(path.getParent());event("APPLY_END_FORCED",guard,cut);
         complete(ACK,expected.get(ACK),"APPLY_ACK",guard,cut);
         if(expected.containsKey(PARENT_ACK))complete(PARENT_ACK,expected.get(PARENT_ACK),"APPLY_PARENT_ACK",guard,cut);
+        for(int i=0;i<5 && expected.containsKey(ancestor(i,true));i++)complete(ancestor(i,true),expected.get(ancestor(i,true)),"APPLY_ANCESTOR_"+i+"_ACK",guard,cut);
         AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(path.getParent());event("APPLY_ACK_DIRECTORY_FORCED",guard,cut);
         event("APPLY_BEFORE_RETURN",guard,cut);
         var ack=decode(expected.get(ACK),"records","CHECKPOINT_ACK");
-        return new Endorsement(ack,observation(ack,identity),parentEndorsement(expected,identity));
+        return new Endorsement(ack,observation(ack,identity),parentEndorsement(expected,identity),ancestorEndorsements(expected,identity));
     }
     private void event(String name,MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
         check();guard.check();cut.at(name);check();guard.check();

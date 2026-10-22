@@ -156,8 +156,9 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         return images;
     }
     void verifyParents(Collection<MembershipCapsule.Anchor> parents) throws IOException {
-        check();capsule.verifyAncestry(files.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0],parents);check();
+        check();capsule.verifyAncestry(ancestry(),parents);check();
     }
+    byte[] ancestry()throws IOException {check();return files.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0];}
     Map<String,byte[]> copyFiles() throws IOException {
         check();var result=new TreeMap<String,byte[]>();
         for(var file:files.entrySet())result.put(file.getKey(),AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(file.getValue().bytes())));
@@ -173,6 +174,10 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         check();require(files.containsKey(MembershipSelectionCoverage.FILE),"published parent requires coverage");
         var coverage=object(parse(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM),MembershipSelectionCoverage.MAXIMUM));
         var p=object(coverage.get("parent"));return new MembershipCapsule.Anchor(object(p.get("cut")),(String)p.get("catalog"),(String)p.get("application"));
+    }
+    List<MembershipCapsule.Anchor> publishedAncestors()throws IOException {
+        check();require(files.containsKey(MembershipSelectionCoverage.FILE),"published ancestors require coverage");
+        return MembershipSelectionCoverage.additionalParents(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM));
     }
     Optional<Owned> ownedTail() throws IOException {
         check();return accepted==null?Optional.empty():Optional.of(new Owned(identity.nodeId().value(),identity.storageId(),accepted,cutDigest(capsule.context.cut)));

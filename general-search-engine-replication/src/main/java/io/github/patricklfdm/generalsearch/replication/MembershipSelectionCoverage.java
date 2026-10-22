@@ -11,14 +11,32 @@ final class MembershipSelectionCoverage {
     static final String FILE="selected-coverage.json";
     static final int MAXIMUM=4096;
     static byte[] encodeCoverage(Decoded selected,MembershipCapsule.Anchor parent,Decoded certificate) {
-        return canonical(Map.of("schema","gse-v53-selected-coverage/1.3","selection",selected.digest(),
+        return encodeCoverage(selected,parent,certificate,List.of());
+    }
+    static byte[] encodeCoverage(Decoded selected,MembershipCapsule.Anchor parent,Decoded certificate,List<MembershipCapsule.Anchor> ancestors) {
+        var value=new TreeMap<String,Object>(Map.of("schema","gse-v53-selected-coverage/1.3","selection",selected.digest(),
                 "parent",Map.of("cut",parent.cut(),"catalog",parent.catalog(),"application",parent.application()),
-                "certificate",certificate.digest()),MAXIMUM);
+                "certificate",certificate.digest()));
+        require(ancestors.size()<=5,"publication local ancestor count");
+        if(!ancestors.isEmpty())value.put("ancestors",ancestors.stream().map(a->Map.of("cut",a.cut(),"catalog",a.catalog(),"application",a.application())).toList());
+        return canonical(value,MAXIMUM);
+    }
+    static List<MembershipCapsule.Anchor> additionalParents(byte[] bytes) {
+        var value=object(parse(bytes,MAXIMUM));if(!value.containsKey("ancestors"))return List.of();
+        var result=new ArrayList<MembershipCapsule.Anchor>();long prior=-1;
+        var rows=list(value.get("ancestors"));require(!rows.isEmpty() && rows.size()<=5,"publication ancestor inventory");
+        for(Object row:rows) {
+            var item=object(row);require(item.keySet().equals(Set.of("cut","catalog","application")) && item.get("catalog") instanceof String
+                    && item.get("application") instanceof String,"publication ancestor fields");
+            var anchor=new MembershipCapsule.Anchor(object(item.get("cut")),(String)item.get("catalog"),(String)item.get("application"));
+            long index=number(anchor.cut().get("index"));require(index>prior,"publication ordered distinct ancestors");prior=index;result.add(anchor);
+        }
+        return List.copyOf(result);
     }
     static void verify(byte[] bytes,MembershipCapsule capsule,Decoded promise,Decoded selected,byte[] ancestry) {
         require(promise.kind().equals("PROMISE") && selected.kind().equals("SELECTED"),"publication original record kinds");
         var value=object(parse(bytes,MAXIMUM));
-        require(value.keySet().equals(Set.of("schema","selection","parent","certificate"))
+        require((value.keySet().equals(Set.of("schema","selection","parent","certificate")) || value.keySet().equals(Set.of("schema","selection","parent","certificate","ancestors")))
                 && "gse-v53-selected-coverage/1.3".equals(value.get("schema"))
                 && selected.digest().equals(value.get("selection")) && Arrays.equals(bytes,canonical(value,MAXIMUM)),"publication coverage identity");
         var p=object(value.get("parent"));require(p.keySet().equals(Set.of("cut","catalog","application")),"publication parent fields");
@@ -35,6 +53,12 @@ final class MembershipSelectionCoverage {
         long start=number(parent.cut().get("index"));
         require(start<MembershipValidation.MAX && number(capsule.context.cut.get("index"))==start+1,"publication first selected slot only");
         capsule.verifyAncestry(ancestry,List.of(parent));
+        var additional=additionalParents(bytes);capsule.verifyAncestry(ancestry,additional);
+        if(!additional.isEmpty()) {
+            var last=object(list(capsule.packet.capsule().value().get("items")).getLast());
+            var statement=capsule.context.record((String)last.get("statement"),"CHECKPOINT");
+            for(var lower:additional)MembershipCheckpointPlan.ancestorStatement(statement,parent,lower);
+        }
         var certificate=capsule.context.record((String)value.get("certificate"),"CERTIFICATE");
         var entry=capsule.publicationCertificate(certificate,parent.cut());
         require(certificate.value().get("ballot").equals(s.get("ballot"))

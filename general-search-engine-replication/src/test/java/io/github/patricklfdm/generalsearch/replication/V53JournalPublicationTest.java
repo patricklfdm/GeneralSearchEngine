@@ -99,9 +99,12 @@ class V53JournalPublicationTest {
         assertEquals(PROCESS_CUTS.size()*2,rows.size());
     }
     static void child(Path root,String label,String point,String mode)throws Exception {
+        child(root,label,point,mode,V53JournalPublicationWorker.class);
+    }
+    static void child(Path root,String label,String point,String mode,Class<?> worker)throws Exception {
         Path stdout=root.resolve(label+".stdout"),stderr=root.resolve(label+".stderr");
         var proc=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData","-cp",System.getProperty("java.class.path"),
-                V53JournalPublicationWorker.class.getName(),root.toAbsolutePath().toString(),point,mode).redirectOutput(stdout.toFile()).redirectError(stderr.toFile()).start();
+                worker.getName(),root.toAbsolutePath().toString(),point,mode).redirectOutput(stdout.toFile()).redirectError(stderr.toFile()).start();
         try {
             if(mode.equals("kill")) {
                 long end=System.nanoTime()+30_000_000_000L;
