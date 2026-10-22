@@ -23,7 +23,8 @@ The public membership factory remains disabled throughout this storage entry bat
 | 2C4c3 — locally complete for journal admission | [Automatic bounded journal backpressure](PHASE_2_JOURNAL_BACKPRESSURE.md): one safe exact compaction attempt at grant/selection/adoption admission, then bounded capacity refusal; retain original sources and fences |
 | 2C4c4a — locally complete for decision | [Original-source retirement planning](PHASE_2_SOURCE_RETIREMENT_PLAN.md): newer promise, protected current/floor references, exact ancestry and tail preservation; read-only deletion inventory and exact journal candidate |
 | 2C4c4b — locally complete for completed sources | [Original-source retirement](PHASE_2_SOURCE_RELEASE.md): bounded forced original decision, exact journal replacement before listed deletion, partial cleanup/recovery and returned reservations |
-| 2C4c4c | Incomplete capture, maximal source/image headroom and complete coordinated lifetime progress |
+| 2C4c4c — locally complete for covered full captures | [Capture-only retirement](PHASE_2_CAPTURED_SOURCE_RELEASE.md): complete original packet/images without BASIS, strictly later full floor, exact journal/deletion recovery |
+| 2C4c5 | Same-cut/partial capture, maximal source/image headroom and complete coordinated lifetime progress |
 | 2C5 | Actual ACCEPT/PROOF/certificate persistence and complete application/catalog generation |
 | 2D | Complete offline provisioning/open, legacy rejection and configuration-aware storage qualification; real ownership observations replace synthetic inputs; physical S/N coverage and closure audit |
 

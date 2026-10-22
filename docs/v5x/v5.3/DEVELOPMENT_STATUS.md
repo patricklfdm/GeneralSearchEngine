@@ -802,3 +802,26 @@ tests, and **41 Python/build tests** normally and under `-O` passed.
 This does not reclaim incomplete original captures or close maximal source/image
 headroom, actual phased vote/application storage or Phase 2. No public runtime,
 network ACK, power-loss, workflow, cloud or V5.2 Runner claim. Local commit only.
+
+
+## 2026-10-22 — Phase 2C4c4c covered capture-only retirement
+
+A complete original capture interrupted before BASIS can retire after a strictly
+later full governing floor covers every possible ACCEPT object. Preserve original
+PROMISE/capsule binding, current/floor ancestry and all other resources; never
+invent an empty BASIS. The new missing-BASIS regression fails against the preceding implementation: a
+complete pending marker could otherwise conceal a removed original BASIS. The
+correction requires the intact original group while its PROMISE remains.
+Complete authority resumes only after the original journal
+and remaining source inventory satisfy the same serialized transaction.
+
+**44 cases / 178 fresh JVMs**, **14 exact evidence negatives**, portable replay
+and **218 Java / 47 Python tests** (normal and optimized Python) passed.
+The existing 297-case completed-BASIS artifact also replays unchanged; its source
+attribution remains historical. [Scope](PHASE_2_CAPTURED_SOURCE_RELEASE.md),
+[hash index](phase2-evidence/captured-source-release.json).
+
+Same-cut/physically partial capture, maximal source/image headroom, actual phased
+vote/application persistence and complete-store recovery still remain OPEN.
+Continue the Phase 2 entry/closure obligations; no phase or public-runtime closure
+is claimed. No push, workflow dispatch, paid cloud or V5.2 Runner change.

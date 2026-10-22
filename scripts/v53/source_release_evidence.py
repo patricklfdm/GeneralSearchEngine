@@ -93,10 +93,10 @@ def result(rows,initial,compact):
        and row['floor']==initial['floor-copies/floor.gsr']['sha256'] and row['networkAck'] is False,'source release returned binding')
 
 
-def validate_case(directory,case):
+def validate_case(directory,case,*,plan_builder=plan,execution="private-source-retirement"):
     directory=Path(directory);receipt=g.a.load(directory/'case.json');need(receipt['case']==case,'source release case identity')
-    need(receipt['execution']=='private-source-retirement' and all(receipt[k] is False for k in ('runtimeEnabled','historicalOwnershipVerified','networkAck')),'source release scope')
-    initial,authority,compact,id=plan(directory,case);d.process(directory,receipt,'init','init',0);processes={'init'};snapshots={'initial','final','authority'}
+    need(receipt['execution']==execution and all(receipt[k] is False for k in ('runtimeEnabled','historicalOwnershipVerified','networkAck')),'source release scope')
+    initial,authority,compact,id=plan_builder(directory,case);d.process(directory,receipt,'init','init',0);processes={'init'};snapshots={'initial','final','authority'}
     def call(label,state,mode='none',cut='none'):
         steps=transaction(state,authority,compact,id);fault=mode!='none';position=r.cut_position(steps,cut) if fault else len(steps)-1
         rows=d.process(directory,receipt,label,'retire',73 if mode=='halt' else -9 if mode=='kill' else 0)

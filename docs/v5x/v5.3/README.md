@@ -98,3 +98,7 @@ Run from the repository root. The output directory must be new. These commands
 need no Maven build, sudo, network, cloud credentials or running GSE processes.
 They check the declared finite model only. See the retained
 [research receipt](membership-research.json) and [coverage limits](TESTING_AND_EVIDENCE.md).
+
+[Capture-only source retirement](PHASE_2_CAPTURED_SOURCE_RELEASE.md) adds recovery
+for complete packet/image captures without BASIS under a strictly later full floor;
+same-cut/partial capture and maximal coordinated resource progress remain open.

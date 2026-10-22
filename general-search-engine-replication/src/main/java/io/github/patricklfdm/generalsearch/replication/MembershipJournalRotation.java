@@ -27,11 +27,11 @@ final class MembershipJournalRotation {
                 skip=plan.basisId.equals(row.value().get("basisId"));
                 if(skip){require(!found && Arrays.equals(row.bytes(),plan.promise.bytes()),"source rotation original promise changed");found=true;}
             }else if(skip && name.equals("BASIS")) {
-                require(!basisFound && Arrays.equals(row.bytes(),plan.basis.bytes()),"source rotation original basis changed");basisFound=true;
+                require(plan.basis!=null && !basisFound && Arrays.equals(row.bytes(),plan.basis.bytes()),"source rotation original basis changed");basisFound=true;
             }
             if(!skip)out.writeBytes(row.bytes());
         }
-        require(found && basisFound && !skip,"source rotation cannot drop highest grant");
+        require(found && basisFound==(plan.basis!=null) && !skip,"source rotation cannot drop highest grant");
         var retained=new HashSet<>(retainedSources);retained.remove(plan.basisId);
         return compact(out.toByteArray(),protectedPromises,retained);
     }

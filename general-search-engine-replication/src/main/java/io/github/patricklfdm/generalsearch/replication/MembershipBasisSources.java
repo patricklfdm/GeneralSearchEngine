@@ -37,10 +37,11 @@ final class MembershipBasisSources implements AutoCloseable {
             leases.add(resources.reserve(MembershipResources.Unit.JOURNAL,"membership-grants",MembershipGrantJournal.MAXIMUM));
             Set<String> ids=children(directory,6);
             var allowed=new HashSet<>(promises.keySet());if(retiring!=null)allowed.add(retiring.id());
-            require(allowed.containsAll(ids) && ids.containsAll(bases.keySet()),"missing or unbound original source");
+            require(allowed.containsAll(ids) && ids.containsAll(bases.keySet())
+                    && (retiring==null || !promises.containsKey(retiring.id()) || ids.contains(retiring.id())),"missing or unbound original source");
             for(String id:ids) {
                 Path path=directory.resolve(id);
-                if(retiring!=null && id.equals(retiring.id()) && !bases.containsKey(id)) {
+                if(retiring!=null && id.equals(retiring.id()) && !promises.containsKey(id)) {
                     var expected=retirementInventory(retiring);var actual=new TreeMap<String,FileIdentity>();
                     require(expected.keySet().containsAll(children(path,8)),"source retirement unlisted member");
                     for(String name:children(path,8)){var item=expected.get(name);actual.put(name,inspect(path.resolve(name),number(item.get("size")),(String)item.get("sha256")));}
@@ -143,9 +144,15 @@ final class MembershipBasisSources implements AutoCloseable {
     Set<String> retainedIdentities(){return Set.copyOf(retained.keySet());}
     record Original(MembershipSourcePacket packet,Map<String,byte[]> images) {}
     Original original(Decoded basis) throws IOException {
-        check();String id=(String)basis.value().get("basisId");require(retained.containsKey(id),"original basis source absent");
+        return original((String)basis.value().get("basisId"),null,basis);
+    }
+    Original original(String id,Decoded promise,Decoded basis)throws IOException {
+        check();require(retained.containsKey(id),"original basis source absent");
         Path path=directory.resolve(id);var packet=MembershipSourcePacket.decode(AdmissionPaths.read(path.resolve(PACKET),MembershipSourcePacket.MAXIMUM));
-        packet.bind(basis);var images=new TreeMap<String,byte[]>();
+        if(basis!=null)packet.bind(basis);else require(promise!=null && id.equals(promise.value().get("basisId"))
+                && packet.capsule().value().get("root").equals(promise.value().get("root"))
+                && MembershipContext.viewDigest((String)promise.value().get("root"),object(object(packet.capsule().value().get("cut")).get("view"))).equals(promise.value().get("view")),"captured source original promise");
+        var images=new TreeMap<String,byte[]>();
         for(var image:packet.images().entrySet())images.put(image.getKey(),AdmissionPaths.read(path.resolve(image.getKey()+".image"),Math.toIntExact(image.getValue())));
         packet.verifyImages(images);check();return new Original(packet,Map.copyOf(images));
     }

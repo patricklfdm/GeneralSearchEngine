@@ -60,7 +60,7 @@ class V53SourceRetirementPlanTest {
         try(var store=open(path,f)) {
             floor(store,temp.resolve("peers"),f);String id=basis(store,f,20);
             assertEquals("source retirement needs a newer durable promise",assertThrows(IllegalArgumentException.class,()->store.planSourceRetirement(id)).getMessage());
-            assertEquals("source retirement requires complete original basis",assertThrows(IllegalArgumentException.class,()->store.planSourceRetirement(UUID.randomUUID().toString())).getMessage());
+            assertEquals("source retirement requires complete original source",assertThrows(IllegalArgumentException.class,()->store.planSourceRetirement(UUID.randomUUID().toString())).getMessage());
         }
     }
     @Test void currentInstalledBasisRemainsProtectedAfterHigherGrant()throws Exception {

@@ -274,9 +274,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipSourceRetirementPlan sourceRetirementPlan(String id)throws IOException {
         checkOwner();require(!inactive.exists() && !inactive.pending(),"inactive generation must retire before source planning");
         require(promise!=null && (promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest())),"uninstalled adoption fence; prefix recovery required");
-        var originalBasis=bases.get(id);require(originalBasis!=null,"source retirement requires complete original basis");
+        var originalBasis=bases.get(id);require(promises.containsKey(id) && sources.retainedIdentities().contains(id),"source retirement requires complete original source");
         var retained=floors.retained().orElseThrow(()->new IllegalArgumentException("durable governing floor required before source retirement"));
-        var original=sources.original(originalBasis);var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        var original=sources.original(id,promises.get(id),originalBasis);var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
         var capsule=Objects.requireNonNull(capsuleVerifier.verify(rootRecord,original.packet(),original.images()));
         require(Arrays.equals(capsule.packet.bytes(),original.packet().bytes()),"source retirement verifier substituted source");
         var plan=MembershipSourceRetirementPlan.create(root,identity,current,retained,promise,promises.get(id),originalBasis,capsule,original.images());
@@ -290,8 +290,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         try {
             var retained=floors.retained().orElseThrow(()->new IllegalArgumentException("durable governing floor required before source retirement"));
             var saved=sourceRetirement.decision();MembershipSourceRetirementFiles.Decision decision;MembershipSourceRetirementPlan plan=null;
-            if(bases.containsKey(id)) {
-                plan=sourceRetirementPlan(id);var original=sources.original(plan.basis);
+            if(promises.containsKey(id)) {
+                plan=sourceRetirementPlan(id);var original=sources.original(id,plan.promise,plan.basis);
                 decision=new MembershipSourceRetirementFiles.Decision(plan.record,plan.promise,plan.basis,original.packet().capsule());
                 if(saved.isPresent())require(Arrays.equals(saved.get().bytes(),decision.bytes()),"source retirement differs from original source");
             }else {decision=saved.orElseThrow(()->new IllegalArgumentException("source retirement original decision absent"));require(decision.id().equals(id),"source retirement different original identity");}
