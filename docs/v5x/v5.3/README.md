@@ -19,8 +19,9 @@ research matrices on the final script bytes. The [Phase 1 closure audit](PHASE_1
 records current compatibility, byte, source-selection and complete causal-model
 qualification. The new membership runtime remains disabled. [Phase 2 storage](PHASE_2_ENTRY_PLAN.md)
 is open, with [private durable allocation and exclusive ownership](PHASE_2_STORAGE_FOUNDATION.md)
-and the [promise/original-basis metadata journal](PHASE_2_GRANT_JOURNAL.md).
-Physical source retention and complete generation recovery remain pending.
+and the [promise/original-basis metadata journal](PHASE_2_GRANT_JOURNAL.md), now with
+[physical original-source retention](PHASE_2_BASIS_SOURCES.md).
+Current-generation ownership binding and complete generation recovery remain pending.
 
 ## Historical research in order
 

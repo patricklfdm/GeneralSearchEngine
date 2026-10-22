@@ -10,7 +10,8 @@ The public membership factory remains disabled throughout this storage entry bat
 | --- | --- |
 | 2A — locally complete | Private exclusive owner and separately forced ballot counter; exact pre-provisioned root/node binding; fresh-process lock, halt/SIGKILL and restart evidence |
 | 2B1 — locally complete | [Root-wide promise and original basis frames](PHASE_2_GRANT_JOURNAL.md); exact duplicate response, incomplete-grant refusal and concurrent observation fencing; physical source retention still pending |
-| 2B2 | Bind the journal to current owned parent/tail/capsule/application storage and exact retained source lifetimes; no response on missing original authority |
+| 2B2a — locally complete | [Original source retention](PHASE_2_BASIS_SOURCES.md): packet/image force before BASIS, exact original replay/reopen and bounded reservations; no source reclamation |
+| 2B2b | Bind sampling to current owned generation/parent/tail authority and serialize generation installation with the journal; replace conditional caller ownership |
 | 2C | Selected-source installation, ACCEPT/PROOF/certificate persistence and complete application/catalog generation; exact selector/floor recovery and bounded retention |
 | 2D | Complete offline provisioning/open, legacy rejection and configuration-aware storage qualification; real ownership observations replace synthetic inputs; physical S/N coverage and closure audit |
 

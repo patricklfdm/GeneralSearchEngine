@@ -4,6 +4,11 @@ Status: **2B1 locally complete**, private storage component; **Phase 2B remains 
 ownership and retention. This batch cannot send a PREPARE grant, vote, publish
 READY or enable the public membership runtime.
 
+The later [2B2a retained-source mode](PHASE_2_BASIS_SOURCES.md) now forces and
+rechecks actual packet/image files before BASIS. The metadata-only mode described
+here remains a separately qualified private component; neither mode establishes
+the current selected generation or authenticated remote ownership.
+
 ## One owner and a bounded journal
 
 `MembershipGrantJournal` shares the Phase 2A allocator's exact exclusive directory

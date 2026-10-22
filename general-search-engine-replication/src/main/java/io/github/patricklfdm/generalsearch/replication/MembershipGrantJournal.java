@@ -11,7 +11,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 import static io.github.patricklfdm.generalsearch.replication.MembershipContext.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** Private grant metadata only. Source retention and public vote authorization are not implemented here. */
+/** Private grant journal. Retained mode seals original source bytes; public vote authorization remains disabled. */
 final class MembershipGrantJournal implements AutoCloseable {
     static final String FILE="grants.gsr";
     static final int MAXIMUM=32*1024*1024, RESERVATION=8192+16384;
@@ -25,6 +25,8 @@ final class MembershipGrantJournal implements AutoCloseable {
     private final AtomicReference<Map<String,Object>> observed=new AtomicReference<>();
     private byte[] journal;
     private Decoded promise,basis;
+    private final Map<String,Decoded> promises=new TreeMap<>(), bases=new TreeMap<>();
+    private MembershipBasisSources sources;
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -53,6 +55,19 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
     }
 
+    /** Requires pre-provisioned sources directory. Never falls back to metadata-only open. */
+    static MembershipGrantJournal openRetained(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipBallotAllocator.Cut cut) throws IOException {
+        Objects.requireNonNull(resources);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
+        var owner=MembershipBallotAllocator.openWithRetainedGrants(path,root,identity,cut);
+        try {
+            var journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);
+            journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);return journal;
+        } catch(IOException | RuntimeException | Error error) {
+            try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;
+        }
+    }
+
     private Object key() throws IOException {
         Object key=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).fileKey();
         require(key!=null,"grant file identity unavailable");return key;
@@ -60,6 +75,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private void live() {require(!closed && !failed,"grant journal closed or failed");}
     private void checkOwner() throws IOException {
         live();allocator.checkOwner();require(fileKey.equals(key()),"grant journal inode changed");AdmissionPaths.exact(path,journal);
+        if(sources!=null)sources.check();
     }
     private static Map<String,Object> ballot(Map<String,Object> value) {
         checkType(value,"ballot");require(number(value.get("counter"))<=MembershipBallotAllocator.MAX,"grant ballot counter capacity");
@@ -89,8 +105,9 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(name.equals("PROMISE")) {
                 checkPromise(value);
                 require(promise==null || compareBallot(object(value.value().get("ballot")),object(promise.value().get("ballot")))>0,"non-increasing grant promise");
+                require(promises.putIfAbsent((String)value.value().get("basisId"),value)==null,"reused original basis identity");
                 promise=value;basis=null;
-            } else {require(basis==null,"duplicate grant basis");checkBasis(value,promise);basis=value;}
+            } else {require(basis==null,"duplicate grant basis");checkBasis(value,promise);basis=value;bases.put((String)value.value().get("basisId"),value);}
         }
     }
 
@@ -112,6 +129,12 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
 
     synchronized Decoded prepare(MembershipCapsule source,Map<String,Object> incoming,String accepted) throws IOException {
+        require(sources==null,"retained grant requires application materializations");
+        return prepare(source,incoming,accepted,null);
+    }
+
+    synchronized Decoded prepare(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images) throws IOException {
+        require((sources==null)==(images==null),"grant source mode mismatch");
         live();var context=source.context;
         require(context.root.equals(root.manifestDigest()) && identity.equals(context.identities.get(identity.nodeId().value()))
                 && context.voters().contains(identity.nodeId().value()),"grant local eligible identity");
@@ -133,8 +156,10 @@ final class MembershipGrantJournal implements AutoCloseable {
             context.ballot(tail.value().get("ballot"),true);context.ballot(entry.value().get("origin"),true);
             context.control((String)entry.value().get("kind"),command((String)entry.value().get("kind"),source.packet.objectBytes((String)entry.value().get("payload"))));
         }
-        try {
+        var reservation=sources==null?null:sources.prepare(frozen,source,images);
+        try(var retained=reservation) {
             append(grant,next);promise=grant;basis=null;
+            if(retained!=null){retained.capture();fence(next);}
             append(frozen,next);basis=frozen;cut.at("GRANT_BEFORE_RETURN");fence(next);return frozen;
         } catch(IOException | RuntimeException | Error error) {failed=true;throw error;}
     }
@@ -152,5 +177,5 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     synchronized Optional<Decoded> promised() {live();return Optional.ofNullable(promise);}
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
-    @Override public synchronized void close() throws IOException {if(!closed){closed=true;allocator.close();}}
+    @Override public synchronized void close() throws IOException {if(!closed){closed=true;try{if(sources!=null)sources.close();}finally{allocator.close();}}}
 }

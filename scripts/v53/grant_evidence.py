@@ -52,8 +52,8 @@ def journal(data,root,node):
     return rows
 
 
-def state(path,size):
-    need(path.is_dir() and not path.is_symlink() and {p.name for p in path.iterdir()}==a.NAMES|{'grants.gsr'},'grant snapshot inventory')
+def state(path,size,extra_names=frozenset()):
+    need(path.is_dir() and not path.is_symlink() and {p.name for p in path.iterdir()}==a.NAMES|{'grants.gsr'}|extra_names,'grant snapshot inventory')
     values={n:read(path/n,LIMIT if n=='grants.gsr' else 65536 if n=='genesis.gsr' else 16384 if n=='root.gsr' else 4096) for n in a.NAMES|{'grants.gsr'}}
     need(values['replica.lock']==b'','grant lock bytes')
     root=f.decode(values['root.gsr'],'records','ROOT');digest=values['root.gsr'][16:48].hex()

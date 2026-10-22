@@ -502,3 +502,26 @@ complete generation/floor recovery and rotation remain later work. Phase 2 is
 **OPEN**; the public runtime is disabled and physical S/N rows remain PLANNED.
 No inherited runtime, frozen byte catalog, POM, workflow or V5.2 experiment changed.
 Only local commit is authorized; nothing was pushed or dispatched.
+
+## 2026-10-22 — Phase 2B2a physical original-source retention
+
+Added [retained source storage](PHASE_2_BASIS_SOURCES.md) under the existing journal
+owner. Each original packet and all image bytes are forced with their directory
+entries before BASIS. Exact duplicates/reopen use original bytes; missing, partial,
+corrupt, linked, unbound or replaced source files refuse further use. Shared source,
+application and journal reservations rebuild on reopen; insufficient capacity
+refuses before a new PROMISE. No durable source deletion is implemented.
+
+80 focused Java tests, 41 Python/build-contract tests and 25 optimized-Python tests
+passed. The physical matrix passed 69 cases / 258 fresh JVMs, eleven exact negative
+mutations and relocated replay. The previous 45-case grant and 48-case allocator
+matrices also passed with their original negative/replay gates. Exact bytes, raw
+receipts and development corrections are indexed in
+[basis-sources.json](phase2-evidence/basis-sources.json); local evidence remains at
+`target/v53-phase2-sources/`.
+
+Phase 2B2 remains **OPEN** for current-generation/parent/tail ownership binding;
+the input capsule's remote ownership observations are still conditional. Complete
+selected generation recovery, retirement and public protocol integration follow.
+No inherited runtime, frozen format, POM, workflow or V5.2 experiment changed.
+This batch is local commit only, without push or hosted acceptance.
