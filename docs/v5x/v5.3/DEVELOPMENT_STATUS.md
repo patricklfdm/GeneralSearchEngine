@@ -921,3 +921,19 @@ revalidation, and cannot replace any complete/forced original. No frozen contrac
 was changed. Continue actual application/sequence/catalog publication, covered-tail
 and complete lifetime/bootstrap integration. Phase 2/pre-cloud closure remains OPEN.
 Only local work/commits; no V5.2 cloud, workflow or public readiness change.
+
+
+## 2026-10-22 — Phase 2C5d actual core application images
+
+The private image adapter now wraps exact existing metadata/checkpoint payloads,
+normalizes only administrative manifest fields in a new byte array, and validates
+through real core backup semantics. Dynamic indexes, history/sequence, document order,
+source preservation and bounded hostile input checks have local coverage.
+**293 Java tests**, including **eight new image tests**, passed. The initial sandbox
+socket restriction and test compilation error remain retained in the
+[evidence index](phase2-evidence/application-image.json).
+
+[Scope and commands](PHASE_2_APPLICATION_IMAGE.md). This is application image
+encoding/verification, not durable publication or complete bootstrap. Continue actual
+application replay, catalog projection, checkpoint endorsements and publication
+under original selected ancestry. Phase 2 and pre-cloud completion remain OPEN.

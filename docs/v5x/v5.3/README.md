@@ -51,7 +51,8 @@ including exact reaccept/recovery and fresh-grant capture. [Original pending PRO
 now passes 45 process scenarios with actual local voter ACCEPTs, repeated recovery
 and source capture. [Pending certificate](PHASE_2_PENDING_CERTIFICATE.md) now passes
 45 scenarios over actual ACCEPT/PROOF quorums; application publication and
-covered-tail integration remain open.
+covered-tail integration remain open. [Complete application images](PHASE_2_APPLICATION_IMAGE.md) now preserve
+actual core backup state with deterministic administrative metadata; publication remains pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

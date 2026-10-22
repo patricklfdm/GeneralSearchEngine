@@ -402,8 +402,11 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
         return new String(ReplicaJson.encode(Map.of("kind", kind, "field", field,
                 "analyzer", kind.equals("text") ? "gse-simple-v1" : ""), 8192), java.nio.charset.StandardCharsets.US_ASCII);
     }
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private IndexDefinition<T> definition(String descriptor) {
+        return definition(schema, descriptor);
+    }
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    static <K,T> IndexDefinition<T> definition(SearchSchema<T,K> schema, String descriptor) {
         var parsed = ReplicaWire.object(ReplicaJson.decode(descriptor.getBytes(java.nio.charset.StandardCharsets.US_ASCII), 8192));
         require(parsed.keySet().equals(java.util.Set.of("kind", "field", "analyzer")), PROTOCOL_MISMATCH, "invalid index descriptor fields");
         String kind = ReplicaWire.string(parsed, "kind"), name = ReplicaWire.string(parsed, "field");
