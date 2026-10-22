@@ -61,8 +61,10 @@ connects original local certificates, typed replay, bounded scratch recovery and
 [Complete generation materialization](PHASE_2_PUBLISHED_GENERATION.md) now preserves the original selected
 parent and certified first slot through component installation/reopen.
 [Actual journal publication](PHASE_2_JOURNAL_PUBLICATION.md) connects the forced selector to exact covered
-vote/end cleanup and interrupted recovery. Subsequent same-round slots, ancestry ACK issuance and
-complete resource lifetime remain pending.
+vote/end cleanup and interrupted recovery. [Actual parent checkpoint ACKs](PHASE_2_PARENT_CHECKPOINT.md)
+now preserve the immediate original parent hidden by a compacted RANGE. Subsequent
+same-round slots, additional older ancestry endorsements and complete resource
+lifetime remain pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

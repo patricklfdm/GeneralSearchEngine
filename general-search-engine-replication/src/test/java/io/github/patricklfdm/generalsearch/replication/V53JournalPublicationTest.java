@@ -18,8 +18,10 @@ class V53JournalPublicationTest {
         final V53JournalApplicationTest application=new V53JournalApplicationTest();
         final Set<Owned> observations=new HashSet<>(),checkpoints=new HashSet<>();
         final List<Decoded> acknowledgements=new ArrayList<>();
+        final List<MembershipSelection.Bridge> bridges=new ArrayList<>();
         final Map<Integer,MembershipGrantJournal.Applied> applied=new TreeMap<>();
-        Fixture(Path root,int at)throws Exception {
+        Fixture(Path root,int at)throws Exception {this(root,at,true);}
+        Fixture(Path root,int at,boolean applyLocal)throws Exception {
             this.root=root;this.at=at;Files.createDirectories(root);var app=new V53ApplicationReplayTest();app.temp=root;
             application.configure(root,app.initial(41),3,at);observations.addAll(application.f.f.f.fixture.owned);
             application.f.f.provision(root);application.f.f.install(root);
@@ -35,10 +37,15 @@ class V53JournalPublicationTest {
             application.cohort=new V53PendingCertificateFixture.Cohort(proof,application.f.certificate(proof,proofs),accepts,proofs);
             observations.addAll(application.cohort.owned());
             for(int n:nodes())try(var store=open(n,resources(),e->{})){store.certifyCurrent(application.cohort.certificate(),application.cohort.owned());}
-            for(int n:nodes())if(at!=6 || n!=3)try(var store=open(n,resources(),e->{})) {
+            var parentAcks=new ArrayList<Decoded>();var parentOwned=new HashSet<Owned>();Decoded parentStatement=null;
+            for(int n:nodes())if((at!=6 || n!=3) && (n!=1 || applyLocal))try(var store=open(n,resources(),e->{})) {
                 var result=application.apply(store);applied.put(n,result);acknowledgements.add(result.endorsement().acknowledgement());checkpoints.add(result.endorsement().owned());
+                if(result.endorsement().parent().isPresent()) {
+                    var parent=result.endorsement().parent().orElseThrow();parentStatement=parent.statement();parentAcks.add(parent.acknowledgement());parentOwned.add(parent.owned());
+                }
             }
             observations.addAll(checkpoints);
+            if(parentStatement!=null){bridges.add(new MembershipSelection.Bridge(parentStatement,parentAcks,parentOwned));observations.addAll(parentOwned);}
         }
         List<Integer> nodes(){return application.f.f.nodes;}
         Path node(int n){return application.f.f.node(root,n);}
@@ -47,7 +54,7 @@ class V53JournalPublicationTest {
             return MembershipGrantJournal.openApplying(node(n),application.f.f.f.root(),V53DeclarationsTest.node(n),resources,
                     (r,p,i)->MembershipCapsule.verify(r,p,i,observations),cut);
         }
-        Decoded publish(MembershipGrantJournal store,int n)throws IOException {return store.publishCurrent(applied.get(n),acknowledgements,checkpoints,List.of());}
+        Decoded publish(MembershipGrantJournal store,int n)throws IOException {return store.publishCurrent(applied.get(n),acknowledgements,checkpoints,bridges);}
         void finish(MembershipBallotAllocator.Cut cut)throws Exception {
             var r=resources();try(var store=open(1,r,cut)) {
                 if(store.currentCertificate().isPresent())publish(store,1);

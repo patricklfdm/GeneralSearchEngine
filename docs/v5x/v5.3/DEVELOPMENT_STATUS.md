@@ -1065,3 +1065,23 @@ actual extra ancestry ACK issuance and full bounded storage lifetime. Removed-me
 recovery, complete bootstrap and the Phase 2 closure audit remain open. Continue
 local commits toward pre-cloud completion; public runtime, push and cloud dispatch
 remain disabled.
+
+## 2026-10-22 — actual immediate-parent checkpoint endorsements
+
+The [parent checkpoint transaction](PHASE_2_PARENT_CHECKPOINT.md) now derives an
+exact supplemental RANGE from the actual certified parent when compaction hides
+it, forces the full applied end, then issues a distinct local ACK. Publication
+validates that original local observation and real remote endorsements. Covered
+cleanup reconstructs and checks the additional files before deleting anything.
+The existing global journal/image limits and original SELECTED remain unchanged.
+
+Targeted integration covers parents at cuts 1, 2 and 4, ten interruption/fence
+labels, repeated recovery and altered or missing authority. Twelve process cases
+use 36 fresh JVMs; independent original-first replay, eight evidence mutations,
+portable replay and Python `-O` pass. Exact Java results and source/build/raw hashes
+are retained in the [evidence index](phase2-evidence/parent-checkpoint.json).
+
+This advances first-slot publication only. Renewal for older hidden BASIS/floor
+ancestors and authenticated stable same-round continuation remain next, followed
+by the remaining coordinated-lifetime, bootstrap/recovery and Phase 2 audit work.
+Public runtime and all later cloud acceptance remain open.

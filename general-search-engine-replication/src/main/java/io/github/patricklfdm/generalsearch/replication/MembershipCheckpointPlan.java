@@ -22,6 +22,23 @@ final class MembershipCheckpointPlan {
     Decoded originalCertificate(){return certificate;}
     MembershipCapsule.Anchor originalParent(){return before.terminal();}
 
+    /** A compacted RANGE hides the actual certified parent. Its supplemental statement
+     * is derived from that exact original state, never from a caller-supplied cut. */
+    Optional<Decoded> parentStatement(){return parentStatement(statement,originalParent());}
+    static Optional<Decoded> parentStatement(Decoded statement,MembershipCapsule.Anchor parent) {
+        var value=statement.value();var start=object(value.get("start"));var end=object(value.get("end"));
+        require(number(end.get("index"))==Math.addExact(number(parent.cut().get("index")),1),"checkpoint exact next parent index");
+        if(start.equals(parent.cut())) {
+            require(value.get("catalogBefore").equals(parent.catalog()) && value.get("applicationBefore").equals(parent.application()),"checkpoint exact direct parent");
+            return Optional.empty();
+        }
+        var view=object(parent.cut().get("view"));
+        require(value.get("scope").equals("RANGE") && view.get("operation")==null && view.equals(start.get("view")) && view.equals(end.get("view"))
+                && number(start.get("index"))<number(parent.cut().get("index")),"checkpoint hidden parent in same stable range");
+        var bridge=new TreeMap<>(value);bridge.put("start",parent.cut());bridge.put("catalogBefore",parent.catalog());bridge.put("applicationBefore",parent.application());
+        return Optional.of(decode(encode("records","CHECKPOINT",bridge),"records","CHECKPOINT"));
+    }
+
     static <K,T> MembershipCheckpointPlan replay(SearchEngineConfiguration<K,T> captured,DurableStorageConfig<K,T> storage,
             MembershipCapsule before,MembershipSourcePacket certified,Decoded certificate,Map<String,byte[]> images,Set<Owned> votes,Path scratch)throws IOException {
         require(votes.size()<=12 && Arrays.equals(certificate.bytes(),certified.objectBytes(certificate.digest())),"checkpoint original certificate/observation bound");

@@ -488,7 +488,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             require(pendingAccept.active()==null || Arrays.equals(pendingAccept.active().bytes(),original.bytes()),"covered vote changed during retirement");
         };
         cut.at("PUBLICATION_COVERAGE_VALIDATED");guard.check();
-        appliedEnd.retireCovered(current.capsule,current.images(),original,identity,guard,cut);
+        appliedEnd.retireCovered(current.capsule,current.images(),current.publishedParent(),original,identity,guard,cut);
         pendingAccept.clearCovered(original,guard,cut);replayFiles.releaseCompletion();
         cut.at("PUBLICATION_RETIRED");checkOwner();
     }
