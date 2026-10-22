@@ -1,0 +1,578 @@
+{
+  "controls": {
+    "automatic": "published-v5.1",
+    "configured": "published-v5.0",
+    "pinPolicy": "verify signed release, exact source and artifact hashes before Phase 1 compatibility execution / Phase 6 measurement",
+    "reads": "published-v5.2-after-release",
+    "search": "published-v4.4"
+  },
+  "experiment": {
+    "failureDrillCases": [
+      {
+        "boundary": "INTENT",
+        "cut": "after-force",
+        "id": "F01",
+        "initial": 3,
+        "kind": "ADD",
+        "mode": "kill",
+        "scenario": "S01"
+      },
+      {
+        "boundary": "FINAL",
+        "cut": "after-force",
+        "id": "F02",
+        "initial": 5,
+        "kind": "REMOVE",
+        "mode": "kill",
+        "scenario": "S01"
+      },
+      {
+        "boundary": "IMAGE",
+        "cut": "after-force",
+        "id": "F03",
+        "initial": 3,
+        "kind": "REPLACE",
+        "mode": "kill",
+        "scenario": "S03"
+      },
+      {
+        "boundary": "SELECTOR",
+        "cut": "after-force",
+        "id": "F04",
+        "initial": 4,
+        "kind": "REPLACE",
+        "mode": "kill",
+        "scenario": "S04",
+        "view": "joint"
+      },
+      {
+        "boundary": "RETIREMENT",
+        "cut": "delete-interrupted",
+        "id": "F05",
+        "initial": 5,
+        "kind": "REPLACE",
+        "mode": "kill",
+        "scenario": "S04",
+        "view": "new"
+      },
+      {
+        "id": "F06",
+        "measurement": "M09"
+      }
+    ],
+    "measurementRetries": false,
+    "members": [
+      "experiment",
+      "failure-drill",
+      "canonical-1",
+      "canonical-2",
+      "canonical-3"
+    ],
+    "order": "any; aggregate requires all five",
+    "paidCloudAuthorizationRequired": true,
+    "progressEverySeconds": 60,
+    "sameSequence": true,
+    "sameSource": true,
+    "timeAndCostPolicy": "soft warnings; protocol deadlines, bounded exchanges and integrity failures remain fail-closed"
+  },
+  "indivisible": [
+    "one continuous measurement window",
+    "one membership operation through its selected tail and FINAL",
+    "one crash/recovery/retirement history",
+    "one lease/source/history ownership chain"
+  ],
+  "measurements": [
+    {
+      "id": "M01",
+      "mode": "published-v5.2-fixed3",
+      "repetitions": 3,
+      "scenario": "healthy",
+      "voters": 3
+    },
+    {
+      "id": "M02",
+      "mode": "candidate-membership3",
+      "repetitions": 3,
+      "scenario": "healthy",
+      "voters": 3
+    },
+    {
+      "id": "M03",
+      "mode": "candidate-membership4",
+      "repetitions": 3,
+      "scenario": "healthy",
+      "voters": 4
+    },
+    {
+      "id": "M04",
+      "mode": "candidate-membership5",
+      "repetitions": 3,
+      "scenario": "healthy",
+      "voters": 5
+    },
+    {
+      "id": "M05",
+      "mode": "candidate-membership",
+      "repetitions": 3,
+      "scenario": "size-walk-3-4-5-4-3",
+      "voters": 3
+    },
+    {
+      "id": "M06",
+      "mode": "candidate-membership",
+      "repetitions": 3,
+      "scenario": "replace3",
+      "voters": 3
+    },
+    {
+      "id": "M07",
+      "mode": "candidate-membership",
+      "repetitions": 3,
+      "scenario": "replace4",
+      "voters": 4
+    },
+    {
+      "id": "M08",
+      "mode": "candidate-membership",
+      "repetitions": 3,
+      "scenario": "replace5",
+      "voters": 5
+    },
+    {
+      "id": "M09",
+      "mode": "candidate-membership",
+      "repetitions": 3,
+      "scenario": "joint-partition-recovery",
+      "voters": 3
+    },
+    {
+      "id": "M10",
+      "mode": "candidate-membership",
+      "repetitions": 3,
+      "scenario": "read-token-removal",
+      "voters": 4
+    },
+    {
+      "id": "M11",
+      "mode": "candidate-membership",
+      "repetitions": 3,
+      "scenario": "maintenance-all",
+      "voters": 3
+    },
+    {
+      "id": "M12",
+      "mode": "candidate-membership",
+      "repetitions": 3,
+      "scenario": "capacity-sweep",
+      "voters": 3
+    }
+  ],
+  "negatives": [
+    {
+      "id": "N01",
+      "mutation": "source-sha"
+    },
+    {
+      "id": "N02",
+      "mutation": "build-hash"
+    },
+    {
+      "id": "N03",
+      "mutation": "attempt-id"
+    },
+    {
+      "id": "N04",
+      "mutation": "root-history"
+    },
+    {
+      "id": "N05",
+      "mutation": "configuration-generation"
+    },
+    {
+      "id": "N06",
+      "mutation": "missing-accept-force"
+    },
+    {
+      "id": "N07",
+      "mutation": "missing-proof-force"
+    },
+    {
+      "id": "N08",
+      "mutation": "duplicate-voter"
+    },
+    {
+      "id": "N09",
+      "mutation": "either-side-majority"
+    },
+    {
+      "id": "N10",
+      "mutation": "foreign-storage-id"
+    },
+    {
+      "id": "N11",
+      "mutation": "pre-admitted-learner"
+    },
+    {
+      "id": "N12",
+      "mutation": "stale-prepared-cut"
+    },
+    {
+      "id": "N13",
+      "mutation": "seal-cancel-reorder"
+    },
+    {
+      "id": "N14",
+      "mutation": "hidden-membership-range"
+    },
+    {
+      "id": "N15",
+      "mutation": "altered-catalog"
+    },
+    {
+      "id": "N16",
+      "mutation": "missing-sealed-descriptor"
+    },
+    {
+      "id": "N17",
+      "mutation": "missing-owned-tail"
+    },
+    {
+      "id": "N18",
+      "mutation": "unforced-selector"
+    },
+    {
+      "id": "N19",
+      "mutation": "retirement-without-floor"
+    },
+    {
+      "id": "N20",
+      "mutation": "replayed-read-cut"
+    },
+    {
+      "id": "N21",
+      "mutation": "relabelled-crash"
+    },
+    {
+      "id": "N22",
+      "mutation": "missing-failed-attempt"
+    },
+    {
+      "id": "N23",
+      "mutation": "wrong-control-jar"
+    },
+    {
+      "id": "N24",
+      "mutation": "incomplete-matrix"
+    }
+  ],
+  "oracles": [
+    "public operation history",
+    "independent physical disk and certificate replay",
+    "application/search control",
+    "read cut and token identity",
+    "resource inventory and peak ownership",
+    "separate election/activation/write/read timeline"
+  ],
+  "performanceClaims": "report per-size offered/completed rates and distributions; only M01/M02 share baseline topology; no failover SLA inferred from finite runs",
+  "profiles": [
+    {
+      "initial": 3,
+      "kind": "ADD"
+    },
+    {
+      "initial": 4,
+      "kind": "ADD"
+    },
+    {
+      "initial": 4,
+      "kind": "REMOVE"
+    },
+    {
+      "initial": 5,
+      "kind": "REMOVE"
+    },
+    {
+      "initial": 3,
+      "kind": "REPLACE"
+    },
+    {
+      "initial": 4,
+      "kind": "REPLACE"
+    },
+    {
+      "initial": 5,
+      "kind": "REPLACE"
+    }
+  ],
+  "scenarios": [
+    {
+      "boundaries": [
+        "INTENT",
+        "FINAL"
+      ],
+      "cuts": [
+        "before-write",
+        "after-write",
+        "after-force",
+        "before-ack",
+        "before-publish",
+        "after-publish"
+      ],
+      "family": "membership",
+      "id": "S01",
+      "modes": [
+        "halt",
+        "kill"
+      ],
+      "profiles": "all-seven",
+      "requiredPhase": 5
+    },
+    {
+      "boundaries": [
+        "PREPARE",
+        "SELECTED",
+        "ACCEPT",
+        "PROOF"
+      ],
+      "cuts": [
+        "duplicate",
+        "lost-request",
+        "lost-ack",
+        "late-higher-ballot"
+      ],
+      "family": "competing-campaigns",
+      "id": "S02",
+      "modes": [
+        "deterministic"
+      ],
+      "profiles": "old-joint-new",
+      "requiredPhase": 5
+    },
+    {
+      "boundaries": [
+        "RESERVATION",
+        "IMAGE",
+        "RECEIPT",
+        "INTENT"
+      ],
+      "cuts": [
+        "before-force",
+        "after-force",
+        "corrupt-chunk",
+        "stale-revision",
+        "wrong-identity"
+      ],
+      "family": "learner",
+      "id": "S03",
+      "modes": [
+        "halt",
+        "kill"
+      ],
+      "profiles": "add-and-replace",
+      "requiredPhase": 5
+    },
+    {
+      "boundaries": [
+        "CAPSULE",
+        "CATALOG",
+        "SELECTOR",
+        "FLOOR",
+        "RETIREMENT"
+      ],
+      "cuts": [
+        "before-force",
+        "after-force",
+        "delete-interrupted",
+        "missing-owned-tail"
+      ],
+      "family": "capsule-floor",
+      "id": "S04",
+      "modes": [
+        "halt",
+        "kill"
+      ],
+      "profiles": "old-joint-new",
+      "requiredPhase": 5
+    },
+    {
+      "boundaries": [
+        "RESERVE",
+        "PREPARE",
+        "READY",
+        "SEAL",
+        "CANCEL",
+        "RETIRE"
+      ],
+      "cuts": [
+        "lost-reply",
+        "duplicate",
+        "changed-payload",
+        "crash-restart"
+      ],
+      "family": "operation",
+      "id": "S05",
+      "modes": [
+        "deterministic",
+        "public"
+      ],
+      "profiles": "all-seven",
+      "requiredPhase": 5
+    },
+    {
+      "boundaries": [
+        "strong",
+        "stale",
+        "minimum"
+      ],
+      "cuts": [
+        "before-capture",
+        "after-capture",
+        "before-response",
+        "known-removed",
+        "isolated-unaware",
+        "draining"
+      ],
+      "family": "reads",
+      "id": "S06",
+      "modes": [
+        "deterministic",
+        "public"
+      ],
+      "profiles": "old-joint-new",
+      "requiredPhase": 5
+    },
+    {
+      "boundaries": [
+        "ACCEPT",
+        "PROOF",
+        "PUBLICATION"
+      ],
+      "cuts": [
+        "lagged-parent",
+        "source-loss",
+        "higher-fence",
+        "leader-restart",
+        "same-ballot-conflict"
+      ],
+      "family": "steady-round",
+      "id": "S07",
+      "modes": [
+        "deterministic",
+        "public"
+      ],
+      "profiles": "stable-3-4-5",
+      "requiredPhase": 5
+    },
+    {
+      "boundaries": [
+        "follower",
+        "leader"
+      ],
+      "cuts": [
+        "stale-plan",
+        "missing-survivor",
+        "restart",
+        "no-quorum"
+      ],
+      "family": "maintenance",
+      "id": "S08",
+      "modes": [
+        "public"
+      ],
+      "profiles": "stable-3-4-5",
+      "requiredPhase": 5
+    },
+    {
+      "boundaries": [
+        "identity",
+        "results",
+        "revisions",
+        "changes",
+        "counter",
+        "metadata",
+        "queue",
+        "staging"
+      ],
+      "cuts": [
+        "at-limit",
+        "over-limit",
+        "crash-at-limit"
+      ],
+      "family": "resources",
+      "id": "S09",
+      "modes": [
+        "deterministic",
+        "public"
+      ],
+      "profiles": "all-seven",
+      "requiredPhase": 5
+    },
+    {
+      "boundaries": [
+        "accepted-only",
+        "partially-proven",
+        "complete-proof",
+        "selected-source-loss"
+      ],
+      "cuts": [
+        "whole-group-restart",
+        "rejoin",
+        "new-disk-identity",
+        "unavailable-authority"
+      ],
+      "family": "recovery",
+      "id": "S10",
+      "modes": [
+        "halt",
+        "kill"
+      ],
+      "profiles": "all-seven",
+      "requiredPhase": 5
+    }
+  ],
+  "schema": "gse-v53-acceptance-plan-v1",
+  "scope": "requirements, not executed runtime evidence",
+  "status": "FROZEN-LOCAL-DESIGN",
+  "workload": {
+    "categoryModulus": 100,
+    "concurrency": 32,
+    "corpusDocuments": 10000,
+    "cycle": [
+      "get-strong",
+      "search-strong",
+      "get-stale",
+      "get-minimum",
+      "update",
+      "updateAll-2",
+      "get-strong",
+      "search-stale",
+      "get-minimum",
+      "update"
+    ],
+    "cycleIdRule": "advance PRNG once per call; primary id=1+(x mod 10000); second id=1+(primary mod 10000)",
+    "generator": "x=(1103515245*x+12345) mod 2^31",
+    "measurementCalls": 3000,
+    "measurementSeconds": 300,
+    "minimumWaitMillis": 5000,
+    "queue": 128,
+    "ratePerSecond": 10,
+    "seed": 530001,
+    "sweepRates": [
+      5,
+      20,
+      100
+    ],
+    "sweepSeconds": 120,
+    "sweepWarmupSeconds": 30,
+    "transitionCallIndices": [
+      500,
+      1000,
+      1500,
+      2000
+    ],
+    "updateValueRule": "512 ASCII bytes: decimal call index followed by x padding",
+    "valueBytes": 512,
+    "warmupCalls": 600,
+    "warmupSeconds": 60
+  }
+}

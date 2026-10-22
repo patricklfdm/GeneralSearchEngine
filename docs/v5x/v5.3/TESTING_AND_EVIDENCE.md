@@ -1,5 +1,10 @@
 # V5.3 testing and evidence
 
+The final Phase 0 [acceptance register](ACCEPTANCE_REGISTER.md) and
+[machine plan](acceptance-plan.json) freeze the later S/N/C/M gates and numeric
+workloads. Sections below preserve historical research observations; none is a
+claim of real public/storage/cloud qualification.
+
 ## Entry model scope
 
 Implementation: [membership model](../../../scripts/v53/membership_model.py),

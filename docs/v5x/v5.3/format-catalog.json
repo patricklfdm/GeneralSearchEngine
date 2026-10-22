@@ -1,0 +1,1184 @@
+{
+  "commands": {
+    "BARRIER": {
+      "emptyBytes": true
+    },
+    "CANCEL": {
+      "number": "positive"
+    },
+    "DATA": {
+      "inheritedEncoding": "V5.2 application operation bytes"
+    },
+    "FINAL": {
+      "binding": "hash"
+    },
+    "INTENT": {
+      "sealed": "sealed"
+    },
+    "PREPARE": {
+      "number": "positive",
+      "revision": "positive"
+    },
+    "READY": {
+      "number": "positive",
+      "receipt": {
+        "nullable": "learnerReceipt"
+      }
+    },
+    "RESERVE": {
+      "request": "request"
+    },
+    "RETIRE": {
+      "through": "positive"
+    },
+    "SEAL": {
+      "number": "positive"
+    }
+  },
+  "family": {
+    "checksum": "SHA-256(first16 || body)",
+    "encoding": "canonical-ascii-json",
+    "headerBytes": 48,
+    "major": 1,
+    "minor": 3,
+    "storage": "GSER",
+    "wire": "GSRP"
+  },
+  "records": {
+    "ACCEPT": {
+      "id": 7,
+      "maximum": 8192,
+      "schema": {
+        "object": {
+          "authority": "hash",
+          "ballot": "ballot",
+          "entry": "hash",
+          "index": "positive",
+          "root": "hash"
+        }
+      }
+    },
+    "ADOPTION": {
+      "id": 22,
+      "maximum": 16384,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "certificate": "hash",
+          "cut": "cut",
+          "node": "node",
+          "root": "hash"
+        }
+      }
+    },
+    "ALLOCATOR": {
+      "id": 24,
+      "maximum": 4096,
+      "schema": {
+        "object": {
+          "counter": "counter",
+          "node": "node",
+          "root": "hash"
+        }
+      }
+    },
+    "BASIS": {
+      "id": 4,
+      "maximum": 16384,
+      "schema": {
+        "object": {
+          "accepted": {
+            "nullable": "hash"
+          },
+          "ballot": "ballot",
+          "basisId": "uuid",
+          "capsule": "hash",
+          "cut": "cut",
+          "inventory": "hash",
+          "root": "hash",
+          "view": "hash",
+          "voter": "node"
+        }
+      }
+    },
+    "BOOTSTRAP": {
+      "id": 20,
+      "maximum": 65536,
+      "schema": {
+        "object": {
+          "decision": {
+            "enum": [
+              "PREPARING",
+              "PREPARED",
+              "COMMITTING",
+              "COMMITTED"
+            ]
+          },
+          "inventory": "hash",
+          "root": "hash",
+          "source": {
+            "enum": [
+              "EMPTY",
+              "VERIFIED_DURABLE_BACKUP"
+            ]
+          },
+          "sourceDigest": {
+            "nullable": "hash"
+          },
+          "targets": {
+            "array": "bootstrapTarget",
+            "max": 5,
+            "min": 3
+          }
+        }
+      }
+    },
+    "CAPSULE": {
+      "id": 14,
+      "maximum": 1048576,
+      "schema": {
+        "object": {
+          "application": "hash",
+          "catalog": "hash",
+          "cut": "cut",
+          "initial": "hash",
+          "inventory": "hash",
+          "items": {
+            "array": "capsuleItem",
+            "max": 769,
+            "min": 0
+          },
+          "root": "hash"
+        }
+      }
+    },
+    "CATALOG": {
+      "id": 15,
+      "maximum": 2097152,
+      "schema": {
+        "object": {
+          "active": {
+            "nullable": "positive"
+          },
+          "application": "hash",
+          "applicationSequence": "counter",
+          "cut": "cut",
+          "identities": {
+            "array": "identity",
+            "max": 512,
+            "min": 3
+          },
+          "lastDataIndex": "counter",
+          "nextOperation": "positive",
+          "results": {
+            "array": "operation",
+            "max": 64,
+            "min": 0
+          },
+          "retiredThrough": "counter",
+          "root": "hash"
+        }
+      }
+    },
+    "CERTIFICATE": {
+      "id": 9,
+      "maximum": 16384,
+      "schema": {
+        "object": {
+          "accepts": {
+            "array": "witness",
+            "max": 6,
+            "min": 2
+          },
+          "authority": "hash",
+          "ballot": "ballot",
+          "entry": "hash",
+          "index": "positive",
+          "proofs": {
+            "array": "witness",
+            "max": 6,
+            "min": 2
+          },
+          "root": "hash"
+        }
+      }
+    },
+    "CHECKPOINT": {
+      "id": 12,
+      "maximum": 4096,
+      "schema": {
+        "object": {
+          "applicationAfter": "hash",
+          "applicationBefore": "hash",
+          "catalogAfter": "hash",
+          "catalogBefore": "hash",
+          "end": "cut",
+          "root": "hash",
+          "scope": {
+            "enum": [
+              "RANGE",
+              "MEMBERSHIP"
+            ]
+          },
+          "start": "cut"
+        }
+      }
+    },
+    "CHECKPOINT_ACK": {
+      "id": 13,
+      "maximum": 2048,
+      "schema": {
+        "object": {
+          "cut": "cut",
+          "incarnation": "uuid",
+          "root": "hash",
+          "statement": "hash",
+          "voter": "node"
+        }
+      }
+    },
+    "ENTRY": {
+      "id": 6,
+      "maximum": 16384,
+      "schema": {
+        "object": {
+          "authority": "hash",
+          "index": "positive",
+          "kind": {
+            "enum": [
+              "DATA",
+              "BARRIER",
+              "RESERVE",
+              "PREPARE",
+              "READY",
+              "SEAL",
+              "CANCEL",
+              "RETIRE",
+              "INTENT",
+              "FINAL"
+            ]
+          },
+          "origin": "ballot",
+          "payload": "hash",
+          "previous": "hash",
+          "root": "hash"
+        }
+      }
+    },
+    "FLOOR": {
+      "id": 18,
+      "maximum": 16384,
+      "schema": {
+        "object": {
+          "cut": "cut",
+          "node": "node",
+          "root": "hash",
+          "sources": {
+            "array": "floorSource",
+            "max": 6,
+            "min": 2
+          }
+        }
+      }
+    },
+    "GENERATION": {
+      "id": 16,
+      "maximum": 65536,
+      "schema": {
+        "object": {
+          "application": "hash",
+          "basis": {
+            "nullable": "hash"
+          },
+          "capsule": "hash",
+          "catalog": "hash",
+          "cut": "cut",
+          "files": {
+            "array": "file",
+            "max": 32,
+            "min": 1
+          },
+          "generation": {
+            "enum": [
+              "a",
+              "b"
+            ]
+          },
+          "node": "node",
+          "ownedTail": {
+            "nullable": "hash"
+          },
+          "promise": "hash",
+          "root": "hash",
+          "selection": {
+            "nullable": "hash"
+          }
+        }
+      }
+    },
+    "GENESIS": {
+      "id": 23,
+      "maximum": 65536,
+      "schema": {
+        "object": {
+          "application": "hash",
+          "baseSequence": "counter",
+          "groupId": "uuid",
+          "historyId": "uuid",
+          "indexes": "hash",
+          "schema": "hash",
+          "source": {
+            "enum": [
+              "EMPTY",
+              "VERIFIED_DURABLE_BACKUP"
+            ]
+          },
+          "sourceDigest": {
+            "nullable": "hash"
+          }
+        }
+      }
+    },
+    "LEARNER": {
+      "id": 11,
+      "maximum": 16384,
+      "schema": {
+        "object": {
+          "receipt": "learnerReceipt",
+          "root": "hash"
+        }
+      }
+    },
+    "NODE": {
+      "id": 2,
+      "maximum": 4096,
+      "schema": {
+        "object": {
+          "identity": "identity",
+          "root": "hash"
+        }
+      }
+    },
+    "OPERATION": {
+      "id": 10,
+      "maximum": 16384,
+      "schema": {
+        "object": {
+          "operation": "operation",
+          "root": "hash"
+        }
+      }
+    },
+    "PROMISE": {
+      "id": 3,
+      "maximum": 8192,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "basisId": {
+            "nullable": "uuid"
+          },
+          "root": "hash",
+          "view": "hash"
+        }
+      }
+    },
+    "PROOF": {
+      "id": 8,
+      "maximum": 16384,
+      "schema": {
+        "object": {
+          "accepts": {
+            "array": "witness",
+            "max": 6,
+            "min": 2
+          },
+          "authority": "hash",
+          "ballot": "ballot",
+          "entry": "hash",
+          "index": "positive",
+          "root": "hash"
+        }
+      }
+    },
+    "RETIREMENT": {
+      "id": 19,
+      "maximum": 65536,
+      "schema": {
+        "object": {
+          "files": {
+            "array": "file",
+            "max": 128,
+            "min": 0
+          },
+          "floor": "hash",
+          "node": "node",
+          "root": "hash",
+          "selector": "hash"
+        }
+      }
+    },
+    "ROOT": {
+      "id": 1,
+      "maximum": 16384,
+      "schema": {
+        "object": {
+          "baseSequence": "counter",
+          "codecId": "id",
+          "codecVersion": "counter",
+          "configurationId": "id",
+          "genesis": "hash",
+          "groupId": "uuid",
+          "historyId": "uuid",
+          "indexes": "hash",
+          "initial": {
+            "array": "identity",
+            "max": 5,
+            "min": 3
+          },
+          "limits": "hash",
+          "schema": "hash"
+        }
+      }
+    },
+    "SELECTED": {
+      "id": 5,
+      "maximum": 65536,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "cut": "cut",
+          "nextEntry": {
+            "nullable": "hash"
+          },
+          "root": "hash",
+          "sources": {
+            "array": "source",
+            "max": 6,
+            "min": 2
+          },
+          "view": "hash"
+        }
+      }
+    },
+    "SELECTOR": {
+      "id": 17,
+      "maximum": 4096,
+      "schema": {
+        "object": {
+          "digest": "hash",
+          "generation": {
+            "enum": [
+              "a",
+              "b"
+            ]
+          },
+          "node": "node",
+          "root": "hash"
+        }
+      }
+    },
+    "TRANSFER": {
+      "id": 21,
+      "maximum": 65536,
+      "schema": {
+        "object": {
+          "cut": "cut",
+          "id": "uuid",
+          "image": "hash",
+          "node": "node",
+          "operation": {
+            "nullable": "positive"
+          },
+          "received": "counter",
+          "revision": "counter",
+          "root": "hash",
+          "session": "uuid",
+          "source": "identity",
+          "total": "positive"
+        }
+      }
+    }
+  },
+  "resources": {
+    "applicationImageBytesMax": 67108864,
+    "ballotCounterMax": 9223372036854775806,
+    "capsuleBytesMax": 33554432,
+    "capsuleEnvelopeBytesMax": 1048576,
+    "capsuleItemsMax": 769,
+    "catalogBytesMax": 2097152,
+    "certificateBytesMax": 16384,
+    "entryUnresolvedMax": 1,
+    "frameBytesMax": 8388608,
+    "generationsMax": 2,
+    "identityReservationsMax": 512,
+    "learnersMax": 1,
+    "logIndexMax": 9223372036854775806,
+    "membershipChangesMax": 256,
+    "membershipEdgeBytesMax": 49152,
+    "membershipWaitersMax": 64,
+    "metadataBytesMax": 402653184,
+    "metadataJournalBytesMax": 33554432,
+    "metadataMiscBytesMax": 2097152,
+    "operationNumberMax": 9223372036854775806,
+    "preparationRevisionsMax": 64,
+    "queuedBytesMax": 67108864,
+    "queuedControlMessagesMax": 256,
+    "retainedResultsMax": 64,
+    "retryAttemptsMax": 3,
+    "sealedDescriptorBytesMax": 8192,
+    "selectedSourcesMax": 6,
+    "stableRangeBytesMax": 16384,
+    "stableVotersMax": 5,
+    "stableVotersMin": 3,
+    "transferChunkBytesMax": 4194304,
+    "unionVotersMax": 6
+  },
+  "schema": "gse-v53-format-contract-v1",
+  "status": "PHASE0-CANDIDATE",
+  "types": {
+    "ballot": {
+      "object": {
+        "counter": "positive",
+        "incarnation": "uuid",
+        "proposer": "node"
+      }
+    },
+    "bootstrapTarget": {
+      "object": {
+        "authorityPath": "relative",
+        "identity": "identity",
+        "materializationPath": "relative"
+      }
+    },
+    "capsuleItem": {
+      "object": {
+        "certificate": {
+          "nullable": "hash"
+        },
+        "descriptor": {
+          "nullable": "hash"
+        },
+        "endorsements": {
+          "array": "hash",
+          "max": 6,
+          "min": 2
+        },
+        "kind": {
+          "enum": [
+            "RANGE",
+            "MEMBERSHIP"
+          ]
+        },
+        "statement": "hash"
+      }
+    },
+    "cut": {
+      "object": {
+        "entry": "hash",
+        "index": "counter",
+        "view": "view"
+      }
+    },
+    "file": {
+      "object": {
+        "path": "relative",
+        "sha256": "hash",
+        "size": "counter"
+      }
+    },
+    "floorSource": {
+      "object": {
+        "catalog": "hash",
+        "generation": "hash",
+        "snapshot": "hash",
+        "voter": "node"
+      }
+    },
+    "identity": {
+      "object": {
+        "host": "host",
+        "node": "node",
+        "port": "port",
+        "storage": "uuid"
+      }
+    },
+    "learnerReceipt": {
+      "object": {
+        "identity": "identity",
+        "image": "hash",
+        "number": "positive",
+        "prepared": "prepared",
+        "request": "hash",
+        "root": "hash"
+      }
+    },
+    "operation": {
+      "object": {
+        "binding": {
+          "nullable": "hash"
+        },
+        "phase": {
+          "enum": [
+            "RESERVED",
+            "PREPARING",
+            "READY",
+            "SEALED",
+            "JOINT",
+            "COMPLETED",
+            "CANCELLED"
+          ]
+        },
+        "prepared": {
+          "nullable": "prepared"
+        },
+        "receipt": {
+          "nullable": "learnerReceipt"
+        },
+        "request": "request",
+        "revision": "counter",
+        "terminalIndex": {
+          "nullable": "positive"
+        }
+      }
+    },
+    "prepared": {
+      "object": {
+        "application": "hash",
+        "catalog": "hash",
+        "cut": "cut",
+        "revision": "positive"
+      }
+    },
+    "request": {
+      "object": {
+        "expected": "hash",
+        "kind": {
+          "enum": [
+            "ADD",
+            "REMOVE",
+            "REPLACE"
+          ]
+        },
+        "number": "positive",
+        "root": "hash",
+        "target": {
+          "array": "identity",
+          "max": 5,
+          "min": 3
+        }
+      }
+    },
+    "sealed": {
+      "object": {
+        "prepared": "prepared",
+        "receipt": {
+          "nullable": "learnerReceipt"
+        },
+        "request": "request"
+      }
+    },
+    "source": {
+      "object": {
+        "basisDigest": "hash",
+        "basisId": "uuid",
+        "voter": "node"
+      }
+    },
+    "view": {
+      "object": {
+        "generation": "counter",
+        "new": {
+          "array": "node",
+          "max": 5,
+          "min": 3
+        },
+        "old": {
+          "array": "node",
+          "max": 5,
+          "min": 3
+        },
+        "operation": {
+          "nullable": "hash"
+        }
+      }
+    },
+    "witness": {
+      "object": {
+        "incarnation": "uuid",
+        "receipt": "hash",
+        "voter": "node"
+      }
+    }
+  },
+  "wire": {
+    "ACCEPT": {
+      "id": 6,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "acceptance": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "ACCEPT_ACK": {
+      "id": 7,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "entry": "hash",
+              "receipt": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "CHECKPOINT_ACK": {
+      "id": 19,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "receipt": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "CHECKPOINT_PROPOSE": {
+      "id": 18,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "statement": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "CHUNK": {
+      "id": 15,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "action": {
+                "enum": [
+                  "REQUEST",
+                  "DATA",
+                  "ACK"
+                ]
+              },
+              "bytes": "blob",
+              "digest": "hash",
+              "id": "uuid",
+              "offset": "counter"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "HEARTBEAT": {
+      "id": 11,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "activated": "bool",
+              "cut": "cut"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "HEARTBEAT_ACK": {
+      "id": 12,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "cut": "cut"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "HELLO": {
+      "id": 1,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "mode": {
+                "enum": [
+                  "VOTER",
+                  "LEARNER"
+                ]
+              },
+              "protocol": {
+                "enum": [
+                  "gse-replication/1.3"
+                ]
+              },
+              "rootRecord": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "INSTALL_ACK": {
+      "id": 5,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "cut": "cut",
+              "selection": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "LEARNER_READY": {
+      "id": 17,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "receipt": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "PREPARE": {
+      "id": 2,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "promise": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "PROMISE": {
+      "id": 3,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "basis": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "PROOF": {
+      "id": 8,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "proof": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "PROOF_ACK": {
+      "id": 9,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "entry": "hash",
+              "receipt": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "PUBLISH": {
+      "id": 10,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "certificate": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "REJECT": {
+      "id": 13,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "promised": "ballot",
+              "reason": {
+                "enum": [
+                  "NOT_READY",
+                  "STALE_EPOCH",
+                  "CAPACITY_EXCEEDED",
+                  "PROTOCOL_MISMATCH",
+                  "INTEGRITY_FAILURE",
+                  "FOREIGN_IDENTITY",
+                  "REMOVED"
+                ]
+              }
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "SELECTED": {
+      "id": 4,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "selection": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "SOURCE_OFFER": {
+      "id": 14,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "bytes": "positive",
+              "digest": "hash",
+              "id": "uuid",
+              "kind": {
+                "enum": [
+                  "RECORD",
+                  "CAPSULE",
+                  "APPLICATION"
+                ]
+              }
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "STATUS": {
+      "id": 21,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "cut": "cut",
+              "nonce": "uuid",
+              "ready": "bool"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "STATUS_PROBE": {
+      "id": 20,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "nonce": "uuid"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "TRANSFER_COMMIT": {
+      "id": 16,
+      "maximum": 8388608,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "digest": "hash",
+              "id": "uuid"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    }
+  }
+}

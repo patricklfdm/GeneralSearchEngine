@@ -47,3 +47,12 @@ why a replacement result supersedes them.
   metadata capsules now have directed counterexamples and 49 portable histories.
   See [decisions](STEADY_ROUNDS_AND_CATALOG.md) and [receipt](continuity-research.json).
   Exact formats/resources, acceptance register and final contract audit remain.
+
+## 2026-10-21 — exact contract/format candidate
+
+Added concrete additive APIs, 24 storage / 21 wire kinds, 45 independent syntax
+fixtures, nine control payload fixtures and the unchanged token v1 fixture.
+Resource accounting includes all selected sources and generations (324 MiB reserved
+within a 384 MiB ceiling). Frozen S/N/C/M register and Phase 1 entry are present.
+Focused fixture/plan checks pass; the coherent all-model closure audit is next.
+No production Java, Maven, workflow, cloud or release changes.

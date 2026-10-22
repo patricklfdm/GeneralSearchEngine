@@ -8,7 +8,13 @@ cloud qualification continues, with local commits and no push. The branch starts
 at `73f3bd5c21c97eee564397ab11af7b66bc1b13a3`. V5.2 is still an unpublished
 development predecessor; its eventual published artifacts are not yet pinned.
 
-## Read in order
+## Contract freeze candidates
+
+- [Phase 0 contract](PHASE_0_CONTRACT.md) and [protocol](MEMBERSHIP_PROTOCOL.md)
+- [API/bytes/compatibility](API_FORMAT_AND_COMPATIBILITY.md) and [resource limits](RESOURCE_AND_LIFETIME_LIMITS.md)
+- [Acceptance register](ACCEPTANCE_REGISTER.md), [checklist](PHASE_0_CHECKLIST.md), [Phase 1 entry](PHASE_1_ENTRY_PLAN.md)
+
+## Historical research in order
 
 1. [Local development and integration rules](LOCAL_DEVELOPMENT_SEQUENCE.md)
 2. [Phase 0 entry and actual source audit](PHASE_0_ENTRY_PLAN.md)
