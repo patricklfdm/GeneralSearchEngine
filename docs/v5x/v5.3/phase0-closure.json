@@ -1,0 +1,461 @@
+{
+  "auditSeconds": 251.182,
+  "base": "73f3bd5c21c97eee564397ab11af7b66bc1b13a3",
+  "checks": [
+    "all scripts unchanged across audit",
+    "all declared matrices complete",
+    "original portable replay before negatives",
+    "independent byte fixtures and resource envelopes",
+    "local links",
+    "scope diff",
+    "whitespace"
+  ],
+  "cloudExecuted": false,
+  "contractFiles": {
+    "docs/v5x/v5.3/ACCEPTANCE_REGISTER.md": "132dc8b8a334dea27defdae6c68547e1c3e717b291b998a94332ae65921d8afb",
+    "docs/v5x/v5.3/API_FORMAT_AND_COMPATIBILITY.md": "cb5deccfab30fc5a54cf3c676bc82120f427386800c701fad6b753f3057323dc",
+    "docs/v5x/v5.3/AUTHORITY_AND_LEARNER_RESEARCH.md": "5a730e3831459b4e66511e7f09eb045677a119ae34ea6764b315805154c56129",
+    "docs/v5x/v5.3/BALLOT_AND_HANDOFF_RESEARCH.md": "23495484eb62dd0ae76f76246f42b5aa94ec6cc47a63d53b41647d5bae30940e",
+    "docs/v5x/v5.3/DEVELOPMENT_STATUS.md": "0107209a75bccc3ae14c3f9a30734cb402c9dd3cb86ce2023ed8c505753f3b4b",
+    "docs/v5x/v5.3/GLOBAL_PROMISE_AND_ACTIVATION_RESEARCH.md": "122f066642cdf9024a3007141b34881b7875ff1df770f775970fd8da4adb9aee",
+    "docs/v5x/v5.3/INTEGRATED_PROTOCOL_RESEARCH.md": "69b5c98d943fc2218ac3ee67e685b3b4f60e007645ed033c88bd846cc97477cd",
+    "docs/v5x/v5.3/LOCAL_DEVELOPMENT_SEQUENCE.md": "f6bb1c95e6d741f1f5ca0ce336d28730ffbcb88a5a62be9456be8368e3229c8a",
+    "docs/v5x/v5.3/MEMBERSHIP_DESIGN.md": "ff85bafd394e8ffb6e8cf2c56b2a06afa24a2af3236767d71d3d4258ceec2d5a",
+    "docs/v5x/v5.3/MEMBERSHIP_PROTOCOL.md": "345cc177e5f9490dc1e2bc23daff2f57a75ab333ade5df3a1289d5b791e353e6",
+    "docs/v5x/v5.3/OPERATION_AND_MAINTENANCE.md": "79486bfe56eab2945fd49cda2f8a8bb27b77a693884ab246cb767ddb6a065ea5",
+    "docs/v5x/v5.3/PHASE_0_CHECKLIST.md": "5c9250a882b6c1754735dc3569ab49d9efda2a919f09a8cfc2bc4ede30def646",
+    "docs/v5x/v5.3/PHASE_0_CLOSURE_AUDIT.md": "40ac2f207afee8f8ab9ab911d9cdb83e09be9aa9c2c860fad2b2fc818d176868",
+    "docs/v5x/v5.3/PHASE_0_CLOSURE_PLAN.md": "74bc475f7b17cb2b8a30502a018c7846155a3ab02be28f025568a38056db412e",
+    "docs/v5x/v5.3/PHASE_0_CONTRACT.md": "9815e4335bc68e86f219663eb2c445618b4597e07ecc302948f3c47977ecca34",
+    "docs/v5x/v5.3/PHASE_0_ENTRY_PLAN.md": "7f1cf60beaa05fdcf24bc57a7db374997077ccedcdc12ed749b7cd381ae461b9",
+    "docs/v5x/v5.3/PHASE_1_ENTRY_PLAN.md": "bb394a8b44774237bcbda1bdd96c6d9048fea009daa1ceb106a33852b84efd33",
+    "docs/v5x/v5.3/README.md": "6a8f3b822648569b735b5ce45c9c0d1ba1b5fcd6458a4aab4822dc36c03811b4",
+    "docs/v5x/v5.3/RECOVERY_AND_RETENTION_RESEARCH.md": "1873cbee30db1200501824b94ccef86e61916f474dea0431803c332813290a99",
+    "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md": "f9194b5025c80cdd4aac523d86df1ffa1cfa20a03c8de9e667b4073de54d8f51",
+    "docs/v5x/v5.3/STEADY_ROUNDS_AND_CATALOG.md": "d59c762a9daee6fe69696967a6155ac9e0855f9d1a82f7f0c510ad5d38fe14b5",
+    "docs/v5x/v5.3/TESTING_AND_EVIDENCE.md": "d1fde521de396921c8103363d73e4b1ff1a718201705e04a2e9e34023a6a7ba0",
+    "docs/v5x/v5.3/TRANSITION_CHAIN_RESEARCH.md": "4c12db9cb7e724c24a293fe4c97bc98d68d4c767d0f8f4795f6d328c1f600eb6",
+    "docs/v5x/v5.3/acceptance-plan.json": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+    "docs/v5x/v5.3/activation-research.json": "0c98cef3fcc591d78ba59d2397e15b6ebc5aad566d110bf7cd787dce565413f0",
+    "docs/v5x/v5.3/admission-research.json": "7b0c56bcab4f25bfa5ec5d883c5a58382935df14c70c91fbedf1d2f8a95163e6",
+    "docs/v5x/v5.3/ballot-research.json": "4c4a77be4ebd75a2c946d0edbc209714824b9e85f2ac190cec7855e7d22559c9",
+    "docs/v5x/v5.3/byte-fixtures.json": "d25835a72fe684e52651a35009d089c990bfb3122f0908ea6f6b10ca0ea0af08",
+    "docs/v5x/v5.3/continuity-research.json": "b005fa7d270ebf62acd5edb428a9c24623984a5f692bbcbbddaee4975c1b2ce9",
+    "docs/v5x/v5.3/format-catalog.json": "ae976eb371ba3ea585c182077669d8c8fbfaf50bc3c487bb1dcf6525e5df0b13",
+    "docs/v5x/v5.3/integrated-research.json": "6b2979b1077b062c74d9e90e3197234e5c7f91175920da55ee07a3eb660446c1",
+    "docs/v5x/v5.3/membership-research.json": "db04c382ef25b543a986d26595044950754d64d9cfbc639675d76d4070c6752d",
+    "docs/v5x/v5.3/operation-research.json": "bdf9d53e6b27fcdbd455b2e01a74466a5bde9e291018f1a3b9c81bf8d3cdd9de",
+    "docs/v5x/v5.3/recovery-research.json": "f75919b7875e2a5fe2295a7250a3430a84d933c28bf68d5c98b714d5b359dc23",
+    "docs/v5x/v5.3/transition-research.json": "d58d2094dc81b54645562aee0b38c67d73f0757cc8cacadfb7bfbd678bd04433"
+  },
+  "excluded": [
+    "published V5.2 integration",
+    "protected review",
+    "Java/API compilation",
+    "Maven and full CI",
+    "real wire/disk/process qualification",
+    "performance/cloud execution",
+    "release"
+  ],
+  "localDesignClosed": true,
+  "localEvidence": "/home/klfdm/perception/GeneralSearchEngine/target/v53-phase0-closure/run-20261022T025111Z",
+  "phase1Started": false,
+  "productionQualified": false,
+  "protectedCI": false,
+  "receipts": {
+    "activation_research": {
+      "counts": {
+        "activations": 434,
+        "campaigns": 1008,
+        "cases": 420,
+        "events": 119708,
+        "expectedCases": 420,
+        "publications": 714
+      },
+      "path": "docs/v5x/v5.3/phase0-evidence/activation_research.json",
+      "replay": {
+        "activations": 62,
+        "events": 14656,
+        "histories": 60
+      },
+      "sha256": "55b301507f25d41f48c16a2cb61608d633f8a7bab32641581a46d63dc2f366c6"
+    },
+    "admission_research": {
+      "counts": {
+        "capsules": 660,
+        "cases": 220,
+        "eligible": 340,
+        "events": 7172,
+        "expectedCases": 220
+      },
+      "path": "docs/v5x/v5.3/phase0-evidence/admission_research.json",
+      "replay": {
+        "eligible": 85,
+        "events": 1793,
+        "histories": 55
+      },
+      "sha256": "ae7a946366967ec72c45c29913641cb6bfd8e44799b4b65dabb70317e7c919ef"
+    },
+    "ballot_research": {
+      "counts": {
+        "cases": 2884,
+        "contexts": 21,
+        "events": 340850,
+        "expectedCases": 2884,
+        "publications": 2884
+      },
+      "path": "docs/v5x/v5.3/phase0-evidence/ballot_research.json",
+      "replay": 14,
+      "sha256": "9a232aa7cdb31cbc26768472dc89dca78fd79eefe4085082960ff5c15eb8bb4c"
+    },
+    "continuity_research": {
+      "counts": null,
+      "path": "docs/v5x/v5.3/phase0-evidence/continuity_research.json",
+      "replay": {
+        "capsules": 70,
+        "events": 5504,
+        "histories": 49,
+        "roundPublications": 252
+      },
+      "sha256": "fd22deccebde2efa487f1ff0c6753b40431946577ac2554041f4730b8f6276e5"
+    },
+    "integrated_research": {
+      "counts": {
+        "applications": 4884,
+        "campaigns": 1141,
+        "cases": 126,
+        "events": 135883,
+        "expectedCases": 126,
+        "learnerVoteEvents": 174
+      },
+      "path": "docs/v5x/v5.3/phase0-evidence/integrated_research.json",
+      "replay": {
+        "applications": 858,
+        "campaigns": 182,
+        "events": 22456,
+        "histories": 21
+      },
+      "sha256": "4605cf98a3475ae4b2a784be25496dbe4175bad35004c8c94b71a339196e047c"
+    },
+    "membership_model": {
+      "counts": {
+        "add": 90,
+        "certificateChecks": 53760,
+        "configurations": 41,
+        "expectedTransitions": 510,
+        "intersectionChecks": 82770,
+        "receiptSubsets": 12480,
+        "remove": 90,
+        "replace": 330,
+        "transitions": 510
+      },
+      "path": "docs/v5x/v5.3/phase0-evidence/membership_model.json",
+      "replay": null,
+      "sha256": "12292dae65ef16752ddee6b08bc6d1e86b5e3346e70a70592e922bd1b208d01b"
+    },
+    "operation_research": {
+      "counts": {
+        "cases": 308,
+        "commits": 2436,
+        "events": 6290,
+        "expectedCases": 308
+      },
+      "path": "docs/v5x/v5.3/phase0-evidence/operation_research.json",
+      "replay": {
+        "commits": 2436,
+        "events": 6290,
+        "histories": 308
+      },
+      "sha256": "17d587b28a6bb3a163e327d2799d5967ab070d43aa3d6155513ffc2c87ea6a71"
+    },
+    "recovery_research": {
+      "counts": {
+        "cases": 1080,
+        "deletedFiles": 504,
+        "events": 16638,
+        "expectedCases": 1080,
+        "fixtures": 42
+      },
+      "path": "docs/v5x/v5.3/phase0-evidence/recovery_research.json",
+      "replay": {
+        "deletedFiles": 126,
+        "events": 1164,
+        "histories": 42
+      },
+      "sha256": "30d3f9dc5a953b0f178fe3f0b6b759866514ae71332dce28bfc2d61a08a58077"
+    },
+    "transition_research": {
+      "counts": {
+        "cases": 196,
+        "events": 73835,
+        "expectedCases": 196,
+        "publications": 784
+      },
+      "path": "docs/v5x/v5.3/phase0-evidence/transition_research.json",
+      "replay": {
+        "events": 5172,
+        "histories": 15,
+        "publications": 69
+      },
+      "sha256": "3ebd4d239d9cd644134b1a1a7c4d238394ee8ac43c18ef52f53d426495d123ad"
+    }
+  },
+  "schema": "gse-v53-phase0-closure-v1",
+  "scopeOnlyV53DocsAndScripts": true,
+  "source": {
+    "dirty": true,
+    "files": {
+      "scripts/v53/__init__.py": "78a166fcc8136c3949b1afcf5e91db0543fcd0006821f6e555c92034a568daa1",
+      "scripts/v53/activation_model.py": "7cdebb072e78230b40af39642dcacc2c8bed73f5b1bb5db7f826367a41ab8a68",
+      "scripts/v53/activation_oracle.py": "770a1b0823daecb079e2b965ca19d5871202e0272b83796eb4d4f2c472742ea2",
+      "scripts/v53/activation_research.py": "a664630edede2cf7647c488e08ac50a3780158fc1849ec8f3ee5321b2b1edb83",
+      "scripts/v53/admission_model.py": "11e9bf370b07c60695ac9449e02392262e88eb8f0f3c72418d478e24ff4ea5ec",
+      "scripts/v53/admission_oracle.py": "3d826890ac244f5d6383fc06a2847106ded4a7adde6b5ca1d2dd3bd84815c117",
+      "scripts/v53/admission_research.py": "9448a405e4a2082efb28d7ab3bb6cf2d275a3df9c6fe478f97444b6f621e787b",
+      "scripts/v53/ballot_model.py": "9e8b383740ef6d7466eece3505f570e28e8c6027e692d6606be66061e149bfc4",
+      "scripts/v53/ballot_research.py": "764eae72a42c106d3573a02339c835e5f8ba51d92c4210032f22d3b105c1c527",
+      "scripts/v53/catalog_capsule.py": "0bd36832f556f5edafbdf537a91c4ae9bd6468d33f846435c54e5ed66a948c08",
+      "scripts/v53/catalog_capsule_oracle.py": "25e2ed46cd299bcc79e116da1d31fbcd3fcfba7f3792485fe5aa046b8bade2d3",
+      "scripts/v53/continuity_research.py": "69d4eb8274a3d38c6a2de502fbca605bf64cf503f5f5445d993a4967d2970a24",
+      "scripts/v53/contract_check.py": "a5c24175554271dc8e6de3a2ae5252d0a21bcd88dc817768500bde7905f21d63",
+      "scripts/v53/format_fixture.py": "892fc4ecbf68b47b37001a6c4cb32e2f2a14825dfa6a46cb39e80abc1151401e",
+      "scripts/v53/integrated_model.py": "1062e314b9f89ffd3461d4f9d48bb5f3141013fb6712a221d3df9f94f0bffdb5",
+      "scripts/v53/integrated_oracle.py": "1d98abb70fda6ad3a0d46a273174047cb70140ade768ee3e66c643cafe282bec",
+      "scripts/v53/integrated_research.py": "459679eb8ac64ff2fcc7c06430f53ca70016c53387d7500f4ae9fbd40fc3edfe",
+      "scripts/v53/membership_model.py": "e38dbb81bbf6c9d27aa0d0fd689be8b6d682502d0d7bc98ceaf5220e92fc9e17",
+      "scripts/v53/operation_model.py": "5987cff3b6e006b2d803e7dc7d4ef9783301d2533cf85ee4fb55e3d979dedd5a",
+      "scripts/v53/operation_oracle.py": "9ddaf61866235ee33a25ec531ec5581c9c9a7f8f8377e977d3d9e91f661f6fa4",
+      "scripts/v53/operation_research.py": "ba4fe5edf5fb2a7283dfda7dd6f23153943f4d86c42ffc1ae0ea73bc23251f19",
+      "scripts/v53/recovery_model.py": "0c6ad90832fd3bab0f5ddac9f85eefd95390edf284a48b66f5debe0ee4cb2199",
+      "scripts/v53/recovery_oracle.py": "e80a849a6bb60b6717de96a3b9e96391954eaa901d8a663ecc23423f14dc5027",
+      "scripts/v53/recovery_research.py": "eebf3f1775a9bcb6e3068c687f7ccf13daa79b91333737e0bd30327cafe363af",
+      "scripts/v53/steady_model.py": "fba31b5eb27f8abc3bfd81368b8c24eb4342893b265dc67628261b4f0a4e0b10",
+      "scripts/v53/steady_oracle.py": "bdad82c15d43780cb4537a893f173859271a1ad2d33561d99d10507ef948ef15",
+      "scripts/v53/test_activation_model.py": "24e1a74afb2421698cea7dd41fa8d4b389160be0c210baaf9c8a984d9fb4f6a5",
+      "scripts/v53/test_admission_model.py": "ce2f592f20394647adb0aae76e767530d073b634cdec4e587321860a0822c850",
+      "scripts/v53/test_ballot_model.py": "3af02d3db531a642844c387d6900ed701b3c3e3ebdb998d85e9c73eefe2062ab",
+      "scripts/v53/test_catalog_capsule.py": "114f9f0d34616b1be381aae9213ac2efadda982b5540096be9046b42b80df01c",
+      "scripts/v53/test_contract_check.py": "86125f63b329daee1353556508479c54bdf3022e5ba9be3fa85222445673afc8",
+      "scripts/v53/test_format_fixture.py": "5631d0b1f9300bdd1839dc92e223d8768ab7ea359ce2db2dbd48aa261bbc6a34",
+      "scripts/v53/test_integrated_model.py": "0e2cf89bc315f5db6b661baa857b660d8b9267315923a01f7df926068edcde05",
+      "scripts/v53/test_membership_model.py": "907ed18bcdc81f8ed41906a1915f10b88c6331d02523ef1161fb9dcc46578d72",
+      "scripts/v53/test_operation_model.py": "87e73ea0110395fb7c62180589d86f00998c60832c69ee475efbc0ca7215bf40",
+      "scripts/v53/test_recovery_model.py": "36a0c3020f59f4b789eda49ceef72c2f37a36718c9320808f10df986d871149e",
+      "scripts/v53/test_steady_model.py": "e7434328142e1d5ef96771f8c6feb4da47a8c6f39bc747dd04ad4a17955de80b",
+      "scripts/v53/test_transition_model.py": "e8d7ee78ac3eb8291fbbba373efc1dcc93aa663bb05f1ff52873a0070b46ebfe",
+      "scripts/v53/transition_model.py": "91653a8eb8c81af11cd7dae588012ebd21a4ccce461dba216b658d0d6c706865",
+      "scripts/v53/transition_research.py": "8838c8e2614b2da3c7daa20a47526ab3c0e7ed4dc15ac8d7fa02d1b778cc8969"
+    },
+    "head": "4676673175d84b5b6bcb6473a4a93d23b2b467a0"
+  },
+  "sourceStatus": "parent HEAD plus exact recorded local bytes; not protected clean-source CI",
+  "status": "LOCALLY_CLOSED",
+  "steps": [
+    {
+      "exit": 0,
+      "log": "unit.log",
+      "logSha256": "3a3be5e3badcd83bfa866fdda914319f21ebd0dc6734b22941aa0a7f6bcee46a",
+      "name": "unit",
+      "seconds": 39.025
+    },
+    {
+      "exit": 0,
+      "log": "contract.log",
+      "logSha256": "1d5c86ca887c2d4238488976233790a39429074669e9d40f8d1de863502db3ac",
+      "name": "contract",
+      "seconds": 1.001
+    },
+    {
+      "counts": {
+        "add": 90,
+        "certificateChecks": 53760,
+        "configurations": 41,
+        "expectedTransitions": 510,
+        "intersectionChecks": 82770,
+        "receiptSubsets": 12480,
+        "remove": 90,
+        "replace": 330,
+        "transitions": 510
+      },
+      "exit": 0,
+      "log": "membership_model.log",
+      "logSha256": "c4dc72ccdaae3c037b6879ca666d6b74f86484a6f478aa52fd4e88fa579148d9",
+      "name": "membership_model",
+      "receipt": "membership_model/receipt.json",
+      "receiptSha256": "12292dae65ef16752ddee6b08bc6d1e86b5e3346e70a70592e922bd1b208d01b",
+      "replay": null,
+      "seconds": 2.002,
+      "status": "PASS"
+    },
+    {
+      "counts": {
+        "cases": 2884,
+        "contexts": 21,
+        "events": 340850,
+        "expectedCases": 2884,
+        "publications": 2884
+      },
+      "exit": 0,
+      "log": "ballot_research.log",
+      "logSha256": "2b0e2f5decaa103f98c155c7a8398dfd6c287f914b6788b234ecdafbe3305513",
+      "name": "ballot_research",
+      "receipt": "ballot_research/receipt.json",
+      "receiptSha256": "9a232aa7cdb31cbc26768472dc89dca78fd79eefe4085082960ff5c15eb8bb4c",
+      "replay": null,
+      "seconds": 10.008,
+      "status": "PASS"
+    },
+    {
+      "counts": {
+        "cases": 196,
+        "events": 73835,
+        "expectedCases": 196,
+        "publications": 784
+      },
+      "exit": 0,
+      "log": "transition_research.log",
+      "logSha256": "7debdf6b54b73192fa3c9ef743c2f47c7312ac7c26cbdd1afccfc7dc70b1a0b9",
+      "name": "transition_research",
+      "receipt": "transition_research/receipt.json",
+      "receiptSha256": "3ebd4d239d9cd644134b1a1a7c4d238394ee8ac43c18ef52f53d426495d123ad",
+      "replay": {
+        "events": 5172,
+        "histories": 15,
+        "publications": 69
+      },
+      "seconds": 14.012,
+      "status": "PASS"
+    },
+    {
+      "counts": {
+        "cases": 1080,
+        "deletedFiles": 504,
+        "events": 16638,
+        "expectedCases": 1080,
+        "fixtures": 42
+      },
+      "exit": 0,
+      "log": "recovery_research.log",
+      "logSha256": "a6e98d5dd7aaf91332a4b18aafa5ddf399c0aeb5ee49da506961d054741b91fe",
+      "name": "recovery_research",
+      "receipt": "recovery_research/receipt.json",
+      "receiptSha256": "30d3f9dc5a953b0f178fe3f0b6b759866514ae71332dce28bfc2d61a08a58077",
+      "replay": {
+        "deletedFiles": 126,
+        "events": 1164,
+        "histories": 42
+      },
+      "seconds": 31.022,
+      "status": "PASS"
+    },
+    {
+      "counts": {
+        "activations": 434,
+        "campaigns": 1008,
+        "cases": 420,
+        "events": 119708,
+        "expectedCases": 420,
+        "publications": 714
+      },
+      "exit": 0,
+      "log": "activation_research.log",
+      "logSha256": "7ede91c04f6feff047ca9074cac4039a1a79a6a8a8bd141f3ae297a4da4834eb",
+      "name": "activation_research",
+      "receipt": "activation_research/receipt.json",
+      "receiptSha256": "55b301507f25d41f48c16a2cb61608d633f8a7bab32641581a46d63dc2f366c6",
+      "replay": {
+        "activations": 62,
+        "events": 14656,
+        "histories": 60
+      },
+      "seconds": 39.026,
+      "status": "PASS"
+    },
+    {
+      "counts": {
+        "capsules": 660,
+        "cases": 220,
+        "eligible": 340,
+        "events": 7172,
+        "expectedCases": 220
+      },
+      "exit": 0,
+      "log": "admission_research.log",
+      "logSha256": "8b679a861d8a196c69f3d59f6cee6bc689bea2cd8551e2ca20c738c359a11605",
+      "name": "admission_research",
+      "receipt": "admission_research/receipt.json",
+      "receiptSha256": "ae7a946366967ec72c45c29913641cb6bfd8e44799b4b65dabb70317e7c919ef",
+      "replay": {
+        "eligible": 85,
+        "events": 1793,
+        "histories": 55
+      },
+      "seconds": 54.035,
+      "status": "PASS"
+    },
+    {
+      "counts": {
+        "cases": 308,
+        "commits": 2436,
+        "events": 6290,
+        "expectedCases": 308
+      },
+      "exit": 0,
+      "log": "operation_research.log",
+      "logSha256": "cd512fb2af6f7d2d966434d63496a9df62c6e17d3c8a67faa0d602e6d91d853b",
+      "name": "operation_research",
+      "receipt": "operation_research/receipt.json",
+      "receiptSha256": "17d587b28a6bb3a163e327d2799d5967ab070d43aa3d6155513ffc2c87ea6a71",
+      "replay": {
+        "commits": 2436,
+        "events": 6290,
+        "histories": 308
+      },
+      "seconds": 1.001,
+      "status": "PASS"
+    },
+    {
+      "counts": {
+        "applications": 4884,
+        "campaigns": 1141,
+        "cases": 126,
+        "events": 135883,
+        "expectedCases": 126,
+        "learnerVoteEvents": 174
+      },
+      "exit": 0,
+      "log": "integrated_research.log",
+      "logSha256": "4c50586f9cbe928ca59d2d2340aba0c825e8021e4cf97d8bfd03224ca8e17b0b",
+      "name": "integrated_research",
+      "receipt": "integrated_research/receipt.json",
+      "receiptSha256": "4605cf98a3475ae4b2a784be25496dbe4175bad35004c8c94b71a339196e047c",
+      "replay": {
+        "applications": 858,
+        "campaigns": 182,
+        "events": 22456,
+        "histories": 21
+      },
+      "seconds": 53.039,
+      "status": "PASS"
+    },
+    {
+      "counts": null,
+      "exit": 0,
+      "log": "continuity_research.log",
+      "logSha256": "62cc3211de3c4fc2ea5313733d7449d41aecd6eebd61cac05ed1aa1c67b97c5b",
+      "name": "continuity_research",
+      "receipt": "continuity_research/receipt.json",
+      "receiptSha256": "fd22deccebde2efa487f1ff0c6753b40431946577ac2554041f4730b8f6276e5",
+      "replay": {
+        "capsules": 70,
+        "events": 5504,
+        "histories": 49,
+        "roundPublications": 252
+      },
+      "seconds": 7.006,
+      "status": "PASS"
+    }
+  ],
+  "summarySha256": "ddb707b06387f927d43f5cefe314b50811052c6302374588d4a79827cf8307d5",
+  "unitTests": 198
+}

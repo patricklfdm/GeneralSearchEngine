@@ -1,0 +1,49 @@
+{
+  "allInterleavings": false,
+  "assumptions": [
+    "certification supplied by separate consensus layer",
+    "atomic metadata force",
+    "authentic learner receipts"
+  ],
+  "counts": {
+    "cases": 308,
+    "commits": 2436,
+    "events": 6290,
+    "expectedCases": 308
+  },
+  "examplesFile": "examples.json.gz",
+  "examplesSha256": "128bbd8dc58ce4e1e10e63b051724d9837a1e36d763376c458816d98c9cf1940",
+  "excluded": [
+    "accepted-only consensus tails",
+    "actual application or disk bytes",
+    "live network/leader scheduling",
+    "public runtime"
+  ],
+  "execution": "committed-operation-reducer",
+  "phase0Accepted": false,
+  "productionQualified": false,
+  "replay": {
+    "commits": 2436,
+    "events": 6290,
+    "histories": 308
+  },
+  "schema": "gse-v53-operation-research-v1",
+  "source": {
+    "files": {
+      "scripts/v53/__init__.py": "78a166fcc8136c3949b1afcf5e91db0543fcd0006821f6e555c92034a568daa1",
+      "scripts/v53/ballot_model.py": "9e8b383740ef6d7466eece3505f570e28e8c6027e692d6606be66061e149bfc4",
+      "scripts/v53/membership_model.py": "e38dbb81bbf6c9d27aa0d0fd689be8b6d682502d0d7bc98ceaf5220e92fc9e17",
+      "scripts/v53/operation_model.py": "5987cff3b6e006b2d803e7dc7d4ef9783301d2533cf85ee4fb55e3d979dedd5a",
+      "scripts/v53/operation_oracle.py": "9ddaf61866235ee33a25ec531ec5581c9c9a7f8f8377e977d3d9e91f661f6fa4",
+      "scripts/v53/operation_research.py": "ba4fe5edf5fb2a7283dfda7dd6f23153943f4d86c42ffc1ae0ea73bc23251f19",
+      "scripts/v53/recovery_model.py": "0c6ad90832fd3bab0f5ddac9f85eefd95390edf284a48b66f5debe0ee4cb2199",
+      "scripts/v53/recovery_oracle.py": "e80a849a6bb60b6717de96a3b9e96391954eaa901d8a663ecc23423f14dc5027",
+      "scripts/v53/test_operation_model.py": "87e73ea0110395fb7c62180589d86f00998c60832c69ee475efbc0ca7215bf40",
+      "scripts/v53/transition_model.py": "91653a8eb8c81af11cd7dae588012ebd21a4ccce461dba216b658d0d6c706865"
+    },
+    "head": "4676673175d84b5b6bcb6473a4a93d23b2b467a0",
+    "worktreeDirty": true
+  },
+  "status": "PASS",
+  "traceSha256": "3b08e6684a7176e01781bd9bf4d319019ab6f03c0472d42a73692324d5b5e958"
+}

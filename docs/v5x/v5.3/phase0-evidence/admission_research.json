@@ -1,0 +1,70 @@
+{
+  "allInterleavings": false,
+  "assumptions": [
+    "authentic records and identities",
+    "atomic force and exclusive disk ownership",
+    "already certified source history",
+    "abstract application hash"
+  ],
+  "counts": {
+    "capsules": 660,
+    "cases": 220,
+    "eligible": 340,
+    "events": 7172,
+    "expectedCases": 220
+  },
+  "cuts": [
+    "reservation-stage",
+    "reservation-force",
+    "image-stage",
+    "image-force",
+    "receipt-stage",
+    "receipt-force",
+    "joint-stage",
+    "joint-force",
+    "final-stage",
+    "final-force",
+    "healthy"
+  ],
+  "examplesFile": "examples.json.gz",
+  "examplesSha256": "4fef0ebe8d0b9e78952bf1813838bca1018797f9ab7ac77cd4dbf815a9ffb530",
+  "excluded": [
+    "real application bytes",
+    "cryptographic authentication",
+    "cloned disk detection",
+    "physical deletion",
+    "concurrent membership operations",
+    "global ballot adapter integration",
+    "unbounded membership lifetime",
+    "production performance"
+  ],
+  "execution": "authority-capsule-learner-model",
+  "phase0Accepted": false,
+  "productionQualified": false,
+  "replay": {
+    "eligible": 85,
+    "events": 1793,
+    "histories": 55
+  },
+  "schema": "gse-v53-admission-research-v1",
+  "source": {
+    "files": {
+      "scripts/v53/__init__.py": "78a166fcc8136c3949b1afcf5e91db0543fcd0006821f6e555c92034a568daa1",
+      "scripts/v53/admission_model.py": "11e9bf370b07c60695ac9449e02392262e88eb8f0f3c72418d478e24ff4ea5ec",
+      "scripts/v53/admission_oracle.py": "3d826890ac244f5d6383fc06a2847106ded4a7adde6b5ca1d2dd3bd84815c117",
+      "scripts/v53/admission_research.py": "9448a405e4a2082efb28d7ab3bb6cf2d275a3df9c6fe478f97444b6f621e787b",
+      "scripts/v53/ballot_model.py": "9e8b383740ef6d7466eece3505f570e28e8c6027e692d6606be66061e149bfc4",
+      "scripts/v53/membership_model.py": "e38dbb81bbf6c9d27aa0d0fd689be8b6d682502d0d7bc98ceaf5220e92fc9e17",
+      "scripts/v53/recovery_model.py": "0c6ad90832fd3bab0f5ddac9f85eefd95390edf284a48b66f5debe0ee4cb2199",
+      "scripts/v53/recovery_oracle.py": "e80a849a6bb60b6717de96a3b9e96391954eaa901d8a663ecc23423f14dc5027",
+      "scripts/v53/recovery_research.py": "eebf3f1775a9bcb6e3068c687f7ccf13daa79b91333737e0bd30327cafe363af",
+      "scripts/v53/test_admission_model.py": "ce2f592f20394647adb0aae76e767530d073b634cdec4e587321860a0822c850",
+      "scripts/v53/transition_model.py": "91653a8eb8c81af11cd7dae588012ebd21a4ccce461dba216b658d0d6c706865",
+      "scripts/v53/transition_research.py": "8838c8e2614b2da3c7daa20a47526ab3c0e7ed4dc15ac8d7fa02d1b778cc8969"
+    },
+    "head": "4676673175d84b5b6bcb6473a4a93d23b2b467a0",
+    "worktreeDirty": true
+  },
+  "status": "PASS",
+  "traceSha256": "f8621090b98cafd6d3d965512147a00fee94fa7723fece51868b5d04e6fd33a7"
+}

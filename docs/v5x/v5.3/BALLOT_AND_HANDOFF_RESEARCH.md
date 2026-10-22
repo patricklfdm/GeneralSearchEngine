@@ -1,5 +1,9 @@
 # V5.3 durable ballots and configuration handoff research
 
+Historical research note. Current decisions and local closure are recorded in
+[PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) and [the final audit](PHASE_0_CLOSURE_AUDIT.md).
+Earlier open items, result counts and limitations below refer to that batch.
+
 **Status:** executable single-slot research; Phase 0 remains open. No production
 storage/wire contract, configuration activation rule or public API is accepted.
 Reviewed Java source remains the V5.2 development base `73f3bd5`.

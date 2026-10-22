@@ -535,7 +535,7 @@
     "unionVotersMax": 6
   },
   "schema": "gse-v53-format-contract-v1",
-  "status": "PHASE0-CANDIDATE",
+  "status": "FROZEN-LOCAL-DESIGN",
   "types": {
     "ballot": {
       "object": {

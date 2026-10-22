@@ -1,5 +1,9 @@
 # V5.3 predecessor-certified transition research
 
+Historical research note. Current decisions and local closure are recorded in
+[PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) and [the final audit](PHASE_0_CLOSURE_AUDIT.md).
+Earlier open items, result counts and limitations below refer to that batch.
+
 **Status:** executable protocol candidate, not a frozen production contract.
 The model builds on [durable ballots](BALLOT_AND_HANDOFF_RESEARCH.md), but now
 replicas can hold different local configuration views and recover multiple slots.

@@ -1,5 +1,9 @@
 # V5.3 global promise, selected sources and activation
 
+Historical research note. Current decisions and local closure are recorded in
+[PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) and [the final audit](PHASE_0_CLOSURE_AUDIT.md).
+Earlier open items, result counts and limitations below refer to that batch.
+
 **Status:** executable integration candidate for D02/D03/D06. Phase 0 is OPEN.
 The preceding ballot, transition and checkpoint models remain separate evidence.
 This adapter adds a root-wide durable grant boundary to their per-slot voting

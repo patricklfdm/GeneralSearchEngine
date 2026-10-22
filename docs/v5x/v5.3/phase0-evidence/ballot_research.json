@@ -1,0 +1,82 @@
+{
+  "allInterleavings": false,
+  "assumptions": [
+    "one independently established configuration and prefix",
+    "authentic non-Byzantine messages",
+    "atomic force; crash discards only unforced work",
+    "unique proposal ballot; fresh persistent counter allocation not implemented"
+  ],
+  "counts": {
+    "cases": 2884,
+    "contexts": 21,
+    "events": 340850,
+    "expectedCases": 2884,
+    "publications": 2884
+  },
+  "cuts": [
+    "lost-accept-acks",
+    "one-unforced-accept",
+    "all-unforced-accepts",
+    "partial-proof"
+  ],
+  "directSwitchCounterexample": "cross-configuration conflicting chosen values",
+  "examplesSha256": "6295057da7a08c6d32dd2eeadd04483008c746a2cf21ae192fa78ae35e37d943",
+  "excluded": [
+    "configuration handoff",
+    "multi-slot prefix recovery",
+    "snapshot and compaction",
+    "learner installation",
+    "network fairness and liveness",
+    "disk and wire bytes",
+    "public reads and operation API",
+    "production qualification"
+  ],
+  "execution": "finite-single-slot-schedule-matrix",
+  "phase0Accepted": false,
+  "productionQualified": false,
+  "profiles": [
+    [
+      3,
+      3
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      4,
+      3
+    ],
+    [
+      4,
+      4
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      5,
+      4
+    ],
+    [
+      5,
+      5
+    ]
+  ],
+  "replayedRetainedTraces": 14,
+  "schema": "gse-v53-ballot-research-v1",
+  "source": {
+    "files": {
+      "scripts/v53/__init__.py": "78a166fcc8136c3949b1afcf5e91db0543fcd0006821f6e555c92034a568daa1",
+      "scripts/v53/ballot_model.py": "9e8b383740ef6d7466eece3505f570e28e8c6027e692d6606be66061e149bfc4",
+      "scripts/v53/ballot_research.py": "764eae72a42c106d3573a02339c835e5f8ba51d92c4210032f22d3b105c1c527",
+      "scripts/v53/membership_model.py": "e38dbb81bbf6c9d27aa0d0fd689be8b6d682502d0d7bc98ceaf5220e92fc9e17",
+      "scripts/v53/test_ballot_model.py": "3af02d3db531a642844c387d6900ed701b3c3e3ebdb998d85e9c73eefe2062ab"
+    },
+    "head": "4676673175d84b5b6bcb6473a4a93d23b2b467a0",
+    "worktreeDirty": true
+  },
+  "status": "PASS",
+  "traceSha256": "af669ddf4dd70cba04609c4ba6ec3775ee30de50b1c283de59cebbe6f280bdb6"
+}

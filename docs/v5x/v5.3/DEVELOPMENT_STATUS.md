@@ -302,3 +302,20 @@ Resource accounting includes all selected sources and generations (324 MiB reser
 within a 384 MiB ceiling). Frozen S/N/C/M register and Phase 1 entry are present.
 Focused fixture/plan checks pass; the coherent all-model closure audit is next.
 No production Java, Maven, workflow, cloud or release changes.
+
+## 2026-10-21 — Phase 0 locally closed
+
+- The coherent final audit passed 198 tests and all nine research drivers on exact
+  script bytes at `4676673` (plus the recorded local format-status/fixture metadata).
+  Original retained examples replayed successfully; older batch receipts remain
+  historical. Final receipts: [phase0-evidence](phase0-evidence/membership_model.json)
+  and [closure index](phase0-closure.json).
+- D01–D10 now have concrete protocol/API/byte/resource/acceptance decisions and
+  mapped executable counterexamples. The final review clarified all seven existing
+  consumers, stale-operation/history error codes, fresh maintenance observations,
+  and verified discovery before campaigning from an obsolete configuration.
+- Scope diff against `73f3bd5c21c97eee564397ab11af7b66bc1b13a3` contains only V5.3
+  docs/scripts. Production Java/POM/workflows and V5.2 runner/evidence are untouched.
+- **Phase 0: LOCALLY CLOSED. Phase 1: NOT STARTED.** Protected review, real public/
+  physical runtime, published V5.2 integration, performance/cloud and release remain
+  later gates. See [audit](PHASE_0_CLOSURE_AUDIT.md) and [Phase 1 entry](PHASE_1_ENTRY_PLAN.md).

@@ -1,7 +1,7 @@
 # V5.3 Phase 0 local exit checklist
 
-Status: **audit pending**. All checked results below must be grounded in the final
-source-bound closure receipt before status changes to locally closed.
+Status: **LOCALLY CLOSED — 2026-10-21**. All rows passed the local design audit;
+see [source-bound result](PHASE_0_CLOSURE_AUDIT.md) and [receipt](phase0-closure.json).
 
 | Requirement | Contract and required local evidence |
 | --- | --- |

@@ -1,6 +1,8 @@
 # V5.3 Phase 0 entry — membership authority
 
-**Status:** local research and design entry; Phase 0 contract not frozen.
+**Historical entry plan.** Phase 0 is now [locally closed](PHASE_0_CLOSURE_AUDIT.md);
+the open-work statements below record the sequence of earlier research batches.
+Current decisions are in [the frozen contract](PHASE_0_CONTRACT.md).
 **Reviewed source:** `73f3bd5c21c97eee564397ab11af7b66bc1b13a3`.
 **Predecessor:** V5.2 development source, not a published V5.2 release.
 

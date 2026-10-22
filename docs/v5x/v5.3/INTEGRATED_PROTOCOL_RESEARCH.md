@@ -1,5 +1,9 @@
 # Certified operations and learner admission
 
+Historical research note. Current decisions and local closure are recorded in
+[PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) and [the final audit](PHASE_0_CLOSURE_AUDIT.md).
+Earlier open items, result counts and limitations below refer to that batch.
+
 **Status:** integrated research candidate for D02–D05. No production enablement.
 Parent `ee38852`; Phase 0 remains open while steady-state policy, bounded compacted
 metadata, exact formats and the final contract/acceptance register are completed.

@@ -1,6 +1,6 @@
 # V5.3 — controlled cluster operations
 
-**Status:** local development branch, started 2026-10-21. Phase 0 is open;
+**Status:** local development branch, started 2026-10-21. Phase 0 is locally closed;
 no V5.3 runtime, release, protected CI or cloud acceptance is claimed.
 
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
@@ -8,11 +8,14 @@ cloud qualification continues, with local commits and no push. The branch starts
 at `73f3bd5c21c97eee564397ab11af7b66bc1b13a3`. V5.2 is still an unpublished
 development predecessor; its eventual published artifacts are not yet pinned.
 
-## Contract freeze candidates
+## Frozen local contract
 
 - [Phase 0 contract](PHASE_0_CONTRACT.md) and [protocol](MEMBERSHIP_PROTOCOL.md)
 - [API/bytes/compatibility](API_FORMAT_AND_COMPATIBILITY.md) and [resource limits](RESOURCE_AND_LIFETIME_LIMITS.md)
 - [Acceptance register](ACCEPTANCE_REGISTER.md), [checklist](PHASE_0_CHECKLIST.md), [Phase 1 entry](PHASE_1_ENTRY_PLAN.md)
+
+[Closure audit and evidence](PHASE_0_CLOSURE_AUDIT.md) record 198 tests and all nine
+research matrices on the final script bytes. Phase 1 has not started.
 
 ## Historical research in order
 

@@ -1,5 +1,9 @@
 # V5.3 checkpoint, floor and retirement research
 
+Historical research note. Current decisions and local closure are recorded in
+[PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) and [the final audit](PHASE_0_CLOSURE_AUDIT.md).
+Earlier open items, result counts and limitations below refer to that batch.
+
 **Status:** bounded executable candidate for D06/D09. Phase 0 remains OPEN.
 This extends the [transition chain](TRANSITION_CHAIN_RESEARCH.md); it changes no
 Java storage, public API, wire format, CI, POM or V5.2 cloud execution.

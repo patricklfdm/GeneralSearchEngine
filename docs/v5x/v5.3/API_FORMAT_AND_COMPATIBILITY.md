@@ -72,6 +72,7 @@ public final class MembershipOperationException extends RuntimeException {
     public enum Reason {
         NOT_LEADER, NOT_READY, BUSY, STALE_CONFIGURATION, CONFLICTING_OPERATION,
         INVALID_MEMBERSHIP, IDENTITY_REUSED, OPERATION_RETIRED, IRREVERSIBLE,
+        STALE_OPERATION_NUMBER, INCOMPATIBLE_HISTORY,
         STALE_PREPARATION, LEARNER_UNAVAILABLE, CAPACITY_EXCEEDED,
         QUORUM_UNAVAILABLE, STALE_EPOCH, PROTOCOL_MISMATCH, INTEGRITY_FAILURE,
         STORAGE_FAILURE, DEADLINE_EXCEEDED, REENTRANT_CALL, REMOVED, DRAINING, CLOSED
@@ -99,7 +100,9 @@ number, RETIRED at/below the retained watermark, or the exact retained state.
 RETIRED omits request/revision/cuts because details have been retired; it never
 means the number is reusable. Same ID plus different retained request is CONFLICT;
 the caller obtains `nextOperationNumber` from a strong view, and concurrent distinct
-requests racing that number must not both reserve it.
+requests racing that number must not both reserve it. A gapped/future submission
+is STALE_OPERATION_NUMBER; wrong root/history is INCOMPATIBLE_HISTORY. Querying
+a future number still returns NOT_FOUND. These refusals precede dispatch.
 
 Explicit cancellation and retirement are certified controls. Future cancellation
 only detaches the waiter; it cannot cancel a committed/background membership
@@ -116,7 +119,10 @@ majority excluding itself, refuses an active membership operation, then stops lo
 admission, drains existing bounded work and checkpoints/closes. The operator must
 serialize maintenance and membership and wait for rejoin before the next target.
 Concurrent operators and a new failure after the check can lose availability;
-the API does not claim a distributed maintenance lock. No API kills a process or
+the API does not claim a distributed maintenance lock. Each drain generates a new
+challenge; the saved survivor list/nonce is not reused as authority. Data progress
+may refresh the observation to a newer exact common cut at least as high as the
+plan's token; configuration change invalidates the plan. No API kills a process or
 deletes a removed replica. A stale saved plan alone is insufficient to drain.
 
 Known-removed/draining replicas refuse all new inherited data/read operations with
@@ -197,6 +203,11 @@ SHA-256(first16 || body), followed by the exact canonical ASCII JSON body. Sort
 object keys lexicographically, no whitespace, decimal integers without redundant
 zeros, lowercase standard JSON booleans/null, no floats, duplicate/unknown fields,
 non-ASCII text or alternative base64 spellings. Arrays keep semantic order.
+Member/target/identity/source/witness arrays sort by node-ID bytes and reject
+duplicates; operation results sort by operation number, capsule items by contiguous
+log position, inventories by relative path. Valid alternate witness sets may prove
+the same immutable entry, but ACKs for different PROOF bytes cannot be combined as
+if they acknowledged one exact proof record.
 Validate header/length/cap before allocation, checksum, canonical bytes, shape,
 then contextual authority. Reject unknown 1.x minor/kind rather than negotiate
 down to a fixed-manifest interpretation. Limit nesting to 16 and decoded JSON
@@ -210,6 +221,26 @@ These are different quantities. ROOT references a GENESIS record that does not
 recursively contain ROOT; GENESIS binds new group/history, verified application
 bytes and source identity. Full application bytes use the existing durable backup
 and operation encodings; do not re-encode search semantics in this format.
+
+Digest inputs are exact: view/configuration digest is canonical
+`{root,generation,old,new,operation}` with ordered node-ID arrays and null operation
+in a stable view. This digest is used by `MembershipView.configurationDigest`,
+request `expected`, and storage/wire authority/view fields. Group/history in a
+public `MembershipRoot` must also match the referenced ROOT before encoding its
+digest into a wire request. Request digest covers the exact catalog `request`
+object; sealed binding covers exactly `{request,prepared,receipt}`. A checkpoint
+statement digest covers its complete CHECKPOINT frame, and witness receipts cover
+their exact phased record plus voter/storage identity. An ENTRY identity is the
+digest of its full immutable framed bytes, independent of later certificate
+ballot/witness representations. Catalog/application hashes cover complete retained
+bytes, including application sequence. Research models use abstract identities and
+hash expressions; they are not interchangeable with these production byte fixtures.
+
+An ACCEPT witness digest is SHA-256 of canonical
+`{root,voter,incarnation,phase:"ACCEPT",record:<full ACCEPT frame hash>}`; PROOF uses
+phase `"PROOF"` and its full PROOF frame hash. An exact duplicate has the same receipt.
+The receiver validates the referenced phased record/context and authentic sender
+before counting it. No bare witness hash proves that an uncontacted voter forced it.
 
 `cut.index` is the last proven index; `cut.view` governs the **next** index. This is
 one less than the research `Authority.index`. Views carry ordered node IDs; complete
@@ -244,7 +275,8 @@ The complete capsule bound includes all referenced descriptors and receipts.
 ## Compatibility and migration
 
 - Existing configured 1.1 and fixed automatic 1.2 factories, disk/wire bytes,
-  six published-consumer suites and search semantics remain unchanged.
+  the six published-consumer suites plus the current V5.2 consumer, and search
+  semantics remain unchanged. Preserve all seven current consumer modules.
 - Existing read token v1 stays 112 bytes, G S R T magic, three zero flag bytes,
   UUIDs, immutable root digest, signed nonnegative index and its existing domain
   checksum. Membership changes within that root preserve token compatibility;

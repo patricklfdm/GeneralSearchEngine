@@ -1,5 +1,9 @@
 # Stable rounds and complete metadata retention
 
+Historical research note. Current decisions and local closure are recorded in
+[PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) and [the final audit](PHASE_0_CLOSURE_AUDIT.md).
+Earlier open items, result counts and limitations below refer to that batch.
+
 Phase 0 candidate decisions D03/D06/D09. This refines the deliberately expensive
 fresh-ballot/full-prefix research reference. Production Java remains unchanged.
 

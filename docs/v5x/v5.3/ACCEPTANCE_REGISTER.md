@@ -38,10 +38,11 @@ successful detection. Missing/fabricated scenarios or crash labels also reject.
 
 ## Compatibility gate C01–C08
 
-C01–C06 retain the repository's six published-consumer obligations unchanged;
+C01–C06 retain `v1`, `v2`, `v3`, `v4`, `v5`, `v51` style-consumer modules unchanged;
 their owning release inventory remains authoritative. C07 compiles/executes the new
 external V5.3 membership interface and all seven profiles without private APIs.
-C08 verifies unchanged token v1 bytes, legacy fixed factories, 1.1/1.2/1.3 wrong-family
+C08 retains the current `compatibility/v52-style-consumer` and verifies unchanged
+token v1 bytes, legacy fixed factories, 1.1/1.2/1.3 wrong-family
 refusal, and verified-backup transfer to a new root. Pin the actual released V5.2
 source and nine-JAR/three-POM inventory only after publication; placeholders cannot
 pass C08. No current cloud evidence may be relabelled as a published control.

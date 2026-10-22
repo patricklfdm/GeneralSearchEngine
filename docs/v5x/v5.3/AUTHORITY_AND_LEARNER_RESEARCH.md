@@ -1,5 +1,9 @@
 # Authority retention and learner identity
 
+Historical research note. Current decisions and local closure are recorded in
+[PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) and [the final audit](PHASE_0_CLOSURE_AUDIT.md).
+Earlier open items, result counts and limitations below refer to that batch.
+
 **Status:** Phase 0 candidate with isolated executable research. No production
 capability is enabled. Reviewed parent: `93c61ae`, `feat/v53-cluster-operations`.
 

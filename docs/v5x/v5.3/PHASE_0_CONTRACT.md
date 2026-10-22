@@ -1,6 +1,7 @@
 # V5.3 Phase 0 contract — controlled membership
 
-**Status: local design freeze candidate, awaiting the recorded closure audit.**
+**Status: LOCALLY CLOSED — 2026-10-21.**
+[Closure audit](PHASE_0_CLOSURE_AUDIT.md) records the exact source and scope.
 Scope: new homogeneous automatic membership groups; one serialized add/remove/
 replace operation, learner catch-up and same-version maintenance. Stable voters
 3–5, peak union six. Existing fixed configured/automatic modes and V5.2 release/

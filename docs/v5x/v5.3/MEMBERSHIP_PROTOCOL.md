@@ -86,6 +86,18 @@ keeps its original identity and governing authority. Install the exact selected
 state on every selected voter and force/collect every selected installation ACK
 before ACCEPT. A non-selected late basis cannot change the decision.
 
+Within one configuration era, different source prefix lengths are permitted only
+after verifying their ancestry: take the longest proven prefix, discard only tails
+already covered by that proof, and select the highest accepted tail at its next
+index. Never mix promises for different configuration eras. If discovery or a basis
+reveals a later proven INTENT/FINAL, verify/install that prefix and adoption fence,
+end the old campaign, then allocate a fresh ballot under the newly governing view.
+Read-only root-bound STATUS/SOURCE discovery from known historical identities can
+carry authority forward; receiving it does not count as an election vote. An old
+view rejection must not leave a node permanently retrying a known obsolete view.
+The Phase 0 adapters synchronize these cuts explicitly; heterogeneous-cut discovery
+and compacted-source composition are required Phase 1 implementation/model gates.
+
 Selected source failure starts a fresh ballot under the same bounded retry/deadline
 policy, not same-ballot reselection. Source scheduling rotates after a failed
 candidate/source pair, preserving the original campaign deadline; give an eligible

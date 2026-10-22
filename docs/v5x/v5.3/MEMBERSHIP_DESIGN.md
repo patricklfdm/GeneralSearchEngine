@@ -1,5 +1,9 @@
 # V5.3 membership design research
 
+Historical research note. Current decisions and local closure are recorded in
+[PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) and [the final audit](PHASE_0_CLOSURE_AUDIT.md).
+Earlier open items, result counts and limitations below refer to that batch.
+
 **Status:** proposed choices; not a frozen storage/wire or production protocol.
 
 ## Proposed bounded scope

@@ -1,5 +1,9 @@
 # Queryable operations, cancellation and maintenance
 
+Historical research note. Current decisions and local closure are recorded in
+[PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) and [the final audit](PHASE_0_CLOSURE_AUDIT.md).
+Earlier open items, result counts and limitations below refer to that batch.
+
 **Status:** concrete D05/D07 candidate. The local reducer is tested independently;
 joint-consensus integration and the final public/byte inventory are separate work.
 This supersedes the earlier admission model's client-ID/exact-data-cut limitation.
