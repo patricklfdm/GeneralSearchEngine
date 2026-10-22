@@ -101,6 +101,13 @@ final class MembershipBallotAllocator implements AutoCloseable {
                 MembershipFloorFiles.DIRECTORY,MembershipRetirementFiles.DIRECTORY,MembershipJournalRotation.PENDING,MembershipSourceRetirementFiles.FILE));
     }
 
+    static MembershipBallotAllocator openWithCaptureRecovery(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut) throws IOException {
+        return open(requested,root,identity,cut,Set.of("grants.gsr",MembershipBasisSources.DIRECTORY,
+                MembershipCurrentGeneration.DIRECTORY,MembershipCurrentGeneration.SELECTOR,MembershipGenerationFiles.PENDING,
+                MembershipFloorFiles.DIRECTORY,MembershipRetirementFiles.DIRECTORY,MembershipJournalRotation.PENDING,
+                MembershipSourceRetirementFiles.FILE,MembershipCaptureFiles.FILE));
+    }
+
     private static MembershipBallotAllocator open(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut, Set<String> additional) throws IOException {
         Objects.requireNonNull(root); Objects.requireNonNull(identity); Objects.requireNonNull(cut);
         Path directory=AdmissionPaths.safe(requested);
@@ -135,7 +142,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
             }
         }
         require(seen.containsAll(Set.of("replica.lock","root.gsr","genesis.gsr","node.gsr",CURRENT)),"incomplete allocator authority");
-        var required=new HashSet<>(additional);required.remove(MembershipGenerationFiles.PENDING);required.remove(MembershipFloorFiles.DIRECTORY);required.remove(MembershipRetirementFiles.DIRECTORY);required.remove(MembershipJournalRotation.PENDING);required.remove(MembershipSourceRetirementFiles.FILE);
+        var required=new HashSet<>(additional);required.remove(MembershipGenerationFiles.PENDING);required.remove(MembershipFloorFiles.DIRECTORY);required.remove(MembershipRetirementFiles.DIRECTORY);required.remove(MembershipJournalRotation.PENDING);required.remove(MembershipSourceRetirementFiles.FILE);required.remove(MembershipCaptureFiles.FILE);
         require(seen.containsAll(required),"incomplete grant authority");
     }
 

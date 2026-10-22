@@ -37,6 +37,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private boolean floorReleaseEnabled;
     private MembershipSourceRetirementFiles sourceRetirement;
     private MembershipResources resources;
+    private MembershipCaptureFiles capture;
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -132,21 +133,45 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement) throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,withFloors,withRetirement,withRotation,withFloorRelease,maximum,withSourceRetirement,false);
+    }
+    static MembershipGrantJournal openCapturing(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut)throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,true,true,MAXIMUM,true,true);
+    }
+    private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
+            boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,boolean withCapture)throws IOException {
         require(maximum>=RESERVATION && maximum<=MAXIMUM,"grant journal capacity");
         Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
-        var owner=withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
+        var owner=withCapture?MembershipBallotAllocator.openWithCaptureRecovery(path,root,identity,cut):withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
         try {
             journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut);journal.resources=resources;journal.capsuleVerifier=verifier;journal.floorReleaseEnabled=withFloorRelease;
             if(withRotation)journal.rotation=new MembershipJournalRotationFiles(path);
             if(withSourceRetirement)journal.sourceRetirement=new MembershipSourceRetirementFiles(path);
-            journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases,withSourceRetirement?journal.sourceRetirement.decision().orElse(null):null);
-            journal.reloadGenerations();
+            if(withCapture)journal.capture=new MembershipCaptureFiles(path);
+            MembershipCaptureFiles.Plan pending=null;
+            if(withCapture && journal.capture.pending()) {
+                require(!journal.rotation.pending() && !journal.sourceRetirement.pending(),"capture conflicts with other pending authority");
+                journal.reloadGenerations();
+                require(!journal.inactive.pending(),"capture conflicts with pending selector");
+                pending=MembershipCaptureFiles.plan(journal.current,journal.promise,identity);
+                journal.checkBasis(pending.basis(),journal.promise);
+                journal.capture.bind(pending);
+            }
+            journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases,
+                    withSourceRetirement?journal.sourceRetirement.decision().orElse(null):null,pending);
+            if(journal.current==null)journal.reloadGenerations();
             if(withFloors) {
                 journal.floors=new MembershipFloorFiles(path,root,identity,resources,verifier,withFloorRelease);
                 var parents=new ArrayList<MembershipCapsule.Anchor>();journal.addFloorParent(parents);journal.current.verifyParents(parents);
             }
             if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources);
             journal.checkOwner();
+            if(pending!=null) {
+                require(!journal.floors.pending() && !journal.floors.releasing() && !journal.retirement.pending(),"capture conflicts with pending floor/retirement");
+                journal.resumeCapture(pending);
+            }
             if(withSourceRetirement && journal.sourceRetirement.pending()) {
                 var decision=journal.sourceRetirement.decision();
                 if(decision.isPresent())journal.retireSource(decision.get().id());
@@ -171,6 +196,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(sources!=null)sources.check();
         if(rotation!=null)rotation.check();
         if(sourceRetirement!=null)sourceRetirement.check();
+        if(capture!=null)capture.check();
     }
     private void checkWithoutFloor() throws IOException {
         checkBaseOwner();
@@ -179,7 +205,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
     private void checkOwner() throws IOException {checkWithoutRetirement();if(retirement!=null)retirement.check();}
-    private void sourceIdle(){if(sourceRetirement!=null)require(!sourceRetirement.pending(),"pending source retirement must finish before authority changes");}
+    private void sourceIdle(){if(capture!=null)require(!capture.pending(),"pending source capture must finish before authority changes");if(sourceRetirement!=null)require(!sourceRetirement.pending(),"pending source retirement must finish before authority changes");}
     private void rotationIdle(){sourceIdle();if(floors!=null)require(!floors.releasing(),"pending floor release must finish before authority changes");if(rotation!=null)require(!rotation.pending(),"pending journal rotation must finish before authority changes");}
     private void floorIdle() throws IOException {
         rotationIdle();
@@ -591,9 +617,31 @@ final class MembershipGrantJournal implements AutoCloseable {
         var reservation=sources==null?null:sources.prepare(frozen,source,images);
         try(var retained=reservation) {
             append(grant,next);promise=grant;basis=null;selection=null;promises.put((String)grant.value().get("basisId"),grant);
-            if(retained!=null){retained.capture();fence(next);}
-            append(frozen,next);basis=frozen;bases.put((String)frozen.value().get("basisId"),frozen);cut.at("GRANT_BEFORE_RETURN");checkOwner();fence(next);return frozen;
+            if(retained!=null){
+                if(capture==null)retained.capture();
+                else {
+                    var plan=MembershipCaptureFiles.plan(current,grant,identity);
+                    require(Arrays.equals(plan.basis().bytes(),frozen.bytes()),"capture differs from current original");
+                    capture.write(plan,this::checkOwner,cut);retained.captureRecovering(this::checkOwner);
+                }
+                fence(next);
+            }
+            append(frozen,next);basis=frozen;bases.put((String)frozen.value().get("basisId"),frozen);
+            if(capture!=null)capture.clear(this::checkOwner,cut);
+            cut.at("GRANT_BEFORE_RETURN");checkOwner();fence(next);return frozen;
         } catch(IOException | RuntimeException | Error error) {failed=true;throw error;}
+    }
+
+    private void resumeCapture(MembershipCaptureFiles.Plan plan)throws IOException {
+        var bound=object(plan.promise().value().get("ballot"));
+        require(selection==null,"pending capture cannot already have a selection");
+        if(basis==null) {
+            require(plan.basis().bytes().length<=maximum-journal.length,"capture recovery journal capacity");
+            capture.write(plan,this::checkOwner,cut);
+            sources.resumeCapture(plan,this::checkOwner);
+            append(plan.basis(),bound);basis=plan.basis();bases.put(plan.id(),basis);
+        }else require(Arrays.equals(basis.bytes(),plan.basis().bytes()),"completed capture basis changed");
+        checkOwner();fence(bound);capture.clear(this::checkOwner,cut);
     }
 
     private void ensureJournalCapacity(int bytes,String message) throws IOException {

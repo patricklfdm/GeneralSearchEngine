@@ -31,6 +31,11 @@ final class MembershipBasisSources implements AutoCloseable {
     }
     MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
             Map<String,Decoded> promises,Map<String,Decoded> bases,MembershipSourceRetirementFiles.Decision retiring) throws IOException {
+        this(parent,resources,cut,promises,bases,retiring,null);
+    }
+    MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
+            Map<String,Decoded> promises,Map<String,Decoded> bases,MembershipSourceRetirementFiles.Decision retiring,
+            MembershipCaptureFiles.Plan capture)throws IOException {
         directory=parent.resolve(DIRECTORY);this.resources=resources;this.cut=cut;
         root=AdmissionPaths.read(parent.resolve("root.gsr"),16384);directoryKey=key(directory);
         try {
@@ -48,10 +53,17 @@ final class MembershipBasisSources implements AutoCloseable {
                     var images=new TreeMap<String,Long>();for(var file:expected.entrySet())if(file.getKey().endsWith(".image"))images.put((String)file.getValue().get("sha256"),number(file.getValue().get("size")));
                     retainLeases(id,reserve(id,number(expected.get(PACKET).get("size")),images));retained.put(id,Map.copyOf(actual));subdirectories.put(id,key(path));continue;
                 }
+                if(capture!=null && id.equals(capture.id()) && !bases.containsKey(id)) {
+                    require(retiring==null,"capture conflicts with source retirement");
+                    retained.put(id,prefixSnapshot(path,capture.packet(),capture.images()));subdirectories.put(id,key(path));
+                    retainLeases(id,reserve(id,capture.packet().bytes().length,capture.packet().images()));continue;
+                }
                 var packet=load(path,promises.get(id),bases.get(id));
                 retainLeases(id,reserve(id,Files.size(path.resolve(PACKET)),packet.images()));
                 retained.put(id,snapshot(path,packet));subdirectories.put(id,key(path));
             }
+            if(capture!=null && !bases.containsKey(capture.id()) && !sourceLeases.containsKey(capture.id()))
+                retainLeases(capture.id(),reserve(capture.id(),capture.packet().bytes().length,capture.packet().images()));
             // Validate the entire inventory before sealing bytes made visible by an interrupted process.
             check();
             for(String id:retained.keySet()) {
@@ -105,6 +117,55 @@ final class MembershipBasisSources implements AutoCloseable {
         result.put(PACKET,inspect(path.resolve(PACKET),bytes.length,hash(bytes)));
         for(var image:packet.images().entrySet())result.put(image.getKey()+".image",inspect(path.resolve(image.getKey()+".image"),image.getValue(),image.getKey()));
         return Map.copyOf(result);
+    }
+    private static Map<String,byte[]> expectedFiles(MembershipSourcePacket packet,Map<String,byte[]> images) {
+        packet.verifyImages(images);var result=new TreeMap<String,byte[]>();result.put(PACKET,packet.bytes());
+        images.forEach((hash,bytes)->result.put(hash+".image",bytes));return result;
+    }
+    private static Map<String,FileIdentity> prefixSnapshot(Path path,MembershipSourcePacket packet,Map<String,byte[]> images)throws IOException {
+        var expected=expectedFiles(packet,images);var names=children(path,8);require(expected.keySet().containsAll(names),"capture unlisted source member");
+        var result=new TreeMap<String,FileIdentity>();
+        for(String name:names) {
+            byte[] original=expected.get(name),prefix=AdmissionPaths.read(path.resolve(name),original.length);
+            require(Arrays.equals(prefix,Arrays.copyOf(original,prefix.length)),"capture source prefix changed");
+            result.put(name,inspect(path.resolve(name),prefix.length,hash(prefix)));
+        }
+        return Map.copyOf(result);
+    }
+    void resumeCapture(MembershipCaptureFiles.Plan plan,MembershipGenerationFiles.Guard owner)throws IOException {
+        require(sourceLeases.containsKey(plan.id()),"capture reservation absent");
+        completeCapture(plan.id(),plan.packet(),plan.images(),owner);
+    }
+    private void completeCapture(String id,MembershipSourcePacket packet,Map<String,byte[]> images,MembershipGenerationFiles.Guard owner)throws IOException {
+        check();owner.check();Path path=directory.resolve(id);
+        if(!retained.containsKey(id)) {
+            cut.at("SOURCE_BEFORE_CREATE");check();owner.check();Files.createDirectory(path);
+            retained.put(id,Map.of());subdirectories.put(id,key(path));cut.at("SOURCE_CREATED");check();owner.check();
+        }
+        var expected=expectedFiles(packet,images);
+        // Packet first, then every image. Existing bytes must be the exact original prefix.
+        var names=new ArrayList<String>();names.add(PACKET);for(String name:expected.keySet())if(!name.equals(PACKET))names.add(name);
+        for(String name:names) {
+            check();owner.check();byte[] bytes=expected.get(name);var old=retained.get(id).get(name);
+            var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));if(old==null)options.add(StandardOpenOption.CREATE_NEW);
+            String event=name.equals(PACKET)?"SOURCE_PACKET":"SOURCE_IMAGE";
+            try(var channel=FileChannel.open(path.resolve(name),options)) {
+                Object original=old==null?key(path.resolve(name)):old.key();
+                if(old==null){rememberPrefix(id,name,bytes,0,original);cut.at(event+"_CREATED");check();owner.check();}
+                int offset=Math.toIntExact(channel.size());require(offset<=bytes.length,"capture file exceeds original");channel.position(offset);
+                int middle=offset+(bytes.length-offset)/2;AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,offset,middle));rememberPrefix(id,name,bytes,middle,original);
+                cut.at(event+"_PREFIX_WRITTEN");check();owner.check();
+                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,middle,bytes.length));rememberPrefix(id,name,bytes,bytes.length,original);
+                cut.at(event+"_WRITTEN");check();owner.check();channel.force(true);cut.at(event+"_FORCED");check();owner.check();
+            }
+        }
+        AdmissionPaths.forceDirectory(path);cut.at("SOURCE_FILES_DIRECTORY_FORCED");check();owner.check();
+        AdmissionPaths.forceDirectory(directory);cut.at("SOURCE_DIRECTORY_FORCED");check();owner.check();
+        require(retained.get(id).equals(snapshot(path,packet)),"capture complete source changed");
+    }
+    private void rememberPrefix(String id,String name,byte[] bytes,int length,Object original)throws IOException {
+        var info=inspect(directory.resolve(id).resolve(name),length,hash(Arrays.copyOf(bytes,length)));
+        require(original.equals(info.key()),"capture source inode changed");var files=new TreeMap<>(retained.get(id));files.put(name,info);retained.put(id,Map.copyOf(files));
     }
     void check() throws IOException {
         require(directoryKey.equals(key(directory)) && children(directory,6).equals(retained.keySet()),"retained source directory changed");
@@ -181,6 +242,9 @@ final class MembershipBasisSources implements AutoCloseable {
         final List<MembershipResources.Lease> reserved;boolean captured;
         Prepared(String id,MembershipSourcePacket source,byte[] packet,Map<String,byte[]> images,List<MembershipResources.Lease> reserved) {
             this.id=id;this.source=source;this.packet=packet;this.images=images;this.reserved=reserved;
+        }
+        void captureRecovering(MembershipGenerationFiles.Guard owner)throws IOException {
+            check();owner.check();captured=true;retainLeases(id,reserved);completeCapture(id,source,images,owner);
         }
         void capture() throws IOException {
             check();captured=true;retainLeases(id,reserved);Path path=directory.resolve(id);

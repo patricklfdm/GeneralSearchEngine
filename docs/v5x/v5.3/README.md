@@ -40,7 +40,9 @@ safe compaction before refusing an exhausted admission.
 [Original-source retirement planning](PHASE_2_SOURCE_RETIREMENT_PLAN.md) now checks
 exact floor/selector/ancestry and retained tail ownership.
 [Completed original-source retirement](PHASE_2_SOURCE_RELEASE.md) now passes 297
-crash/recovery cases; incomplete captures and maximal image headroom remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
+crash/recovery cases. [Covered capture-only retirement](PHASE_2_CAPTURED_SOURCE_RELEASE.md)
+and [current-pinned partial capture recovery](PHASE_2_CAPTURE_RECOVERY.md) now pass;
+unmarked/torn authority recovery and maximal image headroom remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
 expanded continuous local development scope.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated

@@ -94,7 +94,7 @@ def prerequisites(files, roots):
         for worker in ('V53FormatWorker', 'V53FormatTest', 'V53ContextWorker', 'V53ContextFixture',
                        'V53DeclarationsTest', 'V53SourcePacketWorker', 'V53SourcePacketTest',
                        'V53SourcePacketTest$Fixture', 'V53CapsuleWorker', 'V53CapsuleFixture',
-                       'V53SelectionWorker', 'V53SelectionFixture', 'V53BallotAllocatorWorker', 'V53GrantJournalWorker', 'V53BasisSourcesWorker', 'V53CurrentGenerationWorker', 'V53CurrentGenerationFixture', 'V53DurableSelectionWorker', 'V53GenerationInstallWorker', 'V53GenerationInstallFixture', 'V53AdoptionFenceFixture', 'V53AdoptionFenceWorker', 'V53AdoptionInstallWorker', 'V53FloorWorker', 'V53RetirementWorker', 'V53JournalRotationWorker', 'V53FloorReleaseWorker', 'V53SourceReleaseWorker', 'V53CapturedSourceReleaseWorker'):
+                       'V53SelectionWorker', 'V53SelectionFixture', 'V53BallotAllocatorWorker', 'V53GrantJournalWorker', 'V53BasisSourcesWorker', 'V53CurrentGenerationWorker', 'V53CurrentGenerationFixture', 'V53DurableSelectionWorker', 'V53GenerationInstallWorker', 'V53GenerationInstallFixture', 'V53AdoptionFenceFixture', 'V53AdoptionFenceWorker', 'V53AdoptionInstallWorker', 'V53FloorWorker', 'V53RetirementWorker', 'V53JournalRotationWorker', 'V53FloorReleaseWorker', 'V53SourceReleaseWorker', 'V53CapturedSourceReleaseWorker', 'V53CaptureRecoveryWorker'):
             need(package + worker + '.class' in files, 'missing membership fixture class: ' + worker)
         need(CLASSES + '/replication/v53/byte-fixtures.json' in files, 'missing membership byte fixtures')
     suites = set()

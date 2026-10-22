@@ -10,7 +10,11 @@ final class V53CurrentGenerationFixture {
     final int size;final V53CapsuleFixture fixture;final MembershipCapsule admitted;final String accepted;
     V53CurrentGenerationFixture(int size,int through,boolean tail) {
         this.size=size;var selection=new V53SelectionFixture(size,"REPLACE",through);fixture=selection.capsule;
-        if(tail){var source=selection.source("node-1",10,"owned-original-tail",3);admitted=source.capsule;accepted=source.accepted.digest();}
+        if(tail && through==6) {
+            // A joint view permits FINAL only; reuse the concrete next certified step's original bytes.
+            var step=fixture.source.steps.get(through);fixture.add((String)step.get("entry"));fixture.add((String)step.get("accept"));
+            fixture.add((String)fixture.entry(through).get("payload"));admitted=fixture.verify();accepted=(String)step.get("accept");
+        }else if(tail){var source=selection.source("node-1",10,"owned-original-tail",3);admitted=source.capsule;accepted=source.accepted.digest();}
         else{admitted=fixture.verify();accepted=null;}
     }
     MembershipRoot root(){return V53BallotAllocatorWorker.root(fixture.source);}

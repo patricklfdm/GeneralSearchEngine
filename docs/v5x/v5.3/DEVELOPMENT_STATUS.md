@@ -825,3 +825,23 @@ Same-cut/physically partial capture, maximal source/image headroom, actual phase
 vote/application persistence and complete-store recovery still remain OPEN.
 Continue the Phase 2 entry/closure obligations; no phase or public-runtime closure
 is claimed. No push, workflow dispatch, paid cloud or V5.2 Runner change.
+
+
+## 2026-10-22 — Phase 2C4c5a current-pinned capture recovery
+
+An exact bounded intent binds the installed selector, new original PROMISE and
+proposed BASIS before writing a source. Reopen completes only exact original
+packet/image prefixes, with the current generation pinned and reservations held.
+A completed BASIS requires complete source bytes; a partial intent cannot cover
+already-created source files, and an empty intent cannot replace a lost new grant
+with the installed generation promise. Higher observations fence returns.
+
+**66 cases / 266 fresh JVMs**, **14 exact negatives**, portable replay and the final
+**230 Java tests** passed. **351 V5.3 Python / 20 build tests** and 33 focused
+optimized-Python tests passed. [Scope](PHASE_2_CAPTURE_RECOVERY.md),
+[hash index](phase2-evidence/capture-recovery.json).
+
+The next work is exact torn-journal recovery and actual pending ACCEPT/PROOF and
+application/catalog persistence. Maximal source/image staging, coordinated lifetimes,
+complete bootstrap/reopen, Phase 2 physical mapping and later phases remain OPEN.
+No public runtime enablement, push, workflow, cloud or separate V5.2 Runner action.
