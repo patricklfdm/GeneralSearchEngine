@@ -234,22 +234,30 @@ still cleaning up their process and private credentials. Completed channels free
 their slots; there is no lifetime connection-count limit. Every newly accepted
 connection still checks the original authority and opens at most one SDK tunnel.
 Before that tunnel starts, a typed timeout or plain connection interruption may
-receive one admission retry: at most two 30-second attempts, one one-second
-backoff and a shared 60-second connection ceiling. A provider `V52_READ_DEADLINE`
+receive one admission retry: at most two 90-second attempts, one one-second
+backoff and a shared 240-second connection ceiling. This reserves 59 seconds after
+two full attempts and backoff for SDK startup and the SSH banner. A provider `V52_READ_DEADLINE`
 may use that second attempt only when the current admission attempt's own deadline
 has elapsed, before SDK spawn. Exhausted read counts, earlier nested deadlines and
 other read scopes remain terminal. Every retry repeats the original checks using a
 fresh private credential directory. Explicit denials, identity/ownership drift and malformed or
 unknown errors remain terminal. These are connection bounds, not experiment time
 or cost budgets.
-Cold native SSH control calls reserve the explicit 60-second connection allowance
-plus their existing 30-second command allowance (90 seconds total). Warm channels
+Cold native SSH control calls reserve the explicit 240-second connection allowance
+plus their existing 30-second command allowance (270 seconds total). Warm channels
 and ordinary local qualification retain their original allowance. Delivery probes,
 lifecycle/collection calls, voter stream opening and partition controls share this
-calculation. Standalone Python/Java verification adds connection time to its
-60-second read allowance; an installation and its original-result verification
-still share the unchanged original 300-second grant. Explicit caller deadlines,
-lease/identity checks and consumed-command semantics are never extended.
+calculation. Native guest probes, history-parent creation/query and standalone
+Python/Java verification allow 240 seconds for connection plus 60 seconds of work.
+All retries of an installation verification share its first absolute deadline.
+Native Python/Java installation reserves 240 seconds for connection plus the
+existing 300 seconds for upload, durable writes and original-result recovery
+(540 seconds total); it is submitted once. Direct identity observations allow
+90 seconds, still clamped by an existing startup or operation grant where present.
+Explicit caller deadlines, lease/identity checks and consumed-command semantics
+are never extended. Mount initialization and each mount check retain their
+original 300-second, lease-bounded grant across their clock and result exchanges;
+no individual reconnect can restart that grant.
 
 The forwarder never retries a business request or replays bytes. Terminal errors
 stop all routes; the outer guest scope joins their threads before deleting the
@@ -273,6 +281,30 @@ its actual 30-second deadline, the second authorizes one pipe, and cold/warm
 probes reuse one authenticated SSH master. It is not a cloud PASS or a replay of
 failed workload measurements. Local review artifacts are retained under
 `target/v52-iap-startup-budgets/`; corrected-source cloud qualification is pending.
+
+Run [39857308589/1](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/39857308589)
+on source `29b2b575a8289a8200a24ba928838e3e255ac556` failed before node 1's Java
+installation, with zero of thirteen failure-drill histories started. Both
+pre-SDK attempts reached `identity-after` and returned `V52_READ_DEADLINE` after
+30.001 and 28.997 seconds. The second attempt ran: the prior error-classification
+fix worked, but the old 60-second shared connection budget left the second attempt
+less than 30 seconds and no reliable startup headroom. Successful channels in
+this run already averaged roughly 23 seconds for admission. Cleanup reports PASS,
+thirteen delete submissions and a released lease.
+
+The operator's Windows disk monitor also recorded intermittent WSL management
+call timeouts, followed by recovery. The shown 22:04 UTC warnings occurred after
+the 22:03:07 UTC execution failure; monitor staleness warns during an active run
+and did not abort it. A subsequent host snapshot showed nearly full swap, but
+neither observation establishes the historical latency's cause. This correction
+does not restart WSL, alter shared resource settings or stop other development.
+
+Fake-clock regressions cover two admissions plus delayed SDK startup, a slow guest
+probe, cold/warm control limits, and delayed Python/Java uploads with one
+original-result grant. Real local transport and storage endpoint tests exercise
+cleanup and terminal rejections with modeled external I/O. Review material is
+under `target/v52-iap-cold-start-headroom/`. Corrected-source cloud execution is
+still pending; these tests do not establish a cloud PASS or eliminate host stalls.
 
 The private `gse-v52-iap-connections-v2` diagnostic retains only the latest 64
 completed records per node, plus at most four active records. Cumulative counters

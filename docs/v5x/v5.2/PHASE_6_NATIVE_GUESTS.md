@@ -19,13 +19,15 @@ read. The current ACTIVE lease and pending charge must match the stable allocati
 Only a missing host key is a readiness condition; denial, malformed keys and ID
 changes fail. Pending observations have an original finite allowance, not a new
 experiment duration cap.
-A native loopback target selects a 60-second SSH connection allowance for its IAP
+A native loopback target selects a 240-second SSH connection allowance for its IAP
 admission; existing local targets retain 10 seconds. Endpoint/command deadlines
 still bound each original exchange, so this option cannot extend them.
 
 Before the SDK process exists, admission permits at most two attempts, each
-bounded by 30 seconds and the same original 60-second connection deadline, with
-one interruptible one-second backoff. Only typed timeouts, plain provider
+bounded by 90 seconds and the same original 240-second connection deadline, with
+one interruptible one-second backoff and 59 seconds left for SDK/SSH startup after
+two complete attempts. Direct identity observations also allow 90 seconds; the
+original host-key readiness ceiling remains 300 seconds. Only typed timeouts, plain provider
 connection interruptions and the exact credential-context `DEADLINE` code permit
 another attempt. Each attempt repeats ownership, resource identity and fresh
 credential checks, releasing locks and removing its private directory first.

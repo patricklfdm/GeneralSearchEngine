@@ -51,9 +51,9 @@ class Installer(ssh.Endpoint):
     def install(self,parent,raw,*,discard_reply=False):
         receiver.payload(raw,self.descriptor)
         receiver.need(not self.calls and self.end is None,'Python SSH installation already consumed')
-        # Include connection admission, bounded upload and durable file writes.
+        # Reserve cold admission in addition to bounded upload and durable writes.
         # A result query shares this grant; it cannot renew the install budget.
-        self.end=time.monotonic()+INSTALL_SECONDS
+        self.end=ssh.connection_deadline(self.target,INSTALL_SECONDS)
         def submit():
             value=self.exchange('install',parent,raw.decode('ascii'))
             if discard_reply:

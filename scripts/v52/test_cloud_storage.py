@@ -12,6 +12,32 @@ from . import cloud_storage as s,cloud_volume_guest as v
 from . import test_cloud_volume as volume_fixture,test_cloud_iap as iap_fixture
 
 
+class InstallationVerificationTest(unittest.TestCase):
+    def test_reconnects_share_one_cold_deadline_without_install_submission(self):
+        now=[100.];ends=[]
+        installer=SimpleNamespace(end=None,calls=[],control_deadline=Mock(return_value=400))
+        def exchange(action,*args):
+            installer.calls.append(action);ends.append(installer.end);now[0]+=100
+            if len(ends)==1:raise ConnectionError('lost read')
+            return {'original':True}
+        installer.exchange=exchange
+        with patch.object(s.time,'monotonic',side_effect=lambda:now[0]),patch.object(s.time,'sleep'):
+            self.assertEqual({'original':True},s.verify_installation(installer,'/unit',None))
+            with self.assertRaisesRegex(ValueError,'already consumed'):s.verify_installation(installer,'/unit',None)
+        self.assertEqual([400,400],ends);self.assertEqual(['verify','verify'],installer.calls)
+        installer.control_deadline.assert_called_once_with(60)
+
+    def test_expired_verification_grant_never_reconnects_with_a_fresh_deadline(self):
+        now=[100.];installer=SimpleNamespace(end=None,calls=[],control_deadline=Mock(return_value=400))
+        def expired(*args):now[0]=401;raise TimeoutError('original read')
+        installer.exchange=Mock(side_effect=expired)
+        with patch.object(s.time,'monotonic',side_effect=lambda:now[0]),patch.object(s.time,'sleep'), \
+             self.assertRaisesRegex(ValueError,'original query deadline'):
+            s.verify_installation(installer,'/unit')
+        installer.exchange.assert_called_once();installer.control_deadline.assert_called_once()
+        self.assertEqual(400,installer.end)
+
+
 class EndpointTest(unittest.TestCase):
     def setUp(self):
         self.base=volume_fixture.VolumeTest('test_original_blank_device_and_independent_retained_and_current_replay')

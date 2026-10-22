@@ -143,6 +143,31 @@ class SshEndpointTest(unittest.TestCase):
         native.close()
         with self.assertRaises(ValueError):native.control_deadline()
 
+    def test_native_240_second_connection_keeps_control_exchange_bounded(self):
+        native=ssh.Endpoint(dict(self.target,connectSeconds=240),h.ROOT);self.addCleanup(native.close)
+        self.assertIn('ConnectTimeout=240',native.args)
+        with patch.object(ssh.time,'monotonic',return_value=100):
+            self.assertEqual(370,native.control_deadline())
+            self.assertEqual(400,native.control_deadline(60))
+            with self.assertRaises(ValueError):native.control_deadline(61)
+            native.master=Mock()
+            self.assertEqual(160,native.control_deadline(60))
+            native.disconnect()
+            with patch.object(ssh.master,'Master',side_effect=TimeoutError('original bound')) as connect:
+                with self.assertRaises(TimeoutError):native.probe(self.root,110)
+            self.assertEqual(110,connect.call_args.kwargs['connect_deadline'])
+
+    def test_cold_operation_grants_reject_unbounded_or_unknown_allowances(self):
+        with patch.object(ssh.time,'monotonic',return_value=100):
+            self.assertEqual(400,ssh.connection_deadline({},300))
+            self.assertEqual(640,ssh.connection_deadline({'connectSeconds':240},300))
+            for seconds in (True,0,-1,float('inf'),float('nan'),301):
+                with self.subTest(seconds=seconds),self.assertRaises(ValueError):
+                    ssh.connection_deadline({'connectSeconds':240},seconds)
+            for connect in (True,0,-1,61,241,float('inf')):
+                with self.subTest(connect=connect),self.assertRaises(ValueError):
+                    ssh.connection_deadline({'connectSeconds':connect},60)
+
     def test_explicit_original_deadline_is_never_extended_for_native_connection(self):
         native=ssh.Endpoint(dict(self.target,connectSeconds=60),h.ROOT);self.addCleanup(native.close)
         with patch.object(ssh.time,'monotonic',return_value=100), \

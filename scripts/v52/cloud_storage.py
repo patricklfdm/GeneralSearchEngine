@@ -77,6 +77,14 @@ def readonly(call,deadline):
             time.sleep(min(.2,max(0,deadline-time.monotonic())))
 
 
+def verify_installation(installer,parent,*payload):
+    # All read attempts share the first cold grant, including reconnects. Do not
+    # mint a fresh control deadline inside exchange() for each query attempt.
+    need(installer.end is None and not installer.calls,'V5.2 verification already consumed')
+    installer.end=installer.control_deadline(60)
+    return readonly(lambda:installer.exchange('verify',parent,*payload),installer.end)
+
+
 class VolumeEndpoint:
     def __init__(self,storage,guests,node):
         self.storage=storage;self.guests=guests;self.node=node;self.value=request(guests,node);self.calls=[]
@@ -84,7 +92,7 @@ class VolumeEndpoint:
 
     def checkpoint(self):
         self.storage.checkpoint(self.guests)
-        self.guests.observe(self.node,time.monotonic()+30)
+        self.guests.observe(self.node,time.monotonic()+iap.ADMISSION_SECONDS)
         need(request(self.guests,self.node)==self.value,'V5.2 storage guest binding changed')
 
     def call(self,action,token,end):
@@ -326,18 +334,18 @@ class Storage:
             startup=self.records[node]['startup'];endpoint.check(startup)
             self.stage(node,'placement-python')
             installer=install.Installer(guests.targets[node],self.descriptor)
-            try:current=readonly(lambda:installer.exchange('verify',volume.MOUNT,None),time.monotonic()+90)
+            try:current=verify_installation(installer,volume.MOUNT,None)
             finally:installer.close()
             need(current==self.installations[node],'V5.2 history installed capsule changed')
             if self.java is not None:
                 from . import remote_java_ssh as js
                 self.stage(node,'placement-java')
                 installer=js.Installer(guests.targets[node],self.java['descriptor'])
-                try:current_java=readonly(lambda:installer.exchange('verify',volume.MOUNT),time.monotonic()+90)
+                try:current_java=verify_installation(installer,volume.MOUNT)
                 finally:installer.close()
                 need(current_java==self.java['installations'][node],'V5.2 history installed Java changed')
             self.stage(node,'placement-parent')
-            data=dict(request=endpoint.value,volume=startup['volume'],history=history);end=time.monotonic()+60
+            data=dict(request=endpoint.value,volume=startup['volume'],history=history);end=install.ssh.connection_deadline(guests.targets[node],60)
             answer=None
             try:answer=self.exchange(guests,node,'paths','prepare',data,end)
             except (ConnectionError,TimeoutError) as error:

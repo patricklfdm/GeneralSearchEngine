@@ -111,7 +111,8 @@ storage, control CAS/release reconciliation and original-launch recovery cannot
 multiply its retry count. IAP has one narrow exception before SDK spawn: a
 `provider-read` deadline that reaches the current admission attempt's own deadline
 may use the second already-budgeted admission attempt. It must fit the original
-60-second connection deadline, repeat ownership/identity checks and use a fresh
+240-second connection deadline (at most 90 seconds per admission), repeat
+ownership/identity checks and use a fresh
 private credential directory. A read attempt-count exhaustion, earlier nested
 deadline, different read scope or security rejection remains terminal. This does
 not make `ReadError` generally retryable or permit another business submission.
