@@ -1,0 +1,116 @@
+{
+  "applicationPublication": false,
+  "appliedEndTests": 9,
+  "classes": {
+    "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53AppliedEndFilesTest.class": "bb54acab2fba4c66837c6e5f029f902772cb2a97e4161fe6c0f1d5208d98f772",
+    "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53AppliedEndWorker.class": "eae06a107bf9458fb237df938e84a64ea7655b0fdfdb46b64251814ee3166e88",
+    "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53CapsuleFixture.class": "261fe862031793f9c1b6b94b57fcb56838bffc5a9cf8e5089b18951fc36461d7",
+    "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53CheckpointPlanTest$Endorsements.class": "adc6cb1f21e0df047ca2a5f7c46b7747daee276b76a58ff1aa3b703f93add623",
+    "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53CheckpointPlanTest.class": "eee81bdf9b55f1fb2d5d3f444735346fb1cf1177accf72f722a41544314536dc",
+    "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53ContextFixture.class": "8fc703d4109326b0a596e55519b6f57e04453c0bbcc03bf583ad10c121d596ae",
+    "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53DeclarationsTest.class": "33e7524dc32775d8136860161ddd75d2ec05e82f3e8e50a4af0e944bf8f061e2"
+  },
+  "distinctJavaTests": 46,
+  "extendedRunTests": 23,
+  "focusedRunTests": 38,
+  "freshJvms": 126,
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "63668013991400453d336fe439c669c4a8c41ae4594c4b2bcfa6efafe39fa565",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "limitations": [
+    "actual local lock and file force; original selected/phased protocol authority remains fixture input",
+    "shared journal remaining allowance and original certificate/fence guard still require owner integration",
+    "scratch/replay reservation, stage retirement and selector publication pending",
+    "initial canonical JSON filename-key construction failure retained; inventory changed to ordered path rows"
+  ],
+  "logs": {
+    "corrected.log": "20700e115a943495ac82a3fc233d6a161f4256caa453d5ce502387288f4d6707",
+    "final.log": "05de44a0675175fa80bd684993b5809b8121db43ebb9751de4b627735ab0bca7",
+    "focused.log": "9306790582a30de6467c8c2c2e5dfbb1dde9f40ced175ae18159a678dd85f322",
+    "process.log": "76b9a6296387181e19ec3c7e64ebbb8a4a952847a324475861552a3c0178030d",
+    "resources.log": "9b128d6091d5f534441d524c16ca2891bfd7191af03aa9a27d40e8c7553b6e91"
+  },
+  "negativeCases": 7,
+  "optimizedReplay": "PASS",
+  "portableReplay": "PASS",
+  "processCases": 42,
+  "processFilesIndexSha256": "08e35cff1f164753c3181de1ea7a56e21fdc4b36d3b7a262b94d0bfb8f9fe70e",
+  "processReceiptSha256": "e627e784d701ff5ee84aeed0038451ddd94c3acc2886f8d416c9e6fccca99964",
+  "protectedCI": false,
+  "protocolAuthority": "conditional-fixture",
+  "reports": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.xml": "5b4a8d8c569b616c1cf4f75d508b3ef6bf9c84a4d8e628874894e1b83493615c",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest.xml": "fedaf8b7436bd257c749382a2a7b738a5d6df23109a97496a837b7021d02f5a9",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationReplayTest.xml": "876819826d656d9beef1150d91d82703d0b41cef79592f4c805202a148956373",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53AppliedEndFilesTest.xml": "66c25fb760a7dec7be86ee1fa989705f10525786d7ecccbbbbcb6efa9b712e8c",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53CatalogTest.xml": "21f1f5f8ee96bace6dd17799689bb47b5e97f07fe2df94a03011d7295b52e76e",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53CheckpointPlanTest.xml": "49b988e801537cc07d50e0f89a3111081fa4aa3b196d73a9089f1a19a43f1734",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.xml": "254200c1c1b02ea22b484cb303fd53aa137813cdd55c99036e5a0b98813f5710",
+    "io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.txt": "e3d941bac851a867f1098823bfeb4ec27f4ca73615be91f8045b95ee6096ecae",
+    "io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest.txt": "5822c212dc13bf587673e18d24ffac2aa989c9c8f4de400e9e7efaf8154e702e",
+    "io.github.patricklfdm.generalsearch.replication.V53ApplicationReplayTest.txt": "47e4ca97852c2c8d67b3a4667644ff1fa124f789c98ce045484dbc39f25d2c93",
+    "io.github.patricklfdm.generalsearch.replication.V53AppliedEndFilesTest.txt": "82ea248a040b9929b1cef77b165fe4e73f81487a59e83c8c7b43670e4e023a35",
+    "io.github.patricklfdm.generalsearch.replication.V53CatalogTest.txt": "b03ee6085695321abd08357794d5a883951fd0fb29c75798274a0aaa71efc5c9",
+    "io.github.patricklfdm.generalsearch.replication.V53CheckpointPlanTest.txt": "6d8fb7b537121c14c795d9982e332744c32e41457fc5a7c1cdac4448a1b677d5",
+    "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.txt": "1d92aed08e6d16931e914458a5d4f4789b95ce8f93ab0d84e4cd57131ee1e3e0"
+  },
+  "retainedLocal": "target/v53-applied-end",
+  "retainedProcesses": "general-search-engine-replication/target/v53-applied-end-process/run-8b8f04ff-b471-4246-a72d-cf1bd309a442",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-applied-end-index-v1",
+  "sourceHead": "f1d8c466d9506b12782b12e062a2aecd556d8e6d",
+  "status": "PASS",
+  "validation": {
+    "applicationPublication": false,
+    "cases": 42,
+    "freshJvms": 126,
+    "negatives": [
+      {
+        "case": "missing-image",
+        "reason": "applied complete end inventory",
+        "status": "REJECT"
+      },
+      {
+        "case": "changed-image",
+        "reason": "applied complete end inventory",
+        "status": "REJECT"
+      },
+      {
+        "case": "missing-ack",
+        "reason": "applied complete end inventory",
+        "status": "REJECT"
+      },
+      {
+        "case": "changed-crash",
+        "reason": "applied exact interrupted bytes: fault",
+        "status": "REJECT"
+      },
+      {
+        "case": "early-success",
+        "reason": "applied exact force/return order: fault",
+        "status": "REJECT"
+      },
+      {
+        "case": "missing-force",
+        "reason": "applied exact force/return order: resume",
+        "status": "REJECT"
+      },
+      {
+        "case": "extra-file",
+        "reason": "applied evidence member inventory",
+        "status": "REJECT"
+      }
+    ],
+    "portableReplay": "PASS",
+    "protocolAuthority": "conditional-fixture",
+    "status": "PASS"
+  },
+  "worktreeImplementation": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": "6bd4e670eba97cc5e7b5f14fb5c8026ec289380a5d2a402f2f11e8ffd116608d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCheckpointPlan.java": "efcd6a64ea960d6dc7f8681cd2008ee17baf2042bac6e405b2cfdc2627a00343",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AppliedEndFilesTest.java": "3e2630de5b4daf6d79b801c29fbb894d8a769d30242f9d0f9043712f15996edb",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AppliedEndWorker.java": "9c26194e2723ba6fa405b293937bfe382ab081befc261d6177e1580fe5e24184",
+    "scripts/v53/applied_end_evidence.py": "450f8fcace759dcfa63961961a0c5452aab945f0c911d490c94a15851952d55d"
+  }
+}

@@ -19,6 +19,7 @@ final class MembershipCheckpointPlan {
     private final Set<Owned> votes;
     private final List<Map<String,Object>> retained;
     private final String descriptor;
+    Decoded originalCertificate(){return certificate;}
 
     static <K,T> MembershipCheckpointPlan replay(SearchEngineConfiguration<K,T> captured,DurableStorageConfig<K,T> storage,
             MembershipCapsule before,MembershipSourcePacket certified,Decoded certificate,Map<String,byte[]> images,Set<Owned> votes,Path scratch)throws IOException {

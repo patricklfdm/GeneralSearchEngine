@@ -984,3 +984,21 @@ claimed. [Scope](PHASE_2_CHECKPOINT_EXTENSION.md), [index](phase2-evidence/check
 Continue the actual applied-end/ACK transaction, original selected ancestry,
 covered-tail retirement and coordinated source/image lifetime. Phase 2/pre-cloud
 closure remain OPEN. Only local work/commits; V5.2 experiments remain separate.
+
+
+## 2026-10-22 — Phase 2C5d applied-end/ACK storage component
+
+The private file transaction now reserves one full application slot, binds all
+original plan bytes and forces the full end before a local checkpoint ACK. All
+fault cuts recheck owner/fence/file identity. Partial files remain exact-prefix
+resumable; unknown/missing/corrupt authority and exhausted resources refuse.
+
+**46 distinct Java tests**, **42 process crash cases / 126 fresh JVMs**, independent
+raw-byte/order replay, seven negative mutations, portable replay and Python `-O`
+passed. The initial inventory JSON encoding failure remains retained. [Scope](PHASE_2_APPLIED_END.md),
+[index](phase2-evidence/applied-end.json). Original protocol history is conditional;
+actual lock and end-file force are tested, full integrated publication is not.
+
+Continue actual journal certificate/fence/replay/staging integration, complete
+capsule/ancestry selector installation, covered-tail retirement and bounded lifetime
+progress. Phase 2/pre-cloud remain OPEN; no push, public readiness or cloud change.
