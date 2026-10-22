@@ -14,6 +14,15 @@ has the same tree; the branch uses the actual merged master commit.
 The V5.2 run observed at entry is `39678504498/1`, still in progress at that time,
 on the base source and the separate D-backed self-hosted Runner.
 
+### Continuation authorization, 2026-10-22
+
+The operator extended autonomous local development through the point before cloud
+experiments start: implement and validate each batch, commit locally, and continue
+without waiting for per-batch operator acceptance. Unified operator acceptance
+follows the completed local work. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md)
+tracks that full objective. This does not authorize remote push, merge, release,
+paid cloud execution, or changes to the separate V5.2 experiment.
+
 ## Work rules
 
 - All development edits and commits stay on this branch. Do not push, open a PR,

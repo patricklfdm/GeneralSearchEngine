@@ -13,13 +13,17 @@ final class MembershipCapsule {
     private final Map<Long,Map<String,Object>> anchors;
     private final Map<Long,Anchor> states;
     private final Set<Owned> observations;
-    private MembershipCapsule(MembershipContext context,MembershipSourcePacket packet,Map<Long,Map<String,Object>> anchors,Map<Long,Anchor> states,Set<Owned> observations) {
+    private final Decoded highestMembershipCertificate;
+    private MembershipCapsule(MembershipContext context,MembershipSourcePacket packet,Map<Long,Map<String,Object>> anchors,Map<Long,Anchor> states,Set<Owned> observations,Decoded highestMembershipCertificate) {
         this.context=context;this.packet=packet;this.anchors=Map.copyOf(anchors);this.states=Map.copyOf(states);this.observations=Set.copyOf(observations);
+        this.highestMembershipCertificate=highestMembershipCertificate;
     }
     boolean containsCut(Map<String,Object> cut) {return cut.equals(anchors.get(number(cut.get("index"))));}
     Map<Long,Map<String,Object>> anchors() {return anchors;}
     Anchor anchor(long index) {return states.get(index);}
     Anchor terminal() {return states.get(number(context.cut.get("index")));}
+    /** Only certificates actually authenticated while walking membership edges, never inventory extras. */
+    Optional<Decoded> membershipCertificateFence(){return Optional.ofNullable(highestMembershipCertificate);}
 
     static MembershipCapsule verify(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,Set<Owned> owned) {
         require(root.family().equals("records") && root.kind().equals("ROOT"),"capsule ROOT kind");packet.verifyImages(images);
@@ -34,7 +38,7 @@ final class MembershipCapsule {
         String application=(String)genesis.get("application");Map<String,Object> at=object(initialCatalog.get("cut"));
         var anchors=new TreeMap<Long,Map<String,Object>>();anchors.put(0L,at);
         var states=new TreeMap<Long,Anchor>();states.put(0L,new Anchor(at,catalog,application));
-        int changes=0;long operation=0;boolean priorRange=false;
+        int changes=0;long operation=0;boolean priorRange=false;Decoded highestMembershipCertificate=null;
         for(Object itemValue:list(capsule.get("items"))) {
             var item=object(itemValue);var statement=context.record((String)item.get("statement"),"CHECKPOINT");var s=statement.value();
             var end=object(s.get("end"));var beforeView=object(at.get("view"));var afterView=object(end.get("view"));
@@ -52,6 +56,8 @@ final class MembershipCapsule {
                 priorRange=false;
                 var cert=context.record((String)item.get("certificate"),"CERTIFICATE");
                 var entry=context.certificateAt(cert,owned,at);var entryValue=entry.value();
+                if(highestMembershipCertificate==null || compareBallot(object(cert.value().get("ballot")),object(highestMembershipCertificate.value().get("ballot")))>=0)
+                    highestMembershipCertificate=cert;
                 String kind=(String)entryValue.get("kind");String descriptorHash=(String)item.get("descriptor");
                 var descriptor=object(parse(packet.objectBytes(descriptorHash),8192));checkType(descriptor,"sealed");
                 var expected=successor(context,at,descriptor,descriptorHash,application,kind);
@@ -74,7 +80,7 @@ final class MembershipCapsule {
         }
         require(list(capsule.get("items")).size()<=3*changes+1,"capsule logical item bound");
         require(at.equals(currentCut) && catalog.equals(capsule.get("catalog")) && application.equals(capsule.get("application")),"capsule terminal state");
-        return new MembershipCapsule(context,packet,anchors,states,owned);
+        return new MembershipCapsule(context,packet,anchors,states,owned,highestMembershipCertificate);
     }
     void verifyAncestry(byte[] bytes,Collection<Anchor> required) {
         require(bytes.length<=96*1024,"generation ancestry capacity");var bridges=new ArrayList<MembershipSelection.Bridge>();

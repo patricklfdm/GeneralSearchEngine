@@ -50,11 +50,12 @@ def journal(data,root,node):
         need(length<=len(data)-offset,'torn grant journal body')
         raw=data[offset:offset+length];value=f.decode(raw,'records',kind,root);offset+=length
         if kind=='PROMISE':
-            need(value['basisId'] is not None and value['ballot']['counter']<=2**63-2,'grant promise identity/capacity')
+            need(value['ballot']['counter']<=2**63-2,'grant promise identity/capacity')
             need(promise is None or order(value['ballot'])>order(promise['ballot']),'non-increasing grant promise')
             promise=value;basis=None;basis_raw=None;selected=None
         elif kind=='BASIS':
             need(promise is not None and basis is None,'orphan/duplicate grant basis')
+            need(promise['basisId'] is not None,'adoption fence is not a grant')
             need(all(value[k]==promise[k] for k in ('root','view','ballot','basisId')),'grant basis binding')
             need(value['voter']==node,'grant basis owner')
             view=value['cut']['view'];old,new=view['old'],view['new']

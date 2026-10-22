@@ -60,6 +60,8 @@ final class MembershipBasisSources implements AutoCloseable {
         return names;
     }
     private MembershipSourcePacket load(Path path,Decoded promise,Decoded basis) throws IOException {
+        require(promise!=null && promise.value().get("basisId")!=null
+                && path.getFileName().toString().equals(promise.value().get("basisId")),"retained source requires original basis identity");
         var packet=MembershipSourcePacket.decode(AdmissionPaths.read(path.resolve(PACKET),MembershipSourcePacket.MAXIMUM));
         require(Arrays.equals(root,packet.objectBytes(hash(root))),"retained source original root");
         require(packet.capsule().value().get("root").equals(promise.value().get("root"))

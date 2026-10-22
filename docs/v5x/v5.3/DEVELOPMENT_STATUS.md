@@ -599,3 +599,23 @@ adoption, real ACCEPT/PROOF/certificate and application persistence, floor and
 retirement, journal rotation, complete offline initialization and the integrated
 physical closure audit remain required. Phase 2 remains **OPEN**; local development
 and per-batch commits continue without push or V5.2 cloud operations.
+
+## 2026-10-22 — Phase 2C3a certificate-derived adoption fence
+
+The [adoption fence](PHASE_2_ADOPTION_FENCE.md) records only the highest full ballot
+from an authenticated membership certificate actually referenced by the incoming
+capsule. Its original governing view stays intact. A forced null-BASIS PROMISE
+fences lower/same-ballot resampling while preserving old source and selector bytes.
+An existing higher promise and original basis stay byte-for-byte unchanged.
+
+Final qualification passed 66 cases / 330 fresh JVMs, 12 exact-reason negatives
+and portable replay in 182.312 seconds. The source-retention regression passed
+69 cases / 11 negatives. All 118 focused Java tests, 72 Python/build-contract
+tests and 56 optimized-Python tests passed. The [hash index](phase2-evidence/adoption-fence.json)
+records all provenance, including older regressions and replay-only evidence.
+
+This is not prefix installation or permission to vote/serve. The next batch must
+connect the fence to new-state installation and invalidate obsolete-view work.
+Remote historical observations remain conditional fixtures. The operator's
+[expanded instruction](LOCAL_DEVELOPMENT_SEQUENCE.md) now covers local work through
+all pre-cloud stages; Phase 2 and the overall completion audit remain OPEN.

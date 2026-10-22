@@ -25,8 +25,10 @@ and the [promise/original-basis metadata journal](PHASE_2_GRANT_JOURNAL.md), now
 [durable original selection](PHASE_2_DURABLE_SELECTION.md).
 [Selected local installation](PHASE_2_GENERATION_INSTALL.md) now preserves the original
 source decision across generation/selector writes and interrupted recovery. Its
-174-case local process gate passes; adoption, vote persistence and retirement
-remain open.
+174-case local process gate passes. The [adoption fence](PHASE_2_ADOPTION_FENCE.md)
+now passes 66 cases; integrated prefix adoption, vote persistence and retirement
+remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
+expanded continuous local development scope.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

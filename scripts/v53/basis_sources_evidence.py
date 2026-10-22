@@ -38,8 +38,8 @@ def inventory(path):
 
 def state(path,size,partial=False,extra_names=frozenset()):
     path=Path(path);files=inventory(path);values,rows=g.state(path,size,{'sources'}|extra_names)
-    promises={v['basisId']:v for kind,_,v in rows if kind=='PROMISE'}
-    need(len(promises)==sum(kind=='PROMISE' for kind,_,_ in rows),'reused source identity')
+    promises={v['basisId']:v for kind,_,v in rows if kind=='PROMISE' and v['basisId'] is not None}
+    need(len(promises)==sum(kind=='PROMISE' and v['basisId'] is not None for kind,_,v in rows),'reused source identity')
     bases={v['basisId']:raw for kind,raw,v in rows if kind=='BASIS'}
     need(not partial or not bases,'partial source with completed basis')
     source_dir=path/'sources';need(source_dir.is_dir() and not source_dir.is_symlink(),'source directory type')

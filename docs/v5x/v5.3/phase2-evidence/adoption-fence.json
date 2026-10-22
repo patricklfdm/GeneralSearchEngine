@@ -1,0 +1,163 @@
+{
+  "cases": 66,
+  "classes": {
+    "V53AdoptionFenceFixture.class": "a97c3155a5181d2b6a0a2bd77edba47cbf57accc13a9f7cc4059749739c242b1",
+    "V53AdoptionFenceWorker.class": "f41e42d3b8591fd96d1b11b57189162ed49b63ba46bf150daf85528231a4ae3a",
+    "V53BallotAllocatorWorker.class": "21b43bdda3bd5d2b1bab4f6c43bf65a5f88b3ff664fa8b77633250420a6b26a4",
+    "V53CapsuleFixture.class": "261fe862031793f9c1b6b94b57fcb56838bffc5a9cf8e5089b18951fc36461d7",
+    "V53ContextFixture.class": "f67122ee25080457207f2abc741a9b401449aaa2deb8f3b4b398dbbc10ac1bef",
+    "V53CurrentGenerationFixture.class": "8a024d4aac913adbbf867d6693c2771288932d14a9139b6a106294ecd8232abd",
+    "V53DeclarationsTest.class": "33e7524dc32775d8136860161ddd75d2ec05e82f3e8e50a4af0e944bf8f061e2",
+    "V53SelectionFixture.class": "746d0b7ee923e3207eb5c438ab187bbb33f20234b6331116674c34252c3b4f03"
+  },
+  "developmentCorrections": [
+    "The first Java fixture attempted to decode an unknown record kind via null; its ownership-removal predicate now checks the framed PROOF kind explicitly.",
+    "The first negative selector mutation is rejected earlier by the exact root inventory; its declared reason now matches that specific failure.",
+    "A red regression showed that a source directory named after an adoption fence was refused only later by a resource-owner length guard. An explicit original non-null BASIS identity check now rejects before reading source bytes. Final Java, adoption and source-retention matrices include that check."
+  ],
+  "documentationContract": {
+    "byteFixtures": 45,
+    "commandFixtures": 9,
+    "localLinks": 303,
+    "logSha256": "dbb0a148d6743af8969eb8729fbaf6aa915d617320a9f614af35b4240e0de453",
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "elapsedSeconds": 182.312,
+  "evidenceInventoriesVerified": true,
+  "execution": "private-adoption-fence",
+  "focusedPythonTests": 72,
+  "freshProcesses": 330,
+  "implementationFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources.java": "f9efb9543559ce970ee179ab8df0484f960e4eedb24c0f6f015de8bdf5a9f568",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java": "adaaad9403d6de0077fedde6555c28afa4b7ec26e7836ee35f15f3c41e1a18c3",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "4e49caaafacb71d0eeef71bba18cfd162a32d00008b138e9300625e5af8923b0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdoptionFenceFixture.java": "0c21ee3a52fbf2e94a7e6370b2f2b3fd21e9fd40c0f1c78196e207848e40aa69",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdoptionFenceTest.java": "143596a8621c12e9cbc74e7b50ae1b7ba19e1bcb024e130ba3a6b55702bcc103",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdoptionFenceWorker.java": "2ef58798e2e25966b9a4bf715332ff4e1d30275a51c50421180e392185e1c2ba",
+    "scripts/ci_v51_bundle.py": "daf28a009f1b2fd1d21f16d77a710f8b33b49fa5a677f33a498c9f625fe5f7b6",
+    "scripts/test_ci_v51_bundle.py": "306fcba58c35979a8b2a03c4bb7ce1259d28a2f742e0bd7ae9452deab59b989d",
+    "scripts/v53/adoption_fence_evidence.py": "9da488fd47d9bbf01f59a2eafd1681a6375c2a459472c25269101ffe965cd00d",
+    "scripts/v53/adoption_fence_negatives.py": "08a59c4445649a72c089695bba6a9918b87546b4bc6c08ef3ebaf41d0a22beba",
+    "scripts/v53/adoption_fence_qualification.py": "db64842d6fbb2aac84f5de52711f973d1d97bbb9b341205bff0a61aaf40d84cf",
+    "scripts/v53/basis_sources_evidence.py": "72d4100c3aac00f3d2966f8814780bf43b9d62f22db01633a03341b7454839d5",
+    "scripts/v53/grant_evidence.py": "d5db1cad577f9c2036e31239e28cf1ff4fce9e8c272c1e3bb5b7493ae7a8df63",
+    "scripts/v53/test_adoption_fence_evidence.py": "35ef66171d4db3df746adfc69f4648bc06982cd714bfc3fb9a46129d17f50efd"
+  },
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "709ac5d9fc704426c82e62fe6f2fc49f11717f02e6d2b644158de32ce8152eb7",
+      "size": 786699
+    }
+  ],
+  "javaTests": 118,
+  "limitations": [
+    "This is a certificate-derived promise fence, not complete cross-view prefix installation or a voting/READY receipt.",
+    "Historical remote phase ownership remains conditional fixture evidence; independent replay checks actual local promises and the supplied exact phased bytes, not remote live disk forces.",
+    "A higher existing promise remains byte-for-byte unchanged with any prior original basis. The later integrated adoption transaction must install the newer prefix and invalidate obsolete-view campaigning.",
+    "The component cannot infer a certificate ballot from an unrelated inventory object or a compacted RANGE alone.",
+    "All pre-cloud stages, integrated recovery/removal, real application and vote storage, floors/retirement/rotation, offline initialization and unified acceptance remain open."
+  ],
+  "localEvidence": "target/v53-phase2-adoption-fence",
+  "logs": {
+    "contract-final.log": "2d1511c15d8a8646547b8546ef5fbfc3246637dfd577771f5a064fbed2ed1ad6",
+    "contract-initial.log": "2d1511c15d8a8646547b8546ef5fbfc3246637dfd577771f5a064fbed2ed1ad6",
+    "python-final.log": "3d96bc0ea283c569f671dfe83922b093adae10a80059e9953429a7e9e2e87d76",
+    "python-initial.log": "5dd6e7e23338a9cb028c23c31dd7cc9b80317c5f57b90b42a9da74b9df22003b",
+    "python-optimized.log": "9900ad206c38829a3f93e00b09edcd98ea5de6d9f8b80aa29630967b96569183",
+    "qualification-final.log": "0f0a78d1ad3ac7efd3bbe63a516b080492fe98cea48966530b23bd900f724e82",
+    "qualification.log": "286541db530f9f8b82f8ec685a8b740fc48a2c3acd9783ca9f3cb5303f002d26",
+    "reactor-complete.log": "56109699eccd7405057b823066a160e2fb9b14328fc97b07e3b701a90d9a3ebd",
+    "reactor-final.log": "8625fc388344cb659caa87c0df8104a3ac64a78c6f324a2a47bf0bcc039dcee7",
+    "reactor-initial.log": "ef10d8c6db5a150ce15e8bf078bbb6feefc2ac5ee00ba66c5b1d9895b83ced44",
+    "reactor-qualified.log": "f33a79acca6dd31acc996a1b0bf20babc69352e8f0c01dd5232f0eaf325d9e8d",
+    "regressions.log": "b9727c8b37ba48782a2a279150001c0b27235842dafb1250016c31a3494a15f3",
+    "source-identity-red.log": "7358298a5648d65a7554d942124f5b2f7a65f48a3191f993e328fb4d1bc4b98c",
+    "source-regression-final.log": "b27dd46bcb3f0d1971d0fa0619be8ccd797a7ae52ba993d4b2b24a3f53c162a4"
+  },
+  "negativeCases": 12,
+  "optimizedPythonTests": 56,
+  "powerLossTested": false,
+  "preIdentityGuardRegressions": {
+    "grant-regression": {
+      "cases": 45,
+      "elapsedSeconds": 58.769,
+      "negativeCases": 8,
+      "receiptSha256": "2a8597f3e3ef7d24bf82ef457508cb25a0a402f07e3429f6fb4c1a5ea75282b3",
+      "relocatedReplay": "PASS",
+      "source": {
+        "checkoutSha256": "89168594f332640e424b425de66cc8880fa04ef3646c644b2793107a56d1835c",
+        "java": {
+          "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+          "java.vendor": "Ubuntu"
+        },
+        "source": "a08074318dfe4e3693fa9450bd4340ba63be98de"
+      },
+      "status": "PASS"
+    },
+    "selection-regression": {
+      "cases": 54,
+      "elapsedSeconds": 186.98,
+      "negativeCases": 11,
+      "receiptSha256": "d629929e5e6a657cd94aecbb3014f6e74e09c9ed13c099af1d13b4bab488523a",
+      "relocatedReplay": "PASS",
+      "source": {
+        "checkoutSha256": "89168594f332640e424b425de66cc8880fa04ef3646c644b2793107a56d1835c",
+        "java": {
+          "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+          "java.vendor": "Ubuntu"
+        },
+        "source": "a08074318dfe4e3693fa9450bd4340ba63be98de"
+      },
+      "status": "PASS"
+    }
+  },
+  "prefixInstalled": false,
+  "priorInstallReplay": {
+    "cases": 174,
+    "kind": "independent-replay-only",
+    "originalReceiptSha256": "cb600910573fde0def384a02b5c9ec3ade54335cd31d7374f8ce9c6fe9bc4120",
+    "replaySha256": "98ca2d420ea39c7a3da063e1f7369ddc79ddb5b9dc8d98058f78176330e5d5e4",
+    "status": "PASS"
+  },
+  "publicBootstrap": false,
+  "rawReceiptSha256": "bcfba7f07caac390ad2680e81e602048e70b9768bb9e76b3611a988c46752a18",
+  "relocatedReplay": "PASS",
+  "remoteOwnershipVerified": false,
+  "runtimeEnabled": false,
+  "schema": "gse-v53-adoption-fence-qualification-v1",
+  "source": {
+    "checkoutSha256": "4469c88539e4b39e23770010847c354edcd8e14f9d97d9e83086b2ee6b84e33e",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "a08074318dfe4e3693fa9450bd4340ba63be98de"
+  },
+  "sourceRegression": {
+    "cases": 69,
+    "elapsedSeconds": 104.222,
+    "negativeCases": 11,
+    "receiptSha256": "50c0e2e94e5e842e1a006c00b64d3cb532c64d8aefaee58ef7a944be9840eecf",
+    "relocatedReplay": "PASS",
+    "source": {
+      "checkoutSha256": "4469c88539e4b39e23770010847c354edcd8e14f9d97d9e83086b2ee6b84e33e",
+      "java": {
+        "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+        "java.vendor": "Ubuntu"
+      },
+      "source": "a08074318dfe4e3693fa9450bd4340ba63be98de"
+    },
+    "status": "PASS"
+  },
+  "status": "PASS"
+}
