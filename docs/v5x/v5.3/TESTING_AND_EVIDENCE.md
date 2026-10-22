@@ -81,6 +81,17 @@ and exact source hashes are recorded in [recovery-research.json](recovery-resear
 This adds abstract metadata recovery coverage, not application snapshot contents,
 real disk atomicity, unlimited history compaction or concurrent election integration.
 
+## Global promise and activation research
+
+The [activation adapter](GLOBAL_PROMISE_AND_ACTIVATION_RESEARCH.md) adds durable
+allocation, separate root-grant/basis forces, immutable source selection, exact
+selected installation and a fenced publication callback to the transition model.
+The independent observer catches five specific unsafe implementations. The finite
+420-case matrix and 60 portable representative histories test recovery into a
+fresh stable barrier; directed tests also recover accepted INTENT and reject a
+removed proposer. [Source-bound results](activation-research.json) retain their
+local/abstract scope. No production disk, service-read, timing or cloud claim follows.
+
 ## Later foundation and runtime coverage
 
 | Family | Required schedules and independent observations |

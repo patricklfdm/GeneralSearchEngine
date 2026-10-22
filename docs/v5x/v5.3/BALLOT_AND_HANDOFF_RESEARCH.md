@@ -129,6 +129,12 @@ prefix adoption, competing targets, finalization and removed-voter checks. Its
 results are recorded separately; the single-slot receipt below retains its original
 scope. Snapshot/floor compaction and production integration remain open.
 
+The later [global-promise adapter](GLOBAL_PROMISE_AND_ACTIVATION_RESEARCH.md) now
+adds durable local allocation, cross-slot grants, proposer-inclusive source
+selection, installed-quorum binding and fenced barrier publication. It also
+separates promise force from basis force and tests incomplete-basis refusal. These
+new results do not expand the original single-slot receipt's claims.
+
 ## Declared finite matrix and limits
 
 [Schedule driver](../../../scripts/v53/ballot_research.py),

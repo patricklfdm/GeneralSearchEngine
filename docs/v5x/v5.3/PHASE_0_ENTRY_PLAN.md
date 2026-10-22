@@ -75,6 +75,13 @@ resumable retirement. It retains complete authority chains under explicit resear
 caps. D06/D09 remain open: bounded chain elision, production byte accounting and
 global-promise/activation integration have not been resolved.
 
+The [global-promise adapter](GLOBAL_PROMISE_AND_ACTIVATION_RESEARCH.md) now maps
+durable allocation, root grants, immutable selected quorums and current-ballot
+barrier publication into the transition model. It tests partial-basis crashes,
+source failure and an explicit certificate-derived adoption fence. This is a
+conservative candidate with fresh ballots per recovered slot; production round
+policy, record formats, source scheduling and long-lived retention remain open.
+
 ## Phase 0 deliverables still to freeze
 
 - `PHASE_0_CONTRACT.md`: resolved decisions and authority/state matrix.

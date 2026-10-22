@@ -139,10 +139,49 @@ See [the candidate and exclusions](RECOVERY_AND_RETENTION_RESEARCH.md).
 boundaries; bounded production authority representation and physical behavior
 still require specification and qualification.
 
+## 2026-10-21 — global promise and activation adapter
+
+- Audited actual `AutomaticStore.prepare`, `AutomaticRecovery.select`, and the
+  PREPARE/INSTALL/ACCEPT/PROOF/publication paths in `AutomaticProtocol`. Added an
+  isolated adapter mapping root-wide grants, durable ballot allocation, immutable
+  selected quorums and current-ballot barrier publication onto the transition model.
+- A grant forced without its basis cannot be resampled at the same ballot. Sources
+  unavailable after selection require a fresh campaign; late complete bases cannot
+  rewrite the forced selection. All selected installation ACKs precede ACCEPT.
+- Added a candidate certificate-derived adoption fence before installing a prefix
+  above the retained promise. Crash after fence force retains the higher promise
+  and old prefix. This is a proposed new operation, not enabled Java behavior.
+  Prefix installation and root-grant writes exclude each other in both orders.
+- **109 local tests PASS**, including 24 new tests. Five deliberate unsafe variants
+  fail their specific safety checks. Directed cases cover source loss, alternate
+  quorum, partial basis, stale installation/callback, accepted INTENT recovery,
+  removed proposer, counter exhaustion, lost READY on restart and evidence mutation.
+- Complete declared matrix: **420 cases, 1,008 campaigns, 714 completed publication
+  callbacks and 434 activations**, with **119,708 adapter events** (including nested
+  transition observations). A healthy pre-crash case can activate again after
+  restart, so activation count exceeds case count. This is not all interleavings.
+- **60 representative histories replayed** after gzip/JSON serialization, covering
+  14,656 events and 62 activations. They represent all view/tail/cut combinations
+  for the first size profile; every size profile contributes to the full trace digest.
+- Receipt: [activation-research.json](activation-research.json). Logs and artifacts:
+  `target/v53-activation-research/final/`, `unit-qualified.log` and
+  `final-resources.log` in the same parent directory. Earlier local logs remain,
+  including the initial mutant-test setup error corrected before qualification.
+  The receipt binds parent `aa69189` and exact then-uncommitted model/test bytes;
+  it is not a clean-HEAD protected-CI result.
+  Final matrix and serialized replay took **40.59 seconds**, peaked at
+  **254,380 KiB**, and retained **431,590 bytes** of compressed histories.
+
+See [the actual-code mapping and limits](GLOBAL_PROMISE_AND_ACTIVATION_RESEARCH.md).
+**Phase 0 remains OPEN.** Fresh ballots per recovered slot, explicit prefix sync and
+certificate-derived adoption are conservative research choices. Production round
+policy, bytes, source scheduling, steady-state service and long-lived authority
+retention still need resolution. No Java, POM, workflow, Maven or cloud operation.
+
 ## Next local batch
 
-Map the certified-chain candidate to GSE's global promise, selected recovery bases
-and activation, including unavailable sources. Resolve the retained authority
-lifetime/representation before freezing D02/D03/D06. Then complete learner fencing,
-operation IDs/query/cancel, removed-node reads and API/byte/resource decisions
-D04–D10. Continue local commits only; leave the V5.2 release/cloud path untouched.
+Choose the long-lived authority representation/retention policy and specify learner
+materialization plus replacement identity fencing. Complete operation IDs/query/
+cancel, removed-node reads and exact API/byte/resource decisions before Phase 0
+freeze. Carry forward the activation adapter's production-round and adoption-record
+obligations explicitly. Continue local commits only; preserve V5.2's release/cloud path.
