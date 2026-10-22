@@ -1,0 +1,59 @@
+{
+  "cases": 48,
+  "elapsedSeconds": 29.836,
+  "execution": "private-storage-process",
+  "focusedPythonTests": 23,
+  "freshProcesses": 186,
+  "implementationFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "fa8d34cccf2fdd4b3ce62da501d0d60751056425949275b833076f63317ff5da",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BallotAllocatorTest.java": "178d698adff32c96b3ad38474905e720744e9a3ffe3d4acc8f08e27d29830f1f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BallotAllocatorWorker.java": "90f2d99b3da50db3b5f0eca96cc49e25806b1fa6e6c0e2bac154b5c19a5c300d",
+    "scripts/ci_v51_bundle.py": "9a6b0e82274e8da5616cc684402ba3c88dcbff4cf093dbf67cb095def269070b",
+    "scripts/test_ci_v51_bundle.py": "67efad04efa87030c02136514e60d5b4c4e7787cd49f8184f4e29046f921f443",
+    "scripts/v53/allocator_evidence.py": "31b5d136610acbbda97283cee4771ec49cafc935246d3403cdaab00d9bfb7e04",
+    "scripts/v53/allocator_negatives.py": "01316fa644630fb74539d8ec3db4faf3678f08bfc21cd36c005cd8672f0473c8",
+    "scripts/v53/allocator_qualification.py": "517c4be78d908ce4c460760dcd34312e5a2ed6cf7ff9cf47f84056cfbb4400b7",
+    "scripts/v53/test_allocator_evidence.py": "fdd4f3f572c057cd6f9cb50dc58294ba748237ebd4ee5e8a8db4bd049199041d"
+  },
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "9de2bbcd2d4c60c5cddce5047a7e217c8edec2b7bcaf84a716564affdcb9b0d6",
+      "size": 735751
+    }
+  ],
+  "javaTests": 62,
+  "localEvidence": "target/v53-phase2-allocator",
+  "logs": {
+    "java-focused.log": "519ab085119eb35be0acb287be939ed3c20d41dd0968704d7de7fa8f4712fe1a",
+    "python-focused-final.log": "bcbf38072874d29d186e3ce1bcbcdbf3f066d021039dc66ee6f8ba207a0ccbdc",
+    "python-optimized.log": "d742cface778845b7cf7c11aad728b59daa23f895fba980d876a62c405868861",
+    "qualification.log": "71e500b3d4ea31acc2d7f57c42bc691e02e7a3ecebcd928c7dcdbefaf0db9682",
+    "qualified/negatives.json": "9fecf00434705309d93f84fb441ba7f298029368eb7b53f4b880b5e8956cbafd",
+    "qualified/receipt.json": "73c30a693d7ce146c47f104843fe1a0d30cca67d9ed63da016dcff4b97861693",
+    "qualified/validation.json": "5c234ac9ea84a94f76fe0e5f54a7857f4b9c37a09e9f76ada1c372f1a41e4902"
+  },
+  "negativeCases": 10,
+  "optimizedPythonTests": 7,
+  "phase2Closed": false,
+  "powerLossTested": false,
+  "publicBootstrap": false,
+  "relocatedReplay": "PASS",
+  "reportingNote": "Source binding precedes this tracked summary and final reporting edits. Real local lock/halt/SIGKILL tests of a private allocator only; no public bootstrap, distributed runtime, power-loss or clean-source CI claim.",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-phase2-allocator-evidence-v1",
+  "source": {
+    "checkoutSha256": "6355508a2aae399b7d676c0ed71dc58ef7cfb85e667a8c6c4753600b286960c3",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "5ab987b8f599ef202479f3f86e4b8ece617bec54"
+  },
+  "status": "PASS"
+}

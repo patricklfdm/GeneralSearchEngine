@@ -17,8 +17,8 @@ development predecessor; its eventual published artifacts are not yet pinned.
 [Closure audit and evidence](PHASE_0_CLOSURE_AUDIT.md) record 198 tests and all nine
 research matrices on the final script bytes. The [Phase 1 closure audit](PHASE_1_CLOSURE_AUDIT.md)
 records current compatibility, byte, source-selection and complete causal-model
-qualification. The new membership runtime remains disabled. Phase 2 storage is next
-and has not started.
+qualification. The new membership runtime remains disabled. [Phase 2 storage](PHASE_2_ENTRY_PLAN.md)
+is open; the first batch adds [private durable allocation and exclusive ownership](PHASE_2_STORAGE_FOUNDATION.md).
 
 ## Historical research in order
 

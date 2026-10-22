@@ -456,3 +456,26 @@ Work remains local on `feat/v53-cluster-operations`; no push or experiment actio
 was performed. Phase 2 storage and the later real protocol/public/fault gates have
 not started. Actual V5.2 publication/integration and unified protected acceptance
 remain required before release readiness.
+
+## 2026-10-22 — Phase 2A private allocation and exclusive ownership
+
+Opened the [Phase 2 storage plan](PHASE_2_ENTRY_PLAN.md) and completed its first
+private component: exact pre-provisioned ROOT/GENESIS/NODE authority, exclusive
+directory ownership, separately forced counter allocation and bounded restart
+handling. Missing authority never resets the counter; complete unreturned pending
+reservations are burned. Empty/torn/stale/foreign pending bytes remain retained
+and block open, pending the complete storage recovery/repair work.
+
+The [storage foundation](PHASE_2_STORAGE_FOUNDATION.md) records 62 passing focused
+Java tests, 23 Python/build-contract tests and seven optimized-Python tests.
+All 48 real-process cases / 186 JVMs, ten reason-specific evidence negatives and
+relocated replay passed. The [receipt](phase2-evidence/allocator.json) binds parent
+`5ab987b` plus the current local bytes, before these final reporting additions.
+Raw originals remain at `target/v53-phase2-allocator/qualified/`.
+
+This is process crash/lock evidence, not physical power-loss, public bootstrap,
+voter admission or distributed membership acceptance. New public runtime remains
+disabled. Phase 2 is **OPEN**; root-wide promise/original basis storage is next.
+No inherited production file, POM, frozen format, workflow or V5.2 experiment was
+changed. Shared 5.3 build prerequisites add the new suite/worker; legacy gates
+remain intact. Work and commit remain local with no push.
