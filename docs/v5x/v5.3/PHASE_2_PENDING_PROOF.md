@@ -26,7 +26,9 @@ force sequence applies, with separate PROOF evidence events. This adds neither a
 frozen record/wire kind nor a new application encoding or resource lease.
 
 A complete candidate must still match the actual active ACCEPT before recovery.
-A partial candidate requires the original request and ACCEPT quorum observations.
+A partial candidate requires a fully revalidated request matching every retained
+prefix byte and the original active ACCEPT. Unwritten witness suffix bytes have no
+durable identity; see the [certificate integration clarification](PHASE_2_PENDING_CERTIFICATE.md).
 A complete stored PROOF is the exclusive owner's durable attestation that those
 observations were checked before writing; reopen verifies its original frame and
 quorum structure and reseals the actual files. It does not manufacture new remote
@@ -90,7 +92,8 @@ bytes; it is not relabelled as clean-HEAD protected CI.
 
 ## Remaining integration
 
-CERTIFICATE persistence/validation using real PROOF-quorum observations, complete
-application/sequence/catalog publication, same-round contiguous progress,
+[CERTIFICATE persistence](PHASE_2_PENDING_CERTIFICATE.md) subsequently completed
+local component qualification. Complete application/sequence/catalog publication,
+same-round contiguous progress,
 INTENT termination, covered-tail and partial-request retirement, maximal lifetime
 completion headroom and complete bootstrap/reopen remain required before closure.

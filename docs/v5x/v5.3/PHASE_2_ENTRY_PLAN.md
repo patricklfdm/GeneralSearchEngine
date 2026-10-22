@@ -29,7 +29,8 @@ The public membership factory remains disabled throughout this storage entry bat
 | 2C4c5c | Unmarked/torn PROMISE handling, maximal source/image headroom and complete coordinated lifetime progress |
 | 2C5a — locally complete for selected first-slot ACCEPT | [Original pending ACCEPT](PHASE_2_PENDING_ACCEPT.md): actual forced vote, exact candidate recovery, shared journal/source admission and fresh PREPARE capture |
 | 2C5b — locally complete for selected first-slot PROOF | [Original pending PROOF](PHASE_2_PENDING_PROOF.md): actual local ACCEPT-quorum validation, exact durable proof/recovery, duplicate preservation and fresh capture |
-| 2C5c | CERTIFICATE persistence, full application/catalog publication, covered-tail retirement and stable same-round progression |
+| 2C5c — locally complete for original first-slot certificate | [Pending certificate](PHASE_2_PENDING_CERTIFICATE.md): real ACCEPT/PROOF quorum checks, original forced certificate, repeated recovery and unchanged applied state |
+| 2C5d | Full application/catalog publication, covered-tail retirement and stable same-round progression |
 | 2D | Complete offline provisioning/open, legacy rejection and configuration-aware storage qualification; real ownership observations replace synthetic inputs; physical S/N coverage and closure audit |
 
 The [2A storage foundation](PHASE_2_STORAGE_FOUNDATION.md) qualifies an isolated

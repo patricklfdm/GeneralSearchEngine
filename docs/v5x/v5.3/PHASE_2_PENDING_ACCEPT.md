@@ -17,8 +17,8 @@ payload. A complete `pending.accept.next` candidate is forced, its parent is for
 then it atomically replaces the active file and the parent is forced again. Only
 then can a local Owned observation return. A complete candidate left by process
 death is validated against the original journal and unchanged current selection
-before completion. A partial candidate requires the same byte-exact original
-request to supply its missing suffix. It blocks other authority mutations; it is
+before completion. A partial candidate requires a fully validated request matching its retained
+prefix and immutable entry/payload binding to supply its missing suffix. It blocks other authority mutations; it is
 never an empty vote, inferred ACK, alternative entry or silently deleted staging.
 The existing active file must remain present and valid throughout recovery.
 

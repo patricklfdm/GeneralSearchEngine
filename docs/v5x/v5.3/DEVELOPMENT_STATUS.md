@@ -901,3 +901,23 @@ come from separately owned local directories. No network/public readiness, cloud
 acceptance or phase closure is inferred. Continue certificate/application and
 covered-tail integration, then the remaining complete-store/pre-cloud obligations.
 All changes and commits remain local, separate from the V5.2 cloud experiment.
+
+
+## 2026-10-22 — Phase 2C5c original phased-quorum certificate persistence
+
+The private owner now validates both actual local ACCEPT and PROOF quorums before
+persisting the exact certificate. Earlier-phase duplicates preserve it; complete
+candidate recovery requires the actual active PROOF; new PREPARE preserves all
+original phased bytes. Application/catalog/cut remain unchanged until publication.
+
+**45 cases / 396 fresh JVMs**, **14 exact negatives**, portable replay, **265 reactor
+Java tests**, **36 Python/build tests** (normal and optimized), and unchanged prior
+ACCEPT/PROOF artifact/negative replay passed. [Scope](PHASE_2_PENDING_CERTIFICATE.md),
+[hash index](phase2-evidence/pending-certificate.json).
+
+Partial request wording now distinguishes immutable surviving bytes from an
+unwritten witness suffix: the latter is not durable authority, requires full quorum
+revalidation, and cannot replace any complete/forced original. No frozen contract
+was changed. Continue actual application/sequence/catalog publication, covered-tail
+and complete lifetime/bootstrap integration. Phase 2/pre-cloud closure remains OPEN.
+Only local work/commits; no V5.2 cloud, workflow or public readiness change.

@@ -296,6 +296,14 @@ final class MembershipContext {
                 && number(cut.get("index"))<MAX && number(value.get("index"))==number(cut.get("index"))+1,"pending PROOF exact ACCEPT/parent");
         ballot(value.get("ballot"),true);witnessShape(receipts,"ACCEPT",accept.digest(),cut);
     }
+    /** Authentic original local certificate attestation, never fresh remote observations. */
+    void persistedCertificate(Decoded certificate,Decoded proof,Decoded accept) {
+        require(proof!=null,"certificate requires original PROOF");persistedProof(proof,accept);
+        require(certificate.family().equals("records") && certificate.kind().equals("CERTIFICATE"),"pending certificate kind");
+        var value=new TreeMap<>(certificate.value());var receipts=list(value.remove("proofs"));
+        require(value.equals(proof.value()),"pending certificate differs from original PROOF");
+        witnessShape(receipts,"PROOF",proof.digest(),cut);
+    }
     private void witnesses(List<?> witnesses,String phase,String record,Set<Owned> owned,Map<String,Object> parent) {
         Objects.requireNonNull(owned,"owned phased observations");
         witnessShape(witnesses,phase,record,parent);

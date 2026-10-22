@@ -61,7 +61,7 @@ def generation(path,root,node):
     return selector,manifest,files,data
 
 
-def model(root,case):
+def model(root,case,*,certificate=False):
     initial=root/'installed';nodes=sorted(p.name for p in initial.iterdir());need(len(nodes)==case['size']+(case['through']==6),'proof governing voter count')
     whole=inventory(initial);provision=inventory(root/'provisioned');expected=dict(provision);models={};refs=[]
     for node in nodes:
@@ -113,13 +113,27 @@ def model(root,case):
         receipt=dict(root=m['root'],voter=node,incarnation=m['identity']['storage'],phase='ACCEPT',record=c.sha(m['accept']))
         witnesses.append(dict(voter=node,incarnation=m['identity']['storage'],receipt=c.sha(g.f.canonical(receipt))))
     need(all(len({w['voter'] for w in witnesses}&set(own['cut']['view'][side]))>len(own['cut']['view'][side])//2 for side in ('old','new')),'proof actual both majorities')
-    proof=g.f.encode('records','PROOF',dict(g.f.decode(own['accept'],'records','ACCEPT'),accepts=witnesses));vote=container(own['frames'],own['payload'],proof)
+    proof=g.f.encode('records','PROOF',dict(g.f.decode(own['accept'],'records','ACCEPT'),accepts=witnesses))
+    cert=None;baseline=accepted;cuts=CUTS
+    if certificate:
+        baseline=dict(accepted)
+        for node,m in models.items():baseline[node+'/'+ACTIVE]=a.info(container(m['frames'],m['payload'],proof))
+        need(inventory(root/'proven')==baseline,'certificate actual PROOF files')
+        proof_witnesses=[]
+        for node,m in models.items():
+            if node=='node-1':continue
+            receipt=dict(root=m['root'],voter=node,incarnation=m['identity']['storage'],phase='PROOF',record=c.sha(proof))
+            proof_witnesses.append(dict(voter=node,incarnation=m['identity']['storage'],receipt=c.sha(g.f.canonical(receipt))))
+        cert=g.f.encode('records','CERTIFICATE',dict(g.f.decode(proof,'records','PROOF'),proofs=proof_witnesses))
+        cuts=tuple(v.replace('PROOF','CERTIFICATE') for v in CUTS)
+    vote=container(own['frames'],own['payload'],proof+(cert or b''))
     def state(point=None):
-        value=dict(accepted);pos=len(CUTS) if point is None else CUTS.index(point)
-        if pos>=CUTS.index('PROOF_RENAMED'):value['node-1/'+ACTIVE]=a.info(vote)
+        value=dict(baseline);pos=len(cuts) if point is None else cuts.index(point)
+        if pos>=6:value['node-1/'+ACTIVE]=a.info(vote)
         elif pos>=1:value['node-1/'+NEXT]=a.info(vote[:0 if pos==1 else len(vote)//2 if pos==2 else len(vote)])
         return value
     data=own['data'];objects=dict(data['objects']);objects.update({c.sha(v):v for v in (own['entry'],own['accept'],own['payload'],proof)})
+    if cert is not None:objects[c.sha(cert)]=cert
     source=install.packet_bytes(data['capsule'],objects,data['images']);decoded=packet.decode(source)
     final=inventory(root/'final');rows=g.journal(g.read(root/'final/node-1/grants.gsr',g.LIMIT),own['root'],'node-1')
     need(rows[:4]==own['rows'] and [r[0] for r in rows[4:]]==['PROMISE','BASIS'],'proof fresh capture history')
@@ -128,11 +142,13 @@ def model(root,case):
     packet.bind(decoded,b[1]);expected=state();prefix='node-1/sources/'+b[2]['basisId'];expected[prefix]=dict(directory=True)
     expected[prefix+'/source.gscp']=a.info(source);expected.update({prefix+'/'+h+'.image':a.info(own['files'][h+'.image']) for h in data['images']})
     expected['node-1/grants.gsr']=a.info(b''.join(r[1] for r in rows))
-    need(final==expected,'proof exact final source');need(inventory(root/'authority')==final,'proof final authority')
+    need(final==expected,'certificate exact final source' if certificate else 'proof exact final source');need(inventory(root/'authority')==final,'proof final authority')
     for node in models:
         need(sum(v.get('bytes',0) for n,v in final.items() if n in (node+'/grants.gsr',node+'/'+ACTIVE,node+'/'+NEXT))<=g.LIMIT,'proof shared journal limit')
         need(sum(n.startswith(node+'/') and n.endswith('.image') for n in final)<=7,'proof shared image limit')
-    return state,rows,returns,dict(proof=c.sha(proof),accepted=c.sha(own['accept']),parent=c.sha(g.f.canonical(own['cut'])))
+    returned=dict(proof=c.sha(proof),accepted=c.sha(own['accept']),parent=c.sha(g.f.canonical(own['cut'])))
+    if cert is not None:returned['certificate']=c.sha(cert)
+    return state,rows,returns,returned
 
 
 def validate_case(directory,case):

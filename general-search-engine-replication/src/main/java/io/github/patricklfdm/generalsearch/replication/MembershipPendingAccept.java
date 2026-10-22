@@ -14,23 +14,27 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * Private container framing does not introduce a record/wire kind or an application codec. */
 final class MembershipPendingAccept {
     static final String FILE="pending.accept", NEXT="pending.accept.next";
-    static final int MAGIC=0x47535056, PREFIX=12, PROOF_MAXIMUM=16384, MAXIMUM=PREFIX+4+4096+8192+65536+16384+8192+FRAME+PROOF_MAXIMUM;
+    static final int MAGIC=0x47535056, PREFIX=12, PROOF_MAXIMUM=16384, CERTIFICATE_MAXIMUM=16384, MAXIMUM=PREFIX+4+4096+8192+65536+16384+8192+FRAME+PROOF_MAXIMUM+CERTIFICATE_MAXIMUM;
     static byte[] empty(){return ByteBuffer.allocate(PREFIX).putInt(MAGIC).putShort((short)1).putShort((short)3).putInt(PREFIX).array();}
-    record Vote(Decoded selector,Decoded promise,Decoded selected,Decoded entry,Decoded accept,byte[] payload,Decoded proof) {
+    record Vote(Decoded selector,Decoded promise,Decoded selected,Decoded entry,Decoded accept,byte[] payload,Decoded proof,Decoded certificate) {
         Vote {payload=payload.clone();}
         Vote(Decoded selector,Decoded promise,Decoded selected,Decoded entry,Decoded accept,byte[] payload) {
-            this(selector,promise,selected,entry,accept,payload,null);
+            this(selector,promise,selected,entry,accept,payload,null,null);
         }
-        Vote withProof(Decoded proof){return new Vote(selector,promise,selected,entry,accept,payload,proof);}
-        boolean sameAcceptance(Vote other){return Arrays.equals(withProof(null).bytes(),other.withProof(null).bytes());}
+        Vote withProof(Decoded proof){return new Vote(selector,promise,selected,entry,accept,payload,proof,certificate);}
+        Vote withCertificate(Decoded certificate){return new Vote(selector,promise,selected,entry,accept,payload,proof,certificate);}
+        boolean sameAcceptance(Vote other){return Arrays.equals(new Vote(selector,promise,selected,entry,accept,payload).bytes(),
+                new Vote(other.selector,other.promise,other.selected,other.entry,other.accept,other.payload).bytes());}
+        boolean sameProof(Vote other){return Arrays.equals(withCertificate(null).bytes(),other.withCertificate(null).bytes());}
+        String phase(){return certificate!=null?"CERTIFICATE":proof!=null?"PROOF":"ACCEPT";}
         @Override public byte[] payload(){return payload.clone();}
         byte[] bytes() {
             var out=new java.io.ByteArrayOutputStream();
             for(var frame:List.of(selector,promise,selected,entry,accept))out.writeBytes(frame.bytes());
-            byte[] body=out.toByteArray();int length=Math.addExact(PREFIX+4+body.length+payload.length,proof==null?0:proof.bytes().length);
+            byte[] body=out.toByteArray();int length=Math.addExact(PREFIX+4+body.length+payload.length,(proof==null?0:proof.bytes().length)+(certificate==null?0:certificate.bytes().length));
             require(length<=MAXIMUM,"pending vote container capacity");
             return ByteBuffer.allocate(length).putInt(MAGIC).putShort((short)1).putShort((short)3).putInt(length)
-                    .put(body).putInt(payload.length).put(payload).put(proof==null?new byte[0]:proof.bytes()).array();
+                    .put(body).putInt(payload.length).put(payload).put(proof==null?new byte[0]:proof.bytes()).put(certificate==null?new byte[0]:certificate.bytes()).array();
         }
     }
     private final Path parent;
@@ -54,7 +58,8 @@ final class MembershipPendingAccept {
         return active==null?Set.of():Set.of(active.promise().digest());
     }
     boolean protectsSource(String id){return active!=null && id.equals(active.promise().value().get("basisId"));}
-    /** Incomplete candidate bytes are retained. Only an exact caller can supply the absent suffix. */
+    /** Incomplete candidate bytes are retained. Only a fully revalidated request matching
+     * every surviving prefix byte may supply the absent suffix; unwritten bytes are not authority. */
     Optional<Vote> completeCandidate() {
         if(nextBytes==null)return Optional.empty();
         int length=declared(nextBytes);
@@ -79,8 +84,9 @@ final class MembershipPendingAccept {
         byte[] payload=new byte[count];buffer.get(payload);
         require(hash(payload).equals(entry.value().get("payload")),"pending payload hash");
         var proof=buffer.hasRemaining()?part(buffer,"PROOF"):null;
-        require(!buffer.hasRemaining(),"pending proof trailing bytes");
-        return new Vote(selector,promise,selected,entry,accept,payload,proof);
+        var certificate=buffer.hasRemaining()?part(buffer,"CERTIFICATE"):null;
+        require(!buffer.hasRemaining(),"pending certificate trailing bytes");
+        return new Vote(selector,promise,selected,entry,accept,payload,proof,certificate);
     }
     private static Decoded part(ByteBuffer buffer,String kind) {
         require(buffer.remaining()>=HEADER,"pending original record header");byte[] header=new byte[HEADER];
@@ -109,6 +115,7 @@ final class MembershipPendingAccept {
         require(hash(vote.payload()).equals(e.get("payload")),"pending payload hash");
         context.control((String)e.get("kind"),command((String)e.get("kind"),vote.payload()));
         if(vote.proof()!=null)context.persistedProof(vote.proof(),vote.accept());
+        if(vote.certificate()!=null)context.persistedCertificate(vote.certificate(),vote.proof(),vote.accept());
     }
     /** Union immutable originals. The higher accepted ballot owns the still-unsettled next slot. */
     static MembershipSourcePacket packet(MembershipCurrentGeneration current,Vote vote) {
@@ -118,6 +125,7 @@ final class MembershipPendingAccept {
         objects.put(vote.entry().digest(),vote.entry().bytes());objects.put(vote.accept().digest(),vote.accept().bytes());
         objects.put((String)vote.entry().value().get("payload"),vote.payload());
         if(vote.proof()!=null)objects.put(vote.proof().digest(),vote.proof().bytes());
+        if(vote.certificate()!=null)objects.put(vote.certificate().digest(),vote.certificate().bytes());
         var capsule=new TreeMap<>(original.capsule().value());capsule.put("inventory",hash(MembershipSourcePacket.index(objects,original.images())));
         return MembershipSourcePacket.decode(MembershipSourcePacket.encode(MembershipFormat.decode(encode("records","CAPSULE",capsule),"records","CAPSULE"),objects,original.images()));
     }
@@ -137,7 +145,7 @@ final class MembershipPendingAccept {
         if(nextBytes!=null){byte[] expected=vote.bytes();require(nextBytes.length<=expected.length && Arrays.equals(nextBytes,Arrays.copyOf(expected,nextBytes.length)),"pending candidate requires exact original request");}
     }
     void install(Vote vote,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
-        check();owner.check();matches(vote);byte[] expected=vote.bytes();String phase=vote.proof()==null?"ACCEPT":"PROOF";
+        check();owner.check();matches(vote);byte[] expected=vote.bytes();String phase=vote.phase();
         var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));if(!pending())options.add(StandardOpenOption.CREATE_NEW);
         try(var channel=FileChannel.open(parent.resolve(NEXT),options)) {
             if(!pending()){snapshotNext(new byte[0]);cut.at(phase+"_CANDIDATE_CREATED");check();owner.check();}
@@ -158,7 +166,7 @@ final class MembershipPendingAccept {
         nextIdentity=inspect(parent.resolve(NEXT),expected.length,hash(expected));nextBytes=expected;
     }
     void sealActive(MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
-        String phase=active!=null && active.proof()!=null?"PROOF":"ACCEPT";
+        String phase=active==null?"ACCEPT":active.phase();
         check();owner.check();try(var channel=FileChannel.open(parent.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
         cut.at(phase+"_ACTIVE_FORCED");check();owner.check();AdmissionPaths.forceDirectory(parent);
         cut.at(phase+"_ACTIVE_PARENT_FORCED");check();owner.check();
