@@ -24,6 +24,36 @@ SCHEMA='gse-v52-native-volume-request-v1'
 RECEIPT='gse-v52-native-volume-startup-v1'
 MAX_BYTES=512<<10
 MAX_SECONDS=300
+FAILURE_SCHEMA='gse-v52-volume-rejection-v1'
+# Only fixed receiver vocabulary crosses the SSH boundary, never exception text.
+FAILURE_CODES=frozenset('V52_VOLUME_'+name for name in '''
+ABSENT_TARGET ACTION ALREADY_MOUNTED ARGUMENTS BEFORE_WRITE_DRIFT BLOCK_COUNT
+BLOCK_FIELDS BLOCK_IDENTITIES BLOCK_MISSING BLOCK_TOPOLOGY BOOT_DISK BOOT_LAYOUT
+BUDGET_FIELDS CLOCK_BINDING CLOCK_EXPIRED COMMAND_FAILED COMMAND_OUTPUT_BOUND
+DATA_DISK DEVICE_ALIAS DEVICE_CHANGED DIGEST DUPLICATE_FIELD ENVELOPE
+EXCHANGE_DEADLINE EXISTING_FILESYSTEM FILESYSTEM GUEST_BINDING GUEST_BOOT INTEGER
+INVOKING_ACCOUNT METADATA_IDENTITY MOUNT_COUNT MOUNT_FIELDS MOUNT_IDENTITY
+MOUNT_OPTIONS MOUNT_OWNER NONFINITE OBSERVATION_BOUND OBSERVATION_FIELDS
+ORIGINAL_BUDGET ORIGINAL_CLAIM ORIGINAL_COMMANDS PRIVATE_DIRECTORY PROCESS_FIELDS
+READINESS_CHANGED RECORD_BOUND RECORD_TYPE REQUEST_BOUND REQUEST_SCOPE RESOURCE_ID
+RESPONSE_BOUND RETAINED_VOLUME ROOT_ACCOUNT ROOT_ANCESTRY ROOT_CYCLE ROOT_DIRECTORY
+ROOT_MOUNT SIGNATURES SOURCE SSH_KEY STARTUP_CLAIM STARTUP_RECEIPT TARGET_NOT_EMPTY
+TARGET_TYPE WHOLE_DEVICE WRITE_SCOPE HISTORY_ACCOUNT HISTORY_ACTION HISTORY_ANCESTOR
+HISTORY_ARGUMENTS HISTORY_BOOT HISTORY_CLAIM_CHANGED HISTORY_ENVELOPE
+HISTORY_MOUNT_CHANGED HISTORY_PARENT_CHANGED HISTORY_VOLUME IO_FAILED REJECTED
+'''.split())
+READ_TIMEOUT_CODES=frozenset(('V52_VOLUME_CLOCK_EXPIRED','V52_VOLUME_EXCHANGE_DEADLINE'))
+
+
+def rejection(error,action,envelope):
+    code='V52_VOLUME_REJECTED'
+    if type(error) is ValueError and str(error) in FAILURE_CODES:code=str(error)
+    elif isinstance(error,(TimeoutError,subprocess.TimeoutExpired)):code='V52_VOLUME_EXCHANGE_DEADLINE'
+    elif isinstance(error,OSError):code='V52_VOLUME_IO_FAILED'
+    return dict(schema=FAILURE_SCHEMA,code=code,action=action if action in ('clock','prepare','query','check') else None,
+                envelopeSha256=digest(envelope) if envelope is not None else None)
+
+
 LSBLK=['lsblk','--json','--bytes','--paths','--list','--all','--output',
        'NAME,TYPE,SIZE,RO,MAJ:MIN,PKNAME,MOUNTPOINTS,FSTYPE,LABEL,UUID']
 FINDMNT=['findmnt','--json','--list','--output','SOURCE,TARGET,FSTYPE,OPTIONS,MAJ:MIN']
@@ -103,8 +133,8 @@ def read(path):
 
 def account(value,deadline):
     need(time.monotonic()<deadline,'EXCHANGE_DEADLINE')
-    expected=value['guest'];user=pwd.getpwnam(expected['user'])
     need((os.getuid(),os.geteuid(),os.getgid(),os.getegid())==(0,0,0,0),'ROOT_ACCOUNT')
+    expected=value['guest'];user=pwd.getpwnam(expected['user'])
     need((user.pw_uid,user.pw_gid)==(expected['uid'],expected['gid']) and
          (os.environ.get('SUDO_USER'),os.environ.get('SUDO_UID'),os.environ.get('SUDO_GID'))==
          (user.pw_name,str(user.pw_uid),str(user.pw_gid)),'INVOKING_ACCOUNT')
@@ -157,7 +187,8 @@ class Linux:
                         result=out if key.fileobj is proc.stdout else err;result.extend(chunk)
                         need(len(result)<=65536,'COMMAND_OUTPUT_BOUND')
             proc.wait(timeout=max(.001,deadline-time.monotonic()))
-            need(proc.returncode==0 and time.monotonic()<deadline,'COMMAND_FAILED');return bytes(out)
+            need(proc.returncode==0,'COMMAND_FAILED')
+            need(time.monotonic()<deadline,'EXCHANGE_DEADLINE');return bytes(out)
         finally:
             try:os.killpg(proc.pid,signal.SIGKILL)
             except ProcessLookupError:pass
@@ -333,6 +364,7 @@ def _perform(action,value,token,backend):
 
 
 def main():
+    value=None;action=sys.argv[1] if len(sys.argv)==2 else None
     try:
         need(len(sys.argv)==2,'ARGUMENTS');raw=sys.stdin.buffer.read(20001);need(len(raw)<=20000,'REQUEST_BOUND')
         value=decode(raw);need(type(value) is dict and set(value)=={'request','token'},'ENVELOPE')
@@ -343,7 +375,8 @@ def main():
         try:result=_perform(action,req,token,Linux(req))
         finally:signal.setitimer(signal.ITIMER_REAL,0)
         output=encoded(result)+b'\n';need(len(output)<=MAX_BYTES,'RESPONSE_BOUND');sys.stdout.buffer.write(output);return 0
-    except BaseException:
+    except BaseException as error:
+        sys.stdout.buffer.write(encoded(rejection(error,action,value))+b'\n')
         print('V52_VOLUME_REJECTED',file=sys.stderr);return 2
 
 

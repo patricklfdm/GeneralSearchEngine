@@ -17,7 +17,7 @@ class EndpointTest(unittest.TestCase):
         self.base=volume_fixture.VolumeTest('test_original_blank_device_and_independent_retained_and_current_replay')
         self.base.setUp();self.addCleanup(self.base.doCleanups);self.value=self.base.value;self.events=[]
         self.fault=lambda action,result:result
-        self.parent=SimpleNamespace(exchange=self.exchange,note=Mock())
+        self.parent=SimpleNamespace(exchange=self.exchange,note=Mock(),record_check=Mock())
         self.guests=SimpleNamespace(session=SimpleNamespace(owner=SimpleNamespace(checkpoint=lambda:dict(
             expiresAt=int(time.time())+600,graceSeconds=60))))
         with patch.object(s,'request',return_value=self.value):self.endpoint=s.VolumeEndpoint(self.parent,self.guests,'node-1')
@@ -90,6 +90,140 @@ class EndpointTest(unittest.TestCase):
             s.readonly(call,30)
         self.assertEqual(1,call.call_count)
 
+    def test_clock_grant_uses_arrival_before_slow_postcheck(self):
+        now=[0.0];clock=SimpleNamespace(monotonic=lambda:now[0],time=lambda:1000.0)
+        self.guests.session.owner.checkpoint=lambda:dict(expiresAt=1500,graceSeconds=60)
+        def exchange(*args):
+            self.parent.reply_received_at=30.0;now[0]=40.0
+            return dict(schema='gse-v52-volume-clock-v1',requestSha256=v.digest(self.value),
+                bootId=self.value['guest']['bootId'],nonce=args[4]['token'],sampledNanos=5000*10**9)
+        self.parent.exchange=exchange
+        self.endpoint.checkpoint=Mock(side_effect=lambda:now.__setitem__(0,now[0]+20))
+        with patch.object(s,'time',clock):token,end=self.endpoint.clock(120)
+        self.assertEqual(120,end)
+        self.assertEqual(5090*10**9,token['expiresNanos'])
+        # Remote sample occurred no later than local receipt, so this expiry
+        # never exceeds the original local bound despite the 20s postcheck.
+        self.assertEqual(60,now[0])
+
+    def test_slow_read_uses_300_seconds_without_changing_initialization_grant(self):
+        startup=self.endpoint.prepare()['startup'];original=deepcopy(self.endpoint.original)
+        now=[0.0];ends=[]
+        clock=SimpleNamespace(monotonic=lambda:now[0],time=lambda:1000.0,sleep=lambda seconds:now.__setitem__(0,now[0]+seconds))
+        self.guests.session.owner.checkpoint=lambda:dict(expiresAt=1500,graceSeconds=60)
+        perform=self.parent.exchange
+        def slow(*args):
+            ends.append(args[-1]);now[0]+=80
+            return perform(*args)
+        self.parent.exchange=slow
+        with patch.object(s,'time',clock):self.endpoint.check(startup)
+        self.assertEqual([300,300],ends);self.assertEqual(160,now[0]);self.assertEqual(original,self.endpoint.original)
+        timing=self.parent.record_check.call_args.args[1]
+        self.assertEqual(160000,timing['attempts'][0]['elapsedMillis']);self.assertIsNone(timing['attempts'][0]['reasonCode'])
+        self.assertEqual(1,self.base.block.formats)
+
+    def test_expired_read_grant_gets_fresh_clock_within_one_deadline(self):
+        startup=self.endpoint.prepare()['startup'];self.events.clear();ends=[];tokens=[]
+        original=self.parent.exchange
+        def fail_first(*args):
+            ends.append(args[-1])
+            if args[3]=='check':
+                tokens.append(deepcopy(args[4]['token']))
+                if len(tokens)==1:raise s.diagnostic.VolumeError('V52_VOLUME_CLOCK_EXPIRED')
+            return original(*args)
+        self.parent.exchange=fail_first
+        with patch.object(s.time,'sleep'):self.endpoint.check(startup)
+        self.assertEqual(2,len(tokens));self.assertNotEqual(tokens[0]['sample']['nonce'],tokens[1]['sample']['nonce'])
+        self.assertEqual(1,len(set(ends)));self.assertEqual(1,self.base.block.formats)
+        timing=self.parent.record_check.call_args.args[1]
+        self.assertEqual('V52_VOLUME_CLOCK_EXPIRED',timing['attempts'][0]['reasonCode'])
+        self.assertEqual('complete',timing['attempts'][1]['phase'])
+
+    def test_read_retries_exhaust_and_terminal_rejections_fail_once(self):
+        startup=self.endpoint.prepare()['startup'];original=self.parent.exchange
+        for code in ('V52_VOLUME_EXCHANGE_DEADLINE','V52_VOLUME_MOUNT_OWNER','V52_VOLUME_METADATA_IDENTITY','V52_VOLUME_COMMAND_FAILED','V52_VOLUME_REJECTED'):
+            checks=[]
+            def fail(*args):
+                if args[3]=='check':checks.append(1);raise s.diagnostic.VolumeError(code)
+                return original(*args)
+            self.parent.exchange=fail
+            with self.subTest(code=code),patch.object(s.time,'sleep'),self.assertRaises(s.diagnostic.VolumeError):
+                self.endpoint.check(startup)
+            self.assertEqual(3 if code in v.READ_TIMEOUT_CODES else 1,len(checks))
+            self.assertEqual(len(checks),len(self.parent.record_check.call_args.args[1]['attempts']))
+        self.assertEqual(1,self.base.block.formats)
+
+    def test_shared_read_deadline_and_lease_never_extend_on_retry(self):
+        startup=self.endpoint.prepare()['startup'];original=self.parent.exchange
+        for lease_seconds in (600,100):
+            now=[0.0];ends=[]
+            self.guests.session.owner.checkpoint=lambda:dict(expiresAt=1000+lease_seconds,graceSeconds=5)
+            clock=SimpleNamespace(monotonic=lambda:now[0],time=lambda:1000+now[0],sleep=lambda _:None)
+            def exhausted(*args):
+                ends.append(args[-1])
+                if args[3]=='check':
+                    now[0]=args[-1];raise s.diagnostic.VolumeError('V52_VOLUME_EXCHANGE_DEADLINE')
+                return original(*args)
+            self.parent.exchange=exhausted
+            with patch.object(s,'time',clock),self.assertRaises(s.diagnostic.VolumeError):self.endpoint.check(startup)
+            self.assertEqual([min(300,lease_seconds)]*2,ends)
+            self.assertEqual(1,len(self.parent.record_check.call_args.args[1]['attempts']))
+        self.assertEqual(1,self.base.block.formats)
+
+
+class RemoteRejectionTest(unittest.TestCase):
+    def test_only_exact_bound_closed_receiver_failure_is_classified(self):
+        data=dict(request=volume_fixture.request(),token='a'*32)
+        good=v.rejection(ValueError('V52_VOLUME_CLOCK_EXPIRED'),'check',data)
+        def failure(value):
+            error=s.iap.transport.ProcessError('REMOTE_EXIT');error.partial_output=v.encoded(value);return error
+        error=failure(good);classified=s.diagnostic.remote_error(error,'check',data)
+        self.assertEqual('V52_VOLUME_CLOCK_EXPIRED',classified.code);self.assertTrue(classified.retryable)
+        variants=[dict(good,action='prepare'),dict(good,envelopeSha256='0'*64),dict(good,code='V52_VOLUME_PRIVATE_TEXT'),
+                  dict(good,secret='private'),[],dict(good,schema='other')]
+        for bad in variants:
+            error=failure(bad);self.assertIs(error,s.diagnostic.remote_error(error,'check',data))
+        error=failure(good);error.code='SSH_AUTHENTICATION'
+        self.assertIs(error,s.diagnostic.remote_error(error,'check',data))
+        error=failure(good);error.partial_output=b'x'*2049
+        self.assertIs(error,s.diagnostic.remote_error(error,'check',data))
+
+    def test_transport_arrival_is_recorded_before_storage_postcheck(self):
+        now=[10.0];owner=SimpleNamespace(note=Mock(),volume_source='fixed',paths_source='fixed')
+        owner.checkpoint=Mock(side_effect=lambda _:now.__setitem__(0,now[0]+5))
+        guests=SimpleNamespace(targets={'node-1':{}})
+        def exchange(*args,**kwargs):now[0]=30.0;return b'{}'
+        with patch.object(s.time,'monotonic',side_effect=lambda:now[0]), \
+             patch.object(s.iap.ssh.ssh,'ssh_args',return_value=['ssh','fixed']), \
+             patch.object(s.iap.transport,'process',side_effect=exchange):
+            self.assertEqual({},s.Storage.exchange(owner,guests,'node-1','volume','clock',{},120))
+        self.assertEqual(30,owner.reply_received_at);self.assertEqual(35,now[0])
+
+    def test_check_diagnostics_are_unique_and_do_not_overwrite_prior_attempts(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as directory:
+            owner=SimpleNamespace(output=Path(directory),last_check=None,check_records=0,context={'operation':'placement-volume'})
+            for attempt in (1,2):s.Storage.record_check(owner,'node-1',dict(attempt=attempt))
+            files=sorted(owner.output.glob('node-1-check-*.json'))
+            self.assertEqual(2,len(files))
+            self.assertEqual([1,2],[s.strict(p.read_bytes())['readCheck']['attempt'] for p in files])
+            with patch.object(s.runner,'diagnostic',side_effect=OSError('private disk failure')):
+                s.Storage.record_check(owner,'node-1',dict(attempt=3))
+            self.assertEqual(dict(attempt=3),owner.last_check)
+
+    def test_actual_process_nonzero_preserves_bound_code_without_stderr(self):
+        import sys
+        data=dict(request=volume_fixture.request(),token='a'*32)
+        response=v.rejection(ValueError('V52_VOLUME_CLOCK_EXPIRED'),'check',data)
+        source='import sys;sys.stdin.buffer.read();sys.stdout.buffer.write('+repr(v.encoded(response))+');sys.stderr.write("private detail");sys.exit(2)'
+        # Use the real transport (including bounded partial output), classifying
+        # its local process as REMOTE_EXIT only at the test's SSH boundary.
+        with patch.object(s.iap.transport,'exit_error',return_value=s.iap.transport.ProcessError('REMOTE_EXIT')):
+            with self.assertRaises(s.iap.transport.ProcessError) as caught:
+                s.iap.transport.process([sys.executable,'-c',source],v.encoded(data),time.monotonic()+10,retain_partial=True)
+        result=s.diagnostic.remote_error(caught.exception,'check',data)
+        self.assertEqual('V52_VOLUME_CLOCK_EXPIRED',result.code);self.assertNotIn('private',str(result))
+
 
 class NativeStorageTest(unittest.TestCase):
     def setUp(self):
@@ -158,6 +292,27 @@ class NativeStorageTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'already consumed'):self.group.prepare_storage(self.root/'second-storage')
         receipt=s.strict((storage.output/'receipt.json').read_bytes());self.assertEqual('STORAGE_READY_NOT_QUALIFIED',receipt['status'])
         self.assertFalse(receipt['engineWorkloadExecuted']);self.assertFalse(receipt['fullRemoteQualification'])
+        self.session.close();self.assertEqual({},self.base.base.case.server.resources)
+
+    def test_native_placement_retains_remote_deadline_attempts_and_owner_cleanup(self):
+        storage=self.prepare();original=self.exchange;checks=[]
+        def failed_check(args,data,end,**kwargs):
+            remote=shlex.split(args[-1])
+            if remote[0]=='sudo' and remote[-1]=='check':
+                checks.append(1);self.assertTrue(kwargs['retain_partial'])
+                error=s.iap.transport.ProcessError('REMOTE_EXIT')
+                error.partial_output=v.encoded(v.rejection(ValueError('V52_VOLUME_CLOCK_EXPIRED'),'check',s.strict(data)))
+                raise error
+            return original(args,data,end,**kwargs)
+        name=self.session.owner.request['selection']['member']['histories'][0]
+        with patch.object(s.iap.transport,'process',side_effect=failed_check),patch.object(s.time,'sleep'), \
+             self.assertRaises(s.diagnostic.VolumeError):storage.placement(self.group,name)
+        self.assertEqual(3,len(checks))
+        report=s.diagnostic.project(s.strict((storage.output/'diagnostic.json').read_bytes()))
+        self.assertEqual('V52_VOLUME_CLOCK_EXPIRED',report['reasonCode'])
+        self.assertEqual('placement-volume',report['operation']);self.assertEqual(3,len(report['readCheck']['attempts']))
+        self.assertTrue(list(storage.output.glob('node-1-check-*.json')))
+        self.assertFalse(any(kind=='paths' for _,kind,_ in self.actions));self.assertTrue(all(m.formats==1 for m in self.models.values()))
         self.session.close();self.assertEqual({},self.base.base.case.server.resources)
 
     def test_failed_initialization_is_consumed_retained_and_original_owner_cleans(self):

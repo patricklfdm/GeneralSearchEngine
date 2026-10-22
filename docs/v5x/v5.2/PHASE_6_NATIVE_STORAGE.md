@@ -54,6 +54,51 @@ arrive before the original controller deadline. These are individual privileged
 operation/exchange bounds, not a hard cap on a cloud stage or the experiment.
 The existing soft total time and cost policy is unchanged.
 
+### Slow read checks and closed receiver diagnostics
+
+Runs `39729635598/1` and `39755195425/1` failed before/during a read-only
+mount check. The latter stopped at `java-volume-before` on node 1 with
+`REMOTE_EXIT`, before any history, after all three initial mount receipts passed.
+Cleanup deleted all 13 resources and released the lease. The retained receiver
+error did not identify the underlying rejection; neither an exact timeout cause
+nor a WSL crash is established for that run.
+
+The controller now records SSH response arrival before either provider
+postcheck. Guest expiry is the nonce-bound remote sample plus the remaining
+controller time at that arrival. The remote sample predates arrival, so this
+conversion remains conservative; the postcheck no longer consumes the guest
+budget a second time. Initialization still has its original 300-second grant,
+one submission and queries of that same grant.
+
+Each standalone mount check has one 300-second window and at most three read
+attempts. A transient connection loss or explicit remote clock/deadline rejection
+may obtain a new sample for a new read, within that same original window and
+current lease plus grace. Renewal cannot extend the check's original deadline.
+Clock sampling retains its existing maximum of three read exchanges. Late
+success is rejected. No format, initialization, install or workload is replayed.
+Identity, metadata, owner/mode, filesystem, source, malformed-response and unknown
+remote failures remain terminal.
+
+The fixed volume/history receiver still exits nonzero on rejection. It emits a
+small `gse-v52-volume-rejection-v1` response containing only a closed code, action
+and hash of the complete request envelope. The controller accepts this diagnostic
+only from a failed remote exchange with the exact action/envelope binding and
+closed schema. Raw stderr, command text and exception text are not retained.
+Unknown or damaged failure envelopes remain terminal `REMOTE_EXIT`.
+
+Per-attempt elapsed/remaining milliseconds and closed codes are retained in
+separate `node-N-check-NNNN.json` diagnostic records. The final failure summary
+projects the current check's bounded attempt list. These records do not replace
+mount receipts or grant qualification. Diagnostic write failure cannot mask the
+original outcome or skip owner cleanup.
+
+Local regressions simulate slow connections, delayed provider postchecks, remote
+expiry, three-attempt exhaustion, terminal drift, lease clipping, stale/unknown
+failure envelopes and safe public summaries. Three timing/retry regressions fail
+on the original controller. Real local subprocess and isolated namespace tests
+cover receiver output and root/file boundaries; cloud network timing still
+requires a new original run after merge.
+
 ## Control reads during lease renewal
 
 Each scoped control-object read holds the API's existing reentrant lock from

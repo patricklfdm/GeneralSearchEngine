@@ -453,3 +453,14 @@ Deployment checks (Linux permissions, private staging, local hook lifecycle,
 GitHub connectivity and Runner registration) are separate from a hosted job or
 paid-cloud qualification. First protected execution after merge still needs
 the successful exact-source build, recent cleanup, fresh preparation and operator approval.
+
+
+### Native storage read rejection diagnostics
+
+A failed mount check now includes its exact closed receiver code when available,
+and `storage.readCheck` shows up to three attempts with phase, elapsed and remaining
+milliseconds. `V52_VOLUME_CLOCK_EXPIRED` and `V52_VOLUME_EXCHANGE_DEADLINE` can retry
+only read operations within one 300-second check window. Identity/mount drift and
+unknown `REMOTE_EXIT` remain terminal. Initialization and measured histories are
+never resubmitted by this mechanism. See the
+[native storage timing and diagnostic contract](PHASE_6_NATIVE_STORAGE.md#slow-read-checks-and-closed-receiver-diagnostics).

@@ -201,6 +201,33 @@ class VolumeTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'OBSERVATION_BOUND'):self.raw()
 
 
+class ReceiverDiagnosticTest(unittest.TestCase):
+    def test_receiver_codes_remain_closed_and_timeout_is_distinct(self):
+        envelope=dict(request=request(),token='b'*32)
+        for error,code in ((ValueError('V52_VOLUME_MOUNT_OWNER'),'V52_VOLUME_MOUNT_OWNER'),
+                           (TimeoutError('private timeout text'),'V52_VOLUME_EXCHANGE_DEADLINE'),
+                           (subprocess.TimeoutExpired(['private'],1),'V52_VOLUME_EXCHANGE_DEADLINE'),
+                           (ValueError('private detail'),'V52_VOLUME_REJECTED'),
+                           (OSError('private pathname'),'V52_VOLUME_IO_FAILED')):
+            reply=v.rejection(error,'check',envelope)
+            self.assertEqual(code,reply['code']);self.assertNotIn('private',str(reply))
+        self.assertEqual('V52_VOLUME_CLOCK_EXPIRED',v.rejection(ValueError('V52_VOLUME_CLOCK_EXPIRED'),'check',envelope)['code'])
+
+    def test_cli_expired_grant_and_unknown_failure_have_nonzero_bound_response(self):
+        import io
+        value=request();sample=v.sample(value,'a'*32)
+        envelope=dict(request=value,token=dict(sample=sample,expiresNanos=sample['sampledNanos']+1))
+        for action,body in (('check',envelope),('clock',dict(request=value,token='a'*32))):
+            output=io.BytesIO();errors=io.StringIO()
+            with patch.object(v.sys,'argv',['volume',action]),patch.object(v.sys,'stdin',SimpleNamespace(buffer=io.BytesIO(v.encoded(body)))), \
+                 patch.object(v.sys,'stdout',SimpleNamespace(buffer=output)),patch.object(v.sys,'stderr',errors), \
+                 patch.object(v,'_perform',side_effect=RuntimeError('private runtime detail')):
+                status=v.main()
+            self.assertEqual(2,status);answer=v.decode(output.getvalue())
+            self.assertEqual('V52_VOLUME_CLOCK_EXPIRED' if action=='check' else 'V52_VOLUME_REJECTED',answer['code'])
+            self.assertEqual(v.digest(body),answer['envelopeSha256']);self.assertNotIn('private',output.getvalue().decode()+errors.getvalue())
+
+
 class RootBoundaryTest(unittest.TestCase):
     def test_privileged_invoking_user_metadata_and_boot_are_independently_checked(self):
         value=request();entry=SimpleNamespace(pw_name=value['guest']['user'],pw_uid=1001,pw_gid=1002)
@@ -219,12 +246,38 @@ class RootBoundaryTest(unittest.TestCase):
             value['guest']['bootId']='00000000-0000-4000-8000-000000000001'
             with self.assertRaisesRegex(ValueError,'GUEST_BOOT'):v.account(value,time.monotonic()+30)
 
+    def test_failed_helper_remains_terminal_even_if_deadline_passes_at_exit(self):
+        end=time.monotonic()+10;finished=[False];clock=time.monotonic
+        proc=subprocess.Popen([sys.executable,'-c','raise SystemExit(7)'],stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True)
+        wait=proc.wait
+        def exited(*args,**kwargs):
+            result=wait(*args,**kwargs);finished[0]=True;return result
+        with patch.object(v.subprocess,'Popen',return_value=proc),patch.object(proc,'wait',side_effect=exited), \
+             patch.object(v.time,'monotonic',side_effect=lambda:end+1 if finished[0] else clock()):
+            with self.assertRaisesRegex(ValueError,'V52_VOLUME_COMMAND_FAILED'):
+                v.Linux(request()).run(v.LSBLK,end)
+        self.assertEqual(7,proc.returncode);self.assertTrue(proc.stdout.closed and proc.stderr.closed)
+
+    def test_actual_trusted_receiver_reports_expired_grant_without_cloud_or_root_io(self):
+        value=request();sample=v.sample(value,'a'*32)
+        envelope=dict(request=value,token=dict(sample=sample,expiresNanos=sample['sampledNanos']+1))
+        result=subprocess.run([sys.executable,'-I','-S','-c',storage.trusted_source('volume'),'check'],
+            input=v.encoded(envelope),capture_output=True,timeout=10)
+        self.assertEqual(2,result.returncode)
+        error=storage.iap.transport.exit_error(result.returncode,result.stderr,ssh=True);error.partial_output=result.stdout
+        result=storage.diagnostic.remote_error(error,'check',envelope)
+        self.assertEqual('V52_VOLUME_CLOCK_EXPIRED',result.code);self.assertTrue(result.retryable)
+
     def test_trusted_source_is_standalone_and_cli_rejects_unprivileged_entry(self):
         self.assertNotEqual(0,os.getuid())
         value=request();source=storage.trusted_source('volume')
         result=subprocess.run([sys.executable,'-I','-S','-c',source,'clock'],input=v.encoded(dict(request=value,token='a'*32)),
             capture_output=True,timeout=10)
-        self.assertEqual(2,result.returncode);self.assertEqual(b'',result.stdout)
+        self.assertEqual(2,result.returncode)
+        response=v.decode(result.stdout)
+        self.assertEqual('V52_VOLUME_ROOT_ACCOUNT',response['code'])
+        self.assertEqual(v.digest(dict(request=value,token='a'*32)),response['envelopeSha256'])
         self.assertEqual(b'V52_VOLUME_REJECTED\n',result.stderr)
         self.assertNotIn('scripts.v51',source)
 
