@@ -698,3 +698,26 @@ Phase 2 and pre-cloud closure remain OPEN. Next: bounded journal rotation,
 coordinated source/floor lifetimes, actual phased vote/application persistence and
 complete offline recovery. This batch changes no workflow, frozen format/resource
 bound, public runtime, cloud experiment or V5.2 Runner. Local commits only.
+
+
+## 2026-10-22 — Phase 2C4c1 bounded grant-journal compaction
+
+- Added explicit rotating open, exact original grant-group compaction and a 1 MiB
+  candidate within existing MISC. Force before atomic replacement and parent force;
+  interrupted exact prefixes resume before new mutations.
+- Preserve every physical source's original PROMISE, including capture interrupted
+  before BASIS, all original BASIS/SELECTED frames, current/floor manifests and
+  highest forced promise. Higher volatile observations still fence future grants.
+- A BASIS-only predicate mutant reproduced orphaned-source rejection on reopen.
+  The corrected implementation and regression retain its original ownership.
+- **135 cases / 558 fresh JVMs**, **15 exact negatives**, portable replay
+  PASS in 488.473 seconds; **165 Java tests**, **46 Python/build tests**
+  normally and under `-O` passed. [Scope/reproduction](PHASE_2_JOURNAL_ROTATION.md),
+  [receipt index](phase2-evidence/journal-rotation.json). Failed mutant and draft
+  probes remain retained under `target/v53-journal-rotation/`.
+
+Phase 2 remains OPEN. All six original source slots still count and exhaustion
+refuses further capture. Continue floor/source release, coordinated bounded
+progress, phased vote/application storage and complete offline recovery. This
+local batch does not change workflows, frozen formats/limits, public service or
+V5.2 experiments; no remote push.

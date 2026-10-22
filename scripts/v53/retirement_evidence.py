@@ -54,8 +54,8 @@ def generation(path,root,node,rows,case):
     return files,value,packet
 
 
-def plan(directory,case):
-    directory=Path(directory);initial=directory/'initial';values,rows=g.state(initial,case['size'],{'sources','generations','selector.gsr','floor-copies'})
+def plan(directory,case,initial_name="initial"):
+    directory=Path(directory);initial=directory/initial_name;values,rows=g.state(initial,case['size'],{'sources','generations','selector.gsr','floor-copies'})
     root=values['root.gsr'][16:48].hex();definition=g.f.decode(values['root.gsr'],'records','ROOT')
     need([r[0] for r in rows]==['PROMISE','PROMISE','BASIS','SELECTED'],'retirement initial journal')
     peers=[f'node-{i}' for i in range(2,case['size']//2+2)]

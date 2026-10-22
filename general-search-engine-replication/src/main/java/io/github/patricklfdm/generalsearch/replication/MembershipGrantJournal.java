@@ -20,7 +20,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private final MembershipIdentity identity;
     private final MembershipBallotAllocator allocator;
     private final MembershipBallotAllocator.Cut cut;
-    private final Object fileKey;
+    private Object fileKey;
     private final int maximum;
     private final AtomicReference<Map<String,Object>> observed=new AtomicReference<>();
     private byte[] journal;
@@ -33,6 +33,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipGenerationFiles inactive;
     private MembershipFloorFiles floors;
     private MembershipRetirementFiles retirement;
+    private MembershipJournalRotationFiles rotation;
     private MembershipResources resources;
     private volatile boolean failed,closed;
 
@@ -92,22 +93,27 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
-        return openGenerations(requested,root,identity,resources,verifier,cut,false,false);
+        return openGenerations(requested,root,identity,resources,verifier,cut,false,false,false);
     }
     static MembershipGrantJournal openFloors(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
-        return openGenerations(requested,root,identity,resources,verifier,cut,true,false);
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,false,false);
     }
     static MembershipGrantJournal openRetirement(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
-        return openGenerations(requested,root,identity,resources,verifier,cut,true,true);
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,false);
+    }
+    static MembershipGrantJournal openRotating(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,true);
     }
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
-            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,boolean withFloors,boolean withRetirement) throws IOException {
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,boolean withFloors,boolean withRetirement,boolean withRotation) throws IOException {
         Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
-        var owner=withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
+        var owner=withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
         try {
             journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);journal.resources=resources;journal.capsuleVerifier=verifier;
+            if(withRotation)journal.rotation=new MembershipJournalRotationFiles(path);
             journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);
             journal.reloadGenerations();
             if(withFloors) {
@@ -115,7 +121,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 var parents=new ArrayList<MembershipCapsule.Anchor>();journal.addFloorParent(parents);journal.current.verifyParents(parents);
             }
             if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources);
-            journal.checkOwner();return journal;
+            journal.checkOwner();if(withRotation && journal.rotation.pending())journal.rotateJournal();return journal;
         }catch(IOException | RuntimeException | Error error){try{if(journal==null)owner.close();else journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     private void reloadGenerations() throws IOException {
@@ -132,6 +138,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private void checkBaseOwner() throws IOException {
         live();allocator.checkOwner();require(fileKey.equals(key()),"grant journal inode changed");AdmissionPaths.exact(path,journal);
         if(sources!=null)sources.check();
+        if(rotation!=null)rotation.check();
     }
     private void checkWithoutFloor() throws IOException {
         checkBaseOwner();
@@ -140,7 +147,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
     private void checkOwner() throws IOException {checkWithoutRetirement();if(retirement!=null)retirement.check();}
+    private void rotationIdle(){if(rotation!=null)require(!rotation.pending(),"pending journal rotation must finish before authority changes");}
     private void floorIdle() throws IOException {
+        rotationIdle();
         if(floors!=null)require(!floors.pending(),"pending floor must finish before authority changes");
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");
     }
@@ -151,7 +160,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     synchronized Optional<Decoded> governingFloor() throws IOException {require(floors!=null,"floor storage owner required");checkOwner();return floors.read();}
     synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered) throws IOException {
-        require(floors!=null,"floor storage owner required");
+        require(floors!=null,"floor storage owner required");rotationIdle();
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");var own=floorCopyCurrent();
         // Validate and reserve before any persistent change; an interrupted transaction
         // may only resume with the same original full copies.
@@ -186,7 +195,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Returns no record for an already-empty slot; never drops root promises or original BASIS sources. */
     synchronized Optional<Decoded> retireInactive() throws IOException {
-        require(retirement!=null && floors!=null && inactive!=null,"retirement storage owner required");checkOwner();
+        require(retirement!=null && floors!=null && inactive!=null,"retirement storage owner required");checkOwner();rotationIdle();
         require(!floors.pending() && !inactive.pending(),"pending floor/selector must finish before retirement");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
         try {
@@ -213,6 +222,23 @@ final class MembershipGrantJournal implements AutoCloseable {
             inactive.deleteAuthorized(record,this::checkOwner,cut);
             require(!inactive.exists(),"retirement original still exists");retirement.clearAfterDeletion(record,this::checkWithoutRetirement,cut);
             cut.at("RETIREMENT_BEFORE_RETURN");checkOwner();return Optional.of(record);
+        }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
+    }
+    /** Compact exact original frames, retaining every original BASIS/SELECTED and live promise. */
+    synchronized String rotateJournal() throws IOException {
+        require(rotation!=null && current!=null && floors!=null && retirement!=null,"rotation storage owner required");checkOwner();
+        require(!inactive.exists() && !inactive.pending() && !floors.pending() && !retirement.pending(),"pending generation/floor/retirement before journal rotation");
+        var protectedPromises=new HashSet<String>();protectedPromises.add((String)current.manifest.value().get("promise"));
+        var retained=floors.retained();
+        if(retained.isPresent())for(var copy:retained.get().copies())if(copy.owner.equals(identity))protectedPromises.add((String)copy.generation.value().get("promise"));
+        byte[] compact=MembershipJournalRotation.compact(journal,protectedPromises,sources.retainedIdentities());
+        if(!rotation.pending() && Arrays.equals(compact,journal))return hash(compact);
+        try {
+            rotation.replace(compact,this::checkOwner,installed->{fileKey=installed.key();journal=compact;},cut);
+            promise=null;basis=null;selection=null;promises.clear();bases.clear();selections.clear();replay();
+            // Compaction cannot lower an in-flight higher observation or its durable promise.
+            var bound=object(promise.value().get("ballot"));observed.updateAndGet(prior->prior==null || compareBallot(bound,prior)>0?bound:prior);
+            checkOwner();cut.at("JOURNAL_ROTATION_BEFORE_RETURN");checkOwner();return hash(compact);
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     private static Map<String,Object> ballot(Map<String,Object> value) {
@@ -285,7 +311,7 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     synchronized long reserveCounter() throws IOException {
         try {
-            checkOwner();var before=observed.get();long result=allocator.reserve(before==null?0:number(before.get("counter")));
+            checkOwner();rotationIdle();var before=observed.get();long result=allocator.reserve(before==null?0:number(before.get("counter")));
             var after=observed.get();require(after==null || number(after.get("counter"))<result,"allocation fenced by higher observation");return result;
         } catch(IOException | RuntimeException | Error error) {failed=true;throw error;}
     }
@@ -315,7 +341,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Observation of the whole rechecked, locally forced selected generation; never a deletion permit. */
     synchronized MembershipFloor.Copy floorCopyCurrent() throws IOException {
-        require(current!=null && inactive!=null,"generation owner required");checkOwner();
+        require(current!=null && inactive!=null,"generation owner required");checkOwner();rotationIdle();
         require(!inactive.pending() && !(inactive.exists() && !current.adopted && current.manifest.value().get("selection")==null)
                 && !inactive.incompleteOrSelected(selection==null?null:selection.digest(),number(current.capsule.context.cut.get("index"))),"pending generation installation must finish before floor copy");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),
@@ -326,7 +352,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Certificate-derived root fence only. Prefix installation and any vote remain separate operations. */
     synchronized Decoded fenceMembershipPrefix(MembershipSourcePacket packet,Map<String,byte[]> images,List<MembershipSelection.Bridge> bridges) throws IOException {
-        require(current!=null && inactive!=null,"generation owner required");checkOwner();
+        require(current!=null && inactive!=null,"generation owner required");checkOwner();rotationIdle();
         require(!inactive.pending() && !(inactive.exists() && !current.adopted && current.manifest.value().get("selection")==null)
                 && !inactive.incompleteOrSelected(selection==null?null:selection.digest(),number(current.capsule.context.cut.get("index"))),"pending generation installation must finish before adoption");floorIdle();
         var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");

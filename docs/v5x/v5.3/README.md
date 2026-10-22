@@ -31,7 +31,9 @@ now passes 66 cases. [Integrated local adoption](PHASE_2_ADOPTION_INSTALL.md) pa
 [One retained governing floor](PHASE_2_GOVERNING_FLOOR.md) now passes 315 cases,
 with complete original copies and old/joint/new majorities. [Inactive-generation
 retirement](PHASE_2_RETIREMENT.md) passes 549 cases, including interrupted deletion
-and recovery. Actual vote/application persistence and bounded rotation remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
+and recovery. [Exact journal compaction](PHASE_2_JOURNAL_ROTATION.md) passes
+135 cases while preserving all retained sources. Actual vote/application persistence,
+source/floor release and automatic bounded backpressure remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
 expanded continuous local development scope.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated

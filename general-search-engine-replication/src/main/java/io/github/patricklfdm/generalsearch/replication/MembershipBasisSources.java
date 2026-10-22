@@ -101,6 +101,7 @@ final class MembershipBasisSources implements AutoCloseable {
             }
         }
     }
+    Set<String> retainedIdentities(){return Set.copyOf(retained.keySet());}
     record Original(MembershipSourcePacket packet,Map<String,byte[]> images) {}
     Original original(Decoded basis) throws IOException {
         check();String id=(String)basis.value().get("basisId");require(retained.containsKey(id),"original basis source absent");
