@@ -78,6 +78,11 @@ final class MembershipBallotAllocator implements AutoCloseable {
                 MembershipCurrentGeneration.DIRECTORY,MembershipCurrentGeneration.SELECTOR,MembershipGenerationFiles.PENDING));
     }
 
+    static MembershipBallotAllocator openWithFloorCopies(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut) throws IOException {
+        return open(requested,root,identity,cut,Set.of("grants.gsr",MembershipBasisSources.DIRECTORY,
+                MembershipCurrentGeneration.DIRECTORY,MembershipCurrentGeneration.SELECTOR,MembershipGenerationFiles.PENDING,MembershipFloorFiles.DIRECTORY));
+    }
+
     private static MembershipBallotAllocator open(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut, Set<String> additional) throws IOException {
         Objects.requireNonNull(root); Objects.requireNonNull(identity); Objects.requireNonNull(cut);
         Path directory=AdmissionPaths.safe(requested);
@@ -105,14 +110,14 @@ final class MembershipBallotAllocator implements AutoCloseable {
             for(Path path:stream) {
                 require(seen.size()<FILES.size()+additional.size() && (FILES.contains(path.getFileName().toString())
                         || additional.contains(path.getFileName().toString())),"unknown allocator authority file");
-                if(additional.contains(path.getFileName().toString()) && Set.of(MembershipBasisSources.DIRECTORY,MembershipCurrentGeneration.DIRECTORY).contains(path.getFileName().toString())) {
+                if(additional.contains(path.getFileName().toString()) && Set.of(MembershipBasisSources.DIRECTORY,MembershipCurrentGeneration.DIRECTORY,MembershipFloorFiles.DIRECTORY).contains(path.getFileName().toString())) {
                     AdmissionPaths.safe(path);require(Files.isDirectory(path,LinkOption.NOFOLLOW_LINKS),"missing basis source directory");
                 } else AdmissionPaths.regular(path);
                 seen.add(path.getFileName().toString());
             }
         }
         require(seen.containsAll(Set.of("replica.lock","root.gsr","genesis.gsr","node.gsr",CURRENT)),"incomplete allocator authority");
-        var required=new HashSet<>(additional);required.remove(MembershipGenerationFiles.PENDING);
+        var required=new HashSet<>(additional);required.remove(MembershipGenerationFiles.PENDING);required.remove(MembershipFloorFiles.DIRECTORY);
         require(seen.containsAll(required),"incomplete grant authority");
     }
 

@@ -16,7 +16,8 @@ The public membership factory remains disabled throughout this storage entry bat
 | 2C2 — locally complete for selected install | [Selected local generation installation](PHASE_2_GENERATION_INSTALL.md): exact original decision, carried tail, ancestry, shared reservation and forced selector with interrupted recovery; remote historical ownership remains conditional |
 | 2C3a — locally complete for fence | [Certificate-derived adoption fence](PHASE_2_ADOPTION_FENCE.md): exact authenticated bound, forced null-BASIS promise and unchanged original sources; prefix installation still pending |
 | 2C3b — locally complete for adoption install | [Local prefix adoption](PHASE_2_ADOPTION_INSTALL.md): force certificate bound before exact candidate, preserve current/original ancestry and removal metadata, recover interrupted install and require a fresh new-view grant; no public runtime |
-| 2C4 | Governing floor/retirement recovery and bounded journal/source rotation; actual ACCEPT/PROOF/certificate persistence and complete application/catalog generation |
+| 2C4a — locally complete for one retained floor | [Governing floor copies](PHASE_2_GOVERNING_FLOOR.md): complete original copies and eligible exact local generation, old/joint/new majorities, shared reservation, force-before-publication and exact interrupted resumption; no deletion or rotation |
+| 2C4b | Governing retirement recovery and bounded floor/journal/source rotation; actual ACCEPT/PROOF/certificate persistence and complete application/catalog generation |
 | 2D | Complete offline provisioning/open, legacy rejection and configuration-aware storage qualification; real ownership observations replace synthetic inputs; physical S/N coverage and closure audit |
 
 The [2A storage foundation](PHASE_2_STORAGE_FOUNDATION.md) qualifies an isolated

@@ -149,6 +149,14 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         for(var image:packet.images().entrySet())images.put(image.getKey(),AdmissionPaths.read(path.resolve(image.getKey()+".image"),Math.toIntExact(image.getValue())));
         return images;
     }
+    void verifyParents(Collection<MembershipCapsule.Anchor> parents) throws IOException {
+        check();capsule.verifyAncestry(files.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0],parents);check();
+    }
+    Map<String,byte[]> copyFiles() throws IOException {
+        check();var result=new TreeMap<String,byte[]>();
+        for(var file:files.entrySet())result.put(file.getKey(),AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(file.getValue().bytes())));
+        result.put(MANIFEST,manifest.bytes());check();return result;
+    }
     Map<String,byte[]> images() throws IOException {check();var images=materialize(capsule.packet);capsule.packet.verifyImages(images);return images;}
     Optional<Owned> ownedTail() throws IOException {
         check();return accepted==null?Optional.empty():Optional.of(new Owned(identity.nodeId().value(),identity.storageId(),accepted,cutDigest(capsule.context.cut)));

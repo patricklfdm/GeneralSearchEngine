@@ -642,3 +642,31 @@ application/phased vote storage, governing floor/retirement, bounded rotation,
 offline initialization and integrated Phase 2 audit remain open. Development now
 continues with exact governing-copy floor admission and retirement recovery, under
 the existing local commit/no-push authorization.
+
+
+## 2026-10-22 — Phase 2C4a retained governing floor
+
+- Added explicit floor-capable storage open, complete original generation/image
+  copies, exact local ownership and governing old/joint/new quorum admission.
+- Preserves promises, selectors, generations and original grant sources. Complete
+  copies are forced before FLOOR; partial writes resume only the same proposal.
+  Existing floor replacement requires later bounded rotation. No deletion added.
+- Counts floor copies against the same six SOURCE/seven APPLICATION reservations.
+  Capacity failure occurs before persistent floor writes. Reopen verifies original
+  bytes, and later adoption/selection preserves the floor's proven parent.
+- **315 cases / 1260 fresh JVMs**, 14 original-first exact negatives and portable
+  replay PASS in 716.248 seconds. The process cuts cover the first
+  occurrence of each of 17 establishment boundaries at sizes 3/4/5 and old/joint/new
+  cuts. Historical membership force observations/application images remain fixtures.
+- Focused reactor **142 tests PASS**; final **15 floor tests PASS**, including two
+  additional lifecycle cases (144 distinct tests). **38 Python/build-contract
+  tests PASS**, both normal and optimized. Build-coordinate fixtures now follow
+  the earlier Phase 2 prerequisites as well as the floor additions.
+- [Scope and reproduction](PHASE_2_GOVERNING_FLOOR.md), [retained source/build/hash
+  index](phase2-evidence/governing-floor.json). Raw evidence remains under
+  `target/v53-phase2-floor/`; earlier draft and focused-test logs remain retained.
+
+Phase 2 and the pre-cloud checklist remain OPEN. Next work is forced retirement
+and interrupted deletion, followed by coordinated source/floor/journal lifetimes,
+actual phased vote/application storage and complete offline recovery. No push,
+remote CI, public runtime, cloud execution or V5.2 Runner change occurred.

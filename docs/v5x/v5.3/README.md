@@ -27,8 +27,10 @@ and the [promise/original-basis metadata journal](PHASE_2_GRANT_JOURNAL.md), now
 source decision across generation/selector writes and interrupted recovery. Its
 174-case local process gate passes. The [adoption fence](PHASE_2_ADOPTION_FENCE.md)
 now passes 66 cases. [Integrated local adoption](PHASE_2_ADOPTION_INSTALL.md) passes
-234 cases with forced prefix/selector recovery and obsolete-view refusal. Actual
-vote/application persistence and governing retirement remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
+234 cases with forced prefix/selector recovery and obsolete-view refusal.
+[One retained governing floor](PHASE_2_GOVERNING_FLOOR.md) now passes 315 cases,
+with complete original copies and old/joint/new majorities. Actual vote/application
+persistence, retirement deletion and bounded rotation remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
 expanded continuous local development scope.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
