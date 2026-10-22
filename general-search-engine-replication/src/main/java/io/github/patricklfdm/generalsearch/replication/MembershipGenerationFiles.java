@@ -8,7 +8,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 import static io.github.patricklfdm.generalsearch.replication.MembershipBasisSources.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** One bounded inactive generation, including interrupted exact writes. Never deletes an old generation. */
+/** One bounded inactive generation, including exact writes and explicitly authorized retirement. */
 final class MembershipGenerationFiles implements AutoCloseable {
     static final String PENDING="selector.pending.gsr";
     @FunctionalInterface interface Guard {void check() throws IOException;}
@@ -30,10 +30,13 @@ final class MembershipGenerationFiles implements AutoCloseable {
     boolean exists(){return exists;}
     boolean pending(){return pending!=null;}
     String slot(){return slot;}
-    boolean incompleteOrSelected(String selected) throws IOException {
+    boolean incompleteOrSelected(String selected,long currentIndex) throws IOException {
         if(!exists)return false;
         if(!files.containsKey(MembershipCurrentGeneration.MANIFEST))return true;
-        try{return selected!=null && selected.equals(decode(AdmissionPaths.read(path.resolve(MembershipCurrentGeneration.MANIFEST),65536),"records","GENERATION").value().get("selection"));}
+        try{
+            var value=decode(AdmissionPaths.read(path.resolve(MembershipCurrentGeneration.MANIFEST),65536),"records","GENERATION").value();
+            return selected!=null && selected.equals(value.get("selection")) && number(object(value.get("cut")).get("index"))>=currentIndex;
+        }
         catch(IllegalArgumentException error){return true;}
     }
     static long limit(String name) {
@@ -109,6 +112,35 @@ final class MembershipGenerationFiles implements AutoCloseable {
         Files.move(parent.resolve(PENDING),parent.resolve(MembershipCurrentGeneration.SELECTOR),StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);
         capture();cut.at("INSTALL_SELECTOR_RENAMED");owner.check();AdmissionPaths.forceDirectory(parent);cut.at("INSTALL_PARENT_FORCED");
         AdmissionPaths.exact(parent.resolve(MembershipCurrentGeneration.SELECTOR),plan.selector.bytes());check();
+    }
+    Map<String,byte[]> originalFiles() throws IOException {
+        check();require(exists && !pending(),"complete inactive generation required");var result=new TreeMap<String,byte[]>();
+        for(var file:files.entrySet())result.put(file.getKey(),AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(limit(file.getKey()))));
+        check();return result;
+    }
+    void forceOriginal(MembershipBallotAllocator.Cut cut) throws IOException {
+        check();for(String name:files.keySet())force(path.resolve(name));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(directory);
+        cut.at("RETIREMENT_OLD_FILES_FORCED");check();
+    }
+    void deleteAuthorized(Decoded retirement,Guard owner,MembershipBallotAllocator.Cut cut) throws IOException {
+        check();require(!pending(),"retirement cannot cross pending selector");var expected=new TreeMap<String,Map<String,Object>>();
+        String prefix="generations/"+slot+"/";
+        for(Object row:list(retirement.value().get("files"))) {
+            var file=object(row);String name=(String)file.get("path");require(name.startsWith(prefix),"retirement names active or unrelated path");
+            String member=name.substring(prefix.length());limit(member);require(expected.putIfAbsent(member,file)==null,"duplicate retirement path");
+        }
+        if(!exists)return;
+        require(expected.keySet().containsAll(files.keySet()),"retirement unlisted original file");
+        // All remaining bytes are checked before deleting any, not one file at a time only.
+        for(var file:files.entrySet()) {
+            var original=expected.get(file.getKey());require(file.getValue().bytes()==number(original.get("size")) && file.getValue().digest().equals(original.get("sha256")),"retirement original bytes changed");
+        }
+        owner.check();check();cut.at("RETIREMENT_DELETE_VALIDATED");owner.check();check();
+        for(String name:new TreeSet<>(files.keySet())) {
+            owner.check();check();Files.delete(path.resolve(name));capture();AdmissionPaths.forceDirectory(path);
+            cut.at("RETIREMENT_FILE_DELETED");owner.check();check();
+        }
+        owner.check();check();Files.delete(path);capture();AdmissionPaths.forceDirectory(directory);cut.at("RETIREMENT_DIRECTORY_DELETED");owner.check();check();close();
     }
     private static boolean prefix(byte[] actual,byte[] expected) {return actual.length<=expected.length && Arrays.equals(actual,Arrays.copyOf(expected,actual.length));}
     private void complete(Path file,byte[] bytes,String event,Guard owner,MembershipBallotAllocator.Cut cut) throws IOException {

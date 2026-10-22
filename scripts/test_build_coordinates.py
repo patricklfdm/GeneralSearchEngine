@@ -52,12 +52,12 @@ class BuildCoordinatesTest(unittest.TestCase):
         for worker in ('V53FormatWorker', 'V53FormatTest', 'V53ContextWorker', 'V53ContextFixture',
                        'V53DeclarationsTest', 'V53SourcePacketWorker', 'V53SourcePacketTest',
                        'V53SourcePacketTest$Fixture', 'V53CapsuleWorker', 'V53CapsuleFixture',
-                       'V53SelectionWorker', 'V53SelectionFixture', 'V53BallotAllocatorWorker', 'V53GrantJournalWorker', 'V53BasisSourcesWorker', 'V53CurrentGenerationWorker', 'V53CurrentGenerationFixture', 'V53DurableSelectionWorker', 'V53GenerationInstallWorker', 'V53GenerationInstallFixture', 'V53AdoptionFenceFixture', 'V53AdoptionFenceWorker', 'V53AdoptionInstallWorker', 'V53FloorWorker'):
+                       'V53SelectionWorker', 'V53SelectionFixture', 'V53BallotAllocatorWorker', 'V53GrantJournalWorker', 'V53BasisSourcesWorker', 'V53CurrentGenerationWorker', 'V53CurrentGenerationFixture', 'V53DurableSelectionWorker', 'V53GenerationInstallWorker', 'V53GenerationInstallFixture', 'V53AdoptionFenceFixture', 'V53AdoptionFenceWorker', 'V53AdoptionInstallWorker', 'V53FloorWorker', 'V53RetirementWorker'):
             files[ci_v51_bundle.CLASSES+'/io/github/patricklfdm/generalsearch/replication/'+worker+'.class']=b'class'
         files[ci_v51_bundle.CLASSES+'/replication/v53/byte-fixtures.json']=b'fixture'
         required=ci_v51_bundle.REQUIRED_SUITES | {'V52ReadTokenTest','V52PublicApiInventoryTest',
             'V51PublicApiInventoryTest','V53DeclarationsTest','V53PublicApiInventoryTest','V53FormatTest',
-            'V53ContextTest','V53ResourceTransferTest','V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest', 'V53GenerationInstallTest', 'V53AdoptionFenceTest', 'V53AdoptionInstallTest', 'V53FloorTest', 'V53FloorFilesTest'}
+            'V53ContextTest','V53ResourceTransferTest','V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest', 'V53GenerationInstallTest', 'V53AdoptionFenceTest', 'V53AdoptionInstallTest', 'V53FloorTest', 'V53FloorFilesTest', 'V53RetirementTest'}
         for name in required:
             files[ci_v51_bundle.REPORTS+'/TEST-'+name+'.xml']=f'<testsuite name="pkg.{name}" tests="1" failures="0" errors="0" skipped="0"/>'.encode()
         ci_v51_bundle.prerequisites(files,roots)

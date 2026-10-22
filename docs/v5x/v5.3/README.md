@@ -29,8 +29,9 @@ source decision across generation/selector writes and interrupted recovery. Its
 now passes 66 cases. [Integrated local adoption](PHASE_2_ADOPTION_INSTALL.md) passes
 234 cases with forced prefix/selector recovery and obsolete-view refusal.
 [One retained governing floor](PHASE_2_GOVERNING_FLOOR.md) now passes 315 cases,
-with complete original copies and old/joint/new majorities. Actual vote/application
-persistence, retirement deletion and bounded rotation remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
+with complete original copies and old/joint/new majorities. [Inactive-generation
+retirement](PHASE_2_RETIREMENT.md) passes 549 cases, including interrupted deletion
+and recovery. Actual vote/application persistence and bounded rotation remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
 expanded continuous local development scope.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated

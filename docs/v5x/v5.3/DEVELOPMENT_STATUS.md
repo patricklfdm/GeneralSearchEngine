@@ -670,3 +670,31 @@ Phase 2 and the pre-cloud checklist remain OPEN. Next work is forced retirement
 and interrupted deletion, followed by coordinated source/floor/journal lifetimes,
 actual phased vote/application storage and complete offline recovery. No push,
 remote CI, public runtime, cloud execution or V5.2 Runner change occurred.
+
+
+## 2026-10-22 — Phase 2C4b governing-floor retirement
+
+- Added explicit retirement-capable open and a forced exact inventory bound to
+  current root/owner/selector and the retained governing floor. A complete saved
+  original is forced before deletion; shared source/image limits still apply.
+- Delete only the approved inactive generation, then its saved copy; force each
+  deletion and clear retirement authority last. Partial deletion and another crash
+  during recovery retain the same original decision. Active generation, root
+  promises, original BASIS sources and floor copies remain unchanged.
+- Above-floor owned bytes need their exact forced active copy. Pending retirement
+  blocks authority mutations and slot reuse. An old floor cannot retire a newer
+  generation; source/floor/journal rotation remains a separate obligation.
+- Regressions found and corrected older-selected pending detection and the omitted
+  saved-copy deletion guard. Both negative reproductions remain retained. The
+  first smoke probe also retained its stale-JAR linkage failure; qualification ran
+  after the final reactor package completed.
+- **549 cases / 2214 fresh JVMs**, **18 exact negatives**, relocated replay
+  PASS in 1665.544 seconds. **155 Java tests** and **39 Python/build
+  tests** (also under `-O`) passed. [Scope/reproduction](PHASE_2_RETIREMENT.md),
+  [receipt index](phase2-evidence/retirement.json), raw data at
+  `target/v53-phase2-retirement/`.
+
+Phase 2 and pre-cloud closure remain OPEN. Next: bounded journal rotation,
+coordinated source/floor lifetimes, actual phased vote/application persistence and
+complete offline recovery. This batch changes no workflow, frozen format/resource
+bound, public runtime, cloud experiment or V5.2 Runner. Local commits only.

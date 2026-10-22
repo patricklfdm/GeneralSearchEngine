@@ -100,7 +100,9 @@ final class MembershipFloorFiles implements AutoCloseable {
     private Decoded bound(byte[] bytes) {
         var floor=decode(bytes,"records","FLOOR");require(floor.value().get("root").equals(root.manifestDigest()) && floor.value().get("node").equals(local.nodeId().value()),"retained floor root/owner");return floor;
     }
-    Optional<Decoded> read() throws IOException {
+    record Retained(Decoded floor,List<MembershipFloor.Copy> copies) {}
+    Optional<Decoded> read() throws IOException {return retained().map(Retained::floor);}
+    Optional<Retained> retained() throws IOException {
         check();if(!complete())return Optional.empty();var floor=bound(AdmissionPaths.read(path.resolve(FLOOR),16384));
         var copies=new ArrayList<MembershipFloor.Copy>();var expected=new TreeSet<String>(Set.of(PROPOSAL,FLOOR));
         var rootBytes=decode(AdmissionPaths.read(parent.resolve("root.gsr"),16384),"records","ROOT");MembershipFloor.Copy own=null;
@@ -119,7 +121,7 @@ final class MembershipFloorFiles implements AutoCloseable {
             require(copy.reference().equals(ref),"retained floor source binding");copies.add(copy);if(voter.equals(local.nodeId().value()))own=copy;
         }
         require(expected.equals(files.keySet()) && directories.size()==copies.size() && own!=null,"retained floor inventory/owner");
-        MembershipFloor.verify(floor,root,own,copies);check();return Optional.of(floor);
+        MembershipFloor.verify(floor,root,own,copies);check();return Optional.of(new Retained(floor,List.copyOf(copies)));
     }
     Decoded establish(MembershipFloor.Copy current,List<MembershipFloor.Copy> offered,
             MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut) throws IOException {
