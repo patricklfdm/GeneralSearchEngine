@@ -73,6 +73,10 @@ final class MembershipBallotAllocator implements AutoCloseable {
         return open(requested,root,identity,cut,Set.of("grants.gsr",MembershipBasisSources.DIRECTORY,
                 MembershipCurrentGeneration.DIRECTORY,MembershipCurrentGeneration.SELECTOR));
     }
+    static MembershipBallotAllocator openWithGenerationInstall(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut) throws IOException {
+        return open(requested,root,identity,cut,Set.of("grants.gsr",MembershipBasisSources.DIRECTORY,
+                MembershipCurrentGeneration.DIRECTORY,MembershipCurrentGeneration.SELECTOR,MembershipGenerationFiles.PENDING));
+    }
 
     private static MembershipBallotAllocator open(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut, Set<String> additional) throws IOException {
         Objects.requireNonNull(root); Objects.requireNonNull(identity); Objects.requireNonNull(cut);
@@ -108,7 +112,8 @@ final class MembershipBallotAllocator implements AutoCloseable {
             }
         }
         require(seen.containsAll(Set.of("replica.lock","root.gsr","genesis.gsr","node.gsr",CURRENT)),"incomplete allocator authority");
-        require(seen.containsAll(additional),"incomplete grant authority");
+        var required=new HashSet<>(additional);required.remove(MembershipGenerationFiles.PENDING);
+        require(seen.containsAll(required),"incomplete grant authority");
     }
 
     private long decodeCounter(byte[] bytes) {

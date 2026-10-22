@@ -1,0 +1,147 @@
+{
+  "cases": 174,
+  "classes": {
+    "V53BallotAllocatorWorker.class": "21b43bdda3bd5d2b1bab4f6c43bf65a5f88b3ff664fa8b77633250420a6b26a4",
+    "V53CapsuleFixture.class": "261fe862031793f9c1b6b94b57fcb56838bffc5a9cf8e5089b18951fc36461d7",
+    "V53ContextFixture.class": "f67122ee25080457207f2abc741a9b401449aaa2deb8f3b4b398dbbc10ac1bef",
+    "V53CurrentGenerationFixture.class": "8a024d4aac913adbbf867d6693c2771288932d14a9139b6a106294ecd8232abd",
+    "V53DeclarationsTest.class": "33e7524dc32775d8136860161ddd75d2ec05e82f3e8e50a4af0e944bf8f061e2",
+    "V53GenerationInstallFixture.class": "69b122a9d92348f90758dedde470bbdd75ccf1009e187167651a89bfa344dd51",
+    "V53GenerationInstallWorker.class": "5ed1f9903d3f1cd7008a714ea34d01b6fc3086593308ff6b8c2ce55f44a96b25",
+    "V53SelectionFixture.class": "746d0b7ee923e3207eb5c438ab187bbb33f20234b6331116674c34252c3b4f03"
+  },
+  "developmentCorrections": [
+    "A red regression reproduced selector publication before authenticated candidate verification; candidate semantics and ancestry now validate before staging.",
+    "The new capacity test initially expected a generic capacity string; it now asserts the actual resource ownership/count refusal and no new directory.",
+    "Two qualification prechecks refused an old JAR timestamp after a Java comment edit; the old JAR was retained and packaging recreated it without rerunning successful Java tests.",
+    "The first full matrix stopped on a JVM hsperfdata warning caused by concurrent PID namespaces sharing /tmp. The probe now disables optional JVM perfdata, retains strict JSON output checks, and the full corrected matrix ran in a new directory."
+  ],
+  "documentationContract": {
+    "byteFixtures": 45,
+    "commandFixtures": 9,
+    "localLinks": 286,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "elapsedSeconds": 433.547,
+  "evidenceInventoriesVerified": true,
+  "execution": "private-generation-install",
+  "focusedPythonTests": 65,
+  "freshProcesses": 696,
+  "implementationFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "92048062ac98fcd62c36d396f6352d0adf6a93985917b52844cf42246c80d73b",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java": "e84ed2d24c31cacad718aba078a99900175db951ecad5a68ab154f21c0d9ee18",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java": "f82126650bed7ad31fedb58edd687d7055f288c98a4fea9a25891435a1f061e9",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationFiles.java": "463ff98ae39b03c01a5dc055e70f3c75da3753bcbce76874d3b5550acd0fe9ec",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java": "4955feac42b5fdc93aca428fa3b88b5e285790586915dceddf9b62ae88369983",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "fc7b2d7bb089290eab81d865e5901af337605855869733755e6d85373684c41b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationInstallFixture.java": "61f12efa99ab791f81c51d51370012936282a8833b656318b4601fee9b6d09ca",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationInstallTest.java": "ce9adf8c27d0d4fced25b9fd094b1531b843c2dc0695e062e315da1f178ed042",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationInstallWorker.java": "d9671dd526d2dcde9ff855192f86fca5af30c77aca2831a1de0669f7d807b375",
+    "scripts/ci_v51_bundle.py": "1558a901179cd2dc713667286d1c2f15e99d491259bddf8fb7467c2cdc6de48f",
+    "scripts/test_ci_v51_bundle.py": "5374b85972dc26c6525b7b42db9443fcb7017e404d045c56ed4eec9f86fe832a",
+    "scripts/v53/generation_install_evidence.py": "c6d8090f3caba716360e508639e0ca7e2dcfad4e18a6f58465594a0988036b03",
+    "scripts/v53/generation_install_negatives.py": "7eecc8a257a0de302af3c8fa7622953677b6ede11691fd088a00cd9a8d1ee9b6",
+    "scripts/v53/generation_install_qualification.py": "d76be3d62281cdbd0ef28d29d699d0f19aaa60f44a939d53c2f5b8a4aec86989",
+    "scripts/v53/test_generation_install_evidence.py": "28cad64ac375d7dd0b5383d0eb88152fbc2f3157d12f843b7bc91442fa838a4b"
+  },
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "ff40d3b80517184dec6573adad64a66efb69f3a58dfe4b9b5b68146ad885d52d",
+      "size": 785222
+    }
+  ],
+  "javaTests": 109,
+  "limitations": [
+    "Only a private local installation receipt is qualified, not a network installation ACK or READY.",
+    "Remote historical ownership remains conditional input. Physical old/joint/new authority, real application mutation and complete storage integration remain required.",
+    "Two generations are retained; no deletion, governing-floor retirement, journal rotation, cross-view adoption or public bootstrap is provided by this batch.",
+    "Crash hooks cover the first member/image occurrence in each sorted transaction, not every possible per-file interruption or power loss.",
+    "The old capture/selection regressions bind the same Java implementation before the optional-perfdata change in the new Python driver. Final documentation/hash reporting follows qualification."
+  ],
+  "localEvidence": "target/v53-phase2-generation-install",
+  "logs": {
+    "contract-final.log": "46efb258ceed3fedacee1c326f3ac8efdb5bd32e03d5acc2937966a3da8cebf7",
+    "python-final-v2.log": "cb9449f5acd2f97dea5450055b67059036a2553a2250583357884d4efd1af2fe",
+    "python-final.log": "e9c0e58c210708748babbd3fb9193f301a6c9bf7331c7b66e7d5e97ca7147442",
+    "python-optimized-v2.log": "bae3762a26863a2fcf846097bc165154afc95bc408ef2cce8911052337c71dac",
+    "python-optimized.log": "382cb21daa961779c643edd074533e7db6408c2c2b0da6c64700a461f3bed68b",
+    "python-tools.log": "a2b6fbf052280aecc97fe62dcd71e13a5a68e1532649e33b75e97713133b15cd",
+    "qualification-final.log": "c401c943067f87aba674b5e71bf00ca2ae754ecaf672a7486b77751260f8d248",
+    "qualification-v3.log": "15eeb4514ce3ead8ac67aa8fcdf357c2d36d4ea4d9670816fac91391b07b6706",
+    "qualification-v4.log": "fe165bd79cc0765758ae5dfc961c61b07f59d047b95ac17f2c8f70923abdc932",
+    "qualification.log": "c401c943067f87aba674b5e71bf00ca2ae754ecaf672a7486b77751260f8d248",
+    "reactor-complete.log": "f1f0fe02fc275058ec14a447a5181a3d651d09b5874455a17c7d7042890ce02b",
+    "reactor-final.log": "535d34e7456a426b12e047fbc355013004ed4f65d8e4dca0024720ecb311f62c",
+    "reactor-initial.log": "ad091aa44aaa3c4bc94cde89269b38cf290c730ff72500e6d30c9ad92b1d38dd",
+    "reactor-verified.log": "2f26ce8dcc31bc8f1ae3f186bac0b0f3cb302a40fc4a02d490854c7b983941f6",
+    "regressions-final.log": "bd9f31cfbf9632f6f13131359764d4bcbc923a7e0fdb60cfc30334bb578ea3ee",
+    "regressions-v3.log": "888e020a18580bce31169dc798b0c31d741c3a4263d1a324debddf25fcd8d151",
+    "regressions.log": "bd9f31cfbf9632f6f13131359764d4bcbc923a7e0fdb60cfc30334bb578ea3ee",
+    "repackage-fresh.log": "d4920f031d323357248833ec52737e2add2dea8be74c70657acb9f75eff97d86",
+    "repackage.log": "8f62b7d0549f151df0c5375e6bc675d3d258ab754d9f6e813031531e695c15ad",
+    "verify-before-publication-red.log": "a2b4d30e9d38256986e1321de11404525782bc9703b0c1ad5dac76c46922f951"
+  },
+  "negativeCases": 12,
+  "networkAck": false,
+  "optimizedPythonTests": 49,
+  "powerLossTested": false,
+  "publicBootstrap": false,
+  "rawReceiptSha256": "cb600910573fde0def384a02b5c9ec3ade54335cd31d7374f8ce9c6fe9bc4120",
+  "regressions": {
+    "current-regression-v3": {
+      "cases": 90,
+      "elapsedSeconds": 162.516,
+      "negativeCases": 13,
+      "receiptSha256": "adc0e714fc5ab4ca46845b8247063f08e79d5f6c12c5506af836546b144cb22f",
+      "relocatedReplay": "PASS",
+      "source": {
+        "checkoutSha256": "5b9e19d4e2720ce4139333cfd72968a20669561815548516f74d4ef7a1bc574a",
+        "java": {
+          "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+          "java.vendor": "Ubuntu"
+        },
+        "source": "ba0818fc5d5c73a96e0ea872027cdb03bae5a4e6"
+      },
+      "status": "PASS"
+    },
+    "selection-regression-v3": {
+      "cases": 54,
+      "elapsedSeconds": 174.115,
+      "negativeCases": 11,
+      "receiptSha256": "e0d64754ddb41ea6f1a89a5b577f9ef1690af5dfb948f930d3b7875e056b9ecb",
+      "relocatedReplay": "PASS",
+      "source": {
+        "checkoutSha256": "5b9e19d4e2720ce4139333cfd72968a20669561815548516f74d4ef7a1bc574a",
+        "java": {
+          "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+          "java.vendor": "Ubuntu"
+        },
+        "source": "ba0818fc5d5c73a96e0ea872027cdb03bae5a4e6"
+      },
+      "status": "PASS"
+    }
+  },
+  "relocatedReplay": "PASS",
+  "remoteOwnershipVerified": false,
+  "runtimeEnabled": false,
+  "schema": "gse-v53-generation-install-qualification-v1",
+  "source": {
+    "checkoutSha256": "4c2165bb454d5178ab844d10b1c413d780dc106a14db7c598b20f9b6b242b64b",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "ba0818fc5d5c73a96e0ea872027cdb03bae5a4e6"
+  },
+  "status": "PASS"
+}

@@ -9,8 +9,8 @@ cloud operation is authorized by that instruction. This checklist expands the
 | --- | --- |
 | Exclusive 1.3 root/node owner and separately forced ballot allocation | Local component gates pass; complete-store open/provisioning integration still required |
 | Forced root-wide PROMISE and immutable original BASIS/source | Local metadata, source and current-generation capture gates pass; adoption and lifetime integration still required |
-| One durable selected set per ballot | [2C1 gate](PHASE_2_DURABLE_SELECTION.md) passes; selected materialization/ACK remains pending |
-| Selected-source generation installation | PENDING: retain exact original references/parent/tail, reserve shared resources, force complete generation and selector under the same writer; recover interruptions without same-ballot reselection |
+| One durable selected set per ballot | [2C1 gate](PHASE_2_DURABLE_SELECTION.md) and local selected materialization pass; network installation ACK remains later protocol work |
+| Selected-source generation installation | [2C2 gate](PHASE_2_GENERATION_INSTALL.md) passes for local exact references/parent/tail, shared reservations, forced selector and interrupted recovery; integrated cross-view and real remote ownership qualification remain pending |
 | Adoption and configuration-aware prefix recovery | PENDING: certificate-derived promise floor, ancestry across old/joint/new cuts, no old-ballot vote/READY after adoption; retain removal authority and reject missing/ambiguous state |
 | ACCEPT/PROOF/certificate and complete catalog/application persistence | PENDING: exact phased records and real ownership observations, duplicate/conflict/fencing checks, original carried entries, stable next-slot progression and immutable application bytes |
 | Checkpoint, governing-quorum floor and retirement | PENDING: actual exact floor copies under the cut's next authority, forced retirement inventory before deletion, retain above-floor owned tails and resume interrupted deletion without selecting stale authority |

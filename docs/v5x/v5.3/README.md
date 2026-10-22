@@ -23,8 +23,11 @@ and the [promise/original-basis metadata journal](PHASE_2_GRANT_JOURNAL.md), now
 [physical original-source retention](PHASE_2_BASIS_SOURCES.md) and
 [current local generation capture](PHASE_2_CURRENT_GENERATION.md), followed by
 [durable original selection](PHASE_2_DURABLE_SELECTION.md).
-Generation installation/switching, complete recovery and remote ownership verification
-remain pending.
+[Selected local installation](PHASE_2_GENERATION_INSTALL.md) now preserves the original
+source decision across generation/selector writes and interrupted recovery. Its
+174-case local process gate passes; adoption, vote persistence and retirement
+remain open.
+
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.
 

@@ -9,7 +9,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipBasisSou
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
 /** Selected, immutable local generation. Historical remote force evidence remains a separate verifier input.
- * Installation/retirement is deliberately unavailable until the selected-source transaction exists. */
+ * The journal owns installation transactions; this reader never selects or retires a generation. */
 final class MembershipCurrentGeneration implements AutoCloseable {
     static final String DIRECTORY="generations", SELECTOR="selector.gsr", MANIFEST="generation.gsr";
     @FunctionalInterface interface Verifier {
@@ -21,30 +21,37 @@ final class MembershipCurrentGeneration implements AutoCloseable {
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
     private final FileIdentity selectorIdentity,manifestIdentity;
     private final MembershipIdentity identity;
+    private final boolean installations;
     final MembershipCapsule capsule;
     final String accepted;
     final String generation;
+    final Decoded selector,manifest;
 
     MembershipCurrentGeneration(Path parent,MembershipRoot root,MembershipIdentity identity,MembershipResources resources,
             Collection<Decoded> promises,Collection<Decoded> bases,Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
-        this.parent=parent;this.identity=identity;directory=parent.resolve(DIRECTORY);directoryKey=key(directory);
-        byte[] selectorBytes=AdmissionPaths.read(parent.resolve(SELECTOR),4096);var selector=decode(selectorBytes,"records","SELECTOR");
+        this(parent,root,identity,resources,promises,bases,List.of(),verifier,cut,false);
+    }
+    MembershipCurrentGeneration(Path parent,MembershipRoot root,MembershipIdentity identity,MembershipResources resources,
+            Collection<Decoded> promises,Collection<Decoded> bases,Collection<Decoded> selections,Verifier verifier,MembershipBallotAllocator.Cut cut,boolean installations) throws IOException {
+        this.parent=parent;this.identity=identity;this.installations=installations;directory=parent.resolve(DIRECTORY);directoryKey=key(directory);
+        byte[] selectorBytes=AdmissionPaths.read(parent.resolve(SELECTOR),4096);selector=decode(selectorBytes,"records","SELECTOR");
         bind(selector,root,identity);generation=(String)selector.value().get("generation");path=directory.resolve(generation);
-        require(children(directory,2).equals(Set.of(generation)),"current generation requires sole selected inventory");pathKey=key(path);
-        byte[] manifestBytes=AdmissionPaths.read(path.resolve(MANIFEST),65536);var manifest=decode(manifestBytes,"records","GENERATION");
+        require(installations?Set.of("a","b").containsAll(children(directory,2)):children(directory,2).equals(Set.of(generation)),"current generation requires sole selected inventory");pathKey=key(path);
+        byte[] manifestBytes=AdmissionPaths.read(path.resolve(MANIFEST),65536);manifest=decode(manifestBytes,"records","GENERATION");
         bind(manifest,root,identity);var value=manifest.value();
         require(selector.value().get("digest").equals(manifest.digest()) && value.get("generation").equals(generation),"current selector/manifest binding");
-        require(value.get("basis")==null && value.get("selection")==null,"selected installation records require Phase 2C");
+        require(value.get("basis")==null && value.get("selection")==null || installations && value.get("basis")!=null && value.get("selection")!=null,"selected installation records require Phase 2C");
         selectorIdentity=inspect(parent.resolve(SELECTOR),selectorBytes.length,selector.digest());
         manifestIdentity=inspect(path.resolve(MANIFEST),manifestBytes.length,manifest.digest());
         var inventory=new TreeMap<String,Map<String,Object>>();long metadata=manifestBytes.length;
         String previous=null;
         for(Object row:list(value.get("files"))) {
             var file=object(row);String name=(String)file.get("path");
-            require(name.equals(PACKET) || name.equals("promise.gsr") || name.equals("owned-tail.gsr") || name.matches("[0-9a-f]{64}\\.image"),"current file path");
+            require(name.equals(PACKET) || name.equals("promise.gsr") || name.equals("owned-tail.gsr") || name.matches("[0-9a-f]{64}\\.image")
+                    || installations && Set.of("basis.gsr","selected.gsr","ancestry.gsr").contains(name),"current file path");
             require(previous==null || previous.compareTo(name)<0,"current file inventory order");previous=name;inventory.put(name,file);
             long size=number(file.get("size"));long maximum=name.endsWith(".image")?MembershipResources.Unit.APPLICATION.bytes:
-                    name.equals(PACKET)?MembershipSourcePacket.MAXIMUM:8192;
+                    name.equals(PACKET)?MembershipSourcePacket.MAXIMUM:name.equals("ancestry.gsr")?96*1024:name.equals("selected.gsr")?65536:name.equals("basis.gsr")?16384:8192;
             require(size>0 && size<=maximum,"current file capacity");
             if(!name.endsWith(".image")){require(size<=MembershipResources.Unit.GENERATION.bytes-metadata,"complete generation metadata capacity");metadata+=size;}
         }
@@ -64,6 +71,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             for(String field:List.of("root","cut","catalog","application"))require(value.get(field).equals(packet.capsule().value().get(field)),"current capsule binding: "+field);
             require(value.get("capsule").equals(packet.capsule().digest()),"current capsule digest");
             var names=new TreeSet<>(Set.of(PACKET,"promise.gsr"));packet.images().keySet().forEach(h->names.add(h+".image"));
+            if(value.get("selection")!=null){names.add("basis.gsr");names.add("selected.gsr");if(inventory.containsKey("ancestry.gsr"))names.add("ancestry.gsr");}
             accepted=(String)value.get("ownedTail");if(accepted!=null)names.add("owned-tail.gsr");
             require(names.equals(inventory.keySet()),"current materialization inventory");
             for(var image:packet.images().entrySet()) {
@@ -77,8 +85,21 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             require(identity.equals(capsule.context.identities.get(identity.nodeId().value())) && capsule.context.voters().contains(identity.nodeId().value()),"current local eligible identity");
             require(promise.value().get("view").equals(capsule.context.authority()),"current promise view");
             capsule.context.ballot(promise.value().get("ballot"),true);
-            // This entry cannot install another prefix. A later transaction must validate ancestry/adoption before switching.
-            for(var basis:bases)require(basis.value().get("cut").equals(capsule.context.cut),"current generation differs from retained grant cut");
+            Decoded installed=null;
+            if(value.get("selection")!=null) {
+                var basis=decode(AdmissionPaths.read(path.resolve("basis.gsr"),16384),"records","BASIS");
+                installed=decode(AdmissionPaths.read(path.resolve("selected.gsr"),65536),"records","SELECTED");var selectedBytes=installed.bytes();
+                require(basis.digest().equals(value.get("basis")) && bases.stream().anyMatch(b->Arrays.equals(b.bytes(),basis.bytes())),"installed original basis absent from journal");
+                require(installed.digest().equals(value.get("selection")) && selections.stream().anyMatch(s->Arrays.equals(s.bytes(),selectedBytes)),"installed selection absent from journal");
+                for(String field:List.of("root","view","ballot"))require(installed.value().get(field).equals(promise.value().get(field)),"installed selection promise binding");
+                require(basis.value().get("basisId").equals(promise.value().get("basisId")) && installed.value().get("cut").equals(capsule.context.cut),"installed selection parent");
+                var ancestors=new ArrayList<MembershipCapsule.Anchor>();
+                for(var original:bases) {
+                    var retained=MembershipSourcePacket.decode(AdmissionPaths.read(parent.resolve("sources").resolve((String)original.value().get("basisId")).resolve(PACKET),MembershipSourcePacket.MAXIMUM));
+                    retained.bind(original);var cap=retained.capsule().value();ancestors.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
+                }
+                capsule.verifyAncestry(inventory.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0],ancestors);
+            }else for(var basis:bases)require(basis.value().get("cut").equals(capsule.context.cut),"current generation differs from retained grant cut");
             if(accepted!=null) {
                 var tail=decode(AdmissionPaths.read(path.resolve("owned-tail.gsr"),8192),"records","ACCEPT");
                 require(tail.digest().equals(accepted) && Arrays.equals(tail.bytes(),packet.objectBytes(accepted)),"current owned tail copy");
@@ -88,7 +109,9 @@ final class MembershipCurrentGeneration implements AutoCloseable {
                 var entry=capsule.context.record((String)tail.value().get("entry"),"ENTRY");
                 capsule.context.ballot(tail.value().get("ballot"),true);capsule.context.ballot(entry.value().get("origin"),true);
                 capsule.context.control((String)entry.value().get("kind"),command((String)entry.value().get("kind"),packet.objectBytes((String)entry.value().get("payload"))));
+                if(installed!=null)require(entry.digest().equals(installed.value().get("nextEntry")),"installed tail differs from selected choice");
             }
+            if(installed!=null && accepted==null)require(installed.value().get("nextEntry")==null,"installed selected tail missing");
             check();cut.at("CURRENT_VALIDATED");
             for(String name:files.keySet())force(path.resolve(name));cut.at("CURRENT_FILES_FORCED");
             force(path.resolve(MANIFEST));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(directory);cut.at("CURRENT_GENERATION_FORCED");
@@ -100,7 +123,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         require(frame.value().get("root").equals(root.manifestDigest()) && frame.value().get("node").equals(identity.nodeId().value()),"current root/node binding");
     }
     void check() throws IOException {
-        require(directoryKey.equals(key(directory)) && pathKey.equals(key(path)) && children(directory,2).equals(Set.of(generation)),"current directory changed");
+        require(directoryKey.equals(key(directory)) && pathKey.equals(key(path)) && (installations?Set.of("a","b").containsAll(children(directory,2)):children(directory,2).equals(Set.of(generation))),"current directory changed");
         var expected=new TreeSet<>(files.keySet());expected.add(MANIFEST);require(children(path,32).equals(expected),"current file inventory");
         checkFile(parent.resolve(SELECTOR),selectorIdentity);checkFile(path.resolve(MANIFEST),manifestIdentity);
         for(var file:files.entrySet())checkFile(path.resolve(file.getKey()),file.getValue());

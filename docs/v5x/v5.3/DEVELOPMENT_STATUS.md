@@ -574,3 +574,28 @@ all remaining installation/adoption/proof/floor/retirement/rotation/provisioning
 and physical audit obligations. Phase 2 is **OPEN**; remote ownership is still
 conditional, and full S/N runtime qualification remains pending. No push, workflow,
 POM, frozen format, inherited runtime or V5.2 cloud action occurred.
+
+
+## 2026-10-22 — Phase 2C2 selected local generation installation
+
+Completed the private [installation transaction](PHASE_2_GENERATION_INSTALL.md)
+under the existing exclusive journal owner. The immutable source decision now
+materializes into the inactive slot, retaining its original parent/catalog/image,
+exact carried tail and required authenticated ancestry. Semantic validation and
+shared reservations precede staging; file/directory/selector forces precede the
+local receipt. Interrupted exact prefixes resume only the same plan. Reopen seals
+the selected generation and a subsequent grant captures its new state. Both old
+and new generations remain retained pending governing-floor retirement.
+
+The final gate passed 174 cases / 696 fresh JVMs, 12 exact-reason negatives and
+portable replay. Existing capture and selection regressions passed 90 and 54
+cases respectively. All 109 focused Java tests, 65 Python/build-contract tests
+and 49 optimized-Python tests passed. The [hash index](phase2-evidence/generation-install.json)
+retains the source/build and original failure provenance.
+
+This is a local installation receipt, not an authenticated network ACK or READY.
+Remote historical force observations are still conditional fixtures. Cross-view
+adoption, real ACCEPT/PROOF/certificate and application persistence, floor and
+retirement, journal rotation, complete offline initialization and the integrated
+physical closure audit remain required. Phase 2 remains **OPEN**; local development
+and per-batch commits continue without push or V5.2 cloud operations.

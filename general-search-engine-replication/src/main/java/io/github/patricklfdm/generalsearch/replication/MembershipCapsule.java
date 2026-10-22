@@ -12,8 +12,9 @@ final class MembershipCapsule {
     record Anchor(Map<String,Object> cut,String catalog,String application) {}
     private final Map<Long,Map<String,Object>> anchors;
     private final Map<Long,Anchor> states;
-    private MembershipCapsule(MembershipContext context,MembershipSourcePacket packet,Map<Long,Map<String,Object>> anchors,Map<Long,Anchor> states) {
-        this.context=context;this.packet=packet;this.anchors=Map.copyOf(anchors);this.states=Map.copyOf(states);
+    private final Set<Owned> observations;
+    private MembershipCapsule(MembershipContext context,MembershipSourcePacket packet,Map<Long,Map<String,Object>> anchors,Map<Long,Anchor> states,Set<Owned> observations) {
+        this.context=context;this.packet=packet;this.anchors=Map.copyOf(anchors);this.states=Map.copyOf(states);this.observations=Set.copyOf(observations);
     }
     boolean containsCut(Map<String,Object> cut) {return cut.equals(anchors.get(number(cut.get("index"))));}
     Map<Long,Map<String,Object>> anchors() {return anchors;}
@@ -73,7 +74,36 @@ final class MembershipCapsule {
         }
         require(list(capsule.get("items")).size()<=3*changes+1,"capsule logical item bound");
         require(at.equals(currentCut) && catalog.equals(capsule.get("catalog")) && application.equals(capsule.get("application")),"capsule terminal state");
-        return new MembershipCapsule(context,packet,anchors,states);
+        return new MembershipCapsule(context,packet,anchors,states,owned);
+    }
+    void verifyAncestry(byte[] bytes,Collection<Anchor> required) {
+        require(bytes.length<=96*1024,"generation ancestry capacity");var bridges=new ArrayList<MembershipSelection.Bridge>();
+        Decoded statement=null;var acks=new ArrayList<Decoded>();int offset=0;
+        while(offset<bytes.length) {
+            require(bytes.length-offset>=HEADER,"torn generation ancestry");var header=Arrays.copyOfRange(bytes,offset,offset+HEADER);
+            int kind=java.nio.ByteBuffer.wrap(header).getShort(8);require(kind==12 || kind==13,"generation ancestry record kind");
+            String name=kind==12?"CHECKPOINT":"CHECKPOINT_ACK";int length=HEADER+header(header,"records",name);
+            require(length<=bytes.length-offset,"torn generation ancestry");var frame=decode(Arrays.copyOfRange(bytes,offset,offset+length),"records",name);offset+=length;
+            if(kind==12) {
+                if(statement!=null)bridges.add(ancestryBridge(statement,acks));
+                statement=frame;acks=new ArrayList<>();require(bridges.size()<6,"generation ancestry count");
+            }else {require(statement!=null && acks.size()<6,"orphan/excess ancestry ACK");acks.add(frame);}
+        }
+        if(statement!=null)bridges.add(ancestryBridge(statement,acks));
+        var lower=new HashMap<Map<String,Object>,Anchor>();
+        for(var bridge:bridges) {
+            var value=bridge.statement.value();var anchor=new Anchor(object(value.get("start")),(String)value.get("catalogBefore"),(String)value.get("applicationBefore"));
+            require(lower.putIfAbsent(anchor.cut(),anchor)==null,"duplicate generation ancestry");bridge.verify(this,anchor);
+        }
+        for(var anchor:required) {
+            var direct=anchor(number(anchor.cut().get("index")));
+            require(direct==null?anchor.equals(lower.get(anchor.cut())):anchor.equals(direct),"generation did not preserve original proven parent");
+        }
+    }
+    private MembershipSelection.Bridge ancestryBridge(Decoded statement,List<Decoded> acknowledgements) {
+        var digests=new HashSet<String>();acknowledgements.forEach(ack->digests.add(ack.digest()));
+        var owned=new HashSet<Owned>();for(var observation:observations)if(digests.contains(observation.record()))owned.add(observation);
+        return new MembershipSelection.Bridge(statement,acknowledgements,owned);
     }
     static Map<String,Object> initialCatalog(Decoded root,Map<String,Object> genesis) {
         var names=list(root.value().get("initial")).stream().map(MembershipFormat::object).map(v->(String)v.get("node")).toList();

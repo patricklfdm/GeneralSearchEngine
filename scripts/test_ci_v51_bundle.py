@@ -156,12 +156,12 @@ class BundleTest(unittest.TestCase):
         files = {str(p.relative_to(self.root)): p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
         for name in roots[:2]: files[name] = b'v53 jar fixture'
         added = ('V52ReadTokenTest', 'V52PublicApiInventoryTest', 'V51PublicApiInventoryTest',
-                 'V53DeclarationsTest', 'V53PublicApiInventoryTest', 'V53FormatTest', 'V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest')
+                 'V53DeclarationsTest', 'V53PublicApiInventoryTest', 'V53FormatTest', 'V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest', 'V53GenerationInstallTest')
         fixture_paths = [b.CLASSES+'/io/github/patricklfdm/generalsearch/replication/'+name+'.class'
                          for name in ('V53FormatWorker', 'V53FormatTest', 'V53ContextWorker', 'V53ContextFixture',
                        'V53DeclarationsTest', 'V53SourcePacketWorker', 'V53SourcePacketTest',
                        'V53SourcePacketTest$Fixture', 'V53CapsuleWorker', 'V53CapsuleFixture',
-                       'V53SelectionWorker', 'V53SelectionFixture', 'V53BallotAllocatorWorker', 'V53GrantJournalWorker', 'V53BasisSourcesWorker', 'V53CurrentGenerationWorker', 'V53CurrentGenerationFixture', 'V53DurableSelectionWorker')]
+                       'V53SelectionWorker', 'V53SelectionFixture', 'V53BallotAllocatorWorker', 'V53GrantJournalWorker', 'V53BasisSourcesWorker', 'V53CurrentGenerationWorker', 'V53CurrentGenerationFixture', 'V53DurableSelectionWorker', 'V53GenerationInstallWorker', 'V53GenerationInstallFixture')]
         fixture_paths.append(b.CLASSES+'/replication/v53/byte-fixtures.json')
         for path in fixture_paths: files[path] = b'fixture'
         for name in added:
@@ -174,7 +174,7 @@ class BundleTest(unittest.TestCase):
             path = b.REPORTS+'/TEST-package.'+name+'.xml'
             with self.assertRaisesRegex(ValueError, 'missing executed'):
                 b.prerequisites({p: data for p, data in files.items() if p != path}, roots)
-        for name in ('V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest'):
+        for name in ('V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest', 'V53GenerationInstallTest'):
             bad = dict(files); path = b.REPORTS+'/TEST-package.'+name+'.xml'
             bad[path] = bad[path].replace(b'skipped="0"', b'skipped="1"')
             with self.assertRaisesRegex(ValueError, 'skipped prerequisite'): b.prerequisites(bad, roots)

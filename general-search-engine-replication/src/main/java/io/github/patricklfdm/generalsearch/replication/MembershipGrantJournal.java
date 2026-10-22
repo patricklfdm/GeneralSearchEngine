@@ -26,9 +26,12 @@ final class MembershipGrantJournal implements AutoCloseable {
     private byte[] journal;
     private Decoded promise,basis,selection;
     private final Map<String,Decoded> promises=new TreeMap<>(), bases=new TreeMap<>();
+    private final Map<String,Decoded> selections=new TreeMap<>();
     private MembershipBasisSources sources;
     private MembershipCurrentGeneration current;
     private MembershipCurrentGeneration.Verifier capsuleVerifier;
+    private MembershipGenerationFiles inactive;
+    private MembershipResources resources;
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -85,15 +88,35 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
     }
 
+    static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
+        Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
+        var owner=MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
+        try {
+            journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);journal.resources=resources;journal.capsuleVerifier=verifier;
+            journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);
+            journal.reloadGenerations();journal.checkOwner();return journal;
+        }catch(IOException | RuntimeException | Error error){try{if(journal==null)owner.close();else journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
+    }
+    private void reloadGenerations() throws IOException {
+        if(current!=null)current.close();if(inactive!=null)inactive.close();
+        current=new MembershipCurrentGeneration(directory,root,identity,resources,promises.values(),bases.values(),selections.values(),capsuleVerifier,cut,true);
+        inactive=new MembershipGenerationFiles(directory,current.generation,resources);
+    }
+
     private Object key() throws IOException {
         Object key=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).fileKey();
         require(key!=null,"grant file identity unavailable");return key;
     }
     private void live() {require(!closed && !failed,"grant journal closed or failed");}
-    private void checkOwner() throws IOException {
+    private void checkBaseOwner() throws IOException {
         live();allocator.checkOwner();require(fileKey.equals(key()),"grant journal inode changed");AdmissionPaths.exact(path,journal);
         if(sources!=null)sources.check();
+    }
+    private void checkOwner() throws IOException {
+        checkBaseOwner();
         if(current!=null)current.check();
+        if(inactive!=null)inactive.check();
     }
     private static Map<String,Object> ballot(Map<String,Object> value) {
         checkType(value,"ballot");require(number(value.get("counter"))<=MembershipBallotAllocator.MAX,"grant ballot counter capacity");
@@ -144,7 +167,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 require(promises.putIfAbsent((String)value.value().get("basisId"),value)==null,"reused original basis identity");
                 promise=value;basis=null;selection=null;
             } else if(name.equals("BASIS")) {require(basis==null,"duplicate grant basis");checkBasis(value,promise);basis=value;bases.put((String)value.value().get("basisId"),value);}
-            else {require(selection==null,"duplicate persisted selection");checkSelection(value);selection=value;}
+            else {require(selection==null,"duplicate persisted selection");checkSelection(value);selection=value;selections.put(value.digest(),value);}
         }
     }
 
@@ -179,6 +202,8 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** The same writer monitor will own later generation installation; external changes are refused. */
     synchronized Decoded prepareCurrent(Map<String,Object> incoming) throws IOException {
         require(current!=null,"current generation required");checkOwner();cut.at("CURRENT_BEFORE_CAPTURE");checkOwner();
+        if(inactive!=null)require(!inactive.pending() && !(inactive.exists() && current.manifest.value().get("selection")==null)
+                && !inactive.incompleteOrSelected(selection==null?null:selection.digest()),"pending generation installation must finish before another grant");
         return prepareBound(current.capsule,incoming,current.accepted,current.images());
     }
     void observeCurrent(Map<String,Object> incoming) {live();require(current!=null,"current generation required");observe(current.capsule.context,incoming);}
@@ -197,8 +222,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(basis.value().get("accepted")!=null)owned.add(new Owned(identity.nodeId().value(),identity.storageId(),(String)basis.value().get("accepted"),parent));
         var result=MembershipSelection.Source.verify(capsule,basis,reference,identity,owned);checkOwner();return result;
     }
-    /** Records the immutable selection only. No installation, ACCEPT or installation ACK is authorized. */
-    synchronized Decoded selectCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
+    private MembershipSelection.Decision decision(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
         require(current!=null && promise!=null && basis!=null,"complete current grant required");checkOwner();
         var ballot=object(promise.value().get("ballot"));fence(ballot);var local=originalSource();
         require(offered.size()>=2 && offered.size()<=6 && bridges.size()<=6,"selected source/ancestry capacity");
@@ -211,12 +235,35 @@ final class MembershipGrantJournal implements AutoCloseable {
             verified.add(source);if(source.owner.nodeId().value().equals(ballot.get("proposer")))proposer=source;
         }
         require(proposer!=null,"selection missing proposer");
-        var selected=new MembershipSelection.Campaign(proposer).select(verified,bridges).selected();checkSelection(selected);fence(ballot);checkOwner();
+        var result=new MembershipSelection.Campaign(proposer).select(verified,bridges);checkSelection(result.selected());fence(ballot);checkOwner();return result;
+    }
+    /** Records the immutable selection only. No installation, ACCEPT or installation ACK is authorized. */
+    synchronized Decoded selectCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
+        var selected=decision(offered,bridges).selected();var ballot=object(selected.value().get("ballot"));
         if(selection!=null) {require(Arrays.equals(selection.bytes(),selected.bytes()),"selection already fixed; fresh ballot required");return selection;}
         if(selected.bytes().length>maximum-journal.length)throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
                 AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),"selection journal rotation required",null);
         try {
-            append(selected,ballot);selection=selected;cut.at("SELECTED_BEFORE_RETURN");checkOwner();fence(ballot);return selected;
+            append(selected,ballot);selection=selected;selections.put(selected.digest(),selected);cut.at("SELECTED_BEFORE_RETURN");checkOwner();fence(ballot);return selected;
+        }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
+    }
+    /** Local installation receipt only after every materialized file and selector parent is forced. */
+    synchronized Decoded installCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images) throws IOException {
+        require(inactive!=null && selection!=null,"durable selection and generation owner required");
+        var selected=decision(offered,bridges);require(Arrays.equals(selection.bytes(),selected.selected().bytes()),"installation differs from original selection");
+        var ballot=object(selection.value().get("ballot"));boolean installed=selection.digest().equals(current.manifest.value().get("selection"));
+        var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,bridges,images);
+        var ancestors=new ArrayList<MembershipCapsule.Anchor>();
+        for(var original:bases.values()) {
+            var value=sources.original(original).packet().capsule().value();ancestors.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)value.get("catalog"),(String)value.get("application")));
+        }
+        plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,ancestors);checkOwner();fence(ballot);
+        if(installed) {
+            require(Arrays.equals(current.manifest.bytes(),plan.manifest.bytes()) && !inactive.pending(),"installed generation differs from original plan");checkOwner();fence(ballot);return current.manifest;
+        }
+        try {
+            inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(ballot);},current::check,cut);
+            reloadGenerations();cut.at("INSTALL_BEFORE_RETURN");checkOwner();fence(ballot);return current.manifest;
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     private Decoded prepareBound(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images) throws IOException {
@@ -265,6 +312,6 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
     synchronized Optional<Decoded> originalSelection() {live();return Optional.ofNullable(selection);}
     @Override public synchronized void close() throws IOException {
-        if(!closed){closed=true;try{if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
+        if(!closed){closed=true;try{if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }
 }
