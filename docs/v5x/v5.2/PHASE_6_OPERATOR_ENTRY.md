@@ -52,7 +52,10 @@ The five members are `experiment`, `failure-drill`, `canonical-1`, `canonical-2`
 and `canonical-3`. Any can be first. All five must share the same source,
 configuration, sequence, build and controls. Original failures and their charged
 reservations remain in the ledger; a member already passed in that sequence is
-not executed again. A rerun is never used as a substitute for a selected original.
+not executed again. A source/build change requires a new sequence even when all
+previous attempts in the old sequence failed: the ledger binds sequence identity
+at its first reservation. A new sequence does not reset prior reserved costs.
+A rerun is never used as a substitute for a selected original.
 
 Time and accumulated cost budgets remain soft warnings. Each operation prints
 progress at least every minute, including during prepared-artifact download.
@@ -215,14 +218,44 @@ their slots; there is no lifetime connection-count limit. Every newly accepted
 connection still checks the original authority and opens at most one SDK tunnel.
 Before that tunnel starts, a typed timeout or plain connection interruption may
 receive one admission retry: at most two 30-second attempts, one one-second
-backoff and a shared 60-second connection ceiling. Shorter outer command deadlines
-still apply. Every retry repeats the original checks using a fresh private
-credential directory. Explicit denials, identity/ownership drift and malformed or
+backoff and a shared 60-second connection ceiling. A provider `V52_READ_DEADLINE`
+may use that second attempt only when the current admission attempt's own deadline
+has elapsed, before SDK spawn. Exhausted read counts, earlier nested deadlines and
+other read scopes remain terminal. Every retry repeats the original checks using a
+fresh private credential directory. Explicit denials, identity/ownership drift and malformed or
 unknown errors remain terminal. These are connection bounds, not experiment time
 or cost budgets.
+Cold native SSH control calls reserve the explicit 60-second connection allowance
+plus their existing 30-second command allowance (90 seconds total). Warm channels
+and ordinary local qualification retain their original allowance. Delivery probes,
+lifecycle/collection calls, voter stream opening and partition controls share this
+calculation. Standalone Python/Java verification adds connection time to its
+60-second read allowance; an installation and its original-result verification
+still share the unchanged original 300-second grant. Explicit caller deadlines,
+lease/identity checks and consumed-command semantics are never extended.
+
 The forwarder never retries a business request or replays bytes. Terminal errors
 stop all routes; the outer guest scope joins their threads before deleting the
 private credential directory.
+
+Run [39769150976/1](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/39769150976)
+on source `20c104abd29268895fd042007bb38ad5eb4de193` completed two of thirteen
+failure-drill histories. The third, `m02-below-5000`, failed in preparation with
+`SSH master original deadline`. Node 2's last connection recorded zero sent and
+received bytes and no SDK PID: its provider identity-after check exhausted the
+30-second admission attempt (`V52_READ_DEADLINE`), while the caller also allowed
+only 30 seconds for the entire cold SSH exchange. That typed read error was not
+recognized by the admission retry predicate. Cleanup passed, deleted thirteen
+resources and released the lease. The retained evidence identifies these control
+path failures; it does not identify the underlying cause of provider read latency.
+
+Regressions reproduce the old 30-second caller failure with a 35-second simulated
+connection and the typed-read retry omission. Real loopback SSH qualification
+models only provider admission and the SDK byte pipe: the first admission uses
+its actual 30-second deadline, the second authorizes one pipe, and cold/warm
+probes reuse one authenticated SSH master. It is not a cloud PASS or a replay of
+failed workload measurements. Local review artifacts are retained under
+`target/v52-iap-startup-budgets/`; corrected-source cloud qualification is pending.
 
 The private `gse-v52-iap-connections-v2` diagnostic retains only the latest 64
 completed records per node, plus at most four active records. Cumulative counters

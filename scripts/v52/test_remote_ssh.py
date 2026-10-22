@@ -129,6 +129,28 @@ class SshEndpointTest(unittest.TestCase):
         self.endpoint=ssh.Endpoint(self.target,h.ROOT);self.addCleanup(self.endpoint.close)
         self.config=h.config(owner(),self.root/'guest',h.observe(self.root));self.endpoint.bind(self.config)
 
+    def test_native_control_deadline_adds_connect_time_only_for_cold_master(self):
+        native=ssh.Endpoint(dict(self.target,connectSeconds=60),h.ROOT);self.addCleanup(native.close)
+        with patch.object(ssh.time,'monotonic',return_value=100):
+            self.assertEqual(130,self.endpoint.control_deadline())
+            self.assertEqual(190,native.control_deadline())
+            native.master=Mock()
+            self.assertEqual(130,native.control_deadline())
+            native.disconnect()
+            self.assertEqual(190,native.control_deadline())
+            for invalid in (True,0,-1,float('inf'),float('nan'),241):
+                with self.subTest(seconds=invalid),self.assertRaises(ValueError):native.control_deadline(invalid)
+        native.close()
+        with self.assertRaises(ValueError):native.control_deadline()
+
+    def test_explicit_original_deadline_is_never_extended_for_native_connection(self):
+        native=ssh.Endpoint(dict(self.target,connectSeconds=60),h.ROOT);self.addCleanup(native.close)
+        with patch.object(ssh.time,'monotonic',return_value=100), \
+             patch.object(ssh.master,'Master',side_effect=TimeoutError('original bound')) as connect:
+            with self.assertRaises(TimeoutError):native.probe(self.root,110)
+        self.assertEqual(110,connect.call_args.kwargs['connect_deadline'])
+        connect.assert_called_once()
+
     def test_host_pins_and_noninteractive_options_have_no_fallback_or_public_route(self):
         args=ssh.ssh_args(self.target)
         for setting in ('StrictHostKeyChecking=yes','IdentityAgent=none','BatchMode=yes','ControlMaster=no','ProxyCommand=none'):

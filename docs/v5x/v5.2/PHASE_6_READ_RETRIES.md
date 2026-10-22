@@ -84,8 +84,16 @@ reads retain their existing one- and two-second backoffs and original deadline.
 No layer grants unlimited retries or resets a stage budget.
 
 An exhausted shared read raises `ReadError` with `retryable=False`, so outer
-storage, IAP, control CAS/release reconciliation and original-launch recovery
-cannot multiply its retry count. These guards honor terminal connection subclasses.
+storage, control CAS/release reconciliation and original-launch recovery cannot
+multiply its retry count. IAP has one narrow exception before SDK spawn: a
+`provider-read` deadline that reaches the current admission attempt's own deadline
+may use the second already-budgeted admission attempt. It must fit the original
+60-second connection deadline, repeat ownership/identity checks and use a fresh
+private credential directory. A read attempt-count exhaustion, earlier nested
+deadline, different read scope or security rejection remains terminal. This does
+not make `ReadError` generally retryable or permit another business submission.
+The [operator entry](PHASE_6_OPERATOR_ENTRY.md) records the reproduced incident,
+matching cold-connection allowances and local verification.
 An unmodified measurement's failure remains a failure; this is not a successful
 sample selected from repeated workload executions.
 

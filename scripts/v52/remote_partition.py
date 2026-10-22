@@ -61,7 +61,7 @@ class Controller:
              'partition fresh control required')
     def exchange(self,action,command):
         self.calls.append(dict(action=action,request=command))
-        answer=self.endpoint.exchange(action,self.worker.control,dict(configSha256=self.worker.sha,request=command),time.monotonic()+30)
+        answer=self.endpoint.exchange(action,self.worker.control,dict(configSha256=self.worker.sha,request=command),self.endpoint.control_deadline())
         need(type(answer) is dict and set(answer)=={'configSha256','host','answer'} and answer['configSha256']==self.worker.sha and
              answer['host']==self.worker.config['host'],'partition response binding')
         return answer['answer']

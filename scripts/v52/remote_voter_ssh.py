@@ -139,7 +139,7 @@ class Client(voter.Client):
         except BaseException:self.endpoint.close();raise
     def open_channel(self):
         need(len(self.channels)<4,'SSH voter channel attempts exhausted; original result uncertain')
-        stream=self.endpoint.open(self.control,self.sha,time.monotonic()+30)
+        stream=self.endpoint.open(self.control,self.sha,self.endpoint.control_deadline())
         self.active_stream=stream;self.channels.append(stream)
         self.recorded.append(dict(configSha256=self.sha,after=self.cursor,through=None,terminal=False))
         return stream

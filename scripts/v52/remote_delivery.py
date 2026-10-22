@@ -55,7 +55,7 @@ class Delivery:
         self.calls.append(dict(action=action,index=payload.get('index') if type(payload) is dict else None))
         if action=='begin':root,value=self.parent,self.value
         else:root,value=guest.store_for(self.value),dict(descriptorSha256=digest(encoded(self.value)),request=payload)
-        answer=self.endpoint.exchange(action,root,value,time.monotonic()+30)
+        answer=self.endpoint.exchange(action,root,value,self.endpoint.control_deadline())
         need(type(answer) is dict and set(answer)=={'descriptorSha256','host','answer'} and
              answer['descriptorSha256']==digest(encoded(self.value)) and answer['host']==self.value['host'],'delivery reply binding')
         return observed(answer['answer'],self.value)
@@ -67,7 +67,7 @@ class Delivery:
             return answer
         return lifecycle.original_launch(submit,lambda:self.exchange('query'),lost=lambda:self.losses.append(action))
     def run(self,archive,*,discard_part=False,discard_install=False):
-        pin=self.endpoint.exchange('probe',self.parent,None,time.monotonic()+30)
+        pin=self.endpoint.exchange('probe',self.parent,None,self.endpoint.control_deadline())
         need(type(pin) is dict and set(pin)=={'host'},'delivery parent probe');p.host.validate_pin(pin['host'])
         self.value=dict(schema='gse-v52-receiver-delivery-v1',execution=p.execution(self.meta),parent=str(self.parent),host=pin['host'],
                         node=self.node,session=uuid.uuid4().hex,package=self.meta);p.descriptor(self.value)

@@ -217,6 +217,71 @@ class LocalForwardTest(unittest.TestCase):
         self.assertEqual(['FAIL','FAIL'],[r['status'] for r in report['lastAdmission']])
         self.assertEqual([],self.failures)
 
+    def test_typed_read_deadline_retries_before_one_sdk_spawn_and_keeps_original_bytes(self):
+        original=self.authorize;paths=[]
+        def authorize(node,path,deadline,*,progress=lambda stage:None):
+            paths.append(path)
+            if len(paths)==1:
+                iap._private(path/'token',b'never-public')
+                progress('identity-after');time.sleep(max(0,deadline-time.monotonic())+.002)
+                raise iap.cloud_read_retry.ReadError('provider-read',1,'connection','deadline')
+            self.assertFalse(paths[0].exists())
+            return original(node,path,deadline,progress=progress)
+        self.group.authorize=authorize
+        with patch.object(iap,'ADMISSION_SECONDS',1),patch.object(iap,'ADMISSION_BACKOFF',.001), \
+             patch.object(iap.subprocess,'Popen',wraps=subprocess.Popen) as spawn:
+            client=self.connect();client.sendall(b'original request')
+            self.assertEqual(b'original request',client.recv(128));client.close();self.forward.close()
+            self.assertEqual(1,spawn.call_count)
+        self.assertEqual(2,len(paths));self.assertNotEqual(paths[0],paths[1])
+        report=self.forward.snapshot();self.assertEqual(1,report['admissionRetries'])
+        self.assertEqual(['FAIL','PASS'],[r['status'] for r in report['lastAdmission']])
+        self.assertEqual('V52_READ_DEADLINE',report['lastAdmission'][0]['reasonCode'])
+        self.assertEqual([],self.failures);self.assertEqual([],list(Path(self.private.name).iterdir()))
+
+    def test_repeated_typed_deadlines_stop_after_two_without_sdk_or_replaying_bytes(self):
+        def authorize(node,path,deadline,*,progress=lambda stage:None):
+            time.sleep(max(0,deadline-time.monotonic())+.002)
+            raise iap.cloud_read_retry.ReadError('provider-read',1,'timeout','deadline')
+        self.group.authorize=Mock(side_effect=authorize)
+        with patch.object(iap,'ADMISSION_SECONDS',.03),patch.object(iap,'ADMISSION_BACKOFF',.001), \
+             patch.object(iap.subprocess,'Popen') as spawn:
+            client=self.connect();self.assertEqual(b'',client.recv(1));self.forward.close();spawn.assert_not_called()
+        self.assertEqual(2,self.group.authorize.call_count)
+        self.assertEqual(['V52_READ_DEADLINE'],self.failures)
+        self.assertEqual(0,self.forward.snapshot()['sentBytes'])
+
+    def test_exhausted_read_attempts_are_not_restarted_by_iap(self):
+        self.group.authorize=Mock(side_effect=iap.cloud_read_retry.ReadError('provider-read',3,'connection','attempt-limit'))
+        with patch.object(iap.subprocess,'Popen') as spawn:
+            client=self.connect();self.assertEqual(b'',client.recv(1));self.forward.close();spawn.assert_not_called()
+        self.assertEqual(1,self.group.authorize.call_count)
+        self.assertEqual(['V52_READ_RETRIES_EXHAUSTED'],self.failures)
+
+    def test_typed_deadline_cannot_renew_shared_connection_budget(self):
+        def authorize(node,path,deadline,*,progress=lambda stage:None):
+            time.sleep(max(0,deadline-time.monotonic())+.002)
+            raise iap.cloud_read_retry.ReadError('provider-read',1,'timeout','deadline')
+        self.group.authorize=Mock(side_effect=authorize)
+        with patch.object(iap,'CONNECT_SECONDS',.03),patch.object(iap,'ADMISSION_BACKOFF',.001), \
+             patch.object(iap.subprocess,'Popen') as spawn:
+            client=self.connect();self.assertEqual(b'',client.recv(1));self.forward.close();spawn.assert_not_called()
+        self.assertEqual(1,self.group.authorize.call_count)
+
+    def test_identity_rejection_after_typed_deadline_stops_without_sdk(self):
+        calls=[]
+        def authorize(node,path,deadline,*,progress=lambda stage:None):
+            calls.append(path)
+            if len(calls)==1:
+                time.sleep(max(0,deadline-time.monotonic())+.002)
+                raise iap.cloud_read_retry.ReadError('provider-read',1,'timeout','deadline')
+            raise ValueError('identity changed')
+        self.group.authorize=authorize
+        with patch.object(iap,'ADMISSION_SECONDS',.03),patch.object(iap,'ADMISSION_BACKOFF',.001), \
+             patch.object(iap.subprocess,'Popen') as spawn:
+            client=self.connect();self.assertEqual(b'',client.recv(1));self.forward.close();spawn.assert_not_called()
+        self.assertEqual(2,len(calls));self.assertEqual(['IAP_IDENTITY_OR_AUTHORITY_REJECTED'],self.failures)
+
     def test_permission_after_timeout_is_terminal_without_sdk(self):
         self.group.authorize=Mock(side_effect=[TimeoutError(),iap.runner.h.ApiError(403,'GET')])
         with patch.object(iap,'ADMISSION_BACKOFF',.01),patch.object(iap.subprocess,'Popen') as spawn:
@@ -504,6 +569,18 @@ class AdmissionDeadlineTest(unittest.TestCase):
         with self.assertRaises(TimeoutError):self.authorize()
         self.assertEqual(float('inf'),self.api.deadline);self.api.tokens.assert_not_called()
         self.assertEqual([],list(self.directory.iterdir()))
+
+    def test_only_this_expired_provider_admission_deadline_can_use_next_attempt(self):
+        deadline=iap.cloud_read_retry.ReadError('provider-read',1,'connection','deadline')
+        with patch.object(iap.time,'monotonic',return_value=100):
+            self.assertTrue(iap._retry_admission(deadline,attempt_deadline=100))
+            self.assertFalse(iap._retry_admission(deadline,attempt_deadline=101))
+            self.assertFalse(iap._retry_admission(deadline))
+            for scope in iap.cloud_read_retry.SCOPES-{'provider-read'}:
+                error=iap.cloud_read_retry.ReadError(scope,1,'connection','deadline')
+                self.assertFalse(iap._retry_admission(error,attempt_deadline=99))
+            exhausted=iap.cloud_read_retry.ReadError('provider-read',3,'timeout','attempt-limit')
+            self.assertFalse(iap._retry_admission(exhausted,attempt_deadline=99))
 
     def test_known_credential_timeout_is_retryable_but_security_rejections_are_not(self):
         for error in (TimeoutError(),ConnectionError(),iap.runner.credentials.ContextError('DEADLINE')):

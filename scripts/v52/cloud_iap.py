@@ -66,9 +66,15 @@ def _remaining(deadline):
     return left
 
 
-def _retry_admission(error):
+def _retry_admission(error, *, attempt_deadline=None):
     # Before SDK spawn only. Unknown errors, denied credentials and changed
     # ownership are terminal even when they happen near a deadline.
+    if type(error) is cloud_read_retry.ReadError:
+        # Only exhaustion of THIS admission attempt's clock may use the next
+        # predeclared attempt. Earlier/nested deadlines and exhausted GET counts
+        # remain terminal; no SDK or business command has been started here.
+        return (error.detail['scope']=='provider-read' and error.detail['stop']=='deadline' and
+                attempt_deadline is not None and time.monotonic()>=attempt_deadline)
     return type(error) in (TimeoutError,ConnectionError) or (type(error) is runner.credentials.ContextError and
                                           error.reason_code=='V52_CREDENTIAL_DEADLINE')
 
@@ -107,7 +113,7 @@ class _Channel:
                     progress(phase)
                     row=diagnostics.attempt(attempt,phase,began,durations,error,_safe(error))
                     self.admission.append(row)
-                    retry=attempt<ADMISSION_ATTEMPTS and _retry_admission(error) and not self.stop.is_set() and \
+                    retry=attempt<ADMISSION_ATTEMPTS and _retry_admission(error,attempt_deadline=attempt_end) and not self.stop.is_set() and \
                           deadline-time.monotonic()>ADMISSION_BACKOFF
                     try:print(encoded(dict(stage='iap-admission',node=self.forward.node,retry=retry,**row)).decode(),flush=True)
                     except Exception:pass  # Diagnostic output cannot replace the original error.

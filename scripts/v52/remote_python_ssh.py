@@ -26,7 +26,7 @@ class Installer(ssh.Endpoint):
         receiver.need(action in ('install','verify') and not self.closed,'Python SSH action/closed')
         receiver.need(ssh.ssh_args(self.target)==self.args and
                       all(Path(self.target[k]).read_bytes()==v for k,v in self.pins.items()),'Python SSH target changed')
-        deadline=self.end if self.end is not None else time.monotonic()+VERIFY_SECONDS
+        deadline=self.end if self.end is not None else self.control_deadline(VERIFY_SECONDS)
         remaining(deadline,'Python original installation deadline')
         self.calls.append(action)
         remote=['python3','-I','-S','-c',Path(receiver.__file__).read_text(),action,str(parent),self.sha]
