@@ -114,10 +114,20 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease) throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,withFloors,withRetirement,withRotation,withFloorRelease,MAXIMUM);
+    }
+    /** Lower capacity exercises the production admission path without a 32 MiB fixture. */
+    static MembershipGrantJournal openMaintenance(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,int maximum,MembershipBallotAllocator.Cut cut) throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,true,true,maximum);
+    }
+    private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum) throws IOException {
+        require(maximum>=RESERVATION && maximum<=MAXIMUM,"grant journal capacity");
         Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
         var owner=withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
         try {
-            journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);journal.resources=resources;journal.capsuleVerifier=verifier;journal.floorReleaseEnabled=withFloorRelease;
+            journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut);journal.resources=resources;journal.capsuleVerifier=verifier;journal.floorReleaseEnabled=withFloorRelease;
             if(withRotation)journal.rotation=new MembershipJournalRotationFiles(path);
             journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);
             journal.reloadGenerations();
@@ -382,8 +392,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         fence(floor);
         var value=new TreeMap<String,Object>();value.put("root",root.manifestDigest());value.put("view",certificate.value().get("authority"));
         value.put("ballot",floor);value.put("basisId",null);var adoption=decode(encode("records","PROMISE",value),"records","PROMISE");
-        if(adoption.bytes().length>maximum-journal.length)throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
-                AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),"adoption journal rotation required",null);
+        ensureJournalCapacity(adoption.bytes().length,"adoption journal rotation required");
         try {
             append(adoption,floor);promise=adoption;basis=null;selection=null;promises.put(promiseKey(adoption),adoption);
             cut.at("ADOPTION_BEFORE_RETURN");checkOwner();fence(floor);return adoption;
@@ -418,8 +427,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(promise==null || compareBallot(object(promise.value().get("ballot")),floor)<0) {
             var value=new TreeMap<String,Object>();value.put("root",root.manifestDigest());value.put("view",certificate.value().get("authority"));
             value.put("ballot",floor);value.put("basisId",null);adoptedPromise=decode(encode("records","PROMISE",value),"records","PROMISE");
-            if(adoptedPromise.bytes().length>maximum-journal.length)throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
-                    AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),"adoption journal rotation required",null);
+            ensureJournalCapacity(adoptedPromise.bytes().length,"adoption journal rotation required");
         }
         var plan=MembershipGenerationPlan.adopted(root,identity,inactive.slot(),adoptedPromise,incoming,bridges,images);
         // Reject another pending plan or occupied old generation before modifying the root promise.
@@ -468,8 +476,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Decoded selectCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
         floorIdle();var selected=decision(offered,bridges).selected();var ballot=object(selected.value().get("ballot"));
         if(selection!=null) {require(Arrays.equals(selection.bytes(),selected.bytes()),"selection already fixed; fresh ballot required");return selection;}
-        if(selected.bytes().length>maximum-journal.length)throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
-                AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),"selection journal rotation required",null);
+        ensureJournalCapacity(selected.bytes().length,"selection journal rotation required");
         try {
             append(selected,ballot);selection=selected;selections.put(selected.digest(),selected);cut.at("SELECTED_BEFORE_RETURN");checkOwner();fence(ballot);return selected;
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
@@ -504,8 +511,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             require(basis!=null,"incomplete original basis; fresh ballot required");fence(next);return basis;
         }
         // Reserve both maximum frames before PROMISE; never strand its BASIS on our own byte limit.
-        if(journal.length>maximum-RESERVATION)throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
-                AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),"grant journal rotation required",null);
+        ensureJournalCapacity(RESERVATION,"grant journal rotation required");
         var grant=decode(encode("records","PROMISE",Map.of("root",root.manifestDigest(),"view",context.authority(),
                 "ballot",next,"basisId",UUID.randomUUID().toString())),"records","PROMISE");
         var body=new TreeMap<String,Object>(grant.value());body.put("voter",identity.nodeId().value());body.put("cut",context.cut);
@@ -524,6 +530,15 @@ final class MembershipGrantJournal implements AutoCloseable {
         } catch(IOException | RuntimeException | Error error) {failed=true;throw error;}
     }
 
+    private void ensureJournalCapacity(int bytes,String message) throws IOException {
+        if(bytes<=maximum-journal.length)return;
+        // One bounded maintenance attempt. Never release sources, generations or
+        // pending recovery work to admit a new operation at the byte ceiling.
+        if(bytes<=maximum && rotation!=null && current!=null && floors!=null && retirement!=null
+                && !inactive.exists() && !inactive.pending() && !floors.pending() && !retirement.pending())rotateJournal();
+        if(bytes>maximum-journal.length)throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
+                AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),message,null);
+    }
     private void append(Decoded record,Map<String,Object> expected) throws IOException {
         checkOwner();fence(expected);byte[] bytes=record.bytes();require(bytes.length<=maximum-journal.length,"grant journal overflow");
         cut.at(record.kind()+"_BEFORE_WRITE");fence(expected);

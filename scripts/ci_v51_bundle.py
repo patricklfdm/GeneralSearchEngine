@@ -89,7 +89,7 @@ def prerequisites(files, roots):
     required = REQUIRED_SUITES | ({'V52ReadTokenTest', 'V52PublicApiInventoryTest', 'V51PublicApiInventoryTest'} if roots[0].endswith(('5.2.0-SNAPSHOT.jar', '5.3.0-SNAPSHOT.jar')) else set())
     if roots[0].endswith('5.3.0-SNAPSHOT.jar'):
         required |= {'V53DeclarationsTest', 'V53PublicApiInventoryTest', 'V53FormatTest',
-                     'V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest', 'V53GenerationInstallTest', 'V53AdoptionFenceTest', 'V53AdoptionInstallTest', 'V53FloorTest', 'V53FloorFilesTest', 'V53RetirementTest', 'V53JournalRotationTest', 'V53FloorReleaseTest'}
+                     'V53ContextTest', 'V53ResourceTransferTest', 'V53SourcePacketTest', 'V53CapsuleTest', 'V53SelectionTest', 'V53BallotAllocatorTest', 'V53GrantJournalTest', 'V53BasisSourcesTest', 'V53CurrentGenerationTest', 'V53DurableSelectionTest', 'V53GenerationInstallTest', 'V53AdoptionFenceTest', 'V53AdoptionInstallTest', 'V53FloorTest', 'V53FloorFilesTest', 'V53RetirementTest', 'V53JournalRotationTest', 'V53FloorReleaseTest', 'V53JournalBackpressureTest'}
         package = CLASSES + '/io/github/patricklfdm/generalsearch/replication/'
         for worker in ('V53FormatWorker', 'V53FormatTest', 'V53ContextWorker', 'V53ContextFixture',
                        'V53DeclarationsTest', 'V53SourcePacketWorker', 'V53SourcePacketTest',

@@ -34,8 +34,9 @@ retirement](PHASE_2_RETIREMENT.md) passes 549 cases, including interrupted delet
 and recovery. [Exact journal compaction](PHASE_2_JOURNAL_ROTATION.md) passes
 135 cases while preserving all retained sources. [Old floor-copy release](PHASE_2_FLOOR_RELEASE.md)
 passes 261 cases and returns its reservations before another complete floor. Actual
-vote/application persistence, original-source release and automatic bounded
-backpressure remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
+vote/application persistence and original-source lifetime progress remain open.
+[Automatic journal backpressure](PHASE_2_JOURNAL_BACKPRESSURE.md) now attempts one
+safe compaction before refusing an exhausted admission. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
 expanded continuous local development scope.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated

@@ -745,3 +745,20 @@ phased vote/application storage, complete offline recovery and integrated audit.
 No source deletion, new quorum, public-runtime, power-loss or cloud acceptance is
 claimed. This local batch leaves frozen formats/resources, workflows and V5.2
 experiments unchanged; no remote push.
+
+
+## 2026-10-22 — Phase 2C4c3 bounded journal admission
+
+Grant/SELECTED/adoption admission now invokes at most one safe existing compaction
+at its byte ceiling, then rechecks space and refuses if insufficient. Pending or
+occupied generations/floor/retirement cannot be discarded for space. Production
+limits stay unchanged, incomplete grants are not retried, and higher observations
+still fence the new append after maintenance.
+
+All 184 focused Java tests (eight new regressions), 20 build-contract Python tests
+and their optimized-Python run passed. [Scope/reproduction](PHASE_2_JOURNAL_BACKPRESSURE.md)
+and [source/build/hash index](phase2-evidence/journal-backpressure.json) distinguish
+this caller-level qualification from the earlier source's physical rotation matrix.
+No full 32 MiB soak, public runtime or Phase 2 closure is claimed. Continue actual
+phased vote/application storage, original-source lifetimes and complete-store
+physical acceptance. Local commit only; no cloud or V5.2 Runner operation.
