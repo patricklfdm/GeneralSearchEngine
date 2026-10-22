@@ -40,6 +40,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipResources resources;
     private MembershipCaptureFiles capture;
     private MembershipPendingAccept pendingAccept;
+    private MembershipReplayFiles replayFiles;
+    private MembershipAppliedEndFiles appliedEnd;
+    private int applicationMetadata;
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -169,11 +172,25 @@ final class MembershipGrantJournal implements AutoCloseable {
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
             boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,boolean withCapture,boolean withVotes)throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,withFloors,withRetirement,withRotation,withFloorRelease,maximum,withSourceRetirement,withCapture,withVotes,false);
+    }
+    static MembershipGrantJournal openApplying(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut)throws IOException {
+        return openApplying(requested,root,identity,resources,verifier,MAXIMUM,cut);
+    }
+    static MembershipGrantJournal openApplying(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,int maximum,MembershipBallotAllocator.Cut cut)throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,true,true,maximum,true,true,true,true);
+    }
+    private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
+            boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,boolean withCapture,boolean withVotes,boolean withApplication)throws IOException {
         require(maximum>=RESERVATION && maximum<=MAXIMUM,"grant journal capacity");
         Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
-        var owner=withVotes?MembershipBallotAllocator.openWithPendingAccept(path,root,identity,cut):withCapture?MembershipBallotAllocator.openWithCaptureRecovery(path,root,identity,cut):withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
+        var owner=withApplication?MembershipBallotAllocator.openWithAppliedEnd(path,root,identity,cut):withVotes?MembershipBallotAllocator.openWithPendingAccept(path,root,identity,cut):withCapture?MembershipBallotAllocator.openWithCaptureRecovery(path,root,identity,cut):withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
         try {
             journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut,withCapture);journal.resources=resources;journal.capsuleVerifier=verifier;journal.floorReleaseEnabled=withFloorRelease;
+            journal.applicationMetadata=withApplication?MembershipAppliedEndFiles.METADATA+MembershipReplayFiles.METADATA:0;
             if(withRotation)journal.rotation=new MembershipJournalRotationFiles(path);
             if(withSourceRetirement)journal.sourceRetirement=new MembershipSourceRetirementFiles(path);
             if(withCapture)journal.capture=new MembershipCaptureFiles(path);
@@ -200,6 +217,13 @@ final class MembershipGrantJournal implements AutoCloseable {
                 var parents=new ArrayList<MembershipCapsule.Anchor>();journal.addFloorParent(parents);journal.current.verifyParents(parents);
             }
             if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources);
+            if(withApplication) {
+                journal.replayFiles=new MembershipReplayFiles(path.resolve(MembershipReplayFiles.DIRECTORY),resources);
+                journal.appliedEnd=new MembershipAppliedEndFiles(path.resolve(MembershipAppliedEndFiles.DIRECTORY),resources,MembershipAppliedEndFiles.METADATA);
+                require(!journal.replayFiles.present() && !journal.appliedEnd.present() || journal.pendingAccept.active()!=null
+                        && journal.pendingAccept.active().certificate()!=null,"application files without original local certificate");
+                if(journal.pendingAccept.active()!=null || journal.pendingAccept.pending())journal.reserveApplicationCompletion();
+            }
             journal.checkOwner();
             if(withVotes)journal.recoverVote();
             if(pending!=null) {
@@ -220,7 +244,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         inactive=new MembershipGenerationFiles(directory,current.generation,resources);
     }
 
-    private long pendingBytes(){return pendingAccept==null?0:pendingAccept.bytes();}
+    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes())+applicationMetadata;}
+    private void reserveApplicationCompletion() {
+        if(appliedEnd!=null){appliedEnd.reserveCompletion();replayFiles.reserveCompletion();}
+    }
     private void verifyVote(MembershipPendingAccept.Vote vote) {
         MembershipPendingAccept.verify(vote,current,identity,promises.values(),selections.values());
     }
@@ -293,10 +320,13 @@ final class MembershipGrantJournal implements AutoCloseable {
             require(!pendingAccept.pending(),"ACCEPT duplicate cannot replace pending PROOF transaction");vote=pendingAccept.active();
         }
         bindVoteCandidate(vote);pendingAccept.matches(vote);checkOwner();fence(bound);
+        if(appliedEnd!=null && (appliedEnd.present() || replayFiles.present()))require(pendingAccept.active()!=null
+                && Arrays.equals(pendingAccept.active().bytes(),vote.bytes()),"staged application requires original certificate or covering publication");
+        reserveApplicationCompletion();
         if(pendingAccept.active()==null || !Arrays.equals(pendingAccept.active().bytes(),vote.bytes()) || pendingAccept.pending()) {
             int size=vote.bytes().length;
             long peak=Math.max((long)pendingAccept.activeLength()+size,2L*(size+MembershipPendingAccept.PROOF_MAXIMUM)+MembershipPendingAccept.CERTIFICATE_MAXIMUM);
-            int remaining=Math.toIntExact(peak-pendingBytes());
+            int remaining=Math.toIntExact(peak-pendingAccept.bytes());
             ensureJournalCapacity(Math.addExact(remaining,RESERVATION),"pending ACCEPT, proof completion and next grant exceed shared journal capacity");
             try {
                 cut.at("ACCEPT_VALIDATED");checkOwner();fence(bound);
@@ -319,7 +349,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(prior.proof()==null)current.capsule.context.proof(proof,prior.accept(),accepts);
         if(prior.proof()==null || pendingAccept.pending()) {
             int size=vote.bytes().length;long peak=Math.max((long)pendingAccept.activeLength()+size,2L*size+MembershipPendingAccept.CERTIFICATE_MAXIMUM);
-            int remaining=Math.toIntExact(peak-pendingBytes());
+            int remaining=Math.toIntExact(peak-pendingAccept.bytes());
             ensureJournalCapacity(Math.addExact(remaining,RESERVATION),"pending PROOF, certificate completion and next grant exceed shared journal capacity");
             try {
                 cut.at("PROOF_VALIDATED");checkOwner();fence(bound);
@@ -347,7 +377,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             verifiedPacket(MembershipPendingAccept.packet(current,vote)).context.certificate(certificate,Set.copyOf(owned));
         }
         if(prior.certificate()==null || pendingAccept.pending()) {
-            int remaining=Math.toIntExact(vote.bytes().length-(pendingBytes()-pendingAccept.activeLength()));
+            int remaining=Math.toIntExact(vote.bytes().length-(pendingAccept.bytes()-pendingAccept.activeLength()));
             ensureJournalCapacity(Math.addExact(remaining,RESERVATION),"pending certificate and next grant exceed shared journal capacity");
             try {
                 cut.at("CERTIFICATE_VALIDATED");checkOwner();fence(bound);
@@ -362,6 +392,32 @@ final class MembershipGrantJournal implements AutoCloseable {
         return pendingAccept.active()==null?Optional.empty():Optional.ofNullable(pendingAccept.active().certificate());
     }
 
+    record Applied(MembershipCheckpointPlan plan,MembershipAppliedEndFiles.Endorsement endorsement) {}
+    /** Real local certificate + typed replay + forced end. This is not selector publication or public readiness. */
+    synchronized <K,T> Applied applyCurrent(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations)throws IOException {
+        require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();voteTransactionIdle();
+        require(!pendingAccept.pending(),"application requires completed original certificate");var vote=pendingAccept.active();
+        require(vote!=null && vote.certificate()!=null,"application requires actual local certificate");
+        require(observations.size()<=12,"application phased observation count");var owned=Set.copyOf(observations);
+        var bound=object(vote.accept().value().get("ballot"));
+        MembershipGenerationFiles.Guard guard=()->{
+            checkOwner();fence(bound);require(promise!=null && selection!=null
+                    && Arrays.equals(promise.bytes(),vote.promise().bytes()) && Arrays.equals(selection.bytes(),vote.selected().bytes())
+                    && Arrays.equals(current.selector.bytes(),vote.selector().bytes()) && pendingAccept.active()!=null
+                    && Arrays.equals(pendingAccept.active().bytes(),vote.bytes()) && !pendingAccept.pending(),"application original authority changed");
+        };
+        guard.check();var packet=votePacket();verifiedPacket(packet).context.certificate(vote.certificate(),owned);
+        AdmissionPaths.disjoint(List.of(directory,storage.directory()));reserveApplicationCompletion();
+        try {
+            cut.at("APPLICATION_AUTHORITY_VALIDATED");guard.check();
+            var plan=replayFiles.executeRetained(vote.selector(),vote.certificate(),identity,work->MembershipCheckpointPlan.replay(configuration,storage,
+                    current.capsule,packet,vote.certificate(),current.images(),owned,work),guard,cut);
+            guard.check();var endorsement=appliedEnd.force(plan,vote.selector(),identity,guard,cut);
+            guard.check();return new Applied(plan,endorsement);
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+
     private Object key() throws IOException {
         Object key=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).fileKey();
         require(key!=null,"grant file identity unavailable");return key;
@@ -374,6 +430,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(sourceRetirement!=null)sourceRetirement.check();
         if(capture!=null)capture.check();
         if(pendingAccept!=null)pendingAccept.check();
+        if(appliedEnd!=null)appliedEnd.check();
+        if(replayFiles!=null)replayFiles.check();
     }
     private void checkWithoutFloor() throws IOException {
         checkBaseOwner();
@@ -892,6 +950,6 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
     synchronized Optional<Decoded> originalSelection() {live();return Optional.ofNullable(selection);}
     @Override public synchronized void close() throws IOException {
-        if(!closed){closed=true;try{if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
+        if(!closed){closed=true;try{if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }
 }

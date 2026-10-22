@@ -109,10 +109,17 @@ final class MembershipBallotAllocator implements AutoCloseable {
     }
 
     static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut) throws IOException {
-        return open(requested,root,identity,cut,Set.of("grants.gsr",MembershipBasisSources.DIRECTORY,
+        return openWithPendingAccept(requested,root,identity,cut,false);
+    }
+    static MembershipBallotAllocator openWithAppliedEnd(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut) throws IOException {
+        return openWithPendingAccept(requested,root,identity,cut,true);
+    }
+    private static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,boolean applying) throws IOException {
+        var names=new HashSet<>(Set.of("grants.gsr",MembershipBasisSources.DIRECTORY,
                 MembershipCurrentGeneration.DIRECTORY,MembershipCurrentGeneration.SELECTOR,MembershipGenerationFiles.PENDING,
                 MembershipFloorFiles.DIRECTORY,MembershipRetirementFiles.DIRECTORY,MembershipJournalRotation.PENDING,
                 MembershipSourceRetirementFiles.FILE,MembershipCaptureFiles.FILE,MembershipPendingAccept.FILE,MembershipPendingAccept.NEXT));
+        if(applying){names.add(MembershipAppliedEndFiles.DIRECTORY);names.add(MembershipReplayFiles.DIRECTORY);}return open(requested,root,identity,cut,names);
     }
 
     private static MembershipBallotAllocator open(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut, Set<String> additional) throws IOException {
@@ -142,7 +149,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
             for(Path path:stream) {
                 require(seen.size()<FILES.size()+additional.size() && (FILES.contains(path.getFileName().toString())
                         || additional.contains(path.getFileName().toString())),"unknown allocator authority file");
-                if(additional.contains(path.getFileName().toString()) && Set.of(MembershipBasisSources.DIRECTORY,MembershipCurrentGeneration.DIRECTORY,MembershipFloorFiles.DIRECTORY,MembershipRetirementFiles.DIRECTORY).contains(path.getFileName().toString())) {
+                if(additional.contains(path.getFileName().toString()) && Set.of(MembershipBasisSources.DIRECTORY,MembershipCurrentGeneration.DIRECTORY,MembershipFloorFiles.DIRECTORY,MembershipRetirementFiles.DIRECTORY,MembershipAppliedEndFiles.DIRECTORY,MembershipReplayFiles.DIRECTORY).contains(path.getFileName().toString())) {
                     AdmissionPaths.safe(path);require(Files.isDirectory(path,LinkOption.NOFOLLOW_LINKS),"missing basis source directory");
                 } else AdmissionPaths.regular(path);
                 seen.add(path.getFileName().toString());
@@ -150,6 +157,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
         }
         require(seen.containsAll(Set.of("replica.lock","root.gsr","genesis.gsr","node.gsr",CURRENT)),"incomplete allocator authority");
         var required=new HashSet<>(additional);required.remove(MembershipGenerationFiles.PENDING);required.remove(MembershipFloorFiles.DIRECTORY);required.remove(MembershipRetirementFiles.DIRECTORY);required.remove(MembershipJournalRotation.PENDING);required.remove(MembershipSourceRetirementFiles.FILE);required.remove(MembershipCaptureFiles.FILE);required.remove(MembershipPendingAccept.NEXT);
+        required.remove(MembershipAppliedEndFiles.DIRECTORY);required.remove(MembershipReplayFiles.DIRECTORY);
         require(seen.containsAll(required),"incomplete grant authority");
     }
 

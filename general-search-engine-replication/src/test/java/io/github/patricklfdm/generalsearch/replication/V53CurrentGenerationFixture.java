@@ -8,6 +8,9 @@ import static io.github.patricklfdm.generalsearch.replication.V53ContextFixture.
 /** Physical selected-generation fixture, not a bootstrap or installation implementation. */
 final class V53CurrentGenerationFixture {
     final int size;final V53CapsuleFixture fixture;final MembershipCapsule admitted;final String accepted;
+    V53CurrentGenerationFixture(int size,V53CapsuleFixture fixture) {
+        this.size=size;this.fixture=fixture;admitted=fixture.verify();accepted=null;
+    }
     V53CurrentGenerationFixture(int size,int through,boolean tail) {
         this.size=size;var selection=new V53SelectionFixture(size,"REPLACE",through);fixture=selection.capsule;
         if(tail && through==6) {
@@ -22,7 +25,7 @@ final class V53CurrentGenerationFixture {
         return MembershipCapsule.verify(root,packet,images,fixture.owned);
     }
     void provision(Path path) throws Exception {
-        V53BallotAllocatorWorker.provision(path,size);Files.createDirectory(path.resolve("sources"));
+        V53BallotAllocatorWorker.provision(path,fixture.source);Files.createDirectory(path.resolve("sources"));
         var promise=decode(encode("records","PROMISE",map("root",root().manifestDigest(),"view",admitted.context.authority(),
                 "ballot",fixture.source.ballot(10),"basisId",new UUID(0,100).toString())),"records","PROMISE");
         AdmissionPaths.write(path.resolve("grants.gsr"),promise.bytes());

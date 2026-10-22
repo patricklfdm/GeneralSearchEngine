@@ -13,8 +13,11 @@ final class V53CapsuleFixture {
     final Map<String,Object> capsule;
     final int through;
     V53CapsuleFixture(int size,String change,int through) {
+        this(new V53ContextFixture(size,change),change,through);
+    }
+    V53CapsuleFixture(V53ContextFixture initial,String change,int through) {
         if(through<0 || through>9)throw new IllegalArgumentException("fixture cut");
-        this.through=through;source=new V53ContextFixture(size,change);source.transition(change);owned.addAll(source.owned);
+        this.through=through;source=initial;source.transition(change);owned.addAll(source.owned);
         source.images.forEach((h,b)->images.put(h,(long)b.length));add(source.root.digest());add((String)source.root.value().get("genesis"));
         String terminal=catalog(through);add(terminal);var endState=state(through);var items=new ArrayList<Map<String,Object>>();
         for(int start=0;start<through;) {

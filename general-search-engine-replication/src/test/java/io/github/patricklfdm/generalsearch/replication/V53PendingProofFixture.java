@@ -10,8 +10,16 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipContext.
 final class V53PendingProofFixture {
     final V53CurrentGenerationFixture f;
     final List<Integer> nodes;
+    final byte[] command;
+    final String commandKind;
     V53PendingProofFixture(int size,int through) {
-        f=new V53CurrentGenerationFixture(size,through,false);
+        this(new V53CurrentGenerationFixture(size,through,false),null);
+    }
+    V53PendingProofFixture(V53CurrentGenerationFixture initial,byte[] command) {
+        this(initial,command,null);
+    }
+    V53PendingProofFixture(V53CurrentGenerationFixture initial,byte[] command,String kind) {
+        f=initial;this.command=command==null?null:command.clone();commandKind=kind;
         nodes=f.admitted.context.voters().stream().map(n->Integer.parseInt(n.substring(5))).sorted().toList();
     }
     MembershipResources resources(){return new MembershipResources(512*MembershipResources.MIB);}
@@ -41,6 +49,7 @@ final class V53PendingProofFixture {
         }
     }
     byte[] payload() {
+        if(command!=null)return command.clone();
         if(f.admitted.context.view.get("operation")!=null)
             return canonical(Map.of("binding",f.admitted.context.view.get("operation")),8192);
         return "original-real-quorum-payload".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
@@ -49,7 +58,7 @@ final class V53PendingProofFixture {
         var context=f.admitted.context;
         return decode(encode("records","ENTRY",Map.of("root",context.root,"authority",context.authority(),
                 "index",number(context.cut.get("index"))+1,"previous",context.cut.get("entry"),"origin",f.fixture.source.ballot(20),
-                "kind",context.view.get("operation")==null?"DATA":"FINAL","payload",hash(payload()))),"records","ENTRY");
+                "kind",commandKind!=null?commandKind:context.view.get("operation")==null?"DATA":"FINAL","payload",hash(payload()))),"records","ENTRY");
     }
     Set<Owned> accept(Path root)throws Exception {
         var observations=new HashSet<Owned>();

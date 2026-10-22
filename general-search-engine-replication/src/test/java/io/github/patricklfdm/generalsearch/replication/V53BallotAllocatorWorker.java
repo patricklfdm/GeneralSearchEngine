@@ -12,7 +12,10 @@ public final class V53BallotAllocatorWorker {
                 UUID.fromString((String)fixture.root.value().get("historyId")),fixture.rootHash);
     }
     static void provision(Path path,int size) throws Exception {
-        var fixture=new V53ContextFixture(size,"REPLACE"); Files.createDirectory(path); AdmissionPaths.forceDirectory(path.getParent());
+        provision(path,new V53ContextFixture(size,"REPLACE"));
+    }
+    static void provision(Path path,V53ContextFixture fixture) throws Exception {
+        Files.createDirectory(path); AdmissionPaths.forceDirectory(path.getParent());
         AdmissionPaths.write(path.resolve("replica.lock"),new byte[0]);
         AdmissionPaths.write(path.resolve("root.gsr"),fixture.root.bytes());
         AdmissionPaths.write(path.resolve("genesis.gsr"),fixture.inventory.get(fixture.root.value().get("genesis")));

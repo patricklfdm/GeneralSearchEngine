@@ -12,6 +12,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 /** One exact applied-end staging area. Caller owns the journal/fence and its remaining metadata allowance. */
 final class MembershipAppliedEndFiles implements AutoCloseable {
     static final String DIRECTORY="applied-end",PLAN="plan.json",IMAGE="application.image",ACK="ack.gsr";
+    static final int METADATA=4096*2+16384*2+2*1024*1024+2048;
     private static final Set<String> NAMES=Set.of(PLAN,IMAGE,ACK,"selector.gsr","certificate.gsr","catalog.gsr","statement.gsr");
     record Endorsement(Decoded acknowledgement,Owned owned) {}
     private final Path path;
@@ -53,6 +54,8 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
     private void reserve() {
         if(imageLease==null)imageLease=resources.reserve(MembershipResources.Unit.APPLICATION,"applied-end",MembershipResources.Unit.APPLICATION.bytes);
     }
+    void reserveCompletion(){require(!closed,"applied-end closed");reserve();}
+    boolean present(){return exists;}
     void check()throws IOException {
         require(!closed,"applied-end closed");AdmissionPaths.recheck(binding);
         require(resources.usage().counts().getOrDefault(MembershipResources.Unit.JOURNAL,0)==1,"applied-end lost shared journal reservation");

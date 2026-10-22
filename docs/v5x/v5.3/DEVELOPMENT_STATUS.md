@@ -1002,3 +1002,24 @@ actual lock and end-file force are tested, full integrated publication is not.
 Continue actual journal certificate/fence/replay/staging integration, complete
 capsule/ancestry selector installation, covered-tail retirement and bounded lifetime
 progress. Phase 2/pre-cloud remain OPEN; no push, public readiness or cloud change.
+
+
+## 2026-10-22 — Phase 2C5d actual journal application/ACK
+
+The exclusive journal now applies its original locally certified first slot through
+typed core replay and forces the exact end before issuing a checkpoint ACK. Bounded
+scratch recognizes interrupted core backup staging; all destructive cleanup remains
+limited to exact disposable members. Completion/reopen capacity is reserved before
+ACCEPT and retained while the applied certificate remains unresolved.
+
+Final targeted **66 Java tests PASS**; **22 actual journal crash cases / 66 JVMs**,
+**36 scratch/core crash cases / 108 JVMs** and original-first independent journal
+replay with seven negative mutations, relocation and Python `-O` pass. Earlier
+77-test broad storage execution and the reproduced reopen-capacity regression are
+retained separately. [Scope](PHASE_2_JOURNAL_APPLICATION.md),
+[index](phase2-evidence/journal-application.json).
+
+Initial provisioning remains a private fixture; selector publication, covered-tail
+retirement, stable next-slot progression and coordinated lifetime work remain open.
+No runtime enablement, protected CI, push or V5.2 cloud change. Continue local work
+under the [pre-cloud closure checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md).

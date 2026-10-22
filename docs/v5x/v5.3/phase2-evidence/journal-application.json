@@ -1,0 +1,136 @@
+{
+  "earlierBroadJavaTests": 77,
+  "earlierBroadSource": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": "980ac337f7c743da542e3742f04f576984ef2f4d8bddcb30e51ff252aff3c6e9",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "8b3961f33c589f2244875026c68c3e10c4380f48c09a9d0f3ec1e4eb4bda6311",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "2b1f4698f54899d1ad4bbaaaffb728f482b82c9832ac17eb3126350b6a9db64d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReplayFiles.java": "dc63d9c667af80438634ac0f959faa6a35457b9ee5250927e8535eeac710b49f"
+  },
+  "finalJavaTests": 66,
+  "finalSuites": {
+    "io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest": 3,
+    "io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest": 9,
+    "io.github.patricklfdm.generalsearch.replication.V53DeclarationsTest": 14,
+    "io.github.patricklfdm.generalsearch.replication.V53GenerationInstallTest": 11,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalApplicationTest": 8,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalBackpressureTest": 8,
+    "io.github.patricklfdm.generalsearch.replication.V53ReplayFilesTest": 6,
+    "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": 7
+  },
+  "headroomRegression": "fails at reopen without retained scratch reservation; passes after correction",
+  "independent": {
+    "cases": 22,
+    "freshJvms": 66,
+    "negatives": [
+      {
+        "case": "missing-vote",
+        "reason": "application missing actual local vote",
+        "status": "REJECT"
+      },
+      {
+        "case": "changed-observation",
+        "reason": "application observation phases",
+        "status": "REJECT"
+      },
+      {
+        "case": "changed-selector",
+        "reason": "application original authority changed during recovery",
+        "status": "REJECT"
+      },
+      {
+        "case": "changed-end",
+        "reason": "application final owner bytes",
+        "status": "REJECT"
+      },
+      {
+        "case": "changed-crash",
+        "reason": "application exact interrupted end bytes",
+        "status": "REJECT"
+      },
+      {
+        "case": "early-success",
+        "reason": "application early success",
+        "status": "REJECT"
+      },
+      {
+        "case": "missing-force",
+        "reason": "application exact end force order",
+        "status": "REJECT"
+      }
+    ],
+    "phasedObservations": "actual-local-owners",
+    "portableReplay": "PASS",
+    "selectorPublication": false,
+    "status": "PASS"
+  },
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a66d8b90b06cd2bc3b4605375daff7218f88057fe0550adcd943d08c6e7dfafb",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "journalCases": 22,
+  "journalFreshJvms": 66,
+  "limitations": [
+    "private provisioning/initial historical prefix; no public bootstrap or remote authentication",
+    "actual journal crash matrix is stable-three; joint/FINAL have focused local owner coverage",
+    "independent replay checks original votes, exact end bytes and force ordering; core semantic replay is Java verification",
+    "full capsule/ancestry selector publication, covered-tail retirement and stable next-slot progression pending",
+    "full-size coordinated source/image lifetime and all-profile integrated physical qualification remain pending"
+  ],
+  "logs": {
+    "corrected.log": "622be8fc031b046f0a665d9419fb56a56c4901400073532f0f5df68aeab7a8e2",
+    "final.log": "dc30a6946eba3a7295ebfba116bf1232360725543684c8f423007f50457d15ee",
+    "focused.log": "6b1ae5700a1a187956b7f5ca1c05ab5a3522c9d83e497901c5406ac977e5d181",
+    "headroom-corrected-red.log": "49392f02eebf9bf6131f1fa11660373f89f2e1e376074d61fd6ea51fbe3b9344",
+    "headroom-green.log": "ebe5efd16d04e9724cc67adc8dcccd99c612a7e93c82d43d7308b81ba86d66b8",
+    "headroom-red.log": "95a7a7b0b0a3d7a16963169200b0ecbc7cad134600ec90e5d81e3c2a4ab24cad",
+    "integration.log": "bee0da6a300c7d620b3deae3ce8a32ea688c8b9dc5bbe13472c5d09d557b3f68",
+    "qualification.log": "987150c7e22b909b621d8d21678fa19d93f6ac25df6c9df2f1236737b1297452"
+  },
+  "optimizedReplay": "PASS",
+  "powerLoss": false,
+  "protectedCI": false,
+  "rawIndexSha256": "3c4f70693c5a105e70ce48595221f53cfff209dcf6dcad1716052c36ea3deb7c",
+  "reports": {
+    "TEST-io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.xml": "773c3c98df82b82b0ed0abc41edf3772db5011afe9f5419cc49f479cb150af35",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest.xml": "947ac301d82982a2278a22f0d8e35f78cdaaec8992e4a489e50be391b42019cc",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53DeclarationsTest.xml": "3c702b2ad75b601af142054682fefc349a5242366d01bdca29818cfd8ed7af12",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationInstallTest.xml": "fd69582c82e75b723a854db411c917c9cc98d12c73dfbb0f98122239fbf578fb",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53JournalApplicationTest.xml": "01be357254208ec7b93fd8a99512016e30b09e396496e98962bbc272c3f16a78",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53JournalBackpressureTest.xml": "2f2dec109c2e9bcf8133c69706c2bb80874d9cc484625610a9ce0f4158fbb422",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ReplayFilesTest.xml": "c0c1d0047a0afbf25247cd34bde279dda5b1da4b46f3c31a6d903690b3aa4118",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.xml": "fdb262185f32fad6233be0d5acaa811ef58a363a46185aeb59f96c0eb6255f36"
+  },
+  "retainedFailures": [
+    "initial test helper compilation error",
+    "first headroom test caught the wrong exception wrapper",
+    "corrected headroom red regression reproduces loss of reopen capacity"
+  ],
+  "retainedLocal": "target/v53-replay-storage",
+  "retainedProcesses": {
+    "journal": "general-search-engine-replication/target/v53-journal-application-process/run-58ee9937-0110-4e9b-ba37-859048c63ee9",
+    "scratch": "general-search-engine-replication/target/v53-replay-process/run-ebb1f43d-32ad-46ec-8c55-20706ce7a2d6"
+  },
+  "runtimeEnabled": false,
+  "schema": "gse-v53-journal-application-index-v1",
+  "scratchCases": 36,
+  "scratchFreshJvms": 108,
+  "selectorPublication": false,
+  "sourceHead": "320e0c101b27217cb1cd7809de86be8368fc247f",
+  "status": "PASS",
+  "worktreeImplementation": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": "980ac337f7c743da542e3742f04f576984ef2f4d8bddcb30e51ff252aff3c6e9",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "8b3961f33c589f2244875026c68c3e10c4380f48c09a9d0f3ec1e4eb4bda6311",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "385a61a1d535ad7b4ce4da12223ad81f91d3ec353960578fdacb84f36f8f221d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReplayFiles.java": "e837225575fc248412538ee4ebfd4c28a7f9f8b6f705db8229599ab1cdb217b1",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BallotAllocatorWorker.java": "4cf823be3ceca0a456f94332a171fdb995dfb7887bb5ea5e8d2717adc67f65f5",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CapsuleFixture.java": "d9605c1f509c5d7852b556e20e0957242582362b32e2710ed4280ddcf7952115",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CurrentGenerationFixture.java": "1257f53e845b172743271d01decbf1c139b5680e69ab5b93fed8554ab9eb9796",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalApplicationTest.java": "7849d481486aa20af569d7ac7db505d674d9a49173232fe44d6146664e95544b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalApplicationWorker.java": "b37b22bdb45c7d95c4dd8e335fdfd1f40d3858f23e59209ac9ffa2368bffa1b8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingCertificateFixture.java": "89c3efb2228f9617a6247d34df77cfa248980b406d1c5eabc8c7fc5aea07147d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingProofFixture.java": "f733e1c4f1130d9a36727e6615f48a10fe59eea64f89eb1f826295df99e18643",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ReplayFilesTest.java": "88c6989c8ccfe64e13875477e9f2ebeb54d4f66f1927559f2ec1cb00771364d7",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ReplayFilesWorker.java": "1cfaf513f00557710ed65d2771b88e75aa549cc9342d4a4de6da109f263bc45a",
+    "scripts/v53/journal_application_evidence.py": "e2026e7ef006888f43fd09d4457241ec4395a06b012a98f53db78689a9685529"
+  }
+}

@@ -9,6 +9,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipContext.
 final class V53PendingCertificateFixture {
     final V53PendingProofFixture f;
     V53PendingCertificateFixture(int size,int through){f=new V53PendingProofFixture(size,through);}
+    V53PendingCertificateFixture(V53PendingProofFixture f){this.f=f;}
     Decoded certificate(Decoded proof,Set<Owned> observations) {
         var values=new TreeMap<>(proof.value());var witnesses=new ArrayList<Map<String,Object>>();
         for(var owned:observations.stream().sorted(Comparator.comparing(Owned::voter)).toList()) {
