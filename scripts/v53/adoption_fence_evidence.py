@@ -107,7 +107,7 @@ def validate_case(directory,case):
         need(g.events(stdout)==(list(c.OPEN+('ADOPTION_VALIDATED',)) if written else order),'adoption recovery force order');result(stdout,fence,value)
     for name in ('same','old'):
         stdout=d.process(directory,record,name,name,2);need(g.events(stdout)==list(c.OPEN+(c.CAPTURE,)),'adoption refusal wrote')
-        reason='higher ballot observed; fresh campaign required' if name=='old' else 'incomplete original basis; fresh ballot required' if case['through']==6 else 'duplicate grant changed configuration'
+        reason='uninstalled adoption fence; prefix recovery required'
         need(stdout[-1]['reason']==reason,'adoption refusal reason');state(directory/('same' if name=='same' else 'final'),case['size'],initial,rows,fence,True)
     state(directory/'authority',case['size'],initial,rows,fence,True)
     processes={'init','first','duplicate','same','old'} if clean else {'init','fault','resume','same','old'}

@@ -206,8 +206,10 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** The same writer monitor will own later generation installation; external changes are refused. */
     synchronized Decoded prepareCurrent(Map<String,Object> incoming) throws IOException {
         require(current!=null,"current generation required");checkOwner();cut.at("CURRENT_BEFORE_CAPTURE");checkOwner();
-        if(inactive!=null)require(!inactive.pending() && !(inactive.exists() && current.manifest.value().get("selection")==null)
+        if(inactive!=null)require(!inactive.pending() && !(inactive.exists() && !current.adopted && current.manifest.value().get("selection")==null)
                 && !inactive.incompleteOrSelected(selection==null?null:selection.digest()),"pending generation installation must finish before another grant");
+        require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),
+                "uninstalled adoption fence; prefix recovery required");
         return prepareBound(current.capsule,incoming,current.accepted,current.images());
     }
     void observeCurrent(Map<String,Object> incoming) {live();require(current!=null,"current generation required");observe(current.capsule.context,incoming);}
@@ -217,7 +219,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Certificate-derived root fence only. Prefix installation and any vote remain separate operations. */
     synchronized Decoded fenceMembershipPrefix(MembershipSourcePacket packet,Map<String,byte[]> images,List<MembershipSelection.Bridge> bridges) throws IOException {
         require(current!=null && inactive!=null,"generation owner required");checkOwner();
-        require(!inactive.pending() && !(inactive.exists() && current.manifest.value().get("selection")==null)
+        require(!inactive.pending() && !(inactive.exists() && !current.adopted && current.manifest.value().get("selection")==null)
                 && !inactive.incompleteOrSelected(selection==null?null:selection.digest()),"pending generation installation must finish before adoption");
         var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
         var incoming=Objects.requireNonNull(capsuleVerifier.verify(localRoot,packet,images));
@@ -239,9 +241,57 @@ final class MembershipGrantJournal implements AutoCloseable {
             cut.at("ADOPTION_BEFORE_RETURN");checkOwner();fence(floor);return adoption;
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
+    /** Adopts authenticated membership state, without granting a vote, installation ACK or READY. */
+    synchronized Decoded adoptCurrent(MembershipSourcePacket packet,Map<String,byte[]> images,List<MembershipSelection.Bridge> bridges) throws IOException {
+        require(current!=null && inactive!=null,"generation owner required");checkOwner();
+        var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        var incoming=Objects.requireNonNull(capsuleVerifier.verify(localRoot,packet,images));
+        require(Arrays.equals(incoming.packet.bytes(),packet.bytes()),"adoption verifier substituted source");packet.verifyImages(images);
+        var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());
+        for(var original:bases.values()) {
+            var cap=sources.original(original).packet().capsule().value();
+            ancestors.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
+        }
+        incoming.verifyAncestry(MembershipGenerationPlan.ancestry(bridges),ancestors);
+        var certificate=incoming.membershipCertificateFence().orElseThrow(()->new IllegalArgumentException("no authenticated membership certificate fence"));
+        if(current.adopted && Arrays.equals(current.capsule.packet.bytes(),packet.bytes())) {
+            var saved=decode(AdmissionPaths.read(directory.resolve("generations").resolve(current.generation).resolve("promise.gsr"),8192),"records","PROMISE");
+            var duplicate=MembershipGenerationPlan.adopted(root,identity,current.generation,saved,incoming,bridges,images);
+            require(Arrays.equals(current.manifest.bytes(),duplicate.manifest.bytes()) && !inactive.pending(),"adopted generation differs from original plan");
+            checkOwner();fence(object(promise.value().get("ballot")));return current.manifest;
+        }
+        require(number(incoming.context.cut.get("index"))>number(current.capsule.context.cut.get("index"))
+                && !incoming.context.authority().equals(current.capsule.context.authority()),"adoption requires newer membership authority");
+        if(current.accepted!=null) {
+            var tail=current.capsule.context.record(current.accepted,"ACCEPT");
+            require(number(tail.value().get("index"))<=number(incoming.context.cut.get("index")),"adoption would omit above-prefix owned tail");
+        }
+        var floor=ballot(object(certificate.value().get("ballot")));Decoded adoptedPromise=promise;
+        if(promise==null || compareBallot(object(promise.value().get("ballot")),floor)<0) {
+            var value=new TreeMap<String,Object>();value.put("root",root.manifestDigest());value.put("view",certificate.value().get("authority"));
+            value.put("ballot",floor);value.put("basisId",null);adoptedPromise=decode(encode("records","PROMISE",value),"records","PROMISE");
+            if(adoptedPromise.bytes().length>maximum-journal.length)throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
+                    AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),"adoption journal rotation required",null);
+        }
+        var plan=MembershipGenerationPlan.adopted(root,identity,inactive.slot(),adoptedPromise,incoming,bridges,images);
+        // Reject another pending plan or occupied old generation before modifying the root promise.
+        inactive.checkPlan(plan);
+        var bound=object(adoptedPromise.value().get("ballot"));
+        try {
+            inactive.reservePlan(plan);checkOwner();cut.at("ADOPTION_INSTALL_VALIDATED");checkOwner();
+            observed.updateAndGet(prior->prior==null || compareBallot(bound,prior)>0?bound:prior);fence(bound);
+            if(promise==null || !Arrays.equals(promise.bytes(),adoptedPromise.bytes())) {
+                append(adoptedPromise,bound);promise=adoptedPromise;basis=null;selection=null;promises.put(promiseKey(promise),promise);
+            }
+            cut.at("ADOPTION_INSTALL_FENCED");checkOwner();fence(bound);
+            inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(bound);},current::check,cut);
+            reloadGenerations();cut.at("ADOPTION_INSTALL_BEFORE_RETURN");checkOwner();fence(bound);return current.manifest;
+        }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
+    }
     /** Observation of this owner's forced original grant, not an assertion of remote force. */
     synchronized MembershipSelection.Source originalSource() throws IOException {
         require(current!=null && basis!=null,"complete current grant required");checkOwner();
+        require(basis.value().get("view").equals(current.capsule.context.authority()),"obsolete original grant; fresh campaign required");
         var original=sources.original(basis);var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
         var capsule=Objects.requireNonNull(capsuleVerifier.verify(localRoot,original.packet(),original.images()));
         require(Arrays.equals(capsule.packet.bytes(),original.packet().bytes()),"original verifier substituted source");
@@ -282,7 +332,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var selected=decision(offered,bridges);require(Arrays.equals(selection.bytes(),selected.selected().bytes()),"installation differs from original selection");
         var ballot=object(selection.value().get("ballot"));boolean installed=selection.digest().equals(current.manifest.value().get("selection"));
         var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,bridges,images);
-        var ancestors=new ArrayList<MembershipCapsule.Anchor>();
+        var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());
         for(var original:bases.values()) {
             var value=sources.original(original).packet().capsule().value();ancestors.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)value.get("catalog"),(String)value.get("application")));
         }

@@ -7,6 +7,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** Complete deterministic selected materialization. The journal must verify its original decision before use. */
 final class MembershipGenerationPlan {
+    static final String ADOPTION="adopted-certificate.gsr";
     final Decoded manifest,selector;
     final SortedMap<String,byte[]> files;
     final long metadata;
@@ -24,6 +25,34 @@ final class MembershipGenerationPlan {
         body.put("voter",local.nodeId().value());body.put("cut",capsule.context.cut);body.put("capsule",packet.capsule().digest());
         body.put("inventory",packet.inventoryDigest());body.put("accepted",manifest.value().get("ownedTail"));
         packet.bind(decode(encode("records","BASIS",body),"records","BASIS"));
+    }
+    static byte[] ancestry(List<MembershipSelection.Bridge> bridges) {
+        require(bridges.size()<=6,"generation ancestry count");var bytes=new ByteArrayOutputStream();
+        for(var bridge:bridges){bytes.writeBytes(bridge.statement.bytes());for(var ack:bridge.acknowledgements)bytes.writeBytes(ack.bytes());}
+        require(bytes.size()<=96*1024,"generation ancestry bytes");return bytes.toByteArray();
+    }
+    static MembershipGenerationPlan adopted(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,
+            MembershipCapsule incoming,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images) {
+        require(Set.of("a","b").contains(slot),"generation slot");incoming.packet.verifyImages(images);
+        require(local.equals(incoming.context.identities.get(local.nodeId().value())),"adopted local historical identity");
+        var certificate=incoming.membershipCertificateFence().orElseThrow(()->new IllegalArgumentException("no authenticated membership certificate fence"));
+        require(MembershipContext.compareBallot(object(promise.value().get("ballot")),object(certificate.value().get("ballot")))>=0,"adopted promise below certificate");
+        var files=new TreeMap<String,byte[]>();files.put("source.gscp",incoming.packet.bytes());files.put("promise.gsr",promise.bytes());
+        files.put(ADOPTION,certificate.bytes());if(!bridges.isEmpty())files.put("ancestry.gsr",ancestry(bridges));
+        images.forEach((h,bytes)->files.put(h+".image",bytes));
+        var inventory=new ArrayList<Map<String,Object>>();long metadata=0;
+        for(var row:files.entrySet()) {
+            inventory.add(Map.of("path",row.getKey(),"size",(long)row.getValue().length,"sha256",hash(row.getValue())));
+            if(!row.getKey().endsWith(".image"))metadata=Math.addExact(metadata,row.getValue().length);
+        }
+        var value=new TreeMap<String,Object>();value.put("root",root.manifestDigest());value.put("node",local.nodeId().value());value.put("generation",slot);
+        for(String field:List.of("cut","application","catalog"))value.put(field,incoming.packet.capsule().value().get(field));
+        value.put("capsule",incoming.packet.capsule().digest());value.put("promise",promise.digest());value.put("basis",null);
+        value.put("selection",null);value.put("ownedTail",null);value.put("files",inventory);
+        var manifest=decode(encode("records","GENERATION",value),"records","GENERATION");metadata=Math.addExact(metadata,manifest.bytes().length);
+        require(metadata<=MembershipResources.Unit.GENERATION.bytes,"complete generation metadata capacity");files.put(MembershipCurrentGeneration.MANIFEST,manifest.bytes());
+        var selector=decode(encode("records","SELECTOR",Map.of("root",root.manifestDigest(),"node",local.nodeId().value(),"generation",slot,"digest",manifest.digest())),"records","SELECTOR");
+        return new MembershipGenerationPlan(manifest,selector,files,metadata);
     }
     static MembershipGenerationPlan selected(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
             MembershipSelection.Decision decision,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images) {

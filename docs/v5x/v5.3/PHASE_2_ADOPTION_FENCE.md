@@ -62,11 +62,13 @@ python3 -m scripts.v53.adoption_fence_qualification \
   "target/v53-phase2-adoption-fence/run-$(date -u +%Y%m%dT%H%M%SZ)"
 ```
 
-Use a new output directory. The next integrated adoption transaction must retain
-and force the new prefix/removal authority, preserve current and original ancestry,
-invalidate old-view selected work, then require fresh activation. This fence-only
-entry must not be wired directly to a runtime campaign: a later grant against the
-old selected generation does not prove that the known newer prefix was installed.
+Use a new output directory. The [integrated adoption transaction](PHASE_2_ADOPTION_INSTALL.md)
+now connects this fence to retained prefix/removal authority, current and original
+ancestry, obsolete-view refusal and fresh campaigning. A null-BASIS fence without
+its installed prefix now blocks even a higher old-view PREPARE. The original
+fence-only evidence above predates that stricter refusal; the new transaction's
+regression verifies the updated behavior. The helper remains private and cannot
+by itself authorize a runtime campaign.
 Stable-range synchronization, actual phased vote ownership/application storage,
 floor/retirement, journal rotation, offline initialization and complete physical
 old/joint/new qualification remain mandatory in the

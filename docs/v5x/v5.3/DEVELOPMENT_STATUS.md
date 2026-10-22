@@ -619,3 +619,26 @@ connect the fence to new-state installation and invalidate obsolete-view work.
 Remote historical observations remain conditional fixtures. The operator's
 [expanded instruction](LOCAL_DEVELOPMENT_SEQUENCE.md) now covers local work through
 all pre-cloud stages; Phase 2 and the overall completion audit remain OPEN.
+
+## 2026-10-22 — Phase 2C3b local prefix adoption transaction
+
+The [adoption transaction](PHASE_2_ADOPTION_INSTALL.md) now validates current and
+original-source ancestry, retains a complete exact reservation across PROMISE
+force, then installs and forces the candidate and selector. A new null-BASIS fence
+without its prefix blocks old-view campaigns. A higher original promise survives
+byte-for-byte while obsolete sources cannot vote; known removed identities reopen
+with history and refuse grants. Old generation/source bytes remain retained.
+
+A new regression exposed same-content inode replacement accepted at a write/force
+callback. The shared installer now checks identity immediately after these
+boundaries. Final qualification passed 234 cases / 1170 fresh JVMs, 14 negatives
+and portable replay in 567.824 seconds. Shared selected installation
+and fence regressions passed 174 and 66 cases. All 129 focused Java, 69 Python
+and 53 optimized-Python tests passed. The [hash index](phase2-evidence/adoption-install.json)
+records final source bindings, raw evidence, earlier results and fixture corrections.
+
+No network ACK, READY, public runtime or cloud acceptance is claimed. Actual
+application/phased vote storage, governing floor/retirement, bounded rotation,
+offline initialization and integrated Phase 2 audit remain open. Development now
+continues with exact governing-copy floor admission and retirement recovery, under
+the existing local commit/no-push authorization.

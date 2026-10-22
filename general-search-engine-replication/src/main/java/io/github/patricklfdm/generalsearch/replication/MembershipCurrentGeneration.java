@@ -24,6 +24,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
     private final boolean installations;
     final MembershipCapsule capsule;
     final String accepted;
+    final boolean adopted;
     final String generation;
     final Decoded selector,manifest;
 
@@ -48,13 +49,15 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         for(Object row:list(value.get("files"))) {
             var file=object(row);String name=(String)file.get("path");
             require(name.equals(PACKET) || name.equals("promise.gsr") || name.equals("owned-tail.gsr") || name.matches("[0-9a-f]{64}\\.image")
-                    || installations && Set.of("basis.gsr","selected.gsr","ancestry.gsr").contains(name),"current file path");
+                    || installations && Set.of("basis.gsr","selected.gsr","ancestry.gsr",MembershipGenerationPlan.ADOPTION).contains(name),"current file path");
             require(previous==null || previous.compareTo(name)<0,"current file inventory order");previous=name;inventory.put(name,file);
             long size=number(file.get("size"));long maximum=name.endsWith(".image")?MembershipResources.Unit.APPLICATION.bytes:
-                    name.equals(PACKET)?MembershipSourcePacket.MAXIMUM:name.equals("ancestry.gsr")?96*1024:name.equals("selected.gsr")?65536:name.equals("basis.gsr")?16384:8192;
+                    name.equals(PACKET)?MembershipSourcePacket.MAXIMUM:name.equals("ancestry.gsr")?96*1024:name.equals("selected.gsr")?65536:Set.of("basis.gsr",MembershipGenerationPlan.ADOPTION).contains(name)?16384:8192;
             require(size>0 && size<=maximum,"current file capacity");
             if(!name.endsWith(".image")){require(size<=MembershipResources.Unit.GENERATION.bytes-metadata,"complete generation metadata capacity");metadata+=size;}
         }
+        adopted=inventory.containsKey(MembershipGenerationPlan.ADOPTION);
+        require(!adopted || installations && value.get("selection")==null && value.get("basis")==null && value.get("ownedTail")==null,"adoption is not a selected grant");
         var expected=new TreeSet<>(inventory.keySet());expected.add(MANIFEST);
         require(children(path,32).equals(expected) && inventory.containsKey(PACKET) && inventory.containsKey("promise.gsr"),"current file inventory");
         try {
@@ -71,7 +74,9 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             for(String field:List.of("root","cut","catalog","application"))require(value.get(field).equals(packet.capsule().value().get(field)),"current capsule binding: "+field);
             require(value.get("capsule").equals(packet.capsule().digest()),"current capsule digest");
             var names=new TreeSet<>(Set.of(PACKET,"promise.gsr"));packet.images().keySet().forEach(h->names.add(h+".image"));
-            if(value.get("selection")!=null){names.add("basis.gsr");names.add("selected.gsr");if(inventory.containsKey("ancestry.gsr"))names.add("ancestry.gsr");}
+            if(value.get("selection")!=null){names.add("basis.gsr");names.add("selected.gsr");}
+            if(adopted)names.add(MembershipGenerationPlan.ADOPTION);
+            if((adopted || value.get("selection")!=null) && inventory.containsKey("ancestry.gsr"))names.add("ancestry.gsr");
             accepted=(String)value.get("ownedTail");if(accepted!=null)names.add("owned-tail.gsr");
             require(names.equals(inventory.keySet()),"current materialization inventory");
             for(var image:packet.images().entrySet()) {
@@ -82,9 +87,15 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             var materializations=materialize(packet);packet.verifyImages(materializations);
             capsule=Objects.requireNonNull(verifier.verify(localRoot,packet,materializations),"current capsule verifier");
             require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"current verifier substituted source");
-            require(identity.equals(capsule.context.identities.get(identity.nodeId().value())) && capsule.context.voters().contains(identity.nodeId().value()),"current local eligible identity");
-            require(promise.value().get("view").equals(capsule.context.authority()),"current promise view");
-            capsule.context.ballot(promise.value().get("ballot"),true);
+            require(identity.equals(capsule.context.identities.get(identity.nodeId().value())) && (adopted || capsule.context.voters().contains(identity.nodeId().value())),"current local eligible identity");
+            if(adopted) {
+                var certificate=capsule.membershipCertificateFence().orElseThrow(()->new IllegalArgumentException("adopted certificate missing from capsule"));
+                require(Arrays.equals(certificate.bytes(),AdmissionPaths.read(path.resolve(MembershipGenerationPlan.ADOPTION),16384)),"adopted certificate binding");
+                require(compareBallot(object(promise.value().get("ballot")),object(certificate.value().get("ballot")))>=0,"adopted promise below certificate");
+            }else {
+                require(promise.value().get("view").equals(capsule.context.authority()),"current promise view");
+                capsule.context.ballot(promise.value().get("ballot"),true);
+            }
             Decoded installed=null;
             if(value.get("selection")!=null) {
                 var basis=decode(AdmissionPaths.read(path.resolve("basis.gsr"),16384),"records","BASIS");
@@ -93,6 +104,8 @@ final class MembershipCurrentGeneration implements AutoCloseable {
                 require(installed.digest().equals(value.get("selection")) && selections.stream().anyMatch(s->Arrays.equals(s.bytes(),selectedBytes)),"installed selection absent from journal");
                 for(String field:List.of("root","view","ballot"))require(installed.value().get(field).equals(promise.value().get(field)),"installed selection promise binding");
                 require(basis.value().get("basisId").equals(promise.value().get("basisId")) && installed.value().get("cut").equals(capsule.context.cut),"installed selection parent");
+            }
+            if(adopted || installed!=null) {
                 var ancestors=new ArrayList<MembershipCapsule.Anchor>();
                 for(var original:bases) {
                     var retained=MembershipSourcePacket.decode(AdmissionPaths.read(parent.resolve("sources").resolve((String)original.value().get("basisId")).resolve(PACKET),MembershipSourcePacket.MAXIMUM));

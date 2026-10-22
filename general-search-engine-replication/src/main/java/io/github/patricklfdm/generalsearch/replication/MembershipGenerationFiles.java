@@ -20,6 +20,7 @@ final class MembershipGenerationFiles implements AutoCloseable {
     private Object pathKey;
     private FileIdentity pending;
     private boolean exists;
+    private String reservedPlan;
 
     MembershipGenerationFiles(Path parent,String active,MembershipResources resources) throws IOException {
         this.parent=parent;this.resources=resources;slot=active.equals("a")?"b":"a";
@@ -38,7 +39,7 @@ final class MembershipGenerationFiles implements AutoCloseable {
     private static long limit(String name) {
         if(name.matches("[0-9a-f]{64}\\.image"))return MembershipResources.Unit.APPLICATION.bytes;
         return switch(name){case "source.gscp"->MembershipResources.Unit.GENERATION.bytes;case "generation.gsr","selected.gsr"->65536;
-            case "ancestry.gsr"->96*1024;case "basis.gsr"->16384;case "promise.gsr","owned-tail.gsr"->8192;default->throw new IllegalArgumentException("unknown staged generation file");};
+            case "ancestry.gsr"->96*1024;case "basis.gsr","adopted-certificate.gsr"->16384;case "promise.gsr","owned-tail.gsr"->8192;default->throw new IllegalArgumentException("unknown staged generation file");};
     }
     private void capture() throws IOException {
         files.clear();exists=Files.exists(path,LinkOption.NOFOLLOW_LINKS);pathKey=exists?key(path):null;
@@ -70,10 +71,11 @@ final class MembershipGenerationFiles implements AutoCloseable {
             if(plan==null) {
                 for(var file:files.entrySet())if(file.getKey().endsWith(".image"))leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"generation-"+slot+":"+file.getKey(),Math.max(1,file.getValue().bytes())));
             }else for(var file:plan.files.entrySet())if(file.getKey().endsWith(".image"))leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"generation-"+slot+":"+file.getKey(),file.getValue().length));
+            reservedPlan=plan==null?null:plan.manifest.digest();
         }catch(RuntimeException | Error error){close();throw error;}
     }
-    void install(MembershipGenerationPlan plan,byte[] previousSelector,Guard owner,Guard oldGeneration,MembershipBallotAllocator.Cut cut) throws IOException {
-        require(plan.manifest.value().get("generation").equals(slot),"installation slot");check();owner.check();oldGeneration.check();
+    void checkPlan(MembershipGenerationPlan plan) throws IOException {
+        require(plan.manifest.value().get("generation").equals(slot),"installation slot");check();
         require(plan.files.keySet().containsAll(files.keySet()),"unexpected staged generation file");
         // A valid older generation is not staging space. It must first pass governing-floor retirement.
         if(files.containsKey(MembershipCurrentGeneration.MANIFEST)) {
@@ -82,7 +84,15 @@ final class MembershipGenerationFiles implements AutoCloseable {
         }
         for(var row:files.entrySet())require(prefix(AdmissionPaths.read(path.resolve(row.getKey()),Math.toIntExact(limit(row.getKey()))),plan.files.get(row.getKey())),"staged generation differs from original plan");
         if(pending!=null)require(prefix(AdmissionPaths.read(parent.resolve(PENDING),4096),plan.selector.bytes()),"pending selector differs from original plan");
-        reserve(plan);cut.at("INSTALL_RESERVED");owner.check();oldGeneration.check();
+    }
+    private void ensureReserved(MembershipGenerationPlan plan) {
+        // Adoption holds this exact reservation across PROMISE force. Never release and
+        // reacquire it after the bound was persisted: another user could take that space.
+        if(!plan.manifest.digest().equals(reservedPlan))reserve(plan);
+    }
+    void reservePlan(MembershipGenerationPlan plan) throws IOException {checkPlan(plan);ensureReserved(plan);}
+    void install(MembershipGenerationPlan plan,byte[] previousSelector,Guard owner,Guard oldGeneration,MembershipBallotAllocator.Cut cut) throws IOException {
+        checkPlan(plan);owner.check();oldGeneration.check();ensureReserved(plan);cut.at("INSTALL_RESERVED");owner.check();oldGeneration.check();
         if(!exists)Files.createDirectory(path);capture();cut.at("INSTALL_DIRECTORY_CREATED");
         // The full manifest is the exact resumption plan; no replacement source is accepted after any prefix is written.
         complete(path.resolve(MembershipCurrentGeneration.MANIFEST),plan.manifest.bytes(),"INSTALL_MANIFEST",owner,cut);
@@ -106,9 +116,9 @@ final class MembershipGenerationFiles implements AutoCloseable {
         if(Files.exists(file,LinkOption.NOFOLLOW_LINKS))require(prefix(AdmissionPaths.read(file,bytes.length),bytes),"generation member changed from exact prefix");
         try(var channel=FileChannel.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             channel.position(channel.size());AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,Math.toIntExact(channel.size()),bytes.length));
-            capture();cut.at(event+"_WRITTEN");owner.check();channel.force(true);cut.at(event+"_FORCED");
+            capture();cut.at(event+"_WRITTEN");check();owner.check();channel.force(true);cut.at(event+"_FORCED");check();owner.check();
         }
         AdmissionPaths.exact(file,bytes);capture();
     }
-    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();}
+    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();reservedPlan=null;}
 }
