@@ -54,7 +54,9 @@ and source capture. [Pending certificate](PHASE_2_PENDING_CERTIFICATE.md) now pa
 covered-tail integration remain open. [Complete application images](PHASE_2_APPLICATION_IMAGE.md) now preserve
 actual core backup state with deterministic administrative metadata. [Private application replay](PHASE_2_APPLICATION_REPLAY.md)
 now preserves exact results across intermediate recovery cuts. [Exact catalog projection](PHASE_2_CATALOG_PROJECTION.md)
-now covers every control transition and binds READY to the prepared image; durable publication remains pending.
+now covers every control transition and binds READY to the prepared image.
+[Certified checkpoint construction](PHASE_2_CHECKPOINT_EXTENSION.md) now preserves explicit membership edges
+and requires new exact range endorsements; durable publication remains pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

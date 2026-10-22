@@ -98,6 +98,7 @@ final class MembershipContext {
     }
     static String cutDigest(Map<String,Object> cut) { return hash(canonical(cut,16384)); }
     String authority() { return viewDigest(root,view); }
+    String recordRootDigest() {return rootRecordDigest;}
     void quorum(Collection<String> voters) {quorum(view,voters);}
     static void quorum(Map<String,Object> view,Collection<String> voters) {
         var eligible=new HashSet<>(nodes(view,"old"));eligible.addAll(nodes(view,"new"));

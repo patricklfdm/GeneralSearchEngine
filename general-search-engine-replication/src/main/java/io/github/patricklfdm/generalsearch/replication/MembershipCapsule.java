@@ -22,6 +22,15 @@ final class MembershipCapsule {
     Map<Long,Map<String,Object>> anchors() {return anchors;}
     Anchor anchor(long index) {return states.get(index);}
     Anchor terminal() {return states.get(number(context.cut.get("index")));}
+    /** Reuse only this already authenticated prefix's observations; extension evidence stays explicit. */
+    MembershipCapsule verifyExtension(MembershipSourcePacket packet,Map<String,byte[]> images,Set<Owned> additional) {
+        // Do not accumulate observations for replaced ranges or unrelated future records.
+        var owned=new HashSet<Owned>();for(var observation:observations)
+            if(packet.objectNames().contains(observation.record()))owned.add(observation);
+        for(var observation:additional)if(packet.objectNames().contains(observation.record()))owned.add(observation);
+        var root=decode(this.packet.objectBytes(this.context.recordRootDigest()),"records","ROOT");
+        return verify(root,packet,images,owned);
+    }
     /** Only certificates actually authenticated while walking membership edges, never inventory extras. */
     Optional<Decoded> membershipCertificateFence(){return Optional.ofNullable(highestMembershipCertificate);}
 

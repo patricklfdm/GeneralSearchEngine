@@ -35,19 +35,21 @@ final class V53ContextFixture {
     MembershipContext context() { return new MembershipContext(root,catalog(),object(state.get("cut")),inventory,images); }
     Map<String,Object> ballot(long n) {return map("counter",n,"proposer","node-1","incarnation",member(1).get("storage"));}
     V53ContextFixture(int size,String change) {
+        this(size,change,"fixture-application-sequence-0".getBytes(java.nio.charset.StandardCharsets.US_ASCII),new UUID(3,4),0);
+    }
+    V53ContextFixture(int size,String change,byte[] application,UUID history,long sequence) {
         oldMembers=members(size);var next=new ArrayList<>(oldMembers);
         if(change.equals("REMOVE") || change.equals("REPLACE"))next.removeLast();
         if(change.equals("ADD") || change.equals("REPLACE"))next.add(member(6));
         target=List.copyOf(next);
-        byte[] application="fixture-application-sequence-0".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
         String app=hash(application);images.put(app,application);
-        var genesis=record("GENESIS",map("application",app,"baseSequence",0L,"groupId",new UUID(1,2).toString(),"historyId",new UUID(3,4).toString(),
+        var genesis=record("GENESIS",map("application",app,"baseSequence",sequence,"groupId",new UUID(1,2).toString(),"historyId",history.toString(),
                 "schema",H,"indexes",H,"source","EMPTY","sourceDigest",null));
-        root=record("ROOT",map("baseSequence",0L,"codecId","fixture","codecVersion",1L,"configurationId","fixture","genesis",genesis.digest(),
-                "groupId",new UUID(1,2).toString(),"historyId",new UUID(3,4).toString(),"indexes",H,"initial",oldMembers,
+        root=record("ROOT",map("baseSequence",sequence,"codecId","fixture","codecVersion",1L,"configurationId","fixture","genesis",genesis.digest(),
+                "groupId",new UUID(1,2).toString(),"historyId",history.toString(),"indexes",H,"initial",oldMembers,
                 "limits",hash(canonical(CATALOG.get("resources"),16384)),"schema",H));rootHash=root.rootDigest();
         var view=map("generation",0L,"old",names(oldMembers),"new",names(oldMembers),"operation",null);
-        state=map("active",null,"application",app,"applicationSequence",0L,"cut",map("entry",genesis.digest(),"index",0L,"view",view),
+        state=map("active",null,"application",app,"applicationSequence",sequence,"cut",map("entry",genesis.digest(),"index",0L,"view",view),
                 "identities",oldMembers,"lastDataIndex",0L,"nextOperation",1L,"results",new ArrayList<>(),"retiredThrough",0L,"root",rootHash);
     }
     Map<String,Object> operation() { return object(list(state.get("results")).getFirst()); }

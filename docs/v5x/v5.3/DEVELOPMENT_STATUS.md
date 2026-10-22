@@ -967,3 +967,20 @@ and catalog reopen now require the exact prepared image. [Scope](PHASE_2_CATALOG
 Actual checkpoint ownership, forced publication under original selected ancestry,
 covered-tail retirement and full lifetime/bootstrap integration remain pending.
 Phase 2/public runtime/pre-cloud closure remain OPEN. Work and commits stay local.
+
+
+## 2026-10-22 — Phase 2C5d certified checkpoint construction
+
+The new plan joins original phased-certificate checks, actual core application replay,
+catalog projection and exact new checkpoint statements. Completion requires explicit
+applied-end endorsements and independently walks the complete capsule. Stable updates
+replace the old range; original membership edges remain complete and immutable.
+
+**292 V5.3/version-boundary Java tests** passed, including seven new tests, 63
+byte-exact profile transitions and 100 bounded stable extensions. New fixture
+endorsements are conditional; no actual checkpoint force or public publication is
+claimed. [Scope](PHASE_2_CHECKPOINT_EXTENSION.md), [index](phase2-evidence/checkpoint-extension.json).
+
+Continue the actual applied-end/ACK transaction, original selected ancestry,
+covered-tail retirement and coordinated source/image lifetime. Phase 2/pre-cloud
+closure remain OPEN. Only local work/commits; V5.2 experiments remain separate.
