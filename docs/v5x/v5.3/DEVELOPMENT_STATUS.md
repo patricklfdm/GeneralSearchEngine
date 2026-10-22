@@ -338,3 +338,13 @@ original passes; relocated replay passes. See the [retained summary](phase1-evid
 Phase 1 remains **OPEN**: production byte codecs/contextual readers and complete
 steady-round/catalog/compacted-source composition still need implementation. No new
 runtime, cloud, CI job, release, push or PR is enabled by these declarations.
+
+
+## 2026-10-21 — Phase 1 exact-byte syntax codec
+
+[Byte foundation](PHASE_1_BYTES.md) adds a bounded internal 1.3 encoder/decoder and
+retains an independent schema/fixture boundary. All 24 storage and 21 wire frames,
+nine control payloads and the unchanged token match their golden bytes. Twenty-three
+focused Java tests and nine format Python tests passed; a fresh JVM produced all
+45 frames for independent Python replay. Original source/cut authority, transfer
+ownership and the composed model remain pending. No runtime or hosted activation.
