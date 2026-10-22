@@ -937,3 +937,18 @@ socket restriction and test compilation error remain retained in the
 encoding/verification, not durable publication or complete bootstrap. Continue actual
 application replay, catalog projection, checkpoint endorsements and publication
 under original selected ancestry. Phase 2 and pre-cloud completion remain OPEN.
+
+
+## 2026-10-22 — Phase 2C5d actual application operation replay
+
+Private replay now reuses all eight existing operation codecs/semantics, binds the
+original image/history/sequence, preserves control-only images and exports DATA
+results deterministically across intermediate recovery bases. **29 focused Java
+tests** passed, including five new replay tests and eight save/reopen cut comparisons.
+[Scope](PHASE_2_APPLICATION_REPLAY.md), [hash index](phase2-evidence/application-replay.json).
+
+Two retained old public facade failures exposed a missing FOLLOWER/application-cut
+prerequisite after backup. The fixture now waits within a finite bound, then keeps
+its exact original error/outcome assertions; the corrected run passed. No old
+production election/read behavior changed. Catalog reduction, original certified
+publication/checkpoint/source lifetime and full storage closure remain required.

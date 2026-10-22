@@ -376,6 +376,9 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
     }
     io.github.patricklfdm.generalsearch.durability.DurableBackupResult backup(java.util.UUID history,
             io.github.patricklfdm.generalsearch.durability.DurableBackupRequest request) {
+        return captured.newBuilder().writeDurableBackup(applicationState(history), configuration, request);
+    }
+    io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T> applicationState(java.util.UUID history) {
         // V4 metadata binds descriptor order. Preserve captured field order, then append newly indexed fields canonically.
         var active = new java.util.LinkedHashMap<String, IndexDefinition<T>>();
         for (var initial : initialIndexes) {
@@ -384,9 +387,8 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
         }
         for (var entry : registered.entrySet()) active.putIfAbsent(entry.getKey(), definition(entry.getValue()));
         var definitions = List.copyOf(active.values());
-        var state = new io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T>(history, sequence(),
+        return new io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T>(history, sequence(),
                 read(engine -> engine.search(document -> true)), definitions);
-        return captured.newBuilder().writeDurableBackup(state, configuration, request);
     }
 
     static String descriptor(IndexDefinition<?> definition) {

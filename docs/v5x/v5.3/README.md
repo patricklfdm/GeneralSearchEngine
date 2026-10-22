@@ -52,7 +52,8 @@ now passes 45 process scenarios with actual local voter ACCEPTs, repeated recove
 and source capture. [Pending certificate](PHASE_2_PENDING_CERTIFICATE.md) now passes
 45 scenarios over actual ACCEPT/PROOF quorums; application publication and
 covered-tail integration remain open. [Complete application images](PHASE_2_APPLICATION_IMAGE.md) now preserve
-actual core backup state with deterministic administrative metadata; publication remains pending.
+actual core backup state with deterministic administrative metadata. [Private application replay](PHASE_2_APPLICATION_REPLAY.md)
+now preserves exact results across intermediate recovery cuts; durable publication remains pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

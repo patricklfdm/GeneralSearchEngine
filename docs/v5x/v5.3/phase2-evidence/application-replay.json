@@ -1,0 +1,48 @@
+{
+  "applicationPublication": false,
+  "crashQualification": false,
+  "focusedJavaTests": 29,
+  "intermediateReplayCuts": 8,
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "dd1f0c0f11f82fc96704521a655b55ace3a8e6104d0698bf084da8c299c52cfb",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "limitations": [
+    "private application projection only; original certificates/catalog/fences and reservations require integration",
+    "earlier 293-test gate binds the image batch, not this later implementation",
+    "two original legacy follower-premise failures retained; exact assertion now waits for its required state"
+  ],
+  "logs": {
+    "legacy-facade-recheck.log": "d06f449b345cd01796d2fa1e4cf09afb495eba5555f79de9f90a454caf1dcd67",
+    "replay-final.log": "5dea0826b7c0c0601b59db58fc4704f40c4b6ac8371c815af8d3e5f3c2c1d926",
+    "replay-focused.log": "824c6a2116292da3b2c705954991d06c4ea58314cff1df2315c87013e1e8312a",
+    "replay-qualified.log": "84e8a71f3917497970e7d272e56e9428682c033837660409fed9a1e7dc8ed17b"
+  },
+  "newReplayTests": 5,
+  "protectedCI": false,
+  "reports": {
+    "TEST-io.github.patricklfdm.generalsearch.engine.V50ApplicationTransferTest.xml": "566c604144e751c21e4c55aee477ead942c783fa10157eb6cd80a9aca313f561",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V51ApplicationRebuildTest.xml": "a5df90d7b8bbd091d8f1047adb669776529b1e81db6ca3393d048ddff69973ed",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V51PublicRuntimeTest.xml": "f667fea71442a7214212fc1967bf2dabe81987dc890a3a0a1e81dac032f8c90e",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.xml": "72c73e4bdd7961415d49a758f02babfd706d3dfa5126c322e36a2cb2d571bb30",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest.xml": "8dedcfecfb24ceaff74f9dda403cdd4cbe9c2a22d69f7060cb907e3b9af4a9a4",
+    "TEST-io.github.patricklfdm.generalsearch.replication.V53ApplicationReplayTest.xml": "4205e8737316d6943ed84c86da54a415cd92c6e7140ace214af871ae1fb157b0",
+    "io.github.patricklfdm.generalsearch.engine.V50ApplicationTransferTest.txt": "35e4fa5f86c94bd8232373b839ef81a6c7a219f5a138aaee75f56cdb366e44d4",
+    "io.github.patricklfdm.generalsearch.replication.V51ApplicationRebuildTest.txt": "2e87b757b15580e0cfb38ae44c1477d91ef8c9c8251e5c5ecced43fe72275d3c",
+    "io.github.patricklfdm.generalsearch.replication.V51PublicRuntimeTest.txt": "636543a11b7affffb8e5917710085667a9711b4ca90255c7bbd8c997760c930c",
+    "io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.txt": "0ce7ed624dc827be43cce8b39520640663768ccf1edc736f3ca8b8c1c6a6f7ac",
+    "io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest.txt": "f5027e4588c449ed6022cb1c7e820b3f1253eb1444cfb240b79bae62934b6263",
+    "io.github.patricklfdm.generalsearch.replication.V53ApplicationReplayTest.txt": "9beed43213794f803266df1915f6e91f45c4366763edfac834b87d5891948453"
+  },
+  "retainedLocal": "target/v53-certified-publication",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-application-replay-index-v1",
+  "sourceHead": "754746e710e0f4b6e4f0d9e0482ae8559433c6dd",
+  "status": "PASS",
+  "worktreeImplementation": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipApplicationReplay.java": "ad5930e8fb4113b34cb119e76ae7d5c63a554882a7ccbbfd8d262b45c771d2e1",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/ReplicaApplication.java": "43873542923da51c61a866c3c4ef8e129b464b0f394251319fa372e623c86cd7",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V51PublicRuntimeTest.java": "8f12931b8b74e2cb6ba9d9ef059a4706b9902b079e5466d1d928114e0aef2c75",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ApplicationReplayTest.java": "52a4e8fc05e61ebf68518e3a1da9a6e00c83ad05c67bb8e82f5ba4f884564b55"
+  }
+}

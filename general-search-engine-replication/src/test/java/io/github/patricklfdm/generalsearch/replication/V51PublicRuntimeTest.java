@@ -133,6 +133,15 @@ class V51PublicRuntimeTest {
             assertEquals(9,state.sequence());assertEquals(List.of(2,4),state.documents().stream().map(Doc::id).toList());
             assertThrows(CompletionException.class,()->leader.backup(new DurableBackupRequest(target,1<<20)).join());
             for(var e:group.engines)if(e!=leader) {
+                // V5.2 exposes RECOVERING while a proven follower cut is not yet materialized.
+                // Establish the FOLLOWER premise before asserting its exact rejection code.
+                long cut=leader.leadershipStatus().appliedIndex(),until=System.nanoTime()+TimeUnit.SECONDS.toNanos(30);
+                var status=e.leadershipStatus();
+                while((status.state()!=AutomaticReplicationState.FOLLOWER||status.appliedIndex()<cut)&&System.nanoTime()<until) {
+                    Thread.sleep(10);status=e.leadershipStatus();
+                }
+                assertEquals(AutomaticReplicationState.FOLLOWER,status.state(),status.toString());
+                assertTrue(status.appliedIndex()>=cut,status.toString());
                 rejected(NOT_LEADER,NOT_SUBMITTED,()->e.addAll(null).join());rejected(NOT_LEADER,NOT_APPLICABLE,()->e.search(request));
                 assertTrue(e.leadershipStatus().activeEpoch()==0);
             }
