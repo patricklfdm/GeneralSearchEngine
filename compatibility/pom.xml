@@ -17,5 +17,6 @@
         <module>v5-style-consumer</module>
         <module>v51-style-consumer</module>
         <module>v52-style-consumer</module>
+        <module>v53-style-consumer</module>
     </modules>
 </project>

@@ -86,7 +86,9 @@ def prerequisites(files, roots):
     for worker in ('V51StorageWorker', 'V51ProtocolWorker', 'V51RuntimeWorker'):
         need(any(p.startswith(CLASSES + '/') and p.endswith('/' + worker + '.class') for p in files),
              'missing test worker: ' + worker)
-    required = REQUIRED_SUITES | ({'V52ReadTokenTest', 'V52PublicApiInventoryTest', 'V51PublicApiInventoryTest'} if roots[0].endswith('5.2.0-SNAPSHOT.jar') else set())
+    required = REQUIRED_SUITES | ({'V52ReadTokenTest', 'V52PublicApiInventoryTest', 'V51PublicApiInventoryTest'} if roots[0].endswith(('5.2.0-SNAPSHOT.jar', '5.3.0-SNAPSHOT.jar')) else set())
+    if roots[0].endswith('5.3.0-SNAPSHOT.jar'):
+        required |= {'V53DeclarationsTest', 'V53PublicApiInventoryTest'}
     suites = set()
     for name, data in files.items():
         if name.startswith(REPORTS + '/TEST-') and name.endswith('.xml'):

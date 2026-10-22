@@ -319,3 +319,22 @@ No production Java, Maven, workflow, cloud or release changes.
 - **Phase 0: LOCALLY CLOSED. Phase 1: NOT STARTED.** Protected review, real public/
   physical runtime, published V5.2 integration, performance/cloud and release remain
   later gates. See [audit](PHASE_0_CLOSURE_AUDIT.md) and [Phase 1 entry](PHASE_1_ENTRY_PLAN.md).
+
+
+## 2026-10-21 — Phase 1 declarations and disabled process foundation
+
+The operator explicitly authorized progressing through local Phase 1 closure with
+intermediate local commits. [Batch 1](PHASE_1_FOUNDATION.md) aligns 5.3 snapshot
+coordinates, adds 24 public membership declarations and preserves all existing API
+fixtures. An actual-source review required a separate variable-membership status;
+the unpublished inheritance choice is amended without relaxing the fixed-three API.
+
+Local reactor: 1,018 tests, four existing skips, no failures/errors. Eight consumer
+projects: 26 tests passed. V5.3 Python: 199 tests passed; coordinate/build-bundle and
+release-fixture checks: 28 passed. Three fresh JVMs verify disabled admission and
+exact JAR origins. All ten portable evidence negatives reject after the unchanged
+original passes; relocated replay passes. See the [retained summary](phase1-evidence/declarations.json).
+
+Phase 1 remains **OPEN**: production byte codecs/contextual readers and complete
+steady-round/catalog/compacted-source composition still need implementation. No new
+runtime, cloud, CI job, release, push or PR is enabled by these declarations.

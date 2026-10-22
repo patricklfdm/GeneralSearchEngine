@@ -1,0 +1,358 @@
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan(java.lang.String,io.github.patricklfdm.generalsearch.replication.ReplicationGroupId,java.util.List<java.nio.file.Path>,java.nio.file.Path)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest(io.github.patricklfdm.generalsearch.replication.ReplicationGroupId,java.lang.String,io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource,java.util.Optional<java.nio.file.Path>,java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget<K, T>>,java.nio.file.Path,long,long)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult(io.github.patricklfdm.generalsearch.replication.MembershipRoot,java.lang.String,java.lang.String,long,java.nio.file.Path)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget(io.github.patricklfdm.generalsearch.replication.MembershipIdentity,java.nio.file.Path,io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T>)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest(io.github.patricklfdm.generalsearch.replication.MembershipOperationId,java.lang.String,io.github.patricklfdm.generalsearch.replication.MembershipChangeKind,java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity>)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipIdentity(io.github.patricklfdm.generalsearch.replication.ReplicationNodeId,java.util.UUID,io.github.patricklfdm.generalsearch.replication.ReplicationEndpoint)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan(java.lang.String,io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest(io.github.patricklfdm.generalsearch.replication.MembershipRoot,io.github.patricklfdm.generalsearch.replication.MembershipIdentity,io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest,java.nio.file.Path,java.nio.file.Path)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan(io.github.patricklfdm.generalsearch.replication.MembershipRoot,java.lang.String,io.github.patricklfdm.generalsearch.replication.ReplicationNodeId,java.util.UUID,io.github.patricklfdm.generalsearch.replication.ReplicaReadToken,java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId>)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipOperationException(io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason,io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome,java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipOperationId>,java.lang.String,java.lang.Throwable)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipOperationId(io.github.patricklfdm.generalsearch.replication.MembershipRoot,long)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus(io.github.patricklfdm.generalsearch.replication.MembershipOperationId,io.github.patricklfdm.generalsearch.replication.MembershipPhase,java.util.Optional<java.lang.String>,long,java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicaReadToken>,java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicaReadToken>,java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason>)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig(io.github.patricklfdm.generalsearch.replication.MembershipRoot,io.github.patricklfdm.generalsearch.replication.MembershipIdentity,java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity>,java.nio.file.Path,io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T>,io.github.patricklfdm.generalsearch.replication.ReplicationBounds,io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus(io.github.patricklfdm.generalsearch.replication.ReplicationNodeId,io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState,java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipView>,java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId>,long,java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipIdentity>,long,long,long,long,int,java.util.Optional<java.time.Instant>,java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus>)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipRoot(io.github.patricklfdm.generalsearch.replication.ReplicationGroupId,java.util.UUID,java.lang.String)
+constructor public io.github.patricklfdm.generalsearch.replication.MembershipView(io.github.patricklfdm.generalsearch.replication.MembershipRoot,long,java.lang.String,java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity>,java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity>,java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipOperationId>,long,long,io.github.patricklfdm.generalsearch.replication.ReplicaReadToken,io.github.patricklfdm.generalsearch.replication.MembershipLocalState)
+enum-values io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource EMPTY,VERIFIED_DURABLE_BACKUP
+enum-values io.github.patricklfdm.generalsearch.replication.MembershipChangeKind ADD,REMOVE,REPLACE
+enum-values io.github.patricklfdm.generalsearch.replication.MembershipLocalState VOTER,LEARNER,REMOVED,DRAINING
+enum-values io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason NOT_LEADER,NOT_READY,BUSY,STALE_CONFIGURATION,CONFLICTING_OPERATION,INVALID_MEMBERSHIP,IDENTITY_REUSED,OPERATION_RETIRED,IRREVERSIBLE,STALE_OPERATION_NUMBER,INCOMPATIBLE_HISTORY,STALE_PREPARATION,LEARNER_UNAVAILABLE,CAPACITY_EXCEEDED,QUORUM_UNAVAILABLE,STALE_EPOCH,PROTOCOL_MISMATCH,INTEGRITY_FAILURE,STORAGE_FAILURE,DEADLINE_EXCEEDED,REENTRANT_CALL,REMOVED,DRAINING,CLOSED
+enum-values io.github.patricklfdm.generalsearch.replication.MembershipPhase NOT_FOUND,RESERVED,PREPARING,READY,SEALED,JOINT,COMPLETED,CANCELLED,RETIRED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource.EMPTY
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource.VERIFIED_DURABLE_BACKUP
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipChangeKind io.github.patricklfdm.generalsearch.replication.MembershipChangeKind.ADD
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipChangeKind io.github.patricklfdm.generalsearch.replication.MembershipChangeKind.REMOVE
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipChangeKind io.github.patricklfdm.generalsearch.replication.MembershipChangeKind.REPLACE
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipLocalState io.github.patricklfdm.generalsearch.replication.MembershipLocalState.DRAINING
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipLocalState io.github.patricklfdm.generalsearch.replication.MembershipLocalState.LEARNER
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipLocalState io.github.patricklfdm.generalsearch.replication.MembershipLocalState.REMOVED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipLocalState io.github.patricklfdm.generalsearch.replication.MembershipLocalState.VOTER
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.BUSY
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.CAPACITY_EXCEEDED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.CLOSED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.CONFLICTING_OPERATION
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.DEADLINE_EXCEEDED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.DRAINING
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.IDENTITY_REUSED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.INCOMPATIBLE_HISTORY
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.INTEGRITY_FAILURE
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.INVALID_MEMBERSHIP
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.IRREVERSIBLE
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.LEARNER_UNAVAILABLE
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.NOT_LEADER
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.NOT_READY
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.OPERATION_RETIRED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.PROTOCOL_MISMATCH
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.QUORUM_UNAVAILABLE
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.REENTRANT_CALL
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.REMOVED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.STALE_CONFIGURATION
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.STALE_EPOCH
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.STALE_OPERATION_NUMBER
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.STALE_PREPARATION
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.STORAGE_FAILURE
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.CANCELLED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.COMPLETED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.JOINT
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.NOT_FOUND
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.PREPARING
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.READY
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.RESERVED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.RETIRED
+field public static final io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.SEALED
+field public static final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipSearchEngines.PROTOCOL = gse-replication/1.3
+interface io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine io.github.patricklfdm.generalsearch.durability.DurableSearchEngine<K, T>
+method public abstract io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.leadershipStatus()
+method public abstract io.github.patricklfdm.generalsearch.replication.MembershipView io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.membershipStatus()
+method public abstract java.util.concurrent.CompletableFuture<io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.planMaintenance(io.github.patricklfdm.generalsearch.replication.ReplicationNodeId)
+method public abstract java.util.concurrent.CompletableFuture<io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.cancelMembershipChange(io.github.patricklfdm.generalsearch.replication.MembershipOperationId)
+method public abstract java.util.concurrent.CompletableFuture<io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.membershipOperation(io.github.patricklfdm.generalsearch.replication.MembershipOperationId)
+method public abstract java.util.concurrent.CompletableFuture<io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.submitMembershipChange(io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest)
+method public abstract java.util.concurrent.CompletableFuture<io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.start()
+method public abstract java.util.concurrent.CompletableFuture<io.github.patricklfdm.generalsearch.replication.MembershipView> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.membership()
+method public abstract java.util.concurrent.CompletableFuture<java.lang.Void> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.drainForMaintenance(io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan)
+method public abstract java.util.concurrent.CompletableFuture<java.lang.Void> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.retireMembershipResults(long)
+method public default <R> java.util.concurrent.CompletableFuture<io.github.patricklfdm.generalsearch.replication.ReplicaReadResult<R>> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine.read(io.github.patricklfdm.generalsearch.replication.ReplicaReadOptions,java.util.function.Function<io.github.patricklfdm.generalsearch.replication.ReplicaReadView<K, T>, R>)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipIdentity.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipOperationId.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipRoot.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.MembershipView.equals(java.lang.Object)
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipIdentity.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipOperationId.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipRoot.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.MembershipView.hashCode()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipIdentity.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipOperationId.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipRoot.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipView.toString()
+method public int io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.pendingOperations()
+method public io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T> io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget.materialization()
+method public io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T> io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.materialization()
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngineBuilder.applicationBuilder()
+method public io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.leadershipPolicy()
+method public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome io.github.patricklfdm.generalsearch.replication.MembershipOperationException.outcome()
+method public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.state()
+method public io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.source()
+method public io.github.patricklfdm.generalsearch.replication.MembershipChangeKind io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest.kind()
+method public io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest.change()
+method public io.github.patricklfdm.generalsearch.replication.MembershipIdentity io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget.identity()
+method public io.github.patricklfdm.generalsearch.replication.MembershipIdentity io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest.identity()
+method public io.github.patricklfdm.generalsearch.replication.MembershipIdentity io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.localIdentity()
+method public io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan.request()
+method public io.github.patricklfdm.generalsearch.replication.MembershipLocalState io.github.patricklfdm.generalsearch.replication.MembershipView.localState()
+method public io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException.reason()
+method public io.github.patricklfdm.generalsearch.replication.MembershipOperationId io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest.id()
+method public io.github.patricklfdm.generalsearch.replication.MembershipOperationId io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.id()
+method public io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.phase()
+method public io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig<K, T> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngineBuilder.configuration()
+method public io.github.patricklfdm.generalsearch.replication.MembershipRoot io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult.root()
+method public io.github.patricklfdm.generalsearch.replication.MembershipRoot io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest.root()
+method public io.github.patricklfdm.generalsearch.replication.MembershipRoot io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan.root()
+method public io.github.patricklfdm.generalsearch.replication.MembershipRoot io.github.patricklfdm.generalsearch.replication.MembershipOperationId.root()
+method public io.github.patricklfdm.generalsearch.replication.MembershipRoot io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.root()
+method public io.github.patricklfdm.generalsearch.replication.MembershipRoot io.github.patricklfdm.generalsearch.replication.MembershipView.root()
+method public io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine<K, T> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngineBuilder.build()
+method public io.github.patricklfdm.generalsearch.replication.ReplicaReadToken io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan.observedCut()
+method public io.github.patricklfdm.generalsearch.replication.ReplicaReadToken io.github.patricklfdm.generalsearch.replication.MembershipView.applied()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationBounds io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.bounds()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationEndpoint io.github.patricklfdm.generalsearch.replication.MembershipIdentity.endpoint()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationGroupId io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan.groupId()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationGroupId io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.groupId()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationGroupId io.github.patricklfdm.generalsearch.replication.MembershipRoot.groupId()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationNodeId io.github.patricklfdm.generalsearch.replication.MembershipIdentity.nodeId()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationNodeId io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan.target()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationNodeId io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.localNodeId()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan.planDigest()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.configurationId()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult.planDigest()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult.receiptDigest()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest.expectedConfigurationDigest()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan.planDigest()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan.configurationDigest()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipRoot.manifestDigest()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.MembershipView.configurationDigest()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan.operationDirectory()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.operationDirectory()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult.operationDirectory()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget.replicaDirectory()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest.operationDirectory()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest.replicaDirectory()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.replicaDirectory()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget<K, T>> io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.targets()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest.target()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig.seedPeers()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> io.github.patricklfdm.generalsearch.replication.MembershipView.newVoters()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> io.github.patricklfdm.generalsearch.replication.MembershipView.oldVoters()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId> io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan.readySurvivors()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus> io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.peers()
+method public java.util.List<java.nio.file.Path> io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan.absentTargets()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.promisedBy()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason> io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.blockedReason()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipOperationId> io.github.patricklfdm.generalsearch.replication.MembershipOperationException.operation()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipOperationId> io.github.patricklfdm.generalsearch.replication.MembershipView.active()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipView> io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.membership()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicaReadToken> io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.preparedCut()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicaReadToken> io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.terminalCut()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId> io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.observedLeader()
+method public java.util.Optional<java.lang.String> io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.requestDigest()
+method public java.util.Optional<java.nio.file.Path> io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.sourcePath()
+method public java.util.Optional<java.time.Instant> io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.lastQuorumSuccess()
+method public java.util.UUID io.github.patricklfdm.generalsearch.replication.MembershipIdentity.storageId()
+method public java.util.UUID io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan.nonce()
+method public java.util.UUID io.github.patricklfdm.generalsearch.replication.MembershipRoot.historyId()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.maxOperationBytes()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest.maxSourceBytes()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult.applicationSequence()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipOperationId.number()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus.revision()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.activeCounter()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.applicationSequence()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.appliedIndex()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.promisedCounter()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus.provenIndex()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipView.generation()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipView.nextOperationNumber()
+method public long io.github.patricklfdm.generalsearch.replication.MembershipView.retiredThrough()
+method public static <K,T> io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan io.github.patricklfdm.generalsearch.replication.MembershipStorageOperations.planBootstrap(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest<K, T>)
+method public static <K,T> io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult io.github.patricklfdm.generalsearch.replication.MembershipStorageOperations.applyBootstrap(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest<K, T>,io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan)
+method public static <K,T> io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult io.github.patricklfdm.generalsearch.replication.MembershipStorageOperations.resumeBootstrap(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest<K, T>,io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan)
+method public static <K,T> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.replication.MembershipSearchEngines.builder(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig<K, T>)
+method public static io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult io.github.patricklfdm.generalsearch.replication.MembershipStorageOperations.readBootstrapResult(java.nio.file.Path)
+method public static io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource[] io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource.values()
+method public static io.github.patricklfdm.generalsearch.replication.MembershipChangeKind io.github.patricklfdm.generalsearch.replication.MembershipChangeKind.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.MembershipChangeKind[] io.github.patricklfdm.generalsearch.replication.MembershipChangeKind.values()
+method public static io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan io.github.patricklfdm.generalsearch.replication.MembershipStorageOperations.planLearner(io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest)
+method public static io.github.patricklfdm.generalsearch.replication.MembershipLocalState io.github.patricklfdm.generalsearch.replication.MembershipLocalState.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.MembershipLocalState[] io.github.patricklfdm.generalsearch.replication.MembershipLocalState.values()
+method public static io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason[] io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason.values()
+method public static io.github.patricklfdm.generalsearch.replication.MembershipPhase io.github.patricklfdm.generalsearch.replication.MembershipPhase.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.MembershipPhase[] io.github.patricklfdm.generalsearch.replication.MembershipPhase.values()
+method public static void io.github.patricklfdm.generalsearch.replication.MembershipStorageOperations.applyLearner(io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan)
+method public static void io.github.patricklfdm.generalsearch.replication.MembershipStorageOperations.resumeLearner(io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan)
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan 0 java.lang.String planDigest
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan 1 io.github.patricklfdm.generalsearch.replication.ReplicationGroupId groupId
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan 2 java.util.List<java.nio.file.Path> absentTargets
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan 3 java.nio.file.Path operationDirectory
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest 0 io.github.patricklfdm.generalsearch.replication.ReplicationGroupId groupId
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest 1 java.lang.String configurationId
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest 2 io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource source
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest 3 java.util.Optional<java.nio.file.Path> sourcePath
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest 4 java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget<K, T>> targets
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest 5 java.nio.file.Path operationDirectory
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest 6 long maxSourceBytes
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest 7 long maxOperationBytes
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult 0 io.github.patricklfdm.generalsearch.replication.MembershipRoot root
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult 1 java.lang.String planDigest
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult 2 java.lang.String receiptDigest
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult 3 long applicationSequence
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult 4 java.nio.file.Path operationDirectory
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget 0 io.github.patricklfdm.generalsearch.replication.MembershipIdentity identity
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget 1 java.nio.file.Path replicaDirectory
+record-component io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget 2 io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T> materialization
+record-component io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest 0 io.github.patricklfdm.generalsearch.replication.MembershipOperationId id
+record-component io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest 1 java.lang.String expectedConfigurationDigest
+record-component io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest 2 io.github.patricklfdm.generalsearch.replication.MembershipChangeKind kind
+record-component io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest 3 java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> target
+record-component io.github.patricklfdm.generalsearch.replication.MembershipIdentity 0 io.github.patricklfdm.generalsearch.replication.ReplicationNodeId nodeId
+record-component io.github.patricklfdm.generalsearch.replication.MembershipIdentity 1 java.util.UUID storageId
+record-component io.github.patricklfdm.generalsearch.replication.MembershipIdentity 2 io.github.patricklfdm.generalsearch.replication.ReplicationEndpoint endpoint
+record-component io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan 0 java.lang.String planDigest
+record-component io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan 1 io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest request
+record-component io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest 0 io.github.patricklfdm.generalsearch.replication.MembershipRoot root
+record-component io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest 1 io.github.patricklfdm.generalsearch.replication.MembershipIdentity identity
+record-component io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest 2 io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest change
+record-component io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest 3 java.nio.file.Path replicaDirectory
+record-component io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest 4 java.nio.file.Path operationDirectory
+record-component io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan 0 io.github.patricklfdm.generalsearch.replication.MembershipRoot root
+record-component io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan 1 java.lang.String configurationDigest
+record-component io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan 2 io.github.patricklfdm.generalsearch.replication.ReplicationNodeId target
+record-component io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan 3 java.util.UUID nonce
+record-component io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan 4 io.github.patricklfdm.generalsearch.replication.ReplicaReadToken observedCut
+record-component io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan 5 java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId> readySurvivors
+record-component io.github.patricklfdm.generalsearch.replication.MembershipOperationId 0 io.github.patricklfdm.generalsearch.replication.MembershipRoot root
+record-component io.github.patricklfdm.generalsearch.replication.MembershipOperationId 1 long number
+record-component io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus 0 io.github.patricklfdm.generalsearch.replication.MembershipOperationId id
+record-component io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus 1 io.github.patricklfdm.generalsearch.replication.MembershipPhase phase
+record-component io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus 2 java.util.Optional<java.lang.String> requestDigest
+record-component io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus 3 long revision
+record-component io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus 4 java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicaReadToken> preparedCut
+record-component io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus 5 java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicaReadToken> terminalCut
+record-component io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus 6 java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason> blockedReason
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig 0 io.github.patricklfdm.generalsearch.replication.MembershipRoot root
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig 1 io.github.patricklfdm.generalsearch.replication.MembershipIdentity localIdentity
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig 2 java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> seedPeers
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig 3 java.nio.file.Path replicaDirectory
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig 4 io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T> materialization
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig 5 io.github.patricklfdm.generalsearch.replication.ReplicationBounds bounds
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig 6 io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy leadershipPolicy
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 0 io.github.patricklfdm.generalsearch.replication.ReplicationNodeId localNodeId
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 1 io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState state
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 10 int pendingOperations
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 11 java.util.Optional<java.time.Instant> lastQuorumSuccess
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 12 java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus> peers
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 2 java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipView> membership
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 3 java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId> observedLeader
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 4 long promisedCounter
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 5 java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> promisedBy
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 6 long activeCounter
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 7 long provenIndex
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 8 long appliedIndex
+record-component io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus 9 long applicationSequence
+record-component io.github.patricklfdm.generalsearch.replication.MembershipRoot 0 io.github.patricklfdm.generalsearch.replication.ReplicationGroupId groupId
+record-component io.github.patricklfdm.generalsearch.replication.MembershipRoot 1 java.util.UUID historyId
+record-component io.github.patricklfdm.generalsearch.replication.MembershipRoot 2 java.lang.String manifestDigest
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 0 io.github.patricklfdm.generalsearch.replication.MembershipRoot root
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 1 long generation
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 2 java.lang.String configurationDigest
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 3 java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> oldVoters
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 4 java.util.List<io.github.patricklfdm.generalsearch.replication.MembershipIdentity> newVoters
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 5 java.util.Optional<io.github.patricklfdm.generalsearch.replication.MembershipOperationId> active
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 6 long nextOperationNumber
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 7 long retiredThrough
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 8 io.github.patricklfdm.generalsearch.replication.ReplicaReadToken applied
+record-component io.github.patricklfdm.generalsearch.replication.MembershipView 9 io.github.patricklfdm.generalsearch.replication.MembershipLocalState localState
+super io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource java.lang.Enum<io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource>
+super io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipChangeKind java.lang.Enum<io.github.patricklfdm.generalsearch.replication.MembershipChangeKind>
+super io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipIdentity java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipLocalState java.lang.Enum<io.github.patricklfdm.generalsearch.replication.MembershipLocalState>
+super io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipOperationException java.lang.RuntimeException
+super io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason java.lang.Enum<io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason>
+super io.github.patricklfdm.generalsearch.replication.MembershipOperationId java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipPhase java.lang.Enum<io.github.patricklfdm.generalsearch.replication.MembershipPhase>
+super io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipRoot java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.MembershipSearchEngineBuilder java.lang.Object
+super io.github.patricklfdm.generalsearch.replication.MembershipSearchEngines java.lang.Object
+super io.github.patricklfdm.generalsearch.replication.MembershipStorageOperations java.lang.Object
+super io.github.patricklfdm.generalsearch.replication.MembershipView java.lang.Record
+type public abstract interface io.github.patricklfdm.generalsearch.replication.MembershipSearchEngine<K,T>
+type public final class io.github.patricklfdm.generalsearch.replication.MembershipOperationException
+type public final class io.github.patricklfdm.generalsearch.replication.MembershipSearchEngineBuilder<K,T>
+type public final class io.github.patricklfdm.generalsearch.replication.MembershipSearchEngines
+type public final class io.github.patricklfdm.generalsearch.replication.MembershipStorageOperations
+type public final enum io.github.patricklfdm.generalsearch.replication.MembershipBootstrapSource
+type public final enum io.github.patricklfdm.generalsearch.replication.MembershipChangeKind
+type public final enum io.github.patricklfdm.generalsearch.replication.MembershipLocalState
+type public final enum io.github.patricklfdm.generalsearch.replication.MembershipPhase
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipBootstrapPlan
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipBootstrapRequest<K,T>
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipBootstrapResult
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTarget<K,T>
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipChangeRequest
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipIdentity
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipLearnerPlan
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipLearnerRequest
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipMaintenancePlan
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipOperationId
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipOperationStatus
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipReplicaConfig<K,T>
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipReplicationStatus
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipRoot
+type public final record io.github.patricklfdm.generalsearch.replication.MembershipView
+type public static final enum io.github.patricklfdm.generalsearch.replication.MembershipOperationException$Reason

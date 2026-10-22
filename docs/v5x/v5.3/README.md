@@ -15,7 +15,8 @@ development predecessor; its eventual published artifacts are not yet pinned.
 - [Acceptance register](ACCEPTANCE_REGISTER.md), [checklist](PHASE_0_CHECKLIST.md), [Phase 1 entry](PHASE_1_ENTRY_PLAN.md)
 
 [Closure audit and evidence](PHASE_0_CLOSURE_AUDIT.md) record 198 tests and all nine
-research matrices on the final script bytes. Phase 1 has not started.
+research matrices on the final script bytes. [Phase 1 foundation](PHASE_1_FOUNDATION.md)
+is in progress on the local branch; the new membership runtime remains disabled.
 
 ## Historical research in order
 

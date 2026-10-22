@@ -48,7 +48,7 @@ class ReleasePreparationTest(unittest.TestCase):
     def test_historical_other_versions_are_not_candidate_preparation(self):
         for version in ('5.1.0-SNAPSHOT', '5.1.0', '5.0.0', '5.2.0-SNAPSHOT', '5.3.0-SNAPSHOT'):
             (self.root/'pom.xml').write_text('<project xmlns="http://maven.apache.org/POM/4.0.0"><version>'+version+'</version></project>')
-            if version.startswith('5.1.') or version == '5.2.0-SNAPSHOT':
+            if version.startswith('5.1.') or version in ('5.2.0-SNAPSHOT', '5.3.0-SNAPSHOT'):
                 self.assertEqual(version, r.version(self.root))
             else:
                 with self.assertRaisesRegex(ValueError, 'build coordinate'):r.version(self.root)

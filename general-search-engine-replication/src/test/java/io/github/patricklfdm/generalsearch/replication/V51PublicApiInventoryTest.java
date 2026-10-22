@@ -27,6 +27,7 @@ class V51PublicApiInventoryTest {
         assertTrue(java.util.Collections.disjoint(expected, additions));
         expected.addAll(additions);
         expected.addAll(types("v52-read-public-api-v1.txt"));
+        expected.addAll(types("v53-membership-public-api-v1.txt"));
         assertEquals(expected, new V50PublicApiInventoryTest().compiledTopLevelTypes());
         assertEquals("gse-replication/1.1", ReplicatedSearchEngines.PROTOCOL);
         assertEquals("gse-replication/1.2", AutomaticReplicatedSearchEngines.PROTOCOL);

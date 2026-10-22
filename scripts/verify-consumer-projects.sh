@@ -22,4 +22,4 @@ mkdir -p "$consumer_repository"
     -Dmaven.repo.local="$consumer_repository" \
     -q -f "${project_dir}/compatibility/pom.xml" clean test
 
-echo "Independent V1 through V5.2 consumer compilation and tests: PASS"
+echo "Independent V1 through V5.3 consumer compilation and tests: PASS"

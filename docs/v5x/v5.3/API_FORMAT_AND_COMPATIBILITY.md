@@ -1,14 +1,16 @@
 # V5.3 API, bytes and compatibility contract
 
-Phase 0 declaration/encoding contract. No declaration below exists in the shipped
-Java yet. Phase 1 adds them only after V5.3 coordinate alignment. All new public
+Phase 0 declaration/encoding contract, with the locally reviewed
+[Phase 1 declaration amendments](PHASE_1_CONTRACT_AMENDMENTS.md). The additive
+declarations exist on the isolated V5.3 branch; runtime execution remains disabled. All new public
 types live in `io.github.patricklfdm.generalsearch.replication`; no existing method,
 record component, enum constant or configured/automatic factory is removed.
 
 ## Public declarations
 
 Imports below use existing `SearchEngineBuilder`, `DurableStorageConfig`, replication
-identity/bounds/read types, `Path`, `UUID`, `List`, `Optional`, `CompletableFuture`.
+identity/bounds/read types, `DurableSearchEngine`, `Function`, `Instant`, `Path`,
+`UUID`, `List`, `Optional`, `CompletableFuture`.
 Each record has its standard canonical constructor/accessors, immutable copies of
 collections, exact validation below, and no I/O. Signatures, not method bodies:
 
@@ -43,8 +45,18 @@ public record MembershipReplicaConfig<K,T>(MembershipRoot root,
         MembershipIdentity localIdentity, List<MembershipIdentity> seedPeers,
         Path replicaDirectory, DurableStorageConfig<K,T> materialization,
         ReplicationBounds bounds, AutomaticLeadershipPolicy leadershipPolicy) {}
+public record MembershipReplicationStatus(ReplicationNodeId localNodeId,
+        AutomaticReplicationState state, Optional<MembershipView> membership,
+        Optional<ReplicationNodeId> observedLeader, long promisedCounter,
+        Optional<MembershipIdentity> promisedBy, long activeCounter, long provenIndex,
+        long appliedIndex, long applicationSequence, int pendingOperations,
+        Optional<Instant> lastQuorumSuccess, List<ReplicationPeerStatus> peers) {}
 public interface MembershipSearchEngine<K,T>
-        extends AutomaticReplicatedSearchEngine<K,T> {
+        extends DurableSearchEngine<K,T> {
+    CompletableFuture<MembershipReplicationStatus> start();
+    MembershipReplicationStatus leadershipStatus();
+    default <R> CompletableFuture<ReplicaReadResult<R>> read(ReplicaReadOptions options,
+            Function<ReplicaReadView<K,T>,R> reader);
     MembershipView membershipStatus();
     CompletableFuture<MembershipView> membership();
     CompletableFuture<MembershipOperationStatus> submitMembershipChange(
@@ -87,9 +99,10 @@ public final class MembershipOperationException extends RuntimeException {
 ```
 
 Factories/build are pure stopped-handle construction. Only `start()` acquires files
-and transport. Existing inherited `leadershipStatus()` remains the automatic
-diagnostic: a learner/known-removed node reports UNAVAILABLE, with its exact role
-in `membershipStatus()`. Local diagnostics do not authorize a write or fresh read.
+and transport. The independent `MembershipReplicationStatus` supports variable membership without
+weakening the fixed-three `AutomaticReplicationStatus` constructor. Before opening,
+its membership is absent rather than fabricated. Once running, a learner/known-removed
+node reports UNAVAILABLE, with its exact role in `membershipStatus()`. Local diagnostics do not authorize a write or fresh read.
 All remote operations are asynchronous; no hidden leader forwarding/replay.
 
 `membership()`, operation query and maintenance planning require a leader strong

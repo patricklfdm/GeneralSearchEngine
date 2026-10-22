@@ -43,3 +43,27 @@ class BuildCoordinatesTest(unittest.TestCase):
         ci_v51_bundle.prerequisites(files,roots)
         key=ci_v51_bundle.REPORTS+'/TEST-V52ReadTokenTest.xml';files[key]=files[key].replace(b'skipped="0"',b'skipped="1"')
         with self.assertRaisesRegex(ValueError,'skipped prerequisite'):ci_v51_bundle.prerequisites(files,roots)
+
+    def test_v53_requires_both_prior_reads_and_membership_declarations(self):
+        roots=['target/general-search-engine-5.3.0-SNAPSHOT.jar','replication.jar',ci_v51_bundle.CLASSES,ci_v51_bundle.REPORTS]
+        files={name:b'jar' for name in roots[:2]}
+        for worker in ('V51StorageWorker','V51ProtocolWorker','V51RuntimeWorker'):
+            files[ci_v51_bundle.CLASSES+'/pkg/'+worker+'.class']=b'class'
+        required=ci_v51_bundle.REQUIRED_SUITES | {'V52ReadTokenTest','V52PublicApiInventoryTest',
+            'V51PublicApiInventoryTest','V53DeclarationsTest','V53PublicApiInventoryTest'}
+        for name in required:
+            files[ci_v51_bundle.REPORTS+'/TEST-'+name+'.xml']=f'<testsuite name="pkg.{name}" tests="1" failures="0" errors="0" skipped="0"/>'.encode()
+        ci_v51_bundle.prerequisites(files,roots)
+        for name in required:
+            key=ci_v51_bundle.REPORTS+'/TEST-'+name+'.xml';original=files.pop(key)
+            with self.assertRaisesRegex(ValueError,'missing executed'):ci_v51_bundle.prerequisites(files,roots)
+            files[key]=original.replace(b'skipped="0"',b'skipped="1"')
+            with self.assertRaisesRegex(ValueError,'skipped prerequisite'):ci_v51_bundle.prerequisites(files,roots)
+            files[key]=original
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);pom=root/'pom.xml';pom.write_text('<project><version>5.3.0-SNAPSHOT</version></project>')
+            source={'pom.xml':hashlib.sha256(pom.read_bytes()).hexdigest()}
+            pair=[n+'-5.3.0-SNAPSHOT.jar' for n in b.MODULES]
+            b.regression_pair(pair,source,root)
+            with self.assertRaises(ValueError):b.regression_pair(pair,{},root)
+            with self.assertRaises(ValueError):historical.candidate_pair(pair)

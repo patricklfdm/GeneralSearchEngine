@@ -1,0 +1,62 @@
+{
+  "consumers": {
+    "errors": 0,
+    "failures": 0,
+    "projects": 8,
+    "skipped": 0,
+    "tests": 26
+  },
+  "coordinateAndBundlePythonTests": 28,
+  "freshPublicProcesses": 3,
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "15ec0e3673cbfebd97a3e29cd342f2bcd5df591cf4c86fc67528998af22328b9",
+      "size": 658631
+    }
+  ],
+  "java": {
+    "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+    "java.vendor": "Ubuntu"
+  },
+  "localEvidence": "target/v53-phase1-foundation",
+  "logs": {
+    "bundle-python.log": "8e946163251f0f2fa9e823550f0a4f1231a6124e3eb4a6ad1866e0b67ade746d",
+    "consumers.log": "695bf8957eac5dba027978592e35bfda497a88aa7194c18f7e6f983055866b77",
+    "coordinates-python.log": "234d2255208f010cd2d926d69ee5dbfc4e1bc25c92738044b3bef6981a5c1d29",
+    "public-negatives-1/receipt.json": "11f98e798a7023d35001b1e9d17eabf0f1427bab4cb984b4e46f4e7d1cc7a445",
+    "public-process-1/receipt.json": "ca52a2e3807d846e84a4439915c1138f3336e43a25ca90d1ef555bd0cd66929c",
+    "reactor-install.log": "d21b35628b2f371df41dbf4b6e0d05d77102ae0a18ff48160d7b73e827b21c0a",
+    "v53-python.log": "369ff8381f115c1fcf7ef0197a79c2a67a41039de9d1df55a9ed40cd6b523939",
+    "version-alignment-offline.log": "36da17bf74b8155684be1c5e77bdde22a6d64cf5f2d947c15d8cf65797b781bb"
+  },
+  "maven": "3.9.11",
+  "phase1Closed": false,
+  "portableNegativeCases": 10,
+  "productionSourceInventorySha256": "ad484fbb40882fd29b924465adbbc382d5beca22208b321f7f746116fdf424ed",
+  "reactor": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 4,
+    "tests": 1018
+  },
+  "relocatedReplay": "PASS",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-phase1-declarations-qualification-v1",
+  "source": {
+    "checkoutSha256": "c5e0ea8060e3024185212654a2c5ea6b408aa349100b9d0a7b7e86239207d7f9",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "1a7c2b6f7d474659f485c1b14c3a9d0499d93a8a"
+  },
+  "sourceScope": "parent HEAD plus exact dirty checkout; final reporting-only documentation differs",
+  "status": "PASS",
+  "v53PythonTests": 199
+}

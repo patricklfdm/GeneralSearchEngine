@@ -4,7 +4,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSIONS = ('5.1.0-SNAPSHOT', '5.1.0', '5.2.0-SNAPSHOT')
+VERSIONS = ('5.1.0-SNAPSHOT', '5.1.0', '5.2.0-SNAPSHOT', '5.3.0-SNAPSHOT')
 MODULES = ('general-search-engine', 'general-search-engine-replication')
 
 
