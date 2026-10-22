@@ -43,12 +43,15 @@ def perform(action,value,volume,history):
 
 
 def main():
+    value=None;action=sys.argv[1] if len(sys.argv)==2 else None
     try:
         v.need(len(sys.argv)==2,'HISTORY_ARGUMENTS');raw=sys.stdin.buffer.read(20001);v.need(len(raw)<=20000,'REQUEST_BOUND')
         value=v.decode(raw);v.need(type(value) is dict and set(value)=={'request','volume','history'},'HISTORY_ENVELOPE')
         answer=perform(sys.argv[1],value['request'],value['volume'],value['history'])
         sys.stdout.buffer.write(v.encoded(answer)+b'\n');return 0
-    except BaseException:print('V52_HISTORY_PARENT_REJECTED',file=sys.stderr);return 2
+    except BaseException as error:
+        sys.stdout.buffer.write(v.encoded(v.rejection(error,action,value))+b'\n')
+        print('V52_HISTORY_PARENT_REJECTED',file=sys.stderr);return 2
 
 
 if __name__=='__main__':raise SystemExit(main())

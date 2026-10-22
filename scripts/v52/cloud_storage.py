@@ -23,6 +23,8 @@ from .evidence import need,encoded,digest,strict
 
 _TICKET=object()
 ROOT=Path(__file__).resolve().parents[2]
+CHECK_SECONDS=300
+CHECK_ATTEMPTS=3
 
 
 def recorded(method):
@@ -78,7 +80,7 @@ def readonly(call,deadline):
 class VolumeEndpoint:
     def __init__(self,storage,guests,node):
         self.storage=storage;self.guests=guests;self.node=node;self.value=request(guests,node);self.calls=[]
-        self.started=False;self.original=None;self.end=None;self.trace=[]
+        self.started=False;self.original=None;self.end=None;self.trace=[];self.received_at=None
 
     def checkpoint(self):
         self.storage.checkpoint(self.guests)
@@ -93,23 +95,31 @@ class VolumeEndpoint:
         except BaseException as error:
             self.trace.append(dict(action=action,errorType=type(error).__name__))
             raise
+        # Capture response arrival before the potentially slow provider postcheck.
+        self.received_at=getattr(self.storage,'reply_received_at',None)
+        if self.received_at is None:self.received_at=time.monotonic()
         self.trace.append(dict(action=action,answer=deepcopy(value)))
         self.storage.note(self.node,'volume',action,'postcheck')
         self.checkpoint();need(time.monotonic()<end,'V5.2 storage late exchange')
         self.storage.note(self.node,'volume',action,'reply');return value
 
-    def clock(self,seconds):
+    def clock(self,seconds,deadline=None):
         # This is the original operation's grant, not a whole-experiment cap.
         # It fits the current lease+grace; lost replies cannot renew this grant.
         lease=self.guests.session.owner.checkpoint();remaining=lease['expiresAt']+lease['graceSeconds']-time.time()-5
         seconds=min(seconds,remaining);need(seconds>0,'V5.2 storage ownership grant expired')
-        end=time.monotonic()+seconds;nonce=secrets.token_hex(16)
+        end=time.monotonic()+seconds
+        if deadline is not None:end=min(end,deadline)
+        nonce=secrets.token_hex(16)
         sample=readonly(lambda:self.call('clock',nonce,end),end)
         need(type(sample) is dict and set(sample)=={'schema','requestSha256','bootId','nonce','sampledNanos'} and
              sample['schema']=='gse-v52-volume-clock-v1' and sample['requestSha256']==volume.digest(self.value) and
              sample['bootId']==self.value['guest']['bootId'] and sample['nonce']==nonce,'V5.2 storage clock identity')
         volume.integer(sample['sampledNanos'],1,(1<<63)-1)
-        left=math.floor((end-time.monotonic())*1e9);need(0<left<=volume.MAX_SECONDS*10**9,'V5.2 storage clock grant')
+        # The remote sample predates receipt. This conservative translation can
+        # never extend local authority; subtracting the later postcheck again
+        # needlessly shortened the guest grant and caused early remote expiry.
+        left=math.floor((end-self.received_at)*1e9);need(0<left<=volume.MAX_SECONDS*10**9,'V5.2 storage clock grant')
         return dict(sample=sample,expiresNanos=sample['sampledNanos']+left),end
 
     def exchange(self,action,token,end):
@@ -140,14 +150,31 @@ class VolumeEndpoint:
         return self.check(answer['startup'])
 
     def check(self,startup):
-        token,end=self.clock(120)
-        answer=readonly(lambda:self.exchange('check',token,end),end)
-        need(answer['state']=='SUCCEEDED' and answer['startup']==startup and answer['process'] is None,'V5.2 original mount startup changed')
-        checked=volume.replay(startup,self.value);ready=answer['readiness']
-        need(type(ready) is dict and set(ready)=={'startupSha256','volume','observation'} and
-             ready['startupSha256']==volume.digest(startup) and ready['volume']==checked and
-             volume.mounted(ready['observation'],startup['before'],self.value)==checked,'V5.2 current mount evidence changed')
-        return answer
+        deadline=time.monotonic()+CHECK_SECONDS;attempts=[]
+        for attempt in range(1,CHECK_ATTEMPTS+1):
+            phase='clock';started=time.monotonic();error=None
+            try:
+                if started>=deadline:raise TimeoutError('V5.2 storage check original deadline')
+                # A new clock is safe only for a fresh read. All attempts retain
+                # this check's one deadline and each grant fits current ownership.
+                token,end=self.clock(CHECK_SECONDS,deadline);deadline=min(deadline,end)
+                phase='check';answer=self.exchange('check',token,end)
+                need(answer['state']=='SUCCEEDED' and answer['startup']==startup and answer['process'] is None,'V5.2 original mount startup changed')
+                checked=volume.replay(startup,self.value);ready=answer['readiness']
+                need(type(ready) is dict and set(ready)=={'startupSha256','volume','observation'} and
+                     ready['startupSha256']==volume.digest(startup) and ready['volume']==checked and
+                     volume.mounted(ready['observation'],startup['before'],self.value)==checked,'V5.2 current mount evidence changed')
+                if time.monotonic()>=deadline:raise TimeoutError('V5.2 storage late check')
+                phase='complete';return answer
+            except BaseException as failure:
+                error=failure
+                if not transient(failure) or attempt==CHECK_ATTEMPTS or time.monotonic()>=deadline:raise
+            finally:
+                now=time.monotonic()
+                attempts.append(dict(attempt=attempt,phase=phase,elapsedMillis=max(0,int((now-started)*1000)),
+                    remainingMillis=max(0,int((deadline-now)*1000)),reasonCode=None if error is None else diagnostic.reason(error)))
+                self.storage.record_check(self.node,dict(limitSeconds=CHECK_SECONDS,attempts=deepcopy(attempts)))
+            time.sleep(min(.2,max(0,deadline-time.monotonic())))
 
 
 class Storage:
@@ -163,22 +190,32 @@ class Storage:
         self.descriptor=self.payload=None
         self.java=None;self.java_started=False
         self.context=dict(node=None,operation='source',stage='begin',kind=None,action=None)
-        self.failure=None;self.java_installations={}
+        self.failure=None;self.java_installations={};self.last_check=None;self.check_records=0
 
     def stage(self,node,operation):
         need(node in (None,*iap.topology.NODES) and operation in diagnostic.OPERATIONS,'V5.2 storage diagnostic context')
         self.context=dict(node=node,operation=operation,stage='begin',kind=None,action=None)
+        self.last_check=None
         # Short explicit milestones complement the member's minute heartbeat.
         print(encoded(dict(stage='storage-progress',node=node,operation=operation)).decode(),flush=True)
 
     def note(self,node,kind,action,stage):
         self.context.update(node=node,kind=kind,action=action,stage=stage)
 
+    def record_check(self,node,value):
+        self.last_check=deepcopy(value)
+        # Diagnostics cannot mask the original outcome or authorize success.
+        self.check_records+=1
+        try:runner.diagnostic(self.output/(node+f'-check-{self.check_records:04d}.json'),
+            dict(node=node,operation=self.context['operation'],readCheck=value))
+        except Exception:pass
+
     def retain_failure(self,error):
         if self.failure is not None:return
         self.failure=dict(schema=diagnostic.SCHEMA,status='FAIL',**self.context,
             reasonCode=diagnostic.reason(error),errorType=diagnostic.error_type(error),origin=diagnostic.origin(error),
             initializedNodes=list(self.records),pythonInstalledNodes=list(self.installations),javaInstalledNodes=list(self.java_installations))
+        if self.last_check is not None:self.failure['readCheck']=deepcopy(self.last_check)
         runner.diagnostic(self.output/'diagnostic.json',self.failure)
 
     def checkpoint(self,guests):
@@ -194,8 +231,13 @@ class Storage:
         command=['/usr/bin/python3','-I','-S','-c',self.volume_source if kind=='volume' else self.paths_source,action]
         if kind=='volume':command=['sudo','-n','-u','root','-g','root','--',*command]
         args[-1]=shlex.join(command)
-        self.note(node,kind,action,'transport')
-        raw=iap.transport.process(args,encoded(data),end,maximum=volume.MAX_BYTES,env={'PATH':'/usr/bin:/bin','LANG':'C','LC_ALL':'C'})
+        self.note(node,kind,action,'transport');self.reply_received_at=None
+        try:
+            raw=iap.transport.process(args,encoded(data),end,maximum=volume.MAX_BYTES,retain_partial=True,
+                env={'PATH':'/usr/bin:/bin','LANG':'C','LC_ALL':'C'})
+        except iap.transport.ProcessError as error:
+            raise diagnostic.remote_error(error,action,data) from None
+        self.reply_received_at=time.monotonic()
         self.note(node,kind,action,'postcheck');self.checkpoint(guests)
         self.note(node,kind,action,'reply');return strict(raw)
 

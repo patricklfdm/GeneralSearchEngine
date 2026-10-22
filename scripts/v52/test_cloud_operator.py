@@ -353,6 +353,17 @@ class StorageDiagnosticTest(unittest.TestCase):
             value=storage_diagnostic();value.update(changes)
             self.assertIsNone(self.report(value))
 
+    def test_remote_codes_and_attempt_timings_are_projected_but_not_unknown_fields(self):
+        from . import cloud_storage_diagnostics as d
+        value=storage_diagnostic();value.update(reasonCode=d.reason(d.VolumeError('V52_VOLUME_CLOCK_EXPIRED')),errorType='VolumeError')
+        value['readCheck']=dict(limitSeconds=300,attempts=[dict(attempt=1,phase='check',elapsedMillis=95000,
+            remainingMillis=205000,reasonCode='V52_VOLUME_CLOCK_EXPIRED')])
+        self.assertEqual(value['readCheck'],self.report(value)['readCheck'])
+        for mutation in (lambda c:c.update(limitSeconds=301),lambda c:c['attempts'][0].update(attempt=True),
+                         lambda c:c['attempts'][0].update(secret='never-public'),lambda c:c['attempts'][0].update(reasonCode='unknown'),
+                         lambda c:c['attempts'][0].update(elapsedMillis=-1),lambda c:c['attempts'].extend(c['attempts']*3)):
+            changed=deepcopy(value);mutation(changed['readCheck']);self.assertIsNone(self.report(changed))
+
     def test_missing_malformed_linked_oversized_diagnostic_is_not_published(self):
         self.assertIsNone(o.storage_report(self.root))
         path=self.root/'diagnostic.json'

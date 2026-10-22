@@ -27,7 +27,7 @@ replication, workload parameters, evidence acceptance, stage budgets or cost bud
 | GitHub build/cleanup/original-artifact GETs | Existing three-attempt reader also handles HTTP 408/429 | Original run/attempt and source, pagination/count/byte bounds, strict JSON/ZIP validation |
 | GitHub credential-context GETs | Now reuse the bounded GET reader | Latest → exact attempt → latest must all still identify the same in-progress run |
 | Guest link-local metadata GETs | Three attempts within the original three seconds per fixed path | No proxy/redirect, same path, Google header, byte/ASCII bounds and exact guest identity |
-| IAP admission and native volume/storage queries | Existing finite mechanisms retained | At most two admission attempts; three read-query failures; original authority/deadline |
+| IAP admission and native volume/storage queries | Bounded reads only | At most two IAP admission attempts; three clock-read exchanges; three mount-read attempts within one 300-second window and current authority; initialization queries retain their original grant |
 | Remote original-command recovery | Existing finite result-query mechanism retained | Consumed command is never resubmitted; permanent rejection or exhausted reads stop |
 | Install/start, Compute/Storage writes, measurement operations | No new automatic replay | Original-result query/reconciliation remains the only way to resolve uncertain submission |
 
