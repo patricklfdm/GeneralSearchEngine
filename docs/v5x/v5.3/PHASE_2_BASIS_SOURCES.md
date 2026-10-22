@@ -1,7 +1,8 @@
 # Phase 2B2a — retained original basis bytes
 
-Status: **locally complete as a private storage component**. Phase 2B2 remains open
-for binding a grant to the selected current generation and actual owned parent/tail.
+Status: **locally complete as a private storage component**. The later
+[2B2b current-generation entry](PHASE_2_CURRENT_GENERATION.md) binds grants to the
+selected local parent/tail; generation installation and full Phase 2 closure remain open.
 The public membership runtime stays disabled. The test inputs' authenticated remote
 ownership observations remain synthetic; copying their records locally does not
 turn them into evidence of remote force or voter ownership.
@@ -119,9 +120,9 @@ removing any inherited requirement.
 
 ## Next storage obligations
 
-2B2b must derive the sampled parent/tail from current owned generation authority,
-serialize generation installation with the grant, and replace caller-asserted
-ownership with observations from the actual storage path. 2C must add durable
+2B2b now derives the sampled parent/tail from an immutable current local generation.
+Remote historical ownership remains conditional. 2C must serialize generation
+installation with the grant and add durable
 SELECTED, complete generations/selector/floor, adoption, ACCEPT/PROOF persistence
 and bounded retirement/rotation. Those steps must preserve the original references
 qualified here. Phase 2 closure, public service, full S/N physical coverage and

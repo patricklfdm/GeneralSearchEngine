@@ -36,8 +36,8 @@ def inventory(path):
     return result
 
 
-def state(path,size,partial=False):
-    path=Path(path);files=inventory(path);values,rows=g.state(path,size,{'sources'})
+def state(path,size,partial=False,extra_names=frozenset()):
+    path=Path(path);files=inventory(path);values,rows=g.state(path,size,{'sources'}|extra_names)
     promises={v['basisId']:v for kind,_,v in rows if kind=='PROMISE'}
     need(len(promises)==sum(kind=='PROMISE' for kind,_,_ in rows),'reused source identity')
     bases={v['basisId']:raw for kind,raw,v in rows if kind=='BASIS'}

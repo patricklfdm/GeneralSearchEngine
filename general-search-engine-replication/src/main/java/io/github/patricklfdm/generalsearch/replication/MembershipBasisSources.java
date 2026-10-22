@@ -22,7 +22,7 @@ final class MembershipBasisSources implements AutoCloseable {
     private final Map<String,Map<String,FileIdentity>> retained=new TreeMap<>();
     private final Map<String,Object> subdirectories=new TreeMap<>();
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
-    private record FileIdentity(Object key,long bytes,String digest) {}
+    record FileIdentity(Object key,long bytes,String digest) {}
 
     MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
             Map<String,Decoded> promises,Map<String,Decoded> bases) throws IOException {
@@ -47,11 +47,11 @@ final class MembershipBasisSources implements AutoCloseable {
             AdmissionPaths.forceDirectory(directory);
         } catch(IOException | RuntimeException | Error error) {close();throw error;}
     }
-    private static Object key(Path path) throws IOException {
+    static Object key(Path path) throws IOException {
         AdmissionPaths.safe(path);Object value=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).fileKey();
         require(value!=null,"basis source inode unavailable");return value;
     }
-    private static Set<String> children(Path path,int maximum) throws IOException {
+    static Set<String> children(Path path,int maximum) throws IOException {
         AdmissionPaths.safe(path);require(Files.isDirectory(path,LinkOption.NOFOLLOW_LINKS),"basis source directory absent");
         var names=new TreeSet<String>();
         try(var stream=Files.newDirectoryStream(path)) {
@@ -68,7 +68,7 @@ final class MembershipBasisSources implements AutoCloseable {
         if(basis!=null)packet.bind(basis);
         return packet;
     }
-    private static FileIdentity inspect(Path path,long size,String digest) throws IOException {
+    static FileIdentity inspect(Path path,long size,String digest) throws IOException {
         AdmissionPaths.regular(path);require(Files.size(path)==size,"retained source file length");Object before=key(path);
         MessageDigest sha;
         try {sha=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException error){throw new AssertionError(error);}
@@ -141,7 +141,7 @@ final class MembershipBasisSources implements AutoCloseable {
             AdmissionPaths.write(channel,bytes);cut.at(event+"_WRITTEN");channel.force(true);cut.at(event+"_FORCED");
         }
     }
-    private static void force(Path path) throws IOException {
+    static void force(Path path) throws IOException {
         AdmissionPaths.regular(path);try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
     }
     @Override public void close() {leases.forEach(MembershipResources.Lease::close);leases.clear();}

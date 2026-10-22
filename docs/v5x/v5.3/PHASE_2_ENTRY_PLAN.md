@@ -11,8 +11,8 @@ The public membership factory remains disabled throughout this storage entry bat
 | 2A — locally complete | Private exclusive owner and separately forced ballot counter; exact pre-provisioned root/node binding; fresh-process lock, halt/SIGKILL and restart evidence |
 | 2B1 — locally complete | [Root-wide promise and original basis frames](PHASE_2_GRANT_JOURNAL.md); exact duplicate response, incomplete-grant refusal and concurrent observation fencing; physical source retention still pending |
 | 2B2a — locally complete | [Original source retention](PHASE_2_BASIS_SOURCES.md): packet/image force before BASIS, exact original replay/reopen and bounded reservations; no source reclamation |
-| 2B2b | Bind sampling to current owned generation/parent/tail authority and serialize generation installation with the journal; replace conditional caller ownership |
-| 2C | Selected-source installation, ACCEPT/PROOF/certificate persistence and complete application/catalog generation; exact selector/floor recovery and bounded retention |
+| 2B2b — locally complete for capture | [Current local generation](PHASE_2_CURRENT_GENERATION.md): derive grant parent/tail/images from exact selected disk authority under the journal owner; immutable generation only, remote historical ownership remains conditional |
+| 2C | Selected-source installation and selector switching serialized with the journal; adoption/ancestry and source lifetimes, ACCEPT/PROOF/certificate persistence, complete application/catalog generation, exact selector/floor recovery and bounded retention |
 | 2D | Complete offline provisioning/open, legacy rejection and configuration-aware storage qualification; real ownership observations replace synthetic inputs; physical S/N coverage and closure audit |
 
 The [2A storage foundation](PHASE_2_STORAGE_FOUNDATION.md) qualifies an isolated
@@ -44,3 +44,9 @@ complete generation/floor recovery and operational repair contract.
 Phase 3 will connect storage to actual activation and transitions. Phase 4 public
 operations and later unified acceptance remain required; no Phase 2 batch alone
 turns the current physical S/N inventory from PLANNED into an accepted runtime.
+
+2B2b separates immutable capture from the installation transaction originally
+listed in that row. Installation serialization belongs with 2C's selector/adoption
+recovery: the current entry exposes no installation API and refuses inactive or
+selected-installation generations. This sequencing does not waive any storage
+closure requirement or establish remote historical ownership.

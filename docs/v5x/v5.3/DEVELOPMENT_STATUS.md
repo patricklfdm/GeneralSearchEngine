@@ -525,3 +525,29 @@ the input capsule's remote ownership observations are still conditional. Complet
 selected generation recovery, retirement and public protocol integration follow.
 No inherited runtime, frozen format, POM, workflow or V5.2 experiment changed.
 This batch is local commit only, without push or hosted acceptance.
+
+## 2026-10-22 — Phase 2B2b current local generation capture
+
+Added the [current-generation entry](PHASE_2_CURRENT_GENERATION.md): exact physical
+selector/manifest/packet/image/PROMISE/owned-tail binding under the journal's
+exclusive owner. `prepareCurrent` samples that immutable selected generation under
+the writer monitor; callers cannot substitute sources. Rechecks reject live inode
+replacement and a selected cut inconsistent with retained grants. Local tail
+observations bind the node/storage/original record/parent; remote historical
+ownership is still a separate conditional verifier input.
+
+89 focused Java tests, 49 Python/build-contract tests and 33 optimized-Python tests
+passed. All 90 current-generation process cases / 360 JVMs, thirteen reason-specific
+negatives and portable replay passed. The unchanged source, grant and allocator
+matrices also passed (69 / 45 / 48 cases respectively), including their negative
+and relocation gates. All four raw receipt inventories were checked. The
+[summary](phase2-evidence/current-generation.json) records exact implementation
+hashes, the initial corrected Python fixture mutation and retained originals under
+`target/v53-phase2-current-generation/`.
+
+Phase 2 remains **OPEN**. Generation installation/selector switching is explicitly
+sequenced into 2C with adoption/ancestry, recovery and source lifetimes. No install,
+repair or reclamation API is exposed here; inactive/selected-installation generations
+are refused. Public bootstrap, power-loss qualification, complete physical S/N and
+unified acceptance remain pending. No inherited runtime, frozen format, public API,
+POM, workflow or V5.2 experiment changed. Work and commit remain local, without push.

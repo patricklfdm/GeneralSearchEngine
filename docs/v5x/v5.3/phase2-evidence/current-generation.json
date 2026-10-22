@@ -1,0 +1,143 @@
+{
+  "cases": 90,
+  "classes": {
+    "V53BallotAllocatorWorker.class": "21b43bdda3bd5d2b1bab4f6c43bf65a5f88b3ff664fa8b77633250420a6b26a4",
+    "V53CapsuleFixture.class": "261fe862031793f9c1b6b94b57fcb56838bffc5a9cf8e5089b18951fc36461d7",
+    "V53ContextFixture.class": "f67122ee25080457207f2abc741a9b401449aaa2deb8f3b4b398dbbc10ac1bef",
+    "V53CurrentGenerationFixture.class": "8a024d4aac913adbbf867d6693c2771288932d14a9139b6a106294ecd8232abd",
+    "V53CurrentGenerationWorker.class": "b7942e439f21666aa689630d34abcd5a5822fec6c18322b3623a62fee8ad3942",
+    "V53DeclarationsTest.class": "33e7524dc32775d8136860161ddd75d2ec05e82f3e8e50a4af0e944bf8f061e2",
+    "V53SelectionFixture.class": "746d0b7ee923e3207eb5c438ab187bbb33f20234b6331116674c34252c3b4f03"
+  },
+  "currentGenerationCapture": true,
+  "developmentCorrections": [
+    "The first Python test attempted an invalid path rejected by the fixture encoder itself; use a syntactically valid nested path to exercise the current-generation reader. Original failing test log retained."
+  ],
+  "documentationContract": {
+    "byteFixtures": 45,
+    "commandFixtures": 9,
+    "localLinks": 266,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "elapsedSeconds": 159.032,
+  "evidenceInventoriesVerified": true,
+  "execution": "private-current-generation",
+  "focusedPythonTests": 49,
+  "freshProcesses": 360,
+  "generationInstallation": false,
+  "implementationFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "c98cbac37de5cd3176d2638e05ac13173072825049b8e73dedf2cf3fc5bcd76b",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources.java": "755ede73ea32210360551dd905dd5092cb84563b753fba2a7039bedfad806c71",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java": "65bfd7428f1eca42cbf75ca7b722bab7111df8b69dc9c4931a8104d1f6964366",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "6edfb0d7994afbd9ae51e8ae33d2dd2bd55ae9007777c618dbfe5e768282a961",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CurrentGenerationFixture.java": "96b5f3c70dcabc087a940a54196da54727b50eb59d182c3f52ac9925da6ae194",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CurrentGenerationTest.java": "aa2cf936e1fa9227175323c133d79913ae6af6159abd6e43487963967b22a4a0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CurrentGenerationWorker.java": "4e4977142a84a22ffb08bd37917389284f3b95768a840e38169fbea0bc10b149",
+    "scripts/ci_v51_bundle.py": "313b698df979b9583563fb2702d5ea804191c9969cfbc566bdac093d91f2585d",
+    "scripts/test_ci_v51_bundle.py": "6ca7f9e2f283cb4b06b5b1807c9ce6cdbb99c3b1410d0257058fa87ee0d6b92d",
+    "scripts/v53/basis_sources_evidence.py": "1e34c0c74cfbbd71802d0a63e3e9657f6cfd803962256483aac58ab5a2019f59",
+    "scripts/v53/current_generation_evidence.py": "e1694aeffff33ec36550d102a87a1a7c7f59021807e34d4551b0a539c488cef2",
+    "scripts/v53/current_generation_negatives.py": "3302e88eaa2ababc9687afb36b51d7fa69fdaa6369114682cadc6271bf285dcf",
+    "scripts/v53/current_generation_qualification.py": "616ca0356b1949c7ff8c1f228c8f8c570ef2dc9100a72114a36108403138a25f",
+    "scripts/v53/test_current_generation_evidence.py": "9ea82393b48ce3eaf7439e891355215bb2fe9891bd26c679c6bb30d9983b19b0"
+  },
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "bd16f3e8f439457cb77842198ba7acde5e52a2e5809d6c04da9d5513e46075a6",
+      "size": 764521
+    }
+  ],
+  "javaTests": 89,
+  "limitations": [
+    "Immutable, pre-provisioned sole selected generation only; SELECTED installation, switching, adoption and reclamation remain Phase 2C.",
+    "Remote historical ownership observations remain fixture inputs to the capsule verifier; a local owned tail observation does not prove remote force.",
+    "The retained journal cut rejects a known rollback; whole-authority rollback detection still requires the later durable floor.",
+    "Halt/SIGKILL on the local filesystem does not simulate power loss; complete physical S/N qualification and unified acceptance remain pending."
+  ],
+  "localEvidence": "target/v53-phase2-current-generation",
+  "logs": {
+    "allocator-regression.log": "65b6529a60aa47227ad6e727f24f8a084b8b3c4c02609b53f8e9d6cd1569779e",
+    "contract-final.log": "0d19ada0c648e94315ec5a4bd5af0b680bd0709293fea4745e4ae7abd4d138a8",
+    "grant-regression.log": "82b7135c36235a83b5b3568ff815dfb04446c8df28a9195294d544b3f57930c0",
+    "python-final.log": "9d5d98bec15c8b62597f96c01b3921b0e15d9ef064ff4b96108a819fed49c674",
+    "python-initial.log": "bd2b6f3260be287585d89e7d0687f353dab365cff96e0fd2fcef3ea59d79a2a1",
+    "python-optimized.log": "175ca8dffb327cc513eed1e38d79a8f736e50b6753a87af81f603a88498f925a",
+    "qualified.log": "99153607bd890c54abcca2e5a4b83b3becb7227289ad266cffc2507fc861f36c",
+    "reactor-final.log": "37b6c21bd7686b0122ed4558683bc4e6756459a905a05be162c554f135d2fbf8",
+    "reactor-initial.log": "1b8d0339f7380feca6c46dbd46c9ac152288b6fb92c4ff2d8a4d49993e546fd4",
+    "reactor-qualified.log": "69dcc8ee7499d3a60166d378ae7d310e97f302edf414567554ea90e8add40a4f",
+    "source-regression.log": "3a18dfecba0aaac9052fa14a4c660c98c450b39e1455cb9c544b3ffed8ff1419"
+  },
+  "negativeCases": 13,
+  "optimizedPythonTests": 33,
+  "powerLossTested": false,
+  "publicBootstrap": false,
+  "receipts": {
+    "allocator-regression": {
+      "path": "target/v53-phase2-current-generation/allocator-regression/receipt.json",
+      "sha256": "1d4eb2d2c3c4d3abb9030d98436c6de3c9fb1d865301f56bf843a5949a2c0e62"
+    },
+    "grant-regression": {
+      "path": "target/v53-phase2-current-generation/grant-regression/receipt.json",
+      "sha256": "cb24f4f6f3f71e4baa35dcd00612e500aed2dc0d8f9ae4b59aac804baad32352"
+    },
+    "qualified": {
+      "path": "target/v53-phase2-current-generation/qualified/receipt.json",
+      "sha256": "da715cfcd983a72380359db2da0791840bb6e2901ac3d5f9d0331a339e582434"
+    },
+    "source-regression": {
+      "path": "target/v53-phase2-current-generation/source-regression/receipt.json",
+      "sha256": "b64f0eb69dbc1d2614f402c37f124b24e38c5398714cab1cda31b8111e9cfd52"
+    }
+  },
+  "regressions": {
+    "allocator-regression": {
+      "cases": 48,
+      "elapsedSeconds": 28.719,
+      "freshProcesses": 186,
+      "negativeCases": 10,
+      "relocatedReplay": "PASS",
+      "status": "PASS"
+    },
+    "grant-regression": {
+      "cases": 45,
+      "elapsedSeconds": 48.711,
+      "freshProcesses": 180,
+      "negativeCases": 8,
+      "relocatedReplay": "PASS",
+      "status": "PASS"
+    },
+    "source-regression": {
+      "cases": 69,
+      "elapsedSeconds": 72.782,
+      "freshProcesses": 258,
+      "negativeCases": 11,
+      "relocatedReplay": "PASS",
+      "status": "PASS"
+    }
+  },
+  "relocatedReplay": "PASS",
+  "remoteOwnershipVerified": false,
+  "runtimeEnabled": false,
+  "schema": "gse-v53-current-generation-local-summary-v1",
+  "source": {
+    "checkoutSha256": "38afcb1d2c38b220a7b5c12dcb8899af1b3aa37de9d371a0a7ea440a7235506b",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "88ea248c94b15f82f1b9508bc916b05dd6c7e650"
+  },
+  "sourceBindingNote": "Qualification predates final reporting/docs; implementation hashes identify the validated local bytes. This is not clean-HEAD protected CI.",
+  "status": "PASS"
+}

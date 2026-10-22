@@ -27,6 +27,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private Decoded promise,basis;
     private final Map<String,Decoded> promises=new TreeMap<>(), bases=new TreeMap<>();
     private MembershipBasisSources sources;
+    private MembershipCurrentGeneration current;
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -68,6 +69,20 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
     }
 
+    static MembershipGrantJournal openCurrent(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
+        Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
+        var owner=MembershipBallotAllocator.openWithCurrentGeneration(path,root,identity,cut);MembershipGrantJournal journal=null;
+        try {
+            journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);
+            journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);
+            journal.current=new MembershipCurrentGeneration(path,root,identity,resources,journal.promises.values(),journal.bases.values(),verifier,cut);
+            journal.checkOwner();return journal;
+        }catch(IOException | RuntimeException | Error error) {
+            try{if(journal==null)owner.close();else journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;
+        }
+    }
+
     private Object key() throws IOException {
         Object key=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).fileKey();
         require(key!=null,"grant file identity unavailable");return key;
@@ -76,6 +91,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private void checkOwner() throws IOException {
         live();allocator.checkOwner();require(fileKey.equals(key()),"grant journal inode changed");AdmissionPaths.exact(path,journal);
         if(sources!=null)sources.check();
+        if(current!=null)current.check();
     }
     private static Map<String,Object> ballot(Map<String,Object> value) {
         checkType(value,"ballot");require(number(value.get("counter"))<=MembershipBallotAllocator.MAX,"grant ballot counter capacity");
@@ -114,6 +130,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Does not acquire the writer monitor: a verified observation can fence an in-flight force. */
     void observe(MembershipContext context,Map<String,Object> incoming) {
         live();require(context.root.equals(root.manifestDigest()),"foreign observed root");
+        require(current==null || context==current.capsule.context,"observation must use current generation");
         var next=ballot(context.ballot(incoming,true));
         observed.updateAndGet(prior->prior==null || compareBallot(next,prior)>0?next:prior);
     }
@@ -134,6 +151,20 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
 
     synchronized Decoded prepare(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images) throws IOException {
+        require(current==null,"current grant does not accept caller source");
+        return prepareBound(source,incoming,accepted,images);
+    }
+
+    /** The same writer monitor will own later generation installation; external changes are refused. */
+    synchronized Decoded prepareCurrent(Map<String,Object> incoming) throws IOException {
+        require(current!=null,"current generation required");checkOwner();cut.at("CURRENT_BEFORE_CAPTURE");checkOwner();
+        return prepareBound(current.capsule,incoming,current.accepted,current.images());
+    }
+    void observeCurrent(Map<String,Object> incoming) {live();require(current!=null,"current generation required");observe(current.capsule.context,incoming);}
+    synchronized Optional<Owned> currentOwnedTail() throws IOException {
+        require(current!=null,"current generation required");checkOwner();return current.ownedTail();
+    }
+    private Decoded prepareBound(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images) throws IOException {
         require((sources==null)==(images==null),"grant source mode mismatch");
         live();var context=source.context;
         require(context.root.equals(root.manifestDigest()) && identity.equals(context.identities.get(identity.nodeId().value()))
@@ -160,7 +191,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         try(var retained=reservation) {
             append(grant,next);promise=grant;basis=null;
             if(retained!=null){retained.capture();fence(next);}
-            append(frozen,next);basis=frozen;cut.at("GRANT_BEFORE_RETURN");fence(next);return frozen;
+            append(frozen,next);basis=frozen;cut.at("GRANT_BEFORE_RETURN");checkOwner();fence(next);return frozen;
         } catch(IOException | RuntimeException | Error error) {failed=true;throw error;}
     }
 
@@ -177,5 +208,7 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     synchronized Optional<Decoded> promised() {live();return Optional.ofNullable(promise);}
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
-    @Override public synchronized void close() throws IOException {if(!closed){closed=true;try{if(sources!=null)sources.close();}finally{allocator.close();}}}
+    @Override public synchronized void close() throws IOException {
+        if(!closed){closed=true;try{if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
+    }
 }

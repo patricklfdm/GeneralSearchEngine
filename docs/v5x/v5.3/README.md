@@ -20,8 +20,10 @@ records current compatibility, byte, source-selection and complete causal-model
 qualification. The new membership runtime remains disabled. [Phase 2 storage](PHASE_2_ENTRY_PLAN.md)
 is open, with [private durable allocation and exclusive ownership](PHASE_2_STORAGE_FOUNDATION.md)
 and the [promise/original-basis metadata journal](PHASE_2_GRANT_JOURNAL.md), now with
-[physical original-source retention](PHASE_2_BASIS_SOURCES.md).
-Current-generation ownership binding and complete generation recovery remain pending.
+[physical original-source retention](PHASE_2_BASIS_SOURCES.md) and
+[current local generation capture](PHASE_2_CURRENT_GENERATION.md).
+Generation installation/switching, complete recovery and remote ownership verification
+remain pending.
 
 ## Historical research in order
 
