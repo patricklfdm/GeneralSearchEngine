@@ -863,3 +863,22 @@ capture cases replay unchanged under their original source binding.
 Continue actual pending vote/application integration and coordinated maximal
 lifetime completion. Phase 2 and later pre-cloud obligations remain OPEN. Local
 commits only; no public runtime, push, workflow, cloud or V5.2 Runner action.
+
+
+## 2026-10-22 — Phase 2C5a actual pending ACCEPT and source capture
+
+The private voting owner now forces original ENTRY/payload/ACCEPT under the exact
+installed selection, atomically selects a bounded candidate, and returns actual
+local Owned only after parent force. Fresh PREPARE includes this physical tail;
+earlier BASIS bytes remain unchanged. Active/candidate plus grants use the existing
+32 MiB JOURNAL reservation; complete future source capacity is checked before force.
+
+**42 cases / 270 fresh JVMs**, **12 exact negatives**, portable replay, **246 reactor
+Java tests** plus the final **13-test pending suite** (two additional tests; 248
+distinct Java tests), and **25 Python/build tests** (normal and optimized) passed.
+[Scope](PHASE_2_PENDING_ACCEPT.md), [hash index](phase2-evidence/pending-accept.json).
+
+Continue PROOF/certificate/application integration, covered-tail retirement and
+stable next-slot progression. Partial-request abortion under a higher durable fence,
+maximal lifetime completion, complete-store/public acceptance and later pre-cloud
+work remain OPEN. All changes and commits remain local; V5.2 cloud stays separate.

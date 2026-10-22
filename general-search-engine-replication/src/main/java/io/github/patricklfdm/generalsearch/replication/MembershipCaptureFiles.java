@@ -22,6 +22,9 @@ final class MembershipCaptureFiles {
     MembershipCaptureFiles(Path parent)throws IOException {this.parent=parent;path=parent.resolve(FILE);snapshot();}
     boolean pending(){return pending!=null;}
     static Plan plan(MembershipCurrentGeneration current,Decoded promise,MembershipIdentity identity)throws IOException {
+        return plan(current,promise,identity,current.capsule.packet,current.accepted);
+    }
+    static Plan plan(MembershipCurrentGeneration current,Decoded promise,MembershipIdentity identity,MembershipSourcePacket packet,String accepted)throws IOException {
         current.check();require(promise!=null && promise.value().get("basisId")!=null,"capture requires original promise");
         require(!promise.digest().equals(current.manifest.value().get("promise")),"capture original grant is not newer than installed authority");
         var context=current.capsule.context;
@@ -29,9 +32,9 @@ final class MembershipCaptureFiles {
                 && context.voters().contains(identity.nodeId().value()),"capture original root/view/voter");
         context.ballot(promise.value().get("ballot"),true);
         var body=new TreeMap<String,Object>(promise.value());body.put("voter",identity.nodeId().value());body.put("cut",context.cut);
-        body.put("capsule",current.capsule.packet.capsule().digest());body.put("inventory",current.capsule.packet.inventoryDigest());body.put("accepted",current.accepted);
-        var basis=decode(encode("records","BASIS",body),"records","BASIS");current.capsule.packet.bind(basis);
-        var result=new Plan(current.selector,promise,basis,current.capsule.packet,current.images());
+        body.put("capsule",packet.capsule().digest());body.put("inventory",packet.inventoryDigest());body.put("accepted",accepted);
+        var basis=decode(encode("records","BASIS",body),"records","BASIS");packet.bind(basis);
+        var result=new Plan(current.selector,promise,basis,packet,current.images());
         require(result.bytes().length<=MAXIMUM,"capture intent bound");current.check();return result;
     }
     private void snapshot()throws IOException {

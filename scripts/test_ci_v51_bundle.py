@@ -161,7 +161,7 @@ class BundleTest(unittest.TestCase):
                          for name in ('V53FormatWorker', 'V53FormatTest', 'V53ContextWorker', 'V53ContextFixture',
                        'V53DeclarationsTest', 'V53SourcePacketWorker', 'V53SourcePacketTest',
                        'V53SourcePacketTest$Fixture', 'V53CapsuleWorker', 'V53CapsuleFixture',
-                       'V53SelectionWorker', 'V53SelectionFixture', 'V53BallotAllocatorWorker', 'V53GrantJournalWorker', 'V53BasisSourcesWorker', 'V53CurrentGenerationWorker', 'V53CurrentGenerationFixture', 'V53DurableSelectionWorker', 'V53GenerationInstallWorker', 'V53GenerationInstallFixture', 'V53AdoptionFenceFixture', 'V53AdoptionFenceWorker', 'V53AdoptionInstallWorker', 'V53FloorWorker', 'V53RetirementWorker', 'V53JournalRotationWorker', 'V53FloorReleaseWorker', 'V53SourceReleaseWorker', 'V53CapturedSourceReleaseWorker', 'V53CaptureRecoveryWorker')]
+                       'V53SelectionWorker', 'V53SelectionFixture', 'V53BallotAllocatorWorker', 'V53GrantJournalWorker', 'V53BasisSourcesWorker', 'V53CurrentGenerationWorker', 'V53CurrentGenerationFixture', 'V53DurableSelectionWorker', 'V53GenerationInstallWorker', 'V53GenerationInstallFixture', 'V53AdoptionFenceFixture', 'V53AdoptionFenceWorker', 'V53AdoptionInstallWorker', 'V53FloorWorker', 'V53RetirementWorker', 'V53JournalRotationWorker', 'V53FloorReleaseWorker', 'V53SourceReleaseWorker', 'V53CapturedSourceReleaseWorker', 'V53CaptureRecoveryWorker', 'V53PendingAcceptFixture', 'V53PendingAcceptWorker')]
         fixture_paths.append(b.CLASSES+'/replication/v53/byte-fixtures.json')
         for path in fixture_paths: files[path] = b'fixture'
         for name in added:
