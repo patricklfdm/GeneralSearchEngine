@@ -34,6 +34,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipFloorFiles floors;
     private MembershipRetirementFiles retirement;
     private MembershipJournalRotationFiles rotation;
+    private boolean floorReleaseEnabled;
     private MembershipResources resources;
     private volatile boolean failed,closed;
 
@@ -93,35 +94,39 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
-        return openGenerations(requested,root,identity,resources,verifier,cut,false,false,false);
+        return openGenerations(requested,root,identity,resources,verifier,cut,false,false,false,false);
     }
     static MembershipGrantJournal openFloors(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
-        return openGenerations(requested,root,identity,resources,verifier,cut,true,false,false);
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,false,false,false);
     }
     static MembershipGrantJournal openRetirement(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
-        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,false);
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,false,false);
     }
     static MembershipGrantJournal openRotating(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
-        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,true);
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,true,false);
+    }
+    static MembershipGrantJournal openMaintenance(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut) throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,true,true);
     }
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
-            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,boolean withFloors,boolean withRetirement,boolean withRotation) throws IOException {
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease) throws IOException {
         Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
         var owner=withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
         try {
-            journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);journal.resources=resources;journal.capsuleVerifier=verifier;
+            journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);journal.resources=resources;journal.capsuleVerifier=verifier;journal.floorReleaseEnabled=withFloorRelease;
             if(withRotation)journal.rotation=new MembershipJournalRotationFiles(path);
             journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);
             journal.reloadGenerations();
             if(withFloors) {
-                journal.floors=new MembershipFloorFiles(path,root,identity,resources,verifier);
+                journal.floors=new MembershipFloorFiles(path,root,identity,resources,verifier,withFloorRelease);
                 var parents=new ArrayList<MembershipCapsule.Anchor>();journal.addFloorParent(parents);journal.current.verifyParents(parents);
             }
             if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources);
-            journal.checkOwner();if(withRotation && journal.rotation.pending())journal.rotateJournal();return journal;
+            journal.checkOwner();if(withFloorRelease && journal.floors.releasing())journal.releaseFloor();if(withRotation && journal.rotation.pending())journal.rotateJournal();return journal;
         }catch(IOException | RuntimeException | Error error){try{if(journal==null)owner.close();else journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     private void reloadGenerations() throws IOException {
@@ -147,7 +152,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
     private void checkOwner() throws IOException {checkWithoutRetirement();if(retirement!=null)retirement.check();}
-    private void rotationIdle(){if(rotation!=null)require(!rotation.pending(),"pending journal rotation must finish before authority changes");}
+    private void rotationIdle(){if(floors!=null)require(!floors.releasing(),"pending floor release must finish before authority changes");if(rotation!=null)require(!rotation.pending(),"pending journal rotation must finish before authority changes");}
     private void floorIdle() throws IOException {
         rotationIdle();
         if(floors!=null)require(!floors.pending(),"pending floor must finish before authority changes");
@@ -222,6 +227,15 @@ final class MembershipGrantJournal implements AutoCloseable {
             inactive.deleteAuthorized(record,this::checkOwner,cut);
             require(!inactive.exists(),"retirement original still exists");retirement.clearAfterDeletion(record,this::checkWithoutRetirement,cut);
             cut.at("RETIREMENT_BEFORE_RETURN");checkOwner();return Optional.of(record);
+        }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
+    }
+    /** Relinquish a completed old floor only after every inactive generation is gone. */
+    synchronized void releaseFloor() throws IOException {
+        require(floorReleaseEnabled && floors!=null && retirement!=null && rotation!=null,"floor release storage owner required");checkOwner();
+        require(!inactive.exists() && !inactive.pending() && !retirement.pending() && !rotation.pending(),"pending generation/retirement/rotation before floor release");
+        require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
+        try {
+            if(!floors.exists())return;floors.release(current,this::checkOwner,cut);cut.at("FLOOR_RELEASE_BEFORE_RETURN");checkOwner();
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     /** Compact exact original frames, retaining every original BASIS/SELECTED and live promise. */

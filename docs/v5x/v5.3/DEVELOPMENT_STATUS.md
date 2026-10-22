@@ -721,3 +721,27 @@ refuses further capture. Continue floor/source release, coordinated bounded
 progress, phased vote/application storage and complete offline recovery. This
 local batch does not change workflows, frozen formats/limits, public service or
 V5.2 experiments; no remote push.
+
+
+## 2026-10-22 — Phase 2C4c2 obsolete floor-copy release
+
+- Added explicit maintenance open and bounded old-floor cleanup after inactive
+  retirement completes. A forced exact existing-format RETIREMENT inventory binds
+  root/owner/floor/current selector; remove floor authority before listed copies.
+- Partial release is never advertised as a governing floor. Reopen completes only
+  an exact original decision, preserves all current/source bytes, rechecks remaining
+  bytes/inodes before each deletion and clears authority last. New mutations block.
+- Repeated complete floor establishment/release returns reservations. A shared
+  capacity regression releases at six SOURCE/seven APPLICATION slots without
+  another copy; legacy modes, stale authority, corruption and inode swaps refuse.
+- **261 cases / 1062 fresh JVMs**, **14 exact negatives**, portable replay
+  PASS in 806.986 seconds. **176 Java tests**, **53 Python/build tests**
+  normally and under `-O` passed. [Scope/reproduction](PHASE_2_FLOOR_RELEASE.md),
+  [receipt index](phase2-evidence/floor-release.json); raw data under
+  `target/v53-floor-release/`.
+
+Phase 2 remains OPEN for original-source lifetimes, automatic backpressure, actual
+phased vote/application storage, complete offline recovery and integrated audit.
+No source deletion, new quorum, public-runtime, power-loss or cloud acceptance is
+claimed. This local batch leaves frozen formats/resources, workflows and V5.2
+experiments unchanged; no remote push.

@@ -19,7 +19,8 @@ The public membership factory remains disabled throughout this storage entry bat
 | 2C4a — locally complete for one retained floor | [Governing floor copies](PHASE_2_GOVERNING_FLOOR.md): complete original copies and eligible exact local generation, old/joint/new majorities, shared reservation, force-before-publication and exact interrupted resumption; no deletion or rotation |
 | 2C4b — locally complete for inactive retirement | [Governing-floor retirement](PHASE_2_RETIREMENT.md): forced exact inventory and complete saved original, preserve active/floor/source authority and above-floor owned bytes, resume partial deletion and interrupted recovery; no source/floor/journal rotation |
 | 2C4c1 — locally complete for journal compaction | [Bounded journal rotation](PHASE_2_JOURNAL_ROTATION.md): preserve exact original source groups/current/floor/highest promises; force compact candidate before atomic replacement; interrupted recovery and all six retained sources |
-| 2C4c2 | Safe floor/source release, coordinated lifetime progress and automatic bounded backpressure |
+| 2C4c2 — locally complete for floor release | [Obsolete floor-copy release](PHASE_2_FLOOR_RELEASE.md): exact forced release inventory, relinquish authority before deletion, preserve current/source bytes, recover partial cleanup and permit another full floor within existing slots |
+| 2C4c3 | Original-source release, coordinated lifetime progress and automatic bounded backpressure |
 | 2C5 | Actual ACCEPT/PROOF/certificate persistence and complete application/catalog generation |
 | 2D | Complete offline provisioning/open, legacy rejection and configuration-aware storage qualification; real ownership observations replace synthetic inputs; physical S/N coverage and closure audit |
 
