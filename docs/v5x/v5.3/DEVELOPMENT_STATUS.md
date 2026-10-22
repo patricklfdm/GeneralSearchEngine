@@ -845,3 +845,21 @@ The next work is exact torn-journal recovery and actual pending ACCEPT/PROOF and
 application/catalog persistence. Maximal source/image staging, coordinated lifetimes,
 complete bootstrap/reopen, Phase 2 physical mapping and later phases remain OPEN.
 No public runtime enablement, push, workflow, cloud or separate V5.2 Runner action.
+
+
+## 2026-10-22 — Phase 2C4c5b exact torn BASIS continuation
+
+The capture owner preserves a torn journal suffix and completes it only against
+its full original intent, new PROMISE, unchanged generation and complete source.
+It never truncates the original prefix or synthesizes missing source bytes after
+BASIS append begins. Other journal damage, including torn PROMISE, stays refused.
+
+**82 cases / 344 fresh JVMs**, **18 exact negatives**, portable replay, **235 Java**
+and **31 focused Python/build tests** (normal and optimized) passed. The preceding
+journal implementation rejects the retained half-BASIS snapshot; all 66 earlier
+capture cases replay unchanged under their original source binding.
+[Scope](PHASE_2_CAPTURE_JOURNAL_RECOVERY.md), [hash index](phase2-evidence/capture-journal.json).
+
+Continue actual pending vote/application integration and coordinated maximal
+lifetime completion. Phase 2 and later pre-cloud obligations remain OPEN. Local
+commits only; no public runtime, push, workflow, cloud or V5.2 Runner action.

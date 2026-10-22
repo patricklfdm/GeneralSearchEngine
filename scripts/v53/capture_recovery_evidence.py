@@ -92,6 +92,9 @@ def recovery_order(snapshot,source_id,complete):
 
 def validate_case(directory,case):
     root=Path(directory);record=g.a.load(root/'case.json');need(record['case']==case,'capture case identity')
+    if record.get('journalRecovery') is True:
+        from . import capture_journal_evidence
+        return capture_journal_evidence.validate_case(root,case)
     need(record['execution']=='private-capture-recovery' and record['runtimeEnabled'] is False and record['historicalOwnershipVerified'] is False and record['networkAck'] is False,'capture scope')
     state,rows,intent,source_id=model(root,case);initial=sources.inventory(root/'initial');clean=case['mode']=='clean';repeat=case['mode'].startswith('repeat-')
     names={'init','first','duplicate','inspect'} if clean else {'init','fault','resume','inspect'}|({'recovery-fault'} if repeat else set())

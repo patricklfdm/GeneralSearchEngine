@@ -24,6 +24,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private final int maximum;
     private final AtomicReference<Map<String,Object>> observed=new AtomicReference<>();
     private byte[] journal;
+    private byte[] tornBasis=new byte[0];
     private Decoded promise,basis,selection;
     private final Map<String,Decoded> promises=new TreeMap<>(), bases=new TreeMap<>();
     private final Map<String,Decoded> selections=new TreeMap<>();
@@ -42,12 +43,24 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
             MembershipBallotAllocator allocator,int maximum,MembershipBallotAllocator.Cut cut) throws IOException {
+        this(directory,root,identity,allocator,maximum,cut,false);
+    }
+    private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
+            MembershipBallotAllocator allocator,int maximum,MembershipBallotAllocator.Cut cut,boolean captureRecovery)throws IOException {
         this.directory=directory;this.path=directory.resolve(FILE);this.root=root;this.identity=identity;
         this.allocator=allocator;this.maximum=maximum;this.cut=cut;fileKey=key();
-        journal=AdmissionPaths.read(path,maximum);replay();
+        journal=AdmissionPaths.read(path,maximum);
+        if(captureRecovery && Files.exists(directory.resolve(MembershipCaptureFiles.FILE),LinkOption.NOFOLLOW_LINKS)) {
+            int complete=completePrefix(journal);
+            tornBasis=Arrays.copyOfRange(journal,complete,journal.length);journal=Arrays.copyOf(journal,complete);
+        }
+        replay();
         // A complete frame visible after process death is conservatively retained and sealed.
-        try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {channel.force(true);}
-        AdmissionPaths.forceDirectory(directory);
+        // A torn tail is never truncated or forced as a substitute for its original BASIS.
+        if(tornBasis.length==0) {
+            try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {channel.force(true);}
+            AdmissionPaths.forceDirectory(directory);
+        }
         if(promise!=null)observed.set(object(promise.value().get("ballot")));
     }
 
@@ -146,7 +159,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
         var owner=withCapture?MembershipBallotAllocator.openWithCaptureRecovery(path,root,identity,cut):withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
         try {
-            journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut);journal.resources=resources;journal.capsuleVerifier=verifier;journal.floorReleaseEnabled=withFloorRelease;
+            journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut,withCapture);journal.resources=resources;journal.capsuleVerifier=verifier;journal.floorReleaseEnabled=withFloorRelease;
             if(withRotation)journal.rotation=new MembershipJournalRotationFiles(path);
             if(withSourceRetirement)journal.sourceRetirement=new MembershipSourceRetirementFiles(path);
             if(withCapture)journal.capture=new MembershipCaptureFiles(path);
@@ -192,7 +205,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void live() {require(!closed && !failed,"grant journal closed or failed");}
     private void checkBaseOwner() throws IOException {
-        live();allocator.checkOwner();require(fileKey.equals(key()),"grant journal inode changed");AdmissionPaths.exact(path,journal);
+        live();allocator.checkOwner();require(fileKey.equals(key()),"grant journal inode changed");AdmissionPaths.exact(path,storedJournal());
         if(sources!=null)sources.check();
         if(rotation!=null)rotation.check();
         if(sourceRetirement!=null)sourceRetirement.check();
@@ -393,6 +406,22 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         orderedNodes(voters);quorum(view,voters);
         require(local && voters.contains(object(value.get("ballot")).get("proposer")),"selection missing local voter/proposer");
+    }
+    private byte[] storedJournal() {
+        if(tornBasis.length==0)return journal;
+        byte[] stored=Arrays.copyOf(journal,journal.length+tornBasis.length);System.arraycopy(tornBasis,0,stored,journal.length,tornBasis.length);return stored;
+    }
+    private static int completePrefix(byte[] bytes) {
+        int offset=0;
+        while(offset<bytes.length) {
+            if(bytes.length-offset<HEADER)return offset;
+            byte[] head=Arrays.copyOfRange(bytes,offset,offset+HEADER);int kind=Short.toUnsignedInt(ByteBuffer.wrap(head).getShort(8));
+            require(kind==3 || kind==4 || kind==5,"unknown grant journal record");String name=kind==3?"PROMISE":kind==4?"BASIS":"SELECTED";
+            int length=HEADER+header(head,"records",name);
+            if(length>bytes.length-offset){require(kind==4,"capture can only recover a torn BASIS");return offset;}
+            offset+=length;
+        }
+        return offset;
     }
     private void replay() {
         int offset=0;
@@ -635,13 +664,37 @@ final class MembershipGrantJournal implements AutoCloseable {
     private void resumeCapture(MembershipCaptureFiles.Plan plan)throws IOException {
         var bound=object(plan.promise().value().get("ballot"));
         require(selection==null,"pending capture cannot already have a selection");
-        if(basis==null) {
+        if(tornBasis.length>0)completeTornBasis(plan,bound);
+        else if(basis==null) {
             require(plan.basis().bytes().length<=maximum-journal.length,"capture recovery journal capacity");
             capture.write(plan,this::checkOwner,cut);
             sources.resumeCapture(plan,this::checkOwner);
             append(plan.basis(),bound);basis=plan.basis();bases.put(plan.id(),basis);
         }else require(Arrays.equals(basis.bytes(),plan.basis().bytes()),"completed capture basis changed");
         checkOwner();fence(bound);capture.clear(this::checkOwner,cut);
+    }
+
+    private void completeTornBasis(MembershipCaptureFiles.Plan plan,Map<String,Object> bound)throws IOException {
+        byte[] expected=plan.basis().bytes();checkOwner();fence(bound);
+        require(basis==null && tornBasis.length<expected.length && Arrays.equals(tornBasis,Arrays.copyOf(expected,tornBasis.length)),"capture torn BASIS differs from original prefix");
+        AdmissionPaths.exact(directory.resolve(MembershipCaptureFiles.FILE),plan.bytes());
+        require(expected.length<=maximum-journal.length,"capture recovery journal capacity");
+        // Once a BASIS append starts, every source member must already be complete.
+        // Do not use the source-prefix writer to repair evidence lost after that boundary.
+        var original=sources.original(plan.basis());require(Arrays.equals(original.packet().bytes(),plan.packet().bytes()),"capture torn BASIS original packet changed");
+        for(var image:plan.images().entrySet())require(Arrays.equals(image.getValue(),original.images().get(image.getKey())),"capture torn BASIS original image changed");
+        cut.at("BASIS_RECOVERY_VALIDATED");checkOwner();fence(bound);
+        try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+            require(channel.size()==journal.length+tornBasis.length,"capture recovery journal length changed");channel.position(channel.size());
+            int middle=tornBasis.length+(expected.length-tornBasis.length)/2;
+            AdmissionPaths.write(channel,Arrays.copyOfRange(expected,tornBasis.length,middle));tornBasis=Arrays.copyOf(expected,middle);
+            cut.at("BASIS_RECOVERY_PREFIX_WRITTEN");checkOwner();fence(bound);
+            AdmissionPaths.write(channel,Arrays.copyOfRange(expected,tornBasis.length,expected.length));tornBasis=expected;
+            cut.at("BASIS_RECOVERY_WRITTEN");checkOwner();fence(bound);channel.force(true);
+            cut.at("BASIS_RECOVERY_FORCED");checkOwner();fence(bound);
+        }
+        AdmissionPaths.forceDirectory(directory);cut.at("BASIS_RECOVERY_PARENT_FORCED");checkOwner();fence(bound);
+        journal=storedJournal();tornBasis=new byte[0];basis=plan.basis();bases.put(plan.id(),basis);checkOwner();
     }
 
     private void ensureJournalCapacity(int bytes,String message) throws IOException {
@@ -654,11 +707,15 @@ final class MembershipGrantJournal implements AutoCloseable {
                 AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),message,null);
     }
     private void append(Decoded record,Map<String,Object> expected) throws IOException {
-        checkOwner();fence(expected);byte[] bytes=record.bytes();require(bytes.length<=maximum-journal.length,"grant journal overflow");
+        checkOwner();fence(expected);require(tornBasis.length==0,"pending torn BASIS must recover before append");byte[] bytes=record.bytes();require(bytes.length<=maximum-journal.length,"grant journal overflow");
         cut.at(record.kind()+"_BEFORE_WRITE");fence(expected);
         try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             require(channel.size()==journal.length,"grant journal length changed");channel.position(journal.length);
-            AdmissionPaths.write(channel,bytes);cut.at(record.kind()+"_WRITTEN");fence(expected);
+            if(capture!=null && record.kind().equals("BASIS")) {
+                int half=bytes.length/2;AdmissionPaths.write(channel,Arrays.copyOf(bytes,half));cut.at("BASIS_PREFIX_WRITTEN");fence(expected);
+                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,half,bytes.length));
+            }else AdmissionPaths.write(channel,bytes);
+            cut.at(record.kind()+"_WRITTEN");fence(expected);
             channel.force(true);cut.at(record.kind()+"_FORCED");fence(expected);
         }
         int offset=journal.length;journal=Arrays.copyOf(journal,offset+bytes.length);System.arraycopy(bytes,0,journal,offset,bytes.length);

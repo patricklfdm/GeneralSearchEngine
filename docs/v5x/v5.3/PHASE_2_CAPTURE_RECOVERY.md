@@ -89,3 +89,7 @@ Complete-store bootstrap, physical S/N mapping and the
 
 No public factory, frozen budget/byte catalog, workflow, paid cloud or separate
 V5.2 Runner change is included. Work remains local.
+
+The later [journal recovery batch](PHASE_2_CAPTURE_JOURNAL_RECOVERY.md) adds exact
+torn BASIS suffix recovery under a complete intent; the results above retain their
+original source and force-order attribution.

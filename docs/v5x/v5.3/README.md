@@ -42,7 +42,8 @@ exact floor/selector/ancestry and retained tail ownership.
 [Completed original-source retirement](PHASE_2_SOURCE_RELEASE.md) now passes 297
 crash/recovery cases. [Covered capture-only retirement](PHASE_2_CAPTURED_SOURCE_RELEASE.md)
 and [current-pinned partial capture recovery](PHASE_2_CAPTURE_RECOVERY.md) now pass;
-unmarked/torn authority recovery and maximal image headroom remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
+[Exact torn BASIS recovery](PHASE_2_CAPTURE_JOURNAL_RECOVERY.md) also passes;
+unmarked/torn PROMISE handling and maximal image headroom remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
 expanded continuous local development scope.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated

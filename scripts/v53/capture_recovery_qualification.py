@@ -42,14 +42,14 @@ class Probe(base.Probe):
             self.call('inspect','inspect');self.snapshot('final')
         finally:
             save(self.directory/'case.json',dict(case=self.case,execution='private-capture-recovery',runtimeEnabled=False,
-                                                historicalOwnershipVerified=False,networkAck=False,processes=self.processes))
+                                                historicalOwnershipVerified=False,networkAck=False,journalRecovery=True,processes=self.processes))
         return e.validate_case(self.directory,self.case)
 
 
 def run(output):
     output=Path(output).resolve();output.mkdir(parents=True,exist_ok=False)
     receipt=dict(schema='gse-v53-capture-recovery-qualification-v1',status='RUNNING',execution='private-capture-recovery',
-                 runtimeEnabled=False,historicalOwnershipVerified=False,networkAck=False,publicBootstrap=False,powerLossTested=False)
+                 runtimeEnabled=False,historicalOwnershipVerified=False,networkAck=False,journalRecovery=True,publicBootstrap=False,powerLossTested=False)
     start=time.monotonic()
     try:
         source=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();receipt['source']=binding(ROOT,source)
