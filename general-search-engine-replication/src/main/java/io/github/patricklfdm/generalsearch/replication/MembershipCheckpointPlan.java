@@ -25,17 +25,30 @@ final class MembershipCheckpointPlan {
     List<MembershipCapsule.Anchor> additionalParents(){return additionalParents;}
     /** Renew only authenticated original endpoints hidden inside the newly enlarged RANGE. */
     MembershipCheckpointPlan renewAncestors(Collection<MembershipCapsule.Anchor> required,byte[] originalAncestry) {
-        require(required.size()<=16,"checkpoint ancestor input count");before.verifyAncestry(originalAncestry,required);
-        var unique=new TreeMap<Long,MembershipCapsule.Anchor>();var value=statement.value();
-        if(value.get("scope").equals("RANGE"))for(var lower:required) {
+        var parents=renewalParents(before,(String)entry.value().get("kind"),required,originalAncestry);
+        require(parents.size()+(parentStatement().isPresent()?1:0)<=6,"checkpoint renewed ancestry count");
+        return new MembershipCheckpointPlan(this,parents);
+    }
+    /** Pure admission projection; the actual new end/catalog and ACK still require certified replay. */
+    static Map<String,Object> rangeStart(MembershipCapsule before,String kind) {
+        var items=list(before.packet.capsule().value().get("items"));
+        if(!Set.of("INTENT","FINAL").contains(kind) && !items.isEmpty()) {
+            var last=object(items.getLast());
+            if(last.get("kind").equals("RANGE"))return object(before.context.record((String)last.get("statement"),"CHECKPOINT").value().get("start"));
+        }
+        return before.context.cut;
+    }
+    static List<MembershipCapsule.Anchor> renewalParents(MembershipCapsule before,String kind,Collection<MembershipCapsule.Anchor> required,byte[] ancestry) {
+        require(required.size()<=16,"checkpoint ancestor input count");before.verifyAncestry(ancestry,required);
+        var start=rangeStart(before,kind);var unique=new TreeMap<Long,MembershipCapsule.Anchor>();
+        for(var lower:required) {
             long index=number(lower.cut().get("index"));
-            if(index>number(object(value.get("start")).get("index")) && index<number(before.context.cut.get("index"))) {
-                require(object(value.get("start")).get("view").equals(lower.cut().get("view")),"checkpoint ancestor changed stable era");
+            if(index>number(start.get("index")) && index<number(before.context.cut.get("index"))) {
+                require(start.get("view").equals(lower.cut().get("view")),"checkpoint ancestor changed stable era");
                 var prior=unique.putIfAbsent(index,lower);require(prior==null || prior.equals(lower),"checkpoint conflicting ancestor");
             }
         }
-        require(unique.size()+(parentStatement().isPresent()?1:0)<=6,"checkpoint renewed ancestry count");
-        return new MembershipCheckpointPlan(this,List.copyOf(unique.values()));
+        return List.copyOf(unique.values());
     }
     private MembershipCheckpointPlan(MembershipCheckpointPlan original,List<MembershipCapsule.Anchor> parents) {
         before=original.before;root=original.root;certificate=original.certificate;entry=original.entry;catalog=original.catalog;
@@ -129,6 +142,7 @@ final class MembershipCheckpointPlan {
             var sealed=new TreeMap<String,Object>();for(String field:List.of("request","prepared","receipt"))sealed.put(field,operation.get(field));
             byte[] bytes=canonical(sealed,8192);descriptor=hash(bytes);originals.put(descriptor,bytes);
         }else descriptor=null;
+        require(start.equals(rangeStart(before,kind)),"checkpoint admission/materialization start mismatch");
         retained=List.copyOf(items);
         statement=decode(encode("records","CHECKPOINT",Map.of("root",before.context.root,"scope",membership?"MEMBERSHIP":"RANGE",
                 "start",start,"end",catalog.value().get("cut"),"catalogBefore",catalogBefore,"catalogAfter",catalog.digest(),

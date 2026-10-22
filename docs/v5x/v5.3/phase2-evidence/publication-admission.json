@@ -1,0 +1,170 @@
+{
+  "base": "5cd067249fc6379d2816d6d1e4132f17b8ff4049",
+  "developmentFailures": {
+    "before-2.log": "fixture command overload",
+    "before-3.log": "fixture inventory ordering",
+    "before-4.log": "baseline regression: seventh future group accepted on parent source; later fixture expanded",
+    "before.log": "fixture compile types",
+    "corrected-tests.log": "byte-limit test corrected to expect the existing ReplicationException and exact JSON frame-bound message",
+    "regression.log": "two new test fixture assumptions corrected; no production or other test source changed"
+  },
+  "distinctMethods": 42,
+  "excludedPriorReplay": {
+    "path": "general-search-engine-replication/target/v53-journal-publication-process/run-cdaae548-00b9-47c1-b2fb-1b1558bff186",
+    "reason": "directory ordering selected historical raw; fresh replay uses exact regression log marker",
+    "result": "publication-replay-previous-selection.json"
+  },
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "872b7fc53d707584016d5520c5170e5473ce02fab237c0f57312c4df8637dc4b",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "limitations": [
+    "conservative ancestry admission; pruning and stable continuation pending",
+    "earlier checkpoint/bootstrap ancestry conditional; actual new votes/application/publication",
+    "long-identity overflow is serialization-only qualification",
+    "no maximal full-profile lifetime, public runtime, network or power-loss claim"
+  ],
+  "logs": {
+    "before-2.log": "b8c5c3899b473f740c6f48405b0181f33bf099aee6a7b85e766aed98ffa772aa",
+    "before-3.log": "b1f1e86b1ae4e757f0ea2fa36c9b16f4ff6e4851163f332b3d70acfc07e1006a",
+    "before-4.log": "0b85506691ea9480899cfa3f7cbfc71bad486a9109db90e54ba1330bb0ee0b12",
+    "before.log": "52658c78c528aeb85d246f10a7b62cdbf5a43f32a116a7be23b61634e91f9b33",
+    "contract-tests-optimized.log": "c346f1228fe88f4ab3cb336ffa610dc3a34ec7c7bb7d05df7a1c222f2d928881",
+    "contract-tests.log": "24cefc2bc38a1c71e18591075993695fc72546b32ff6b5baab3d98032ce96fb5",
+    "contract.log": "527efdfc9bbb6d8e53aeb2116d72969500bd11e9a1a16aa0ba1541639c6fddd4",
+    "corrected-tests-2.log": "e7efffd23566fa22b4b9d4ee515e69f4a37909371bb5be57f9881f0409ca7e4a",
+    "corrected-tests.log": "34fffe2095c2ded71d3d3c5cb3561251673fdd5fbcb673c7c0ff3435f2588ffb",
+    "focused.log": "66be4ab4cdc4e89fd8b2b97ad1e00616ec3443e60d02f39bb38606bf285250c1",
+    "regression.log": "446ba86f55aac2269755834de587b479edfa4abb404302aaf904dcde8da8dbfb"
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "qualification": "unchanged production from regression; corrected test class rerun separately; passing sibling suites retained",
+  "qualificationTests": 42,
+  "raw": {
+    "application": {
+      "files": 3879,
+      "indexSha256": "8e6dfacb68020af42ae96003e145898314592db337c95a68db862861d672c72d",
+      "path": "general-search-engine-replication/target/v53-journal-application-process/run-e3b41dfc-e73c-41c7-a1d6-1c1836d83b10"
+    },
+    "generation": {
+      "files": 899,
+      "indexSha256": "2e56ee3a925f4007c7cb7911b6200d1d591f73bf661c227e13e82ff966e9a48c",
+      "path": "general-search-engine-replication/target/v53-published-generation-process/run-e385ace3-df11-474c-9b32-c3b808b9ea7c"
+    },
+    "publication": {
+      "files": 2891,
+      "indexSha256": "175b9df0c3f9587c76962ada37f493d58a7bb95162698c9e2e14d9134f17c5c2",
+      "path": "general-search-engine-replication/target/v53-journal-publication-process/run-c38a8f4c-fe2a-4b79-8ab5-421496aa719a"
+    }
+  },
+  "replays": {
+    "application": {
+      "cases": 22,
+      "freshJvms": 66,
+      "negatives": [
+        {
+          "case": "missing-vote",
+          "reason": "application missing actual local vote",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-observation",
+          "reason": "application observation phases",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-selector",
+          "reason": "application original authority changed during recovery",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-end",
+          "reason": "application final owner bytes",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-crash",
+          "reason": "application exact interrupted end bytes",
+          "status": "REJECT"
+        },
+        {
+          "case": "early-success",
+          "reason": "application early success",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-force",
+          "reason": "application exact end force order",
+          "status": "REJECT"
+        }
+      ],
+      "phasedObservations": "actual-local-owners",
+      "portableReplay": "PASS",
+      "selectorPublication": false,
+      "status": "PASS"
+    },
+    "generation": {
+      "cases": 8,
+      "freshJvms": 24,
+      "journalPublication": false,
+      "negatives": [
+        "changed-decision",
+        "changed-certificate",
+        "changed-coverage",
+        "early-selector",
+        "missing-force"
+      ],
+      "observations": "conditional-fixture",
+      "portableReplay": "PASS",
+      "projection": "independent-control-reducer",
+      "status": "PASS"
+    },
+    "publication": {
+      "cases": 16,
+      "freshJvms": 48,
+      "negatives": [
+        "missing-vote",
+        "false-observation",
+        "altered-original-end",
+        "changed-coverage",
+        "early-selector",
+        "early-vote-clear",
+        "missing-force",
+        "unrelated-file-deleted"
+      ],
+      "originalObservations": "actual-local-votes-and-ends",
+      "portableReplay": "PASS",
+      "selectorPublication": true,
+      "status": "PASS"
+    }
+  },
+  "reports": {
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.xml": "ac15a0fa9bd6380d957a3165cc7cabc5baa73d9d6e571ccc98f2a93829e32a43",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53AncestorCapacityTest.xml": "cc6bcf1cd4394bd7b67c54a2931556c0ba180a1cbd70706f9459e7dfc6da79da",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CheckpointPlanTest.xml": "20ca7ac5ba76fb182cd0e1aad94caafc1c9d82039d2add32cbf32d9e071987e4",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalApplicationTest.xml": "db6932e5eb0c37e41ec89f94210fe62bd3fd6aa5bc6fe29ed2de209d7b0ddd4b",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53JournalPublicationTest.xml": "470e5309a035a632d93e0379962d4b3ca02ce8b9b3a3fa9e408fcd8ad9cc862f",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationAdmissionTest.xml": "8dca465807cfc9cc0e9d7e2dba4883a375c8f132fa3e9a64ee93d6aa6dbb11a9",
+    "junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PublishedGenerationTest.xml": "db98aecb99dfc20a89fd1a0207e0639cf331d4a93d4f0d58ac27520814f12d33"
+  },
+  "retainedLocal": "target/v53-publication-admission",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-publication-admission-index-v1",
+  "status": "PASS",
+  "suites": {
+    "io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest": 3,
+    "io.github.patricklfdm.generalsearch.replication.V53AncestorCapacityTest": 2,
+    "io.github.patricklfdm.generalsearch.replication.V53CheckpointPlanTest": 7,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalApplicationTest": 8,
+    "io.github.patricklfdm.generalsearch.replication.V53JournalPublicationTest": 8,
+    "io.github.patricklfdm.generalsearch.replication.V53PublicationAdmissionTest": 6,
+    "io.github.patricklfdm.generalsearch.replication.V53PublishedGenerationTest": 8
+  },
+  "worktreeImplementation": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCheckpointPlan.java": "51eeb56772bde4d4b3be3f0a07cec5b3989a59624aa845019355997db1431486",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "0588e786888c5110e2a1a1e5e4f381b9b6c303a4f5a756da20cbccd238b608f7",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectionCoverage.java": "954ec4ed97c3f12afdaa751a030eb6e474ba7a313de7378f198daef427b39bbe",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationAdmissionTest.java": "53600dde0661707a7dffc33f1d233dbe150d84c9d4bb57f4f45f5da162a82101"
+  }
+}

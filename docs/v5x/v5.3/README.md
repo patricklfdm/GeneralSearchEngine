@@ -64,8 +64,9 @@ parent and certified first slot through component installation/reopen.
 vote/end cleanup and interrupted recovery. [Actual parent checkpoint ACKs](PHASE_2_PARENT_CHECKPOINT.md)
 now preserve the immediate original parent hidden by a compacted RANGE.
 [Bounded ancestor renewal](PHASE_2_ANCESTOR_RENEWAL.md) also preserves earlier
-authenticated BASIS/floor endpoints through the new forced end. Subsequent
-same-round slots and complete resource lifetime remain pending.
+authenticated BASIS/floor endpoints through the new forced end.
+[Publication admission](PHASE_2_PUBLICATION_ADMISSION.md) checks ancestry groups and
+coverage bytes before accepting new work. Safe pruning, subsequent same-round slots and complete resource lifetime remain pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

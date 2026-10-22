@@ -346,6 +346,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         bindVoteCandidate(vote);pendingAccept.matches(vote);checkOwner();fence(bound);
         if(appliedEnd!=null && (appliedEnd.present() || replayFiles.present()))require(pendingAccept.active()!=null
                 && Arrays.equals(pendingAccept.active().bytes(),vote.bytes()),"staged application requires original certificate or covering publication");
+        if(appliedEnd!=null && (pendingAccept.active()==null || !vote.sameAcceptance(pendingAccept.active())))
+            publicationCapacity(vote,pendingAccept.pending()?AutomaticReplicationException.Outcome.INDETERMINATE:AutomaticReplicationException.Outcome.NOT_SUBMITTED);
         reserveApplicationCompletion();
         if(pendingAccept.active()==null || !Arrays.equals(pendingAccept.active().bytes(),vote.bytes()) || pendingAccept.pending()) {
             int size=vote.bytes().length;
@@ -416,6 +418,25 @@ final class MembershipGrantJournal implements AutoCloseable {
         return pendingAccept.active()==null?Optional.empty():Optional.ofNullable(pendingAccept.active().certificate());
     }
 
+    private List<MembershipCapsule.Anchor> applicationParents(byte[] ancestry)throws IOException {
+        var parents=new ArrayList<>(current.capsule.ancestryAnchors(ancestry).values());addFloorParent(parents);
+        for(var original:bases.values()) {
+            var cap=sources.original(original).packet().capsule().value();
+            parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
+        }
+        current.verifyParents(parents);return List.copyOf(parents);
+    }
+    /** Conservative bound until source/floor-aware pruning is qualified. Never discard old ancestry to admit a vote. */
+    private void publicationCapacity(MembershipPendingAccept.Vote vote,AutomaticReplicationException.Outcome outcome)throws IOException {
+        byte[] ancestry=current.ancestry();var parents=applicationParents(ancestry);String kind=(String)vote.entry().value().get("kind");
+        var renewed=MembershipCheckpointPlan.renewalParents(current.capsule,kind,parents,ancestry);
+        boolean hidden=!MembershipCheckpointPlan.rangeStart(current.capsule,kind).equals(current.capsule.context.cut);
+        int groups=current.capsule.ancestryAnchors(ancestry).size()+(hidden?1:0);
+        if(groups>6 || renewed.size()>5 || MembershipSelectionCoverage.publicationBytes(vote.selected(),current.capsule.terminal(),renewed)>MembershipSelectionCoverage.MAXIMUM)
+            throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,outcome,Optional.empty(),
+                    "next publication ancestry/coverage capacity; retain original authority and complete maintenance before new work",null);
+    }
+
     record Applied(MembershipCheckpointPlan plan,MembershipAppliedEndFiles.Endorsement endorsement) {}
     /** Real local certificate + typed replay + forced end. This is not selector publication or public readiness. */
     synchronized <K,T> Applied applyCurrent(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
@@ -432,12 +453,8 @@ final class MembershipGrantJournal implements AutoCloseable {
                     && Arrays.equals(pendingAccept.active().bytes(),vote.bytes()) && !pendingAccept.pending(),"application original authority changed");
         };
         guard.check();var packet=votePacket();verifiedPacket(packet).context.certificate(vote.certificate(),owned);
-        byte[] ancestry=current.ancestry();var parents=new ArrayList<>(current.capsule.ancestryAnchors(ancestry).values());
-        addFloorParent(parents);
-        for(var original:bases.values()) {
-            var cap=sources.original(original).packet().capsule().value();parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
-        }
-        current.verifyParents(parents);
+        publicationCapacity(vote,AutomaticReplicationException.Outcome.INDETERMINATE);
+        byte[] ancestry=current.ancestry();var parents=applicationParents(ancestry);
         AdmissionPaths.disjoint(List.of(directory,storage.directory()));reserveApplicationCompletion();
         try {
             cut.at("APPLICATION_AUTHORITY_VALIDATED");guard.check();

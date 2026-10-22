@@ -1105,3 +1105,27 @@ forces are actual.
 Phase 2 remains OPEN. Next are safe ancestry pruning and pre-ACCEPT publication
 headroom, original-choice-preserving stable continuation, and complete bounded
 lifetime/bootstrap/recovery qualification. No public runtime, push or cloud action.
+
+## 2026-10-22 — publication headroom before new ACCEPT
+
+The application-capable journal now checks conservative next-publication ancestry
+groups and exact private coverage bytes before accepting a new request. The
+seventh-group regression previously returned a vote; it now refuses with
+`CAPACITY_EXCEEDED / NOT_SUBMITTED` and unchanged disk/resource state. Original
+acknowledged votes remain readable and duplicate-safe; oversized legacy application
+refuses before scratch with `INDETERMINATE`.
+
+Qualification: **42 distinct Java tests PASS**, including six targeted admission
+tests and three actual owners completing a six-group publication/reopen. Application,
+journal publication and generation component crash matrices total **46 cases / 138
+fresh JVMs**; independent original-first replay, twenty evidence mutations and
+portable replay pass. The [evidence index](phase2-evidence/publication-admission.json)
+binds the exact raw directories printed by the completed run. Initial fixture
+errors and a separately replayed older directory are retained and excluded from
+new-source acceptance. Test-only corrections were rerun; production did not change
+during the broad regression. [Scope](PHASE_2_PUBLICATION_ADMISSION.md).
+
+This is conservative admission, not ancestry reclamation. Safe source/floor-aware
+pruning, original-choice-preserving same-round continuation, full-size/profile
+lifetime and the remaining Phase 2 bootstrap/recovery audit stay OPEN. Continue
+local commits toward pre-cloud completion without push or V5.2 cloud changes.

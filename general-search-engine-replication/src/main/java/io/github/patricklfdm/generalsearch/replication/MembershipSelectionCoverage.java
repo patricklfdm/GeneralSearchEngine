@@ -14,12 +14,18 @@ final class MembershipSelectionCoverage {
         return encodeCoverage(selected,parent,certificate,List.of());
     }
     static byte[] encodeCoverage(Decoded selected,MembershipCapsule.Anchor parent,Decoded certificate,List<MembershipCapsule.Anchor> ancestors) {
+        return canonical(value(selected,parent,certificate.digest(),ancestors),MAXIMUM);
+    }
+    /** Only byte sizing: the placeholder digest is never a certificate or retained authority. */
+    static int publicationBytes(Decoded selected,MembershipCapsule.Anchor parent,List<MembershipCapsule.Anchor> ancestors) {
+        return canonical(value(selected,parent,"0".repeat(64),ancestors),16*1024).length;
+    }
+    private static Map<String,Object> value(Decoded selected,MembershipCapsule.Anchor parent,String certificate,List<MembershipCapsule.Anchor> ancestors) {
         var value=new TreeMap<String,Object>(Map.of("schema","gse-v53-selected-coverage/1.3","selection",selected.digest(),
-                "parent",Map.of("cut",parent.cut(),"catalog",parent.catalog(),"application",parent.application()),
-                "certificate",certificate.digest()));
+                "parent",Map.of("cut",parent.cut(),"catalog",parent.catalog(),"application",parent.application()),"certificate",certificate));
         require(ancestors.size()<=5,"publication local ancestor count");
         if(!ancestors.isEmpty())value.put("ancestors",ancestors.stream().map(a->Map.of("cut",a.cut(),"catalog",a.catalog(),"application",a.application())).toList());
-        return canonical(value,MAXIMUM);
+        return value;
     }
     static List<MembershipCapsule.Anchor> additionalParents(byte[] bytes) {
         var value=object(parse(bytes,MAXIMUM));if(!value.containsKey("ancestors"))return List.of();

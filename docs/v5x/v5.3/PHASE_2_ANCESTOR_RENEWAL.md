@@ -78,10 +78,10 @@ choice separate from the latest parent/certificate. It must preserve original
 SELECTED/BASIS and never reconstruct READY after restart.
 
 Coordinated lifetime work must prune ancestry only after original source/floor
-obligations permit it, and reserve next-publication ancestry headroom before
-acknowledging new work. Current conservative renewal refuses an excessive group
-set while retaining its original authority; that refusal alone is not a complete
-long-lived progress guarantee. Full-size/profile resource qualification, remaining
+obligations permit it, and maintain next-publication ancestry headroom. The subsequent
+[admission check](PHASE_2_PUBLICATION_ADMISSION.md) now refuses excessive group/coverage
+requirements before new ACCEPT, retaining original authority; that refusal alone
+is not a complete long-lived progress guarantee. Full-size/profile resource qualification, remaining
 PROMISE recovery and complete bootstrap remain open in the
 [Phase 2 checklist](PHASE_2_CLOSURE_CHECKLIST.md).
 
