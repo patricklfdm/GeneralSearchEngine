@@ -348,3 +348,22 @@ nine control payloads and the unchanged token match their golden bytes. Twenty-t
 focused Java tests and nine format Python tests passed; a fresh JVM produced all
 45 frames for independent Python replay. Original source/cut authority, transfer
 ownership and the composed model remain pending. No runtime or hosted activation.
+
+## 2026-10-21 — Phase 1 contextual byte and transfer foundation
+
+- Added disabled-path internal context, resource, transfer and exchange helpers.
+  Application images are separately bounded from 32 MiB capsule metadata; legacy
+  configured/fixed-three paths remain unchanged.
+- Qualified seven concrete byte histories with 63 original certificates, independent
+  catalog derivation and 18 portable corruption negatives. Fixture file-force
+  calls describe the single test producer only, not live cluster durability.
+- 37 focused Java tests, 205 V5.3 Python tests, 20 build-contract tests and five
+  optimized-Python reader tests passed. New current-coordinate build prerequisites
+  preserve every previous suite and add context/resource execution checks.
+- [Context foundation](PHASE_1_CONTEXT.md) and its
+  [retained receipt](phase1-evidence/context.json) record scope, failures corrected
+  during development, source/JAR hashes and pending obligations.
+
+Phase 1 remains open for complete frozen-source capsules/selection, full model
+composition and its finite S/N coverage, and the final requirement audit. No push,
+workflow, release or V5.2 runner operation was performed.

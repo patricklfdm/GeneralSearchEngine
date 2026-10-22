@@ -9,7 +9,7 @@ protected CI, paid experiment or release is included.
 | Batch | Deliverable | Local state |
 | --- | --- | --- |
 | 1 | 5.3 coordinates, additive declarations, disabled entry, old consumers | PASS locally |
-| 2 | 24 storage / 21 wire kinds, exact bytes, bounded transfers, independent contextual readers | [Syntax codec PASS](PHASE_1_BYTES.md); context/transfer pending |
+| 2 | 24 storage / 21 wire kinds, exact bytes, bounded transfers, independent contextual readers | [Syntax codec PASS](PHASE_1_BYTES.md); [context/transfer foundation PASS](PHASE_1_CONTEXT.md); complete frozen-source capsule/selection pending |
 | 3 | Same-round/catalog/compacted-source composition; complete S/N inventory | Pending |
 | 4 | Fresh public process scaffold, source/JAR binding, portable negatives | Disabled-entry scaffold, three JVMs and ten portable negatives PASS; later runtime evidence pending |
 | Closure | Requirement-by-requirement audit and retained receipts | Pending; Phase 1 is not closed |

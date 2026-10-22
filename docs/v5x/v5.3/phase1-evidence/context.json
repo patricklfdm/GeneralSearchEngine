@@ -1,0 +1,60 @@
+{
+  "authorityEvidence": false,
+  "buildContractPythonTests": 20,
+  "certificates": 63,
+  "fixtureClasses": {
+    "V53ContextFixture.class": "f67122ee25080457207f2abc741a9b401449aaa2deb8f3b4b398dbbc10ac1bef",
+    "V53ContextWorker.class": "f01414a50b8982aedd0716074e3e53be2ef55985a396d3ad58c38946024e50ba",
+    "V53DeclarationsTest.class": "33e7524dc32775d8136860161ddd75d2ec05e82f3e8e50a4af0e944bf8f061e2"
+  },
+  "fixtureFileForces": 1028,
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "0c33a2e1d5b1bacc0e106ff25d10ee02058b9038c4f1e5f6dac7f39c698f2aec",
+      "size": 702702
+    }
+  ],
+  "javaTests": 37,
+  "limitations": [
+    "single-JVM physical byte fixtures, no live consensus or crash durability",
+    "complete packed capsule and frozen selection pending",
+    "same-round/catalog/compacted-source model composition and full S/N coverage pending",
+    "protected CI and V5.2 publication integration deferred"
+  ],
+  "localEvidence": "target/v53-phase1-context",
+  "logs": {
+    "bundle-python-2.log": "37fb531a8c2f45b5140702f6e005def17cae2aaf05e688b4f12833d2d7066828",
+    "context-python-optimized.log": "baf49b59538192f3e136ca0404cac516ecb8dd2fe5ba1416604056f3080fa49c",
+    "java-final-3.log": "7efaddaf345c65239a7a3598400fd520a8709b0936cea7f9db8630956b5c5951",
+    "qualification-final/negatives.json": "f494c9c1aa0fb118c6229b2d6c711273a89aabad1d8b0da5df7673bacfa62ab0",
+    "qualification-final/receipt.json": "7adfe390b8c4737c694c639db90d35a20cd07612fdf98eed5e1c2e9f06dfb293",
+    "qualification-final/validation.json": "ddfd7df0dada6cbbc9cfcf136727e52a9a664de32e3ce8e860e2119bc61b5f64",
+    "v53-python-final.log": "c7db7a49745aa60660bed9ef02c4807702f48d83c43b15c008b4c80750f72fb2"
+  },
+  "manifestSha256": "5766e50d133fe52fb7bc22009ba36cac5cfd33058fa2191813d24c9e64719cc0",
+  "negativeCases": 18,
+  "optimizedContextPythonTests": 5,
+  "ownedPhasedRecords": 514,
+  "phase1Closed": false,
+  "profiles": 7,
+  "relocatedReplay": "PASS",
+  "reportingNote": "Source binding precedes the tracked receipt and final documentation reporting edits; no clean-source CI claim.",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-phase1-context-qualification-v1",
+  "source": {
+    "checkoutSha256": "bcfc949eaea9d4a2175346bcb8f1ead184883f762cfcfbef0eb0e179c8aed2e2",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "3d9466995a5dcda701e2a151b2ac40845bccbf84"
+  },
+  "status": "PASS",
+  "v53PythonTests": 205
+}

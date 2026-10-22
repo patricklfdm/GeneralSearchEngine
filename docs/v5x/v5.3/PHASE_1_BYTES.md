@@ -1,6 +1,8 @@
 # Phase 1 byte-format foundation
 
-Status: **syntax codec locally qualified; contextual/transfer work pending**.
+Status: **syntax codec locally qualified**. The subsequent
+[context/transfer foundation](PHASE_1_CONTEXT.md) is separately qualified;
+complete frozen-source capsule/selection work remains pending.
 This is part of Phase 1, not its closure and not durable runtime qualification.
 
 ## Implemented byte boundary
@@ -40,8 +42,9 @@ it does not import or call the Java decoder to decide correctness.
 Syntax fixtures intentionally contain values that are not authenticated authority.
 Passing framing/schema checks does **not** prove voter identity, majority, original
 source binding, parent force, application correctness or durable publication.
-Original basis/cut verification, bounded content-addressed transfer, independent
-physical contextual decoding and resource ownership are the next part of this batch.
+The [context/transfer foundation](PHASE_1_CONTEXT.md) adds exact phased records,
+catalog checks, bounded transfers and physical fixture replay. Complete original
+basis/capsule selection and durable ownership integration remain required.
 The new runtime remains disabled.
 
 ```bash
