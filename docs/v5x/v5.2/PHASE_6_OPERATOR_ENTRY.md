@@ -212,6 +212,23 @@ status, lease-release flag and delete count. Missing or malformed cleanup eviden
 cannot become a PASS; a recorded cleanup exception takes precedence over an
 earlier cleanup receipt. This summary remains diagnostic, not cloud acceptance.
 
+Run `39830398260/1` on source `81f47688c69c212534a8e73d09e8fba90ad4c098`
+failed before executing the first `failure-drill` history, during node 3's
+`m02-below-0` placement-volume check. The final IAP admission ended after 30.001
+seconds during `identity-after`, reported `ValueError` from the native HTTP exchange and
+stopped with `IAP_IDENTITY_OR_AUTHORITY_REJECTED`. Node 2 had already recovered
+from a typed read deadline using the second admission attempt. Cleanup confirmed
+all 13 resources absent, no leftovers and the lease released.
+
+A local transport reproduction shows that a successful HTTP response arriving
+just past its deadline raised plain `ValueError`, which bypassed both read and
+IAP timeout handling. The retained incident did not include the innermost error
+message, so that exact HTTP subcase remains an inference. The shared transport
+now distinguishes actual expiry from validation/HTTP rejection across its lock,
+socket, pooled/unpooled response and API paths. Local regression coverage includes
+the actual HTTP-to-read-retry-to-IAP route with one process and unchanged original
+bytes; it does not establish corrected-source cloud qualification.
+
 IAP capacity applies to **four active connections per node**, including channels
 still cleaning up their process and private credentials. Completed channels free
 their slots; there is no lifetime connection-count limit. Every newly accepted

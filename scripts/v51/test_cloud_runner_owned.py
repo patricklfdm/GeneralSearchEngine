@@ -527,7 +527,7 @@ class RuntimeIdentityTest(unittest.TestCase):
             timeouts.append(timeout);self.f['clock'].sleep(.2)
             return original(method,url,headers,body,timeout,maximum)
         with patch.object(self.api.transport,'send',side_effect=delayed),\
-             patch.object(o.native.iap,'_network_exchange',return_value=b'{}') as ssh,self.assertRaisesRegex(ValueError,'late response'):
+             patch.object(o.native.iap,'_network_exchange',return_value=b'{}') as ssh,self.assertRaisesRegex(TimeoutError,'late response'):
             self.client.ready(until)
         ssh.assert_not_called();self.assertEqual(3,len(timeouts))
         self.assertLessEqual(max(timeouts),.5)

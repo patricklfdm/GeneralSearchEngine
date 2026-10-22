@@ -239,6 +239,39 @@ class LocalForwardTest(unittest.TestCase):
         self.assertEqual('V52_READ_DEADLINE',report['lastAdmission'][0]['reasonCode'])
         self.assertEqual([],self.failures);self.assertEqual([],list(Path(self.private.name).iterdir()))
 
+    def test_real_http_late_response_retries_before_one_sdk_and_preserves_bytes(self):
+        from scripts.v51 import cloud_http as http
+        from scripts.v51.test_cloud_http_pool import Connection
+        from . import cloud_read_retry
+        original=self.authorize;attempts=[];sockets=[]
+        def authorize(node,path,deadline,*,progress=lambda stage:None):
+            attempts.append(path);progress('identity-after')
+            if len(attempts)==1:
+                def connect(host,timeout):
+                    value=Connection(host,timeout);sockets.append(value)
+                    def read(maximum):time.sleep(max(0,deadline-time.monotonic())+.01);return b'{}'
+                    value.response.read=read;return value
+                network=http.Network()
+                try:
+                    with patch.object(http,'HTTPSConnection',side_effect=connect), \
+                         patch.object(http.urllib.request,'getproxies',return_value={}):
+                        api=cloud_read_retry.Api(transport=network,tokens=lambda _:'local-test',clock=time.monotonic)
+                        api.call('GET','https://compute.googleapis.com/fixed',deadline=deadline)
+                finally:network.close()
+                self.fail('late response was accepted')
+            self.assertFalse(attempts[0].exists())
+            return original(node,path,deadline,progress=progress)
+        self.group.authorize=authorize
+        with patch.object(iap,'ADMISSION_SECONDS',1),patch.object(iap,'ADMISSION_BACKOFF',.01), \
+             patch.object(iap.subprocess,'Popen',wraps=subprocess.Popen) as spawn:
+            client=self.connect();client.sendall(b'original bytes')
+            self.assertEqual(b'original bytes',client.recv(128));client.close();self.forward.close()
+            self.assertEqual(1,spawn.call_count)
+        report=self.forward.snapshot();self.assertEqual(2,len(attempts));self.assertEqual([],self.failures)
+        self.assertEqual(['FAIL','PASS'],[r['status'] for r in report['lastAdmission']])
+        self.assertEqual('V52_READ_DEADLINE',report['lastAdmission'][0]['reasonCode'])
+        self.assertEqual(1,len(sockets));self.assertTrue(sockets[0].closed)
+
     def test_repeated_typed_deadlines_stop_after_two_without_sdk_or_replaying_bytes(self):
         def authorize(node,path,deadline,*,progress=lambda stage:None):
             time.sleep(max(0,deadline-time.monotonic())+.002)

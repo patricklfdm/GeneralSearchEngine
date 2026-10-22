@@ -146,7 +146,7 @@ class CleanupNetworkTest(unittest.TestCase):
             api.call('GET',api.objects+quote(n.LEASE,safe=''),deadline=now+30)
         api.transport.send.assert_not_called()
         api.tokens.reset_mock()
-        with self.assertRaisesRegex(ValueError,'original deadline'):
+        with self.assertRaisesRegex(TimeoutError,'original deadline'):
             api.call('GET',api.objects+quote(n.LEASE,safe=''),deadline=now-1)
         api.tokens.assert_not_called()
 

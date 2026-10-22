@@ -11,8 +11,10 @@ returned 200 on 44 earlier reads. The failure journal contains one
 underlying socket/TLS/individual-timeout cause. No workload history started.
 Cleanup passed with all 13 resources absent and the lease released.
 
-The correction is scoped to V5.2. It does not change V5.1 HTTP behavior, Java
-replication, workload parameters, evidence acceptance, stage budgets or cost budgets.
+The retry policy is scoped to V5.2. The later shared HTTP classification fix
+(below) also changes V5.1's error types, without adding V5.1 automatic retries.
+Java replication, workload parameters, evidence acceptance, stage budgets and
+cost budgets are unchanged.
 
 ## Audited paths
 
@@ -66,6 +68,27 @@ The old evidence and Runner checkout were not modified. This verifies storage
 framing only; it cannot retroactively grant that attempt a native PASS or replace
 a new source-bound prepare and run. Review artifacts are under
 `target/v52-retention-publication/`.
+
+## Shared HTTP timeout classification
+
+The shared HTTP adapter reports elapsed transport-lock waits, socket timeouts,
+late successful responses and API deadline expiry as `TimeoutError`. V5.2's
+existing read retry loop converts exhaustion into its bounded `ReadError`;
+IAP may then use the already declared second pre-SDK admission attempt. Neither
+the retry count nor any original deadline is increased. Direct pooled GCP and
+unpooled proxy/credential paths use the same timeout classification.
+
+A received HTTP rejection keeps its status even if the response/body arrives
+late or its body read times out. The credential wrapper retains that HTTP status
+instead of classifying it as an unknown transport error. Redirects, invalid
+configuration and oversized successful bodies remain validation failures. Only
+already declared transient HTTP statuses can use the existing retry policy;
+POST/DELETE provider mutations remain single submissions, and a timed-out
+mutation is still uncertain rather than replayed.
+
+This also bounds acquisition of the shared transport lock by the original
+exchange allowance. Credentials, response bodies and raw exception messages are
+not added to public diagnostics.
 
 ## Attempt and deadline contract
 
