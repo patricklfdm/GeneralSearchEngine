@@ -36,7 +36,7 @@ on the base source and the separate D-backed self-hosted Runner.
 
 | Stage | Deliverable / local exit |
 | --- | --- |
-| Entry research | Fixed-membership audit and arithmetic complete locally; single-slot ballots and bounded multi-slot handoff tested; compaction/production integration open |
+| Entry research | Arithmetic, durable ballots, multi-slot handoff and bounded checkpoint/retirement modeled; authority-chain elision and production integration open |
 | Phase 0 | Complete authority/transition/recovery contract, exact API and bytes, resource limits, adversarial schedules; resolve all blocking decisions |
 | Phase 1 | Aligned coordinates, declaration-only APIs, independent election/transition model, byte fixtures, process/network scaffolding |
 | Phase 2 | Configuration-aware storage, promises, proof validation, snapshot and recovery; reject ambiguous authority |
@@ -47,7 +47,8 @@ on the base source and the separate D-backed self-hosted Runner.
 | Integration | Incorporate released V5.2, pin actual controls, run unified compatibility/build/runtime/evidence acceptance, then request push/PR |
 
 Phases may have several local commits. Entry research now includes quorum arithmetic
-and single-slot ballots plus a bounded multi-slot transition model. It still does
+and single-slot ballots, a bounded multi-slot transition model and an abstract
+checkpoint/floor model retaining the full authority chain. It still does
 not satisfy the complete Phase 1 storage/transition gate; see
 [the precise limits](TRANSITION_CHAIN_RESEARCH.md).
 

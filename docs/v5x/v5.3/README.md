@@ -15,8 +15,9 @@ development predecessor; its eventual published artifacts are not yet pinned.
 3. [Membership design decisions and open protocol obligations](MEMBERSHIP_DESIGN.md)
 4. [Durable ballot research and handoff boundary](BALLOT_AND_HANDOFF_RESEARCH.md)
 5. [Predecessor-certified transition research](TRANSITION_CHAIN_RESEARCH.md)
-6. [Independent model and later evidence requirements](TESTING_AND_EVIDENCE.md)
-7. [Development status](DEVELOPMENT_STATUS.md)
+6. [Checkpoint, floor and retention research](RECOVERY_AND_RETENTION_RESEARCH.md)
+7. [Independent model and later evidence requirements](TESTING_AND_EVIDENCE.md)
+8. [Development status](DEVELOPMENT_STATUS.md)
 
 The accepted [V5 charter](../DEVELOPMENT_CHARTER.md) and the V5.3 section of the
 [development addendum](../NEXT_DEVELOPMENT_ADDENDUM.md#v53-controlled-operations)
@@ -35,6 +36,8 @@ python3 -m scripts.v53.ballot_research \
   --output "target/v53-ballot-research/run-$(date -u +%Y%m%dT%H%M%SZ)"
 python3 -m scripts.v53.transition_research \
   --output "target/v53-transition-research/run-$(date -u +%Y%m%dT%H%M%SZ)"
+python3 -m scripts.v53.recovery_research \
+  --output "target/v53-recovery-research/run-$(date -u +%Y%m%dT%H%M%SZ)"
 ```
 
 Run from the repository root. The output directory must be new. These commands

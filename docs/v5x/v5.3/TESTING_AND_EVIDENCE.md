@@ -65,6 +65,22 @@ model application snapshots, compaction, byte-level atomicity or the existing
 production global-promise/activation machinery. Physical and public gates below
 remain required; model results cannot substitute for those observations.
 
+## Checkpoint/floor retention research
+
+The [recovery model](RECOVERY_AND_RETENTION_RESEARCH.md) adds separate file,
+selector, floor and retirement force boundaries. Its input histories cover old,
+joint and new views in all seven size profiles, with and without an unresolved
+acceptance. A separate observer checks preserved authority, local ownership,
+monotonic root promise, immutable basis and exact retained source bytes. Five
+unsafe implementations have specific rejection tests. Full chains remain retained
+and capacity exhaustion refuses; no "latest configuration" shortcut is accepted.
+
+The matrix checks one checkpoint/retirement sequence per input at every named
+crash cut. All 42 final histories replay from compressed JSON. Actual measurements
+and exact source hashes are recorded in [recovery-research.json](recovery-research.json).
+This adds abstract metadata recovery coverage, not application snapshot contents,
+real disk atomicity, unlimited history compaction or concurrent election integration.
+
 ## Later foundation and runtime coverage
 
 | Family | Required schedules and independent observations |

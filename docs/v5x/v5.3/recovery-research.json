@@ -1,0 +1,60 @@
+{
+  "allInterleavings": false,
+  "assumptions": [
+    "authentic complete source packets and trusted genesis",
+    "atomic whole-file force and selector force",
+    "immutable input history during one checkpoint",
+    "one unresolved slot",
+    "separate monotonic root promise and immutable retained basis"
+  ],
+  "bounds": {
+    "certificates": 16,
+    "changes": 4,
+    "packetBytes": 131072,
+    "retainedBytes": 2097152
+  },
+  "counts": {
+    "cases": 1080,
+    "deletedFiles": 504,
+    "events": 16638,
+    "expectedCases": 1080,
+    "fixtures": 42
+  },
+  "examplesFile": "examples.json.gz",
+  "examplesSha256": "638b0e80433726c8eca6cafaa2a8519fe9abf3303bd109060f3ecdd196736fd1",
+  "excluded": [
+    "application data bytes",
+    "real disk atomicity",
+    "unbounded or elided configuration history",
+    "concurrent campaigns during checkpoint",
+    "production global-promise/activation integration",
+    "liveness or timing qualification"
+  ],
+  "execution": "abstract-checkpoint-retirement",
+  "phase0Accepted": false,
+  "productionQualified": false,
+  "replay": {
+    "deletedFiles": 126,
+    "events": 1164,
+    "histories": 42
+  },
+  "schema": "gse-v53-recovery-research-v1",
+  "source": {
+    "files": {
+      "scripts/v53/__init__.py": "78a166fcc8136c3949b1afcf5e91db0543fcd0006821f6e555c92034a568daa1",
+      "scripts/v53/ballot_model.py": "9e8b383740ef6d7466eece3505f570e28e8c6027e692d6606be66061e149bfc4",
+      "scripts/v53/membership_model.py": "e38dbb81bbf6c9d27aa0d0fd689be8b6d682502d0d7bc98ceaf5220e92fc9e17",
+      "scripts/v53/recovery_model.py": "0c6ad90832fd3bab0f5ddac9f85eefd95390edf284a48b66f5debe0ee4cb2199",
+      "scripts/v53/recovery_oracle.py": "e80a849a6bb60b6717de96a3b9e96391954eaa901d8a663ecc23423f14dc5027",
+      "scripts/v53/recovery_research.py": "eebf3f1775a9bcb6e3068c687f7ccf13daa79b91333737e0bd30327cafe363af",
+      "scripts/v53/test_recovery_model.py": "36a0c3020f59f4b789eda49ceef72c2f37a36718c9320808f10df986d871149e",
+      "scripts/v53/test_transition_model.py": "e8d7ee78ac3eb8291fbbba373efc1dcc93aa663bb05f1ff52873a0070b46ebfe",
+      "scripts/v53/transition_model.py": "0f63129665ad38f0f31e63f99fdfb16f9a26d5fad17df73821ac73ca1f8fe432",
+      "scripts/v53/transition_research.py": "8838c8e2614b2da3c7daa20a47526ab3c0e7ed4dc15ac8d7fa02d1b778cc8969"
+    },
+    "head": "5a890bfc5e40713c0fb848d991127ca75cd91bb1",
+    "worktreeDirty": true
+  },
+  "status": "PASS",
+  "traceSha256": "90f360da25cc2cb1a1b1a9081839bad52a2e9eff6f7fb8b3230813fc5c590e3d"
+}

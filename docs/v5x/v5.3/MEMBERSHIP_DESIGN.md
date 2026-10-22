@@ -91,6 +91,13 @@ learner's data materialization, snapshot/floor compaction and adaptation to GSE'
 current global promise/activation remain open. The logical entry ID excludes proof
 receipt sets and ballots so that re-proof does not fork the successor context.
 
+The [recovery/retention model](RECOVERY_AND_RETENTION_RESEARCH.md) now exercises
+checkpoint selection, floors under old/joint/new authority, exact unresolved-tail
+preservation and interrupted retirement. Complete authority remains retained under
+finite research limits; this does not resolve bounded production history or data
+materialization. In particular, its proposed exact-copy retirement of an unresolved
+tail extends the current Java refusal rule and is not enabled in production.
+
 ## Operation and maintenance requirements
 
 Bind the caller's operation ID to group/history, expected configuration identity,

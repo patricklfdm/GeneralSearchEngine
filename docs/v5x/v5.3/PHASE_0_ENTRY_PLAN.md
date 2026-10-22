@@ -69,6 +69,12 @@ candidate with local forced-prefix adoption and old/joint/new authority. It test
 an executable handoff, while snapshot/compaction and production promise/activation
 integration remain explicit blockers.
 
+The [checkpoint/floor batch](RECOVERY_AND_RETENTION_RESEARCH.md) now models durable
+selection, configuration-aware floor copies, preserved unresolved acceptance and
+resumable retirement. It retains complete authority chains under explicit research
+caps. D06/D09 remain open: bounded chain elision, production byte accounting and
+global-promise/activation integration have not been resolved.
+
 ## Phase 0 deliverables still to freeze
 
 - `PHASE_0_CONTRACT.md`: resolved decisions and authority/state matrix.

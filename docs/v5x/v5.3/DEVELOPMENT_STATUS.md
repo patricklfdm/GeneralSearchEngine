@@ -100,10 +100,49 @@ compaction. D02/D06 have concrete progress but **Phase 0 remains OPEN**. The mod
 also assumes unique ballot allocation; production global-promise integration,
 read policies, operation IDs and physical storage still need their contracts.
 
+## 2026-10-21 — checkpoint, floor and retained authority
+
+- Reviewed the actual V5.2 `AutomaticRecoveryFiles` / `AutomaticStore` selectors,
+  complete floor sources, above-floor tail refusal and resumable retirement. Added
+  an isolated candidate model for old/joint/new floor authority and exact tail
+  preservation through checkpoint and inactive-generation deletion.
+- The candidate retains a complete certificate chain, a monotonic abstract root
+  promise and an immutable prior basis. It proposes allowing retirement of an
+  above-floor ACCEPT only when the exact owned copy is already forced in the
+  active generation. This extends the current Java refusal rule; it is not enabled
+  in production or claimed to implement global election/activation semantics.
+- **85 tests PASS** across all four research suites, including 24 new regressions.
+  Coverage includes partial-copy refusal, selector loss, corrupt retirement bytes,
+  current-view floor quorums, removed voters, root promise/basis retention,
+  interrupted deletion, slot/identity reuse and actual certificate/change limits.
+  Five deliberate unsafe implementations fail specific independent-oracle checks.
+  Relabelled tail histories cannot substitute for missing coverage cases.
+- Complete declared matrix: **42 input histories, 1,080 crash observations and
+  16,638 recovery events across those observations**. Prefix events are replayed
+  at multiple cuts; this is not 16,638 distinct operations. All **42 final histories**
+  replay from compressed JSON, covering 1,164 recovery events and 126 file deletions.
+  Each uses the first minimal quorum for its view, not every quorum or interleaving.
+- Receipt: [recovery-research.json](recovery-research.json). Evidence:
+  `target/v53-recovery-research/final/`; test log:
+  `target/v53-recovery-research/unit-tests-final-source.log`; resource log:
+  `target/v53-recovery-research/final-resources.log`. Earlier executions remain
+  alongside these. The receipt binds parent `5a890bf` and exact uncommitted
+  model/oracle/driver/test hashes, not a clean protected-CI source.
+  The complete command took **32.63 seconds**, peaked at **114,236 KiB**, and
+  retained **201,747 bytes** of compressed examples.
+- Research caps refuse history beyond 16 certificates/four INTENTs. Full authority
+  remains retained; this is **not** unlimited-history compaction or a production
+  storage budget. No Java, POM, workflow, release, Maven or V5.2 cloud operation.
+
+See [the candidate and exclusions](RECOVERY_AND_RETENTION_RESEARCH.md).
+**Phase 0 remains OPEN**. D06/D09 now have executable checkpoint/retirement
+boundaries; bounded production authority representation and physical behavior
+still require specification and qualification.
+
 ## Next local batch
 
-Specify and model snapshot/floor authority, bounded configuration-history retention
-and unresolved-acceptance preservation. Map this chain protocol to GSE's global
-promise, selected-prefix and activation semantics before freezing D02/D03/D06.
-Then complete learner/operation/read/API/resource decisions D04–D10. Continue local
-commits only and leave the V5.2 release/cloud path untouched.
+Map the certified-chain candidate to GSE's global promise, selected recovery bases
+and activation, including unavailable sources. Resolve the retained authority
+lifetime/representation before freezing D02/D03/D06. Then complete learner fencing,
+operation IDs/query/cancel, removed-node reads and API/byte/resource decisions
+D04–D10. Continue local commits only; leave the V5.2 release/cloud path untouched.
