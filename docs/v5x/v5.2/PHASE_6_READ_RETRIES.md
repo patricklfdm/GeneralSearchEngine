@@ -31,6 +31,42 @@ replication, workload parameters, evidence acceptance, stage budgets or cost bud
 | Remote original-command recovery | Existing finite result-query mechanism retained | Consumed command is never resubmitted; permanent rejection or exhausted reads stop |
 | Install/start, Compute/Storage writes, measurement operations | No new automatic replay | Original-result query/reconciliation remains the only way to resolve uncertain submission |
 
+## Independent archive publication and retention readiness
+
+Run [39678504498/1](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/39678504498)
+on source `73f3bd5c21c97eee564397ab11af7b66bc1b13a3` completed all 13 failure-drill
+histories and their individual replays, then failed at `retention-originals`.
+Its `build.zip` and `cleanup.zip` each shared an inode with their retained HTTP
+response (`st_nlink=2`): `Network.download` had published them with a hardlink.
+Final evidence framing correctly required single-link original files. This was
+a deterministic local publication defect, not an exhausted stage-time budget or
+a failed workload measurement. Cleanup removed all 13 resources and released
+the lease; the failed attempt remains unqualified and charged in the ledger.
+
+The shared GitHub downloader now copies only the complete successful response
+into a private file beside its destination, in bounded 1 MiB reads, checking the
+exact advertised length. It publishes the complete copy without overwriting an
+existing destination, then removes the temporary name before returning. The raw
+response and published ZIP therefore have independent inodes and each has one
+link. Failed download attempts remain separate; publication/copy failures do not
+restart downloads or measurements. The final hardlink rejection remains intact.
+
+The [native factory](PHASE_6_NATIVE_RUNNER.md) also checks the complete original
+provenance file inventory before provider access and repeats that check at final
+capture. This catches filesystem incompatibility before a paid workload starts,
+without caching an exemption from later identity, source, hash or upload checks.
+
+Regressions exercise the real downloader through native admission and evidence
+framing/restoration, changed copy lengths, failed publication, competing existing
+destinations, early build/cleanup hardlink rejection, and late alias creation.
+An offline smoke check on the actual self-hosted Python 3.11.17 used the corrected
+downloader with the failed run's retained ZIP bytes: all 46 original evidence
+files (322598025 bytes, 111 chunks) passed framing and chunk/hash validation.
+The old evidence and Runner checkout were not modified. This verifies storage
+framing only; it cannot retroactively grant that attempt a native PASS or replace
+a new source-bound prepare and run. Review artifacts are under
+`target/v52-retention-publication/`.
+
 ## Attempt and deadline contract
 
 `cloud_read_retry` allows three attempts total (the original plus two retries),

@@ -37,6 +37,16 @@ class Retained:
             evidenceSha256=self.sha,cleanupSha256=a.hex_value(cleanup_sha))
 
 
+def provenance_files(output,package):
+    """Check the same original provenance inventory before resources and retention."""
+    output=Path(output)
+    files={'inputs.tar.gz':package}
+    files.update({'provenance/'+name:output/'build-provenance'/name for name in BUILD_FILES})
+    files.update({'recent-cleanup/'+name:output/'recent-cleanup'/name
+                  for name in ('observation.json','cleanup.zip','receipt.json')})
+    return {name:parts.file(path) for name,path in files.items()}
+
+
 def capture_files(session,output):
     """Recheck originals and select public evidence only; never credentials/keys."""
     captured=session.member_capture
@@ -52,8 +62,8 @@ def capture_files(session,output):
     need(built==session.api.admission.build,'V5.2 retention original build changed')
     need(inputs.inspect(ci.ROOT,proof['source']['source'],session.output/'build-provenance/build',session.package)==proof,
          'V5.2 retention original package changed')
-    files={'inputs.tar.gz':session.package,'member.json':captured.root/'receipt.json'}
-    files.update({'provenance/'+name:session.output/'build-provenance'/name for name in BUILD_FILES})
+    files=provenance_files(session.output,session.package)
+    files['member.json']=captured.root/'receipt.json'
     placements={};rows=[]
     need(list(captured.histories)==selection['member']['histories'],'V5.2 retention original history inventory')
     for name,value in captured.histories.items():
@@ -72,8 +82,6 @@ def capture_files(session,output):
         storage=dict(records=session.storage.records,python=session.storage.installations,
                      java=session.storage.java['installations'],javaDescriptor=session.storage.java['descriptor']))
     artifacts.save(output/'authority.json',metadata);files['authority.json']=output/'authority.json'
-    for name in ('observation.json','cleanup.zip','receipt.json'):
-        files['recent-cleanup/'+name]=session.output/'recent-cleanup'/name
     return files
 
 

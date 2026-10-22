@@ -274,6 +274,9 @@ def open_native(source,plan_path,approval_path,confirmation,package_path,output,
         phase='recent-cleanup';recent.collect_native(source,output/'recent-cleanup')
         clean=recent.validate(artifacts.read(output/'recent-cleanup'/'observation.json'),cfg,source,
             output/'recent-cleanup'/'cleanup.zip',int(time.time()))
+        phase='retention-readiness'
+        from . import cloud_retention
+        cloud_retention.provenance_files(output,package)
         phase='provider';reader=reads.NetworkReader(cfg,source,'runner',dict(os.environ),output/'provider-reads',reads._NATIVE)
         observations=reads.collect(reader,wall=time.time);artifacts.save(output/'observations.json',observations)
         phase='approval';admission=_Admission(source,cfg,plan,approval,confirmation,proof,observations,build,clean,started,_CAPABILITY)
