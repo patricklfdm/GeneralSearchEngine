@@ -250,3 +250,29 @@ Continue local commits under the explicit closure instruction; preserve V5.2's p
 See [operation and maintenance decisions](OPERATION_AND_MAINTENANCE.md). D05/D07
 have concrete candidate selections and counterexamples; **Phase 0 remains OPEN**
 while certification integration, formats, resources and the final audit continue.
+
+## 2026-10-21 — certified operation and learner integration
+
+- Connected operation commands to the global-promise adapter's actual PREPARE,
+  selected installation, ACCEPT/PROOF and forced-prefix events. Per-replica catalogs
+  advance only after their own prefix force. Learner images and receipt forces
+  precede READY/SEAL and voting eligibility after INTENT. CONTROL cannot disguise a
+  membership entry. Accepted SEAL is recovered against a competing CANCEL request.
+- Corrected the integration helper's proposer-inclusive quorum construction: 5→4
+  FINAL can need the removed proposer plus three survivors. Filtering globally
+  minimal joint quorums for local inclusion incorrectly excluded that valid set.
+- **172 tests PASS**, including 12 new integration tests. Complete matrix:
+  **126 cases, 1,141 campaigns, 4,884 local catalog applications and 135,883 events**;
+  174 vote-stage/force observations involve the originally non-voting identity.
+  These counts include repeated replica observations, not distinct client changes.
+- **21 portable histories replayed**, covering 182 campaigns, 858 catalog applies
+  and 22,456 events. Actual interrupted-force observations validate case labels.
+  Receipt: [integrated-research.json](integrated-research.json). Qualified output:
+  `target/v53-integrated-research/qualified/`, `unit-qualified.log` and
+  `qualified-resources.log` in the parent. Source binds `ee38852` plus exact dirty
+  model/test hashes. Earlier source/setup outputs remain retained.
+
+See [integrated protocol research](INTEGRATED_PROTOCOL_RESEARCH.md). Fresh recovery
+ballots per command and complete retained prefixes are explicit reference choices.
+Steady-state round reuse and incremental metadata compaction remain to be specified
+and tested before the local contract can freeze. **Phase 0 remains OPEN.**

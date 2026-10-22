@@ -97,6 +97,13 @@ Removed-node capture and fresh surviving-majority maintenance rules are explicit
 The 308-case committed-state reducer still needs integration with actual selected
 control entries; it does not itself prove consensus or readiness-before-INTENT.
 
+The [integrated adapter](INTEGRATED_PROTOCOL_RESEARCH.md) now certifies those
+controls through real model grants, selection, ACCEPT/PROOF and forced prefixes,
+with per-node catalogs and learner image/receipt gating. It checks 126 interruption
+schedules, including accepted SEAL versus CANCEL, and handles proposer-inclusive
+5→4 joint quorums. Fresh recovery ballots and full-prefix storage remain deliberate
+reference restrictions; steady-state rounds and compacted metadata still need decisions.
+
 ## Phase 0 deliverables still to freeze
 
 - `PHASE_0_CONTRACT.md`: resolved decisions and authority/state matrix.

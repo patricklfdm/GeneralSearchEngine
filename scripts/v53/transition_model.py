@@ -127,7 +127,7 @@ def successor(authority, entry):
         transition_kind(authority.old, entry.target)
         return replace(authority, index=authority.index+1, generation=authority.generation+1,
                        new=entry.target, operation=entry.operation)
-    need(entry.kind in ('DATA', 'BARRIER') and not entry.operation and not entry.target,
+    need(entry.kind in ('DATA', 'BARRIER', 'CONTROL') and not entry.operation and not entry.target,
          'stable entry kind/metadata')
     return replace(authority, index=authority.index+1)
 
@@ -336,7 +336,7 @@ def check_history(root, voters, events):
                      and (len(after-before),len(before-after)) in ((1,0),(0,1),(1,1)), 'invalid target')
                 new, operation, generation = entry.target, entry.operation, generation+1
             else:
-                safe(entry.kind in ('DATA','BARRIER') and not entry.operation and not entry.target,
+                safe(entry.kind in ('DATA','BARRIER','CONTROL') and not entry.operation and not entry.target,
                      'invalid stable successor')
             parent = digest(dict(authority=expected, value=cert.value))
         return Authority(root, len(chain)+1, parent, generation, old, new, operation)

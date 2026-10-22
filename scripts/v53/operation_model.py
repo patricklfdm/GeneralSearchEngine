@@ -97,6 +97,8 @@ def apply(state,command,limits,receipts):
                  prepared=None,receipt=None,binding=None,terminalIndex=None)
         s['results'][str(req['number'])]=row;s['active']=req['number'];s['nextOperation']+=1
         s['identities']+=deepcopy(added)
+    elif kind=='BARRIER':
+        pass
     elif kind=='DATA':
         if s['active'] is not None:need(active(s,s['active'])['phase'] not in ('SEALED','JOINT'),'transition pauses data')
         need(type(command['value']) is str and len(command['value'])<=128,'data value')

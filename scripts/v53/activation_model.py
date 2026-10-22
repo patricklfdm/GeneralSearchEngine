@@ -103,14 +103,16 @@ class Engine:
         root.counter=root.allocation.counter;root.reserved=root.allocation;root.allocation=None
         self.record('allocate-force',node=node,ballot=root.reserved)
 
-    def start(self,node):
+    def start(self,node,requested=None):
         root=self.roots[node];ballot=root.reserved;authority=self.world.authority(node)
         need(self.world.nodes[node].alive and node in authority.voters,'ineligible proposer')
         need(self.world.nodes[node].pending_chain is None and root.grant is None and root.freezing is None,
              'campaign writer busy')
         need(ballot is not None and ballot not in self.used,'unforced/reused ballot')
         root.reserved=None;root.ready=None;self.used.add(ballot)
-        requested=t.Entry('FINAL',authority.operation,authority.new) if authority.operation else barrier(ballot)
+        if requested is None:
+            requested=t.Entry('FINAL',authority.operation,authority.new) if authority.operation else barrier(ballot)
+        t.successor(authority,requested)
         self.record('start',authority=authority,ballot=ballot,value=requested.value())
         self.world.slots.setdefault(authority,b.Model(authority)).start(ballot,requested.value())
         self.world.flush(authority);self.flush()

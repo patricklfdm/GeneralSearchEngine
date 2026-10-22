@@ -44,6 +44,8 @@ def next_state(before,cmd,limits,receipts):
         s['identities']+=added;s['active']=number;s['nextOperation']+=1
         s['results'][str(number)]=dict(request=r,requestHash=digest(r),phase='RESERVED',revision=0,
              prepared=None,receipt=None,binding=None,terminalIndex=None)
+    elif kind=='BARRIER':
+        pass
     elif kind=='DATA':
         safe(s['active'] is None or s['results'][str(s['active'])]['phase'] not in ('SEALED','JOINT'),'data after seal')
         safe(type(cmd['value']) is str and len(cmd['value'])<=128,'data value')

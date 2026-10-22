@@ -38,3 +38,7 @@ why a replacement result supersedes them.
 - Operation/maintenance batch: 160 tests, 308 replayed reducer schedules; see
   [decisions](OPERATION_AND_MAINTENANCE.md) and [receipt](operation-research.json).
   Next: certify these commands through the transition/global-promise model.
+- Certified integration: 172 tests, 126 recovery schedules and 21 portable
+  histories; see [candidate](INTEGRATED_PROTOCOL_RESEARCH.md) and
+  [receipt](integrated-research.json). Steady-state rounds, bounded metadata,
+  formats/resources and the final contract register remain.

@@ -19,9 +19,10 @@ development predecessor; its eventual published artifacts are not yet pinned.
 7. [Global promise, recovery selection and activation](GLOBAL_PROMISE_AND_ACTIVATION_RESEARCH.md)
 8. [Authority retention and learner identity](AUTHORITY_AND_LEARNER_RESEARCH.md)
 9. [Queryable operations and maintenance](OPERATION_AND_MAINTENANCE.md)
-10. [Phase 0 closure worklist](PHASE_0_CLOSURE_PLAN.md)
-11. [Independent model and later evidence requirements](TESTING_AND_EVIDENCE.md)
-12. [Development status](DEVELOPMENT_STATUS.md)
+10. [Certified operations and learner admission](INTEGRATED_PROTOCOL_RESEARCH.md)
+11. [Phase 0 closure worklist](PHASE_0_CLOSURE_PLAN.md)
+12. [Independent model and later evidence requirements](TESTING_AND_EVIDENCE.md)
+13. [Development status](DEVELOPMENT_STATUS.md)
 
 The accepted [V5 charter](../DEVELOPMENT_CHARTER.md) and the V5.3 section of the
 [development addendum](../NEXT_DEVELOPMENT_ADDENDUM.md#v53-controlled-operations)
@@ -48,6 +49,8 @@ python3 -m scripts.v53.admission_research \
   --output "target/v53-admission-research/run-$(date -u +%Y%m%dT%H%M%SZ)"
 python3 -m scripts.v53.operation_research \
   --output "target/v53-operation-research/run-$(date -u +%Y%m%dT%H%M%SZ)"
+python3 -m scripts.v53.integrated_research \
+  --output "target/v53-integrated-research/run-$(date -u +%Y%m%dT%H%M%SZ)"
 ```
 
 Run from the repository root. The output directory must be new. These commands

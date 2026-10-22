@@ -94,6 +94,13 @@ local/abstract scope. No production disk, service-read, timing or cloud claim fo
 
 ## Later foundation and runtime coverage
 
+[Integrated operation/learner evidence](INTEGRATED_PROTOCOL_RESEARCH.md) now joins
+global grants, selected bases, both voting phases and forced local prefixes to
+actual per-replica catalogs and learner eligibility. Its 126 interrupted SEAL,
+INTENT and FINAL schedules complete recovery, with 21 portable histories. This
+closes the isolated reducer's accepted-tail evidence gap for those schedules;
+it does not qualify steady-state round reuse, compacted-source or Java behavior.
+
 [Operation/maintenance research](OPERATION_AND_MAINTENANCE.md) adds a committed
 control-state reducer with an independent observer. Its 308 complete/cancel/reprepare
 crash schedules all replay from serialized histories. Identity conflict, stale
