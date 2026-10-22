@@ -94,6 +94,15 @@ local/abstract scope. No production disk, service-read, timing or cloud claim fo
 
 ## Later foundation and runtime coverage
 
+The [authority/learner research](AUTHORITY_AND_LEARNER_RESEARCH.md) adds a distinct
+majority-endorsed stable-range representation and durable learner eligibility gate.
+Its observer checks original proof history, complete membership boundaries, forced
+endorsements and exact request/image/identity bindings, including source ordering.
+The finite matrix covers 220 cases; 55 representative histories replay from gzip.
+Source fixtures use only existing voters, without a preinstalled learner. Current
+[receipt](admission-research.json) records local results. This is not physical
+compaction, a replicated identity catalog or a fully integrated membership protocol.
+
 | Family | Required schedules and independent observations |
 | --- | --- |
 | Membership | 3→4→5→4→3, replacement at each size, duplicate identity/endpoint, minimum/maximum refusal; exact old/new receipts |

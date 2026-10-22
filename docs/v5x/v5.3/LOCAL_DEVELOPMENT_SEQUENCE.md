@@ -36,7 +36,7 @@ on the base source and the separate D-backed self-hosted Runner.
 
 | Stage | Deliverable / local exit |
 | --- | --- |
-| Entry research | Arithmetic, durable ballots, handoff, checkpoint/retirement and global-promise activation modeled; long-lived authority and production contracts open |
+| Entry research | Arithmetic, ballots, handoff, checkpoint/retirement, activation and learner eligibility modeled; authority representation chosen as a candidate, integrated production contracts open |
 | Phase 0 | Complete authority/transition/recovery contract, exact API and bytes, resource limits, adversarial schedules; resolve all blocking decisions |
 | Phase 1 | Aligned coordinates, declaration-only APIs, independent election/transition model, byte fixtures, process/network scaffolding |
 | Phase 2 | Configuration-aware storage, promises, proof validation, snapshot and recovery; reject ambiguous authority |

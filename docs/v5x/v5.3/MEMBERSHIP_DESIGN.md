@@ -100,6 +100,13 @@ tail extends the current Java refusal rule and is not enabled in production.
 
 ## Operation and maintenance requirements
 
+The [authority/learner candidate](AUTHORITY_AND_LEARNER_RESEARCH.md) tests new quorum
+endorsements for stable data ranges while retaining original INTENT/FINAL proofs.
+Its gate binds the complete prepared request, durable identity, exact materialized
+cut and forced image receipt. A receipt alone does not grant a vote: certified
+transition installation establishes eligibility, followed by separate global
+promise/activation rules. Complete descriptor retention and integration remain open.
+
 Bind the caller's operation ID to group/history, expected configuration identity,
 kind and complete target descriptor. Repeating that exact ID/payload should query
 or resume the original operation. Reusing it with different contents must reject.

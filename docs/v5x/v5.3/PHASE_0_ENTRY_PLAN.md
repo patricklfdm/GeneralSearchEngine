@@ -82,6 +82,14 @@ source failure and an explicit certificate-derived adoption fence. This is a
 conservative candidate with fresh ballots per recovered slot; production round
 policy, record formats, source scheduling and long-lived retention remain open.
 
+The [authority/learner batch](AUTHORITY_AND_LEARNER_RESEARCH.md) chooses a candidate
+representation: retain all membership certificates, with new forced majority
+endorsements for stable DATA/BARRIER ranges. It tests exact-cut learner receipts,
+new replacement identities and eligibility after forced INTENT/FINAL installation.
+The lifetime change cap affects new changes, not ordinary data. Incremental physical
+compaction, replicated identity catalogs, readiness-before-INTENT integration,
+public operation revisions and actual vote/read activation remain open.
+
 ## Phase 0 deliverables still to freeze
 
 - `PHASE_0_CONTRACT.md`: resolved decisions and authority/state matrix.

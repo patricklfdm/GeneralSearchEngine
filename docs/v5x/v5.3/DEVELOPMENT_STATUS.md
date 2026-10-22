@@ -178,10 +178,49 @@ certificate-derived adoption are conservative research choices. Production round
 policy, bytes, source scheduling, steady-state service and long-lived authority
 retention still need resolution. No Java, POM, workflow, Maven or cloud operation.
 
+## 2026-10-21 — authority representation and learner identity
+
+- Read the actual bootstrap/admission, wire, rejoin, local config, store and
+  fixed-manifest replacement code. Existing manifest/member guards cannot open
+  a non-voter; production remains unchanged.
+- Chose a candidate authority representation: new forced majority endorsements
+  for stable DATA/BARRIER ranges, with complete INTENT/FINAL certificates retained.
+  A finite lifetime membership-change budget refuses new changes without spending
+  another change on ordinary DATA. Physical incremental compaction, complete
+  identity catalogs and actual byte budgets remain open.
+- Added durable exact-cut learner reservation/image/receipt/authority boundaries.
+  INTENT commits the full prepared-request hash, including new voter/storage/
+  endpoint identity. Restart invalidates old sessions; readiness alone cannot vote.
+  `eligible` is an admission result, not a protocol vote or public read.
+- The source fixture uses existing voters only. The first matrix exposed a test
+  setup problem during review: the generic source builder could use the learner
+  in replacement quorums. Corrected the builder and added independent rejection
+  of circular preinstalled/voting-learner input; earlier outputs remain retained
+  and are not the qualifying result. Source watermarks also reject future
+  endorsements, and replay checks actual crash cuts/quorum choices against labels.
+- **135 local tests PASS**, including 26 new tests. Complete declared matrix:
+  **220 cases, 660 capsules, 7,172 capsule/learner events and 340 eligibility
+  observations**. Counts exclude the separately validated source consensus events.
+  Healthy/late-force schedules can report eligibility before and after restart;
+  observations are not distinct admitted members or actual votes.
+- **55 portable representative histories replayed**, covering 1,793 events and
+  85 eligibility observations. All size/prefix/quorum/cut combinations contribute
+  to the full matrix trace digest; portable examples retain every profile/cut at
+  prefix length 1 and the first endorsement majority.
+- Receipt: [admission-research.json](admission-research.json). Qualifying evidence:
+  `target/v53-admission-research/qualified/`; logs `unit-qualified.log`,
+  `qualified.log`, `qualified-resources.log` in the parent directory. The receipt
+  binds parent `93c61ae` and exact dirty script/test hashes, not clean protected CI.
+
+See [the candidate, source audit and exclusions](AUTHORITY_AND_LEARNER_RESEARCH.md).
+**Phase 0 remains OPEN.** No Java, POM, workflow, Maven or cloud operation. This
+batch does not establish byte-for-byte clone fencing, unlimited history retention
+or the integrated readiness-before-INTENT/global-promise protocol.
+
 ## Next local batch
 
-Choose the long-lived authority representation/retention policy and specify learner
-materialization plus replacement identity fencing. Complete operation IDs/query/
-cancel, removed-node reads and exact API/byte/resource decisions before Phase 0
-freeze. Carry forward the activation adapter's production-round and adoption-record
-obligations explicitly. Continue local commits only; preserve V5.2's release/cloud path.
+Specify operation identity/query/cancel and bounded terminal-record retention,
+including prepared-cut revisions and identity reservations. Define removed-node
+read/maintenance behavior, then connect learner readiness and authority capsules
+to the transition/global-promise adapter. Freeze exact API/byte/resource decisions
+before Phase 0 completion. Continue local commits only and preserve V5.2's path.
