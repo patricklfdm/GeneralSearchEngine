@@ -422,3 +422,17 @@ Every row is PLANNED; none is a runtime PASS. No inapplicable cross-product is
 dropped: later execution must demonstrate explicit refusal with unchanged bytes.
 Three focused coverage/drift tests passed. [Inventory and commands](PHASE_1_CASE_INVENTORY.md).
 Full model composition and the requirement audit remain open.
+
+## 2026-10-21 — Phase 1 causal protocol composition
+
+The [composed model](PHASE_1_COMPOSITION.md) independently replayed 112 complete
+histories / 159,286 events across all seven profiles, including steady DATA and
+CONTROL, compacted heterogeneous sources and SEAL/INTENT/FINAL crash recovery.
+Seventeen reason-specific negatives and relocated replay passed. Twenty-two
+focused tests cover the model, observer and portable qualification driver.
+
+Original entry/certificate bytes survive recovery; the model's decisions do not
+consult the whole audit archive. Missing ancestry and selected-source loss refuse
+or require a fresh ballot. Model forces are abstract and physical S/N rows remain
+PLANNED. No Java runtime, workflow or V5.2 experiment changed. The final Phase 1
+requirement/compatibility audit is next; this batch alone does not close Phase 1.
