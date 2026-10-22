@@ -281,14 +281,36 @@ final class MembershipContext {
             default -> throw new IllegalArgumentException("unexpected control");
         }
     }
+    /** First PROOF admission requires real exact ACCEPT observations, not receipt hashes alone. */
+    void proof(Decoded proof,Decoded accept,Set<Owned> owned) {
+        Objects.requireNonNull(owned,"owned ACCEPT observations");require(owned.size()<=6,"ACCEPT observation count");owned=Set.copyOf(owned);persistedProof(proof,accept);
+        witnesses(list(proof.value().get("accepts")),"ACCEPT",accept.digest(),owned,cut);
+    }
+    /** Reopen of this exclusive owner's original forced PROOF. This validates the retained
+     * attestation's structure; it is not a fresh observation of remote durable ownership. */
+    void persistedProof(Decoded proof,Decoded accept) {
+        require(proof.family().equals("records") && proof.kind().equals("PROOF")
+                && accept.family().equals("records") && accept.kind().equals("ACCEPT"),"pending PROOF/ACCEPT kind");
+        var value=new TreeMap<>(proof.value());var receipts=list(value.remove("accepts"));
+        require(value.equals(accept.value()) && root.equals(value.get("root")) && authority().equals(value.get("authority"))
+                && number(cut.get("index"))<MAX && number(value.get("index"))==number(cut.get("index"))+1,"pending PROOF exact ACCEPT/parent");
+        ballot(value.get("ballot"),true);witnessShape(receipts,"ACCEPT",accept.digest(),cut);
+    }
     private void witnesses(List<?> witnesses,String phase,String record,Set<Owned> owned,Map<String,Object> parent) {
+        Objects.requireNonNull(owned,"owned phased observations");
+        witnessShape(witnesses,phase,record,parent);
+        for(Object value:witnesses) {
+            String voter=(String)object(value).get("voter");var id=identities.get(voter);
+            require(owned.contains(new Owned(voter,id.storageId(),record,cutDigest(parent))),"missing owned phased record/applied parent");
+        }
+    }
+    private void witnessShape(List<?> witnesses,String phase,String record,Map<String,Object> parent) {
         var nodes=new ArrayList<String>();
         for(Object value:witnesses) {
             var witness=object(value);String voter=(String)witness.get("voter");var id=identities.get(voter);
             require(id!=null && id.storageId().toString().equals(witness.get("incarnation")),"witness disk identity");nodes.add(voter);
             var receipt=Map.of("root",root,"voter",voter,"incarnation",witness.get("incarnation"),"phase",phase,"record",record);
             require(witness.get("receipt").equals(hash(canonical(receipt,2048))),"witness phased record binding");
-            require(owned.contains(new Owned(voter,id.storageId(),record,cutDigest(parent))),"missing owned phased record/applied parent");
         }
         orderedNodes(nodes);quorum(object(parent.get("view")),nodes);
     }

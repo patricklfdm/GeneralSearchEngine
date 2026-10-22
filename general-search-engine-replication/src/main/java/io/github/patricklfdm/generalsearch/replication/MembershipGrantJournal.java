@@ -243,15 +243,25 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void bindVoteCandidate(MembershipPendingAccept.Vote vote)throws IOException {
         verifyVote(vote);voteTransactionIdle();
+        require(vote.proof()==null || pendingAccept.active()!=null && vote.sameAcceptance(pendingAccept.active()),"PROOF candidate requires original active ACCEPT");
         require(selection!=null && promise!=null && Arrays.equals(vote.promise().bytes(),promise.bytes())
                 && Arrays.equals(vote.selected().bytes(),selection.bytes()) && Arrays.equals(vote.selector().bytes(),current.selector.bytes())
                 && selection.digest().equals(current.manifest.value().get("selection")),"pending ACCEPT requires exact installed current selection");
         if(pendingAccept.active()!=null) {
             var prior=pendingAccept.active();int order=compareBallot(object(vote.accept().value().get("ballot")),object(prior.accept().value().get("ballot")));
-            require(order>0 || order==0 && Arrays.equals(vote.bytes(),prior.bytes()),"pending ACCEPT conflict or obsolete ballot");
+            require(order>0 || order==0 && vote.sameAcceptance(prior)
+                    && (prior.proof()==null || vote.proof()!=null && Arrays.equals(prior.proof().bytes(),vote.proof().bytes())),"pending ACCEPT conflict or obsolete ballot");
         }
         // The future original source must fit before this owner acknowledges a new vote.
-        verifiedPacket(MembershipPendingAccept.packet(current,vote));
+        var packet=MembershipPendingAccept.packet(current,vote);verifiedPacket(packet);
+        if(vote.proof()==null) {
+            // Reserve one maximum proof object plus its index row before acknowledging ACCEPT.
+            int margin=MembershipPendingAccept.PROOF_MAXIMUM+128;
+            require(packet.objectNames().size()<65536 && packet.bytes().length<=MembershipSourcePacket.MAXIMUM-margin
+                    && packet.capsule().bytes().length+MembershipSourcePacket.index(
+                        packet.objectNames().stream().collect(java.util.stream.Collectors.toMap(h->h,packet::objectBytes)),packet.images()).length
+                        <=MembershipSourcePacket.ENVELOPE-HEADER-8-128,"pending proof source completion capacity");
+        }
         MembershipPendingAccept.accepted(current,vote);
     }
     private void recoverVote()throws IOException {
@@ -260,13 +270,13 @@ final class MembershipGrantJournal implements AutoCloseable {
             voteTransactionIdle();var complete=pendingAccept.completeCandidate();
             if(complete.isPresent()) {
                 var vote=complete.get();bindVoteCandidate(vote);var bound=object(vote.accept().value().get("ballot"));
-                cut.at("ACCEPT_RECOVERY_VALIDATED");checkOwner();fence(bound);
+                cut.at((vote.proof()==null?"ACCEPT":"PROOF")+"_RECOVERY_VALIDATED");checkOwner();fence(bound);
                 pendingAccept.install(vote,()->{checkOwner();fence(bound);},cut);
             }
         }
         pendingAccept.sealActive(this::checkOwner,cut);
     }
-    /** Actual local first-slot vote. No proof, certificate, application publication or network ACK. */
+    /** Actual local first-slot vote. No certificate, application publication or network ACK. */
     synchronized Owned acceptCurrent(Decoded proposed,byte[] payload)throws IOException {
         require(pendingAccept!=null,"pending ACCEPT storage owner required");checkOwner();voteTransactionIdle();
         require(promise!=null && selection!=null && selection.digest().equals(current.manifest.value().get("selection")),"ACCEPT requires installed current selection");
@@ -275,10 +285,16 @@ final class MembershipGrantJournal implements AutoCloseable {
         value.put("ballot",bound);value.put("entry",entry.digest());value.put("index",entry.value().get("index"));
         var accepted=decode(encode("records","ACCEPT",value),"records","ACCEPT");
         var vote=new MembershipPendingAccept.Vote(current.selector,promise,selection,entry,accepted,payload);
+        // Repeating ACCEPT cannot erase this owner's already forced proof.
+        if(pendingAccept.active()!=null && vote.sameAcceptance(pendingAccept.active())) {
+            require(!pendingAccept.pending(),"ACCEPT duplicate cannot replace pending PROOF transaction");vote=pendingAccept.active();
+        }
         bindVoteCandidate(vote);pendingAccept.matches(vote);checkOwner();fence(bound);
         if(pendingAccept.active()==null || !Arrays.equals(pendingAccept.active().bytes(),vote.bytes()) || pendingAccept.pending()) {
-            int remaining=Math.toIntExact(vote.bytes().length-(pendingBytes()-pendingAccept.activeLength()));
-            ensureJournalCapacity(Math.addExact(remaining,RESERVATION),"pending ACCEPT and next grant exceed shared journal capacity");
+            int size=vote.bytes().length;
+            long peak=Math.max((long)pendingAccept.activeLength()+size,2L*size+MembershipPendingAccept.PROOF_MAXIMUM);
+            int remaining=Math.toIntExact(peak-pendingBytes());
+            ensureJournalCapacity(Math.addExact(remaining,RESERVATION),"pending ACCEPT, proof completion and next grant exceed shared journal capacity");
             try {
                 cut.at("ACCEPT_VALIDATED");checkOwner();fence(bound);
                 pendingAccept.install(vote,()->{checkOwner();fence(bound);},cut);
@@ -286,6 +302,33 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         cut.at("ACCEPT_BEFORE_RETURN");checkOwner();fence(bound);
         return new Owned(identity.nodeId().value(),identity.storageId(),accepted.digest(),cutDigest(current.capsule.context.cut));
+    }
+
+    /** Force the first exact ACCEPT-quorum proof under the same installed selection. */
+    synchronized Owned proveCurrent(Decoded proposed,Set<Owned> accepts)throws IOException {
+        require(pendingAccept!=null,"pending PROOF storage owner required");checkOwner();voteTransactionIdle();
+        var prior=pendingAccept.active();require(prior!=null,"PROOF requires actual local ACCEPT");
+        var proof=decode(proposed.bytes(),"records","PROOF");var vote=prior.withProof(proof);
+        bindVoteCandidate(vote);pendingAccept.matches(vote);var bound=object(vote.accept().value().get("ballot"));fence(bound);
+        // A locally forced duplicate is already the durable attestation. First admission
+        // (including an incomplete candidate) still requires the actual ACCEPT observations.
+        if(prior.proof()==null)current.capsule.context.proof(proof,prior.accept(),accepts);
+        if(prior.proof()==null || pendingAccept.pending()) {
+            int remaining=Math.toIntExact(vote.bytes().length-(pendingBytes()-pendingAccept.activeLength()));
+            ensureJournalCapacity(Math.addExact(remaining,RESERVATION),"pending PROOF and next grant exceed shared journal capacity");
+            try {
+                cut.at("PROOF_VALIDATED");checkOwner();fence(bound);
+                pendingAccept.install(vote,()->{checkOwner();fence(bound);},cut);
+            }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
+        }
+        cut.at("PROOF_BEFORE_RETURN");checkOwner();fence(bound);
+        return new Owned(identity.nodeId().value(),identity.storageId(),proof.digest(),cutDigest(current.capsule.context.cut));
+    }
+    /** Local retained proof only; this accessor makes no new assertion about remote voters. */
+    synchronized Optional<Owned> currentOwnedProof()throws IOException {
+        require(pendingAccept!=null,"pending PROOF storage owner required");checkOwner();require(!pendingAccept.pending(),"pending PROOF is not complete");
+        var vote=pendingAccept.active();return vote==null || vote.proof()==null?Optional.empty():Optional.of(
+                new Owned(identity.nodeId().value(),identity.storageId(),vote.proof().digest(),cutDigest(current.capsule.context.cut)));
     }
 
     private Object key() throws IOException {

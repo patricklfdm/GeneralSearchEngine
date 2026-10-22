@@ -882,3 +882,22 @@ Continue PROOF/certificate/application integration, covered-tail retirement and
 stable next-slot progression. Partial-request abortion under a higher durable fence,
 maximal lifetime completion, complete-store/public acceptance and later pre-cloud
 work remain OPEN. All changes and commits remain local; V5.2 cloud stays separate.
+
+
+## 2026-10-22 — Phase 2C5b actual ACCEPT-quorum PROOF persistence
+
+The same private owner now validates real eligible ACCEPT observations before
+forcing the exact PROOF, retains it across duplicate ACCEPTs, reopens partial/full
+candidates correctly, and carries original proof bytes into fresh PREPARE sources.
+Admission reserves proof-completion space inside unchanged journal/source limits.
+
+**45 cases / 342 fresh JVMs**, **12 exact negatives**, portable replay, **256 reactor
+Java tests** plus one later real higher-ballot proof-preservation test (**257 distinct
+Java tests**), and **32 Python/build tests** (normal and optimized) passed.
+[Scope](PHASE_2_PENDING_PROOF.md), [hash index](phase2-evidence/pending-proof.json).
+
+The initial applied history/application is still a fixture; actual new phased votes
+come from separately owned local directories. No network/public readiness, cloud
+acceptance or phase closure is inferred. Continue certificate/application and
+covered-tail integration, then the remaining complete-store/pre-cloud obligations.
+All changes and commits remain local, separate from the V5.2 cloud experiment.
