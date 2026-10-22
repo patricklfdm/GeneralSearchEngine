@@ -53,7 +53,7 @@ def validate_one(root, name, through, original):
     need(manifest['schema'] == 'gse-v53-capsule-fixture-v1' and manifest['profile'] == name and type(manifest['through']) is int
          and manifest['through'] == through and manifest['runtimeEnabled'] is False and manifest['authorityEvidence'] is False, 'capsule fixture binding/scope')
     data = file_bytes(packet_path, 32*c.MIB); need(c.sha(data) == manifest['packetSha256'], 'capsule packet identity')
-    packet = p.decode(data); capsule = packet['capsule']; objects = packet['objects']; used = set()
+    packet_size = len(data); packet = p.decode(data); capsule = packet['capsule']; objects = packet['objects']; used = set()
     def raw(h):
         need(h in objects, 'missing capsule authority object'); used.add(h); return objects[h]
     def original_bytes(h):
@@ -121,7 +121,7 @@ def validate_one(root, name, through, original):
     need(used_acks == set(owned), 'checkpoint ownership coverage')
     need(used == set(objects), 'compacted fixture object inventory')
     need({path.relative_to(root).as_posix() for path in paths if path.is_file()} == expected_files, 'capsule physical inventory')
-    return dict(profile=name, through=through, items=len(intervals), objects=len(objects), checkpointAcks=len(owned), packetBytes=len(data))
+    return dict(profile=name, through=through, items=len(intervals), objects=len(objects), checkpointAcks=len(owned), packetBytes=packet_size)
 
 
 def validate(root):

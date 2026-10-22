@@ -83,12 +83,12 @@ qualification are retained separately.
 
 ## Remaining Phase 1 requirements
 
-Frozen-source selection still needs exact original IDs/digests, one proposer-inclusive
-quorum, compatible cuts, longest proven prefix, highest accepted tail and no
-same-ballot reselection after source failure. An endpoint hidden in a range needs
-verified ancestry, not an index comparison or common root. Supplemental proofs
-must bind the original frozen cuts, have bounded bytes/count and never resample a
-basis. Covered tails require proof of that exact entry before discarding them.
+[Original frozen-source selection](PHASE_1_SELECTION.md) now verifies proposer-inclusive
+quorums, exact references, compatible cut/catalog/application anchors, longest
+proven prefix and highest next-slot tail. Supplemental existing-format checkpoint
+proofs bridge hidden same-era anchors without resampling a basis. A covered slot
+can settle a different minority accepted value; the original tail remains evidence.
+This local conditional calculation still needs actual grant/force/install integration.
 
 Same-round/catalog/compacted-source model composition, the full finite S/N schedule
 inventory and the final requirement audit remain open. These fixtures do not replace

@@ -224,7 +224,7 @@ final class MembershipContext {
         }
         throw new IllegalArgumentException("missing active detail");
     }
-    private void control(String kind,Object payload) {
+    void control(String kind,Object payload) {
         var active=activeOperation();String phase=active==null?null:(String)active.get("phase");
         require(view.get("operation")==null || kind.equals("FINAL"),"joint era only admits FINAL");
         if(kind.equals("DATA")) { require(!"SEALED".equals(phase),"DATA after SEAL");return; }

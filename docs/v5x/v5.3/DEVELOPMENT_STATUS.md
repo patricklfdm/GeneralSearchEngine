@@ -397,3 +397,20 @@ The verifier assumes authenticated owned-record observations; fixture force logs
 do not establish live replica/crash durability. [Scope and remaining work](PHASE_1_CAPSULES.md)
 keep frozen-source selection, full model composition/S-N inventory and closure
 audit pending. New runtime remains disabled; local commit only.
+
+## 2026-10-21 — Phase 1 original frozen-source selection
+
+- Added conditional selection over complete verified capsules: exact original
+  source references, proposer-inclusive stable/joint quorums, compatible frozen
+  cuts, longest prefix, highest next-slot tail, and one decision per campaign.
+- Bounded supplementary existing-format checkpoints prove hidden stable ancestry
+  without resampling a basis. Known conflicting anchors always fail closed.
+- Independently replayed 28 concrete selection fixtures / 117 frozen sources and
+  all 13 original-first negatives with relocated replay. Covered minority tails
+  remain original evidence; selected proof settles their slots.
+- 52 focused Java tests, 217 V5.3 Python tests and 20 build-contract tests pass.
+  [Selection scope](PHASE_1_SELECTION.md) and [receipt](phase1-evidence/selection.json).
+
+These fixtures do not establish a causal distributed grant/install history or
+activate the runtime. The same-round/catalog/compacted recovery model, complete
+finite S/N inventory and final Phase 1 audit remain pending. Local commits only.

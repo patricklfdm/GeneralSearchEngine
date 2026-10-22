@@ -9,7 +9,7 @@ import static io.github.patricklfdm.generalsearch.replication.V53ContextFixture.
 
 /** Physical copies of compacted fixture history. No replica runtime or deletion is enabled. */
 public final class V53CapsuleWorker {
-    private static void force(Path root,String name,byte[] bytes,List<Map<String,Object>> events) throws Exception {
+    static void force(Path root,String name,byte[] bytes,List<Map<String,Object>> events) throws Exception {
         Path path=root.resolve(name);Files.createDirectories(path.getParent());
         try(var channel=FileChannel.open(path,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE)) {
             var buffer=ByteBuffer.wrap(bytes);while(buffer.hasRemaining())channel.write(buffer);channel.force(true);

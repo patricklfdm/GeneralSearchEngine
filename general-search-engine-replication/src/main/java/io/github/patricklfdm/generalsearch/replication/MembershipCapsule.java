@@ -9,12 +9,16 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipCapsule {
     final MembershipContext context;
     final MembershipSourcePacket packet;
+    record Anchor(Map<String,Object> cut,String catalog,String application) {}
     private final Map<Long,Map<String,Object>> anchors;
-    private MembershipCapsule(MembershipContext context,MembershipSourcePacket packet,Map<Long,Map<String,Object>> anchors) {
-        this.context=context;this.packet=packet;this.anchors=Map.copyOf(anchors);
+    private final Map<Long,Anchor> states;
+    private MembershipCapsule(MembershipContext context,MembershipSourcePacket packet,Map<Long,Map<String,Object>> anchors,Map<Long,Anchor> states) {
+        this.context=context;this.packet=packet;this.anchors=Map.copyOf(anchors);this.states=Map.copyOf(states);
     }
     boolean containsCut(Map<String,Object> cut) {return cut.equals(anchors.get(number(cut.get("index"))));}
     Map<Long,Map<String,Object>> anchors() {return anchors;}
+    Anchor anchor(long index) {return states.get(index);}
+    Anchor terminal() {return states.get(number(context.cut.get("index")));}
 
     static MembershipCapsule verify(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,Set<Owned> owned) {
         require(root.family().equals("records") && root.kind().equals("ROOT"),"capsule ROOT kind");packet.verifyImages(images);
@@ -28,6 +32,7 @@ final class MembershipCapsule {
         var initialCatalog=initialCatalog(root,genesis);String catalog=hash(encode("records","CATALOG",initialCatalog));
         String application=(String)genesis.get("application");Map<String,Object> at=object(initialCatalog.get("cut"));
         var anchors=new TreeMap<Long,Map<String,Object>>();anchors.put(0L,at);
+        var states=new TreeMap<Long,Anchor>();states.put(0L,new Anchor(at,catalog,application));
         int changes=0;long operation=0;boolean priorRange=false;
         for(Object itemValue:list(capsule.get("items"))) {
             var item=object(itemValue);var statement=context.record((String)item.get("statement"),"CHECKPOINT");var s=statement.value();
@@ -64,11 +69,11 @@ final class MembershipCapsule {
             checkpoint(context,packet,statement,list(item.get("endorsements")),owned,bytes);
             long size=0;for(String hash:bytes)size+=packet.objectBytes(hash).length;
             require(size<=(item.get("kind").equals("RANGE")?16:48)*1024,"complete capsule item byte capacity");
-            at=end;catalog=(String)s.get("catalogAfter");application=(String)s.get("applicationAfter");anchors.put(number(at.get("index")),at);
+            at=end;catalog=(String)s.get("catalogAfter");application=(String)s.get("applicationAfter");anchors.put(number(at.get("index")),at);states.put(number(at.get("index")),new Anchor(at,catalog,application));
         }
         require(list(capsule.get("items")).size()<=3*changes+1,"capsule logical item bound");
         require(at.equals(currentCut) && catalog.equals(capsule.get("catalog")) && application.equals(capsule.get("application")),"capsule terminal state");
-        return new MembershipCapsule(context,packet,anchors);
+        return new MembershipCapsule(context,packet,anchors,states);
     }
     static Map<String,Object> initialCatalog(Decoded root,Map<String,Object> genesis) {
         var names=list(root.value().get("initial")).stream().map(MembershipFormat::object).map(v->(String)v.get("node")).toList();

@@ -1,0 +1,44 @@
+{
+  "authorityEvidence": false,
+  "buildPythonTests": 20,
+  "jars": [
+    {
+      "path": "target/general-search-engine-5.3.0-SNAPSHOT.jar",
+      "sha256": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+      "size": 864843
+    },
+    {
+      "path": "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar",
+      "sha256": "e50672b41799d4444d72449637b12542b337cf7a3b1c61ae9480df8be00ad9f7",
+      "size": 728487
+    }
+  ],
+  "javaTests": 52,
+  "localEvidence": "target/v53-phase1-selection",
+  "logs": {
+    "java-anchor-final.log": "4bdd8886f2c9dd257dcbf1a89fc658ed8ab86dcc79b46fd041960fb3f0cff5dd",
+    "python-build-final.log": "88da35618991f73bc146f9203eb880552b6e7a0e6a11fc5e54aeda4e39fb1c1e",
+    "python-v53-final.log": "308f61f36361a24be4c702f0210310247a8a2bf31b9e0ab9423f29201090ef6f",
+    "qualification-anchor-final/negatives.json": "1674c26736cb08b9e6ada508362c766dda6c60c9ed35fa3be80dcc717657549b",
+    "qualification-anchor-final/receipt.json": "b4cbe68aa422c43aba80e38bc478eba09d91534144e59a34a526e9885814a286",
+    "qualification-anchor-final/validation.json": "70a70b48b2ec990d251beb5a23d43bb95c7b377697969b517edd6cd958c5778a"
+  },
+  "negativeCases": 13,
+  "phase1Closed": false,
+  "relocatedReplay": "PASS",
+  "reportingNote": "Binding precedes this tracked summary and final reporting edits. Conditional byte fixtures only; no live grant/install/runtime or clean-source CI claim.",
+  "runtimeEnabled": false,
+  "schema": "gse-v53-phase1-selection-evidence-v1",
+  "selections": 28,
+  "source": {
+    "checkoutSha256": "1e576494a7e57cadbed97c6a2a8b8f68d3d7a7d196ff3f474ff2b8ee4bad52bc",
+    "java": {
+      "java.runtime.version": "21.0.12.1+1-1-22.04.4-Ubuntu",
+      "java.vendor": "Ubuntu"
+    },
+    "source": "52871eff8b609eb3f0d9f059e4999e656b9cfb13"
+  },
+  "sources": 117,
+  "status": "PASS",
+  "v53PythonTests": 217
+}
