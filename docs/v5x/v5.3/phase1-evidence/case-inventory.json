@@ -1,0 +1,30 @@
+{
+  "byScenario": {
+    "S01": 168,
+    "S02": 336,
+    "S03": 200,
+    "S04": 840,
+    "S05": 336,
+    "S06": 756,
+    "S07": 90,
+    "S08": 24,
+    "S09": 336,
+    "S10": 224
+  },
+  "collectorSha256": "c1b990173e95e46deed6b35ce899b1c43fe432616e7df64cc93a3b13cd22f5ca",
+  "compressedBytes": 21637,
+  "decodedInventorySha256": "344263cd0d07f4207894bf131c83adb68f35e75b0b845d4cad5b59ca2f48ddd2",
+  "execution": "inventory-only",
+  "inventorySha256": "73118ad5130d368368c803ba7d40ece52efb71208237d3b9470089c13a3bcfe8",
+  "localEvidence": "target/v53-phase1-inventory",
+  "negativeFamilies": 24,
+  "phase1Closed": false,
+  "planFileSha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+  "runtimeQualified": false,
+  "scenarios": 3310,
+  "schema": "gse-v53-finite-inventory-v1",
+  "status": "PASS",
+  "testLogSha256": "b56e60eaad88233bf0f60368215f0e561a01ae1ab7a2949ce65fdc6221892328",
+  "tests": 3,
+  "unpackedBytes": 1109149
+}

@@ -10,7 +10,7 @@ protected CI, paid experiment or release is included.
 | --- | --- | --- |
 | 1 | 5.3 coordinates, additive declarations, disabled entry, old consumers | PASS locally |
 | 2 | 24 storage / 21 wire kinds, exact bytes, bounded transfers, independent contextual readers | [Syntax](PHASE_1_BYTES.md), [context/transfer](PHASE_1_CONTEXT.md), [packet inventory](PHASE_1_SOURCE_PACKET.md) [conditional capsule walk](PHASE_1_CAPSULES.md) and [frozen-source selection](PHASE_1_SELECTION.md) PASS locally |
-| 3 | Same-round/catalog/compacted-source composition; complete S/N inventory | Pending |
+| 3 | Same-round/catalog/compacted-source composition; complete S/N inventory | [3,310 S / 24 N planned rows](PHASE_1_CASE_INVENTORY.md) materialized; full composition pending |
 | 4 | Fresh public process scaffold, source/JAR binding, portable negatives | Disabled-entry scaffold, three JVMs and ten portable negatives PASS; later runtime evidence pending |
 | Closure | Requirement-by-requirement audit and retained receipts | Pending; Phase 1 is not closed |
 

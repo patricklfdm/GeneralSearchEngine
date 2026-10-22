@@ -414,3 +414,11 @@ audit pending. New runtime remains disabled; local commit only.
 These fixtures do not establish a causal distributed grant/install history or
 activate the runtime. The same-round/catalog/compacted recovery model, complete
 finite S/N inventory and final Phase 1 audit remain pending. Local commits only.
+
+## 2026-10-21 — Phase 1 complete finite S/N inventory
+
+Materialized all 3,310 frozen scenario combinations and 24 named negative families.
+Every row is PLANNED; none is a runtime PASS. No inapplicable cross-product is
+dropped: later execution must demonstrate explicit refusal with unchanged bytes.
+Three focused coverage/drift tests passed. [Inventory and commands](PHASE_1_CASE_INVENTORY.md).
+Full model composition and the requirement audit remain open.
