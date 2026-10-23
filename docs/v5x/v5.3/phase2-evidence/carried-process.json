@@ -1,0 +1,129 @@
+{
+  "base": "70c6c728427c75488d1f9d9f4775d3e226c6c3b2",
+  "developmentFailures": {
+    "development.log": "all22 process cases pass but seed included56 unused conditional observations; producer narrowed to39 actual original phases/ends and complete88-JVM gate rerun"
+  },
+  "freshJvms": 88,
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "dc9d12eaf453074d926af568e5c12b0e7279576b2335e7c548c935172d88bd02",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "conditional historical bootstrap",
+    "small-image three-node profile; configuration-boundary and maximal lifetime remain open",
+    "internal reservation peaks are producer observations, not independently reconstructed",
+    "halt/SIGKILL is not power-loss durability",
+    "staged application after higher promise requires separate recovery work",
+    "public runtime disabled; no protected CI or paid cloud"
+  ],
+  "logs": {
+    "development.log": "5c25037d1f871f05ecc77cca73812d85330eed8ec16f41d8dfe804fc7449e244",
+    "oracle-development-1.log": "d980157fdd230d8dd6295cd81d43a08641c7c316835e53e56fa57da3aad1851b",
+    "oracle-development-2.log": "bdae7a74255b1152d48dd0ff40b6482d71d38972d7ed7d39a08ed7fa634a81bb",
+    "oracle-development-3.log": "53f6f5af659cacc0232c7d002b84c44afc7a0b7e581aeb2f53474a62f07014b8",
+    "oracle-development-qualification.log": "99f3278de10ee5757b23f65b1a603604fd7881365548a115650dca4911984fbc",
+    "qualified.log": "ec794bc38e0c8ecd20f463c23ddd2d51ac9098cf715aa45867c514de7a8056a1",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "physicalObservations": 39,
+  "processCases": 22,
+  "productionJarsUnchanged": true,
+  "protectedCI": false,
+  "raw": {
+    "files": 11604,
+    "indexSha256": "abbb1b20e414db0547e8bf14670124ec76ac67055ad46e80d23d37311663d444",
+    "path": "general-search-engine-replication/target/v53-carried-process/run-bcc8d0cb-fe22-4182-bcdb-00df956a3da7"
+  },
+  "replays": {
+    "replay": {
+      "cases": 22,
+      "exactMaintenanceAuthority": true,
+      "exactPhasePrefixes": true,
+      "freshJvms": 88,
+      "leasePeak": "producer-observed-bounded",
+      "negatives": [
+        "missing-original-vote",
+        "changed-original-payload",
+        "false-observation",
+        "changed-selected-request",
+        "lost-old-generation",
+        "early-selector",
+        "changed-prefix",
+        "early-pending-clear",
+        "missing-floor-force",
+        "missing-retirement-force",
+        "early-source-delete",
+        "changed-journal",
+        "resurrected-floor",
+        "false-crash-cut"
+      ],
+      "newBallot": 21,
+      "oldBallot": 20,
+      "originalFirst": true,
+      "physicalImageBound": 7,
+      "physicalObservations": 39,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "repeatedCrashes": 22,
+      "runtimeEnabled": false,
+      "settledImages": 2,
+      "status": "PASS"
+    },
+    "replay-optimized": {
+      "cases": 22,
+      "exactMaintenanceAuthority": true,
+      "exactPhasePrefixes": true,
+      "freshJvms": 88,
+      "leasePeak": "producer-observed-bounded",
+      "negatives": [
+        "missing-original-vote",
+        "changed-original-payload",
+        "false-observation",
+        "changed-selected-request",
+        "lost-old-generation",
+        "early-selector",
+        "changed-prefix",
+        "early-pending-clear",
+        "missing-floor-force",
+        "missing-retirement-force",
+        "early-source-delete",
+        "changed-journal",
+        "resurrected-floor",
+        "false-crash-cut"
+      ],
+      "newBallot": 21,
+      "oldBallot": 20,
+      "originalFirst": true,
+      "physicalImageBound": 7,
+      "physicalObservations": 39,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "repeatedCrashes": 22,
+      "runtimeEnabled": false,
+      "settledImages": 2,
+      "status": "PASS"
+    }
+  },
+  "retainedLocal": "target/v53-carried-process",
+  "schema": "gse-v53-carried-process-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CarriedProcessTest.java": "a5d257911d29077d296e54129cee2252fa42cb9252c32b91de1d022c2fda7f98",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CarriedProcessWorker.java": "cddfbaa341a2eca4b3fd3b67ea0563577586bec23997ce7e9a810b6af887e6ff",
+    "scripts/v53/carried_process_evidence.py": "624c5ba7c71aae001656ed53928419a120c03a9f27c6479d4b7afe4a09061937"
+  },
+  "sourceInventory": {
+    "path": "target/v53-carried-process/qualified-source-files.json",
+    "sha256": "3f5a33e5cf97800f0ea60f85d582d02e62f8db58b72db53f1781659de3df338e"
+  },
+  "status": "PASS",
+  "validationScope": [
+    "actual earlier original vote and frozen new-ballot selected request",
+    "22 halt/SIGKILL cases and second interruption during recovery,88 fresh child JVMs",
+    "original-first independent force/physical replay,14 negatives,portable/optimized replay",
+    "original request clone byte equality, retained old/new authority and bounded physical image inventory"
+  ]
+}

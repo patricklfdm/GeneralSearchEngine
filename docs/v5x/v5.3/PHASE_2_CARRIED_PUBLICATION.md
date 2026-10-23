@@ -71,8 +71,9 @@ requiring the exact capacity rejection reason.
 
 ## Remaining boundaries
 
-Historical bootstrap observations remain conditional. Dedicated halt/SIGKILL
-qualification of this carried-vote maintenance path, maximal image/metadata
-lifetime, membership boundaries and complete offline provisioning remain open.
+Historical bootstrap observations remain conditional. [Dedicated halt/SIGKILL qualification](PHASE_2_CARRIED_PROCESS.md) now covers
+this carried-vote maintenance path with repeated interruptions. Maximal
+image/metadata lifetime, staged application after a higher promise, membership
+boundaries and complete offline provisioning remain open.
 No distributed activation, public runtime, protected CI or cloud qualification
 is claimed by this local storage gate.

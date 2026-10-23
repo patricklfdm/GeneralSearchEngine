@@ -87,6 +87,8 @@ across 22 repeated-crash cases. Public runtime and complete cross-view/maximal
 lifetime qualification remain pending. [Carried first-entry publication](PHASE_2_CARRIED_PUBLICATION.md)
 now preserves the earlier vote's original round through new-ballot installation,
 reacceptance, bounded maintenance and same-round continuation.
+[Carried maintenance process recovery](PHASE_2_CARRIED_PROCESS.md) now exercises
+22 repeated-crash cases with original-first physical replay.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.
