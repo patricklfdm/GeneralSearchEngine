@@ -82,8 +82,8 @@ python3 -O -m scripts.v53.bootstrap_seed_evidence <v53BootstrapSeedEvidence-dire
 
 ## Next integration
 
-Bind the initial projection to one retained exact plan/history and all original
-path/source/configuration descriptors. Complete PREPARING/PREPARED/COMMITTING/
+The [private plan owner](PHASE_2_BOOTSTRAP_PLAN.md) now binds the initial projection
+to one retained exact plan/history and original path/source/configuration descriptors. Complete PREPARING/PREPARED/COMMITTING/
 COMMITTED and local seal publication/reopen with repeated recovery interruption.
 Retain ambiguous or missing original authority without regenerating it from the
 request. Full budget accounting, original-first physical evidence and the public

@@ -31,13 +31,41 @@ final class MembershipBootstrapSeed {
         r.put("configurationId",request.configurationId());r.put("genesis",genesis.digest());r.put("initial",identities.stream().map(MembershipBootstrapSeed::identity).toList());
         r.put("limits",hash(canonical(CATALOG.get("resources"),16384)));rootRecord=record("ROOT",r);
         root=new MembershipRoot(request.groupId(),history,rootRecord.rootDigest());
+        capsule=initial(rootRecord,genesis,image);
+    }
+    /** Metadata-only restoration of an exact retained projection, not typed admission or a seal. */
+    static MembershipBootstrapSeed restore(byte[] root,byte[] genesis,byte[] image,Map<String,Object> descriptor) {
+        return new MembershipBootstrapSeed(decode(root,"records","ROOT"),decode(genesis,"records","GENESIS"),image,descriptor);
+    }
+    private MembershipBootstrapSeed(Decoded rootRecord,Decoded genesis,byte[] image,Map<String,Object> descriptor) {
+        this.rootRecord=rootRecord;this.genesis=genesis;this.descriptor=decodeDescriptor(descriptor);application=image.clone();
+        root=new MembershipRoot(new ReplicationGroupId(UUID.fromString((String)rootRecord.value().get("groupId"))),UUID.fromString((String)rootRecord.value().get("historyId")),rootRecord.rootDigest());
+        sequence=number(genesis.value().get("baseSequence"));MembershipValidation.position(sequence);
+        identities=list(rootRecord.value().get("initial")).stream().map(MembershipFormat::object).map(MembershipContext::identity).toList();
+        MembershipApplicationImage.unpack(image);capsule=initial(rootRecord,genesis,image);
+        require(descriptor.keySet().equals(Set.of("application","core","paths","source","sourceInventory","identities")),"bootstrap retained descriptor keys");
+        var core=object(descriptor.get("core"));var config=object(descriptor.get("application"));
+        require(rootRecord.value().get("codecId").equals(core.get("codecId")) && number(rootRecord.value().get("codecVersion"))==number(core.get("codecVersion"))
+                && rootRecord.value().get("schema").equals(hash(canonical(Map.of("schemaIdentity",core.get("schemaIdentity"),"application",config),1024*1024)))
+                && rootRecord.value().get("indexes").equals(hash(canonical(config.get("indexes"),262144))),"bootstrap retained application descriptor binding");
+        require(descriptor.get("identities").equals(rootRecord.value().get("initial")) && descriptor.get("source").equals(genesis.value().get("source")),"bootstrap retained identity/source binding");
+        var inventory=list(descriptor.get("sourceInventory"));boolean empty=descriptor.get("source").equals("EMPTY");
+        require(empty?inventory.isEmpty() && sequence==0:inventory.size()==3 && hash(canonical(inventory,65536)).equals(genesis.value().get("sourceDigest")),"bootstrap retained source inventory binding");
+        if(!empty)for(int n=0;n<inventory.size();n++) {
+            var row=object(inventory.get(n));require(row.keySet().equals(Set.of("path","kind","size","sha256")) && row.get("path").equals(MembershipApplicationImage.MEMBERS.get(n))
+                    && number(row.get("kind"))==1 && number(row.get("size"))>0,"bootstrap retained source member");MembershipValidation.digest((String)row.get("sha256"));
+        }
+        var paths=list(descriptor.get("paths"));require(paths.size()==(empty?1:2)+2*identities.size(),"bootstrap retained path count");
+        MembershipValidation.disjoint(paths.stream().map(AdmissionConfiguration::path).toList());
+    }
+    private static MembershipCapsule initial(Decoded rootRecord,Decoded genesis,byte[] image) {
         var catalog=record("CATALOG",MembershipCapsule.initialCatalog(rootRecord,genesis.value()));
         var objects=new TreeMap<String,byte[]>();for(var frame:List.of(rootRecord,genesis,catalog))objects.put(frame.digest(),frame.bytes());
         var images=Map.of(hash(image),(long)image.length);
-        var cap=record("CAPSULE",Map.of("root",root.manifestDigest(),"application",hash(image),"catalog",catalog.digest(),
+        var cap=record("CAPSULE",Map.of("root",rootRecord.rootDigest(),"application",hash(image),"catalog",catalog.digest(),
                 "cut",catalog.value().get("cut"),"initial",genesis.digest(),"inventory",hash(MembershipSourcePacket.index(objects,images)),"items",List.of()));
         var packet=MembershipSourcePacket.decode(MembershipSourcePacket.encode(cap,objects,images));
-        capsule=MembershipCapsule.verify(rootRecord,packet,images(),Set.of());
+        return MembershipCapsule.verify(rootRecord,packet,Map.of(hash(image),image),Set.of());
     }
     private static Decoded record(String kind,Map<String,Object> value){return decode(encode("records",kind,value),"records",kind);}
     static Map<String,Object> identity(MembershipIdentity id){return Map.of("node",id.nodeId().value(),"storage",id.storageId().toString(),"host",id.endpoint().host(),"port",(long)id.endpoint().port());}
@@ -137,7 +165,7 @@ final class MembershipBootstrapSeed {
     private static void checkSource(Path path,long maximum,List<AdmissionFormat.Member> inventory,Map<String,Object> keys)throws IOException {
         if(path!=null)require(inventory.equals(sourceInventory(path,maximum)) && keys.equals(sourceKeys(path,inventory)),"bootstrap source changed during projection");
     }
-    private static Map<String,Object> core(DurableStorageConfig<?,?> c) {
+    static Map<String,Object> core(DurableStorageConfig<?,?> c) {
         require(c.codec().codecVersion()>0,"bootstrap codec version");
         return Map.of("format",Map.of("family",c.format().family(),"major",c.format().major(),"minor",c.format().minor()),
                 "storageIdentity",c.storageIdentity(),"schemaIdentity",c.schemaIdentity(),"codecId",c.codec().codecId(),"codecVersion",c.codec().codecVersion(),

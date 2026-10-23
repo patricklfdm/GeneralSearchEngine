@@ -1,0 +1,116 @@
+{
+  "base": "a44b33624420405a1be58d8323df0cc7ae6ebedb",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-plan/final-inputs.json",
+    "sha256": "8e0bf74fd11d9e37545527ab573251d4d30f8e2820905b010297bc622040e51f"
+  },
+  "cuts": 20,
+  "development": [
+    "development.log: fresh Integer core descriptor compared against parsed Long; corrected to exact canonical-byte comparison",
+    "qualified.log: eight plan tests passed before adding retained force traces",
+    "final.log: all 42 tests passed including retained interruption force traces"
+  ],
+  "jars": {
+    "target/v53-bootstrap-plan/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-plan/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "3a91ddc22ca7b8909a25642110eb6f9fae96c3f00d2ea93e831b7281c76de0b5"
+  },
+  "javaMethods": 42,
+  "limitations": [
+    "no replica prepare, commit receipt, local seal or public bootstrap enablement",
+    "IOException injection only; no fresh-process deaths or power-loss claim",
+    "typed image semantics checked in Java; Python reconstructs metadata and file bytes",
+    "current operation budget is a lower bound; complete transaction accounting remains required",
+    "no protected CI, cloud, workflow or legacy format change; Phase 2 open"
+  ],
+  "logs": {
+    "development.log": "6bcd1e8af3da7ace6c5657862e4e4b54a6a296ff9a39c8d98d6d8d7452fd9f21",
+    "final.log": "7516dc5964d5152ca215a13a16379085a462db545b7b255bc048aeb33758ffe3",
+    "qualified.log": "5e4df4bf4fd3595225a9fa8741e71090578a969bd8cbd669728ca70b80ab3445",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newMethods": 8,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-plan/producer-classes.json",
+    "sha256": "ee95e098e5aa326f429577a331892bfd80332e9756327e6e54a7e90fb79a1280"
+  },
+  "raw": {
+    "indexSha256": "75cabbd3bf94da6e5a08ed9a4c3168e92a4c4f3eab2063e55bbdc85316c61154",
+    "members": 194,
+    "path": "general-search-engine-replication/target/v53-bootstrap-plan/run-6f2a83ca-828e-4d41-be8d-2a7b05d7a595"
+  },
+  "replay": {
+    "cases": 20,
+    "exactPlanRecoveries": 11,
+    "freshProcesses": false,
+    "imageSemanticsIndependentlyVerified": false,
+    "incompleteRefusals": 9,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "bootstrap plan case inventory"
+      },
+      {
+        "case": "changed-original",
+        "reason": "bootstrap original plan checksum"
+      },
+      {
+        "case": "changed-image",
+        "reason": "bootstrap original image binding"
+      },
+      {
+        "case": "changed-crash",
+        "reason": "bootstrap exact interrupted bytes"
+      },
+      {
+        "case": "changed-second",
+        "reason": "bootstrap second recovery changed bytes"
+      },
+      {
+        "case": "changed-final",
+        "reason": "bootstrap exact final/refused bytes"
+      },
+      {
+        "case": "repaired-incomplete",
+        "reason": "bootstrap exact final/refused bytes"
+      },
+      {
+        "case": "force-order",
+        "reason": "bootstrap creation force order"
+      },
+      {
+        "case": "recovery-order",
+        "reason": "bootstrap second recovery force order"
+      },
+      {
+        "case": "false-commit",
+        "reason": "bootstrap plan receipt scope"
+      },
+      {
+        "case": "linked-plan",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "offlineCommit": false,
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "status": "PASS"
+  },
+  "schema": "gse-v53-bootstrap-plan-local-v1",
+  "scope": [
+    "exact bounded GSBP plan restores original history, image and all target inventories",
+    "exclusive absent-target coordinator; complete candidate reseals, incomplete original refuses without repair",
+    "20 interruption boundaries: nine unchanged refusals and eleven twice-interrupted exact recoveries",
+    "11 exact-reason original-first independent negatives, normal/optimized and portable replay"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapPlanData.java": "8e4bb2bf3d54f8f1d21b703e5d9ab7d15e44c96547b3c81fe9259b260ccb7040",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapPlanFiles.java": "df6d1c91ef26014abe41f17d0bd2531c14752e1c850ced68d7453020dcbf9d2a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapSeed.java": "3e91f78dfd56d8ea9fcb100644eebb38b22c22c4eeea1685e568a46b0d7c7d1f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapPlanTest.java": "2af377b805e854fe9f0b411be5fd8b449eee8124b26e9f7af56691b3623065d3",
+    "scripts/v53/bootstrap_plan_evidence.py": "3581c7211b0b44306809dc4aea9235141acd3a1b37c17651af572f21bb691eae"
+  },
+  "status": "PASS"
+}
