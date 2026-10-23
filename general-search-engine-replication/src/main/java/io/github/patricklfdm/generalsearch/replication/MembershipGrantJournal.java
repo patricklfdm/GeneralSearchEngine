@@ -273,7 +273,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && selector.get("root").equals(root.manifestDigest()) && selector.get("node").equals(identity.nodeId().value()),"covered vote original selector");
         require(Arrays.equals(originals.get("promise.gsr"),vote.promise().bytes()) && Arrays.equals(originals.get("selected.gsr"),vote.selected().bytes())
                 && current.manifest.value().get("selection").equals(vote.selected().digest()) && current.manifest.value().get("promise").equals(vote.promise().digest()),"covered vote original decision changed");
-        MembershipPendingAccept.verify(vote,old.capsule,identity,promises.values(),selections.values());
+        MembershipPendingAccept.verify(vote,old.capsule,originals.get(MembershipSelectionCoverage.FILE),originals.getOrDefault("ancestry.gsr",new byte[0]),identity,promises.values(),selections.values());
         for(var frame:List.of(vote.entry(),vote.accept(),vote.proof(),vote.certificate()))
             require(Arrays.equals(frame.bytes(),current.capsule.packet.objectBytes(frame.digest())),"covered vote missing original phase");
         require(Arrays.equals(vote.payload(),current.capsule.packet.objectBytes((String)vote.entry().value().get("payload")))
@@ -338,7 +338,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         pendingAccept.sealActive(this::checkOwner,cut);
     }
-    /** Actual local first-slot vote. No certificate, application publication or network ACK. */
+    /** Actual local next-slot vote under the immutable original selection. No certificate, application publication or network ACK. */
     synchronized Owned acceptCurrent(Decoded proposed,byte[] payload)throws IOException {
         require(pendingAccept!=null,"pending ACCEPT storage owner required");checkOwner();voteTransactionIdle();
         require(promise!=null && selection!=null && selection.digest().equals(current.manifest.value().get("selection")),"ACCEPT requires installed current selection");
@@ -430,6 +430,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         var selectedOriginals=current.selectedSources();
         var parents=new ArrayList<>(selectedOriginals.isPresent()?MembershipSelectedSources.parents(selectedOriginals.get(),selection,current.capsule,ancestry)
                 :current.capsule.ancestryAnchors(ancestry).values());
+        if(current.coverage().isPresent() && selection!=null && !selection.value().get("cut").equals(current.capsule.context.cut)) {
+            var first=MembershipRoundCoverage.first(current.capsule,current.coverage().orElseThrow(),ancestry,promise,selection);
+            parents.add(first.parent());parents.add(first.end());
+        }
         parents.add(current.capsule.terminal());addFloorParent(parents);
         for(var original:bases.values()) {
             var cap=sources.original(original).packet().capsule().value();
@@ -442,7 +446,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         byte[] ancestry=current.ancestry();var parents=applicationParents(ancestry);String kind=(String)vote.entry().value().get("kind");
         var renewed=MembershipCheckpointPlan.renewalParents(current.capsule,kind,parents,ancestry);
         int groups=MembershipCheckpointPlan.requiredBridges(current.capsule,kind,parents).size();
-        if(groups>6 || renewed.size()>5 || MembershipSelectionCoverage.publicationBytes(vote.selected(),current.capsule.terminal(),renewed)>MembershipSelectionCoverage.MAXIMUM)
+        int bytes=renewed.size()>5?MembershipSelectionCoverage.MAXIMUM+1:current.coverage().isPresent()
+                ?MembershipRoundCoverage.publicationBytes(current.capsule,current.coverage().orElseThrow(),ancestry,vote.promise(),vote.selected(),renewed)
+                :MembershipSelectionCoverage.publicationBytes(vote.selected(),current.capsule.terminal(),renewed);
+        if(groups>6 || renewed.size()>5 || bytes>MembershipSelectionCoverage.MAXIMUM)
             throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,outcome,Optional.empty(),
                     "next publication ancestry/coverage capacity; retain original authority and complete maintenance before new work",null);
     }
@@ -495,7 +502,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         var bound=object(originalPromise.value().get("ballot"));fence(bound);
         var plan=MembershipGenerationPlan.published(root,identity,installed?current.generation:inactive.slot(),originalPromise,originalBasis,originalSelection,
-                applied.plan(),acknowledgements,checkpoints,bridges,current.selectedSources().orElse(null));
+                applied.plan(),acknowledgements,checkpoints,bridges,current.selectedSources().orElse(null),current.capsule,current.coverage().orElse(null),current.ancestry());
         var parents=new ArrayList<MembershipCapsule.Anchor>();parents.add(applied.plan().originalParent());addFloorParent(parents);
         for(var original:bases.values()) {
             var cap=sources.original(original).packet().capsule().value();parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));

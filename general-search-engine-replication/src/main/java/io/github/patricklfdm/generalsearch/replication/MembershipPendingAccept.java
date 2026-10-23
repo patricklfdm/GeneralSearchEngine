@@ -95,10 +95,13 @@ final class MembershipPendingAccept {
         require(length<=buffer.limit()-offset,"pending original record length");byte[] bytes=new byte[length];buffer.position(offset);buffer.get(bytes);
         return MembershipFormat.decode(bytes,"records",kind);
     }
-    static void verify(Vote vote,MembershipCurrentGeneration current,MembershipIdentity local,Collection<Decoded> promises,Collection<Decoded> selections) {
-        verify(vote,current.capsule,local,promises,selections);
+    static void verify(Vote vote,MembershipCurrentGeneration current,MembershipIdentity local,Collection<Decoded> promises,Collection<Decoded> selections)throws IOException {
+        verify(vote,current.capsule,current.coverage().orElse(null),current.ancestry(),local,promises,selections);
     }
     static void verify(Vote vote,MembershipCapsule original,MembershipIdentity local,Collection<Decoded> promises,Collection<Decoded> selections) {
+        verify(vote,original,null,new byte[0],local,promises,selections);
+    }
+    static void verify(Vote vote,MembershipCapsule original,byte[] coverage,byte[] ancestry,MembershipIdentity local,Collection<Decoded> promises,Collection<Decoded> selections) {
         if(vote==null)return;var context=original.context;var e=vote.entry().value();var a=vote.accept().value();
         var s=vote.selected().value();var p=vote.promise().value();
         require(vote.selector().value().get("root").equals(context.root) && vote.selector().value().get("node").equals(local.nodeId().value()),"pending original selector owner");
@@ -107,7 +110,7 @@ final class MembershipPendingAccept {
         require(local.equals(context.identities.get(local.nodeId().value())) && context.voters().contains(local.nodeId().value()),"pending local voter eligibility");
         require(s.get("root").equals(context.root) && p.get("root").equals(context.root)
                 && s.get("view").equals(context.authority()) && p.get("view").equals(context.authority())
-                && s.get("cut").equals(context.cut) && p.get("ballot").equals(s.get("ballot")),"pending original selected parent");
+                && p.get("ballot").equals(s.get("ballot")),"pending original selected parent");
         require(e.get("root").equals(context.root) && a.get("root").equals(context.root)
                 && e.get("authority").equals(context.authority()) && a.get("authority").equals(context.authority())
                 && e.get("previous").equals(context.cut.get("entry")) && number(context.cut.get("index"))<MembershipValidation.MAX
@@ -115,7 +118,12 @@ final class MembershipPendingAccept {
                 && vote.entry().digest().equals(a.get("entry")) && a.get("ballot").equals(p.get("ballot")),"pending entry/ACCEPT binding");
         context.ballot(p.get("ballot"),true);context.ballot(e.get("origin"),true);
         require(compareBallot(object(e.get("origin")),object(a.get("ballot")))<=0,"pending origin exceeds acceptance ballot");
-        require(s.get("nextEntry")==null?e.get("origin").equals(p.get("ballot")):vote.entry().digest().equals(s.get("nextEntry")),"pending entry differs from selected choice/origin");
+        if(s.get("cut").equals(context.cut))
+            require(s.get("nextEntry")==null?e.get("origin").equals(p.get("ballot")):vote.entry().digest().equals(s.get("nextEntry")),"pending entry differs from selected choice/origin");
+        else {
+            MembershipRoundCoverage.first(original,coverage,ancestry,vote.promise(),vote.selected());
+            require(context.view.get("operation")==null && e.get("origin").equals(p.get("ballot")),"pending round continuation authority/origin");
+        }
         require(hash(vote.payload()).equals(e.get("payload")),"pending payload hash");
         context.control((String)e.get("kind"),command((String)e.get("kind"),vote.payload()));
         if(vote.proof()!=null)context.persistedProof(vote.proof(),vote.accept());

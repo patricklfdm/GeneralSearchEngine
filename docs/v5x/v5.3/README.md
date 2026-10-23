@@ -75,11 +75,11 @@ now passes ten repeated-crash cases with independent portable replay.
 now preserves supplemental installation ancestry through twelve fresh ballots and
 reclaims obsolete copies. [Coordinated maintenance process recovery](PHASE_2_MAINTENANCE_LIFETIME.md)
 adds original-request replay across installation, floor, generation/source retirement
-and floor release. Complete lifetime crash/cross-view qualification,
-subsequent same-round slots and maximal resource lifetime remain pending.
-[Bounded same-round proof continuity](PHASE_2_ROUND_COVERAGE.md) now has a private
-conditional component retaining first/current certified slots; storage voting and
-publication still accept only the original first-slot representation.
+and floor release. Complete lifetime crash/cross-view qualification and maximal
+resource lifetime remain pending. [Bounded same-round proof continuity](PHASE_2_ROUND_COVERAGE.md)
+now connects to [actual next-slot storage voting/publication](PHASE_2_ROUND_STORAGE.md),
+retaining original decisions, first/current proofs and exact covered-cleanup recovery.
+Public runtime and complete same-round process qualification remain pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

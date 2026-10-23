@@ -172,6 +172,9 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         result.put(MANIFEST,manifest.bytes());check();return result;
     }
     Map<String,byte[]> images() throws IOException {check();var images=materialize(capsule.packet);capsule.packet.verifyImages(images);return images;}
+    Optional<byte[]> coverage()throws IOException {
+        check();return files.containsKey(MembershipSelectionCoverage.FILE)?Optional.of(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM)):Optional.empty();
+    }
     Optional<String> publishedCertificate()throws IOException {
         check();if(!files.containsKey(MembershipSelectionCoverage.FILE))return Optional.empty();
         var coverage=object(parse(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM),MembershipSelectionCoverage.MAXIMUM));

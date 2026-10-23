@@ -22,8 +22,12 @@ class V53PublicationLifetimeTest {
         final List<Map<String,Object>> rows=new ArrayList<>();
         List<MembershipSelection.Bridge> bridges=List.of();
         long maximumImages,maximumMetadata,maximumStaging;
-        Fixture(Path root)throws Exception {
+        Fixture(Path root)throws Exception {this(root,false);}
+        Fixture(Path root,boolean retainFirst)throws Exception {
             this.root=root;initial=new V53JournalPublicationTest.Fixture(root,0);observations.addAll(initial.observations);
+            if(retainFirst)for(int n:NODES) {
+                Path original=root.resolve("originals/slot-1/node-"+n);Files.createDirectories(original.getParent());V53JournalApplicationTest.copy(node(n),original);
+            }
             for(int n:NODES)try(var store=open(n)){initial.publish(store,n);}
             maintain(null);sample(0);
         }

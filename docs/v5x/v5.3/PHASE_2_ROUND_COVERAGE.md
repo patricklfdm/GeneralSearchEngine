@@ -1,8 +1,6 @@
 # Bounded proof continuity within an original stable round
 
-Status: conditional private proof component. Storage continuation and Phase 2
-remain **OPEN**. The current generation reader still rejects this new component's
-metadata; no vote, writer, public API or READY path is enabled by this batch.
+Status: private proof component, now integrated into the [local storage path](PHASE_2_ROUND_STORAGE.md). Phase 2 and public runtime qualification remain **OPEN**. The original component evidence below describes its earlier, conditional-only revision.
 
 ## Why first-slot coverage is insufficient
 
@@ -68,8 +66,9 @@ existing publication tests. The latter retain all 63 transition/cut projections.
 - Missing first/current phased observations, missing original proof records,
   altered parent/end/selection/certificate, higher substituted ballot, different
   root, stale carried choice, malformed/noncanonical and oversized metadata reject.
-- Existing storage coverage validation rejects this new representation; public
-  runtime and durable same-round voting remain disabled.
+- At that revision, storage coverage validation rejected this new representation.
+  The subsequent storage integration has its own source/build index and evidence.
+  Public runtime remains disabled.
 
 These are conditional in-memory fixtures. They do not claim fresh-process forces,
 maximal payload admission, independent physical replay or production readiness.
@@ -78,7 +77,10 @@ fixture and an incorrect generic `CONTROL` kind in the new component. The latter
 was corrected to the repository's actual concrete command inventory; the frozen
 command and wire catalogs were unchanged.
 
-## Next integration
+## Integration obligations
+
+The [storage integration](PHASE_2_ROUND_STORAGE.md) implements items 1–3 and local
+parts of item 4. Process/crash and maximal lifetime qualification remain open.
 
 1. Admit complete round coverage through selected generation verification without
    replacing legacy first-slot evidence or original selected-source bytes.

@@ -68,6 +68,11 @@ final class MembershipGenerationPlan {
     static MembershipGenerationPlan published(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
             Decoded selected,MembershipCheckpointPlan checkpoint,List<Decoded> acknowledgements,Set<MembershipContext.Owned> observations,
             List<MembershipSelection.Bridge> bridges,byte[] selectedSources) {
+        return published(root,local,slot,promise,basis,selected,checkpoint,acknowledgements,observations,bridges,selectedSources,null,null,new byte[0]);
+    }
+    static MembershipGenerationPlan published(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
+            Decoded selected,MembershipCheckpointPlan checkpoint,List<Decoded> acknowledgements,Set<MembershipContext.Owned> observations,
+            List<MembershipSelection.Bridge> bridges,byte[] selectedSources,MembershipCapsule previous,byte[] coverageBefore,byte[] ancestryBefore) {
         require(Set.of("a","b").contains(slot),"publication generation slot");
         require(basis.kind().equals("BASIS") && basis.value().get("voter").equals(local.nodeId().value())
                 && Objects.equals(basis.value().get("basisId"),promise.value().get("basisId")),"publication original local basis");
@@ -77,8 +82,15 @@ final class MembershipGenerationPlan {
         var capsule=checkpoint.publication(acknowledgements,observations,bridges);
         require(capsule.context.root.equals(root.manifestDigest()) && local.equals(capsule.context.identities.get(local.nodeId().value()))
                 && capsule.context.voters().contains(local.nodeId().value()),"publication local eligible identity");
-        byte[] coverage=MembershipSelectionCoverage.encodeCoverage(selected,checkpoint.originalParent(),checkpoint.originalCertificate(),checkpoint.additionalParents());
-        byte[] ancestry=ancestry(bridges);MembershipSelectionCoverage.verify(coverage,capsule,promise,selected,ancestry);
+        byte[] ancestry=ancestry(bridges),coverage;
+        if(selected.value().get("cut").equals(checkpoint.originalParent().cut()))
+            coverage=MembershipSelectionCoverage.encodeCoverage(selected,checkpoint.originalParent(),checkpoint.originalCertificate(),checkpoint.additionalParents());
+        else {
+            require(previous!=null,"continuation publication requires original predecessor coverage");
+            var round=MembershipRoundCoverage.publish(previous,coverageBefore,ancestryBefore,capsule,ancestry,promise,selected,checkpoint);
+            capsule=round.capsule();coverage=round.coverage();
+        }
+        MembershipSelectionCoverage.verify(coverage,capsule,promise,selected,ancestry);
         var files=new TreeMap<String,byte[]>();files.put("source.gscp",capsule.packet.bytes());files.put("promise.gsr",promise.bytes());
         files.put("basis.gsr",basis.bytes());files.put("selected.gsr",selected.bytes());files.put(MembershipSelectionCoverage.FILE,coverage);
         if(ancestry.length>0)files.put("ancestry.gsr",ancestry);

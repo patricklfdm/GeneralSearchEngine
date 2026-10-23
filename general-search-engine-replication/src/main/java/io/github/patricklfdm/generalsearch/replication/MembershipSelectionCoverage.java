@@ -42,6 +42,7 @@ final class MembershipSelectionCoverage {
     static void verify(byte[] bytes,MembershipCapsule capsule,Decoded promise,Decoded selected,byte[] ancestry) {
         require(promise.kind().equals("PROMISE") && selected.kind().equals("SELECTED"),"publication original record kinds");
         var value=object(parse(bytes,MAXIMUM));
+        if("gse-v53-round-coverage/1.3".equals(value.get("schema"))){MembershipRoundCoverage.verify(bytes,capsule,promise,selected,ancestry);return;}
         require((value.keySet().equals(Set.of("schema","selection","parent","certificate")) || value.keySet().equals(Set.of("schema","selection","parent","certificate","ancestors")))
                 && "gse-v53-selected-coverage/1.3".equals(value.get("schema"))
                 && selected.digest().equals(value.get("selection")) && Arrays.equals(bytes,canonical(value,MAXIMUM)),"publication coverage identity");

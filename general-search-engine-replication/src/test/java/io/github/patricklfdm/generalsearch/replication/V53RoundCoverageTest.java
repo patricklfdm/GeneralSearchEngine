@@ -105,7 +105,7 @@ class V53RoundCoverageTest {
         assertThrows(IllegalArgumentException.class,()->MembershipRoundCoverage.verify(r.coverage,r.capsule,r.promise,r.selected,new byte[0]));
         byte[] spaced=Arrays.copyOf(r.coverage,r.coverage.length+1);spaced[spaced.length-1]=' ';
         assertThrows(ReplicationException.class,()->MembershipRoundCoverage.verify(spaced,r.capsule,r.promise,r.selected,r.ancestry));
-        assertThrows(IllegalArgumentException.class,()->MembershipSelectionCoverage.verify(r.coverage,r.capsule,r.promise,r.selected,r.ancestry),"current storage reader remains first-slot only");
+        assertDoesNotThrow(()->MembershipSelectionCoverage.verify(r.coverage,r.capsule,r.promise,r.selected,r.ancestry));
     }
     @Test void checkpointEndorsementsCannotReplaceEitherOriginalPhasedProof() {
         var r=new Round();for(int i=0;i<4;i++){r.source.commit("BARRIER",null,()->{});r.next(i);}

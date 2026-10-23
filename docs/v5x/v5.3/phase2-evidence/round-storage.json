@@ -1,0 +1,121 @@
+{
+  "applicationSequence": 48,
+  "base": "4dbd5ba17a527d441d8629bb8686ef461454a7e5",
+  "developmentFailures": {
+    "component.log": "new test used nonexistent originalPromise accessor",
+    "replay-development.log": "new replay omitted bootstrap-only prior PROMISE retired by original journal rotation",
+    "replay-projection.log": "new replay compared empty pending slot as if it were immutable authority",
+    "storage.log": "new test counted at most 16 objects, omitting retained first proof/ancestor objects; actual bounded set is 25, no production capacity increase"
+  },
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "687364c3669c485d78c81e2bd626b165c720ac12cdc87797eeb581ae2c424d56",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaExecutions": 31,
+  "javaMethods": 30,
+  "limitations": [
+    "private three-voter small-image storage with conditional bootstrap",
+    "same-JVM injected I/O recovery, no same-round halt/SIGKILL or power-loss claim",
+    "retained bytes do not independently establish force ordering or core image semantics",
+    "maximal payload/cross-view/carried-first-entry storage remains pending",
+    "public runtime disabled"
+  ],
+  "logs": {
+    "component.log": "de176cc8d4151e735364620ccfd0b63d7c0e432f6a0629a1b3ccf6ed96c68ae6",
+    "conflict-regression.log": "d8d8254f4adf9d0cb733e50f250d6af9c6df76366f83edb55683fc684f404286",
+    "qualified.log": "33b2abd182008a3fa484a3605c08f52f566fb7413f45a16361d6a77bd89ff12f",
+    "replay-chain.log": "086a24dff2975357a66b7fd17d0a76cc51519a58d0a7e70387b2f7dd758133a6",
+    "replay-development.log": "d9a09ed2cc9c0573db48f3f850b1f3b079618682851fcba880fc8aa352363dfe",
+    "replay-final-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-final.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-projection.log": "610e3be2d2c0875ae17cc9ee29ef87c1ba74c55199d3139589a451e2df111256",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "storage.log": "9f2f1a5880d3f2687dc59a6920972514a747b36542fac591e077b088fc581188"
+  },
+  "newMethods": 3,
+  "nodePublications": 39,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "protectedCI": false,
+  "raw": {
+    "files": 1963,
+    "indexSha256": "2b9fb5cd100bf0f813b02e17ec015b897ec3fce3aacb94beb05cb1130d9cb4fb",
+    "path": "general-search-engine-replication/target/v53-round-storage/run-57aa33dc-fd68-46e4-830d-5fb4fdcbdcd5"
+  },
+  "replays": {
+    "replay-final": {
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "missing-original-slot",
+        "missing-original-proof",
+        "missing-first-certificate",
+        "changed-first-coverage",
+        "changed-next-coverage",
+        "changed-ancestor-end",
+        "changed-original-source",
+        "missing-peer-end",
+        "retained-old-generation",
+        "retained-covered-vote",
+        "false-ready"
+      ],
+      "nodePublications": 39,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "processForceOrder": false,
+      "sameBallot": true,
+      "slots": 13,
+      "status": "PASS"
+    },
+    "replay-final-optimized": {
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "missing-original-slot",
+        "missing-original-proof",
+        "missing-first-certificate",
+        "changed-first-coverage",
+        "changed-next-coverage",
+        "changed-ancestor-end",
+        "changed-original-source",
+        "missing-peer-end",
+        "retained-old-generation",
+        "retained-covered-vote",
+        "false-ready"
+      ],
+      "nodePublications": 39,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "processForceOrder": false,
+      "sameBallot": true,
+      "slots": 13,
+      "status": "PASS"
+    }
+  },
+  "retainedLocal": "target/v53-round-storage",
+  "sameBallotPublishedSlots": 13,
+  "schema": "gse-v53-round-storage-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java": "c2dded838f061168323ea2f3bab5421dedbd8cf89a47b7bd9bd218509bde8050",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java": "7424cb00161c1829b1c280cc1673be24725bbec857dabae4cb8bffec68f95dd3",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "f9b8f45db89d864b19d6513b065516faaa5ac83bc59112c6a2a7418b3ae121fd",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingAccept.java": "106661fb58ceeac7f81fb99ecfb8100443dc6efaf12c2d90d1d5d52f275db0f4",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundCoverage.java": "96291edb58e3f733c9d6a6530c4c5656cfd7b45680252bddfcc200d84623e278",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectionCoverage.java": "8d0f1ff16d06a3fc205a7d3d23b6775ff7f32af6d4e1f3614750775b3781a695",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationLifetimeTest.java": "aee551858b6eda1fa6b035ea16f72c2ad0fa010552e84edc491e71182400820a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundCoverageTest.java": "e3d249f7777470f6d5f3ef663a85e60b95a0795b75467bcbaf6296fa9153f23d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundStorageTest.java": "d4966755b864da8274b14034a2cda23db514361d86fff2a85a19b072cc14dddd",
+    "scripts/v53/round_storage_evidence.py": "c3f18b2e98c1cf8455454b58fddaa4413b2be029e1ec486e60cef7dd8c685b83"
+  },
+  "sourceInventory": {
+    "path": "target/v53-round-storage/qualified-source-files.json",
+    "sha256": "938cf19a162aef2a14c58ade4f9735a8eba7885957acacd16e80b7ea087c0eaf"
+  },
+  "status": "PASS",
+  "validationScope": [
+    "30-method package then one strengthened valid-conflict regression; other method bodies unchanged",
+    "39 original-first physical publication projections, 11 negatives, portable and optimized replay",
+    "existing 63 transition/cut projections and 100-slot conditional proof regression"
+  ]
+}
