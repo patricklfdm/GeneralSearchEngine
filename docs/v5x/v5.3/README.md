@@ -192,3 +192,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Typed admitted coordinator](PHASE_2_BOOTSTRAP_ADMITTED_COORDINATOR.md): real typed rechecks reserve compact admissions and retained projection together, then open all 24 initial voters.
 
 - [Immutable bootstrap result](PHASE_2_BOOTSTRAP_RESULT_READER.md): read original commit after real local progress while preserving live node locks; current runtime integrity remains a separate owner check.
+
+- [Progressed partial-group resume](PHASE_2_BOOTSTRAP_PROGRESS_RESUME.md): finish unsealed nodes while preserving completed live voters, exact original authority and exclusive unsealed ownership.

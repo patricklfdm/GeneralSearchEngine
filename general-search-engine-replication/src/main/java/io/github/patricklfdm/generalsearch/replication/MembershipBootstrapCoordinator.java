@@ -37,7 +37,7 @@ final class MembershipBootstrapCoordinator {
     static <K,T> MembershipBootstrapResult apply(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
             MembershipBootstrapPlan reviewed,boolean resume,MembershipBallotAllocator.Cut cut)throws IOException {
         Objects.requireNonNull(captured);Objects.requireNonNull(request);Objects.requireNonNull(reviewed);Objects.requireNonNull(cut);
-        return MembershipBootstrapTransaction.applyAdmitted(reviewed,resume,p->metadata(captured,request,p),p->verify(captured,request,p,cut),cut);
+        return MembershipBootstrapTransaction.applyCoordinated(reviewed,resume,p->metadata(captured,request,p),p->verify(captured,request,p,cut),cut);
     }
     /** Initial committed result only. Future public result reading must tolerate
      * legitimate runtime mutations without treating them as bootstrap corruption. */

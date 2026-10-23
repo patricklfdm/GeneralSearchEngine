@@ -1,0 +1,370 @@
+{
+  "base": "f03ca48181c43def753176cf41be115198803907",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-progress-resume/inputs1.json",
+    "sha256": "a46b904aa35e23c7faf7007a34791761846f1571bc45080622dfced110e88cc3"
+  },
+  "compiledMainClasses": {
+    "classes": 700,
+    "path": "target/v53-bootstrap-progress-resume/compiled-main-classes.json",
+    "sha256": "9c601efbdf82775bec0fbed489f608a74faedb0cd534c6df0e77262f3694ff04"
+  },
+  "jars": {
+    "target/v53-bootstrap-progress-resume/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-progress-resume/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "20f400530db9635d476b4a2aca9f97cd119ba8d317287db6bc021c0f6470c46e"
+  },
+  "javaMethods": 26,
+  "limitations": [
+    "new coordinated mode uses repeated exceptions and external lock probes, not typed child-JVM halt/SIGKILL",
+    "completed runtime state belongs to separate storage owner; original completed result is not current readiness",
+    "no public entry, independent typed semantics, power-loss, transferred/maximal lifetime or Phase 2 closure claim"
+  ],
+  "logs": {
+    "admission-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "admission.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coordinator-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coordinator.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "b937adfd8a4746dfa209097e6dca7001a9ca2ff68f78469db123ee575fbfd42e",
+    "transaction-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "transaction.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-progress-resume/producer-classes.json",
+    "sha256": "d7b326d1210f398012daf3e01a87601480f0a046a33204362bd9a1035bc7b644"
+  },
+  "raw": {
+    "admission": {
+      "indexSha256": "7795cfc09b71339a8e9050209a07610fba5a19793a7991d77ab72a9c398ed3ec",
+      "members": 3080,
+      "path": "general-search-engine-replication/target/v53-bootstrap-admission-files/run-b4c992d8-0bff-448e-b686-cf05ffa06613"
+    },
+    "coordinator": {
+      "indexSha256": "ded66b475f6e24eaf4e74a76fbafb55a3b4e3016709b426a0a861670a552f822",
+      "members": 490,
+      "path": "general-search-engine-replication/target/v53-bootstrap-coordinator/run-37ae8bd7-737a-4b4f-8cc2-5aed5c26b161"
+    },
+    "progress": {
+      "indexSha256": "7c18044b91994a93168e7a68d98bd838cef1f29b95cffb86fd5bfacedd5d0005",
+      "members": 1591,
+      "path": "general-search-engine-replication/target/v53-bootstrap-progress-resume/run-de6f1191-57b2-4b39-9a37-2822136cf852"
+    },
+    "transaction": {
+      "indexSha256": "e296b4f177089d8faea9d90fcb25931abafba498d92596ed0a7edf426c0fa93f",
+      "members": 8541,
+      "path": "general-search-engine-replication/target/v53-bootstrap-transaction/run-d54c7167-f433-4319-8a8f-e40940630816"
+    }
+  },
+  "replays": {
+    "admission": {
+      "cases": 21,
+      "freshProcesses": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap admission files case inventory"
+        },
+        {
+          "case": "original-plan",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "first-order",
+          "reason": "bootstrap admission files first force order"
+        },
+        {
+          "case": "second-order",
+          "reason": "bootstrap admission files second force order"
+        },
+        {
+          "case": "resumed-order",
+          "reason": "bootstrap admission files resumed force order"
+        },
+        {
+          "case": "crash",
+          "reason": "bootstrap admission files exact crash bytes"
+        },
+        {
+          "case": "second-crash",
+          "reason": "bootstrap admission files exact second-crash bytes"
+        },
+        {
+          "case": "final",
+          "reason": "bootstrap admission files exact final bytes"
+        },
+        {
+          "case": "lost-other-admission",
+          "reason": "bootstrap admission files exact final bytes"
+        },
+        {
+          "case": "early-admission",
+          "reason": "bootstrap admission files exact crash bytes"
+        },
+        {
+          "case": "scope",
+          "reason": "bootstrap admission files receipt scope"
+        },
+        {
+          "case": "type",
+          "reason": "bootstrap admission files receipt scope"
+        },
+        {
+          "case": "linked-admission",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "privateCommittedTargets": 63,
+      "publicBootstrap": false,
+      "status": "PASS",
+      "typedCoordinator": false
+    },
+    "coordinator": {
+      "admitted": true,
+      "cases": 6,
+      "independentExecutionTrace": false,
+      "independentTypedSemantics": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap recheck case inventory"
+        },
+        {
+          "case": "extra-stage",
+          "reason": "bootstrap recheck case members"
+        },
+        {
+          "case": "extra-projection",
+          "reason": "bootstrap recheck bounded projection"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "bootstrap recheck original source"
+        },
+        {
+          "case": "projection-bytes",
+          "reason": "bootstrap validation exact exported state"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "receipt",
+          "reason": "bootstrap recheck receipt"
+        },
+        {
+          "case": "local-seal",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "final-allocator",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "unknown-final-file",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "underreported-bytes",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "check-type",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "public-claim",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "linked-projection",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "admission-missing",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "admission-foreign",
+          "reason": "bootstrap recheck exact final authority"
+        }
+      ],
+      "portableReplay": "PASS",
+      "publicBootstrap": false,
+      "reportedTypedChecks": 24,
+      "retainedExports": 24,
+      "scope": "private-coordinator-physical-reconciliation",
+      "status": "PASS"
+    },
+    "replay": {
+      "cases": 6,
+      "freshProcesses": false,
+      "independentTypedSemantics": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap progress case inventory"
+        },
+        {
+          "case": "original-plan",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "initial-seal",
+          "reason": "bootstrap progress exact initial authority"
+        },
+        {
+          "case": "before-counter",
+          "reason": "bootstrap progress exact running authority"
+        },
+        {
+          "case": "before-grant",
+          "reason": "bootstrap progress actual grant"
+        },
+        {
+          "case": "second-crash",
+          "reason": "bootstrap progress exact second crash"
+        },
+        {
+          "case": "final-reset",
+          "reason": "bootstrap progress exact final authority"
+        },
+        {
+          "case": "final-admission",
+          "reason": "bootstrap progress exact final authority"
+        },
+        {
+          "case": "first-order",
+          "reason": "bootstrap progress original force order"
+        },
+        {
+          "case": "second-order",
+          "reason": "bootstrap progress second force order"
+        },
+        {
+          "case": "resumed-order",
+          "reason": "bootstrap progress resumed force order"
+        },
+        {
+          "case": "store-order",
+          "reason": "bootstrap progress live grant/counter order"
+        },
+        {
+          "case": "result",
+          "reason": "bootstrap progress exact original result"
+        },
+        {
+          "case": "scope",
+          "reason": "bootstrap progress receipt scope"
+        },
+        {
+          "case": "linked-lock",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "progressedVoters": 6,
+      "publicRuntime": false,
+      "status": "PASS",
+      "targets": 24,
+      "typedCoordinator": true
+    },
+    "transaction": {
+      "cases": 84,
+      "freshProcesses": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap transaction case inventory"
+        },
+        {
+          "case": "original-plan",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "crash",
+          "reason": "bootstrap transaction exact crash bytes"
+        },
+        {
+          "case": "second-crash",
+          "reason": "bootstrap transaction exact second-crash bytes"
+        },
+        {
+          "case": "final",
+          "reason": "bootstrap transaction exact final bytes"
+        },
+        {
+          "case": "first-order",
+          "reason": "bootstrap transaction first force order"
+        },
+        {
+          "case": "second-order",
+          "reason": "bootstrap transaction second force order"
+        },
+        {
+          "case": "resumed-order",
+          "reason": "bootstrap transaction resumed force order"
+        },
+        {
+          "case": "scope",
+          "reason": "bootstrap transaction receipt scope"
+        },
+        {
+          "case": "scope-type",
+          "reason": "bootstrap transaction receipt scope"
+        },
+        {
+          "case": "target-type",
+          "reason": "bootstrap plan derived target inventories"
+        },
+        {
+          "case": "extra-target",
+          "reason": "bootstrap transaction exact final bytes"
+        },
+        {
+          "case": "linked-file",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "privateCommittedTargets": 252,
+      "publicBootstrap": false,
+      "status": "PASS",
+      "typedCodecIndependentlyVerified": false
+    }
+  },
+  "schema": "gse-v53-bootstrap-progress-resume-local-v1",
+  "scope": [
+    "all six actual typed size/source profiles complete remaining seals around a real live first voter after recovery interruption again",
+    "immutable original completed-target metadata guarded; no mutable restore or completed lock descriptor",
+    "lost/altered authority, changed unsealed payloads and active pending-target owners refused; external lock probes retained",
+    "original 84-cut transaction, 21-cut admission and six-profile coordinator current-source regression; 60 normal/optimized/portable evidence negatives"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapCoordinator.java": "d23981458911bf5b15436f4dd82f312e5333f9dd4a9ba97ee1116d91818862c7",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapTransaction.java": "71f2aa4602482df7fd517605b7de910e4ea48e31c48d9514d8c893cf497f3f86",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapProgressResumeTest.java": "dab5746f8ad1edf112e30a54ee0c3c5560f9a843e86d7dd6ebf35d67a06b7389",
+    "scripts/v53/bootstrap_progress_resume_evidence.py": "b4b0b9f9da724d10094125b121aeaa702aa0b5ae8f197aae480a7767368d9725",
+    "scripts/v53/bootstrap_transaction_evidence.py": "708694fff88efcd954f559fb7daf768137104e45d0a02a4ff8500a33af01e65f"
+  },
+  "status": "PASS"
+}

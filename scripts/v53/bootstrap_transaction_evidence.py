@@ -49,9 +49,9 @@ class Interrupted(Exception):pass
 
 
 class Model:
-    def __init__(self,raw,image,*,admission=None):
-        self.admission=admission
-        self.data=derived(raw,image);self.files={'operation/operation.lock':b'','operation/plan.gsbp':raw,'operation/application.image':image};self.dirs={'operation'}
+    def __init__(self,raw,image,*,admission=None,size=3,source="EMPTY",progress=False,typed=False):
+        self.admission=admission;self.progress=progress;self.typed=typed
+        self.data=derived(raw,image,size=size,source=source);self.files={'operation/operation.lock':b'','operation/plan.gsbp':raw,'operation/application.image':image};self.dirs={'operation'}
     def emit(self,event):
         self.events.append(event)
         if event==self.stop:raise Interrupted()
@@ -86,16 +86,19 @@ class Model:
         return self.events
     def _execute(self):
         phase=self.phase();d=self.data
-        if phase==0:self.advance(1);phase=1
+        indices=[i for i in range(len(d['payloads'])) if not (self.progress and phase==4 and f'target-{2*i}/'+SEAL in self.files)]
+        if phase==0:
+            if self.typed:self.emit('BOOTSTRAP_TYPED_RECHECKED')
+            self.advance(1);phase=1
         self.file('operation/'+JOURNAL,self.files['operation/'+JOURNAL],'BOOTSTRAP_RECOVERY_JOURNAL')
-        for i in range(3):
+        for i in indices:
             t=f'target-{2*i}';self.directory(t,f'BOOTSTRAP_TARGET_{i}')
             if t+'/replica.lock' not in self.files:self.file(t+'/replica.lock',b'',f'BOOTSTRAP_LOCK_{i}')
             self.emit(f'BOOTSTRAP_OWNED_{i}')
-        for i in range(3):
+        for i in indices:
             for name in ('generations','generations/a','sources'):self.directory(f'target-{2*i}/'+name,f'BOOTSTRAP_DIRECTORY_{i}_{name}')
         if phase==1:
-            for i in range(3):
+            for i in indices:
                 t=f'target-{2*i}'
                 if t+'/'+PREPARED not in self.files:
                     for name,raw in sorted(d['payloads'][i].items()):self.file(t+'/'+name,raw,f'BOOTSTRAP_PAYLOAD_{i}_{name}')
@@ -103,14 +106,16 @@ class Model:
                 self.file(t+'/'+PREPARED,d['preps'][i],f'BOOTSTRAP_PREPARATION_{i}')
             self.advance(2);phase=2
         if phase>=2:
-            for i in range(3):
+            for i in indices:
                 for name,raw in sorted(d['payloads'][i].items()):self.file(f'target-{2*i}/'+name,raw,f'BOOTSTRAP_RESEAL_{i}_{name}')
                 self.file(f'target-{2*i}/'+PREPARED,d['preps'][i],f'BOOTSTRAP_PREPARATION_RESEAL_{i}')
-        if phase==2:self.advance(3);phase=3
+        if phase==2:
+            if self.typed:self.emit('BOOTSTRAP_TYPED_RECHECKED')
+            self.advance(3);phase=3
         if phase==3:self.publish('operation/'+RECEIPT,'operation/'+PENDING,d['receipt'],'BOOTSTRAP_RECEIPT');self.advance(4)
         if self.admission is not None:
-            for i in range(3):self.file(f'target-{2*i}/bootstrap-admission.gsbp',self.admission,f'BOOTSTRAP_ADMISSION_{i}')
-        for i in range(3):self.publish(f'target-{2*i}/'+SEAL,f'target-{2*i}/'+SEAL_PENDING,d['seals'][i],f'BOOTSTRAP_SEAL_{i}')
+            for i in indices:self.file(f'target-{2*i}/bootstrap-admission.gsbp',self.admission,f'BOOTSTRAP_ADMISSION_{i}')
+        for i in indices:self.publish(f'target-{2*i}/'+SEAL,f'target-{2*i}/'+SEAL_PENDING,d['seals'][i],f'BOOTSTRAP_SEAL_{i}')
         self.emit('BOOTSTRAP_COMMITTED_BEFORE_RETURN')
 
 
