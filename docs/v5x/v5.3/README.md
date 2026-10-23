@@ -156,3 +156,7 @@ same-cut/partial capture and maximal coordinated resource progress remain open.
 The [bounded pending-context component](PHASE_2_PENDING_CONTEXT.md) reconstructs
 exact old generation/vote bytes from a retained source. Owner persistence, repeated
 higher-ballot recovery and all-voter-count lifetime integration remain open.
+
+[Pending-context persistence](PHASE_2_PENDING_CONTEXT_FILES.md) adds bounded
+candidate/active files and 32 repeated-crash component cases. Complete journal
+owner integration and repeated 3/4/5-voter lifetime recovery remain open.

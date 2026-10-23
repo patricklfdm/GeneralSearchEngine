@@ -1,0 +1,174 @@
+{
+  "base": "780db97b45e52d92d8a785411c92165acaf2b1d0",
+  "combinedContextMaximumBytes": 2933600,
+  "compiledInventory": {
+    "path": "target/v53-pending-context-files/qualified-compiled-inputs.json",
+    "sha256": "e829a802b07b18cb87dd4db9b02b7b7abe98f081cff4305fc9719c53a8b173d5"
+  },
+  "development": [
+    "development.log passed 53 tests with exit codes asserted by producer only",
+    "final.log retained: receipt serialization rejected a hyphenated JSON key after process cases; corrected to recoveryFault",
+    "qualified.log passed 53 tests with actual child exit codes retained",
+    "qualified-replay files retain first 21 negatives; strict replay adds rejection of boolean exit code"
+  ],
+  "fileTests": 10,
+  "freshProcesses": 96,
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a81006bbed1bbed5fac209d0f3f46492c8eb60223ff9d7072341b2a58431ff47",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": 53,
+  "limitations": [
+    "conditional historical bootstrap and preauthorized context transition",
+    "file component not admitted by complete journal owner; no source pin/reclaim/fence integration",
+    "Python process replay lacks backing object bodies and does not re-prove protocol authority",
+    "process crash tests do not emulate power loss",
+    "Phase 2 remains open; public runtime disabled; no protected CI or paid cloud"
+  ],
+  "logs": {
+    "development-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development.log": "09dbdd9db0c212f7218bbd47cc4ccc11aa21a4be8981d824533aa49a249c4966",
+    "final.log": "c545ef83a83c96b3c956f1cbef45aeff749ea92cc5987d6b7a580e566134446d",
+    "qualified-replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "qualified-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "qualified.log": "ed303d38961d3e8b91bfd5f20531ec112c5b92a01c65bec52ec46834c3014253",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "strict-replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "strict-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ownerIntegration": false,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "processCases": 32,
+  "protectedCI": false,
+  "raw": {
+    "files": 458,
+    "indexSha256": "9ca5c0ef67cf6f2c8fe526c35246d2f8aaebd3f3dc23b0647ff3f57ec45c6c3c",
+    "path": "general-search-engine-replication/target/v53-pending-context-process/run-5aa9d8c2-5544-42a4-9275-01053aac7f79"
+  },
+  "replays": {
+    "strict-replay": {
+      "backingAuthorityVerified": false,
+      "cases": 32,
+      "crashReturnedSuccess": false,
+      "freshProcesses": 96,
+      "inputContextBytes": [
+        11012,
+        11136
+      ],
+      "negatives": [
+        "bad-first-container",
+        "changed-owner",
+        "missing-case",
+        "unexpected-case",
+        "changed-input-prior",
+        "lost-old-active",
+        "nonprefix-candidate",
+        "premature-active",
+        "lost-recovery-candidate",
+        "bad-final-context",
+        "retained-final-candidate",
+        "changed-store",
+        "missing-force-event",
+        "false-crash-success",
+        "missing-kill-handshake",
+        "false-return-hash",
+        "nonempty-stderr",
+        "false-process-count",
+        "false-owner-authority",
+        "linked-snapshot",
+        "false-child-exit",
+        "boolean-child-exit"
+      ],
+      "originalFirst": true,
+      "osExitCodesVerified": true,
+      "ownerIntegration": false,
+      "physicalBytes": true,
+      "portableInputs": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "processEventOrder": true,
+      "protocolAuthority": "conditional-fixture",
+      "repeatedCrashes": 32,
+      "runtimeEnabled": false,
+      "status": "PASS",
+      "transitions": [
+        "create",
+        "replace",
+        "replay"
+      ]
+    },
+    "strict-replay-optimized": {
+      "backingAuthorityVerified": false,
+      "cases": 32,
+      "crashReturnedSuccess": false,
+      "freshProcesses": 96,
+      "inputContextBytes": [
+        11012,
+        11136
+      ],
+      "negatives": [
+        "bad-first-container",
+        "changed-owner",
+        "missing-case",
+        "unexpected-case",
+        "changed-input-prior",
+        "lost-old-active",
+        "nonprefix-candidate",
+        "premature-active",
+        "lost-recovery-candidate",
+        "bad-final-context",
+        "retained-final-candidate",
+        "changed-store",
+        "missing-force-event",
+        "false-crash-success",
+        "missing-kill-handshake",
+        "false-return-hash",
+        "nonempty-stderr",
+        "false-process-count",
+        "false-owner-authority",
+        "linked-snapshot",
+        "false-child-exit",
+        "boolean-child-exit"
+      ],
+      "originalFirst": true,
+      "osExitCodesVerified": true,
+      "ownerIntegration": false,
+      "physicalBytes": true,
+      "portableInputs": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "processEventOrder": true,
+      "protocolAuthority": "conditional-fixture",
+      "repeatedCrashes": 32,
+      "runtimeEnabled": false,
+      "status": "PASS",
+      "transitions": [
+        "create",
+        "replace",
+        "replay"
+      ]
+    }
+  },
+  "retirementAuthorized": false,
+  "schema": "gse-v53-pending-context-files-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingContext.java": "dba0a892442c7cc4fdb827dd1369fc816bbd2ba45b7c7d2062d2a0f7f23a7755",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingContextFiles.java": "b7dfcafc2ce877d72c21cbfc3d74c1adc7ce58d9bea9b4ab80ec906cd8a96022",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingContextFilesProcess.java": "4d68ff7ec817be3ad691d902f209ea5f6e1ca84f29d29ad2cb02e71d7b860826",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingContextFilesTest.java": "89b5f7f98b591498df8957c779ced41080f76bc3c39f50d9f7818f51a94db41e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingContextFilesWorker.java": "0070ce88788825a0af8c6a747c2b8c9d1629673b70f316f53a650c3e3daed11b",
+    "scripts/v53/pending_context_process_evidence.py": "3ea70b4a45ca7d20d979a5439c82bb9d758b4b425c5129427eae2a78edf4f1c5"
+  },
+  "sourceInventory": {
+    "path": "target/v53-pending-context-files/source-files.json",
+    "sha256": "bac9524b48b40a54617ea95e75ea3721b22e6d5d256937eb9ceb288c3d0db00c"
+  },
+  "status": "PASS",
+  "validationScope": [
+    "exclusive filesystem owner; exact creation/replacement and lost-return reseal",
+    "same old-generation actual ACCEPT/CERT contexts supplied by parent fixture",
+    "shared JOURNAL allowance, exact-prefix and inode/resource checks",
+    "original-first portable replay of 32 repeated-crash file transactions"
+  ]
+}

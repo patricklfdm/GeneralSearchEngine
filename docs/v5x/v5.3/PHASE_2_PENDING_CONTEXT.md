@@ -37,7 +37,8 @@ necessary, and callers must preserve their authenticated original observations.
 
 ## Integration still required
 
-The owner must eventually publish a bounded candidate/active transaction, account
+The [private persistence component](PHASE_2_PENDING_CONTEXT_FILES.md) now supplies
+a qualified candidate/active transaction. The owner must integrate it, account
 for every live/candidate byte inside the existing JOURNAL allowance, recover it
 before verifying detached pending authority, and pin exact source identities.
 Only then may existing floor-authorized storage retirement use it. Higher live
@@ -49,7 +50,8 @@ two generations and two original sources can exceed the seven-image limit.
 Repeated observations and repeated source turnover need a bounded progress path,
 including retention of the old certificate after a new ACCEPT replaces the old
 pending file and until the exact logical entry is published. The component alone
-does not solve those owner/lifetime obligations or provide process-crash evidence.
+does not solve those owner/lifetime obligations. The file component has separate
+process-crash qualification; complete owner integration remains pending.
 
 ## Local qualification
 

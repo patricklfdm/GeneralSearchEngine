@@ -54,6 +54,13 @@ final class MembershipPendingContext {
         return Collections.unmodifiableSortedMap(result);
     }
 
+    /** Syntax and local identity only; does not revalidate backing evidence or authorize persistence. */
+    static void checkOwner(Context context,MembershipRoot root,MembershipIdentity owner) {
+        Objects.requireNonNull(root);Objects.requireNonNull(owner);var binding=validateStructure(context);
+        require(binding.get("root").equals(root.manifestDigest()) && binding.get("node").equals(owner.nodeId().value())
+                && binding.get("storage").equals(owner.storageId().toString()),"pending context root/owner changed");
+    }
+
     static Context create(MembershipRoot root,MembershipIdentity owner,Decoded oldSelector,Map<String,byte[]> originalFiles,
             MembershipPendingAccept.Vote originalVote,Decoded backingPromise,MembershipSelection.Source backing,
             Map<String,byte[]> backingImages,MembershipCurrentGeneration.Verifier verifier) {
