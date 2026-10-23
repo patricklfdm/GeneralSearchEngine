@@ -1,0 +1,121 @@
+{
+  "base": "21f013319f888cedffcc6bb8c93c4f231d31ad92",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-admission/inputs2.json",
+    "sha256": "446bbd1e8f1e9b0e2bc8cc281d58a131e54025e69c8751720ead21d1d9f30dc0"
+  },
+  "jars": {
+    "target/v53-bootstrap-admission/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-admission/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "5702f1c23314cd09aede9f0194268b96c19a0e3a70a20bfdb4da77643d3e8646"
+  },
+  "javaMethods": 15,
+  "limitations": [
+    "pure metadata does not establish durable admission, force, local ownership, typed image semantics or another voter force",
+    "store integration, write/crash/recovery qualification, combined MISC headroom audit and public bootstrap remain pending",
+    "development first compile failed on wildcard-list mutation in the negative test; run2 final tests pass",
+    "no cloud, protected CI, public activation, POM or frozen catalog change; Phase 2 open"
+  ],
+  "logs": {
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "787b4185e6d1fc1ddb105ab266d7e5a5cbf2014f10b2dca5163d150d3628ea00",
+    "run2.log": "500cafb67cdd98e45f8de8b48513bb0aab491fb0668d9a8860f5bc6ce43b906b"
+  },
+  "newJavaMethods": 5,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-admission/producer-classes.json",
+    "sha256": "6622532deafdf723f1c277a43e0de5732e0995db70d807bc4cd4ac71862ae262"
+  },
+  "raw": {
+    "indexSha256": "0653d898e9a0e3b80e1801e3dca5af83d35c41ac1b737bf44af19b4526b2ad51",
+    "members": 403,
+    "path": "general-search-engine-replication/target/v53-bootstrap-admission/run-d6a15600-3f73-47ec-8e50-e291839a6a85"
+  },
+  "replay": {
+    "cases": 6,
+    "maximumAdmissionBytes": 3227,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "bootstrap admission case inventory"
+      },
+      {
+        "case": "extra-case-member",
+        "reason": "bootstrap admission case members"
+      },
+      {
+        "case": "original-image",
+        "reason": "bootstrap original image binding"
+      },
+      {
+        "case": "original-plan",
+        "reason": "bootstrap original plan checksum"
+      },
+      {
+        "case": "prepared",
+        "reason": "bootstrap admission original committed authority"
+      },
+      {
+        "case": "seal",
+        "reason": "bootstrap admission original committed authority"
+      },
+      {
+        "case": "receipt",
+        "reason": "bootstrap admission original committed authority"
+      },
+      {
+        "case": "decision",
+        "reason": "bootstrap admission original committed authority"
+      },
+      {
+        "case": "admission-missing",
+        "reason": "bootstrap admission derived original bytes"
+      },
+      {
+        "case": "admission-checksum",
+        "reason": "bootstrap admission derived original bytes"
+      },
+      {
+        "case": "admission-foreign",
+        "reason": "bootstrap admission derived original bytes"
+      },
+      {
+        "case": "admission-extra",
+        "reason": "bootstrap admission derived original bytes"
+      },
+      {
+        "case": "scope",
+        "reason": "bootstrap admission scope/accounting"
+      },
+      {
+        "case": "accounting",
+        "reason": "bootstrap admission scope/accounting"
+      },
+      {
+        "case": "linked-admission",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "portableReplay": "PASS",
+    "publicBootstrap": false,
+    "scope": "compact-original-metadata-only",
+    "status": "PASS",
+    "storeIntegrated": false,
+    "targets": 24
+  },
+  "schema": "gse-v53-bootstrap-admission-data-local-v1",
+  "scope": [
+    "compact original receipt/COMMITTING/COMMITTED container bound to ROOT/GENESIS/local preparation/seal",
+    "all supported sizes and sources: 24 real committed original targets; derived admission bytes retained separately",
+    "rehashed semantic mismatch refusal, bounded envelopes and escaped 4001-byte absolute parent path",
+    "15 exact original-first negatives, normal/optimized Python and relocated physical replay"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapAdmissionData.java": "9c45f31db507726ccbe16ed66ffe5549458e2b4a86ce98e284aed67b8108a29e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapAdmissionDataTest.java": "92706c7411788930ea303a42fd42570c857c6c5d3345c60c456829e30a658060",
+    "scripts/v53/bootstrap_admission_evidence.py": "aec161dd649fd9efd23e825e233d8d4e7cf833bc9e3b55c8670d5bee06647b65"
+  },
+  "status": "PASS"
+}
