@@ -170,3 +170,7 @@ cases; arbitrary pending-context/source turnover remains open.
 source/configuration reads and all-target image exports to both private transaction
 boundaries. Public admission, bounded scratch recovery and complete-store opening
 remain Phase 2 obligations.
+
+[Bounded read-only bootstrap rechecks](PHASE_2_BOOTSTRAP_RECHECK.md) reuse the original
+planning exports through repeated checks and PREPARED recovery, preserving actual
+typed validation without accumulating new scratch directories.

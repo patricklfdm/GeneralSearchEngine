@@ -1,0 +1,119 @@
+{
+  "base": "6cebcab747aa5ef467d02c8c82a45d330e2531f1",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-recheck/final-inputs.json",
+    "sha256": "893a5f881ff42efecf614e7dcd69325c5a438dc7897a6a5af61921b6c53b849e"
+  },
+  "jars": {
+    "target/v53-bootstrap-recheck/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-recheck/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a55eab6490bb5cd6844f7d9e07c5faae866602875b10a358a385d5b739b323ca"
+  },
+  "javaMethods": 6,
+  "limitations": [
+    "public bootstrap and random history retention/projection-location binding remain pending",
+    "complete-store seal admission/accounting and mutable-store public result reading remain pending",
+    "Python does not establish callback execution, no-write behavior or arbitrary codec semantics",
+    "no new process deaths, power loss, cloud, protected CI, workflow, POM or frozen format change; Phase 2 open"
+  ],
+  "logs": {
+    "development.log": "5c6c867ce8342c0a2cec4018c84daeff5d374430db97a46689d68228cd664ab0",
+    "final.log": "1329f2039615fedb138cc7dfeccb4be1d9888454a6c0d5372077c73fad565d3b",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newJavaMethods": 6,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-recheck/producer-classes.json",
+    "sha256": "cd7f192d4901ad582c6f7ea5dbb3ef752c658aab1efe721b5548c6b8aa8df712"
+  },
+  "raw": {
+    "indexSha256": "12d47434836d67987121e84fbbffa47c502b2782c43112ab41b6533e5a82e642",
+    "members": 466,
+    "path": "general-search-engine-replication/target/v53-bootstrap-recheck/run-bf9a06cf-88ac-4cfb-a6d2-749e9282a5eb"
+  },
+  "replay": {
+    "cases": 6,
+    "independentExecutionTrace": false,
+    "independentTypedSemantics": false,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "bootstrap recheck case inventory"
+      },
+      {
+        "case": "extra-stage",
+        "reason": "bootstrap recheck case members"
+      },
+      {
+        "case": "extra-projection",
+        "reason": "bootstrap recheck bounded projection"
+      },
+      {
+        "case": "source-bytes",
+        "reason": "bootstrap recheck original source"
+      },
+      {
+        "case": "projection-bytes",
+        "reason": "bootstrap validation exact exported state"
+      },
+      {
+        "case": "original-image",
+        "reason": "bootstrap original image binding"
+      },
+      {
+        "case": "receipt",
+        "reason": "bootstrap recheck receipt"
+      },
+      {
+        "case": "local-seal",
+        "reason": "bootstrap recheck exact final authority"
+      },
+      {
+        "case": "final-allocator",
+        "reason": "bootstrap recheck exact final authority"
+      },
+      {
+        "case": "unknown-final-file",
+        "reason": "bootstrap recheck exact final authority"
+      },
+      {
+        "case": "underreported-bytes",
+        "reason": "bootstrap recheck producer scope/accounting"
+      },
+      {
+        "case": "check-type",
+        "reason": "bootstrap recheck producer scope/accounting"
+      },
+      {
+        "case": "public-claim",
+        "reason": "bootstrap recheck producer scope/accounting"
+      },
+      {
+        "case": "linked-projection",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "portableReplay": "PASS",
+    "publicBootstrap": false,
+    "reportedTypedChecks": 24,
+    "retainedExports": 24,
+    "scope": "retained-projection-and-completed-authority",
+    "status": "PASS"
+  },
+  "schema": "gse-v53-bootstrap-recheck-local-v1",
+  "scope": [
+    "all three cardinalities and EMPTY/verified durable backup source",
+    "PREPARED interruption and exact original-plan recovery with read-only typed callbacks",
+    "24 typed checks reuse 24 retained exports with unchanged projection hashes/inodes and authority during callbacks",
+    "missing/corrupt/linked/aliased source/export/config/codec/capacity refusal without repair",
+    "14 exact negatives, complete final physical authority, portable evidence and normal/optimized Python agree"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapRecheck.java": "8fe0e5b704dd231261d47eb71e57435c9566f464a5fb8e008aaabcda69d9df6c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapRecheckTest.java": "8e1106a3dcb6d46e9ab1835c49f9743de4ebd40d2fab20a035ed37f9e718fa8d",
+    "scripts/v53/bootstrap_recheck_evidence.py": "40464a9289d52ba1ca9f85cd27ce04e9817f4d0265a233d1d08df5448412cf00"
+  },
+  "status": "PASS"
+}
