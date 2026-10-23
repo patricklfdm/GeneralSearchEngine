@@ -92,7 +92,9 @@ and original-first negatives remain required.
 This does not establish long-lived bounded progress, same-round continuation,
 public runtime or network behavior, power-loss durability, or the full frozen
 storage/fault inventory. The [dedicated six-to-one pruning process qualification](PHASE_2_ANCESTRY_PRUNING.md)
-now passes separately. Coordinated source/floor retirement remains follow-up work under the
+now passes separately. [Repeated publication and source/floor maintenance](PHASE_2_PUBLICATION_LIFETIME.md)
+now exercises twelve fresh-ballot successors with bounded settled storage. Its
+complete cross-view/crash lifetime qualification remains follow-up work under the
 [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md).
 
 ## Focused local commands

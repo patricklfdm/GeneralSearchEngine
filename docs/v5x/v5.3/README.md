@@ -70,8 +70,11 @@ coverage bytes before accepting new work. [Original selected-source retention](P
 now enables omission of unreferenced ancestry from the next generation while preserving
 the old bytes. Staged applications pin their references, and new votes reserve
 the publication image as well as replay/end space. [Dedicated six-to-one pruning](PHASE_2_ANCESTRY_PRUNING.md)
-now passes ten repeated-crash cases with independent portable replay. Coordinated pruning lifetime, subsequent same-round slots and complete
-resource lifetime remain pending.
+now passes ten repeated-crash cases with independent portable replay.
+[Repeated publication and source/floor maintenance](PHASE_2_PUBLICATION_LIFETIME.md)
+now preserves supplemental installation ancestry through twelve fresh ballots and
+reclaims obsolete copies. Complete lifetime crash/cross-view qualification,
+subsequent same-round slots and maximal resource lifetime remain pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

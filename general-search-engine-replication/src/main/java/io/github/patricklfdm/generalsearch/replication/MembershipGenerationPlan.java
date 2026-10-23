@@ -38,6 +38,26 @@ final class MembershipGenerationPlan {
         for(var bridge:bridges){bytes.writeBytes(bridge.statement.bytes());for(var ack:bridge.acknowledgements)bytes.writeBytes(ack.bytes());}
         require(bytes.size()<=96*1024,"generation ancestry bytes");return bytes.toByteArray();
     }
+    /** Require exactly the missing endpoints of original selected and local retained sources.
+     * Supplemental materialization proofs never participate in choosing a selected set or tail. */
+    static List<MembershipSelection.Bridge> installationBridges(MembershipSelection.Decision decision,
+            List<MembershipSelection.Bridge> selection,List<MembershipSelection.Bridge> retained,Collection<MembershipCapsule.Anchor> local) {
+        require(selection.size()<=6 && retained.size()<=6 && selection.size()+retained.size()<=6,"installation ancestry count");
+        var capsule=decision.longest().capsule;var required=new HashMap<Map<String,Object>,MembershipCapsule.Anchor>();
+        var anchors=new ArrayList<>(local);decision.sources().forEach(s->anchors.add(s.capsule.terminal()));
+        for(var anchor:anchors) {
+            var direct=capsule.anchor(MembershipFormat.number(anchor.cut().get("index")));
+            if(direct!=null){require(direct.equals(anchor),"installation conflicting direct parent");continue;}
+            var previous=required.putIfAbsent(anchor.cut(),anchor);
+            require(previous==null || previous.equals(anchor),"installation conflicting retained parent");
+        }
+        var combined=new ArrayList<>(selection);combined.addAll(retained);var seen=new HashSet<Map<String,Object>>();
+        for(var bridge:combined) {
+            var start=MembershipFormat.object(bridge.statement.value().get("start"));var anchor=required.get(start);
+            require(anchor!=null && seen.add(start),"unused/duplicate installation ancestry");bridge.verify(capsule,anchor);
+        }
+        require(seen.equals(required.keySet()),"missing retained installation ancestry");ancestry(combined);return List.copyOf(combined);
+    }
     /** Complete first-slot materialization. The caller must still own its original journal decision,
      * force the inactive generation/selector, and retire covered state in a separate durable transaction. */
     static MembershipGenerationPlan published(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,

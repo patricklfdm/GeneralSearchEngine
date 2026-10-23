@@ -1,0 +1,105 @@
+{
+  "base": "6b8f75fba19639fb0abb6830de991ca2ac00a26c",
+  "developmentFailures": {
+    "cycles.log": "actual second-cycle integration refused installation ancestry as unused selection ancestry",
+    "integration.log": "new test snapshot parent directory was absent",
+    "late-retry-before.log": "exact completed receipt refused after authorized original-source retirement",
+    "lifetime.log": "new test inventory used paths as restricted JSON object keys; switched to path/hash rows",
+    "qualified.log": "guard was initially inserted at a similarly shaped adoption block; compilation rejected it before tests; moved into exact install context"
+  },
+  "earlierValidation": {
+    "generationInstallMethods": 11,
+    "repeatedLoopExecutions": 2,
+    "source": "supplemental installation implementation before completed-retry refinement",
+    "sourceIndexSha256": "24f2fcdb9abaa2fb1d2bac49e545ab44a94e373670c788f912df0b1f6096c9f3"
+  },
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "85f7c5a5fc72434db1cb44873a66e94cf0ae7d1839bc3b21011ed0ee7c1ccca4",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": 7,
+  "limitations": [
+    "conditional bootstrap",
+    "three stable voters and small images; maximal pressure/cross-view lifetime pending",
+    "ordinary fresh-ballot lifetime executes in one test JVM; no full coordinated process-crash qualification",
+    "snapshot audit does not independently reconstruct intermediate force order or reservation peaks",
+    "same-round continuation, public runtime and frozen Phase 2 inventory remain open"
+  ],
+  "logs": {
+    "audit-final-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit-final.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit-first-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit-first.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit-focused.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "corrected-cycles.log": "25c720bbe5ad3f2f4011a01b6d981463b0d34ac7d1bb05d2fd5bb39d7cfcda3c",
+    "cycles.log": "d966107c19fbc70fde5a99c34ef85535adc137ea2bc6931b52d00d0d844333bb",
+    "final-focused.log": "7103d2876851f2ea7a3fc0493a3d9fdf1ac3af37ec63915906f4afb7c38f4d21",
+    "integration.log": "607efe2675890f21d4b6ab1bda722e1ca05117158bfbd1451e25167852ab53b8",
+    "late-retry-before.log": "2ca1a20f94d13039128d7ce07380b4f324e1ce894c90c55cfb4cad5b026e1106",
+    "lifetime.log": "3faba9b422728e0093e858c5aa8530a51ec12e417a3ab25337734e6020d736a5",
+    "qualified-final.log": "0ce412ff651a70187ea27e31819a15137a829b3b3d1abedf235a936579e3a6b2",
+    "qualified.log": "2fdf326a343b05b99dbd4c663fbf5e035911ed72ec22d9f55b4191f52ee285d0"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerObservedPeaks": {
+    "peakImages": 7,
+    "peakMetadata": 35781328,
+    "peakStaging": 268449712
+  },
+  "protectedCI": false,
+  "raw": {
+    "files": 799,
+    "indexSha256": "c6a657353d35cb19fb1bbc0b35b55714056fe8c728708d9473da369d9c37c8ab",
+    "path": "general-search-engine-replication/target/v53-publication-lifetime/run-f055a922-61ed-4f45-b205-23406ee2c5c9"
+  },
+  "replays": {
+    "audit-final": {
+      "freshBallotSuccessors": 12,
+      "fullCrashQualification": false,
+      "negatives": [
+        "missing-round",
+        "retained-obsolete-source",
+        "missing-original-basis",
+        "altered-generation",
+        "early-cleared-history",
+        "false-scope"
+      ],
+      "nodeSnapshots": 39,
+      "portableReplay": "PASS",
+      "reservationPeaks": "producer-observed-not-independently-reconstructed",
+      "rounds": 13,
+      "settledImagesPerNode": 2,
+      "settledSourcesPerNode": 1,
+      "status": "PASS"
+    },
+    "audit-final-optimized": {
+      "freshBallotSuccessors": 12,
+      "fullCrashQualification": false,
+      "negatives": [
+        "missing-round",
+        "retained-obsolete-source",
+        "missing-original-basis",
+        "altered-generation",
+        "early-cleared-history",
+        "false-scope"
+      ],
+      "nodeSnapshots": 39,
+      "portableReplay": "PASS",
+      "reservationPeaks": "producer-observed-not-independently-reconstructed",
+      "rounds": 13,
+      "settledImagesPerNode": 2,
+      "settledSourcesPerNode": 1,
+      "status": "PASS"
+    }
+  },
+  "retainedLocal": "target/v53-publication-lifetime",
+  "schema": "gse-v53-publication-lifetime-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java": "7e119e93e44ea498f4852e4250b3eb9658bf4bb0a0645504e35af9de84c848d8",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "dc01d2c48badca0e9c75a3456d7f0b64609fd73da1b71a69ba44f7ee6955aa08",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationLifetimeTest.java": "c1a0d7bce9ab061dbd9a3461cf0daa632d296ad55f60158e73e2c7c6e3b33718",
+    "scripts/v53/publication_lifetime_evidence.py": "61ceb125fb0a93487e36dfdc4f1c397fb0e88c6e15a78d63ceea49e332c6a401"
+  },
+  "status": "PASS"
+}

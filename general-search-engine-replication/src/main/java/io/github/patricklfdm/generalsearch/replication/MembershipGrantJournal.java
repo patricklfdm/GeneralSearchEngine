@@ -946,15 +946,23 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Local installation receipt only after every materialized file and selector parent is forced. */
     synchronized Decoded installCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images) throws IOException {
+        return installCurrent(offered,bridges,List.of(),images);
+    }
+    /** Selection ancestry fixes the vote; extra installation ancestry preserves local retained parents only. */
+    synchronized Decoded installCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,
+            List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images) throws IOException {
         require(inactive!=null && selection!=null,"durable selection and generation owner required");floorIdle();
         var selected=decision(offered,bridges);require(Arrays.equals(selection.bytes(),selected.selected().bytes()),"installation differs from original selection");
         var ballot=object(selection.value().get("ballot"));boolean installed=selection.digest().equals(current.manifest.value().get("selection"));
         require(pendingAccept==null || pendingAccept.active()==null || selected.longest().capsule.context.cut.equals(current.capsule.context.cut),"pending ACCEPT requires covered-prefix publication before advancing generation");
-        var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,bridges,images);
         var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
+        // A completed receipt retains its original materialization even after safe source retirement.
+        if(installed)ancestors.addAll(current.capsule.ancestryAnchors(current.ancestry()).values());
         for(var original:bases.values()) {
             var value=sources.original(original).packet().capsule().value();ancestors.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)value.get("catalog"),(String)value.get("application")));
         }
+        var complete=MembershipGenerationPlan.installationBridges(selected,bridges,retainedBridges,ancestors);
+        var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images);
         plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,ancestors);checkOwner();fence(ballot);
         if(installed) {
             require(Arrays.equals(current.manifest.bytes(),plan.manifest.bytes()) && !inactive.pending(),"installed generation differs from original plan");checkOwner();fence(ballot);return current.manifest;
