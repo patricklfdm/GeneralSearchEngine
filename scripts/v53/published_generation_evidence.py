@@ -16,6 +16,7 @@ from .generation_install_evidence import packet_bytes, transaction
 from .journal_application_evidence import inventory
 from .applied_end_evidence import read, digest
 from .membership_model import need
+from .selected_sources_evidence import retained as selected_originals
 
 OPEN = ['CURRENT_VALIDATED', 'CURRENT_FILES_FORCED', 'CURRENT_GENERATION_FORCED', 'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED']
 CUTS = ('INSTALL_MANIFEST_FORCED', 'INSTALL_GENERATION_FORCED', 'INSTALL_SELECTOR_FORCED', 'INSTALL_SELECTOR_RENAMED')
@@ -70,6 +71,7 @@ def plan(original):
     packet = p.decode(source)
     files = {'source.gscp': source, 'promise.gsr': promise_bytes, 'basis.gsr': basis_bytes, 'selected.gsr': selected_bytes, COVERAGE: coverage,
              'ancestry.gsr': ancestry, **{h+'.image': original['generations/a/'+h+'.image'] for h in old['images']}}
+    files.update(selected_originals(original, 'generations/a/'))
     manifest = dict(root=root, node='node-1', generation='b', **{k: packet['capsule'][k] for k in ('cut', 'catalog', 'application')},
                     capsule=digest(packet['capsuleBytes']), promise=digest(promise_bytes), basis=digest(basis_bytes), selection=digest(selected_bytes), ownedTail=None,
                     files=[dict(path=n, size=len(v), sha256=digest(v)) for n, v in sorted(files.items())])
@@ -127,12 +129,18 @@ def validate(root):
 def qualify(root):
     result = validate(root)  # An invalid original may never count as a successful mutation rejection.
     variants = ('changed-decision', 'changed-certificate', 'changed-coverage', 'early-selector', 'missing-force')
+    if (Path(root)/'halt-INSTALL_MANIFEST_FORCED/original/generations/a/selected-sources.gsr').exists():
+        variants += ('missing-original-selected-sources', 'changed-original-selected-sources', 'missing-published-selected-sources', 'changed-published-selected-sources')
     rejected = []
     for variant in variants:
         with tempfile.TemporaryDirectory(prefix='v53-published-negative-') as temp:
             copy = Path(temp)/'evidence'; shutil.copytree(root, copy)
             case = copy/'halt-INSTALL_MANIFEST_FORCED'
-            if variant == 'early-selector':
+            if variant.endswith('selected-sources'):
+                path = case/('original/generations/a' if '-original-' in variant else 'final/generations/b')/'selected-sources.gsr'
+                if variant.startswith('missing-'): path.unlink()
+                else: path.write_bytes(b'changed')
+            elif variant == 'early-selector':
                 (case/'crash/selector.gsr').write_bytes((case/'final/selector.gsr').read_bytes())
             elif variant == 'missing-force':
                 log = case/'resume.stdout'; log.write_text(log.read_text().replace('{"event":"INSTALL_GENERATION_FORCED"}\n', ''))

@@ -42,7 +42,7 @@ class Probe(base.Probe):
             self.call('inspect','inspect');self.snapshot('final')
         finally:
             save(self.directory/'case.json',dict(case=self.case,execution='private-governing-retirement',runtimeEnabled=False,
-                                                historicalOwnershipVerified=False,networkAck=False,processes=self.processes))
+                                                historicalOwnershipVerified=False,networkAck=False,selectedSourceFrames=True,processes=self.processes))
         return e.validate_case(self.directory,self.case)
 
 

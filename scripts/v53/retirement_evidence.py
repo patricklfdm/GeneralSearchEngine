@@ -10,6 +10,7 @@ from . import basis_sources_evidence as s
 from . import grant_evidence as g
 from . import source_packet as p
 from .membership_model import need
+from . import selected_sources_evidence as selected_originals
 
 CUTS=('RETIREMENT_OLD_FILES_FORCED','RETIREMENT_RESERVED','RETIREMENT_CREATED','RETIREMENT_PROPOSAL_WRITTEN',
       'RETIREMENT_PROPOSAL_FORCED','RETIREMENT_SOURCE_CREATED','RETIREMENT_MANIFEST_WRITTEN','RETIREMENT_MANIFEST_FORCED',
@@ -61,7 +62,7 @@ def plan(directory,case,initial_name="initial"):
     peers=[f'node-{i}' for i in range(2,case['size']//2+2)]
     need((directory/'inputs').is_dir() and not (directory/'inputs').is_symlink()
          and {v.name for v in (directory/'inputs').iterdir()}==set(peers),'retirement peer inventory')
-    copies={};references=[];basis_refs=[];original=None;expected_local=None;old_manifest=None
+    copies={};references=[];basis_refs=[];basis_frames=[];original=None;expected_local=None;old_manifest=None
     for ordinal,node in enumerate(['node-1',*peers]):
         owner=initial if ordinal==0 else directory/'inputs'/node
         inventory=s.inventory(owner)
@@ -71,7 +72,7 @@ def plan(directory,case,initial_name="initial"):
         files,manifest,packet=generation(owner/'generations/a',root,node,history,case)
         need(packet['objects'].get(c.sha(values['root.gsr']))==values['root.gsr'],'retirement original root')
         basis=history[2];p.bind(packet,basis[1]);need(basis[2]['accepted'] is None and basis[2]['ballot']==rows[2][2]['ballot'],'retirement original grant')
-        basis_refs.append(dict(voter=node,basisId=basis[2]['basisId'],basisDigest=c.sha(basis[1])))
+        basis_refs.append(dict(voter=node,basisId=basis[2]['basisId'],basisDigest=c.sha(basis[1])));basis_frames.append(basis[1])
         copies[c.sha(files['generation.gsr'])]=files
         references.append(dict(voter=node,generation=c.sha(files['generation.gsr']),catalog=manifest['catalog'],snapshot=manifest['application']))
         expected={n:entry(raw) for n,raw in values.items() if n not in ('node.gsr','allocator.gsr','grants.gsr')}
@@ -96,6 +97,9 @@ def plan(directory,case,initial_name="initial"):
     # Equal complete sources select exactly this packet; rebuild the installed generation.
     active={n:raw for n,raw in original.items() if n!='generation.gsr'}
     active.update({'promise.gsr':rows[1][1],'basis.gsr':rows[2][1],'selected.gsr':selected[1]})
+    if selected_originals.recorded_mode(directory):
+        source_frames=b''.join(basis_frames);selected_originals.cuts(source_frames,selected[2])
+        active[selected_originals.FILE]=source_frames
     manifest=dict(old_manifest,generation='b',promise=c.sha(rows[1][1]),basis=c.sha(rows[2][1]),selection=c.sha(selected[1]),
                   files=[dict(path=n,size=len(raw),sha256=c.sha(raw)) for n,raw in sorted(active.items())])
     active['generation.gsr']=g.f.encode('records','GENERATION',manifest)

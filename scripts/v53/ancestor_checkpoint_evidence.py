@@ -25,10 +25,16 @@ def validate(root):
 
 def qualify(root):
     root = Path(root); result = validate(root); row = json.loads(read(root/'receipt.json'))['cases'][0]; source = root/(row['mode']+'-'+row['cut']); rejected = []
-    for variant in ('missing-original-basis', 'missing-prior-bridge', 'false-current-observation', 'wrong-lower', 'substituted-ack', 'early-ack', 'missing-force', 'changed-coverage', 'changed-ancestry', 'unrelated-delete'):
+    variants = ['missing-original-basis', 'missing-prior-bridge', 'false-current-observation', 'wrong-lower', 'substituted-ack', 'early-ack', 'missing-force', 'changed-coverage', 'changed-ancestry', 'unrelated-delete']
+    if (source/'original/generations/b/selected-sources.gsr').exists(): variants += ['missing-original-selected-sources', 'changed-original-selected-sources', 'missing-published-selected-sources', 'changed-published-selected-sources']
+    for variant in variants:
         with tempfile.TemporaryDirectory(prefix='v53-ancestor-negative-') as temp:
             case = Path(temp)/'case'; shutil.copytree(source, case)
-            if variant == 'missing-original-basis': (case/'original/generations/b/basis.gsr').unlink()
+            if variant.endswith('selected-sources'):
+                path = case/('original/generations/b' if '-original-' in variant else 'final/generations/a')/'selected-sources.gsr'
+                if variant.startswith('missing-'): path.unlink()
+                else: path.write_bytes(b'changed')
+            elif variant == 'missing-original-basis': (case/'original/generations/b/basis.gsr').unlink()
             elif variant == 'missing-prior-bridge': (case/'original/generations/b/ancestry.gsr').write_bytes(b'')
             elif variant == 'false-current-observation':
                 path = case/'observations.json'; data = json.loads(read(path)); data['bridges'] = []; path.write_bytes(canonical(data))

@@ -51,6 +51,14 @@ integration test are actual local owner operations. No new disk-write boundary i
 introduced by the admission projection. This is not public-runtime, network,
 power-loss or maximal-capacity lifetime qualification.
 
+## Subsequent integration
+
+[Original selected-source retention](PHASE_2_SELECTED_SOURCES.md) now permits the
+next generation to omit unreferenced groups using the entire selected set. This
+page and its evidence index describe the earlier conservative admission batch;
+that conservative path remains active for legacy generations without the original
+frames. The frozen resource bounds and early admission refusal are unchanged.
+
 ## Remaining lifetime work
 
 This conservative check closes the known admission gap, but does not reclaim

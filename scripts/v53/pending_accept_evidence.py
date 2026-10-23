@@ -37,7 +37,7 @@ def container(frames,payload):
 def model(root,case):
     original,rows,generation,_=c.current(root/'provisioned',case['size'])
     need([kind for kind,_,_ in rows]==['PROMISE','PROMISE','BASIS','SELECTED'],'pending installed original journal')
-    files,selector,manifest,data=install.plan(root,rows,generation,case)
+    files,selector,manifest,data=install.plan(root,rows,generation,case,install.selected_originals.recorded_mode(root))
     initial=dict(original);initial['generations/b']=dict(directory=True)
     initial.update({'generations/b/'+name:info(raw) for name,raw in files.items()});initial['selector.gsr']=info(selector);initial[ACTIVE]=info(EMPTY)
     need(s.inventory(root/'initial')==initial,'pending initial installation')

@@ -19,6 +19,7 @@ from .journal_application_evidence import inventory, vote
 from .journal_publication_evidence import steps, EMPTY
 from .published_generation_evidence import OPEN, COVERAGE
 from .membership_model import need
+from .selected_sources_evidence import retained as selected_originals
 
 CUTS = ('APPLY_PARENT_STATEMENT_PREFIX_WRITTEN', 'APPLY_PARENT_ACK_PREFIX_WRITTEN', 'APPLY_PARENT_ACK_FORCED',
         'PUBLICATION_SELECTOR_FORCED', 'COVERED_END_FILE_DELETED', 'COVERED_VOTE_PREFIX_WRITTEN')
@@ -111,6 +112,7 @@ def original_plan(root, original, renewal=False):
     packed_ancestry = b''.join(raw+b''.join(group) for raw, group in zip(extra_statements, extra_acks)) + parent_bytes+b''.join(parents)
     files = {'source.gscp': source, 'promise.gsr': frames['PROMISE'], 'basis.gsr': basis_bytes, 'selected.gsr': frames['SELECTED'], COVERAGE: coverage,
              'ancestry.gsr': packed_ancestry, after['application']+'.image': image}
+    files.update(selected_originals(original, 'generations/b/'))
     manifest = dict(root=root_hash, node='node-1', generation='a', **{k: packet['capsule'][k] for k in ('cut', 'catalog', 'application')},
                     capsule=digest(packet['capsuleBytes']), promise=digest(frames['PROMISE']), basis=digest(basis_bytes), selection=digest(frames['SELECTED']), ownedTail=None,
                     files=[dict(path=n, size=len(v), sha256=digest(v)) for n, v in sorted(files.items())])

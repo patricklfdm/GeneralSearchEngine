@@ -37,7 +37,7 @@ class Probe(base.Probe):
             self.call('next','advance');self.snapshot('final')
         finally:
             save(self.directory/'case.json',dict(case=self.case,execution='private-generation-install',runtimeEnabled=False,
-                                                remoteOwnershipVerified=False,networkAck=False,processes=self.processes))
+                                                remoteOwnershipVerified=False,networkAck=False,selectedSourceFrames=True,processes=self.processes))
         return e.validate_case(self.directory,self.case)
 
 

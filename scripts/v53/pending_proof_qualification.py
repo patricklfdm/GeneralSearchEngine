@@ -39,7 +39,7 @@ class Probe(base.Probe):
             self.call('capture','capture');self.call('inspect','inspect');self.snapshot('final')
         finally:
             save(self.directory/'case.json',dict(case=self.case,execution='private-pending-proof',runtimeEnabled=False,
-                                                localVotersVerified=True,networkAck=False,processes=self.processes))
+                                                localVotersVerified=True,networkAck=False,selectedSourceFrames=True,processes=self.processes))
         return e.validate_case(self.directory,self.case)
 
 

@@ -11,6 +11,7 @@ from . import basis_sources_evidence as s
 from . import grant_evidence as g
 from . import source_packet as p
 from .membership_model import need
+from . import selected_sources_evidence as selected_originals
 
 CUTS=('INSTALL_RESERVED','INSTALL_DIRECTORY_CREATED','INSTALL_MANIFEST_WRITTEN','INSTALL_MANIFEST_FORCED',
       'INSTALL_MEMBER_WRITTEN','INSTALL_MEMBER_FORCED','INSTALL_IMAGE_WRITTEN','INSTALL_IMAGE_FORCED',
@@ -32,7 +33,7 @@ def packet_bytes(capsule,objects,images):
     return header+bytes.fromhex(c.sha(header+body))+body
 
 
-def plan(directory,initial_rows,initial_generation,case):
+def plan(directory,initial_rows,initial_generation,case,selected_source_frames=False):
     directory=Path(directory);root=initial_generation['root'];inputs=directory/'inputs';size=case['size']
     promise=next(r for r in initial_rows if r[0]=='PROMISE' and r[2]['ballot']['counter']==20)
     basis=next(r for r in initial_rows if r[0]=='BASIS');selected=next(r for r in initial_rows if r[0]=='SELECTED')
@@ -71,6 +72,9 @@ def plan(directory,initial_rows,initial_generation,case):
     p.bind(data,g.f.encode('records','BASIS',synthetic))
     files={'source.gscp':source,'promise.gsr':promise[1],'basis.gsr':basis[1],'selected.gsr':selected[1],
            **{h+'.image':image_bytes[h] for h in data['images']}}
+    if selected_source_frames:
+        originals=b''.join(raw for raw,_,_ in sources);selected_originals.cuts(originals,selected[2])
+        files[selected_originals.FILE]=originals
     if owned is not None:files['owned-tail.gsr']=objects[owned]
     cap=data['capsule'];manifest=dict(root=root,node='node-1',generation='b',cut=cut,application=cap['application'],catalog=cap['catalog'],
         capsule=c.sha(data['capsuleBytes']),promise=c.sha(promise[1]),basis=c.sha(basis[1]),selection=c.sha(selected[1]),ownedTail=owned,
@@ -123,7 +127,8 @@ def validate_case(directory,case):
     need(record['execution']=='private-generation-install' and record['runtimeEnabled'] is False and record['remoteOwnershipVerified'] is False,'install runtime scope')
     initial,rows,generation,_=c.current(directory/'initial',case['size'])
     need([k for k,_,_ in rows]==['PROMISE','PROMISE','BASIS','SELECTED'] and generation['cut']['index']==0,'install initial authority')
-    files,selector,manifest,data=plan(directory,rows,generation,case);events,writes=transaction(files)
+    frames=record.get('selectedSourceFrames',False);need(type(frames) is bool,'install selected source mode')
+    files,selector,manifest,data=plan(directory,rows,generation,case,frames);events,writes=transaction(files)
     order=list(c.OPEN)+events+list(c.OPEN)+['INSTALL_BEFORE_RETURN'];clean=case['mode']=='clean'
     d.process(directory,record,'init','init',0)
     name='original' if clean else 'resumed'

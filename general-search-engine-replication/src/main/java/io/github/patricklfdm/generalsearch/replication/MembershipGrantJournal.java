@@ -43,6 +43,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipReplayFiles replayFiles;
     private MembershipAppliedEndFiles appliedEnd;
     private int applicationMetadata;
+    private MembershipResources.Lease publicationImage;
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -247,7 +248,14 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata;}
     private void reserveApplicationCompletion() {
-        if(appliedEnd!=null){appliedEnd.reserveCompletion();replayFiles.reserveCompletion();}
+        if(appliedEnd!=null){appliedEnd.reserveCompletion();replayFiles.reserveCompletion();reservePublicationImage();}
+    }
+    private void reservePublicationImage() {
+        if(publicationImage==null && !inactive.reservePublicationImage())
+            publicationImage=resources.reserve(MembershipResources.Unit.APPLICATION,"publication-completion",MembershipResources.Unit.APPLICATION.bytes);
+    }
+    private void releasePublicationImage() {
+        if(publicationImage!=null){publicationImage.close();publicationImage=null;}
     }
     private boolean coveredVote(MembershipPendingAccept.Vote vote)throws IOException {
         return vote!=null && vote.certificate()!=null && current.publishedCertificate().filter(vote.certificate().digest()::equals).isPresent();
@@ -419,19 +427,21 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
 
     private List<MembershipCapsule.Anchor> applicationParents(byte[] ancestry)throws IOException {
-        var parents=new ArrayList<>(current.capsule.ancestryAnchors(ancestry).values());addFloorParent(parents);
+        var selectedOriginals=current.selectedSources();
+        var parents=new ArrayList<>(selectedOriginals.isPresent()?MembershipSelectedSources.parents(selectedOriginals.get(),selection,current.capsule,ancestry)
+                :current.capsule.ancestryAnchors(ancestry).values());
+        parents.add(current.capsule.terminal());addFloorParent(parents);
         for(var original:bases.values()) {
             var cap=sources.original(original).packet().capsule().value();
             parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
         }
         current.verifyParents(parents);return List.copyOf(parents);
     }
-    /** Conservative bound until source/floor-aware pruning is qualified. Never discard old ancestry to admit a vote. */
+    /** Reserve every still-required endpoint, including the whole original selected set, before a new vote. */
     private void publicationCapacity(MembershipPendingAccept.Vote vote,AutomaticReplicationException.Outcome outcome)throws IOException {
         byte[] ancestry=current.ancestry();var parents=applicationParents(ancestry);String kind=(String)vote.entry().value().get("kind");
         var renewed=MembershipCheckpointPlan.renewalParents(current.capsule,kind,parents,ancestry);
-        boolean hidden=!MembershipCheckpointPlan.rangeStart(current.capsule,kind).equals(current.capsule.context.cut);
-        int groups=current.capsule.ancestryAnchors(ancestry).size()+(hidden?1:0);
+        int groups=MembershipCheckpointPlan.requiredBridges(current.capsule,kind,parents).size();
         if(groups>6 || renewed.size()>5 || MembershipSelectionCoverage.publicationBytes(vote.selected(),current.capsule.terminal(),renewed)>MembershipSelectionCoverage.MAXIMUM)
             throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,outcome,Optional.empty(),
                     "next publication ancestry/coverage capacity; retain original authority and complete maintenance before new work",null);
@@ -485,7 +495,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         var bound=object(originalPromise.value().get("ballot"));fence(bound);
         var plan=MembershipGenerationPlan.published(root,identity,installed?current.generation:inactive.slot(),originalPromise,originalBasis,originalSelection,
-                applied.plan(),acknowledgements,checkpoints,bridges);
+                applied.plan(),acknowledgements,checkpoints,bridges,current.selectedSources().orElse(null));
         var parents=new ArrayList<MembershipCapsule.Anchor>();parents.add(applied.plan().originalParent());addFloorParent(parents);
         for(var original:bases.values()) {
             var cap=sources.original(original).packet().capsule().value();parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
@@ -496,6 +506,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         try {
             cut.at("PUBLICATION_VALIDATED");checkOwner();fence(bound);
             if(!installed) {
+                // Transfer the reserved future slot to the actual candidate. Any failure
+                // poisons this owner; reopen counts a written image or reserves the slot again.
+                releasePublicationImage();
                 inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(bound);},current::check,cut);
                 reloadGenerations();cut.at("PUBLICATION_SELECTOR_FORCED");checkOwner();fence(bound);
             }
@@ -546,6 +559,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(floors!=null)require(!floors.pending(),"pending floor must finish before authority changes");
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");
     }
+    /** An interrupted application must reconstruct the same original endpoint plan. */
+    private void applicationReferencesIdle()throws IOException {
+        require(appliedEnd==null || !appliedEnd.present() && !replayFiles.present(),"staged application pins original source/floor references");
+    }
     private void addFloorParent(Collection<MembershipCapsule.Anchor> parents) throws IOException {
         if(floors==null)return;var prior=floors.read();if(prior.isEmpty())return;
         var value=prior.get().value();var first=object(list(value.get("sources")).getFirst());
@@ -553,7 +570,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     synchronized Optional<Decoded> governingFloor() throws IOException {require(floors!=null,"floor storage owner required");checkOwner();return floors.read();}
     synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered) throws IOException {
-        require(floors!=null,"floor storage owner required");rotationIdle();
+        require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");var own=floorCopyCurrent();
         // Validate and reserve before any persistent change; an interrupted transaction
         // may only resume with the same original full copies.
@@ -613,13 +630,15 @@ final class MembershipGrantJournal implements AutoCloseable {
             }
             bindRetirement(record,floor);retirement.checkSaved(record);checkOwner();
             inactive.deleteAuthorized(record,this::checkOwner,cut);
-            require(!inactive.exists(),"retirement original still exists");retirement.clearAfterDeletion(record,this::checkWithoutRetirement,cut);
+            require(!inactive.exists(),"retirement original still exists");
+            if(appliedEnd!=null && pendingAccept.active()!=null)reservePublicationImage();
+            retirement.clearAfterDeletion(record,this::checkWithoutRetirement,cut);
             cut.at("RETIREMENT_BEFORE_RETURN");checkOwner();return Optional.of(record);
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     /** Relinquish a completed old floor only after every inactive generation is gone. */
     synchronized void releaseFloor() throws IOException {
-        require(floorReleaseEnabled && floors!=null && retirement!=null && rotation!=null,"floor release storage owner required");checkOwner();sourceIdle();
+        require(floorReleaseEnabled && floors!=null && retirement!=null && rotation!=null,"floor release storage owner required");checkOwner();applicationReferencesIdle();sourceIdle();
         require(!inactive.exists() && !inactive.pending() && !retirement.pending() && !rotation.pending(),"pending generation/retirement/rotation before floor release");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
         try {
@@ -644,7 +663,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Complete one exact source retirement; all other writer mutations remain blocked. */
     synchronized Decoded retireSource(String id)throws IOException {
-        require(sourceRetirement!=null,"source retirement owner required");checkOwner();require(pendingAccept==null || !pendingAccept.pending(),"pending ACCEPT requires exact original completion");
+        require(sourceRetirement!=null,"source retirement owner required");checkOwner();applicationReferencesIdle();require(pendingAccept==null || !pendingAccept.pending(),"pending ACCEPT requires exact original completion");
         require(!inactive.exists() && !inactive.pending() && !floors.pending() && !retirement.pending(),"pending generation/floor/retirement before source deletion");
         require(promise!=null && (promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest())),"uninstalled adoption fence; prefix recovery required");
         try {
@@ -1049,6 +1068,6 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
     synchronized Optional<Decoded> originalSelection() {live();return Optional.ofNullable(selection);}
     @Override public synchronized void close() throws IOException {
-        if(!closed){closed=true;try{if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
+        if(!closed){closed=true;try{releasePublicationImage();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }
 }

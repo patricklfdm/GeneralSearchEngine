@@ -13,7 +13,8 @@ class V53PublicationAdmissionTest {
     @TempDir Path temp;
     static final class Fixture {
         final Path root;final V53PendingProofFixture f;final V53ApplicationReplayTest application=new V53ApplicationReplayTest();final List<MembershipSelection.Bridge> bridges=new ArrayList<>();
-        Fixture(Path root,int groups)throws Exception {
+        Fixture(Path root,int groups)throws Exception {this(root,groups,false);}
+        Fixture(Path root,int groups,boolean selectedSources)throws Exception {
             this.root=root;Files.createDirectories(root);
             application.temp=root;var source=new V53ContextFixture(3,"ADD",application.initial(41),V53ApplicationImageTest.HISTORY,41);for(int i=0;i<8;i++)source.commit("BARRIER",null,()->{});
             var prefix=new V53CapsuleFixture(source,"ADD",8);
@@ -35,10 +36,11 @@ class V53PublicationAdmissionTest {
             }
             // Provision historical ancestry as a fixture, with exact manifest/selector hashes.
             // New grant, selection, admission and vote persistence above/below use actual owners.
-            if(groups>0)for(int n:f.nodes) {
-                Path path=f.node(root,n).resolve("generations/b");byte[] ancestry=MembershipGenerationPlan.ancestry(bridges);Files.write(path.resolve("ancestry.gsr"),ancestry);
+            if(groups>0 || !selectedSources)for(int n:f.nodes) {
+                Path path=f.node(root,n).resolve("generations/b");byte[] ancestry=MembershipGenerationPlan.ancestry(bridges);if(groups>0)Files.write(path.resolve("ancestry.gsr"),ancestry);
                 var manifest=new TreeMap<>(decode(Files.readAllBytes(path.resolve("generation.gsr")),"records","GENERATION").value());
-                var inventory=new ArrayList<Object>(list(manifest.get("files")));inventory.add(Map.of("path","ancestry.gsr","size",(long)ancestry.length,"sha256",hash(ancestry)));inventory.sort(Comparator.comparing(v->(String)object(v).get("path")));manifest.put("files",inventory);
+                var inventory=new ArrayList<Object>(list(manifest.get("files")));if(groups>0)inventory.add(Map.of("path","ancestry.gsr","size",(long)ancestry.length,"sha256",hash(ancestry)));
+                if(!selectedSources){Files.deleteIfExists(path.resolve(MembershipSelectedSources.FILE));inventory.removeIf(v->object(v).get("path").equals(MembershipSelectedSources.FILE));}inventory.sort(Comparator.comparing(v->(String)object(v).get("path")));manifest.put("files",inventory);
                 byte[] bytes=encode("records","GENERATION",manifest);Files.write(path.resolve("generation.gsr"),bytes);
                 Files.write(f.node(root,n).resolve("selector.gsr"),encode("records","SELECTOR",Map.of("root",source.rootHash,"node","node-"+n,"generation","b","digest",hash(bytes))));
             }

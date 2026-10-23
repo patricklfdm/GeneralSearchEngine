@@ -50,7 +50,7 @@ def generation(path,root,node):
     need(sel['node']==node,'proof selector owner');folder=path/'generations'/sel['generation']
     raw=g.read(folder/'generation.gsr',65536);manifest=g.f.decode(raw,'records','GENERATION',root)
     need(manifest['node']==node and manifest['generation']==sel['generation'] and c.sha(raw)==sel['digest'],'proof generation selector')
-    allowed={'source.gscp','promise.gsr','basis.gsr','selected.gsr','owned-tail.gsr'}
+    allowed={'source.gscp','promise.gsr','basis.gsr','selected.gsr','owned-tail.gsr','selected-sources.gsr'}
     need(all(v['path'] in allowed or len(v['path'])==70 and v['path'].endswith('.image') and all(x in '0123456789abcdef' for x in v['path'][:64]) for v in manifest['files']),'proof generation member path')
     files={v['path']:g.read(folder/v['path'],v['size']) for v in manifest['files']}
     need(manifest['files']==[dict(path=n,size=len(v),sha256=c.sha(v)) for n,v in sorted(files.items())]
@@ -64,6 +64,10 @@ def generation(path,root,node):
 def model(root,case,*,certificate=False):
     initial=root/'installed';nodes=sorted(p.name for p in initial.iterdir());need(len(nodes)==case['size']+(case['through']==6),'proof governing voter count')
     whole=inventory(initial);provision=inventory(root/'provisioned');expected=dict(provision);models={};refs=[]
+    originals=[]
+    for node in nodes:
+        for kind,raw,_ in g.journal(g.read(initial/node/'grants.gsr',g.LIMIT),g.read(initial/node/'root.gsr',16384)[16:48].hex(),node):
+            if kind=='BASIS':originals.append(raw)
     for node in nodes:
         path=initial/node;original=root/'provisioned'/node
         raw=g.read(path/'root.gsr',16384);digest=raw[16:48].hex();identity=g.f.decode(g.read(path/'node.gsr',4096),'records','NODE',digest)['identity']
@@ -86,6 +90,9 @@ def model(root,case,*,certificate=False):
         names={'source.gscp',*[h+'.image' for h in data['images']]}
         need({v.name for v in basisdir.iterdir()}==names and all(g.read(basisdir/n,len(files[n]))==files[n] for n in names),'proof complete frozen source')
         generated={n:files[n] for n in names};generated.update({'promise.gsr':p[1],'basis.gsr':b[1],'selected.gsr':selected[1]})
+        if install.selected_originals.recorded_mode(root):
+            source_frames=b''.join(originals);install.selected_originals.cuts(source_frames,selected[2])
+            generated[install.selected_originals.FILE]=source_frames
         value=dict(root=digest,node=node,generation='b',cut=cap['cut'],application=cap['application'],catalog=cap['catalog'],capsule=c.sha(data['capsuleBytes']),
                    promise=c.sha(p[1]),basis=c.sha(b[1]),selection=c.sha(selected[1]),ownedTail=None,
                    files=[dict(path=n,size=len(v),sha256=c.sha(v)) for n,v in sorted(generated.items())])

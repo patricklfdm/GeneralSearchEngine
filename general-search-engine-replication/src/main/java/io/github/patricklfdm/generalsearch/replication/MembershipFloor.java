@@ -34,7 +34,7 @@ final class MembershipFloor {
             for(Object row:list(value.get("files"))) {
                 var file=object(row);String name=(String)file.get("path");
                 require(name.equals("source.gscp") || name.equals("promise.gsr") || name.equals("basis.gsr") || name.equals("selected.gsr")
-                        || name.equals("owned-tail.gsr") || name.equals("ancestry.gsr") || name.equals(MembershipGenerationPlan.ADOPTION) || name.equals(MembershipSelectionCoverage.FILE)
+                        || name.equals("owned-tail.gsr") || name.equals("ancestry.gsr") || name.equals(MembershipGenerationPlan.ADOPTION) || name.equals(MembershipSelectionCoverage.FILE) || name.equals(MembershipSelectedSources.FILE)
                         || name.matches("[0-9a-f]{64}\\.image"),"floor source member path");
                 require(previous==null || previous.compareTo(name)<0,"floor source inventory order");previous=name;expected.add(name);
                 byte[] bytes=files.get(name);require(bytes!=null && bytes.length>0 && bytes.length<=MembershipGenerationFiles.limit(name) && bytes.length==number(file.get("size")) && hash(bytes).equals(file.get("sha256")),"floor source member bytes");
@@ -52,6 +52,7 @@ final class MembershipFloor {
             if(value.get("selection")!=null){names.add("basis.gsr");names.add("selected.gsr");}
             if(adopted)names.add(MembershipGenerationPlan.ADOPTION);
             if(published)names.add(MembershipSelectionCoverage.FILE);
+            if(value.get("selection")!=null && files.containsKey(MembershipSelectedSources.FILE))names.add(MembershipSelectedSources.FILE);
             if((adopted || value.get("selection")!=null) && files.containsKey("ancestry.gsr"))names.add("ancestry.gsr");
             if(value.get("ownedTail")!=null)names.add("owned-tail.gsr");
             require(names.equals(files.keySet()),"floor materialization inventory");
@@ -73,6 +74,7 @@ final class MembershipFloor {
                         && selected.value().get(field).equals(promise.value().get(field)),"floor selected promise binding");
                 require(basis.value().get("voter").equals(owner.nodeId().value()) && basis.value().get("basisId").equals(promise.value().get("basisId"))
                         && (published || selected.value().get("cut").equals(capsule.context.cut)),"floor selected original owner");
+                if(files.containsKey(MembershipSelectedSources.FILE))MembershipSelectedSources.parents(files.get(MembershipSelectedSources.FILE),selected,capsule,files.getOrDefault("ancestry.gsr",new byte[0]));
                 if(published)MembershipSelectionCoverage.verify(files.get(MembershipSelectionCoverage.FILE),capsule,promise,selected,files.getOrDefault("ancestry.gsr",new byte[0]));
                 var voters=new ArrayList<String>();boolean own=false;
                 for(Object row:list(selected.value().get("sources"))) {

@@ -38,7 +38,14 @@ class V53PublishedGenerationTest {
         MembershipCapsule verify(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images){return MembershipCapsule.verify(root,packet,images,observations);}
         MembershipGenerationPlan plan(){return plan(promise,basis,selected,bridges);}
         MembershipGenerationPlan plan(Decoded p,Decoded b,Decoded s,List<MembershipSelection.Bridge> ancestry) {
-            return MembershipGenerationPlan.published(root(),V53DeclarationsTest.node(1),"b",p,b,s,checkpoint,ends.acks(),ends.owned(),ancestry);
+            // This component fixture also exercises a smaller valid original election.
+            // Preserve precisely its referenced original frames; never rewrite their bytes.
+            var originals=new java.io.ByteArrayOutputStream();
+            for(Object row:list(s.value().get("sources"))) {
+                var ref=object(row);var source=decision.sources().stream().filter(v->v.basis.value().get("voter").equals(ref.get("voter"))).findFirst().orElseThrow();
+                originals.writeBytes(source.basis.bytes());
+            }
+            return MembershipGenerationPlan.published(root(),V53DeclarationsTest.node(1),"b",p,b,s,checkpoint,ends.acks(),ends.owned(),ancestry,originals.toByteArray());
         }
         MembershipCapsule capsule(){return checkpoint.publication(ends.acks(),ends.owned(),bridges);}
         void provision(Path path)throws Exception {
@@ -159,7 +166,7 @@ class V53PublishedGenerationTest {
             Path node=f.f.f.node(root,1),old=node.resolve("generations/b");var promise=read(old,"promise.gsr","PROMISE");var basis=read(old,"basis.gsr","BASIS");var selected=read(old,"selected.gsr","SELECTED");
             var originals=V53ReplayFilesTest.files(node);var observations=new HashSet<>(f.f.f.f.fixture.owned);observations.addAll(f.cohort.owned());observations.addAll(owned);
             MembershipCurrentGeneration.Verifier verifier=(r,p,i)->MembershipCapsule.verify(r,p,i,observations);
-            var plan=MembershipGenerationPlan.published(f.f.f.f.root(),V53DeclarationsTest.node(1),"a",promise,basis,selected,checkpoint,acks,owned,List.of());
+            var plan=MembershipGenerationPlan.published(f.f.f.f.root(),V53DeclarationsTest.node(1),"a",promise,basis,selected,checkpoint,acks,owned,List.of(),Files.readAllBytes(old.resolve(MembershipSelectedSources.FILE)));
             plan.verify(f.f.f.f.fixture.source.root,V53DeclarationsTest.node(1),verifier,List.of(checkpoint.originalParent()));var resources=f.f.f.resources();
             try(var owner=MembershipBallotAllocator.openWithAppliedEnd(node,f.f.f.f.root(),V53DeclarationsTest.node(1),e->{});
                 var current=new MembershipCurrentGeneration(node,f.f.f.f.root(),V53DeclarationsTest.node(1),resources,List.of(promise),List.of(basis),List.of(selected),verifier,e->{},true);

@@ -20,6 +20,7 @@ from .journal_application_evidence import inventory, vote
 from .applied_end_evidence import read, digest, simulate, FILES
 from .published_generation_evidence import OPEN, COVERAGE
 from .membership_model import need
+from .selected_sources_evidence import retained as selected_originals
 
 CUTS = ('INSTALL_MANIFEST_FORCED', 'INSTALL_SELECTOR_FORCED', 'INSTALL_SELECTOR_RENAMED', 'PUBLICATION_SELECTOR_FORCED',
         'COVERED_END_FILE_DELETED', 'COVERED_END_DIRECTORY_DELETED', 'COVERED_VOTE_PREFIX_WRITTEN', 'COVERED_VOTE_RENAMED')
@@ -75,6 +76,7 @@ def original_plan(root, original):
     coverage = f.canonical(dict(schema='gse-v53-selected-coverage/1.3', selection=digest(frames['SELECTED']),
                     parent={k: cap[k] for k in ('cut', 'catalog', 'application')}, certificate=digest(frames['CERTIFICATE'])))
     files = {'source.gscp': source, 'promise.gsr': frames['PROMISE'], 'basis.gsr': basis_bytes, 'selected.gsr': frames['SELECTED'], COVERAGE: coverage, after['application']+'.image': end['application.image']}
+    files.update(selected_originals(original, 'generations/b/'))
     manifest = dict(root=root_hash, node='node-1', generation='a', **{k: packet['capsule'][k] for k in ('cut', 'catalog', 'application')},
                     capsule=digest(packet['capsuleBytes']), promise=digest(frames['PROMISE']), basis=digest(basis_bytes), selection=digest(frames['SELECTED']), ownedTail=None,
                     files=[dict(path=n, size=len(v), sha256=digest(v)) for n, v in sorted(files.items())])

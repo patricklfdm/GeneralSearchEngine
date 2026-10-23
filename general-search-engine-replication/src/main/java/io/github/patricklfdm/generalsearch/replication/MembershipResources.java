@@ -61,8 +61,17 @@ final class MembershipResources {
         require(HEADROOM-protectedUsed<=metadataLimit-metadata,"completion headroom");
     }
     final class Lease implements AutoCloseable {
-        private final Key key; private final long bytes; private boolean released;
+        private final Key key; private long bytes; private boolean released;
         private Lease(Key key,long bytes) { this.key=key;this.bytes=bytes; }
+        /** Increase one existing image reservation in place; never alias two physical files. */
+        void reserveApplicationMaximum() {
+            synchronized(MembershipResources.this) {
+                require(!released && leases.get(key)==this && key.unit==Unit.APPLICATION,"publication image reservation owner");
+                long additional=Unit.APPLICATION.bytes-bytes;
+                require(additional<=stagingLimit-staging,"shared staging capacity");
+                staging+=additional;bytes=Unit.APPLICATION.bytes;
+            }
+        }
         @Override public void close() {
             synchronized(MembershipResources.this) {
                 if(released)return;

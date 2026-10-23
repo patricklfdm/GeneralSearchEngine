@@ -21,6 +21,7 @@ final class MembershipGenerationFiles implements AutoCloseable {
     private FileIdentity pending;
     private boolean exists;
     private String reservedPlan;
+    private MembershipResources.Lease completionImage;
 
     MembershipGenerationFiles(Path parent,String active,MembershipResources resources) throws IOException {
         this.parent=parent;this.resources=resources;slot=active.equals("a")?"b":"a";
@@ -28,6 +29,14 @@ final class MembershipGenerationFiles implements AutoCloseable {
         try{capture();reserve(null);}catch(IOException | RuntimeException | Error error){close();throw error;}
     }
     boolean exists(){return exists;}
+    boolean reservePublicationImage() {
+        if(completionImage==null)return false;
+        completionImage.reserveApplicationMaximum();return true;
+    }
+    private void reserveImage(String owner,long bytes) {
+        var lease=resources.reserve(MembershipResources.Unit.APPLICATION,owner,bytes);leases.add(lease);
+        if(completionImage==null)completionImage=lease;
+    }
     boolean pending(){return pending!=null;}
     String slot(){return slot;}
     boolean incompleteOrSelected(String selected,long currentIndex) throws IOException {
@@ -42,7 +51,7 @@ final class MembershipGenerationFiles implements AutoCloseable {
     static long limit(String name) {
         if(name.matches("[0-9a-f]{64}\\.image"))return MembershipResources.Unit.APPLICATION.bytes;
         return switch(name){case "source.gscp"->MembershipResources.Unit.GENERATION.bytes;case "generation.gsr","selected.gsr"->65536;
-            case "ancestry.gsr"->96*1024;case MembershipSelectionCoverage.FILE->MembershipSelectionCoverage.MAXIMUM;
+            case "ancestry.gsr"->96*1024;case MembershipSelectedSources.FILE->MembershipSelectedSources.MAXIMUM;case MembershipSelectionCoverage.FILE->MembershipSelectionCoverage.MAXIMUM;
             case "basis.gsr","adopted-certificate.gsr"->16384;case "promise.gsr","owned-tail.gsr"->8192;default->throw new IllegalArgumentException("unknown staged generation file");};
     }
     private void capture() throws IOException {
@@ -73,8 +82,8 @@ final class MembershipGenerationFiles implements AutoCloseable {
             long metadata=plan==null?files.entrySet().stream().filter(e->!e.getKey().endsWith(".image")).mapToLong(e->e.getValue().bytes()).sum():plan.metadata;
             leases.add(resources.reserve(MembershipResources.Unit.GENERATION,slot,Math.max(1,metadata)));
             if(plan==null) {
-                for(var file:files.entrySet())if(file.getKey().endsWith(".image"))leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"generation-"+slot+":"+file.getKey(),Math.max(1,file.getValue().bytes())));
-            }else for(var file:plan.files.entrySet())if(file.getKey().endsWith(".image"))leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"generation-"+slot+":"+file.getKey(),file.getValue().length));
+                for(var file:files.entrySet())if(file.getKey().endsWith(".image"))reserveImage("generation-"+slot+":"+file.getKey(),Math.max(1,file.getValue().bytes()));
+            }else for(var file:plan.files.entrySet())if(file.getKey().endsWith(".image"))reserveImage("generation-"+slot+":"+file.getKey(),file.getValue().length);
             reservedPlan=plan==null?null:plan.manifest.digest();
         }catch(RuntimeException | Error error){close();throw error;}
     }
@@ -153,5 +162,5 @@ final class MembershipGenerationFiles implements AutoCloseable {
         }
         AdmissionPaths.exact(file,bytes);capture();
     }
-    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();reservedPlan=null;}
+    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();reservedPlan=null;completionImage=null;}
 }

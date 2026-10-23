@@ -66,7 +66,11 @@ now preserve the immediate original parent hidden by a compacted RANGE.
 [Bounded ancestor renewal](PHASE_2_ANCESTOR_RENEWAL.md) also preserves earlier
 authenticated BASIS/floor endpoints through the new forced end.
 [Publication admission](PHASE_2_PUBLICATION_ADMISSION.md) checks ancestry groups and
-coverage bytes before accepting new work. Safe pruning, subsequent same-round slots and complete resource lifetime remain pending.
+coverage bytes before accepting new work. [Original selected-source retention](PHASE_2_SELECTED_SOURCES.md)
+now enables omission of unreferenced ancestry from the next generation while preserving
+the old bytes. Staged applications pin their references, and new votes reserve
+the publication image as well as replay/end space. Coordinated pruning lifetime, subsequent same-round slots and complete
+resource lifetime remain pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

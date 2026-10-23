@@ -1,0 +1,539 @@
+{
+  "base": "6980fc3730fc8586c9ff97f3dfe07ff96f9f106c",
+  "currentSourceValidation": {
+    "driverCases": 30,
+    "driverFreshJvms": 174,
+    "driverFullMatrix": false,
+    "driverNegatives": 12,
+    "driverPortableCases": 30,
+    "javaLogs": [
+      "qualification.log",
+      "candidate-headroom.log"
+    ],
+    "javaMethods": 22,
+    "publicationNegatives": 8,
+    "publishedCrashCases": 16,
+    "publishedFreshJvms": 48,
+    "pythonFinalFocused": 45,
+    "pythonFinalSelected": 7
+  },
+  "developmentFailures": {
+    "final-integration.log": "two tests exposed publication image headroom missing while floor copies remained; led to pre-ACCEPT reservation and safe handoff",
+    "headroom-before.log": "expected regression: old reservation admitted a new vote without space for its publication image",
+    "integration.log": "one component election fixture supplied full-set frames after selecting a valid smaller subset; corrected exact originals",
+    "maintenance-before-2.log": "two expected failures before maintenance pin guard: floor release was allowed while application staged",
+    "maintenance-before.log": "test requested three floor copies after completion reservations; exceeded unchanged seven-image bound",
+    "pruning-paths.log": "duplicate Java local variable; corrected before qualification"
+  },
+  "earlierValidation": {
+    "ancestorAndComponentSource": "original-frame implementation plus maintenance guard, before publication image headroom",
+    "ancestorCases": 12,
+    "ancestorFreshJvms": 36,
+    "ancestorNegatives": 14,
+    "componentCases": 8,
+    "componentFreshJvms": 24,
+    "componentNegatives": 9,
+    "pythonSuiteBeforeFinalProfileChanges": 377
+  },
+  "historicalDrivers": [
+    {
+      "family": "generation_install",
+      "reason": "no retained clean sample at conventional root",
+      "status": "UNAVAILABLE"
+    },
+    {
+      "family": "pending_accept",
+      "path": "target/v53-pending-accept/qualified/physical/3-false-clean-none",
+      "result": {
+        "case": "3-false-clean-none",
+        "networkAck": false,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "family": "pending_proof",
+      "path": "target/v53-pending-proof/qualified/physical/3-0-clean-none",
+      "result": {
+        "case": "3-0-clean-none",
+        "networkAck": false,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "family": "pending_certificate",
+      "path": "target/v53-pending-certificate/qualified/physical/3-0-clean-none",
+      "result": {
+        "case": "3-0-clean-none",
+        "networkAck": false,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "family": "retirement",
+      "reason": "no retained clean sample at conventional root",
+      "status": "UNAVAILABLE"
+    },
+    {
+      "family": "floor_release",
+      "path": "target/v53-floor-release/draft-probe/3-7-clean-none",
+      "result": {
+        "case": "3-7-clean-none",
+        "networkAck": false,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      },
+      "status": "PASS"
+    }
+  ],
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "da03d00bbfa0cca07211172ac619ae612d8c5fc844d3a882da4680cc487e5c10",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "limitations": [
+    "historical bootstrap/ancestry remains conditional; new local votes, applications, ends and publication are actual",
+    "six-to-one pruning has local owner integration; dedicated pruning process and long-lived coordinated lifetime qualification remain pending",
+    "driver matrix is 30 declared samples, not all historical full gates",
+    "same-round continuation, public runtime, network, power-loss and full frozen Phase 2 inventory remain open"
+  ],
+  "logs": {
+    "ancestor-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-headroom.log": "dc1c6254de9b45e827f753700242e1711706aff12fbcb2a94a3da55bde64b8b9",
+    "contract-final.log": "4394b870008dd3b4dd1943adfa3bd35fa2f8d0beb1b10c0b364a5f45384e0cfa",
+    "contract-finalized.log": "4394b870008dd3b4dd1943adfa3bd35fa2f8d0beb1b10c0b364a5f45384e0cfa",
+    "contract-latest.log": "4394b870008dd3b4dd1943adfa3bd35fa2f8d0beb1b10c0b364a5f45384e0cfa",
+    "contract-precommit.log": "4394b870008dd3b4dd1943adfa3bd35fa2f8d0beb1b10c0b364a5f45384e0cfa",
+    "contract.log": "4394b870008dd3b4dd1943adfa3bd35fa2f8d0beb1b10c0b364a5f45384e0cfa",
+    "driver-replay.log": "c203ab2d4465836cd6ce6922ad5aab4e522a0d99e88314ff34b3fa52d378828d",
+    "driver-samples.log": "2b7c272671e4a79bfd15cfd637d4573613d4d9140c7defe01322a76abf3a22fd",
+    "final-ancestor-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-ancestor-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-integration.log": "9ea5141abb00e634232f549b2d522b7cf980081b66168c3b68d119f5f2e2577a",
+    "final-publication-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "first.log": "80ddd3d5c7a21602efc5146da26385334ca2ff170cd52d244210dc3074bea34c",
+    "headroom-before.log": "9b1c8be055208bc6f0946e2e85608fc6c918f151c231424d2ab39a61f89a854c",
+    "headroom-regression.log": "bb85b6bea69b039d993aedadd4990fed3ed03e74a376eb795309368291a0fce8",
+    "historical-publication-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "integration.log": "8b4e33e471267a67876842320f0f21861536b0ddc790b4b7ab23a1d3880ab658",
+    "maintenance-before-2.log": "d7bc90606591dd6ba704ada0d4257feda4f1fb97015a00e41567728450c53145",
+    "maintenance-before.log": "8b1cd8e320f2e3da2625897d877559a0215e3c21220bd82c9e82370952c71557",
+    "pruning-paths.log": "b37c3267312c14d6326602bcb88cbc264460eb1e0d14768a77978f6583bedc98",
+    "publication-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-all.log": "f5839b529c2619126a4bc768bd5e3bebfd2524d8da5754cfac3639984622554c",
+    "python-final-focused.log": "7e7906348bd1c9bcafaba9bd64660825105a2b5b3c17967ab20c9253e0a9d23a",
+    "python-final-optimized.log": "d92efc4bae48373e7e7c1fc4e41ef5b08f045075c4a0afc2bdc56a3f5a7b8ead",
+    "python-final-selected.log": "55c443882838af1a647fbd8c514e974fa1fc55b0f5546ea5d7e5f0d11fdd0998",
+    "python-focused.log": "efbb8956ab708762706b73115389ded4c72525d106e5fe1f433e3224e440abfc",
+    "python-optimized.log": "411b064165214f12278bd178322b970cd1133d69d4a7bff45758ccbab9e8740d",
+    "qualification.log": "d5d1b2efa36b9cf9ff357087e7d39921e3319e69fe967ee517bd39311454b222",
+    "qualified-journal-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "selected-regression.log": "18f301c529668706a96108ef20e34e2dddc18137001f2754fade0d05f423fd9f"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "protectedCI": false,
+  "raw": {
+    "driver-samples": {
+      "files": 8789,
+      "indexSha256": "98728c1b0bbb1e2db07a393045b96397a309449e82571c13986a92df17405f18",
+      "path": "target/v53-selected-sources/driver-samples"
+    },
+    "journal": {
+      "files": 3063,
+      "indexSha256": "15d3b15d7430e8427074af19d71550f4feea4061a88b7c0c7931e3b175e8bf73",
+      "path": "general-search-engine-replication/target/v53-journal-publication-process/run-e4975e02-cf82-4b58-b896-e8ebc22f5632"
+    },
+    "pre-headroom-ancestor": {
+      "files": 2615,
+      "indexSha256": "57b7f6842b0fbc12a4b04237a58c6f236158183f9278eb98950cef02bdc2a88c",
+      "path": "general-search-engine-replication/target/v53-ancestor-checkpoint-process/run-469f6446-6b7a-46bf-a9a1-d94abee09eb0"
+    },
+    "pre-headroom-generation": {
+      "files": 969,
+      "indexSha256": "ce8b680893396d8f1054379bf6b30b35441320ad1a7e01728936e04e7b6e09ea",
+      "path": "general-search-engine-replication/target/v53-published-generation-process/run-75039221-7d2a-438a-bdac-6f008601b095"
+    }
+  },
+  "replays": {
+    "driver-replay": {
+      "negatives": [
+        {
+          "case": "missing-final-originals",
+          "family": "floor_release",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "downgraded-profile",
+          "family": "floor_release",
+          "reason": "retirement initial physical authority",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-final-originals",
+          "family": "generation_install",
+          "reason": "install physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "downgraded-profile",
+          "family": "generation_install",
+          "reason": "install physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-final-originals",
+          "family": "pending_accept",
+          "reason": "pending exact final capture",
+          "status": "REJECT"
+        },
+        {
+          "case": "downgraded-profile",
+          "family": "pending_accept",
+          "reason": "pending initial installation",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-final-originals",
+          "family": "pending_certificate",
+          "reason": "certificate exact final source",
+          "status": "REJECT"
+        },
+        {
+          "case": "downgraded-profile",
+          "family": "pending_certificate",
+          "reason": "proof exact installed generations",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-final-originals",
+          "family": "pending_proof",
+          "reason": "proof exact final source",
+          "status": "REJECT"
+        },
+        {
+          "case": "downgraded-profile",
+          "family": "pending_proof",
+          "reason": "proof exact installed generations",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-final-originals",
+          "family": "retirement",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "downgraded-profile",
+          "family": "retirement",
+          "reason": "retirement initial physical authority",
+          "status": "REJECT"
+        }
+      ],
+      "portable": [
+        {
+          "case": "3-false-clean-none",
+          "family": "generation_install",
+          "status": "PASS"
+        },
+        {
+          "case": "4-true-clean-none",
+          "family": "generation_install",
+          "status": "PASS"
+        },
+        {
+          "case": "5-true-clean-none",
+          "family": "generation_install",
+          "status": "PASS"
+        },
+        {
+          "case": "3-false-halt-install_manifest_forced",
+          "family": "generation_install",
+          "status": "PASS"
+        },
+        {
+          "case": "3-false-kill-install_manifest_forced",
+          "family": "generation_install",
+          "status": "PASS"
+        },
+        {
+          "case": "3-false-clean-none",
+          "family": "pending_accept",
+          "status": "PASS"
+        },
+        {
+          "case": "4-true-clean-none",
+          "family": "pending_accept",
+          "status": "PASS"
+        },
+        {
+          "case": "5-true-clean-none",
+          "family": "pending_accept",
+          "status": "PASS"
+        },
+        {
+          "case": "3-true-halt-accept_candidate_forced",
+          "family": "pending_accept",
+          "status": "PASS"
+        },
+        {
+          "case": "3-true-kill-accept_candidate_forced",
+          "family": "pending_accept",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-clean-none",
+          "family": "pending_proof",
+          "status": "PASS"
+        },
+        {
+          "case": "4-6-clean-none",
+          "family": "pending_proof",
+          "status": "PASS"
+        },
+        {
+          "case": "5-7-clean-none",
+          "family": "pending_proof",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-halt-proof_candidate_forced",
+          "family": "pending_proof",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-kill-proof_candidate_forced",
+          "family": "pending_proof",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-clean-none",
+          "family": "pending_certificate",
+          "status": "PASS"
+        },
+        {
+          "case": "4-6-clean-none",
+          "family": "pending_certificate",
+          "status": "PASS"
+        },
+        {
+          "case": "5-7-clean-none",
+          "family": "pending_certificate",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-halt-certificate_candidate_forced",
+          "family": "pending_certificate",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-kill-certificate_candidate_forced",
+          "family": "pending_certificate",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-clean-none",
+          "family": "retirement",
+          "status": "PASS"
+        },
+        {
+          "case": "4-6-clean-none",
+          "family": "retirement",
+          "status": "PASS"
+        },
+        {
+          "case": "5-7-clean-none",
+          "family": "retirement",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-halt-retirement_old_files_forced",
+          "family": "retirement",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-kill-retirement_old_files_forced",
+          "family": "retirement",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-clean-none",
+          "family": "floor_release",
+          "status": "PASS"
+        },
+        {
+          "case": "4-6-clean-none",
+          "family": "floor_release",
+          "status": "PASS"
+        },
+        {
+          "case": "5-7-clean-none",
+          "family": "floor_release",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-halt-floor_release_authority_forced",
+          "family": "floor_release",
+          "status": "PASS"
+        },
+        {
+          "case": "3-0-kill-floor_release_authority_forced",
+          "family": "floor_release",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS"
+    },
+    "final-ancestor-optimized": {
+      "cases": 12,
+      "earlierAuthority": "conditional-fixture",
+      "freshJvms": 36,
+      "negatives": [
+        "missing-original-basis",
+        "missing-prior-bridge",
+        "false-current-observation",
+        "wrong-lower",
+        "substituted-ack",
+        "early-ack",
+        "missing-force",
+        "changed-coverage",
+        "changed-ancestry",
+        "unrelated-delete",
+        "missing-original-selected-sources",
+        "changed-original-selected-sources",
+        "missing-published-selected-sources",
+        "changed-published-selected-sources"
+      ],
+      "originalSources": [
+        1,
+        2,
+        4
+      ],
+      "portableReplay": "PASS",
+      "publishedEnd": 5,
+      "renewedGroups": 3,
+      "status": "PASS"
+    },
+    "final-ancestor-replay": {
+      "cases": 12,
+      "earlierAuthority": "conditional-fixture",
+      "freshJvms": 36,
+      "negatives": [
+        "missing-original-basis",
+        "missing-prior-bridge",
+        "false-current-observation",
+        "wrong-lower",
+        "substituted-ack",
+        "early-ack",
+        "missing-force",
+        "changed-coverage",
+        "changed-ancestry",
+        "unrelated-delete",
+        "missing-original-selected-sources",
+        "changed-original-selected-sources",
+        "missing-published-selected-sources",
+        "changed-published-selected-sources"
+      ],
+      "originalSources": [
+        1,
+        2,
+        4
+      ],
+      "portableReplay": "PASS",
+      "publishedEnd": 5,
+      "renewedGroups": 3,
+      "status": "PASS"
+    },
+    "final-publication-replay": {
+      "cases": 8,
+      "freshJvms": 24,
+      "journalPublication": false,
+      "negatives": [
+        "changed-decision",
+        "changed-certificate",
+        "changed-coverage",
+        "early-selector",
+        "missing-force",
+        "missing-original-selected-sources",
+        "changed-original-selected-sources",
+        "missing-published-selected-sources",
+        "changed-published-selected-sources"
+      ],
+      "observations": "conditional-fixture",
+      "portableReplay": "PASS",
+      "projection": "independent-control-reducer",
+      "status": "PASS"
+    },
+    "historical-publication-replay": {
+      "cases": 8,
+      "freshJvms": 24,
+      "journalPublication": false,
+      "negatives": [
+        "changed-decision",
+        "changed-certificate",
+        "changed-coverage",
+        "early-selector",
+        "missing-force"
+      ],
+      "observations": "conditional-fixture",
+      "portableReplay": "PASS",
+      "projection": "independent-control-reducer",
+      "status": "PASS"
+    },
+    "qualified-journal-replay": {
+      "cases": 16,
+      "freshJvms": 48,
+      "negatives": [
+        "missing-vote",
+        "false-observation",
+        "altered-original-end",
+        "changed-coverage",
+        "early-selector",
+        "early-vote-clear",
+        "missing-force",
+        "unrelated-file-deleted"
+      ],
+      "originalObservations": "actual-local-votes-and-ends",
+      "portableReplay": "PASS",
+      "selectorPublication": true,
+      "status": "PASS"
+    }
+  },
+  "retainedLocal": "target/v53-selected-sources",
+  "schema": "gse-v53-selected-sources-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCheckpointPlan.java": "4dc6f6797c6b6664070479dad96a0141b41fd8efd54fdec068deb55035449466",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java": "d5bb752dcbe7b379ade6143add504999804613a6c53bf61273fe9b5c561bf5d6",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloor.java": "25257738575b936e50ef401ae02a8b04aa0537e77d105ba0f06ce0d47a21514e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationFiles.java": "0fea13148739ec33c1dd7626ced2514b2f694cb7558358d657b07c9ed20475b5",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java": "b052d411c616338b3873b0552fa2e8850357efea4885f8be15aecce13267f66b",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "b638f7dc0ed85330de281662c9b6a0a935d48bd7f649ef2fce2d29f736f17a85",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "5d3127fe2f184e14ea0cc260b9235384d3ac021dfe74c47dcda390bc67afd39a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectedSources.java": "a37c71af702c7bf9396b6854fa1aa8d56d7cf899256a82561ba2635e24167794",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationAdmissionTest.java": "f5da660474fde90b693c5baf97c1bddeed14a91e9b4f2b14fcc5175a41c67654",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublishedGenerationTest.java": "8a87b913cf378407f7d0496428e39dec621384e1f169d3e0f77ee5cd7388efa8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SelectedSourcesTest.java": "6908ff380fe9c8652fc572c984faf76a5c822f124acca308e6a41249b4ac0897",
+    "scripts/v53/ancestor_checkpoint_evidence.py": "ad3a342127023beea062a59803ea404dc58db9d6a55a465b1dad355eb864e101",
+    "scripts/v53/floor_release_qualification.py": "12c336798f70ebd5caeffcaeaa778865eddc4b90bce8c340fa75d9eeaa169cf1",
+    "scripts/v53/generation_install_evidence.py": "8c3370bc72972221f10aa69e746b1e01b53aa7462ac87549995b3c6c2727df36",
+    "scripts/v53/generation_install_qualification.py": "b5179196b785f43683fbbe5baf14e403c48b26d26f882cff228c9bab11e4f470",
+    "scripts/v53/journal_publication_evidence.py": "6bf283353e19593a8f7dcd21c5ba56ab88e46ff7e2ad2abda3de12e081a89978",
+    "scripts/v53/parent_checkpoint_evidence.py": "ab6995557710f5b1c9a76475c2121b29c6a1ed52045ff52b2b98891c7873c610",
+    "scripts/v53/pending_accept_evidence.py": "01b8b9170df4d722dd80f7ac4cc4457a6b71fbc1bd193cb85991124fbb68f31a",
+    "scripts/v53/pending_accept_qualification.py": "6ff79f2be636fcda7e5550a4c0f355605e22b715088b4936bf8efca1b5c438c4",
+    "scripts/v53/pending_certificate_qualification.py": "9fa9509a3a39fbbece791f9c8380b92a2e11440bb2b1a2b40f97b4aac94a4f9a",
+    "scripts/v53/pending_proof_evidence.py": "1e1cc6282ffbe0c0ecac6c4a29ee8292b73ebafcc07c685e836d47dba76f818f",
+    "scripts/v53/pending_proof_qualification.py": "b208ca79e6601d4c22d4938866ba8ed093f2cf26441f31266f57be06517d0fee",
+    "scripts/v53/published_generation_evidence.py": "69329ccd529fbef43ada965371877a2ad46fbbde73935ac5714f0555a14f78ed",
+    "scripts/v53/retirement_evidence.py": "8454ff442a86e1eea28bda999c14d6b11c630a0c142c1185be1bdc8f709d1e2d",
+    "scripts/v53/retirement_qualification.py": "410628590bc2a354a4bc52d70c3cc8f9f7f017083cfca217c52924fab7ad4c8d",
+    "scripts/v53/selected_sources_evidence.py": "023ba8cd468cb814c7df637b763db8e3a88a2aa7b172181e9402429d063bda4a",
+    "scripts/v53/test_selected_sources_evidence.py": "e9b56b2e80e733bb978fb5d05580c3cdfba05d7bff6ed0641d81d4e6db574a57"
+  },
+  "status": "PASS"
+}

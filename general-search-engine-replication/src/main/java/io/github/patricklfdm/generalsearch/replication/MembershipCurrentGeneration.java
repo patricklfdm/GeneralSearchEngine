@@ -49,11 +49,11 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         for(Object row:list(value.get("files"))) {
             var file=object(row);String name=(String)file.get("path");
             require(name.equals(PACKET) || name.equals("promise.gsr") || name.equals("owned-tail.gsr") || name.matches("[0-9a-f]{64}\\.image")
-                    || installations && Set.of("basis.gsr","selected.gsr","ancestry.gsr",MembershipGenerationPlan.ADOPTION,MembershipSelectionCoverage.FILE).contains(name),"current file path");
+                    || installations && Set.of("basis.gsr","selected.gsr","ancestry.gsr",MembershipGenerationPlan.ADOPTION,MembershipSelectionCoverage.FILE,MembershipSelectedSources.FILE).contains(name),"current file path");
             require(previous==null || previous.compareTo(name)<0,"current file inventory order");previous=name;inventory.put(name,file);
             long size=number(file.get("size"));long maximum=name.endsWith(".image")?MembershipResources.Unit.APPLICATION.bytes:
                     name.equals(PACKET)?MembershipSourcePacket.MAXIMUM:name.equals("ancestry.gsr")?96*1024:name.equals("selected.gsr")?65536:
-                    name.equals(MembershipSelectionCoverage.FILE)?MembershipSelectionCoverage.MAXIMUM:Set.of("basis.gsr",MembershipGenerationPlan.ADOPTION).contains(name)?16384:8192;
+                    name.equals(MembershipSelectedSources.FILE)?MembershipSelectedSources.MAXIMUM:name.equals(MembershipSelectionCoverage.FILE)?MembershipSelectionCoverage.MAXIMUM:Set.of("basis.gsr",MembershipGenerationPlan.ADOPTION).contains(name)?16384:8192;
             require(size>0 && size<=maximum,"current file capacity");
             if(!name.endsWith(".image")){require(size<=MembershipResources.Unit.GENERATION.bytes-metadata,"complete generation metadata capacity");metadata+=size;}
         }
@@ -79,6 +79,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             var names=new TreeSet<>(Set.of(PACKET,"promise.gsr"));packet.images().keySet().forEach(h->names.add(h+".image"));
             if(value.get("selection")!=null){names.add("basis.gsr");names.add("selected.gsr");}
             if(published)names.add(MembershipSelectionCoverage.FILE);
+            if(value.get("selection")!=null && inventory.containsKey(MembershipSelectedSources.FILE))names.add(MembershipSelectedSources.FILE);
             if(adopted)names.add(MembershipGenerationPlan.ADOPTION);
             if((adopted || value.get("selection")!=null) && inventory.containsKey("ancestry.gsr"))names.add("ancestry.gsr");
             accepted=(String)value.get("ownedTail");if(accepted!=null)names.add("owned-tail.gsr");
@@ -108,6 +109,9 @@ final class MembershipCurrentGeneration implements AutoCloseable {
                 require(installed.digest().equals(value.get("selection")) && selections.stream().anyMatch(s->Arrays.equals(s.bytes(),selectedBytes)),"installed selection absent from journal");
                 for(String field:List.of("root","view","ballot"))require(installed.value().get(field).equals(promise.value().get(field)),"installed selection promise binding");
                 require(basis.value().get("basisId").equals(promise.value().get("basisId")) && (published || installed.value().get("cut").equals(capsule.context.cut)),"installed selection parent");
+                if(inventory.containsKey(MembershipSelectedSources.FILE))MembershipSelectedSources.parents(
+                        AdmissionPaths.read(path.resolve(MembershipSelectedSources.FILE),MembershipSelectedSources.MAXIMUM),installed,capsule,
+                        inventory.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0]);
                 if(published)MembershipSelectionCoverage.verify(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM),
                         capsule,promise,installed,inventory.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0]);
             }
@@ -159,6 +163,9 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         check();capsule.verifyAncestry(ancestry(),parents);check();
     }
     byte[] ancestry()throws IOException {check();return files.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0];}
+    Optional<byte[]> selectedSources()throws IOException {
+        check();return files.containsKey(MembershipSelectedSources.FILE)?Optional.of(AdmissionPaths.read(path.resolve(MembershipSelectedSources.FILE),MembershipSelectedSources.MAXIMUM)):Optional.empty();
+    }
     Map<String,byte[]> copyFiles() throws IOException {
         check();var result=new TreeMap<String,byte[]>();
         for(var file:files.entrySet())result.put(file.getKey(),AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(file.getValue().bytes())));

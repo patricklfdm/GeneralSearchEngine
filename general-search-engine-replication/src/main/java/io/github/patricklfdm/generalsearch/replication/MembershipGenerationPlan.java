@@ -21,6 +21,8 @@ final class MembershipGenerationPlan {
         require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"generation verifier substituted source");
         require(local.equals(capsule.context.identities.get(local.nodeId().value())) && capsule.context.voters().contains(local.nodeId().value()),"installed local eligible identity");
         capsule.verifyAncestry(files.getOrDefault("ancestry.gsr",new byte[0]),ancestors);
+        if(files.containsKey(MembershipSelectedSources.FILE))MembershipSelectedSources.parents(files.get(MembershipSelectedSources.FILE),
+                decode(files.get("selected.gsr"),"records","SELECTED"),capsule,files.getOrDefault("ancestry.gsr",new byte[0]));
         if(files.containsKey(MembershipSelectionCoverage.FILE)) {
             MembershipSelectionCoverage.verify(files.get(MembershipSelectionCoverage.FILE),capsule,
                     decode(files.get("promise.gsr"),"records","PROMISE"),decode(files.get("selected.gsr"),"records","SELECTED"),
@@ -41,6 +43,11 @@ final class MembershipGenerationPlan {
     static MembershipGenerationPlan published(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
             Decoded selected,MembershipCheckpointPlan checkpoint,List<Decoded> acknowledgements,Set<MembershipContext.Owned> observations,
             List<MembershipSelection.Bridge> bridges) {
+        return published(root,local,slot,promise,basis,selected,checkpoint,acknowledgements,observations,bridges,null);
+    }
+    static MembershipGenerationPlan published(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
+            Decoded selected,MembershipCheckpointPlan checkpoint,List<Decoded> acknowledgements,Set<MembershipContext.Owned> observations,
+            List<MembershipSelection.Bridge> bridges,byte[] selectedSources) {
         require(Set.of("a","b").contains(slot),"publication generation slot");
         require(basis.kind().equals("BASIS") && basis.value().get("voter").equals(local.nodeId().value())
                 && Objects.equals(basis.value().get("basisId"),promise.value().get("basisId")),"publication original local basis");
@@ -55,6 +62,10 @@ final class MembershipGenerationPlan {
         var files=new TreeMap<String,byte[]>();files.put("source.gscp",capsule.packet.bytes());files.put("promise.gsr",promise.bytes());
         files.put("basis.gsr",basis.bytes());files.put("selected.gsr",selected.bytes());files.put(MembershipSelectionCoverage.FILE,coverage);
         if(ancestry.length>0)files.put("ancestry.gsr",ancestry);
+        if(selectedSources!=null) {
+            MembershipSelectedSources.parents(selectedSources,selected,capsule,ancestry);
+            files.put(MembershipSelectedSources.FILE,selectedSources.clone());
+        }
         byte[] image=checkpoint.application.image();files.put(hash(image)+".image",image);
         var inventory=new ArrayList<Map<String,Object>>();long metadata=0;
         for(var row:files.entrySet()) {
@@ -107,6 +118,7 @@ final class MembershipGenerationPlan {
         var packet=MembershipSourcePacket.decode(MembershipSourcePacket.encode(decode(encode("records","CAPSULE",capsule),"records","CAPSULE"),objects,original.images()));
         var files=new TreeMap<String,byte[]>();files.put("source.gscp",packet.bytes());files.put("promise.gsr",promise.bytes());
         files.put("basis.gsr",basis.bytes());files.put("selected.gsr",decision.selected().bytes());
+        files.put(MembershipSelectedSources.FILE,MembershipSelectedSources.encodeSources(decision));
         if(tail!=null)files.put("owned-tail.gsr",packet.objectBytes(tail));
         if(!bridges.isEmpty()) {
             var bytes=new ByteArrayOutputStream();
