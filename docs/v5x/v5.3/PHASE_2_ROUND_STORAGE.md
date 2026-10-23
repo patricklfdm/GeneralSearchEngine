@@ -70,8 +70,9 @@ objects. No production capacity was raised to satisfy that assertion.
 
 ## Remaining work
 
-- Same-round fresh-process halt/SIGKILL, including recovery interrupted again,
-  original-first physical force/deletion replay and portable negatives.
+- [Same-round process recovery](PHASE_2_ROUND_PROCESS.md) now adds 22 halt/SIGKILL
+  cases through the third slot, repeated interruption and exact physical replay.
+  Other cross-view and maximal lifetime histories remain open.
 - Actual carried-first-entry and membership-boundary/cross-view storage histories,
   maximal payload/metadata headroom and combined source/floor lifecycle.
 - Complete bootstrap, torn PROMISE recovery and the rest of the

@@ -1,0 +1,166 @@
+{
+  "base": "8d6e1b37b41103bec321b6eb7b1f22cc690da96c",
+  "developmentFailures": {
+    "process.log": "Java passed but independent replay rejected unused conditional fixture observations; physical inputs restricted and full matrix re-executed",
+    "replay.stderr": "original observation provenance rejection retained"
+  },
+  "freshJvms": 88,
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "687364c3669c485d78c81e2bd626b165c720ac12cdc87797eeb581ae2c424d56",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "private three-voter small-image seed at slot 3 with conditional bootstrap",
+    "process crashes do not establish power-loss durability",
+    "maximal payload, carried-first-entry, cross-view and complete storage lifetime remain pending",
+    "public runtime disabled"
+  ],
+  "logs": {
+    "process-owned.log": "ffee1216bf7cf41b1e4a2cfa89b9275d42e6bf0b195a17d582eb4f4ba2f4da3a",
+    "process.log": "983edffd0eb66fd196454226a8d1191877b360ebeb63cc4eb305b7bab64e9157",
+    "replay-owned-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-owned.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-progress.log": "9c6a1a36a25393722f7f7d8e4e079c675f365a6bad9b4fa0cf060c371df7803e",
+    "replay.stderr": "5f12b441f0b1d2aeea6f6f236caeeb6ba945e6a9e1feb99528a896928365f60e",
+    "storage-regression-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "storage-regression.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "processCases": 22,
+  "productionJarsUnchanged": true,
+  "protectedCI": false,
+  "raw": {
+    "files": 3581,
+    "indexSha256": "efd0ce5f407e1aea7de44fd59d75a7b1fafc2d8121b6c06b326ee8dd1e3dae41",
+    "path": "general-search-engine-replication/target/v53-round-process/run-e41cd8bd-5b6c-4d1b-af7f-7df1a86aa614"
+  },
+  "repeatedCrashes": 22,
+  "replays": {
+    "replay-owned": {
+      "cases": 22,
+      "currentSlot": 3,
+      "exactPhasePrefixes": true,
+      "freshJvms": 88,
+      "negatives": [
+        "missing-first-vote",
+        "missing-original-selection",
+        "false-observation",
+        "changed-current-payload",
+        "missing-ancestor-ack",
+        "missing-phase-force",
+        "missing-coverage-force",
+        "early-selector",
+        "early-vote-clear",
+        "changed-first-coverage",
+        "old-generation-deleted",
+        "changed-prefix",
+        "false-crash-cut"
+      ],
+      "originalFirst": true,
+      "originalSelectedCut": 0,
+      "portableInputs": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "repeatedCrashes": 22,
+      "runtimeEnabled": false,
+      "status": "PASS"
+    },
+    "replay-owned-optimized": {
+      "cases": 22,
+      "currentSlot": 3,
+      "exactPhasePrefixes": true,
+      "freshJvms": 88,
+      "negatives": [
+        "missing-first-vote",
+        "missing-original-selection",
+        "false-observation",
+        "changed-current-payload",
+        "missing-ancestor-ack",
+        "missing-phase-force",
+        "missing-coverage-force",
+        "early-selector",
+        "early-vote-clear",
+        "changed-first-coverage",
+        "old-generation-deleted",
+        "changed-prefix",
+        "false-crash-cut"
+      ],
+      "originalFirst": true,
+      "originalSelectedCut": 0,
+      "portableInputs": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "repeatedCrashes": 22,
+      "runtimeEnabled": false,
+      "status": "PASS"
+    },
+    "storage-regression": {
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "missing-original-slot",
+        "missing-original-proof",
+        "missing-first-certificate",
+        "changed-first-coverage",
+        "changed-next-coverage",
+        "changed-ancestor-end",
+        "changed-original-source",
+        "missing-peer-end",
+        "retained-old-generation",
+        "retained-covered-vote",
+        "false-ready"
+      ],
+      "nodePublications": 39,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "processForceOrder": false,
+      "sameBallot": true,
+      "slots": 13,
+      "status": "PASS"
+    },
+    "storage-regression-optimized": {
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "missing-original-slot",
+        "missing-original-proof",
+        "missing-first-certificate",
+        "changed-first-coverage",
+        "changed-next-coverage",
+        "changed-ancestor-end",
+        "changed-original-source",
+        "missing-peer-end",
+        "retained-old-generation",
+        "retained-covered-vote",
+        "false-ready"
+      ],
+      "nodePublications": 39,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "processForceOrder": false,
+      "sameBallot": true,
+      "slots": 13,
+      "status": "PASS"
+    }
+  },
+  "retainedLocal": "target/v53-round-process",
+  "schema": "gse-v53-round-process-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundProcessTest.java": "feb9115040c11910ddc7ef5211b91bdcfaf39f387d37c4fbe7da18792dd75f11",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundProcessWorker.java": "76ec6084e2c44ce5fa9c0b01f42d2224a3e009c9dc6b94774c9e718ac72be195",
+    "scripts/v53/round_process_evidence.py": "df4793fc213f98e90bd656e1581e06ad8f063bd32a79559faf21c0a90429312c",
+    "scripts/v53/round_storage_evidence.py": "8a89b7a22b9b3c2c14566733b3896b6dc3c7dc9fbf938267a67e4c3088094b30"
+  },
+  "sourceInventory": {
+    "path": "target/v53-round-process/qualified-source-files.json",
+    "sha256": "1c0254c996dacf4764d9abfc845a680c0f38e66d9833d94330a7fcb5533c89e8"
+  },
+  "status": "PASS",
+  "validationScope": [
+    "22 fresh-JVM halt/SIGKILL then recovery-halt sequences, completion and exact duplicate",
+    "actual 36 local phase/end observations, exact original-first event/prefix/physical comparison, 13 negatives, portable and optimized replay",
+    "unchanged 39-publication storage replay with 11 negatives and portable/optimized checks"
+  ]
+}

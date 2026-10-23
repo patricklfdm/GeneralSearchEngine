@@ -62,7 +62,7 @@ def current(files):
 def anchor(cap): return {k: cap[k] for k in ('cut', 'catalog', 'application')}
 
 
-def original_slot(root, slot, first, previous):
+def project_slot(root, slot, first, previous):
     originals = {n: inventory(root/'originals'/('slot-'+str(slot))/n) for n in NODES}
     prefix, members, old = current(originals['node-1']); cap = old['capsule']; root_hash = cap['root']
     phase, values = votes(originals['node-1']['pending.accept'], cap['cut']); entry, cert = values['ENTRY'], values['CERTIFICATE']
@@ -87,7 +87,7 @@ def original_slot(root, slot, first, previous):
     raw_statement = f.encode('records', 'CHECKPOINT', statement)
     lowers = [] if slot == 1 else [anchor(cap)] if slot == 2 else [first['end'], anchor(cap)]
     extra = [] if slot <= 2 else [first['end']]
-    identities = {}; end_acks = []; bridge_acks = [[] for _ in lowers]
+    identities = {}; end_acks = []; bridge_acks = [[] for _ in lowers]; end_files = {}
     for n, physical in originals.items():
         pref, local, packet = current(physical); local_phase, local_values = votes(physical['pending.accept'], cap['cut'])
         need(packet['capsuleBytes'] == old['capsuleBytes'] and all(local_phase[k] == phase[k] for k in ('ENTRY', 'ACCEPT', 'PROOF', 'CERTIFICATE', 'PAYLOAD')), 'round original voters agree')
@@ -118,6 +118,7 @@ def original_slot(root, slot, first, previous):
         end['plan.json'] = f.canonical(dict(schema='gse-v53-applied-end/1.3', root=root_hash, node=n,
             files=[dict(path=k, bytes=len(v), sha256=digest(v)) for k, v in sorted(end.items())]))
         need({k.removeprefix('applied-end/'): v for k, v in physical.items() if k.startswith('applied-end/')} == end, 'round exact original forced end')
+        end_files[n] = end
         raw_common = b''.join(originals[v]['generations/'+f.decode(originals[v]['selector.gsr'], 'records', 'SELECTOR')['generation']+'/basis.gsr'] for v in NODES)
         need(local['selected-sources.gsr'] == raw_common, 'round all original selected physical voters')
     majority(cap['cut']['view'], list(identities)); majority(after['cut']['view'], list(identities))
@@ -150,10 +151,16 @@ def original_slot(root, slot, first, previous):
         expected[new_prefix[:-1]] = None; expected.update({new_prefix+k: v for k, v in files.items()})
         if slot == 1: expected['grants.gsr'] = b''.join(raw for _, raw, _ in journal(physical['grants.gsr'], root_hash, n)[1:])
         expected['pending.accept'] = EMPTY; expected['selector.gsr'] = f.encode('records', 'SELECTOR', dict(root=root_hash, node=n, generation=slot_name, digest=digest(files['generation.gsr'])))
-        actual = inventory(root/'snapshots'/('round-0' if slot == 1 else 'slot-'+str(slot))/n)
-        need(actual == expected, 'round exact publication/retirement bytes')
-        need(sum(k.endswith('.image') for k in actual) == 2 and len(objects) <= 25 and len(files[COVERAGE]) <= 4096, 'round bounded physical lifetime')
+        need(sum(k.endswith('.image') for k in expected) == 2 and len(objects) <= 25 and len(files[COVERAGE]) <= 4096, 'round bounded physical lifetime')
         result[n] = expected
+    return first, result, end_files
+
+
+def original_slot(root, slot, first, previous):
+    first, result, _ = project_slot(root, slot, first, previous)
+    for n in NODES:
+        actual = inventory(root/'snapshots'/('round-0' if slot == 1 else 'slot-'+str(slot))/n)
+        need(actual == result[n], 'round exact publication/retirement bytes')
     return first, result
 
 

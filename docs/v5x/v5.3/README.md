@@ -79,7 +79,10 @@ and floor release. Complete lifetime crash/cross-view qualification and maximal
 resource lifetime remain pending. [Bounded same-round proof continuity](PHASE_2_ROUND_COVERAGE.md)
 now connects to [actual next-slot storage voting/publication](PHASE_2_ROUND_STORAGE.md),
 retaining original decisions, first/current proofs and exact covered-cleanup recovery.
-Public runtime and complete same-round process qualification remain pending.
+[Same-round process qualification](PHASE_2_ROUND_PROCESS.md) now covers actual
+phased votes, application/ancestor ACKs, selector switching and covered cleanup
+across 22 repeated-crash cases. Public runtime and complete cross-view/maximal
+lifetime qualification remain pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.
