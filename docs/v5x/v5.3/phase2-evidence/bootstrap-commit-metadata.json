@@ -1,0 +1,207 @@
+{
+  "base": "cc977d8fcf555854a44c20a11fa61082fffc210d",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-commit-metadata/inputs1.json",
+    "sha256": "217a11be15f606ccf819f32803935731c4bbec3232fbe6e4412dfc33a7ae5986"
+  },
+  "fixtureProvenance": {
+    "cases": 6,
+    "evidenceIndexSha256": "c2566d530c904fe3cf26edfc932152e28dbac5f0869a7bad854697a145781d15",
+    "fixture": "general-search-engine-replication/src/test/resources/v53-bootstrap-commit-metadata.json",
+    "originalEvidence": "docs/v5x/v5.3/phase2-evidence/bootstrap-coordinator.json",
+    "originalRaw": "general-search-engine-replication/target/v53-bootstrap-coordinator/run-eda14fef-53c7-4da5-aa12-9631b4a7cf65",
+    "originalRawIndexSha256": "ed6a202f3bb433df71ec08f3d18d6f73ffb56d7446b48b379e0a6412077ba214",
+    "sha256": "9bff350784773607e821b9d83469b8a7f0b50207c1c276969564feb112c7d4c0",
+    "targets": 24
+  },
+  "jars": {
+    "target/v53-bootstrap-commit-metadata/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-commit-metadata/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "512421087319f5106159fd5341f226b87ee7cd63e24876227acaf72e21143c9d"
+  },
+  "javaMethods": 24,
+  "limitations": [
+    "derivation does not prove commit, acquire ownership, admit a voter or access original filesystem paths",
+    "no self-contained local admission publication, complete-store budget/open integration or public bootstrap enabled",
+    "no new process-death, power-loss, cloud, protected CI, POM or frozen format changes; Phase 2 open"
+  ],
+  "logs": {
+    "coordinator-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coordinator.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "88902eeb3203a15b07389035a01823d0cf1b710c3a4c2f684749ebdcd99237d7",
+    "transaction-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "transaction.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newJavaMethods": 5,
+  "originalTargets": 24,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-commit-metadata/producer-classes.json",
+    "sha256": "b7ce2823b306cea8362f6d946212402c0ec07891a7a13e57656f2ef1e8917d4e"
+  },
+  "raw": {
+    "coordinator": {
+      "indexSha256": "526dbee7134d72f2c7424bd6bf860d5898c39402b578c7dfa3e98614f4df7504",
+      "members": 466,
+      "path": "general-search-engine-replication/target/v53-bootstrap-coordinator/run-254785df-5a4e-4479-9c2f-df871442b79f"
+    },
+    "transaction": {
+      "indexSha256": "d8cf5e862548a3010f02ddaec9876cd9fee4b9a6b149ec125fa24d92d9583e12",
+      "members": 8541,
+      "path": "general-search-engine-replication/target/v53-bootstrap-transaction/run-aff487ab-b956-49d1-8b05-ebc3dedcc443"
+    }
+  },
+  "replays": {
+    "coordinator": {
+      "cases": 6,
+      "independentExecutionTrace": false,
+      "independentTypedSemantics": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap recheck case inventory"
+        },
+        {
+          "case": "extra-stage",
+          "reason": "bootstrap recheck case members"
+        },
+        {
+          "case": "extra-projection",
+          "reason": "bootstrap recheck bounded projection"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "bootstrap recheck original source"
+        },
+        {
+          "case": "projection-bytes",
+          "reason": "bootstrap validation exact exported state"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "receipt",
+          "reason": "bootstrap recheck receipt"
+        },
+        {
+          "case": "local-seal",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "final-allocator",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "unknown-final-file",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "underreported-bytes",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "check-type",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "public-claim",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "linked-projection",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "portableReplay": "PASS",
+      "publicBootstrap": false,
+      "reportedTypedChecks": 24,
+      "retainedExports": 24,
+      "scope": "private-coordinator-physical-reconciliation",
+      "status": "PASS"
+    },
+    "transaction": {
+      "cases": 84,
+      "freshProcesses": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap transaction case inventory"
+        },
+        {
+          "case": "original-plan",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "crash",
+          "reason": "bootstrap transaction exact crash bytes"
+        },
+        {
+          "case": "second-crash",
+          "reason": "bootstrap transaction exact second-crash bytes"
+        },
+        {
+          "case": "final",
+          "reason": "bootstrap transaction exact final bytes"
+        },
+        {
+          "case": "first-order",
+          "reason": "bootstrap transaction first force order"
+        },
+        {
+          "case": "second-order",
+          "reason": "bootstrap transaction second force order"
+        },
+        {
+          "case": "resumed-order",
+          "reason": "bootstrap transaction resumed force order"
+        },
+        {
+          "case": "scope",
+          "reason": "bootstrap transaction receipt scope"
+        },
+        {
+          "case": "scope-type",
+          "reason": "bootstrap transaction receipt scope"
+        },
+        {
+          "case": "target-type",
+          "reason": "bootstrap plan derived target inventories"
+        },
+        {
+          "case": "extra-target",
+          "reason": "bootstrap transaction exact final bytes"
+        },
+        {
+          "case": "linked-file",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "privateCommittedTargets": 252,
+      "publicBootstrap": false,
+      "status": "PASS",
+      "typedCodecIndependentlyVerified": false
+    }
+  },
+  "schema": "gse-v53-bootstrap-commit-metadata-local-v1",
+  "scope": [
+    "metadata-only original preparation/decision/receipt/seal derivation matches all six pre-refactor profiles and 24 targets",
+    "unchanged real image-backed payloads, transaction bytes, interruption order and completion budgets",
+    "five maximum declared images without image allocation; exact full completion bound and defensive copies",
+    "all six actual typed coordinator profiles and 84 twice-interrupted transaction cases; 28 exact negatives under normal/optimized portable replay"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapCommitData.java": "df509ca1fb904b74454e35deb5a7f528c5fe8ea3dd2b7d0bcd2c0f933d060c2c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapCommitMetadata.java": "233dae4a938da13290be35fb5df65da7ddd985ec8f2ae27e256aa45a78ed73ee",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapCommitMetadataTest.java": "0aa61137dc15e4836d6abb4ec4fde1cc99d1c2ad8b3583c71cdc1948850fff0b",
+    "general-search-engine-replication/src/test/resources/v53-bootstrap-commit-metadata.json": "9bff350784773607e821b9d83469b8a7f0b50207c1c276969564feb112c7d4c0"
+  },
+  "status": "PASS"
+}
