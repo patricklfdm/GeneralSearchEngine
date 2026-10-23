@@ -165,3 +165,8 @@ owner integration and repeated 3/4/5-voter lifetime recovery remain open.
 reuses exact pinned floor bytes when a full backup would need an eighth image.
 It retains the existing seven-image/six-source bounds and qualifies 53 fresh-process
 cases; arbitrary pending-context/source turnover remains open.
+
+[Typed bootstrap revalidation](PHASE_2_BOOTSTRAP_REVALIDATION.md) now connects actual
+source/configuration reads and all-target image exports to both private transaction
+boundaries. Public admission, bounded scratch recovery and complete-store opening
+remain Phase 2 obligations.

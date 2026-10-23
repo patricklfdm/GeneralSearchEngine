@@ -1,0 +1,156 @@
+{
+  "base": "791d9262ab7adfb25c28750ea2a8ec74c8df6952",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-revalidation/final-inputs.json",
+    "sha256": "8e533293bcbc5eadd8d0b420496474ed836b5e5056872689762384969d070162"
+  },
+  "currentReplay": {
+    "plan": {
+      "cases": 20,
+      "negatives": 11,
+      "path": "target/v53-bootstrap-revalidation/current-plan.json",
+      "sha256": "0ebda647706942e4683607ed601b45832428cf30cdecddc235084205876cef63"
+    },
+    "transaction": {
+      "cases": 84,
+      "negatives": 14,
+      "path": "target/v53-bootstrap-revalidation/current-transaction.json",
+      "sha256": "7cf28f2841c986da0f3d602cbf998ef4f63e1a3da82813ac5c932f8e7cc3acfb"
+    }
+  },
+  "jars": {
+    "target/v53-bootstrap-revalidation/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-revalidation/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "c894eeacd3141aaec3f78620bbb06145f87b97cf8301dff094105c5707a10770"
+  },
+  "javaMethods": 57,
+  "limitations": [
+    "public bootstrap, random history retention and bounded resumable scratch ownership remain pending",
+    "complete-store seal admission/accounting and mutable-store public result reading remain pending",
+    "Python does not claim independent arbitrary codec semantics or callback execution",
+    "no new process deaths, power loss, cloud, protected CI, workflow, POM or frozen format change; Phase 2 open"
+  ],
+  "logs": {
+    "current-plan.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "current-transaction.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development.log": "e8c4c746d45489ee0f13b7bf958bd59a7d923c965c1d5fc4f8ad071d0ac31cc1",
+    "final.log": "d21214c32c74d9d3b14d725e75c249b390f2e955532c382bf6ed56c465d3fa4a",
+    "prior-bootstrap-plan.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "prior-bootstrap-transaction-process.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "prior-bootstrap-transaction.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newJavaMethods": 7,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "priorReplay": {
+    "bootstrap-plan": {
+      "cases": 20,
+      "negatives": 11,
+      "path": "target/v53-bootstrap-revalidation/prior-bootstrap-plan.json",
+      "sha256": "0ebda647706942e4683607ed601b45832428cf30cdecddc235084205876cef63"
+    },
+    "bootstrap-transaction": {
+      "cases": 84,
+      "negatives": 14,
+      "path": "target/v53-bootstrap-revalidation/prior-bootstrap-transaction.json",
+      "sha256": "7cf28f2841c986da0f3d602cbf998ef4f63e1a3da82813ac5c932f8e7cc3acfb"
+    },
+    "bootstrap-transaction-process": {
+      "cases": 48,
+      "negatives": 13,
+      "path": "target/v53-bootstrap-revalidation/prior-bootstrap-transaction-process.json",
+      "sha256": "52805c1fc2f48190931776412b2d36fcc0b8ab1c7968a76fc56a5e68606a0923"
+    }
+  },
+  "producerClasses": {
+    "path": "target/v53-bootstrap-revalidation/producer-classes.json",
+    "sha256": "515a9a43dca58ac0c806cd2207c6421a00eabf450d23cf438fa26046082f0ecb"
+  },
+  "raw": {
+    "indexSha256": "c4f525906c121d661b8fbfb58bad0561b2aa74ab8e560e5e96336eb8605b16c3",
+    "members": 316,
+    "path": "general-search-engine-replication/target/v53-bootstrap-revalidation/run-242b786b-6846-4ac6-85bd-4e00570cb668"
+  },
+  "replay": {
+    "callbackPairs": 6,
+    "cases": 6,
+    "exports": 96,
+    "independentTypedSemantics": false,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "bootstrap validation case inventory"
+      },
+      {
+        "case": "missing-target",
+        "reason": "bootstrap validation target export count"
+      },
+      {
+        "case": "extra-export-file",
+        "reason": "bootstrap validation export inventory"
+      },
+      {
+        "case": "exported-state",
+        "reason": "bootstrap validation exact exported state"
+      },
+      {
+        "case": "manifest-content",
+        "reason": "bootstrap validation original manifest content"
+      },
+      {
+        "case": "manifest-crc",
+        "reason": "bootstrap validation manifest CRC"
+      },
+      {
+        "case": "source-bytes",
+        "reason": "bootstrap validation original source bytes"
+      },
+      {
+        "case": "original-image",
+        "reason": "bootstrap original image binding"
+      },
+      {
+        "case": "original-receipt",
+        "reason": "bootstrap validation exact original receipt"
+      },
+      {
+        "case": "scratch-accounting",
+        "reason": "bootstrap validation producer scope/accounting"
+      },
+      {
+        "case": "callback-type",
+        "reason": "bootstrap validation producer scope/accounting"
+      },
+      {
+        "case": "public-claim",
+        "reason": "bootstrap validation producer scope/accounting"
+      },
+      {
+        "case": "linked-export",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "portableReplay": "PASS",
+    "publicBootstrap": false,
+    "scope": "exact-export-and-receipt-reconciliation",
+    "status": "PASS"
+  },
+  "schema": "gse-v53-bootstrap-revalidation-local-v1",
+  "scope": [
+    "all three cardinalities and EMPTY/verified durable backup source",
+    "real typed/source callbacks before PREPARING and COMMITTING",
+    "96 original planning/revalidation core exports and exact receipt independently reconciled",
+    "source/config/codec/inode/path/capacity rejection and failure at PREPARED",
+    "13 exact negatives, portable evidence and normal/optimized Python agree",
+    "old original plan/transaction/process evidence replays unchanged"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapSeed.java": "77f7fc2e3325f08592d2f630583513018c7538cbc6a6027abb50711edd1bf6d2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapRevalidationTest.java": "b94e124c073a5a24577e7653fe5a97d04093d8a3e5520409ec9cb4f3b604547f",
+    "scripts/v53/bootstrap_plan_evidence.py": "0e43211537016d97947b3f4bbd10e7833c46f19fe73c3c93c6387b87cf1a2a31",
+    "scripts/v53/bootstrap_revalidation_evidence.py": "f54caa511d0902a023f08787ab79ac2c89ec92a37806439de5b3331e66c0c208",
+    "scripts/v53/bootstrap_transaction_evidence.py": "c6825c429343d2ea4a0896f070e6244f334467ab9f0fe09fcad9345c683de758"
+  },
+  "status": "PASS"
+}

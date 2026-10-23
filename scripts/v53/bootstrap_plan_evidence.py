@@ -22,7 +22,7 @@ def read(path,maximum):
     raw=path.read_bytes();e.need(len(raw)<=maximum,'bootstrap plan evidence grew');return raw
 
 
-def decode(raw,image,*,details=False):
+def decode(raw,image,*,details=False,size=3,source="EMPTY"):
     e.need(48<len(raw)<=2*e.MIB,'bootstrap original plan capacity')
     e.need(struct.unpack('>4sHHHHI',raw[:16])==(b'GSBP',1,3,1,0,len(raw)-48),'bootstrap original plan header')
     e.need(bytes.fromhex(e.digest(raw[:16]+raw[48:]))==raw[16:48],'bootstrap original plan checksum')
@@ -37,21 +37,33 @@ def decode(raw,image,*,details=False):
         return data,e.f.decode(data,'records',kind)
     root_raw,root=frame('root','ROOT',16384);genesis_raw,genesis=frame('genesis','GENESIS',65536);root_hash=root_raw[16:48].hex()
     desc=value['descriptor'];e.exact(desc,'application core identities paths source sourceInventory')
-    e.need(genesis['source']=='EMPTY' and genesis['sourceDigest'] is None and genesis['baseSequence']==0 and desc['source']=='EMPTY' and desc['sourceInventory']==[], 'bootstrap plan tested empty profile')
+    e.need(type(size) is int and size in (3,4,5) and source in ('EMPTY','VERIFIED_DURABLE_BACKUP'), 'bootstrap plan declared profile')
+    e.need(genesis['source']==source and desc['source']==source, 'bootstrap plan source profile')
+    if source=='EMPTY':
+        e.need(genesis['sourceDigest'] is None and genesis['baseSequence']==0 and desc['sourceInventory']==[], 'bootstrap plan tested empty profile')
+    else:
+        inventory=desc['sourceInventory']
+        e.need(type(inventory) is list and len(inventory)==3, 'bootstrap plan source inventory')
+        for row,name in zip(inventory,('gse-backup-checkpoint','gse-backup-manifest','gse-backup-metadata')):
+            e.exact(row,'path kind size sha256')
+            e.need(row['path']==name and type(row['kind']) is int and row['kind']==1 and type(row['size']) is int and row['size']>0,
+                   'bootstrap plan source inventory')
+            e.need(type(row['sha256']) is str and len(row['sha256'])==64 and all(c in '0123456789abcdef' for c in row['sha256']), 'bootstrap plan source digest')
+        e.need(genesis['sourceDigest']==e.digest(e.f.canonical(inventory)), 'bootstrap plan source inventory binding')
     e.need(root['genesis']==e.digest(genesis_raw) and all(root[k]==genesis[k] for k in ('groupId','historyId','baseSequence','schema','indexes'))
            and genesis['application']==e.digest(image),'bootstrap plan original root/genesis')
-    registry=e.identities(root['initial']);e.need(len(registry)==3 and desc['identities']==root['initial'],'bootstrap plan initial identities')
+    registry=e.identities(root['initial']);e.need(len(registry)==size and desc['identities']==root['initial'],'bootstrap plan initial identities')
     e.need(root['schema']==e.digest(e.f.canonical(dict(schemaIdentity=desc['core']['schemaIdentity'],application=desc['application'])))
            and root['indexes']==e.digest(e.f.canonical(desc['application']['indexes'])) and root['codecId']==desc['core']['codecId']
            and root['codecVersion']==desc['core']['codecVersion'] and root['limits']==e.digest(e.f.canonical(e.f.catalog()['resources'])),'bootstrap plan configuration binding')
-    paths=desc['paths'];e.need(type(paths) is list and len(paths)==7,'bootstrap plan bound path count');names=[]
+    paths=desc['paths'];e.need(type(paths) is list and len(paths)==1+2*size+(source!='EMPTY'),'bootstrap plan bound path count');names=[]
     for bound in paths:
         e.exact(bound,'path parentRealPath fileStoreName fileStoreType parentFileKey')
         e.need(all(type(v) is str and 0<len(v.encode())<=4096 for v in bound.values()),'bootstrap plan path binding fields')
         p=PurePosixPath(bound['path']);e.need(p.is_absolute() and str(p)==bound['path'] and '..' not in p.parts and str(p.parent)==bound['parentRealPath'],'bootstrap plan canonical path')
         e.need(all(p!=q and p not in q.parents and q not in p.parents for q in names),'bootstrap plan disjoint paths');names.append(p)
     view=dict(generation=0,old=list(registry),new=list(registry),operation=None);cut=dict(entry=root['genesis'],index=0,view=view)
-    cat=dict(root=root_hash,application=genesis['application'],applicationSequence=0,cut=cut,identities=root['initial'],active=None,lastDataIndex=0,nextOperation=1,results=[],retiredThrough=0)
+    cat=dict(root=root_hash,application=genesis['application'],applicationSequence=genesis['baseSequence'],cut=cut,identities=root['initial'],active=None,lastDataIndex=0,nextOperation=1,results=[],retiredThrough=0)
     catalog_raw=e.f.encode('records','CATALOG',cat);objects={e.digest(root_raw):root_raw,root['genesis']:genesis_raw,e.digest(catalog_raw):catalog_raw}
     packet=packet_bytes(dict(root=root_hash,application=genesis['application'],catalog=e.digest(catalog_raw),cut=cut,initial=root['genesis'],items=[]),objects,{e.digest(image):len(image)})
     cap=e.p.decode(packet);targets=[];payloads=[];total=0
@@ -70,7 +82,7 @@ def decode(raw,image,*,details=False):
     e.need(e.f.canonical(value['targets'])==e.f.canonical(targets),'bootstrap plan derived target inventories')
     e.need(type(value['maximumSource']) is int and value['maximumSource']>0 and type(value['maximumOperation']) is int
            and total+len(image)+2*len(raw)<=value['maximumOperation'],'bootstrap plan complete byte budget')
-    if details:return dict(plan=value,root=root,rootHash=root_hash,payloads=payloads)
+    if details:return dict(plan=value,root=root,rootHash=root_hash,genesis=genesis,payloads=payloads)
     return root['historyId']
 
 

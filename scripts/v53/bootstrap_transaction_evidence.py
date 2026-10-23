@@ -24,8 +24,9 @@ def container(kind,value):
     return prefix+bytes.fromhex(e.digest(prefix+body))+body
 
 
-def derived(raw,image):
-    decoded=plans.decode(raw,image,details=True);p=decoded['plan'];paths=[PurePosixPath(v['path']) for v in p['descriptor']['paths']]
+def derived(raw,image,*,size=3,source="EMPTY"):
+    decoded=plans.decode(raw,image,details=True,size=size,source=source);p=decoded['plan'];paths=[PurePosixPath(v['path']) for v in p['descriptor']['paths']]
+    if source!='EMPTY':paths.pop(1) # original source is not a transaction target
     root=decoded['rootHash'];digest=e.digest(raw);payloads=decoded['payloads'];ids=decoded['root']['initial'];preps=[];targets=[]
     anchor=paths[0].parent
     for path in paths[1:]:
@@ -35,13 +36,13 @@ def derived(raw,image):
         preps.append(container(2,dict(plan=digest,root=root,identity=ids[i],authority=str(authority),materialization=str(core),
             inventory=[dict(path=k,**e.info(v)) for k,v in sorted(payload.items())])))
         targets.append(dict(identity=ids[i],authorityPath=str(authority.relative_to(anchor)),materializationPath=str(core.relative_to(anchor))))
-    rows=[e.f.encode('records','BOOTSTRAP',dict(decision=state,inventory=digest,root=root,source='EMPTY',sourceDigest=None,targets=targets)) for state in STATES]
+    rows=[e.f.encode('records','BOOTSTRAP',dict(decision=state,inventory=digest,root=root,source=source,sourceDigest=decoded['genesis']['sourceDigest'],targets=targets)) for state in STATES]
     receipt=container(3,dict(plan=digest,root=root,operation=str(paths[0]),preparations=list(map(e.digest,preps)),committing=e.digest(rows[2]),committed=e.digest(rows[3])))
     seals=[container(4,dict(plan=digest,root=root,identity=ids[i],authority=str(paths[1+2*i]),materialization=str(paths[2+2*i]),
-                         prepared=e.digest(preps[i]),receipt=e.digest(receipt))) for i in range(3)]
+                         prepared=e.digest(preps[i]),receipt=e.digest(receipt))) for i in range(size)]
     total=2*len(raw)+len(image)+2*len(receipt)+sum(map(len,rows))+sum(map(len,preps))+2*sum(map(len,seals))+sum(sum(map(len,v.values())) for v in payloads)
     e.need(total<=p['maximumOperation'],'bootstrap full transaction capacity')
-    return dict(payloads=payloads,preps=preps,rows=rows,receipt=receipt,seals=seals)
+    return dict(payloads=payloads,preps=preps,rows=rows,receipt=receipt,seals=seals,completionBytes=total)
 
 
 class Interrupted(Exception):pass

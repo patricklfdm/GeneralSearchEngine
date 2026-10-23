@@ -101,11 +101,31 @@ final class MembershipBootstrapSeed {
      * committing any of these bytes. An occupied scratch/target is never repaired. */
     static <K,T> MembershipBootstrapSeed project(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
             UUID history,Path requestedScratch)throws IOException {
+        return project(captured,request,history,requestedScratch,null,0).seed();
+    }
+    /** Revalidate the exact retained plan under the caller's existing coordinator owner.
+     * Only a fresh disjoint scratch is written; prepared replicas are never opened. */
+    static <K,T> long revalidate(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
+            MembershipBootstrapPlanData plan,Path scratch,long otherRetainedBytes)throws IOException {
+        Objects.requireNonNull(plan);require(otherRetainedBytes>=0,"bootstrap validation retained byte count");
+        require(Arrays.equals(MembershipBootstrapPlanData.create(plan.seed,request).bytes(),plan.bytes()),"bootstrap validation request differs from original plan");
+        long completion=new MembershipBootstrapCommitData(plan).completionBytes;
+        require(otherRetainedBytes<=request.maxOperationBytes() && completion<=request.maxOperationBytes()-otherRetainedBytes,
+                "bootstrap validation completion capacity");
+        long reserved=completion+otherRetainedBytes;
+        require((long)request.targets().size()*MembershipApplicationImage.MAXIMUM<=request.maxOperationBytes()-reserved,
+                "bootstrap validation scratch capacity");
+        return project(captured,request,plan.seed.root.historyId(),scratch,plan.seed,reserved).scratchBytes();
+    }
+    private record Projection(MembershipBootstrapSeed seed,long scratchBytes){}
+    private static <K,T> Projection project(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
+            UUID history,Path requestedScratch,MembershipBootstrapSeed expected,long reserved)throws IOException {
         Objects.requireNonNull(captured);Objects.requireNonNull(request);MembershipValidation.uuid(history);
+        boolean planning=expected==null;
         Path scratch=AdmissionPaths.safe(requestedScratch);var paths=new ArrayList<Path>();paths.add(scratch);paths.add(request.operationDirectory());request.sourcePath().ifPresent(paths::add);
         for(var target:request.targets()){paths.add(target.replicaDirectory());paths.add(target.materialization().directory());}
         AdmissionPaths.disjoint(paths);var bindings=new ArrayList<Map<String,Object>>();for(Path path:paths)bindings.add(AdmissionPaths.binding(path));
-        absent(request,scratch);var config=AdmissionConfiguration.application(captured);var first=request.targets().getFirst().materialization();
+        absent(request,scratch,planning);var config=AdmissionConfiguration.application(captured);var first=request.targets().getFirst().materialization();
         var core=core(first);for(var target:request.targets())require(core.equals(core(target.materialization())),"bootstrap materialization descriptor mismatch");
         String indexes=hash(canonical(config.get("indexes"),262144));var source=request.sourcePath().orElse(null);
         List<AdmissionFormat.Member> sourceInventory=source==null?List.of():sourceInventory(source,request.maxSourceBytes());
@@ -115,7 +135,9 @@ final class MembershipBootstrapSeed {
         descriptor.put("identities",request.targets().stream().map(v->identity(v.identity())).toList());
         // Bound descriptor before the first scratch write. Source/codec rejection also
         // precedes that write for the first target; later failures retain diagnostic scratch.
-        descriptor= new TreeMap<>(decodeDescriptor(descriptor));byte[] image=null;long sequence=-1;long used=0;Object scratchKey=null;
+        descriptor= new TreeMap<>(decodeDescriptor(descriptor));
+        require(planning || Arrays.equals(canonical(descriptor,1024*1024),canonical(expected.descriptor(),1024*1024)),"bootstrap validation source/configuration/path drift");
+        byte[] image=null;long sequence=-1;long used=reserved;Object scratchKey=null;
         for(int n=0;n<request.targets().size();n++) {
             var storage=request.targets().get(n).materialization();DurableApplicationState<T> imported;
             if(source==null)imported=new DurableApplicationState<>(history,0,List.of(),captured.indexes());
@@ -128,30 +150,32 @@ final class MembershipBootstrapSeed {
             MembershipValidation.position(imported.sequence());
             var state=new DurableApplicationState<>(history,imported.sequence(),imported.documents(),imported.indexes());
             if(n==0) {
-                for(var bound:bindings)AdmissionPaths.recheck(bound);absent(request,scratch);
+                for(var bound:bindings)AdmissionPaths.recheck(bound);absent(request,scratch,planning);
                 reserveScratch(used,request.maxOperationBytes());Files.createDirectory(scratch);AdmissionPaths.forceDirectory(scratch.getParent());scratchKey=MembershipBasisSources.key(scratch);
             }
             require(scratchKey.equals(MembershipBasisSources.key(scratch)),"bootstrap scratch directory changed");
             reserveScratch(used,request.maxOperationBytes());Path backup=scratch.resolve("application-"+n);
             byte[] next=MembershipApplicationImage.capture(captured,storage,state,backup);
             used=Math.addExact(used,AdmissionPaths.inventory(backup,MembershipApplicationImage.MAXIMUM).stream().mapToLong(AdmissionFormat.Member::size).sum());
-            require(image==null || Arrays.equals(image,next),"bootstrap target codec bytes disagree");image=next;sequence=state.sequence();
+            require(image==null || Arrays.equals(image,next),"bootstrap target codec bytes disagree");
+            require(planning || Arrays.equals(expected.application(),next),"bootstrap validation codec/image drift");image=next;sequence=state.sequence();
             for(var bound:bindings)AdmissionPaths.recheck(bound);checkSource(source,request.maxSourceBytes(),sourceInventory,sourceKeys);
             // capture() invokes the core reader after export. No separate decode image
             // is stored and no materialization directory is opened by this projection.
         }
-        AdmissionPaths.absent(request.operationDirectory());absentTargets(request);
+        if(planning)AdmissionPaths.absent(request.operationDirectory());absentTargets(request,planning);
         require(config.equals(AdmissionConfiguration.application(captured)),"bootstrap application descriptor changed");
         for(var target:request.targets())require(core.equals(core(target.materialization())),"bootstrap materialization descriptor changed");
         require(scratchKey.equals(MembershipBasisSources.key(scratch)),"bootstrap scratch directory changed");
         var seed=new MembershipBootstrapSeed(request,history,sequence,image,hash(canonical(Map.of("schemaIdentity",first.schemaIdentity(),"application",config),1024*1024)),indexes,
                 source==null?null:hash(canonical(descriptor.get("sourceInventory"),65536)),descriptor);
-        require(seed.payloadBytes()<=request.maxOperationBytes()-used,"bootstrap seed and scratch exceed operation budget");
-        return seed;
+        if(planning)require(seed.payloadBytes()<=request.maxOperationBytes()-used,"bootstrap seed and scratch exceed operation budget");
+        else require(Arrays.equals(seed.rootRecord.bytes(),expected.rootRecord.bytes()) && Arrays.equals(seed.genesis.bytes(),expected.genesis.bytes()),"bootstrap validation root/genesis drift");
+        return new Projection(seed,used-reserved);
     }
     private static void reserveScratch(long used,long maximum){require(used<=maximum-MembershipApplicationImage.MAXIMUM,"bootstrap scratch completion capacity");}
-    private static void absent(MembershipBootstrapRequest<?,?> request,Path scratch){AdmissionPaths.absent(scratch);AdmissionPaths.absent(request.operationDirectory());absentTargets(request);}
-    private static void absentTargets(MembershipBootstrapRequest<?,?> request){for(var t:request.targets()){AdmissionPaths.absent(t.replicaDirectory());AdmissionPaths.absent(t.materialization().directory());}}
+    private static void absent(MembershipBootstrapRequest<?,?> request,Path scratch,boolean planning){AdmissionPaths.absent(scratch);if(planning)AdmissionPaths.absent(request.operationDirectory());absentTargets(request,planning);}
+    private static void absentTargets(MembershipBootstrapRequest<?,?> request,boolean planning){for(var t:request.targets()){if(planning)AdmissionPaths.absent(t.replicaDirectory());AdmissionPaths.absent(t.materialization().directory());}}
     private static List<AdmissionFormat.Member> sourceInventory(Path path,long maximum)throws IOException {
         var result=AdmissionPaths.inventory(path,Math.min(maximum,MembershipApplicationImage.MAXIMUM-MembershipApplicationImage.OVERHEAD));
         require(result.size()==3 && result.stream().allMatch(v->v.kind()==1 && v.size()>0)
