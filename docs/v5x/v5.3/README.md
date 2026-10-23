@@ -152,3 +152,7 @@ They check the declared finite model only. See the retained
 [Capture-only source retirement](PHASE_2_CAPTURED_SOURCE_RELEASE.md) adds recovery
 for complete packet/image captures without BASIS under a strictly later full floor;
 same-cut/partial capture and maximal coordinated resource progress remain open.
+
+The [bounded pending-context component](PHASE_2_PENDING_CONTEXT.md) reconstructs
+exact old generation/vote bytes from a retained source. Owner persistence, repeated
+higher-ballot recovery and all-voter-count lifetime integration remain open.

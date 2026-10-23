@@ -28,7 +28,16 @@ final class MembershipFloor {
             // manifest members/images. Local producers obtain it only after rechecking the owner.
             var copy=new Copy(generation,capsule,owner,files);copy.check();return copy;
         }
-        void check() {
+        void check() {validateMaterialization(generation,capsule,owner,files);}
+        /** Pure original-byte validation; it creates no copy observation or deletion authority. */
+        static void validateMaterialization(Decoded generation,MembershipCapsule capsule,MembershipIdentity owner,Map<String,byte[]> files) {
+            require(generation.kind().equals("GENERATION"),"floor generation kind");var materialization=generation.value();
+            require(materialization.get("root").equals(capsule.context.root) && materialization.get("node").equals(owner.nodeId().value())
+                    && owner.equals(capsule.context.identities.get(owner.nodeId().value())),"floor copy identity");
+            require(capsule.context.voters().contains(owner.nodeId().value()),"floor copy is not a governing voter");
+            require(materialization.get("cut").equals(capsule.context.cut) && materialization.get("catalog").equals(capsule.terminal().catalog())
+                    && materialization.get("application").equals(capsule.terminal().application())
+                    && materialization.get("capsule").equals(capsule.packet.capsule().digest()),"floor copy materialization binding");
             var value=generation.value();var expected=new TreeSet<String>();expected.add("generation.gsr");long metadata=generation.bytes().length;String previous=null;
             require(Arrays.equals(files.get("generation.gsr"),generation.bytes()),"floor original generation bytes");
             for(Object row:list(value.get("files"))) {

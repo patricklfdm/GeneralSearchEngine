@@ -28,6 +28,43 @@ final class MembershipSourcePacket {
     Set<String> objectNames() {return objects.keySet();}
     byte[] bytes() {return encode(capsule,objects,images);}
     Map<String,Long> images() {return images;}
+    /** Exact bounded capsule/index bytes, without packet object bodies. No owned observation. */
+    byte[] envelope() {
+        byte[] cap=capsule.bytes();
+        require(8L+cap.length+index.length<=ENVELOPE-HEADER,"packet envelope capacity");
+        return ByteBuffer.allocate(8+cap.length+index.length).putInt(cap.length).put(cap).putInt(index.length).put(index).array();
+    }
+    private record Envelope(Decoded capsule,byte[] index,Map<String,Long> objects,Map<String,Long> images) {}
+    /** Common parser for both complete packets and retained original envelopes. */
+    private static Envelope envelope(ByteBuffer buffer) {
+        byte[] cap=part(buffer,ENVELOPE-HEADER-8);
+        var capsule=MembershipFormat.decode(cap,"records","CAPSULE");
+        byte[] index=part(buffer,ENVELOPE-HEADER-8-cap.length);
+        var value=object(parse(index,ENVELOPE));
+        require(value.keySet().equals(Set.of("schema","objects","images"))
+                && value.get("schema").equals("gse-membership-source-index/1.3"),"packet index fields");
+        return new Envelope(capsule,index,rows(value.get("objects"),65536,FRAME,true),
+                rows(value.get("images"),7,64*1024*1024,false));
+    }
+    /** Rebuild only the exact old indexed objects, borrowing their bytes from a verified backing packet. */
+    static MembershipSourcePacket reconstruct(byte[] encodedEnvelope,MembershipSourcePacket backing) {
+        Objects.requireNonNull(encodedEnvelope);Objects.requireNonNull(backing);
+        require(encodedEnvelope.length>=8 && encodedEnvelope.length<=ENVELOPE-HEADER,"packet envelope size");
+        var input=ByteBuffer.wrap(encodedEnvelope);var original=envelope(input);
+        require(!input.hasRemaining(),"packet envelope trailing bytes");
+        var objects=new TreeMap<String,byte[]>();long complete=HEADER+(long)encodedEnvelope.length;
+        for(var item:original.objects.entrySet()) {
+            long size=item.getValue();require(size<=MAXIMUM-complete,"complete packet capacity");complete+=size;
+            byte[] bytes=backing.objectBytes(item.getKey());
+            require(bytes.length==size && hash(bytes).equals(item.getKey()),"packet reconstructed object binding");
+            objects.put(item.getKey(),bytes);
+        }
+        for(var item:original.images.entrySet())
+            require(item.getValue().equals(backing.images().get(item.getKey())),"packet reconstructed image binding");
+        require(Arrays.equals(original.index,index(objects,original.images)),"packet original index is not canonical");
+        var result=decode(encode(original.capsule,objects,original.images));
+        require(Arrays.equals(encodedEnvelope,result.envelope()),"packet original envelope changed");return result;
+    }
     void bind(Decoded basis) {
         require(basis.family().equals("records") && basis.kind().equals("BASIS"),"packet basis kind");
         var value=basis.value();
@@ -89,12 +126,8 @@ final class MembershipSourcePacket {
                 && buffer.getShort()==0 && buffer.getShort()==0,"packet protocol/kind/flags");
         require(Integer.toUnsignedLong(buffer.getInt())==bytes.length-HEADER,"packet declared length");
         require(java.security.MessageDigest.isEqual(Arrays.copyOfRange(bytes,16,HEADER),sha(Arrays.copyOf(bytes,16),Arrays.copyOfRange(bytes,HEADER,bytes.length))),"packet checksum");
-        buffer.position(HEADER);byte[] capsuleBytes=part(buffer,ENVELOPE-HEADER-8);
-        var capsule=MembershipFormat.decode(capsuleBytes,"records","CAPSULE");
-        byte[] index=part(buffer,ENVELOPE-HEADER-8-capsuleBytes.length);
-        var value=object(parse(index,ENVELOPE));require(value.keySet().equals(Set.of("schema","objects","images"))
-                && value.get("schema").equals("gse-membership-source-index/1.3"),"packet index fields");
-        var sizes=rows(value.get("objects"),65536,FRAME,true);var images=rows(value.get("images"),7,64*1024*1024,false);
+        buffer.position(HEADER);var envelope=envelope(buffer);
+        var capsule=envelope.capsule;var index=envelope.index;var sizes=envelope.objects;var images=envelope.images;
         long total=0;for(long size:sizes.values()){require(size<=buffer.remaining()-total,"packet object lengths");total+=size;}
         require(total==buffer.remaining(),"packet trailing/missing bytes");
         // No member-sized allocation occurs until every length and the total are bounded.
