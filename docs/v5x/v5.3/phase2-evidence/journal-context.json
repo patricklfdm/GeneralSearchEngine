@@ -1,0 +1,314 @@
+{
+  "base": "66a3db319f7369d2755a6eb9f4833d51377fd817",
+  "compiledInventory": {
+    "path": "target/v53-journal-context/final-inputs.json",
+    "sha256": "70b7aca84f990a6450c3a7716b3d07b272974a389efacf326c06f3e30999ec97"
+  },
+  "contextFreshProcesses": 96,
+  "contextProcessCases": 32,
+  "development": [
+    "development.log: 52 existing tests pass; six owner tests expose optional context files mistakenly required by inventory; fixed the optional member set",
+    "owner.log: six tests pass; lock exclusion correctly raises ReplicationException, while the new test expected IOException; corrected its exact assertion",
+    "final.log: all 59 tests pass; owner, context process, transfer and staged handoff original evidence retained"
+  ],
+  "jars": {
+    "target/v53-journal-context/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-journal-context/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a402e943ab0fbdba16dd211214d0b29b1667be538ae31545c142d6e3f48a4dea"
+  },
+  "javaMethods": 59,
+  "limitations": [
+    "opt-in private owner; ordinary applying owner rejects context files",
+    "full transferred lifetime still blocked; original generation/source/vote remain mandatory until explicit redundant withdrawal",
+    "owner failures use injected IOException, not fresh-process halt/SIGKILL or power loss",
+    "historical bootstrap conditional and remote ownership/image semantics not independently established by Python",
+    "full 3/4/5/joint lifecycle, maximal completion, offline initialization and physical closure audit pending",
+    "Phase 2 open; public runtime disabled; no protected CI or paid cloud"
+  ],
+  "logs": {
+    "context-process-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context-process.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development.log": "79fe727e1a3f7169eb8a2bdea32f6adc03b41182e0e7af8b42c5a0469cdb9989",
+    "final.log": "876e528433f18c4db9408acc264a26ea010565a3b2b1af599eec011346bd7f41",
+    "owner.log": "04209426d8acc682306662b20f27757e50467184a5f6f726990b83efa8841489",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "staged-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "staged.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "strict-development-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "transfer-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "transfer.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newJavaMethods": 7,
+  "ownerCases": 12,
+  "ownerFreshProcesses": false,
+  "ownerInterruptionModel": "injected-IOException",
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-journal-context/producer-classes.json",
+    "sha256": "84c538a361c55d32226ed711ff78fabd7183a2cbebbce23362f409d29dafea89"
+  },
+  "protectedCI": false,
+  "raw": {
+    "context-process": {
+      "files": 458,
+      "indexSha256": "3c219a1f029ab7563efb45cc349159e4781676c56cc7e8acd608cfc4160a9c71",
+      "path": "general-search-engine-replication/target/v53-pending-context-process/run-192ed9d3-6be0-4c6e-bfb9-4050381d578d"
+    },
+    "owner": {
+      "files": 1385,
+      "indexSha256": "e0f92ea0ed288c658ff9fdb883c45a4e44b5e2bcaa9be6dd780f72895427a14c",
+      "path": "general-search-engine-replication/target/v53-journal-context/run-82976b63-e1f7-4285-99db-995b719c8850"
+    },
+    "staged": {
+      "files": 1107,
+      "indexSha256": "039d23ecb0c449b5ba5535065022e2325b4ca96c68b9b9e580206d4b22d96dc3",
+      "path": "general-search-engine-replication/target/v53-staged-handoff/run-a7d5996b-e066-4dc0-9532-29c64a3f6c2f"
+    },
+    "transfer": {
+      "files": 119,
+      "indexSha256": "8f4c9c7851f68143541b9431522e3ec9c762e9f946c772d2b3770c8fbc5717d8",
+      "path": "general-search-engine-replication/target/v53-pending-transfer/run-c0f34af8-6e25-4ff5-8444-af7c4b4fb194"
+    }
+  },
+  "replays": {
+    "context-process": {
+      "backingAuthorityVerified": false,
+      "cases": 32,
+      "crashReturnedSuccess": false,
+      "freshProcesses": 96,
+      "inputContextBytes": [
+        11012,
+        11136
+      ],
+      "negatives": [
+        "bad-first-container",
+        "changed-owner",
+        "missing-case",
+        "unexpected-case",
+        "changed-input-prior",
+        "lost-old-active",
+        "nonprefix-candidate",
+        "premature-active",
+        "lost-recovery-candidate",
+        "bad-final-context",
+        "retained-final-candidate",
+        "changed-store",
+        "missing-force-event",
+        "false-crash-success",
+        "missing-kill-handshake",
+        "false-return-hash",
+        "nonempty-stderr",
+        "false-process-count",
+        "false-owner-authority",
+        "linked-snapshot",
+        "false-child-exit",
+        "boolean-child-exit"
+      ],
+      "originalFirst": true,
+      "osExitCodesVerified": true,
+      "ownerIntegration": false,
+      "physicalBytes": true,
+      "portableInputs": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "processEventOrder": true,
+      "protocolAuthority": "conditional-fixture",
+      "repeatedCrashes": 32,
+      "runtimeEnabled": false,
+      "status": "PASS",
+      "transitions": [
+        "create",
+        "replace",
+        "replay"
+      ]
+    },
+    "replay": {
+      "cases": 12,
+      "freshProcesses": false,
+      "fullOwnerProgress": false,
+      "imageSemanticClaim": false,
+      "interruptionModel": "injected-IOException",
+      "interruptionsPerCase": 2,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "owner context case inventory"
+        },
+        {
+          "case": "changed-vote",
+          "reason": "owner context protected authority changed"
+        },
+        {
+          "case": "missing-original",
+          "reason": "owner context protected authority changed"
+        },
+        {
+          "case": "changed-source",
+          "reason": "owner context protected authority changed"
+        },
+        {
+          "case": "changed-context",
+          "reason": "context checksum"
+        },
+        {
+          "case": "lost-prefix",
+          "reason": "owner context interrupted exact prefix"
+        },
+        {
+          "case": "second-crash-progress",
+          "reason": "owner context second interruption changed bytes"
+        },
+        {
+          "case": "force-order",
+          "reason": "owner context force-before-metadata order"
+        },
+        {
+          "case": "old-ack",
+          "reason": "owner context returned old acknowledgement"
+        },
+        {
+          "case": "false-process",
+          "reason": "owner context receipt scope"
+        },
+        {
+          "case": "linked-source",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "extra-all-snapshots",
+          "reason": "owner context initial authority inventory"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "remoteOwnershipVerified": false,
+      "retirementAuthorized": false,
+      "runtimeEnabled": false,
+      "sourceOwnership": "actual-local-force",
+      "status": "PASS"
+    },
+    "staged": {
+      "derivedStagingRetirements": 3,
+      "freshProcesses": false,
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "lost-old-proof",
+        "changed-original-payload",
+        "missing-old-end-ack",
+        "changed-old-end-plan",
+        "old-end-wrong-ancestor",
+        "changed-frozen-certificate",
+        "changed-selection",
+        "old-vote-deleted",
+        "old-source-deleted",
+        "old-generation-deleted",
+        "staging-retained",
+        "rewritten-entry-origin",
+        "old-certificate-reused",
+        "changed-new-first-coverage",
+        "resurrected-tail"
+      ],
+      "newBallot": 21,
+      "nodePublications": 6,
+      "nodes": 3,
+      "oldBallot": 20,
+      "oldCertificates": 3,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "processForceOrder": false,
+      "resourcePeaks": "producer-observed-bounded",
+      "runtimeEnabled": false,
+      "status": "PASS"
+    },
+    "transfer": {
+      "contextForced": false,
+      "fullOwnerProgress": false,
+      "maximumBytesIndependentlyReplayed": false,
+      "negatives": [
+        {
+          "case": "missing-round",
+          "reason": "transfer complete round inventory"
+        },
+        {
+          "case": "extra-round",
+          "reason": "transfer complete round inventory"
+        },
+        {
+          "case": "linked-current",
+          "reason": "transfer linked/nonregular member"
+        },
+        {
+          "case": "changed-current",
+          "reason": "transfer current round marker"
+        },
+        {
+          "case": "earlier-current",
+          "reason": "transfer current round marker"
+        },
+        {
+          "case": "changed-backing-ballot",
+          "reason": "context higher local source ballot/grant"
+        },
+        {
+          "case": "stale-context",
+          "reason": "context exact supplied selector/backing grant"
+        },
+        {
+          "case": "missing-certificate",
+          "reason": "context exact borrowed original certificate"
+        },
+        {
+          "case": "changed-original-metadata",
+          "reason": "context exact original metadata inventory/bytes"
+        },
+        {
+          "case": "false-retirement",
+          "reason": "transfer exact receipt scope"
+        },
+        {
+          "case": "false-force",
+          "reason": "transfer exact receipt scope"
+        },
+        {
+          "case": "false-source-ownership",
+          "reason": "transfer exact receipt scope"
+        }
+      ],
+      "newSourceOwnership": "conditional-fixture",
+      "originalFirst": true,
+      "originalVotePhase": "CERTIFICATE",
+      "portableReplay": "PASS",
+      "retirementAuthorized": false,
+      "rounds": 7,
+      "runtimeEnabled": false,
+      "status": "PASS",
+      "transfers": 6
+    }
+  },
+  "schema": "gse-v53-journal-context-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "e2284977d7d34dd1495a9f55b6fedd452d512a2512038806a75126b3f1f4fe72",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources.java": "0c17a9b10ad9812bb5c5d089dbe8a529b03620fc6bb1e93943561b612a3a45ef",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "f51a2994c65aff3c63cbe0ecbacbbea619b57731b5982ca20d9b567dac138d2a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingContextFiles.java": "285d884774b3b3ce274c19f354dd92a98dc011e3d7ab3ee032290e2cad6e7e0e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalContextTest.java": "6314074b8d78cd0409ef1b915d4ca15e54b1d3d530005a12dc03a16d1b036922",
+    "scripts/v53/journal_context_evidence.py": "eb3a903bfeaa5f0449a8d160bb1ed76c75f6f2738f7ee832104a2f63b43cfa10"
+  },
+  "sourceInventory": {
+    "path": "target/v53-journal-context/source-files.json",
+    "sha256": "ea1f85791217589e49e2bee38538afb8aaa89c7b5457c4708b191582fdccef96"
+  },
+  "status": "PASS",
+  "validationScope": [
+    "actual exclusive local owner derives context only from retained original generation/vote/forced source",
+    "source member/directory reseal before candidate/active force with complete shared journal admission",
+    "twelve twice-interrupted boundaries, exact original reconstruction and unchanged protected snapshots",
+    "higher volatile observation retention without a new old-round acknowledgement",
+    "redundant-only cleanup and interrupted deletion return to existing newer reacceptance",
+    "original-first exact-reason mutation rejection and normal/optimized/portable replay"
+  ]
+}

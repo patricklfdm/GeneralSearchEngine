@@ -5,8 +5,10 @@ Status: private file component, locally qualified. Phase 2 remains **OPEN**.
 The [context codec](PHASE_2_PENDING_CONTEXT.md) preserves the exact original
 generation and vote description. `MembershipPendingContextFiles` persists that
 description as `pending.context`, using one `pending.context.next` candidate.
-This component is not yet admitted by the complete journal owner's inventory and
-does not authorize source retirement, change a ballot, or enable the public runtime.
+The ordinary applying owner does not admit this component. A subsequent
+[opt-in owner](PHASE_2_JOURNAL_CONTEXT.md) now qualifies actual retention/reopen and
+redundant withdrawal; transferred lifetime remains pending. Neither entry
+authorizes source retirement, changes a ballot, or enables the public runtime.
 
 ## Transaction
 

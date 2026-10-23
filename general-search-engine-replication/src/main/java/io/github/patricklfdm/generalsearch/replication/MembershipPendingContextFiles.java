@@ -161,6 +161,18 @@ final class MembershipPendingContextFiles implements AutoCloseable {
     private void snapshotNext(byte[] bytes)throws IOException {
         nextIdentity=inspect(directory.resolve(NEXT),bytes.length,hash(bytes));nextBytes=bytes.clone();
     }
+    /** Remove only a redundant exact context after the caller has revalidated and pinned the
+     * complete original generation/vote/backing. Not usable for the sole remaining authority.
+     * Candidate deletion/replacement is deliberately unsupported. */
+    void clearRedundant(byte[] expected,MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
+        try {
+            guarded(guard);require(nextIdentity==null,"pending context replacement must complete before redundant cleanup");
+            require(activeBytes!=null && Arrays.equals(activeBytes,expected),"redundant context exact active changed");
+            Files.delete(directory.resolve(FILE));activeIdentity=null;activeBytes=null;active=null;
+            event("CONTEXT_REDUNDANT_DELETED",guard,cut);AdmissionPaths.forceDirectory(directory);
+            event("CONTEXT_REDUNDANT_PARENT_FORCED",guard,cut);
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
     private void sealActive(MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
         guarded(guard);
         try(var channel=FileChannel.open(directory.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}

@@ -40,6 +40,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipResources resources;
     private MembershipCaptureFiles capture;
     private MembershipPendingAccept pendingAccept;
+    private MembershipPendingContextFiles pendingContext;
     private MembershipReplayFiles replayFiles;
     private MembershipAppliedEndFiles appliedEnd;
     private int applicationMetadata;
@@ -186,9 +187,21 @@ final class MembershipGrantJournal implements AutoCloseable {
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
             boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,boolean withCapture,boolean withVotes,boolean withApplication)throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,withFloors,withRetirement,withRotation,withFloorRelease,
+                maximum,withSourceRetirement,withCapture,withVotes,withApplication,false);
+    }
+    /** Opt-in local context owner. Transferred lifetime is not yet enabled: an installed context
+     * must remain pinned or be explicitly withdrawn as redundant before authority changes. */
+    static MembershipGrantJournal openContextual(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,int maximum,MembershipBallotAllocator.Cut cut)throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,true,true,true,true,maximum,true,true,true,true,true);
+    }
+    private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
+            boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,boolean withCapture,boolean withVotes,boolean withApplication,boolean withContext)throws IOException {
         require(maximum>=RESERVATION && maximum<=MAXIMUM,"grant journal capacity");
         Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
-        var owner=withApplication?MembershipBallotAllocator.openWithAppliedEnd(path,root,identity,cut):withVotes?MembershipBallotAllocator.openWithPendingAccept(path,root,identity,cut):withCapture?MembershipBallotAllocator.openWithCaptureRecovery(path,root,identity,cut):withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
+        var owner=withContext?MembershipBallotAllocator.openWithPendingContext(path,root,identity,cut):withApplication?MembershipBallotAllocator.openWithAppliedEnd(path,root,identity,cut):withVotes?MembershipBallotAllocator.openWithPendingAccept(path,root,identity,cut):withCapture?MembershipBallotAllocator.openWithCaptureRecovery(path,root,identity,cut):withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
         try {
             journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut,withCapture);journal.resources=resources;journal.capsuleVerifier=verifier;journal.floorReleaseEnabled=withFloorRelease;
             journal.applicationMetadata=withApplication?MembershipAppliedEndFiles.METADATA+MembershipReplayFiles.METADATA:0;
@@ -212,6 +225,8 @@ final class MembershipGrantJournal implements AutoCloseable {
             }
             journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases,
                     withSourceRetirement?journal.sourceRetirement.decision().orElse(null):null,pending);
+            if(withContext)journal.pendingContext=new MembershipPendingContextFiles(path,root,identity,resources,
+                    Math.min(MembershipPendingContextFiles.MAXIMUM_METADATA,maximum-journal.storedJournal().length-journal.pendingBytes()));
             if(journal.current==null)journal.reloadGenerations();
             if(withFloors) {
                 journal.floors=new MembershipFloorFiles(path,root,identity,resources,verifier,withFloorRelease);
@@ -233,6 +248,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 }
             }
             journal.checkOwner();
+            if(withContext && (journal.pendingContext.active().isPresent() || journal.pendingContext.pending()))journal.retainPendingContext();
             if(withVotes)journal.recoverVote();
             if(pending!=null) {
                 require(!journal.floors.pending() && !journal.floors.releasing() && !journal.retirement.pending(),"capture conflicts with pending floor/retirement");
@@ -252,7 +268,61 @@ final class MembershipGrantJournal implements AutoCloseable {
         inactive=new MembershipGenerationFiles(directory,current.generation,resources);
     }
 
-    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata;}
+    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes());}
+
+    /** Exact private persistence under the real local owner and forced source. No old ACK and no
+     * deletion is authorized; the existing original generation/source/phase remain required. */
+    synchronized MembershipPendingContext.Reconstructed retainPendingContext()throws IOException {
+        require(pendingContext!=null,"context-aware storage owner required");checkOwner();otherAuthorityTransactionsIdle();applicationReferencesIdle();
+        require(!inactive.pending() && !pendingAccept.pending(),"context requires complete original authorities");
+        var vote=pendingAccept.active();require(voteReferencesInactive(vote) && carriedVoteUntransferred(),"context requires installed carried vote");
+        verifyVote(vote);var originals=inactive.originalFiles();
+        require(promise!=null && basis!=null && selection!=null && promise.digest().equals(current.manifest.value().get("promise"))
+                && basis.digest().equals(current.manifest.value().get("basis")) && selection.digest().equals(current.manifest.value().get("selection"))
+                && vote.entry().digest().equals(selection.value().get("nextEntry")),"context requires exact installed carried selection");
+        var local=originalSource();var source=sources.original(basis);
+        var expected=MembershipPendingContext.create(root,identity,vote.selector(),originals,vote,promise,local,source.images(),capsuleVerifier);
+        byte[] encoded=MembershipPendingContext.encode(expected);
+        if(pendingContext.activeBytes().isPresent())require(Arrays.equals(pendingContext.activeBytes().orElseThrow(),encoded),"context original request changed");
+        long remaining=pendingContext.completionAllowance(expected);
+        require(remaining<=maximum-storedJournal().length-pendingBytes(),"combined context/grant journal completion capacity");
+        MembershipGenerationFiles.Guard guard=()->{
+            checkOwner();otherAuthorityTransactionsIdle();applicationReferencesIdle();
+            require(!pendingAccept.pending() && !inactive.pending() && pendingAccept.active()!=null
+                    && Arrays.equals(vote.bytes(),pendingAccept.active().bytes()),"context original vote changed");
+        };
+        try {
+            cut.at("CONTEXT_OWNER_VALIDATED");guard.check();sources.resealOriginal(basis,guard);
+            // No fence(promise.ballot): retaining already owned bytes under a higher volatile
+            // observation is recovery work, and must not acknowledge the old authority.
+            pendingContext.install(expected,null,guard,cut);
+            cut.at("CONTEXT_OWNER_BEFORE_RETURN");guard.check();
+            return MembershipPendingContext.reconstruct(pendingContext.active().orElseThrow(),root,identity,promise,local,source.images(),capsuleVerifier);
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    private void contextTransactionIdle() {
+        require(pendingContext==null || pendingContext.active().isEmpty() && !pendingContext.pending(),
+                "retained pending context requires transferred lifetime completion");
+    }
+    /** Roll back the optional duplicate metadata only while its complete originals still exist.
+     * Safe after a lost cleanup return: an absent context grants no new authority. */
+    synchronized void discardRedundantPendingContext()throws IOException {
+        require(pendingContext!=null,"context-aware storage owner required");checkOwner();
+        require(!pendingContext.pending(),"pending context must complete before redundant cleanup");
+        if(pendingContext.active().isEmpty())return;
+        var original=retainPendingContext();byte[] exact=pendingContext.activeBytes().orElseThrow();
+        MembershipGenerationFiles.Guard guard=()->{
+            checkOwner();otherAuthorityTransactionsIdle();applicationReferencesIdle();
+            require(!inactive.pending() && !pendingAccept.pending() && pendingAccept.active()!=null
+                    && Arrays.equals(original.vote().bytes(),pendingAccept.active().bytes()),"redundant context original vote changed");
+            verifyVote(pendingAccept.active());
+            var files=inactive.originalFiles();var expected=original.originalFiles();
+            require(files.keySet().equals(expected.keySet()),"redundant context original inventory changed");
+            for(String name:expected.keySet())require(Arrays.equals(expected.get(name),files.get(name)),"redundant context original bytes changed");
+        };
+        try{guard.check();pendingContext.clearRedundant(exact,guard,cut);}
+        catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
     private void reserveApplicationCompletion() {
         if(appliedEnd==null)return;
         boolean end=appliedEnd.completionReserved(),replay=replayFiles.completionReserved();
@@ -338,6 +408,9 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && !vote.selected().digest().equals(current.manifest.value().get("selection"));
     }
     private void otherApplicationTransactionsIdle()throws IOException {
+        contextTransactionIdle();otherAuthorityTransactionsIdle();
+    }
+    private void otherAuthorityTransactionsIdle()throws IOException {
         require(!capture.pending() && !sourceRetirement.pending() && !rotation.pending()
                 && !floors.pending() && !floors.releasing() && !retirement.pending(),"pending ACCEPT conflicts with other authority transaction");
     }
@@ -651,6 +724,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(sourceRetirement!=null)sourceRetirement.check();
         if(capture!=null)capture.check();
         if(pendingAccept!=null)pendingAccept.check();
+        if(pendingContext!=null)pendingContext.check();
         if(appliedEnd!=null)appliedEnd.check();
         if(replayFiles!=null)replayFiles.check();
     }
@@ -661,7 +735,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
     private void checkOwner() throws IOException {checkWithoutRetirement();if(retirement!=null)retirement.check();}
-    private void sourceIdle(){applicationRetirementIdle();require(!carriedVoteUntransferred(),"carried vote must transfer before another authority change");if(pendingAccept!=null)require(!pendingAccept.pending(),"pending ACCEPT requires exact original completion");if(capture!=null)require(!capture.pending(),"pending source capture must finish before authority changes");if(sourceRetirement!=null)require(!sourceRetirement.pending(),"pending source retirement must finish before authority changes");}
+    private void sourceIdle(){contextTransactionIdle();applicationRetirementIdle();require(!carriedVoteUntransferred(),"carried vote must transfer before another authority change");if(pendingAccept!=null)require(!pendingAccept.pending(),"pending ACCEPT requires exact original completion");if(capture!=null)require(!capture.pending(),"pending source capture must finish before authority changes");if(sourceRetirement!=null)require(!sourceRetirement.pending(),"pending source retirement must finish before authority changes");}
     private void rotationIdle(){sourceIdle();if(floors!=null)require(!floors.releasing(),"pending floor release must finish before authority changes");if(rotation!=null)require(!rotation.pending(),"pending journal rotation must finish before authority changes");}
     private void floorIdle() throws IOException {
         rotationIdle();
@@ -1220,6 +1294,6 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
     synchronized Optional<Decoded> originalSelection() {live();return Optional.ofNullable(selection);}
     @Override public synchronized void close() throws IOException {
-        if(!closed){closed=true;try{releasePublicationImage();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
+        if(!closed){closed=true;try{releasePublicationImage();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }
 }

@@ -207,6 +207,16 @@ final class MembershipBasisSources implements AutoCloseable {
     Original original(Decoded basis) throws IOException {
         return original((String)basis.value().get("basisId"),null,basis);
     }
+    /** Re-seal an already complete original source before publishing a dependent local context.
+     * All original identities stay pinned; this is neither a new grant nor a remote ACK. */
+    void resealOriginal(Decoded basis,MembershipGenerationFiles.Guard owner)throws IOException {
+        check();owner.check();original(basis);String id=(String)basis.value().get("basisId");Path path=directory.resolve(id);
+        for(String name:new TreeSet<>(retained.get(id).keySet())) {
+            force(path.resolve(name));cut.at("CONTEXT_SOURCE_MEMBER_FORCED");check();owner.check();
+        }
+        AdmissionPaths.forceDirectory(path);cut.at("CONTEXT_SOURCE_DIRECTORY_FORCED");check();owner.check();
+        AdmissionPaths.forceDirectory(directory);cut.at("CONTEXT_SOURCE_PARENT_FORCED");check();owner.check();
+    }
     Original original(String id,Decoded promise,Decoded basis)throws IOException {
         check();require(retained.containsKey(id),"original basis source absent");
         Path path=directory.resolve(id);var packet=MembershipSourcePacket.decode(AdmissionPaths.read(path.resolve(PACKET),MembershipSourcePacket.MAXIMUM));

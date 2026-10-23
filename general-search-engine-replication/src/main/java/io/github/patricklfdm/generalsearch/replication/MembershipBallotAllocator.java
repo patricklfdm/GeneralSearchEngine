@@ -114,12 +114,20 @@ final class MembershipBallotAllocator implements AutoCloseable {
     static MembershipBallotAllocator openWithAppliedEnd(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut) throws IOException {
         return openWithPendingAccept(requested,root,identity,cut,true);
     }
+    static MembershipBallotAllocator openWithPendingContext(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut) throws IOException {
+        return openWithPendingAccept(requested,root,identity,cut,true,true);
+    }
     private static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,boolean applying) throws IOException {
+        return openWithPendingAccept(requested,root,identity,cut,applying,false);
+    }
+    private static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,boolean applying,boolean context) throws IOException {
         var names=new HashSet<>(Set.of("grants.gsr",MembershipBasisSources.DIRECTORY,
                 MembershipCurrentGeneration.DIRECTORY,MembershipCurrentGeneration.SELECTOR,MembershipGenerationFiles.PENDING,
                 MembershipFloorFiles.DIRECTORY,MembershipRetirementFiles.DIRECTORY,MembershipJournalRotation.PENDING,
                 MembershipSourceRetirementFiles.FILE,MembershipCaptureFiles.FILE,MembershipPendingAccept.FILE,MembershipPendingAccept.NEXT));
-        if(applying){names.add(MembershipAppliedEndFiles.DIRECTORY);names.add(MembershipReplayFiles.DIRECTORY);}return open(requested,root,identity,cut,names);
+        if(applying){names.add(MembershipAppliedEndFiles.DIRECTORY);names.add(MembershipReplayFiles.DIRECTORY);}
+        if(context){names.add(MembershipPendingContextFiles.FILE);names.add(MembershipPendingContextFiles.NEXT);}
+        return open(requested,root,identity,cut,names);
     }
 
     private static MembershipBallotAllocator open(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut, Set<String> additional) throws IOException {
@@ -158,6 +166,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
         require(seen.containsAll(Set.of("replica.lock","root.gsr","genesis.gsr","node.gsr",CURRENT)),"incomplete allocator authority");
         var required=new HashSet<>(additional);required.remove(MembershipGenerationFiles.PENDING);required.remove(MembershipFloorFiles.DIRECTORY);required.remove(MembershipRetirementFiles.DIRECTORY);required.remove(MembershipJournalRotation.PENDING);required.remove(MembershipSourceRetirementFiles.FILE);required.remove(MembershipCaptureFiles.FILE);required.remove(MembershipPendingAccept.NEXT);
         required.remove(MembershipAppliedEndFiles.DIRECTORY);required.remove(MembershipReplayFiles.DIRECTORY);
+        required.remove(MembershipPendingContextFiles.FILE);required.remove(MembershipPendingContextFiles.NEXT);
         require(seen.containsAll(required),"incomplete grant authority");
     }
 
