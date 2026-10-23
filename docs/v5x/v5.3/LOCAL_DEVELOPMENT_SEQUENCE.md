@@ -16,12 +16,14 @@ on the base source and the separate D-backed self-hosted Runner.
 
 ### Continuation authorization, 2026-10-22
 
-The operator extended autonomous local development through the point before cloud
-experiments start: implement and validate each batch, commit locally, and continue
-without waiting for per-batch operator acceptance. Unified operator acceptance
-follows the completed local work. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md)
-tracks that full objective. This does not authorize remote push, merge, release,
-paid cloud execution, or changes to the separate V5.2 experiment.
+The active operator goal is continuous local development through **Phase 2**:
+implement and validate each batch, commit locally, and continue without waiting
+for per-batch acceptance. Unified operator acceptance follows Phase 2 closure.
+The [Phase 2 checklist](PHASE_2_CLOSURE_CHECKLIST.md) is the current stop boundary;
+the [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) records subsequent planned
+work. It does not authorize starting those later phases under this goal. Remote
+push, merge, release, paid cloud execution and the separate V5.2 experiment remain
+outside this instruction.
 
 ## Work rules
 

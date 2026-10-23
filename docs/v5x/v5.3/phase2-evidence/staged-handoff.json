@@ -1,0 +1,137 @@
+{
+  "base": "84df35de8ffd6c6e78c2ffc6fe259017779e46c8",
+  "command": {
+    "path": "target/v53-staged-handoff/validation-command.txt",
+    "sha256": "05fe146d3eb9c9b648b3ec16371b344b06f4dadb1cbc708b789ac85c0b5be1be"
+  },
+  "compiledInventory": {
+    "path": "target/v53-staged-handoff/final-compiled-inputs.json",
+    "sha256": "9b77a3d37418e96f4123171dd9752956f117663a0b6ecbc2f3b0aff836574416"
+  },
+  "developmentFailures": {
+    "development.log": "new parent-source digest keys violate canonical JSON key syntax; changed to sorted rows; old reason assertion updated for earlier carried-stage guard",
+    "qualified.log": "new longest-source test attempted a floor-copy receipt during pinned application staging; changed to reading the exact installed source for this inspection; partial successful cohort is retained separately"
+  },
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "f247e85fec8acd69fe74e20f4ae389d2c33426370d7753fdb363d641d66860b2",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": 70,
+  "limitations": [
+    "conditional historical bootstrap",
+    "new handoff process-death and maximal/configuration-boundary lifetime remain open",
+    "internal resource maxima are producer observations, not independently reconstructed",
+    "Python does not decode the core image or infer force/power-loss durability",
+    "additional higher-observation pending-context transfer remains separate",
+    "public runtime disabled; no protected CI or paid cloud"
+  ],
+  "logs": {
+    "development-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development.log": "3ef20ed68072c0c988eb96e02638e8db61892260d86eb32afda049f1648ca83b",
+    "final.log": "5d74dc9f629bd13869c32cc146c5ea6bc630a5bf3be5acac5af5e2fc396b5a42",
+    "qualified.log": "deaecbb27f51d29f9f48e6e385ba51486655516564bea741f69ec9423e91e510",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "protectedCI": false,
+  "raw": {
+    "files": 1107,
+    "indexSha256": "e9a1acccaefb7dcbb8a021c52cc7c6c31f39db6155cd9e8a5533fb3c16e17a48",
+    "path": "general-search-engine-replication/target/v53-staged-handoff/run-0037845f-eaf0-45f3-a429-cf5c31781d1f"
+  },
+  "replays": {
+    "replay": {
+      "derivedStagingRetirements": 3,
+      "freshProcesses": false,
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "lost-old-proof",
+        "changed-original-payload",
+        "missing-old-end-ack",
+        "changed-old-end-plan",
+        "old-end-wrong-ancestor",
+        "changed-frozen-certificate",
+        "changed-selection",
+        "old-vote-deleted",
+        "old-source-deleted",
+        "old-generation-deleted",
+        "staging-retained",
+        "rewritten-entry-origin",
+        "old-certificate-reused",
+        "changed-new-first-coverage",
+        "resurrected-tail"
+      ],
+      "newBallot": 21,
+      "nodePublications": 6,
+      "nodes": 3,
+      "oldBallot": 20,
+      "oldCertificates": 3,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "processForceOrder": false,
+      "resourcePeaks": "producer-observed-bounded",
+      "runtimeEnabled": false,
+      "status": "PASS"
+    },
+    "replay-optimized": {
+      "derivedStagingRetirements": 3,
+      "freshProcesses": false,
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "lost-old-proof",
+        "changed-original-payload",
+        "missing-old-end-ack",
+        "changed-old-end-plan",
+        "old-end-wrong-ancestor",
+        "changed-frozen-certificate",
+        "changed-selection",
+        "old-vote-deleted",
+        "old-source-deleted",
+        "old-generation-deleted",
+        "staging-retained",
+        "rewritten-entry-origin",
+        "old-certificate-reused",
+        "changed-new-first-coverage",
+        "resurrected-tail"
+      ],
+      "newBallot": 21,
+      "nodePublications": 6,
+      "nodes": 3,
+      "oldBallot": 20,
+      "oldCertificates": 3,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "processForceOrder": false,
+      "resourcePeaks": "producer-observed-bounded",
+      "runtimeEnabled": false,
+      "status": "PASS"
+    }
+  },
+  "retainedLocal": "target/v53-staged-handoff",
+  "schema": "gse-v53-staged-handoff-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": "a11defdd0cbdd80bbdecee8feb66bdc1e03d5bcd544430bc50bce9b2b0887890",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "3d0d1a6677cd7414b00b5e70ca05ae87647d4af5fff6a27be583842cdd7bcd32",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingAccept.java": "f5d5a03b17b02911059700ffc396398f822fc0fdd6f1417ad795cc07567f6d98",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AppliedEndRetirementTest.java": "305aa702da0c9d3181c773a65df92790875a5e2f9c02a0b8aa971483053f958e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53StagedApplicationTest.java": "38c25fa9cfa5ba4860ccf35913c092516918f9127e47c99ce00ab8ebd0a3972e",
+    "scripts/v53/staged_handoff_evidence.py": "e9bccd093dd812f692eaaac74c58062b39bbf58e3f710f851ffbe83dcc1fe2a7"
+  },
+  "sourceInventory": {
+    "path": "target/v53-staged-handoff/source-files.json",
+    "sha256": "1f7a269c3703ace4d8846c393ce927e719344092ac5b1beecb5cdba6a1d65318"
+  },
+  "status": "PASS",
+  "validationScope": [
+    "actual three-owner original certificate, old round coverage, complete new-round handoff/publication/continuation",
+    "local old certificate retained even when new generation only has the other source proof",
+    "partial scratch/plan/image/ACK and repeated injected cleanup failures; exact original voting/source bytes retained",
+    "bounded private candidate/active deletion authority; original-first independent physical replay and15 negatives"
+  ]
+}

@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.replication;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.util.*;
@@ -13,10 +14,13 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipAppliedEndFiles implements AutoCloseable {
     static final String DIRECTORY="applied-end",PLAN="plan.json",IMAGE="application.image",ACK="ack.gsr";
     static final String PARENT_STATEMENT="parent-statement.gsr",PARENT_ACK="parent-ack.gsr";
-    static final int METADATA=4096*2+16384*8+2*1024*1024+2048*7;
+    static final String RETIREMENT="retirement.gsat",RETIREMENT_NEXT="retirement.gsat.next";
+    static final int RETIREMENT_MAXIMUM=16*1024;
+    private static final int RETIREMENT_MAGIC=0x47534154;
+    static final int METADATA=4096*2+16384*8+2*1024*1024+2048*7+RETIREMENT_MAXIMUM;
     private static final Set<String> NAMES;
     static {
-        var names=new HashSet<>(Set.of(PLAN,IMAGE,ACK,"selector.gsr","certificate.gsr","catalog.gsr","statement.gsr",PARENT_STATEMENT,PARENT_ACK));
+        var names=new HashSet<>(Set.of(PLAN,IMAGE,ACK,"selector.gsr","certificate.gsr","catalog.gsr","statement.gsr",PARENT_STATEMENT,PARENT_ACK,RETIREMENT,RETIREMENT_NEXT));
         for(int i=0;i<5;i++){names.add(ancestor(i,false));names.add(ancestor(i,true));}NAMES=Set.copyOf(names);
     }
     private static String ancestor(int n,boolean ack){return "ancestor-"+n+(ack?"-ack.gsr":"-statement.gsr");}
@@ -49,6 +53,7 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
             case "catalog.gsr" -> 2*1024*1024;
             case IMAGE -> MembershipApplicationImage.MAXIMUM;
             case ACK,PARENT_ACK -> 2048;
+            case RETIREMENT,RETIREMENT_NEXT -> RETIREMENT_MAXIMUM;
             default -> throw new IllegalArgumentException("unknown applied-end file");
         };
     }
@@ -60,6 +65,7 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
             require(NAMES.contains(name),"applied-end inventory");byte[] bytes=AdmissionPaths.read(path.resolve(name),limit(name));
             files.put(name,inspect(path.resolve(name),bytes.length,hash(bytes)));if(!name.equals(IMAGE))metadata+=bytes.length;
         }
+        require(!files.containsKey(RETIREMENT) || !files.containsKey(RETIREMENT_NEXT),"competing applied-end retirement markers");
         require(metadata<=maximumMetadata,"applied-end journal capacity");
     }
     private void reserve() {
@@ -72,6 +78,7 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         if(imageLease!=null){imageLease.close();imageLease=null;}
     }
     boolean present(){return exists;}
+    boolean retirementPending(){return files.containsKey(RETIREMENT) || files.containsKey(RETIREMENT_NEXT);}
     void check()throws IOException {
         require(!closed,"applied-end closed");AdmissionPaths.recheck(binding);
         require(resources.usage().counts().getOrDefault(MembershipResources.Unit.JOURNAL,0)==1,"applied-end lost shared journal reservation");
@@ -133,7 +140,7 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
                 && wanted.owned().equals(actual.owned()),"publication original parent endorsement");
     }
     void completed(MembershipCheckpointPlan plan,Decoded selector,MembershipIdentity identity,Endorsement endorsement)throws IOException {
-        check();var expected=materialization(plan,selector,identity);
+        check();require(!retirementPending(),"applied-end retirement pending");var expected=materialization(plan,selector,identity);
         require(exists && files.keySet().equals(expected.keySet()),"publication requires complete applied end");
         for(var row:expected.entrySet())require(files.get(row.getKey()).bytes()==row.getValue().length && files.get(row.getKey()).digest().equals(hash(row.getValue())),"publication differs from original applied end");
         var ack=decode(expected.get(ACK),"records","CHECKPOINT_ACK");
@@ -148,7 +155,7 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
     /** The durable covering generation is authority; PLAN is kept until all listed members are gone. */
     void retireCovered(MembershipCapsule capsule,Map<String,byte[]> images,MembershipCapsule.Anchor parent,List<MembershipCapsule.Anchor> ancestors,MembershipPendingAccept.Vote vote,MembershipIdentity identity,
             MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
-        check();guard.check();var cap=capsule.packet.capsule().value();var last=object(list(cap.get("items")).getLast());
+        check();guard.check();require(!retirementPending(),"applied-end retirement pending");var cap=capsule.packet.capsule().value();var last=object(list(cap.get("items")).getLast());
         var expected=materialization(capsule.context.record((String)cap.get("catalog"),"CATALOG"),capsule.context.record((String)last.get("statement"),"CHECKPOINT"),
                 parent,ancestors,vote.certificate(),images.get(cap.get("application")),vote.selector(),identity);
         require(files.isEmpty() || files.containsKey(PLAN),"covered end lost original plan before members");
@@ -169,20 +176,10 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
     /** Guard must verify actual original selector/certificate ownership and the unchanged promise/fence at every call. */
     Endorsement force(MembershipCheckpointPlan plan,Decoded selector,MembershipIdentity identity,
             MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
-        check();guard.check();var expected=materialization(plan,selector,identity);long metadata=0;
+        check();guard.check();require(!retirementPending(),"applied-end retirement pending");var expected=materialization(plan,selector,identity);long metadata=0;
         for(var row:expected.entrySet())if(!row.getKey().equals(IMAGE))metadata+=row.getValue().length;
         require(metadata<=maximumMetadata,"applied-end completion journal capacity");
-        for(var row:files.entrySet())require(expected.containsKey(row.getKey()) && prefix(AdmissionPaths.read(path.resolve(row.getKey()),limit(row.getKey())),expected.get(row.getKey())),"applied-end requires exact original plan");
-        // An ACK (even a torn one) can only follow a complete exact forced end.
-        var ackNames=new ArrayList<>(List.of(ACK));if(expected.containsKey(PARENT_ACK))ackNames.add(PARENT_ACK);
-        for(int i=0;i<5 && expected.containsKey(ancestor(i,true));i++)ackNames.add(ancestor(i,true));
-        if(ackNames.stream().anyMatch(files::containsKey))for(var row:expected.entrySet())if(!ackNames.contains(row.getKey()))
-            require(files.containsKey(row.getKey()) && files.get(row.getKey()).bytes()==row.getValue().length
-                    && files.get(row.getKey()).digest().equals(hash(row.getValue())),"applied-end ACK without complete original end");
-        for(int i=1;i<ackNames.size();i++)if(files.containsKey(ackNames.get(i)))for(int j=0;j<i;j++) {
-            String name=ackNames.get(j);require(files.containsKey(name) && files.get(name).bytes()==expected.get(name).length
-                    && files.get(name).digest().equals(hash(expected.get(name))),"ancestor ACK without preceding complete ACK");
-        }
+        validateOriginal(expected,files);
         reserve();event("APPLY_VALIDATED",guard,cut);
         if(!exists){Files.createDirectory(path);snapshot();event("APPLY_DIRECTORY_CREATED",guard,cut);}
         complete(PLAN,expected.get(PLAN),"APPLY_PLAN",guard,cut);
@@ -198,6 +195,109 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         event("APPLY_BEFORE_RETURN",guard,cut);
         var ack=decode(expected.get(ACK),"records","CHECKPOINT_ACK");
         return new Endorsement(ack,observation(ack,identity),parentEndorsement(expected,identity),ancestorEndorsements(expected,identity));
+    }
+    /** Validate a saved original inventory, including partial members and ACK ordering. */
+    private static void validateOriginal(Map<String,byte[]> expected,Map<String,FileIdentity> original) {
+        for(var row:original.entrySet()) {
+            byte[] full=expected.get(row.getKey());var found=row.getValue();
+            require(full!=null && found.bytes()>=0 && found.bytes()<=full.length
+                    && found.digest().equals(hash(Arrays.copyOf(full,Math.toIntExact(found.bytes())))),"applied-end requires exact original plan");
+        }
+        // An ACK (even a torn one) can only follow a complete exact forced end.
+        var ackNames=new ArrayList<>(List.of(ACK));if(expected.containsKey(PARENT_ACK))ackNames.add(PARENT_ACK);
+        for(int i=0;i<5 && expected.containsKey(ancestor(i,true));i++)ackNames.add(ancestor(i,true));
+        if(ackNames.stream().anyMatch(original::containsKey))for(var row:expected.entrySet())if(!ackNames.contains(row.getKey()))
+            require(original.containsKey(row.getKey()) && original.get(row.getKey()).bytes()==row.getValue().length
+                    && original.get(row.getKey()).digest().equals(hash(row.getValue())),"applied-end ACK without complete original end");
+        for(int i=1;i<ackNames.size();i++)if(original.containsKey(ackNames.get(i)))for(int j=0;j<i;j++) {
+            String name=ackNames.get(j);require(original.containsKey(name) && original.get(name).bytes()==expected.get(name).length
+                    && original.get(name).digest().equals(hash(expected.get(name))),"ancestor ACK without preceding complete ACK");
+        }
+    }
+    private static byte[] retirementBytes(Map<String,byte[]> expected,Decoded selector,MembershipIdentity identity,
+            Map<String,Object> authority,Map<String,FileIdentity> original) {
+        var inventory=new ArrayList<Map<String,Object>>();
+        new TreeMap<>(original).forEach((name,file)->inventory.add(Map.of("path",name,"type","file","bytes",file.bytes(),"sha256",file.digest())));
+        byte[] body=canonical(Map.of("schema","gse-v53-applied-end-retirement/1.3","root",selector.value().get("root"),
+                "node",identity.nodeId().value(),"storage",identity.storageId().toString(),"selector",selector.digest(),
+                "plan",hash(expected.get(PLAN)),"authority",authority,"files",inventory),RETIREMENT_MAXIMUM-HEADER);
+        var output=ByteBuffer.allocate(HEADER+body.length);
+        output.putInt(RETIREMENT_MAGIC).putShort((short)1).putShort((short)3).putInt(0).putInt(body.length);
+        output.put(sha(Arrays.copyOf(output.array(),16),body)).put(body);return output.array();
+    }
+    /** Only the active name may authorize deletion; a damaged active marker is never reconstructed. */
+    private static Map<String,FileIdentity> retirementOriginal(byte[] bytes) {
+        require(bytes.length>=HEADER && bytes.length<=RETIREMENT_MAXIMUM,"applied-end retirement framing");var input=ByteBuffer.wrap(bytes);
+        require(input.getInt()==RETIREMENT_MAGIC && input.getShort()==1 && input.getShort()==3 && input.getInt()==0,"applied-end retirement version/flags");
+        int length=input.getInt();require(length>0 && length==bytes.length-HEADER,"applied-end retirement length");
+        byte[] body=Arrays.copyOfRange(bytes,HEADER,bytes.length);
+        require(Arrays.equals(Arrays.copyOfRange(bytes,16,HEADER),sha(Arrays.copyOf(bytes,16),body)),"applied-end retirement checksum");
+        var value=object(parse(body,RETIREMENT_MAXIMUM-HEADER));
+        require(Arrays.equals(body,canonical(value,RETIREMENT_MAXIMUM-HEADER)),"applied-end retirement canonical body");
+        var result=new TreeMap<String,FileIdentity>();String previous=null;
+        for(Object item:list(value.get("files"))) {
+            var row=object(item);require(row.keySet().equals(Set.of("path","type","bytes","sha256")) && row.get("path") instanceof String,"applied-end retirement inventory fields");
+            String name=(String)row.get("path");require(NAMES.contains(name) && !name.equals(RETIREMENT) && !name.equals(RETIREMENT_NEXT)
+                    && "file".equals(row.get("type")) && (previous==null || previous.compareTo(name)<0),"applied-end retirement ordered original inventory");
+            long size=number(row.get("bytes"));require(size>=0 && size<=limit(name),"applied-end retirement original member capacity");checkType(row.get("sha256"),"hash");
+            result.put(name,new FileIdentity(null,size,(String)row.get("sha256")));previous=name;
+        }
+        require(result.size()<=NAMES.size()-2,"applied-end retirement original inventory capacity");return result;
+    }
+    /**
+     * Discard only private derived staging, never its original vote/source/generation.
+     * The guard must bind the higher installed selection, unchanged old certified
+     * entry and old source before admission and at every callback. It must keep
+     * that exact durable cleanup authority valid during recovery without returning
+     * an old ACK or imposing the old promise's voting fence.
+     */
+    void retireSuperseded(MembershipCheckpointPlan plan,Decoded oldSelector,MembershipIdentity identity,Map<String,Object> authority,
+            MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
+        check();guard.check();var expected=materialization(plan,oldSelector,identity);
+        var bound=object(parse(canonical(authority,RETIREMENT_MAXIMUM-HEADER),RETIREMENT_MAXIMUM-HEADER));
+        require(!bound.isEmpty(),"applied-end retirement requires explicit authority");
+        if(!exists) {if(imageLease!=null){imageLease.close();imageLease=null;}return;}
+        Map<String,FileIdentity> original;byte[] active=null;
+        if(files.containsKey(RETIREMENT)) {
+            active=AdmissionPaths.read(path.resolve(RETIREMENT),RETIREMENT_MAXIMUM);original=retirementOriginal(active);
+        }else {
+            original=new TreeMap<>(files);original.remove(RETIREMENT_NEXT);
+        }
+        // Validate all declared original bytes even after deletion; the remaining
+        // files are only a subset, never the source for a replacement inventory.
+        validateOriginal(expected,original);byte[] marker=retirementBytes(expected,oldSelector,identity,bound,original);
+        if(active!=null)require(Arrays.equals(active,marker),"applied-end retirement authority/plan changed");
+        else if(files.containsKey(RETIREMENT_NEXT))require(prefix(AdmissionPaths.read(path.resolve(RETIREMENT_NEXT),RETIREMENT_MAXIMUM),marker),"applied-end retirement requires exact original candidate");
+        long metadata=marker.length;
+        for(var row:original.entrySet())if(!row.getKey().equals(IMAGE))metadata=Math.addExact(metadata,row.getValue().bytes());
+        require(metadata<=maximumMetadata,"applied-end retirement journal capacity");
+        for(var row:files.entrySet())if(!row.getKey().equals(RETIREMENT) && !row.getKey().equals(RETIREMENT_NEXT)) {
+            var declared=original.get(row.getKey());require(declared!=null && declared.bytes()==row.getValue().bytes()
+                    && declared.digest().equals(row.getValue().digest()),"applied-end retirement changed/unlisted remaining member");
+        }
+        event("SUPERSEDED_END_VALIDATED",guard,cut);
+        if(active==null) {
+            complete(RETIREMENT_NEXT,marker,"SUPERSEDED_END_RETIREMENT",guard,cut);
+            AdmissionPaths.forceDirectory(path);event("SUPERSEDED_END_RETIREMENT_PARENT_FORCED",guard,cut);
+            require(!Files.exists(path.resolve(RETIREMENT),LinkOption.NOFOLLOW_LINKS),"applied-end retirement active target exists");
+            var candidate=files.get(RETIREMENT_NEXT);
+            Files.move(path.resolve(RETIREMENT_NEXT),path.resolve(RETIREMENT),StandardCopyOption.ATOMIC_MOVE);
+            files.remove(RETIREMENT_NEXT);files.put(RETIREMENT,candidate);event("SUPERSEDED_END_RETIREMENT_RENAMED",guard,cut);
+        }else {
+            try(var channel=FileChannel.open(path.resolve(RETIREMENT),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+            event("SUPERSEDED_END_RETIREMENT_RESEALED",guard,cut);
+        }
+        AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(path.getParent());event("SUPERSEDED_END_AUTHORITY_FORCED",guard,cut);
+        var names=new ArrayList<>(files.keySet());names.remove(RETIREMENT);names.remove(PLAN);if(files.containsKey(PLAN))names.add(PLAN);
+        for(String name:names) {
+            event("SUPERSEDED_END_BEFORE_DELETE",guard,cut);Files.delete(path.resolve(name));files.remove(name);
+            AdmissionPaths.forceDirectory(path);event("SUPERSEDED_END_FILE_DELETED",guard,cut);
+        }
+        event("SUPERSEDED_END_BEFORE_RETIREMENT_DELETE",guard,cut);Files.delete(path.resolve(RETIREMENT));files.remove(RETIREMENT);
+        AdmissionPaths.forceDirectory(path);event("SUPERSEDED_END_RETIREMENT_DELETED",guard,cut);
+        event("SUPERSEDED_END_BEFORE_DIRECTORY_DELETE",guard,cut);Files.delete(path);exists=false;directoryKey=null;
+        AdmissionPaths.forceDirectory(path.getParent());event("SUPERSEDED_END_DIRECTORY_DELETED",guard,cut);
+        if(imageLease!=null){imageLease.close();imageLease=null;}
     }
     private void event(String name,MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
         check();guard.check();cut.at(name);check();guard.check();

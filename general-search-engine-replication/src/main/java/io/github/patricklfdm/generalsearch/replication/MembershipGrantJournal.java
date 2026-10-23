@@ -325,6 +325,19 @@ final class MembershipGrantJournal implements AutoCloseable {
         applicationTransactionIdle();require(!inactive.pending(),"pending ACCEPT conflicts with pending selector");
     }
     private void applicationTransactionIdle()throws IOException {
+        applicationRetirementIdle();otherApplicationTransactionsIdle();
+    }
+    private void applicationRetirementIdle() {
+        require(appliedEnd==null || !appliedEnd.retirementPending(),"staged retirement must finish before authority changes");
+        require(appliedEnd==null || !appliedEnd.present() && !replayFiles.present() || !carriedVoteUntransferred(),
+                "carried application staging must retire before another authority change");
+    }
+    private boolean carriedVoteUntransferred() {
+        if(pendingAccept==null || pendingAccept.active()==null)return false;
+        var vote=pendingAccept.active();return !Arrays.equals(vote.selector().bytes(),current.selector.bytes())
+                && !vote.selected().digest().equals(current.manifest.value().get("selection"));
+    }
+    private void otherApplicationTransactionsIdle()throws IOException {
         require(!capture.pending() && !sourceRetirement.pending() && !rotation.pending()
                 && !floors.pending() && !floors.releasing() && !retirement.pending(),"pending ACCEPT conflicts with other authority transaction");
     }
@@ -456,19 +469,22 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
 
     private List<MembershipCapsule.Anchor> applicationParents(byte[] ancestry)throws IOException {
-        var selectedOriginals=current.selectedSources();
-        var parents=new ArrayList<>(selectedOriginals.isPresent()?MembershipSelectedSources.parents(selectedOriginals.get(),selection,current.capsule,ancestry)
-                :current.capsule.ancestryAnchors(ancestry).values());
-        if(current.coverage().isPresent() && selection!=null && !selection.value().get("cut").equals(current.capsule.context.cut)) {
-            var first=MembershipRoundCoverage.first(current.capsule,current.coverage().orElseThrow(),ancestry,promise,selection);
+        return applicationParents(current.capsule,current.selectedSources().orElse(null),current.coverage().orElse(null),ancestry,promise,selection);
+    }
+    private List<MembershipCapsule.Anchor> applicationParents(MembershipCapsule original,byte[] selectedOriginals,byte[] coverage,
+            byte[] ancestry,Decoded originalPromise,Decoded originalSelection)throws IOException {
+        var parents=new ArrayList<>(selectedOriginals!=null?MembershipSelectedSources.parents(selectedOriginals,originalSelection,original,ancestry)
+                :original.ancestryAnchors(ancestry).values());
+        if(coverage!=null && originalSelection!=null && !originalSelection.value().get("cut").equals(original.context.cut)) {
+            var first=MembershipRoundCoverage.first(original,coverage,ancestry,originalPromise,originalSelection);
             parents.add(first.parent());parents.add(first.end());
         }
-        parents.add(current.capsule.terminal());addFloorParent(parents);
-        for(var original:bases.values()) {
-            var cap=sources.original(original).packet().capsule().value();
+        parents.add(original.terminal());addFloorParent(parents);
+        for(var basis:bases.values()) {
+            var cap=sources.original(basis).packet().capsule().value();
             parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
         }
-        current.verifyParents(parents);return List.copyOf(parents);
+        original.verifyAncestry(ancestry,parents);return List.copyOf(parents);
     }
     /** Reserve every still-required endpoint, including the whole original selected set, before a new vote. */
     private void publicationCapacity(MembershipPendingAccept.Vote vote,AutomaticReplicationException.Outcome outcome)throws IOException {
@@ -484,6 +500,63 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
 
     record Applied(MembershipCheckpointPlan plan,MembershipAppliedEndFiles.Endorsement endorsement) {}
+    /** Retire only derived work from a fenced certificate. The newer installed selection
+     * must retain that exact logical entry at the identical parent; voting originals survive.
+     * This method never forces or returns an old application ACK. */
+    synchronized <K,T> void retireSupersededApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations)throws IOException {
+        require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();otherApplicationTransactionsIdle();
+        require(!inactive.pending() && !pendingAccept.pending(),"staged retirement requires completed original authorities");
+        var vote=pendingAccept.active();require(vote!=null && vote.certificate()!=null && voteReferencesInactive(vote),"staged retirement requires original carried certificate");
+        verifyVote(vote);var originals=inactive.originalFiles();var old=originalGeneration(originals);
+        require(promise!=null && basis!=null && selection!=null && promise.digest().equals(current.manifest.value().get("promise"))
+                && basis.digest().equals(current.manifest.value().get("basis")) && selection.digest().equals(current.manifest.value().get("selection"))
+                && compareBallot(object(promise.value().get("ballot")),object(vote.promise().value().get("ballot")))>0
+                && current.capsule.terminal().equals(old.capsule.terminal()) && selection.value().get("cut").equals(old.capsule.context.cut)
+                && vote.entry().digest().equals(selection.value().get("nextEntry")),"staged retirement requires newer installed exact carried selection");
+        var local=originalSource();require(local.capsule.terminal().equals(old.capsule.terminal())
+                && vote.accept().digest().equals(local.basis.value().get("accepted")),"staged retirement requires original local frozen tail");
+        for(var frame:List.of(vote.entry(),vote.accept(),vote.proof(),vote.certificate()))
+            require(Arrays.equals(frame.bytes(),local.capsule.packet.objectBytes(frame.digest())),"staged retirement lost original certified source");
+        require(Arrays.equals(vote.payload(),local.capsule.packet.objectBytes((String)vote.entry().value().get("payload")))
+                && Arrays.equals(vote.entry().bytes(),current.capsule.packet.objectBytes(vote.entry().digest()))
+                && Arrays.equals(vote.payload(),current.capsule.packet.objectBytes((String)vote.entry().value().get("payload")))
+                && current.accepted!=null && current.capsule.context.record(current.accepted,"ACCEPT").value().get("entry").equals(vote.entry().digest()),
+                "staged retirement changed carried entry/payload");
+        require(observations.size()<=12,"application phased observation count");var owned=Set.copyOf(observations);
+        var packet=MembershipPendingAccept.packet(old.capsule.packet,vote);var images=new TreeMap<String,byte[]>();
+        for(String h:old.capsule.packet.images().keySet())images.put(h,originals.get(h+".image"));
+        var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        var verified=Objects.requireNonNull(capsuleVerifier.verify(rootRecord,packet,images));
+        require(Arrays.equals(verified.packet.bytes(),packet.bytes()),"staged retirement verifier substituted original packet");
+        verified.context.certificate(vote.certificate(),owned);
+        byte[] ancestry=originals.getOrDefault("ancestry.gsr",new byte[0]);
+        var parents=applicationParents(old.capsule,originals.get(MembershipSelectedSources.FILE),originals.get(MembershipSelectionCoverage.FILE),ancestry,vote.promise(),vote.selected());
+        var authority=new TreeMap<String,Object>();authority.put("pending",hash(vote.bytes()));authority.put("oldGeneration",old.generation.digest());
+        authority.put("selector",current.selector.digest());authority.put("generation",current.manifest.digest());authority.put("promise",promise.digest());
+        authority.put("selection",selection.digest());authority.put("basis",basis.digest());authority.put("source",hash(local.capsule.packet.bytes()));
+        authority.put("ancestry",hash(ancestry));authority.put("coverage",hash(originals.getOrDefault(MembershipSelectionCoverage.FILE,new byte[0])));
+        var parentSources=new ArrayList<Map<String,Object>>();for(var original:bases.values())parentSources.add(Map.of("basis",original.digest(),"packet",hash(sources.original(original).packet().bytes())));
+        parentSources.sort(Comparator.comparing(v->(String)v.get("basis")));
+        authority.put("parentSources",parentSources);authority.put("floor",floors.read().map(Decoded::digest).orElse(""));
+        var bound=object(promise.value().get("ballot"));byte[] selector=current.selector.bytes(),installedPromise=promise.bytes(),installedSelection=selection.bytes();
+        MembershipGenerationFiles.Guard guard=()->{
+            checkOwner();fence(bound);otherApplicationTransactionsIdle();
+            require(!pendingAccept.pending() && !inactive.pending() && pendingAccept.active()!=null && Arrays.equals(vote.bytes(),pendingAccept.active().bytes())
+                    && Arrays.equals(selector,current.selector.bytes()) && Arrays.equals(installedPromise,promise.bytes())
+                    && Arrays.equals(installedSelection,selection.bytes()),"staged retirement original authority changed");
+        };
+        guard.check();AdmissionPaths.disjoint(List.of(directory,storage.directory()));
+        if(!appliedEnd.present() && !replayFiles.present())return;
+        reserveApplicationCompletion();
+        try {
+            cut.at("STAGED_RETIREMENT_AUTHORITY_VALIDATED");guard.check();
+            var plan=replayFiles.executeRetained(vote.selector(),vote.certificate(),identity,work->MembershipCheckpointPlan.replay(configuration,storage,
+                    old.capsule,packet,vote.certificate(),images,owned,work),guard,cut).renewAncestors(parents,ancestry);
+            guard.check();appliedEnd.retireSuperseded(plan,vote.selector(),identity,authority,guard,cut);
+            guard.check();replayFiles.releaseCompletion();cut.at("STAGED_RETIREMENT_BEFORE_RETURN");guard.check();
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
     /** Real local certificate + typed replay + forced end. This is not selector publication or public readiness. */
     synchronized <K,T> Applied applyCurrent(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations)throws IOException {
@@ -588,7 +661,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
     private void checkOwner() throws IOException {checkWithoutRetirement();if(retirement!=null)retirement.check();}
-    private void sourceIdle(){if(pendingAccept!=null)require(!pendingAccept.pending(),"pending ACCEPT requires exact original completion");if(capture!=null)require(!capture.pending(),"pending source capture must finish before authority changes");if(sourceRetirement!=null)require(!sourceRetirement.pending(),"pending source retirement must finish before authority changes");}
+    private void sourceIdle(){applicationRetirementIdle();require(!carriedVoteUntransferred(),"carried vote must transfer before another authority change");if(pendingAccept!=null)require(!pendingAccept.pending(),"pending ACCEPT requires exact original completion");if(capture!=null)require(!capture.pending(),"pending source capture must finish before authority changes");if(sourceRetirement!=null)require(!sourceRetirement.pending(),"pending source retirement must finish before authority changes");}
     private void rotationIdle(){sourceIdle();if(floors!=null)require(!floors.releasing(),"pending floor release must finish before authority changes");if(rotation!=null)require(!rotation.pending(),"pending journal rotation must finish before authority changes");}
     private void floorIdle() throws IOException {
         rotationIdle();
@@ -649,8 +722,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Returns no record for an already-empty slot; never drops root promises or original BASIS sources. */
     synchronized Optional<Decoded> retireInactive() throws IOException {
-        require(retirement!=null && floors!=null && inactive!=null,"retirement storage owner required");checkOwner();rotationIdle();
+        require(retirement!=null && floors!=null && inactive!=null,"retirement storage owner required");checkOwner();
         require(pendingAccept==null || !voteReferencesInactive(pendingAccept.active()),"original pending vote pins inactive generation until reacceptance");
+        rotationIdle();
         require(!floors.pending() && !inactive.pending(),"pending floor/selector must finish before retirement");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
         try {
@@ -860,7 +934,14 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     /** The same writer monitor will own later generation installation; external changes are refused. */
     synchronized Decoded prepareCurrent(Map<String,Object> incoming) throws IOException {
-        require(current!=null,"current generation required");checkOwner();floorIdle();cut.at("CURRENT_BEFORE_CAPTURE");checkOwner();
+        require(current!=null,"current generation required");checkOwner();
+        if(carriedVoteUntransferred() && promise!=null && basis!=null && promise.value().get("ballot").equals(incoming)) {
+            // Replaying an already forced grant does not begin a new campaign or
+            // mutate its source, including while derived staging is being retired.
+            otherApplicationTransactionsIdle();require(!pendingAccept.pending() && !inactive.pending(),"original grant requires complete authorities");
+            current.capsule.context.ballot(incoming,true);fence(incoming);originalSource();checkOwner();fence(incoming);return basis;
+        }
+        floorIdle();cut.at("CURRENT_BEFORE_CAPTURE");checkOwner();
         if(inactive!=null)require(!inactive.pending() && !(inactive.exists() && !current.adopted && current.manifest.value().get("selection")==null)
                 && !inactive.incompleteOrSelected(selection==null?null:selection.digest(),number(current.capsule.context.cut.get("index"))),"pending generation installation must finish before another grant");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),
@@ -998,9 +1079,16 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Selection ancestry fixes the vote; extra installation ancestry preserves local retained parents only. */
     synchronized Decoded installCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,
             List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images) throws IOException {
-        require(inactive!=null && selection!=null,"durable selection and generation owner required");floorIdle();
+        require(inactive!=null && selection!=null,"durable selection and generation owner required");
+        boolean installed=selection.digest().equals(current.manifest.value().get("selection"));
+        if(installed && appliedEnd!=null && !appliedEnd.retirementPending()) {
+            // A lost installation response may be retried while old derived work
+            // awaits retirement. This branch still validates the entire exact plan
+            // below and performs no write; a new installation remains excluded.
+            checkOwner();otherApplicationTransactionsIdle();require(!pendingAccept.pending(),"pending ACCEPT requires exact original completion");
+        }else floorIdle();
         var selected=decision(offered,bridges);require(Arrays.equals(selection.bytes(),selected.selected().bytes()),"installation differs from original selection");
-        var ballot=object(selection.value().get("ballot"));boolean installed=selection.digest().equals(current.manifest.value().get("selection"));
+        var ballot=object(selection.value().get("ballot"));
         require(pendingAccept==null || pendingAccept.active()==null || selected.longest().capsule.context.cut.equals(current.capsule.context.cut),"pending ACCEPT requires covered-prefix publication before advancing generation");
         var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
         // A completed receipt retains its original materialization even after safe source retirement.

@@ -1,9 +1,10 @@
 # V5.3 local pre-cloud completion audit
 
-Status: **OPEN**. Operator instruction: continue local development through the
-point before cloud experiments begin; commit each tested batch and continue.
-The operator performs unified acceptance afterwards. This expands the previous
-Phase 2-only continuation instruction without dropping any Phase 2 obligations.
+Status: **OPEN**, future roadmap. The active operator goal is continuous local
+development through Phase 2 closure, with a local commit after each validated
+batch and unified operator acceptance afterwards. This document retains the
+later pre-cloud obligations; it does not authorize automatically continuing into
+Phases 3–6 after that goal is complete.
 
 | Required stage | Current authoritative state / required completion evidence |
 | --- | --- |

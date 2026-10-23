@@ -73,9 +73,13 @@ and `general-search-engine-replication/target/v53-replay-process/`.
 
 ## Still required
 
-Complete capsule/ancestry selector publication, covered-tail retirement and stable
-same-round next slots remain pending. A fenced old staged end is preserved until
-covering publication/retirement exists. Full-size coordinated source/image lifetime,
-all-profile integrated physical coverage, public provisioning/runtime and protected
-acceptance remain required. Local process crashes do not emulate power loss.
+Subsequent [publication](PHASE_2_JOURNAL_PUBLICATION.md),
+[same-round storage](PHASE_2_ROUND_STORAGE.md) and
+[fenced staged handoff](PHASE_2_STAGED_HANDOFF.md) now cover the local owner
+paths beyond this original batch. The handoff retires derived old work under one
+newer installed selection while preserving its original certificate. Dedicated
+handoff process qualification, arbitrary later-observation recovery, full-size
+coordinated source/image lifetime, all-profile physical coverage, public
+provisioning/runtime and protected acceptance remain required. Local process
+crashes do not emulate power loss.
 No POM, workflow, fixed-three production runtime or V5.2 cloud experiment changed.

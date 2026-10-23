@@ -77,3 +77,11 @@ image/metadata lifetime, staged application after a higher promise, membership
 boundaries and complete offline provisioning remain open.
 No distributed activation, public runtime, protected CI or cloud qualification
 is claimed by this local storage gate.
+
+## Fenced derived application work
+
+The subsequent [staged handoff](PHASE_2_STAGED_HANDOFF.md) can retire exact old
+replay/end prefixes after a newer installed selection carries the same entry at
+the identical parent. It retains the original vote and uses a bounded forced
+retirement authority before deletion. Arbitrary later observations still require
+a separate original-context transfer; this addition does not close Phase 2.

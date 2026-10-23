@@ -131,8 +131,11 @@ final class MembershipPendingAccept {
     }
     /** Union immutable originals. The higher accepted ballot owns the still-unsettled next slot. */
     static MembershipSourcePacket packet(MembershipCurrentGeneration current,Vote vote) {
-        if(vote==null)return current.capsule.packet;
-        var original=current.capsule.packet;var objects=new TreeMap<String,byte[]>();
+        return packet(current.capsule.packet,vote);
+    }
+    static MembershipSourcePacket packet(MembershipSourcePacket original,Vote vote) {
+        if(vote==null)return original;
+        var objects=new TreeMap<String,byte[]>();
         for(String digest:original.objectNames())objects.put(digest,original.objectBytes(digest));
         objects.put(vote.entry().digest(),vote.entry().bytes());objects.put(vote.accept().digest(),vote.accept().bytes());
         objects.put((String)vote.entry().value().get("payload"),vote.payload());

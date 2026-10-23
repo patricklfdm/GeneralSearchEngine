@@ -89,6 +89,9 @@ now preserves the earlier vote's original round through new-ballot installation,
 reacceptance, bounded maintenance and same-round continuation.
 [Carried maintenance process recovery](PHASE_2_CARRIED_PROCESS.md) now exercises
 22 repeated-crash cases with original-first physical replay.
+[Fenced application staging handoff](PHASE_2_STAGED_HANDOFF.md) adds explicit
+derived-work retirement under a newer installed selection; its local qualification
+is tracked separately from the remaining repeated-campaign and maximal-lifetime work.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.
