@@ -1,0 +1,112 @@
+{
+  "base": "50b9ec9dc393568722ee704a72185299b4ead2cd",
+  "developmentFailures": {
+    "qualification.log": "all process cases ran; test receipt serialization refused the inspect-again key; renamed to inspectAgain and reran complete gate"
+  },
+  "freshJvms": 100,
+  "injectedDamageCases": 4,
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "687364c3669c485d78c81e2bd626b165c720ac12cdc87797eeb581ae2c424d56",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": 29,
+  "limitations": [
+    "conditional selected generation and historical ownership inputs",
+    "four damaged states use explicit test-only truncation after the whole-frame write",
+    "no torn-PROMISE repair or offline replacement procedure introduced",
+    "process interruption is not power loss; public runtime disabled; complete Phase 2 open"
+  ],
+  "logs": {
+    "qualification.log": "695eee29b06736743012a3ada2adb8856656d720cf53794ae83b29d1fc2c0182",
+    "qualified.log": "84f7eaddd5495e2628deb371617d069962dc7ce81f9140007f43b85745848629",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newMethods": 2,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "processCases": 26,
+  "productionJarsUnchanged": true,
+  "properPromisePrefixes": 342,
+  "protectedCI": false,
+  "raw": {
+    "files": 2207,
+    "indexSha256": "e3722d386fb8f52d7c028569141453638b6339136208dc2ea630bdbe9de6e0dc",
+    "path": "general-search-engine-replication/target/v53-promise-boundaries/run-42739d21-135f-4910-9e97-57a457cf77a9"
+  },
+  "reopenAttemptsPerPrefix": 2,
+  "replays": {
+    "replay": {
+      "cases": 26,
+      "exactPhaseOrder": true,
+      "freshJvms": 100,
+      "injectedDamageCases": 4,
+      "negatives": [
+        "false-initial",
+        "changed-promise",
+        "dropped-promise",
+        "invented-basis",
+        "changed-tail",
+        "lost-promise-force",
+        "lost-basis-force",
+        "lowered-fresh-ballot",
+        "repaired-prefix",
+        "false-rejection",
+        "false-exit",
+        "missing-case"
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "runtimeEnabled": false,
+      "status": "PASS",
+      "tornPromiseRepair": false,
+      "unmarkedProcessCrashes": 22
+    },
+    "replay-optimized": {
+      "cases": 26,
+      "exactPhaseOrder": true,
+      "freshJvms": 100,
+      "injectedDamageCases": 4,
+      "negatives": [
+        "false-initial",
+        "changed-promise",
+        "dropped-promise",
+        "invented-basis",
+        "changed-tail",
+        "lost-promise-force",
+        "lost-basis-force",
+        "lowered-fresh-ballot",
+        "repaired-prefix",
+        "false-rejection",
+        "false-exit",
+        "missing-case"
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "runtimeEnabled": false,
+      "status": "PASS",
+      "tornPromiseRepair": false,
+      "unmarkedProcessCrashes": 22
+    }
+  },
+  "retainedLocal": "target/v53-promise-boundaries",
+  "schema": "gse-v53-promise-boundaries-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PromiseBoundaryTest.java": "22ec3e0565ab686096ce0819f738a59e198690c4d78ac4cdf6b04042502e9316",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PromiseBoundaryWorker.java": "dada0c66b60b734848e37ca67a46b06e609839ad6628360f1da92162f52767a3",
+    "scripts/v53/promise_boundary_evidence.py": "8dcd548d233086f603d59d2b473557915289e16727f2a06cba353886ec0627f5"
+  },
+  "sourceInventory": {
+    "path": "target/v53-promise-boundaries/qualified-source-files.json",
+    "sha256": "90dcfa2218554c89508a245212cc4c7e3db1e2ab5013968f23846da0843612a5"
+  },
+  "status": "PASS",
+  "unmarkedCrashes": 22,
+  "validationScope": [
+    "26 halt/SIGKILL cases,100 fresh child JVMs,342 exact torn prefixes each refused twice",
+    "29 focused Java methods including original grant, capture and BASIS-recovery regressions",
+    "original-first physical source/ballot/force replay,12 negatives,portable and optimized replay"
+  ]
+}

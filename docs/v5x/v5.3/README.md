@@ -43,7 +43,9 @@ exact floor/selector/ancestry and retained tail ownership.
 crash/recovery cases. [Covered capture-only retirement](PHASE_2_CAPTURED_SOURCE_RELEASE.md)
 and [current-pinned partial capture recovery](PHASE_2_CAPTURE_RECOVERY.md) now pass;
 [Exact torn BASIS recovery](PHASE_2_CAPTURE_JOURNAL_RECOVERY.md) also passes;
-unmarked/torn PROMISE handling and maximal image headroom remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
+[unmarked/torn PROMISE boundaries](PHASE_2_PROMISE_BOUNDARIES.md) now have process
+qualification for retained fences and unchanged-byte refusal;
+maximal image headroom and complete offline recovery remain open. The [pre-cloud checklist](PRE_CLOUD_CLOSURE_CHECKLIST.md) tracks the
 expanded continuous local development scope.
 
 [Original pending ACCEPT](PHASE_2_PENDING_ACCEPT.md) now passes 42 process cases,
