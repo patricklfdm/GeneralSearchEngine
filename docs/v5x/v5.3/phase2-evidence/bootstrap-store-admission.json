@@ -1,0 +1,127 @@
+{
+  "base": "8cb24cf821c5ca9a7651d365374a71d0e4ee7593",
+  "compiledInventories": {
+    "target/v53-bootstrap-store-integration/inputs1.json": "ccfe41d61c5528907aa217f8a3dcc7236518c0a5446f44c8ac7a8257574a75d0",
+    "target/v53-bootstrap-store-integration/inputs2.json": "924e16828400a7c8e83a03edcc329a670dd3ef66e9888295d1997b8e7ae7ac2f"
+  },
+  "compiledMainClasses": {
+    "classes": 698,
+    "path": "target/v53-bootstrap-store-integration/compiled-main-classes.json",
+    "sha256": "8dc39a0f4ade6d7a3ad81aff4e852cff9bff1ad5b37c9de9ec597e3a1672c911"
+  },
+  "jars": {
+    "target/v53-bootstrap-store-integration/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-store-integration/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "4ed05359e1701458d20b459ed232443a10cf95f9fedd37bb8874040a98323a07"
+  },
+  "javaMethods": 32,
+  "javaQualification": "31 passed in first run; corrected stale ownership assertion passed in second run; production identical between both runs",
+  "limitations": [
+    "private admitted transaction uses no-op typed callbacks; coordinator coupling remains pending",
+    "no public runtime/learner/remote voting, maximal lifetime or power-loss claim",
+    "Phase 2 transferred context lifetime and complete physical audit remain open"
+  ],
+  "logs": {
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "a7a50b23670314b7a4a2fe4ecba01a27fb9903c311b2c7f3a9ab492054d066ce",
+    "run2.log": "41c395e8f7d73362ce609ef106cc0b21c2f2917deaa49aa7714ad4b2f513be84"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-store-integration/producer-classes.json",
+    "sha256": "03d7292363ed01e70bc50524032aa26d800dfa18c84bc5b0c979907b85a5de22"
+  },
+  "raw": {
+    "indexSha256": "7b29ac3cdfed2c1c633c284dccfbb91d0cc85310e3d2ad220dbaaffa551b791c",
+    "members": 871,
+    "path": "general-search-engine-replication/target/v53-bootstrap-store-admission/run-4ec247cb-8bd1-4448-a6b7-1d6cfa61d272"
+  },
+  "replay": {
+    "cases": 6,
+    "independentTypedImageSemantics": false,
+    "initialVoters": 24,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "bootstrap store case inventory"
+      },
+      {
+        "case": "original-plan",
+        "reason": "bootstrap original plan checksum"
+      },
+      {
+        "case": "original-image",
+        "reason": "bootstrap original image binding"
+      },
+      {
+        "case": "initial-admission",
+        "reason": "bootstrap store original admitted authority"
+      },
+      {
+        "case": "final-admission",
+        "reason": "bootstrap store exact progressed authority"
+      },
+      {
+        "case": "counter-reset",
+        "reason": "bootstrap store exact progressed authority"
+      },
+      {
+        "case": "missing-source",
+        "reason": "bootstrap store exact progressed authority"
+      },
+      {
+        "case": "core-reset",
+        "reason": "bootstrap store exact progressed authority"
+      },
+      {
+        "case": "lost-fence",
+        "reason": "bootstrap store original fence retained"
+      },
+      {
+        "case": "basis-context",
+        "reason": "bootstrap store actual frozen basis"
+      },
+      {
+        "case": "grant-context",
+        "reason": "bootstrap store actual grant context"
+      },
+      {
+        "case": "force-order",
+        "reason": "bootstrap store grant force order"
+      },
+      {
+        "case": "leases",
+        "reason": "bootstrap store original call/lease binding"
+      },
+      {
+        "case": "scope",
+        "reason": "bootstrap store receipt scope"
+      },
+      {
+        "case": "linked-seal",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "publicRuntime": false,
+    "status": "PASS",
+    "typedCoordinator": false
+  },
+  "schema": "gse-v53-bootstrap-store-admission-local-v1",
+  "scope": [
+    "immutable exact initial admission under replica.lock before allocator recovery writes",
+    "24 initial voters across EMPTY/backup and 3/4/5 profiles, actual counter/grant/reopen",
+    "15 exact original-first evidence negatives, optimized and portable replay",
+    "existing single MISC reservation, no local lease leak after success or failure"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "03b5b202a9fe574fa952cbb43da430f111e819c983a752916327674bf5acfc07",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "5bf9f72c407be8600ff61a3a115e10ddd82c26b78dde398023ef712d0b3256bb",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapStoreAdmissionTest.java": "8900eef47e8fc56938b60d89385166dd788bd3e8fcc2bab9c9bf4d245b682199",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalContextTest.java": "ceda3e8b144008baf60665da762d15d97827c6882770cf1c01b907175205d9e8",
+    "scripts/v53/bootstrap_store_admission_evidence.py": "bdd43ffa24ab91afe05b7965cc1f1fe29be3e9725831bc01f2bd0ba51e64883f"
+  },
+  "status": "PASS"
+}

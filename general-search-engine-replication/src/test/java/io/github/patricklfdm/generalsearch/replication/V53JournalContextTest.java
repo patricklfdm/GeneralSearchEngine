@@ -77,7 +77,9 @@ class V53JournalContextTest {
             assertTrue(events.indexOf("CONTEXT_SOURCE_PARENT_FORCED")<events.indexOf("CONTEXT_CANDIDATE_CREATED"));
             assertTrue(events.indexOf("CONTEXT_PARENT_FORCED")<events.indexOf("CONTEXT_OWNER_BEFORE_RETURN"));
             exactContext(node,store.retainPendingContext());noAck(events);
-            assertEquals("offline authority is already owned",assertThrows(ReplicationException.class,()->open(node,resources(),e->{})).getMessage());
+            var occupied=assertThrows(ReplicationException.class,()->open(node,resources(),e->{}));
+            assertEquals(ReplicationException.Reason.STORAGE_FAILURE,occupied.reason());
+            assertEquals("membership authority already owned in this process",occupied.getMessage());
             assertEquals(1,resources.usage().counts().get(MembershipResources.Unit.JOURNAL));
         }
         assertEquals(before,protectedFiles(node));assertEquals(0,resources.usage().leases());events.clear();

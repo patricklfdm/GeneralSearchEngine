@@ -18,9 +18,11 @@ final class MembershipBallotAllocator implements AutoCloseable {
     private final MembershipRoot root;
     private final MembershipIdentity identity;
     private final MembershipOwnership owner;
-    private final Map<String,Object> pathBinding;
+    private final Map<String,Object> pathBinding,materializationBinding;
     private final Object directoryKey, lockKey;
     private final Map<String,byte[]> immutable;
+    private final Map<String,Object> admissionKeys;
+    private final Path materialization;
     private final Cut cut;
     private final Set<String> additional;
     private byte[] current;
@@ -28,18 +30,19 @@ final class MembershipBallotAllocator implements AutoCloseable {
     private boolean failed, closed;
 
     private MembershipBallotAllocator(Path directory, MembershipRoot root, MembershipIdentity identity,
-            MembershipOwnership owner, Cut cut, Set<String> additional) throws IOException {
+            MembershipOwnership owner, Cut cut, Set<String> additional,Path materialization) throws IOException {
         this.directory=directory; this.root=root; this.identity=identity; this.owner=owner; this.cut=cut;
-        this.additional=additional;
+        this.additional=additional;this.materialization=materialization;
         pathBinding=AdmissionPaths.binding(directory); directoryKey=key(directory); lockKey=key(directory.resolve("replica.lock"));
-        immutable=Map.of("root.gsr",AdmissionPaths.read(directory.resolve("root.gsr"),16384),
+        materializationBinding=materialization==null?null:AdmissionPaths.binding(materialization);
+        var records=new TreeMap<String,byte[]>();records.putAll(Map.of("root.gsr",AdmissionPaths.read(directory.resolve("root.gsr"),16384),
                 "genesis.gsr",AdmissionPaths.read(directory.resolve("genesis.gsr"),65536),
-                "node.gsr",AdmissionPaths.read(directory.resolve("node.gsr"),4096));
-        var header=decode(immutable.get("root.gsr"),"records","ROOT");
+                "node.gsr",AdmissionPaths.read(directory.resolve("node.gsr"),4096)));
+        var header=decode(records.get("root.gsr"),"records","ROOT");
         require(header.rootDigest().equals(root.manifestDigest())
                 && header.value().get("groupId").equals(root.groupId().value().toString())
                 && header.value().get("historyId").equals(root.historyId().toString()),"allocator root identity");
-        var genesis=decode(immutable.get("genesis.gsr"),"records","GENESIS");
+        var genesis=decode(records.get("genesis.gsr"),"records","GENESIS");
         require(genesis.digest().equals(header.value().get("genesis")),"allocator original genesis");
         for(String field:List.of("groupId","historyId","baseSequence","schema","indexes"))
             require(genesis.value().get(field).equals(header.value().get(field)),"allocator root/genesis "+field);
@@ -48,8 +51,16 @@ final class MembershipBallotAllocator implements AutoCloseable {
         var initial=new ArrayList<MembershipIdentity>();
         for(Object member:list(header.value().get("initial"))) initial.add(MembershipContext.identity(object(member)));
         MembershipValidation.identities(initial,3,5);
-        var node=decode(immutable.get("node.gsr"),"records","NODE").value();
+        var node=decode(records.get("node.gsr"),"records","NODE").value();
         require(node.get("root").equals(root.manifestDigest()) && MembershipContext.identity(object(node.get("identity"))).equals(identity),"allocator node identity");
+        var keys=new TreeMap<String,Object>();
+        if(materialization!=null) {
+            for(String name:List.of(MembershipBootstrapCommitData.PREPARED,MembershipBootstrapCommitData.SEAL,MembershipBootstrapAdmissionData.FILE))
+                {keys.put(name,key(directory.resolve(name)));records.put(name,AdmissionPaths.read(directory.resolve(name),65536));}
+            new MembershipBootstrapAdmissionData(records.get(MembershipBootstrapAdmissionData.FILE),records.get("root.gsr"),records.get("genesis.gsr"),
+                    records.get(MembershipBootstrapCommitData.PREPARED),records.get(MembershipBootstrapCommitData.SEAL),root,identity,directory,materialization);
+        }
+        immutable=Collections.unmodifiableMap(records);admissionKeys=Map.copyOf(keys);
         current=AdmissionPaths.read(directory.resolve(CURRENT),4096); counter=decodeCounter(current);
     }
 
@@ -120,25 +131,37 @@ final class MembershipBallotAllocator implements AutoCloseable {
     private static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,boolean applying) throws IOException {
         return openWithPendingAccept(requested,root,identity,cut,applying,false);
     }
+    static MembershipBallotAllocator openBootstrapped(Path requested,Path materialization,MembershipRoot root,MembershipIdentity identity,Cut cut)throws IOException {
+        return openWithPendingAccept(requested,root,identity,cut,true,true,Objects.requireNonNull(materialization));
+    }
     private static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,boolean applying,boolean context) throws IOException {
+        return openWithPendingAccept(requested,root,identity,cut,applying,context,null);
+    }
+    private static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,boolean applying,boolean context,Path materialization)throws IOException {
         var names=new HashSet<>(Set.of("grants.gsr",MembershipBasisSources.DIRECTORY,
                 MembershipCurrentGeneration.DIRECTORY,MembershipCurrentGeneration.SELECTOR,MembershipGenerationFiles.PENDING,
                 MembershipFloorFiles.DIRECTORY,MembershipRetirementFiles.DIRECTORY,MembershipJournalRotation.PENDING,
                 MembershipSourceRetirementFiles.FILE,MembershipCaptureFiles.FILE,MembershipPendingAccept.FILE,MembershipPendingAccept.NEXT));
         if(applying){names.add(MembershipAppliedEndFiles.DIRECTORY);names.add(MembershipReplayFiles.DIRECTORY);}
         if(context){names.add(MembershipPendingContextFiles.FILE);names.add(MembershipPendingContextFiles.NEXT);}
-        return open(requested,root,identity,cut,names);
+        if(materialization!=null)names.addAll(Set.of(MembershipBootstrapCommitData.PREPARED,MembershipBootstrapCommitData.SEAL,MembershipBootstrapAdmissionData.FILE));
+        return open(requested,root,identity,cut,names,materialization);
     }
 
     private static MembershipBallotAllocator open(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut, Set<String> additional) throws IOException {
+        return open(requested,root,identity,cut,additional,null);
+    }
+    private static MembershipBallotAllocator open(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,Set<String> additional,Path materialization)throws IOException {
         Objects.requireNonNull(root); Objects.requireNonNull(identity); Objects.requireNonNull(cut);
         Path directory=AdmissionPaths.safe(requested);
         require(Files.isDirectory(directory,LinkOption.NOFOLLOW_LINKS),"allocator directory absent");
         // No CREATE and no repair from arguments: a missing root/lock/counter is lost authority.
         inventory(directory,additional);
+        if(materialization!=null){materialization=AdmissionPaths.safe(materialization);AdmissionPaths.disjoint(List.of(directory,materialization));
+            require(!Files.exists(materialization,LinkOption.NOFOLLOW_LINKS) || Files.isDirectory(materialization,LinkOption.NOFOLLOW_LINKS),"bootstrap materialization is not a directory");}
         var owner=MembershipOwnership.own(directory.resolve("replica.lock"),false);
         try {
-            var allocator=new MembershipBallotAllocator(directory,root,identity,owner,cut,additional);
+            var allocator=new MembershipBallotAllocator(directory,root,identity,owner,cut,additional,materialization);
             allocator.recover(); return allocator;
         } catch(IOException | RuntimeException | Error error) {
             try { owner.close(); } catch(IOException close) { error.addSuppressed(close); }
@@ -179,6 +202,9 @@ final class MembershipBallotAllocator implements AutoCloseable {
     synchronized void checkOwner() throws IOException {
         require(!closed && !failed && owner.lock().isValid(),"allocator closed or failed");
         AdmissionPaths.recheck(pathBinding);
+        if(materializationBinding!=null){AdmissionPaths.recheck(materializationBinding);
+            require(!Files.exists(materialization,LinkOption.NOFOLLOW_LINKS) || Files.isDirectory(materialization,LinkOption.NOFOLLOW_LINKS),"bootstrap materialization is not a directory");}
+        for(var entry:admissionKeys.entrySet())require(key(directory.resolve(entry.getKey())).equals(entry.getValue()),"bootstrap admission file identity changed");
         require(key(directory).equals(directoryKey) && key(directory.resolve("replica.lock")).equals(lockKey),"allocator owner path changed");
         inventory(directory,additional);
         for(var entry:immutable.entrySet()) AdmissionPaths.exact(directory.resolve(entry.getKey()),entry.getValue());
