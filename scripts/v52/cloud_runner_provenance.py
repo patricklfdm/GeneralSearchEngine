@@ -24,7 +24,8 @@ IDENTITY = 'Bind V5.2 Runner identity'
 AUTH = 'Authenticate V5.2 Runner identity'
 EXECUTE = 'Execute selected V5.2 operation'
 UPLOAD = 'Retain V5.2 Runner result'
-REQUIRED = (IDENTITY, AUTH, EXECUTE, UPLOAD)
+HOST_CHECK = 'Verify selected Runner host'
+REQUIRED = (HOST_CHECK, IDENTITY, AUTH, EXECUTE, UPLOAD)
 MAX_ZIP = 128 << 10
 OBSERVATION_SECONDS = 900
 # Runner step times and GitHub artifact service times use separate clocks and
@@ -44,8 +45,9 @@ def contract(root=ci.ROOT):
     need(yaml.scalar(job['name']) == JOB and yaml.scalar(job['environment']) == 'v52-cloud-benchmark' and
          yaml.scalar(job['if']) == "${{ github.ref == 'refs/heads/master' }}" and
          'continue-on-error' not in job and 'strategy' not in job, 'V5.2 Runner job identity contract')
-    need(job['runs-on'] == ('[self-hosted, Linux, X64, gse-v52-cloud-d-wsl]', '') and
-         yaml.scalar(job['timeout-minutes']) == '1380', 'V5.2 dedicated Runner routing/time contract')
+    from . import cloud_runner_host as host
+    need(job['runs-on'] == (host.RUNS_ON, '') and
+         yaml.scalar(job['timeout-minutes']) == host.TIMEOUT, 'V5.2 closed Runner routing/time contract')
     steps = yaml.steps(job['steps'])
     need(tuple(name for name in steps if name in REQUIRED) == REQUIRED, 'V5.2 Runner ordered required steps contract')
     need(all('if' not in steps[name] for name in REQUIRED), 'V5.2 Runner conditional required step')

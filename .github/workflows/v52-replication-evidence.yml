@@ -5,13 +5,21 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Prepare inputs, run one approved whole member, or verify five originals
+        description: Prepare, run one whole execution unit, or verify nine originals
         type: choice
         options:
           - prepare
           - run
           - verify-set
         default: prepare
+        required: true
+      execution_host:
+        description: Hosted for drill shards; self-hosted for canonical, experiment and verify-set
+        type: choice
+        options:
+          - github-hosted
+          - self-hosted
+        default: github-hosted
         required: true
       request:
         description: Exact JSON request from the V5.2 operator guide
@@ -30,8 +38,8 @@ jobs:
   runner:
     name: V5.2 replication runner
     if: ${{ github.ref == 'refs/heads/master' }}
-    runs-on: [self-hosted, Linux, X64, gse-v52-cloud-d-wsl]
-    timeout-minutes: 1380
+    runs-on: ${{ fromJSON(inputs.execution_host == 'self-hosted' && '["self-hosted","Linux","X64","gse-v52-cloud-d-wsl"]' || '["ubuntu-24.04"]') }}
+    timeout-minutes: ${{ inputs.execution_host == 'self-hosted' && 1380 || 360 }}
     environment: v52-cloud-benchmark
     permissions:
       contents: read
@@ -40,6 +48,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       V52_CLOUD_ENVIRONMENT: v52-cloud-benchmark
+      V52_EXECUTION_HOST: ${{ inputs.execution_host }}
       V52_OPERATION: ${{ inputs.operation }}
       V52_REQUEST: ${{ inputs.request }}
     steps:
@@ -60,8 +69,8 @@ jobs:
           distribution: temurin
           java-version: 21.0.12+8.0.LTS
 
-      - name: Verify dedicated self-hosted Runner
-        run: python -m scripts.v52.cloud_self_hosted check
+      - name: Verify selected Runner host
+        run: python -m scripts.v52.cloud_runner_host check
 
       - name: Bind V5.2 Runner identity
         id: identity
@@ -86,7 +95,7 @@ jobs:
         env:
           V52_SSH_KEY: ${{ inputs.operation != 'verify-set' && secrets.V52_EXPERIMENT_SSH_KEY || '' }}
         run: |
-          python -u -m scripts.v52.cloud_self_hosted execute --source "$GITHUB_SHA" \
+          python -u -m scripts.v52.cloud_runner_host execute --source "$GITHUB_SHA" \
             --output target/v52-runner
 
       - name: Retain V5.2 Runner result

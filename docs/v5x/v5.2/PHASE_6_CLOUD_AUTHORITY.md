@@ -19,7 +19,9 @@ bind the exact request and name. Layout sizes are explicit request inputs, not a
 claim that current cloud configuration or pricing has been reviewed. The offline
 fixtures' 50/100 GiB disks do not authorize that live allocation.
 
-The append-only ledger permits the five members in all 120 orders. One unresolved
+The append-only ledger permits the nine whole execution units in any order.
+They represent five logical members; failure-drill uses the
+[five fixed shards](PHASE_6_HOSTED_DRILL.md). One unresolved
 attempt blocks another reservation. A failed whole attempt retains its original
 charge and completion; a new explicitly selected attempt may retry that member,
 with fresh resource names. A passed member cannot be repeated in the same sequence.

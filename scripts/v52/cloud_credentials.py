@@ -170,7 +170,9 @@ class _RetryExchange(exchange._Exchange):
                 return 'http-'+str(error.http_status)
             return None
         try:
-            return cloud_read_retry.run(lambda:original(phase,method,url,headers,body,deadline),
+            # Leave room for another exchange inside the original 30-second
+            # credential grant; a single stalled socket must not consume it all.
+            return cloud_read_retry.run(lambda:original(phase,method,url,headers,body,min(deadline,self.clock()+10)),
                 deadline=deadline,clock=self.clock,scope='credential-'+phase,classify=classify)
         except cloud_read_retry.ReadError as error:
             code={'oidc':'OIDC_EXCHANGE_FAILED','sts':'STS_EXCHANGE_FAILED','impersonation':'IMPERSONATION_EXCHANGE_FAILED'}[phase]

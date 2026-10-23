@@ -41,7 +41,7 @@ class ReadTest(unittest.TestCase):
     def test_exact_selected_bytes_restored_with_only_pinned_gets_and_no_listing(self):
         result=self.run_restore();self.assertEqual('ORIGINALS_RESTORED_NOT_QUALIFIED',result['receipt']['status'])
         self.assertEqual('offline-v52-evidence-reads',result['receipt']['execution']);self.assertFalse(result['receipt']['fullRemoteQualification'])
-        self.assertEqual(self.ledger,result['ledger']);self.assertEqual(5,len(result['inputs']))
+        self.assertEqual(self.ledger,result['ledger']);self.assertEqual(9,len(result['inputs']))
         for value in result['inputs']:
             name=value['request']['selection']['member']['name']
             for file,path in self.files[name].items():self.assertEqual(path.read_bytes(),(Path(value['root'])/file).read_bytes())
@@ -59,7 +59,7 @@ class ReadTest(unittest.TestCase):
 
     def test_partial_or_wrong_source_selection_rejects_before_evidence_reads(self):
         self.chosen.pop('experiment')
-        with self.assertRaisesRegex(ValueError,'five-member'):self.run_restore()
+        with self.assertRaisesRegex(ValueError,'nine-execution'):self.run_restore()
         self.assertEqual([],self.server.events)
         self.chosen['experiment']=r.a.validate_request(self.requests['experiment'],domain='native');self.reader.source['source']='f'*40
         with self.assertRaisesRegex(ValueError,'source/configuration'):self.run_restore()
@@ -124,7 +124,7 @@ class ReadTest(unittest.TestCase):
 
     def test_later_failed_attempt_is_preserved_but_rewritten_ledger_is_rejected(self):
         req=prepared.prepare(**dict(arguments(member='experiment',attempt='f'*32),sequence='d'*32))['request']
-        later=r.a.finish(r.a.reserve(self.ledger,req,previous_cost=20_000_000,cost=1),req,completion(req,'FAIL'))
+        later=r.a.finish(r.a.reserve(self.ledger,req,previous_cost=36_000_000,cost=1),req,completion(req,'FAIL'))
         original=self.server.objects[r.a.LEDGER];last=r.retention.chunk_key(self.requests['experiment'],1)
         def append(stage,row):
             if stage=='after' and r.p.url.unquote(row['url']).endswith(last):self.seed(r.a.LEDGER,later)

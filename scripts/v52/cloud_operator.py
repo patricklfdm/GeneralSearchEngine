@@ -13,6 +13,7 @@ from . import cloud_runner_workflow as workflow, cloud_runner_provenance as orig
 from . import cloud_credentials as credentials, cloud_artifacts as artifacts, cloud_preflight_read as reads
 from . import cloud_authority as a, cloud_inputs as inputs, cloud_native_runner as native
 from . import cloud_member as member, cloud_sdk_runtime as sdk_runtime, cloud_read_retry
+from . import cloud_runner_host as execution_host
 from .evidence import need, encoded, digest, strict
 
 OPERATIONS = ('prepare', 'run', 'verify-set')
@@ -75,6 +76,8 @@ def execute_native(source, output):
             files = output/'prepared/files'; plan = artifacts.read(files/'plan.json'); phase = 'approval'
             sha = prepared.validate(plan, int(time.time()))
             need(sha == request['confirmation'], 'V5.2 selected prepared plan confirmation changed')
+            phase='host-selection'
+            execution_host.require_member(plan['request']['selection']['member']['name'],dict(os.environ))
             approval = prepared.approval_template(plan); approval['confirmed'] = True
             artifacts.save(output/'approval.json', approval)
             phase = 'run-key'; progress.update(phase)
@@ -228,6 +231,11 @@ def report_data(operation, source, result, output):
     else:
         row.update(totals=result['totals'], selected=result['selected'], selectedReservedCostMicrousd=result['selectedReservedCostMicrousd'],
                    ledgerReservedCostMicrousd=result['ledgerReservedCostMicrousd'])
+    if 'member' in row:
+        chosen=preparation.suite.member(row['member'])
+        row.update(logicalMember='failure-drill' if row['member'] in preparation.suite.DRILL_SHARDS else row['member'],
+            histories=chosen['histories'],historyCount=len(chosen['histories']),
+            recommendedRunHost='github-hosted' if row['member'] in preparation.suite.DRILL_SHARDS else 'self-hosted')
     return row
 
 
@@ -245,6 +253,7 @@ def summary(output):
         for key, item in value['totals'].items(): print('| '+cell(key)+' | '+cell(item)+' |')
     if 'runRequest' in value:
         print('\n### Exact run request\n\nReview the member, source and reservation before choosing **run**.\n')
+        print('Set **execution_host** to `'+cell(value.get('recommendedRunHost','self-hosted'))+'`.\n')
         print('```json\n'+encoded(value['runRequest']).decode()+'\n```')
     if 'selected' in value:
         print('\n### Original invocations\n\n| Member | Run / attempt | Request |\n| --- | --- | --- |')

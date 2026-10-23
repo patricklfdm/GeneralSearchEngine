@@ -160,7 +160,7 @@ def reconcile(store, provider, *, trigger, now):
 class _OwnedLifecycle:
     """Shared original lifecycle; concrete constructors supply the authority domain."""
     def __init__(self, store, provider, req, *, wall=lambda: int(time.time())):
-        adapters(store, provider, req); a.validate_request(req, domain=store_domain(store))
+        adapters(store, provider, req); a.validate_request(req, domain=store_domain(store),historical=False)
         self.store, self.provider, self.request = store, provider, deepcopy(req)
         self.domain = store_domain(store)
         self.wall = wall; self.lease = None; self.generation = None; self.closed = False; self.consumed = False

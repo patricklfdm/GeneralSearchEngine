@@ -18,7 +18,7 @@ class Policy:
     def __init__(self, configuration, request, *, role, previous_cost, cost, wall):
         need(role in ('runner','cleanup'), 'V5.2 wire role')
         self.plan=p.Plan(configuration,request);self.req=self.plan.request;self.cfg=self.plan.config
-        self.domain=a.domain(request);self.sha=a.validate_request(request,domain=self.domain)
+        self.domain=a.domain(request);self.sha=a.validate_request(request,domain=self.domain,historical=role=='cleanup')
         self.role,self.wall=role,wall;self.previous_cost,self.cost=previous_cost,cost
         if role=='runner':a.integer(previous_cost);a.integer(cost,1)
         else:need(previous_cost is None and cost is None,'V5.2 cleanup cannot reserve')

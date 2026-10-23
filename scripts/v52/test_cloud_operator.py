@@ -18,7 +18,7 @@ class OperatorTest(unittest.TestCase):
     def setUp(self):
         self.cfg, self.source, self.files = fixture(); self.plan = o.strict(self.files['plan.json'])
         _, self.env, _, _, _ = auth.fixture(self.cfg['provider'], 'runner', 'a'*40)
-        self.env['GITHUB_RUN_ID'] = '654321'; self.env['V52_SSH_KEY'] = 'never-retain-secret'
+        self.env['V52_EXECUTION_HOST']='self-hosted'; self.env['GITHUB_RUN_ID'] = '654321'; self.env['V52_SSH_KEY'] = 'never-retain-secret'
         temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); self.root = Path(temp.name)
         self.env['GITHUB_OUTPUT'] = str(self.root/'actions-output'); (self.root/'actions-output').touch()
         self.prepare = Mock(side_effect=self.preparing); self.download = Mock(side_effect=self.downloading)
@@ -57,6 +57,13 @@ class OperatorTest(unittest.TestCase):
              patch.object(o.time,'time',return_value=1200),patch.object(o.member.Progress,'report'):
             return o.execute_native('a'*40,output)
     def request(self):return dict(preparedRun=123456,preparedAttempt=2,confirmation=o.prepared.validate(self.plan,1200))
+    def test_hosted_full_member_rejects_before_private_key_and_execution(self):
+        self.env['V52_EXECUTION_HOST']='github-hosted'
+        with self.assertRaisesRegex(ValueError,'complete failure-drill shard'):
+            self.execute('run',self.request())
+        self.run.assert_not_called();self.assertEqual(0,self.key_calls)
+        self.assertEqual('host-selection',o.artifacts.read(self.output/'diagnostics/failure.json')['phase'])
+
     def test_prepare_exports_only_exact_public_files_and_reviewable_unconfirmed_request(self):
         value=dict(member='experiment',sequence='c'*32,estimate=self.plan['estimate'])
         result=self.execute('prepare',value); self.prepare.assert_called_once(); self.run.assert_not_called()
