@@ -22,6 +22,8 @@ from .evidence import need, encoded, digest, strict
 
 MAX_ZIP = 288 << 20
 MAX_JSON = 16 << 20
+JSON_ATTEMPT_SECONDS = 30
+JSON_READ_SECONDS = 100
 SCHEMA = 'gse-v52-build-provenance-v1'
 BUILD_PREFIX = 'v51-verification-build-'
 EXECUTION_FIELDS = ('name', 'run_id', 'head_sha', 'started_at', 'completed_at', 'status', 'conclusion', 'steps')
@@ -29,7 +31,7 @@ PHASES = ('source', 'full-ci', 'artifact-selection', 'build-producer', 'artifact
           'artifact-bytes', 'final-ci', 'artifact-replay', 'final-source')
 MAX_ATTEMPTS = 3
 MAX_STDERR = 16384
-READ_CODES = ('HTTP_REJECTED', 'TRANSPORT', 'PROCESS_FAILED', 'DEADLINE', 'BYTE_BOUND',
+READ_CODES = ('HTTP_REJECTED', 'TRANSPORT', 'PROCESS_FAILED', 'DEADLINE', 'ATTEMPT_TIMEOUT', 'BYTE_BOUND',
               'STDERR_BOUND', 'START_FAILED', 'CALL_BOUND', 'JSON_INVALID', 'INCOMPLETE')
 REQUEST_KINDS = ('master', 'source', 'runs', 'run', 'attempt', 'jobs', 'artifacts', 'artifact', 'download')
 STOPS = ('terminal', 'attempt-limit', 'deadline', 'call-limit')
@@ -47,7 +49,7 @@ class GitHubReadError(ValueError):
 
     @property
     def retryable(self):
-        return self.code == 'V52_GITHUB_TRANSPORT' or (
+        return self.code in ('V52_GITHUB_TRANSPORT', 'V52_GITHUB_ATTEMPT_TIMEOUT') or (
             self.code == 'V52_GITHUB_HTTP_REJECTED' and self.http_status in cloud_read_retry.STATUSES)
 
 
@@ -325,26 +327,38 @@ class Network:
 
     def authorize_path(self, path): allowed_path(path)
 
-    def _read(self, path, maximum, timeout, *, download=False):
+    def _read(self, path, maximum, timeout, *, download=False, attempt_timeout=None):
         """Retry only failed GET exchanges, within one original deadline.
 
         Each physical attempt consumes the call bound and retains a distinct
         body/closed receipt. Validation and whole collections are never retried.
+        An optional attempt cap leaves time for another exchange; callers without
+        a cap keep their original credential/download deadline unchanged.
         """
         end = time.monotonic()+timeout
         for attempt in range(1, MAX_ATTEMPTS+1):
             if self.calls >= 256: raise GitHubReadError('CALL_BOUND')
-            remaining = end-time.monotonic()
+            started = time.monotonic(); remaining = end-started
             if remaining <= 0: raise GitHubReadError('DEADLINE')
+            allowance = remaining if attempt_timeout is None else min(remaining, attempt_timeout)
+            attempt_end = started+allowance
             self.calls += 1; ordinal = self.calls
             target = self.output/f'{ordinal:03}.{"zip" if download else "json"}'
             record = dict(method='GET', path=path, kind=request_kind(path), attempt=attempt, ordinal=ordinal)
             error = None
             try:
-                bounded_command(self.command(path), target, maximum, remaining)
-                if time.monotonic() >= end: raise GitHubReadError('DEADLINE')
+                bounded_command(self.command(path), target, maximum, allowance)
+                if time.monotonic() >= attempt_end: raise GitHubReadError('DEADLINE')
             except GitHubReadError as failure:
                 error = failure
+            finished = time.monotonic()
+            # bounded_command has already stopped/reaped its owned child. Only
+            # exhaustion of a shorter exchange cap may use remaining read time.
+            # A late HTTP/validation rejection keeps its terminal classification.
+            if error is not None and error.code == 'V52_GITHUB_DEADLINE' and attempt_end < end and finished < end:
+                error = GitHubReadError('ATTEMPT_TIMEOUT')
+            record.update(timeoutSeconds=round(allowance, 3), elapsedSeconds=round(max(0, finished-started), 3),
+                          receivedBytes=target.stat().st_size if target.exists() else 0)
             if error is None:
                 save(self.output/f'{ordinal:03}-request.json', dict(record, status='PASS'))
                 return target
@@ -366,7 +380,7 @@ class Network:
 
     def get(self, path):
         self.authorize_path(path)
-        target = self._read(path, MAX_JSON, 30)
+        target = self._read(path, MAX_JSON, JSON_READ_SECONDS, attempt_timeout=JSON_ATTEMPT_SECONDS)
         try: return read(target)
         except ValueError: raise GitHubReadError('JSON_INVALID') from None
 

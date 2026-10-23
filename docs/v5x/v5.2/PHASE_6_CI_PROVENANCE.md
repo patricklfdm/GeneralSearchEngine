@@ -122,7 +122,8 @@ download host, token, transport, observation or clock in its native entry.
 
 ## Bounded reads and retained diagnostics
 
-Each JSON request has a 30-second exchange deadline and 16 MiB streamed bound.
+Each JSON read allows at most three 30-second exchanges within one fixed
+100-second deadline and a 16 MiB streamed bound per response.
 The single original ZIP download has a 300-second deadline and its exact API
 size bound, at most 288 MiB. Its expanded build archive retains the existing
 256 MiB bound. The fixed client permits at most 256 physical requests, including
@@ -131,12 +132,14 @@ These are individual read/decoder limits, not a hard whole-experiment duration
 or a change to soft cost/time policy.
 
 An individual read-only GET may make at most three attempts for HTTP
-500/502/503/504 or recognized transient transport failures. The 1-second and
-2-second backoffs and all attempts share the original 30/300-second deadline;
-an exhausted deadline is terminal. Every attempt counts toward the request
-bound and keeps its own partial body and closed request receipt. Downloads
+408/429/500/502/503/504 or recognized transient transport failures. A JSON
+exchange timeout may retry within the remaining read window. The 1-second and
+2-second backoffs and all attempts share the original 100/300-second JSON/ZIP
+deadline; an exhausted total deadline is terminal. Credential-context reads
+continue to use only their caller's original remaining deadline. Every attempt
+counts toward the request bound and keeps its own partial body and closed request receipt. Downloads
 publish only a complete single response and never concatenate partial bodies.
-Authentication/authorization failures, 404, 429, unknown failures, byte bounds,
+Authentication/authorization failures, 404, unknown failures, byte bounds,
 invalid JSON, incomplete successful downloads and all source/attempt/hash/
 inventory validation failures exit without retry. Rate-limit responses do not
 start a blind retry loop. No entire collection, workflow or cloud operation is
@@ -149,7 +152,10 @@ CLI's closed status suffix or plain HTTP status; unknown formats fail closed
 ([GitHub CLI API implementation](https://github.com/cli/cli/blob/trunk/pkg/cmd/api/api.go)).
 Raw exception messages, credentials, signed URLs and stderr never enter public
 progress or diagnostic receipts. Only a request kind, ordinal, attempt count,
-closed reason/stop code and HTTP status are exposed.
+closed reason/stop code, HTTP status, allotted/elapsed seconds and received
+byte count are exposed. The [read-retry incident and contract](PHASE_6_READ_RETRIES.md#github-source-read-timeout-recovery)
+record the two source-read stalls that motivated separating exchange and total
+JSON deadlines; repeated source/attempt checks remain mandatory.
 
 Use a fresh ignored output directory on the exact clean master checkout, with
 the same Java toolchain as the shared build:

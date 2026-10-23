@@ -26,12 +26,48 @@ cost budgets are unchanged.
 | Retention readback and restoration of selected originals | Same shared GET retry | Same generation-pinned object; length, JSON, manifest/hash and source checks still reject |
 | Preflight GETs and fixed read-only permission-test POSTs | Three attempts per read | Generated allowlist only, source/configuration/credential binding and 128-exchange bound |
 | OIDC, STS and impersonation | Three attempts per exact stage | Shared original token-acquisition deadline; no full-chain restart, identity or lifetime bypass |
-| GitHub build/cleanup/original-artifact GETs | Existing three-attempt reader also handles HTTP 408/429 | Original run/attempt and source, pagination/count/byte bounds, strict JSON/ZIP validation |
+| GitHub build/cleanup/original-artifact GETs | Three attempts; JSON reads use 30 seconds per attempt within 100 seconds total; HTTP 408/429 also retry | Original run/attempt and source, pagination/count/byte bounds, strict JSON/ZIP validation |
 | GitHub credential-context GETs | Now reuse the bounded GET reader | Latest → exact attempt → latest must all still identify the same in-progress run |
 | Guest link-local metadata GETs | Three attempts within the original three seconds per fixed path | No proxy/redirect, same path, Google header, byte/ASCII bounds and exact guest identity |
 | IAP admission and native volume/storage queries | Bounded reads only | At most two IAP admission attempts; three clock-read exchanges; three mount-read attempts within one 300-second window and current authority; initialization queries retain their original grant |
 | Remote original-command recovery | Existing finite result-query mechanism retained | Consumed command is never resubmitted; permanent rejection or exhausted reads stop |
 | Install/start, Compute/Storage writes, measurement operations | No new automatic replay | Original-result query/reconciliation remains the only way to resolve uncertain submission |
+
+## GitHub source-read timeout recovery
+
+Prepare runs [39897761678/1](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/39897761678)
+and [39898300798/1](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/39898300798)
+on source `24947a535833269a57977d37351c955ae55e5691` both passed original-build
+ZIP download, then failed during `final-ci` source revalidation. The first
+stalled on `release.yml`, the second on `ci.yml`: each retained zero response
+bytes after 30 seconds, with `attempts=1`, `retry=false` and `stop=deadline`.
+The old JSON reader gave one exchange the entire 30-second read window, so an
+owned exchange timeout left no opportunity to retry. Later public reads from
+the same Runner returned 200 in under a second; the cause of the original stalls
+is not established. Neither prepare launched a paid workload.
+
+Each GitHub JSON read now has one fixed 100-second total window, at most three
+30-second exchange attempts and the existing 1-/2-second backoffs. The owned
+child is stopped and reaped before another attempt launches. A shorter exchange
+timeout emits `V52_GITHUB_ATTEMPT_TIMEOUT`; exhaustion of the total deadline
+remains `V52_GITHUB_DEADLINE`. Three timed-out exchanges normally stop after about
+93 seconds, without waiting for unused headroom. A late successful exchange is
+not accepted. Permission/unknown HTTP errors, malformed JSON, byte bounds and
+source/attempt/hash validation remain terminal. No whole collector, workflow,
+cloud mutation or measurement is retried.
+
+The caller-provided credential deadline and the 300-second ZIP-download window
+remain unchanged. Cleanup, prepared-artifact and Runner provenance JSON readers
+inherit the correction and retain their individual path allowlists. Each
+physical attempt consumes the existing 256-request bound and retains its own
+body and receipt, including allotted/elapsed seconds and received byte count.
+Progress excludes URLs, bodies, stderr and credentials.
+
+Local regressions cover one/two timeout recoveries, three-attempt exhaustion,
+a shorter caller deadline, late success/rejection, backoff oversleep, inherited
+readers and real timed-out child reaping before a successful retry. These are
+offline transport checks, not native admission or a guarantee against network
+outages. Review evidence is retained under `target/v52-github-timeout-retry/`.
 
 ## Independent archive publication and retention readiness
 
@@ -103,8 +139,11 @@ remain terminal. HTTP 404 is still interpreted only by existing caller semantics
 The existing GET-401 refresh allows one authentication retry inside each GET
 attempt: the worst case is six resource wire exchanges, all within the same
 deadline. A credential stage has at most three token-service exchanges. GitHub
-reads retain their existing one- and two-second backoffs and original deadline.
-No layer grants unlimited retries or resets a stage budget.
+reads retain their existing one- and two-second backoffs. JSON metadata reads
+use the fixed 100-second window described above; credential-context callers
+retain their original remaining deadline, and ZIP reads retain 300 seconds.
+No attempt resets its read deadline or grants unlimited retries; stage budgets
+remain soft.
 
 An exhausted shared read raises `ReadError` with `retryable=False`, so outer
 storage, control CAS/release reconciliation and original-launch recovery cannot
