@@ -86,8 +86,8 @@ class HostRoutingTest(unittest.TestCase):
         return dict(V52_EXECUTION_HOST='github-hosted',RUNNER_ENVIRONMENT='github-hosted',
                     RUNNER_OS='Linux',RUNNER_ARCH='X64',V52_OPERATION=operation)
 
-    def test_only_declared_complete_drill_shards_are_hosted_execution_units(self):
-        for name in suite.DRILL_SHARDS:host.require_member(name,self.env())
+    def test_only_declared_complete_shards_are_hosted_execution_units(self):
+        for name in suite.HOSTED_MEMBERS:host.require_member(name,self.env())
         for name in ('failure-drill','canonical-1','canonical-3','experiment','m03-p4'):
             with self.assertRaises(ValueError):host.require_member(name,self.env())
         for name in suite.MEMBERS:host.require_member(name,dict(V52_EXECUTION_HOST='self-hosted'))

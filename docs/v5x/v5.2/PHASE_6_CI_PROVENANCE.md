@@ -84,7 +84,7 @@ workflow retains its bundle, Java test reports, provenance and infrastructure
 attempt logs for 90 days, including failure diagnostics where available.
 
 Wait for `V5.2 cloud build` to succeed, then obtain recent manual cleanup PASS
-and prepare/run the selected member. One build can serve all nine execution units of the
+and prepare/run the selected member. One build can serve all fifteen execution units of the
 same source/sequence; do not rebuild between preparation and execution. A newer
 manual run or attempt changes selected provenance and requires fresh preparation.
 This workflow does not disable ordinary push/PR CI or change branch protection;

@@ -148,11 +148,12 @@ Before the first paid member, the operator still must:
 3. Confirm a recent successful manual cleanup on the same source. WAITING is
    not empty-state readiness; investigate and let lease/grace rules reconcile it.
 4. Prepare one selected member with an explicit priced estimate, approve its
-   exact request hash, and manually trigger `run` after merge. All nine execution
+   exact request hash, and manually trigger `run` after merge. All fifteen execution
    units may run in any order on one sequence/source with whole original histories.
-   The [five drill shards](PHASE_6_HOSTED_DRILL.md) use hosted jobs; other runs
+   The [five drill shards](PHASE_6_HOSTED_DRILL.md) and
+   [nine canonical shards](PHASE_6_HOSTED_CANONICAL.md) use hosted jobs; experiment
    and complete-set replay still select `execution_host=self-hosted`.
-5. After all nine original successes, use `verify-set`. Preparation, cleanup or
+5. After all fifteen original successes, use `verify-set`. Preparation, cleanup or
    an individual successful job is not complete cloud acceptance.
 
 Those external actions have not run. The local development goal stops before

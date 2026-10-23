@@ -15,7 +15,7 @@ from .evidence import need, encoded, digest
 
 
 def selection(chosen):
-    need(type(chosen) is dict and set(chosen) == set(suite.MEMBERS), 'V5.2 nine protected original selections required')
+    need(type(chosen) is dict and set(chosen) == set(suite.MEMBERS), 'V5.2 fifteen protected original selections required')
     requests = set(); invocations = set()
     for row in chosen.values():
         a.fields(row, 'requestSha256 runId runAttempt', 'original cloud set selection')

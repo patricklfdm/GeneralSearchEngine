@@ -52,7 +52,7 @@ class PreparedTest(unittest.TestCase):
         api = p.provider.OfflineApi(Server(self.args['configuration'])); store = p.provider.Store(self.args['configuration'], api)
         with self.assertRaisesRegex(ValueError, 'domain'): p.provider.Provider(store, self.plan['request'])
 
-    def test_all_five_members_can_be_first_without_prior_successes(self):
+    def test_all_execution_units_can_be_first_without_prior_successes(self):
         for name in p.suite.MEMBERS:
             plan = p.prepare(**arguments(member=name)); p.validate(plan, 1000)
             self.assertEqual(p.suite.member(name), plan['request']['selection']['member'])
@@ -91,7 +91,7 @@ class PreparedTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'operator approval'): self.review()
 
     def test_approval_cannot_move_to_another_member_attempt_sequence_or_source(self):
-        for key, val in (('member', 'canonical-3'), ('sequence', 'd'*32), ('guest_access', access.descriptor('d'*32, public_key()))):
+        for key, val in (('member', 'canonical-3-legacy'), ('sequence', 'd'*32), ('guest_access', access.descriptor('d'*32, public_key()))):
             self.plan = p.prepare(**dict(self.args, **{key:val}))
             with self.assertRaisesRegex(ValueError, 'operator approval'): self.review()
         args = deepcopy(self.args); args['source'] = 'f'*40; args['proof']['source']['source'] = 'f'*40

@@ -1,4 +1,4 @@
-"""Replay all nine complete native members, in any order, without cloud I/O.
+"""Replay all fifteen complete native members, in any order, without cloud I/O.
 
 This is an internal byte/authority validator, not a native download capability.
 Only a separately authenticated collector may promote its result to acceptance.
@@ -11,7 +11,7 @@ from .evidence import need,encoded,digest
 
 
 def inputs(values,source,cfg,ledger):
-    need(type(values) is list and len(values)==len(suite.MEMBERS),'V5.2 nine original member inputs required')
+    need(type(values) is list and len(values)==len(suite.MEMBERS),'V5.2 fifteen original member inputs required')
     requests=[];paths=[]
     for value in values:
         a.fields(value,'root request manifest completed cleanup','retained set input')
@@ -26,7 +26,7 @@ def inputs(values,source,cfg,ledger):
          'V5.2 set overlapping original member roots')
     view=a.inspect_ledger(ledger,domain='native')
     need(all(view['attempts'].get(a.validate_request(req,domain='native'))==dict(request=req,status='PASS') for req in requests),
-         'V5.2 set requires all nine original terminal successes')
+         'V5.2 set requires all fifteen original terminal successes')
     return selected,view,paths
 
 
