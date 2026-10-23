@@ -17,18 +17,21 @@ final class MembershipBootstrapTransaction implements AutoCloseable {
     private record Member(Object key,boolean directory,long bytes,String digest){}
     private final MembershipBootstrapCommitData data;
     private final MembershipBallotAllocator.Cut cut;
+    private final byte[] admissionBytes;
     private final List<MembershipOwnership> owners=new ArrayList<>();
     private final Map<Path,Member> retained=new TreeMap<>();
     private final Map<Path,MembershipOwnership> locks=new HashMap<>();
     private int phase;
     private boolean closed,failed;
-    private MembershipBootstrapTransaction(MembershipBootstrapPlan expected,MembershipBallotAllocator.Cut cut)throws IOException {
+    private MembershipBootstrapTransaction(MembershipBootstrapPlan expected,MembershipBallotAllocator.Cut cut,boolean admitted)throws IOException {
         this.cut=Objects.requireNonNull(cut);Path op=AdmissionPaths.safe(expected.operationDirectory());Object original=key(op);
         var owner=MembershipOwnership.own(op.resolve(MembershipBootstrapPlanFiles.LOCK),false);owners.add(owner);locks.put(op.resolve(MembershipBootstrapPlanFiles.LOCK),owner);
         try {
             byte[] image=AdmissionPaths.read(op.resolve(MembershipBootstrapPlanFiles.IMAGE),MembershipApplicationImage.MAXIMUM);
             byte[] raw=AdmissionPaths.read(op.resolve(MembershipBootstrapPlanFiles.FILE),MembershipBootstrapPlanData.MAXIMUM);
             var plan=MembershipBootstrapPlanData.decode(raw,image);require(plan.summary().equals(expected),"bootstrap transaction reviewed plan");data=new MembershipBootstrapCommitData(plan);
+            admissionBytes=admitted?MembershipBootstrapAdmissionData.create(data.metadata):null;
+            if(admitted)MembershipBootstrapAdmissionData.completionBytes(data.metadata);
             require(original.equals(key(op)),"bootstrap transaction directory replaced");
             for(var binding:plan.bindings())AdmissionPaths.recheck(binding);
             retained.putAll(snapshot());exact(op.resolve(MembershipBootstrapPlanFiles.FILE),raw);exact(op.resolve(MembershipBootstrapPlanFiles.IMAGE),image);
@@ -40,15 +43,27 @@ final class MembershipBootstrapTransaction implements AutoCloseable {
     }
     static MembershipBootstrapResult applyChecked(MembershipBootstrapPlan plan,boolean resume,
             MembershipBootstrapPlanFiles.Check admission,MembershipBootstrapPlanFiles.Check recheck,MembershipBallotAllocator.Cut cut)throws IOException {
+        return applyChecked(plan,resume,admission,recheck,cut,false);
+    }
+    /** New admission-file profile. Legacy component entry remains for its original
+     * qualified inventory; neither path opens a complete runtime store. */
+    static MembershipBootstrapResult applyAdmitted(MembershipBootstrapPlan plan,boolean resume,
+            MembershipBootstrapPlanFiles.Check admission,MembershipBootstrapPlanFiles.Check recheck,MembershipBallotAllocator.Cut cut)throws IOException {
+        return applyChecked(plan,resume,admission,recheck,cut,true);
+    }
+    private static MembershipBootstrapResult applyChecked(MembershipBootstrapPlan plan,boolean resume,
+            MembershipBootstrapPlanFiles.Check admission,MembershipBootstrapPlanFiles.Check recheck,MembershipBallotAllocator.Cut cut,boolean admitted)throws IOException {
         Objects.requireNonNull(admission);Objects.requireNonNull(recheck);
-        try(var tx=new MembershipBootstrapTransaction(plan,cut)) {
+        try(var tx=new MembershipBootstrapTransaction(plan,cut,admitted)) {
             admission.run(tx.data.plan);tx.guard();
             if(!resume)require(!Files.exists(plan.operationDirectory().resolve(JOURNAL),LinkOption.NOFOLLOW_LINKS),"bootstrap already started; explicit resume required");
             try{return tx.complete(()->recheck.run(tx.data.plan));}catch(IOException|RuntimeException|Error e){tx.failed=true;throw e;}
         }
     }
-    static MembershipBootstrapResult read(MembershipBootstrapPlan plan)throws IOException {
-        try(var tx=new MembershipBootstrapTransaction(plan,e->{})) {
+    static MembershipBootstrapResult read(MembershipBootstrapPlan plan)throws IOException {return read(plan,false);}
+    static MembershipBootstrapResult readAdmitted(MembershipBootstrapPlan plan)throws IOException {return read(plan,true);}
+    private static MembershipBootstrapResult read(MembershipBootstrapPlan plan,boolean admitted)throws IOException {
+        try(var tx=new MembershipBootstrapTransaction(plan,e->{},admitted)) {
             require(tx.phase==4,"bootstrap not committed");
             require(!Files.exists(plan.operationDirectory().resolve(PENDING),LinkOption.NOFOLLOW_LINKS),"bootstrap receipt still pending");
             for(int i=0;i<tx.data.targets.size();i++) {
@@ -139,6 +154,10 @@ final class MembershipBootstrapTransaction implements AutoCloseable {
         if(exists(op.resolve(PENDING)))prefix(op.resolve(PENDING),data.receipt(),phase==3 && !exists(op.resolve(RECEIPT)));
         if(phase==4)exact(op.resolve(RECEIPT),data.receipt());
         for(int i=0;i<data.targets.size();i++)validateTarget(i,phase>=2 || phase==1 && partialNext());
+        // Every admission was forced before the first seal candidate was created.
+        // Loss on a different target is also committed-authority loss, not a prefix to refill.
+        if(admissionBytes!=null && data.targets.stream().anyMatch(t->exists(t.resolve(SEAL)) || exists(t.resolve(SEAL_PENDING))))
+            for(Path target:data.targets)exact(target.resolve(MembershipBootstrapAdmissionData.FILE),admissionBytes);
     }
     private static void exact(Path p,byte[] wanted)throws IOException {
         if(wanted.length==0 && p.getFileName().toString().endsWith(".lock")){AdmissionPaths.regular(p);require(Files.size(p)==0,"bootstrap nonempty owner lock");}
@@ -154,10 +173,10 @@ final class MembershipBootstrapTransaction implements AutoCloseable {
         boolean localComplete=exists(prepared) && retained.get(prepared).bytes()==data.preparation(i).length;
         // Even a partial PREPARED frame was written only after all payloads were forced.
         boolean exact=strict || exists(prepared);var allowed=new TreeMap<>(payload);allowed.put(PREPARED,data.preparation(i));
-        if(phase==4){allowed.put(SEAL,data.seal(i));allowed.put(SEAL_PENDING,data.seal(i));}
+        if(phase==4){allowed.put(SEAL,data.seal(i));allowed.put(SEAL_PENDING,data.seal(i));if(admissionBytes!=null)allowed.put(MembershipBootstrapAdmissionData.FILE,admissionBytes);}
         for(Path p:retained.keySet())if(p.startsWith(t) && !p.equals(t)) {
             String name=t.relativize(p).toString();if(retained.get(p).directory())require(directories.contains(name),"bootstrap unknown target directory");
-            else {require(allowed.containsKey(name),"bootstrap unknown target member");boolean partial=phase==1 && !exact || name.equals(PREPARED) && !strict && !localComplete || name.equals(SEAL_PENDING);
+            else {require(allowed.containsKey(name),"bootstrap unknown target member");boolean partial=phase==1 && !exact || name.equals(PREPARED) && !strict && !localComplete || name.equals(SEAL_PENDING) || admissionBytes!=null && name.equals(MembershipBootstrapAdmissionData.FILE) && !exists(t.resolve(SEAL)) && !exists(t.resolve(SEAL_PENDING));
                 prefix(p,allowed.get(name),partial);}
         }
         if(exact) {for(String dir:directories)require(exists(t.resolve(dir)) && retained.get(t.resolve(dir)).directory(),"bootstrap prepared directory missing");for(var e:payload.entrySet())exact(t.resolve(e.getKey()),e.getValue());}
@@ -198,6 +217,8 @@ final class MembershipBootstrapTransaction implements AutoCloseable {
         }
         if(phase==2){recheck.run();guard();for(int i=0;i<data.targets.size();i++)validateTarget(i,true);advance(3);}
         if(phase==3){publish(data.plan.operation().resolve(PENDING),data.plan.operation().resolve(RECEIPT),data.receipt(),"BOOTSTRAP_RECEIPT");advance(4);}
+        if(admissionBytes!=null)for(int i=0;i<data.targets.size();i++)
+            file(data.targets.get(i).resolve(MembershipBootstrapAdmissionData.FILE),admissionBytes,"BOOTSTRAP_ADMISSION_"+i);
         for(int i=0;i<data.targets.size();i++)publish(data.targets.get(i).resolve(SEAL_PENDING),data.targets.get(i).resolve(SEAL),data.seal(i),"BOOTSTRAP_SEAL_"+i);
         validate();point("BOOTSTRAP_COMMITTED_BEFORE_RETURN");return data.result();
     }

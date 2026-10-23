@@ -49,7 +49,8 @@ class Interrupted(Exception):pass
 
 
 class Model:
-    def __init__(self,raw,image):
+    def __init__(self,raw,image,*,admission=None):
+        self.admission=admission
         self.data=derived(raw,image);self.files={'operation/operation.lock':b'','operation/plan.gsbp':raw,'operation/application.image':image};self.dirs={'operation'}
     def emit(self,event):
         self.events.append(event)
@@ -107,6 +108,8 @@ class Model:
                 self.file(f'target-{2*i}/'+PREPARED,d['preps'][i],f'BOOTSTRAP_PREPARATION_RESEAL_{i}')
         if phase==2:self.advance(3);phase=3
         if phase==3:self.publish('operation/'+RECEIPT,'operation/'+PENDING,d['receipt'],'BOOTSTRAP_RECEIPT');self.advance(4)
+        if self.admission is not None:
+            for i in range(3):self.file(f'target-{2*i}/bootstrap-admission.gsbp',self.admission,f'BOOTSTRAP_ADMISSION_{i}')
         for i in range(3):self.publish(f'target-{2*i}/'+SEAL,f'target-{2*i}/'+SEAL_PENDING,d['seals'][i],f'BOOTSTRAP_SEAL_{i}')
         self.emit('BOOTSTRAP_COMMITTED_BEFORE_RETURN')
 

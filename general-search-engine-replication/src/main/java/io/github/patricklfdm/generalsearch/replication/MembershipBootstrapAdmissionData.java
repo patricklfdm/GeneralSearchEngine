@@ -17,6 +17,10 @@ final class MembershipBootstrapAdmissionData {
     final Path authority,materialization,operation;
     final String planDigest,receiptDigest;
     private final byte[] bytes;
+    static long completionBytes(MembershipBootstrapCommitMetadata data) {
+        long bytes=Math.addExact(data.completionBytes,Math.multiplyExact((long)data.targets.size(),create(data).length));
+        require(bytes<=data.plan.maximumOperation,"bootstrap admission completion capacity");return bytes;
+    }
     static byte[] create(MembershipBootstrapCommitMetadata data) {
         return envelope(data.receipt(),data.row(3),data.row(4));
     }

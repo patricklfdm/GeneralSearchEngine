@@ -1,0 +1,292 @@
+{
+  "base": "96e59e9c6679484c5b28f03e94686fbd1d768df0",
+  "compiledInventories": {
+    "inputs1.json": "8a71dc9dfefe615769b48267e654bc4a6f9dac96f63411649fd884f1332d5cbe",
+    "inputs2.json": "77345af0ac0c5ea97b33792ac598495157e4386dbde5a36349a0f4e357b9f3e5",
+    "oracle-inputs.json": "ac35cd2f3b32d56dfdc4e6506937c5ae9b8b3d937a8e915df4f8cc88410acd11"
+  },
+  "jars": {
+    "target/v53-bootstrap-admission-files/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-admission-files/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "504efe646cb7fe333c93293dba009482168bb83b33e3fb5993c7b2a3be4fd959"
+  },
+  "javaMethods": 34,
+  "limitations": [
+    "typed coordinator remains original component profile; complete-store opener and mutable result reader pending",
+    "new IO interruptions are in-process; new halt/SIGKILL and all-size typed coordinator process qualification pending",
+    "combined MISC completion audit and wider Phase 2 lifetime requirements remain open",
+    "no public runtime, cloud, protected CI, POM or frozen catalog change"
+  ],
+  "logs": {
+    "coordinator-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "coordinator.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "93629e9b553aaf61a5e2f7c5799e403d201aea67d5b303f498d1f0ab1f805c53",
+    "run2.log": "c578457d2984dc8300166150228978e1347b6efbe427d47542b71d1975a01b3e",
+    "transaction-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "transaction.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newJavaMethods": 6,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-admission-files/producer-classes.json",
+    "sha256": "9e25177ced1ed5734e63906bb19e374e943f6fa013791d45842eda95044a5a9a"
+  },
+  "raw": {
+    "coordinator": {
+      "indexSha256": "fa2b7414dc58458d3a7b3cef2d1689bb9266217d16c1e834d44d96819088c2b3",
+      "members": 466,
+      "path": "general-search-engine-replication/target/v53-bootstrap-coordinator/run-4bdd23b6-6ef3-42f6-b728-5f183368fb27"
+    },
+    "final": {
+      "indexSha256": "bf02506cf06eeebce2c1ca112f1d4d9150c36eef0cc9d3f72dd585bb8c0d5f29",
+      "members": 3080,
+      "path": "general-search-engine-replication/target/v53-bootstrap-admission-files/run-babab74d-3896-417a-881c-21cee248f782"
+    },
+    "transaction": {
+      "indexSha256": "4fdcc307f0e8a2d3e43b15e11a910845ba406f267e9586d59400ca7b7478b782",
+      "members": 8541,
+      "path": "general-search-engine-replication/target/v53-bootstrap-transaction/run-d69023d5-6c33-4bfc-9ed6-fed59ee368e7"
+    }
+  },
+  "replays": {
+    "coordinator": {
+      "cases": 6,
+      "independentExecutionTrace": false,
+      "independentTypedSemantics": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap recheck case inventory"
+        },
+        {
+          "case": "extra-stage",
+          "reason": "bootstrap recheck case members"
+        },
+        {
+          "case": "extra-projection",
+          "reason": "bootstrap recheck bounded projection"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "bootstrap recheck original source"
+        },
+        {
+          "case": "projection-bytes",
+          "reason": "bootstrap validation exact exported state"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "receipt",
+          "reason": "bootstrap recheck receipt"
+        },
+        {
+          "case": "local-seal",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "final-allocator",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "unknown-final-file",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "underreported-bytes",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "check-type",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "public-claim",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "linked-projection",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "portableReplay": "PASS",
+      "publicBootstrap": false,
+      "reportedTypedChecks": 24,
+      "retainedExports": 24,
+      "scope": "private-coordinator-physical-reconciliation",
+      "status": "PASS"
+    },
+    "final": {
+      "cases": 21,
+      "freshProcesses": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap admission files case inventory"
+        },
+        {
+          "case": "original-plan",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "first-order",
+          "reason": "bootstrap admission files first force order"
+        },
+        {
+          "case": "second-order",
+          "reason": "bootstrap admission files second force order"
+        },
+        {
+          "case": "resumed-order",
+          "reason": "bootstrap admission files resumed force order"
+        },
+        {
+          "case": "crash",
+          "reason": "bootstrap admission files exact crash bytes"
+        },
+        {
+          "case": "second-crash",
+          "reason": "bootstrap admission files exact second-crash bytes"
+        },
+        {
+          "case": "final",
+          "reason": "bootstrap admission files exact final bytes"
+        },
+        {
+          "case": "lost-other-admission",
+          "reason": "bootstrap admission files exact final bytes"
+        },
+        {
+          "case": "early-admission",
+          "reason": "bootstrap admission files exact crash bytes"
+        },
+        {
+          "case": "scope",
+          "reason": "bootstrap admission files receipt scope"
+        },
+        {
+          "case": "type",
+          "reason": "bootstrap admission files receipt scope"
+        },
+        {
+          "case": "linked-admission",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "privateCommittedTargets": 63,
+      "publicBootstrap": false,
+      "status": "PASS",
+      "typedCoordinator": false
+    },
+    "transaction": {
+      "cases": 84,
+      "freshProcesses": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap transaction case inventory"
+        },
+        {
+          "case": "original-plan",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "crash",
+          "reason": "bootstrap transaction exact crash bytes"
+        },
+        {
+          "case": "second-crash",
+          "reason": "bootstrap transaction exact second-crash bytes"
+        },
+        {
+          "case": "final",
+          "reason": "bootstrap transaction exact final bytes"
+        },
+        {
+          "case": "first-order",
+          "reason": "bootstrap transaction first force order"
+        },
+        {
+          "case": "second-order",
+          "reason": "bootstrap transaction second force order"
+        },
+        {
+          "case": "resumed-order",
+          "reason": "bootstrap transaction resumed force order"
+        },
+        {
+          "case": "scope",
+          "reason": "bootstrap transaction receipt scope"
+        },
+        {
+          "case": "scope-type",
+          "reason": "bootstrap transaction receipt scope"
+        },
+        {
+          "case": "target-type",
+          "reason": "bootstrap plan derived target inventories"
+        },
+        {
+          "case": "extra-target",
+          "reason": "bootstrap transaction exact final bytes"
+        },
+        {
+          "case": "linked-file",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "privateCommittedTargets": 252,
+      "publicBootstrap": false,
+      "status": "PASS",
+      "typedCodecIndependentlyVerified": false
+    }
+  },
+  "schema": "gse-v53-bootstrap-admission-files-local-v1",
+  "scope": [
+    "explicit admitted transaction profile counts one admission per target before first transaction write",
+    "all admissions forced with parents after COMMITTED and before first local seal candidate",
+    "21 publication cuts interrupted again during admission recovery; exact original-first physical replay",
+    "missing/partial admission on any target after any seal refuses unchanged; legacy stores do not upgrade",
+    "all sizes/sources, original transaction 84 cuts and coordinator six profiles, 42 exact negatives normal/optimized/portable"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapAdmissionData.java": "d0f50eb5a1f1f95f3dd479297a5f225d43dde330482c502962350ef46efd8ccf",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapTransaction.java": "4be8a11f406b324576d3e0b3cbb389ff6fe7d062e01acbc30ebc6663176ff6c9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapAdmissionFilesTest.java": "d303f23a2c293f51290b42f532f449a749c43f08c03f959bd6a094eb63c8e831",
+    "scripts/v53/bootstrap_admission_files_evidence.py": "a35db4e8a9ceebb27e6fd6ee4fd0ccada78c3629e5894e3b02ef2c8660e30244",
+    "scripts/v53/bootstrap_transaction_evidence.py": "af51fe1f926c171e04387aededcccba9095c1dc8d023e57ec297bedf01d07357"
+  },
+  "status": "PASS",
+  "testRuns": [
+    {
+      "errors": 1,
+      "methods": 30,
+      "path": "target/v53-bootstrap-admission-files/run1.log",
+      "reason": "duplicate temporary fixture directory; 24 related methods pass"
+    },
+    {
+      "errors": 0,
+      "methods": 10,
+      "path": "target/v53-bootstrap-admission-files/run2.log",
+      "reason": "all six corrected admission-file tests plus four ownership tests"
+    }
+  ]
+}
