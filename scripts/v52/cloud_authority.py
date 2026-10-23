@@ -56,17 +56,18 @@ def request(selection, configuration_sha256, resource_layout, ownership_policy, 
                  paidCloud=domain == 'native', selection=deepcopy(selection),
                  configurationSha256=configuration_sha256, layout=deepcopy(resource_layout),
                  policy=deepcopy(ownership_policy), createdAt=now)
-    validate_request(value, domain=domain)
+    validate_request(value, domain=domain,historical=False)
     return value
 
 
-def validate_request(value, *, domain):
+def validate_request(value, *, domain, historical=True):
+    """Validate retained bytes; new allocation/reservation explicitly disallow legacy suites."""
     extended = type(value) is dict and value.get('schema') == 'gse-v52-owned-request-v2'
     fields(value, 'schema execution paidCloud selection configurationSha256 layout policy createdAt'+
            (' guestAccess' if extended else ''), 'request')
     need(domain in DOMAINS and value['schema'] in ('gse-v52-owned-request-v1','gse-v52-owned-request-v2') and
          value['execution'] == DOMAINS[domain] and value['paidCloud'] is (domain == 'native'), 'V5.2 request domain')
-    suite.validate_selection(value['selection']); hex_value(value['configurationSha256'])
+    suite.validate_selection(value['selection'],historical=historical); hex_value(value['configurationSha256'])
     if extended:
         from .cloud_access import validate
         validate(value['guestAccess'], value['selection']['attempt'])
@@ -95,8 +96,8 @@ def identity(req):
                 layout=deepcopy(req['layout']), policy=deepcopy(req['policy']))
 
 
-def resources(req):
-    sha = validate_request(req, domain=domain(req)); owner = 'gse-v52-'+req['selection']['attempt']
+def resources(req, *, historical=True):
+    sha = validate_request(req, domain=domain(req),historical=historical); owner = 'gse-v52-'+req['selection']['attempt']
     specs = [dict(kind='firewall', name=owner+'-'+purpose, purpose=purpose)
              for purpose in ('peer', 'deny-replication', 'iap', 'deny-ssh')]
     for node in (1, 2, 3):
@@ -107,17 +108,17 @@ def resources(req):
     return [dict(spec, owner=owner, requestSha256=sha, operationId=digest(encoded([sha, spec['name']]))) for spec in specs]
 
 
-def lease(req, now):
-    validate_request(req, domain=domain(req)); p = req['policy']
+def lease(req, now, *, historical=False):
+    validate_request(req, domain=domain(req),historical=historical); p = req['policy']
     integer(now, req['createdAt'], MAX_INTEGER-p['leaseSeconds']-p['operationGraceSeconds'])
     return dict(schema='gse-v52-owned-lease-v1', execution=req['execution'], request=deepcopy(req),
                 phase='ACQUIRING', startedAt=now, renewedAt=now, expiresAt=now+p['leaseSeconds'],
-                graceSeconds=p['operationGraceSeconds'], resources=[dict(spec=s, attempted=False, id=None) for s in resources(req)])
+                graceSeconds=p['operationGraceSeconds'], resources=[dict(spec=s, attempted=False, id=None) for s in resources(req,historical=historical)])
 
 
 def validate_lease(value):
     fields(value, 'schema execution request phase startedAt renewedAt expiresAt graceSeconds resources', 'lease')
-    expected = lease(value['request'], value['startedAt']); p = value['request']['policy']
+    expected = lease(value['request'], value['startedAt'],historical=True); p = value['request']['policy']
     need(value['schema'] == expected['schema'] and value['execution'] == expected['execution'] and
          value['phase'] in ('ACQUIRING', 'ACTIVE', 'CLEANING'), 'V5.2 lease identity/phase')
     integer(value['renewedAt'], value['startedAt'], MAX_INTEGER-p['leaseSeconds']-p['operationGraceSeconds'])
@@ -184,7 +185,7 @@ def inspect_ledger(value, *, domain):
         sha = hex_value(row.get('requestSha256'))
         if row['kind'] == 'RESERVED':
             fields(row, 'kind requestSha256 request reservedCostMicrousd', 'reservation')
-            req = row['request']; need(validate_request(req, domain=domain) == sha, 'V5.2 reservation changed')
+            req = row['request']; need(validate_request(req, domain=domain,historical=True) == sha, 'V5.2 reservation changed')
             selected = req['selection']; name = selected['member']['name']; attempt = selected['attempt']
             need(sha not in attempts and attempt not in ids and all(v['status'] != 'PENDING' for v in attempts.values()),
                  'V5.2 reused or unresolved attempt')
@@ -208,7 +209,7 @@ def reserve(ledger, req, *, previous_cost, cost):
     d = domain(req); view = inspect_ledger(ledger, domain=d)
     need(view['reservedCostMicrousd'] == integer(previous_cost), 'V5.2 stale cost observation')
     result = deepcopy(ledger)
-    result['entries'].append(dict(kind='RESERVED', requestSha256=validate_request(req, domain=d),
+    result['entries'].append(dict(kind='RESERVED', requestSha256=validate_request(req, domain=d,historical=False),
                                   request=deepcopy(req), reservedCostMicrousd=integer(cost, 1)))
     inspect_ledger(result, domain=d); return result
 
@@ -216,7 +217,7 @@ def reserve(ledger, req, *, previous_cost, cost):
 def validate_completion(value, req):
     fields(value, 'schema execution requestSha256 status evidenceSha256 cleanupSha256', 'completion')
     need(value['schema'] == 'gse-v52-owned-completion-v1' and value['execution'] == req['execution'] and
-         value['requestSha256'] == validate_request(req, domain=domain(req)) and value['status'] in ('PASS', 'FAIL'),
+         value['requestSha256'] == validate_request(req, domain=domain(req),historical=True) and value['status'] in ('PASS', 'FAIL'),
          'V5.2 completion identity/outcome')
     hex_value(value['cleanupSha256'])
     if value['status'] == 'PASS' or value['evidenceSha256'] is not None: hex_value(value['evidenceSha256'])
@@ -225,7 +226,7 @@ def validate_completion(value, req):
 
 def finish(ledger, req, completion):
     validate_completion(completion, req); result = deepcopy(ledger)
-    result['entries'].append(dict(kind='FINISHED', requestSha256=validate_request(req, domain=domain(req)),
+    result['entries'].append(dict(kind='FINISHED', requestSha256=validate_request(req, domain=domain(req),historical=True),
                                   status=completion['status'], completionSha256=digest(encoded(completion))))
     inspect_ledger(result, domain=domain(req)); return result
 

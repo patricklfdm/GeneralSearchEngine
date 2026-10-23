@@ -93,6 +93,20 @@ class NativeCleanupTest(unittest.TestCase):
         self.assertTrue(self.captured[-1].closed);self.assertTrue(self.captured[-1].reader.closed)
         self.assertTrue(self.captured[-1].tokens.closed);self.assertIsNone(self.captured[-1].token)
 
+    def test_original_v1_lease_cleans_all_thirteen_ids_after_shard_migration(self):
+        suite=a.suite;old=suite.read(suite.LEGACY_PLAN)
+        with patch.object(suite,'PLAN_SHA',suite.LEGACY_SHA),patch.object(suite,'load',return_value=old):
+            lease=self.prepared()
+        result=self.execute()
+        self.assertEqual('PASS',result['status']);self.assertEqual(13,result['resourceDeletesSubmitted'])
+        self.assertIsNone(self.get(a.LEASE));self.assertEqual({},self.server.resources)
+        view=a.inspect_ledger(self.get(a.LEDGER),domain='native')
+        self.assertEqual(1,view['reservedCostMicrousd'])
+        self.assertEqual('FAIL',view['attempts'][a.validate_request(self.req,domain='native')]['status'])
+        deletes=[row['url'].split('?')[0].rsplit('/',1)[1] for row in self.calls
+                 if row['method']=='DELETE' and 'compute.googleapis.com' in row['url']]
+        self.assertEqual({row['id'] for row in lease['resources']},set(deletes))
+
     def test_empty_control_pass_is_observation_only_and_does_not_certify_delete_path(self):
         result=self.execute();self.assertEqual('PASS',result['status'])
         self.assertFalse(result['deletionPathExercised']);self.assertEqual(0,result['providerWrites'])

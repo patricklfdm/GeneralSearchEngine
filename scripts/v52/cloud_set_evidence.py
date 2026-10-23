@@ -1,4 +1,4 @@
-"""Replay all five complete native members, in any order, without cloud I/O.
+"""Replay all nine complete native members, in any order, without cloud I/O.
 
 This is an internal byte/authority validator, not a native download capability.
 Only a separately authenticated collector may promote its result to acceptance.
@@ -11,7 +11,7 @@ from .evidence import need,encoded,digest
 
 
 def inputs(values,source,cfg,ledger):
-    need(type(values) is list and len(values)==5,'V5.2 five original member inputs required')
+    need(type(values) is list and len(values)==len(suite.MEMBERS),'V5.2 nine original member inputs required')
     requests=[];paths=[]
     for value in values:
         a.fields(value,'root request manifest completed cleanup','retained set input')
@@ -22,11 +22,11 @@ def inputs(values,source,cfg,ledger):
              'V5.2 set external source/configuration mismatch')
         paths.append(Path(value['root']).resolve())
     selected=suite.complete_selection([v['selection'] for v in requests])
-    need(len(set(paths))==5 and not any(x in y.parents for x in paths for y in paths if x!=y),
+    need(len(set(paths))==len(suite.MEMBERS) and not any(x in y.parents for x in paths for y in paths if x!=y),
          'V5.2 set overlapping original member roots')
     view=a.inspect_ledger(ledger,domain='native')
     need(all(view['attempts'].get(a.validate_request(req,domain='native'))==dict(request=req,status='PASS') for req in requests),
-         'V5.2 set requires all five original terminal successes')
+         'V5.2 set requires all nine original terminal successes')
     return selected,view,paths
 
 
@@ -73,7 +73,7 @@ def results(values,selected,source,cfg,ledger):
     measured=m01.validate_results(m01_members,expected,invocations=invocations)
     need(measured['nominalOfferedSeconds']==totals['nominalM01Seconds'],'V5.2 set frozen offered duration')
     return dict(status='COMPLETE_SET_REPLAYED_NOT_QUALIFIED',execution='retained-native-set-local-replay',
-        fullRemoteQualification=False,paidCloud=False,source=source,binding=selected['binding'],members=list(suite.MEMBERS),
+        fullRemoteQualification=False,paidCloud=False,source=source,binding=selected['binding'],members=list(suite.MEMBERS),logicalMembers=list(suite.LOGICAL_MEMBERS),
         totals=totals,m01=measured,selectedReservedCostMicrousd=cost,
         ledgerReservedCostMicrousd=a.inspect_ledger(ledger,domain='native')['reservedCostMicrousd'],ledgerSha256=digest(encoded(ledger)))
 

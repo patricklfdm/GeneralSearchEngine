@@ -119,6 +119,43 @@ class GuestProbeTest(unittest.TestCase):
 
 
 class LocalForwardTest(unittest.TestCase):
+    def test_oidc_chain_deadline_retries_before_single_spawn_without_resending_bytes(self):
+        original=self.authorize;calls=[]
+        def authorize(node,path,deadline,*,progress=lambda stage:None):
+            calls.append(path);progress('credentials')
+            if len(calls)==1:
+                error=iap.runner.credentials.exchange.CredentialError('OIDC_EXCHANGE_FAILED',failure_kind='timeout')
+                error.read_retry=iap.cloud_read_retry.ReadError('credential-oidc',1,'timeout','deadline').detail
+                raise error
+            return original(node,path,deadline,progress=progress)
+        self.group.authorize=authorize
+        with patch.object(iap,'ADMISSION_BACKOFF',.01),patch.object(iap.subprocess,'Popen',wraps=subprocess.Popen) as spawn:
+            client=self.connect();client.sendall(b'original');self.assertEqual(b'original',client.recv(32))
+            client.close();self.forward.close();self.assertEqual(1,spawn.call_count)
+        self.assertEqual(2,len(calls));self.assertEqual(1,self.forward.snapshot()['admissionRetries'])
+
+    def test_repeated_typed_credential_deadlines_exhaust_two_admissions_without_spawn(self):
+        error=iap.runner.credentials.exchange.CredentialError('OIDC_EXCHANGE_FAILED',failure_kind='timeout')
+        error.read_retry=iap.cloud_read_retry.ReadError('credential-oidc',1,'timeout','deadline').detail
+        self.group.authorize=Mock(side_effect=error)
+        with patch.object(iap,'ADMISSION_BACKOFF',.01),patch.object(iap.subprocess,'Popen') as spawn:
+            client=self.connect();self.assertEqual(b'',client.recv(1));self.forward.close();spawn.assert_not_called()
+        self.assertEqual(2,self.group.authorize.call_count)
+        self.assertEqual('OIDC_EXCHANGE_FAILED',self.forward.snapshot()['lastFailureCode'])
+
+    def test_credential_count_exhaustion_denial_claim_and_forged_errors_are_terminal(self):
+        exchange=iap.runner.credentials.exchange
+        for code,kind,status,scope,stop in (
+            ('OIDC_EXCHANGE_FAILED','timeout',None,'credential-oidc','attempt-limit'),
+            ('OIDC_EXCHANGE_FAILED','timeout',None,'credential-sts','deadline'),
+            ('OIDC_EXCHANGE_FAILED','http',403,'credential-oidc','deadline'),
+            ('OIDC_CLAIMS_REJECTED','timeout',None,'credential-oidc','deadline')):
+            error=exchange.CredentialError(code,failure_kind=kind,http_status=status)
+            error.read_retry=iap.cloud_read_retry.ReadError(scope,1,'timeout',stop).detail
+            self.assertFalse(iap._retry_admission(error))
+        error=ValueError('foreign');error.reason_code='OIDC_EXCHANGE_FAILED';error.failure_kind='timeout'
+        self.assertFalse(iap._retry_admission(error))
+
     def setUp(self):
         self.private=tempfile.TemporaryDirectory();self.addCleanup(self.private.cleanup)
         self.calls=[];self.failures=[];self.program=ECHO

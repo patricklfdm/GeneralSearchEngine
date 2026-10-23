@@ -51,13 +51,13 @@ class AcceptanceTest(unittest.TestCase):
         result = self.execute(); self.assertEqual('PASS', result['status']); self.assertTrue(result['fullRemoteQualification'])
         self.assertEqual(27428, result['totals']['reads']); self.assertEqual(2760, result['totals']['updates'])
         self.assertEqual(439, result['totals']['formalNegativesPerLocation'])
-        self.assertEqual(11, len(self.calls)); self.assertFalse(result['paidCloud'])
-        self.assertEqual(20_000_000, result['ledgerReservedCostMicrousd'])
+        self.assertEqual(19, len(self.calls)); self.assertFalse(result['paidCloud'])
+        self.assertEqual(36_000_000, result['ledgerReservedCostMicrousd'])
     def test_any_whole_member_order_is_permitted(self):
-        for first in range(5):
+        for first in range(len(c.suite.MEMBERS)):
             self.values = self.values[1:]+self.values[:1]; self.calls = []
             result = self.execute(); self.assertEqual('PASS', result['status'])
-            self.assertEqual('replay:'+self.values[0]['request']['selection']['member']['name'], self.calls[6])
+            self.assertEqual('replay:'+self.values[0]['request']['selection']['member']['name'], self.calls[len(c.suite.MEMBERS)+1])
     def test_missing_or_duplicate_selection_rejects_before_native_reads(self):
         for change in (lambda v:v.pop('experiment'), lambda v:v.update(experiment=v['canonical-1']),
                        lambda v:v['experiment'].update(runAttempt=True)):

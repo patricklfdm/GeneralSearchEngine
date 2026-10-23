@@ -32,7 +32,7 @@ The package contains eight files plus its inventory:
 a gzip header without a timestamp or filename. The same original inputs produce
 the same package bytes across destination paths and creation times. The archive
 SHA becomes the suite's `packageSha256`. There is no per-attempt SSH key, member
-name, session path or current time in the package; all five members can retain one
+name, session path or current time in the package; all nine execution units can retain one
 shared input identity. Per-history receiver capsules continue to carry their own
 topology, compiled helpers, seed and ownership. This input archive is not a guest
 installer or a substitute for those existing receiver capsules.
@@ -95,7 +95,7 @@ must own fresh observations; passing stored copies back into this pure checker
 does not establish freshness. It returns `APPROVAL_BOUND_NOT_ADMITTED`, with all
 admission/resource/workload/remote-qualification flags false.
 
-All five members may start first. Shared source/sequence/build/package/control,
+All nine execution units may start first. Shared source/sequence/build/package/control,
 layout and ownership-policy rules remain enforced by the existing ledger. A
 failed attempt remains charged; another attempt must be fresh and run the entire
 member. A passed member cannot be replayed under a new attempt. Native request

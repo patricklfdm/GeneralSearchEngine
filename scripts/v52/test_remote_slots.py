@@ -24,7 +24,7 @@ class RemoteSlotsTest(unittest.TestCase):
             self.assertEqual([1],entered)
 
     def test_lifecycle_slots_and_declared_reopen_do_not_collide(self):
-        bound=owner('failure-drill','leader-sigkill-retained-restart')
+        bound=owner('failure-drill-m04','leader-sigkill-retained-restart')
         values=[slots.request(bound,k) for k in ('prepare-receiver','execute-history','collect')]
         values.extend(slots.request(bound,k,{'generation':generation}) for k in ('start-voter','stop-voter') for generation in (1,2))
         values.append(slots.request(bound,'declared-fault',{'action':'sigkill'}))
@@ -47,7 +47,7 @@ class RemoteSlotsTest(unittest.TestCase):
                              ('execute-history',{'output':'new-history'}),('collect',{'path':'/etc'}),
                              ('declared-fault',{'action':'sigkill'}),('read',{})):
             with self.subTest(kind=kind,payload=payload),self.assertRaises(ValueError):slots.request(bound,kind,payload)
-        bound=owner('failure-drill','follower-snapshot-carried-token')
+        bound=owner('failure-drill-m04','follower-snapshot-carried-token')
         a=slots.request(bound,'declared-fault',{'action':'partition'});b=slots.request(bound,'declared-fault',{'action':'heal'})
         self.assertNotEqual(a['commandId'],b['commandId'])
         with self.assertRaises(ValueError):slots.request(bound,'declared-fault',{'action':'sigkill'})

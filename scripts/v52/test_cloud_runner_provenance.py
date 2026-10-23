@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 import warnings
 import zipfile
-from . import cloud_runner_provenance as p
+from . import cloud_runner_provenance as p, cloud_runner_host as host
 from .test_cloud_member_seal import fixture
 from .test_cloud_ci import Fixture, run, at
 
@@ -22,8 +22,8 @@ jobs:
     name: V5.2 replication runner
     if: ${{ github.ref == 'refs/heads/master' }}
     environment: v52-cloud-benchmark
-    runs-on: [self-hosted, Linux, X64, gse-v52-cloud-d-wsl]
-    timeout-minutes: 1380
+    runs-on: ${{ fromJSON(inputs.execution_host == 'self-hosted' && '["self-hosted","Linux","X64","gse-v52-cloud-d-wsl"]' || '["ubuntu-24.04"]') }}
+    timeout-minutes: ${{ inputs.execution_host == 'self-hosted' && 1380 || 360 }}
     steps:
 '''+''.join('      - name: '+v+'\n        run: fixture-only\n' for v in p.REQUIRED)
 
@@ -34,7 +34,7 @@ class RunnerFixture(Fixture):
         self.run.update(path=p.PATH, event='workflow_dispatch')
         self.jobs = [dict(id=801, run_id=123456, run_attempt=2, head_sha='a'*40, name=p.JOB, status='completed', conclusion='success',
             started_at=at(990), completed_at=at(1130), steps=[dict(name=name, number=i+1, status='completed', conclusion='success',
-                started_at=at(start), completed_at=at(end)) for i, (name, start, end) in enumerate(zip(p.REQUIRED, (990, 995, 1000, 1110), (995, 1000, 1110, 1120)))])]
+                started_at=at(start), completed_at=at(end)) for i, (name, start, end) in enumerate(zip(p.REQUIRED, (990, 992, 995, 1000, 1110), (992, 995, 1000, 1110, 1120)))])]
         self.data = {}; self.calls = []; self.queues = {}; self.downloads = []
         self.chosen = dict(runId=123456, runAttempt=2)
         self.record = dict(id=901, name=p.name(self.chosen), expired=False, created_at=at(1110), updated_at=at(1120),
@@ -149,8 +149,8 @@ class ProvenanceTest(unittest.TestCase):
         path = self.root/p.PATH; path.parent.mkdir(parents=True)
         path.write_text(WORKFLOW); self.assertEqual(WORKFLOW, p.contract(self.root))
         for old, new in (('workflow_dispatch:', 'push:'), ('v52-cloud-benchmark', 'other'),
-                         ('[self-hosted, Linux, X64, gse-v52-cloud-d-wsl]', 'ubuntu-latest'),
-                         ('gse-v52-cloud-d-wsl', 'unbound-runner'), ('timeout-minutes: 1380', 'timeout-minutes: 360'),
+                         (host.RUNS_ON, 'ubuntu-latest'),
+                         ('gse-v52-cloud-d-wsl', 'unbound-runner'), (host.TIMEOUT, '360'),
                          ("github.ref == 'refs/heads/master'", 'true'), ('  runner:', '  other:'),
                          ('        run: fixture-only', '        if: always()\n        run: fixture-only')):
             path.write_text(WORKFLOW.replace(old, new))

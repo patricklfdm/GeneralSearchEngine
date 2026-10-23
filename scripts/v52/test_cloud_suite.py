@@ -18,13 +18,13 @@ def selections():
 
 
 class CloudSuiteTest(unittest.TestCase):
-    def test_five_members_cover_every_formal_history_once_with_separate_smoke(self):
+    def test_nine_executions_cover_every_formal_history_once_with_separate_smoke(self):
         plan=c.load();names=[n for member in plan['members'].values() for n in member['histories']]
         self.assertEqual((33,33),(len(names),len(set(names))))
         self.assertEqual(set(plan['histories']),set(names))
         formal={n for n in names if plan['histories'][n]['family']!='UNTIMED'}
         self.assertEqual(set(c.machine.members()),formal)
-        self.assertEqual({'members':5,'histories':33,'formalHistories':28,'reads':27428,'updates':2760,
+        self.assertEqual({'members':9,'logicalMembers':5,'histories':33,'formalHistories':28,'reads':27428,'updates':2760,
                           'nominalM01Seconds':2700,'formalNegativesPerLocation':439},plan['totals'])
         for key in ('reads','updates','nominalM01Seconds'):
             self.assertEqual(plan['totals'][key],sum(v[key] for v in plan['members'].values()))
@@ -39,21 +39,21 @@ class CloudSuiteTest(unittest.TestCase):
             self.assertEqual(5,len(member['profiles']))
             self.assertTrue(all(v['profile']['durationNanos']==180_000_000_000 for v in member['profiles'].values()))
             self.assertTrue(all(v['profile']['repetition']==repetition for v in member['profiles'].values()))
-        self.assertEqual([*c.minimum.CASES,*c.recovery.CASES],c.member('failure-drill')['histories'])
+        self.assertEqual([*c.minimum.CASES,*c.recovery.CASES],[h for name in c.DRILL_SHARDS for h in c.member(name)['histories']])
 
     def test_any_member_can_be_selected_first_and_all_orders_remain_unqualified(self):
         rows=selections();plan=c.load()
         # Only cache the already independently checked immutable fixture bytes;
         # production load() still validates the exact file on every operation.
         with patch.object(c,'load',return_value=plan):
-            for order in itertools.permutations(rows):
+            for order in (v[i:]+v[:i] for v in (rows,list(reversed(rows))) for i in range(len(v))):
                 result=c.complete_selection(list(order))
                 self.assertEqual('COMPLETE_SELECTION_NOT_QUALIFIED',result['status'])
                 self.assertFalse(result['qualified']);self.assertFalse(result['paidCloud'])
         for name in c.MEMBERS:self.assertEqual(name,c.selection(binding(),name,'1'*32)['member']['name'])
 
     def test_unknown_partial_or_forged_qualification_cannot_become_a_selection(self):
-        for name in ('canonical','canonical-0','canonical-4','healthy','experiment-extra',None):
+        for name in ('canonical','canonical-0','canonical-4','healthy','experiment-extra','failure-drill',None):
             with self.subTest(name=name),self.assertRaises(ValueError):c.member(name)
         for mutate in (lambda v:v['member']['histories'].pop(),lambda v:v['member'].__setitem__('reads',1),
                        lambda v:v.__setitem__('qualified',True),lambda v:v.__setitem__('status','PASS'),

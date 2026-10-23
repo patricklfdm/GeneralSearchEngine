@@ -25,13 +25,31 @@ cost budgets are unchanged.
 | Cleanup discovery, operation polling and absence checks | Same shared GET retry | Expiry/grace, exact ownership/IDs; deletion itself is never replayed |
 | Retention readback and restoration of selected originals | Same shared GET retry | Same generation-pinned object; length, JSON, manifest/hash and source checks still reject |
 | Preflight GETs and fixed read-only permission-test POSTs | Three attempts per read | Generated allowlist only, source/configuration/credential binding and 128-exchange bound |
-| OIDC, STS and impersonation | Three attempts per exact stage | Shared original token-acquisition deadline; no full-chain restart, identity or lifetime bypass |
+| OIDC, STS and impersonation | Three attempts per exact stage, at most 10 seconds per exchange | Shared original 30-second token-acquisition deadline; only typed transient deadline exhaustion before SDK spawn can use the second predeclared IAP admission |
 | GitHub build/cleanup/original-artifact GETs | Three attempts; JSON reads use 30 seconds per attempt within 100 seconds total; HTTP 408/429 also retry | Original run/attempt and source, pagination/count/byte bounds, strict JSON/ZIP validation |
 | GitHub credential-context GETs | Now reuse the bounded GET reader | Latest → exact attempt → latest must all still identify the same in-progress run |
 | Guest link-local metadata GETs | Three attempts within the original three seconds per fixed path | No proxy/redirect, same path, Google header, byte/ASCII bounds and exact guest identity |
 | IAP admission and native volume/storage queries | Bounded reads only | At most two IAP admission attempts; three clock-read exchanges; three mount-read attempts within one 300-second window and current authority; initialization queries retain their original grant |
 | Remote original-command recovery | Existing finite result-query mechanism retained | Consumed command is never resubmitted; permanent rejection or exhausted reads stop |
 | Install/start, Compute/Storage writes, measurement operations | No new automatic replay | Original-result query/reconciliation remains the only way to resolve uncertain submission |
+
+## OIDC socket headroom and IAP credential deadlines
+
+Run [39905260525/1](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/39905260525)
+on `25d1ea8798687f3bc4766f332938fb7194e5761f` completed seven drill histories,
+then failed in the eighth history's placement. One OIDC exchange consumed its
+entire 30-second credential grant; the typed `OIDC_EXCHANGE_FAILED` was not eligible
+for the existing second IAP admission. Exact-ID cleanup passed and released the
+lease. This evidence does not establish a WSL crash or an engine failure.
+
+Each OIDC/STS/impersonation socket now receives at most ten seconds, bounded by
+the same original thirty-second grant and three-attempt limit. A typed transient
+credential deadline may use the second existing IAP admission before SDK spawn;
+that admission rechecks identity/ownership and obtains fresh credentials. Only
+closed phase-matched diagnostics permit this path. Attempt-count exhaustion,
+403/unknown status, invalid claims, malformed responses and arbitrary lookalike
+exceptions remain terminal. The two-admission/240-second connection ceiling is
+unchanged. No SSH stream, workload or business command is resubmitted.
 
 ## GitHub source-read timeout recovery
 
