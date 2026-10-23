@@ -337,13 +337,64 @@ class NetworkRetryTest(unittest.TestCase):
         Path(path).write_bytes(raw)
         if error is not None: raise error
 
-    def fail(self, status=503, delay=0):
+    def http_failure(self, status=503, delay=0):
         return (delay, b'partial-private-response', p.GitHubReadError('HTTP_REJECTED', status))
 
+    def test_owned_attempt_timeout_recovers_and_retains_partial_response(self):
+        self.actions = [(30, b'partial-private-response', p.GitHubReadError('DEADLINE')),
+                        (0, b'{"ok":true}', None)]
+        self.assertEqual({'ok':True}, self.client.get('branches/master'))
+        self.assertEqual([30,30], [v[2] for v in self.calls]); self.assertEqual([1], self.waits)
+        row = p.read(self.client.output/'001-request.json')
+        self.assertEqual('V52_GITHUB_ATTEMPT_TIMEOUT', row['reasonCode']); self.assertTrue(row['retry'])
+        self.assertEqual(30, row['timeoutSeconds']); self.assertEqual(30, row['elapsedSeconds'])
+        self.assertEqual(len(b'partial-private-response'), row['receivedBytes'])
+        self.assertEqual(b'partial-private-response', (self.client.output/'001.json').read_bytes())
+        self.assertNotIn('private-response', self.output.getvalue())
+
+    def test_two_owned_timeouts_leave_a_full_third_attempt(self):
+        self.actions = [(30,b'',p.GitHubReadError('DEADLINE')) for _ in range(2)]+[(0,b'{"ok":true}',None)]
+        self.assertEqual({'ok':True}, self.client.get('branches/master'))
+        self.assertEqual([30,30,30],[v[2] for v in self.calls]); self.assertEqual([1,2],self.waits)
+        self.assertEqual(163,self.clock)
+
+    def test_repeated_owned_timeouts_stop_at_three_attempts(self):
+        self.actions = [(30,b'',p.GitHubReadError('DEADLINE')) for _ in range(3)]
+        with self.assertRaises(p.GitHubReadError) as caught:self.client.get('branches/master')
+        self.assertEqual('V52_GITHUB_ATTEMPT_TIMEOUT',caught.exception.code)
+        self.assertEqual({'kind':'master','stop':'attempt-limit','attempts':3,'ordinal':3},caught.exception.request)
+        self.assertEqual(193,self.clock);self.assertEqual([1,2],self.waits)
+        self.assertFalse(p.read(self.client.output/'003-request.json')['retry'])
+
+    def test_shorter_caller_deadline_caps_retry_without_granting_new_time(self):
+        self.actions=[(30,b'',p.GitHubReadError('DEADLINE')),(4,b'',p.GitHubReadError('DEADLINE'))]
+        with self.assertRaises(p.GitHubReadError) as caught:
+            self.client._read('branches/master',p.MAX_JSON,35,attempt_timeout=30)
+        self.assertEqual('V52_GITHUB_DEADLINE',caught.exception.code)
+        self.assertEqual('deadline',caught.exception.request['stop'])
+        self.assertEqual([30,4],[v[2] for v in self.calls]);self.assertEqual([1],self.waits)
+
+    def test_late_attempt_success_is_discarded_before_json_validation(self):
+        self.actions=[(31,b'{"late":true}',None),(0,b'{"ok":true}',None)]
+        self.assertEqual({'ok':True},self.client.get('branches/master'))
+        self.assertEqual('V52_GITHUB_ATTEMPT_TIMEOUT',p.read(self.client.output/'001-request.json')['reasonCode'])
+        self.assertEqual(b'{"late":true}',(self.client.output/'001.json').read_bytes())
+        self.assertEqual([1],self.waits)
+
+    def test_cleanup_and_original_artifact_readers_inherit_timeout_recovery(self):
+        from . import cloud_recent_cleanup, cloud_prepared_artifact, cloud_runner_provenance
+        for index,kind in enumerate((cloud_recent_cleanup.Network,cloud_prepared_artifact.Network,
+                                     cloud_runner_provenance.Network)):
+            with self.subTest(reader=kind.__module__):
+                client=kind(self.root/str(index))
+                self.actions=[(30,b'',p.GitHubReadError('DEADLINE')),(0,b'{"ok":true}',None)]
+                self.assertEqual({'ok':True},client.get('actions/runs/10/attempts/1'))
+                self.assertEqual(2,client.calls)
+
     def test_transient_get_retry_retains_every_attempt_and_one_original_deadline(self):
-        self.actions = [self.fail(delay=5), self.fail(502, delay=3), (0, b'{"ok":true}', None)]
+        self.actions = [self.http_failure(delay=5), self.http_failure(502, delay=3), (0, b'{"ok":true}', None)]
         self.assertEqual({'ok':True}, self.client.get('actions/runs/10'))
-        self.assertEqual([1,2], self.waits); self.assertEqual([30,24,19], [v[2] for v in self.calls])
+        self.assertEqual([1,2], self.waits); self.assertEqual([30,30,30], [v[2] for v in self.calls])
         self.assertEqual(3, self.client.calls)
         self.assertEqual(b'partial-private-response', (self.client.output/'001.json').read_bytes())
         for index in (1,2,3):
@@ -363,7 +414,7 @@ class NetworkRetryTest(unittest.TestCase):
 
     def test_terminal_http_errors_and_unknown_failures_do_not_retry(self):
         for code in (401,403,404,409,422,501,505):
-            self.actions = [self.fail(code)]
+            self.actions = [self.http_failure(code)]
             with self.subTest(code=code), self.assertRaises(p.GitHubReadError) as caught:
                 self.client.get('actions/artifacts/501')
             self.assertEqual(code,caught.exception.http_status); self.assertEqual('terminal',caught.exception.request['stop'])
@@ -373,35 +424,58 @@ class NetworkRetryTest(unittest.TestCase):
         self.assertEqual([],self.waits); self.assertEqual(11,len(self.calls))
 
     def test_read_timeout_and_rate_limit_recover_inside_original_deadline(self):
-        self.actions=[self.fail(408),self.fail(429),(0,b'{"ok":true}',None)]
+        self.actions=[self.http_failure(408),self.http_failure(429),(0,b'{"ok":true}',None)]
         self.assertEqual({'ok':True},self.client.get('branches/master'))
         self.assertEqual(3,len(self.calls));self.assertEqual([1,2],self.waits)
 
     def test_exhausted_original_deadline_does_not_sleep_or_launch_again(self):
-        self.actions = [self.fail(delay=29.5)]
-        with self.assertRaises(p.GitHubReadError) as caught: self.client.get('branches/master')
+        self.actions = [self.http_failure(delay=29.5)]
+        with self.assertRaises(p.GitHubReadError) as caught:
+            self.client._read('branches/master',p.MAX_JSON,30)
         self.assertEqual('deadline',caught.exception.request['stop']); self.assertEqual([],self.waits)
         self.assertEqual(1,len(self.calls))
 
-    def test_owned_timeout_is_terminal_even_if_it_returns_early(self):
+    def test_uncapped_caller_deadline_is_terminal_even_if_it_returns_early(self):
         self.actions = [(1,b'',p.GitHubReadError('DEADLINE'))]
-        with self.assertRaises(p.GitHubReadError) as caught: self.client.get('branches/master')
+        with self.assertRaises(p.GitHubReadError) as caught:
+            self.client._read('branches/master',p.MAX_JSON,30)
         self.assertEqual('deadline',caught.exception.request['stop']); self.assertEqual([],self.waits)
 
     def test_success_returned_after_the_shared_deadline_is_rejected(self):
-        self.actions=[(31,b'{"ok":true}',None)]
+        self.actions=[(101,b'{"ok":true}',None)]
         with self.assertRaises(p.GitHubReadError) as caught:self.client.get('branches/master')
         self.assertEqual('V52_GITHUB_DEADLINE',caught.exception.code);self.assertEqual([],self.waits)
 
+    def test_late_permission_rejection_is_not_reclassified_as_timeout(self):
+        self.actions=[self.http_failure(403,delay=31)]
+        with self.assertRaises(p.GitHubReadError) as caught:self.client.get('branches/master')
+        self.assertEqual('V52_GITHUB_HTTP_REJECTED',caught.exception.code)
+        self.assertEqual(403,caught.exception.http_status);self.assertEqual('terminal',caught.exception.request['stop'])
+        self.assertEqual([],self.waits);self.assertEqual(1,len(self.calls))
+
+    def test_backoff_oversleep_cannot_launch_after_original_deadline(self):
+        self.actions=[(30,b'',p.GitHubReadError('DEADLINE'))]
+        def oversleep(delay):self.clock+=100
+        with patch.object(p.time,'sleep',side_effect=oversleep),self.assertRaises(p.GitHubReadError) as caught:
+            self.client.get('branches/master')
+        self.assertEqual('V52_GITHUB_DEADLINE',caught.exception.code);self.assertEqual(1,len(self.calls))
+
+    def test_download_deadline_is_not_given_a_fresh_json_retry_window(self):
+        self.actions=[(300,b'partial',p.GitHubReadError('DEADLINE'))];target=self.root/'original.zip'
+        with self.assertRaises(p.GitHubReadError) as caught:self.client.download(501,target,8)
+        self.assertEqual('V52_GITHUB_DEADLINE',caught.exception.code);self.assertEqual('deadline',caught.exception.request['stop'])
+        self.assertEqual([300],[v[2] for v in self.calls]);self.assertEqual([],self.waits)
+        self.assertFalse(target.exists());self.assertEqual(b'partial',(self.client.output/'001.zip').read_bytes())
+
     def test_each_retry_counts_toward_the_global_call_bound(self):
-        self.client.calls = 255; self.actions = [self.fail()]
+        self.client.calls = 255; self.actions = [self.http_failure()]
         with self.assertRaises(p.GitHubReadError) as caught: self.client.get('branches/master')
         self.assertEqual('call-limit',caught.exception.request['stop']); self.assertEqual(256,self.client.calls)
         with self.assertRaises(p.GitHubReadError): self.client.get('branches/master')
         self.assertEqual(1,len(self.calls)); self.assertEqual([],self.waits)
 
     def test_invalid_json_is_not_retried_even_after_a_transient_error(self):
-        self.actions = [self.fail(), (0,b'{"broken":',None)]
+        self.actions = [self.http_failure(), (0,b'{"broken":',None)]
         with self.assertRaises(p.GitHubReadError) as caught: self.client.get('branches/master')
         self.assertEqual('V52_GITHUB_JSON_INVALID',caught.exception.code)
         self.assertEqual(2,len(self.calls)); self.assertEqual([1],self.waits)
@@ -489,6 +563,14 @@ class DiagnosticTest(unittest.TestCase):
             self.assertFalse(p.command_error(raw,1).retryable)
         self.assertFalse(p.command_error(b'connection reset by peer',4).retryable)
 
+    def test_public_projection_preserves_exhausted_attempt_timeout(self):
+        error=p.GitHubReadError('ATTEMPT_TIMEOUT')
+        error.request=dict(kind='source',stop='attempt-limit',attempts=3,ordinal=31)
+        value=dict(status='FAIL',**p.failure_details(error,'final-ci'))
+        projected=p.public_failure(value)
+        self.assertEqual('V52_GITHUB_ATTEMPT_TIMEOUT',projected['reasonCode'])
+        self.assertEqual(error.request,projected['request']);self.assertTrue(error.retryable)
+
     def test_public_projection_drops_unknown_fields_and_malformed_details(self):
         value=dict(status='FAIL',phase='full-ci',code='V52_PROVENANCE_FULL_CI_REJECTED',
             reasonCode='V52_GITHUB_HTTP_REJECTED',httpStatus=503,
@@ -542,6 +624,26 @@ class BoundedReadTest(unittest.TestCase):
         self.assertEqual('V52_GITHUB_STDERR_BOUND',caught.exception.code)
         self.assertFalse(caught.exception.retryable);self.assertIsNotNone(children[0].returncode)
         self.assertTrue(children[0].stdout.closed);self.assertTrue(children[0].stderr.closed)
+
+    def test_real_timed_out_child_is_reaped_before_retry_launch(self):
+        client=p.Network(self.path.parent/'reads'); children=[]; original=p.subprocess.Popen
+        bounded=p.bounded_command; output=io.StringIO()
+        def command(path):
+            script='import time;time.sleep(10)' if not children else 'import json;print(json.dumps({"ok":True}))'
+            return [sys.executable,'-c',script]
+        def launch(*args,**kwargs):
+            if children:
+                self.assertIsNotNone(children[-1].returncode)
+                self.assertTrue(children[-1].stdout.closed);self.assertTrue(children[-1].stderr.closed)
+            child=original(*args,**kwargs);children.append(child);return child
+        def execute(args,path,maximum,timeout):
+            # Exercise a genuine hung subprocess without a 30-second unit-test delay.
+            return bounded(args,path,maximum,.05 if not children else timeout)
+        with patch.object(client,'command',side_effect=command),patch.object(p.subprocess,'Popen',side_effect=launch), \
+             patch.object(p,'bounded_command',side_effect=execute),redirect_stdout(output):
+            self.assertEqual({'ok':True},client.get('branches/master'))
+        self.assertEqual(2,len(children));self.assertTrue(all(c.returncode is not None for c in children))
+        self.assertEqual('V52_GITHUB_ATTEMPT_TIMEOUT',p.read(client.output/'001-request.json')['reasonCode'])
 
     def test_both_pipes_are_drained_without_deadlock(self):
         script='import sys;sys.stderr.write("private"*1000);sys.stdout.write("ok")'
