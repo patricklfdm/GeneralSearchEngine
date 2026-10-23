@@ -1,0 +1,126 @@
+{
+  "base": "011a389d14631aaedbb2e10c35b1c85dec001ca0",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-admission-process/inputs1.json",
+    "sha256": "a0cc71ee20b468c05891c35d562c1c61ad885834c5c9387bf5d5ebd1f7791420"
+  },
+  "compiledMainClasses": {
+    "classes": 698,
+    "path": "target/v53-bootstrap-admission-process/compiled-main-classes.json",
+    "sha256": "1310f33cbc47d4ea1ae2ebd8f75372d5b5181cdf94d37204ec380529d5496f59"
+  },
+  "jars": {
+    "target/v53-bootstrap-admission-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-admission-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "504efe646cb7fe333c93293dba009482168bb83b33e3fb5993c7b2a3be4fd959"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "three EMPTY voters and no-op typed callbacks only",
+    "no complete-store admission, typed coordinator process qualification, power-loss or network consensus claim",
+    "Phase 2 cross-view/context/maximal lifetime and final audit remain open",
+    "no public activation, cloud, protected CI, POM or frozen catalog change"
+  ],
+  "logs": {
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "2c9309de43560e5598ef658fa33b8592661250a1e12ade38959d621296f6c0d5"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-admission-process/producer-classes.json",
+    "sha256": "320fc77a5d482af53133776c4f684ddd8e93c11c27ea7f9a22e9e667f4ff06c6"
+  },
+  "productionArtifactsUnchanged": true,
+  "raw": {
+    "indexSha256": "f135a95403f134d3e321c690ce8c97b47512d9a65d1c5a9659968d0936c644fb",
+    "members": 6369,
+    "path": "general-search-engine-replication/target/v53-bootstrap-admission-process/run-d75530f7-5374-403a-93b8-74c37a92464c"
+  },
+  "replay": {
+    "cases": 42,
+    "freshProcesses": 126,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "bootstrap admission process case inventory"
+      },
+      {
+        "case": "changed-plan",
+        "reason": "bootstrap original plan checksum"
+      },
+      {
+        "case": "changed-image",
+        "reason": "bootstrap original image binding"
+      },
+      {
+        "case": "first-trace",
+        "reason": "bootstrap admission process first trace"
+      },
+      {
+        "case": "second-trace",
+        "reason": "bootstrap admission process second trace"
+      },
+      {
+        "case": "result",
+        "reason": "bootstrap admission process resumed trace"
+      },
+      {
+        "case": "stderr",
+        "reason": "bootstrap admission process unexpected stderr"
+      },
+      {
+        "case": "crash",
+        "reason": "bootstrap admission process exact crash bytes"
+      },
+      {
+        "case": "second-crash",
+        "reason": "bootstrap admission process exact second-crash bytes"
+      },
+      {
+        "case": "final",
+        "reason": "bootstrap admission process exact final bytes"
+      },
+      {
+        "case": "scope",
+        "reason": "bootstrap admission process receipt scope"
+      },
+      {
+        "case": "early-admission",
+        "reason": "bootstrap admission process exact crash bytes"
+      },
+      {
+        "case": "lost-other-admission",
+        "reason": "bootstrap admission process exact final bytes"
+      },
+      {
+        "case": "typed-scope",
+        "reason": "bootstrap admission process receipt scope"
+      },
+      {
+        "case": "linked-file",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicBootstrap": false,
+    "status": "PASS",
+    "typedCodecIndependentlyVerified": false,
+    "typedCoordinator": false
+  },
+  "schema": "gse-v53-bootstrap-admission-process-local-v1",
+  "scope": [
+    "42 halt/SIGKILL cases at all 21 selected COMMITTED/admission/first-seal boundaries",
+    "126 fresh workers, original decisions, second death during admission recovery, full completion",
+    "original-first actual byte/force/result replay; 15 exact negatives, normal/optimized Python and portable replay",
+    "core and replication JARs unchanged from admission-file implementation; loaded main class bytes match retained JARs"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapAdmissionProcessTest.java": "e7fd7b5bd717ab79e137f91579f14dc03627607100c0b71d888df6af1ae52f74",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapAdmissionWorker.java": "1adffe76d03fd5b307f8e181f289dbc835d98062394da63852386938bf453972",
+    "scripts/v53/bootstrap_admission_process_evidence.py": "ce8b6dfef9786a465a0dd284a7789057f919cafc8e36f17ecdc1a53cc68d14d9"
+  },
+  "status": "PASS"
+}

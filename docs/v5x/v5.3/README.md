@@ -183,5 +183,6 @@ Public admission and result reading after mutable runtime progress remain open.
 - [Original bootstrap commit metadata](PHASE_2_BOOTSTRAP_COMMIT_METADATA.md): exact receipt/decision/seal derivation and completion accounting without application bytes.
 - [Compact original admission data](PHASE_2_BOOTSTRAP_ADMISSION_DATA.md): bounded receipt/decision decoding against original local preparation and seal; store integration pending.
 - [Admission-file publication](PHASE_2_BOOTSTRAP_ADMISSION_FILES.md): force all compact admission files before seals; exact interrupted recovery and refusal of lost admitted authority.
+- [Admission process recovery](PHASE_2_BOOTSTRAP_ADMISSION_PROCESS.md): 42 repeated halt/SIGKILL cases and 126 fresh workers for the private admission-file profile.
 layout encoder with actual seed creation and verifies original plan metadata without
 requiring application bytes. It remains separate from typed/committed admission.
