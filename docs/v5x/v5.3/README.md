@@ -77,6 +77,9 @@ reclaims obsolete copies. [Coordinated maintenance process recovery](PHASE_2_MAI
 adds original-request replay across installation, floor, generation/source retirement
 and floor release. Complete lifetime crash/cross-view qualification,
 subsequent same-round slots and maximal resource lifetime remain pending.
+[Bounded same-round proof continuity](PHASE_2_ROUND_COVERAGE.md) now has a private
+conditional component retaining first/current certified slots; storage voting and
+publication still accept only the original first-slot representation.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

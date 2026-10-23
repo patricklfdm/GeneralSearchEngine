@@ -1,0 +1,44 @@
+{
+  "base": "d244910465af6379cea8be36977cda9766854213",
+  "conditionalStableSlots": 100,
+  "developmentFailures": {
+    "component.log": [
+      "new negative test attempted to mutate immutable parsed map",
+      "new helper used abstract CONTROL name instead of concrete frozen command kinds"
+    ]
+  },
+  "existingTransitionCuts": 63,
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "439b53c9191551ccf517c97ce01fddc93bed0c50242e48f3e6bf4ac0ed4b3bdc",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": 12,
+  "limitations": [
+    "conditional in-memory proof component; no physical force or runtime READY",
+    "round coverage is not yet admitted by the storage reader or vote path",
+    "small-image packet sizes do not establish maximal payload admission",
+    "independent physical replay and process recovery belong to subsequent storage integration"
+  ],
+  "logs": {
+    "component.log": "a9e4396c2a1f85066eadd3f9e378ee03d5adfe6a752b5f0d2eb343531f4c15a8",
+    "qualified-final.log": "e934c9a3e98fc3f1aa3794a88c5299fdd8b762855731737aa96eaa9355ec7534",
+    "qualified.log": "99c14cfc5da23022c121d4ae1ff62e9a253c5a87235fa9d17719a36b13330714"
+  },
+  "measuredSmallFixture": {
+    "maximumCoverageBytes": 1407,
+    "maximumPacketBytes": 18475
+  },
+  "newMethods": 6,
+  "operationProfiles": 7,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "protectedCI": false,
+  "retainedLocal": "target/v53-round-coverage",
+  "schema": "gse-v53-round-coverage-component-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java": "4ab3fd751f2b502389f9584f0d3ca4106eca628202543bbfd66104b273ad92b9",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundCoverage.java": "0d8630a08c1c859d84247ddf635f1399772005c84d879ee9ece2594148112df3",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundCoverageTest.java": "135d2c745db52da2953a98cf0ed6fa06fac72e42477048a2cbe1a5d2c95ba603"
+  },
+  "status": "PASS"
+}

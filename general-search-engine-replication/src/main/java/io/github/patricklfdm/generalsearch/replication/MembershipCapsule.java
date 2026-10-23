@@ -38,6 +38,22 @@ final class MembershipCapsule {
         return context.certificateAt(certificate,observations,parent);
     }
 
+    /** Retain one already authenticated original proof through a compacted range.
+     * Does not create observations or import unrelated history. The source packet caps still apply. */
+    MembershipCapsule retainingCertificate(MembershipCapsule original,Decoded certificate,Map<String,Object> parent,Map<String,byte[]> images) {
+        require(context.root.equals(original.context.root),"retained proof changed root");
+        var entry=original.publicationCertificate(certificate,parent);var names=new HashSet<String>();
+        names.add(certificate.digest());names.add(entry.digest());names.add((String)entry.value().get("payload"));
+        var accept=new TreeMap<>(certificate.value());accept.remove("accepts");accept.remove("proofs");names.add(hash(encode("records","ACCEPT",accept)));
+        accept.put("accepts",certificate.value().get("accepts"));names.add(hash(encode("records","PROOF",accept)));
+        var objects=new TreeMap<String,byte[]>();for(String h:packet.objectNames())objects.put(h,packet.objectBytes(h));
+        for(String h:names)objects.put(h,original.packet.objectBytes(h));
+        var value=new TreeMap<>(packet.capsule().value());value.put("inventory",hash(MembershipSourcePacket.index(objects,packet.images())));
+        var retained=MembershipSourcePacket.decode(MembershipSourcePacket.encode(decode(encode("records","CAPSULE",value),"records","CAPSULE"),objects,packet.images()));
+        var owned=new HashSet<Owned>();for(var observation:original.observations)if(names.contains(observation.record()))owned.add(observation);
+        var result=verifyExtension(retained,images,owned);result.publicationCertificate(certificate,parent);return result;
+    }
+
     static MembershipCapsule verify(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,Set<Owned> owned) {
         require(root.family().equals("records") && root.kind().equals("ROOT"),"capsule ROOT kind");packet.verifyImages(images);
         require(Arrays.equals(root.bytes(),packet.objectBytes(root.digest())),"capsule original ROOT bytes");
