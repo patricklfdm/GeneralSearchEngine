@@ -59,10 +59,26 @@ class OperatorTest(unittest.TestCase):
     def request(self):return dict(preparedRun=123456,preparedAttempt=2,confirmation=o.prepared.validate(self.plan,1200))
     def test_hosted_full_member_rejects_before_private_key_and_execution(self):
         self.env['V52_EXECUTION_HOST']='github-hosted'
-        with self.assertRaisesRegex(ValueError,'complete failure-drill shard'):
+        with self.assertRaisesRegex(ValueError,'complete declared shard'):
             self.execute('run',self.request())
         self.run.assert_not_called();self.assertEqual(0,self.key_calls)
         self.assertEqual('host-selection',o.artifacts.read(self.output/'diagnostics/failure.json')['phase'])
+
+    def test_hosted_canonical_run_uses_exact_downloaded_plan_once(self):
+        from .test_cloud_prepared import arguments
+        name='canonical-3-minimum'
+        self.plan=o.prepared.prepare(**arguments(member=name))
+        self.files['plan.json']=o.encoded(self.plan)
+        self.seal=o.execution.seal.create(**sealed_fixture(member=name))
+        self.seal['credentialContext'].update(runId=654321)
+        self.env['V52_EXECUTION_HOST']='github-hosted'
+        result=self.execute('run',self.request())
+        self.download.assert_called_once();self.run.assert_called_once();self.prepare.assert_not_called()
+        self.assertEqual(1,self.key_calls);self.assertEqual(name,result['member'])
+        self.assertEqual('canonical-3',result['logicalMember'])
+        self.assertEqual(['candidate-minimum-r3'],result['histories'])
+        self.assertEqual('github-hosted',result['recommendedRunHost'])
+        self.assertFalse(result['fullRemoteQualification'])
 
     def test_prepare_exports_only_exact_public_files_and_reviewable_unconfirmed_request(self):
         value=dict(member='experiment',sequence='c'*32,estimate=self.plan['estimate'])
@@ -72,6 +88,17 @@ class OperatorTest(unittest.TestCase):
         self.assertEqual(dict(preparedRun=654321,preparedAttempt=2,confirmation=result['planSha256']),result['runRequest'])
         self.assertIn('artifactName=v52-prepared-654321-2',(self.root/'actions-output').read_text())
         self.assertNotIn('never-retain',str(result)); self.assertFalse(o.artifacts.read(self.output/'result/approval.json')['confirmed'])
+    def test_canonical_prepare_reports_logical_repetition_and_hosted_route(self):
+        from .test_cloud_prepared import arguments
+        for name in o.preparation.suite.CANONICAL_SHARDS:
+            self.plan=o.prepared.prepare(**arguments(member=name))
+            self.files['plan.json']=o.encoded(self.plan)
+            result=self.execute('prepare',dict(member=name,sequence='c'*32,estimate=self.plan['estimate']))
+            self.assertEqual(o.preparation.suite.logical_member(name),result['logicalMember'])
+            self.assertEqual('github-hosted',result['recommendedRunHost'])
+            self.assertEqual(self.plan['request']['selection']['member']['histories'],result['histories'])
+        self.run.assert_not_called()
+
     def test_original_build_failure_projects_nested_phase_status_attempts_and_check_site(self):
         def fail(source,request,public,output):
             (output/'build').mkdir(parents=True)
@@ -294,7 +321,7 @@ class OperatorTest(unittest.TestCase):
         self.assertNotIn('<script>',out.getvalue());self.assertIn('&#124;',out.getvalue());self.assertNotIn('Exact run request',out.getvalue())
     def test_draft_uses_explicit_cost_and_claims_no_live_price_verification(self):
         with patch.object(o.reads,'source_configuration',return_value=self.cfg),patch.object(o.time,'time',return_value=1000):
-            result=o.prepare_request('a'*40,'canonical-3','c'*32,12_000_000,21600,14400,self.root/'draft')
+            result=o.prepare_request('a'*40,'canonical-3-legacy','c'*32,12_000_000,21600,14400,self.root/'draft')
         self.assertEqual(12_000_000,result['estimate']['costMicrousd']);self.assertEqual(15400,result['estimate']['expiresAt'])
         self.assertFalse(o.artifacts.read(self.root/'draft/receipt.json')['livePricesVerified'])
 

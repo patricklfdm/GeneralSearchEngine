@@ -56,7 +56,7 @@ class SealTest(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError): s.create(**args)
 
     def test_later_failed_attempt_costs_are_preserved_and_not_part_of_original_prefix(self):
-        req = prepared.prepare(**arguments(member='canonical-1', attempt='d'*32))['request']
+        req = prepared.prepare(**arguments(member='canonical-1-legacy', attempt='d'*32))['request']
         completion = dict(self.args['completed'], status='FAIL', evidenceSha256=None, requestSha256=s.digest(s.encoded(req)))
         original = self.args['ledger']['value']
         self.args['ledger'] = dict(generation=12, value=s.a.finish(s.a.reserve(original, req, previous_cost=4_000_000, cost=2_000_000), req, completion))

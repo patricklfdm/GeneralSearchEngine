@@ -46,12 +46,12 @@ Scheduled cleanup is optional and cannot substitute for missing original data.
 | --- | --- | --- | --- |
 | `prepare` | `member`, `sequence`, dated `estimate` | Original CI/build, package, controls, cleanup and provider/control observations; no resource/ledger/lease mutation | `v52-prepared-<run>-<attempt>` |
 | `run` | `preparedRun`, `preparedAttempt`, `confirmation` | Execute that exact approved whole member once, retain evidence, close resources, then seal | `v52-runner-<run>-<attempt>` |
-| `verify-set` | All nine execution names mapped to `requestSha256`, `runId`, `runAttempt` | Independently restore originals, authenticate their invocations and replay complete histories | `v52-cloud-set-<run>-<attempt>` |
+| `verify-set` | All fifteen execution names mapped to `requestSha256`, `runId`, `runAttempt` | Independently restore originals, authenticate their invocations and replay complete histories | `v52-cloud-set-<run>-<attempt>` |
 
-The five logical results use nine executions: `experiment`, five fixed
-`failure-drill-*` shards, and `canonical-1` through `canonical-3`.
-See [the shard names and operator flow](PHASE_6_HOSTED_DRILL.md). Any execution
-can be first. All nine must share the same source,
+The five logical results use fifteen executions: `experiment`, five fixed
+`failure-drill-*` shards, and nine `canonical-<1|2|3>-<legacy|explicit-stale|minimum>` shards.
+See [drill shards](PHASE_6_HOSTED_DRILL.md) and [canonical shards](PHASE_6_HOSTED_CANONICAL.md). Any execution
+can be first. All fifteen must share the same source,
 configuration, sequence, build and controls. Original failures and their charged
 reservations remain in the ledger; a member already passed in that sequence is
 not executed again. A source/build change requires a new sequence even when all
@@ -61,9 +61,9 @@ A rerun is never used as a substitute for a selected original.
 
 Time and accumulated cost budgets remain soft warnings. Each operation prints
 progress at least every minute, including during prepared-artifact download.
-The `execution_host` input defaults to `github-hosted`: prepare and the five
-complete failure-drill shards use `ubuntu-24.04`. Select `self-hosted` for
-experiment, canonical and verify-set; their existing dedicated D-backed WSL
+The `execution_host` input defaults to `github-hosted`: prepare, the five drill shards
+and the nine canonical shards use `ubuntu-24.04`. Select `self-hosted` for
+experiment and verify-set; their existing dedicated D-backed WSL
 route remains available. The same exact workflow/job/environment/IAM identity
 is used for both hosts. Hosted jobs have GitHub's hard 360-minute platform ceiling;
 self-hosted retains 1,380 minutes. Stage/cost budgets remain soft. The hosted
@@ -95,7 +95,7 @@ After the readiness review and merge, from the exact clean master checkout:
 V52_SEQUENCE=$(python3 -c 'import uuid; print(uuid.uuid4().hex)')
 python3 -m scripts.v52.cloud_operator prepare-request \
   --source "$(git rev-parse HEAD)" \
-  --member canonical-3 --sequence "$V52_SEQUENCE" \
+  --member canonical-3-minimum --sequence "$V52_SEQUENCE" \
   --cost-microusd "$V52_ESTIMATE_MICROUSD" \
   --coverage-seconds "$V52_COVERAGE_SECONDS" \
   --output target/v52-request-1
@@ -162,10 +162,10 @@ There is no automatic execution after `prepare`, and no automatic business retry
 after a failed `run`. Preserve the original diagnostic and cost record, inspect
 the failure and reconcile the expired lease before preparing a new attempt.
 
-## Verify the nine original executions
+## Verify the fifteen original executions
 
 Retain each successful run summary's member name, request digest and original
-run/attempt. The selected map contains all nine names, for example these keys
+run/attempt. The selected map contains all fifteen names, for example these keys
 (replace each value with its original recorded values):
 
 ```text
@@ -175,9 +175,15 @@ failure-drill-m02-equal -> {requestSha256, runId, runAttempt}
 failure-drill-m02-above -> {requestSha256, runId, runAttempt}
 failure-drill-m03 -> {requestSha256, runId, runAttempt}
 failure-drill-m04 -> {requestSha256, runId, runAttempt}
-canonical-1      -> {requestSha256, runId, runAttempt}
-canonical-2      -> {requestSha256, runId, runAttempt}
-canonical-3      -> {requestSha256, runId, runAttempt}
+canonical-1-legacy -> {requestSha256, runId, runAttempt}
+canonical-1-explicit-stale -> {requestSha256, runId, runAttempt}
+canonical-1-minimum -> {requestSha256, runId, runAttempt}
+canonical-2-legacy -> {requestSha256, runId, runAttempt}
+canonical-2-explicit-stale -> {requestSha256, runId, runAttempt}
+canonical-2-minimum -> {requestSha256, runId, runAttempt}
+canonical-3-legacy -> {requestSha256, runId, runAttempt}
+canonical-3-explicit-stale -> {requestSha256, runId, runAttempt}
+canonical-3-minimum -> {requestSha256, runId, runAttempt}
 ```
 
 Choose `verify-set` with that JSON map and `execution_host=self-hosted`. It uses the

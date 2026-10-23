@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Prepare, run one whole execution unit, or verify nine originals
+        description: Prepare, run one whole execution unit, or verify fifteen originals
         type: choice
         options:
           - prepare
@@ -26,7 +26,7 @@ on:
         default: prepare
         required: true
       execution_host:
-        description: Hosted for drill shards; self-hosted for canonical, experiment and verify-set
+        description: Hosted for drill/canonical shards; self-hosted for experiment and verify-set
         type: choice
         options:
           - github-hosted

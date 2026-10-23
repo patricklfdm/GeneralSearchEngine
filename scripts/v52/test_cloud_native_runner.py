@@ -55,7 +55,7 @@ class NativeRunnerTest(unittest.TestCase):
             costMicrousd=4_000_000,includes=list(prepared.INCLUDES),priceSources=['https://cloud.google.com/compute/all-pricing'])
         self.arguments=dict(configuration=self.cfg['provider'],project_number=self.cfg['projectNumber'],proof=proof,
             guest_access=access.descriptor('b'*32,public_key()),resource_layout=self.cfg['layout'],ownership_policy=self.cfg['policy'],
-            original_ledger=None,quote=quote,source=SOURCE,sequence='c'*32,member='canonical-3',now=NOW,domain='native')
+            original_ledger=None,quote=quote,source=SOURCE,sequence='c'*32,member='canonical-3-legacy',now=NOW,domain='native')
         self.prepare();self.count=0;self.clients=[];original=n.NativeRunnerApi.__init__
         def capture(api,*args):original(api,*args);self.clients.append(api)
         self.stack.enter_context(patch.object(n.NativeRunnerApi,'__init__',new=capture))
@@ -185,7 +185,7 @@ class NativeRunnerTest(unittest.TestCase):
             self.assertEqual('RESOURCES_PREPARED_NOT_QUALIFIED',session.result['status'])
             self.assertFalse(session.result['fullRemoteQualification']);self.assertFalse(session.result['engineWorkloadExecuted'])
             self.assertTrue(session.result['resourceAdmission']);self.assertEqual(13,len(self.case.server.resources))
-            self.assertEqual('canonical-3',session.owner.request['selection']['member']['name'])
+            self.assertEqual('canonical-3-legacy',session.owner.request['selection']['member']['name'])
             self.assertEqual(self.package.read_bytes(),session.package.read_bytes());session.checkpoint()
         self.assertEqual({},self.case.server.resources);self.assertIsNone(self.case.get(n.a.LEASE))
         self.assertEqual(4_000_000,self.state()['reservedCostMicrousd'])

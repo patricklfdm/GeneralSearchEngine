@@ -12,9 +12,11 @@ from .evidence import need, digest, encoded
 from .public_reads_evidence import read
 
 PLAN = Path(__file__).resolve().parents[2] / 'docs/v5x/v5.2/phase6-cloud-suite.json'
-PLAN_SHA = 'b889dd7e1deccc9373a2453240b894a708524dc807bff3daccb709df8e18a535'
+PLAN_SHA = '9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e'
 LEGACY_SHA = 'f8556b7e143e0fc5d85664503bc02a6e583b7227215a3258c9ea8545981cd5b0'
 LEGACY_PLAN = PLAN.with_name('phase6-cloud-suite-v1.json')
+LEGACY_V2_SHA = 'b889dd7e1deccc9373a2453240b894a708524dc807bff3daccb709df8e18a535'
+LEGACY_V2_PLAN = PLAN.with_name('phase6-cloud-suite-v2.json')
 DRILL_SHARDS = {
     'failure-drill-m02-below': tuple(f'm02-below-{v}' for v in (0,1000,5000)),
     'failure-drill-m02-equal': tuple(f'm02-equal-{v}' for v in (0,1000,5000)),
@@ -23,7 +25,20 @@ DRILL_SHARDS = {
     'failure-drill-m04': recovery.CASES,
 }
 LOGICAL_MEMBERS = ('experiment', 'failure-drill', 'canonical-1', 'canonical-2', 'canonical-3')
-MEMBERS = ('experiment', *DRILL_SHARDS, 'canonical-1', 'canonical-2', 'canonical-3')
+CANONICAL_GROUPS = {
+    'legacy': ('published-v51-legacy-strong', 'candidate-legacy-strong'),
+    'explicit-stale': ('candidate-explicit-strong', 'candidate-stale'),
+    'minimum': ('candidate-minimum',),
+}
+CANONICAL_SHARDS = {
+    f'canonical-{repetition}-{group}': tuple(m01.name(mode,repetition) for mode in modes)
+    for repetition in (1,2,3) for group,modes in CANONICAL_GROUPS.items()
+}
+LOGICAL_UNITS = dict(experiment=('experiment',), **{'failure-drill':tuple(DRILL_SHARDS)}, **{
+    f'canonical-{repetition}':tuple(f'canonical-{repetition}-{group}' for group in CANONICAL_GROUPS)
+    for repetition in (1,2,3)})
+MEMBERS = tuple(unit for units in LOGICAL_UNITS.values() for unit in units)
+HOSTED_MEMBERS = (*DRILL_SHARDS, *CANONICAL_SHARDS)
 BINDING_FIELDS = frozenset(('source', 'checkoutSha256', 'sequence', 'suiteSha256', 'programSha256',
                             'buildManifestSha256', 'packageSha256', 'controlsManifestSha256'))
 
@@ -51,17 +66,21 @@ def definition():
                 reads+=4
                 updates+=4
         members[name]=dict(histories=list(names),reads=reads,updates=updates,nominalM01Seconds=0)
-    for repetition in (1, 2, 3):
-        members['canonical-' + str(repetition)] = dict(
-            histories=[m01.name(mode, repetition) for mode in model.MODES],
-            reads=9005, updates=900, nominalM01Seconds=900)
-    return dict(schema='gse-v52-cloud-suite-v2', status='LOGICAL_PLAN_NOT_ADMISSION',
+    need(tuple(mode for modes in CANONICAL_GROUPS.values() for mode in modes)==model.MODES,
+         'V5.2 canonical grouping changed modes/order')
+    calls=model.program()
+    reads=sum(v['kind']=='read' for v in calls)+1  # Original initial strong read.
+    updates=sum(v['kind']=='update' for v in calls)
+    for name,names in CANONICAL_SHARDS.items():
+        seconds=sum(histories[key]['profile']['durationNanos'] for key in names)//1_000_000_000
+        members[name]=dict(histories=list(names),reads=reads*len(names),updates=updates*len(names),nominalM01Seconds=seconds)
+    return dict(schema='gse-v52-cloud-suite-v3', status='LOGICAL_PLAN_NOT_ADMISSION',
         programSha256=model.PLAN_SHA,
         controlsManifestSha256=digest((PLAN.parent / 'published-controls.json').read_bytes()),
         members=members, histories=histories,
-        logicalMembers={name:list(DRILL_SHARDS) if name=='failure-drill' else [name] for name in LOGICAL_MEMBERS},
+        logicalMembers={name:list(units) for name,units in LOGICAL_UNITS.items()},
         formalNegativeRules={name: machine.negative_rules(spec) for name, spec in formal.items()},
-        totals=dict(members=9, logicalMembers=5, histories=33, formalHistories=28, reads=27428, updates=2760,
+        totals=dict(members=len(MEMBERS), logicalMembers=5, histories=33, formalHistories=28, reads=27428, updates=2760,
                     nominalM01Seconds=2700, formalNegativesPerLocation=439),
         topology=dict(voters=3, hosts=3, placement='one voter per owned host',
                       bootstrap='same immutable source backup; public bootstrap on every receiver',
@@ -101,15 +120,26 @@ def member(name):
                 profiles={key: deepcopy(plan['histories'][key]) for key in selected['histories']})
 
 
+def logical_member(name):
+    need(type(name) is str and name in MEMBERS,'V5.2 cloud logical member')
+    return next(logical for logical,units in LOGICAL_UNITS.items() if name in units)
+
+
+def _legacy_plan(sha):
+    paths={LEGACY_SHA:LEGACY_PLAN,LEGACY_V2_SHA:LEGACY_V2_PLAN}
+    if sha not in paths:return None
+    plan=read(paths[sha]);need(digest(encoded(plan))==sha,'V5.2 legacy suite changed')
+    return plan
+
+
 def validate_binding(value, *, historical=False):
     need(type(value) is dict and set(value) == BINDING_FIELDS, 'V5.2 cloud binding fields')
     for key, raw in value.items():
         size = 40 if key == 'source' else 32 if key == 'sequence' else 64
         need(type(raw) is str and re.fullmatch('[0-9a-f]{%d}' % size, raw), 'V5.2 cloud binding ' + key)
-    legacy=historical and value['suiteSha256']==LEGACY_SHA
-    plan = read(LEGACY_PLAN) if legacy else load()
-    if legacy: need(digest(encoded(plan))==LEGACY_SHA,'V5.2 legacy suite changed')
-    need(value['suiteSha256'] == (LEGACY_SHA if legacy else PLAN_SHA) and value['programSha256'] == model.PLAN_SHA and
+    legacy=_legacy_plan(value['suiteSha256']) if historical else None
+    plan=legacy if legacy is not None else load()
+    need((legacy is not None or value['suiteSha256']==PLAN_SHA) and value['programSha256'] == model.PLAN_SHA and
          value['controlsManifestSha256'] == plan['controlsManifestSha256'], 'V5.2 cloud bound plan/control drift')
     return value
 
@@ -127,8 +157,10 @@ def validate_selection(value, *, historical=False):
          'V5.2 cloud selection fields')
     selected = value['member']
     need(type(selected) is dict and type(selected.get('name')) is str, 'V5.2 cloud selected member')
-    if historical and type(value['binding']) is dict and value['binding'].get('suiteSha256')==LEGACY_SHA:
-        validate_binding(value['binding'],historical=True);plan=read(LEGACY_PLAN)
+    legacy=historical and type(value['binding']) is dict and value['binding'].get('suiteSha256') in (LEGACY_SHA,LEGACY_V2_SHA)
+    if legacy:
+        validate_binding(value['binding'],historical=True)
+        plan=_legacy_plan(value['binding']['suiteSha256'])
         need(selected['name'] in plan['members'],'V5.2 legacy member')
         spec=plan['members'][selected['name']]
         chosen=dict(name=selected['name'],**deepcopy(spec),profiles={k:deepcopy(plan['histories'][k]) for k in spec['histories']})
@@ -142,7 +174,7 @@ def validate_selection(value, *, historical=False):
 
 
 def complete_selection(values):
-    """Check all nine execution selections in any order; never promote them to execution PASS.
+    """Check all fifteen execution selections in any order; never promote them to execution PASS.
 
     The future aggregate must independently replay each original retained member.
     Passing this function alone grants no acceptance and performs no I/O besides

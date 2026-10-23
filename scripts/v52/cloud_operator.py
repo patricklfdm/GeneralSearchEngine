@@ -233,9 +233,9 @@ def report_data(operation, source, result, output):
                    ledgerReservedCostMicrousd=result['ledgerReservedCostMicrousd'])
     if 'member' in row:
         chosen=preparation.suite.member(row['member'])
-        row.update(logicalMember='failure-drill' if row['member'] in preparation.suite.DRILL_SHARDS else row['member'],
+        row.update(logicalMember=preparation.suite.logical_member(row['member']),
             histories=chosen['histories'],historyCount=len(chosen['histories']),
-            recommendedRunHost='github-hosted' if row['member'] in preparation.suite.DRILL_SHARDS else 'self-hosted')
+            recommendedRunHost='github-hosted' if row['member'] in preparation.suite.HOSTED_MEMBERS else 'self-hosted')
     return row
 
 

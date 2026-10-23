@@ -45,19 +45,24 @@ def fixture():
 
 class SetTest(unittest.TestCase):
     def setUp(self):
+        # Validate immutable plan bytes once before modeling many ledger/replay
+        # orders. Production load() remains strict on every call; the dedicated
+        # suite tests separately reject changed files and derived-profile drift.
+        plan=s.suite.load()
+        self.enterContext(patch.object(s.suite,'load',return_value=plan))
         self.values,self.replayed,self.source,self.cfg,self.ledger=fixture()
         self.selected=s.suite.complete_selection([v['request']['selection'] for v in self.values])
     def reduce(self):return s.results(self.replayed,self.selected,self.source,self.cfg,self.ledger)
 
-    def test_all_nine_executions_have_exact_full_counts_and_remain_unqualified(self):
+    def test_all_fifteen_executions_have_exact_full_counts_and_remain_unqualified(self):
         value=self.reduce();self.assertEqual('COMPLETE_SET_REPLAYED_NOT_QUALIFIED',value['status'])
         self.assertEqual(27428,value['totals']['reads']);self.assertEqual(2760,value['totals']['updates'])
         self.assertEqual(2700,value['m01']['nominalOfferedSeconds']);self.assertEqual(29700,value['m01']['completedOfferedCalls'])
-        self.assertEqual(36_000_000,value['selectedReservedCostMicrousd']);self.assertFalse(value['fullRemoteQualification'])
+        self.assertEqual(len(s.suite.MEMBERS)*4_000_000,value['selectedReservedCostMicrousd']);self.assertFalse(value['fullRemoteQualification'])
 
     def test_missing_mixed_or_failed_members_reject_before_physical_replay(self):
         for mutate,reason in (
-            (lambda v:v.pop(),'nine original'),
+            (lambda v:v.pop(),'fifteen original'),
             (lambda v:v[-1]['request']['selection']['binding'].update(sequence='f'*32),'mixed source'),
             (lambda v:v[-1].update(root=v[0]['root']),'overlapping'),
             (lambda v:v[-1]['request']['selection']['binding'].update(checkoutSha256='f'*64),'external source')):
@@ -69,7 +74,7 @@ class SetTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'terminal successes'):s.inputs(self.values,self.source,self.cfg,self.ledger)
 
     def test_any_member_can_be_first_and_every_original_is_replayed_once(self):
-        for first in range(5):
+        for first in range(len(s.suite.MEMBERS)):
             with tempfile.TemporaryDirectory() as directory:
                 order=self.values[first:]+self.values[:first];calls=[]
                 def replay(root,req,manifest,completed,clean,ledger,source,cfg,output,**kw):
@@ -79,7 +84,7 @@ class SetTest(unittest.TestCase):
                 with patch.object(s.member,'replay',side_effect=replay):
                     result=s.replay(order,self.source,self.cfg,self.ledger,Path(directory)/'set')
                 self.assertEqual([v['request']['selection']['member']['name'] for v in order],calls)
-                self.assertEqual(calls,result['completedMembers']);self.assertEqual(9,len(result['memberReceiptHashes']))
+                self.assertEqual(calls,result['completedMembers']);self.assertEqual(len(s.suite.MEMBERS),len(result['memberReceiptHashes']))
 
     def test_failed_original_stops_without_retry_or_success_fragment_stitching(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -110,8 +115,8 @@ class SetTest(unittest.TestCase):
         for mutate,reason in (
             (lambda v:next(iter(v['experiment']['histories'].values())).update(reads=0),'total counts'),
             (lambda v:next(iter(v['failure-drill-m02-below']['histories'].values()))['result']['negatives'].pop(),'original negatives'),
-            (lambda v:next(iter(v['canonical-3']['bindings'].values()))['classes'].update(extra='f'*64),'mixed artifact'),
-            (lambda v:next(iter(v['canonical-3']['bindings'].values())).update(run='999'),'admitted invocation')):
+            (lambda v:next(iter(v['canonical-3-legacy']['bindings'].values()))['classes'].update(extra='f'*64),'mixed artifact'),
+            (lambda v:next(iter(v['canonical-3-legacy']['bindings'].values())).update(run='999'),'admitted invocation')):
             self.replayed=deepcopy(original);mutate(self.replayed)
             with self.assertRaisesRegex(ValueError,reason):self.reduce()
 
@@ -119,8 +124,8 @@ class SetTest(unittest.TestCase):
         req=prepared.prepare(**arguments(member='experiment',attempt='f'*32))['request']
         failed=s.a.finish(s.a.reserve(s.a.empty_ledger(domain='native'),req,previous_cost=0,cost=4_000_000),req,completion(req,'FAIL'))
         self.ledger['entries']=failed['entries']+self.ledger['entries']
-        value=self.reduce();self.assertEqual(40_000_000,value['ledgerReservedCostMicrousd'])
-        self.assertEqual(36_000_000,value['selectedReservedCostMicrousd'])
+        value=self.reduce();self.assertEqual((len(s.suite.MEMBERS)+1)*4_000_000,value['ledgerReservedCostMicrousd'])
+        self.assertEqual(len(s.suite.MEMBERS)*4_000_000,value['selectedReservedCostMicrousd'])
 
 
 if __name__=='__main__':unittest.main()

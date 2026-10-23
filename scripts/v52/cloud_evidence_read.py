@@ -92,7 +92,7 @@ class _NativeObjects(_Objects):
 
 def restore(reader,chosen,output,*,progress=lambda stage,**kw:None):
     """Select hashes from one original ledger, then restore their complete bytes."""
-    reader.guard();need(type(chosen) is dict and set(chosen)==set(suite.MEMBERS),'V5.2 evidence selected nine-execution map')
+    reader.guard();need(type(chosen) is dict and set(chosen)==set(suite.MEMBERS),'V5.2 evidence selected fifteen-execution map')
     need(len(set(chosen.values()))==len(suite.MEMBERS),'V5.2 evidence repeated original request')
     for sha in chosen.values():a.hex_value(sha)
     output=Path(output);need(not any(p.is_symlink() for p in (output,*output.parents)),'V5.2 evidence restore output link')

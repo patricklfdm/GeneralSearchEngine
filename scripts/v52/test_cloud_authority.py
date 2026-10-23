@@ -110,9 +110,9 @@ class AuthorityTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'complete active allocation'):a.resource_claim(value)
 
     def test_failures_remain_charged_whole_new_attempt_can_retry_member(self):
-        req = fixture('canonical-2'); ledger = a.reserve(a.empty_ledger(domain='offline'), req, previous_cost=0, cost=100)
+        req = fixture('canonical-2-legacy'); ledger = a.reserve(a.empty_ledger(domain='offline'), req, previous_cost=0, cost=100)
         failed = a.finish(ledger, req, completion(req, 'FAIL'))
-        retry = fixture('canonical-2', 'd'*32)
+        retry = fixture('canonical-2-legacy', 'd'*32)
         next_ledger = a.reserve(failed, retry, previous_cost=100, cost=200)
         view = a.inspect_ledger(next_ledger, domain='offline')
         self.assertEqual(300, view['reservedCostMicrousd']); self.assertEqual(2, len(view['attempts']))
@@ -121,14 +121,14 @@ class AuthorityTest(unittest.TestCase):
 
     def test_pending_reused_passed_and_changed_sequence_records_reject(self):
         req = fixture(); reserved = a.reserve(a.empty_ledger(domain='offline'), req, previous_cost=0, cost=1)
-        with self.assertRaisesRegex(ValueError, 'unresolved'): a.reserve(reserved, fixture('canonical-3', 'd'*32), previous_cost=1, cost=1)
+        with self.assertRaisesRegex(ValueError, 'unresolved'): a.reserve(reserved, fixture('canonical-3-legacy', 'd'*32), previous_cost=1, cost=1)
         done = a.finish(reserved, req, completion(req))
         for candidate in (req, fixture(attempt='d'*32)):
             with self.assertRaises(ValueError): a.reserve(done, candidate, previous_cost=1, cost=1)
         for change in (lambda r:r.update(configurationSha256='e'*64),
                        lambda r:r['selection']['binding'].update(source='e'*40),
                        lambda r:r['layout'].update(dataDiskGiB=101)):
-            candidate = fixture('canonical-3', 'd'*32); change(candidate)
+            candidate = fixture('canonical-3-legacy', 'd'*32); change(candidate)
             with self.assertRaisesRegex(ValueError, 'sequence identity changed'): a.reserve(done, candidate, previous_cost=1, cost=1)
 
     def test_soft_cost_threshold_preserves_original_charge_and_warns(self):

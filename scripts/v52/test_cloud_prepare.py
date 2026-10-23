@@ -13,7 +13,7 @@ class PrepareTest(unittest.TestCase):
     def setUpClass(cls): fixture.NativeRunnerTest.setUpClass()
     def setUp(self):
         self.base = fixture.NativeRunnerTest(); self.base.setUp(); self.addCleanup(self.base.doCleanups)
-        self.request = dict(member='canonical-3', sequence='c'*32, estimate=deepcopy(self.base.arguments['quote']))
+        self.request = dict(member='canonical-3-legacy', sequence='c'*32, estimate=deepcopy(self.base.arguments['quote']))
         self.count = 0
     def execute(self):
         self.count += 1; self.output = self.base.root/f'prepare-{self.count}'
@@ -29,7 +29,7 @@ class PrepareTest(unittest.TestCase):
         files = {v.name:v.read_bytes() for v in (self.output/'public').iterdir()}
         receipt = p.package.validate(files, self.base.cfg, self.base.arguments['proof']['source'], dict(runId=654321,runAttempt=2), now=fixture.NOW)
         self.assertFalse(p.artifacts.read(self.output/'public/approval.json')['confirmed'])
-        plan = p.artifacts.read(self.output/'public/plan.json'); self.assertEqual('canonical-3',plan['request']['selection']['member']['name'])
+        plan = p.artifacts.read(self.output/'public/plan.json'); self.assertEqual('canonical-3-legacy',plan['request']['selection']['member']['name'])
         self.assertEqual(result['planSha256'],receipt['planSha256'])
     def test_active_lease_blocks_public_preparation_without_mutation(self):
         self.base.case.prepared(active=True); original = deepcopy(self.base.case.server.objects)

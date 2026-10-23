@@ -7,10 +7,13 @@ remain unqualified after the failures documented in
 [measurement repairs](PHASE_6_MEASUREMENT_REPAIRS.md). Their original evidence is
 retained. The pending cloud suite now derives the corrected M02 selected voting
 follower and mandatory M01 read-capture negatives; its canonical digest is
-`b889dd7e1deccc9373a2453240b894a708524dc807bff3daccb709df8e18a535`.
+`9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e`.
 This update does not rebind any old local freeze, measured history or cloud receipt.
 The subsequent [hosted cohort](PHASE_6_HOSTED_ACCEPTANCE.md) passes all 28 formal
 histories on its new exact source; cloud selection still grants no execution authority.
+
+The v3 canonical grouping is a local standby implementation. It has not been
+pushed, deployed or cloud-qualified; see [hosted canonical shards](PHASE_6_HOSTED_CANONICAL.md).
 
 ## Complete suite, with any starting member
 
@@ -27,9 +30,15 @@ local machine plan or change any offered business workload.
 | failure-drill-m02-above | 3 M02 above histories | 93 | 11 | 0 |
 | failure-drill-m03 | 2 M03 capacity histories | 71 | 8 | 0 |
 | failure-drill-m04 | 2 M04 recovery histories | 8 | 8 | 0 |
-| canonical-1 | 5 M01 modes, repetition 1 | 9,005 | 900 | 900 |
-| canonical-2 | 5 M01 modes, repetition 2 | 9,005 | 900 | 900 |
-| canonical-3 | 5 M01 modes, repetition 3 | 9,005 | 900 | 900 |
+| canonical-1-legacy | Published V5.1 and candidate legacy strong, r1 | 3,602 | 360 | 360 |
+| canonical-1-explicit-stale | Candidate explicit strong and stale, r1 | 3,602 | 360 | 360 |
+| canonical-1-minimum | Candidate minimum, r1 | 1,801 | 180 | 180 |
+| canonical-2-legacy | Published V5.1 and candidate legacy strong, r2 | 3,602 | 360 | 360 |
+| canonical-2-explicit-stale | Candidate explicit strong and stale, r2 | 3,602 | 360 | 360 |
+| canonical-2-minimum | Candidate minimum, r2 | 1,801 | 180 | 180 |
+| canonical-3-legacy | Published V5.1 and candidate legacy strong, r3 | 3,602 | 360 | 360 |
+| canonical-3-explicit-stale | Candidate explicit strong and stale, r3 | 3,602 | 360 | 360 |
+| canonical-3-minimum | Candidate minimum, r3 | 1,801 | 180 | 180 |
 | Total | 33 | 27,428 | 2,760 | 2,700 |
 
 Every canonical mode keeps its 60-second warmup, 120-second measured window,
@@ -40,28 +49,29 @@ per mode; it cannot substitute for a shorter canonical measurement. Formal
 histories keep all 439 declared negative cases per location. The remote adapter
 must also qualify the experiment's original smoke checks after collection.
 
-Any of the nine execution units may be selected first. One unit runs at a time and each
+Any of the fifteen execution units may be selected first. One unit runs at a time and each
 history stays whole on its original session, source and retained lease. Failed
 attempts remain separate; a successful fragment cannot fill part of a later run.
 No business command or workload is replayed after a lost response. Observation
 and immutable evidence download may reconnect under their own qualified protocols.
 
-## Five logical results, nine original executions
+## Five logical results, fifteen original executions
 
-The v2 suite keeps five logical results. `failure-drill` consists of the five
-fixed units above; it is no longer a dispatchable whole-member name. Each unit
+The v3 suite keeps five logical results. `failure-drill` consists of five fixed
+units; each canonical repetition consists of three fixed units (2+2+1 histories).
+The old whole `failure-drill` and `canonical-1/2/3` names cannot be dispatched. Each unit
 owns a separate original invocation, request, lease, resource allocation,
 completion and cost reservation. No arbitrary history subset is accepted.
-The full set requires all nine executions and independently replays all original
+The full set requires all fifteen executions and independently replays all original
 histories, negatives and authority; incomplete shards never qualify the drill.
 The 33 histories, 28 formal histories, 27,428 reads, 2,760 updates, M01 windows
 and 439 negatives per location remain unchanged.
 
-The original v1 plan is retained at [phase6-cloud-suite-v1.json](phase6-cloud-suite-v1.json)
-with its original canonical digest. Only historical validation/accounting and
-cleanup accept it; new reservation/allocation and complete-set admission require
-v2. Old costs remain charged, pending old leases can still be reconciled, and no
-old whole-drill fragment can replace a new shard. Source and suite changes require
+The original plans are retained at [phase6-cloud-suite-v1.json](phase6-cloud-suite-v1.json)
+and [phase6-cloud-suite-v2.json](phase6-cloud-suite-v2.json), each with its exact
+original digest. Only historical validation/accounting and cleanup accept them;
+new reservation/allocation and complete-set admission require v3. Old costs remain charged, pending old leases can still be reconciled, and no
+old whole-drill/canonical execution or fragment can replace a new shard. Source and suite changes require
 a new sequence; the ledger is not reset. See the [hosted drill guide](PHASE_6_HOSTED_DRILL.md).
 
 ## Binding and acceptance boundaries
@@ -71,7 +81,7 @@ program hashes, shared-build manifest, deployable package and published controls
 It has a unique attempt identity and includes the entire selected member profile.
 The complete-set validator rejects missing/extra members, duplicate members or
 attempts, altered profiles and mixed source/sequence/build/package/control values.
-It accepts any complete ordering of the nine units, but always returns
+It accepts any complete ordering of the fifteen units, but always returns
 `COMPLETE_SELECTION_NOT_QUALIFIED` and `qualified=false`.
 
 These functions do not read GitHub/GCP, dispatch processes, mutate resources or
@@ -105,12 +115,14 @@ permission, pricing or cloud readiness is inferred from the old V5.1 configurati
 
 ## Local validation
 
-Eight regression tests cover the exact totals and original profiles, all 120
-member orders, incomplete/duplicate/mixed sets, altered selection flags, malformed
-identities, frozen-plan drift and input isolation. They are integrated into the
-existing V5.2 measurement gate without removing any existing checks. They exercise
-planning only and do not count as cloud or formal measurement results.
+Regression tests cover all 33 history profiles and unchanged negative inventories,
+2+2+1 canonical grouping, every execution as a starting point, incomplete/duplicate/
+mixed sets, altered selection flags and frozen-plan drift. v1/v2 cost and exact-ID
+cleanup tests preserve old authority without permitting new old-suite allocations.
+The full-set models restore fifteen originals and retain the M01 cross-repetition
+artifact, compiled-consumer and outcome checks. These are local model results,
+not new cloud or formal measurements.
 
-Validation records are retained under `target/v52-cloud-suite/` in the development
-worktree. Protected exact-source CI remains pending. No production Java, POM,
-workflow topology, provider settings or published controls change in this stage.
+Standby validation records live at `target/v52-canonical-shards/` in the independent
+development worktree. No production Java, POM, measurement program, provider
+settings, published controls or deployed master changes in this batch.

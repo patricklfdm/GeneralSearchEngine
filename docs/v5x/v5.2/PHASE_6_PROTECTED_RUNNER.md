@@ -67,8 +67,8 @@ source contract and from a future deployed execution.
 
 `cloud_acceptance.verify_native` owns both collectors and the original replay:
 
-1. Select all nine distinct original requests and run/attempt pairs: experiment,
-   the [five whole drill shards](PHASE_6_HOSTED_DRILL.md), and three canonical runs.
+1. Select all fifteen distinct original requests and run/attempt pairs: experiment,
+   the [five whole drill shards](PHASE_6_HOSTED_DRILL.md), and [nine canonical shards](PHASE_6_HOSTED_CANONICAL.md).
 2. Restore their immutable evidence/completion/cleanup objects from the original
    ledger with the fixed native provider reader.
 3. Collect each original GitHub seal and compare it to those independently
@@ -76,7 +76,7 @@ source contract and from a future deployed execution.
 4. Replay every original whole member. Its independently reconstructed runtime
    invocation must equal the protected invocation, including all fifteen M01
    histories. Missing/changed originals stop; no workload is retried.
-5. Require all nine executions, representing five logical members: 33 histories, 27,428 reads,
+5. Require all fifteen executions, representing five logical members: 33 histories, 27,428 reads,
    2,760 updates, 2,700 M01 offered seconds and 439 formal evidence negatives.
 6. Recheck source/configuration/workflow before emitting a qualified receipt.
 

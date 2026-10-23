@@ -1,4 +1,4 @@
-"""Closed execution-host routing; only whole drill shards run on hosted jobs.
+"""Closed execution-host routing; only declared whole-history shards run on hosted jobs.
 
 Runner choice never grants cloud authority. The operator still binds the exact
 prepared artifact, source, approval, lease, resource IDs and original histories.
@@ -27,8 +27,8 @@ def selected(env):
 def require_member(name, env):
     from . import cloud_suite as suite
     suite.member(name)
-    need(selected(env)=='self-hosted' or name in suite.DRILL_SHARDS,
-         'V5.2 hosted execution requires one complete failure-drill shard')
+    need(selected(env)=='self-hosted' or name in suite.HOSTED_MEMBERS,
+         'V5.2 hosted execution requires one complete declared shard')
 
 
 def check(env):

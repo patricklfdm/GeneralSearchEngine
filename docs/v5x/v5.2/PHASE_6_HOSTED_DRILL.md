@@ -26,8 +26,9 @@ original run/attempt, three VMs, lease, resource identities, immutable evidence,
 cleanup and append-only charge. Five shard seals are inputs, not a qualified
 logical drill result by themselves.
 
-The suite now has nine original executions and five logical results. `verify-set`
-must restore and independently replay all nine originals on one source/sequence,
+The v2 deployment has nine original executions and five logical results. The
+[local v3 canonical standby](PHASE_6_HOSTED_CANONICAL.md) extends that to fifteen.
+With v3, `verify-set` must independently replay all fifteen originals on one source/sequence,
 including all five drill shards. Missing/duplicate/foreign units, altered
 profiles, reused run/resource/history identities and failed ledger entries reject.
 The existing full-set replay remains on self-hosted infrastructure; it is not
@@ -65,8 +66,8 @@ cleanup; never assume an `always()` step alone guarantees cloud reclamation.
    that exact master. Normal full CI remains optional under the existing V5.2
    cloud-stage policy. Do not reuse an expired or earlier-source prepared plan.
 2. Create one new sequence for the new suite/source. Preserve the old ledger
-   and its costs. Existing v1 requests remain readable and cleanable, but cannot
-   be newly reserved, allocated or substituted into the v2 acceptance set.
+   and its costs. Existing v1/v2 requests remain readable and cleanable, but cannot
+   be newly reserved, allocated or substituted into the v3 acceptance set.
 3. Select any shard above. Review a separate estimate covering its three VMs,
    disks, setup, retention, cleanup and prior charges. `prepare-request` accepts
    the same explicit estimate parameters; no automatic pricing claim is made.
@@ -98,12 +99,13 @@ PY
    completed units may be selected only if source/sequence/build remain exact.
 6. Repeat for the remaining shards on the same sequence. Do not dispatch them
    concurrently or pre-create stale approvals/ledger snapshots for all five.
-7. `experiment`, each canonical repetition, and `verify-set` still require
-   `execution_host=self-hosted`. Prepare itself may use either host. Switching
-   these larger operations to hosted jobs needs a separate measured review.
-8. The final verify-set JSON contains `experiment`, the five exact shard names,
-   and `canonical-1`, `canonical-2`, `canonical-3`. It does not contain the old
-   monolithic `failure-drill` key.
+7. With v3, [canonical shards](PHASE_6_HOSTED_CANONICAL.md) can also use hosted
+   execution. `experiment` and `verify-set` still require `execution_host=self-hosted`.
+   Prepare itself may use either host.
+8. The v3 verify-set JSON contains `experiment`, the five exact drill shard names,
+   and nine canonical shard names. Old monolithic `failure-drill` or canonical
+   names are not executable units. The currently deployed v2 retains its original
+   nine-unit selection until the operator explicitly adopts v3.
 
 Workflow path, `runner` job identity, environment, WIF audience and service
 account remain unchanged. No new IAM privileges or repository settings are
@@ -113,7 +115,7 @@ cleanup, prepared confirmation, private guest ownership or evidence validation.
 ## Rollback boundary
 
 Revert the orchestration change only after no new-suite lease remains active.
-Do not roll old code back onto a live v2 ledger: the previous release cannot
-parse new shard requests. Retain the v2 reader/cleanup path if new requests have
+Do not roll old code back onto a ledger containing newer requests: the previous release cannot
+parse new shard requests. Retain the v1/v2/v3 reader/cleanup path if new requests have
 already been reserved. A new source/suite needs a new sequence and new build;
 never move tags, rewrite old receipts, reset costs or relabel failed histories.

@@ -29,11 +29,11 @@ The returned status is `MEMBER_REPLAYED_NOT_QUALIFIED`. Per-history detailed rep
 outputs remain available; the member receipt records compact summaries and binding
 hashes rather than duplicating all query inputs.
 
-## Nine complete executions, five logical members
+## Fifteen complete executions, five logical members
 
 `cloud_set_evidence` requires experiment, the [five fixed drill shards](PHASE_6_HOSTED_DRILL.md)
-and canonical repetitions 1–3 from one source, checkout, sequence, build, package
-and published-control set. All nine original requests must already have successful
+and the [nine canonical shards](PHASE_6_HOSTED_CANONICAL.md) from one source, checkout, sequence, build, package
+and published-control set. All fifteen original requests must already have successful
 terminal ledger entries.
 Each complete member is independently replayed once; a failure stops the set and
 preserves earlier outputs. Successful fragments from failed attempts cannot fill
@@ -61,7 +61,7 @@ requires no object-list permission or guessing of lease generations. A failed
 copy leaves completion pending; reconciliation preserves conservative failure
 semantics and cannot grant workload acceptance.
 
-`cloud_evidence_read` reads one ledger and selects the nine explicit request hashes.
+`cloud_evidence_read` reads one ledger and selects the fifteen explicit request hashes.
 Only that ledger and each selected request's context, completion, addressed cleanup,
 manifest and declared parts enter the GET allowlist. Media reads include both
 `generation` and `ifGenerationMatch`; metadata is checked again after each object.
@@ -99,5 +99,7 @@ Logs, original failed fixtures and corrected tests live under
 Before any paid dispatch, connect protected original Runner provenance and the
 operator entry to these internal functions and review the undeployed V5.2
 configuration and identity setup. [Required CI partitions](PHASE_6_CI_PARTITIONS.md)
-now isolate Python validation and complete runtime commands without losing checks. Exact-source protected CI and all five real native members remain
-required. No full cloud qualification is claimed here.
+now isolate Python validation and complete runtime commands without losing checks.
+The current admission accepts exact-source Cloud Build or full CI; all fifteen
+original executions remain required for the five logical members. No full cloud
+qualification is claimed here.

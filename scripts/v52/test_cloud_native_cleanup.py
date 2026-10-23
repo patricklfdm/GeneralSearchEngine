@@ -58,8 +58,8 @@ class NativeCleanupTest(unittest.TestCase):
     def get(self,key):
         row=self.server.objects.get(key);return strict(row[1]) if row else None
 
-    def prepared(self,*,active=False,resources=True):
-        self.req=fixture(domain='native');self.req['configurationSha256']=p.config(self.original)
+    def prepared(self,*,active=False,resources=True,member='experiment'):
+        self.req=fixture(member,domain='native');self.req['configurationSha256']=p.config(self.original)
         # The old workload source differs from this cleanup workflow source.
         self.req['selection']['binding']['source']='b'*40
         plan=p.Plan(self.original,self.req);lease=a.lease(self.req,self.clock.wall()-(0 if active else 90));lease['phase']='ACTIVE'
@@ -97,6 +97,21 @@ class NativeCleanupTest(unittest.TestCase):
         suite=a.suite;old=suite.read(suite.LEGACY_PLAN)
         with patch.object(suite,'PLAN_SHA',suite.LEGACY_SHA),patch.object(suite,'load',return_value=old):
             lease=self.prepared()
+        result=self.execute()
+        self.assertEqual('PASS',result['status']);self.assertEqual(13,result['resourceDeletesSubmitted'])
+        self.assertIsNone(self.get(a.LEASE));self.assertEqual({},self.server.resources)
+        view=a.inspect_ledger(self.get(a.LEDGER),domain='native')
+        self.assertEqual(1,view['reservedCostMicrousd'])
+        self.assertEqual('FAIL',view['attempts'][a.validate_request(self.req,domain='native')]['status'])
+        deletes=[row['url'].split('?')[0].rsplit('/',1)[1] for row in self.calls
+                 if row['method']=='DELETE' and 'compute.googleapis.com' in row['url']]
+        self.assertEqual({row['id'] for row in lease['resources']},set(deletes))
+
+    def test_original_v2_lease_cleans_all_thirteen_ids_after_canonical_migration(self):
+        suite=a.suite;old=suite.read(suite.LEGACY_V2_PLAN)
+        with patch.object(suite,'PLAN_SHA',suite.LEGACY_V2_SHA),patch.object(suite,'load',return_value=old), \
+             patch.object(suite,'MEMBERS',tuple(old['members'])):
+            lease=self.prepared(member='canonical-1')
         result=self.execute()
         self.assertEqual('PASS',result['status']);self.assertEqual(13,result['resourceDeletesSubmitted'])
         self.assertIsNone(self.get(a.LEASE));self.assertEqual({},self.server.resources)
