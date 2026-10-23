@@ -1,0 +1,1202 @@
+{
+  "base": "afa3d905ff69709e8f54eae4ccd9bd8e9cfcaf85",
+  "compiledInventory": {
+    "path": "target/v53-retirement-images/final-inputs.json",
+    "sha256": "12bd6d9b8e2a892fe54c8166044bb2dff0f663349eb54d66bda4b5fcce3a3946"
+  },
+  "development": [
+    "development.log: 50 tests passed; one new peak assertion undercounted the SOURCE quorum by one; actual bound was preserved",
+    "qualified.log: 52 tests passed; process-development retains 53-case original run with exact source/build binding",
+    "final.log: 62 tests passed, adding existing floor-files tests and different-old-packet recovery; production and process worker classes unchanged",
+    "final Python replay adds exact error-reason checks to all 15 original-first mutations without rerunning workload"
+  ],
+  "freshProcesses": 218,
+  "jars": {
+    "target/v53-retirement-images/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-retirement-images/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "0256b950e0af4ec98512ea93a61b0e5b303784ce474e9d5e4defb90f4f5a4416"
+  },
+  "javaMethods": 62,
+  "limitations": [
+    "historical membership edges and image contents remain conditional fixtures",
+    "no power-loss/network ownership or maximal-byte complete lifetime claim",
+    "fixed old pending context backing still needs bounded repeated-turnover integration",
+    "Phase 2 remains open; public runtime disabled; no protected CI or paid cloud"
+  ],
+  "logs": {
+    "development.log": "1fd3f47af1920131898f4fbbf66e52693ab6c06ae270797d6e96511eac26e4e1",
+    "final.log": "c55300e61b09ac9b73ac41410c0d9324cc9b5ea75b731692a53942c67d111465",
+    "process-development.log": "6ed64d1e12646b004da4fbd076ec8e4c3992f716c469209d3565574f0bf9d806",
+    "python-unit-optimized.log": "3efc3bd5f9b54b089f852ad6b401ee5c3dafa5c72c296e25c9c78023519d5286",
+    "python-unit.log": "c39c88100a3b6b5a07400fd4f9264af9dcb67d8bf0752a29fda6fee19edc8cbc",
+    "qualified.log": "a18a0802b8691664b72597adb710b089bab382135a24b861847f1927365d822a",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newJavaMethods": 8,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "processCases": 53,
+  "processElapsedSeconds": 197.586,
+  "producer": {
+    "path": "target/v53-retirement-images/process-development/receipt.json",
+    "productionAndWorkerClassesUnchanged": true,
+    "sha256": "7d67b36dcd66a8fa8b48b1c4a775a0d41375c5b9802d8a6bfedf44f9b5dc974d"
+  },
+  "protectedCI": false,
+  "pythonUnitMethods": 15,
+  "raw": {
+    "files": 12768,
+    "indexSha256": "d090f0787e8a73f6ac3ae6836b3530adef9c0e8cc37069edc121433c0bea6a8c",
+    "path": "target/v53-retirement-images/process-development/physical"
+  },
+  "replays": {
+    "replay": {
+      "cases": [
+        {
+          "borrowed": false,
+          "case": "3-0-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 5,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": false,
+          "case": "3-6-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 5,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": false,
+          "case": "3-7-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 5,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "4-0-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "4-6-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "4-7-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_created",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrow_prefix_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrow_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrow_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_source_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_authority_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_parent_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_directory_deleted",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_saved_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_saved_directory_deleted",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_proposal_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrow_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_authority_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_created",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrow_prefix_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrow_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrow_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_source_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_authority_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_parent_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_directory_deleted",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_saved_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_saved_directory_deleted",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_proposal_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrow_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_authority_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-halt-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-halt-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-kill-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-kill-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-halt-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-halt-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-kill-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-kill-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-repeat-halt-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-repeat-kill-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-repeat-halt-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-repeat-kill-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-repeat-halt-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-repeat-kill-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        }
+      ],
+      "execution": "private-floor-image-retirement",
+      "negatives": [
+        {
+          "case": "missing-binding",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "truncated-binding",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "foreign-floor",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "foreign-generation",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "copied-backup-image",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-saved-packet",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-floor-image",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-live-selector",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-original-source",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-borrow-force",
+          "reason": "image retirement exact force/crash order",
+          "status": "REJECT"
+        },
+        {
+          "case": "false-exit-code",
+          "reason": "selection process outcome",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-retirement",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "final-binding-leak",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "final-old-generation",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "linked-binding",
+          "reason": "source file type",
+          "status": "REJECT"
+        }
+      ],
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "runtimeEnabled": false,
+      "status": "PASS"
+    },
+    "replay-optimized": {
+      "cases": [
+        {
+          "borrowed": false,
+          "case": "3-0-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 5,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": false,
+          "case": "3-6-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 5,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": false,
+          "case": "3-7-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 5,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "4-0-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "4-6-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "4-7-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-clean-none",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_created",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrow_prefix_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrow_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrow_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_source_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_authority_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_parent_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_directory_deleted",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_saved_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_saved_directory_deleted",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_proposal_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_borrow_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-halt-retirement_authority_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_created",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrow_prefix_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrow_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrow_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_source_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_authority_written",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_parent_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_directory_deleted",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_saved_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_saved_directory_deleted",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_proposal_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_borrow_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-kill-retirement_authority_cleared",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-halt-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-halt-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-kill-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-kill-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-halt-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-halt-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-kill-retirement_borrowed_images_forced",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-kill-retirement_file_deleted@2",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-repeat-halt-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-0-repeat-kill-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-repeat-halt-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-6-repeat-kill-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-repeat-halt-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        },
+        {
+          "borrowed": true,
+          "case": "5-7-repeat-kill-retirement_authority_resealed",
+          "networkAck": false,
+          "physicalImagePeak": 7,
+          "physicalSourcePeak": 6,
+          "runtimeEnabled": false,
+          "status": "PASS"
+        }
+      ],
+      "execution": "private-floor-image-retirement",
+      "negatives": [
+        {
+          "case": "missing-binding",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "truncated-binding",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "foreign-floor",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "foreign-generation",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "copied-backup-image",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-saved-packet",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-floor-image",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-live-selector",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-original-source",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "missing-borrow-force",
+          "reason": "image retirement exact force/crash order",
+          "status": "REJECT"
+        },
+        {
+          "case": "false-exit-code",
+          "reason": "selection process outcome",
+          "status": "REJECT"
+        },
+        {
+          "case": "changed-retirement",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "final-binding-leak",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "final-old-generation",
+          "reason": "retirement exact physical snapshot",
+          "status": "REJECT"
+        },
+        {
+          "case": "linked-binding",
+          "reason": "source file type",
+          "status": "REJECT"
+        }
+      ],
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "runtimeEnabled": false,
+      "status": "PASS"
+    }
+  },
+  "schema": "gse-v53-retirement-images-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java": "d11f37535a519f8c7ec78afc6c89aafc242c9c55b095e8e8c6e1ba0638b9951b",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "36030a392b58c8e0391f14c6c04d2d9d3d13f3a1618aba21a8ed42786906947f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementFiles.java": "2fc19d00821cbcb0901958332874e76683a12ec7e7eb39fc8f1eb8512cc0208f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementImages.java": "17a82b097d04fee7fa196b855b6abfb1e339d93a21f456a757d05a932ca3d7c9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementImagesTest.java": "0d4b0d73e8d5f7a354095b52384d35c96b65c0237356b374b1f5be6d1098572c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementImagesWorker.java": "858aa7637c5693787d731516251520f3da50797648c3622337d9809a4f89d8a2",
+    "scripts/v53/retirement_images_evidence.py": "ea3fce516206dce9895af581594f28aebdc85aa9a73bddf1ad30c9ff046df09a",
+    "scripts/v53/retirement_images_qualification.py": "74a038b6663cdbed27ad38e3d49fdd263fa4b9136236b9866a89f9fe570ea0ab"
+  },
+  "sourceInventory": {
+    "path": "target/v53-retirement-images/source-files.json",
+    "sha256": "5740aa651110c5d30fbbdcb1fe907d8042806e4808620b324e627438d91e9362"
+  },
+  "status": "PASS",
+  "validationScope": [
+    "actual owned local sources and governing floor copies for 3/4/5-voter old/joint/new profiles",
+    "explicit private image binding and complete saved original metadata, packet retained unchanged",
+    "7 image and 6 source maxima, exact-byte borrow, identity guards and cleanup pin",
+    "halt and SIGKILL plus interrupted recovery and exact portable snapshots"
+  ]
+}

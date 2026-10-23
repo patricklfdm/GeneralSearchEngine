@@ -155,6 +155,14 @@ final class MembershipFloorFiles implements AutoCloseable {
         AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);cut.at("FLOOR_PARENT_FORCED");check();owner.check();
         var retained=read().orElseThrow();require(Arrays.equals(retained.bytes(),floor.bytes()),"floor publication bytes changed");cut.at("FLOOR_BEFORE_RETURN");check();owner.check();return floor;
     }
+    /** Re-seal the complete already owned floor before a retirement borrows its exact images. */
+    void resealForRetirement(MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
+        retained().orElseThrow(()->new IllegalArgumentException("retirement requires complete unreleased floor"));owner.check();
+        for(String name:files.keySet())if(!name.equals(FLOOR)) {check();owner.check();force(path.resolve(name));}
+        for(String name:directories.keySet())AdmissionPaths.forceDirectory(path.resolve(name));
+        AdmissionPaths.forceDirectory(path);force(path.resolve(FLOOR));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);
+        cut.at("RETIREMENT_BORROWED_IMAGES_FORCED");check();owner.check();
+    }
     /** Exact cleanup authority; never reconstruct a floor from partially deleted copies. */
     private Decoded releasePlan(MembershipCurrentGeneration current,Retained retained) throws IOException {
         current.check();var own=retained.copies().stream().filter(c->c.owner.equals(local)).findFirst().orElseThrow();

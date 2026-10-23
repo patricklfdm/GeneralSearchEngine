@@ -13,6 +13,7 @@ final class MembershipRetirementFiles implements AutoCloseable {
     static final String DIRECTORY="retirement", PROPOSAL="proposal.gsr", AUTHORITY="retirement.gsr", SOURCE="source";
     private final Path parent,path,source;
     private final MembershipResources resources;
+    private final MembershipFloorFiles floorFiles;
     private final Map<String,FileIdentity> files=new TreeMap<>();
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
     private Object pathKey,sourceKey;
@@ -20,12 +21,15 @@ final class MembershipRetirementFiles implements AutoCloseable {
     private String reserved;
 
     MembershipRetirementFiles(Path parent,MembershipResources resources)throws IOException {
-        this.parent=parent;this.path=parent.resolve(DIRECTORY);this.source=path.resolve(SOURCE);this.resources=resources;
+        this(parent,resources,null);
+    }
+    MembershipRetirementFiles(Path parent,MembershipResources resources,MembershipFloorFiles floorFiles)throws IOException {
+        this.floorFiles=floorFiles;this.parent=parent;this.path=parent.resolve(DIRECTORY);this.source=path.resolve(SOURCE);this.resources=resources;
         try{capture();reserve(null);}catch(IOException | RuntimeException | Error error){close();throw error;}
     }
     boolean pending(){return exists;}
     private static long limit(String name) {
-        if(Set.of(PROPOSAL,AUTHORITY).contains(name))return 65536;
+        if(Set.of(PROPOSAL,AUTHORITY,MembershipRetirementImages.FILE).contains(name))return 65536;
         require(name.startsWith("source/"),"retirement retained path");return MembershipGenerationFiles.limit(name.substring(7));
     }
     private FileIdentity captureFile(String name)throws IOException {
@@ -33,20 +37,23 @@ final class MembershipRetirementFiles implements AutoCloseable {
     }
     private void capture()throws IOException {
         files.clear();exists=Files.exists(path,LinkOption.NOFOLLOW_LINKS);pathKey=exists?key(path):null;sourceExists=false;sourceKey=null;if(!exists)return;
-        for(String name:children(path,3)) {
+        for(String name:children(path,4)) {
             if(name.equals(SOURCE)) {
                 sourceExists=true;sourceKey=key(source);long metadata=0;
                 for(String member:children(source,32)) {
                     var file=captureFile(SOURCE+"/"+member);
                     if(!member.endsWith(".image")){metadata=Math.addExact(metadata,file.bytes());require(metadata<=MembershipResources.Unit.SOURCE.bytes,"retirement source metadata capacity");}
                 }
-            }else{require(Set.of(PROPOSAL,AUTHORITY).contains(name),"retirement unknown authority member");captureFile(name);}
+            }else{require(Set.of(PROPOSAL,AUTHORITY,MembershipRetirementImages.FILE).contains(name),"retirement unknown authority member");captureFile(name);}
         }
+        long saved=0;for(var file:files.entrySet())if(file.getKey().startsWith(SOURCE+"/") && !file.getKey().endsWith(".image") || file.getKey().equals(MembershipRetirementImages.FILE))saved=Math.addExact(saved,file.getValue().bytes());
+        require(saved<=MembershipResources.Unit.SOURCE.bytes,"retirement saved metadata capacity");
+        require(!files.containsKey(MembershipRetirementImages.FILE) || floorFiles!=null,"borrowed retirement requires floor owner");
     }
     void check()throws IOException {
         require(exists==Files.exists(path,LinkOption.NOFOLLOW_LINKS),"retirement directory changed");if(!exists)return;
-        var expected=new TreeSet<String>();for(String name:List.of(PROPOSAL,AUTHORITY))if(files.containsKey(name))expected.add(name);if(sourceExists)expected.add(SOURCE);
-        require(pathKey.equals(key(path)) && children(path,3).equals(expected),"retirement inventory changed");
+        var expected=new TreeSet<String>();for(String name:List.of(PROPOSAL,AUTHORITY,MembershipRetirementImages.FILE))if(files.containsKey(name))expected.add(name);if(sourceExists)expected.add(SOURCE);
+        require(pathKey.equals(key(path)) && children(path,4).equals(expected),"retirement inventory changed");
         if(sourceExists) {
             var names=new TreeSet<String>();for(String name:files.keySet())if(name.startsWith(SOURCE+"/"))names.add(name.substring(7));
             require(sourceKey.equals(key(source)) && children(source,32).equals(names),"retirement source directory changed");
@@ -54,13 +61,13 @@ final class MembershipRetirementFiles implements AutoCloseable {
         for(var file:files.entrySet())require(file.getValue().equals(inspect(path.resolve(file.getKey()),file.getValue().bytes(),file.getValue().digest())),"retirement file inode changed");
     }
     private void reserve(SortedMap<String,byte[]> plan) {
-        close();if(plan==null && !sourceExists)return;
+        close();if(plan==null && !sourceExists && !files.containsKey(MembershipRetirementImages.FILE))return;
         try {
             long metadata=0;var images=new TreeMap<String,Long>();
-            if(plan==null)for(var file:files.entrySet())if(file.getKey().startsWith(SOURCE+"/")) {
+            if(plan==null)for(var file:files.entrySet())if(file.getKey().startsWith(SOURCE+"/") || file.getKey().equals(MembershipRetirementImages.FILE)) {
                 if(file.getKey().endsWith(".image"))images.put(file.getKey(),file.getValue().bytes());else metadata=Math.addExact(metadata,file.getValue().bytes());
             }
-            if(plan!=null)for(var file:plan.entrySet())if(file.getKey().startsWith(SOURCE+"/")) {
+            if(plan!=null)for(var file:plan.entrySet())if(file.getKey().startsWith(SOURCE+"/") || file.getKey().equals(MembershipRetirementImages.FILE)) {
                 if(file.getKey().endsWith(".image"))images.put(file.getKey(),(long)file.getValue().length);else metadata=Math.addExact(metadata,file.getValue().length);
             }
             leases.add(resources.reserve(MembershipResources.Unit.SOURCE,"retirement",Math.max(1,metadata)));
@@ -79,7 +86,16 @@ final class MembershipRetirementFiles implements AutoCloseable {
     Map<String,byte[]> original()throws IOException {
         check();require(sourceExists,"retirement original source missing");var result=new TreeMap<String,byte[]>();
         for(String name:files.keySet())if(name.startsWith(SOURCE+"/"))result.put(name.substring(7),AdmissionPaths.read(path.resolve(name),Math.toIntExact(limit(name))));
+        if(files.containsKey(MembershipRetirementImages.FILE)) {
+            var record=authority().orElseThrow(()->new IllegalArgumentException("retirement borrowed original requires complete authority"));
+            result.putAll(borrowed(record));
+        }
         check();return result;
+    }
+    private Map<String,byte[]> borrowed(Decoded record)throws IOException {
+        require(floorFiles!=null,"retirement borrowed floor owner absent");
+        var floor=floorFiles.retained().orElseThrow(()->new IllegalArgumentException("retirement borrowed floor unavailable"));
+        return MembershipRetirementImages.resolve(AdmissionPaths.read(path.resolve(MembershipRetirementImages.FILE),MembershipRetirementImages.MAXIMUM),record,floor);
     }
     /** Check every remaining saved byte against the already-bound retirement inventory. */
     void checkSaved(Decoded record)throws IOException {
@@ -88,25 +104,38 @@ final class MembershipRetirementFiles implements AutoCloseable {
         for(var file:files.entrySet())if(file.getKey().startsWith(SOURCE+"/")) {
             var original=expected.get(file.getKey());require(original!=null && file.getValue().bytes()==number(original.get("size")) && file.getValue().digest().equals(original.get("sha256")),"retirement saved bytes changed");
         }
+        if(files.containsKey(MembershipRetirementImages.FILE)) {
+            require(files.keySet().stream().noneMatch(n->n.startsWith(SOURCE+"/") && n.endsWith(".image")),"borrowed retirement cannot mix physical backup images");borrowed(record);
+        }
         if(files.containsKey(PROPOSAL))require(Arrays.equals(AdmissionPaths.read(path.resolve(PROPOSAL),65536),record.bytes()),"retirement proposal binding");
     }
     void sealAuthority(Decoded record,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
-        checkSaved(record);owner.check();force(path.resolve(AUTHORITY));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);
+        checkSaved(record);owner.check();if(files.containsKey(MembershipRetirementImages.FILE))floorFiles.resealForRetirement(owner,cut);force(path.resolve(AUTHORITY));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);
         cut.at("RETIREMENT_AUTHORITY_RESEALED");check();owner.check();
     }
     void prepare(MembershipRetirementPlan retirement,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         var plan=new TreeMap<String,byte[]>();plan.put(PROPOSAL,retirement.record.bytes());plan.put(AUTHORITY,retirement.record.bytes());
-        for(String name:retirement.original.fileNames())plan.put(SOURCE+"/"+name,retirement.original.fileBytes(name));
+        long imageCount=retirement.original.fileNames().stream().filter(n->n.endsWith(".image")).count();
+        boolean borrow=files.containsKey(MembershipRetirementImages.FILE) || files.isEmpty() && !sourceExists
+                && resources.usage().counts().getOrDefault(MembershipResources.Unit.APPLICATION,0)+imageCount>MembershipResources.Unit.APPLICATION.count;
+        if(borrow) {
+            require(floorFiles!=null,"retirement image capacity requires retained floor owner");
+            var floor=floorFiles.retained().orElseThrow(()->new IllegalArgumentException("retirement image capacity requires complete floor"));
+            plan.put(MembershipRetirementImages.FILE,MembershipRetirementImages.create(retirement.record,floor));
+        }
+        for(String name:retirement.original.fileNames())if(!borrow || !name.endsWith(".image"))plan.put(SOURCE+"/"+name,retirement.original.fileBytes(name));
         check();owner.check();require(plan.keySet().containsAll(files.keySet()),"unrelated retained retirement files");
         for(String name:files.keySet())require(prefix(AdmissionPaths.read(path.resolve(name),Math.toIntExact(limit(name))),plan.get(name)),"retirement requires exact original proposal");
         if(!retirement.record.digest().equals(reserved))reserve(plan);cut.at("RETIREMENT_RESERVED");check();owner.check();
         if(!exists){Files.createDirectory(path);capture();}cut.at("RETIREMENT_CREATED");check();owner.check();
+        if(borrow)complete(MembershipRetirementImages.FILE,plan.get(MembershipRetirementImages.FILE),owner,cut,"RETIREMENT_BORROW");
         complete(PROPOSAL,plan.get(PROPOSAL),owner,cut,"RETIREMENT_PROPOSAL");
         if(!sourceExists){Files.createDirectory(source);capture();}cut.at("RETIREMENT_SOURCE_CREATED");check();owner.check();
         complete(SOURCE+"/generation.gsr",plan.get(SOURCE+"/generation.gsr"),owner,cut,"RETIREMENT_MANIFEST");
         for(var file:plan.entrySet())if(file.getKey().startsWith(SOURCE+"/") && !file.getKey().equals(SOURCE+"/generation.gsr"))
             complete(file.getKey(),file.getValue(),owner,cut,file.getKey().endsWith(".image")?"RETIREMENT_IMAGE":"RETIREMENT_MEMBER");
         AdmissionPaths.forceDirectory(source);AdmissionPaths.forceDirectory(path);cut.at("RETIREMENT_SOURCE_FORCED");check();owner.check();
+        if(borrow) {borrowed(retirement.record);floorFiles.resealForRetirement(owner,cut);}
         complete(AUTHORITY,plan.get(AUTHORITY),owner,cut,"RETIREMENT_AUTHORITY");
         AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);cut.at("RETIREMENT_PARENT_FORCED");check();owner.check();
     }
@@ -117,6 +146,7 @@ final class MembershipRetirementFiles implements AutoCloseable {
         }
         if(sourceExists){Files.delete(source);capture();AdmissionPaths.forceDirectory(path);cut.at("RETIREMENT_SAVED_DIRECTORY_DELETED");check();owner.check();}
         if(files.containsKey(PROPOSAL)){Files.delete(path.resolve(PROPOSAL));capture();AdmissionPaths.forceDirectory(path);cut.at("RETIREMENT_PROPOSAL_CLEARED");check();owner.check();}
+        if(files.containsKey(MembershipRetirementImages.FILE)){Files.delete(path.resolve(MembershipRetirementImages.FILE));capture();AdmissionPaths.forceDirectory(path);cut.at("RETIREMENT_BORROW_CLEARED");check();owner.check();}
         require(files.keySet().equals(Set.of(AUTHORITY)),"retirement authority must clear last");
         Files.delete(path.resolve(AUTHORITY));capture();AdmissionPaths.forceDirectory(path);cut.at("RETIREMENT_AUTHORITY_CLEARED");check();owner.check();
         clearEmpty(owner,cut);
@@ -130,7 +160,12 @@ final class MembershipRetirementFiles implements AutoCloseable {
         check();owner.check();Path file=path.resolve(name);
         if(Files.exists(file,LinkOption.NOFOLLOW_LINKS))require(prefix(AdmissionPaths.read(file,bytes.length),bytes),"retirement member changed from exact prefix");
         try(var channel=FileChannel.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
-            channel.position(channel.size());AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,Math.toIntExact(channel.size()),bytes.length));capture();
+            channel.position(channel.size());
+            if(name.equals(MembershipRetirementImages.FILE)) {
+                int offset=Math.toIntExact(channel.size()),middle=offset+(bytes.length-offset)/2;
+                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,offset,middle));capture();cut.at("RETIREMENT_BORROW_PREFIX_WRITTEN");check();owner.check();
+            }
+            AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,Math.toIntExact(channel.size()),bytes.length));capture();
             cut.at(event+"_WRITTEN");check();owner.check();channel.force(true);cut.at(event+"_FORCED");check();owner.check();
         }
         AdmissionPaths.exact(file,bytes);capture();

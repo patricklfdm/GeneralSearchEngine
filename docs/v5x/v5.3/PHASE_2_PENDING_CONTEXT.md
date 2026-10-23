@@ -46,7 +46,9 @@ observations and the highest durable promise must never decrease.
 
 Qualification must cover three-, four- and five-voter storage budgets. A
 five-voter governing floor needs three copies; adding a retirement backup after
-two generations and two original sources can exceed the seven-image limit.
+two generations and two original sources can exceed the seven-image limit. [Exact floor image borrowing](PHASE_2_RETIREMENT_IMAGES.md)
+now qualifies that first retirement without an eighth image; it does not solve
+arbitrary accumulated source pins.
 Repeated observations and repeated source turnover need a bounded progress path,
 including retention of the old certificate after a new ACCEPT replaces the old
 pending file and until the exact logical entry is published. The component alone

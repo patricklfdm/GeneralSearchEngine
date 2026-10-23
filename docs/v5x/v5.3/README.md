@@ -160,3 +160,8 @@ higher-ballot recovery and all-voter-count lifetime integration remain open.
 [Pending-context persistence](PHASE_2_PENDING_CONTEXT_FILES.md) adds bounded
 candidate/active files and 32 repeated-crash component cases. Complete journal
 owner integration and repeated 3/4/5-voter lifetime recovery remain open.
+
+[Inactive retirement using retained floor images](PHASE_2_RETIREMENT_IMAGES.md)
+reuses exact pinned floor bytes when a full backup would need an eighth image.
+It retains the existing seven-image/six-source bounds and qualifies 53 fresh-process
+cases; arbitrary pending-context/source turnover remains open.

@@ -18,7 +18,12 @@ remain in its manifest.
 
 Force the verified old files and reserve a complete saved original using the
 existing shared SOURCE/APPLICATION limits before writing the exact RETIREMENT
-proposal and saved original generation. Force all saved files/directories before publishing the
+proposal and saved original generation. This original path copies all images.
+[Retained floor image borrowing](PHASE_2_RETIREMENT_IMAGES.md) now supplies an
+explicit private alternative when the extra image count would exceed seven: save
+all original non-image files and bind exact already owned floor images, without a
+new physical copy. In both modes, force the complete logical saved original and
+its physical backing before publishing the
 RETIREMENT record. The existing frozen record binds root, owner, floor, selector
 and the sorted exact path/length/hash inventory; no format or resource increase.
 
@@ -65,7 +70,10 @@ contract tests** passed under normal and optimized Python. The [source/build/has
 index](phase2-evidence/retirement.json) points to the retained raw evidence and
 failed development probes under `target/v53-phase2-retirement/`.
 
-The saved original consumes a SOURCE slot and counts duplicate physical images.
+The original complete-backup mode consumes a SOURCE slot and counts duplicate
+physical images. The alternative borrowed mode charges its metadata to that same
+SOURCE slot and pins already charged floor images. Its new evidence is separate
+from the earlier complete-backup receipt above.
 Capacity exhaustion refuses before retirement writes; it does not delete evidence
 for space. This finite component does not qualify repeated floor/source/journal
 rotation or the complete physical S/N acceptance inventory. Historical membership
