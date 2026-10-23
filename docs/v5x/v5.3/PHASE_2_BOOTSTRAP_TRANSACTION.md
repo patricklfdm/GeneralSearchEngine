@@ -84,3 +84,7 @@ Public planning/apply/resume/result, typed revalidation on the real entry, compl
 storage opening and seal accounting, and fresh-process crash qualification remain
 required. The separate transferred-context/lifetime and full Phase 2 physical
 closure obligations also remain open.
+
+The [fresh-process gate](PHASE_2_BOOTSTRAP_PROCESS.md) separately qualifies the
+original transaction through repeated halt/SIGKILL; its narrower three-voter EMPTY
+scope does not enable public admission or remove the remaining integration gates.

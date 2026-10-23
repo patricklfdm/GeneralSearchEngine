@@ -1,0 +1,115 @@
+{
+  "base": "f748d547beac37b042aeebe6c908caea4c006a11",
+  "cases": 48,
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-transaction-process/final-inputs.json",
+    "sha256": "d2aa14e1098022760f7146a2b26cedc8c8347ada9cdb00a163a2748f1c05edf6"
+  },
+  "freshProcesses": 144,
+  "jars": {
+    "target/v53-bootstrap-transaction-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-transaction-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "c32b1aac5cebac656c6b7a67cdb92705fd360d73ff8a26c9652749c11491108f"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "public bootstrap and typed source/configuration callback remain disabled/unqualified",
+    "no power-loss, all-cardinality process qualification or failover SLA claim",
+    "complete-store seal admission/accounting and mutable-store public result reading remain pending",
+    "no cloud, protected CI, workflow, production Java, POM or frozen format change; Phase 2 open"
+  ],
+  "logs": {
+    "final.log": "81056d354830fcff5253e973212236e5835cd2c168e82959ed293ba260238859",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "priorJavaMethods": 84,
+  "producerClasses": {
+    "path": "target/v53-bootstrap-transaction-process/producer-classes.json",
+    "sha256": "c3a4f567310fa7d1958527d0c6d681d86bc2b1265baac7694a31ee62d80cf1fa"
+  },
+  "raw": {
+    "indexSha256": "ecbf4ec27732d17765bfc3eaf9688adde513b1a156c6990b7e95e366a04e66b4",
+    "members": 5947,
+    "path": "general-search-engine-replication/target/v53-bootstrap-transaction-process/run-2526a5a7-2108-4a10-9b4d-8e6cc9ac4503"
+  },
+  "replay": {
+    "cases": 48,
+    "freshProcesses": 144,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "bootstrap process case inventory"
+      },
+      {
+        "case": "changed-plan",
+        "reason": "bootstrap original plan checksum"
+      },
+      {
+        "case": "changed-image",
+        "reason": "bootstrap original image binding"
+      },
+      {
+        "case": "first-trace",
+        "reason": "bootstrap process first trace"
+      },
+      {
+        "case": "second-trace",
+        "reason": "bootstrap process second trace"
+      },
+      {
+        "case": "result",
+        "reason": "bootstrap process resumed trace"
+      },
+      {
+        "case": "stderr",
+        "reason": "bootstrap process unexpected stderr"
+      },
+      {
+        "case": "crash",
+        "reason": "bootstrap process exact crash bytes"
+      },
+      {
+        "case": "second-crash",
+        "reason": "bootstrap process exact second-crash bytes"
+      },
+      {
+        "case": "final",
+        "reason": "bootstrap process exact final bytes"
+      },
+      {
+        "case": "scope",
+        "reason": "bootstrap process receipt scope"
+      },
+      {
+        "case": "early-target",
+        "reason": "bootstrap process exact crash bytes"
+      },
+      {
+        "case": "linked-file",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicBootstrap": false,
+    "status": "PASS",
+    "typedCodecIndependentlyVerified": false
+  },
+  "schema": "gse-v53-bootstrap-transaction-process-local-v1",
+  "scope": [
+    "three-voter EMPTY private bootstrap at 24 halt/SIGKILL points",
+    "each original interruption followed by another fresh-process recovery interruption and final completion",
+    "original exact plan/history/decisions/payloads/preparations/receipt/seals and full child force traces independently replayed",
+    "13 exact negatives, portable evidence and normal/optimized Python agree"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapTransactionProcessTest.java": "79727c136b7b87e405efd37dcb030e6a5a9c056bf2f39f89cdf93277e2d449c9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapTransactionWorker.java": "dfafd4f8a799ef3632fcb4adc99704b653255fee89a80c97f21c7f980cb6b117",
+    "scripts/v53/bootstrap_transaction_process_evidence.py": "4d125f68392c8b8b1156f9ea5ff4d2e94ee7bff26eb1969b4883ceba756a74f2"
+  },
+  "status": "PASS",
+  "unchangedProduction": "f748d54"
+}
