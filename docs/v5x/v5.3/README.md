@@ -84,7 +84,9 @@ retaining original decisions, first/current proofs and exact covered-cleanup rec
 [Same-round process qualification](PHASE_2_ROUND_PROCESS.md) now covers actual
 phased votes, application/ancestor ACKs, selector switching and covered cleanup
 across 22 repeated-crash cases. Public runtime and complete cross-view/maximal
-lifetime qualification remain pending.
+lifetime qualification remain pending. [Carried first-entry publication](PHASE_2_CARRIED_PUBLICATION.md)
+now preserves the earlier vote's original round through new-ballot installation,
+reacceptance, bounded maintenance and same-round continuation.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
 storage work and the final requirement-by-requirement audit.

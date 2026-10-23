@@ -224,7 +224,13 @@ final class MembershipGrantJournal implements AutoCloseable {
                 require(!journal.replayFiles.present() && !journal.appliedEnd.present() || journal.pendingAccept.active()!=null
                         && journal.pendingAccept.active().certificate()!=null,"application files without original local certificate");
                 if(journal.coveredVote(journal.pendingAccept.active()))require(!journal.replayFiles.present(),"published generation cannot retain replay scratch");
-                else if(journal.pendingAccept.active()!=null || journal.pendingAccept.pending())journal.reserveApplicationCompletion();
+                else if(journal.pendingAccept.active()!=null || journal.pendingAccept.pending()) {
+                    // A durable floor/retirement may own the three empty application slots.
+                    // Resume maintenance before admitting another vote or application.
+                    if(journal.floors.exists() && !journal.appliedEnd.present() && !journal.replayFiles.present()) {
+                        journal.reservePublicationImage();
+                    }else journal.reserveApplicationCompletion();
+                }
             }
             journal.checkOwner();
             if(withVotes)journal.recoverVote();
@@ -248,7 +254,14 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata;}
     private void reserveApplicationCompletion() {
-        if(appliedEnd!=null){appliedEnd.reserveCompletion();replayFiles.reserveCompletion();reservePublicationImage();}
+        if(appliedEnd==null)return;
+        boolean end=appliedEnd.completionReserved(),replay=replayFiles.completionReserved();
+        try{appliedEnd.reserveCompletion();replayFiles.reserveCompletion();reservePublicationImage();}
+        catch(RuntimeException|Error error) {
+            // Failed admission must not consume the slots needed to finish maintenance.
+            try{if(!replay)replayFiles.releaseCompletion();if(!end)appliedEnd.releaseEmptyCompletion();}
+            catch(IOException|RuntimeException|Error cleanup){failed=true;error.addSuppressed(cleanup);}throw error;
+        }
     }
     private void reservePublicationImage() {
         if(publicationImage==null && !inactive.reservePublicationImage())
@@ -260,8 +273,24 @@ final class MembershipGrantJournal implements AutoCloseable {
     private boolean coveredVote(MembershipPendingAccept.Vote vote)throws IOException {
         return vote!=null && vote.certificate()!=null && current.publishedCertificate().filter(vote.certificate().digest()::equals).isPresent();
     }
+    private boolean voteReferencesInactive(MembershipPendingAccept.Vote vote)throws IOException {
+        return vote!=null && !coveredVote(vote) && !Arrays.equals(vote.selector().bytes(),current.selector.bytes());
+    }
     private void verifyVote(MembershipPendingAccept.Vote vote)throws IOException {
         if(applicationMetadata>0 && coveredVote(vote))verifyCoveredVote(vote);
+        else if(voteReferencesInactive(vote)) {
+            // A new selected generation has the same parent but a different round.
+            // The old vote still needs its own retained selector and round coverage.
+            var originals=inactive.originalFiles();var old=originalGeneration(originals);var selector=vote.selector().value();
+            require(current.capsule.terminal().equals(old.capsule.terminal()) && selector.get("generation").equals(inactive.slot())
+                    && selector.get("digest").equals(old.generation.digest()) && selector.get("root").equals(root.manifestDigest())
+                    && selector.get("node").equals(identity.nodeId().value()),"carried vote original selector/parent changed");
+            var installedPromise=promises.values().stream().filter(p->p.digest().equals(current.manifest.value().get("promise"))).findFirst().orElseThrow();
+            require(Arrays.equals(originals.get("promise.gsr"),vote.promise().bytes()) && Arrays.equals(originals.get("selected.gsr"),vote.selected().bytes())
+                    && current.manifest.value().get("selection")!=null && compareBallot(object(installedPromise.value().get("ballot")),object(vote.promise().value().get("ballot")))>0,
+                    "carried vote original decision changed");
+            MembershipPendingAccept.verify(vote,old.capsule,originals.get(MembershipSelectionCoverage.FILE),originals.getOrDefault("ancestry.gsr",new byte[0]),identity,promises.values(),selections.values());
+        }
         else MembershipPendingAccept.verify(vote,current,identity,promises.values(),selections.values());
     }
     private void verifyCoveredVote(MembershipPendingAccept.Vote vote)throws IOException {
@@ -581,7 +610,15 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");var own=floorCopyCurrent();
         // Validate and reserve before any persistent change; an interrupted transaction
         // may only resume with the same original full copies.
-        try{return floors.establish(own,offered,this::checkWithoutFloor,cut);}
+        try{
+            // Empty replay scratch is disposable capacity. A floor needs real copies
+            // before it may retire the old generation; it must not count those copies
+            // on top of unused replay/end buffers. Existing application files pin them.
+            if(replayFiles!=null && pendingAccept.active()!=null) {
+                replayFiles.releaseCompletion();appliedEnd.releaseEmptyCompletion();
+            }
+            return floors.establish(own,offered,this::checkWithoutFloor,cut);
+        }
         catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     private MembershipFloor.Copy originalGeneration(Map<String,byte[]> files) throws IOException {
@@ -613,6 +650,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Returns no record for an already-empty slot; never drops root promises or original BASIS sources. */
     synchronized Optional<Decoded> retireInactive() throws IOException {
         require(retirement!=null && floors!=null && inactive!=null,"retirement storage owner required");checkOwner();rotationIdle();
+        require(pendingAccept==null || !voteReferencesInactive(pendingAccept.active()),"original pending vote pins inactive generation until reacceptance");
         require(!floors.pending() && !inactive.pending(),"pending floor/selector must finish before retirement");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
         try {
@@ -649,7 +687,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(!inactive.exists() && !inactive.pending() && !retirement.pending() && !rotation.pending(),"pending generation/retirement/rotation before floor release");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
         try {
-            if(!floors.exists())return;floors.release(current,this::checkOwner,cut);cut.at("FLOOR_RELEASE_BEFORE_RETURN");checkOwner();
+            if(!floors.exists())return;floors.release(current,this::checkOwner,cut);
+            if(appliedEnd!=null && pendingAccept.active()!=null)reserveApplicationCompletion();
+            cut.at("FLOOR_RELEASE_BEFORE_RETURN");checkOwner();
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     /** Read-only decision for a completed original source; does not publish deletion authority. */
@@ -974,9 +1014,18 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(installed) {
             require(Arrays.equals(current.manifest.bytes(),plan.manifest.bytes()) && !inactive.pending(),"installed generation differs from original plan");checkOwner();fence(ballot);return current.manifest;
         }
+        inactive.checkPlan(plan);
         try {
+            // A carried vote already reserves the future generation image. Use that
+            // slot for installation, as publication does, instead of counting it twice.
+            // Any failure poisons this owner; reopen reconstructs all physical leases.
+            releasePublicationImage();
             inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(ballot);},current::check,cut);
-            reloadGenerations();cut.at("INSTALL_BEFORE_RETURN");checkOwner();fence(ballot);return current.manifest;
+            reloadGenerations();
+            // The former active generation now occupies the future publication slot.
+            // Keep its maximum completion reservation until authorized retirement.
+            if(appliedEnd!=null && pendingAccept.active()!=null)reservePublicationImage();
+            cut.at("INSTALL_BEFORE_RETURN");checkOwner();fence(ballot);return current.manifest;
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     private Decoded prepareBound(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images) throws IOException {

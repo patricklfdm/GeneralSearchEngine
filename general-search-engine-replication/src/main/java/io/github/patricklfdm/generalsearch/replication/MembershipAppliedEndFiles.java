@@ -66,6 +66,11 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
         if(imageLease==null)imageLease=resources.reserve(MembershipResources.Unit.APPLICATION,"applied-end",MembershipResources.Unit.APPLICATION.bytes);
     }
     void reserveCompletion(){require(!closed,"applied-end closed");reserve();}
+    boolean completionReserved(){return imageLease!=null;}
+    void releaseEmptyCompletion()throws IOException {
+        check();require(!present(),"applied-end files still present");
+        if(imageLease!=null){imageLease.close();imageLease=null;}
+    }
     boolean present(){return exists;}
     void check()throws IOException {
         require(!closed,"applied-end closed");AdmissionPaths.recheck(binding);

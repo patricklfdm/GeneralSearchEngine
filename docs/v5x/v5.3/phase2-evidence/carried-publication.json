@@ -1,0 +1,171 @@
+{
+  "base": "307c4364875ee2162b77ecdae0a6a277e4cca56e",
+  "developmentFailures": {
+    "development.log": "new selected installation double-counted reserved image",
+    "maintenance-transfer.log": "two freed scratch slots left no room for retirement backup",
+    "qualified.log": "all existing seven regression classes pass; new maintenance driver initially attempted floor establishment while retirement was pending; final focused gate resumes the saved transaction instead",
+    "retained-original.log": "unused application buffers exhausted floor-copy admission",
+    "transfer.log": "new generation lost access to original pending round coverage"
+  },
+  "existingPhysicalReplays": {
+    "lifetime-regression-replay": {
+      "freshBallotSuccessors": 12,
+      "fullCrashQualification": false,
+      "negatives": [
+        "missing-round",
+        "retained-obsolete-source",
+        "missing-original-basis",
+        "altered-generation",
+        "early-cleared-history",
+        "false-scope"
+      ],
+      "nodeSnapshots": 39,
+      "portableReplay": "PASS",
+      "reservationPeaks": "producer-observed-not-independently-reconstructed",
+      "rounds": 13,
+      "settledImagesPerNode": 2,
+      "settledSourcesPerNode": 1,
+      "status": "PASS"
+    },
+    "round-regression-replay": {
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "missing-original-slot",
+        "missing-original-proof",
+        "missing-first-certificate",
+        "changed-first-coverage",
+        "changed-next-coverage",
+        "changed-ancestor-end",
+        "changed-original-source",
+        "missing-peer-end",
+        "retained-old-generation",
+        "retained-covered-vote",
+        "false-ready"
+      ],
+      "nodePublications": 39,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "processForceOrder": false,
+      "sameBallot": true,
+      "slots": 13,
+      "status": "PASS"
+    }
+  },
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "dc9d12eaf453074d926af568e5c12b0e7279576b2335e7c548c935172d88bd02",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": {
+    "finalFocusedMethods": 6,
+    "precursorExistingClasses": {
+      "V53FloorFilesTest": 9,
+      "V53PendingAcceptTest": 13,
+      "V53PublicationLifetimeTest": 4,
+      "V53ResourceTransferTest": 7,
+      "V53RetirementTest": 11,
+      "V53RoundStorageTest": 3,
+      "V53SelectedSourcesTest": 12
+    }
+  },
+  "limitations": [
+    "conditional historical bootstrap",
+    "same-JVM injected I/O failures do not establish process-death or power-loss recovery",
+    "small fixtures do not establish maximal image/metadata lifetime",
+    "no public runtime, distributed activation, protected CI or cloud acceptance"
+  ],
+  "logs": {
+    "development.log": "0625e5b4631aca08e7a3894b7d09a6a6f96abce9789d0d2ff06525719fc985b1",
+    "final-focused.log": "351c005520c7c731d1b1ce2c8b967564b75df586f3c03a54eb24791492f42a54",
+    "lifetime-regression-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "maintenance-transfer.log": "8a5a52e7640e9b32115cb44fa15bbf3c5a31e58d7b66bd67f37734ccb0fa1236",
+    "oracle-development.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "qualified.log": "c2bf5159154974a8b2103af8dd5ea080aa3217a78739626d802dbed3a5b32bb5",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained-original.log": "d8448c159b74b8a8923b3ee69e30dae6aeca8237aa4f17b8a2941e2027cf0d81",
+    "round-regression-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "three-slot-transfer.log": "7ed29bf3cbc6a3260ec21bbcd9d504f30d686c4ab77e5f272ffe7cc817e5125e",
+    "transfer.log": "447d900369a059cfcf34b047b55640e95604e7a3ce2502d2b3ffb093bfb9c04f"
+  },
+  "newMethods": 4,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "protectedCI": false,
+  "qualificationProvenance": "qualified.log precedes the broader rollback-cleanup catch, fourth negative method and corrected maintenance driver; its seven existing classes pass but the new driver fails; final-focused.log recompiles final source and reruns all carried tests and staged-reference guards",
+  "raw": {
+    "files": 2662,
+    "indexSha256": "67a7620e05316f4be899b0ea3d0517cdde6a71d4c3d8a494ad0ac4144949ef62",
+    "path": "general-search-engine-replication/target/v53-carried-publication/run-14d875e0-6b8e-4ea9-900e-857fa48b23a0"
+  },
+  "replays": {
+    "replay": {
+      "cases": 3,
+      "freshProcesses": false,
+      "negatives": [
+        "lost-original-vote",
+        "changed-original-payload",
+        "invented-source",
+        "different-selected-entry",
+        "lost-old-generation",
+        "rewritten-origin",
+        "lost-applied-ack",
+        "changed-first-proof",
+        "early-clear",
+        "resurrected-tail"
+      ],
+      "newBallot": 21,
+      "nodePublications": 18,
+      "oldBallot": 20,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "runtimeEnabled": false,
+      "status": "PASS"
+    },
+    "replay-optimized": {
+      "cases": 3,
+      "freshProcesses": false,
+      "negatives": [
+        "lost-original-vote",
+        "changed-original-payload",
+        "invented-source",
+        "different-selected-entry",
+        "lost-old-generation",
+        "rewritten-origin",
+        "lost-applied-ack",
+        "changed-first-proof",
+        "early-clear",
+        "resurrected-tail"
+      ],
+      "newBallot": 21,
+      "nodePublications": 18,
+      "oldBallot": 20,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "runtimeEnabled": false,
+      "status": "PASS"
+    }
+  },
+  "retainedLocal": "target/v53-carried-publication",
+  "schema": "gse-v53-carried-publication-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": "01360ccfc0e8a911e71a0671a190c76cb61aed2757c3036ea9e225d4f2cf5dd8",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "f3b5c2cd8fbde7cdac1d175150e857aff83f4c4c750a9b204db7c7a5423978c4",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReplayFiles.java": "742c36f7a13f42b1dec3f324cf068e737d7134b8d97b47838fe6d1488b94cd3a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CarriedPublicationTest.java": "d012f2561e3362c78547883a3a6c312d4dafe29b31692b4da488f3fb445e1ba0",
+    "scripts/v53/carried_publication_evidence.py": "e22cb82bd1c4105217c9b4695d42cc7c586b57c1de55ea7988fb74859f019bc5"
+  },
+  "sourceInventory": {
+    "path": "target/v53-carried-publication/qualified-source-files.json",
+    "sha256": "15c7c2e1307da6c26d0697e71e4f025d734daaa602a0e13aca53eb76e5353376"
+  },
+  "status": "PASS",
+  "validationScope": [
+    "actual minority/two-holder/all-holder old vote, new selected installation and same-round continuation",
+    "original-first independent physical replay, ten negatives, portable and optimized replay",
+    "four installation cuts with second reopen failure, five maintenance cuts and exact failed admission rollback",
+    "missing/changed retained original proof refused twice without repair or lease leak"
+  ]
+}

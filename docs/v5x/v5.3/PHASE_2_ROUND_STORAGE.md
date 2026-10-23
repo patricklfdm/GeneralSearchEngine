@@ -73,8 +73,10 @@ objects. No production capacity was raised to satisfy that assertion.
 - [Same-round process recovery](PHASE_2_ROUND_PROCESS.md) now adds 22 halt/SIGKILL
   cases through the third slot, repeated interruption and exact physical replay.
   Other cross-view and maximal lifetime histories remain open.
-- Actual carried-first-entry and membership-boundary/cross-view storage histories,
-  maximal payload/metadata headroom and combined source/floor lifecycle.
+- [Actual carried-first-entry publication](PHASE_2_CARRIED_PUBLICATION.md) now
+  connects earlier original votes to new-ballot installation, maintenance and
+  continuation. Its dedicated process-crash qualification, membership boundaries,
+  maximal payload/metadata headroom and cross-view lifetime remain open.
 - Complete bootstrap, torn PROMISE recovery and the rest of the
   [storage closure checklist](PHASE_2_CLOSURE_CHECKLIST.md).
 
