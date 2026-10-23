@@ -44,6 +44,10 @@ final class MembershipBootstrapCoordinator {
     static MembershipBootstrapResult readInitialResult(Path operation)throws IOException {
         return MembershipBootstrapTransaction.readAdmitted(retained(AdmissionPaths.safe(operation),false).summary());
     }
+    /** Immutable completed result only; current runtime authority stays with its own storage owner. */
+    static MembershipBootstrapResult readResult(Path operation)throws IOException {
+        return MembershipBootstrapResultReader.read(operation,e->{});
+    }
     private static MembershipBootstrapPlanData retained(Path operation,boolean candidate)throws IOException {
         AdmissionPaths.safe(operation);Path active=operation.resolve(MembershipBootstrapPlanFiles.FILE);
         Path path=Files.exists(active,LinkOption.NOFOLLOW_LINKS)?active:candidate?operation.resolve(MembershipBootstrapPlanFiles.NEXT):active;

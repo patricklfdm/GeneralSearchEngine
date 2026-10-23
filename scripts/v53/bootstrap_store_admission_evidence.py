@@ -16,14 +16,14 @@ from .ancestry_pruning_evidence import frames
 from .journal_context_evidence import read_snapshot
 
 
-def validate(root):
+def validate(root,*,with_result=False):
     root=Path(root);names={f'size-{n}-{s}' for n in (3,4,5) for s in ('empty','backup')}
     e.need(root.is_dir() and not root.is_symlink() and {v.name for v in root.iterdir()}==names|{'receipt.json'},'bootstrap store case inventory')
     rows=[];targets=0
     for size in (3,4,5):
         for source in ('EMPTY','VERIFIED_DURABLE_BACKUP'):
             name=f"size-{size}-{'empty' if source=='EMPTY' else 'backup'}";case=root/name
-            e.need(case.is_dir() and not case.is_symlink() and {v.name for v in case.iterdir()}=={'original-plan.gsbp','original-application.image','initial','final','calls.json'},'bootstrap store case members')
+            e.need(case.is_dir() and not case.is_symlink() and {v.name for v in case.iterdir()}=={'original-plan.gsbp','original-application.image','initial','final','calls.json'}|({'result.json'} if with_result else set()),'bootstrap store case members')
             raw=p.read(case/'original-plan.gsbp',2*e.MIB);image=p.read(case/'original-application.image',64*e.MIB);data=t.derived(raw,image,size=size,source=source)
             admission=a.envelope(data['receipt'],data['rows'][2],data['rows'][3]);targets+=size
             files={'operation/operation.lock':b'','operation/plan.gsbp':raw,'operation/application.image':image,'operation/'+t.JOURNAL:b''.join(data['rows']),'operation/'+t.RECEIPT:data['receipt']};dirs={'operation'}
@@ -56,24 +56,30 @@ def validate(root):
                 selected=[v for v in events if v in set(wanted_events)]
                 e.need(selected==wanted_events,'bootstrap store grant force order')
             e.need((final,final_dirs)==(files,dirs),'bootstrap store exact progressed authority')
+            if with_result:
+                record=e.f.decode(data['payloads'][0]['root.gsr'],'records','ROOT');wanted_result=dict(root=data['payloads'][0]['root.gsr'][16:48].hex(),history=record['historyId'],plan=e.digest(raw),receipt=e.digest(data['receipt']),sequence=record['baseSequence'],operation=p.decode(raw,image,size=size,source=source,details=True)['plan']['descriptor']['paths'][0]['path'])
+                e.need(e.f.canonical(e.parse(p.read(case/'result.json',65536)))==e.f.canonical(wanted_result),'bootstrap result exact original result')
             rows.append(dict(case=name,targets=size,status='PASS'))
-    wanted=dict(schema='gse-v53-bootstrap-store-admission-v1',status='PASS',cases=rows,typedCoordinator=False,publicRuntime=False)
+    wanted=dict(schema='gse-v53-bootstrap-result-reader-v1' if with_result else 'gse-v53-bootstrap-store-admission-v1',status='PASS',cases=rows,typedCoordinator=with_result,publicRuntime=False)
     e.need(e.f.canonical(e.parse(p.read(root/'receipt.json',65536)))==e.f.canonical(wanted),'bootstrap store receipt scope')
-    return dict(status='PASS',cases=6,initialVoters=targets,originalFirst=True,typedCoordinator=False,publicRuntime=False,independentTypedImageSemantics=False)
+    return dict(status='PASS',cases=6,initialVoters=targets,originalFirst=True,typedCoordinator=with_result,publicRuntime=False,independentTypedImageSemantics=False)
 
 
-def qualify(root):
-    root=Path(root);result=validate(root);negatives=[]
+def qualify(root,*,with_result=False):
+    root=Path(root);result=validate(root,with_result=with_result);negatives=[]
     variants={'missing-case':'bootstrap store case inventory','original-plan':'bootstrap original plan checksum','original-image':'bootstrap original image binding',
               'initial-admission':'bootstrap store original admitted authority','final-admission':'bootstrap store exact progressed authority',
               'counter-reset':'bootstrap store exact progressed authority','missing-source':'bootstrap store exact progressed authority','core-reset':'bootstrap store exact progressed authority',
               'lost-fence':'bootstrap store original fence retained','basis-context':'bootstrap store actual frozen basis','grant-context':'bootstrap store actual grant context',
               'force-order':'bootstrap store grant force order','leases':'bootstrap store original call/lease binding','scope':'bootstrap store receipt scope',
               'linked-seal':'owner context linked/nonregular member'}
+    if with_result:variants['result-counter']='bootstrap result exact original result';variants['result-receipt']='bootstrap result exact original result'
     for name,reason in variants.items():
         with tempfile.TemporaryDirectory(prefix='v53-store-admission-negative-') as temp:
             moved=Path(temp)/'raw';shutil.copytree(root,moved);case=moved/'size-3-backup';node=case/'final/target-0'
-            if name=='missing-case':shutil.rmtree(case)
+            if name in ('result-counter','result-receipt'):
+                path=case/'result.json';value=e.parse(path.read_bytes());value['sequence' if name=='result-counter' else 'receipt']=3 if name=='result-counter' else '0'*64;path.write_bytes(e.f.canonical(value))
+            elif name=='missing-case':shutil.rmtree(case)
             elif name=='original-plan':
                 path=case/'original-plan.gsbp';raw=path.read_bytes();path.write_bytes(raw[:-1]+bytes([raw[-1]^1]))
             elif name=='original-image':(case/'original-application.image').write_bytes(b'wrong')
@@ -100,12 +106,12 @@ def qualify(root):
                 path=node/t.SEAL;path.unlink();path.symlink_to((root/'size-3-backup/final/target-0'/t.SEAL).resolve())
             else:
                 path=moved/'receipt.json';value=e.parse(path.read_bytes());value['publicRuntime']=True;path.write_bytes(e.f.canonical(value))
-            try:validate(moved)
+            try:validate(moved,with_result=with_result)
             except ValueError as error:e.need(str(error)==reason,'bootstrap store unexpected negative: '+name+': '+str(error))
             else:raise ValueError('bootstrap store negative accepted: '+name)
             negatives.append(dict(case=name,reason=reason))
     with tempfile.TemporaryDirectory(prefix='v53-store-admission-portable-') as temp:
-        moved=Path(temp)/'raw';shutil.copytree(root,moved);e.need(validate(moved)==result,'bootstrap store portable mismatch')
+        moved=Path(temp)/'raw';shutil.copytree(root,moved);e.need(validate(moved,with_result=with_result)==result,'bootstrap store portable mismatch')
     return dict(result,negatives=negatives,portableReplay='PASS')
 
 

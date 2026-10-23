@@ -190,3 +190,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Admitted initial-voter store](PHASE_2_BOOTSTRAP_STORE_ADMISSION.md): exact immutable admission before allocator recovery, actual grant/reopen across all six size/source profiles, and unchanged original records.
 
 - [Typed admitted coordinator](PHASE_2_BOOTSTRAP_ADMITTED_COORDINATOR.md): real typed rechecks reserve compact admissions and retained projection together, then open all 24 initial voters.
+
+- [Immutable bootstrap result](PHASE_2_BOOTSTRAP_RESULT_READER.md): read original commit after real local progress while preserving live node locks; current runtime integrity remains a separate owner check.
