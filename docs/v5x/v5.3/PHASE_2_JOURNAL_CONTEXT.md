@@ -110,14 +110,44 @@ the original context and both exact floor copies before deriving the only delete
 generation; twelve exact-reason negatives and portable normal/optimized replay
 remain required. Typed application semantics and resource leases are Java checks.
 
-This is a first three-voter transition, using injected IOException. Four/five-voter
-context lifetime, fresh-process repeated recovery and a subsequent campaign are
-not established by it. The existing separate four/five-voter retirement tests
+This first batch uses injected IOException. Four/five-voter context lifetime and
+a subsequent campaign are not established by it. The separate process gate below
+adds fresh-JVM recovery for this same first three-voter transition. The existing
+separate four/five-voter retirement tests
 continue to test their own profiles. No limit, public factory or frozen format changes.
 
 ```bash
 python3 -m scripts.v53.context_retirement_evidence <v53ContextRetirementEvidence-directory>
 python3 -O -m scripts.v53.context_retirement_evidence <v53ContextRetirementEvidence-directory>
+```
+
+## Actual-owner process recovery
+
+The [process evidence index](phase2-evidence/context-retirement-process.json)
+records **54 cases / 162 fresh JVMs**: halt and external SIGKILL at all 25 retirement
+boundaries and two context reseal boundaries. Each case then halts a second new
+owner during source-directory reseal, before a third process finishes. The owner
+reconstructs the original certificate from its retained source/context and resumes
+exact floor-backed deletion after observing a higher ballot. It emits no old ACK.
+
+The Python oracle first validates the independent clean original, constructs the
+exact retirement inventory, and predicts each interrupted and final file set. It
+checks both interrupted snapshots, unchanged source/vote/context/floor authority,
+force-before-delete order, external kill markers, recovery traces and final bytes.
+All twelve exact-reason evidence mutations are rejected; relocated evidence and
+normal/optimized Python agree. The shared deletion predictor also tests both
+generation slots and rejects unknown/traversing slot names (ten Python tests).
+
+The focused Java gate passes five test methods, including the earlier injected
+recovery checks. Production code is unchanged from the first-retirement batch.
+These are local process deaths, not power loss, distributed ownership verification
+or repeated later-campaign progress. Historical bootstrap and remote observations
+remain conditional fixture inputs; resource leases and typed image semantics are
+checked in Java, not independently established by the Python file oracle.
+
+```bash
+python3 -m scripts.v53.context_retirement_process_evidence <v53ContextRetirementProcessEvidence-directory>
+python3 -O -m scripts.v53.context_retirement_process_evidence <v53ContextRetirementProcessEvidence-directory>
 ```
 
 ## Next complete transition

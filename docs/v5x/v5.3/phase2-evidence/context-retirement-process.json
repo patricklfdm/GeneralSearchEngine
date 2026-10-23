@@ -1,0 +1,118 @@
+{
+  "base": "6717910acd47aaf923e5260568ff1e187654dd28",
+  "compiledInventory": {
+    "path": "target/v53-context-retirement-process/development-inputs.json",
+    "sha256": "a691b63dde6df05add7352dd8a961c6ef1cb251563bcf7020bc78323a3a8ec5d"
+  },
+  "freshProcesses": 162,
+  "jars": {
+    "target/v53-context-retirement-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-retirement-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a9191043737e2b88762c9fe4db8d79ff726b07d31714af0d2c90cde83334b917"
+  },
+  "javaMethods": 5,
+  "limitations": [
+    "first three-voter transition only; later campaigns and complete transferred lifetime remain pending",
+    "historical bootstrap and remote observations remain conditional fixture inputs",
+    "local process death, not power loss; independent Python replay does not prove Java image semantics or resource leases",
+    "no production change, protected CI or paid cloud; Phase 2 open"
+  ],
+  "logs": {
+    "development.log": "5161e2a8296f2f70ddebea1a14db1e1250a38fb6d8398d2c2425d0483298c16b",
+    "python-tests-optimized.log": "69d3092e799b33eb7dca64bf94a3536ab4fa9fc5969f0629675edb863629b707",
+    "python-tests.log": "8c4b1532288f3c2237a75b4778a19116380135ed2658033225c3d1a1a8446867",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "processCases": 54,
+  "producerClasses": {
+    "path": "target/v53-context-retirement-process/producer-classes.json",
+    "sha256": "cd49b5c8e56896cd96534db0cdc28d345f57e0573b84c7c0943319632250005d"
+  },
+  "pythonModelTests": 10,
+  "raw": {
+    "indexSha256": "25edb125b7a2cfdd1278ceee16d0e76094c08e95f20fbcc9722ffac2f8489bcd",
+    "members": 9979,
+    "path": "general-search-engine-replication/target/v53-context-retirement-process/run-afe44524-920c-4f0a-b906-8ce5ddb44713"
+  },
+  "replay": {
+    "cases": 54,
+    "freshProcesses": 162,
+    "imageSemanticClaim": false,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "context process case inventory"
+      },
+      {
+        "case": "changed-crash",
+        "reason": "context process exact interrupted physical state"
+      },
+      {
+        "case": "changed-second-crash",
+        "reason": "context process second interruption changed bytes"
+      },
+      {
+        "case": "changed-final",
+        "reason": "context process exact final physical state"
+      },
+      {
+        "case": "wrong-marker",
+        "reason": "context process initial death boundary"
+      },
+      {
+        "case": "force-order",
+        "reason": "context process force-before-delete trace"
+      },
+      {
+        "case": "old-ack",
+        "reason": "context process returned old acknowledgement"
+      },
+      {
+        "case": "wrong-recovery",
+        "reason": "context process second death boundary"
+      },
+      {
+        "case": "false-process",
+        "reason": "context process receipt scope/inputs"
+      },
+      {
+        "case": "changed-inputs",
+        "reason": "context process receipt scope/inputs"
+      },
+      {
+        "case": "linked-crash",
+        "reason": "owner context linked/nonregular member"
+      },
+      {
+        "case": "bad-reference",
+        "reason": "context retirement exact deletion/protected originals"
+      }
+    ],
+    "nextCampaign": false,
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "remoteOwnershipVerified": false,
+    "scope": "actual-local-context-owner",
+    "status": "PASS"
+  },
+  "schema": "gse-v53-context-retirement-process-local-v1",
+  "scope": [
+    "actual contextual journal owner on three-voter original generation retirement",
+    "halt and external SIGKILL at 25 retirement and two context reseal boundaries",
+    "second fresh process halted during context recovery before a third completes",
+    "independent clean-original-first predicted physical states and retirement traces",
+    "higher volatile observation without old acknowledgement; exact source/vote/context/floor protected"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextRetirementProcess.java": "40c47b8de4af9ffc90d99ea722d7c59601ddcbecb2164f1f645ee709707d7b06",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextRetirementTest.java": "6765a0c9921511c2ac3a07506b8a910df48cbe5b67c4a8c4d1fca9e77c6d3d3e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextRetirementWorker.java": "ad0bc100173aeca9bf7058af5875aef3730b3ac0ce11dfddea48aa01e2f87311",
+    "scripts/v53/context_retirement_process_evidence.py": "edd8aeb6fae005f9facab8e0c9559d7e54d1053926f31a96ede5a9eb7c2543bf",
+    "scripts/v53/retirement_evidence.py": "6ca95a5a76e7651420b2d47eda55af5654a3c035320da08a8ad385205e442c28",
+    "scripts/v53/test_retirement_evidence.py": "a8074b81a15069f5b42ba85aa92e930cb8d639de8dbc868b938c950bbaa36137"
+  },
+  "status": "PASS"
+}

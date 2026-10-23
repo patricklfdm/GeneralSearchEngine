@@ -50,6 +50,22 @@ class RetirementEvidenceTest(unittest.TestCase):
         self.assertEqual(2,sum(name=='RETIREMENT_FILE_DELETED' for name,_ in resumed))
         self.assertEqual(resumed,e.transaction(resumed[0][1],original,record)[0])
 
+    def test_opposite_slot_recovery_preserves_the_current_generation(self):
+        initial,original,record=self.fixture()
+        initial={name.replace('generations/a','generations/b'):value for name,value in initial.items()}
+        active={'generations/a':dict(directory=True),'generations/a/source.gscp':e.entry(b'active')}
+        initial.update(active);steps,_=e.transaction(initial,original,record,slot='b');final=steps[-1][1]
+        for _,state in steps:
+            resumed,_=e.transaction(state,original,record,slot='b')
+            self.assertEqual(final,resumed[-1][1] if resumed else state)
+            self.assertEqual(active,{name:value for name,value in state.items() if name.startswith('generations/a')})
+        self.assertFalse(any(name.startswith('generations/b') for name in final))
+
+    def test_transaction_rejects_unbounded_or_traversing_slot_names(self):
+        initial,original,record=self.fixture()
+        for slot in ('../a','a/source.gscp','c',''):
+            with self.assertRaisesRegex(ValueError,'retirement transaction slot'):e.transaction(initial,original,record,slot=slot)
+
     def test_missing_occurrence_cannot_silently_select_another_cut(self):
         with self.assertRaisesRegex(ValueError,'absent crash cut'):e.cut_position([('EVENT',{})],'EVENT@2')
 

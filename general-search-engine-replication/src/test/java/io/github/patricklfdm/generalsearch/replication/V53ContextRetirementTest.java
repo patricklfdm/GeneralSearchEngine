@@ -54,7 +54,8 @@ class V53ContextRetirementTest {
         assertTrue(owner.governingFloor().isPresent());assertTrue(owner.retireContextOriginal().isEmpty());
         assertEquals(seed.phased().certificate().digest(),owner.currentCertificate().orElseThrow().digest());
     }
-    @Test void exactContextReopensAfterItsOriginalGenerationRetiresWithoutLosingAnyPhase()throws Exception {
+    @Test void exactContextReopensAfterItsOriginalGenerationRetiresWithoutLosingAnyPhase()throws Exception {completeScenario();}
+    Path completeScenario()throws Exception {
         Path evidence=Path.of("target/v53-context-retirement").resolve("run-"+UUID.randomUUID());Files.createDirectories(evidence);
         Path node=copy("complete");var before=protectedFiles(node);var resources=resources();var events=new ArrayList<String>();int[] peak={0};
         V53JournalApplicationTest.copy(node,evidence.resolve("initial"));
@@ -74,7 +75,10 @@ class V53ContextRetirementTest {
         V53JournalApplicationTest.copy(node,evidence.resolve("reopened"));Files.write(evidence.resolve("events.json"),canonical(events,65536));
         Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-context-retirement-v1","status","PASS","oldSlot",oldSlot,
                 "peakImages",peak[0],"freshProcesses",false,"nextCampaign",false,"runtimeEnabled",false),16384));
-        System.out.println("v53ContextRetirementEvidence="+evidence.toAbsolutePath());
+        System.out.println("v53ContextRetirementEvidence="+evidence.toAbsolutePath());return evidence;
+    }
+    @Test void freshProcessesRetireAfterHaltOrSigkillAndASecondDeathDuringContextRecovery()throws Exception {
+        V53ContextRetirementProcess.qualify(completeScenario(),seed.fixture().f.observations);
     }
     @Test void everyRetirementBoundaryResumesAfterASecondInterruptedContextReseal()throws Exception {
         Path floor=copy("floor-seed");var resources=resources();try(var owner=open(floor,1,resources,e->{})){establish(owner);}
