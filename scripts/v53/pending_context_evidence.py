@@ -208,7 +208,7 @@ def original_generation(files, selector_raw, packet, root_record, registry):
     return members, selected
 
 
-def validate(root):
+def validate(root, *, backing_ballot=21):
     files = physical(root); segments, metadata, binding = decode(files['context.gspc'])
     need(encode(segments, metadata) == files['context.gspc'], 'context exact canonical re-encoding')
     root_record = f.decode(files['root.gsr'], 'records', 'ROOT'); root_hash = files['root.gsr'][16:48].hex()
@@ -236,7 +236,7 @@ def validate(root):
          'context old/backing exact parent anchor')
     promise = f.decode(promise_raw, 'records', 'PROMISE'); basis = f.decode(basis_raw, 'records', 'BASIS')
     need(all(promise[key] == basis[key] for key in ('root', 'view', 'ballot', 'basisId')) and basis['voter'] == binding['node']
-         and promise['ballot']['counter'] == 21 and promise['ballot']['proposer'] == 'node-3'
+         and promise['ballot']['counter'] == backing_ballot and promise['ballot']['proposer'] == 'node-3'
          and registry['node-3']['storage'] == promise['ballot']['incarnation'], 'context higher local source ballot/grant')
     frames, values = votes(files['pending.accept'], old['capsule']['cut'])
     need(info(files['pending.accept']) == binding['vote'] and frames['SELECTOR'] == selector_raw and frames['PROMISE'] == members['promise.gsr']
@@ -257,11 +257,11 @@ def validate(root):
     expected = dict(schema='gse-v53-pending-context-codec-v1', status='PASS', execution='pure-context-codec-reconstruction', contextForced=False,
                     retirementAuthorized=False, freshProcesses=False, runtimeEnabled=False, imageSemanticClaim=False, historicalBootstrap='conditional-fixture',
                     contextSha256=digest(files['context.gspc']), contextBytes=len(files['context.gspc']), entry=binding['entry'], oldVoteSha256=digest(reconstructed_vote),
-                    backingPacketSha256=digest(backing_raw), origin=20, backingBallot=21)
+                    backingPacketSha256=digest(backing_raw), origin=20, backingBallot=backing_ballot)
     need(receipt == expected and all(type(receipt[key]) is type(value) for key, value in expected.items()), 'context receipt exact scope/physical bindings')
     return dict(status='PASS', execution='pure-context-codec-reconstruction', originalFirst=True, contextBytes=len(files['context.gspc']), maximumContextBytes=MAXIMUM,
                 originalMetadataMembers=len(metadata), borrowedObjects=len(old['objects']), borrowedImages=len(old['images']), originalVotePhase='CERTIFICATE',
-                selectedCut=0, originalParentCut=1, pendingIndex=2, origin=20, backingBallot=21, physicalBytes=True, contextForced=False,
+                selectedCut=0, originalParentCut=1, pendingIndex=2, origin=20, backingBallot=backing_ballot, physicalBytes=True, contextForced=False,
                 retirementAuthorized=False, remoteOwnershipVerified=False, imageSemanticClaim=False, freshProcesses=False, runtimeEnabled=False,
                 maximumPayloadIndependentlyReplayed=False, historicalBootstrap='conditional-fixture')
 

@@ -10,7 +10,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** Pure private original-context codec. No force, retirement, vote or ownership observation.
  * Owner integration must separately authorize persistence, pin backing bytes and account capacity.
- * An exact backing source is required; this codec does not promise arbitrary source turnover. */
+ * An exact backing source is required; rebind validates both originals, never arbitrary turnover. */
 final class MembershipPendingContext {
     static final int MAGIC=0x47535043, BINDING_MAXIMUM=8192, NAME_MAXIMUM=32;
     private static final String SCHEMA="gse-v53-pending-context/1.3";
@@ -86,6 +86,27 @@ final class MembershipPendingContext {
         var originals=restored.originalFiles();require(originals.keySet().equals(originalFiles.keySet()),"pending context original inventory changed");
         for(var item:originals.entrySet())require(Arrays.equals(item.getValue(),originalFiles.get(item.getKey())),"pending context original member changed");
         return context;
+    }
+
+    /** Move the same original context to a strictly newer, separately authenticated backing source.
+     * Does not persist the result or unpin either source. The owner must force the new source and
+     * context before considering retirement; a new acceptance is not a context rebind. */
+    static Context rebind(Context prior,MembershipRoot root,MembershipIdentity owner,Decoded oldPromise,
+            MembershipSelection.Source oldSource,Map<String,byte[]> oldImages,Decoded nextPromise,
+            MembershipSelection.Source nextSource,Map<String,byte[]> nextImages,MembershipCurrentGeneration.Verifier verifier) {
+        var original=reconstruct(prior,root,owner,oldPromise,oldSource,oldImages,verifier);
+        require(compareBallot(object(nextPromise.value().get("ballot")),object(oldPromise.value().get("ballot")))>0,
+                "pending context rebind requires newer backing ballot");
+        var next=create(root,owner,original.selector(),original.originalFiles(),original.vote(),nextPromise,nextSource,nextImages,verifier);
+        // Only the exact backing identity and its original grant may change.
+        var before=new TreeMap<>(object(parse(prior.binding,BINDING_MAXIMUM)));
+        var after=new TreeMap<>(object(parse(next.binding,BINDING_MAXIMUM)));
+        before.remove("backingPacket");after.remove("backingPacket");
+        require(before.equals(after) && Arrays.equals(prior.selector,next.selector) && Arrays.equals(prior.envelope,next.envelope)
+                && prior.metadata.keySet().equals(next.metadata.keySet()),"pending context rebind changed original authority");
+        for(String name:prior.metadata.keySet())require(Arrays.equals(prior.metadata.get(name),next.metadata.get(name)),
+                "pending context rebind changed original metadata");
+        return next;
     }
 
     static byte[] encode(Context context) {

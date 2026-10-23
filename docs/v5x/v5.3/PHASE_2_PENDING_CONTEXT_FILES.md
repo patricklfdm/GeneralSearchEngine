@@ -77,3 +77,7 @@ historical authority view, pin/rebind exact backing sources, account the complet
 shared budget, and retain live higher observations. Qualify three-, four-, five-
 and joint-voter maintenance plus repeated higher campaigns before claiming the
 original progress deadlock repaired. This file component alone permits no deletion.
+
+The subsequent [pure capture/rebind qualification](PHASE_2_PENDING_TRANSFER.md)
+preserves one original context across six new backing sources and admits their
+exact protected inventories. Live owner use and retirement ordering remain pending.

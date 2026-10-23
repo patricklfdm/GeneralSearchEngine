@@ -20,6 +20,7 @@ class V53PendingContextTest {
     static Material material;
     static final List<MembershipPendingAccept.Vote> originalPhases=new ArrayList<>();
     static Path maximumFrameOwner;
+    static MembershipCapsule installed;
     record Material(MembershipRoot root,MembershipIdentity owner,Decoded selector,
             Map<String,byte[]> originals,MembershipPendingAccept.Vote vote,
             Decoded backingPromise,MembershipSelection.Source backing,
@@ -67,9 +68,10 @@ class V53PendingContextTest {
         for(int n:V53StagedApplicationTest.NODES)try(var store=f.f.open(n)) {
             store.selectCurrent(sources,List.of());store.installCurrent(sources,List.of(),images);
             var installedSelector=decode(Files.readAllBytes(f.f.node(n).resolve("selector.gsr")),"records","SELECTOR");
-            var installed=MembershipSourcePacket.decode(Files.readAllBytes(f.f.node(n).resolve("generations")
+            var packet=MembershipSourcePacket.decode(Files.readAllBytes(f.f.node(n).resolve("generations")
                     .resolve((String)installedSelector.value().get("generation")).resolve("source.gscp")));
-            assertFalse(installed.objectNames().contains(vote.certificate().digest()));
+            assertFalse(packet.objectNames().contains(vote.certificate().digest()));
+            if(n==1)installed=MembershipCapsule.verify(decode(Files.readAllBytes(f.f.node(n).resolve("root.gsr")),"records","ROOT"),packet,images,f.f.observations);
         }
         assertTrue(sources.getFirst().capsule.packet.objectNames().contains(vote.certificate().digest()));
         assertEquals(0,f.f.resources.usage().leases());
@@ -276,6 +278,156 @@ class V53PendingContextTest {
         var unknown=new ArrayList<>(parts.members());unknown.set(0,new Member("not-listed.gsr",new byte[]{1}));
         reject(frame(new Parts(parts.segments(),unknown)),"unlisted metadata");
         exact(reconstruct(MembershipPendingContext.decode(valid)));
+    }
+
+    record Backing(Decoded promise,MembershipSelection.Source source,Map<String,byte[]> images) {}
+    /** Conditional authority inputs for the pure transfer: these observations are NOT actual new
+     * source forces. Actual old phases/selected generations were produced above. */
+    static Backing backing(MembershipCapsule capsule,Map<String,byte[]> images,long counter,String accepted) {
+        var m=material;var fields=new TreeMap<>(m.backingPromise().value());var ballot=new TreeMap<>(object(fields.get("ballot")));
+        ballot.put("counter",counter);fields.put("ballot",ballot);fields.put("basisId",new UUID(270,counter).toString());
+        var promise=decode(encode("records","PROMISE",fields),"records","PROMISE");
+        fields.put("voter",m.owner().nodeId().value());fields.put("cut",capsule.context.cut);
+        fields.put("capsule",capsule.packet.capsule().digest());fields.put("inventory",capsule.packet.inventoryDigest());fields.put("accepted",accepted);
+        var basis=decode(encode("records","BASIS",fields),"records","BASIS");var owned=new HashSet<Owned>();
+        owned.add(new Owned(m.owner().nodeId().value(),m.owner().storageId(),basis.digest(),cutDigest(capsule.context.cut)));
+        if(accepted!=null)owned.add(new Owned(m.owner().nodeId().value(),m.owner().storageId(),accepted,cutDigest(capsule.context.cut)));
+        var source=MembershipSelection.Source.verify(capsule,basis,Map.of("voter",m.owner().nodeId().value(),
+                "basisId",fields.get("basisId"),"basisDigest",basis.digest()),m.owner(),owned);
+        return new Backing(promise,source,copy(images));
+    }
+    static MembershipPendingContext.Context rebind(MembershipPendingContext.Context prior,Backing old,Backing next) {
+        var m=material;return MembershipPendingContext.rebind(prior,m.root(),m.owner(),old.promise(),old.source(),old.images(),
+                next.promise(),next.source(),next.images(),m.verifier());
+    }
+    static Backing firstBacking(){return new Backing(material.backingPromise(),material.backing(),material.images());}
+    static MembershipCapsule withExtra(MembershipCapsule source,Map<String,byte[]> images,Map<String,byte[]> extras) {
+        var objects=new TreeMap<String,byte[]>();for(String key:source.packet.objectNames())objects.put(key,source.packet.objectBytes(key));objects.putAll(extras);
+        var lengths=new TreeMap<String,Long>();images.forEach((h,b)->lengths.put(h,(long)b.length));
+        var value=new TreeMap<>(source.packet.capsule().value());value.put("inventory",hash(MembershipSourcePacket.index(objects,lengths)));
+        var packet=MembershipSourcePacket.decode(MembershipSourcePacket.encode(decode(encode("records","CAPSULE",value),"records","CAPSULE"),objects,lengths));
+        return material.verifier().verify(decode(source.packet.objectBytes(source.context.recordRootDigest()),"records","ROOT"),packet,images);
+    }
+    static MembershipPendingTransfer.Capture capture(MembershipPendingContext.Reconstructed original,MembershipCapsule current,Map<String,byte[]> images) {
+        return MembershipPendingTransfer.capture(original,current,images,material.verifier());
+    }
+
+    @Test void protectedCapturePreservesOriginalAndCurrentBytesWithoutChangingTheCurrentAnchor()throws Exception {
+        var original=reconstruct(create());byte[] before=installed.packet.bytes();var images=copy(material.images());
+        assertFalse(installed.packet.objectNames().contains(original.vote().certificate().digest()));
+        var capture=capture(original,installed,images);var packet=capture.capsule().packet;
+        assertArrayEquals(before,installed.packet.bytes());sameFiles(material.images(),images);
+        var value=new TreeMap<>(packet.capsule().value());value.put("inventory",installed.packet.inventoryDigest());
+        assertEquals(installed.packet.capsule().value(),value);assertEquals(installed.terminal(),capture.capsule().terminal());
+        for(var source:List.of(installed.packet,original.capsule().packet))for(String key:source.objectNames())
+            assertArrayEquals(source.objectBytes(key),packet.objectBytes(key));
+        assertArrayEquals(original.vote().certificate().bytes(),packet.objectBytes(original.vote().certificate().digest()));
+        assertArrayEquals(original.capsule().packet.bytes(),MembershipSourcePacket.reconstruct(original.capsule().packet.envelope(),packet).bytes());
+        var next=backing(capture.capsule(),capture.images(),22,original.vote().accept().digest());var context=rebind(create(),firstBacking(),next);
+        exact(MembershipPendingContext.reconstruct(context,material.root(),material.owner(),next.promise(),next.source(),next.images(),material.verifier()));
+        images.values().forEach(b->Arrays.fill(b,(byte)0));capture.images().values().forEach(b->Arrays.fill(b,(byte)0));
+        packet.verifyImages(capture.images());
+    }
+
+    @Test void repeatedRebindingPreservesOneOriginalAndDoesNotAccumulateAbandonedBackingExtras()throws Exception {
+        Path evidence=Path.of("target/v53-pending-transfer").resolve("run-"+UUID.randomUUID());Files.createDirectories(evidence);
+        var context=create();var previous=firstBacking();var rows=new ArrayList<Map<String,Object>>();var extras=new HashSet<String>();
+        writeTransferRound(evidence,21,context,previous,null);int maximum=0;
+        for(long counter=22;counter<=27;counter++) {
+            var original=MembershipPendingContext.reconstruct(context,material.root(),material.owner(),previous.promise(),previous.source(),previous.images(),material.verifier());
+            byte[] marker=("current-capture-only-"+counter).getBytes(StandardCharsets.US_ASCII);String markerHash=hash(marker);
+            var current=withExtra(installed,material.images(),Map.of(markerHash,marker));
+            var capture=capture(original,current,material.images());var next=backing(capture.capsule(),capture.images(),counter,original.vote().accept().digest());
+            assertTrue(next.source().capsule.packet.objectNames().contains(markerHash));
+            for(String abandoned:extras)assertFalse(next.source().capsule.packet.objectNames().contains(abandoned),"accumulated abandoned backing");
+            context=rebind(context,previous,next);var restored=MembershipPendingContext.reconstruct(context,material.root(),material.owner(),next.promise(),next.source(),next.images(),material.verifier());exact(restored);
+            byte[] encoded=MembershipPendingContext.encode(context);maximum=Math.max(maximum,encoded.length);
+            var originalParts=parts(MembershipPendingContext.encode(create()));var actualParts=parts(encoded);
+            assertArrayEquals(originalParts.segments().get(1),actualParts.segments().get(1));assertArrayEquals(originalParts.segments().get(4),actualParts.segments().get(4));
+            for(int i=0;i<originalParts.members().size();i++)assertArrayEquals(originalParts.members().get(i).bytes(),actualParts.members().get(i).bytes());
+            writeTransferRound(evidence,counter,context,next,current);rows.add(Map.of("ballot",counter,"objects",next.source().capsule.packet.objectNames().size(),"contextBytes",encoded.length));
+            previous=next;extras.add(markerHash);
+        }
+        assertTrue(maximum<MembershipPendingContext.MAXIMUM);
+        Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-pending-transfer-v1","status","PASS",
+                "rounds",rows,"newSourceOwnership","conditional-fixture","contextForced",false,"retirementAuthorized",false,"runtimeEnabled",false),16384));
+        System.out.println("v53PendingTransferEvidence="+evidence.toAbsolutePath());
+    }
+    static void writeTransferRound(Path evidence,long counter,MembershipPendingContext.Context context,Backing source,MembershipCapsule current)throws Exception {
+        Path round=Files.createDirectory(evidence.resolve("round-"+counter));byte[] encoded=MembershipPendingContext.encode(context);writeEvidence(round,encoded);
+        Files.write(round.resolve("backing-promise.gsr"),source.promise().bytes());Files.write(round.resolve("backing-basis.gsr"),source.source().basis.bytes());
+        Files.write(round.resolve("backing-source.gscp"),source.source().capsule.packet.bytes());
+        for(var image:source.images().entrySet())Files.write(round.resolve("backing-images").resolve(image.getKey()+".image"),image.getValue());
+        var receipt=new TreeMap<String,Object>();receipt.put("schema","gse-v53-pending-context-codec-v1");receipt.put("status","PASS");
+        receipt.put("execution","pure-context-codec-reconstruction");receipt.put("contextForced",false);receipt.put("retirementAuthorized",false);
+        receipt.put("freshProcesses",false);receipt.put("runtimeEnabled",false);receipt.put("imageSemanticClaim",false);receipt.put("historicalBootstrap","conditional-fixture");
+        receipt.put("contextSha256",hash(encoded));receipt.put("contextBytes",encoded.length);receipt.put("entry",material.vote().entry().digest());
+        receipt.put("oldVoteSha256",hash(material.vote().bytes()));receipt.put("backingPacketSha256",hash(source.source().capsule.packet.bytes()));receipt.put("origin",20);receipt.put("backingBallot",counter);
+        Files.write(round.resolve("receipt.json"),canonical(receipt,16384));
+        if(current!=null)Files.write(evidence.resolve("current-"+counter+".gscp"),current.packet.bytes());
+    }
+
+    @Test void rebindRejectsMissingCertificateWrongAcceptanceSameOrOlderBallotAndWrongBacking()throws Exception {
+        var context=create();var original=reconstruct(context);var capture=capture(original,installed,material.images());var first=firstBacking();
+        for(long counter:List.of(20L,21L))assertThrows(IllegalArgumentException.class,
+                ()->rebind(context,first,backing(capture.capsule(),capture.images(),counter,original.vote().accept().digest())));
+        assertThrows(IllegalArgumentException.class,()->rebind(context,first,backing(installed,material.images(),22,original.vote().accept().digest())));
+        assertThrows(IllegalArgumentException.class,()->rebind(context,first,backing(capture.capsule(),capture.images(),22,null)));
+        var next=backing(capture.capsule(),capture.images(),22,original.vote().accept().digest());
+        assertThrows(IllegalArgumentException.class,()->rebind(context,next,next));
+        var wrong=copy(next.images());wrong.values().iterator().next()[0]^=1;
+        assertThrows(IllegalArgumentException.class,()->rebind(context,first,new Backing(next.promise(),next.source(),wrong)));
+        exact(reconstruct(context));
+    }
+
+    @Test void transferRejectsChangedParentImagesAndVerifierSubstitutionBeforeReturningCapture()throws Exception {
+        var original=reconstruct(create());var initial=new V53SourcePacketTest.Fixture();var different=MembershipCapsule.verify(initial.f.root,
+                MembershipSourcePacket.decode(initial.bytes()),initial.f.images,Set.of());
+        assertThrows(IllegalArgumentException.class,()->capture(original,different,initial.f.images));
+        assertThrows(IllegalArgumentException.class,()->capture(original,installed,Map.of()));
+        assertThrows(IllegalArgumentException.class,()->MembershipPendingTransfer.capture(original,installed,material.images(),(r,p,i)->installed));
+        assertThrows(IllegalArgumentException.class,()->MembershipPendingTransfer.capture(original,installed,material.images(),(r,p,i)->original.capsule()));
+        exact(reconstruct(create()));
+    }
+
+    @Test void transferAdmitsSevenImagesAndRejectsEighthWithoutDroppingOriginals()throws Exception {
+        var original=reconstruct(create());var oldImages=copy(material.images());assertEquals(1,oldImages.size());
+        // Use one original extra image in a fully hash-bound generation/context, so neither
+        // input alone exceeds seven. Rebuild its manifest/selector, not just its packet index.
+        byte[] originalExtra={31,41,59};var old=originalWithExtras(original,Map.of(),Map.of(hash(originalExtra),originalExtra));
+        var images=copy(material.images());for(int i=0;i<5;i++){byte[] image={(byte)(70+i)};images.put(hash(image),image);}
+        var current=withExtra(installed,images,Map.of());var admitted=capture(old,current,images);assertEquals(7,admitted.images().size());
+        byte[] last={99};images.put(hash(last),last);var full=withExtra(installed,images,Map.of());assertEquals(7,full.packet.images().size());
+        var error=assertThrows(IllegalArgumentException.class,()->capture(old,full,images));assertEquals("pending transfer image capacity",error.getMessage());
+        assertEquals(7,full.packet.images().size());assertEquals(2,old.capsule().packet.images().size());
+    }
+
+    static MembershipPendingContext.Reconstructed originalWithExtras(MembershipPendingContext.Reconstructed original,
+            Map<String,byte[]> objects,Map<String,byte[]> extraImages) {
+        var images=copy(material.images());images.putAll(extraImages);var capsule=withExtra(original.capsule(),images,objects);
+        var files=copy(original.originalFiles());files.put("source.gscp",capsule.packet.bytes());extraImages.forEach((h,b)->files.put(h+".image",b));
+        var manifest=new TreeMap<>(original.manifest().value());manifest.put("capsule",capsule.packet.capsule().digest());var rows=new ArrayList<Map<String,Object>>();
+        files.forEach((name,bytes)->{if(!name.equals("generation.gsr"))rows.add(Map.of("path",name,"size",(long)bytes.length,"sha256",hash(bytes)));});
+        manifest.put("files",rows);var frame=decode(encode("records","GENERATION",manifest),"records","GENERATION");files.put("generation.gsr",frame.bytes());
+        var selector=new TreeMap<>(original.selector().value());selector.put("digest",frame.digest());var selected=decode(encode("records","SELECTOR",selector),"records","SELECTOR");
+        var vote=original.vote();vote=new MembershipPendingAccept.Vote(selected,vote.promise(),vote.selected(),vote.entry(),vote.accept(),vote.payload(),vote.proof(),vote.certificate());
+        var packet=MembershipPendingAccept.packet(capsule.packet,vote);var backed=material.verifier().verify(decode(packet.objectBytes(capsule.context.recordRootDigest()),"records","ROOT"),packet,images);
+        var source=backing(backed,images,21,vote.accept().digest());var context=MembershipPendingContext.create(material.root(),material.owner(),selected,files,vote,
+                source.promise(),source.source(),images,material.verifier());
+        return MembershipPendingContext.reconstruct(context,material.root(),material.owner(),source.promise(),source.source(),images,material.verifier());
+    }
+
+    @Test void validNearMaximumCurrentPacketCannotSilentlyOmitProtectedOriginalToFit()throws Exception {
+        var original=reconstruct(create());byte[] protectedExtra=new byte[4096];Arrays.fill(protectedExtra,(byte)37);
+        var old=originalWithExtras(original,Map.of(hash(protectedExtra),protectedExtra),Map.of());
+        var extras=new TreeMap<String,byte[]>();for(int i=0;i<3;i++){byte[] bytes=new byte[FRAME];Arrays.fill(bytes,(byte)(i+60));extras.put(hash(bytes),bytes);}
+        int remainder=MembershipSourcePacket.MAXIMUM-3*FRAME-installed.packet.bytes().length-2048;
+        byte[] last=new byte[remainder];Arrays.fill(last,(byte)84);extras.put(hash(last),last);
+        var current=withExtra(installed,material.images(),extras);assertTrue(current.packet.bytes().length>MembershipSourcePacket.MAXIMUM-2048);
+        var error=assertThrows(IllegalArgumentException.class,()->capture(old,current,material.images()));
+        assertTrue(Set.of("packet metadata capacity","complete packet capacity").contains(error.getMessage()),error.getMessage());
+        assertFalse(current.packet.objectNames().contains(hash(protectedExtra)));assertArrayEquals(protectedExtra,old.capsule().packet.objectBytes(hash(protectedExtra)));
+        assertTrue(current.packet.bytes().length<=MembershipSourcePacket.MAXIMUM);
     }
 
     record Member(String name,byte[] bytes) {}

@@ -1,0 +1,250 @@
+{
+  "base": "a28deed916e71be01b8a3d451e1754c150929ec0",
+  "compiledInventory": {
+    "path": "target/v53-pending-transfer/final-inputs.json",
+    "sha256": "1168c01f86461f1b3568572e0615498055d153b2d75093174c9021a0e4403196"
+  },
+  "contextFreshProcesses": 96,
+  "contextProcessCases": 32,
+  "development": [
+    "development.log: test fixture compile failed because its nested root field was misaddressed; corrected to exact root.gsr decoding",
+    "qualified.log: 57 tests passed; two new extended fixtures omitted the changed capsule digest in their original generation manifest; corrected fixture binding",
+    "final.log: all 59 tests pass; transfer raw evidence and the 32-case context process qualification retained"
+  ],
+  "jars": {
+    "target/v53-pending-transfer/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-pending-transfer/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "0b2e0fe0c7f28d4bffeb902f6d99f5e99627c7eac5eeef5d85b6e46aa94af5fe"
+  },
+  "javaMethods": 59,
+  "limitations": [
+    "new backing ownership in transfer fixture is conditional; not actual new source force",
+    "capacity-only extensions are synthetic inventory; no maximal image semantic claim",
+    "helpers not yet wired to journal owner, no retirement or complete progress authority",
+    "complete owner lifetime and offline initialization remain pending",
+    "Phase 2 open; no public runtime, protected CI or paid cloud"
+  ],
+  "logs": {
+    "context-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context-process-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context-process.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development.log": "503d500889b07fecb26865b191d961349305008bae8706e14d276fc550b77c48",
+    "final.log": "b28af60788b8df3fa260f20875bc86db35d38a1e2d48ebae28e4f7bfef867c33",
+    "qualified.log": "9ff5b03087a5fbfa742c5682c8dea03008d41a6cd5df11003b1950a37f686b0e",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newJavaMethods": 6,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-pending-transfer/producer-classes.json",
+    "sha256": "1ae3cd4a9f64cb1e73350401f171837a68c842e29903a9bb351d5d194869d1f8"
+  },
+  "protectedCI": false,
+  "raw": {
+    "context": {
+      "files": 16,
+      "indexSha256": "9f626eceb4a1a6b55dc22b13fb9a507d0088eafa9b350d02bcfcc53870bc5312",
+      "path": "general-search-engine-replication/target/v53-pending-context/run-63043c67-06fc-4822-b42e-b1f9f0d7689b"
+    },
+    "context-process": {
+      "files": 458,
+      "indexSha256": "b12e935860d815eb7f05cf81e78927f0da09ccbd9cd1185b080f895f7ed8d97b",
+      "path": "general-search-engine-replication/target/v53-pending-context-process/run-b9164775-b84f-4318-8987-21e05b390561"
+    },
+    "transfer": {
+      "files": 119,
+      "indexSha256": "947ef11ec80e934a59f2323ff6071460c7e30f2f3a4698a7bf07fd74f90dc54e",
+      "path": "general-search-engine-replication/target/v53-pending-transfer/run-01d76f38-a11d-4947-bafa-7de61ec3d04e"
+    }
+  },
+  "replays": {
+    "context": {
+      "backingBallot": 21,
+      "borrowedImages": 1,
+      "borrowedObjects": 12,
+      "contextBytes": 11136,
+      "contextForced": false,
+      "execution": "pure-context-codec-reconstruction",
+      "freshProcesses": false,
+      "historicalBootstrap": "conditional-fixture",
+      "imageSemanticClaim": false,
+      "maximumContextBytes": 1466800,
+      "maximumPayloadIndependentlyReplayed": false,
+      "negatives": [
+        "context-checksum",
+        "context-truncated",
+        "context-version",
+        "context-flags",
+        "context-oversize",
+        "segment-overflow",
+        "trailing-context",
+        "missing-metadata",
+        "changed-metadata",
+        "context-entry-binding",
+        "context-vote-identity",
+        "envelope-inventory",
+        "backing-missing-certificate",
+        "changed-original-source",
+        "changed-original-vote",
+        "missing-backing-image",
+        "changed-backing-image",
+        "changed-backing-promise",
+        "changed-root",
+        "extra-member",
+        "linked-member",
+        "false-retirement-authority"
+      ],
+      "origin": 20,
+      "originalFirst": true,
+      "originalMetadataMembers": 6,
+      "originalParentCut": 1,
+      "originalVotePhase": "CERTIFICATE",
+      "pendingIndex": 2,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "remoteOwnershipVerified": false,
+      "retirementAuthorized": false,
+      "runtimeEnabled": false,
+      "selectedCut": 0,
+      "status": "PASS"
+    },
+    "context-process": {
+      "backingAuthorityVerified": false,
+      "cases": 32,
+      "crashReturnedSuccess": false,
+      "freshProcesses": 96,
+      "inputContextBytes": [
+        11012,
+        11136
+      ],
+      "negatives": [
+        "bad-first-container",
+        "changed-owner",
+        "missing-case",
+        "unexpected-case",
+        "changed-input-prior",
+        "lost-old-active",
+        "nonprefix-candidate",
+        "premature-active",
+        "lost-recovery-candidate",
+        "bad-final-context",
+        "retained-final-candidate",
+        "changed-store",
+        "missing-force-event",
+        "false-crash-success",
+        "missing-kill-handshake",
+        "false-return-hash",
+        "nonempty-stderr",
+        "false-process-count",
+        "false-owner-authority",
+        "linked-snapshot",
+        "false-child-exit",
+        "boolean-child-exit"
+      ],
+      "originalFirst": true,
+      "osExitCodesVerified": true,
+      "ownerIntegration": false,
+      "physicalBytes": true,
+      "portableInputs": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "processEventOrder": true,
+      "protocolAuthority": "conditional-fixture",
+      "repeatedCrashes": 32,
+      "runtimeEnabled": false,
+      "status": "PASS",
+      "transitions": [
+        "create",
+        "replace",
+        "replay"
+      ]
+    },
+    "replay": {
+      "contextForced": false,
+      "fullOwnerProgress": false,
+      "maximumBytesIndependentlyReplayed": false,
+      "negatives": [
+        {
+          "case": "missing-round",
+          "reason": "transfer complete round inventory"
+        },
+        {
+          "case": "extra-round",
+          "reason": "transfer complete round inventory"
+        },
+        {
+          "case": "linked-current",
+          "reason": "transfer linked/nonregular member"
+        },
+        {
+          "case": "changed-current",
+          "reason": "transfer current round marker"
+        },
+        {
+          "case": "earlier-current",
+          "reason": "transfer current round marker"
+        },
+        {
+          "case": "changed-backing-ballot",
+          "reason": "context higher local source ballot/grant"
+        },
+        {
+          "case": "stale-context",
+          "reason": "context exact supplied selector/backing grant"
+        },
+        {
+          "case": "missing-certificate",
+          "reason": "context exact borrowed original certificate"
+        },
+        {
+          "case": "changed-original-metadata",
+          "reason": "context exact original metadata inventory/bytes"
+        },
+        {
+          "case": "false-retirement",
+          "reason": "transfer exact receipt scope"
+        },
+        {
+          "case": "false-force",
+          "reason": "transfer exact receipt scope"
+        },
+        {
+          "case": "false-source-ownership",
+          "reason": "transfer exact receipt scope"
+        }
+      ],
+      "newSourceOwnership": "conditional-fixture",
+      "originalFirst": true,
+      "originalVotePhase": "CERTIFICATE",
+      "portableReplay": "PASS",
+      "retirementAuthorized": false,
+      "rounds": 7,
+      "runtimeEnabled": false,
+      "status": "PASS",
+      "transfers": 6
+    }
+  },
+  "schema": "gse-v53-pending-transfer-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingContext.java": "f9b107ddb3a5e748bdc584805fd2b72295106cb03917c3f66eb141ec74ff1b50",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingTransfer.java": "f5c7dc0a5934dd28166dd56904fbbb55e8480fbe6108adaf00206b39afe31b4d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingContextTest.java": "0e03c95e967d760ce79d6dc9488c45392c297eca41861be6e21db82eaaa45b9c",
+    "scripts/v53/pending_context_evidence.py": "aaa512195fb3ae3d73f4d526e59147d380bfbd5aa7b72ca15d2fb6508603d773",
+    "scripts/v53/pending_transfer_evidence.py": "6a6fd9c2781bfb8cbaf605f3050e55ea7f632095aebf2e3a3bc39cfa68df9f5f"
+  },
+  "sourceInventory": {
+    "path": "target/v53-pending-transfer/source-files.json",
+    "sha256": "0fac03e38858124db1314cd1e6d68418b4e213af1c39ade36daf828b268c8791"
+  },
+  "status": "PASS",
+  "transfers": 6,
+  "validationScope": [
+    "protected exact original packet and phased vote union preserving current anchor",
+    "six strictly newer backing replacements without accumulating abandoned capture extras",
+    "maximum seven images and near-32-MiB complete packet union admission",
+    "original-first exact-reason negatives and normal/optimized/portable replay"
+  ]
+}
