@@ -36,9 +36,15 @@ final class MembershipBootstrapTransaction implements AutoCloseable {
         }catch(IOException|RuntimeException|Error e){try{owner.close();}catch(IOException close){e.addSuppressed(close);}throw e;}
     }
     static MembershipBootstrapResult apply(MembershipBootstrapPlan plan,boolean resume,Recheck recheck,MembershipBallotAllocator.Cut cut)throws IOException {
+        Objects.requireNonNull(recheck);return applyChecked(plan,resume,p->{},p->recheck.run(),cut);
+    }
+    static MembershipBootstrapResult applyChecked(MembershipBootstrapPlan plan,boolean resume,
+            MembershipBootstrapPlanFiles.Check admission,MembershipBootstrapPlanFiles.Check recheck,MembershipBallotAllocator.Cut cut)throws IOException {
+        Objects.requireNonNull(admission);Objects.requireNonNull(recheck);
         try(var tx=new MembershipBootstrapTransaction(plan,cut)) {
+            admission.run(tx.data.plan);tx.guard();
             if(!resume)require(!Files.exists(plan.operationDirectory().resolve(JOURNAL),LinkOption.NOFOLLOW_LINKS),"bootstrap already started; explicit resume required");
-            try{return tx.complete(Objects.requireNonNull(recheck));}catch(IOException|RuntimeException|Error e){tx.failed=true;throw e;}
+            try{return tx.complete(()->recheck.run(tx.data.plan));}catch(IOException|RuntimeException|Error e){tx.failed=true;throw e;}
         }
     }
     static MembershipBootstrapResult read(MembershipBootstrapPlan plan)throws IOException {

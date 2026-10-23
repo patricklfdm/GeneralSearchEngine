@@ -174,3 +174,7 @@ remain Phase 2 obligations.
 [Bounded read-only bootstrap rechecks](PHASE_2_BOOTSTRAP_RECHECK.md) reuse the original
 planning exports through repeated checks and PREPARED recovery, preserving actual
 typed validation without accumulating new scratch directories.
+
+The [private bootstrap coordinator](PHASE_2_BOOTSTRAP_COORDINATOR.md) connects one
+retained random history, a fixed bounded projection and exact typed plan/apply/resume.
+Public admission and result reading after mutable runtime progress remain open.

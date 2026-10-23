@@ -11,6 +11,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 /** Exclusive coordinator for the immutable plan only. No replica prepare, decision,
  * receipt or seal. A torn plan is retained and refused, never completed from arguments. */
 final class MembershipBootstrapPlanFiles implements AutoCloseable {
+    @FunctionalInterface interface Check {void run(MembershipBootstrapPlanData plan)throws IOException;}
     static final String LOCK="operation.lock",IMAGE="application.image",FILE="plan.gsbp",NEXT="plan.next.gsbp";
     private final Path directory;
     private final Map<String,Object> binding;
@@ -36,7 +37,10 @@ final class MembershipBootstrapPlanFiles implements AutoCloseable {
         }catch(IOException|RuntimeException|Error error){if(result!=null)result.failed=true;try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     static MembershipBootstrapPlanFiles open(Path requested,MembershipBootstrapPlan expected,MembershipBallotAllocator.Cut cut)throws IOException {
-        Objects.requireNonNull(expected);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
+        return open(requested,expected,cut,p->{});
+    }
+    static MembershipBootstrapPlanFiles open(Path requested,MembershipBootstrapPlan expected,MembershipBallotAllocator.Cut cut,Check check)throws IOException {
+        Objects.requireNonNull(expected);Objects.requireNonNull(cut);Objects.requireNonNull(check);Path path=AdmissionPaths.safe(requested);
         require(path.equals(expected.operationDirectory()),"bootstrap plan requested path");
         Object originalKey=key(path);var names=children(path,4);require(names.containsAll(Set.of(LOCK,IMAGE)) && Set.of(LOCK,IMAGE,FILE,NEXT).containsAll(names)
                 && (names.contains(FILE)||names.contains(NEXT)),"bootstrap original plan inventory incomplete");
@@ -49,7 +53,7 @@ final class MembershipBootstrapPlanFiles implements AutoCloseable {
             if(names.contains(FILE)&&names.contains(NEXT))AdmissionPaths.exact(path.resolve(NEXT),raw);
             recheck(plan);require(originalKey.equals(key(path)),"bootstrap operation replaced during open");result=new MembershipBootstrapPlanFiles(path,owner,plan,cut);
             for(String name:names)if(!name.equals(LOCK))result.remember(name,name.equals(IMAGE)?image:raw);
-            result.seal();return result;
+            result.check();check.run(plan);result.check();result.seal();return result;
         }catch(IOException|RuntimeException|Error error){if(result!=null)result.failed=true;try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     private static void recheck(MembershipBootstrapPlanData plan)throws IOException {
