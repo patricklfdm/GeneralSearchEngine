@@ -22,7 +22,7 @@ def read(path,maximum):
     raw=path.read_bytes();e.need(len(raw)<=maximum,'bootstrap plan evidence grew');return raw
 
 
-def decode(raw,image):
+def decode(raw,image,*,details=False):
     e.need(48<len(raw)<=2*e.MIB,'bootstrap original plan capacity')
     e.need(struct.unpack('>4sHHHHI',raw[:16])==(b'GSBP',1,3,1,0,len(raw)-48),'bootstrap original plan header')
     e.need(bytes.fromhex(e.digest(raw[:16]+raw[48:]))==raw[16:48],'bootstrap original plan checksum')
@@ -54,7 +54,7 @@ def decode(raw,image):
     cat=dict(root=root_hash,application=genesis['application'],applicationSequence=0,cut=cut,identities=root['initial'],active=None,lastDataIndex=0,nextOperation=1,results=[],retiredThrough=0)
     catalog_raw=e.f.encode('records','CATALOG',cat);objects={e.digest(root_raw):root_raw,root['genesis']:genesis_raw,e.digest(catalog_raw):catalog_raw}
     packet=packet_bytes(dict(root=root_hash,application=genesis['application'],catalog=e.digest(catalog_raw),cut=cut,initial=root['genesis'],items=[]),objects,{e.digest(image):len(image)})
-    cap=e.p.decode(packet);targets=[];total=0
+    cap=e.p.decode(packet);targets=[];payloads=[];total=0
     for node,identity in registry.items():
         promise=e.f.encode('records','PROMISE',dict(root=root_hash,view=e.authority(root_hash,view),basisId=None,ballot=dict(counter=1,proposer=node,incarnation=identity['storage'])))
         generation={'source.gscp':packet,'promise.gsr':promise,e.digest(image)+'.image':image}
@@ -65,10 +65,12 @@ def decode(raw,image):
             'allocator.gsr':e.f.encode('records','ALLOCATOR',dict(root=root_hash,node=node,counter=1)),
             'grants.gsr':promise,'pending.accept':struct.pack('>4sHHI',b'GSPV',1,3,12),
             'selector.gsr':e.f.encode('records','SELECTOR',dict(root=root_hash,node=node,generation='a',digest=e.digest(manifest)))})
+        payloads.append(files)
         targets.append(dict(identity=identity,directories=['generations','generations/a','sources'],files=[dict(path=k,bytes=len(v),sha256=e.digest(v)) for k,v in sorted(files.items())]));total+=sum(map(len,files.values()))
-    e.need(value['targets']==targets,'bootstrap plan derived target inventories')
+    e.need(e.f.canonical(value['targets'])==e.f.canonical(targets),'bootstrap plan derived target inventories')
     e.need(type(value['maximumSource']) is int and value['maximumSource']>0 and type(value['maximumOperation']) is int
            and total+len(image)+2*len(raw)<=value['maximumOperation'],'bootstrap plan complete byte budget')
+    if details:return dict(plan=value,root=root,rootHash=root_hash,payloads=payloads)
     return root['historyId']
 
 

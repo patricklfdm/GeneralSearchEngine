@@ -15,12 +15,12 @@ final class MembershipBootstrapPlanFiles implements AutoCloseable {
     private final Path directory;
     private final Map<String,Object> binding;
     private final Object directoryKey,lockKey;
-    private final AdmissionPaths.Owner owner;
+    private final MembershipOwnership owner;
     private final MembershipBallotAllocator.Cut cut;
     private final Map<String,FileIdentity> files=new TreeMap<>();
     private final MembershipBootstrapPlanData plan;
     private boolean closed,failed;
-    private MembershipBootstrapPlanFiles(Path directory,AdmissionPaths.Owner owner,MembershipBootstrapPlanData plan,MembershipBallotAllocator.Cut cut)throws IOException {
+    private MembershipBootstrapPlanFiles(Path directory,MembershipOwnership owner,MembershipBootstrapPlanData plan,MembershipBallotAllocator.Cut cut)throws IOException {
         this.directory=directory;this.owner=owner;this.plan=plan;this.cut=cut;binding=AdmissionPaths.binding(directory);
         directoryKey=key(directory);lockKey=key(directory.resolve(LOCK));
     }
@@ -28,7 +28,7 @@ final class MembershipBootstrapPlanFiles implements AutoCloseable {
         Objects.requireNonNull(plan);Objects.requireNonNull(cut);Path path=plan.operation();recheck(plan);AdmissionPaths.absent(path);
         Files.createDirectory(path);Object createdKey=key(path);AdmissionPaths.forceDirectory(path.getParent());cut.at("BOOTSTRAP_OPERATION_CREATED");
         require(createdKey.equals(key(path)),"bootstrap newly created operation replaced");
-        var owner=AdmissionPaths.own(path.resolve(LOCK),true);MembershipBootstrapPlanFiles result=null;
+        var owner=MembershipOwnership.own(path.resolve(LOCK),true);MembershipBootstrapPlanFiles result=null;
         try {
             result=new MembershipBootstrapPlanFiles(path,owner,plan,cut);result.point("BOOTSTRAP_OPERATION_LOCKED");
             result.write(IMAGE,plan.seed.application(),"BOOTSTRAP_IMAGE");result.write(NEXT,plan.bytes(),"BOOTSTRAP_PLAN");
@@ -40,7 +40,7 @@ final class MembershipBootstrapPlanFiles implements AutoCloseable {
         require(path.equals(expected.operationDirectory()),"bootstrap plan requested path");
         Object originalKey=key(path);var names=children(path,4);require(names.containsAll(Set.of(LOCK,IMAGE)) && Set.of(LOCK,IMAGE,FILE,NEXT).containsAll(names)
                 && (names.contains(FILE)||names.contains(NEXT)),"bootstrap original plan inventory incomplete");
-        var owner=AdmissionPaths.own(path.resolve(LOCK),false);MembershipBootstrapPlanFiles result=null;
+        var owner=MembershipOwnership.own(path.resolve(LOCK),false);MembershipBootstrapPlanFiles result=null;
         try {
             byte[] image=AdmissionPaths.read(path.resolve(IMAGE),MembershipApplicationImage.MAXIMUM);
             byte[] raw=AdmissionPaths.read(path.resolve(names.contains(FILE)?FILE:NEXT),MembershipBootstrapPlanData.MAXIMUM);

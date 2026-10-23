@@ -98,3 +98,7 @@ private storage owner. Repeated process-crash recovery, exact original-first
 physical evidence, complete operation/local resource accounting and public entry
 qualification remain pending. The seed and plan components do not close these
 obligations or the separate transferred-context lifetime work.
+
+The [private all-voter transaction](PHASE_2_BOOTSTRAP_TRANSACTION.md) now connects
+the exact plan to preparation, decisions, receipt and seals. Public typed admission
+and complete-store seal verification remain separate gates.

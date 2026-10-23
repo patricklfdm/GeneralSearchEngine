@@ -17,7 +17,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
     private final Path directory;
     private final MembershipRoot root;
     private final MembershipIdentity identity;
-    private final AdmissionPaths.Owner owner;
+    private final MembershipOwnership owner;
     private final Map<String,Object> pathBinding;
     private final Object directoryKey, lockKey;
     private final Map<String,byte[]> immutable;
@@ -28,7 +28,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
     private boolean failed, closed;
 
     private MembershipBallotAllocator(Path directory, MembershipRoot root, MembershipIdentity identity,
-            AdmissionPaths.Owner owner, Cut cut, Set<String> additional) throws IOException {
+            MembershipOwnership owner, Cut cut, Set<String> additional) throws IOException {
         this.directory=directory; this.root=root; this.identity=identity; this.owner=owner; this.cut=cut;
         this.additional=additional;
         pathBinding=AdmissionPaths.binding(directory); directoryKey=key(directory); lockKey=key(directory.resolve("replica.lock"));
@@ -136,7 +136,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
         require(Files.isDirectory(directory,LinkOption.NOFOLLOW_LINKS),"allocator directory absent");
         // No CREATE and no repair from arguments: a missing root/lock/counter is lost authority.
         inventory(directory,additional);
-        var owner=AdmissionPaths.own(directory.resolve("replica.lock"),false);
+        var owner=MembershipOwnership.own(directory.resolve("replica.lock"),false);
         try {
             var allocator=new MembershipBallotAllocator(directory,root,identity,owner,cut,additional);
             allocator.recover(); return allocator;

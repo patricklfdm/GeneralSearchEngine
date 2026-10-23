@@ -1,0 +1,141 @@
+{
+  "base": "12f80c4255704602e3d2e4968dfab8ebf8eb5474",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-transaction/sealed-inputs.json",
+    "sha256": "b53eb690f106e95dab68ad6fca5ecf5fc483b6d24d98c412de0337b3b828625a"
+  },
+  "cuts": 84,
+  "development": [
+    "development.log: seven transaction tests, including 78 interruption cases, passed before directory reseal/lock-channel audit",
+    "final.log: 60 tests pass, including 84 twice-interrupted boundaries, before strengthening the external lock test with an in-process rejected duplicate open",
+    "reentrant-lock.log: the stronger probe fails (external process acquired original coordinator lock)",
+    "reentrant-lock-fixed.log: V5.3 ownership registry correction passes that exact probe",
+    "sealed.log: 84 tests, including four additional ownership tests and allocator/grant regression suites, pass on final source",
+    "full original filesystem bindings checked on entry/decision; intermediate guards preserve parent device/inode/real path and every member identity/hash"
+  ],
+  "jars": {
+    "target/v53-bootstrap-transaction/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-transaction/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "c32b1aac5cebac656c6b7a67cdb92705fd360d73ff8a26c9652749c11491108f"
+  },
+  "javaMethods": 84,
+  "limitations": [
+    "public bootstrap planning/typed-source recheck/result APIs and complete-store seal admission remain disabled",
+    "read-only private result verifier covers initial complete payloads, not a running mutated store",
+    "no process-death/power-loss qualification; separate JVM proves held locks only",
+    "projection and typed validation scratch must be added to integrated public operation budget",
+    "no protected CI, paid cloud, workflow, POM or frozen format change; Phase 2 open"
+  ],
+  "logs": {
+    "development.log": "f2c4776af704abc8575261c2ac214f82d917fe1dc3e5693483381448c73719af",
+    "final.log": "38b1775326c624d53824c8f8836597b38bedce0c70bcafeeca690e94275ccdce",
+    "plan-regression-final.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plan-regression.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reentrant-lock-fixed.log": "cd41cf79366d5aca13e30c7a20f0c2a534c0ccf5d08f1380723a0eb694d7752c",
+    "reentrant-lock.log": "9dad1568bc568ae3db8bc6f6241f4b58881bf878f005f95b995ec5745457d687",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sealed-replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sealed-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sealed.log": "8485193c51e39ca12bd88466da3ced78b56fcf257810e0391010b99194225d6a"
+  },
+  "newMethods": 12,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-transaction/producer-classes.json",
+    "sha256": "8ea625a1568592a35dcd964a50ca983fad88b46e619f321dfe7a48b251a45b5c"
+  },
+  "raw": {
+    "indexSha256": "d1f9947f9e8279986cc74c533c05ec78f81be4c77c89a06367a7df81e7541002",
+    "members": 8541,
+    "path": "general-search-engine-replication/target/v53-bootstrap-transaction/run-dc6b3dee-afca-4e8e-9162-3864e31d4869"
+  },
+  "replay": {
+    "cases": 84,
+    "freshProcesses": false,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "bootstrap transaction case inventory"
+      },
+      {
+        "case": "original-plan",
+        "reason": "bootstrap original plan checksum"
+      },
+      {
+        "case": "original-image",
+        "reason": "bootstrap original image binding"
+      },
+      {
+        "case": "crash",
+        "reason": "bootstrap transaction exact crash bytes"
+      },
+      {
+        "case": "second-crash",
+        "reason": "bootstrap transaction exact second-crash bytes"
+      },
+      {
+        "case": "final",
+        "reason": "bootstrap transaction exact final bytes"
+      },
+      {
+        "case": "first-order",
+        "reason": "bootstrap transaction first force order"
+      },
+      {
+        "case": "second-order",
+        "reason": "bootstrap transaction second force order"
+      },
+      {
+        "case": "resumed-order",
+        "reason": "bootstrap transaction resumed force order"
+      },
+      {
+        "case": "scope",
+        "reason": "bootstrap transaction receipt scope"
+      },
+      {
+        "case": "scope-type",
+        "reason": "bootstrap transaction receipt scope"
+      },
+      {
+        "case": "target-type",
+        "reason": "bootstrap plan derived target inventories"
+      },
+      {
+        "case": "extra-target",
+        "reason": "bootstrap transaction exact final bytes"
+      },
+      {
+        "case": "linked-file",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "privateCommittedTargets": 252,
+    "publicBootstrap": false,
+    "status": "PASS",
+    "typedCodecIndependentlyVerified": false
+  },
+  "schema": "gse-v53-bootstrap-transaction-local-v1",
+  "scope": [
+    "private all-voter preparation, four exact decisions, global receipt and per-target seals for EMPTY and verified backups at 3/4/5 sizes",
+    "full retained-transaction byte reservation before mutation; exact-prefix continuation with strict prepared original authority",
+    "V5.3 process registry preserves real OS ownership after rejected duplicate/path-alias requests; original channels force lock files",
+    "84 twice-interrupted local boundaries; independent original-first reconstruction of all snapshots and force order",
+    "14 exact negative mutations, normal/optimized and portable replay; unchanged prior 20-case plan evidence replay"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "f9c602382697c86992b6f321a3a489ad1120e03cb6ce4d846ef528a34fce0731",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapCommitData.java": "a74170d995bafbf8fa66bf33a45d68433287d9dc2e86387ac19f3f25e603c4f2",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapPlanFiles.java": "c9f420401c02c93420d0885d0b08e19028e6f27865db464ddf7ebddecfb2c238",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapTransaction.java": "a4618bf7edfec44558f1c843d5c88ae434a809396107835fe1f3129239d6712d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipOwnership.java": "20bd0e1d97a0e0ddc74b9edfa09fcb9118a95de876441050d0f0ec8c848c1f91",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapTransactionTest.java": "06fccd1d67e1a37714daa64444468af6b9aa9f2eb533a90724fa79f5c38b5c79",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MembershipOwnershipTest.java": "dc13a73a01e99d521f97890c269631d55645daba767a050138f3652460fb21cd",
+    "scripts/v53/bootstrap_plan_evidence.py": "a8d1371b38c80bfcae57b239c412a75490ec28fcbb92d90530b05a0882af2742",
+    "scripts/v53/bootstrap_transaction_evidence.py": "2d7aea4463b16e430261215c5bf0733163e53d253aba41ef48ff26cdf0c259be"
+  },
+  "status": "PASS"
+}
