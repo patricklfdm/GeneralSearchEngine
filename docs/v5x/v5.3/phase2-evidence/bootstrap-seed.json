@@ -1,0 +1,128 @@
+{
+  "base": "414088e2499c27367afbe9ccb952224afcf2ae0e",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-seed/sealed-inputs.json",
+    "sha256": "5edeb7b7e3d77450c1a49b7efe45f19be99568788c56ff4ca988a09c142930d4"
+  },
+  "development": [
+    "development.log: immutable descriptor clear correctly refused; first-round test retained unnecessary floor copies across new application admission; corrected assertion and perform the existing exact quorum retirement/floor release before voting",
+    "qualified.log: nine seed tests pass",
+    "development-replay.stderr: validator referenced catalog path as a dictionary; corrected to explicit catalog loader",
+    "final.log: 44 tests pass before snapshotting the validated codec descriptor into ROOT construction",
+    "sealed.log: all 44 tests pass on final source"
+  ],
+  "initialOwners": 12,
+  "jars": {
+    "target/v53-bootstrap-seed/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-seed/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "30cd40f4563a3fde0ed92b269527e6bf8856efd3e0dd35476907ff2f286512cb"
+  },
+  "javaMethods": 44,
+  "limitations": [
+    "public bootstrap, durable random-history plan reservation, prepared/commit/receipt/local seal transaction still disabled",
+    "test-only writes establish no offline crash recovery or committed receipt authority",
+    "Python independently verifies initial byte layouts, not typed image semantics or subsequent vote/application traces",
+    "projection scratch reservation is conservative and complete coordinator accounting remains required",
+    "no protected CI, paid cloud, workflow or legacy production change; Phase 2 open"
+  ],
+  "logs": {
+    "development-replay.stderr": "bbe8b29927cd6bf6b45bb3d997a7c2c8c7115a67dd4bca3dc1cb9320466da6b4",
+    "development.log": "c5223c2ad2aa4289cd59de1caf2226be8b6e0dfee9b7b8eb9ddca79fbc1f39f1",
+    "final.log": "5bb9eb357462e01a44f2de119c457b489999cebcb63c36c34222f2000f16920b",
+    "qualified-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "qualified.log": "cb6f0ec6fe25df6c57e5366cd6130be93467c26d59a272346071d56b454db52b",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sealed.log": "8947dbddd2fd52b1ca692f518e53978dc90bc1f21b57855c456e01425004d6f2"
+  },
+  "newMethods": 9,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-seed/producer-classes.json",
+    "sha256": "32efdb7689343cb9a4338e77bc1da082be119ce686747fcfc3f5468ddc89f202"
+  },
+  "raw": {
+    "indexSha256": "91089c6a21246082a45c86e0117df77532641badf670b07a7c5c1f1c3b328487",
+    "members": 469,
+    "path": "general-search-engine-replication/target/v53-bootstrap-seed/run-a972d817-5cc5-4026-ba34-9215d6af25fb"
+  },
+  "replay": {
+    "imageSemanticsIndependentlyVerified": false,
+    "initialOwners": 12,
+    "negatives": [
+      {
+        "case": "missing-size",
+        "reason": "seed evidence case inventory"
+      },
+      {
+        "case": "extra-node",
+        "reason": "seed cohort inventory"
+      },
+      {
+        "case": "initial-counter",
+        "reason": "seed empty vote and reserved counter"
+      },
+      {
+        "case": "initial-vote",
+        "reason": "seed empty vote and reserved counter"
+      },
+      {
+        "case": "extra-grant",
+        "reason": "seed fence only, no original vote"
+      },
+      {
+        "case": "swapped-node",
+        "reason": "seed original local identity"
+      },
+      {
+        "case": "changed-image",
+        "reason": "seed initial image identity"
+      },
+      {
+        "case": "extra-file",
+        "reason": "seed original file inventory"
+      },
+      {
+        "case": "new-directory",
+        "reason": "seed initial directories"
+      },
+      {
+        "case": "false-commit",
+        "reason": "seed producer receipt scope"
+      },
+      {
+        "case": "linked-image",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "offlineCommit": false,
+    "portableReplay": "PASS",
+    "scope": "initial-projected-byte-layout",
+    "sizes": [
+      3,
+      4,
+      5
+    ],
+    "status": "PASS",
+    "subsequentVoteTraceIndependentlyVerified": false
+  },
+  "schema": "gse-v53-bootstrap-seed-local-v1",
+  "scope": [
+    "EMPTY/verified backup projections at three/four/five targets with exact new history and canonical core bytes",
+    "source member hash/inode and complete path/config/codec rechecks; bounded absent scratch only",
+    "counter-one local null-BASIS fence with no vote, selected decision or synthetic observations",
+    "test-only seed persistence followed by actual allocator/grant/selection/install/retirement and phased application at twelve owners",
+    "independent initial byte-layout reconstruction and eleven exact-reason negatives, portable normal/optimized replay"
+  ],
+  "sizes": [
+    3,
+    4,
+    5
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapSeed.java": "156b1289f334429f57d9bf52eaa8d678302a125fa2e4ec0deeef603d81972930",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapSeedTest.java": "16ecf484a494469b51374ddb9f46b38e279d4bf660f3fb2c7c7abd3c26700fc5",
+    "scripts/v53/bootstrap_seed_evidence.py": "e22531afcee2392c2d4f6d3c26207178889db11b2490173f05aad0376ac3d314"
+  },
+  "status": "PASS"
+}

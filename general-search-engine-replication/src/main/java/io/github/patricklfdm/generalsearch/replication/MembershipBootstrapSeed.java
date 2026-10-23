@@ -1,0 +1,148 @@
+package io.github.patricklfdm.generalsearch.replication;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.*;
+import io.github.patricklfdm.generalsearch.durability.*;
+import io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration;
+import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
+import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
+
+/** Private initial projection. Only absent scratch is written; no target, plan, seal,
+ * durable history allocation, election or ownership receipt is created here. */
+final class MembershipBootstrapSeed {
+    final Decoded rootRecord,genesis;
+    final MembershipRoot root;
+    final MembershipCapsule capsule;
+    final long sequence;
+    private final byte[] application;
+    private final List<MembershipIdentity> identities;
+    private final Map<String,Object> descriptor;
+
+    private MembershipBootstrapSeed(MembershipBootstrapRequest<?,?> request,UUID history,long sequence,
+            byte[] image,String schema,String indexes,String sourceDigest,Map<String,Object> descriptor) {
+        this.sequence=sequence;application=image.clone();identities=request.targets().stream().map(MembershipBootstrapTarget::identity).toList();
+        this.descriptor=decodeDescriptor(descriptor);
+        var g=new TreeMap<String,Object>();g.put("application",hash(image));g.put("baseSequence",sequence);
+        g.put("groupId",request.groupId().value().toString());g.put("historyId",history.toString());
+        g.put("schema",schema);g.put("indexes",indexes);g.put("source",request.source().name());g.put("sourceDigest",sourceDigest);
+        genesis=record("GENESIS",g);var r=new TreeMap<>(g);r.remove("application");r.remove("source");r.remove("sourceDigest");
+        var core=object(this.descriptor.get("core"));r.put("codecId",core.get("codecId"));r.put("codecVersion",number(core.get("codecVersion")));
+        r.put("configurationId",request.configurationId());r.put("genesis",genesis.digest());r.put("initial",identities.stream().map(MembershipBootstrapSeed::identity).toList());
+        r.put("limits",hash(canonical(CATALOG.get("resources"),16384)));rootRecord=record("ROOT",r);
+        root=new MembershipRoot(request.groupId(),history,rootRecord.rootDigest());
+        var catalog=record("CATALOG",MembershipCapsule.initialCatalog(rootRecord,genesis.value()));
+        var objects=new TreeMap<String,byte[]>();for(var frame:List.of(rootRecord,genesis,catalog))objects.put(frame.digest(),frame.bytes());
+        var images=Map.of(hash(image),(long)image.length);
+        var cap=record("CAPSULE",Map.of("root",root.manifestDigest(),"application",hash(image),"catalog",catalog.digest(),
+                "cut",catalog.value().get("cut"),"initial",genesis.digest(),"inventory",hash(MembershipSourcePacket.index(objects,images)),"items",List.of()));
+        var packet=MembershipSourcePacket.decode(MembershipSourcePacket.encode(cap,objects,images));
+        capsule=MembershipCapsule.verify(rootRecord,packet,images(),Set.of());
+    }
+    private static Decoded record(String kind,Map<String,Object> value){return decode(encode("records",kind,value),"records",kind);}
+    static Map<String,Object> identity(MembershipIdentity id){return Map.of("node",id.nodeId().value(),"storage",id.storageId().toString(),"host",id.endpoint().host(),"port",(long)id.endpoint().port());}
+    private static Map<String,Object> decodeDescriptor(Map<String,Object> value){return object(parse(canonical(value,1024*1024),1024*1024));}
+    Map<String,Object> descriptor(){return decodeDescriptor(descriptor);}
+    byte[] application(){return application.clone();}
+    Map<String,byte[]> images(){return Map.of(hash(application),application.clone());}
+
+    /** Generation zero has only a local counter-one fence. No BASIS, SELECTED or vote. */
+    Map<String,byte[]> payloads(MembershipIdentity local) {
+        require(identities.contains(local),"bootstrap foreign target identity");String node=local.nodeId().value(),rootHash=root.manifestDigest();
+        var value=new TreeMap<String,Object>();value.put("root",rootHash);value.put("view",capsule.context.authority());value.put("basisId",null);
+        value.put("ballot",Map.of("counter",1L,"proposer",node,"incarnation",local.storageId().toString()));var promise=record("PROMISE",value);
+        var generation=new TreeMap<String,byte[]>();generation.put("source.gscp",capsule.packet.bytes());generation.put("promise.gsr",promise.bytes());
+        generation.put(hash(application)+".image",application.clone());
+        var m=new TreeMap<String,Object>();m.put("root",rootHash);m.put("node",node);m.put("generation","a");m.put("cut",capsule.context.cut);
+        m.put("application",hash(application));m.put("catalog",capsule.terminal().catalog());m.put("capsule",capsule.packet.capsule().digest());
+        m.put("promise",promise.digest());m.put("basis",null);m.put("selection",null);m.put("ownedTail",null);
+        m.put("files",generation.entrySet().stream().map(row->Map.of("path",row.getKey(),"size",(long)row.getValue().length,"sha256",hash(row.getValue()))).toList());
+        var manifest=record("GENERATION",m);generation.put("generation.gsr",manifest.bytes());var files=new TreeMap<String,byte[]>();
+        generation.forEach((name,bytes)->files.put("generations/a/"+name,bytes));
+        files.put("replica.lock",new byte[0]);files.put("root.gsr",rootRecord.bytes());files.put("genesis.gsr",genesis.bytes());
+        files.put("node.gsr",encode("records","NODE",Map.of("identity",identity(local),"root",rootHash)));
+        files.put(MembershipBallotAllocator.CURRENT,encode("records","ALLOCATOR",Map.of("counter",1L,"node",node,"root",rootHash)));
+        files.put("grants.gsr",promise.bytes());files.put(MembershipPendingAccept.FILE,MembershipPendingAccept.empty());
+        files.put("selector.gsr",encode("records","SELECTOR",Map.of("root",rootHash,"node",node,"generation","a","digest",manifest.digest())));
+        return Collections.unmodifiableMap(files);
+    }
+    static Set<String> directories(){return Set.of("sources","generations","generations/a");}
+    long payloadBytes(){long result=0;for(var id:identities)for(byte[] bytes:payloads(id).values())result=Math.addExact(result,bytes.length);return result;}
+
+    /** Caller must durably reserve history once in its exact coordinator plan before
+     * committing any of these bytes. An occupied scratch/target is never repaired. */
+    static <K,T> MembershipBootstrapSeed project(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
+            UUID history,Path requestedScratch)throws IOException {
+        Objects.requireNonNull(captured);Objects.requireNonNull(request);MembershipValidation.uuid(history);
+        Path scratch=AdmissionPaths.safe(requestedScratch);var paths=new ArrayList<Path>();paths.add(scratch);paths.add(request.operationDirectory());request.sourcePath().ifPresent(paths::add);
+        for(var target:request.targets()){paths.add(target.replicaDirectory());paths.add(target.materialization().directory());}
+        AdmissionPaths.disjoint(paths);var bindings=new ArrayList<Map<String,Object>>();for(Path path:paths)bindings.add(AdmissionPaths.binding(path));
+        absent(request,scratch);var config=AdmissionConfiguration.application(captured);var first=request.targets().getFirst().materialization();
+        var core=core(first);for(var target:request.targets())require(core.equals(core(target.materialization())),"bootstrap materialization descriptor mismatch");
+        String indexes=hash(canonical(config.get("indexes"),262144));var source=request.sourcePath().orElse(null);
+        List<AdmissionFormat.Member> sourceInventory=source==null?List.of():sourceInventory(source,request.maxSourceBytes());
+        var sourceKeys=source==null?Map.<String,Object>of():sourceKeys(source,sourceInventory);
+        var descriptor=new TreeMap<String,Object>();descriptor.put("application",config);descriptor.put("core",core);descriptor.put("paths",bindings.subList(1,bindings.size()));
+        descriptor.put("source",request.source().name());descriptor.put("sourceInventory",sourceInventory.stream().map(v->Map.of("path",v.name(),"kind",v.kind(),"size",v.size(),"sha256",v.digest())).toList());
+        descriptor.put("identities",request.targets().stream().map(v->identity(v.identity())).toList());
+        // Bound descriptor before the first scratch write. Source/codec rejection also
+        // precedes that write for the first target; later failures retain diagnostic scratch.
+        descriptor= new TreeMap<>(decodeDescriptor(descriptor));byte[] image=null;long sequence=-1;long used=0;Object scratchKey=null;
+        for(int n=0;n<request.targets().size();n++) {
+            var storage=request.targets().get(n).materialization();DurableApplicationState<T> imported;
+            if(source==null)imported=new DurableApplicationState<>(history,0,List.of(),captured.indexes());
+            else {
+                imported=captured.newBuilder().readDurableBackup(source,new DurableVerificationConfig<>(storage.storageIdentity(),storage.schemaIdentity(),storage.codec(),
+                        storage.codec().codecVersion(),storage.maxEncodedKeyBytes(),storage.maxEncodedDocumentBytes(),storage.maxDocuments()),request.maxSourceBytes());
+                checkSource(source,request.maxSourceBytes(),sourceInventory,sourceKeys);require(!history.equals(imported.history()),"bootstrap must allocate a new history");
+                require(imported.indexes().stream().map(ReplicaApplication::descriptor).toList().equals(captured.indexes().stream().map(ReplicaApplication::descriptor).toList()),"bootstrap source indexes differ from requested configuration");
+            }
+            MembershipValidation.position(imported.sequence());
+            var state=new DurableApplicationState<>(history,imported.sequence(),imported.documents(),imported.indexes());
+            if(n==0) {
+                for(var bound:bindings)AdmissionPaths.recheck(bound);absent(request,scratch);
+                reserveScratch(used,request.maxOperationBytes());Files.createDirectory(scratch);AdmissionPaths.forceDirectory(scratch.getParent());scratchKey=MembershipBasisSources.key(scratch);
+            }
+            require(scratchKey.equals(MembershipBasisSources.key(scratch)),"bootstrap scratch directory changed");
+            reserveScratch(used,request.maxOperationBytes());Path backup=scratch.resolve("application-"+n);
+            byte[] next=MembershipApplicationImage.capture(captured,storage,state,backup);
+            used=Math.addExact(used,AdmissionPaths.inventory(backup,MembershipApplicationImage.MAXIMUM).stream().mapToLong(AdmissionFormat.Member::size).sum());
+            require(image==null || Arrays.equals(image,next),"bootstrap target codec bytes disagree");image=next;sequence=state.sequence();
+            for(var bound:bindings)AdmissionPaths.recheck(bound);checkSource(source,request.maxSourceBytes(),sourceInventory,sourceKeys);
+            // capture() invokes the core reader after export. No separate decode image
+            // is stored and no materialization directory is opened by this projection.
+        }
+        AdmissionPaths.absent(request.operationDirectory());absentTargets(request);
+        require(config.equals(AdmissionConfiguration.application(captured)),"bootstrap application descriptor changed");
+        for(var target:request.targets())require(core.equals(core(target.materialization())),"bootstrap materialization descriptor changed");
+        require(scratchKey.equals(MembershipBasisSources.key(scratch)),"bootstrap scratch directory changed");
+        var seed=new MembershipBootstrapSeed(request,history,sequence,image,hash(canonical(Map.of("schemaIdentity",first.schemaIdentity(),"application",config),1024*1024)),indexes,
+                source==null?null:hash(canonical(descriptor.get("sourceInventory"),65536)),descriptor);
+        require(seed.payloadBytes()<=request.maxOperationBytes()-used,"bootstrap seed and scratch exceed operation budget");
+        return seed;
+    }
+    private static void reserveScratch(long used,long maximum){require(used<=maximum-MembershipApplicationImage.MAXIMUM,"bootstrap scratch completion capacity");}
+    private static void absent(MembershipBootstrapRequest<?,?> request,Path scratch){AdmissionPaths.absent(scratch);AdmissionPaths.absent(request.operationDirectory());absentTargets(request);}
+    private static void absentTargets(MembershipBootstrapRequest<?,?> request){for(var t:request.targets()){AdmissionPaths.absent(t.replicaDirectory());AdmissionPaths.absent(t.materialization().directory());}}
+    private static List<AdmissionFormat.Member> sourceInventory(Path path,long maximum)throws IOException {
+        var result=AdmissionPaths.inventory(path,Math.min(maximum,MembershipApplicationImage.MAXIMUM-MembershipApplicationImage.OVERHEAD));
+        require(result.size()==3 && result.stream().allMatch(v->v.kind()==1 && v.size()>0)
+                && result.stream().map(AdmissionFormat.Member::name).toList().equals(MembershipApplicationImage.MEMBERS),"bootstrap source inventory");return result;
+    }
+    private static Map<String,Object> sourceKeys(Path path,List<AdmissionFormat.Member> files)throws IOException {
+        var result=new TreeMap<String,Object>();result.put("",MembershipBasisSources.key(path));
+        for(var file:files)result.put(file.name(),Files.readAttributes(path.resolve(file.name()),java.nio.file.attribute.BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).fileKey());
+        require(result.values().stream().allMatch(Objects::nonNull),"bootstrap source identity unavailable");return result;
+    }
+    private static void checkSource(Path path,long maximum,List<AdmissionFormat.Member> inventory,Map<String,Object> keys)throws IOException {
+        if(path!=null)require(inventory.equals(sourceInventory(path,maximum)) && keys.equals(sourceKeys(path,inventory)),"bootstrap source changed during projection");
+    }
+    private static Map<String,Object> core(DurableStorageConfig<?,?> c) {
+        require(c.codec().codecVersion()>0,"bootstrap codec version");
+        return Map.of("format",Map.of("family",c.format().family(),"major",c.format().major(),"minor",c.format().minor()),
+                "storageIdentity",c.storageIdentity(),"schemaIdentity",c.schemaIdentity(),"codecId",c.codec().codecId(),"codecVersion",c.codec().codecVersion(),
+                "bounds",Map.of("maxEncodedKeyBytes",c.maxEncodedKeyBytes(),"maxEncodedDocumentBytes",c.maxEncodedDocumentBytes(),"maxBulkElements",c.maxBulkElements(),"maxDocuments",c.maxDocuments(),
+                        "checkpointWalBytes",c.checkpointWalBytes(),"maxRetainedBytes",c.maxRetainedBytes(),"maxDerivedStateBytes",c.maxDerivedStateBytes()));
+    }
+    private MembershipBootstrapSeed(){throw new AssertionError();}
+}
