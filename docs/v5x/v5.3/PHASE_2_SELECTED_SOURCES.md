@@ -91,8 +91,8 @@ and original-first negatives remain required.
 
 This does not establish long-lived bounded progress, same-round continuation,
 public runtime or network behavior, power-loss durability, or the full frozen
-storage/fault inventory. Dedicated process qualification of the six-to-one pruning
-profile and coordinated source/floor retirement remain follow-up work under the
+storage/fault inventory. The [dedicated six-to-one pruning process qualification](PHASE_2_ANCESTRY_PRUNING.md)
+now passes separately. Coordinated source/floor retirement remains follow-up work under the
 [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md).
 
 ## Focused local commands

@@ -26,8 +26,9 @@ CUTS = ('APPLY_PARENT_STATEMENT_PREFIX_WRITTEN', 'APPLY_PARENT_ACK_PREFIX_WRITTE
 FILES = ('plan.json', 'selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'parent-statement.gsr', 'application.image', 'ack.gsr', 'parent-ack.gsr')
 
 
-def original_plan(root, original, renewal=False):
-    at = 4 if renewal else 2
+def original_plan(root, original, renewal=False, *, pruning=False):
+    need(not (renewal and pruning), 'exclusive parent profile')
+    at = 8 if pruning else 4 if renewal else 2
     frames, values = vote(original['pending.accept']); old = p.decode(original['generations/b/source.gscp']); cap = old['capsule']; root_hash = cap['root']
     need(cap['cut'] == values['SELECTED']['cut'] and cap['cut']['index'] == at and len(cap['items']) == 1 and cap['items'][0]['kind'] == 'RANGE', 'parent original compacted fixture')
     need(original['selector.gsr'] == frames['SELECTOR'] and all(original['generations/b/'+k.lower()+'.gsr'] == frames[k] for k in ('PROMISE', 'SELECTED')), 'parent original decision')
@@ -37,9 +38,11 @@ def original_plan(root, original, renewal=False):
     majority(cap['cut']['view'], [s['voter'] for s in values['SELECTED']['sources']])
     before = f.decode(old['objects'][cap['catalog']], 'records', 'CATALOG', root_hash)
     peer = inventory(root/'node-2'); image = peer['applied-end/application.image']; entry = values['ENTRY']; cert = values['CERTIFICATE']
-    need(entry['kind'] == 'DATA' and entry['index'] == at+1 and entry['previous'] == cap['cut']['entry'] and before['applicationSequence'] == 41
-         and cap['application'] == digest(read(root/'base.image', 64*1024*1024)), 'parent original DATA base')
-    after = copy.deepcopy(before); after.update(application=digest(image), applicationSequence=42, lastDataIndex=at+1, cut=dict(before['cut'], index=at+1, entry=digest(frames['ENTRY'])))
+    need(entry['kind'] == ('BARRIER' if pruning else 'DATA') and entry['index'] == at+1 and entry['previous'] == cap['cut']['entry'] and before['applicationSequence'] == 41
+         and cap['application'] == digest(read(root/'base.image', 64*1024*1024)), 'parent original application base')
+    after = copy.deepcopy(before); after.update(cut=dict(before['cut'], index=at+1, entry=digest(frames['ENTRY'])))
+    if pruning: need(image == read(root/'base.image', 64*1024*1024), 'pruning BARRIER preserves application')
+    else: after.update(application=digest(image), applicationSequence=42, lastDataIndex=at+1)
     catalog = f.encode('records', 'CATALOG', after)
     prior = f.decode(old['objects'][cap['items'][0]['statement']], 'records', 'CHECKPOINT', root_hash)
     need(prior['end'] == cap['cut'] and prior['catalogAfter'] == cap['catalog'] and prior['applicationAfter'] == cap['application'], 'parent original range end')
@@ -47,7 +50,10 @@ def original_plan(root, original, renewal=False):
     parent = dict(statement, start=cap['cut'], catalogBefore=cap['catalog'], applicationBefore=cap['application']); parent_bytes = f.encode('records', 'CHECKPOINT', parent)
     need(prior['start']['index'] == 0 and parent['start']['view'] == parent['end']['view'] and parent['start']['view']['operation'] is None
          and parent_bytes == read(root/('bridge-4-statement.gsr' if renewal else 'parent-statement.gsr')), 'parent derived same-era statement')
-    observations = json.loads(read(root/'observations.json')); need(set(observations) == ({'accepts', 'proofs', 'checkpoints', 'bridges', 'historical'} if renewal else {'accepts', 'proofs', 'checkpoints', 'parents'}), 'parent observation inventory')
+    observations = json.loads(read(root/'observations.json')); need(set(observations) == ({'accepts', 'proofs', 'checkpoints', 'bridges', 'historical'} if renewal else {'accepts', 'proofs', 'checkpoints', 'parents'} | ({'historical'} if pruning else set())), 'parent observation inventory')
+    if pruning:
+        from .ancestry_pruning_evidence import original_sources
+        original_sources(root, original, cap, before, observations)
     lowers = []; extra_statements = []; extra_acks = [[], []] if renewal else []
     if renewal:
         ids_before = {v['node']: v['storage'] for v in before['identities'] if v['node'] in cap['cut']['view']['old']}; old_bytes = b''
@@ -153,8 +159,13 @@ def application(expected, original, exists, stop):
 
 def validate_case(root, row, renewal=False):
     root = Path(root); current = inventory(root/'original'); files, selector, end = original_plan(root, current, renewal)
-    need(row['status'] == 'PASS' and row['manifest'] == digest(files['generation.gsr']) and row['recoveryCut'] ==
-         (('APPLY_ANCESTOR_1_ACK_PREFIX_WRITTEN' if renewal else 'APPLY_PARENT_ACK_PREFIX_WRITTEN') if row['cut'].startswith('APPLY_') else 'COVERED_VOTE_CANDIDATE_FORCED'), 'parent repeated recovery identity')
+    recovery = (('APPLY_ANCESTOR_1_ACK_PREFIX_WRITTEN' if renewal else 'APPLY_PARENT_ACK_PREFIX_WRITTEN') if row['cut'].startswith('APPLY_') else 'COVERED_VOTE_CANDIDATE_FORCED')
+    replay_case(root, row, current, files, selector, end, 5 if renewal else 3, recovery)
+
+
+def replay_case(root, row, current, files, selector, end, selected_index, recovery_cut, publication_steps=steps):
+    """Replay exact physical effects; callers supply independently projected original inputs."""
+    need(row['status'] == 'PASS' and row['manifest'] == digest(files['generation.gsr']) and row['recoveryCut'] == recovery_cut, 'parent repeated recovery identity')
     for label, stop, snapshot, mode in (('fault', row['cut'], 'crash', row['mode']), ('recovery-fault', row['recoveryCut'], 'recovery-crash', 'halt'), ('resume', None, 'final', None)):
         need(read(root/(label+'.stderr')) == b'', 'parent worker stderr'); rows = [json.loads(line) for line in read(root/(label+'.stdout'), 2*1024*1024).splitlines()]
         names = [r.get('event', '') for r in rows]; applied_stop = stop is not None and stop.startswith('APPLY_')
@@ -172,15 +183,15 @@ def validate_case(root, row, renewal=False):
             expected = OPEN + ['CERTIFICATE_ACTIVE_FORCED', 'CERTIFICATE_ACTIVE_PARENT_FORCED']; resulting = current
         else:
             expected = []; resulting = current
-            for event, state in steps(current, files, selector):
+            for event, state in publication_steps(current, files, selector):
                 expected.append(event); resulting = state
                 if event == stop: break
             need(stop is None or expected[-1] == stop, 'parent publication crash point')
-        actual = [e for e in names if e.startswith(('INSTALL_', 'PUBLICATION_', 'COVERED_', 'CURRENT_')) or e in
+        actual = [e for e in names if e.startswith(('INSTALL_', 'PUBLICATION_', 'COVERED_', 'CURRENT_', 'SELECTED_SOURCES_')) or e in
                   ('ACCEPT_ACTIVE_FORCED', 'ACCEPT_ACTIVE_PARENT_FORCED', 'CERTIFICATE_ACTIVE_FORCED', 'CERTIFICATE_ACTIVE_PARENT_FORCED', 'FLOOR_COPY_BEFORE_RETURN')]
         need(actual == expected, 'parent exact publication/deletion order: '+label)
         if mode is None:
-            need(rows[-1] == dict(status='PASS', manifest=row['manifest'], selectedIndex=5 if renewal else 3, journalPublication=True) and sum('status' in r for r in rows) == 1, 'parent final receipt')
+            need(rows[-1] == dict(status='PASS', manifest=row['manifest'], selectedIndex=selected_index, journalPublication=True) and sum('status' in r for r in rows) == 1, 'parent final receipt')
         else:
             need(not any('status' in r for r in rows) and rows[-1] == (dict(event='AWAITING_KILL', cut=stop) if mode == 'kill' else dict(event=stop)), 'parent premature success or wrong cut')
         need(inventory(root/snapshot) == resulting, 'parent exact surviving bytes: '+label)

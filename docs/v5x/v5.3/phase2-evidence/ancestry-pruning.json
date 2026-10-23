@@ -1,0 +1,156 @@
+{
+  "base": "9c5b36cd06ae608d1c27fabf29da74abaa03f547",
+  "developmentFailures": {
+    "process-qualified.log": "test worker used whole ROOT frame digest instead of embedded root identity; corrected before qualified execution",
+    "process.log": "test setup tried to recreate existing base image; changed to read retained original"
+  },
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "da03d00bbfa0cca07211172ac619ae612d8c5fc844d3a882da4680cc487e5c10",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "conditional bootstrap and historical six-group authority",
+    "process death, not power loss or public/network runtime",
+    "coordinated repeated lifetime and same-round continuation pending"
+  ],
+  "logs": {
+    "ancestor-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "parent-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "process-final.log": "87b8775bdd7c944758e2664533b32f81217b73cbbde74373ee4e3e4c70641e7f",
+    "process-qualified.log": "e55423efd7a2838174d17e2afc2997f95b46e102b8f487c87a1cd622ecc744c8",
+    "process.log": "fda57437ce84ae6d9ec81bab2a0fa6d4764a08e1fa4e84533cba03d28af0c516",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "productionChanged": false,
+  "protectedCI": false,
+  "raw": {
+    "files": 2059,
+    "indexSha256": "fb53d3d0c978abc489513c8ed7803953079b8150b4f96d8b1bd51db2b8fdf0fb",
+    "path": "general-search-engine-replication/target/v53-ancestry-pruning-process/run-527715b0-f1a9-4f8d-b5a1-208b74c65052"
+  },
+  "replays": {
+    "ancestor-replay": {
+      "cases": 12,
+      "earlierAuthority": "conditional-fixture",
+      "freshJvms": 36,
+      "negatives": [
+        "missing-original-basis",
+        "missing-prior-bridge",
+        "false-current-observation",
+        "wrong-lower",
+        "substituted-ack",
+        "early-ack",
+        "missing-force",
+        "changed-coverage",
+        "changed-ancestry",
+        "unrelated-delete",
+        "missing-original-selected-sources",
+        "changed-original-selected-sources",
+        "missing-published-selected-sources",
+        "changed-published-selected-sources"
+      ],
+      "originalSources": [
+        1,
+        2,
+        4
+      ],
+      "portableReplay": "PASS",
+      "publishedEnd": 5,
+      "renewedGroups": 3,
+      "status": "PASS"
+    },
+    "parent-replay": {
+      "cases": 12,
+      "freshJvms": 36,
+      "negatives": [
+        "missing-peer-ack",
+        "false-observation",
+        "wrong-parent",
+        "main-ack-as-parent",
+        "early-ack",
+        "missing-force",
+        "changed-ancestry",
+        "unrelated-delete"
+      ],
+      "originalObservations": "actual-local-votes-and-parent-ends",
+      "portableReplay": "PASS",
+      "selectorPublication": true,
+      "status": "PASS"
+    },
+    "replay": {
+      "cases": 10,
+      "earlierAuthority": "conditional-fixture",
+      "freshJvms": 30,
+      "negatives": [
+        "missing-original-selected-sources",
+        "missing-remote-source",
+        "changed-old-ancestry",
+        "missing-historical-observation",
+        "missing-current-vote",
+        "false-current-observation",
+        "changed-barrier-image",
+        "missing-source-force",
+        "early-selector",
+        "early-vote-clear",
+        "old-groups-in-new-generation",
+        "changed-coverage",
+        "missing-final-originals",
+        "old-ancestry-deleted"
+      ],
+      "originalGroups": 6,
+      "originalSources": [
+        8,
+        8,
+        8
+      ],
+      "portableReplay": "PASS",
+      "publishedEnd": 9,
+      "publishedGroups": 1,
+      "status": "PASS"
+    },
+    "replay-optimized": {
+      "cases": 10,
+      "earlierAuthority": "conditional-fixture",
+      "freshJvms": 30,
+      "negatives": [
+        "missing-original-selected-sources",
+        "missing-remote-source",
+        "changed-old-ancestry",
+        "missing-historical-observation",
+        "missing-current-vote",
+        "false-current-observation",
+        "changed-barrier-image",
+        "missing-source-force",
+        "early-selector",
+        "early-vote-clear",
+        "old-groups-in-new-generation",
+        "changed-coverage",
+        "missing-final-originals",
+        "old-ancestry-deleted"
+      ],
+      "originalGroups": 6,
+      "originalSources": [
+        8,
+        8,
+        8
+      ],
+      "portableReplay": "PASS",
+      "publishedEnd": 9,
+      "publishedGroups": 1,
+      "status": "PASS"
+    }
+  },
+  "retainedLocal": "target/v53-ancestry-pruning",
+  "schema": "gse-v53-ancestry-pruning-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AncestryPruningTest.java": "4e092894f4eb6b633562ac1d257781c317192aa29a828780fe8e879626cbdb90",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AncestryPruningWorker.java": "d6b5adee48b3633bee2955e679a93f89300d6f26cd3a90a7afcc47f66fcd1a1f",
+    "scripts/v53/ancestry_pruning_evidence.py": "2aff24dacbda0000018230b791a0c741c9949eec6b5fbbb8aa1edf052ae97ea8",
+    "scripts/v53/parent_checkpoint_evidence.py": "d590fb05595f600e5026693a52cc8cc15730f6ebb7db3551e9244cc2cf3ebbe9"
+  },
+  "status": "PASS"
+}
