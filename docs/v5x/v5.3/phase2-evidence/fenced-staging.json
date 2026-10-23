@@ -1,0 +1,234 @@
+{
+  "base": "dc4a0a3dd25180d3d282d8791bbb99931c7ddd65",
+  "boundaryCases": 7,
+  "compiledInventory": {
+    "path": "target/v53-fenced-staging/final-inputs.json",
+    "sha256": "bdb081181543b73c30d0fccb25aa91c7d162cdbc278a3f66e21c3ae77218cbbc"
+  },
+  "development": [
+    "before.log: three recovery regressions reject at the obsolete observation fence; original inode test retained as safety coverage",
+    "development.log: all four new integration methods pass; final.log: 56 tests pass including unchanged grant/adoption fence tests"
+  ],
+  "jars": {
+    "target/v53-fenced-staging/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-fenced-staging/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "5a77ed34e49395ece1fae44021725968b46d1656e1eaf3086d85efeb080a752c"
+  },
+  "javaMethods": 56,
+  "limitations": [
+    "local callbacks and IOException, not fresh-process/power-loss qualification",
+    "core image semantics are checked by Java; Python checks bytes/provenance/order",
+    "historical bootstrap and remote observations remain conditional",
+    "no next campaign or transferred-context lifetime completion claim; Phase 2 open",
+    "no protected CI or cloud"
+  ],
+  "logs": {
+    "before.log": "86bf18535953046d2f0ac228cf2e099695858009899a61f37db9075d282bb19d",
+    "context-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development.log": "fe578b5a5c44d0742bd1c3efb0c349015128f01966dd9a73bf880c099f7aa4d4",
+    "final.log": "43b13119c26c8c732b57d3be66a4c558088de1d968e8925b15bb8cb2f302d404",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "staged-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "staged.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newMethods": 4,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-fenced-staging/producer-classes.json",
+    "sha256": "31dd19c46a24282d4c51c556fbb1b4400228f010adc75c3a6503ce314cdee393"
+  },
+  "raw": {
+    "context": {
+      "indexSha256": "e95393c439b5068d845305b60d69cbb885911f6b363a22af492221b469d5f325",
+      "members": 1385,
+      "path": "general-search-engine-replication/target/v53-journal-context/run-8c303d3f-f6a7-4464-b1a5-c2e76455ff57"
+    },
+    "replay": {
+      "indexSha256": "109b57ad6a5a42fd7bef2141d057bb50097ef23a91f64e15b5668e1fa89bcf32",
+      "members": 463,
+      "path": "general-search-engine-replication/target/v53-fenced-staging/run-a0f33eda-e8ae-446d-9b32-4c98e34510b5"
+    },
+    "staged": {
+      "indexSha256": "3f57afe9d91f5dc2a829abc59b030796a9fbd3c85e25b8fd4919801508e74fcd",
+      "members": 1107,
+      "path": "general-search-engine-replication/target/v53-staged-handoff/run-993d7cb1-f0e0-470a-8439-8175f3f6c44b"
+    }
+  },
+  "replays": {
+    "context": {
+      "cases": 12,
+      "freshProcesses": false,
+      "fullOwnerProgress": false,
+      "imageSemanticClaim": false,
+      "interruptionModel": "injected-IOException",
+      "interruptionsPerCase": 2,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "owner context case inventory"
+        },
+        {
+          "case": "changed-vote",
+          "reason": "owner context protected authority changed"
+        },
+        {
+          "case": "missing-original",
+          "reason": "owner context protected authority changed"
+        },
+        {
+          "case": "changed-source",
+          "reason": "owner context protected authority changed"
+        },
+        {
+          "case": "changed-context",
+          "reason": "context checksum"
+        },
+        {
+          "case": "lost-prefix",
+          "reason": "owner context interrupted exact prefix"
+        },
+        {
+          "case": "second-crash-progress",
+          "reason": "owner context second interruption changed bytes"
+        },
+        {
+          "case": "force-order",
+          "reason": "owner context force-before-metadata order"
+        },
+        {
+          "case": "old-ack",
+          "reason": "owner context returned old acknowledgement"
+        },
+        {
+          "case": "false-process",
+          "reason": "owner context receipt scope"
+        },
+        {
+          "case": "linked-source",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "extra-all-snapshots",
+          "reason": "owner context initial authority inventory"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "remoteOwnershipVerified": false,
+      "retirementAuthorized": false,
+      "runtimeEnabled": false,
+      "sourceOwnership": "actual-local-force",
+      "status": "PASS"
+    },
+    "replay": {
+      "cases": 7,
+      "freshProcesses": false,
+      "imageSemanticClaim": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "fenced staging case inventory"
+        },
+        {
+          "case": "changed-vote",
+          "reason": "fenced staging protected originals changed"
+        },
+        {
+          "case": "lost-original",
+          "reason": "fenced staging protected originals changed"
+        },
+        {
+          "case": "retained-staging",
+          "reason": "fenced staging protected originals changed"
+        },
+        {
+          "case": "changed-end",
+          "reason": "fenced staging exact original derived end"
+        },
+        {
+          "case": "force-order",
+          "reason": "fenced staging exact force/delete order"
+        },
+        {
+          "case": "old-ack",
+          "reason": "fenced staging old acknowledgement returned"
+        },
+        {
+          "case": "missing-observation",
+          "reason": "fenced staging observation boundary"
+        },
+        {
+          "case": "false-process",
+          "reason": "fenced staging receipt scope"
+        },
+        {
+          "case": "linked-authority",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "extra-authority",
+          "reason": "owner context initial authority inventory"
+        }
+      ],
+      "oldAcknowledgement": false,
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "remoteOwnershipVerified": false,
+      "status": "PASS",
+      "transferredLifetime": false
+    },
+    "staged": {
+      "derivedStagingRetirements": 3,
+      "freshProcesses": false,
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "lost-old-proof",
+        "changed-original-payload",
+        "missing-old-end-ack",
+        "changed-old-end-plan",
+        "old-end-wrong-ancestor",
+        "changed-frozen-certificate",
+        "changed-selection",
+        "old-vote-deleted",
+        "old-source-deleted",
+        "old-generation-deleted",
+        "staging-retained",
+        "rewritten-entry-origin",
+        "old-certificate-reused",
+        "changed-new-first-coverage",
+        "resurrected-tail"
+      ],
+      "newBallot": 21,
+      "nodePublications": 6,
+      "nodes": 3,
+      "oldBallot": 20,
+      "oldCertificates": 3,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "processForceOrder": false,
+      "resourcePeaks": "producer-observed-bounded",
+      "runtimeEnabled": false,
+      "status": "PASS"
+    }
+  },
+  "schema": "gse-v53-fenced-staging-local-v1",
+  "scope": [
+    "exact derived staging cleanup tolerates newer volatile observations while old acknowledgements remain fenced",
+    "seven before/during boundary observations and three twice-interrupted recoveries",
+    "old vote/source/generation preserved; original inode replacement refuses deletion",
+    "cleanup then context retention/withdrawal preserves higher observed fence",
+    "normal/optimized/portable independent original-first replay and eleven exact-reason negatives"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "2d45a2d1f4298616835aac5723b64e84f80b6f140b6cc2bbcfe97cb58595de6e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FencedStagingTest.java": "fe518ae5bb5be21f04ee33ca05fc49553052f85e12728c9ca3e17e34a22916d2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53StagedApplicationTest.java": "6318d27878e509f0e1e334db42e2c9d2fb40ef25c5a6e0909d903ded33dc38fd",
+    "scripts/v53/fenced_staging_evidence.py": "c9e9b5dbb057e988ebc08928bb4489faaaa6bcc6a5739cbb252d8e606996f1ad"
+  },
+  "status": "PASS"
+}

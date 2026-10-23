@@ -575,7 +575,8 @@ final class MembershipGrantJournal implements AutoCloseable {
     record Applied(MembershipCheckpointPlan plan,MembershipAppliedEndFiles.Endorsement endorsement) {}
     /** Retire only derived work from a fenced certificate. The newer installed selection
      * must retain that exact logical entry at the identical parent; voting originals survive.
-     * This method never forces or returns an old application ACK. */
+     * This method never forces or returns an old application ACK. A later volatile
+     * observation still fences voting, but cannot revoke this exact cleanup authority. */
     synchronized <K,T> void retireSupersededApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations)throws IOException {
         require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();otherApplicationTransactionsIdle();
@@ -612,12 +613,15 @@ final class MembershipGrantJournal implements AutoCloseable {
         var parentSources=new ArrayList<Map<String,Object>>();for(var original:bases.values())parentSources.add(Map.of("basis",original.digest(),"packet",hash(sources.original(original).packet().bytes())));
         parentSources.sort(Comparator.comparing(v->(String)v.get("basis")));
         authority.put("parentSources",parentSources);authority.put("floor",floors.read().map(Decoded::digest).orElse(""));
-        var bound=object(promise.value().get("ballot"));byte[] selector=current.selector.bytes(),installedPromise=promise.bytes(),installedSelection=selection.bytes();
+        byte[] selector=current.selector.bytes(),installedPromise=promise.bytes(),installedBasis=basis.bytes(),installedSelection=selection.bytes();
         MembershipGenerationFiles.Guard guard=()->{
-            checkOwner();fence(bound);otherApplicationTransactionsIdle();
+            // This is removal of derived work, not an acknowledgement under the
+            // installed ballot. Preserve observed unchanged and bind every force
+            // to the same owned durable originals even if a higher ballot arrives.
+            checkOwner();otherApplicationTransactionsIdle();
             require(!pendingAccept.pending() && !inactive.pending() && pendingAccept.active()!=null && Arrays.equals(vote.bytes(),pendingAccept.active().bytes())
                     && Arrays.equals(selector,current.selector.bytes()) && Arrays.equals(installedPromise,promise.bytes())
-                    && Arrays.equals(installedSelection,selection.bytes()),"staged retirement original authority changed");
+                    && Arrays.equals(installedBasis,basis.bytes()) && Arrays.equals(installedSelection,selection.bytes()),"staged retirement original authority changed");
         };
         guard.check();AdmissionPaths.disjoint(List.of(directory,storage.directory()));
         if(!appliedEnd.present() && !replayFiles.present())return;

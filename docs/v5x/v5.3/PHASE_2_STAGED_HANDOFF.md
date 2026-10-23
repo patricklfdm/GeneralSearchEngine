@@ -44,8 +44,11 @@ until the old vote has been reaccepted under the current selection, including th
 interval after staging disappears. Exact already-forced PREPARE replay remains
 read-only; identical completed installation can be replayed before a retirement
 marker exists, after revalidating the complete original plan. Every step retains the exclusive
-owner and new-ballot fence. A later volatile observation may interrupt cleanup;
-reopen can resume the same original transaction without returning an old ACK.
+owner and exact installed PROMISE/BASIS/SELECTED, pending vote and selector. A
+later volatile observation fences acknowledgements, but does not revoke permission
+to finish this same derived-work cleanup. The observation is neither lowered nor
+persisted as a substitute PROMISE; no old ACK is produced. Reopen still requires
+the exact original transaction and all retained authority bytes.
 
 The marker uses additional reserved metadata within the existing JOURNAL ceiling.
 No extra application image is copied and the seven-image ceiling is unchanged.
@@ -61,8 +64,8 @@ Fresh-process physical replay, full-size lifetime, configuration boundaries and
 offline provisioning remain separate Phase 2 closure obligations. Local injected
 I/O failures alone do not establish process-death or power-loss durability.
 
-The one-new-round handoff does not establish progress after an arbitrary later
-observed ballot. Such an observation must continue to fence voting; retaining an
+Cleanup now completes under later volatile observations, while voting remains
+fenced. This alone does not establish another campaign or full lifetime progress; retaining an
 independent original pending context through another generation/source turnover
 requires separate storage work. Reopening a cleanup owner does not restore an old
 leader callback, public readiness or permission to forget a durable promise.
@@ -98,3 +101,33 @@ Raw evidence stays under
 source snapshots and independent replay results stay under
 `target/v53-staged-handoff/`. Development failures are retained with their original
 source snapshots. No protected CI or paid cloud execution is claimed.
+
+## Later-observation cleanup qualification
+
+The local owner can now finish derived staging retirement after observing a
+strictly later ballot, including observations during marker write, force and
+deletion. Every force/deletion still checks the exclusive owner, original vote,
+current selector and exact installed PROMISE, BASIS and SELECTED. None of these
+checks is replaced by the volatile observation. A same-byte original-inode
+substitution stops before member deletion.
+
+[The additional evidence index](phase2-evidence/fenced-staging.json) records
+**56 passing Java tests**, including four new integration methods and the existing
+grant/adoption fencing regressions. Three new positive recovery tests fail on
+the earlier implementation. Seven retained boundary cases cover observation
+before/during cleanup; separate tests cover two interrupted attempts followed by
+recovery, and cleanup followed by exact context retention/redundant withdrawal.
+Every case keeps the original certificate, vote, journal, sources and generations.
+Old ACCEPT and exact old PREPARE remain rejected after cleanup.
+
+Independent replay verifies both original generations, grant groups, certified
+source, original derived end, unchanged protected files and force/delete order
+before eleven exact-reason negative mutations. Normal/optimized Python and a
+relocated replay must agree. These are local callbacks and injected IOException
+tests; fresh-process staging qualification and transferred-context lifetime remain
+open. Image semantics are executed by Java, not independently proven by Python.
+
+```bash
+python3 -m scripts.v53.fenced_staging_evidence <v53FencedStagingEvidence-directory>
+python3 -O -m scripts.v53.fenced_staging_evidence <v53FencedStagingEvidence-directory>
+```

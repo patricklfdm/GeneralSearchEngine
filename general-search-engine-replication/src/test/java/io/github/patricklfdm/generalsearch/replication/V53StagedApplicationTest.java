@@ -232,14 +232,16 @@ class V53StagedApplicationTest {
             assertPrepareBlocked(store,node,seed);
             assertEquals(before,V53ReplayFilesTest.files(node));assertEquals(usage,f.f.resources.usage());
             store.observeCurrent(f.f.initial.application.f.f.f.fixture.source.ballot(22));
-            assertThrows(IllegalArgumentException.class,()->retire(store,seed));assertEquals(before,V53ReplayFilesTest.files(node));
+            retire(store,seed);noStaging(node);
+            assertEquals("higher ballot observed; fresh campaign required",assertThrows(IllegalArgumentException.class,
+                    ()->store.acceptCurrent(seed.entry(),seed.payload())).getMessage());
         }
         assertEquals(0,f.f.resources.usage().leases());
         try(var store=f.f.open(1)){retire(store,seed);noStaging(node);store.acceptCurrent(seed.entry(),seed.payload());}
         assertEquals(0,f.f.resources.usage().leases());
     }
 
-    @Test void laterVolatileObservationInterruptsCleanupWithoutRevivingAnOldAcknowledgement()throws Exception {
+    @Test void laterVolatileObservationPreservesCleanupWithoutRevivingAnOldAcknowledgement()throws Exception {
         var seed=seed(temp.resolve("observed-seed"));var f=seed.fixture();
         try(var store=f.f.open(1)){apply(store,seed);}var others=otherSources(seed);var images=images(seed);
         try(var store=f.f.open(1)){install(store,seed,others,images);}
@@ -251,7 +253,9 @@ class V53StagedApplicationTest {
             try(var store=open(node,1,seed,resources,e->{if(e.equals(point)) {
                 hit[0]=true;owner[0].observeCurrent(f.f.initial.application.f.f.f.fixture.source.ballot(22));
             }})) {
-                owner[0]=store;assertThrows(IllegalArgumentException.class,()->retire(store,seed));assertTrue(hit[0]);
+                owner[0]=store;retire(store,seed);assertTrue(hit[0]);noStaging(node);
+                assertEquals("higher ballot observed; fresh campaign required",assertThrows(IllegalArgumentException.class,
+                        ()->store.acceptCurrent(seed.entry(),seed.payload())).getMessage());
             }
             assertEquals(0,resources.usage().leases());assertArrayEquals(vote,Files.readAllBytes(node.resolve(MembershipPendingAccept.FILE)));
             assertArrayEquals(journal,Files.readAllBytes(node.resolve("grants.gsr")),"observation is not a durable promise");
