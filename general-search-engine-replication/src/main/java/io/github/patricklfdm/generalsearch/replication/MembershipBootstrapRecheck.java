@@ -17,6 +17,14 @@ final class MembershipBootstrapRecheck {
     }
     static <K,T> long verify(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
             MembershipBootstrapPlanData plan,Path requestedProjection)throws IOException {
+        return verify(captured,request,plan,requestedProjection,false);
+    }
+    static <K,T> long verifyAdmitted(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
+            MembershipBootstrapPlanData plan,Path requestedProjection)throws IOException {
+        return verify(captured,request,plan,requestedProjection,true);
+    }
+    private static <K,T> long verify(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
+            MembershipBootstrapPlanData plan,Path requestedProjection,boolean admitted)throws IOException {
         Objects.requireNonNull(captured);Objects.requireNonNull(request);Objects.requireNonNull(plan);
         require(Arrays.equals(MembershipBootstrapPlanData.create(plan.seed,request).bytes(),plan.bytes()),"bootstrap retained recheck request drift");
         Path projection=AdmissionPaths.safe(requestedProjection);var paths=new ArrayList<Path>();paths.add(projection);
@@ -29,7 +37,8 @@ final class MembershipBootstrapRecheck {
         }
         var original=snapshot(projection,(long)request.targets().size()*MembershipApplicationImage.MAXIMUM);
         require(original.members().size()==wanted.size() && original.members().stream().allMatch(m->Objects.equals(wanted.get(m.name()),m.kind())),"bootstrap retained projection inventory");
-        long completion=new MembershipBootstrapCommitData(plan).completionBytes;
+        var commit=new MembershipBootstrapCommitData(plan);
+        long completion=admitted?MembershipBootstrapAdmissionData.completionBytes(commit.metadata):commit.completionBytes;
         require(original.bytes()<=request.maxOperationBytes()-completion,"bootstrap retained projection completion capacity");
         Path source=request.sourcePath().orElse(null);Snapshot sourceBefore=null;long sourceLimit=Math.min(request.maxSourceBytes(),MembershipApplicationImage.MAXIMUM-MembershipApplicationImage.OVERHEAD);
         if(source!=null) {

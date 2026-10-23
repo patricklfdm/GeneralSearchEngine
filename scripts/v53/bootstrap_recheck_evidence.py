@@ -11,11 +11,12 @@ import tempfile
 import uuid
 from . import bootstrap_revalidation_evidence as r
 from . import bootstrap_plan_evidence as p, bootstrap_transaction_evidence as t
-from . import pending_context_evidence as e
+from . import pending_context_evidence as e, bootstrap_admission_evidence as a
 from .journal_context_evidence import read_snapshot
 
 
-def validate(root,*,coordinator=False):
+def validate(root,*,coordinator=False,admitted=False):
+    e.need(not admitted or coordinator,'admitted replay requires coordinator profile')
     root=Path(root);names={f'size-{n}-{s}' for n in (3,4,5) for s in ('empty','backup')}
     e.need(root.is_dir() and not root.is_symlink() and {v.name for v in root.iterdir()}==names|{'receipt.json'},'bootstrap recheck case inventory');rows=[];exports=0;histories=set()
     for size in (3,4,5):
@@ -33,22 +34,24 @@ def validate(root,*,coordinator=False):
                 files,dirs=read_snapshot(case/'original-source');inventory=[dict(path=k,kind=1,size=len(v),sha256=e.digest(v)) for k,v in sorted(files.items())]
                 e.need(not dirs and e.f.canonical(inventory)==e.f.canonical(d['plan']['descriptor']['sourceInventory']),'bootstrap recheck original source')
             data=t.derived(raw,image,size=size,source=source)
-            e.need(actual+data['completionBytes']<=d['plan']['maximumOperation'],'bootstrap recheck completion capacity')
+            admission=a.envelope(data['receipt'],data['rows'][2],data['rows'][3]) if admitted else None
+            e.need(actual+data['completionBytes']+(size*len(admission) if admitted else 0)<=d['plan']['maximumOperation'],'bootstrap recheck completion capacity')
             e.need(p.read(case/'receipt.gsbp',65536)==data['receipt'],'bootstrap recheck receipt')
             files={'operation/operation.lock':b'','operation/plan.gsbp':raw,'operation/application.image':image,
                    'operation/'+t.JOURNAL:b''.join(data['rows']),'operation/'+t.RECEIPT:data['receipt']};dirs={'operation'}
             for i,payload in enumerate(data['payloads']):
                 prefix=f'target-{2*i}/';files.update({prefix+k:v for k,v in payload.items()});files[prefix+t.PREPARED]=data['preps'][i];files[prefix+t.SEAL]=data['seals'][i]
+                if admitted:files[prefix+'bootstrap-admission.gsbp']=admission
                 dirs.update({prefix[:-1],prefix+'generations',prefix+'generations/a',prefix+'sources'})
             e.need(read_snapshot(case/'final')==(files,dirs),'bootstrap recheck exact final authority')
             rows.append(dict(case=name,size=size,source=source,checks=4,plan=e.digest(raw),projectionBytes=actual,status='PASS'))
     receipt=e.parse(p.read(root/'receipt.json',65536))
-    e.need(e.f.canonical(receipt)==e.f.canonical(dict(schema='gse-v53-bootstrap-coordinator-v1' if coordinator else 'gse-v53-bootstrap-recheck-v1',status='PASS',cases=rows,publicBootstrap=False,freshProcesses=False)),'bootstrap recheck producer scope/accounting')
-    return dict(status='PASS',cases=6,retainedExports=exports,reportedTypedChecks=24,scope='private-coordinator-physical-reconciliation' if coordinator else 'retained-projection-and-completed-authority',independentTypedSemantics=False,independentExecutionTrace=False,publicBootstrap=False)
+    e.need(e.f.canonical(receipt)==e.f.canonical(dict(schema=('gse-v53-bootstrap-coordinator-v2' if admitted else 'gse-v53-bootstrap-coordinator-v1') if coordinator else 'gse-v53-bootstrap-recheck-v1',status='PASS',cases=rows,publicBootstrap=False,freshProcesses=False)),'bootstrap recheck producer scope/accounting')
+    return dict(status='PASS',cases=6,retainedExports=exports,reportedTypedChecks=24,scope='private-coordinator-physical-reconciliation' if coordinator else 'retained-projection-and-completed-authority',independentTypedSemantics=False,independentExecutionTrace=False,publicBootstrap=False,**({'admitted':True} if admitted else {}))
 
 
-def qualify(root,*,coordinator=False):
-    root=Path(root);result=validate(root,coordinator=coordinator);negatives=[]
+def qualify(root,*,coordinator=False,admitted=False):
+    root=Path(root);result=validate(root,coordinator=coordinator,admitted=admitted);negatives=[]
     variants={
         'missing-case':'bootstrap recheck case inventory',
         'extra-stage':'bootstrap recheck case members',
@@ -65,6 +68,7 @@ def qualify(root,*,coordinator=False):
         'public-claim':'bootstrap recheck producer scope/accounting',
         'linked-projection':'owner context linked/nonregular member',
     }
+    if admitted:variants['admission-missing']='bootstrap recheck exact final authority';variants['admission-foreign']='bootstrap recheck exact final authority'
     for name,reason in variants.items():
         with tempfile.TemporaryDirectory(prefix='v53-recheck-negative-') as temp:
             moved=Path(temp)/'evidence';shutil.copytree(root,moved);case=moved/'size-3-backup'
@@ -75,6 +79,8 @@ def qualify(root,*,coordinator=False):
             elif name=='projection-bytes':(case/'planning-scratch/application-0/gse-backup-checkpoint').write_bytes(b'changed')
             elif name=='original-image':(case/'original-application.image').write_bytes(b'changed')
             elif name=='receipt':(case/'receipt.gsbp').write_bytes(b'changed')
+            elif name=='admission-missing':(case/'final/target-0/bootstrap-admission.gsbp').unlink()
+            elif name=='admission-foreign':(case/'final/target-0/bootstrap-admission.gsbp').write_bytes((moved/'size-4-backup/final/target-0/bootstrap-admission.gsbp').read_bytes())
             elif name=='local-seal':(case/'final/target-0'/t.SEAL).unlink()
             elif name=='final-allocator':(case/'final/target-0/allocator.gsr').write_bytes(b'changed')
             elif name=='unknown-final-file':(case/'final/target-0/unknown').write_bytes(b'changed')
@@ -86,12 +92,12 @@ def qualify(root,*,coordinator=False):
                 elif name=='check-type':value['cases'][0]['checks']=True
                 else:value['publicBootstrap']=True
                 path.write_bytes(e.f.canonical(value))
-            try:validate(moved,coordinator=coordinator)
+            try:validate(moved,coordinator=coordinator,admitted=admitted)
             except ValueError as error:
                 e.need(str(error)==reason,'wrong bootstrap recheck negative: '+name+': '+str(error));negatives.append(dict(case=name,reason=reason))
             else:raise ValueError('accepted bootstrap recheck mutation: '+name)
     with tempfile.TemporaryDirectory(prefix='v53-recheck-portable-') as temp:
-        moved=Path(temp)/'evidence';shutil.copytree(root,moved);e.need(validate(moved,coordinator=coordinator)==result,'bootstrap recheck portable replay')
+        moved=Path(temp)/'evidence';shutil.copytree(root,moved);e.need(validate(moved,coordinator=coordinator,admitted=admitted)==result,'bootstrap recheck portable replay')
     return dict(result,negatives=negatives,portableReplay='PASS')
 
 if __name__=='__main__':

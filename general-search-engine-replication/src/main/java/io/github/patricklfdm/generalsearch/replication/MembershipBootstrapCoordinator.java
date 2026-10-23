@@ -37,12 +37,12 @@ final class MembershipBootstrapCoordinator {
     static <K,T> MembershipBootstrapResult apply(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
             MembershipBootstrapPlan reviewed,boolean resume,MembershipBallotAllocator.Cut cut)throws IOException {
         Objects.requireNonNull(captured);Objects.requireNonNull(request);Objects.requireNonNull(reviewed);Objects.requireNonNull(cut);
-        return MembershipBootstrapTransaction.applyChecked(reviewed,resume,p->metadata(captured,request,p),p->verify(captured,request,p,cut),cut);
+        return MembershipBootstrapTransaction.applyAdmitted(reviewed,resume,p->metadata(captured,request,p),p->verify(captured,request,p,cut),cut);
     }
     /** Initial committed result only. Future public result reading must tolerate
      * legitimate runtime mutations without treating them as bootstrap corruption. */
     static MembershipBootstrapResult readInitialResult(Path operation)throws IOException {
-        return MembershipBootstrapTransaction.read(retained(AdmissionPaths.safe(operation),false).summary());
+        return MembershipBootstrapTransaction.readAdmitted(retained(AdmissionPaths.safe(operation),false).summary());
     }
     private static MembershipBootstrapPlanData retained(Path operation,boolean candidate)throws IOException {
         AdmissionPaths.safe(operation);Path active=operation.resolve(MembershipBootstrapPlanFiles.FILE);
@@ -57,7 +57,7 @@ final class MembershipBootstrapCoordinator {
     }
     private static <K,T> void verify(SearchEngineConfiguration<K,T> captured,MembershipBootstrapRequest<K,T> request,
             MembershipBootstrapPlanData plan,MembershipBallotAllocator.Cut cut)throws IOException {
-        metadata(captured,request,plan);MembershipBootstrapRecheck.verify(captured,request,plan,projection(plan.operation()));
+        metadata(captured,request,plan);MembershipBootstrapRecheck.verifyAdmitted(captured,request,plan,projection(plan.operation()));
         cut.at("BOOTSTRAP_TYPED_RECHECKED");
     }
 }

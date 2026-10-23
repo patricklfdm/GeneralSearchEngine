@@ -188,3 +188,5 @@ layout encoder with actual seed creation and verifies original plan metadata wit
 requiring application bytes. It remains separate from typed/committed admission.
 
 - [Admitted initial-voter store](PHASE_2_BOOTSTRAP_STORE_ADMISSION.md): exact immutable admission before allocator recovery, actual grant/reopen across all six size/source profiles, and unchanged original records.
+
+- [Typed admitted coordinator](PHASE_2_BOOTSTRAP_ADMITTED_COORDINATOR.md): real typed rechecks reserve compact admissions and retained projection together, then open all 24 initial voters.

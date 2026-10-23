@@ -32,15 +32,26 @@ class V53BootstrapCoordinatorTest {
             assertEquals(3,checks.get());
             var result=MembershipBootstrapCoordinator.apply(builder().configuration(),request,plan,true,count);assertEquals(4,checks.get());
             assertEquals(original.seed.root,result.root());assertEquals(result,MembershipBootstrapCoordinator.readInitialResult(plan.operationDirectory()));
-            assertEquals(before,V53BootstrapRecheckTest.projection(scratch));V53BootstrapTransactionTest.verify(original);
+            assertEquals(before,V53BootstrapRecheckTest.projection(scratch));V53BootstrapAdmissionFilesTest.verify(original);
             Path member=Files.createDirectory(evidence.resolve("size-"+size+"-"+(backup?"backup":"empty")));
             Files.write(member.resolve("original-plan.gsbp"),original.bytes());Files.write(member.resolve("original-application.image"),original.seed.application());
             V53JournalApplicationTest.copy(scratch,member.resolve("planning-scratch"));if(backup)V53JournalApplicationTest.copy(request.sourcePath().orElseThrow(),member.resolve("original-source"));
             Files.write(member.resolve("receipt.gsbp"),Files.readAllBytes(plan.operationDirectory().resolve(MembershipBootstrapCommitData.RECEIPT)));
             V53BootstrapTransactionTest.copy(original,member.resolve("final"));
+            // Cross the actual typed coordinator -> admitted storage boundary.
+            // Retained initial evidence above stays immutable after these writes.
+            for(var target:request.targets()) {
+                var resources=new MembershipResources(512*MembershipResources.MIB);
+                try(var store=MembershipGrantJournal.openBootstrapped(target.replicaDirectory(),target.materialization().directory(),original.seed.root,target.identity(),resources,
+                        (root,packet,images)->MembershipCapsule.verify(root,packet,images,Set.of()),MembershipGrantJournal.MAXIMUM,e->{})) {
+                    assertEquals(2,store.reserveCounter());var id=target.identity();
+                    store.prepareCurrent(Map.of("counter",2L,"proposer",id.nodeId().value(),"incarnation",id.storageId().toString()));
+                    assertTrue(store.originalBasis().isPresent());
+                }assertEquals(0,resources.usage().leases());
+            }
             rows.add(Map.of("case",member.getFileName().toString(),"size",size,"source",request.source().name(),"checks",checks.get(),"plan",original.digest(),"projectionBytes",V53BootstrapRevalidationTest.bytes(scratch),"status","PASS"));
         }
-        Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-bootstrap-coordinator-v1","status","PASS","cases",rows,"publicBootstrap",false,"freshProcesses",false),65536));
+        Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-bootstrap-coordinator-v2","status","PASS","cases",rows,"publicBootstrap",false,"freshProcesses",false),65536));
         System.out.println("v53BootstrapCoordinatorEvidence="+evidence.toAbsolutePath());
     }
     @Test void completeOriginalPlanCanBeRecoveredButMissingAndTornPlansCannotBeReinvented()throws Exception {
@@ -95,4 +106,35 @@ class V53BootstrapCoordinatorTest {
         Files.copy(active,r.operationDirectory().resolve(MembershipBootstrapPlanFiles.NEXT));Files.writeString(active,"corrupt");var before=V53ReplayFilesTest.files(r.operationDirectory());
         assertThrows(RuntimeException.class,()->MembershipBootstrapCoordinator.plan(builder().configuration(),r,e->{}));assertEquals(before,V53ReplayFilesTest.files(r.operationDirectory()));
     }
+    static MembershipBootstrapRequest<Integer,Doc> budget(MembershipBootstrapRequest<Integer,Doc> r,long maximum) {
+        return new MembershipBootstrapRequest<>(r.groupId(),r.configurationId(),r.source(),r.sourcePath(),r.targets(),r.operationDirectory(),r.maxSourceBytes(),maximum);
+    }
+    @Test void retainedProjectionAndEveryAdmissionAreReservedTogetherBeforeAnyCoordinatorWrite()throws Exception {
+        var request=request("combined-capacity",5,true);Path projection=MembershipBootstrapCoordinator.projection(request.operationDirectory());
+        var seed=MembershipBootstrapSeed.project(builder().configuration(),request,UUID.randomUUID(),projection);
+        long scratch=V53BootstrapRevalidationTest.bytes(projection),limit=request.maxOperationBytes();
+        // Original component budget fits exactly; admitted coordinator must refuse it.
+        for(int i=0;i<8;i++)limit=scratch+new MembershipBootstrapCommitData(MembershipBootstrapPlanData.create(seed,budget(request,limit))).completionBytes;
+        var small=budget(request,limit);var original=MembershipBootstrapPlanData.create(seed,small);var metadata=new MembershipBootstrapCommitData(original).metadata;
+        assertEquals(limit,scratch+metadata.completionBytes);
+        assertEquals(scratch,MembershipBootstrapRecheck.verify(builder().configuration(),small,original,projection));
+        assertThrows(RuntimeException.class,()->MembershipBootstrapRecheck.verifyAdmitted(builder().configuration(),small,original,projection));
+        try(var owner=MembershipBootstrapPlanFiles.create(original,e->{})){assertEquals(original.summary(),owner.summary());}
+        var before=V53BootstrapTransactionTest.files(original);var events=new ArrayList<String>();
+        assertThrows(RuntimeException.class,()->MembershipBootstrapCoordinator.plan(builder().configuration(),small,events::add));assertTrue(events.isEmpty());
+        assertEquals(before,V53BootstrapTransactionTest.files(original));assertFalse(Files.exists(small.operationDirectory().resolve(MembershipBootstrapCommitData.JOURNAL)));
+        for(var target:small.targets())assertFalse(Files.exists(target.replicaDirectory()));
+        long complete=limit+5L*MembershipBootstrapAdmissionData.create(metadata).length;
+        for(int i=0;i<8;i++) {
+            var m=new MembershipBootstrapCommitData(MembershipBootstrapPlanData.create(seed,budget(request,complete))).metadata;
+            complete=scratch+m.completionBytes+5L*MembershipBootstrapAdmissionData.create(m).length;
+        }
+        var enough=budget(request,complete);var admitted=MembershipBootstrapPlanData.create(seed,enough);
+        assertEquals(complete,scratch+MembershipBootstrapAdmissionData.completionBytes(new MembershipBootstrapCommitData(admitted).metadata));
+        assertEquals(scratch,MembershipBootstrapRecheck.verifyAdmitted(builder().configuration(),enough,admitted,projection));
+        var shortBudget=budget(request,complete-1);var shortPlan=MembershipBootstrapPlanData.create(seed,shortBudget);
+        assertThrows(RuntimeException.class,()->MembershipBootstrapRecheck.verifyAdmitted(builder().configuration(),shortBudget,shortPlan,projection));
+        assertEquals(before,V53BootstrapTransactionTest.files(original));
+    }
+
 }

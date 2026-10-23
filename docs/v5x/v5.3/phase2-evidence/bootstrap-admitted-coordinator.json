@@ -1,0 +1,302 @@
+{
+  "base": "b4d4e9e43c81d61a26d6b4ab3ede454e2d7f02b5",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-admitted-coordinator/inputs1.json",
+    "sha256": "47e15f17a226d1b12c91d6f6ed3b0575d7e51b064e7a6fdea68c142ec845c888"
+  },
+  "compiledMainClasses": {
+    "classes": 698,
+    "path": "target/v53-bootstrap-admitted-coordinator/compiled-main-classes.json",
+    "sha256": "a5534a03a2b8451f68058e8e459a140085c2d81877c09042b4082ec1b79d99c4"
+  },
+  "crossProfileRejections": [
+    {
+      "case": "new-as-old",
+      "reason": "bootstrap recheck exact final authority"
+    },
+    {
+      "case": "old-as-new",
+      "reason": "bootstrap recheck exact final authority"
+    }
+  ],
+  "jars": {
+    "target/v53-bootstrap-admitted-coordinator/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-admitted-coordinator/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "586c25643869080e18018b37880c535bd90482f6b2217b47ce7e697aa1cc0574"
+  },
+  "javaMethods": 20,
+  "limitations": [
+    "no public runtime, typed coordinator process death or general post-progress resume/result qualification",
+    "no independent typed codec semantics, power-loss, complete maximal/context lifetime or Phase 2 closure claim",
+    "revalidation raw is indexed; this batch reruns its Java checks, not its separate independent physical replay"
+  ],
+  "logs": {
+    "historical-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "historical.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "recheck-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "recheck.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "45fa78849393d38d5000f52225b69a88b132012a7090ec6e2d344dd8972be914"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-admitted-coordinator/producer-classes.json",
+    "sha256": "335ac870ac31f3dc816aaeab45a4f1bbb6e4f789c6ba37a9fc8949448648e0c4"
+  },
+  "raw": {
+    "coordinator": {
+      "indexSha256": "241b5033636c9a1c6668b6651011fda2ebf1e124898abcc7ffc5518057f588af",
+      "members": 490,
+      "path": "general-search-engine-replication/target/v53-bootstrap-coordinator/run-8e4177fa-1bb2-441d-9fb0-f20419bb11bc"
+    },
+    "historical": {
+      "indexSha256": "fa2b7414dc58458d3a7b3cef2d1689bb9266217d16c1e834d44d96819088c2b3",
+      "members": 466,
+      "path": "general-search-engine-replication/target/v53-bootstrap-coordinator/run-4bdd23b6-6ef3-42f6-b728-5f183368fb27"
+    },
+    "recheck": {
+      "indexSha256": "da33b3da700016402d0bbe89327d756614aa0dc2ecc1ffa92644303a60502146",
+      "members": 466,
+      "path": "general-search-engine-replication/target/v53-bootstrap-recheck/run-72bc03da-a638-498f-8532-7020036c164f"
+    },
+    "revalidation": {
+      "indexSha256": "edbea56d3b722948c506c72a4244a2be4a98cb57dbe530cd8932617d17f6704c",
+      "members": 316,
+      "path": "general-search-engine-replication/target/v53-bootstrap-revalidation/run-a8b49780-bc3e-471f-ba9f-9107920a5f5a"
+    }
+  },
+  "replays": {
+    "historical": {
+      "cases": 6,
+      "independentExecutionTrace": false,
+      "independentTypedSemantics": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap recheck case inventory"
+        },
+        {
+          "case": "extra-stage",
+          "reason": "bootstrap recheck case members"
+        },
+        {
+          "case": "extra-projection",
+          "reason": "bootstrap recheck bounded projection"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "bootstrap recheck original source"
+        },
+        {
+          "case": "projection-bytes",
+          "reason": "bootstrap validation exact exported state"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "receipt",
+          "reason": "bootstrap recheck receipt"
+        },
+        {
+          "case": "local-seal",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "final-allocator",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "unknown-final-file",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "underreported-bytes",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "check-type",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "public-claim",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "linked-projection",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "portableReplay": "PASS",
+      "publicBootstrap": false,
+      "reportedTypedChecks": 24,
+      "retainedExports": 24,
+      "scope": "private-coordinator-physical-reconciliation",
+      "status": "PASS"
+    },
+    "recheck": {
+      "cases": 6,
+      "independentExecutionTrace": false,
+      "independentTypedSemantics": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap recheck case inventory"
+        },
+        {
+          "case": "extra-stage",
+          "reason": "bootstrap recheck case members"
+        },
+        {
+          "case": "extra-projection",
+          "reason": "bootstrap recheck bounded projection"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "bootstrap recheck original source"
+        },
+        {
+          "case": "projection-bytes",
+          "reason": "bootstrap validation exact exported state"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "receipt",
+          "reason": "bootstrap recheck receipt"
+        },
+        {
+          "case": "local-seal",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "final-allocator",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "unknown-final-file",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "underreported-bytes",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "check-type",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "public-claim",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "linked-projection",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "portableReplay": "PASS",
+      "publicBootstrap": false,
+      "reportedTypedChecks": 24,
+      "retainedExports": 24,
+      "scope": "retained-projection-and-completed-authority",
+      "status": "PASS"
+    },
+    "replay": {
+      "admitted": true,
+      "cases": 6,
+      "independentExecutionTrace": false,
+      "independentTypedSemantics": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap recheck case inventory"
+        },
+        {
+          "case": "extra-stage",
+          "reason": "bootstrap recheck case members"
+        },
+        {
+          "case": "extra-projection",
+          "reason": "bootstrap recheck bounded projection"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "bootstrap recheck original source"
+        },
+        {
+          "case": "projection-bytes",
+          "reason": "bootstrap validation exact exported state"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "receipt",
+          "reason": "bootstrap recheck receipt"
+        },
+        {
+          "case": "local-seal",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "final-allocator",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "unknown-final-file",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "underreported-bytes",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "check-type",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "public-claim",
+          "reason": "bootstrap recheck producer scope/accounting"
+        },
+        {
+          "case": "linked-projection",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "admission-missing",
+          "reason": "bootstrap recheck exact final authority"
+        },
+        {
+          "case": "admission-foreign",
+          "reason": "bootstrap recheck exact final authority"
+        }
+      ],
+      "portableReplay": "PASS",
+      "publicBootstrap": false,
+      "reportedTypedChecks": 24,
+      "retainedExports": 24,
+      "scope": "private-coordinator-physical-reconciliation",
+      "status": "PASS"
+    }
+  },
+  "schema": "gse-v53-bootstrap-admitted-coordinator-local-v1",
+  "scope": [
+    "actual typed/source coordinator uses admitted transaction and exact combined projection/completion budget",
+    "all six size/source profiles, 24 admitted owners reserve and grant after initial snapshot",
+    "16 admitted, 14 current original-recheck, 14 unchanged historical evidence negatives; normal/optimized/portable",
+    "new/old profiles mutually reject; historical originals unchanged"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapCoordinator.java": "9a16c249753c5d141cbb2699266ebc653415a0f89b5708018a86fafe24f6403f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapRecheck.java": "3b255fd347079cf26583c847fd990828c9ec2afe6c7d4f3beb1861a44728a8fa",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapCoordinatorTest.java": "df658654480b49bee90e927725698a9b2f3e2ccde5c5ef4cf794dcef6e5b616e",
+    "scripts/v53/bootstrap_coordinator_evidence.py": "4a90f626b7741d7ebc152e30d74c36cc9daebb1eb7451b3f9b265a5d3e48511c",
+    "scripts/v53/bootstrap_recheck_evidence.py": "bf67d11089dde646002093b889ccdd5330cd4236c1bb2de5574607a13357936c"
+  },
+  "status": "PASS"
+}
