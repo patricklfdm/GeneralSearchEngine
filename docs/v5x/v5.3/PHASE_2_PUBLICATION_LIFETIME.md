@@ -81,7 +81,11 @@ mvn -o --batch-mode --no-transfer-progress -f reactor/pom.xml \
 python3 -m scripts.v53.publication_lifetime_evidence <printed-v53PublicationLifetimeEvidence>
 ```
 
-Historical bootstrap remains a conditional fixture. These are repeated local
+The separate [coordinated maintenance matrix](PHASE_2_MAINTENANCE_LIFETIME.md)
+extends one original maintenance request through fresh-process crashes and a
+second recovery interruption, with original-first physical replay.
+
+Historical bootstrap remains a conditional fixture. These clean-loop results are repeated local
 owner opens within a test JVM, with separate I/O interruption tests; they are not
 a fresh-process lifetime crash matrix, same-ballot continuation, public runtime,
 network quorum or power-loss result. Maximal image/journal pressure, cross-view

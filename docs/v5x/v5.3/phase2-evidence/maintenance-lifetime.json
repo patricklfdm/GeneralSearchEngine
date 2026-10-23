@@ -1,0 +1,97 @@
+{
+  "base": "40b162bf3a467eaca579b9094cf40f9f33dadc2e",
+  "developmentFailures": {
+    "process-qualified.log": "new worker requested floor copy before resuming pending installation; storage correctly refused; driver resumes original installation first",
+    "process.log": "new worker used nonexistent currentSelection accessor; corrected to originalSelection"
+  },
+  "jars": {
+    "general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "85f7c5a5fc72434db1cb44873a66e94cf0ae7d1839bc3b21011ed0ee7c1ccca4",
+    "target/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "private small-image three-voter maintenance request",
+    "conditional bootstrap and retained observation inputs; no network ownership claim",
+    "nine first interruption boundaries, not every tear location or maximal/cross-view lifetime",
+    "no same-ballot continuation or public runtime",
+    "process crashes do not prove power-loss durability"
+  ],
+  "logs": {
+    "process-qualified.log": "8a7378b7d1b435ecb7c2f1f6bafae340f1cb3ea0b90db482525e2522299497cc",
+    "process-recovery.log": "6b8010b5e19b8f24a14cf6c9132d47317e512263a8f79b15a2a3d1535eae0205",
+    "process.log": "c949fb91585807d1a718ec6a4b8e4eea75daacd5839ec99b2d858b25c9a4f31f",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "productionChanged": false,
+  "protectedCI": false,
+  "raw": {
+    "files": 7124,
+    "indexSha256": "471ffd3cbc5ad985119994db9bf283da7c1b2dccc6da264711b6f340792a9ba8",
+    "path": "general-search-engine-replication/target/v53-maintenance-lifetime/run-63586432-1516-4098-9db7-e91e3fa57fe0"
+  },
+  "replays": {
+    "replay": {
+      "cases": 18,
+      "freshJvms": 72,
+      "negatives": [
+        "missing-source",
+        "changed-peer",
+        "altered-old-ancestry",
+        "missing-parent-observation",
+        "early-selector",
+        "early-generation-delete",
+        "early-source-delete",
+        "missing-floor-force",
+        "missing-retirement-force",
+        "changed-journal",
+        "floor-recreated",
+        "missing-original-selected",
+        "false-crash-cut"
+      ],
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "repeatedCrashes": 18,
+      "runtimeEnabled": false,
+      "settledImages": 2,
+      "settledSources": 1,
+      "status": "PASS"
+    },
+    "replay-optimized": {
+      "cases": 18,
+      "freshJvms": 72,
+      "negatives": [
+        "missing-source",
+        "changed-peer",
+        "altered-old-ancestry",
+        "missing-parent-observation",
+        "early-selector",
+        "early-generation-delete",
+        "early-source-delete",
+        "missing-floor-force",
+        "missing-retirement-force",
+        "changed-journal",
+        "floor-recreated",
+        "missing-original-selected",
+        "false-crash-cut"
+      ],
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "repeatedCrashes": 18,
+      "runtimeEnabled": false,
+      "settledImages": 2,
+      "settledSources": 1,
+      "status": "PASS"
+    }
+  },
+  "retainedLocal": "target/v53-maintenance-lifetime",
+  "schema": "gse-v53-maintenance-lifetime-local-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaintenanceLifetimeTest.java": "33966498f960e07976cca1308235e33a9e4c3d0234de4f449271c7a784456f45",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaintenanceLifetimeWorker.java": "ab16463d7ed1becc7dd553fc85c74b88582d192493b1de1ffd35d11bbfd9d460",
+    "scripts/v53/maintenance_lifetime_evidence.py": "99d28febc2f471e51884a15b66e1716246c581796d0aa02cf9792c7c1256987a"
+  },
+  "status": "PASS"
+}

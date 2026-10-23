@@ -73,7 +73,9 @@ the publication image as well as replay/end space. [Dedicated six-to-one pruning
 now passes ten repeated-crash cases with independent portable replay.
 [Repeated publication and source/floor maintenance](PHASE_2_PUBLICATION_LIFETIME.md)
 now preserves supplemental installation ancestry through twelve fresh ballots and
-reclaims obsolete copies. Complete lifetime crash/cross-view qualification,
+reclaims obsolete copies. [Coordinated maintenance process recovery](PHASE_2_MAINTENANCE_LIFETIME.md)
+adds original-request replay across installation, floor, generation/source retirement
+and floor release. Complete lifetime crash/cross-view qualification,
 subsequent same-round slots and maximal resource lifetime remain pending.
 
 The [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks integrated
