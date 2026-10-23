@@ -1,0 +1,265 @@
+{
+  "base": "2d0a517d3884a63aa3b97404aace12b5a08f495d",
+  "compiledInventory": {
+    "path": "target/v53-context-retirement/final-inputs.json",
+    "sha256": "4985cdd73422cc25cf3db236780ef47e9f63611c2bf0d6aadee443eeb8b6bf65"
+  },
+  "development": [
+    "development.log: all 25 twice-interrupted retirement boundaries and seven existing owner tests passed; three new assertions used the wrong floor directory name; corrected to floor-copies",
+    "qualified.log: ten tests pass; missing source is correctly rejected as ReplicationException rather than the narrower test exception set; corrected assertion",
+    "final.log: all 67 tests pass, including context, grant, floor, retirement image, observation fence and version/declaration boundaries"
+  ],
+  "floorBoundaries": 6,
+  "jars": {
+    "target/v53-context-retirement/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-retirement/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a9191043737e2b88762c9fe4db8d79ff726b07d31714af0d2c90cde83334b917"
+  },
+  "javaMethods": 67,
+  "limitations": [
+    "injected IOException, not fresh-process/power-loss recovery for this integrated path",
+    "only the first three-voter context retirement is exercised; four/five-voter regression tests cover their existing separate profiles",
+    "current selection and floor remain pinned; no later campaign/source turnover or full transferred lifetime yet",
+    "historical bootstrap and remote observations remain conditional; Java alone checks image semantics and resource leases",
+    "raw physical replay covers the clean complete/reopened path; interrupted cases are Java assertions",
+    "Phase 2 open; no protected CI or paid cloud"
+  ],
+  "logs": {
+    "context-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "development.log": "6f3b43ad249f173c6e9df7ce0eab85ab4bf6e897de69555bc5ed67b699f32701",
+    "fenced-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fenced.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final.log": "e19239b0310236e65b679487e6e191ec66de24e3e5eb3d2b9ec40d184fcd2668",
+    "qualified.log": "1613e3a5930b2dc3870f836e1ee07540f005160b2cbdc4eb7b3eca823d3da391",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newMethods": 4,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-retirement/producer-classes.json",
+    "sha256": "71a2e1f76fba3605d5ba04080be8fb4641c8a76197fe96060604978ae682c9a4"
+  },
+  "raw": {
+    "context": {
+      "indexSha256": "e359744577f883d427da6ed6178dc918b690a86d1a47195a3edb7788e1f9bc74",
+      "members": 1385,
+      "path": "general-search-engine-replication/target/v53-journal-context/run-e7e266c3-0347-4ba5-b17d-29b8f50931f7"
+    },
+    "fenced": {
+      "indexSha256": "45d06484187d5ddc7f4aec447ef9483015f3ce09cad8241c3801b4da8f3d3549",
+      "members": 463,
+      "path": "general-search-engine-replication/target/v53-fenced-staging/run-77b8cb83-b0b4-4650-9e7b-76dcb732e939"
+    },
+    "replay": {
+      "indexSha256": "9f19323db77fc5d44f2592698e945ab78c716a709d8327d696bba39e53f019a5",
+      "members": 185,
+      "path": "general-search-engine-replication/target/v53-context-retirement/run-78b1bb26-1ff9-4dd8-99d0-dafe868307e5"
+    }
+  },
+  "replays": {
+    "context": {
+      "cases": 12,
+      "freshProcesses": false,
+      "fullOwnerProgress": false,
+      "imageSemanticClaim": false,
+      "interruptionModel": "injected-IOException",
+      "interruptionsPerCase": 2,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "owner context case inventory"
+        },
+        {
+          "case": "changed-vote",
+          "reason": "owner context protected authority changed"
+        },
+        {
+          "case": "missing-original",
+          "reason": "owner context protected authority changed"
+        },
+        {
+          "case": "changed-source",
+          "reason": "owner context protected authority changed"
+        },
+        {
+          "case": "changed-context",
+          "reason": "context checksum"
+        },
+        {
+          "case": "lost-prefix",
+          "reason": "owner context interrupted exact prefix"
+        },
+        {
+          "case": "second-crash-progress",
+          "reason": "owner context second interruption changed bytes"
+        },
+        {
+          "case": "force-order",
+          "reason": "owner context force-before-metadata order"
+        },
+        {
+          "case": "old-ack",
+          "reason": "owner context returned old acknowledgement"
+        },
+        {
+          "case": "false-process",
+          "reason": "owner context receipt scope"
+        },
+        {
+          "case": "linked-source",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "extra-all-snapshots",
+          "reason": "owner context initial authority inventory"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "remoteOwnershipVerified": false,
+      "retirementAuthorized": false,
+      "runtimeEnabled": false,
+      "sourceOwnership": "actual-local-force",
+      "status": "PASS"
+    },
+    "fenced": {
+      "cases": 7,
+      "freshProcesses": false,
+      "imageSemanticClaim": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "fenced staging case inventory"
+        },
+        {
+          "case": "changed-vote",
+          "reason": "fenced staging protected originals changed"
+        },
+        {
+          "case": "lost-original",
+          "reason": "fenced staging protected originals changed"
+        },
+        {
+          "case": "retained-staging",
+          "reason": "fenced staging protected originals changed"
+        },
+        {
+          "case": "changed-end",
+          "reason": "fenced staging exact original derived end"
+        },
+        {
+          "case": "force-order",
+          "reason": "fenced staging exact force/delete order"
+        },
+        {
+          "case": "old-ack",
+          "reason": "fenced staging old acknowledgement returned"
+        },
+        {
+          "case": "missing-observation",
+          "reason": "fenced staging observation boundary"
+        },
+        {
+          "case": "false-process",
+          "reason": "fenced staging receipt scope"
+        },
+        {
+          "case": "linked-authority",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "extra-authority",
+          "reason": "owner context initial authority inventory"
+        }
+      ],
+      "oldAcknowledgement": false,
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "remoteOwnershipVerified": false,
+      "status": "PASS",
+      "transferredLifetime": false
+    },
+    "replay": {
+      "floor": "9c02be4ccfce4dc25270cc3253f1cea8a6bb302c698f86909a1637c1ba6b7dd4",
+      "freshProcesses": false,
+      "governingVoters": 2,
+      "imageSemanticClaim": false,
+      "negatives": [
+        {
+          "case": "missing-peer",
+          "reason": "context retirement evidence inventory"
+        },
+        {
+          "case": "changed-context",
+          "reason": "context checksum"
+        },
+        {
+          "case": "lost-vote",
+          "reason": "context retirement exact deletion/protected originals"
+        },
+        {
+          "case": "lost-source",
+          "reason": "context retirement exact deletion/protected originals"
+        },
+        {
+          "case": "changed-floor",
+          "reason": "context retirement exact governing floor copies"
+        },
+        {
+          "case": "lost-copy",
+          "reason": "context retirement exact governing floor copies"
+        },
+        {
+          "case": "kept-original",
+          "reason": "context retirement exact deletion/protected originals"
+        },
+        {
+          "case": "changed-reopen",
+          "reason": "context retirement reopen changed authority"
+        },
+        {
+          "case": "force-order",
+          "reason": "context retirement floor/authority/delete order"
+        },
+        {
+          "case": "old-ack",
+          "reason": "context retirement old acknowledgement returned"
+        },
+        {
+          "case": "false-progress",
+          "reason": "context retirement receipt scope"
+        },
+        {
+          "case": "linked-floor",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "nextCampaign": false,
+      "oldSlot": "a",
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "protectedContext": true,
+      "remoteOwnershipVerified": false,
+      "retirement": "b4d2bd3b8881f0f3f2785b839f42f128be3bc7c7ec01acd5ddce25c3cea1a1db",
+      "status": "PASS"
+    }
+  },
+  "retirementBoundaries": 25,
+  "schema": "gse-v53-context-retirement-local-v1",
+  "scope": [
+    "actual three-owner original source/context and two exact governing floor copies",
+    "old vote verification after real generation retirement and reopen",
+    "25 retirement boundaries each followed by a second context reseal interruption; six partial floor boundaries",
+    "source/context/vote/floor retained and general authority mutations refused",
+    "seven-image bound; original-first independent clean physical replay and twelve exact-reason negatives"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "44ddb739bab1f14665ca1053fabb7ea533491d5976c5ad56716e11047c2e19ab",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextRetirementTest.java": "7e4be27590f0136879c41b3c71cf2058d67e3122bd046da71876ea90ec6d3c16",
+    "scripts/v53/context_retirement_evidence.py": "d83bf66b3dec5a6e3b21700cbcd6960028a7bbf8b3ee08488ce67aa6515830f4"
+  },
+  "status": "PASS"
+}

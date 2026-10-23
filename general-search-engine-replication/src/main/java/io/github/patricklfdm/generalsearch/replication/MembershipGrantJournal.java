@@ -190,8 +190,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         return openGenerations(requested,root,identity,resources,verifier,cut,withFloors,withRetirement,withRotation,withFloorRelease,
                 maximum,withSourceRetirement,withCapture,withVotes,withApplication,false);
     }
-    /** Opt-in local context owner. Transferred lifetime is not yet enabled: an installed context
-     * must remain pinned or be explicitly withdrawn as redundant before authority changes. */
+    /** Opt-in local context owner. Exact floor maintenance may retire the old generation;
+     * the context, backing source and vote stay pinned before any later campaign. */
     static MembershipGrantJournal openContextual(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,int maximum,MembershipBallotAllocator.Cut cut)throws IOException {
         return openGenerations(requested,root,identity,resources,verifier,cut,true,true,true,true,maximum,true,true,true,true,true);
@@ -210,7 +210,11 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(withCapture)journal.capture=new MembershipCaptureFiles(path);
             if(withVotes) {
                 journal.pendingAccept=new MembershipPendingAccept(path);journal.reloadGenerations();
-                journal.verifyVote(journal.pendingAccept.active());
+                // An active context may own the old vote after its physical generation
+                // retired. Validate it below, after reserving/resealing its real source
+                // and opening the governing floor. Candidates never get this deferral.
+                if(!withContext || !Files.exists(path.resolve(MembershipPendingContextFiles.FILE),LinkOption.NOFOLLOW_LINKS))
+                    journal.verifyVote(journal.pendingAccept.active());
                 require(journal.pendingBytes()<=maximum-journal.storedJournal().length,"combined pending/grant journal capacity");
             }
             MembershipCaptureFiles.Plan pending=null;
@@ -270,10 +274,12 @@ final class MembershipGrantJournal implements AutoCloseable {
 
     private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes());}
 
-    /** Exact private persistence under the real local owner and forced source. No old ACK and no
-     * deletion is authorized; the existing original generation/source/phase remain required. */
+    /** Exact private persistence under the real local owner and forced source. No old ACK.
+     * Original generation deletion additionally requires explicit governing-floor maintenance. */
     synchronized MembershipPendingContext.Reconstructed retainPendingContext()throws IOException {
-        require(pendingContext!=null,"context-aware storage owner required");checkOwner();otherAuthorityTransactionsIdle();applicationReferencesIdle();
+        require(pendingContext!=null,"context-aware storage owner required");checkOwner();
+        if(pendingContext.active().isPresent())return resealPendingContext();
+        otherAuthorityTransactionsIdle();applicationReferencesIdle();
         require(!inactive.pending() && !pendingAccept.pending(),"context requires complete original authorities");
         var vote=pendingAccept.active();require(voteReferencesInactive(vote) && carriedVoteUntransferred(),"context requires installed carried vote");
         verifyVote(vote);var originals=inactive.originalFiles();
@@ -299,6 +305,57 @@ final class MembershipGrantJournal implements AutoCloseable {
             cut.at("CONTEXT_OWNER_BEFORE_RETURN");guard.check();
             return MembershipPendingContext.reconstruct(pendingContext.active().orElseThrow(),root,identity,promise,local,source.images(),capsuleVerifier);
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    /** Reconstruct old authority from an already forced local context/source; never
+     * manufacture a current-generation ownership receipt from these metadata. */
+    private MembershipPendingContext.Reconstructed retainedContextOriginal()throws IOException {
+        require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),"complete retained context required");
+        require(promise!=null && basis!=null && selection!=null && !pendingAccept.pending() && !inactive.pending()
+                && promise.digest().equals(current.manifest.value().get("promise"))
+                && basis.digest().equals(current.manifest.value().get("basis"))
+                && selection.digest().equals(current.manifest.value().get("selection")),"retained context installed authority changed");
+        var original=MembershipPendingContext.reconstruct(pendingContext.active().orElseThrow(),root,identity,promise,originalSource(),
+                sources.original(basis).images(),capsuleVerifier);
+        require(pendingAccept.active()!=null && Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes())
+                && original.selector().value().get("generation").equals(inactive.slot())
+                && original.capsule().terminal().equals(current.capsule.terminal())
+                && original.vote().entry().digest().equals(selection.value().get("nextEntry")),"retained context original/current binding changed");
+        var expected=original.originalFiles();var record=retirement.authority();
+        if(record.isPresent() || !inactive.exists()) {
+            var floor=floors.retained().orElseThrow(()->new IllegalArgumentException("retained context missing governing retirement floor"));
+            var local=floor.copies().stream().filter(c->c.owner.equals(identity)).findFirst().orElseThrow();
+            require(local.generation.digest().equals(current.manifest.digest())
+                    && local.capsule.terminal().equals(original.capsule().terminal()),"retained context retirement floor changed");
+            if(record.isPresent()) {
+                bindRetirement(record.orElseThrow(),floor);var inventory=new ArrayList<Map<String,Object>>();
+                for(var row:expected.entrySet())inventory.add(Map.of("path","generations/"+inactive.slot()+"/"+row.getKey(),
+                        "size",(long)row.getValue().length,"sha256",hash(row.getValue())));
+                require(inventory.equals(record.orElseThrow().value().get("files")),"retained context retirement inventory changed");
+                retirement.checkSaved(record.orElseThrow());
+            }
+        }
+        if(inactive.exists()) {
+            var physical=inactive.originalFiles();
+            require(record.isPresent() || physical.keySet().equals(expected.keySet()),"retained context incomplete original without retirement authority");
+            for(var row:physical.entrySet())require(Arrays.equals(expected.get(row.getKey()),row.getValue()),"retained context original physical bytes changed");
+        }
+        return original;
+    }
+    private MembershipPendingContext.Reconstructed resealPendingContext()throws IOException {
+        var original=retainedContextOriginal();applicationReferencesIdle();
+        MembershipGenerationFiles.Guard guard=()->{checkOwner();retainedContextOriginal();applicationReferencesIdle();};
+        try {
+            cut.at("CONTEXT_OWNER_VALIDATED");guard.check();sources.resealOriginal(basis,guard);
+            pendingContext.install(pendingContext.active().orElseThrow(),null,guard,cut);
+            cut.at("CONTEXT_OWNER_BEFORE_RETURN");guard.check();return original;
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    /** The only extra permissions are exact floor copying/establishment and old
+     * generation retirement. Context/source/vote and the floor remain pinned. */
+    private void contextMaintenanceIdle()throws IOException {
+        checkOwner();retainedContextOriginal();applicationReferencesIdle();
+        require(!capture.pending() && !sourceRetirement.pending() && !rotation.pending() && !floors.releasing(),
+                "context maintenance conflicts with another authority transaction");
     }
     private void contextTransactionIdle() {
         require(pendingContext==null || pendingContext.active().isEmpty() && !pendingContext.pending(),
@@ -347,7 +404,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         return vote!=null && !coveredVote(vote) && !Arrays.equals(vote.selector().bytes(),current.selector.bytes());
     }
     private void verifyVote(MembershipPendingAccept.Vote vote)throws IOException {
-        if(applicationMetadata>0 && coveredVote(vote))verifyCoveredVote(vote);
+        if(pendingContext!=null && pendingContext.active().isPresent()) {
+            require(vote!=null && Arrays.equals(vote.bytes(),retainedContextOriginal().vote().bytes()),"pending vote differs from retained context");
+        }
+        else if(applicationMetadata>0 && coveredVote(vote))verifyCoveredVote(vote);
         else if(voteReferencesInactive(vote)) {
             // A new selected generation has the same parent but a different round.
             // The old vote still needs its own retained selector and round coverage.
@@ -759,6 +819,17 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered) throws IOException {
         require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");var own=floorCopyCurrent();
+        return establishFloor(own,offered);
+    }
+    synchronized MembershipFloor.Copy contextFloorCopy()throws IOException {
+        contextMaintenanceIdle();require(!floors.pending() && !retirement.pending(),"context floor copy requires idle maintenance");
+        return floorCopyChecked();
+    }
+    synchronized Decoded establishContextFloor(List<MembershipFloor.Copy> offered)throws IOException {
+        contextMaintenanceIdle();require(!retirement.pending(),"pending retirement must finish before context floor establishment");
+        return establishFloor(floorCopyChecked(),offered);
+    }
+    private Decoded establishFloor(MembershipFloor.Copy own,List<MembershipFloor.Copy> offered)throws IOException {
         // Validate and reserve before any persistent change; an interrupted transaction
         // may only resume with the same original full copies.
         try{
@@ -803,6 +874,12 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(retirement!=null && floors!=null && inactive!=null,"retirement storage owner required");checkOwner();
         require(pendingAccept==null || !voteReferencesInactive(pendingAccept.active()),"original pending vote pins inactive generation until reacceptance");
         rotationIdle();
+        return retireInactiveChecked();
+    }
+    synchronized Optional<Decoded> retireContextOriginal()throws IOException {
+        contextMaintenanceIdle();return retireInactiveChecked();
+    }
+    private Optional<Decoded> retireInactiveChecked()throws IOException {
         require(!floors.pending() && !inactive.pending(),"pending floor/selector must finish before retirement");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
         try {
@@ -1033,6 +1110,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Observation of the whole rechecked, locally forced selected generation; never a deletion permit. */
     synchronized MembershipFloor.Copy floorCopyCurrent() throws IOException {
         require(current!=null && inactive!=null,"generation owner required");checkOwner();rotationIdle();
+        return floorCopyChecked();
+    }
+    private MembershipFloor.Copy floorCopyChecked()throws IOException {
         require(!inactive.pending() && !(inactive.exists() && !current.adopted && current.manifest.value().get("selection")==null)
                 && !inactive.incompleteOrSelected(selection==null?null:selection.digest(),number(current.capsule.context.cut.get("index"))),"pending generation installation must finish before floor copy");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),

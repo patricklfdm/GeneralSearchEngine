@@ -38,10 +38,11 @@ necessary, and callers must preserve their authenticated original observations.
 ## Integration still required
 
 The [private persistence component](PHASE_2_PENDING_CONTEXT_FILES.md) now supplies
-a qualified candidate/active transaction. The owner must integrate it, account
-for every live/candidate byte inside the existing JOURNAL allowance, recover it
-before verifying detached pending authority, and pin exact source identities.
-Only then may existing floor-authorized storage retirement use it. Higher live
+a qualified candidate/active transaction. The [actual owner integration](PHASE_2_JOURNAL_CONTEXT.md)
+now accounts live/candidate bytes inside the JOURNAL allowance, verifies exact
+source identities, and reconstructs old pending authority after a first
+governing-floor-authorized generation retirement. Later source turnover and
+complete transferred lifetime still require integration. Higher live
 observations and the highest durable promise must never decrease.
 
 Qualification must cover three-, four- and five-voter storage budgets. A

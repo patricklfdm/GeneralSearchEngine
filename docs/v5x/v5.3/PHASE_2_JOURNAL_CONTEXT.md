@@ -1,7 +1,8 @@
 # Pending context under the actual local owner
 
-Status: private retention/withdrawal locally qualified. Phase 2 remains **OPEN**;
-transferred generation/source lifetime is not enabled by this batch.
+Status: private retention/withdrawal and exact first governing-floor retirement
+are locally qualified. Phase 2 remains **OPEN**; later campaign/source turnover
+and complete transferred lifetime remain pending.
 
 `MembershipGrantJournal.openContextual` is an opt-in private owner. It admits the
 two [context files](PHASE_2_PENDING_CONTEXT_FILES.md) in its allocator inventory,
@@ -13,7 +14,7 @@ extra files rather than silently ignoring their ownership.
 ## Exact retention
 
 `retainPendingContext` accepts no caller-selected original files or backing source.
-It requires an actual carried pending vote, its complete inactive original
+Initial creation requires an actual carried pending vote, its complete inactive original
 generation, a newer installed selection of that exact entry, the corresponding
 local PROMISE/BASIS, and the actual retained source. No incomplete capture,
 selection, vote, floor, retirement, rotation or application staging may overlap.
@@ -33,10 +34,11 @@ does not lower that observation.
 
 ## Pins and withdrawal
 
-At this entry point, the complete original generation, source and pending vote
-must all remain. An active or pending context blocks new authority-changing work.
-The context cannot yet replace those original physical owners or authorize their
-deletion. A context-aware open still refuses a missing original generation.
+An active or pending context blocks general authority-changing work. The narrow
+maintenance methods described below may retire the original generation under an
+exact governing floor. Source, pending vote, context and that floor remain pinned.
+A context-aware open refuses a missing original generation without this complete
+floor; it never silently rebuilds a missing source or changes a vote.
 
 `discardRedundantPendingContext` provides a safe return to the existing path. It
 first completes/reseals the exact context request and revalidates its complete
@@ -48,7 +50,7 @@ entry under the already installed newer ballot with all required originals intac
 
 ## Qualification
 
-The focused reactor passes **59 Java tests**, including seven owner tests and the
+The original retention batch's focused reactor passed **59 Java tests**, including seven owner tests and the
 existing context codec/files, staged-application and compatibility boundary suites.
 Owner tests cover force-before-context order, exclusive lock, source inode
 substitution, combined budget refusal before writes, corrupt active input,
@@ -79,10 +81,49 @@ python3 -m scripts.v53.journal_context_evidence <owner-evidence-directory>
 python3 -O -m scripts.v53.journal_context_evidence <owner-evidence-directory>
 ```
 
+## First generation retirement under an exact context
+
+`contextFloorCopy`, `establishContextFloor` and `retireContextOriginal` are private,
+separate maintenance entries. They validate the already forced context against
+the actual original local source, pending vote and unchanged installed selection.
+They reuse the governing-quorum copy and retirement implementations; no recovered
+context is converted into a new generation `Owned` receipt. Floor copies come from
+the actual selected generations. Empty replay/end reservations are released before
+reserving complete floor copies, within the existing seven-image bound.
+
+For a complete active context, reopen defers old-vote verification until the real
+source, floor and retirement owners have been opened. The context reconstructs
+the exact old selected materialization and vote, including its original certificate.
+An intact physical old generation must still match every original byte. Partial
+deletion requires the exact retained retirement inventory and governing floor.
+After the old directory is gone, that complete floor must still bind the current
+local generation and original parent. Missing/corrupt context, source, floor or
+vote is refused without recreating authority. A partial context candidate alone
+never enables deferred old-generation verification.
+
+The [retained local evidence index](phase2-evidence/context-retirement.json) records
+67 passing Java tests, including four new methods. It covers a real three-owner setup, exact clean retirement/reopen, all 25 existing retirement
+boundaries followed by a second interruption during context reseal, and six partial
+floor boundaries. Tests keep original source/vote/context bytes unchanged and reject
+ordinary source/floor/journal/campaign mutations. Independent replay reconstructs
+the original context and both exact floor copies before deriving the only deleted
+generation; twelve exact-reason negatives and portable normal/optimized replay
+remain required. Typed application semantics and resource leases are Java checks.
+
+This is a first three-voter transition, using injected IOException. Four/five-voter
+context lifetime, fresh-process repeated recovery and a subsequent campaign are
+not established by it. The existing separate four/five-voter retirement tests
+continue to test their own profiles. No limit, public factory or frozen format changes.
+
+```bash
+python3 -m scripts.v53.context_retirement_evidence <v53ContextRetirementEvidence-directory>
+python3 -O -m scripts.v53.context_retirement_evidence <v53ContextRetirementEvidence-directory>
+```
+
 ## Next complete transition
 
-Load/reconstruct detached original authority separately from live source/journal
-maps, then connect exact generation/floor/source maintenance and
+The first original-generation retirement now loads/reconstructs detached original
+authority before pending-vote recovery. Next connect later source/floor lifetime and
 [protected capture/rebinding](PHASE_2_PENDING_TRANSFER.md). Preserve old
 certificate bytes through a replacement ACCEPT and subsequent publication/floor;
 demonstrate repeated higher observations across three/four/five and joint voters
