@@ -178,3 +178,7 @@ typed validation without accumulating new scratch directories.
 The [private bootstrap coordinator](PHASE_2_BOOTSTRAP_COORDINATOR.md) connects one
 retained random history, a fixed bounded projection and exact typed plan/apply/resume.
 Public admission and result reading after mutable runtime progress remain open.
+
+[Bootstrap metadata inspection](PHASE_2_BOOTSTRAP_METADATA.md) now shares the initial
+layout encoder with actual seed creation and verifies original plan metadata without
+requiring application bytes. It remains separate from typed/committed admission.

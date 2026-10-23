@@ -13,25 +13,11 @@ final class MembershipBootstrapPlanData {
     final MembershipBootstrapSeed seed;
     final long maximumSource,maximumOperation;
     private final byte[] bytes;
-    private final Map<String,Object> value;
+    private final MembershipBootstrapPlanMetadata metadata;
     private MembershipBootstrapPlanData(byte[] bytes,byte[] application) {
-        require(bytes.length>HEADER && bytes.length<=MAXIMUM,"bootstrap plan capacity");
-        var input=ByteBuffer.wrap(bytes);require(input.getInt()==MAGIC && input.getShort()==1 && input.getShort()==3 && input.getShort()==1 && input.getShort()==0
-                && input.getInt()==bytes.length-HEADER,"bootstrap plan header");
-        byte[] digest=new byte[32];input.get(digest);byte[] body=Arrays.copyOfRange(bytes,HEADER,bytes.length);
-        require(Arrays.equals(digest,sha(Arrays.copyOf(bytes,16),body)),"bootstrap plan checksum");
-        value=object(parse(body,MAXIMUM-HEADER));require(Arrays.equals(body,canonical(value,MAXIMUM-HEADER)),"bootstrap plan noncanonical body");
-        require(value.keySet().equals(Set.of("schema","root","genesis","application","descriptor","maximumSource","maximumOperation","targets"))
-                && value.get("schema").equals("gse-v53-bootstrap-plan/1.3"),"bootstrap plan fields");
-        maximumSource=number(value.get("maximumSource"));maximumOperation=number(value.get("maximumOperation"));
-        require(maximumSource>0 && maximumOperation>0,"bootstrap plan budgets");
-        var image=object(value.get("application"));require(image.keySet().equals(Set.of("bytes","sha256")) && number(image.get("bytes"))==application.length
-                && application.length>0 && application.length<=MembershipApplicationImage.MAXIMUM && image.get("sha256").equals(hash(application)),"bootstrap plan image identity");
-        seed=MembershipBootstrapSeed.restore(unbase(value.get("root"),16384),unbase(value.get("genesis"),65536),application,object(value.get("descriptor")));
-        require(value.get("targets").equals(targets(seed)),"bootstrap plan exact target inventory");
-        long sourceBytes=0;for(var row:list(seed.descriptor().get("sourceInventory")))sourceBytes=Math.addExact(sourceBytes,number(object(row).get("size")));
-        require(sourceBytes<=maximumSource && sourceBytes<=MembershipApplicationImage.MAXIMUM-MembershipApplicationImage.OVERHEAD,"bootstrap plan source bound");
-        require(2L*bytes.length+application.length<=maximumOperation && seed.payloadBytes()<=maximumOperation-application.length-2L*bytes.length,"bootstrap plan completion capacity");
+        metadata=new MembershipBootstrapPlanMetadata(bytes);maximumSource=metadata.maximumSource;maximumOperation=metadata.maximumOperation;
+        require(application.length==metadata.layout.imageBytes && hash(application).equals(metadata.layout.application),"bootstrap plan image identity");
+        seed=MembershipBootstrapSeed.restore(metadata.layout.root.bytes(),metadata.layout.genesis.bytes(),application,metadata.descriptor());
         this.bytes=bytes.clone();
     }
     static MembershipBootstrapPlanData create(MembershipBootstrapSeed seed,MembershipBootstrapRequest<?,?> request) {
@@ -69,8 +55,7 @@ final class MembershipBootstrapPlanData {
         byte[] bytes=Base64.getDecoder().decode((String)value);require(bytes.length<=maximum && base(bytes).equals(value),"bootstrap plan canonical frame encoding");return bytes;}
     byte[] bytes(){return bytes.clone();}
     String digest(){return hash(bytes);}
-    Path operation(){return AdmissionConfiguration.path(list(seed.descriptor().get("paths")).getFirst());}
-    List<Map<String,Object>> bindings(){return list(seed.descriptor().get("paths")).stream().map(MembershipFormat::object).toList();}
-    MembershipBootstrapPlan summary(){var paths=bindings();int begin=seed.genesis.value().get("source").equals("EMPTY")?1:2;
-        return new MembershipBootstrapPlan(digest(),seed.root.groupId(),paths.subList(begin,paths.size()).stream().map(AdmissionConfiguration::path).toList(),operation());}
+    Path operation(){return metadata.operation();}
+    List<Map<String,Object>> bindings(){return metadata.bindings();}
+    MembershipBootstrapPlan summary(){return metadata.summary();}
 }

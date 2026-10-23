@@ -14,6 +14,7 @@ final class MembershipBootstrapSeed {
     final Decoded rootRecord,genesis;
     final MembershipRoot root;
     final MembershipCapsule capsule;
+    final MembershipBootstrapLayout layout;
     final long sequence;
     private final byte[] application;
     private final List<MembershipIdentity> identities;
@@ -31,7 +32,8 @@ final class MembershipBootstrapSeed {
         r.put("configurationId",request.configurationId());r.put("genesis",genesis.digest());r.put("initial",identities.stream().map(MembershipBootstrapSeed::identity).toList());
         r.put("limits",hash(canonical(CATALOG.get("resources"),16384)));rootRecord=record("ROOT",r);
         root=new MembershipRoot(request.groupId(),history,rootRecord.rootDigest());
-        capsule=initial(rootRecord,genesis,image);
+        layout=new MembershipBootstrapLayout(rootRecord,genesis,image.length);
+        capsule=MembershipCapsule.verify(rootRecord,layout.packet,Map.of(hash(image),image),Set.of());
     }
     /** Metadata-only restoration of an exact retained projection, not typed admission or a seal. */
     static MembershipBootstrapSeed restore(byte[] root,byte[] genesis,byte[] image,Map<String,Object> descriptor) {
@@ -42,7 +44,8 @@ final class MembershipBootstrapSeed {
         root=new MembershipRoot(new ReplicationGroupId(UUID.fromString((String)rootRecord.value().get("groupId"))),UUID.fromString((String)rootRecord.value().get("historyId")),rootRecord.rootDigest());
         sequence=number(genesis.value().get("baseSequence"));MembershipValidation.position(sequence);
         identities=list(rootRecord.value().get("initial")).stream().map(MembershipFormat::object).map(MembershipContext::identity).toList();
-        MembershipApplicationImage.unpack(image);capsule=initial(rootRecord,genesis,image);
+        MembershipApplicationImage.unpack(image);layout=new MembershipBootstrapLayout(rootRecord,genesis,image.length);
+        capsule=MembershipCapsule.verify(rootRecord,layout.packet,Map.of(hash(image),image),Set.of());
         require(descriptor.keySet().equals(Set.of("application","core","paths","source","sourceInventory","identities")),"bootstrap retained descriptor keys");
         var core=object(descriptor.get("core"));var config=object(descriptor.get("application"));
         require(rootRecord.value().get("codecId").equals(core.get("codecId")) && number(rootRecord.value().get("codecVersion"))==number(core.get("codecVersion"))
@@ -58,15 +61,6 @@ final class MembershipBootstrapSeed {
         var paths=list(descriptor.get("paths"));require(paths.size()==(empty?1:2)+2*identities.size(),"bootstrap retained path count");
         MembershipValidation.disjoint(paths.stream().map(AdmissionConfiguration::path).toList());
     }
-    private static MembershipCapsule initial(Decoded rootRecord,Decoded genesis,byte[] image) {
-        var catalog=record("CATALOG",MembershipCapsule.initialCatalog(rootRecord,genesis.value()));
-        var objects=new TreeMap<String,byte[]>();for(var frame:List.of(rootRecord,genesis,catalog))objects.put(frame.digest(),frame.bytes());
-        var images=Map.of(hash(image),(long)image.length);
-        var cap=record("CAPSULE",Map.of("root",rootRecord.rootDigest(),"application",hash(image),"catalog",catalog.digest(),
-                "cut",catalog.value().get("cut"),"initial",genesis.digest(),"inventory",hash(MembershipSourcePacket.index(objects,images)),"items",List.of()));
-        var packet=MembershipSourcePacket.decode(MembershipSourcePacket.encode(cap,objects,images));
-        return MembershipCapsule.verify(rootRecord,packet,Map.of(hash(image),image),Set.of());
-    }
     private static Decoded record(String kind,Map<String,Object> value){return decode(encode("records",kind,value),"records",kind);}
     static Map<String,Object> identity(MembershipIdentity id){return Map.of("node",id.nodeId().value(),"storage",id.storageId().toString(),"host",id.endpoint().host(),"port",(long)id.endpoint().port());}
     private static Map<String,Object> decodeDescriptor(Map<String,Object> value){return object(parse(canonical(value,1024*1024),1024*1024));}
@@ -76,22 +70,7 @@ final class MembershipBootstrapSeed {
 
     /** Generation zero has only a local counter-one fence. No BASIS, SELECTED or vote. */
     Map<String,byte[]> payloads(MembershipIdentity local) {
-        require(identities.contains(local),"bootstrap foreign target identity");String node=local.nodeId().value(),rootHash=root.manifestDigest();
-        var value=new TreeMap<String,Object>();value.put("root",rootHash);value.put("view",capsule.context.authority());value.put("basisId",null);
-        value.put("ballot",Map.of("counter",1L,"proposer",node,"incarnation",local.storageId().toString()));var promise=record("PROMISE",value);
-        var generation=new TreeMap<String,byte[]>();generation.put("source.gscp",capsule.packet.bytes());generation.put("promise.gsr",promise.bytes());
-        generation.put(hash(application)+".image",application.clone());
-        var m=new TreeMap<String,Object>();m.put("root",rootHash);m.put("node",node);m.put("generation","a");m.put("cut",capsule.context.cut);
-        m.put("application",hash(application));m.put("catalog",capsule.terminal().catalog());m.put("capsule",capsule.packet.capsule().digest());
-        m.put("promise",promise.digest());m.put("basis",null);m.put("selection",null);m.put("ownedTail",null);
-        m.put("files",generation.entrySet().stream().map(row->Map.of("path",row.getKey(),"size",(long)row.getValue().length,"sha256",hash(row.getValue()))).toList());
-        var manifest=record("GENERATION",m);generation.put("generation.gsr",manifest.bytes());var files=new TreeMap<String,byte[]>();
-        generation.forEach((name,bytes)->files.put("generations/a/"+name,bytes));
-        files.put("replica.lock",new byte[0]);files.put("root.gsr",rootRecord.bytes());files.put("genesis.gsr",genesis.bytes());
-        files.put("node.gsr",encode("records","NODE",Map.of("identity",identity(local),"root",rootHash)));
-        files.put(MembershipBallotAllocator.CURRENT,encode("records","ALLOCATOR",Map.of("counter",1L,"node",node,"root",rootHash)));
-        files.put("grants.gsr",promise.bytes());files.put(MembershipPendingAccept.FILE,MembershipPendingAccept.empty());
-        files.put("selector.gsr",encode("records","SELECTOR",Map.of("root",rootHash,"node",node,"generation","a","digest",manifest.digest())));
+        var files=new TreeMap<>(layout.metadata(local));files.put(layout.imagePath(),application.clone());
         return Collections.unmodifiableMap(files);
     }
     static Set<String> directories(){return Set.of("sources","generations","generations/a");}

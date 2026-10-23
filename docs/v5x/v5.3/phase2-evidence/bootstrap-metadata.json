@@ -1,0 +1,270 @@
+{
+  "base": "a66bd08f64321b5d099bf671f4c849865ffc1b4c",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-layout/inputs3.json",
+    "sha256": "bf4d25ca5b9fec97ed28c9ad08ab785f311d9a9978b35c8c86bffeb0c137cb8b"
+  },
+  "fixtureProvenance": {
+    "cases": 6,
+    "evidenceIndexSha256": "c321a6f7d55d24aaf1546624ac23dd3d00c6d4f20a09314c38f9dc620c4b7958",
+    "fixture": "general-search-engine-replication/src/test/resources/v53-bootstrap-layout.json",
+    "originalCommit": "6cebcab",
+    "originalEvidence": "docs/v5x/v5.3/phase2-evidence/bootstrap-revalidation.json",
+    "sha256": "5082d4f01e2014dfcacebca3616800142723d6b77a68935ea4c9b7142f2d9ec9",
+    "targets": 24
+  },
+  "jars": {
+    "target/v53-bootstrap-layout/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-layout/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "602b11a3f382b71301a1a62e9eae782f8f55776700cb7139cf689b58375123f5"
+  },
+  "javaMethods": 29,
+  "limitations": [
+    "no self-contained local admission file, complete-store opening/accounting or public bootstrap enabled",
+    "metadata is not a durable receipt, ownership authority, typed reader or voting proof",
+    "development run 1 failed on a test type typo; run 2 failed on JSON newline and immutable descriptor test assumptions; both retained",
+    "no new process-death, power-loss, protected CI, cloud, POM, frozen catalog or wire byte change; Phase 2 open"
+  ],
+  "logs": {
+    "plan-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plan.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "revalidation-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "revalidation.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "3bda031b3923884afc59ed26a784aa40a151b2126449e01910c96ea4650b8655",
+    "run2.log": "35f744bdb06f00e05fd71ed6a3b94ac302fadff35fdb66b6c8ef5e9eef5d71eb",
+    "run3.log": "9cad413ee9691793f3866298151087df970b74f1c3328638fab3621fc7f18016",
+    "run4.log": "881ad8f4c70a80516c4efe47e0cd761cb342fbb80b39aa9263848a3a66f85794",
+    "sealed-plan-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sealed-plan.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sealed-revalidation-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sealed-revalidation.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sealed-seed-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sealed-seed.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "seed-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "seed.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newJavaMethods": 5,
+  "originalMetadataTargets": 24,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-layout/producer-classes.json",
+    "sha256": "0ce39bbd7b301ec6bc337da9142df5ef53185db5a8505dc7fadd1ebca28e86f8"
+  },
+  "raw": {
+    "plan": {
+      "indexSha256": "2cb5c98c8976d7d82edf380cbff7bde9a37c13c2cbacda23b462ac5b86e6208d",
+      "members": 194,
+      "path": "general-search-engine-replication/target/v53-bootstrap-plan/run-54c2ffe0-173f-43b0-849d-75368414d178"
+    },
+    "revalidation": {
+      "indexSha256": "1524cf48afc09841a262f08a4401d2bd2662385553f6cc86f78807d99c6b5184",
+      "members": 316,
+      "path": "general-search-engine-replication/target/v53-bootstrap-revalidation/run-2134b344-279e-433b-af4c-1c1780eacc45"
+    },
+    "seed": {
+      "indexSha256": "2f0524981bdaf15b29860d54a20aa8ffca43c4ca8dee931892ebf3aec8fbdfec",
+      "members": 469,
+      "path": "general-search-engine-replication/target/v53-bootstrap-seed/run-445bfc1f-785d-4631-8696-19ad4bd0ee93"
+    }
+  },
+  "replays": {
+    "plan": {
+      "cases": 20,
+      "exactPlanRecoveries": 11,
+      "freshProcesses": false,
+      "imageSemanticsIndependentlyVerified": false,
+      "incompleteRefusals": 9,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap plan case inventory"
+        },
+        {
+          "case": "changed-original",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "changed-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "changed-crash",
+          "reason": "bootstrap exact interrupted bytes"
+        },
+        {
+          "case": "changed-second",
+          "reason": "bootstrap second recovery changed bytes"
+        },
+        {
+          "case": "changed-final",
+          "reason": "bootstrap exact final/refused bytes"
+        },
+        {
+          "case": "repaired-incomplete",
+          "reason": "bootstrap exact final/refused bytes"
+        },
+        {
+          "case": "force-order",
+          "reason": "bootstrap creation force order"
+        },
+        {
+          "case": "recovery-order",
+          "reason": "bootstrap second recovery force order"
+        },
+        {
+          "case": "false-commit",
+          "reason": "bootstrap plan receipt scope"
+        },
+        {
+          "case": "linked-plan",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "offlineCommit": false,
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "status": "PASS"
+    },
+    "revalidation": {
+      "callbackPairs": 6,
+      "cases": 6,
+      "exports": 96,
+      "independentTypedSemantics": false,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap validation case inventory"
+        },
+        {
+          "case": "missing-target",
+          "reason": "bootstrap validation target export count"
+        },
+        {
+          "case": "extra-export-file",
+          "reason": "bootstrap validation export inventory"
+        },
+        {
+          "case": "exported-state",
+          "reason": "bootstrap validation exact exported state"
+        },
+        {
+          "case": "manifest-content",
+          "reason": "bootstrap validation original manifest content"
+        },
+        {
+          "case": "manifest-crc",
+          "reason": "bootstrap validation manifest CRC"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "bootstrap validation original source bytes"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "original-receipt",
+          "reason": "bootstrap validation exact original receipt"
+        },
+        {
+          "case": "scratch-accounting",
+          "reason": "bootstrap validation producer scope/accounting"
+        },
+        {
+          "case": "callback-type",
+          "reason": "bootstrap validation producer scope/accounting"
+        },
+        {
+          "case": "public-claim",
+          "reason": "bootstrap validation producer scope/accounting"
+        },
+        {
+          "case": "linked-export",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "portableReplay": "PASS",
+      "publicBootstrap": false,
+      "scope": "exact-export-and-receipt-reconciliation",
+      "status": "PASS"
+    },
+    "seed": {
+      "imageSemanticsIndependentlyVerified": false,
+      "initialOwners": 12,
+      "negatives": [
+        {
+          "case": "missing-size",
+          "reason": "seed evidence case inventory"
+        },
+        {
+          "case": "extra-node",
+          "reason": "seed cohort inventory"
+        },
+        {
+          "case": "initial-counter",
+          "reason": "seed empty vote and reserved counter"
+        },
+        {
+          "case": "initial-vote",
+          "reason": "seed empty vote and reserved counter"
+        },
+        {
+          "case": "extra-grant",
+          "reason": "seed fence only, no original vote"
+        },
+        {
+          "case": "swapped-node",
+          "reason": "seed original local identity"
+        },
+        {
+          "case": "changed-image",
+          "reason": "seed initial image identity"
+        },
+        {
+          "case": "extra-file",
+          "reason": "seed original file inventory"
+        },
+        {
+          "case": "new-directory",
+          "reason": "seed initial directories"
+        },
+        {
+          "case": "false-commit",
+          "reason": "seed producer receipt scope"
+        },
+        {
+          "case": "linked-image",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "offlineCommit": false,
+      "portableReplay": "PASS",
+      "scope": "initial-projected-byte-layout",
+      "sizes": [
+        3,
+        4,
+        5
+      ],
+      "status": "PASS",
+      "subsequentVoteTraceIndependentlyVerified": false
+    }
+  },
+  "schema": "gse-v53-bootstrap-metadata-local-v1",
+  "scope": [
+    "shared initial metadata layout with original pre-refactor file-hash inventories for all 24 target identities",
+    "exact bounded metadata-only plan inspection without loading or claiming application image semantics",
+    "normal full decoder still requires exact actual image and verified seed/capsule",
+    "29 tests pass on final inputs; actual initial owners, 20 plan interruption boundaries and 96 target exports",
+    "35 exact negatives across three independent replays, portable and normal/optimized Python agree"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapLayout.java": "b81a6eaf1b2987c4d4f4e1fc0c5fcd567d12e28d083c44339f8b732b870dbb09",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapPlanData.java": "868bca2c6248116952084a06c703f0dce7b75773dac7e71b5547817beeb9e8ad",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapPlanMetadata.java": "a7631935e3cc7b9e97c3e75276620d73bd382dc4ce049776fe62e72317ad0672",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapSeed.java": "846e711609e1a032e3f2bf7c0c39709f271b5d8d95f303d05520ec6a3b80f5ab",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapLayoutTest.java": "8e8e11e93206165516542203a7f433c0c99863e5741b902d43b9e7abfb9b7309",
+    "general-search-engine-replication/src/test/resources/v53-bootstrap-layout.json": "5082d4f01e2014dfcacebca3616800142723d6b77a68935ea4c9b7142f2d9ec9"
+  },
+  "status": "PASS"
+}
