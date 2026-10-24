@@ -1,0 +1,342 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "reason": "original cleanup cannot authenticate an applied endpoint hidden in RANGE(0,2)",
+      "status": "FAIL"
+    },
+    {
+      "attempt": 2,
+      "reason": "supplemental exact applied ancestry plus prior staging/installation regressions",
+      "status": "PASS"
+    },
+    {
+      "attempt": 3,
+      "reason": "additional forced proof-digest tamper regression; all other producer methods unchanged from run2",
+      "status": "PASS"
+    }
+  ],
+  "base": "ecf3c749fa9c1834cb429858696f51ab22365e29",
+  "compiledInputs": {
+    "target/v53-hidden-staging/inputs1.json": "09d459f64ae652b17d3d8a27f408caf56bdf62b804bf3167ee969c16a2f15605",
+    "target/v53-hidden-staging/inputs2.json": "248b6f52963eb37a2c709cb7f0dccd03e9abdf8c4f157c6687acd5ad6edacdae",
+    "target/v53-hidden-staging/inputs3.json": "f4336ed2de1c4facea659cd80758888de736fd3e790aa79bda2af144144d512c"
+  },
+  "compiledMainClasses": {
+    "changed": [
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.class"
+    ],
+    "classes": 707,
+    "path": "target/v53-hidden-staging/compiled-main-classes.json",
+    "sha256": "c2102eb5e6a82ed735a744294905de845220a65f32b5d4271b2bd6c2c1e1ddaa"
+  },
+  "jars": {
+    "target/v53-hidden-staging/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-hidden-staging/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "8d31fd7c547ea2552986d426520acbb37951ad9b1e107d10476773687d59887a"
+  },
+  "logs": {
+    "target/v53-hidden-staging/draft-replay1.log": "f8fef1fa70244c5ca3682b562c4ff20bdda7439f3cae6b0222c7ea2d7691132f",
+    "target/v53-hidden-staging/finalization-attempt1.log": "7522b5c093224286e547dcc585ffa138e427819453a770da32ef41be0ba69563",
+    "target/v53-hidden-staging/optimized-replay.log": "a4803470243c160e53d7e776c5926bd7a7e6077d7ad228471dc1936c22bf2ec4",
+    "target/v53-hidden-staging/prior-portable.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-hidden-staging/prior-reader.log": "2950772e638a36825b12acca5d143a4cc74bbd41df309e8d3f276c085548b730",
+    "target/v53-hidden-staging/python-tests-final.log": "f28952177cbbcee6a0ba2fb24a3f67907b96aadae2aca07b03d74aafba7b9c19",
+    "target/v53-hidden-staging/python-tests.log": "357e30878e8917d5f13c52746d4c2cfc47fc7e683c375d8bd1c7a0122df5d2a7",
+    "target/v53-hidden-staging/replay1.log": "fccaf6572723eddfc574a2ba2af5b4299d9ab6c3bdb975674dfbe3eb9dba88bf",
+    "target/v53-hidden-staging/run1.log": "724ff27950681642727890b23a1749458c8c29046f0bef8759bad8f8734df46b",
+    "target/v53-hidden-staging/run2.log": "725c2120b6fa9baed58bda82e3b17453a2ab1a53654aeb30118195e414085318",
+    "target/v53-hidden-staging/run3.log": "c9b11b016930fcad1c9b62423a27f08b8f6db8a732dc04c794b8075f419d283f",
+    "target/v53-hidden-staging/shared-reader-tests.log": "fc924f6e1fea3cec579bda3420051891bdf01c960fe5ca7e49fdfc8005bd9c0c"
+  },
+  "originalFailureSources": {
+    "target/v53-hidden-staging/journal-run1.java.txt": "749040d6aa9bc6c5926043e186ed5e6f274ee71811a371958f69baae7ff32e88",
+    "target/v53-hidden-staging/producer-run1.java.txt": "e2ac1edfe25981ccc3a4b8c93f05a517501504bef5e620252021b9465ff25dad",
+    "target/v53-hidden-staging/producer-run2.java.txt": "ad4d17127d760d8ac1c44bf71e284cd36604d005c8f59e8e2938e513b2d95a9d"
+  },
+  "priorPathReplay": {
+    "path": "target/v53-hidden-staging/prior-portable.json",
+    "sha256": "33af080a1ee7a51b07d07ba02a19440f887109f7e99f5412fe76127607bdc053"
+  },
+  "producerClasses": {
+    "path": "target/v53-hidden-staging/producer-classes.json",
+    "sha256": "f958b80c6d1e2335e8379caebd677ed491362228442f71608d364e3623ab76ee"
+  },
+  "pythonInputs": {
+    "path": "target/v53-hidden-staging/python-inputs.json",
+    "sha256": "8e09306cc729bb6741a125f4c5c291d9fd88fe9211474947720dd7b169bb1edb"
+  },
+  "pythonTests": 35,
+  "raws": {
+    "run1-v53-covered-phased-vote-run-e795d93d-4887-408d-9de1-e9a4a24fbf6c": {
+      "inventory": "target/v53-hidden-staging/run1-v53-covered-phased-vote-run-e795d93d-4887-408d-9de1-e9a4a24fbf6c-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-e795d93d-4887-408d-9de1-e9a4a24fbf6c",
+      "sha256": "36010cb24a829b414a79d189c483c2412e869f1bff0968eec99f00b6312c0bf6"
+    },
+    "run2-v53-covered-phased-vote-run-18e90a76-1302-416c-a1f1-deff0ed5f82e": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-18e90a76-1302-416c-a1f1-deff0ed5f82e-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-18e90a76-1302-416c-a1f1-deff0ed5f82e",
+      "sha256": "c90193e8926914cc0ccb0be61a019705a7fd8254164bc27cf188e94a27cf39a7"
+    },
+    "run2-v53-covered-phased-vote-run-1918f70b-5df2-48fa-97b9-d1528e3f630d": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-1918f70b-5df2-48fa-97b9-d1528e3f630d-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-1918f70b-5df2-48fa-97b9-d1528e3f630d",
+      "sha256": "b7f1b04641715406041111642daf421685e83b157c24c2f7dfc2cf28e14d781a"
+    },
+    "run2-v53-covered-phased-vote-run-19ccc560-e317-46b1-9dd0-ea192a9bc707": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-19ccc560-e317-46b1-9dd0-ea192a9bc707-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-19ccc560-e317-46b1-9dd0-ea192a9bc707",
+      "sha256": "4d9cbb17b3954b5d3145101b9780b112b0a9d598c13156f9706b71efed1d550a"
+    },
+    "run2-v53-covered-phased-vote-run-23032da5-5c1a-4b15-ac2b-a6f3b33792dd": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-23032da5-5c1a-4b15-ac2b-a6f3b33792dd-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-23032da5-5c1a-4b15-ac2b-a6f3b33792dd",
+      "sha256": "349f63f3c5744bb7677544f4169f88f1485ff40f17a6c0550b4917d29801059b"
+    },
+    "run2-v53-covered-phased-vote-run-2af7f6c1-844c-474e-8ce0-8a06dc6113d4": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-2af7f6c1-844c-474e-8ce0-8a06dc6113d4-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-2af7f6c1-844c-474e-8ce0-8a06dc6113d4",
+      "sha256": "b67094e30c7e3ecd815051f9736984fb14da58741752a73d344000aff8293edf"
+    },
+    "run2-v53-covered-phased-vote-run-3b1253b3-c7b8-4e8c-b0ea-e0d3e0b2ffc6": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-3b1253b3-c7b8-4e8c-b0ea-e0d3e0b2ffc6-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-3b1253b3-c7b8-4e8c-b0ea-e0d3e0b2ffc6",
+      "sha256": "b9c95c9a795bb4b86aec73bad107ff7b563e85cd386d61a9ca84baa3fd464d22"
+    },
+    "run2-v53-covered-phased-vote-run-46a38774-ee89-4d34-90db-43babf8de101": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-46a38774-ee89-4d34-90db-43babf8de101-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-46a38774-ee89-4d34-90db-43babf8de101",
+      "sha256": "0b55e2fa2c15b6457b1d38b6de350b8f757f8bdc6c76a42fb789b4f5fa319a43"
+    },
+    "run2-v53-covered-phased-vote-run-4acb8910-71ea-40d8-8b66-6be0d220ba97": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-4acb8910-71ea-40d8-8b66-6be0d220ba97-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-4acb8910-71ea-40d8-8b66-6be0d220ba97",
+      "sha256": "7d4d3df56416862f900570cbc306ff82b04d5e9766c44b537bf92c094c663172"
+    },
+    "run2-v53-covered-phased-vote-run-5c9fe970-d526-4bc0-916e-1b933547e0ac": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-5c9fe970-d526-4bc0-916e-1b933547e0ac-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-5c9fe970-d526-4bc0-916e-1b933547e0ac",
+      "sha256": "290801214ed434f74c88b87ca5baf0780a827abcc7852b83b693d5570048109c"
+    },
+    "run2-v53-covered-phased-vote-run-83b1d816-2f3c-4dae-9287-a5045c811058": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-83b1d816-2f3c-4dae-9287-a5045c811058-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-83b1d816-2f3c-4dae-9287-a5045c811058",
+      "sha256": "57fb1c26e4d0037726fdc8638818f67e303712b0275c91ec8980873f55b9f88c"
+    },
+    "run2-v53-covered-phased-vote-run-99e0726e-6bcb-48ce-aa0f-0ecf4872faee": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-99e0726e-6bcb-48ce-aa0f-0ecf4872faee-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-99e0726e-6bcb-48ce-aa0f-0ecf4872faee",
+      "sha256": "b0cb49dd4d26e25b5634e9918125d72258173b5ea0a5f6f42b117491942d766a"
+    },
+    "run2-v53-covered-phased-vote-run-ac909d08-c704-4b3c-a3b1-3cd10cad393c": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-ac909d08-c704-4b3c-a3b1-3cd10cad393c-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-ac909d08-c704-4b3c-a3b1-3cd10cad393c",
+      "sha256": "0984e54be287696b0615ff8b3c34e83960f5847b301471cc8f279657c79b378f"
+    },
+    "run2-v53-covered-phased-vote-run-ad18ff2c-0bc8-4845-818e-36f10ad2106b": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-ad18ff2c-0bc8-4845-818e-36f10ad2106b-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-ad18ff2c-0bc8-4845-818e-36f10ad2106b",
+      "sha256": "4deccd76bc29b2df2100429a72f3732d22600219113bb5e6c38f361dc61c3608"
+    },
+    "run2-v53-covered-phased-vote-run-b7292a10-26f4-425e-9c0b-b0314b7a4b0f": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-b7292a10-26f4-425e-9c0b-b0314b7a4b0f-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-b7292a10-26f4-425e-9c0b-b0314b7a4b0f",
+      "sha256": "0a3060adb747c98f6b7f5a11882a2d282a9ff3c34d8c06a7f2a5943083368a54"
+    },
+    "run2-v53-covered-phased-vote-run-c2abaa44-e96b-42e0-954c-5af256f44c74": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-c2abaa44-e96b-42e0-954c-5af256f44c74-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-c2abaa44-e96b-42e0-954c-5af256f44c74",
+      "sha256": "355dbb8ee763f30b879d297c0ae201a125378138d513149de845a27d23a84f37"
+    },
+    "run2-v53-covered-phased-vote-run-ca899d8a-e515-4b3f-8cfb-56a051a397ff": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-ca899d8a-e515-4b3f-8cfb-56a051a397ff-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-ca899d8a-e515-4b3f-8cfb-56a051a397ff",
+      "sha256": "77fc465a6780ce8ed515fc6e19c812081d5c4e3269182adc614879386f915e16"
+    },
+    "run2-v53-covered-phased-vote-run-ebcc6ccd-fa9b-495b-9395-dc874021c92c": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-ebcc6ccd-fa9b-495b-9395-dc874021c92c-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-ebcc6ccd-fa9b-495b-9395-dc874021c92c",
+      "sha256": "0f67da668c119ba7740643894e2aa3a87b3d741de5dc7a0728fb098f31e36818"
+    },
+    "run2-v53-covered-phased-vote-run-f6924ae4-622f-4382-a05b-0ce2a094b72b": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-phased-vote-run-f6924ae4-622f-4382-a05b-0ce2a094b72b-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-f6924ae4-622f-4382-a05b-0ce2a094b72b",
+      "sha256": "702f4771358a6d76efd3b0cdc8152bce420bcef2a696c57b50bfa6543b09cfeb"
+    },
+    "run2-v53-covered-staging-profiles-run-c35f9be2-ee78-4711-a3b0-aaa31ff30481": {
+      "inventory": "target/v53-hidden-staging/run2-v53-covered-staging-profiles-run-c35f9be2-ee78-4711-a3b0-aaa31ff30481-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-staging-profiles/run-c35f9be2-ee78-4711-a3b0-aaa31ff30481",
+      "sha256": "073e90787e0932201a73b620310657d2c4315419333ec36ba68a4ea625a11673"
+    },
+    "run2-v53-fenced-staging-run-d0e21522-447f-4f5e-b9d8-90544c51c3fe": {
+      "inventory": "target/v53-hidden-staging/run2-v53-fenced-staging-run-d0e21522-447f-4f5e-b9d8-90544c51c3fe-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-fenced-staging/run-d0e21522-447f-4f5e-b9d8-90544c51c3fe",
+      "sha256": "d6c3635403adf33e263b747a809e382b247c8f4e948b0e691182744bf2cf6582"
+    },
+    "run2-v53-hidden-staging-profiles-run-e5cd9cd2-9c8f-4689-91e9-6043295a0000": {
+      "inventory": "target/v53-hidden-staging/run2-v53-hidden-staging-profiles-run-e5cd9cd2-9c8f-4689-91e9-6043295a0000-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-hidden-staging-profiles/run-e5cd9cd2-9c8f-4689-91e9-6043295a0000",
+      "sha256": "e56ea41fa383e8ed49a323db093a32a461e3c13826d92f97dd1b4c72ea62b289"
+    },
+    "run3-v53-covered-phased-vote-run-be20cb20-3f63-4f02-8dbc-67b09442bfb4": {
+      "inventory": "target/v53-hidden-staging/run3-v53-covered-phased-vote-run-be20cb20-3f63-4f02-8dbc-67b09442bfb4-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-be20cb20-3f63-4f02-8dbc-67b09442bfb4",
+      "sha256": "2192107bff6fd34d49a3c90de0622c9743ce7026cc697f9ce5493df2382cf1fd"
+    }
+  },
+  "readerFiles": {
+    "target/v53-hidden-staging/normal.json": "ac28c33dd4ba33e59de008172547edad2acd4754ca23180d4b297e3ae8edc127",
+    "target/v53-hidden-staging/optimized.json": "ac28c33dd4ba33e59de008172547edad2acd4754ca23180d4b297e3ae8edc127",
+    "target/v53-hidden-staging/roots.json": "3003abec73f3cb19b1a86a7f127559763db3e9e21ae75e32273b136edccf0b59"
+  },
+  "replay": {
+    "freshProcesses": false,
+    "interruptions": {
+      "cases": 4,
+      "interruptions": 8,
+      "status": "PASS"
+    },
+    "negatives": [
+      {
+        "case": "original-applied",
+        "reason": "admitted exact lagging-applied: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "hidden-proof",
+        "reason": "hidden staging exact applied ancestry",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cleanup-original",
+        "reason": "admitted exact staging-retired: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cleanup-source",
+        "reason": "admitted exact staging-retired: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cleanup-force",
+        "reason": "hidden staging cleanup order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cleanup-old-ack",
+        "reason": "covered staging emitted old ACK",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-ancestry",
+        "reason": "admitted exact round-3-installed: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "retirement-proof",
+        "reason": "hidden staging exact first snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "retirement-inventory",
+        "reason": "hidden staging exact first snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-vote",
+        "reason": "hidden staging exact second snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-force",
+        "reason": "hidden staging exact second force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-vote",
+        "reason": "hidden staging exact installed result",
+        "status": "REJECTED"
+      }
+    ],
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "profiles": [
+      {
+        "backup": false,
+        "nodePublications": 7,
+        "size": 3,
+        "status": "PASS"
+      },
+      {
+        "backup": true,
+        "nodePublications": 7,
+        "size": 3,
+        "status": "PASS"
+      },
+      {
+        "backup": false,
+        "nodePublications": 10,
+        "size": 4,
+        "status": "PASS"
+      },
+      {
+        "backup": true,
+        "nodePublications": 10,
+        "size": 4,
+        "status": "PASS"
+      },
+      {
+        "backup": false,
+        "nodePublications": 11,
+        "size": 5,
+        "status": "PASS"
+      },
+      {
+        "backup": true,
+        "nodePublications": 11,
+        "size": 5,
+        "status": "PASS"
+      }
+    ],
+    "publicRuntime": false,
+    "status": "PASS"
+  },
+  "reports": {
+    "target/v53-hidden-staging/run2-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CoveredStagingTest.xml": {
+      "sha256": "88b5ef3b593ad56c6fb177a6a0562a945e49391ce10ad5204429c56bdd259af7",
+      "tests": 5
+    },
+    "target/v53-hidden-staging/run2-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53FencedStagingTest.xml": {
+      "sha256": "de46c25beded8d7974ef32d9efc6aac8605a41318cfffeb761e4621a382767d8",
+      "tests": 4
+    },
+    "target/v53-hidden-staging/run2-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationInstallTest.xml": {
+      "sha256": "89782fb30b85c436bb4f08b0b489288982486e5b4569e3a1bc35a3b5bbc0f696",
+      "tests": 11
+    },
+    "target/v53-hidden-staging/run2-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53HiddenStagingTest.xml": {
+      "sha256": "8dc7c8bab12960ca7818a90eadbda866490b116ca1c52c0bbcb386822f5f712f",
+      "tests": 3
+    },
+    "target/v53-hidden-staging/run3-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53HiddenStagingTest.xml": {
+      "sha256": "210ffc77e0cd1965f6d84631a379812acdf35441e3fb5d5cd17c902583aefbc8",
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-hidden-staging-local-v1",
+  "scope": {
+    "freshProcesses": false,
+    "maximalCapacity": false,
+    "powerLoss": false,
+    "protectedContext": false,
+    "publicBootstrap": true,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "84986f6fae031357e7a75ea655494c8160cd4bc67fae636281a8525cd2e4590d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53HiddenStagingTest.java": "2e808c219ffd39a565aba228d8260b6035270b7c5c83123925ca081561ac6e70",
+    "scripts/v53/covered_minority_evidence.py": "60af0f197d63c6edce634827911c82d27ff530a5bda6654cc6c8e19d511d703c",
+    "scripts/v53/hidden_staging_evidence.py": "fdb7a79af30a2e0a5b4491faab38f47e9164ead987c2f7cd95c032d94a9e334b",
+    "scripts/v53/test_hidden_staging.py": "101d1cff21d1b2c17c4e1342f663238701fd58618eb8813c1467141785f8b5cc"
+  },
+  "status": "PASS"
+}

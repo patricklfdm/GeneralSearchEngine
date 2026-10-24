@@ -263,3 +263,6 @@ remain in force. Phase 2 remains OPEN.
 [Covered applied-staging process recovery](PHASE_2_COVERED_STAGING_PROCESS.md)
 adds 32 repeated-death cases, 96 workers and 16 independent live-lock probes on
 the unchanged production classes. Complete Phase 2 storage closure remains open.
+
+[Hidden covered applied endpoints](PHASE_2_HIDDEN_STAGING.md) extends the local
+cleanup authority to an exact supplemental RANGE proof; Phase 2 remains open.

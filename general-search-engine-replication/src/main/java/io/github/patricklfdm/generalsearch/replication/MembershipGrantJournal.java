@@ -947,6 +947,16 @@ final class MembershipGrantJournal implements AutoCloseable {
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,
             List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,
             List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images)throws IOException {
+        retireCoveredApplication(configuration,storage,observations,offered,bridges,retainedBridges,images,List.of());
+    }
+    /** A hidden applied endpoint may have one additional authenticated RANGE proof.
+     * This proof authorizes derived cleanup only, never selection or installation.
+     * The retirement marker pins its exact bytes across repeated interruptions. */
+    synchronized <K,T> void retireCoveredApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,
+            List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,
+            List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images,List<MembershipSelection.Bridge> appliedBridges)throws IOException {
+        require(appliedBridges.size()<=1,"covered staging applied ancestry count");
         require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();otherApplicationTransactionsIdle();
         require(selection!=null && !inactive.pending() && !pendingAccept.pending(),"covered staging requires completed original authorities");
         var vote=pendingAccept.active();require(vote!=null && vote.certificate()!=null
@@ -956,9 +966,21 @@ final class MembershipGrantJournal implements AutoCloseable {
         var selected=verifyDecision(offered,bridges);require(Arrays.equals(selection.bytes(),selected.selected().bytes()),"installation differs from original selection");
         var plan=installationPlan(selected,bridges,retainedBridges,images,false);
         verifySettlementAuthority(vote,originals,selected.longest().capsule,plan.files);
-        var authority=Map.<String,Object>of("mode","covered-prefix","coveringGeneration",plan.manifest.digest(),"coveringSelector",plan.selector.digest());
+        var authority=new TreeMap<String,Object>(Map.of("mode","covered-prefix","coveringGeneration",plan.manifest.digest(),"coveringSelector",plan.selector.digest()));
+        byte[] ancestry=plan.files.getOrDefault("ancestry.gsr",new byte[0]);
+        if(!appliedBridges.isEmpty()) {
+            var proof=appliedBridges.getFirst();var statement=proof.statement.value();var start=object(statement.get("start"));
+            var covering=selected.longest().capsule;
+            require(start.get("index").equals(vote.entry().value().get("index")) && start.get("entry").equals(vote.entry().digest())
+                    && covering.anchor(number(start.get("index")))==null && !covering.ancestryAnchors(ancestry).containsKey(start),
+                    "covered staging unused or changed applied endpoint");
+            proof.verify(covering,new MembershipCapsule.Anchor(start,(String)statement.get("catalogBefore"),(String)statement.get("applicationBefore")));
+            byte[] extra=MembershipGenerationPlan.ancestry(appliedBridges);var combined=new java.io.ByteArrayOutputStream();combined.writeBytes(ancestry);combined.writeBytes(extra);
+            ancestry=combined.toByteArray();covering.ancestryAnchors(ancestry); // unchanged total count, bytes and ownership bounds
+            authority.put("appliedAncestry",hash(extra));
+        }
         retireApplication(configuration,storage,observations,vote,originals,old,originalSource(),authority,
-                selected.longest().capsule,plan.files.getOrDefault("ancestry.gsr",new byte[0]));
+                selected.longest().capsule,ancestry);
     }
     private <K,T> void retireApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,

@@ -17,8 +17,7 @@ b=d.b;e=d.e;c=d.c;t=d.t;selection=d.selection
 match=b.match
 
 
-def publication(root,group,slot,entry,payload,observations,names):
-    first=None
+def publication(root,group,slot,entry,payload,observations,names,first=None):
     representative=names[0];_,members,packet=c.current(group[representative]);cap=packet['capsule'];r=cap['root'];selected=e.f.decode(members['selected.gsr'],'records','SELECTED')
     accept=e.f.encode('records','ACCEPT',dict(root=r,authority=selected['view'],ballot=selected['ballot'],index=slot,entry=e.digest(entry)))
     ids={n:e.f.decode(files['node.gsr'],'records','NODE')['identity']['storage'] for n,files in group.items() if n in names}
