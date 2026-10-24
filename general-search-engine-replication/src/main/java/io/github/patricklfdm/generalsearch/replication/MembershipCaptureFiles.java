@@ -25,6 +25,9 @@ final class MembershipCaptureFiles {
         return plan(current,promise,identity,current.capsule.packet,current.accepted);
     }
     static Plan plan(MembershipCurrentGeneration current,Decoded promise,MembershipIdentity identity,MembershipSourcePacket packet,String accepted)throws IOException {
+        return plan(current,promise,identity,packet,accepted,current.images());
+    }
+    static Plan plan(MembershipCurrentGeneration current,Decoded promise,MembershipIdentity identity,MembershipSourcePacket packet,String accepted,Map<String,byte[]> images)throws IOException {
         current.check();require(promise!=null && promise.value().get("basisId")!=null,"capture requires original promise");
         require(!promise.digest().equals(current.manifest.value().get("promise")),"capture original grant is not newer than installed authority");
         var context=current.capsule.context;
@@ -34,7 +37,8 @@ final class MembershipCaptureFiles {
         var body=new TreeMap<String,Object>(promise.value());body.put("voter",identity.nodeId().value());body.put("cut",context.cut);
         body.put("capsule",packet.capsule().digest());body.put("inventory",packet.inventoryDigest());body.put("accepted",accepted);
         var basis=decode(encode("records","BASIS",body),"records","BASIS");packet.bind(basis);
-        var result=new Plan(current.selector,promise,basis,packet,current.images());
+        packet.verifyImages(images);var copies=new TreeMap<String,byte[]>();images.forEach((h,b)->copies.put(h,b.clone()));
+        var result=new Plan(current.selector,promise,basis,packet,Collections.unmodifiableMap(copies));
         require(result.bytes().length<=MAXIMUM,"capture intent bound");current.check();return result;
     }
     private void snapshot()throws IOException {

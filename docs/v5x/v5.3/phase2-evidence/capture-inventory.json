@@ -1,0 +1,280 @@
+{
+  "base": "4cd91d930c435ca7c81ef0e870ae5ceed8d75fa5",
+  "compiledInventory": {
+    "path": "target/v53-capture-inventory/inputs3.json",
+    "sha256": "70f7f9b122fe96e44fd82696e8345b1bf9590ced481ec4c4079d78710cd7b67f"
+  },
+  "compiledMainClasses": {
+    "changed": [
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources$CaptureResolver.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources$Original.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources$Originals.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources$Prepared.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipCaptureFiles.class"
+    ],
+    "classes": 702,
+    "instructionEquivalent": [
+      "io.github.patricklfdm.generalsearch.replication.MembershipBasisSources$Prepared",
+      "io.github.patricklfdm.generalsearch.replication.MembershipBasisSources$Original"
+    ],
+    "path": "target/v53-capture-inventory/compiled-main-classes.json",
+    "sha256": "13f9482c197d433d013c22bb289b0c54718cb1585a949db07c19bb26dcdf5d5c"
+  },
+  "jars": {
+    "target/v53-capture-inventory/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-capture-inventory/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "2505f4d8fa0299f959eefd55994439bfce69d26d0d0eed37671bc3eec39a1d66"
+  },
+  "javaMethods": 45,
+  "limitations": [
+    "context PREPARE/rebind still disabled",
+    "conditional historical generation/quorum fixtures; no new process/power-loss qualification",
+    "not maximal whole-store cross-view lifetime closure"
+  ],
+  "logs": {
+    "capture_inventory_evidence-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "capture_inventory_evidence-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context_durable_fence_evidence-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context_durable_fence_evidence-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "draft-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "draft-replay2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "journal_context_evidence-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "journal_context_evidence-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.log": "2a2dbde449c38eba9421c8222395c0b06ee4e06fecdba8c3886d22455d7aa667",
+    "run1.log": "0cbeadd70dbf2b231ad4a13455a8984310727798c534aae8b7ebdfdc7a56f976",
+    "run2.log": "e8d60a2b4198214b28b1b6d7d79ecbbd971b1e72abc09a7a0b80e1591c8c8ca5",
+    "run3.log": "42defa8d4df61bd0fb3cc0fa49b4dc1fede731e00ff03dde8d5ac951100f08f3"
+  },
+  "newJavaMethods": 9,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-capture-inventory/producer-classes.json",
+    "sha256": "68a5e58d4c6e5b540783e94355389017924da527789f341d777490255138b852"
+  },
+  "replays": {
+    "capture_inventory_evidence": {
+      "index": "target/v53-capture-inventory/capture_inventory_evidence-raw-index.json",
+      "members": 595,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-capture-inventory/run-23623a44-b7ca-4cd6-b6ff-a5ae4973f88e",
+      "result": {
+        "cases": 12,
+        "contextCaptureEnabled": false,
+        "freshProcesses": false,
+        "negatives": [
+          {
+            "case": "missing-case",
+            "reason": "capture inventory evidence inventory"
+          },
+          {
+            "case": "corrupt-original",
+            "reason": "packet checksum"
+          },
+          {
+            "case": "intent",
+            "reason": "capture inventory exact intent"
+          },
+          {
+            "case": "mutated-prefix",
+            "reason": "capture inventory original cut bytes"
+          },
+          {
+            "case": "resolver-filled-prefix",
+            "reason": "capture inventory resolver mutated bytes"
+          },
+          {
+            "case": "recovery-lost-source",
+            "reason": "capture inventory exact recovery"
+          },
+          {
+            "case": "recovery-changed-basis",
+            "reason": "capture inventory exact recovery"
+          },
+          {
+            "case": "recovery-left-intent",
+            "reason": "capture inventory exact recovery"
+          },
+          {
+            "case": "scope",
+            "reason": "capture inventory receipt scope"
+          },
+          {
+            "case": "symlink",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "profiles": [
+          3,
+          4,
+          5
+        ],
+        "runtimeEnabled": false,
+        "status": "PASS"
+      },
+      "sha256": "1359f30a604a1263ed44adedea15fe5f0cb0786ef6c2c74fc1c51e23ebd79dbd"
+    },
+    "context_durable_fence_evidence": {
+      "index": "target/v53-capture-inventory/context_durable_fence_evidence-raw-index.json",
+      "members": 478,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-durable-fence/run-e962322b-97ea-4d9f-9b64-358446a813ef",
+      "result": {
+        "backingBallot": 21,
+        "freshProcesses": false,
+        "latestPromise": 22,
+        "negatives": [
+          {
+            "case": "bad-reference",
+            "reason": "context checksum"
+          },
+          {
+            "case": "missing-stage",
+            "reason": "context fence evidence inventory"
+          },
+          {
+            "case": "changed-context",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "lost-backing",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "used-latest",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "changed-entry",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "removed-promise",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "false-fence",
+            "reason": "context fence exact higher promise"
+          },
+          {
+            "case": "foreign-proposer",
+            "reason": "context fence higher proposer identity"
+          },
+          {
+            "case": "foreign-incarnation",
+            "reason": "context fence higher proposer identity"
+          },
+          {
+            "case": "old-ack",
+            "reason": "context fence returned authority"
+          },
+          {
+            "case": "missing-reseal",
+            "reason": "context fence complete reseals"
+          },
+          {
+            "case": "scope",
+            "reason": "context fence receipt scope"
+          },
+          {
+            "case": "linked-context",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "newCampaignEnabled": false,
+        "originalFirst": true,
+        "originalOrigin": 20,
+        "portableReplay": "PASS",
+        "promiseInput": "forced-fixture-frame",
+        "runtimeEnabled": false,
+        "stages": 3,
+        "status": "PASS"
+      },
+      "sha256": "0340b545df932fb08396696124bf1f4c03b781f32414eea4f5281d482a5d799a"
+    },
+    "journal_context_evidence": {
+      "index": "target/v53-capture-inventory/journal_context_evidence-raw-index.json",
+      "members": 1385,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-journal-context/run-d22812bf-9b1b-4ea5-9eda-516d2b2db7ec",
+      "result": {
+        "cases": 12,
+        "freshProcesses": false,
+        "fullOwnerProgress": false,
+        "imageSemanticClaim": false,
+        "interruptionModel": "injected-IOException",
+        "interruptionsPerCase": 2,
+        "negatives": [
+          {
+            "case": "missing-case",
+            "reason": "owner context case inventory"
+          },
+          {
+            "case": "changed-vote",
+            "reason": "owner context protected authority changed"
+          },
+          {
+            "case": "missing-original",
+            "reason": "owner context protected authority changed"
+          },
+          {
+            "case": "changed-source",
+            "reason": "owner context protected authority changed"
+          },
+          {
+            "case": "changed-context",
+            "reason": "context checksum"
+          },
+          {
+            "case": "lost-prefix",
+            "reason": "owner context interrupted exact prefix"
+          },
+          {
+            "case": "second-crash-progress",
+            "reason": "owner context second interruption changed bytes"
+          },
+          {
+            "case": "force-order",
+            "reason": "owner context force-before-metadata order"
+          },
+          {
+            "case": "old-ack",
+            "reason": "owner context returned old acknowledgement"
+          },
+          {
+            "case": "false-process",
+            "reason": "owner context receipt scope"
+          },
+          {
+            "case": "linked-source",
+            "reason": "owner context linked/nonregular member"
+          },
+          {
+            "case": "extra-all-snapshots",
+            "reason": "owner context initial authority inventory"
+          }
+        ],
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "remoteOwnershipVerified": false,
+        "retirementAuthorized": false,
+        "runtimeEnabled": false,
+        "sourceOwnership": "actual-local-force",
+        "status": "PASS"
+      },
+      "sha256": "97a6c48c3a2b539536fcb5795896218b6eeefd9f9c4bc83bae95689a2a09b1f0"
+    }
+  },
+  "schema": "gse-v53-capture-inventory-local-v1",
+  "scope": [
+    "deferred read-only exact complete-source lookup before pending-source inventory admission",
+    "bounded complete/pending source and image reservations; fixed-plan compatibility",
+    "three source/current-context datasets with original-first, exact-negative, portable and optimized replay"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources.java": "5d16b13f0ecd8808be4bbd4915f4a2222e97faee5705621f3db5cb9b6e94b417",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCaptureFiles.java": "1ed29d325c17ffe13933c8c4f90c8620d3c24600098b052d1b830f745e32c747",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CaptureInventoryTest.java": "ee7d95dc4d78da46f41a9a566979a6fb4c4004cad6e73832d0cce7592451fe9f",
+    "scripts/v53/capture_inventory_evidence.py": "f5a658c4de61dfbcc156b60df8414fb191e4a40d804ab154ec4c6adf82e4d490"
+  },
+  "status": "PASS"
+}

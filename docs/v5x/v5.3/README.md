@@ -208,3 +208,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Context completion process recovery](PHASE_2_CONTEXT_COMPLETION_PROCESS.md): source/context/floor handoff across 86 repeated-death cases, with independent physical replay.
 
 - [Retained context under a later durable promise](PHASE_2_CONTEXT_DURABLE_FENCE.md): distinguish exact backing, installed selection and latest promise during recovery; new context campaigns remain disabled.
+
+- [Deferred capture inventory](PHASE_2_CAPTURE_INVENTORY.md): reserve complete backing sources before resolving an exact pending capture; context PREPARE/rebind integration remains open.

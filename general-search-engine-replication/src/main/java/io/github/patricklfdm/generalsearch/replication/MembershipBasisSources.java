@@ -24,6 +24,10 @@ final class MembershipBasisSources implements AutoCloseable {
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
     private final Map<String,List<MembershipResources.Lease>> sourceLeases=new TreeMap<>();
     record FileIdentity(Object key,long bytes,String digest) {}
+    /** Read-only complete originals during inventory admission. No force or Owned receipt.
+     * The lookup is usable only during the resolver callback, never after construction. */
+    @FunctionalInterface interface Originals {Original read(Decoded basis)throws IOException;}
+    @FunctionalInterface interface CaptureResolver {MembershipCaptureFiles.Plan resolve(Originals originals)throws IOException;}
 
     MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
             Map<String,Decoded> promises,Map<String,Decoded> bases) throws IOException {
@@ -36,9 +40,18 @@ final class MembershipBasisSources implements AutoCloseable {
     MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
             Map<String,Decoded> promises,Map<String,Decoded> bases,MembershipSourceRetirementFiles.Decision retiring,
             MembershipCaptureFiles.Plan capture)throws IOException {
+        this(parent,resources,cut,promises,bases,retiring,capture==null?null:capture.promise(),capture==null?null:originals->capture);
+    }
+    MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
+            Map<String,Decoded> promises,Map<String,Decoded> bases,MembershipSourceRetirementFiles.Decision retiring,
+            Decoded capturePromise,CaptureResolver resolver)throws IOException {
         directory=parent.resolve(DIRECTORY);this.resources=resources;this.cut=cut;
         root=AdmissionPaths.read(parent.resolve("root.gsr"),16384);directoryKey=key(directory);
         try {
+            require((capturePromise==null)==(resolver==null),"capture resolver mode mismatch");
+            String pendingId=capturePromise==null?null:(String)capturePromise.value().get("basisId");
+            if(resolver!=null)require(retiring==null && pendingId!=null && promises.containsKey(pendingId)
+                    && Arrays.equals(capturePromise.bytes(),promises.get(pendingId).bytes()),"capture resolver original promise");
             leases.add(resources.reserve(MembershipResources.Unit.JOURNAL,"membership-grants",MembershipGrantJournal.MAXIMUM));
             Set<String> ids=children(directory,6);
             var allowed=new HashSet<>(promises.keySet());if(retiring!=null)allowed.add(retiring.id());
@@ -53,17 +66,33 @@ final class MembershipBasisSources implements AutoCloseable {
                     var images=new TreeMap<String,Long>();for(var file:expected.entrySet())if(file.getKey().endsWith(".image"))images.put((String)file.getValue().get("sha256"),number(file.getValue().get("size")));
                     retainLeases(id,reserve(id,number(expected.get(PACKET).get("size")),images));retained.put(id,Map.copyOf(actual));subdirectories.put(id,key(path));continue;
                 }
-                if(capture!=null && id.equals(capture.id()) && !bases.containsKey(id)) {
-                    require(retiring==null,"capture conflicts with source retirement");
-                    retained.put(id,prefixSnapshot(path,capture.packet(),capture.images()));subdirectories.put(id,key(path));
-                    retainLeases(id,reserve(id,capture.packet().bytes().length,capture.packet().images()));continue;
-                }
+                if(id.equals(pendingId) && !bases.containsKey(id))continue;
                 var packet=load(path,promises.get(id),bases.get(id));
                 retainLeases(id,reserve(id,Files.size(path.resolve(PACKET)),packet.images()));
                 retained.put(id,snapshot(path,packet));subdirectories.put(id,key(path));
             }
-            if(capture!=null && !bases.containsKey(capture.id()) && !sourceLeases.containsKey(capture.id()))
-                retainLeases(capture.id(),reserve(capture.id(),capture.packet().bytes().length,capture.packet().images()));
+            if(resolver!=null) {
+                // Complete backing sources are reserved and checked first. The callback can
+                // inspect only those exact BASIS bytes; a partial pending source is not authority.
+                boolean[] resolving={true};MembershipCaptureFiles.Plan capture;
+                try {capture=Objects.requireNonNull(resolver.resolve(basis->{
+                    require(resolving[0],"capture original lookup expired");String id=(String)basis.value().get("basisId");
+                    require(bases.containsKey(id) && retained.containsKey(id) && Arrays.equals(basis.bytes(),bases.get(id).bytes()),
+                            "capture original lookup requires complete retained basis");
+                    require(directoryKey.equals(key(directory)) && ids.equals(children(directory,6)),"capture source inventory changed");
+                    return readOriginal(id,null,basis);
+                }),"capture resolver returned null");}finally{resolving[0]=false;}
+                require(pendingId.equals(capture.id()) && Arrays.equals(capture.promise().bytes(),capturePromise.bytes()),"capture resolver substituted promise");
+                capture.packet().bind(capture.basis());capture.packet().verifyImages(capture.images());
+                for(String field:List.of("root","view","ballot","basisId"))require(capture.basis().value().get(field).equals(capturePromise.value().get(field)),"capture resolver substituted basis");
+                if(bases.containsKey(pendingId))require(Arrays.equals(bases.get(pendingId).bytes(),capture.basis().bytes()),"capture resolver changed completed basis");
+                else {
+                    if(ids.contains(pendingId)) {
+                        Path path=directory.resolve(pendingId);retained.put(pendingId,prefixSnapshot(path,capture.packet(),capture.images()));subdirectories.put(pendingId,key(path));
+                    }
+                    retainLeases(pendingId,reserve(pendingId,capture.packet().bytes().length,capture.packet().images()));
+                }
+            }
             // Validate the entire inventory before sealing bytes made visible by an interrupted process.
             check();
             for(String id:retained.keySet()) {
@@ -218,14 +247,19 @@ final class MembershipBasisSources implements AutoCloseable {
         AdmissionPaths.forceDirectory(directory);cut.at("CONTEXT_SOURCE_PARENT_FORCED");check();owner.check();
     }
     Original original(String id,Decoded promise,Decoded basis)throws IOException {
-        check();require(retained.containsKey(id),"original basis source absent");
+        check();var result=readOriginal(id,promise,basis);check();return result;
+    }
+    private Original readOriginal(String id,Decoded promise,Decoded basis)throws IOException {
+        require(retained.containsKey(id),"original basis source absent");
         Path path=directory.resolve(id);var packet=MembershipSourcePacket.decode(AdmissionPaths.read(path.resolve(PACKET),MembershipSourcePacket.MAXIMUM));
         if(basis!=null)packet.bind(basis);else require(promise!=null && id.equals(promise.value().get("basisId"))
                 && packet.capsule().value().get("root").equals(promise.value().get("root"))
                 && MembershipContext.viewDigest((String)promise.value().get("root"),object(object(packet.capsule().value().get("cut")).get("view"))).equals(promise.value().get("view")),"captured source original promise");
         var images=new TreeMap<String,byte[]>();
         for(var image:packet.images().entrySet())images.put(image.getKey(),AdmissionPaths.read(path.resolve(image.getKey()+".image"),Math.toIntExact(image.getValue())));
-        packet.verifyImages(images);check();return new Original(packet,Map.copyOf(images));
+        packet.verifyImages(images);
+        require(subdirectories.get(id).equals(key(path)) && retained.get(id).equals(snapshot(path,packet)),"capture original source changed");
+        return new Original(packet,Map.copyOf(images));
     }
     private List<MembershipResources.Lease> reserve(String id,long size,Map<String,Long> images) {
         var result=new ArrayList<MembershipResources.Lease>();
