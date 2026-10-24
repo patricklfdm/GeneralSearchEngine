@@ -1,0 +1,193 @@
+{
+  "base": "2a337f1483128ae6d82b004b167b5e353186ce63",
+  "compiledInputs": {
+    "path": "target/v53-distinct-minority/inputs1.json",
+    "sha256": "7e2abf0e27d5a3dbd64bfd04b6be239f4e78695c952a5f251983caee97154363"
+  },
+  "compiledMainClasses": {
+    "changed": [],
+    "classes": 706,
+    "path": "target/v53-distinct-minority/compiled-main-classes.json",
+    "sha256": "1f793943b2669a82037e5f4257cf2d19f95db11d1eca44fa1884ed54f6cefd86"
+  },
+  "failures": [
+    "Draft independent replay accessed a manifest excluded by the shared current() helper; corrected lookup to the retained generation path.",
+    "Draft force model omitted candidate force for the final new BARRIER ACCEPT; unchanged raw events correctly showed a new vote, unlike the earlier duplicate DATA ACCEPT.",
+    "Draft unit fixtures were noncanonical JSON and failed before their intended scope checks; corrected fixtures use canonical encoding."
+  ],
+  "jars": {
+    "target/v53-distinct-minority/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-distinct-minority/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a15b44f5ea53f3f93aacfd501697a2459a8630032dd6c2e3c7aea5981965b34f"
+  },
+  "javaExecutions": 1,
+  "limitations": [
+    "Same published parent only; pending votes behind an advanced selected prefix remain a separate implementation obligation",
+    "No fresh process death, full cross-view/adoption, transport or public runtime qualification",
+    "Small images and callback reservation peaks, not maximal bytes or completion headroom",
+    "Typed semantics checked by Java; Python derives byte/catalog continuity and does not implement an independent typed engine",
+    "Original backup input files not duplicated here; projected image and declared inventory retained"
+  ],
+  "logs": {
+    "first-case-replay1.log": "55c31ae047166f55b51c0d272dda384f3485be66bc966b00033bc349f5f0ba53",
+    "first-case-replay2.log": "f0061c2034a56bcae9c16568bae34d27beadc10732315589a656a9cd904fad46",
+    "first-case-replay3.log": "25e47f5c16b0f8caf3ac9dd0952d5f13e40b0c7bd22d2f862f3e660e35a4a8d6",
+    "normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-unit1.log": "f1ed6e8e749fcf700fcb19afa9028f1178e5aad803b3c95216fa19d8573195d1",
+    "python-unit2.log": "837075977bcb1b6c115c621296c75d898d5a9d4c21f4316b80fa8af2bbe05dae",
+    "replay1.log": "51ba180e4b42dbcff0ccfd047d9d24cc851666ac0cd90f9bc804e8052444a9e2",
+    "run1.log": "a117a7bd95e88106d86cd596678cd7adabccb46a6cd8e47dfead359b9f890395"
+  },
+  "oracleInputs": {
+    "path": "target/v53-distinct-minority/oracle-inputs.json",
+    "sha256": "0e68f2979e75f1460b8fc7cb45c051ae84128dd804fa4ee7dbbfbd2417f3ef45"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-distinct-minority/producer-classes.json",
+    "sha256": "855b86b98c3fe8e65825c4ad8c79118168c994e364f6e121165c5e557106c0d0"
+  },
+  "raws": {
+    "minority": {
+      "index": "target/v53-distinct-minority/minority-raw-index.json",
+      "members": 18317,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-distinct-minority/run-5e48fa6f-0779-440f-9ebe-da40556a531c",
+      "sha256": "a106a0844430d27e8f9820f36b6e9128eac63f4fa1aa0e7a57a4d5665cd5ba20"
+    }
+  },
+  "replays": {
+    "minority": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-distinct-minority/run-5e48fa6f-0779-440f-9ebe-da40556a531c",
+      "result": {
+        "cases": 6,
+        "coveredPrefixRecovery": false,
+        "freshProcesses": false,
+        "independentImageSemantics": false,
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "missing-case",
+            "reason": "context selection distinct minority cases inventory"
+          },
+          {
+            "case": "extra-stage",
+            "reason": "context selection distinct minority member inventory"
+          },
+          {
+            "case": "original-seal",
+            "reason": "admitted original public bootstrap"
+          },
+          {
+            "case": "original-entry",
+            "reason": "minority exact original ENTRY"
+          },
+          {
+            "case": "alternative-payload",
+            "reason": "minority exact alternative ENTRY"
+          },
+          {
+            "case": "minority-vote",
+            "reason": "admitted exact minority-accepted: node-1"
+          },
+          {
+            "case": "unselected-node",
+            "reason": "admitted exact round-3-prepared: node-1"
+          },
+          {
+            "case": "frozen-tail",
+            "reason": "admitted exact round-4-prepared: node-1"
+          },
+          {
+            "case": "selected-choice",
+            "reason": "admitted exact round-4-selected: node-1"
+          },
+          {
+            "case": "installed-packet",
+            "reason": "admitted exact round-4-installed: node-1"
+          },
+          {
+            "case": "early-delete",
+            "reason": "admitted exact minority-retained: node-1"
+          },
+          {
+            "case": "replacement",
+            "reason": "admitted exact replacement-accepted: node-1"
+          },
+          {
+            "case": "retained-minority-source",
+            "reason": "admitted exact round-4-settled: node-1"
+          },
+          {
+            "case": "proof",
+            "reason": "admitted exact slot-1-proved: node-1"
+          },
+          {
+            "case": "checkpoint-ack",
+            "reason": "admitted exact slot-1-applied: node-2"
+          },
+          {
+            "case": "retired-source",
+            "reason": "admitted exact round-5-settled: node-1"
+          },
+          {
+            "case": "typed-image",
+            "reason": "admitted exact typed inspection image"
+          },
+          {
+            "case": "observations",
+            "reason": "minority actual owner observations"
+          },
+          {
+            "case": "duplicate-observation",
+            "reason": "minority actual owner observations"
+          },
+          {
+            "case": "calls",
+            "reason": "minority complete call inventory"
+          },
+          {
+            "case": "force-order",
+            "reason": "minority exact vote replacement force"
+          },
+          {
+            "case": "false-ack",
+            "reason": "minority premature retirement or rejected ACK"
+          },
+          {
+            "case": "numeric-flag",
+            "reason": "minority receipt scope"
+          },
+          {
+            "case": "capacity",
+            "reason": "minority reported image bound"
+          },
+          {
+            "case": "link",
+            "reason": "application evidence inventory bound"
+          }
+        ],
+        "nodePublications": 48,
+        "portableReplay": "PASS",
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "status": "PASS",
+        "syntheticObservations": false,
+        "voters": 24
+      }
+    }
+  },
+  "schema": "gse-v53-distinct-minority-local-v1",
+  "scope": [
+    "Six real public bootstrap profiles, 24 admitted voters and 48 node publications",
+    "Distinct minority ACCEPT2 versus disjoint majority ACCEPT3, all-voter selection4 and exact replacement before original generation reclamation",
+    "768 subsequent node snapshots, continued BARRIER, no losing document application, exact original source retirement under published floor",
+    "Complete physical model, 25 original-first evidence negatives and normal/optimized/portable replay"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DistinctMinorityTest.java": "2c45ee67f40e29a356d8596be5b13e6c432e14148456319ed449688d1756ea66",
+    "scripts/v53/distinct_minority_evidence.py": "33eee328714ed3c3dcb15e43a6f86387a3204183f2fadd05b30f4d83ff810d84",
+    "scripts/v53/test_distinct_minority.py": "0e538f8e43516cd2ce23dc25c61f7d7fb962dabee561959ed9cb3aa5823c8856"
+  },
+  "status": "PASS"
+}

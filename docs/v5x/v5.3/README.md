@@ -234,3 +234,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Mixed ACCEPT process recovery](PHASE_2_CONTEXT_MIXED_PROCESS.md): 84 repeated-death cases preserve exact original votes through successor acceptance and obsolete source reclamation.
 
 - [Admitted bootstrap through publication](PHASE_2_BOOTSTRAP_PUBLICATION.md): six actual public bootstrap profiles, 24 voters and 72 node publications with exact original authority and independent physical replay.
+
+- [Distinct minority ENTRY under a newer selection](PHASE_2_DISTINCT_MINORITY.md): actual admitted same-parent replacement, publication and source reclamation; covered-prefix and crash recovery remain open.
