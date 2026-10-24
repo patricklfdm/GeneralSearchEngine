@@ -270,3 +270,7 @@ cleanup authority to an exact supplemental RANGE proof; Phase 2 remains open.
 [Covered protected contexts](PHASE_2_COVERED_CONTEXT.md) connect an advanced
 stable-view selection to exact original-byte retention, forced empty-vote cleanup
 and ordinary floor maintenance. Phase 2 remains open.
+
+[Covered-context process recovery](PHASE_2_COVERED_CONTEXT_PROCESS.md) adds 22
+twice-interrupted cases, 66 fresh workers and eleven live-lock probes on the
+unchanged production runtime. Phase 2 remains open.

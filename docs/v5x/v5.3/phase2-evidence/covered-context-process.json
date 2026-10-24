@@ -1,0 +1,181 @@
+{
+  "base": "b5ace04d93ed95f1ff03b58e20125d4e339cdfdb",
+  "compiledInputs": {
+    "path": "target/v53-covered-context-process/inputs1.json",
+    "sha256": "a6c6d801c055e4aca90fde13443d2049cde5c1e501d69cd174ca1aee0afa1d03"
+  },
+  "compiledMainClasses": {
+    "classes": 707,
+    "comparison": "identical to covered-context owner gate",
+    "path": "target/v53-covered-context-process/compiled-main-classes.json",
+    "sha256": "d5c4d63bf4618bde1711837387fd63d9d50589ae2736807f230f1917c9c303a3"
+  },
+  "jars": {
+    "target/v53-covered-context-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-context-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "227e7944e04b6a7f3e8e254323e52d33d3c66f369850b7cf397e161bb3e52d9b"
+  },
+  "logs": {
+    "target/v53-covered-context-process/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context-process/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context-process/python-tests-optimized.log": "e88eaf6e50984f6551445a6c9e77e4ca9e63f0e93ed442e493d2682e576a4f19",
+    "target/v53-covered-context-process/python-tests.log": "e88eaf6e50984f6551445a6c9e77e4ca9e63f0e93ed442e493d2682e576a4f19",
+    "target/v53-covered-context-process/run1.log": "4e6174ee682cd1b84aaf0503570e4f9230af78b3e7e8e1a26a0faa3750829f8d"
+  },
+  "producerClasses": {
+    "path": "target/v53-covered-context-process/producer-classes.json",
+    "sha256": "48e65e63ead5817e8109eeb8469dc3f174262d417d3716917b3070c6a0fdcf21"
+  },
+  "pythonInputs": {
+    "path": "target/v53-covered-context-process/python-inputs.json",
+    "sha256": "d46b68f8b5b4e58385ba8d71c0a4ffa9174a7b5ca5fa7c58c196cc556f50eead"
+  },
+  "pythonTests": 25,
+  "raw": {
+    "inventory": "target/v53-covered-context-process/raw-inventory.json",
+    "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-process/run-2f8e57d4-159d-4106-8627-062ae4c260a2",
+    "sha256": "a94d32a732d0ffaed12007b14593b609b2a9c6e0c9f3d66b7da145f3ecd5644e"
+  },
+  "readerFiles": {
+    "target/v53-covered-context-process/normal.json": "5c4e57cf9f9ca0dd61078e4e364a217db35c991f84801bc19d5333639caceaa8",
+    "target/v53-covered-context-process/optimized.json": "5c4e57cf9f9ca0dd61078e4e364a217db35c991f84801bc19d5333639caceaa8"
+  },
+  "replay": {
+    "cases": 22,
+    "freshProcesses": 66,
+    "independentImageSemantics": false,
+    "lockProbes": 11,
+    "maximalCapacity": false,
+    "negatives": [
+      {
+        "case": "original-context",
+        "reason": "admitted exact contexts: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-floor",
+        "reason": "admitted exact original-retired: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "first-context",
+        "reason": "context process exact first snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "second-vote",
+        "reason": "context process exact second snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-source",
+        "reason": "context process exact final snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cleanup-force",
+        "reason": "context process exact force/death order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-ack",
+        "reason": "context process exact force/death order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "kill-handshake",
+        "reason": "context process kill handshake",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peak-images",
+        "reason": "context process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "runtime",
+        "reason": "context process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-code",
+        "reason": "context process exact first exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-cut",
+        "reason": "context process exact second exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stderr",
+        "reason": "context process stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-path",
+        "reason": "context process lock probe",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-exit",
+        "reason": "context process lock exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-stderr",
+        "reason": "context process lock stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt",
+        "reason": "context process exact receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admitted-path",
+        "reason": "context process admitted paths",
+        "status": "REJECTED"
+      },
+      {
+        "case": "observations",
+        "reason": "context process original observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-case",
+        "reason": "context selection context process inventory",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "peakImages": 6,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "status": "PASS"
+  },
+  "reports": {
+    "target/v53-covered-context-process/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CoveredContextProcessTest.xml": {
+      "sha256": "e070d9e8b4f12193ad83c0da4d7c0958b1a166c8e2b46bf32ffa6a6019dc5826",
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-covered-context-process-local-v1",
+  "scope": {
+    "crossView": false,
+    "freshProcesses": true,
+    "maximalCapacity": false,
+    "mixedOriginalCoveredCompletion": false,
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredContextProcessTest.java": "660d0fe2ed1233b74665377815f70ab4df7d31f745980d295d824a045befd5f5",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredContextProcessWorker.java": "72d27197c8298f303d42914393768118e67608726669a5422183699832f06f70",
+    "scripts/v53/covered_context_process_evidence.py": "9cf1b4b3d65542ca7e6d408f00433d06faabe00d66c4d85104b96e82fb76caf0",
+    "scripts/v53/test_covered_context_process.py": "dab0dfd98eaf93f462efb8afc19377d7d2d6a1c9014663205ed0fbb3581f9845"
+  },
+  "status": "PASS"
+}

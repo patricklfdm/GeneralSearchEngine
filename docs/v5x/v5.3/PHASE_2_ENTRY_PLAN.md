@@ -78,5 +78,7 @@ explicit typed retirement of derived staging under an exact newer published
 selection, preserving original votes and all voting fences.
 [Hidden endpoint cleanup](PHASE_2_HIDDEN_STAGING.md) now has supplemental-proof
 owner qualification. [Covered protected contexts](PHASE_2_COVERED_CONTEXT.md)
-now have a local selection/install/cleanup and floor-maintenance implementation;
-complete process/lifetime profiles and the closure audit remain pending.
+now have a local selection/install/cleanup and floor-maintenance implementation.
+[Covered-context process recovery](PHASE_2_COVERED_CONTEXT_PROCESS.md) adds 22
+repeated-death cases and 66 fresh workers on the same production classes;
+remaining mixed/lifetime/cross-view profiles and the closure audit remain pending.

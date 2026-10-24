@@ -55,9 +55,11 @@ The completed gate has 37 Java tests and 27 Python tests. Normal, optimized and
 relocated replay agree. The [retained evidence index](phase2-evidence/covered-context.json)
 binds source/build hashes, all measured results and the original failed attempts.
 
-This is small-image local owner and exception-interruption qualification. Dedicated
-process-death coverage, mixed-original-ballot covered completion, complete cross-view
-storage, maximal capacity/lifetime and the final S/N mapping remain open. Public
+This is small-image local owner and exception-interruption qualification. The
+[dedicated process gate](PHASE_2_COVERED_CONTEXT_PROCESS.md) additionally covers
+22 repeated-death cases and 66 fresh workers on the same production classes.
+Mixed-original-ballot covered completion, complete cross-view storage, maximal
+capacity/lifetime and the final S/N mapping remain open. Public
 membership runtime, frozen formats/limits, workflows and V5.2 are unchanged. See the
 [closure checklist](PHASE_2_CLOSURE_CHECKLIST.md).
 
