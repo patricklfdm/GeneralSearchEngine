@@ -1,0 +1,936 @@
+{
+  "base": "e9f47edd076b2ba00f936b3858e786381725e977",
+  "compiledInputs": [
+    {
+      "path": "target/v53-context-installation-lifetime/inputs1.json",
+      "sha256": "a83894ad784be3a9783ad2bd9f5b9a8b39b9840b52625216a0c20473de805589"
+    },
+    {
+      "path": "target/v53-context-installation-lifetime/inputs2.json",
+      "sha256": "0681e4417bbd470ff88e3d79d49a0f74ac09d7580550394443bb2deb7781c4aa"
+    },
+    {
+      "path": "target/v53-context-installation-lifetime/inputs3.json",
+      "sha256": "9bea6d5238081a318426230a17384e177eb56d07838532e4bc441be26afc2983"
+    }
+  ],
+  "compiledMainClasses": {
+    "changed": [
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.class"
+    ],
+    "classes": 702,
+    "path": "target/v53-context-installation-lifetime/compiled-main-classes.json",
+    "sha256": "492601f385476023706cbd6978b0b0e8f5a40d42c0961173d8b2200aacb4f10c"
+  },
+  "driverFailure": {
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installed-source-cuts/run-fbc28884-65f0-4d49-a911-84856c174824",
+    "reason": "missing temporary parent directory before first fault injection; corrected driver only",
+    "sourceSha256": "a9464c31d7beb1acda3c98b10ac0b44d40de034b23259791e5e0188fc37b6565"
+  },
+  "jars": {
+    "target/v53-context-installation-lifetime/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-installation-lifetime/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "05827067ef68c2ef0139d08128f63a38290593f6c9fc1c3baea71ad5f1ec6909"
+  },
+  "javaExecutions": 19,
+  "javaFailedAttempts": 2,
+  "limitations": [
+    "small images and conditional historical bootstrap; not maximal capacity, full typed publication or cross-view lifetime",
+    "new cuts use IOException, not fresh-process or power-loss qualification",
+    "mixed higher-ballot ACCEPT digests for the same ENTRY remain rejected"
+  ],
+  "logs": {
+    "draft-contract.stderr": "3ca173c337a4466c1c82e1f08657a566a3fb8bf3a10fb69de6b98a10e0f0b81a",
+    "draft-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-unit.log": "c734dcb3065fbb13649950f758f24d207f631e9e42afb81b873d51faf5d8fc37",
+    "red.log": "734a9fac9fdda137a3ac0f92e587b58fe8a47059f608d5cd4713e5cfff2da6d7",
+    "replay1.log": "723f3e2191e616d10f180a0e33889272185af8d8bc1c712c685af8216606e1be",
+    "replay2.log": "ebe2e65ada5b6be97add03e52b4b08e7f699433731a6aa067fc01d2ce6d59196",
+    "replay3.log": "86730dc226e81c596d12eca780475f0a0780765bdd9950d78b14fa7774a25490",
+    "run1-backing-cuts-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1-backing-cuts-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1-backing-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1-backing-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1-lifetime-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1-lifetime-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1-selection-cuts-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1-selection-cuts-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1-selection-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1-selection-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "ee972afecde500eb6f841d24c2ef53798e6e83ff3c641fc3c5e1724395746c37",
+    "run2-generation-cuts-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run2-generation-cuts-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run2-installation-cuts-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run2-installation-cuts-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run2-installation-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run2-installation-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run2.log": "d13a0b14513ccc9c74502e8f33d71ddc741b8c941927685b02b2f4202944a13a",
+    "run3-lifetime-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run3-lifetime-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run3-source-cuts-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run3-source-cuts-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run3.log": "a0af8474d4aa0b40119f88cab4d359fcf1540a36fac3c745b43a3c5546bdae1f"
+  },
+  "oracleInputs": {
+    "path": "target/v53-context-installation-lifetime/oracle-inputs.json",
+    "sha256": "748a72868ca0414031907c9305e16ab9b6a8ef5ca3262607342d4e8a47966de5"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "postFixDriverFailures": 1,
+  "producerClasses": {
+    "path": "target/v53-context-installation-lifetime/producer-classes.json",
+    "sha256": "6a50ef72d3d655c309161f863e93794bb4ec4621aafe3ebe634d310341b29cb5"
+  },
+  "raws": {
+    "run1-backing": {
+      "index": "target/v53-context-installation-lifetime/run1-backing-raw-index.json",
+      "members": 866,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-backing-retirement/run-c43b36f1-89e8-48e3-9908-420cfb7104d2",
+      "sha256": "afd21d36ae0a103d97551c85206d8b89fd72a78175570fd9ec0161707ebf4463"
+    },
+    "run1-backing-cuts": {
+      "index": "target/v53-context-installation-lifetime/run1-backing-cuts-raw-index.json",
+      "members": 2027,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-backing-retirement-cuts/run-f1731073-f021-4592-86c0-aa4cc276b229",
+      "sha256": "5dff1779b1274d312afd44197dee4383df959090775812ab620a15a95e88880a"
+    },
+    "run1-lifetime": {
+      "index": "target/v53-context-installation-lifetime/run1-lifetime-raw-index.json",
+      "members": 5095,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation-lifetime/run-92c435fc-f258-4926-a661-ec48d684b802",
+      "sha256": "d3fc99c827fc73a74c141fa70b0b1f9506dbc7e30a20b9a70805210bf17f4017"
+    },
+    "run1-selection": {
+      "index": "target/v53-context-installation-lifetime/run1-selection-raw-index.json",
+      "members": 1738,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-selection/run-d1ebd07f-7751-4900-8591-bfcd85c6b968",
+      "sha256": "8da8638a67f7568a15f3b6f87d1b2f042e256e2b9a50be68b3aba73ae047c937"
+    },
+    "run1-selection-cuts": {
+      "index": "target/v53-context-installation-lifetime/run1-selection-cuts-raw-index.json",
+      "members": 1850,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-selection-cuts/run-0ee68224-81e5-4c84-a872-5ef75fe79238",
+      "sha256": "f32141671aa287c4f6df64a8f7271133108fd328df5b502dc4f3be67c36909ac"
+    },
+    "run2-generation-cuts": {
+      "index": "target/v53-context-installation-lifetime/run2-generation-cuts-raw-index.json",
+      "members": 5365,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-intermediate-retirement/run-9f328e88-2d69-4b73-b141-4d08cc5fbfc5",
+      "sha256": "d33fe6fa4773f261a73c5871160f99e0b613522beaffaf59b06399fde4b2b4f9"
+    },
+    "run2-installation": {
+      "index": "target/v53-context-installation-lifetime/run2-installation-raw-index.json",
+      "members": 1696,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation/run-8c25f05d-0f01-4381-ae8e-8e485c51b614",
+      "sha256": "b5c6f2a1d4a808c9106811ec0cdd95debf70623e776708b3e2f65bd816bfa1fc"
+    },
+    "run2-installation-cuts": {
+      "index": "target/v53-context-installation-lifetime/run2-installation-cuts-raw-index.json",
+      "members": 3266,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation-cuts/run-cb659a19-6d55-4e12-9986-8bc0835735e5",
+      "sha256": "a2995ad7d082f1eab498f2f6cc06681465a6cc409df15cdbebe495f7007a55c4"
+    },
+    "run3-lifetime": {
+      "index": "target/v53-context-installation-lifetime/run3-lifetime-raw-index.json",
+      "members": 5095,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation-lifetime/run-e56a1582-b7e0-4cdf-aa67-be7e7a4b41e0",
+      "sha256": "e4a7a809be9028bf1f17cd2ae995362fe660025e58d1ecc33f01141204ebe676"
+    },
+    "run3-source-cuts": {
+      "index": "target/v53-context-installation-lifetime/run3-source-cuts-raw-index.json",
+      "members": 6861,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installed-source-cuts/run-07406be7-d0d2-41f3-b925-7f72e61ad1db",
+      "sha256": "6f808194caf298f7e932b516dbfb06c2fb390ef7445ed57b42554d3c7f1cc308"
+    }
+  },
+  "red": {
+    "index": "target/v53-context-installation-lifetime/red-raw-index.json",
+    "raw": "general-search-engine-replication/target/v53-context-installation-lifetime/run-99debc50-1c8c-4830-a926-8d36280ceea0",
+    "reason": "obsolete source 22 rejected after installing 23",
+    "sha256": "ea3ba33519495b2a508fa88796cd495540d0a8a6e0f8927a00e0a6f2f40371a3"
+  },
+  "replays": {
+    "run1-backing": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-backing-retirement/run-c43b36f1-89e8-48e3-9908-420cfb7104d2",
+      "result": {
+        "cases": 7,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "negatives": [
+          {
+            "case": "bad-original",
+            "reason": "context checksum"
+          },
+          {
+            "case": "missing",
+            "reason": "backing retirement evidence inventory"
+          },
+          {
+            "case": "context",
+            "reason": "backing retirement exact deletion"
+          },
+          {
+            "case": "vote",
+            "reason": "backing retirement exact deletion"
+          },
+          {
+            "case": "installed-source",
+            "reason": "backing retirement exact deletion"
+          },
+          {
+            "case": "newest-source",
+            "reason": "backing retirement exact deletion"
+          },
+          {
+            "case": "journal",
+            "reason": "backing retirement exact deletion"
+          },
+          {
+            "case": "floor",
+            "reason": "backing retirement exact deletion"
+          },
+          {
+            "case": "kept-source",
+            "reason": "backing retirement exact deletion"
+          },
+          {
+            "case": "order",
+            "reason": "backing retirement deletion force order"
+          },
+          {
+            "case": "ack",
+            "reason": "context source old acknowledgement"
+          },
+          {
+            "case": "scope",
+            "reason": "backing retirement receipt scope"
+          },
+          {
+            "case": "link",
+            "reason": "owner context linked/nonregular member"
+          },
+          {
+            "case": "capture",
+            "reason": "context capture exact retirement capture"
+          },
+          {
+            "case": "reopen",
+            "reason": "context capture exact retirement reopen"
+          }
+        ],
+        "originalFirst": true,
+        "peakImageFiles": 6,
+        "portableReplay": "PASS",
+        "reservedCompletionImages": 1,
+        "runtimeEnabled": false,
+        "selectedInstallEnabled": false,
+        "status": "PASS",
+        "steadyImageFiles": 5
+      }
+    },
+    "run1-backing-cuts": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-backing-retirement-cuts/run-f1731073-f021-4592-86c0-aa4cc276b229",
+      "result": {
+        "cases": 14,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "negatives": [
+          {
+            "case": "bad-original",
+            "reason": "context checksum"
+          },
+          {
+            "case": "missing",
+            "reason": "backing retirement evidence inventory"
+          },
+          {
+            "case": "context",
+            "reason": "backing retirement exact recovered deletion"
+          },
+          {
+            "case": "vote",
+            "reason": "backing retirement exact recovered deletion"
+          },
+          {
+            "case": "installed-source",
+            "reason": "backing retirement exact recovered deletion"
+          },
+          {
+            "case": "newest-source",
+            "reason": "backing retirement exact recovered deletion"
+          },
+          {
+            "case": "journal",
+            "reason": "backing retirement exact recovered deletion"
+          },
+          {
+            "case": "floor",
+            "reason": "backing retirement exact recovered deletion"
+          },
+          {
+            "case": "kept-source",
+            "reason": "backing retirement exact recovered deletion"
+          },
+          {
+            "case": "order",
+            "reason": "backing retirement first force order"
+          },
+          {
+            "case": "ack",
+            "reason": "context source old acknowledgement"
+          },
+          {
+            "case": "scope",
+            "reason": "backing retirement receipt scope"
+          },
+          {
+            "case": "link",
+            "reason": "owner context linked/nonregular member"
+          },
+          {
+            "case": "first",
+            "reason": "backing retirement exact first interruption"
+          },
+          {
+            "case": "second",
+            "reason": "backing retirement exact second interruption"
+          }
+        ],
+        "originalFirst": true,
+        "peakImageFiles": 6,
+        "portableReplay": "PASS",
+        "reservedCompletionImages": 1,
+        "runtimeEnabled": false,
+        "selectedInstallEnabled": false,
+        "status": "PASS",
+        "steadyImageFiles": 5
+      }
+    },
+    "run1-lifetime": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation-lifetime/run-92c435fc-f258-4926-a661-ec48d684b802",
+      "result": {
+        "finalBallot": 27,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection installation lifetime inventory"
+          },
+          {
+            "case": "capture",
+            "reason": "context capture exact selection capture"
+          },
+          {
+            "case": "selected",
+            "reason": "context capture exact installation lifetime selection"
+          },
+          {
+            "case": "installed",
+            "reason": "context capture exact installation lifetime install"
+          },
+          {
+            "case": "generation",
+            "reason": "context capture exact installation lifetime generation retirement"
+          },
+          {
+            "case": "context",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "vote",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "floor",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "journal",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "kept-source",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "latest-source",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "accepted",
+            "reason": "context capture exact installation lifetime successor"
+          },
+          {
+            "case": "scope",
+            "reason": "installation lifetime scope"
+          },
+          {
+            "case": "linked",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "owners": 3,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "rounds": [
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "run1-selection": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-selection/run-d1ebd07f-7751-4900-8591-bfcd85c6b968",
+      "result": {
+        "cases": 3,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "installedBallot": 21,
+        "laterInstallEnabled": false,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection evidence inventory"
+          },
+          {
+            "case": "prepared",
+            "reason": "context capture exact selection capture"
+          },
+          {
+            "case": "vote",
+            "reason": "context capture exact selection committed"
+          },
+          {
+            "case": "context",
+            "reason": "context capture exact selection committed"
+          },
+          {
+            "case": "selector",
+            "reason": "context capture exact selection committed"
+          },
+          {
+            "case": "source",
+            "reason": "context capture exact selection committed"
+          },
+          {
+            "case": "journal",
+            "reason": "context capture exact selection committed"
+          },
+          {
+            "case": "floor",
+            "reason": "context capture exact selection committed"
+          },
+          {
+            "case": "scope",
+            "reason": "context selection receipt scope"
+          },
+          {
+            "case": "order",
+            "reason": "context selection clean force order"
+          },
+          {
+            "case": "return",
+            "reason": "context selection clean force order"
+          },
+          {
+            "case": "link",
+            "reason": "owner context linked/nonregular member"
+          },
+          {
+            "case": "next",
+            "reason": "context capture exact selection capture"
+          },
+          {
+            "case": "retirement",
+            "reason": "context selection exact intermediate retirement"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "portableReplay": "PASS",
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "run1-selection-cuts": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-selection-cuts/run-0ee68224-81e5-4c84-a872-5ef75fe79238",
+      "result": {
+        "cases": 4,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "installedBallot": 21,
+        "laterInstallEnabled": false,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection evidence inventory"
+          },
+          {
+            "case": "prepared",
+            "reason": "context capture exact selection capture"
+          },
+          {
+            "case": "vote",
+            "reason": "context capture exact selection explicit return"
+          },
+          {
+            "case": "context",
+            "reason": "context capture exact selection explicit return"
+          },
+          {
+            "case": "selector",
+            "reason": "context capture exact selection explicit return"
+          },
+          {
+            "case": "source",
+            "reason": "context capture exact selection explicit return"
+          },
+          {
+            "case": "journal",
+            "reason": "context capture exact selection explicit return"
+          },
+          {
+            "case": "floor",
+            "reason": "context capture exact selection explicit return"
+          },
+          {
+            "case": "scope",
+            "reason": "context selection receipt scope"
+          },
+          {
+            "case": "order",
+            "reason": "context selection first force order"
+          },
+          {
+            "case": "return",
+            "reason": "context selection explicit return order"
+          },
+          {
+            "case": "link",
+            "reason": "owner context linked/nonregular member"
+          },
+          {
+            "case": "second",
+            "reason": "context capture exact selection second interruption"
+          },
+          {
+            "case": "recovery",
+            "reason": "context selection second force order"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "portableReplay": "PASS",
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "run2-generation-cuts": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-intermediate-retirement/run-9f328e88-2d69-4b73-b141-4d08cc5fbfc5",
+      "result": {
+        "cases": 25,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "installedBallot": 22,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection installation evidence inventory"
+          },
+          {
+            "case": "selected",
+            "reason": "context capture exact installation selected"
+          },
+          {
+            "case": "context",
+            "reason": "context installation exact retired inventory"
+          },
+          {
+            "case": "vote",
+            "reason": "context installation exact retired inventory"
+          },
+          {
+            "case": "selector",
+            "reason": "context installation exact retired inventory"
+          },
+          {
+            "case": "floor",
+            "reason": "context installation exact retired inventory"
+          },
+          {
+            "case": "source",
+            "reason": "context installation exact retired inventory"
+          },
+          {
+            "case": "first",
+            "reason": "context installation first force order"
+          },
+          {
+            "case": "second",
+            "reason": "context installation second force order"
+          },
+          {
+            "case": "return",
+            "reason": "context installation explicit completion order"
+          },
+          {
+            "case": "scope",
+            "reason": "context installation receipt scope"
+          },
+          {
+            "case": "first-state",
+            "reason": "context installation exact retirement crash"
+          },
+          {
+            "case": "second-state",
+            "reason": "context installation exact retirement recovery-crash"
+          },
+          {
+            "case": "accepted",
+            "reason": "context capture exact installation retirement successor"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "run2-installation": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation/run-8c25f05d-0f01-4381-ae8e-8e485c51b614",
+      "result": {
+        "cases": 3,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "installedBallot": 22,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection installation evidence inventory"
+          },
+          {
+            "case": "selected",
+            "reason": "context capture exact installation selected"
+          },
+          {
+            "case": "context",
+            "reason": "context capture exact installation clean"
+          },
+          {
+            "case": "vote",
+            "reason": "context capture exact installation clean"
+          },
+          {
+            "case": "selector",
+            "reason": "context capture exact installation clean"
+          },
+          {
+            "case": "floor",
+            "reason": "context capture exact installation clean"
+          },
+          {
+            "case": "source",
+            "reason": "context capture exact installation clean"
+          },
+          {
+            "case": "scope",
+            "reason": "context installation receipt scope"
+          },
+          {
+            "case": "retired",
+            "reason": "context capture exact installation retired intermediate"
+          },
+          {
+            "case": "accepted",
+            "reason": "context capture exact installation successor"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "run2-installation-cuts": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation-cuts/run-cb659a19-6d55-4e12-9986-8bc0835735e5",
+      "result": {
+        "cases": 14,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "installedBallot": 22,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection installation evidence inventory"
+          },
+          {
+            "case": "selected",
+            "reason": "context capture exact installation selected"
+          },
+          {
+            "case": "context",
+            "reason": "context capture exact installation explicit return"
+          },
+          {
+            "case": "vote",
+            "reason": "context capture exact installation explicit return"
+          },
+          {
+            "case": "selector",
+            "reason": "context capture exact installation explicit return"
+          },
+          {
+            "case": "floor",
+            "reason": "context capture exact installation explicit return"
+          },
+          {
+            "case": "source",
+            "reason": "context capture exact installation explicit return"
+          },
+          {
+            "case": "first",
+            "reason": "context installation first force order"
+          },
+          {
+            "case": "second",
+            "reason": "context installation second force order"
+          },
+          {
+            "case": "return",
+            "reason": "context installation explicit completion order"
+          },
+          {
+            "case": "scope",
+            "reason": "context installation receipt scope"
+          },
+          {
+            "case": "first-state",
+            "reason": "context capture exact installation crash"
+          },
+          {
+            "case": "second-state",
+            "reason": "context capture exact installation recovery-crash"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "run3-lifetime": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation-lifetime/run-e56a1582-b7e0-4cdf-aa67-be7e7a4b41e0",
+      "result": {
+        "finalBallot": 27,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection installation lifetime inventory"
+          },
+          {
+            "case": "capture",
+            "reason": "context capture exact selection capture"
+          },
+          {
+            "case": "selected",
+            "reason": "context capture exact installation lifetime selection"
+          },
+          {
+            "case": "installed",
+            "reason": "context capture exact installation lifetime install"
+          },
+          {
+            "case": "generation",
+            "reason": "context capture exact installation lifetime generation retirement"
+          },
+          {
+            "case": "context",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "vote",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "floor",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "journal",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "kept-source",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "latest-source",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "accepted",
+            "reason": "context capture exact installation lifetime successor"
+          },
+          {
+            "case": "scope",
+            "reason": "installation lifetime scope"
+          },
+          {
+            "case": "linked",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "owners": 3,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "rounds": [
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "run3-source-cuts": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installed-source-cuts/run-07406be7-d0d2-41f3-b925-7f72e61ad1db",
+      "result": {
+        "cases": 14,
+        "floorBallot": 21,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "installedBallot": 23,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection installed source evidence inventory"
+          },
+          {
+            "case": "initial",
+            "reason": "context capture exact installed source initial"
+          },
+          {
+            "case": "first",
+            "reason": "installed source exact first interruption"
+          },
+          {
+            "case": "second",
+            "reason": "installed source exact second interruption"
+          },
+          {
+            "case": "vote",
+            "reason": "installed source exact completion"
+          },
+          {
+            "case": "context",
+            "reason": "installed source exact completion"
+          },
+          {
+            "case": "floor",
+            "reason": "installed source exact completion"
+          },
+          {
+            "case": "journal",
+            "reason": "installed source exact completion"
+          },
+          {
+            "case": "order",
+            "reason": "installed source first force order"
+          },
+          {
+            "case": "resume",
+            "reason": "installed source resume force order"
+          },
+          {
+            "case": "ack",
+            "reason": "context source old acknowledgement"
+          },
+          {
+            "case": "scope",
+            "reason": "installed source receipt scope"
+          },
+          {
+            "case": "link",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "retiredSourceBallot": 22,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    }
+  },
+  "schema": "gse-v53-context-installation-lifetime-local-v1",
+  "scope": [
+    "six actual three-owner installations retain original vote 20 and floor 21 while reclaiming obsolete generations/sources",
+    "all 14 installed-source deletion cuts interrupted again during context reseal; unchanged pinned-source refusal and lock exclusion",
+    "seven peak/six steady image reservations and exact successor acceptance under ballot 27",
+    "original-first independent physical replay, force-order checks, exact negative reasons and portable optimized replay"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "169e60ce815e59726035d5ac712c1e99f197ec2eba068fe2b951460bb697c53d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextInstallationLifetimeTest.java": "999bdcb65dbb042549d49ba29b4ab8d56aa0592c7872f97a50d10b9476014ab1",
+    "scripts/v53/context_installation_lifetime_evidence.py": "d2757c36f75f234c7bf38e9aa7a093936228db370c91859890c05895ba3e3abe",
+    "scripts/v53/context_installed_source_evidence.py": "df6a179fbbd763cb1c82fd118b6951bbf1ad9cc0ccf2a8754c42ff6f7fb77dad"
+  },
+  "status": "PASS"
+}

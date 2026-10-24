@@ -220,3 +220,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Protected immutable selection](PHASE_2_CONTEXT_SELECTION.md): actual three-owner selected sets, unchanged original voting context and exact intermediate grant reclamation; later installation remains open.
 
 - [Context-backed selected installation](PHASE_2_CONTEXT_INSTALLATION.md): reuse generation slots under exact original context/floor protection, retire the intermediate generation and force the original entry under the new ballot.
+
+- [Repeated context installation and reclamation](PHASE_2_CONTEXT_INSTALLATION_LIFETIME.md): six actual three-owner installations preserve the old vote/floor while reclaiming obsolete sources within the frozen image limit.

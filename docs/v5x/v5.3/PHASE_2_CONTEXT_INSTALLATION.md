@@ -46,8 +46,9 @@ checks explicit response ordering and original-first evidence mutations.
 The frozen seven-image limit remains unchanged, including empty completion
 reservations. This gate uses small actual payloads and a conditional historical
 bootstrap fixture. Exception interruptions are separate from fresh-process and
-power-loss claims. Repeated later installations can retain additional old sources;
-their coordinated reclamation and completion headroom still need qualification.
+power-loss claims. [Repeated installation/reclamation](PHASE_2_CONTEXT_INSTALLATION_LIFETIME.md)
+subsequently covers six later rounds and completion reservations with small images;
+maximal coordinated lifetime still needs qualification.
 This path currently requires the materialized tail's original ACCEPT digest to
 match the retained context, not merely the ENTRY. Mixed higher-ballot acceptances
 of the same entry require separate context-backed retirement qualification.

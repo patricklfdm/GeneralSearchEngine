@@ -1167,8 +1167,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         var plan=MembershipSourceRetirementPlan.create(root,identity,current,retained,promise,promises.get(id),originalBasis,capsule,original.images());
         checkOwner();return plan;
     }
-    /** A forced context may cover the predecessor or a strictly intermediate
-     * backing. The installed grant and latest backing are never disposable. */
+    /** A forced context may cover the predecessor or a backing strictly between
+     * the governing floor and latest backing. Floor/current grants stay pinned. */
     private void contextSourceRetirement(String id)throws IOException {
         require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),
                 "source still owns pending ACCEPT authority");
@@ -1185,13 +1185,16 @@ final class MembershipGrantJournal implements AutoCloseable {
             require(id.equals(decision.id()),"context source retirement different decision");
             priorPromise=decision.promise();priorBasis=decision.basis();
         }
-        var installed=selections.get(current.manifest.value().get("selection"));
+        var floor=contextRetirementFloor(original);
+        var local=floor.copies().stream().filter(c->c.owner.equals(identity)).findFirst().orElseThrow();
+        var floorBallot=object(decode(local.fileBytes("promise.gsr"),"records","PROMISE").value().get("ballot"));
         require(priorBasis!=null && id.equals(priorBasis.value().get("basisId"))
                 && priorPromise.value().get("root").equals(backing.value().get("root"))
                 && priorPromise.value().get("view").equals(backing.value().get("view"))
                 && priorBasis.value().get("voter").equals(identity.nodeId().value())
                 && original.vote().accept().digest().equals(priorBasis.value().get("accepted"))
-                && compareBallot(object(priorPromise.value().get("ballot")),object(installed.value().get("ballot")))>0
+                && !priorBasis.digest().equals(current.manifest.value().get("basis"))
+                && compareBallot(object(priorPromise.value().get("ballot")),floorBallot)>0
                 && compareBallot(object(priorPromise.value().get("ballot")),object(backing.value().get("ballot")))<0,
                 "context source retirement requires covered intermediate backing");
         if(promises.containsKey(id)) {
