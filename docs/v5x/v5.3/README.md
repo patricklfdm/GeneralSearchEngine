@@ -224,3 +224,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Repeated context installation and reclamation](PHASE_2_CONTEXT_INSTALLATION_LIFETIME.md): six actual three-owner installations preserve the old vote/floor while reclaiming obsolete sources within the frozen image limit.
 
 - [Publication after repeated protected installation](PHASE_2_CONTEXT_INSTALLED_PUBLICATION.md): actual ballot-27 proof, typed apply-once, publication, obsolete-source cleanup, BARRIER continuation and an empty-tail ballot-28 grant.
+
+- [Installed source process recovery](PHASE_2_CONTEXT_INSTALLED_SOURCE_PROCESS.md): 30 repeated-death cases across obsolete source reclamation and exact successor acceptance; Phase 2 remains open.

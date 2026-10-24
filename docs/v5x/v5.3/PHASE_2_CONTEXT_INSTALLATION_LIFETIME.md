@@ -61,3 +61,5 @@ small-image lifetime through actual voting and continuation. Mixed higher-ballot
 acceptances, full-capacity journal/image/staging headroom, admitted bootstrap to
 complete lifetime, and coordinated old/joint/new profiles remain separate Phase 2
 obligations. Public online membership remains disabled.
+
+[Fresh-process source reclamation](PHASE_2_CONTEXT_INSTALLED_SOURCE_PROCESS.md) separately qualifies halt/SIGKILL and a second interrupted reopen after generation 23 has replaced generation 22.

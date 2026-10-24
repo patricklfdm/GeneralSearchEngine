@@ -1,0 +1,155 @@
+{
+  "base": "44609e6ce6d470f72bd146d5083acd3a032a8151",
+  "compiledInputs": {
+    "path": "target/v53-context-installed-source-process/inputs1.json",
+    "sha256": "05e5693ca46643450d90bd06e4ff7bfbb045552648ad5a650df28262024cc02b"
+  },
+  "compiledMainClasses": {
+    "changed": [],
+    "classes": 702,
+    "path": "target/v53-context-installed-source-process/compiled-main-classes.json",
+    "sha256": "492601f385476023706cbd6978b0b0e8f5a40d42c0961173d8b2200aacb4f10c"
+  },
+  "jars": {
+    "target/v53-context-installed-source-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-installed-source-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "05827067ef68c2ef0139d08128f63a38290593f6c9fc1c3baea71ad5f1ec6909"
+  },
+  "javaExecutions": 1,
+  "limitations": [
+    "small images, three-owner seed and conditional historical bootstrap; not maximal or cross-view/admitted-bootstrap lifetime",
+    "local process death, not power loss; selected-generation installation/intermediate retirement process coverage remains separate",
+    "mixed higher-ballot ACCEPT digests for the same ENTRY remain a separate obligation"
+  ],
+  "logs": {
+    "early-plan-failure.log": "5cc5ff16ffec9b209594c86e5ed6f8eb36d3993b3d929426b3dc8a3467fb6ff0",
+    "process-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "process-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-unit.log": "bb896ba721235ab1778414c45f5cfc5633ddae6375926c916174e709b081331c",
+    "replay1.log": "20240065607dadfeb5ae477cda9f5f1a63b45a0a032aaed55f100402c391a876",
+    "run1.log": "14f63e7c12b261367526b3820d9e92202347680a141860dd369a5ec4888a5334"
+  },
+  "oracleInputs": {
+    "path": "target/v53-context-installed-source-process/oracle-inputs.json",
+    "sha256": "f02d01346a1b0183fd2a2c8c5406bee438f48cc3e5ceefb19d54a8eafd0b5afc"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-installed-source-process/producer-classes.json",
+    "sha256": "0f89044293329eff2055e0e0d85931acabf523a2c5cc362a6bb039d930763fe5"
+  },
+  "raws": {
+    "process": {
+      "index": "target/v53-context-installed-source-process/process-raw-index.json",
+      "members": 10176,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installed-source-process/run-da6dbcb7-a4d9-4a1d-8ac4-f75d0209c299",
+      "sha256": "ba02f8ad681bf10f104f4312a61764d70e4e45b6cb186074e1b87fe959be6f3a"
+    }
+  },
+  "replays": {
+    "process": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installed-source-process/run-da6dbcb7-a4d9-4a1d-8ac4-f75d0209c299",
+      "result": {
+        "cases": 30,
+        "freshProcesses": 90,
+        "historicalBootstrap": "conditional-fixture",
+        "installedBallot": 23,
+        "lockProbes": 15,
+        "negatives": [
+          {
+            "case": "reference",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection installed source process inventory"
+          },
+          {
+            "case": "initial",
+            "reason": "context capture exact installed process seed"
+          },
+          {
+            "case": "first",
+            "reason": "installed process first physical prefix"
+          },
+          {
+            "case": "second",
+            "reason": "installed process second physical prefix"
+          },
+          {
+            "case": "recovered",
+            "reason": "installed process recovered authority"
+          },
+          {
+            "case": "final",
+            "reason": "installed process final successor"
+          },
+          {
+            "case": "source",
+            "reason": "installed process final successor"
+          },
+          {
+            "case": "first-force",
+            "reason": "installed process first force/death order"
+          },
+          {
+            "case": "second-force",
+            "reason": "installed process second force/death order"
+          },
+          {
+            "case": "resume-force",
+            "reason": "installed process resume force/ack order"
+          },
+          {
+            "case": "early-ack",
+            "reason": "installed process second force/death order"
+          },
+          {
+            "case": "wrong-ack",
+            "reason": "installed process resume force/ack order"
+          },
+          {
+            "case": "scope",
+            "reason": "installed process receipt scope/inputs"
+          },
+          {
+            "case": "inputs",
+            "reason": "installed process receipt scope/inputs"
+          },
+          {
+            "case": "capacity",
+            "reason": "installed process resume force/ack order"
+          },
+          {
+            "case": "stderr",
+            "reason": "installed process stderr"
+          },
+          {
+            "case": "link",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "peakReservedImages": 7,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "retiredSourceBallot": 22,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    }
+  },
+  "schema": "gse-v53-context-installed-source-process-local-v1",
+  "scope": [
+    "30 source reclamation cases after actual generation-23 installation, two deaths per case, 90 fresh workers and 15 live lock probes",
+    "complete original-first source-deletion and ballot-23 acceptance derivation with normal/optimized/portable negative replay",
+    "original ballot-20 ENTRY and exact retained vote preserved until forced successor and floor release"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextInstalledSourceProcessTest.java": "279d913a965021828ca3f52db945d9020d58eacb5a01984b3f91150b4242b0dd",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextInstalledSourceWorker.java": "9265b4b582a32ef4c104c4ab94143cc507af7baa0f12b1e08c583006e66e2b4f",
+    "scripts/v53/context_installed_source_process_evidence.py": "3803bd246ada42b3004d877be36704f5696cbc17c9c240b0a4ef904bccbfde3e"
+  },
+  "status": "PASS"
+}
