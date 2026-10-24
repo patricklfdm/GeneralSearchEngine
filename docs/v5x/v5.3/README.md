@@ -259,3 +259,7 @@ admitted lagging certificate's actual applied end to a newer selected published
 prefix through explicit typed cleanup. Original votes and sources remain pinned;
 installation and ACK fencing, protected-context exclusion and frozen bounds
 remain in force. Phase 2 remains OPEN.
+
+[Covered applied-staging process recovery](PHASE_2_COVERED_STAGING_PROCESS.md)
+adds 32 repeated-death cases, 96 workers and 16 independent live-lock probes on
+the unchanged production classes. Complete Phase 2 storage closure remains open.

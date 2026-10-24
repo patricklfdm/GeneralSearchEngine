@@ -70,3 +70,8 @@ range needs separately qualified supplemental ancestry; this batch does not
 silently authorize its deletion without that proof. Protected-context covered
 recovery and the other [Phase 2 obligations](PHASE_2_CLOSURE_CHECKLIST.md) remain
 pending.
+
+A subsequent [dedicated process gate](PHASE_2_COVERED_STAGING_PROCESS.md) adds
+32 repeated-death cases and independent live-lock probes on these unchanged
+production classes. It records the first instrumentation failure separately and
+does not broaden the remaining cross-view, context or maximal-size claims.

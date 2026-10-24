@@ -1,0 +1,217 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "reason": "Worker instrumentation read/closed its held replica.lock inode; external first SIGKILL probe acquired it",
+      "source": {
+        "path": "target/v53-covered-staging-process/worker-run1.java.txt",
+        "sha256": "80a0415eb1335d375b4569e0f1e95cf094b9945001799505b32f28e2eb5a7aab"
+      },
+      "status": "FAIL"
+    },
+    {
+      "attempt": 2,
+      "reason": "Worker excludes the live lock inode from its content scanner; all repeated-death cases and external probes pass",
+      "status": "PASS"
+    }
+  ],
+  "base": "ea419d4a143980202a2692ee0914ee1694b06ae5",
+  "compiledInputs": {
+    "target/v53-covered-staging-process/inputs1.json": "de185e8f6d4591e582806655b510149271efbde51a063a46bbac0c5f00095d60",
+    "target/v53-covered-staging-process/inputs2.json": "6a3e8ccc6f955861c6851303368ce8ba6ecc2ff77191cf06daa5d66f62182d44"
+  },
+  "compiledMainClasses": {
+    "classes": 707,
+    "identicalTo": "target/v53-covered-staging/compiled-main-classes.json",
+    "path": "target/v53-covered-staging-process/compiled-main-classes.json",
+    "priorSha256": "a344a75b7959528ebe463dbf09709700559011eed0655e72cdcc956f68dd1bdb",
+    "sha256": "a344a75b7959528ebe463dbf09709700559011eed0655e72cdcc956f68dd1bdb"
+  },
+  "jars": {
+    "target/v53-covered-staging-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-staging-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "4b2ab474793b45b3156e3895b3c075a2f5bf52eb0de35268c106162fb1e2dc80"
+  },
+  "lockCloseReproduction": {
+    "path": "target/v53-covered-staging-process/lock-close-reproduction.json",
+    "sha256": "ea18b300f8c1e5c08c9bef44e73bbb6d9d6a828d22342ab36102c435d54c6569"
+  },
+  "logs": {
+    "target/v53-covered-staging-process/draft-replay.log": "40abd064506d60e83725e31f054bb17a2766889056ff7caf098c8b58a87c7ade",
+    "target/v53-covered-staging-process/draft-replay2.log": "9d6fe2b3305d66a09f9e6559b230c2a4f92a5689364ad95488bfb824aafd0c3e",
+    "target/v53-covered-staging-process/optimized-replay.log": "505a4c2651755350b25d59e0146323345771f8490c58537a5eadcfc8e0518bba",
+    "target/v53-covered-staging-process/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-staging-process/python-tests-final.log": "ecb2481fe4fc37e099494fd2eac56322269cfb68a6d7b32b8bde0a57efe94e8a",
+    "target/v53-covered-staging-process/python-tests1.log": "ecb2481fe4fc37e099494fd2eac56322269cfb68a6d7b32b8bde0a57efe94e8a",
+    "target/v53-covered-staging-process/replay1.log": "023a38c6c72fda5e7abe91d7df88c9a40cd400b1d51564a1f8767d2cfa2486ad",
+    "target/v53-covered-staging-process/run1.log": "866181ddbcc5fc3077104f5175c256e5f5a001a5c8def5ed3556528af72bb522",
+    "target/v53-covered-staging-process/run2.log": "4a7062f640b6cb7485cb25122e79e531237d6e2b4ccf9e4942beac9ca4e55906"
+  },
+  "producerClasses": {
+    "path": "target/v53-covered-staging-process/producer-classes.json",
+    "sha256": "a4282b1b8a8feac9cc1bd72797aa81252bcbec117eb8a849eb7b3bb10e57d549"
+  },
+  "pythonInputs": {
+    "path": "target/v53-covered-staging-process/python-inputs.json",
+    "sha256": "c4475ed63d1a631f4bd2f6813806737d07928e7fc46d4b55ea9621f901f9a618"
+  },
+  "pythonTests": 17,
+  "raws": {
+    "run1-v53-covered-phased-vote-run-60971b8f-c148-4dc8-811c-aba364e58a8a": {
+      "inventory": "target/v53-covered-staging-process/run1-v53-covered-phased-vote-run-60971b8f-c148-4dc8-811c-aba364e58a8a-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-60971b8f-c148-4dc8-811c-aba364e58a8a",
+      "sha256": "65bef5af860cb7a9a990c972149b0397f7198fed2a5db1e06309d1374864bd82"
+    },
+    "run1-v53-covered-staging-process-run-cb905cbc-4a7e-4f0d-8294-0c4262a43c91": {
+      "inventory": "target/v53-covered-staging-process/run1-v53-covered-staging-process-run-cb905cbc-4a7e-4f0d-8294-0c4262a43c91-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-staging-process/run-cb905cbc-4a7e-4f0d-8294-0c4262a43c91",
+      "sha256": "a635187b514025d6f84c15c3fdce87394a3173f904224482a6e82061c1f3ba6f"
+    },
+    "run2-v53-covered-phased-vote-run-c44af766-8788-4cd0-9ebd-c73fbca75c6c": {
+      "inventory": "target/v53-covered-staging-process/run2-v53-covered-phased-vote-run-c44af766-8788-4cd0-9ebd-c73fbca75c6c-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-c44af766-8788-4cd0-9ebd-c73fbca75c6c",
+      "sha256": "7637d5bc77c6fd1edaaa716162659b6c830dd4c6e7ca3fac0ada4c3af159f617"
+    },
+    "run2-v53-covered-staging-process-run-f2463241-6d4d-48bb-9a0a-553be91feab9": {
+      "inventory": "target/v53-covered-staging-process/run2-v53-covered-staging-process-run-f2463241-6d4d-48bb-9a0a-553be91feab9-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-staging-process/run-f2463241-6d4d-48bb-9a0a-553be91feab9",
+      "sha256": "754b0792672962c14a6e70f9eefbdecb15cc0dca623da823e38115e1bcafc077"
+    }
+  },
+  "replay": {
+    "cases": 32,
+    "freshProcesses": 96,
+    "lockProbes": 16,
+    "maximalCapacity": false,
+    "negatives": [
+      {
+        "case": "original-applied",
+        "reason": "admitted exact lagging-applied: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "first-marker",
+        "reason": "staging process exact first snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "second-vote",
+        "reason": "staging process exact second snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-source",
+        "reason": "staging process exact final snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cleanup-force",
+        "reason": "staging process exact force/death order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "replay-force",
+        "reason": "staging process replay force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "kill-handshake",
+        "reason": "staging process kill handshake",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-ack",
+        "reason": "covered staging emitted old ACK",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peak-images",
+        "reason": "staging process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "runtime",
+        "reason": "staging process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-code",
+        "reason": "staging process exact first exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-cut",
+        "reason": "staging process exact second exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stderr",
+        "reason": "staging process stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-path",
+        "reason": "staging process lock probe",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-exit",
+        "reason": "staging process lock exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-stderr",
+        "reason": "staging process lock stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt",
+        "reason": "staging process exact receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admitted-path",
+        "reason": "staging process admitted paths",
+        "status": "REJECTED"
+      },
+      {
+        "case": "observations",
+        "reason": "staging process original observations",
+        "status": "REJECTED"
+      }
+    ],
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "replaySemantics": "producer-only",
+    "status": "PASS"
+  },
+  "replayFiles": {
+    "target/v53-covered-staging-process/normal.json": "f43069a36529413a0a27f0b5c79b59e8968413345e8ef837195b83255e08cb6b",
+    "target/v53-covered-staging-process/optimized.json": "fe473e41a917f6e5269a85f277640be88b148bcb90ea21fcb7a240a7b788532f",
+    "target/v53-covered-staging-process/root.json": "2eb7b33354f30dee8f538fee5de5ef5a0277a10b842d024d4d53ce25ee17be46"
+  },
+  "report": {
+    "javaTests": 1,
+    "path": "target/v53-covered-staging-process/run2-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CoveredStagingProcessTest.xml",
+    "sha256": "b973810c7c38f6947e6376d3d7ba51fdd2c7b2aa93176e67d2af8158c7616708"
+  },
+  "schema": "gse-v53-covered-staging-process-local-v1",
+  "scope": {
+    "freshProcesses": 96,
+    "hiddenEndpoint": false,
+    "liveLockProbes": 16,
+    "maximalCapacity": false,
+    "powerLoss": false,
+    "protectedContext": false,
+    "publicBootstrap": true,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredStagingProcessTest.java": "73f30142667a11bfdfa610bffcaa42df3c4a8c4755717c6f7e89d5254b22c681",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredStagingProcessWorker.java": "580728c783632c04fdcb4ea81875fb8075e13f93e3c50c09abe541f90e74fbee",
+    "scripts/v53/covered_staging_process_evidence.py": "11b3dcbc72a8c7490e4b41d48df56a16c62e54bec006af46ec0d1609fa31fcdf",
+    "scripts/v53/test_covered_staging_process.py": "d8b13e685d47a2f4b8f20f2891043b60c0ce28e2f4bb052ae6d06b5eb81e4a80"
+  },
+  "status": "PASS"
+}
