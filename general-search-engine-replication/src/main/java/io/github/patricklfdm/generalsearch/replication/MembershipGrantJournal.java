@@ -363,34 +363,80 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private MembershipPendingContext.Reconstructed retainedContextOriginal(boolean replacingVote,boolean rebinding)throws IOException {
         require(pendingContext!=null && pendingContext.active().isPresent() && (rebinding || !pendingContext.pending()),"complete retained context required");
-        require((replacingVote || !pendingAccept.pending()) && !inactive.pending(),"retained context installed authority changed");
+        boolean installing=contextInstallationPending();
+        require((replacingVote || !pendingAccept.pending()) && (installing || !inactive.pending()),"retained context installed authority changed");
         var backing=retainedContextBasis(rebinding);var installed=selections.get(current.manifest.value().get("selection"));
         var original=MembershipPendingContext.reconstruct(pendingContext.active().orElseThrow(),root,identity,
                 promises.get((String)backing.value().get("basisId")),retainedSource(backing),sources.original(backing).images(),capsuleVerifier);
         require(pendingAccept.active()!=null && (replacingVote || Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes()))
-                && original.selector().value().get("generation").equals(inactive.slot())
+                && !Arrays.equals(original.selector().bytes(),current.selector.bytes())
                 && original.capsule().terminal().equals(current.capsule.terminal())
-                && original.vote().entry().digest().equals(installed.value().get("nextEntry")),"retained context original/current binding changed");
+                && original.vote().entry().digest().equals(installed.value().get("nextEntry"))
+                && compareBallot(object(installed.value().get("ballot")),object(original.vote().promise().value().get("ballot")))>0,
+                "retained context original/current binding changed");
         var expected=original.originalFiles();var record=retirement.authority();
-        if(record.isPresent() || !inactive.exists()) {
-            var floor=floors.retained().orElseThrow(()->new IllegalArgumentException("retained context missing governing retirement floor"));
-            var local=floor.copies().stream().filter(c->c.owner.equals(identity)).findFirst().orElseThrow();
-            require(local.generation.digest().equals(current.manifest.digest())
-                    && local.capsule.terminal().equals(original.capsule().terminal()),"retained context retirement floor changed");
-            if(record.isPresent()) {
-                bindRetirement(record.orElseThrow(),floor);var inventory=new ArrayList<Map<String,Object>>();
+        if(installing) {
+            // The inactive slot may contain only part of the caller's exact
+            // selected installation. Opening/re-sealing the old context cannot
+            // complete or acknowledge that plan. installCurrent checks every byte.
+            require(!retirement.pending(),"context installation conflicts with retirement");
+            contextRetirementFloor(original);
+        }else if(record.isPresent()) {
+            var floor=contextRetirementFloor(original);bindRetirement(record.orElseThrow(),floor);retirement.checkSaved(record.orElseThrow());
+            var manifest=list(record.orElseThrow().value().get("files")).stream().map(MembershipFormat::object)
+                    .filter(row->row.get("path").equals("generations/"+inactive.slot()+"/generation.gsr")).findFirst().orElseThrow();
+            if(manifest.get("sha256").equals(original.selector().value().get("digest"))) {
+                var inventory=new ArrayList<Map<String,Object>>();
                 for(var row:expected.entrySet())inventory.add(Map.of("path","generations/"+inactive.slot()+"/"+row.getKey(),
                         "size",(long)row.getValue().length,"sha256",hash(row.getValue())));
                 require(inventory.equals(record.orElseThrow().value().get("files")),"retained context retirement inventory changed");
-                retirement.checkSaved(record.orElseThrow());
+            }else if(inactive.exists()) {
+                var old=contextIntermediate(original,retirement.original());
+                var plan=MembershipRetirementPlan.create(root,identity,current,floor,old);
+                require(Arrays.equals(plan.record.bytes(),record.orElseThrow().bytes()),"context intermediate retirement inventory changed");
             }
-        }
-        if(inactive.exists()) {
+            if(inactive.exists()) {
+                var originals=manifest.get("sha256").equals(original.selector().value().get("digest"))?expected:retirement.original();
+                for(var row:inactive.originalFiles().entrySet())require(Arrays.equals(originals.get(row.getKey()),row.getValue()),"retained context original physical bytes changed");
+            }
+        }else if(inactive.exists()) {
             var physical=inactive.originalFiles();
-            require(record.isPresent() || physical.keySet().equals(expected.keySet()),"retained context incomplete original without retirement authority");
-            for(var row:physical.entrySet())require(Arrays.equals(expected.get(row.getKey()),row.getValue()),"retained context original physical bytes changed");
-        }
+            if(Arrays.equals(physical.get("generation.gsr"),expected.get("generation.gsr"))) {
+                require(original.selector().value().get("generation").equals(inactive.slot()) && physical.keySet().equals(expected.keySet()),"retained context incomplete original without retirement authority");
+                for(var row:physical.entrySet())require(Arrays.equals(expected.get(row.getKey()),row.getValue()),"retained context original physical bytes changed");
+            }else MembershipRetirementPlan.create(root,identity,current,contextRetirementFloor(original),contextIntermediate(original,physical));
+        }else contextRetirementFloor(original);
         return original;
+    }
+    private boolean contextInstallationPending() {
+        if(selection==null || selection.digest().equals(current.manifest.value().get("selection")))return false;
+        var installed=selections.get(current.manifest.value().get("selection"));
+        return installed!=null && basis!=null && pendingContext.active().isPresent()
+                && Arrays.equals(basis.bytes(),MembershipPendingContext.backingBasis(pendingContext.active().orElseThrow()).bytes())
+                && selection.value().get("cut").equals(current.capsule.context.cut)
+                && Objects.equals(selection.value().get("nextEntry"),installed.value().get("nextEntry"))
+                && compareBallot(object(selection.value().get("ballot")),object(installed.value().get("ballot")))>0;
+    }
+    private MembershipFloorFiles.Retained contextRetirementFloor(MembershipPendingContext.Reconstructed original)throws IOException {
+        var floor=floors.retained().orElseThrow(()->new IllegalArgumentException("retained context missing governing retirement floor"));
+        var local=floor.copies().stream().filter(c->c.owner.equals(identity)).findFirst().orElseThrow();
+        MembershipFloor.verify(floor.floor(),root,local,floor.copies());
+        var floorBallot=object(decode(local.fileBytes("promise.gsr"),"records","PROMISE").value().get("ballot"));
+        var installed=selections.get(current.manifest.value().get("selection"));
+        require(local.capsule.terminal().equals(original.capsule().terminal())
+                && original.vote().accept().digest().equals(local.generation.value().get("ownedTail"))
+                && compareBallot(floorBallot,object(original.vote().promise().value().get("ballot")))>0
+                && compareBallot(floorBallot,object(installed.value().get("ballot")))<=0,"retained context retirement floor changed");
+        current.verifyParents(List.of(local.capsule.terminal()));return floor;
+    }
+    private MembershipFloor.Copy contextIntermediate(MembershipPendingContext.Reconstructed original,Map<String,byte[]> files)throws IOException {
+        var old=originalGeneration(files);var ballot=object(decode(files.get("promise.gsr"),"records","PROMISE").value().get("ballot"));
+        var installed=selections.get(current.manifest.value().get("selection"));
+        require(old.generation.value().get("generation").equals(inactive.slot()) && old.capsule.terminal().equals(original.capsule().terminal())
+                && original.vote().accept().digest().equals(old.generation.value().get("ownedTail"))
+                && compareBallot(ballot,object(original.vote().promise().value().get("ballot")))>0
+                && compareBallot(ballot,object(installed.value().get("ballot")))<0,"context intermediate generation changed");
+        return old;
     }
     private MembershipPendingContext.Reconstructed resealPendingContext()throws IOException {
         var original=retainedContextOriginal();applicationReferencesIdle();
@@ -405,6 +451,7 @@ final class MembershipGrantJournal implements AutoCloseable {
      * generation retirement. Context/source/vote and the floor remain pinned. */
     private void contextMaintenanceIdle()throws IOException {
         checkOwner();retainedContextOriginal();applicationReferencesIdle();
+        require(!contextInstallationPending() && !inactive.pending(),"pending context installation requires exact original completion");
         require(!capture.pending() && !sourceRetirement.pending() && !rotation.pending() && !floors.releasing(),
                 "context maintenance conflicts with another authority transaction");
     }
@@ -1504,7 +1551,13 @@ final class MembershipGrantJournal implements AutoCloseable {
             List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images) throws IOException {
         require(inactive!=null && selection!=null,"durable selection and generation owner required");
         boolean installed=selection.digest().equals(current.manifest.value().get("selection"));
-        if(installed && appliedEnd!=null && !appliedEnd.retirementPending()) {
+        MembershipPendingContext.Reconstructed retainedOriginal=null;
+        if(pendingContext!=null && pendingContext.active().isPresent()) {
+            checkOwner();otherAuthorityTransactionsIdle();applicationReferencesIdle();retainedOriginal=retainedContextOriginal();
+            require(!pendingAccept.pending() && !pendingContext.pending() && basis!=null
+                    && Arrays.equals(basis.bytes(),retainedContextBasis().bytes())
+                    && (installed || contextInstallationPending()),"context installation requires exact protected selection");
+        }else if(installed && appliedEnd!=null && !appliedEnd.retirementPending()) {
             // A lost installation response may be retried while old derived work
             // awaits retirement. This branch still validates the entire exact plan
             // below and performs no write; a new installation remains excluded.
@@ -1522,6 +1575,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         var complete=MembershipGenerationPlan.installationBridges(selected,bridges,retainedBridges,ancestors);
         var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images);
         plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,ancestors);checkOwner();fence(ballot);
+        if(retainedOriginal!=null)require(retainedOriginal.capsule().context.cut.equals(selected.selected().value().get("cut"))
+                && retainedOriginal.vote().entry().digest().equals(selected.selected().value().get("nextEntry"))
+                && retainedOriginal.vote().accept().digest().equals(plan.manifest.value().get("ownedTail")),"context installation changed original tail");
         if(installed) {
             require(Arrays.equals(current.manifest.bytes(),plan.manifest.bytes()) && !inactive.pending(),"installed generation differs from original plan");checkOwner();fence(ballot);return current.manifest;
         }

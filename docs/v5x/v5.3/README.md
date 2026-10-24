@@ -218,3 +218,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Protected capture/reclamation process recovery](PHASE_2_CONTEXT_CAPTURE_PROCESS.md): 100 twice-interrupted halt/SIGKILL cases and a subsequent exact fresh capture with fixed original authority.
 
 - [Protected immutable selection](PHASE_2_CONTEXT_SELECTION.md): actual three-owner selected sets, unchanged original voting context and exact intermediate grant reclamation; later installation remains open.
+
+- [Context-backed selected installation](PHASE_2_CONTEXT_INSTALLATION.md): reuse generation slots under exact original context/floor protection, retire the intermediate generation and force the original entry under the new ballot.
