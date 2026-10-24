@@ -1474,9 +1474,23 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Records the immutable selection only. No installation, ACCEPT or installation ACK is authorized. */
     synchronized Decoded selectCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
-        floorIdle();var selected=decision(offered,bridges).selected();var ballot=object(selected.value().get("ballot"));
+        MembershipPendingContext.Reconstructed original=null;
+        if(pendingContext!=null && pendingContext.active().isPresent()) {
+            contextCaptureIdle(false);original=retainedContextOriginal();
+            require(basis!=null && Arrays.equals(basis.bytes(),retainedContextBasis().bytes())
+                    && !basis.digest().equals(current.manifest.value().get("basis")),"context selection requires latest protected capture");
+        }else floorIdle();
+        var selected=decision(offered,bridges).selected();var ballot=object(selected.value().get("ballot"));
+        if(original!=null)require(selected.value().get("cut").equals(original.capsule().context.cut)
+                && original.vote().entry().digest().equals(selected.value().get("nextEntry")),"context selection must carry exact original parent/entry");
         if(selection!=null) {require(Arrays.equals(selection.bytes(),selected.bytes()),"selection already fixed; fresh ballot required");return selection;}
-        ensureJournalCapacity(selected.bytes().length,"selection journal rotation required");
+        if(original!=null) {
+            // The complete context/source remains pinned. Do not turn selection
+            // admission into an implicit journal/source maintenance transaction.
+            if(selected.bytes().length>maximum-storedJournal().length-pendingBytes())
+                throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
+                        AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),"context selection journal capacity",null);
+        }else ensureJournalCapacity(selected.bytes().length,"selection journal rotation required");
         try {
             append(selected,ballot);selection=selected;selections.put(selected.digest(),selected);cut.at("SELECTED_BEFORE_RETURN");checkOwner();fence(ballot);return selected;
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}

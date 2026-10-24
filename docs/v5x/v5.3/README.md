@@ -216,3 +216,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Intermediate context backing retirement](PHASE_2_CONTEXT_BACKING_RETIREMENT.md): repeated protected capture and exact obsolete-source deletion within seven peak/six steady image reservations.
 
 - [Protected capture/reclamation process recovery](PHASE_2_CONTEXT_CAPTURE_PROCESS.md): 100 twice-interrupted halt/SIGKILL cases and a subsequent exact fresh capture with fixed original authority.
+
+- [Protected immutable selection](PHASE_2_CONTEXT_SELECTION.md): actual three-owner selected sets, unchanged original voting context and exact intermediate grant reclamation; later installation remains open.

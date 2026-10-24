@@ -36,7 +36,10 @@ def retirement(files, dirs, old):
         floor=e.digest(files['floor-copies/floor.gsr']), selector=e.digest(files['selector.gsr']),
         files=[dict(path=p, size=len(raw), sha256=e.digest(raw)) for p, raw in sorted(files.items()) if p.startswith(prefix)]))
     authority = record+promise[1]+basis[1]+packet['capsuleBytes']
-    compact = b''.join(raw for _, raw, value in rows if value.get('basisId') != old)
+    # SELECTED refers to the local grant through its ballot/source set, not a
+    # top-level basisId. Reclaim the entire unprotected grant group, including
+    # its selection, while retaining installed and latest grant groups.
+    compact = b''.join(raw for _, raw, value in rows if value['ballot'] != promise[2]['ballot'])
     return authority, compact, release.transaction(inventory(files, dirs), authority, compact, old)
 
 

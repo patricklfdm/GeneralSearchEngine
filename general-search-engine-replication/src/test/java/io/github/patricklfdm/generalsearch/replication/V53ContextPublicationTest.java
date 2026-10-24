@@ -16,7 +16,9 @@ class V53ContextPublicationTest {
                 (r,p,i)->MembershipCapsule.verify(r,p,i,f.f.observations),MembershipGrantJournal.MAXIMUM,
                 event->V53RetirementImagesTest.bounded(f.f.resources));
     }
-    @Test void allContextOwnersFormNewProofApplyOncePublishAndContinue()throws Exception {
+    record Scenario(Path evidence,V53StagedApplicationTest.Seed seed) {}
+    @Test void allContextOwnersFormNewProofApplyOncePublishAndContinue()throws Exception {scenario();}
+    Scenario scenario()throws Exception {
         Path root=Path.of("target/v53-context-publication/run-"+UUID.randomUUID());Files.createDirectories(root);
         var seed=V53StagedApplicationTest.seed(root);var f=seed.fixture();
         Files.write(root.resolve("entry.gsr"),seed.entry().bytes());Files.write(root.resolve("payload.bin"),seed.payload());
@@ -56,6 +58,6 @@ class V53ContextPublicationTest {
         V53CarriedPublicationTest.snapshot(f,"fresh");assertEquals(0,f.f.resources.usage().leases());
         Files.write(root.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-context-publication-v1","status","PASS",
                 "nodes",3,"entryOrigin",20,"acceptBallot",21,"publishedCut",3,"applicationSequence",43,"freshProcesses",false,"runtimeEnabled",false),16384));
-        System.out.println("v53ContextPublicationEvidence="+root.toAbsolutePath());
+        System.out.println("v53ContextPublicationEvidence="+root.toAbsolutePath());return new Scenario(root,seed);
     }
 }
