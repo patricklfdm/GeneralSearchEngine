@@ -1,0 +1,183 @@
+{
+  "base": "ed9810b31626c49f7f37c9ae37cf0e14abdbf2f6",
+  "compiledInventory": {
+    "path": "target/v53-context-source-release/inputs2.json",
+    "sha256": "5fa33519bf0e284187375a43d993e176e90132689d72a4a95ea4f1adfb24a83d"
+  },
+  "compiledMainClasses": {
+    "classes": 700,
+    "path": "target/v53-context-source-release/compiled-main-classes.json",
+    "sha256": "55511ef0c3ed5e20cd23d3142bc100dcf190f2cbe616d0ead11b397d66943b0c"
+  },
+  "jars": {
+    "target/v53-context-source-release/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-source-release/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "f43a8acd31c7b35171e04aa88b4318559f33b5fb64b7046fd3d756a02e6c7c26"
+  },
+  "javaMethods": 29,
+  "limitations": [
+    "no combined process-death qualification",
+    "historical bootstrap and remote observations conditional; no independent typed image semantics",
+    "later acceptance/campaign/maximal lifetime not established"
+  ],
+  "logs": {
+    "clean-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clean.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cuts-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cuts.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "85226ed981d4f860cebd65a3e8fd5f979a5bbd9820278003a9057389b8d72a55",
+    "run2.log": "a45d125940511976819901571e4057313c6e1b3b19119cc4f13618ab04bba099"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-source-release/producer-classes.json",
+    "sha256": "1f25532df35aa0e509d3ad7dabbe58950f7411d0d51ec3ffea3690aae9aee006"
+  },
+  "raw": {
+    "clean": {
+      "indexSha256": "e17bd0ea43a12a0c590bc0ef0e91ae75847977673c6e6cb4dd4cf3fd0549ef4e",
+      "members": 261,
+      "path": "general-search-engine-replication/target/v53-context-source-release/run-7796ce17-131e-452e-a374-8596601dd8ba"
+    },
+    "cuts": {
+      "indexSha256": "0076cf2ebef46d48c986ae79d9ccf63f076cb4aa732df146ee06db8ac348d495",
+      "members": 1826,
+      "path": "general-search-engine-replication/target/v53-context-source-release-cuts/run-135682e0-c495-4a60-899b-f90f71cf5de1"
+    }
+  },
+  "replays": {
+    "clean": {
+      "backing": "b1e9460e-2a52-4645-ab7d-3e0d5d0cad1a",
+      "cases": 1,
+      "freshProcesses": false,
+      "fullOwnerProgress": false,
+      "imageSemanticClaim": false,
+      "negatives": [
+        {
+          "case": "bad-original",
+          "reason": "context checksum"
+        },
+        {
+          "case": "lost-context",
+          "reason": "context source exact deletion"
+        },
+        {
+          "case": "lost-vote",
+          "reason": "context source exact deletion"
+        },
+        {
+          "case": "lost-backing",
+          "reason": "context source exact deletion"
+        },
+        {
+          "case": "wrong-journal",
+          "reason": "context source exact deletion"
+        },
+        {
+          "case": "kept-source",
+          "reason": "context source exact deletion"
+        },
+        {
+          "case": "changed-recovery",
+          "reason": "context source reopen changed authority"
+        },
+        {
+          "case": "force-order",
+          "reason": "context source clean force order"
+        },
+        {
+          "case": "old-ack",
+          "reason": "context source old acknowledgement"
+        },
+        {
+          "case": "false-process",
+          "reason": "context source receipt scope"
+        },
+        {
+          "case": "linked-context",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "predecessor": "9e407be8-b407-411b-9973-e4b1219a5fa7",
+      "runtimeEnabled": false,
+      "status": "PASS"
+    },
+    "cuts": {
+      "backing": "b1e9460e-2a52-4645-ab7d-3e0d5d0cad1a",
+      "cases": 14,
+      "freshProcesses": false,
+      "fullOwnerProgress": false,
+      "imageSemanticClaim": false,
+      "negatives": [
+        {
+          "case": "bad-original",
+          "reason": "context checksum"
+        },
+        {
+          "case": "lost-context",
+          "reason": "context source exact resumed deletion"
+        },
+        {
+          "case": "lost-vote",
+          "reason": "context source exact resumed deletion"
+        },
+        {
+          "case": "lost-backing",
+          "reason": "context source exact resumed deletion"
+        },
+        {
+          "case": "wrong-journal",
+          "reason": "context source exact resumed deletion"
+        },
+        {
+          "case": "kept-source",
+          "reason": "context source exact resumed deletion"
+        },
+        {
+          "case": "changed-recovery",
+          "reason": "context source second interruption changed authority"
+        },
+        {
+          "case": "force-order",
+          "reason": "context source first force order"
+        },
+        {
+          "case": "old-ack",
+          "reason": "context source old acknowledgement"
+        },
+        {
+          "case": "false-process",
+          "reason": "context source receipt scope"
+        },
+        {
+          "case": "linked-context",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "wrong-prefix",
+          "reason": "context source exact interrupted prefix"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "predecessor": "9e407be8-b407-411b-9973-e4b1219a5fa7",
+      "runtimeEnabled": false,
+      "status": "PASS"
+    }
+  },
+  "schema": "gse-v53-context-source-release-local-v1",
+  "scope": [
+    "actual predecessor source retirement after context-backed generation retirement",
+    "fourteen twice-interrupted exception cases, six missing/torn authority refusals, backing and higher-observation protection",
+    "exact normal/optimized/portable physical replay and 23 negatives; one actual external JVM lock probe",
+    "actual APPLICATION reservations 6 to 5 within unchanged seven-image cap"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "7d8d7a8e6979416eeb77e02ba33de39c8eea78ea3f8d82f5e6c1771a90e35ce1",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextSourceReleaseTest.java": "330ca8edb2be69d144ef9c594c32f3f1d0123f6201c40ed29684ecc09cc22ab1",
+    "scripts/v53/context_source_release_evidence.py": "88a815b2dc2e8eedb29b3c2d45f4e88977a06b6f5e098b34da734e5a1645c153"
+  },
+  "status": "PASS"
+}

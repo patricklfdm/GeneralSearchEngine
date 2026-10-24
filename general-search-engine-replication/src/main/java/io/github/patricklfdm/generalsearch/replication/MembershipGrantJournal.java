@@ -935,10 +935,17 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Read-only decision for a completed original source; does not publish deletion authority. */
     synchronized MembershipSourceRetirementPlan planSourceRetirement(String id) throws IOException {
         require(floorReleaseEnabled && floors!=null && retirement!=null && rotation!=null,"source retirement maintenance owner required");
-        checkOwner();floorIdle();return sourceRetirementPlan(id);
+        checkOwner();
+        if(pendingContext!=null && pendingContext.active().isPresent()) {
+            contextMaintenanceIdle();require(!floors.pending() && !retirement.pending(),"context source planning requires completed floor/retirement");
+            contextSourceRetirement(id);
+        }else floorIdle();
+        return sourceRetirementPlan(id);
     }
     private MembershipSourceRetirementPlan sourceRetirementPlan(String id)throws IOException {
-        checkOwner();require(pendingAccept==null || !pendingAccept.protectsSource(id),"source still owns pending ACCEPT authority");require(!inactive.exists() && !inactive.pending(),"inactive generation must retire before source planning");
+        checkOwner();
+        if(pendingAccept!=null && pendingAccept.protectsSource(id))contextSourceRetirement(id);
+        require(!inactive.exists() && !inactive.pending(),"inactive generation must retire before source planning");
         require(promise!=null && (promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest())),"uninstalled adoption fence; prefix recovery required");
         var originalBasis=bases.get(id);require(promises.containsKey(id) && sources.retainedIdentities().contains(id),"source retirement requires complete original source");
         var retained=floors.retained().orElseThrow(()->new IllegalArgumentException("durable governing floor required before source retirement"));
@@ -948,9 +955,20 @@ final class MembershipGrantJournal implements AutoCloseable {
         var plan=MembershipSourceRetirementPlan.create(root,identity,current,retained,promise,promises.get(id),originalBasis,capsule,original.images());
         checkOwner();return plan;
     }
+    /** The old vote's separate complete context/backing replaces its physical source
+     * dependency. Never use this permission for the context backing source itself. */
+    private void contextSourceRetirement(String id)throws IOException {
+        require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),
+                "source still owns pending ACCEPT authority");
+        var original=retainedContextOriginal();applicationReferencesIdle();
+        require(id.equals(original.vote().promise().value().get("basisId")) && !id.equals(basis.value().get("basisId")),
+                "context source retirement requires original predecessor, not backing");
+        require(!inactive.exists() && !inactive.pending(),"context source retirement requires retired generation");
+    }
     /** Complete one exact source retirement; all other writer mutations remain blocked. */
     synchronized Decoded retireSource(String id)throws IOException {
         require(sourceRetirement!=null,"source retirement owner required");checkOwner();applicationReferencesIdle();require(pendingAccept==null || !pendingAccept.pending(),"pending ACCEPT requires exact original completion");
+        if(pendingContext!=null && pendingContext.active().isPresent())contextSourceRetirement(id);
         require(!inactive.exists() && !inactive.pending() && !floors.pending() && !retirement.pending(),"pending generation/floor/retirement before source deletion");
         require(promise!=null && (promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest())),"uninstalled adoption fence; prefix recovery required");
         try {
