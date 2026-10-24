@@ -1,0 +1,192 @@
+{
+  "base": "a112139ea980c6b59c2757a2cc51f36fac8ddfb1",
+  "compiledInputs": {
+    "path": "target/v53-bootstrap-publication/inputs2.json",
+    "sha256": "154cf3c0acb54fe2b221fef368afd0bef29022c76f58299ced0b509c2ae39d3f"
+  },
+  "compiledMainClasses": {
+    "changed": [],
+    "classes": 706,
+    "path": "target/v53-bootstrap-publication/compiled-main-classes.json",
+    "sha256": "1f793943b2669a82037e5f4257cf2d19f95db11d1eca44fa1884ed54f6cefd86"
+  },
+  "failedRaw": "general-search-engine-replication/target/v53-bootstrap-publication/run-bd30824a-699f-47ba-830b-de7752cd08be",
+  "failures": [
+    "First producer supplied unused intermediate ancestry at second installation; runtime correctly refused. Corrected producer uses its authenticated genesis anchor with no unnecessary bridge; production code unchanged.",
+    "First negative replay expected context inventory diagnostic for a linked seal; original physical reader correctly refused with application evidence inventory bound. Updated exact diagnostic and repeated all qualification."
+  ],
+  "jars": {
+    "target/v53-bootstrap-publication/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-bootstrap-publication/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a15b44f5ea53f3f93aacfd501697a2459a8630032dd6c2e3c7aea5981965b34f"
+  },
+  "javaExecutions": 1,
+  "limitations": [
+    "Clean stable-view local chain, no fresh processes or complete cross-view/interrupted lifetime",
+    "Small images; callback peaks are not independent maximal byte capacity or completion-headroom qualification",
+    "Producer checks typed application semantics; independent Python checks exact images/catalog and cannot claim independent typed semantics",
+    "Original source backup input files not duplicated here; projected image and declared inventory retained",
+    "Distinct minority ENTRY resolution remains pending"
+  ],
+  "logs": {
+    "normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-unit-command-error.log": "64c3fcb80a169bba03dbbfa9c9086ea1a927439b014569776098be45d68c8d90",
+    "python-unit-final.log": "cd280f15a749e8538add25387a6b69322e8640b23c5e83faa6d85fb13471ff42",
+    "python-unit.log": "98ea402db7b97462d0214b82d1b2df836ec5990adfeb73bb24606244b7c7ad77",
+    "replay-final.log": "51ba180e4b42dbcff0ccfd047d9d24cc851666ac0cd90f9bc804e8052444a9e2",
+    "replay1.stderr": "3fdfa23b18ef986d589742d7e3c364c4681f7fa85e274cd692dd66f1f0cb5be0",
+    "replay2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "95a927639e743b25b08f178834632e11749f7421d5ddc6595125ee00bbca801f",
+    "run2.log": "561cdfd3f0066e1a18a00bfea1781548b9dcb9c72198b7e65f80e71c78be072f"
+  },
+  "oracleInputs": {
+    "path": "target/v53-bootstrap-publication/oracle-inputs.json",
+    "sha256": "12125b7cfacbc74c799a5d82af662226e1d2cdd1121552ef0533eff5e20ffe89"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-publication/producer-classes.json",
+    "sha256": "6c347a6286f69be565456b692b6100c937d5bd6335714b6313ce0741c630d45e"
+  },
+  "raws": {
+    "admitted": {
+      "index": "target/v53-bootstrap-publication/admitted-raw-index.json",
+      "members": 15019,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-bootstrap-publication/run-864e19cb-686a-48fd-bb3d-e44e03357413",
+      "sha256": "2e6df85f4206531108a2f907c90c3785d6f7bd2de70f29cdebeeb055eec3d4aa"
+    }
+  },
+  "replays": {
+    "admitted": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-bootstrap-publication/run-864e19cb-686a-48fd-bb3d-e44e03357413",
+      "result": {
+        "cases": 6,
+        "freshProcesses": false,
+        "independentImageSemantics": false,
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "missing-case",
+            "reason": "context selection admitted publication cases inventory"
+          },
+          {
+            "case": "extra-stage",
+            "reason": "context selection admitted publication member inventory"
+          },
+          {
+            "case": "original-plan",
+            "reason": "bootstrap original plan checksum"
+          },
+          {
+            "case": "original-image",
+            "reason": "bootstrap original image binding"
+          },
+          {
+            "case": "initial-admission",
+            "reason": "admitted original public bootstrap"
+          },
+          {
+            "case": "prepared-counter",
+            "reason": "admitted exact round-1-prepared: node-1"
+          },
+          {
+            "case": "prepared-source",
+            "reason": "admitted exact round-1-prepared: node-1"
+          },
+          {
+            "case": "selected-journal",
+            "reason": "admitted exact round-1-selected: node-1"
+          },
+          {
+            "case": "installed-old-generation",
+            "reason": "admitted exact round-1-installed: node-1"
+          },
+          {
+            "case": "retained-source",
+            "reason": "admitted exact round-2-settled: node-1"
+          },
+          {
+            "case": "accept",
+            "reason": "admitted exact slot-2-accepted: node-1"
+          },
+          {
+            "case": "proof",
+            "reason": "admitted exact slot-2-proved: node-1"
+          },
+          {
+            "case": "certificate",
+            "reason": "admitted exact slot-2-certified: node-1"
+          },
+          {
+            "case": "applied-ack",
+            "reason": "admitted exact slot-2-applied: node-2"
+          },
+          {
+            "case": "peer-image",
+            "reason": "admitted exact slot-2-applied: node-2"
+          },
+          {
+            "case": "publication",
+            "reason": "admitted exact slot-2-published: node-1"
+          },
+          {
+            "case": "final-vote",
+            "reason": "admitted exact slot-3-settled: node-1"
+          },
+          {
+            "case": "typed-image",
+            "reason": "admitted exact typed inspection image"
+          },
+          {
+            "case": "observations",
+            "reason": "admitted actual owner observations"
+          },
+          {
+            "case": "calls",
+            "reason": "admitted complete owner calls"
+          },
+          {
+            "case": "force-order",
+            "reason": "admitted force before response: proof"
+          },
+          {
+            "case": "scope",
+            "reason": "admitted receipt scope"
+          },
+          {
+            "case": "numeric-flag",
+            "reason": "admitted receipt scope"
+          },
+          {
+            "case": "peak",
+            "reason": "admitted reported reservation bounds"
+          },
+          {
+            "case": "link",
+            "reason": "application evidence inventory bound"
+          }
+        ],
+        "nodePublications": 72,
+        "portableReplay": "PASS",
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "status": "PASS",
+        "syntheticObservations": false,
+        "voters": 24
+      }
+    }
+  },
+  "schema": "gse-v53-bootstrap-publication-local-v1",
+  "scope": [
+    "Six EMPTY/verified-backup public bootstrap profiles at three/four/five initial voters",
+    "24 admitted voters, 72 actual node publications, 624 subsequent node snapshots, no synthetic ownership observations",
+    "Same-round DATA plus fresh-round BARRIER, complete physical replay, actual owned force-before-response checks, 25 original-first negatives"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapPublicationTest.java": "7a0643dc992e68df7a494c094b65e8b6d90a45cc13b27512dd5e012334385e62",
+    "scripts/v53/bootstrap_publication_evidence.py": "827ed5ad11c0f393d832383302e66de5d772f01c9cf8795e0cafd525b205bdb6",
+    "scripts/v53/test_bootstrap_publication.py": "e067cd27db6328e212b21b9d481316ad29d8e28b3a1c3c1a4764b6523e8289db"
+  },
+  "status": "PASS"
+}

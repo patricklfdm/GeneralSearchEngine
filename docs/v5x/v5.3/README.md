@@ -232,3 +232,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Mixed retained ACCEPT ballots](PHASE_2_CONTEXT_MIXED_ACCEPTANCE.md): preserve exact original votes while installing a higher acceptance of the same ENTRY, reclaim obsolete sources and publish once.
 
 - [Mixed ACCEPT process recovery](PHASE_2_CONTEXT_MIXED_PROCESS.md): 84 repeated-death cases preserve exact original votes through successor acceptance and obsolete source reclamation.
+
+- [Admitted bootstrap through publication](PHASE_2_BOOTSTRAP_PUBLICATION.md): six actual public bootstrap profiles, 24 voters and 72 node publications with exact original authority and independent physical replay.
