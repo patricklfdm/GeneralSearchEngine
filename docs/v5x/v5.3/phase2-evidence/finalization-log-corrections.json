@@ -1,0 +1,30 @@
+{
+  "indexes": [
+    {
+      "checkedLogHashes": 9,
+      "corrections": [
+        {
+          "completedSha256": "fde4d24d86731afc0a542a55e006853466f10a764e8d25b3669ffa06b8c4bbdd",
+          "path": "target/v53-covered-minority/finalization.log",
+          "recordedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "index": "docs/v5x/v5.3/phase2-evidence/covered-minority.json",
+      "indexSha256": "b545842df35125a7f510d15afe64e3573d02b6d075f884d63cb35b1ed869d2a2"
+    },
+    {
+      "checkedLogHashes": 17,
+      "corrections": [
+        {
+          "completedSha256": "d028455de8cfe437310838f1baf4139e05aec2d6001125ca3b481afbc925421d",
+          "path": "target/v53-covered-minority-process/finalization.log",
+          "recordedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "index": "docs/v5x/v5.3/phase2-evidence/covered-minority-recovery.json",
+      "indexSha256": "eb20818cc0f480343e3fa390b80cc7caa2343a57cf69788de09b865cc1f49a18"
+    }
+  ],
+  "reason": "The finalizer indexed its own empty redirected stdout before printing completion. Only those two orchestration stdout files differ. No qualification input, test log, raw state, original index or FINALIZED directory was changed. Treat finalization.log as post-index output, not validation evidence.",
+  "schema": "gse-v53-evidence-index-corrections-v1"
+}

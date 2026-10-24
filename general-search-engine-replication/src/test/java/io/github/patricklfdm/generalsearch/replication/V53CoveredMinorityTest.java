@@ -10,11 +10,12 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 class V53CoveredMinorityTest {
     @TempDir Path temp;
     record Prepared(V53BootstrapPublicationTest.Fixture f,V53DistinctMinorityTest.Installation installation) {}
-    Prepared prepared()throws Exception {
+    Prepared prepared()throws Exception {return prepared(3,false);}
+    Prepared prepared(int size,boolean backup)throws Exception {
         Path raw=Path.of("target/v53-covered-minority/run-"+UUID.randomUUID());Files.createDirectories(raw);
         System.out.println("v53CoveredMinorityEvidence="+raw.toAbsolutePath());
-        var f=new V53BootstrapPublicationTest.Fixture(temp,raw,3,false);f.campaign(1);
-        var all=f.request.targets();var minority=all.subList(0,1);var majority=all.subList(1,3);
+        var f=new V53BootstrapPublicationTest.Fixture(temp,raw,size,backup);f.campaign(1);
+        var all=f.request.targets();int minoritySize=size-(size/2+1);var minority=all.subList(0,minoritySize);var majority=all.subList(minoritySize,size);
         byte[] losing=V53DistinctMinorityTest.payload(f,403,"minority-original");var old=V53DistinctMinorityTest.entry(f,losing,"DATA");
         Files.write(raw.resolve("minority-entry.gsr"),old.bytes());Files.write(raw.resolve("minority-payload.bin"),losing);
         V53DistinctMinorityTest.vote(f,minority,old,losing,"minority-vote");f.snapshot("minority-accepted");
@@ -24,8 +25,9 @@ class V53CoveredMinorityTest {
         V53DistinctMinorityTest.publish(f,1,entry,chosen,majority);
         var installation=V53DistinctMinorityTest.campaign(f,4,all,false);f.snapshot("before-install");return new Prepared(f,installation);
     }
-    @Test void authenticatedPublishedPrefixSettlesAnUnprovenMinorityVote()throws Exception {
-        var p=prepared();var f=p.f();var raw=f.raw;var all=f.request.targets();var installed=p.installation();
+    @Test void authenticatedPublishedPrefixSettlesAnUnprovenMinorityVote()throws Exception {complete(prepared());}
+    void complete(Prepared p)throws Exception {
+        var f=p.f();var raw=f.raw;var all=f.request.targets();var installed=p.installation();
         try {
             for(var t:all)try(var owner=f.open(t,"install-4")){owner.installCurrent(installed.sources(),List.of(),installed.images());}
             f.snapshot("round-4-installed");

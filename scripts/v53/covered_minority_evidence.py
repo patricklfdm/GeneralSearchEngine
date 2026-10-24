@@ -119,13 +119,14 @@ def advanced_campaign(root,group,counter,names,installed=True):
     return chosen,result,ballot
 
 
-def prefix(root):
-    names=['node-1','node-2','node-3'];majority=names[1:];observations=[]
-    group=b.original(root,3,False);group=b.campaign(root,group,1)
+def prefix(root,size=3,backup=False):
+    e.need(type(size) is int and size in (3,4,5) and type(backup) is bool,'covered initial profile')
+    names=['node-'+str(i+1) for i in range(size)];minority=names[:size-(size//2+1)];majority=names[len(minority):];observations=[]
+    group=b.original(root,size,backup);group=b.campaign(root,group,1)
     ballot=e.f.decode(c.current(group['node-1'])[1]['promise.gsr'],'records','PROMISE')['ballot']
     body=d.payload(403,'minority-original');entry=d.entry(group,body,ballot)
     e.need(t.plans.read(root/'minority-entry.gsr',16384)==entry and t.plans.read(root/'minority-payload.bin',e.MIB)==body,'covered original minority ENTRY')
-    group=d.vote(root,'minority-accepted',group,names[:1],entry,body,observations)
+    group=d.vote(root,'minority-accepted',group,minority,entry,body,observations)
     group,ballot=d.campaign(root,group,3,majority);group=d.settle(root,'round-3-settled',group,majority)
     body=d.payload(404,'majority-selected');entry=d.entry(group,body,ballot)
     e.need(t.plans.read(root/'selected-entry.gsr',16384)==entry and t.plans.read(root/'selected-payload.bin',e.MIB)==body,'covered distinct majority ENTRY')
@@ -139,20 +140,21 @@ def observations(root,expected):
     e.need(type(actual) is list and len(actual)==len(expected) and set(map(e.f.canonical,actual))==expected,'covered actual owner observations')
 
 
-def clean(root):
-    root=Path(root);names=['node-1','node-2','node-3']
+def clean(root,size=3,backup=False):
+    e.need(type(size) is int and size in (3,4,5) and type(backup) is bool,'covered initial profile')
+    root=Path(root);names=['node-'+str(i+1) for i in range(size)];majority=names[size-(size//2+1):]
     required={'original-plan.gsbp','original-application.image','initial','calls.json','observations.json','minority-entry.gsr','minority-payload.bin','selected-entry.gsr','selected-payload.bin','barrier.gsr','minority-accepted','before-install'}
     required|={f'round-{r}-{s}' for r in (1,3,4,5) for s in ('prepared','selected','installed','settled')}
     required|={f'slot-{r}-{s}' for r in (1,2) for s in ('accepted','proved','certified','applied','published','settled')}
-    required|={f'typed-{s}-{n}' for s,targets in [(1,names[1:]),(2,names)] for n in targets};selection.layout(root,required,'covered minority clean')
-    _,group,observed=prefix(root);match(root,'round-4-installed',group);group=d.settle(root,'round-4-settled',group,names)
+    required|={f'typed-{s}-{n}' for s,targets in [(1,majority),(2,names)] for n in targets};selection.layout(root,required,'covered minority clean')
+    _,group,observed=prefix(root,size,backup);match(root,'round-4-installed',group);group=d.settle(root,'round-4-settled',group,names)
     _,group,ballot=advanced_campaign(root,group,5,names);group=d.settle(root,'round-5-settled',group,names)
     barrier=d.entry(group,b'',ballot,'BARRIER');e.need(t.plans.read(root/'barrier.gsr',16384)==barrier,'covered continuation BARRIER')
-    group,_=publication(root,group,2,barrier,b'',observed,names);observations(root,observed);calls(root)
-    for slot,targets in [(1,names[1:]),(2,names)]:
+    group,_=publication(root,group,2,barrier,b'',observed,names);observations(root,observed);calls(root,size)
+    for slot,targets in [(1,majority),(2,names)]:
         for node in targets:
             _,members,packet=c.current(c.inventory(root/f'slot-{slot}-settled'/node));b.typed_image(root/f'typed-{slot}-{node}',members[packet['capsule']['application']+'.image'])
-    return dict(status='PASS',voters=3,nodePublications=5,publicBootstrap=True,freshProcesses=False,publicRuntime=False,maximalCapacity=False,independentImageSemantics=False)
+    return dict(status='PASS',voters=size,nodePublications=size+len(majority),publicBootstrap=True,freshProcesses=False,publicRuntime=False,maximalCapacity=False,independentImageSemantics=False)
 
 OPEN=list(installation.c.OPEN)
 SEAL=['ACCEPT_ACTIVE_FORCED','ACCEPT_ACTIVE_PARENT_FORCED']
@@ -197,8 +199,8 @@ def transaction(before,after,cut=None,floor=True):
     return state,trace
 
 
-def calls(root):
-    names=['node-1','node-2','node-3'];majority=names[1:];expected=[]
+def calls(root,size=3):
+    names=['node-'+str(i+1) for i in range(size)];minority=names[:size-(size//2+1)];majority=names[len(minority):];expected=[]
     def many(nodes,label):expected.extend((n,label) for n in nodes)
     def maintenance(nodes,label):many(nodes,label+'-copy');many(nodes,label+'-maintain')
     def campaign(counter,nodes,install=True):
@@ -207,10 +209,10 @@ def calls(root):
     def publish(slot,nodes):
         for phase in ('accept','proof','certificate','apply','publish'):many(nodes,f'{phase}-{slot}')
         maintenance(nodes,f'slot-{slot}-settled');many(nodes,f'inspect-{slot}')
-    campaign(1,names);maintenance(names,'round-1-settled');expected.append(('node-3','entry'));many(names[:1],'minority-vote')
-    campaign(3,majority);maintenance(majority,'round-3-settled');expected.append(('node-3','entry'));publish(1,majority)
+    campaign(1,names);maintenance(names,'round-1-settled');expected.append((names[-1],'entry'));many(minority,'minority-vote')
+    campaign(3,majority);maintenance(majority,'round-3-settled');expected.append((names[-1],'entry'));publish(1,majority)
     campaign(4,names);many(names,'inspect-settlement');maintenance(names,'round-4-settled')
-    campaign(5,names);maintenance(names,'round-5-settled');expected.append(('node-3','entry'));publish(2,names)
+    campaign(5,names);maintenance(names,'round-5-settled');expected.append((names[-1],'entry'));publish(2,names)
     rows=e.parse(t.plans.read(root/'calls.json',8*e.MIB));e.need(type(rows) is list and len(rows)==len(expected),'covered complete owner calls')
     for row,(node,operation) in zip(rows,expected):
         e.exact(row,'node operation events');events=row['events']
@@ -227,7 +229,7 @@ def calls(root):
         if operation=='minority-vote' or phase=='accept':
             required=['ACCEPT_CANDIDATE_FORCED','ACCEPT_PARENT_FORCED','ACCEPT_BEFORE_RETURN','ACCEPT_BEFORE_RETURN']
             e.need([v for v in events if v in set(required)]==required,'covered vote force before response')
-        if operation=='install-4' and node=='node-1':
+        if operation=='install-4' and node in minority:
             before=c.inventory(root/'before-install'/node);after=c.inventory(root/'round-4-installed'/node)
             _,order=transaction(before,after,floor=False);e.need(events==order,'covered exact settlement force order')
         elif any(v.startswith('SETTLED_VOTE_') for v in events):raise ValueError('covered unexpected vote settlement')

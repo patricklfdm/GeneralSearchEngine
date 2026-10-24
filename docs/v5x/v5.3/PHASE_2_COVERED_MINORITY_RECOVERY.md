@@ -59,3 +59,7 @@ backup/four-/five-voter profiles, configuration transitions, protected-context o
 proof-bearing covered votes. It does not enable public online membership or
 transport. Those remaining storage obligations stay on the
 [Phase 2 closure checklist](PHASE_2_CLOSURE_CHECKLIST.md).
+
+The later [six-profile extension](PHASE_2_RETIREMENT_SOURCE_IMAGES.md) adds clean
+four-/five-voter and backup progress plus a distinct source-image retirement fix.
+Its new transaction is not covered by this earlier process receipt.

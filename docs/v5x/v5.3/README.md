@@ -241,3 +241,7 @@ requiring application bytes. It remains separate from typed/committed admission.
 
 [Covered-minority physical/process recovery](PHASE_2_COVERED_MINORITY_RECOVERY.md)
 adds independent replay and 24 admitted repeated-process cases. Phase 2 remains OPEN.
+
+[Source-backed inactive retirement](PHASE_2_RETIREMENT_SOURCE_IMAGES.md) extends
+covered-minority clean qualification to all six initial profiles without increasing
+the seven-image bound. Its distinct recovery obligations remain tracked.

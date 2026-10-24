@@ -9,7 +9,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipRetirementImages {
     static final String FILE="images.json", SCHEMA="gse-v53-retirement-floor-images-v1";
     static final int MAXIMUM=65536;
-    private static MembershipFloor.Copy local(Decoded record,MembershipFloorFiles.Retained floor) {
+    static MembershipFloor.Copy local(Decoded record,MembershipFloorFiles.Retained floor) {
         require(record.value().get("floor").equals(floor.floor().digest()),"retirement borrowed floor changed");
         return floor.copies().stream().filter(c->c.owner.nodeId().value().equals(record.value().get("node")))
                 .findFirst().orElseThrow(()->new IllegalArgumentException("retirement borrowed local copy absent"));

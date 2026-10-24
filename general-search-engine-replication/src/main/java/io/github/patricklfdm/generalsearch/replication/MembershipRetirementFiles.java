@@ -14,6 +14,7 @@ final class MembershipRetirementFiles implements AutoCloseable {
     private final Path parent,path,source;
     private final MembershipResources resources;
     private final MembershipFloorFiles floorFiles;
+    private final MembershipBasisSources basisSources;
     private final Map<String,FileIdentity> files=new TreeMap<>();
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
     private Object pathKey,sourceKey;
@@ -24,7 +25,10 @@ final class MembershipRetirementFiles implements AutoCloseable {
         this(parent,resources,null);
     }
     MembershipRetirementFiles(Path parent,MembershipResources resources,MembershipFloorFiles floorFiles)throws IOException {
-        this.floorFiles=floorFiles;this.parent=parent;this.path=parent.resolve(DIRECTORY);this.source=path.resolve(SOURCE);this.resources=resources;
+        this(parent,resources,floorFiles,null);
+    }
+    MembershipRetirementFiles(Path parent,MembershipResources resources,MembershipFloorFiles floorFiles,MembershipBasisSources basisSources)throws IOException {
+        this.basisSources=basisSources;this.floorFiles=floorFiles;this.parent=parent;this.path=parent.resolve(DIRECTORY);this.source=path.resolve(SOURCE);this.resources=resources;
         try{capture();reserve(null);}catch(IOException | RuntimeException | Error error){close();throw error;}
     }
     boolean pending(){return exists;}
@@ -95,7 +99,19 @@ final class MembershipRetirementFiles implements AutoCloseable {
     private Map<String,byte[]> borrowed(Decoded record)throws IOException {
         require(floorFiles!=null,"retirement borrowed floor owner absent");
         var floor=floorFiles.retained().orElseThrow(()->new IllegalArgumentException("retirement borrowed floor unavailable"));
-        return MembershipRetirementImages.resolve(AdmissionPaths.read(path.resolve(MembershipRetirementImages.FILE),MembershipRetirementImages.MAXIMUM),record,floor);
+        byte[] binding=AdmissionPaths.read(path.resolve(MembershipRetirementImages.FILE),MembershipRetirementImages.MAXIMUM);
+        return sourceBinding(binding)?MembershipRetirementSourceImages.resolve(binding,record,floor,basisSources):MembershipRetirementImages.resolve(binding,record,floor);
+    }
+    private static boolean sourceBinding(byte[] binding) {
+        return MembershipRetirementSourceImages.SCHEMA.equals(object(parse(binding,MembershipRetirementImages.MAXIMUM)).get("schema"));
+    }
+    private void resealBacking(Decoded record,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
+        borrowed(record);var floor=floorFiles.retained().orElseThrow();
+        if(sourceBinding(AdmissionPaths.read(path.resolve(MembershipRetirementImages.FILE),MembershipRetirementImages.MAXIMUM))) {
+            basisSources.resealOriginal(MembershipRetirementSourceImages.basis(record,floor),owner);
+            cut.at("RETIREMENT_BORROWED_SOURCE_FORCED");check();owner.check();borrowed(record);
+        }
+        floorFiles.resealForRetirement(owner,cut);
     }
     /** Check every remaining saved byte against the already-bound retirement inventory. */
     void checkSaved(Decoded record)throws IOException {
@@ -110,7 +126,7 @@ final class MembershipRetirementFiles implements AutoCloseable {
         if(files.containsKey(PROPOSAL))require(Arrays.equals(AdmissionPaths.read(path.resolve(PROPOSAL),65536),record.bytes()),"retirement proposal binding");
     }
     void sealAuthority(Decoded record,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
-        checkSaved(record);owner.check();if(files.containsKey(MembershipRetirementImages.FILE))floorFiles.resealForRetirement(owner,cut);force(path.resolve(AUTHORITY));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);
+        checkSaved(record);owner.check();if(files.containsKey(MembershipRetirementImages.FILE))resealBacking(record,owner,cut);force(path.resolve(AUTHORITY));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);
         cut.at("RETIREMENT_AUTHORITY_RESEALED");check();owner.check();
     }
     void prepare(MembershipRetirementPlan retirement,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
@@ -121,7 +137,10 @@ final class MembershipRetirementFiles implements AutoCloseable {
         if(borrow) {
             require(floorFiles!=null,"retirement image capacity requires retained floor owner");
             var floor=floorFiles.retained().orElseThrow(()->new IllegalArgumentException("retirement image capacity requires complete floor"));
-            plan.put(MembershipRetirementImages.FILE,MembershipRetirementImages.create(retirement.record,floor));
+            var local=MembershipRetirementImages.local(retirement.record,floor);local.check();
+            boolean localImages=retirement.original.fileNames().stream().filter(n->n.endsWith(".image")).allMatch(local.fileNames()::contains);
+            plan.put(MembershipRetirementImages.FILE,!localImages && basisSources!=null
+                    ?MembershipRetirementSourceImages.create(retirement.record,floor,basisSources):MembershipRetirementImages.create(retirement.record,floor));
         }
         for(String name:retirement.original.fileNames())if(!borrow || !name.endsWith(".image"))plan.put(SOURCE+"/"+name,retirement.original.fileBytes(name));
         check();owner.check();require(plan.keySet().containsAll(files.keySet()),"unrelated retained retirement files");
@@ -135,7 +154,7 @@ final class MembershipRetirementFiles implements AutoCloseable {
         for(var file:plan.entrySet())if(file.getKey().startsWith(SOURCE+"/") && !file.getKey().equals(SOURCE+"/generation.gsr"))
             complete(file.getKey(),file.getValue(),owner,cut,file.getKey().endsWith(".image")?"RETIREMENT_IMAGE":"RETIREMENT_MEMBER");
         AdmissionPaths.forceDirectory(source);AdmissionPaths.forceDirectory(path);cut.at("RETIREMENT_SOURCE_FORCED");check();owner.check();
-        if(borrow) {borrowed(retirement.record);floorFiles.resealForRetirement(owner,cut);}
+        if(borrow)resealBacking(retirement.record,owner,cut);
         complete(AUTHORITY,plan.get(AUTHORITY),owner,cut,"RETIREMENT_AUTHORITY");
         AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);cut.at("RETIREMENT_PARENT_FORCED");check();owner.check();
     }

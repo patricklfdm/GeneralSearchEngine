@@ -1,0 +1,676 @@
+{
+  "base": "c42ca8a8f47c9f5eda2307f9e0fef32136c3d512",
+  "compiledInputs": {
+    "path": "target/v53-covered-minority-profiles/inputs3.json",
+    "sha256": "1965c32a13c6469e0d4125c8470fd966a81d6f8200f1406b48c208d554331891"
+  },
+  "compiledMainClasses": {
+    "changed": [
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipRetirementFiles.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipRetirementImages.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipRetirementSourceImages.class"
+    ],
+    "classes": 707,
+    "path": "target/v53-covered-minority-profiles/compiled-main-classes.json",
+    "sha256": "d8515ada4afcf0443715eadc7bbede2ed5977efdf9f640fcb5845be86fcbb8fe"
+  },
+  "jars": {
+    "target/v53-covered-minority-profiles/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-minority-profiles/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "fb7ac9252b107ce1b8d833b5b05dc80a6d319f81727e8974e68ff50eef590273"
+  },
+  "javaTests": 17,
+  "limitations": [
+    "New source-backed retirement still needs fresh-process halt/SIGKILL coverage",
+    "Seven image/six source counts are not maximal byte headroom",
+    "Typed DATA semantics remain Java producer checks",
+    "No proof/context-bearing covered recovery, complete cross-view lifetime, power-loss or public runtime acceptance"
+  ],
+  "logs": {
+    "target/v53-covered-minority-profiles/current-regression-replay.log": "529525d3dfaac29277a08745afadf1836e7de5c1206b8603fe9861674926efad",
+    "target/v53-covered-minority-profiles/draft-four-voter-replay.log": "c1b441cd5d43e9053f1a05121b010ef147e77a871d59fd2fae3348cb3a5fea81",
+    "target/v53-covered-minority-profiles/owner-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-profiles/owner-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-profiles/process-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-profiles/process-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-profiles/profile-replay.log": "dd17ddd6b3164c1a850fb58d49e1dd79f7fe50503da3be930363c215e05d6cc2",
+    "target/v53-covered-minority-profiles/profiles-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-profiles/profiles-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-profiles/python-tests-final.log": "13378a73dfafd7c53f28a2f1abc48bf8fca0a36b0235055e47ba7f2e8c52ecd8",
+    "target/v53-covered-minority-profiles/python-tests.log": "ef62cef24a1a61ac0c289b64e8c26c0765b42a293e886fc451649aed41f4965d",
+    "target/v53-covered-minority-profiles/reader-regression.log": "db58d38bdf1fd89041854bde84e8a99e4f2735e88128a040d0903bd9434f2cd9",
+    "target/v53-covered-minority-profiles/run1.log": "7590964cc33bdea5e7a2a9b417e8de0f9882e03e69aa2c9aa62d2af0c48f6847",
+    "target/v53-covered-minority-profiles/run2.log": "9ac161d24549efc27a8b2ad3d445cda4452db49ea49d0d8d8d021a84c1c2c582",
+    "target/v53-covered-minority-profiles/run3.log": "4c2a9cb0043e433b5915da99f6618c53d3261f9f7490225e0cf52728500cbe8d",
+    "target/v53-covered-minority-profiles/source-draft-replay.log": "5298becd87c379e2264d34adec42522481a113a7dcb02d3cae1b6a430ab42e39",
+    "target/v53-covered-minority-profiles/source-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-profiles/source-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-profiles/source-qualification.log": "84a0055cf87e4ee6af90c636041ebcc48c45f29ddb71150ed25fff309bbda140"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "priorIndexCorrections": {
+    "path": "docs/v5x/v5.3/phase2-evidence/finalization-log-corrections.json",
+    "sha256": "74d868e4c5efda9cc88a219a6c442d90f4b5f62e1d4b72e55db0ca710e7622b9"
+  },
+  "producerClasses": {
+    "path": "target/v53-covered-minority-profiles/producer-classes.json",
+    "sha256": "c2b14f4764179e00a3c56c5926f718ab98c016ffd369e35bd5b1bc9952a2cf4b"
+  },
+  "profileInputs": {
+    "path": "target/v53-covered-minority-profiles/inputs2.json",
+    "sha256": "24bb4ce88446982cf0f7ad2559667e90315fb483a4187a67b647c1c67f25858a"
+  },
+  "pythonInputs": {
+    "path": "target/v53-covered-minority-profiles/python-inputs.json",
+    "sha256": "b82397503c4b43a5d60f898d9023546a0bd107770a2a3720cddb1ecd51282b97"
+  },
+  "pythonTests": 27,
+  "raws": {
+    "run1-v53-covered-minority-profiles-run-d1c0cfdc-adae-4508-9c81-f1f617f5f9d0": {
+      "inventory": "target/v53-covered-minority-profiles/run1-v53-covered-minority-profiles-run-d1c0cfdc-adae-4508-9c81-f1f617f5f9d0-inventory.json",
+      "members": 4157,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority-profiles/run-d1c0cfdc-adae-4508-9c81-f1f617f5f9d0",
+      "sha256": "1c023f163a0f00b02bbda8c1eef47a54765382258cf094f45ed133d62b55e58a"
+    },
+    "run1-v53-covered-minority-run-15290805-1bf3-4367-b892-da5a78ed48b3": {
+      "inventory": "target/v53-covered-minority-profiles/run1-v53-covered-minority-run-15290805-1bf3-4367-b892-da5a78ed48b3-inventory.json",
+      "members": 1753,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-15290805-1bf3-4367-b892-da5a78ed48b3",
+      "sha256": "9525f9e434fa23b3aff64841eb95483353664df8a361d52e9975e2db6c87fa29"
+    },
+    "run1-v53-covered-minority-run-3649fb18-d885-4cc6-87a0-70ef8b6d0435": {
+      "inventory": "target/v53-covered-minority-profiles/run1-v53-covered-minority-run-3649fb18-d885-4cc6-87a0-70ef8b6d0435-inventory.json",
+      "members": 2078,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-3649fb18-d885-4cc6-87a0-70ef8b6d0435",
+      "sha256": "f13144b25b4b5072427f1854aabd52fa25396513216cb27b028c46543dad1b5b"
+    },
+    "run1-v53-covered-minority-run-a1f33959-6ffd-43f5-be8d-0aa528d9cca9": {
+      "inventory": "target/v53-covered-minority-profiles/run1-v53-covered-minority-run-a1f33959-6ffd-43f5-be8d-0aa528d9cca9-inventory.json",
+      "members": 1218,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-a1f33959-6ffd-43f5-be8d-0aa528d9cca9",
+      "sha256": "41228e5b909838b1190382ba5fa563464b1d164c1205d627a84fad607cf7921c"
+    },
+    "run1-v53-covered-minority-run-b46f29bd-c9f3-4061-ba59-0a8563cb94b4": {
+      "inventory": "target/v53-covered-minority-profiles/run1-v53-covered-minority-run-b46f29bd-c9f3-4061-ba59-0a8563cb94b4-inventory.json",
+      "members": 1218,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-b46f29bd-c9f3-4061-ba59-0a8563cb94b4",
+      "sha256": "e5345a0c6a05b14c3dc9d169c8d5d3b50afeeb76aa0eeff2234f81b5dfde74e0"
+    },
+    "run1-v53-covered-minority-run-bd8b5c82-c238-4e9c-aafd-92c405ec7a0c": {
+      "inventory": "target/v53-covered-minority-profiles/run1-v53-covered-minority-run-bd8b5c82-c238-4e9c-aafd-92c405ec7a0c-inventory.json",
+      "members": 2078,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-bd8b5c82-c238-4e9c-aafd-92c405ec7a0c",
+      "sha256": "4c319fba32dfa6fe3dd82e2cb1c37cf5d0ad600656f6e8d8b565cad99af0a6b4"
+    },
+    "run1-v53-covered-minority-run-bfeab0a0-0745-41f7-94c0-ba4ed2950d61": {
+      "inventory": "target/v53-covered-minority-profiles/run1-v53-covered-minority-run-bfeab0a0-0745-41f7-94c0-ba4ed2950d61-inventory.json",
+      "members": 2278,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-bfeab0a0-0745-41f7-94c0-ba4ed2950d61",
+      "sha256": "839b14a1108bd5c3f0a791d077277ebf5327603e51eacb9758c1585174109b4f"
+    },
+    "run1-v53-covered-minority-run-f477faea-3da6-4124-ab61-760a24753c5f": {
+      "inventory": "target/v53-covered-minority-profiles/run1-v53-covered-minority-run-f477faea-3da6-4124-ab61-760a24753c5f-inventory.json",
+      "members": 2078,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-f477faea-3da6-4124-ab61-760a24753c5f",
+      "sha256": "b1f3569cbe2d463f98a04c6c9621729ec00fa1ddb107b2ed314b28407248eab6"
+    },
+    "run2-v53-covered-minority-profiles-run-f2ca13f0-7961-4a1c-a1c2-aee39ff96c27": {
+      "inventory": "target/v53-covered-minority-profiles/run2-v53-covered-minority-profiles-run-f2ca13f0-7961-4a1c-a1c2-aee39ff96c27-inventory.json",
+      "members": 16597,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority-profiles/run-f2ca13f0-7961-4a1c-a1c2-aee39ff96c27",
+      "sha256": "7e9c426161480938a98219a47078909cba767616b36d0e31dfcc4daee1de1c69"
+    },
+    "run2-v53-covered-minority-run-0c8e4106-b8a2-4239-a033-ea78795f8ba6": {
+      "inventory": "target/v53-covered-minority-profiles/run2-v53-covered-minority-run-0c8e4106-b8a2-4239-a033-ea78795f8ba6-inventory.json",
+      "members": 3442,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-0c8e4106-b8a2-4239-a033-ea78795f8ba6",
+      "sha256": "5c7954ead443f43be3e73c9d41846d28197172bee760228eb92e4e33ec12f641"
+    },
+    "run2-v53-covered-minority-run-23dc9ec1-253a-456f-8210-355465343373": {
+      "inventory": "target/v53-covered-minority-profiles/run2-v53-covered-minority-run-23dc9ec1-253a-456f-8210-355465343373-inventory.json",
+      "members": 2778,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-23dc9ec1-253a-456f-8210-355465343373",
+      "sha256": "0e14ff5c48127f59b615cbbcfaedf4445fa60931df69b36d29f23f105e99eb3e"
+    },
+    "run2-v53-covered-minority-run-40f30b56-90b2-4762-adec-f0dd9c320d33": {
+      "inventory": "target/v53-covered-minority-profiles/run2-v53-covered-minority-run-40f30b56-90b2-4762-adec-f0dd9c320d33-inventory.json",
+      "members": 2778,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-40f30b56-90b2-4762-adec-f0dd9c320d33",
+      "sha256": "68dd7107a285de0cc7e2f902e64108a70aa280f00cd2484f938e8c9c9871ca6a"
+    },
+    "run2-v53-covered-minority-run-6ca3e6e2-b116-432c-a523-6938ee84ed38": {
+      "inventory": "target/v53-covered-minority-profiles/run2-v53-covered-minority-run-6ca3e6e2-b116-432c-a523-6938ee84ed38-inventory.json",
+      "members": 3442,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-6ca3e6e2-b116-432c-a523-6938ee84ed38",
+      "sha256": "d790c00ea4b14b3f1281994642cec43db4185c69098f136f68312dfe85ec1391"
+    },
+    "run2-v53-covered-minority-run-6edf1520-42f5-46c1-8eff-ee27e8d09a5b": {
+      "inventory": "target/v53-covered-minority-profiles/run2-v53-covered-minority-run-6edf1520-42f5-46c1-8eff-ee27e8d09a5b-inventory.json",
+      "members": 2078,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-6edf1520-42f5-46c1-8eff-ee27e8d09a5b",
+      "sha256": "43a83fc93575d47b7078a2aca03ca700750c8c7125276ca5ebd426a7daa6d0cd"
+    },
+    "run2-v53-covered-minority-run-dbb70735-1d05-4dc7-9fea-30a14d929a2d": {
+      "inventory": "target/v53-covered-minority-profiles/run2-v53-covered-minority-run-dbb70735-1d05-4dc7-9fea-30a14d929a2d-inventory.json",
+      "members": 2078,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-dbb70735-1d05-4dc7-9fea-30a14d929a2d",
+      "sha256": "2f5d9c10bdc0159cbcb55daa222fd2a6b9bf5b531b551fabbbde785f0c67f4bf"
+    },
+    "run3-v53-covered-minority-process-run-98deb5ee-533c-4b53-bce2-b63a8b0a063b": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-covered-minority-process-run-98deb5ee-533c-4b53-bce2-b63a8b0a063b-inventory.json",
+      "members": 3457,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority-process/run-98deb5ee-533c-4b53-bce2-b63a8b0a063b",
+      "sha256": "7fef193e9db51b5fe1fc87a76c08113b60220bcbbecb87e69e26605f324c86e9"
+    },
+    "run3-v53-covered-minority-run-031cf3fd-8068-4dbd-998e-8f89dbb5001b": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-covered-minority-run-031cf3fd-8068-4dbd-998e-8f89dbb5001b-inventory.json",
+      "members": 1218,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-031cf3fd-8068-4dbd-998e-8f89dbb5001b",
+      "sha256": "22f0c7dc2aba8fcd2fed7f3e1c0e9dc14ee9d030ab6a7de8231774b9781832cd"
+    },
+    "run3-v53-covered-minority-run-3ac3a372-8055-43b7-9cf8-5ae8d22b292c": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-covered-minority-run-3ac3a372-8055-43b7-9cf8-5ae8d22b292c-inventory.json",
+      "members": 1218,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-3ac3a372-8055-43b7-9cf8-5ae8d22b292c",
+      "sha256": "7cf611e3acefadfeb79861c298c905cb650afa32da07e93e362e7a10bafc0821"
+    },
+    "run3-v53-covered-minority-run-45a4ce29-6374-49fe-8455-72e844b27659": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-covered-minority-run-45a4ce29-6374-49fe-8455-72e844b27659-inventory.json",
+      "members": 1633,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-45a4ce29-6374-49fe-8455-72e844b27659",
+      "sha256": "df45fb6565767b5ae6f67af2af26ece5cf5b4b3da2853e6eb55046f76e7038b6"
+    },
+    "run3-v53-covered-minority-run-4c89a680-50a0-4b02-9c45-f8921086b799": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-covered-minority-run-4c89a680-50a0-4b02-9c45-f8921086b799-inventory.json",
+      "members": 2078,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-4c89a680-50a0-4b02-9c45-f8921086b799",
+      "sha256": "36d6adbb41fb7b03991aefb3a8d3ebd281e25ed98c63df1d3968b96d8aa006a9"
+    },
+    "run3-v53-covered-minority-run-7e89068a-1f5b-401f-80a1-c3bceaa8c7cf": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-covered-minority-run-7e89068a-1f5b-401f-80a1-c3bceaa8c7cf-inventory.json",
+      "members": 1633,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-7e89068a-1f5b-401f-80a1-c3bceaa8c7cf",
+      "sha256": "5dd673763a73c5c734d2c58303c0f821673b17de4ec6fb3778d7aeb66badd0d3"
+    },
+    "run3-v53-covered-minority-run-8358213c-0515-4208-b77c-c56de7cf2fec": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-covered-minority-run-8358213c-0515-4208-b77c-c56de7cf2fec-inventory.json",
+      "members": 1633,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-8358213c-0515-4208-b77c-c56de7cf2fec",
+      "sha256": "f1e8affbb6e3c5bccd8e87905a7e9f784d8a040ea49d2214c233c61022e8fa9c"
+    },
+    "run3-v53-covered-minority-run-e2702454-333d-45bf-b45f-b80136544eac": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-covered-minority-run-e2702454-333d-45bf-b45f-b80136544eac-inventory.json",
+      "members": 2278,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-e2702454-333d-45bf-b45f-b80136544eac",
+      "sha256": "a2b66902140d867baffc6679b00291daaa8a9d3b32b5c2fa7b41a1f7412a8970"
+    },
+    "run3-v53-covered-minority-run-fefd2f11-cf50-4a11-9dd5-efe3a33b1f6c": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-covered-minority-run-fefd2f11-cf50-4a11-9dd5-efe3a33b1f6c-inventory.json",
+      "members": 1219,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-fefd2f11-cf50-4a11-9dd5-efe3a33b1f6c",
+      "sha256": "a20c938b9d89f8c81b12f74ee79a2952f0e8fe1444b3bde326b5d148723947ec"
+    },
+    "run3-v53-retirement-source-images-run-0047e1e2-2a76-46d2-a3fb-12eef14bf2d0": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-retirement-source-images-run-0047e1e2-2a76-46d2-a3fb-12eef14bf2d0-inventory.json",
+      "members": 1746,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-retirement-source-images/run-0047e1e2-2a76-46d2-a3fb-12eef14bf2d0",
+      "sha256": "e3d33ce76703c875a8a8e6edc9bd9d0c148c09672985a97bfc84b48f77c1ef47"
+    },
+    "run3-v53-retirement-source-images-run-4a63c682-fe6f-402b-98cd-0d831cdf232a": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-retirement-source-images-run-4a63c682-fe6f-402b-98cd-0d831cdf232a-inventory.json",
+      "members": 6650,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-retirement-source-images/run-4a63c682-fe6f-402b-98cd-0d831cdf232a",
+      "sha256": "d3d5a395928638e08407e25659cc4af3b2c95d82c24c19636577ef938ac69199"
+    },
+    "run3-v53-retirement-source-images-run-d375c221-617c-4161-86eb-e54a5d3836cb": {
+      "inventory": "target/v53-covered-minority-profiles/run3-v53-retirement-source-images-run-d375c221-617c-4161-86eb-e54a5d3836cb-inventory.json",
+      "members": 1988,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-retirement-source-images/run-d375c221-617c-4161-86eb-e54a5d3836cb",
+      "sha256": "e0c81f53210aa9b6c166dd101ed1ccfcd17efbde162cfeb24bd534f4d818e314"
+    }
+  },
+  "replays": {
+    "owner": {
+      "normalSha256": "1d1276a3ba93f08041bccd98f10306f92a447875e4202c6f99f157ac32b2627c",
+      "optimizedSha256": "1d1276a3ba93f08041bccd98f10306f92a447875e4202c6f99f157ac32b2627c",
+      "result": {
+        "clean": {
+          "freshProcesses": false,
+          "independentImageSemantics": false,
+          "maximalCapacity": false,
+          "nodePublications": 5,
+          "publicBootstrap": true,
+          "publicRuntime": false,
+          "status": "PASS",
+          "voters": 3
+        },
+        "freshProcesses": false,
+        "interrupted": {
+          "cases": 12,
+          "freshProcesses": false,
+          "independentImageSemantics": false,
+          "interruptions": 24,
+          "maximalCapacity": false,
+          "publicBootstrap": true,
+          "publicRuntime": false,
+          "status": "PASS",
+          "voters": 3
+        },
+        "negatives": [
+          {
+            "case": "missing-stage",
+            "reason": "context selection covered minority clean inventory"
+          },
+          {
+            "case": "extra-stage",
+            "reason": "context selection covered minority interruptions inventory"
+          },
+          {
+            "case": "bootstrap-seal",
+            "reason": "admitted original public bootstrap"
+          },
+          {
+            "case": "minority-payload",
+            "reason": "covered original minority ENTRY"
+          },
+          {
+            "case": "majority-entry",
+            "reason": "covered distinct majority ENTRY"
+          },
+          {
+            "case": "unselected-voter",
+            "reason": "admitted exact slot-1-accepted: node-1"
+          },
+          {
+            "case": "published-proof",
+            "reason": "admitted exact slot-1-proved: node-2"
+          },
+          {
+            "case": "published-image",
+            "reason": "admitted exact slot-1-applied: node-3"
+          },
+          {
+            "case": "selected-choice",
+            "reason": "admitted exact round-4-selected: node-1"
+          },
+          {
+            "case": "early-vote-delete",
+            "reason": "admitted exact before-install: node-1"
+          },
+          {
+            "case": "uncleared-vote",
+            "reason": "admitted exact round-4-installed: node-1"
+          },
+          {
+            "case": "lost-old-generation",
+            "reason": "admitted exact round-4-installed: node-1"
+          },
+          {
+            "case": "lost-original-source",
+            "reason": "admitted exact round-4-settled: node-1"
+          },
+          {
+            "case": "stale-image",
+            "reason": "admitted exact round-4-installed: node-1"
+          },
+          {
+            "case": "unretired-source",
+            "reason": "admitted exact round-5-settled: node-1"
+          },
+          {
+            "case": "observations",
+            "reason": "covered actual owner observations"
+          },
+          {
+            "case": "duplicate-observation",
+            "reason": "covered actual owner observations"
+          },
+          {
+            "case": "owner-call",
+            "reason": "covered complete owner calls"
+          },
+          {
+            "case": "early-clear-event",
+            "reason": "covered exact settlement force order"
+          },
+          {
+            "case": "false-settlement",
+            "reason": "covered unexpected vote settlement"
+          },
+          {
+            "case": "missing-case",
+            "reason": "context selection covered minority interruptions inventory"
+          },
+          {
+            "case": "wrong-second-cut",
+            "reason": "covered exact interruption identity"
+          },
+          {
+            "case": "missing-recovery-force",
+            "reason": "covered exact interruption force order: second"
+          },
+          {
+            "case": "early-selector",
+            "reason": "covered exact interruption snapshot: first"
+          },
+          {
+            "case": "torn-candidate",
+            "reason": "covered exact interruption snapshot: first"
+          },
+          {
+            "case": "resumed-old-vote",
+            "reason": "covered exact interruption snapshot: final"
+          },
+          {
+            "case": "missing-final-source",
+            "reason": "covered exact interruption snapshot: final"
+          },
+          {
+            "case": "false-original-return",
+            "reason": "covered exact interruption force order: first"
+          },
+          {
+            "case": "typed-image",
+            "reason": "admitted exact typed inspection image"
+          },
+          {
+            "case": "linked-original",
+            "reason": "bootstrap plan evidence file type/capacity"
+          }
+        ],
+        "portableReplay": "PASS",
+        "status": "PASS"
+      }
+    },
+    "process": {
+      "normalSha256": "f092326efb74bcd3addc5c6d7ad7352267a7125392da2e6a5ac0bd4df5589176",
+      "optimizedSha256": "f092326efb74bcd3addc5c6d7ad7352267a7125392da2e6a5ac0bd4df5589176",
+      "result": {
+        "cases": 24,
+        "freshProcesses": 72,
+        "lockProbes": 12,
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "original-vote",
+            "reason": "admitted exact minority-accepted: node-1"
+          },
+          {
+            "case": "missing-case",
+            "reason": "context selection covered process inventory"
+          },
+          {
+            "case": "first-prefix",
+            "reason": "covered process exact first snapshot"
+          },
+          {
+            "case": "second-prefix",
+            "reason": "covered process exact second snapshot"
+          },
+          {
+            "case": "final-vote",
+            "reason": "covered process exact final snapshot"
+          },
+          {
+            "case": "retained-source",
+            "reason": "covered process exact final snapshot"
+          },
+          {
+            "case": "retained-generation",
+            "reason": "covered process exact final snapshot"
+          },
+          {
+            "case": "first-force",
+            "reason": "covered process exact first force/death order"
+          },
+          {
+            "case": "second-force",
+            "reason": "covered process exact second force/death order"
+          },
+          {
+            "case": "final-force",
+            "reason": "covered process exact final force/death order"
+          },
+          {
+            "case": "kill-handshake",
+            "reason": "covered process exact first force/death order"
+          },
+          {
+            "case": "false-return",
+            "reason": "covered process exact second force/death order"
+          },
+          {
+            "case": "capacity",
+            "reason": "covered process capacity/scope"
+          },
+          {
+            "case": "runtime-flag",
+            "reason": "covered process capacity/scope"
+          },
+          {
+            "case": "receipt-flag",
+            "reason": "covered process exact receipt"
+          },
+          {
+            "case": "exit-code",
+            "reason": "covered process exact receipt"
+          },
+          {
+            "case": "admitted-path",
+            "reason": "covered process exact admitted paths"
+          },
+          {
+            "case": "observations",
+            "reason": "covered process actual observations"
+          },
+          {
+            "case": "stderr",
+            "reason": "covered process stderr"
+          }
+        ],
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "profiles": {
+      "normalSha256": "12338d44b04019792a2f637fe38ccdcef13cb881d40dd498009fc239742e89ba",
+      "optimizedSha256": "12338d44b04019792a2f637fe38ccdcef13cb881d40dd498009fc239742e89ba",
+      "result": {
+        "cases": 6,
+        "freshProcesses": false,
+        "independentImageSemantics": false,
+        "maximalCapacity": false,
+        "minorityVotes": 8,
+        "negatives": [
+          {
+            "case": "missing-profile",
+            "reason": "context selection covered profiles inventory"
+          },
+          {
+            "case": "numeric-flag",
+            "reason": "covered profiles receipt scope"
+          },
+          {
+            "case": "profile-count",
+            "reason": "covered profiles complete receipt"
+          },
+          {
+            "case": "backup-sequence",
+            "reason": "covered profiles exact receipt row"
+          },
+          {
+            "case": "capacity",
+            "reason": "covered profiles image bound"
+          },
+          {
+            "case": "backup-original",
+            "reason": "admitted original public bootstrap"
+          },
+          {
+            "case": "second-minority-vote",
+            "reason": "admitted exact minority-accepted: node-2"
+          },
+          {
+            "case": "second-minority-early-clear",
+            "reason": "admitted exact before-install: node-2"
+          },
+          {
+            "case": "second-minority-uncleared",
+            "reason": "admitted exact round-4-installed: node-2"
+          },
+          {
+            "case": "second-minority-source",
+            "reason": "admitted exact round-4-settled: node-2"
+          },
+          {
+            "case": "second-minority-force",
+            "reason": "covered exact settlement force order"
+          },
+          {
+            "case": "majority-proof",
+            "reason": "admitted exact slot-1-proved: node-3"
+          },
+          {
+            "case": "unselected-minority",
+            "reason": "admitted exact slot-1-published: node-2"
+          },
+          {
+            "case": "published-application",
+            "reason": "admitted exact slot-1-applied: node-4"
+          },
+          {
+            "case": "old-generation",
+            "reason": "admitted exact round-4-installed: node-2"
+          },
+          {
+            "case": "observations",
+            "reason": "covered actual owner observations"
+          },
+          {
+            "case": "backup-inspection",
+            "reason": "admitted exact typed inspection image"
+          }
+        ],
+        "nodePublications": 40,
+        "portableReplay": "PASS",
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "status": "PASS",
+        "voters": 24
+      }
+    },
+    "source": {
+      "normalSha256": "825c509abe8ab90d9f1627c25ea7f47d0c3f1bf170923935a38f70cb3604d0e5",
+      "optimizedSha256": "825c509abe8ab90d9f1627c25ea7f47d0c3f1bf170923935a38f70cb3604d0e5",
+      "result": {
+        "cases": 32,
+        "freshProcesses": false,
+        "maximalBytes": false,
+        "maximumImages": 7,
+        "maximumSources": 6,
+        "negatives": [
+          {
+            "case": "original-vote",
+            "reason": "admitted exact minority-accepted: node-1"
+          },
+          {
+            "case": "floor",
+            "reason": "source retirement exact admitted floor"
+          },
+          {
+            "case": "missing-case",
+            "reason": "context selection source retirement interruptions inventory"
+          },
+          {
+            "case": "binding",
+            "reason": "source retirement first exact prefix"
+          },
+          {
+            "case": "backing-source",
+            "reason": "source retirement first exact prefix"
+          },
+          {
+            "case": "early-deletion",
+            "reason": "source retirement first exact prefix"
+          },
+          {
+            "case": "lost-second-authority",
+            "reason": "source retirement second exact prefix"
+          },
+          {
+            "case": "final-old-image",
+            "reason": "source retirement final exact authority"
+          },
+          {
+            "case": "source-force",
+            "reason": "source retirement first force order"
+          },
+          {
+            "case": "second-force",
+            "reason": "source retirement second force order"
+          },
+          {
+            "case": "false-return",
+            "reason": "source retirement completion force order"
+          },
+          {
+            "case": "receipt-flag",
+            "reason": "source retirement exact receipt"
+          }
+        ],
+        "portableReplay": "PASS",
+        "publicBootstrap": true,
+        "status": "PASS"
+      }
+    }
+  },
+  "reports": {
+    "V53CoveredMinorityProcessTest": {
+      "sha256": "6a4904ac47d5ec4c63f4edc083c20e6b1b1da69154061c05417e3ad7b7732ecd",
+      "tests": 1
+    },
+    "V53CoveredMinorityProfilesTest": {
+      "sha256": "e9b4cba6e507dc12b6094af2bf8d35a6ea86c1130f1da10842268a7f7e3f70a7",
+      "tests": 1
+    },
+    "V53CoveredMinorityTest": {
+      "sha256": "eee1de025af7ad6858f963474d035089a94d9bf966918e4861c85d1ba78c45b6",
+      "tests": 4
+    },
+    "V53RetirementImagesTest": {
+      "sha256": "866a6c6b261a17e1b9de15aba2ba59741ef2a3e4aeb63a7420af49c6ac66edb8",
+      "tests": 8
+    },
+    "V53RetirementSourceImagesTest": {
+      "sha256": "cb5a1f63013f1444f74efb28687331d1f9eca2786724b550be384f1fc51e43fc",
+      "tests": 3
+    }
+  },
+  "reproducedFailure": "Run 1: size-4-empty cannot retire the old image at seven slots because it differs from the local governing-floor image. Original failure is retained.",
+  "schema": "gse-v53-retirement-source-images-local-v1",
+  "scope": [
+    "All six admitted initial profiles, 24 voters, 8 minority votes, 40 node publications",
+    "32 source-backed retirement IOException boundaries and repeated recovery when authority exists",
+    "Five corrupt/missing authority/backing variants refuse twice and a live same-byte backing inode replacement refuses",
+    "Existing eight retirement-image tests and earlier covered-owner/process paths replay on corrected production bytes"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "df3263143d4e06cfa6a2960e8ab25f210c7ddfd01956cc8eb8a6d4ee0509eb6e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementFiles.java": "5064f9b5ab05053dd9df5e53b8b462219279d0ce03eeb2a16aa4780acdce613f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementImages.java": "71d904caa700c12270c4169dfdc728f5210a9be2b2b49702ba5bbdfa1454a49d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementSourceImages.java": "a89ae3c1a4bab2c8860dabba4afe4039cfcacf604bbe96c998bc6ff260cc3335",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredMinorityProfilesTest.java": "be3ebbb204da1f3c7ecb10ed99d32387239e7a1a7dd2b34cf6af48bce90ae0df",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredMinorityTest.java": "7cc030ece93c0704988d12ef21794005f9d68b53acdbd0fc4a15e091529211f6",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementSourceImagesTest.java": "7e2dde5adcb6aa3d7d0669c4afc4b0a9cd5e308d311fa8a662dc8fa8cd116f0f",
+    "scripts/v53/covered_minority_evidence.py": "43517f79bb2e22a8d8e865413b5b3c64fcc4f54c4d4fb55c06d38878c666e580",
+    "scripts/v53/covered_minority_profiles_evidence.py": "4c016d95cf129e2b74237b10f81aa599638f3b9adc1a2791fead7963e00c8cc6",
+    "scripts/v53/retirement_source_images_evidence.py": "c2d9facd4df969e4ffea1e7e6f872489f083278af700971cd9054e60e125e770",
+    "scripts/v53/test_covered_minority_profiles.py": "2ba272ea318a1833c9f0e1e5e414f80a9592507e3338917d0a90f11d3d8713df",
+    "scripts/v53/test_retirement_source_images.py": "05032bb4cea66b293197064aeca6fad96754c89903a9bc2b14cca8e31d7140df"
+  },
+  "status": "PASS"
+}

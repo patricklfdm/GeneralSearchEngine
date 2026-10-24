@@ -260,7 +260,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 journal.floors=new MembershipFloorFiles(path,root,identity,resources,verifier,withFloorRelease);
                 var parents=new ArrayList<MembershipCapsule.Anchor>();journal.addFloorParent(parents);journal.current.verifyParents(parents);
             }
-            if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources,journal.floors);
+            if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources,journal.floors,journal.sources);
             if(withApplication) {
                 journal.replayFiles=new MembershipReplayFiles(path.resolve(MembershipReplayFiles.DIRECTORY),resources);
                 journal.appliedEnd=new MembershipAppliedEndFiles(path.resolve(MembershipAppliedEndFiles.DIRECTORY),resources,MembershipAppliedEndFiles.METADATA);
