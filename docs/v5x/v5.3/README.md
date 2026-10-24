@@ -230,3 +230,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Context generation process recovery](PHASE_2_CONTEXT_GENERATION_PROCESS.md): selected slot reuse and intermediate retirement through repeated halt/SIGKILL, with original authority and force-order replay.
 
 - [Mixed retained ACCEPT ballots](PHASE_2_CONTEXT_MIXED_ACCEPTANCE.md): preserve exact original votes while installing a higher acceptance of the same ENTRY, reclaim obsolete sources and publish once.
+
+- [Mixed ACCEPT process recovery](PHASE_2_CONTEXT_MIXED_PROCESS.md): 84 repeated-death cases preserve exact original votes through successor acceptance and obsolete source reclamation.

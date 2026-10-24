@@ -10,7 +10,9 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 
 class V53ContextMixedAcceptanceTest {
     @TempDir Path temp;
-    @Test void higherAcceptanceOfSameEntryInstallsWithoutLosingTheOlderOriginal()throws Exception {
+    record Scenario(V53ContextInstallationLifetimeTest driver,Path raw,Path group) {}
+    @Test void higherAcceptanceOfSameEntryInstallsWithoutLosingTheOlderOriginal()throws Exception {scenario(true);}
+    Scenario scenario(boolean recover)throws Exception {
         var driver=new V53ContextInstallationLifetimeTest();driver.reference=new V53ContextPublicationTest().scenario();
         Path group=temp.resolve("group"),raw=Path.of("target/v53-context-mixed-acceptance/run-"+UUID.randomUUID());Files.createDirectories(raw);
         driver.snapshot(driver.reference.evidence(),raw.resolve("reference"));driver.snapshot(driver.reference.evidence().resolve("carried-snapshots/source-retired"),group);
@@ -85,6 +87,7 @@ class V53ContextMixedAcceptanceTest {
         assertEquals(0,seed.fixture().f.resources.usage().leases());
         Files.write(raw.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-context-mixed-acceptance-v1","status","PASS","nodes",3,
                 "originalAccepts",List.of(20,21,21),"installedBallot",24,"entryOrigin",20,"publishedCut",2,"applicationSequence",43,"runtimeEnabled",false),16384));
-        V53ContextMixedRecovery.run(driver,raw,Files.createDirectory(temp.resolve("recovery")));
+        if(recover)V53ContextMixedRecovery.run(driver,raw,Files.createDirectory(temp.resolve("recovery")));
+        return new Scenario(driver,raw,group);
     }
 }

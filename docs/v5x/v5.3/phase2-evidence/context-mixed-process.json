@@ -1,0 +1,178 @@
+{
+  "base": "706576191bcb6c2db8d2ae88d8be55b58773501b",
+  "compiledInputs": {
+    "path": "target/v53-context-mixed-process/inputs1.json",
+    "sha256": "db82c9bce197629489178c2963e33320333a912355b555cf165f5493ffdf96b4"
+  },
+  "compiledMainClasses": {
+    "changed": [],
+    "classes": 706,
+    "path": "target/v53-context-mixed-process/compiled-main-classes.json",
+    "sha256": "1f793943b2669a82037e5f4257cf2d19f95db11d1eca44fa1884ed54f6cefd86"
+  },
+  "failures": [
+    "Initial independent replay placed existing floor-release cleanup after OPEN_RETURNED; source inspection and unchanged raw evidence show existing release markers recover before OPEN_RETURNED. The correction changes only the independent complete-order model."
+  ],
+  "jars": {
+    "target/v53-context-mixed-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-context-mixed-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a15b44f5ea53f3f93aacfd501697a2459a8630032dd6c2e3c7aea5981965b34f"
+  },
+  "javaExecutions": 1,
+  "limitations": [
+    "small images and conditional historical bootstrap; not maximal or cross-view/admitted-bootstrap lifetime",
+    "local halt/SIGKILL process death, not power loss or all filesystem schedules",
+    "distinct minority ENTRY adoption/cleanup remains a separate obligation"
+  ],
+  "logs": {
+    "normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-unit-final.log": "8d792d81c28f14e81434cb2a175feb8a800363e60faf05e9aa008104cb37a9c2",
+    "python-unit.log": "7c4ce78e536c0c2cdb85730c9c8381839f365b3a2b9d77c5cc9eaede9427b0df",
+    "replay1.log": "bd1a7ca77155fcd6db84e429ed3d406f88cc8fe543a30fccfdec4ccce87dd6b1",
+    "replay1.stderr": "4ac34c254764986e3224c9b90dc8e722a59461ede8f9eefdbe452bd184498873",
+    "replay2.log": "af8e0642dc72f7df09a9b053da7b62ef4a71781bb7dba1733fabf0d708bd11e3",
+    "run1.log": "2e6cc815a54f2615f01713eff31cb60d770ea0023faeec9f2d79fe19d5e9af4f"
+  },
+  "oracleInputs": {
+    "path": "target/v53-context-mixed-process/oracle-inputs.json",
+    "sha256": "020b1bc2664a88174cf004e9468da1239f99e6fd3540c47b760db226bf8ba359"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-mixed-process/producer-classes.json",
+    "sha256": "a8f2d3b28ed80ace469a3c48665c7a200ec5724c8b6f2ad0519f9ef0ab1a651d"
+  },
+  "raws": {
+    "process": {
+      "index": "target/v53-context-mixed-process/process-raw-index.json",
+      "members": 14345,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-mixed-process/run-b107d348-ead2-4ba9-a02b-bdf6c5ca6f99",
+      "sha256": "596dcbf73731e7b2b6f95995e8f4ef9e7f4e4c5411928174faac625600ea644c"
+    }
+  },
+  "replays": {
+    "process": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-mixed-process/run-b107d348-ead2-4ba9-a02b-bdf6c5ca6f99",
+      "result": {
+        "acceptBallot": 24,
+        "cases": 84,
+        "entryOrigin": 20,
+        "freshProcesses": 252,
+        "historicalBootstrap": "conditional-fixture",
+        "lockProbes": 42,
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "mixed exact accepted: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection mixed process inventory"
+          },
+          {
+            "case": "accept-first",
+            "reason": "mixed process first prefix"
+          },
+          {
+            "case": "accept-second",
+            "reason": "mixed process second prefix"
+          },
+          {
+            "case": "accept-final",
+            "reason": "mixed process final authority"
+          },
+          {
+            "case": "source-first",
+            "reason": "mixed process first prefix"
+          },
+          {
+            "case": "source-second",
+            "reason": "mixed process second prefix"
+          },
+          {
+            "case": "source-final",
+            "reason": "mixed process final authority"
+          },
+          {
+            "case": "retained-context",
+            "reason": "mixed process final authority"
+          },
+          {
+            "case": "retained-floor",
+            "reason": "mixed process final authority"
+          },
+          {
+            "case": "lost-source",
+            "reason": "mixed process final authority"
+          },
+          {
+            "case": "first-force",
+            "reason": "mixed process first force/death order"
+          },
+          {
+            "case": "second-force",
+            "reason": "mixed process second force/death order"
+          },
+          {
+            "case": "resume-force",
+            "reason": "mixed process resumed force/return order"
+          },
+          {
+            "case": "early-return",
+            "reason": "mixed process second force/death order"
+          },
+          {
+            "case": "wrong-return",
+            "reason": "mixed process resumed force/return order"
+          },
+          {
+            "case": "wrong-kill-marker",
+            "reason": "mixed process first force/death order"
+          },
+          {
+            "case": "capacity",
+            "reason": "mixed process result capacity/scope"
+          },
+          {
+            "case": "scope",
+            "reason": "mixed process receipt/inputs"
+          },
+          {
+            "case": "inputs",
+            "reason": "mixed process receipt/inputs"
+          },
+          {
+            "case": "stderr",
+            "reason": "mixed process stderr"
+          },
+          {
+            "case": "linked-vote",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "runtimeEnabled": false,
+        "sourceRetirementBallot": 21,
+        "status": "PASS"
+      }
+    }
+  },
+  "schema": "gse-v53-context-mixed-process-local-v1",
+  "scope": [
+    "54 acceptance/context/floor and 30 source retirement cases, 252 fresh workers and 42 live-lock probes",
+    "original votes 20/21 with selected ACCEPT21; second owner stops during successor ACCEPT force or context source force",
+    "third owner completes exact acceptance24 or source21 retirement; independent physical/complete force replay and 22 negatives"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextMixedAcceptanceTest.java": "03001b0ef07e5e6c73c22fd5030d895916de3cb96115bb7aabddbf63fb04b6e3",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextMixedProcessTest.java": "808646487138246b41999b4c09b844ea942487b3928f6e2815fe4b41bfb276f0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextMixedProcessWorker.java": "193356204b91df40e78d10b02f87d66998e7aeb4c5949303ecba90bbd0bf2b3d",
+    "scripts/v53/context_mixed_process_evidence.py": "beccd9b5c8d6cf8d024f7c370160020616863a7661f216f75cd3f6ee812ead1d",
+    "scripts/v53/test_context_mixed_process.py": "b18151651a5f57d74b8424febe02835ad12c1f1be09876b165885a09134676f9"
+  },
+  "status": "PASS"
+}

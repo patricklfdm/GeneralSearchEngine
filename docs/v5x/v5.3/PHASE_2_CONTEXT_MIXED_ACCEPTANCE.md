@@ -74,6 +74,6 @@ This is a small-image, stable three-voter storage qualification with conditional
 historical bootstrap. It does not establish maximal journal/image/staging
 headroom, distinct minority ENTRY adoption, admitted-bootstrap full lifetime,
 coordinated old/joint/new profiles, online membership or power-loss behavior.
-The mixed-ballot path still needs fresh-process recovery coverage. Existing
-process matrices describe their original compiled runtime until rerun against
-this correction. The [closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) remains open.
+[Mixed-ballot process recovery](PHASE_2_CONTEXT_MIXED_PROCESS.md) now covers the
+corrected completion path at 84 repeated-death cases. Earlier process matrices
+still describe their own original compiled runtime. The [closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) remains open.
