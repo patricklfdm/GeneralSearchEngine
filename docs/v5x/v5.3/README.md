@@ -249,3 +249,7 @@ the seven-image bound. Its distinct recovery obligations remain tracked.
 [Source-backed retirement process recovery](PHASE_2_RETIREMENT_SOURCE_PROCESS.md)
 adds 64 twice-interrupted cases, 192 fresh workers and retained cross-process lock
 results for the pinned-source deletion path. Maximal and cross-view closure remain open.
+
+[Covered PROOF/certificate recovery](PHASE_2_COVERED_PHASED_VOTES.md) extends the
+stable-view cleanup to actual unapplied phased originals while preserving source
+bytes and the guards against staged application or protected-context disposal.

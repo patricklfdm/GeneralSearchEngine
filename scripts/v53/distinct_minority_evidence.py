@@ -35,11 +35,11 @@ def vote(root,stage,group,names,raw,body,observations):
     b.match(root,stage,result);return result
 
 
-def captured(files):
+def captured(files,phases=()):
     prefix,members,packet=c.current(files);objects=dict(packet['objects']);tail=e.f.decode(files[prefix+'generation.gsr'],'records','GENERATION')['ownedTail']
     if files['pending.accept']!=c.EMPTY:
-        frames,values=c.pending(files['pending.accept'])
-        for kind in ('ENTRY','ACCEPT','PAYLOAD'):objects[e.digest(frames[kind])]=frames[kind]
+        frames,values=c.pending(files['pending.accept'],phases)
+        for kind in ('ENTRY','ACCEPT','PAYLOAD',*phases):objects[e.digest(frames[kind])]=frames[kind]
         if tail is None or values['ACCEPT']['ballot']['counter']>=e.f.decode(objects[tail],'records','ACCEPT')['ballot']['counter']:tail=e.digest(frames['ACCEPT'])
     return e.packet_bytes(packet['capsule'],objects,packet['images']),tail
 

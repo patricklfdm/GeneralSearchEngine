@@ -76,11 +76,11 @@ def publication(root,group,slot,entry,payload,observations,names):
     return result,first
 
 
-def advanced_campaign(root,group,counter,names,installed=True):
+def advanced_campaign(root,group,counter,names,installed=True,phases=()):
     proposer=names[-1];identity=e.f.decode(group[proposer]['node.gsr'],'records','NODE')['identity']
     ballot=dict(counter=counter,proposer=proposer,incarnation=identity['storage']);prepared=dict(group);rows={};packets={};identifiers=set()
     for node in names:
-        files=group[node];raw,tail=d.captured(files);packet=e.p.decode(raw);cap=packet['capsule'];_,members,_=c.current(files)
+        files=group[node];raw,tail=d.captured(files,phases);packet=e.p.decode(raw);cap=packet['capsule'];_,members,_=c.current(files)
         actual=c.inventory(root/f'round-{counter}-prepared'/node);history=c.journal(actual['grants.gsr'],cap['root'],node);prior=c.journal(files['grants.gsr'],cap['root'],node)
         e.need(history[:len(prior)]==prior and [r[0] for r in history[len(prior):]]==['PROMISE','BASIS'],'covered exact grant extension')
         promise,basis=history[-2:];identifier=promise[2]['basisId']
@@ -164,8 +164,9 @@ SETTLE=['SETTLED_VOTE_VALIDATED','SETTLED_VOTE_CANDIDATE_CREATED','SETTLED_VOTE_
 CUTS=('INSTALL_MANIFEST_FORCED','INSTALL_SELECTOR_RENAMED','INSTALL_SELECTOR_FORCED',*SETTLE)
 
 
-def transaction(before,after,cut=None,floor=True):
+def transaction(before,after,cut=None,floor=True,phase='ACCEPT'):
     """Derive exact write prefixes across reopen, selector install and empty replacement."""
+    e.need(phase in ('ACCEPT','PROOF','CERTIFICATE'),'covered opening vote phase')
     state=dict(before);trace=[]
     class Stop(Exception):pass
     def event(name):
@@ -182,7 +183,8 @@ def transaction(before,after,cut=None,floor=True):
         events(OPEN)
         advanced=state['selector.gsr']==after['selector.gsr']
         if advanced and state['pending.accept']!=c.EMPTY:clear()
-        events(SEAL)
+        opening='ACCEPT' if advanced else phase
+        events([opening+'_ACTIVE_FORCED',opening+'_ACTIVE_PARENT_FORCED'])
         if not advanced:
             prefix,members,_=c.current(after);members=dict(members,**{'generation.gsr':after[prefix+'generation.gsr']});order,writes=installation.transaction(members)
             for i,name in enumerate(order):

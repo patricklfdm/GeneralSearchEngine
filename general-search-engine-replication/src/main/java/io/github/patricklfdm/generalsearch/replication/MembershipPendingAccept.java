@@ -175,8 +175,7 @@ final class MembershipPendingAccept {
     /** The owner must authenticate the advanced forced selector and retained original
      * source/generation on every boundary. A bare index is never this authority. */
     void clearSettled(Vote original,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
-        owner.check();check();require(active!=null && original.proof()==null && original.certificate()==null
-                && Arrays.equals(activeBytes,original.bytes()),"settled vote original changed");
+        owner.check();check();require(active!=null && Arrays.equals(activeBytes,original.bytes()),"settled vote original changed");
         byte[] expected=empty();require(nextBytes==null || nextBytes.length<=expected.length
                 && Arrays.equals(nextBytes,Arrays.copyOf(expected,nextBytes.length)),"settled vote candidate differs from exact empty state");
         replace(null,expected,"SETTLED_VOTE",owner,cut);

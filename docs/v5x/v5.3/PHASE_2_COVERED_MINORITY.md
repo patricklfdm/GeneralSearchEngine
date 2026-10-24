@@ -56,3 +56,8 @@ profiles, proof-bearing/context-bearing recovery, cross-view
 adoption, maximal bytes/headroom and protected acceptance remain separate pending
 obligations. Raw snapshots and callback traces are retained for that next audit;
 a green Java test alone does not close those obligations.
+
+The subsequent [phased-vote extension](PHASE_2_COVERED_PHASED_VOTES.md) removes the
+bare-only restriction for exact original unapplied PROOF/certificate records. The
+earlier evidence above remains the qualification of its original bare-vote scope;
+protected context and staged application retain their separate guards.

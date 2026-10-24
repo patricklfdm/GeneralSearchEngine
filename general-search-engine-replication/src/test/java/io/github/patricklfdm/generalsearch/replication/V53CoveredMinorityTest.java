@@ -95,7 +95,7 @@ class V53CoveredMinorityTest {
             }else Files.write(node.resolve("pending.accept.next"),vote.bytes());
             var before=V53ReplayFilesTest.files(node);for(int repeat=0;repeat<2;repeat++) {
                 var rejected=assertThrows(IllegalArgumentException.class,()->{try(var ignored=open(p,resources,e->{})){fail("damaged settlement accepted");}});
-                if(damage.equals("proof"))assertEquals("settlement requires bare original ACCEPT",rejected.getMessage());
+                if(damage.equals("proof"))assertEquals("witness phased record binding",rejected.getMessage());
                 assertEquals(before,V53ReplayFilesTest.files(node));assertEquals(0,resources.usage().leases());
             }
         }

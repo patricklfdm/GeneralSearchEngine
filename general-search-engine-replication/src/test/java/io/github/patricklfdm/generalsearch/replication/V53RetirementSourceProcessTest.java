@@ -41,7 +41,10 @@ class V53RetirementSourceProcessTest {
         command.addAll(Arrays.asList(args));return new ProcessBuilder(command).redirectOutput(path.resolve(label+".stdout").toFile()).redirectError(path.resolve(label+".stderr").toFile()).start();
     }
     static int child(Path inputs,Path node,Path path,String label,String cut,String mode)throws Exception {
-        var process=launch(V53RetirementSourceProcessWorker.class,path,label,inputs.toAbsolutePath().toString(),cut,mode);
+        return child(V53RetirementSourceProcessWorker.class,inputs,node,path,label,cut,mode);
+    }
+    static int child(Class<?> worker,Path inputs,Path node,Path path,String label,String cut,String mode)throws Exception {
+        var process=launch(worker,path,label,inputs.toAbsolutePath().toString(),cut,mode);
         Path stdout=path.resolve(label+".stdout"),stderr=path.resolve(label+".stderr");
         try {
             if(mode.equals("kill")) {

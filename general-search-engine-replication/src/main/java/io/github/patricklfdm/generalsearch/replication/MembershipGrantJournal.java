@@ -589,17 +589,19 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(settledVoteCandidate(vote) && !inactive.pending(),"settled vote requires completed installed selector");
         verifySettlement(vote,inactive.originalFiles(),current.capsule,current.copyFiles());
     }
-    /** The exact original minority source stays pinned after clearing the vote.
+    /** The exact original unpublished source stays pinned after clearing the vote.
      * It is reclaimed later only by the normal independently forced floor path. */
     private void verifySettlement(MembershipPendingAccept.Vote vote,Map<String,byte[]> originals,
             MembershipCapsule next,Map<String,byte[]> installed)throws IOException {
-        require(vote!=null && vote.proof()==null && vote.certificate()==null,"settlement requires bare original ACCEPT");
+        require(vote!=null,"settlement requires original vote");
         require(appliedEnd!=null && replayFiles!=null && !appliedEnd.present() && !replayFiles.present()
                 && (pendingContext==null || pendingContext.active().isEmpty() && !pendingContext.pending()),"settlement conflicts with derived or protected authority");
         var old=originalGeneration(originals);var selector=vote.selector().value();
         require(selector.get("root").equals(root.manifestDigest()) && selector.get("node").equals(identity.nodeId().value())
                 && selector.get("generation").equals(old.generation.value().get("generation")) && selector.get("digest").equals(old.generation.digest()),"settlement original selector changed");
         require(Arrays.equals(originals.get("promise.gsr"),vote.promise().bytes()) && Arrays.equals(originals.get("selected.gsr"),vote.selected().bytes()),"settlement original decision changed");
+        // Recheck any original forced PROOF/certificate too. These remain original
+        // local attestations, not new peer observations or an application ACK.
         MembershipPendingAccept.verify(vote,old.capsule,originals.get(MembershipSelectionCoverage.FILE),originals.getOrDefault("ancestry.gsr",new byte[0]),identity,promises.values(),selections.values());
         require(!installed.containsKey(MembershipSelectionCoverage.FILE) && !installed.containsKey(MembershipGenerationPlan.ADOPTION)
                 && next.context.authority().equals(old.capsule.context.authority()) && next.context.view.get("operation")==null
