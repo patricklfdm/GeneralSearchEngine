@@ -82,3 +82,9 @@ now have a local selection/install/cleanup and floor-maintenance implementation.
 [Covered-context process recovery](PHASE_2_COVERED_CONTEXT_PROCESS.md) adds 22
 repeated-death cases and 66 fresh workers on the same production classes;
 remaining mixed/lifetime/cross-view profiles and the closure audit remain pending.
+
+[Mixed original ballots](PHASE_2_COVERED_CONTEXT_MIXED.md) add the admitted
+3/4/5-voter completion routes and exact forced-successor source reclamation.
+The seven-image limit remains enforced before a protected capture; larger
+profiles first complete an existing selected successor and reclaim its obsolete
+source. This is local storage orchestration, not an automatic runtime policy.

@@ -13,7 +13,8 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipContext.
 class V53CoveredContextTest {
     @TempDir Path temp;
     record Prepared(V53BootstrapPublicationTest.Fixture f,V53DistinctMinorityTest.Installation installation) {}
-    Prepared prepared(int size,boolean backup,String phase)throws Exception {
+    record Original(V53BootstrapPublicationTest.Fixture f,Decoded entry,byte[] payload) {}
+    Original original(int size,boolean backup,String phase)throws Exception {
         Path raw=Path.of("target/v53-covered-context/run-"+UUID.randomUUID());Files.createDirectories(raw);
         System.out.println("v53CoveredContextEvidence="+raw.toAbsolutePath());
         Files.write(raw.resolve("profile.json"),canonical(Map.of("size",size,"backup",backup,"phase",phase),16384));
@@ -46,7 +47,13 @@ class V53CoveredContextTest {
                 copies.stream().filter(c->!c.owner.equals(t.identity())).limit(size/2).forEach(quorum::add);
                 owner.establishContextFloor(quorum);owner.retireContextOriginal();owner.retireSource(carried.obsolete().get(t.identity().nodeId().value()));
             }
-            f.snapshot("original-retired");
+            f.snapshot("original-retired");return new Original(f,entry,payload);
+        }finally{V53CoveredPhasedVoteTest.save(f);}
+    }
+    Prepared prepared(int size,boolean backup,String phase)throws Exception {
+        var original=original(size,backup,phase);var f=original.f();var entry=original.entry();var payload=original.payload();
+        var all=f.request.targets();var majority=all.subList(size-(size/2+1),size);
+        try {
             for(var t:majority)try(var owner=f.open(t,"majority-reaccept")){f.observations.add(owner.acceptRetainedCurrent(entry,payload));}
             f.snapshot("majority-reaccepted");V53DistinctMinorityTest.publish(f,1,entry,payload,majority);
             var advanced=V53DistinctMinorityTest.campaign(f,4,all,false);f.snapshot("advanced-selected");

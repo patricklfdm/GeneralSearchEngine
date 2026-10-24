@@ -42,6 +42,10 @@ final class MembershipSourceRetirementFiles {
             bind(root,local,current,floor,highest,null);
         }
         void bind(MembershipRoot root,MembershipIdentity local,MembershipCurrentGeneration current,MembershipFloorFiles.Retained floor,Decoded highest,MembershipPendingContext.Reconstructed context)throws IOException {
+            bind(root,local,current,floor,highest,context,null);
+        }
+        void bind(MembershipRoot root,MembershipIdentity local,MembershipCurrentGeneration current,MembershipFloorFiles.Retained floor,Decoded highest,
+                MembershipPendingContext.Reconstructed context,MembershipPendingAccept.Vote successor)throws IOException {
             current.check();var r=record.value();
             require(r.get("root").equals(root.manifestDigest()) && r.get("node").equals(local.nodeId().value())
                     && r.get("selector").equals(current.selector.digest()) && r.get("floor").equals(floor.floor().digest()),"source retirement authority context changed");
@@ -66,7 +70,8 @@ final class MembershipSourceRetirementFiles {
                 command((String)entry.value().get("kind"),current.capsule.packet.objectBytes((String)entry.value().get("payload")));
                 require(compareBallot(object(entry.value().get("origin")),object(accept.value().get("ballot")))<=0
                         && compareBallot(object(accept.value().get("ballot")),object(basis.value().get("ballot")))<=0,"source retirement original tail ballots");
-                if(number(accept.value().get("index"))>number(current.capsule.context.cut.get("index")))require(accept.digest().equals(current.accepted) || MembershipContextTail.retained(current,accept,context),"source retirement unresolved ownership");
+                if(number(accept.value().get("index"))>number(current.capsule.context.cut.get("index")))require(accept.digest().equals(current.accepted) || MembershipContextTail.retained(current,accept,context)
+                        || MembershipContextTail.successor(current,accept,successor),"source retirement unresolved ownership");
             }
             current.check();
         }

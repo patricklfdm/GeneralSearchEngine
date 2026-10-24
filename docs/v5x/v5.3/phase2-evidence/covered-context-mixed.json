@@ -1,0 +1,756 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "reason": "new producer compile error: Owned receipt uses record, not value",
+      "status": "FAIL"
+    },
+    {
+      "attempt": 2,
+      "reason": "minority floor-pinned source correctly refused; old process matrix passed",
+      "status": "FAIL"
+    },
+    {
+      "attempt": 3,
+      "reason": "post-publication extra source needed explicit reclamation",
+      "status": "FAIL"
+    },
+    {
+      "attempt": 4,
+      "reason": "three-voter profiles passed; four-voter protected capture correctly exhausted capacity",
+      "status": "FAIL"
+    },
+    {
+      "attempt": 5,
+      "reason": "actual source-retirement gap: forced exact successor not accepted as unresolved ownership",
+      "status": "FAIL"
+    },
+    {
+      "attempt": 6,
+      "reason": "corrected source-retirement, context and interruption/refusal regressions",
+      "status": "PASS"
+    },
+    {
+      "attempt": 7,
+      "reason": "six bounded profiles, retained source recovery negatives and 66-worker process regression",
+      "status": "PASS"
+    }
+  ],
+  "base": "5a02a4fb30e42cf940c133eca0d56677ab9c8041",
+  "compiledInputs": {
+    "target/v53-covered-context-mixed/inputs1.json": "54a491f0033a1c081f3b71759ea3b15f4056cc0cb9cbc6b3bb6e409f023c32f8",
+    "target/v53-covered-context-mixed/inputs2.json": "8d641eff762bd52ed7ad9c17e6e84bbccafc3f4c629693b4494518d537c0e7e0",
+    "target/v53-covered-context-mixed/inputs3.json": "6f95f0a0dc43163f7f1a91a2a8565784ea1422aeb9d277848f06cff526eb0475",
+    "target/v53-covered-context-mixed/inputs4.json": "8568d4ecac1da255080325670114e1ccaf0708f3280f32191d276cb0f7fdf49a",
+    "target/v53-covered-context-mixed/inputs5.json": "35284f89f80e9fadc240557ba5e59f19e97f06ddfb8fd5e1b0bc8d923b502ba0",
+    "target/v53-covered-context-mixed/inputs6.json": "62b4e6f5dba629d13d0d70d77d4ce9a40c9c883e17a97e113944a974dd6c0299",
+    "target/v53-covered-context-mixed/inputs7.json": "28c72ee32a09e718395c3b62d4ee1f7caf2b8dafdd100ab03f0a47efc8e047d9"
+  },
+  "compiledMainClasses": {
+    "changed": [
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipSourceRetirementFiles$Decision.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipSourceRetirementFiles.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipSourceRetirementPlan.class"
+    ],
+    "classes": 707,
+    "outerSourceRetirementFilesBytecodeIdentical": true,
+    "path": "target/v53-covered-context-mixed/compiled-main-classes.json",
+    "sha256": "c64efb6197e15ab5bd06c298dba9322504c3b7c518b2c4c83bc5d40400993fca"
+  },
+  "failedProducers": {
+    "target/v53-covered-context-mixed/producer-run1.java.txt": "79c1119ca6e856620b0085bb1ed7d7afea4beb1330ee138b9bb587098e66e773",
+    "target/v53-covered-context-mixed/producer-run2.java.txt": "ace904b6375533cfdc072cc1c2b4f935e0244e9b6d51d124645706034a674c8c",
+    "target/v53-covered-context-mixed/producer-run3.java.txt": "5fab6f174bd83e6e6f8b6f956780a428957cbb7aa86aa7eb5d2983173b85c44b",
+    "target/v53-covered-context-mixed/producer-run4.java.txt": "81ee9f292039cbd8025fd8b84d04007c0d5dbdecf40d1add8030b4c5380ba940",
+    "target/v53-covered-context-mixed/producer-run5.java.txt": "81d569d987db1d8229c4b717190bdab32afb6a32da70c6771697ccfb2dfd2e29"
+  },
+  "jars": {
+    "target/v53-covered-context-mixed/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-context-mixed/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "f6e0670ef9dbdf5ee1ca77bbe9ebd35c45cf2add41a4c6494d631b1ecd2f63c2"
+  },
+  "javaTestExecutions": 30,
+  "logs": {
+    "target/v53-covered-context-mixed/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context-mixed/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context-mixed/process-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context-mixed/python-tests-optimized.log": "06483ffd5fadbd9d8cece40c5b29e382ea3451749bd852bf879f121c9a3e63ad",
+    "target/v53-covered-context-mixed/python-tests.log": "06483ffd5fadbd9d8cece40c5b29e382ea3451749bd852bf879f121c9a3e63ad",
+    "target/v53-covered-context-mixed/run1.log": "cf4babdd27407d937136b217b1e0449aa496fa8f4543c944645f2485044e2fc0",
+    "target/v53-covered-context-mixed/run2.log": "3f15cce25b60136f90a2727663d9120155012a2b85f873729ec193ef776fc5e5",
+    "target/v53-covered-context-mixed/run3.log": "112499605a80a30bd9f45d77d157506ae65941eb6e73de6c42ed2338e1072cbe",
+    "target/v53-covered-context-mixed/run4.log": "3e5a853304375d46d585ba102fede0243c5e2d23b4fe4544d2134702e855b1cb",
+    "target/v53-covered-context-mixed/run5.log": "119fcec80042cd967f8373bdf1e4e5fc250defaab7a27f5ae34cf05a03faba5e",
+    "target/v53-covered-context-mixed/run6.log": "433393069647e8234edbb7fa7bc8c76878b3a6d844419705bfc6ca3c9f2c6ed0",
+    "target/v53-covered-context-mixed/run7.log": "e002499970d6eb197fdd91409a9424ad51c060ed0d0c0234c67c5c026c9c2b57",
+    "target/v53-covered-context-mixed/successor-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context-mixed/successor-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "originalRuntime": {
+    "target/v53-covered-context-mixed/MembershipGrantJournal-before.java.txt": "e3fcb90f1ccb111a4c1da1d71a8e382f8461080eebebcda60d18aa94e6b95992",
+    "target/v53-covered-context-mixed/MembershipSourceRetirementFiles-before.java.txt": "3ccbdc838f503be64efc8b00b00e88423e9c00d6ee96debee3830b7da45f555f",
+    "target/v53-covered-context-mixed/MembershipSourceRetirementPlan-before.java.txt": "8a0f6a2634d81a6e12e60939901bcfeb989fa1276e645f2a75796fa53db257fb"
+  },
+  "processRegression": {
+    "cases": 22,
+    "freshProcesses": 66,
+    "independentImageSemantics": false,
+    "lockProbes": 11,
+    "maximalCapacity": false,
+    "negatives": [
+      {
+        "case": "original-context",
+        "reason": "admitted exact contexts: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-floor",
+        "reason": "admitted exact original-retired: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "first-context",
+        "reason": "context process exact first snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "second-vote",
+        "reason": "context process exact second snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-source",
+        "reason": "context process exact final snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cleanup-force",
+        "reason": "context process exact force/death order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-ack",
+        "reason": "context process exact force/death order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "kill-handshake",
+        "reason": "context process kill handshake",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peak-images",
+        "reason": "context process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "runtime",
+        "reason": "context process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-code",
+        "reason": "context process exact first exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-cut",
+        "reason": "context process exact second exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stderr",
+        "reason": "context process stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-path",
+        "reason": "context process lock probe",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-exit",
+        "reason": "context process lock exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-stderr",
+        "reason": "context process lock stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt",
+        "reason": "context process exact receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admitted-path",
+        "reason": "context process admitted paths",
+        "status": "REJECTED"
+      },
+      {
+        "case": "observations",
+        "reason": "context process original observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-case",
+        "reason": "context selection context process inventory",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "peakImages": 6,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "status": "PASS"
+  },
+  "producerClasses": {
+    "path": "target/v53-covered-context-mixed/producer-classes.json",
+    "sha256": "297f4479e2f0d714d72dd138b1ab24be8379177b9d8126e7eccd65066a103300"
+  },
+  "pythonInputs": {
+    "path": "target/v53-covered-context-mixed/python-inputs.json",
+    "sha256": "08b02fa45e2c4576afc3941f4a602c1b6c78fac9cb942d23cc3c222fc1f07ac7"
+  },
+  "pythonTests": 32,
+  "raws": {
+    "run2-v53-covered-context-mixed-run-b0d09d0f-991e-41a6-9af9-92f80eb9496b": {
+      "inventory": "target/v53-covered-context-mixed/run2-v53-covered-context-mixed-run-b0d09d0f-991e-41a6-9af9-92f80eb9496b-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-mixed/run-b0d09d0f-991e-41a6-9af9-92f80eb9496b",
+      "sha256": "089ebd79fd78466dbea736ab49a7fec86370ba85898b8628c9b4a9750bf06301"
+    },
+    "run2-v53-covered-context-process-run-08b496f7-e9f3-438e-9526-1c9819b2e36e": {
+      "inventory": "target/v53-covered-context-mixed/run2-v53-covered-context-process-run-08b496f7-e9f3-438e-9526-1c9819b2e36e-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-process/run-08b496f7-e9f3-438e-9526-1c9819b2e36e",
+      "sha256": "954c20eb7187bf57a8d704ea13e5e58f1b6c5bf9757cb47b9da05e7a34773cd3"
+    },
+    "run2-v53-covered-context-run-597dfc8c-0e1f-44c9-9954-766364190a03": {
+      "inventory": "target/v53-covered-context-mixed/run2-v53-covered-context-run-597dfc8c-0e1f-44c9-9954-766364190a03-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-597dfc8c-0e1f-44c9-9954-766364190a03",
+      "sha256": "f015c0331ea3a1d258eae0f5d51e284733830631c4451d813a6398f76033d88b"
+    },
+    "run2-v53-covered-context-run-83a3cda9-1017-4966-a50a-22cbd97988ad": {
+      "inventory": "target/v53-covered-context-mixed/run2-v53-covered-context-run-83a3cda9-1017-4966-a50a-22cbd97988ad-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-83a3cda9-1017-4966-a50a-22cbd97988ad",
+      "sha256": "8cd416f3a957a1f39cde5506b0e7b22f07f5f2dfb2b925ea0b2277dfcf8ea683"
+    },
+    "run3-v53-covered-context-mixed-run-bc2bdc73-13fc-4450-abb1-ef843e9091ef": {
+      "inventory": "target/v53-covered-context-mixed/run3-v53-covered-context-mixed-run-bc2bdc73-13fc-4450-abb1-ef843e9091ef-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-mixed/run-bc2bdc73-13fc-4450-abb1-ef843e9091ef",
+      "sha256": "089ebd79fd78466dbea736ab49a7fec86370ba85898b8628c9b4a9750bf06301"
+    },
+    "run3-v53-covered-context-run-abd913ce-0968-4d70-ad39-f74797abde80": {
+      "inventory": "target/v53-covered-context-mixed/run3-v53-covered-context-run-abd913ce-0968-4d70-ad39-f74797abde80-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-abd913ce-0968-4d70-ad39-f74797abde80",
+      "sha256": "c0c407a899aee42a6e7498a2a06a5fffc0aafcef860e14bd835b367a2adca500"
+    },
+    "run4-v53-covered-context-mixed-run-6fc9d681-1883-4053-b8a7-735c1805ad38": {
+      "inventory": "target/v53-covered-context-mixed/run4-v53-covered-context-mixed-run-6fc9d681-1883-4053-b8a7-735c1805ad38-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-mixed/run-6fc9d681-1883-4053-b8a7-735c1805ad38",
+      "sha256": "c10d5b6d1981c8e9f275a0473179f4074e3e17a6759275a4f98a852ab8ca97ed"
+    },
+    "run4-v53-covered-context-run-aab6a7ed-3d4b-4c96-a9a1-e53914306206": {
+      "inventory": "target/v53-covered-context-mixed/run4-v53-covered-context-run-aab6a7ed-3d4b-4c96-a9a1-e53914306206-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-aab6a7ed-3d4b-4c96-a9a1-e53914306206",
+      "sha256": "457063788cca425bd5ffd800b9915bc91507dcce99e0f8f72a12b03aa64c871b"
+    },
+    "run4-v53-covered-context-run-b88e0e06-05a6-425c-bcd1-d8d084e1b769": {
+      "inventory": "target/v53-covered-context-mixed/run4-v53-covered-context-run-b88e0e06-05a6-425c-bcd1-d8d084e1b769-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-b88e0e06-05a6-425c-bcd1-d8d084e1b769",
+      "sha256": "8650891ac6297905e3dd664c13799a7c1364ab3f07a880e644df423d9c067bd4"
+    },
+    "run4-v53-covered-context-run-b8f6642a-22ea-46f5-85fe-3b5288e53835": {
+      "inventory": "target/v53-covered-context-mixed/run4-v53-covered-context-run-b8f6642a-22ea-46f5-85fe-3b5288e53835-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-b8f6642a-22ea-46f5-85fe-3b5288e53835",
+      "sha256": "71783efa6c35ec37530764bef815753a7768f8b06124addb6254fe33f9fb4123"
+    },
+    "run5-v53-covered-context-mixed-run-0d78b73b-5745-4c95-975a-4697ed600cba": {
+      "inventory": "target/v53-covered-context-mixed/run5-v53-covered-context-mixed-run-0d78b73b-5745-4c95-975a-4697ed600cba-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-mixed/run-0d78b73b-5745-4c95-975a-4697ed600cba",
+      "sha256": "f895989b31339c8aee2dee6e5bc4aab4b594c7ae6fe5432a7fa025c55464884f"
+    },
+    "run5-v53-covered-context-process-run-ebc25aaf-d5bc-4720-adc4-b0ce570c80b0": {
+      "inventory": "target/v53-covered-context-mixed/run5-v53-covered-context-process-run-ebc25aaf-d5bc-4720-adc4-b0ce570c80b0-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-process/run-ebc25aaf-d5bc-4720-adc4-b0ce570c80b0",
+      "sha256": "41922545655d9ab0528c232eab11d07228bdd6ba5805b0fcbdf5d2c41a62cb38"
+    },
+    "run5-v53-covered-context-run-8a7e2d78-59ae-4726-ae0c-a960c9262e3c": {
+      "inventory": "target/v53-covered-context-mixed/run5-v53-covered-context-run-8a7e2d78-59ae-4726-ae0c-a960c9262e3c-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-8a7e2d78-59ae-4726-ae0c-a960c9262e3c",
+      "sha256": "aa9bf03204559fe3bd0351288dd400e3d679d30c4968d87097946f6c59e6b682"
+    },
+    "run5-v53-covered-context-run-ac447e4f-9608-4bf0-92f4-07781c1c95da": {
+      "inventory": "target/v53-covered-context-mixed/run5-v53-covered-context-run-ac447e4f-9608-4bf0-92f4-07781c1c95da-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-ac447e4f-9608-4bf0-92f4-07781c1c95da",
+      "sha256": "4d357ef1a27924dad6c67a72ea4fb1977f206fa5bc0585ffb3becf25a4011fc1"
+    },
+    "run5-v53-covered-context-run-befc33c9-93b2-4b05-a79b-689d6945f63b": {
+      "inventory": "target/v53-covered-context-mixed/run5-v53-covered-context-run-befc33c9-93b2-4b05-a79b-689d6945f63b-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-befc33c9-93b2-4b05-a79b-689d6945f63b",
+      "sha256": "09f207281a0be8ac50d918197dbff57ab232a7d9354e6b693df384f0f182ef34"
+    },
+    "run5-v53-covered-context-run-d609a403-13ce-4413-a4bd-40bbb7836beb": {
+      "inventory": "target/v53-covered-context-mixed/run5-v53-covered-context-run-d609a403-13ce-4413-a4bd-40bbb7836beb-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-d609a403-13ce-4413-a4bd-40bbb7836beb",
+      "sha256": "a3bb7edc1767f365c978f9363a7c0c49c6edf20fa6b8d40711a7ace242084f22"
+    },
+    "run6-v53-context-mixed-acceptance-run-d957ad9d-c4e2-43e1-9a8e-b931559564ab": {
+      "inventory": "target/v53-covered-context-mixed/run6-v53-context-mixed-acceptance-run-d957ad9d-c4e2-43e1-9a8e-b931559564ab-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-mixed-acceptance/run-d957ad9d-c4e2-43e1-9a8e-b931559564ab",
+      "sha256": "71bdc6e6cac0224c6440826780e1c24c66de6ffd4ff7ba1baf190944b2b58876"
+    },
+    "run6-v53-context-mixed-recovery-run-ba393905-70bb-43d9-b262-092a90d509f2": {
+      "inventory": "target/v53-covered-context-mixed/run6-v53-context-mixed-recovery-run-ba393905-70bb-43d9-b262-092a90d509f2-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-mixed-recovery/run-ba393905-70bb-43d9-b262-092a90d509f2",
+      "sha256": "8d75705e136d719e89baf71b877e79c41f7d6af8b5b3102b8e1ddc3cf7f0e672"
+    },
+    "run6-v53-context-publication-run-09ccaec6-7538-429c-a831-f03658dca40e": {
+      "inventory": "target/v53-covered-context-mixed/run6-v53-context-publication-run-09ccaec6-7538-429c-a831-f03658dca40e-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-publication/run-09ccaec6-7538-429c-a831-f03658dca40e",
+      "sha256": "722cb031de20d7cac682d283138db058d788dbbb27e51b451b850dbee002ad3e"
+    },
+    "run6-v53-covered-context-run-8de91ef7-5e78-4747-a880-9d08f34d6065": {
+      "inventory": "target/v53-covered-context-mixed/run6-v53-covered-context-run-8de91ef7-5e78-4747-a880-9d08f34d6065-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-8de91ef7-5e78-4747-a880-9d08f34d6065",
+      "sha256": "bd4682be2998c4234daefd48cac9df07c56e28766e782b024428df33d224495d"
+    },
+    "run6-v53-source-successor-recovery-run-21739b92-9d8a-46ac-b2b0-3383a6c2a1b7": {
+      "inventory": "target/v53-covered-context-mixed/run6-v53-source-successor-recovery-run-21739b92-9d8a-46ac-b2b0-3383a6c2a1b7-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-source-successor-recovery/run-21739b92-9d8a-46ac-b2b0-3383a6c2a1b7",
+      "sha256": "42506563fe00a821c845f2278947efbba6c82f035dfc358bce298e2af3c19400"
+    },
+    "run7-v53-covered-context-mixed-run-d9ff02f6-bb5e-45c4-89ba-4e46bb0c3bdb": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-mixed-run-d9ff02f6-bb5e-45c4-89ba-4e46bb0c3bdb-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-mixed/run-d9ff02f6-bb5e-45c4-89ba-4e46bb0c3bdb",
+      "sha256": "eb090ec5815e8a08b83c776ccde13d4751242f9f06888676e621d3e18b191f5a"
+    },
+    "run7-v53-covered-context-process-run-720a34f7-3bc6-4054-80af-af6a6ca9b40f": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-process-run-720a34f7-3bc6-4054-80af-af6a6ca9b40f-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-process/run-720a34f7-3bc6-4054-80af-af6a6ca9b40f",
+      "sha256": "dd47918ecd8a564290a07d8ab4690768169d22bba1434390376c061009003386"
+    },
+    "run7-v53-covered-context-run-4b39686e-25d5-4c00-b82b-f487bab46c91": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-run-4b39686e-25d5-4c00-b82b-f487bab46c91-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-4b39686e-25d5-4c00-b82b-f487bab46c91",
+      "sha256": "9b901768e921847537c74ff3b32575921794a063b9cf24e73b6148324843d8bc"
+    },
+    "run7-v53-covered-context-run-4dfb547c-6e97-4e07-a776-debab9a8e826": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-run-4dfb547c-6e97-4e07-a776-debab9a8e826-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-4dfb547c-6e97-4e07-a776-debab9a8e826",
+      "sha256": "00f767a1ac2474fde99cafc7df8997e1503568324c414c65c9ef33c5da04c761"
+    },
+    "run7-v53-covered-context-run-54881795-97f6-46de-a214-c32e54235284": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-run-54881795-97f6-46de-a214-c32e54235284-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-54881795-97f6-46de-a214-c32e54235284",
+      "sha256": "1cf6df5eef9503821e8add3d79cd6de1b90df48ebc9d56f5d12b03cf94662345"
+    },
+    "run7-v53-covered-context-run-adff4fd3-e676-48ae-a3a7-eafb30dec44f": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-run-adff4fd3-e676-48ae-a3a7-eafb30dec44f-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-adff4fd3-e676-48ae-a3a7-eafb30dec44f",
+      "sha256": "07d9a763d6bd04583b8e2912dfc8fd913751426c74cf3c36eeb4f2f2048effcd"
+    },
+    "run7-v53-covered-context-run-bc32e635-5015-4995-a565-d1d2226ef9dd": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-run-bc32e635-5015-4995-a565-d1d2226ef9dd-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-bc32e635-5015-4995-a565-d1d2226ef9dd",
+      "sha256": "0871bcdd2309bce9b74ab0df81a3c41804ff9b0d7bed76775a7ad789012c9ccf"
+    },
+    "run7-v53-covered-context-run-bf4c408d-cc36-4a3c-8303-ab87f99fe3a7": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-run-bf4c408d-cc36-4a3c-8303-ab87f99fe3a7-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-bf4c408d-cc36-4a3c-8303-ab87f99fe3a7",
+      "sha256": "ba9b50896c5410cc6514d898d869e25150294ac092b2897822434b37857a0e3d"
+    },
+    "run7-v53-covered-context-run-c2e22c7c-2212-44d4-9ff0-0cd7e48aba15": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-run-c2e22c7c-2212-44d4-9ff0-0cd7e48aba15-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-c2e22c7c-2212-44d4-9ff0-0cd7e48aba15",
+      "sha256": "b3b4a11b276b3325036a55344b29d8e86f54ae197047f82578c66a318a6e3d31"
+    },
+    "run7-v53-covered-context-run-c46757ce-17fa-498a-a04c-4f80ea51f141": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-covered-context-run-c46757ce-17fa-498a-a04c-4f80ea51f141-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-c46757ce-17fa-498a-a04c-4f80ea51f141",
+      "sha256": "93491bf1f0948ac91e0c4e92ecc1eb8a4a2a8f0d28865fbdd73d5ee943ff8b1f"
+    },
+    "run7-v53-source-successor-recovery-run-d8ed9780-16bc-47a6-866c-842f39a8eec8": {
+      "inventory": "target/v53-covered-context-mixed/run7-v53-source-successor-recovery-run-d8ed9780-16bc-47a6-866c-842f39a8eec8-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-source-successor-recovery/run-d8ed9780-16bc-47a6-866c-842f39a8eec8",
+      "sha256": "867d04d6a17ad602762849825b6ecf9925650a21c98b59f527b04f3fccded7e6"
+    }
+  },
+  "readerFiles": {
+    "target/v53-covered-context-mixed/normal.json": "6079c42397652bf77d2a77618760b3fc0812250460e82750457c0dd8c0ad72e6",
+    "target/v53-covered-context-mixed/optimized.json": "6079c42397652bf77d2a77618760b3fc0812250460e82750457c0dd8c0ad72e6",
+    "target/v53-covered-context-mixed/prior-owner-replay.json": "1b7a478441dbbb44750f98ee0697bc6d13ba2939929cb0fafcb809a0ed350515",
+    "target/v53-covered-context-mixed/prior-process-replay.json": "dfaefd04921f3a60546ffe512078111e731a1e8d883e464050085b2a57546aac",
+    "target/v53-covered-context-mixed/process-replay.json": "5c4e57cf9f9ca0dd61078e4e364a217db35c991f84801bc19d5333639caceaa8",
+    "target/v53-covered-context-mixed/refactored-process-replay.json": "dfaefd04921f3a60546ffe512078111e731a1e8d883e464050085b2a57546aac",
+    "target/v53-covered-context-mixed/run4-three-voter-replay.json": "b30e999a3f03ec4f5a811f5f33b233682ff616ae99a0b254d19ceb8c307b4698",
+    "target/v53-covered-context-mixed/run6-successor-partial-replay.json": "b72aebf252c528a52cd2d5c3b2f5bba7221112de6224ff4b55ea95cd24be0f25",
+    "target/v53-covered-context-mixed/successor-normal.json": "a34b3cbc7089518f111c77898c82ca8650b394b451867def56049a18db34b954",
+    "target/v53-covered-context-mixed/successor-optimized.json": "a34b3cbc7089518f111c77898c82ca8650b394b451867def56049a18db34b954"
+  },
+  "replay": {
+    "freshProcesses": false,
+    "independentImageSemantics": false,
+    "maximalCapacity": false,
+    "negatives": [
+      {
+        "case": "contexts",
+        "reason": "admitted exact contexts: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "mixed-reaccepted",
+        "reason": "admitted exact mixed-reaccepted: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "round-4-prepared",
+        "reason": "admitted exact round-4-prepared: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "round-4-selected",
+        "reason": "admitted exact round-4-selected: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "round-4-installed",
+        "reason": "admitted exact round-4-installed: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "mixed-contexts",
+        "reason": "admitted exact mixed-contexts: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "mixed-floors",
+        "reason": "admitted exact mixed-floors: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "mixed-retired",
+        "reason": "admitted exact mixed-retired: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "mixed-sources-retired",
+        "reason": "admitted exact mixed-sources-retired: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "majority-reaccepted",
+        "reason": "admitted exact majority-reaccepted: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "advanced-selected",
+        "reason": "admitted exact advanced-selected: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "covered-installed",
+        "reason": "admitted exact covered-installed: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "floor-released",
+        "reason": "admitted exact floor-released: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "round-6-settled",
+        "reason": "admitted exact round-6-settled: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "mixed covered cleanup force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "observations",
+        "reason": "covered actual owner observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt",
+        "reason": "mixed covered receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "headroom-refused",
+        "reason": "admitted exact headroom-refused: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "headroom-reaccepted",
+        "reason": "admitted exact headroom-reaccepted: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "headroom-reclaimed",
+        "reason": "admitted exact headroom-reclaimed: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "headroom-outcome",
+        "reason": "mixed covered capacity refusal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "headroom-force",
+        "reason": "mixed covered headroom force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "headroom-floor",
+        "reason": "admitted exact headroom-floors: node-1",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "profiles": [
+      {
+        "backup": false,
+        "continuationBallot": 6,
+        "coveredProtectedContext": true,
+        "coveringBallot": 5,
+        "headroomRefusals": 0,
+        "nodePublications": 5,
+        "originalBallots": [
+          2,
+          3,
+          3
+        ],
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "selectedTailBallot": 3,
+        "size": 3,
+        "status": "PASS"
+      },
+      {
+        "backup": true,
+        "continuationBallot": 6,
+        "coveredProtectedContext": true,
+        "coveringBallot": 5,
+        "headroomRefusals": 0,
+        "nodePublications": 5,
+        "originalBallots": [
+          2,
+          3,
+          3
+        ],
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "selectedTailBallot": 3,
+        "size": 3,
+        "status": "PASS"
+      },
+      {
+        "backup": false,
+        "continuationBallot": 6,
+        "coveredProtectedContext": false,
+        "coveringBallot": 5,
+        "headroomRefusals": 2,
+        "nodePublications": 7,
+        "originalBallots": [
+          2,
+          3,
+          3,
+          3
+        ],
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "selectedTailBallot": 3,
+        "size": 4,
+        "status": "PASS"
+      },
+      {
+        "backup": true,
+        "continuationBallot": 6,
+        "coveredProtectedContext": false,
+        "coveringBallot": 5,
+        "headroomRefusals": 2,
+        "nodePublications": 7,
+        "originalBallots": [
+          2,
+          3,
+          3,
+          3
+        ],
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "selectedTailBallot": 3,
+        "size": 4,
+        "status": "PASS"
+      },
+      {
+        "backup": false,
+        "continuationBallot": 6,
+        "coveredProtectedContext": false,
+        "coveringBallot": 5,
+        "headroomRefusals": 4,
+        "nodePublications": 8,
+        "originalBallots": [
+          2,
+          2,
+          3,
+          3,
+          3
+        ],
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "selectedTailBallot": 3,
+        "size": 5,
+        "status": "PASS"
+      },
+      {
+        "backup": true,
+        "continuationBallot": 6,
+        "coveredProtectedContext": false,
+        "coveringBallot": 5,
+        "headroomRefusals": 4,
+        "nodePublications": 8,
+        "originalBallots": [
+          2,
+          2,
+          3,
+          3,
+          3
+        ],
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "selectedTailBallot": 3,
+        "size": 5,
+        "status": "PASS"
+      }
+    ],
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "status": "PASS"
+  },
+  "reports": {
+    "target/v53-covered-context-mixed/run6-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ContextMixedAcceptanceTest.xml": {
+      "sha256": "15a907fdf8d7348c507e760a5cb911fa6fea30d4d2e066146b7882f366832f54",
+      "tests": 1
+    },
+    "target/v53-covered-context-mixed/run6-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceReleaseTest.xml": {
+      "sha256": "98badbca7d3b9becf324651ee8793cff5b3fecd043c4b1d9bc9cc41b06a4e747",
+      "tests": 14
+    },
+    "target/v53-covered-context-mixed/run6-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest.xml": {
+      "sha256": "5cd5b3037f6ecb4e998d67a520b29c0ff17e2ebae7c358a04207c3b789d33363",
+      "tests": 11
+    },
+    "target/v53-covered-context-mixed/run6-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceSuccessorRecoveryTest.xml": {
+      "sha256": "7e43fcec9db7a633585286438635ca892f4b2ad2b3e02aa5f8087d532651977b",
+      "tests": 1
+    },
+    "target/v53-covered-context-mixed/run7-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CoveredContextMixedTest.xml": {
+      "sha256": "54967ed962343ed83de1d2f1d13c19c23ba0dc24cd370dce3e1da3cfd649f08a",
+      "tests": 1
+    },
+    "target/v53-covered-context-mixed/run7-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CoveredContextProcessTest.xml": {
+      "sha256": "47a5f3a83be4a0721ab5478ae167d90f5ab12a50efa54a6063c7a5cc9d0cbb0f",
+      "tests": 1
+    },
+    "target/v53-covered-context-mixed/run7-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceSuccessorRecoveryTest.xml": {
+      "sha256": "3cfa2d5def4943b58f70ec2029180ebf6786e2674d6aef40687f774a05d906b7",
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-covered-context-mixed-local-v1",
+  "scope": {
+    "crossView": false,
+    "maximalCapacity": false,
+    "mixedChainProcess": false,
+    "mixedProtectedCoverageProfiles": 2,
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "sourceSuccessorFreshProcesses": false,
+    "successorBeforeCoverageProfiles": 4
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "9f9db534fdee89d38ac0702f7a01f5ec523393f36857257c361bd0718ef73654",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceRetirementFiles.java": "87b92c96daf9be14696f6723c29553950dfb425a64852af86ebc1f888aef616d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceRetirementPlan.java": "8701f2ebfeff2ed65e2cf418c23628b05bce61130f1f5e82339fcf9f14bdd9d6",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredContextMixedTest.java": "094618ec44c2d1f71bec026db6ef8fdaba34b46b88eb0e928c138b40feddb324",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredContextTest.java": "8ea17192c356cc9386e0b5f63d3c1a0e5e00e75f1401c2b798835ee8a71a6e76",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceSuccessorRecoveryTest.java": "91f52e7bec38234ad1c1adb93720934c9be8b7a71d8750895c294b3b0fe06066",
+    "scripts/v53/covered_context_evidence.py": "20b34fe68a1675bbc0d3548e193248be49c735f6b5b942d66d8776f587ae4968",
+    "scripts/v53/covered_context_mixed_evidence.py": "9d4be601a2a47c004c99866051b82078f5bc4b00e2b13ad3b4d7b9962e5d01af",
+    "scripts/v53/source_successor_recovery_evidence.py": "91eb8d4cac2cb6d03247b38562737e2f9c9a483f28c463381c5811d16828a750",
+    "scripts/v53/test_covered_context_mixed.py": "50ccf821834634e18c6b7962e2fb84fcbdf10bc5197ee878b7a81a7a35f33954",
+    "scripts/v53/test_source_successor_recovery.py": "62e0f0bd47d55e62fc23672e30f0397b78f52fd465c4632a9567a4ec09bce16b"
+  },
+  "sourceSuccessorRecovery": {
+    "freshProcesses": false,
+    "interruptions": 8,
+    "negatives": [
+      {
+        "case": "reference-vote",
+        "reason": "admitted exact headroom-floors: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "first-vote",
+        "reason": "successor recovery exact first",
+        "status": "REJECTED"
+      },
+      {
+        "case": "second-journal",
+        "reason": "successor recovery exact second",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-source",
+        "reason": "successor recovery exact final",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-delete",
+        "reason": "successor recovery exact first",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "successor recovery exact force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "invalid-vote",
+        "reason": "successor recovery exact invalid",
+        "status": "REJECTED"
+      },
+      {
+        "case": "refusal-write",
+        "reason": "successor recovery exact refused",
+        "status": "REJECTED"
+      },
+      {
+        "case": "restored-vote",
+        "reason": "successor recovery exact restored",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt",
+        "reason": "successor recovery exact receipt",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "repeatedRefusals": 8,
+    "runtimeEnabled": false,
+    "status": "PASS"
+  },
+  "status": "PASS"
+}

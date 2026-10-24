@@ -51,7 +51,7 @@ def campaign(root, group, counter, phases, carried=False):
     ballot = dict(counter=counter, proposer=proposer, incarnation=identity['storage'])
     prepared, rows, packets, identifiers = {}, {}, {}, set()
     for node, files in group.items():
-        raw, tail = capture(files, phases); packet = e.p.decode(raw); cap = packet['capsule']
+        raw, tail = capture(files, phases[node] if isinstance(phases, dict) else phases); packet = e.p.decode(raw); cap = packet['capsule']
         actual = c.inventory(root/f'round-{counter}-prepared'/node)
         history = c.journal(actual['grants.gsr'], cap['root'], node); prior = c.journal(files['grants.gsr'], cap['root'], node)
         e.need(history[:len(prior)] == prior and [r[0] for r in history[len(prior):]] == ['PROMISE', 'BASIS'], 'covered context grant extension')
@@ -101,7 +101,7 @@ def campaign(root, group, counter, phases, carried=False):
     for node, files in chosen.items():
         prefix, old_members, _ = c.current(files); local_objects = dict(objects)
         if not carried and 'pending.context' in files:
-            frames, _ = c.pending(files['pending.accept'], phases)
+            frames, _ = c.pending(files['pending.accept'], phases[node] if isinstance(phases, dict) else phases)
             for kind in ('ACCEPT', 'ENTRY', 'PAYLOAD'): local_objects[e.digest(frames[kind])] = frames[kind]
             if 'owned-tail.gsr' in old_members:
                 accept = e.f.decode(old_members['owned-tail.gsr'], 'records', 'ACCEPT')
@@ -159,7 +159,7 @@ def release(files):
     return {k:v for k,v in files.items() if k != 'floor-copies' and not k.startswith('floor-copies/')}
 
 
-def prefix(root):
+def initial(root):
     profile = read(root/'profile.json'); e.exact(profile, 'size backup phase')
     size, backup, phase = profile['size'], profile['backup'], profile['phase']; phases = phase_names(phase)
     e.need(type(size) is int and size in (3,4,5) and type(backup) is bool, 'covered context profile')
@@ -185,6 +185,11 @@ def prefix(root):
     original = group; _, group, _ = campaign(root,group,3,phases,True); match(root,'round-3-installed',group)
     group = retain(group,original,phases); match(root,'contexts',group)
     group = retire_original(group); match(root,'original-retired',group)
+    return profile,names,majority,group,observed,entry,payload,phases
+
+
+def prefix(root):
+    profile,names,majority,group,observed,entry,payload,phases = initial(root)
     for node in majority:
         files = group[node]; _, members, _ = c.current(files); frames, values = c.pending(files['pending.accept'],phases)
         accept = e.f.encode('records','ACCEPT',dict(values['ACCEPT'],ballot=e.f.decode(members['promise.gsr'],'records','PROMISE')['ballot']))

@@ -274,3 +274,7 @@ and ordinary floor maintenance. Phase 2 remains open.
 [Covered-context process recovery](PHASE_2_COVERED_CONTEXT_PROCESS.md) adds 22
 twice-interrupted cases, 66 fresh workers and eleven live-lock probes on the
 unchanged production runtime. Phase 2 remains open.
+
+[Mixed original-ballot completion](PHASE_2_COVERED_CONTEXT_MIXED.md) adds admitted
+3/4/5-voter storage routes and exact forced-successor source reclamation, while
+preserving the seven-image limit. Phase 2 remains open.

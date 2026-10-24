@@ -1328,6 +1328,13 @@ final class MembershipGrantJournal implements AutoCloseable {
         }else floorIdle();
         return sourceRetirementPlan(id);
     }
+    /** A proposed/unforced successor cannot authorize deletion. Every plan and
+     * resumed decision rechecks the same physically loaded current vote. */
+    private MembershipPendingAccept.Vote sourceRetirementSuccessor()throws IOException {
+        var vote=pendingAccept==null || pendingAccept.pending()?null:pendingAccept.active();
+        if(vote==null || !Arrays.equals(vote.selector().bytes(),current.selector.bytes()))return null;
+        verifyVote(vote);return vote;
+    }
     private MembershipSourceRetirementPlan sourceRetirementPlan(String id)throws IOException {
         checkOwner();
         if(pendingAccept!=null && pendingAccept.protectsSource(id))contextSourceRetirement(id);
@@ -1338,7 +1345,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var original=sources.original(id,promises.get(id),originalBasis);var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
         var capsule=Objects.requireNonNull(capsuleVerifier.verify(rootRecord,original.packet(),original.images()));
         require(Arrays.equals(capsule.packet.bytes(),original.packet().bytes()),"source retirement verifier substituted source");
-        var plan=MembershipSourceRetirementPlan.create(root,identity,current,retained,promise,promises.get(id),originalBasis,capsule,original.images(),retirementContext());
+        var plan=MembershipSourceRetirementPlan.create(root,identity,current,retained,promise,promises.get(id),originalBasis,capsule,original.images(),retirementContext(),sourceRetirementSuccessor());
         checkOwner();return plan;
     }
     /** A forced context may cover the predecessor or a backing strictly between
@@ -1396,7 +1403,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(saved.isPresent())require(Arrays.equals(saved.get().bytes(),decision.bytes()),"source retirement differs from original source");
             }else {decision=saved.orElseThrow(()->new IllegalArgumentException("source retirement original decision absent"));require(decision.id().equals(id),"source retirement different original identity");}
             require(!rotation.pending() || saved.isPresent(),"journal rotation preceded source retirement authority");
-            decision.bind(root,identity,current,retained,promise,retirementContext());sourceRetirement.publish(decision,this::checkOwner,cut);
+            decision.bind(root,identity,current,retained,promise,retirementContext(),sourceRetirementSuccessor());sourceRetirement.publish(decision,this::checkOwner,cut);
             var protectedPromises=new HashSet<String>();protectedPromises.add((String)current.manifest.value().get("promise"));
             for(var copy:retained.copies())if(copy.owner.equals(identity))protectedPromises.add((String)copy.generation.value().get("promise"));
             byte[] compact;
@@ -1408,10 +1415,10 @@ final class MembershipGrantJournal implements AutoCloseable {
                 var bound=object(promise.value().get("ballot"));observed.updateAndGet(prior->prior==null || compareBallot(bound,prior)>0?bound:prior);
             }
             require(!promises.containsKey(id) && !bases.containsKey(id),"source retirement journal still references original");
-            decision.bind(root,identity,current,retained,promise,retirementContext());checkOwner();cut.at("SOURCE_RETIREMENT_JOURNAL_PRUNED");checkOwner();
+            decision.bind(root,identity,current,retained,promise,retirementContext(),sourceRetirementSuccessor());checkOwner();cut.at("SOURCE_RETIREMENT_JOURNAL_PRUNED");checkOwner();
             sources.deleteRetired(decision,this::checkOwner,cut);require(!sources.retainedIdentities().contains(id),"source retirement still owns original files");
             sources.releaseRetiredLeases(id);
-            decision.bind(root,identity,current,retained,promise,retirementContext());sourceRetirement.clear(this::checkOwner,cut);cut.at("SOURCE_RETIREMENT_BEFORE_RETURN");checkOwner();return decision.record();
+            decision.bind(root,identity,current,retained,promise,retirementContext(),sourceRetirementSuccessor());sourceRetirement.clear(this::checkOwner,cut);cut.at("SOURCE_RETIREMENT_BEFORE_RETURN");checkOwner();return decision.record();
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     /** Compact exact original frames, retaining every original BASIS/SELECTED and live promise. */
