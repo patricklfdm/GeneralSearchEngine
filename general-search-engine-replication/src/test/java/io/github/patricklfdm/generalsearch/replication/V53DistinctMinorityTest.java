@@ -14,6 +14,9 @@ class V53DistinctMinorityTest {
     @TempDir Path temp;
     record Installation(List<MembershipSelection.Source> sources,Map<String,byte[]> images,Map<String,String> obsolete) {}
     static Installation campaign(V53BootstrapPublicationTest.Fixture f,int counter,List<MembershipBootstrapTarget<Integer,Doc>> targets)throws Exception {
+        return campaign(f,counter,targets,true);
+    }
+    static Installation campaign(V53BootstrapPublicationTest.Fixture f,int counter,List<MembershipBootstrapTarget<Integer,Doc>> targets,boolean install)throws Exception {
         var proposer=targets.getLast();
         try(var owner=f.open(proposer,"allocate-"+counter)){assertEquals(counter,owner.reserveCounter());}
         f.ballot=Map.of("counter",(long)counter,"proposer",proposer.identity().nodeId().value(),"incarnation",proposer.identity().storageId().toString());
@@ -26,8 +29,13 @@ class V53DistinctMinorityTest {
         f.snapshot("round-"+counter+"-prepared");
         for(var t:targets)try(var owner=f.open(t,"select-"+counter)){owner.selectCurrent(sources,List.of());}
         f.snapshot("round-"+counter+"-selected");
-        for(var t:targets)try(var owner=f.open(t,"install-"+counter)){owner.installCurrent(sources,List.of(),images);}
-        f.snapshot("round-"+counter+"-installed");return new Installation(sources,images,obsolete);
+        var longest=sources.getLast();for(var source:sources)if(number(source.capsule.context.cut.get("index"))>number(longest.capsule.context.cut.get("index")))longest=source;
+        images.keySet().retainAll(longest.capsule.packet.images().keySet());
+        if(install) {
+            for(var t:targets)try(var owner=f.open(t,"install-"+counter)){owner.installCurrent(sources,List.of(),images);}
+            f.snapshot("round-"+counter+"-installed");
+        }
+        return new Installation(sources,images,obsolete);
     }
     static void maintain(V53BootstrapPublicationTest.Fixture f,String stage,List<MembershipBootstrapTarget<Integer,Doc>> targets,Map<String,String> obsolete)throws Exception {
         var copies=new ArrayList<MembershipFloor.Copy>();for(var t:targets)try(var owner=f.open(t,stage+"-copy")){copies.add(owner.floorCopyCurrent());}
@@ -54,21 +62,24 @@ class V53DistinctMinorityTest {
         for(var t:targets)try(var owner=f.open(t,label)){var value=owner.acceptCurrent(entry,payload);assertEquals(value,owner.acceptCurrent(entry,payload));f.observations.add(value);}
     }
     static void publish(V53BootstrapPublicationTest.Fixture f,int slot,Decoded entry,byte[] payload)throws Exception {
+        publish(f,slot,entry,payload,f.request.targets());
+    }
+    static void publish(V53BootstrapPublicationTest.Fixture f,int slot,Decoded entry,byte[] payload,List<MembershipBootstrapTarget<Integer,Doc>> targets)throws Exception {
             var accepts=new HashSet<Owned>();Decoded accepted=null;
-            for(var t:f.request.targets())try(var owner=f.open(t,"accept-"+slot)) {
+            for(var t:targets)try(var owner=f.open(t,"accept-"+slot)) {
                 var ack=owner.acceptCurrent(entry,payload);assertEquals(ack,owner.acceptCurrent(entry,payload));accepts.add(ack);
                 accepted=MembershipPendingAccept.decode(Files.readAllBytes(t.replicaDirectory().resolve("pending.accept"))).accept();
             }
             f.snapshot("slot-"+slot+"-accepted");String root=f.result.root().manifestDigest();
             var proofFields=new TreeMap<>(Objects.requireNonNull(accepted).value());proofFields.put("accepts",V53PublicationLifetimeTest.witnesses(root,"ACCEPT",accepted,accepts));
             var proof=decode(encode("records","PROOF",proofFields),"records","PROOF");var proofs=new HashSet<Owned>();
-            for(var t:f.request.targets())try(var owner=f.open(t,"proof-"+slot)){proofs.add(owner.proveCurrent(proof,accepts));}
+            for(var t:targets)try(var owner=f.open(t,"proof-"+slot)){proofs.add(owner.proveCurrent(proof,accepts));}
             f.snapshot("slot-"+slot+"-proved");var fields=new TreeMap<>(proof.value());fields.put("proofs",V53PublicationLifetimeTest.witnesses(root,"PROOF",proof,proofs));
             var certificate=decode(encode("records","CERTIFICATE",fields),"records","CERTIFICATE");var phased=new HashSet<>(accepts);phased.addAll(proofs);f.observations.addAll(phased);
-            for(var t:f.request.targets())try(var owner=f.open(t,"certificate-"+slot)){owner.certifyCurrent(certificate,phased);}
+            for(var t:targets)try(var owner=f.open(t,"certificate-"+slot)){owner.certifyCurrent(certificate,phased);}
             f.snapshot("slot-"+slot+"-certified");
             var applied=new TreeMap<String,MembershipGrantJournal.Applied>();var acks=new ArrayList<Decoded>();var checkpoints=new HashSet<Owned>();var lower=new TreeMap<Long,List<MembershipAppliedEndFiles.ParentEndorsement>>();
-            for(var t:f.request.targets())try(var owner=f.open(t,"apply-"+slot)) {
+            for(var t:targets)try(var owner=f.open(t,"apply-"+slot)) {
                 var value=owner.applyCurrent(builder().configuration(),t.materialization(),phased);applied.put(t.identity().nodeId().value(),value);
                 assertEquals(value.endorsement().acknowledgement().digest(),owner.applyCurrent(builder().configuration(),t.materialization(),phased).endorsement().acknowledgement().digest());
                 acks.add(value.endorsement().acknowledgement());checkpoints.add(value.endorsement().owned());
@@ -81,12 +92,12 @@ class V53DistinctMinorityTest {
                 f.bridges.add(new MembershipSelection.Bridge(group.getFirst().statement(),group.stream().map(MembershipAppliedEndFiles.ParentEndorsement::acknowledgement).toList(),owned));
             }
             f.snapshot("slot-"+slot+"-applied");
-            for(var t:f.request.targets())try(var owner=f.open(t,"publish-"+slot)) {
+            for(var t:targets)try(var owner=f.open(t,"publish-"+slot)) {
                 var value=applied.get(t.identity().nodeId().value());var manifest=owner.publishCurrent(value,acks,checkpoints,f.bridges);
                 assertArrayEquals(manifest.bytes(),owner.publishCurrent(value,acks,checkpoints,f.bridges).bytes());assertTrue(owner.currentCertificate().isEmpty());assertTrue(owner.currentOwnedTail().isEmpty());
             }
-            f.snapshot("slot-"+slot+"-published");f.maintain("slot-"+slot+"-settled",Map.of());
-            for(var t:f.request.targets())try(var owner=f.open(t,"inspect-"+slot)) {
+            f.snapshot("slot-"+slot+"-published");maintain(f,"slot-"+slot+"-settled",targets,Map.of());
+            for(var t:targets)try(var owner=f.open(t,"inspect-"+slot)) {
                 var c=owner.floorCopyCurrent();assertEquals((long)slot,c.capsule.context.cut.get("index"));
                 assertEquals(f.result.applicationSequence()+1,c.capsule.context.catalog.get("applicationSequence"));
                 var state=MembershipApplicationImage.read(builder().configuration(),t.materialization(),c.fileBytes(c.capsule.terminal().application()+".image"),f.raw.resolve("typed-"+slot+"-"+t.identity().nodeId().value()));

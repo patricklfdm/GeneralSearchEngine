@@ -224,7 +224,8 @@ final class MembershipGrantJournal implements AutoCloseable {
                 // An active context may own the old vote after its physical generation
                 // retired. Validate it below, after reserving/resealing its real source
                 // and opening the governing floor. Candidates never get this deferral.
-                if(!withContext || !Files.exists(path.resolve(MembershipPendingContextFiles.FILE),LinkOption.NOFOLLOW_LINKS))
+                if((!withContext || !Files.exists(path.resolve(MembershipPendingContextFiles.FILE),LinkOption.NOFOLLOW_LINKS))
+                        && !journal.settledVoteCandidate(journal.pendingAccept.active()))
                     journal.verifyVote(journal.pendingAccept.active());
                 require(journal.pendingBytes()<=maximum-journal.storedJournal().length,"combined pending/grant journal capacity");
             }
@@ -579,11 +580,62 @@ final class MembershipGrantJournal implements AutoCloseable {
     private boolean voteReferencesInactive(MembershipPendingAccept.Vote vote)throws IOException {
         return vote!=null && !coveredVote(vote) && !Arrays.equals(vote.selector().bytes(),current.selector.bytes());
     }
+    /** Only a classification for deferred validation, never permission to erase. */
+    private boolean settledVoteCandidate(MembershipPendingAccept.Vote vote)throws IOException {
+        return vote!=null && !Arrays.equals(vote.selector().bytes(),current.selector.bytes()) && !coveredVote(vote)
+                && number(vote.entry().value().get("index"))<=number(current.capsule.context.cut.get("index"));
+    }
+    private void verifySettledVote(MembershipPendingAccept.Vote vote)throws IOException {
+        require(settledVoteCandidate(vote) && !inactive.pending(),"settled vote requires completed installed selector");
+        verifySettlement(vote,inactive.originalFiles(),current.capsule,current.copyFiles());
+    }
+    /** The exact original minority source stays pinned after clearing the vote.
+     * It is reclaimed later only by the normal independently forced floor path. */
+    private void verifySettlement(MembershipPendingAccept.Vote vote,Map<String,byte[]> originals,
+            MembershipCapsule next,Map<String,byte[]> installed)throws IOException {
+        require(vote!=null && vote.proof()==null && vote.certificate()==null,"settlement requires bare original ACCEPT");
+        require(appliedEnd!=null && replayFiles!=null && !appliedEnd.present() && !replayFiles.present()
+                && (pendingContext==null || pendingContext.active().isEmpty() && !pendingContext.pending()),"settlement conflicts with derived or protected authority");
+        var old=originalGeneration(originals);var selector=vote.selector().value();
+        require(selector.get("root").equals(root.manifestDigest()) && selector.get("node").equals(identity.nodeId().value())
+                && selector.get("generation").equals(old.generation.value().get("generation")) && selector.get("digest").equals(old.generation.digest()),"settlement original selector changed");
+        require(Arrays.equals(originals.get("promise.gsr"),vote.promise().bytes()) && Arrays.equals(originals.get("selected.gsr"),vote.selected().bytes()),"settlement original decision changed");
+        MembershipPendingAccept.verify(vote,old.capsule,originals.get(MembershipSelectionCoverage.FILE),originals.getOrDefault("ancestry.gsr",new byte[0]),identity,promises.values(),selections.values());
+        require(!installed.containsKey(MembershipSelectionCoverage.FILE) && !installed.containsKey(MembershipGenerationPlan.ADOPTION)
+                && next.context.authority().equals(old.capsule.context.authority()) && next.context.view.get("operation")==null
+                && number(next.context.cut.get("index"))>=number(vote.entry().value().get("index")),"settlement requires advanced stable selected prefix");
+        next.verifyAncestry(installed.getOrDefault("ancestry.gsr",new byte[0]),List.of(old.capsule.terminal()));
+        var p=decode(installed.get("promise.gsr"),"records","PROMISE");var b=decode(installed.get("basis.gsr"),"records","BASIS");var s=decode(installed.get("selected.gsr"),"records","SELECTED");
+        require(promise!=null && basis!=null && selection!=null && Arrays.equals(p.bytes(),promise.bytes())
+                && Arrays.equals(b.bytes(),basis.bytes()) && Arrays.equals(s.bytes(),selection.bytes())
+                && compareBallot(object(p.value().get("ballot")),object(vote.promise().value().get("ballot")))>0
+                && s.value().get("cut").equals(next.context.cut),"settlement installed decision changed");
+        require(b.value().get("voter").equals(identity.nodeId().value()) && vote.accept().digest().equals(b.value().get("accepted"))
+                && b.value().get("cut").equals(old.capsule.context.cut)
+                && list(s.value().get("sources")).stream().map(MembershipFormat::object).anyMatch(row->row.get("voter").equals(identity.nodeId().value())
+                    && row.get("basisId").equals(b.value().get("basisId")) && row.get("basisDigest").equals(b.digest())),"settlement missing exact original local source");
+        var source=sources.original(b);source.packet().bind(b);
+        var expected=MembershipPendingAccept.packet(old.capsule.packet,vote);
+        require(Arrays.equals(expected.bytes(),source.packet().bytes()),"settlement source changed original vote");
+        source.packet().verifyImages(source.images());
+    }
+    private void retireSettledVote()throws IOException {
+        var original=pendingAccept.active();verifySettledVote(original);
+        otherAuthorityTransactionsIdle();
+        MembershipGenerationFiles.Guard guard=()->{
+            checkOwner();verifySettledVote(original);otherAuthorityTransactionsIdle();
+            require(pendingAccept.active()==null || Arrays.equals(pendingAccept.active().bytes(),original.bytes()),"settled vote changed during retirement");
+        };
+        cut.at("SETTLED_VOTE_VALIDATED");guard.check();pendingAccept.clearSettled(original,guard,cut);
+        replayFiles.releaseCompletion();appliedEnd.releaseEmptyCompletion();releasePublicationImage();
+        cut.at("SETTLED_VOTE_BEFORE_RETURN");checkOwner();
+    }
     private void verifyVote(MembershipPendingAccept.Vote vote)throws IOException {
         if(pendingContext!=null && pendingContext.active().isPresent()) {
             require(vote!=null && Arrays.equals(vote.bytes(),retainedContextOriginal().vote().bytes()),"pending vote differs from retained context");
         }
         else if(applicationMetadata>0 && coveredVote(vote))verifyCoveredVote(vote);
+        else if(settledVoteCandidate(vote))verifySettledVote(vote);
         else if(voteReferencesInactive(vote)) {
             // A new selected generation has the same parent but a different round.
             // The old vote still needs its own retained selector and round coverage.
@@ -724,6 +776,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void recoverVote()throws IOException {
         verifyVote(pendingAccept.active());
+        if(pendingAccept!=null && settledVoteCandidate(pendingAccept.active()))retireSettledVote();
         if(appliedEnd!=null && coveredVote(pendingAccept.active()))retireCoveredApplication();
         if(pendingAccept.pending()) {
             voteTransactionIdle();var complete=pendingAccept.completeCandidate();
@@ -1575,7 +1628,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         }else floorIdle();
         var selected=decision(offered,bridges);require(Arrays.equals(selection.bytes(),selected.selected().bytes()),"installation differs from original selection");
         var ballot=object(selection.value().get("ballot"));
-        require(pendingAccept==null || pendingAccept.active()==null || selected.longest().capsule.context.cut.equals(current.capsule.context.cut),"pending ACCEPT requires covered-prefix publication before advancing generation");
+        boolean settles=pendingAccept!=null && pendingAccept.active()!=null
+                && !selected.longest().capsule.context.cut.equals(current.capsule.context.cut);
         var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
         // A completed receipt retains its original materialization even after safe source retirement.
         if(installed)ancestors.addAll(current.capsule.ancestryAnchors(current.ancestry()).values());
@@ -1585,6 +1639,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var complete=MembershipGenerationPlan.installationBridges(selected,bridges,retainedBridges,ancestors);
         var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images);
         plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,ancestors);checkOwner();fence(ballot);
+        if(settles)verifySettlement(pendingAccept.active(),current.copyFiles(),selected.longest().capsule,plan.files);
         if(retainedOriginal!=null) {
             require(retainedOriginal.capsule().context.cut.equals(selected.selected().value().get("cut"))
                     && retainedOriginal.vote().entry().digest().equals(selected.selected().value().get("nextEntry")),"context installation changed original tail");
@@ -1601,6 +1656,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             releasePublicationImage();
             inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(ballot);},current::check,cut);
             reloadGenerations();
+            if(pendingAccept!=null && settledVoteCandidate(pendingAccept.active()))retireSettledVote();
             // The former active generation now occupies the future publication slot.
             // Keep its maximum completion reservation until authorized retirement.
             if(appliedEnd!=null && pendingAccept.active()!=null)reservePublicationImage();

@@ -172,6 +172,15 @@ final class MembershipPendingAccept {
         check();require(active!=null && original.certificate()!=null && Arrays.equals(activeBytes,original.bytes()),"covered vote original changed");
         byte[] expected=empty();require(nextBytes==null || nextBytes.length<=expected.length && Arrays.equals(nextBytes,Arrays.copyOf(expected,nextBytes.length)),"covered vote candidate differs from exact empty state");
     }
+    /** The owner must authenticate the advanced forced selector and retained original
+     * source/generation on every boundary. A bare index is never this authority. */
+    void clearSettled(Vote original,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
+        owner.check();check();require(active!=null && original.proof()==null && original.certificate()==null
+                && Arrays.equals(activeBytes,original.bytes()),"settled vote original changed");
+        byte[] expected=empty();require(nextBytes==null || nextBytes.length<=expected.length
+                && Arrays.equals(nextBytes,Arrays.copyOf(expected,nextBytes.length)),"settled vote candidate differs from exact empty state");
+        replace(null,expected,"SETTLED_VOTE",owner,cut);
+    }
     private void replace(Vote vote,byte[] expected,String phase,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));if(!pending())options.add(StandardOpenOption.CREATE_NEW);
         try(var channel=FileChannel.open(parent.resolve(NEXT),options)) {

@@ -1,0 +1,290 @@
+{
+  "base": "23910ad815c2dcf2c50f4cbde473a24e36cb7427",
+  "compiledInputs": {
+    "path": "target/v53-covered-minority/inputs5.json",
+    "sha256": "33daa155e2a43bfb584147e45852d4ce231e98a96cf9e80b7a7ca2a4ff117d3f"
+  },
+  "compiledMainClasses": {
+    "changed": [
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal$Applied.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipPendingAccept.class"
+    ],
+    "classes": 706,
+    "path": "target/v53-covered-minority/compiled-main-classes.json",
+    "sha256": "f4cc438a1fa0bd10b363350f9c92ae9c680a674a374547d6fde6ae2a5e043828"
+  },
+  "failures": [
+    "Original implementation rejects actual minority ACCEPT after a majority publishes a different ENTRY: pending ACCEPT requires covered-prefix publication before advancing generation.",
+    "Initial corrected run also rejected a producer image union containing the old image; corrected producer supplies exactly the selected longest packet image inventory.",
+    "The first negative proof fixture had an empty witness array and failed format encoding before the intended refusal. Final test supplies a syntactically valid forged proof only as rejection input and requires the bare-ACCEPT refusal."
+  ],
+  "independentNewPathReplay": false,
+  "jars": {
+    "target/v53-covered-minority/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-minority/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "774428beefe4ce641d9dcab242af431c98a507e344592fb8d2c789c08b7e7882"
+  },
+  "javaTests": 41,
+  "limitations": [
+    "Three-voter EMPTY scope only, not complete size/source or cross-view profiles",
+    "New path has callback IOException recovery, not fresh-process halt/SIGKILL or power-loss qualification",
+    "Independent complete physical replay and original-first mutations of this new path remain pending; raw authority snapshots are retained",
+    "Bare ACCEPT only: original PROOF/certificate/context/application staging remain explicit refusal",
+    "Small images and observed reservations, not maximal byte capacity/headroom"
+  ],
+  "logs": {
+    "finalization.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "b7097dd1f89a7c38d86b3d86510e5d527db64543e65b83d262ad6c973811b072",
+    "run2.log": "ef9e4b5f549b1704a2bf8326aa55cf43406f57289b275541087e3e02606934be",
+    "run3.log": "14ae975e89d2cb6302764c8972c1fb5cd3df43a264248df48e89de90fd1669b0",
+    "run4.log": "135cfbc4a0f841852a90de5a35e9d22d54ba99044c5ac64ec4c673c049676a03",
+    "run5.log": "936868cacf2a21d9a04f12dfe4c1db72be21f758baf1acf076051626b0778c4b",
+    "same-parent-replay.log": "51ba180e4b42dbcff0ccfd047d9d24cc851666ac0cd90f9bc804e8052444a9e2"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-covered-minority/producer-classes.json",
+    "sha256": "32f37b279d6ea03eceec8d8d96168b3031fc852e167ac0a5bbab0c7a0fe6dd46"
+  },
+  "raws": {
+    "attempt-1-run-4026f34c-c75e-49a4-852c-6e024bcb1a9f": {
+      "index": "target/v53-covered-minority/attempt-1-run-4026f34c-c75e-49a4-852c-6e024bcb1a9f-index.json",
+      "members": 1152,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-4026f34c-c75e-49a4-852c-6e024bcb1a9f",
+      "sha256": "462425eeada89c8d074b5b9c7a0e3cd80ff22b8ae84240d85afe122b6be27d9c"
+    },
+    "attempt-2-run-bf7b0720-64dc-4727-b613-73cf37402a49": {
+      "index": "target/v53-covered-minority/attempt-2-run-bf7b0720-64dc-4727-b613-73cf37402a49-index.json",
+      "members": 1152,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-bf7b0720-64dc-4727-b613-73cf37402a49",
+      "sha256": "54138f632245de3dbe34c69bc96afd839e1b3f8c75ea53dad73786a2c9e6cb7e"
+    },
+    "attempt-3-run-9d95592f-c53e-45be-adcb-390db01e5692": {
+      "index": "target/v53-covered-minority/attempt-3-run-9d95592f-c53e-45be-adcb-390db01e5692-index.json",
+      "members": 2010,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-9d95592f-c53e-45be-adcb-390db01e5692",
+      "sha256": "73765ff8adeab6230299e301f52e56e06c5af46aa2c3c672777346749d4c29f9"
+    },
+    "attempt-4-run-0936581e-8330-40dd-8f8e-4f7e2acb69c5": {
+      "index": "target/v53-covered-minority/attempt-4-run-0936581e-8330-40dd-8f8e-4f7e2acb69c5-index.json",
+      "members": 1218,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-0936581e-8330-40dd-8f8e-4f7e2acb69c5",
+      "sha256": "8413141f93b063538351993382b8fa0153fad3d12c2998fcb093957e6a5a81f3"
+    },
+    "attempt-4-run-1e156ace-6a64-4859-b9c9-d30a42483ca3": {
+      "index": "target/v53-covered-minority/attempt-4-run-1e156ace-6a64-4859-b9c9-d30a42483ca3-index.json",
+      "members": 2078,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-1e156ace-6a64-4859-b9c9-d30a42483ca3",
+      "sha256": "ecfb9d13c37e69c9b6f9c55b3d24e43f8ec0eba2755a7ee3c3c885ab62940e55"
+    },
+    "attempt-4-run-234066c5-8088-4f97-8c83-cc96f56badb8": {
+      "index": "target/v53-covered-minority/attempt-4-run-234066c5-8088-4f97-8c83-cc96f56badb8-index.json",
+      "members": 1218,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-234066c5-8088-4f97-8c83-cc96f56badb8",
+      "sha256": "a7d69b7c4996ad14b167b35dc049ddf138697740dc6cb8138cbfe1e142a93820"
+    },
+    "attempt-4-run-c15283b2-522d-45d1-840c-9e57a01e62aa": {
+      "index": "target/v53-covered-minority/attempt-4-run-c15283b2-522d-45d1-840c-9e57a01e62aa-index.json",
+      "members": 2278,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-c15283b2-522d-45d1-840c-9e57a01e62aa",
+      "sha256": "f92d044d3daca674407cf0c5f3a51817491c7bd12ce46a46efe32f3e4ac6a952"
+    },
+    "attempt-5-run-23b46189-bf41-4788-b5bc-c548170b0795": {
+      "index": "target/v53-covered-minority/attempt-5-run-23b46189-bf41-4788-b5bc-c548170b0795-index.json",
+      "members": 1218,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-23b46189-bf41-4788-b5bc-c548170b0795",
+      "sha256": "47c5b776e1631085bbb4a10a94f7faee64377fdc470c80787da9fa3cffa29338"
+    },
+    "attempt-5-run-52569cbf-7273-41ac-bd8e-eb904924ebc2": {
+      "index": "target/v53-covered-minority/attempt-5-run-52569cbf-7273-41ac-bd8e-eb904924ebc2-index.json",
+      "members": 18317,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-distinct-minority/run-52569cbf-7273-41ac-bd8e-eb904924ebc2",
+      "sha256": "922b64cea5d8760abc4e31274c0ed7429de67200b17c50426d105f9ad0615223"
+    },
+    "attempt-5-run-6d366b37-18c8-47d1-9e40-15252bffde7f": {
+      "index": "target/v53-covered-minority/attempt-5-run-6d366b37-18c8-47d1-9e40-15252bffde7f-index.json",
+      "members": 2078,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-6d366b37-18c8-47d1-9e40-15252bffde7f",
+      "sha256": "0233151cbdae6e31b8067d4f91162f3690b83431a0557008eb01b08e4f2dfe8d"
+    },
+    "attempt-5-run-7eb3aee7-dab7-454d-9875-b6f645a4336e": {
+      "index": "target/v53-covered-minority/attempt-5-run-7eb3aee7-dab7-454d-9875-b6f645a4336e-index.json",
+      "members": 1218,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-7eb3aee7-dab7-454d-9875-b6f645a4336e",
+      "sha256": "203332da4a9ab8875d7670987e501188da9f2a5dbd268d84803e9459edd2c692"
+    },
+    "attempt-5-run-95e6e862-bc30-435f-bc24-2ad48cb0075b": {
+      "index": "target/v53-covered-minority/attempt-5-run-95e6e862-bc30-435f-bc24-2ad48cb0075b-index.json",
+      "members": 2278,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-95e6e862-bc30-435f-bc24-2ad48cb0075b",
+      "sha256": "54d45bb0d2c02e25f359ba8bee447774392bdbb81432d47d8c64278d16f1b4e7"
+    }
+  },
+  "regressionInputs": {
+    "path": "target/v53-covered-minority/inputs4.json",
+    "sha256": "f4772a698ef22a594d908682cab488b93f731310c671649f384e6625ebd88496"
+  },
+  "reports": {
+    "V53CarriedPublicationTest": {
+      "sha256": "6789ddff0ba6e62b1ce140b7246f0c2a35f5167a716445eb2a2c7904f2fd2244",
+      "tests": 4
+    },
+    "V53CoveredMinorityTest": {
+      "sha256": "090249dd124f6840343be742407ceb428b7b1b50f6992f6bea97a790b97b300f",
+      "tests": 4
+    },
+    "V53DistinctMinorityTest": {
+      "sha256": "f96b373628d9a0a7cf1476dad24de679b59e945103c339dad1b718e660470439",
+      "tests": 1
+    },
+    "V53GenerationInstallTest": {
+      "sha256": "1a36fdb4dd2c5018e884a0bbc736fa024d3c60634dbf6d46e048d3e6bd25a4ab",
+      "tests": 11
+    },
+    "V53JournalPublicationTest": {
+      "sha256": "2145ff649a907a6dad126bf190ee81adb2335e67d60d7ba4f717597a3f269e33",
+      "tests": 8
+    },
+    "V53PendingAcceptTest": {
+      "sha256": "e67bc0f4d3a6c0de2bb04bd804064df9db1ded6318e98cd9b6adc3bc2d1a822e",
+      "tests": 13
+    }
+  },
+  "sameParentIndependentReplay": {
+    "minority": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-distinct-minority/run-52569cbf-7273-41ac-bd8e-eb904924ebc2",
+      "result": {
+        "cases": 6,
+        "coveredPrefixRecovery": false,
+        "freshProcesses": false,
+        "independentImageSemantics": false,
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "missing-case",
+            "reason": "context selection distinct minority cases inventory"
+          },
+          {
+            "case": "extra-stage",
+            "reason": "context selection distinct minority member inventory"
+          },
+          {
+            "case": "original-seal",
+            "reason": "admitted original public bootstrap"
+          },
+          {
+            "case": "original-entry",
+            "reason": "minority exact original ENTRY"
+          },
+          {
+            "case": "alternative-payload",
+            "reason": "minority exact alternative ENTRY"
+          },
+          {
+            "case": "minority-vote",
+            "reason": "admitted exact minority-accepted: node-1"
+          },
+          {
+            "case": "unselected-node",
+            "reason": "admitted exact round-3-prepared: node-1"
+          },
+          {
+            "case": "frozen-tail",
+            "reason": "admitted exact round-4-prepared: node-1"
+          },
+          {
+            "case": "selected-choice",
+            "reason": "admitted exact round-4-selected: node-1"
+          },
+          {
+            "case": "installed-packet",
+            "reason": "admitted exact round-4-installed: node-1"
+          },
+          {
+            "case": "early-delete",
+            "reason": "admitted exact minority-retained: node-1"
+          },
+          {
+            "case": "replacement",
+            "reason": "admitted exact replacement-accepted: node-1"
+          },
+          {
+            "case": "retained-minority-source",
+            "reason": "admitted exact round-4-settled: node-1"
+          },
+          {
+            "case": "proof",
+            "reason": "admitted exact slot-1-proved: node-1"
+          },
+          {
+            "case": "checkpoint-ack",
+            "reason": "admitted exact slot-1-applied: node-2"
+          },
+          {
+            "case": "retired-source",
+            "reason": "admitted exact round-5-settled: node-1"
+          },
+          {
+            "case": "typed-image",
+            "reason": "admitted exact typed inspection image"
+          },
+          {
+            "case": "observations",
+            "reason": "minority actual owner observations"
+          },
+          {
+            "case": "duplicate-observation",
+            "reason": "minority actual owner observations"
+          },
+          {
+            "case": "calls",
+            "reason": "minority complete call inventory"
+          },
+          {
+            "case": "force-order",
+            "reason": "minority exact vote replacement force"
+          },
+          {
+            "case": "false-ack",
+            "reason": "minority premature retirement or rejected ACK"
+          },
+          {
+            "case": "numeric-flag",
+            "reason": "minority receipt scope"
+          },
+          {
+            "case": "capacity",
+            "reason": "minority reported image bound"
+          },
+          {
+            "case": "link",
+            "reason": "application evidence inventory bound"
+          }
+        ],
+        "nodePublications": 48,
+        "portableReplay": "PASS",
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "status": "PASS",
+        "syntheticObservations": false,
+        "voters": 24
+      }
+    }
+  },
+  "schema": "gse-v53-covered-minority-local-v1",
+  "scope": [
+    "Real public EMPTY bootstrap, minority ACCEPT2, majority actual ballot3 publication, selected prefix4 and later maintenance/BARRIER5",
+    "Twelve twice-interrupted local installation/empty-replacement paths with exact original source retention",
+    "Corrupt original generation/source, proof-bearing original and unrelated candidate refuse without deletion; later observation allows cleanup but fences old response"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "e09aef21af45d87c448b71d03cf09a710309cddda72e75a7f0687ed7941eb867",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingAccept.java": "989de93f8528e741b5f186ae5493d5116dd229a8600987ba90fbe47a67e2f21d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredMinorityTest.java": "504eaf3adca45b916111f76aaf5c5bfaffa1566ee4cd781cf3bfd638b4aae473",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DistinctMinorityTest.java": "010c327b64374031a7b91d658d0a2be69e95cc72faf0a27156b78b96740cb36a"
+  },
+  "status": "PASS"
+}
