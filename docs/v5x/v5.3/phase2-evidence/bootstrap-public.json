@@ -1,0 +1,306 @@
+{
+  "base": "656495558ddf1e15ce81fd30028e03134ae7d81d",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-public/inputs1.json",
+    "sha256": "14c2e4284e9cfcb3ab52b6b8894d354eb53aeebb4042d676afa5bab49ad7e4f2"
+  },
+  "compiledMainClasses": {
+    "classes": 700,
+    "path": "target/v53-bootstrap-public/compiled-main-classes.json",
+    "sha256": "0325b43a078ad58b5e0838effb53c1f9ca6bad2c95f586ad29e0a4b8c4bd4774"
+  },
+  "jars": {
+    "target/v53-bootstrap-public/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-public/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "a9672dace0dcd72b3e72aa032a09f2c6cd0d8c09b2ae4114556ff6b01c295b45"
+  },
+  "javaMethods": 26,
+  "limitations": [
+    "original completed result does not attest current mutable integrity or runtime readiness",
+    "adapter recovery uses exceptions; prior unchanged coordinator has separate typed process-death evidence",
+    "no independent typed codec semantics, power-loss, transferred/maximal lifetime or Phase 2 closure claim"
+  ],
+  "logs": {
+    "private-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "private.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "6edb8470aee497fd05e9a4eedf1601816467123842c5472e3191cb05e1a67bd9",
+    "store-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "store.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-public/producer-classes.json",
+    "sha256": "2cb1fa58c2aa157b64bcef570f5633e6541ccabb5a4a4a1001afaa088f33d2ce"
+  },
+  "raw": {
+    "private": {
+      "indexSha256": "ac41fd30c1c6baa300269526470459d8d37e39300fe23493d551b5bdecbceb5a",
+      "members": 877,
+      "path": "general-search-engine-replication/target/v53-bootstrap-result-reader/run-2b6f2957-61d9-4994-a5e6-b96eaeb976d3"
+    },
+    "public": {
+      "indexSha256": "500eb6e2dd463d997581f18766aee6729bf9043acc1b44906b525415939be01a",
+      "members": 877,
+      "path": "general-search-engine-replication/target/v53-bootstrap-public/run-4f6ebf7c-3e3d-4f3f-adc2-a0dd95e69148"
+    },
+    "store": {
+      "indexSha256": "7b29ac3cdfed2c1c633c284dccfbb91d0cc85310e3d2ad220dbaaffa551b791c",
+      "members": 871,
+      "path": "general-search-engine-replication/target/v53-bootstrap-store-admission/run-4ec247cb-8bd1-4448-a6b7-1d6cfa61d272"
+    }
+  },
+  "replays": {
+    "private": {
+      "cases": 6,
+      "independentTypedImageSemantics": false,
+      "initialVoters": 24,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap store case inventory"
+        },
+        {
+          "case": "original-plan",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "initial-admission",
+          "reason": "bootstrap store original admitted authority"
+        },
+        {
+          "case": "final-admission",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "counter-reset",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "missing-source",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "core-reset",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "lost-fence",
+          "reason": "bootstrap store original fence retained"
+        },
+        {
+          "case": "basis-context",
+          "reason": "bootstrap store actual frozen basis"
+        },
+        {
+          "case": "grant-context",
+          "reason": "bootstrap store actual grant context"
+        },
+        {
+          "case": "force-order",
+          "reason": "bootstrap store grant force order"
+        },
+        {
+          "case": "leases",
+          "reason": "bootstrap store original call/lease binding"
+        },
+        {
+          "case": "scope",
+          "reason": "bootstrap store receipt scope"
+        },
+        {
+          "case": "linked-seal",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "result-counter",
+          "reason": "bootstrap result exact original result"
+        },
+        {
+          "case": "result-receipt",
+          "reason": "bootstrap result exact original result"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "publicRuntime": false,
+      "status": "PASS",
+      "typedCoordinator": true
+    },
+    "replay": {
+      "cases": 6,
+      "independentTypedImageSemantics": false,
+      "initialVoters": 24,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap store case inventory"
+        },
+        {
+          "case": "original-plan",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "initial-admission",
+          "reason": "bootstrap store original admitted authority"
+        },
+        {
+          "case": "final-admission",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "counter-reset",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "missing-source",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "core-reset",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "lost-fence",
+          "reason": "bootstrap store original fence retained"
+        },
+        {
+          "case": "basis-context",
+          "reason": "bootstrap store actual frozen basis"
+        },
+        {
+          "case": "grant-context",
+          "reason": "bootstrap store actual grant context"
+        },
+        {
+          "case": "force-order",
+          "reason": "bootstrap store grant force order"
+        },
+        {
+          "case": "leases",
+          "reason": "bootstrap store original call/lease binding"
+        },
+        {
+          "case": "scope",
+          "reason": "bootstrap store receipt scope"
+        },
+        {
+          "case": "linked-seal",
+          "reason": "owner context linked/nonregular member"
+        },
+        {
+          "case": "result-counter",
+          "reason": "bootstrap result exact original result"
+        },
+        {
+          "case": "result-receipt",
+          "reason": "bootstrap result exact original result"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "publicBootstrap": true,
+      "publicRuntime": false,
+      "status": "PASS",
+      "typedCoordinator": true
+    },
+    "store": {
+      "cases": 6,
+      "independentTypedImageSemantics": false,
+      "initialVoters": 24,
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "bootstrap store case inventory"
+        },
+        {
+          "case": "original-plan",
+          "reason": "bootstrap original plan checksum"
+        },
+        {
+          "case": "original-image",
+          "reason": "bootstrap original image binding"
+        },
+        {
+          "case": "initial-admission",
+          "reason": "bootstrap store original admitted authority"
+        },
+        {
+          "case": "final-admission",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "counter-reset",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "missing-source",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "core-reset",
+          "reason": "bootstrap store exact progressed authority"
+        },
+        {
+          "case": "lost-fence",
+          "reason": "bootstrap store original fence retained"
+        },
+        {
+          "case": "basis-context",
+          "reason": "bootstrap store actual frozen basis"
+        },
+        {
+          "case": "grant-context",
+          "reason": "bootstrap store actual grant context"
+        },
+        {
+          "case": "force-order",
+          "reason": "bootstrap store grant force order"
+        },
+        {
+          "case": "leases",
+          "reason": "bootstrap store original call/lease binding"
+        },
+        {
+          "case": "scope",
+          "reason": "bootstrap store receipt scope"
+        },
+        {
+          "case": "linked-seal",
+          "reason": "owner context linked/nonregular member"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "publicRuntime": false,
+      "status": "PASS",
+      "typedCoordinator": false
+    }
+  },
+  "schema": "gse-v53-bootstrap-public-local-v1",
+  "scope": [
+    "public plan/apply/resume/read for all six profiles with 24 actual initial voters and 48 external lock probes",
+    "public exact recovery from PREPARED and COMMITTING across all six profiles; changed request refusal and missing source after commit",
+    "17 public, 17 private result and 15 historical store evidence negatives, normal/optimized/portable replay",
+    "inherited result mutation/ownership checks and 14 declaration checks including disabled online/learner operations"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapCoordinator.java": "88593d7721d6d140d9cd63d3e92f4c19d7a96c754b8e5173b50ea7e269d05991",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipStorageOperations.java": "d2e0b8726af6f2ea8a3d0c021511d65ddeeeac8eeed125fdaf3722f702a1e514",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapPublicTest.java": "77fcf2ef3e54c2daae4ea92153ee42cb2726d52bfed8dc5839cad43bace2fdf4",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapResultReaderTest.java": "7396c6027670d47e015f992d3e949caf521512c333df2637eddb6b9e4da6a999",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DeclarationsTest.java": "bf41e64f0e689694ad81c9e1d8b9de1f9a4aea65979be726bcc70f8d22df2aee",
+    "scripts/v53/bootstrap_public_evidence.py": "0f0a4e13b053d55b7991195a0e4ad7e56c5f26b81e5f1147790639d1851a5790",
+    "scripts/v53/bootstrap_store_admission_evidence.py": "c852d95316d042e2e914a8b5810429ab50893a0fc25dd20b6dc1372c4448e837"
+  },
+  "status": "PASS"
+}

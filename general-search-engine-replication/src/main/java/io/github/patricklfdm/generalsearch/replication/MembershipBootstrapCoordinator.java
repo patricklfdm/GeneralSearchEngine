@@ -8,8 +8,8 @@ import io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** Private offline orchestration. The public entry remains gated on complete-store
- * seal admission and result inspection after mutable runtime progress. */
+/** Typed offline orchestration shared by the public bootstrap entry.
+ * Online membership runtime and learner admission are separate later gates. */
 final class MembershipBootstrapCoordinator {
     private MembershipBootstrapCoordinator(){}
     static Path projection(Path operation) {
@@ -39,7 +39,7 @@ final class MembershipBootstrapCoordinator {
         Objects.requireNonNull(captured);Objects.requireNonNull(request);Objects.requireNonNull(reviewed);Objects.requireNonNull(cut);
         return MembershipBootstrapTransaction.applyCoordinated(reviewed,resume,p->metadata(captured,request,p),p->verify(captured,request,p,cut),cut);
     }
-    /** Initial committed result only. Future public result reading must tolerate
+    /** Strict initial-layout diagnostic. Public result inspection instead tolerates
      * legitimate runtime mutations without treating them as bootstrap corruption. */
     static MembershipBootstrapResult readInitialResult(Path operation)throws IOException {
         return MembershipBootstrapTransaction.readAdmitted(retained(AdmissionPaths.safe(operation),false).summary());

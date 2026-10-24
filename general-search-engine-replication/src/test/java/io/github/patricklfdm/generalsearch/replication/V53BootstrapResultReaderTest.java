@@ -25,9 +25,11 @@ class V53BootstrapResultReaderTest {
     static Map<String,Object> result(MembershipBootstrapResult r) {
         return Map.of("root",r.root().manifestDigest(),"history",r.root().historyId().toString(),"plan",r.planDigest(),"receipt",r.receiptDigest(),"sequence",r.applicationSequence(),"operation",r.operationDirectory().toString());
     }
-    static MembershipBootstrapResult read(MembershipBootstrapPlanData p)throws Exception {return MembershipBootstrapCoordinator.readResult(p.operation());}
+    MembershipBootstrapResult read(MembershipBootstrapPlanData p)throws Exception {return MembershipBootstrapCoordinator.readResult(p.operation());}
+    boolean publicBootstrap(){return false;}
+    String evidenceName(){return publicBootstrap()?"public":"result-reader";}
     @Test void everySizeAndSourceRetainsTheOriginalResultAfterGrantsAndWhileReplicaLocksAreLive()throws Exception {
-        Path evidence=Path.of("target/v53-bootstrap-result-reader/run-"+UUID.randomUUID());Files.createDirectories(evidence);var rows=new ArrayList<Map<String,Object>>();
+        Path evidence=Path.of("target/v53-bootstrap-"+evidenceName()+"/run-"+UUID.randomUUID());Files.createDirectories(evidence);var rows=new ArrayList<Map<String,Object>>();
         for(int size:List.of(3,4,5))for(boolean backup:List.of(false,true)) {
             String name="size-"+size+"-"+(backup?"backup":"empty");var p=fixture(name,size,backup);Path member=Files.createDirectory(evidence.resolve(name));
             var original=new MembershipBootstrapCommitData(p).result();assertEquals(original,read(p));
@@ -53,8 +55,10 @@ class V53BootstrapResultReaderTest {
             V53BootstrapTransactionTest.copy(p,member.resolve("final"));Files.write(member.resolve("calls.json"),canonical(calls,1024*1024));Files.write(member.resolve("result.json"),canonical(result(read(p)),65536));
             rows.add(Map.of("case",name,"targets",size,"status","PASS"));
         }
-        Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-bootstrap-result-reader-v1","status","PASS","cases",rows,"typedCoordinator",true,"publicRuntime",false),65536));
-        System.out.println("v53BootstrapResultReaderEvidence="+evidence.toAbsolutePath());
+        var receipt=new TreeMap<String,Object>(Map.of("schema",publicBootstrap()?"gse-v53-bootstrap-public-v1":"gse-v53-bootstrap-result-reader-v1","status","PASS","cases",rows,"typedCoordinator",true,"publicRuntime",false));
+        if(publicBootstrap())receipt.put("publicBootstrap",true);
+        Files.write(evidence.resolve("receipt.json"),canonical(receipt,65536));
+        System.out.println((publicBootstrap()?"v53BootstrapPublicEvidence=":"v53BootstrapResultReaderEvidence=")+evidence.toAbsolutePath());
     }
     @Test void missingTornForeignOrPendingOriginalAuthorityCannotBeReconstructed()throws Exception {
         var p=fixture("refusal",3,true);var other=fixture("foreign",3,false);

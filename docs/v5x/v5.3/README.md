@@ -196,3 +196,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Progressed partial-group resume](PHASE_2_BOOTSTRAP_PROGRESS_RESUME.md): finish unsealed nodes while preserving completed live voters, exact original authority and exclusive unsealed ownership.
 
 - [Typed bootstrap process recovery](PHASE_2_BOOTSTRAP_TYPED_PROCESS.md): 72 twice-interrupted halt/SIGKILL cases across all six profiles, including live completed voters and 264 child processes.
+
+- [Public offline bootstrap](PHASE_2_PUBLIC_BOOTSTRAP.md): typed plan/apply/resume and immutable result inspection; online membership and learner admission remain disabled.

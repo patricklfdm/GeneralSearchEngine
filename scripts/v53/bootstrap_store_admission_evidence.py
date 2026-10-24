@@ -16,7 +16,8 @@ from .ancestry_pruning_evidence import frames
 from .journal_context_evidence import read_snapshot
 
 
-def validate(root,*,with_result=False):
+def validate(root,*,with_result=False,public_bootstrap=False):
+    e.need(not public_bootstrap or with_result,"public bootstrap requires original result")
     root=Path(root);names={f'size-{n}-{s}' for n in (3,4,5) for s in ('empty','backup')}
     e.need(root.is_dir() and not root.is_symlink() and {v.name for v in root.iterdir()}==names|{'receipt.json'},'bootstrap store case inventory')
     rows=[];targets=0
@@ -60,13 +61,16 @@ def validate(root,*,with_result=False):
                 record=e.f.decode(data['payloads'][0]['root.gsr'],'records','ROOT');wanted_result=dict(root=data['payloads'][0]['root.gsr'][16:48].hex(),history=record['historyId'],plan=e.digest(raw),receipt=e.digest(data['receipt']),sequence=record['baseSequence'],operation=p.decode(raw,image,size=size,source=source,details=True)['plan']['descriptor']['paths'][0]['path'])
                 e.need(e.f.canonical(e.parse(p.read(case/'result.json',65536)))==e.f.canonical(wanted_result),'bootstrap result exact original result')
             rows.append(dict(case=name,targets=size,status='PASS'))
-    wanted=dict(schema='gse-v53-bootstrap-result-reader-v1' if with_result else 'gse-v53-bootstrap-store-admission-v1',status='PASS',cases=rows,typedCoordinator=with_result,publicRuntime=False)
+    wanted=dict(schema='gse-v53-bootstrap-public-v1' if public_bootstrap else 'gse-v53-bootstrap-result-reader-v1' if with_result else 'gse-v53-bootstrap-store-admission-v1',status='PASS',cases=rows,typedCoordinator=with_result,publicRuntime=False)
+    if public_bootstrap:wanted['publicBootstrap']=True
     e.need(e.f.canonical(e.parse(p.read(root/'receipt.json',65536)))==e.f.canonical(wanted),'bootstrap store receipt scope')
-    return dict(status='PASS',cases=6,initialVoters=targets,originalFirst=True,typedCoordinator=with_result,publicRuntime=False,independentTypedImageSemantics=False)
+    result=dict(status='PASS',cases=6,initialVoters=targets,originalFirst=True,typedCoordinator=with_result,publicRuntime=False,independentTypedImageSemantics=False)
+    if public_bootstrap:result['publicBootstrap']=True
+    return result
 
 
-def qualify(root,*,with_result=False):
-    root=Path(root);result=validate(root,with_result=with_result);negatives=[]
+def qualify(root,*,with_result=False,public_bootstrap=False):
+    root=Path(root);result=validate(root,with_result=with_result,public_bootstrap=public_bootstrap);negatives=[]
     variants={'missing-case':'bootstrap store case inventory','original-plan':'bootstrap original plan checksum','original-image':'bootstrap original image binding',
               'initial-admission':'bootstrap store original admitted authority','final-admission':'bootstrap store exact progressed authority',
               'counter-reset':'bootstrap store exact progressed authority','missing-source':'bootstrap store exact progressed authority','core-reset':'bootstrap store exact progressed authority',
@@ -106,12 +110,12 @@ def qualify(root,*,with_result=False):
                 path=node/t.SEAL;path.unlink();path.symlink_to((root/'size-3-backup/final/target-0'/t.SEAL).resolve())
             else:
                 path=moved/'receipt.json';value=e.parse(path.read_bytes());value['publicRuntime']=True;path.write_bytes(e.f.canonical(value))
-            try:validate(moved,with_result=with_result)
+            try:validate(moved,with_result=with_result,public_bootstrap=public_bootstrap)
             except ValueError as error:e.need(str(error)==reason,'bootstrap store unexpected negative: '+name+': '+str(error))
             else:raise ValueError('bootstrap store negative accepted: '+name)
             negatives.append(dict(case=name,reason=reason))
     with tempfile.TemporaryDirectory(prefix='v53-store-admission-portable-') as temp:
-        moved=Path(temp)/'raw';shutil.copytree(root,moved);e.need(validate(moved,with_result=with_result)==result,'bootstrap store portable mismatch')
+        moved=Path(temp)/'raw';shutil.copytree(root,moved);e.need(validate(moved,with_result=with_result,public_bootstrap=public_bootstrap)==result,'bootstrap store portable mismatch')
     return dict(result,negatives=negatives,portableReplay='PASS')
 
 

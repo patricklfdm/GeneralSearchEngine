@@ -143,11 +143,11 @@ class V53DeclarationsTest {
         try (var files = Files.list(directory)) { assertEquals(0, files.count()); }
         assertTrue(threadIds.containsAll(Thread.getAllStackTraces().keySet().stream().map(Thread::threadId).toList()));
     }
-    @Test void bootstrapChecksAllDirectoryPairsAndRemainsDisabled() throws Exception {
+    @Test void bootstrapChecksAllDirectoryPairsAndLearnersRemainDisabled() throws Exception {
         var targets = members(3).stream().map(n -> new MembershipBootstrapTarget<>(n, directory.resolve(n.nodeId().value()), storage(directory.resolve("app-" + n.nodeId().value()), 2))).toList();
         var request = new MembershipBootstrapRequest<>(ROOT.groupId(), "configuration", MembershipBootstrapSource.EMPTY, Optional.empty(), targets, directory.resolve("operation"), 100, 1000);
-        assertThrows(UnsupportedOperationException.class, () -> MembershipStorageOperations.planBootstrap(builder(), request));
-        assertThrows(UnsupportedOperationException.class, () -> MembershipStorageOperations.readBootstrapResult(directory.resolve("missing")));
+        assertThrows(NullPointerException.class, () -> MembershipStorageOperations.planBootstrap(null, request));
+        assertThrows(NullPointerException.class, () -> MembershipStorageOperations.readBootstrapResult(null));
         assertThrows(IllegalArgumentException.class, () -> new MembershipBootstrapRequest<>(ROOT.groupId(), "configuration", MembershipBootstrapSource.EMPTY, Optional.of(directory.resolve("source")), targets, directory.resolve("operation"), 100, 1000));
         assertThrows(IllegalArgumentException.class, () -> new MembershipBootstrapRequest<>(ROOT.groupId(), "configuration", MembershipBootstrapSource.EMPTY, Optional.empty(), targets, directory.resolve("node-1/operation"), 100, 1000));
         var change = new MembershipChangeRequest(id(1), HASH, MembershipChangeKind.ADD, members(4));
