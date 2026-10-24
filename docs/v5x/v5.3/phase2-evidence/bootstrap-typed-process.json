@@ -1,0 +1,134 @@
+{
+  "base": "d3adcc9905f4349a98abe5b93a2f2b4e3d4580d4",
+  "compiledInventory": {
+    "path": "target/v53-bootstrap-typed-process/inputs1.json",
+    "sha256": "8703a02b06359088180e5876a1bd948b5c0db73cb2b9fc183b62c7c589024896"
+  },
+  "compiledMainClasses": {
+    "classes": 700,
+    "path": "target/v53-bootstrap-typed-process/compiled-main-classes.json",
+    "sha256": "9c601efbdf82775bec0fbed489f608a74faedb0cd534c6df0e77262f3694ff04"
+  },
+  "jars": {
+    "target/v53-bootstrap-typed-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-bootstrap-typed-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "20f400530db9635d476b4a2aca9f97cd119ba8d317287db6bc021c0f6470c46e"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "planning occurs once in parent; earlier plan/crash evidence remains separate",
+    "independent physical replay does not independently implement application codecs; real typed Java reads ran",
+    "no public entry, network consensus, power-loss, maximal/context lifetime or Phase 2 closure claim",
+    "no cloud, protected CI, POM or frozen catalog change"
+  ],
+  "logs": {
+    "replay-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "60e68004386f9d0b8b81f514e22f02e46651871acbb8a813ce6ec102b766e3d1"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-bootstrap-typed-process/producer-classes.json",
+    "sha256": "56068d10595ac261bfb3493e7a774a2167923ec7836c34689f45fad733bf6bde"
+  },
+  "productionArtifactsUnchanged": true,
+  "raw": {
+    "indexSha256": "43c7af63168726c58d1b658e89a0ef3ef27f3086d981cb0bc7811fc6669b0777",
+    "members": 17305,
+    "path": "general-search-engine-replication/target/v53-bootstrap-typed-process/run-39c5063e-3b6f-4078-904e-36b739780055"
+  },
+  "replay": {
+    "cases": 72,
+    "freshProcesses": 264,
+    "freshWorkers": 216,
+    "independentTypedSemantics": false,
+    "liveCompletedVoterCases": 24,
+    "lockProbeProcesses": 48,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "bootstrap typed case inventory"
+      },
+      {
+        "case": "original-plan",
+        "reason": "bootstrap original plan checksum"
+      },
+      {
+        "case": "original-image",
+        "reason": "bootstrap original image binding"
+      },
+      {
+        "case": "first-trace",
+        "reason": "bootstrap typed first trace"
+      },
+      {
+        "case": "second-trace",
+        "reason": "bootstrap typed second trace"
+      },
+      {
+        "case": "resumed-trace",
+        "reason": "bootstrap typed resumed trace"
+      },
+      {
+        "case": "stderr",
+        "reason": "bootstrap typed unexpected stderr"
+      },
+      {
+        "case": "crash",
+        "reason": "bootstrap typed exact first crash"
+      },
+      {
+        "case": "running",
+        "reason": "bootstrap typed exact running state"
+      },
+      {
+        "case": "second-crash",
+        "reason": "bootstrap typed exact second crash"
+      },
+      {
+        "case": "final",
+        "reason": "bootstrap typed exact final state"
+      },
+      {
+        "case": "grant",
+        "reason": "bootstrap typed actual running grant"
+      },
+      {
+        "case": "store",
+        "reason": "bootstrap typed running grant force order"
+      },
+      {
+        "case": "admission",
+        "reason": "bootstrap typed exact final state"
+      },
+      {
+        "case": "scope",
+        "reason": "bootstrap typed receipt scope"
+      },
+      {
+        "case": "linked-file",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "originalFirst": true,
+    "planningInParent": true,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicRuntime": false,
+    "status": "PASS",
+    "typedCoordinator": true
+  },
+  "schema": "gse-v53-bootstrap-typed-process-local-v1",
+  "scope": [
+    "72 twice-interrupted halt/SIGKILL cases over 3/4/5 voters and EMPTY/verified backup",
+    "216 actual typed coordinator workers plus 48 external lock probes in 24 live completed-voter cases",
+    "original-first exact trace/byte/grant/source/result replay; 16 negatives, normal/optimized Python and portable replay",
+    "core and replication JARs unchanged from progressed-resume implementation; loaded main classes match retained JARs"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapTypedProcessTest.java": "b2717d4b52f3d721dfec36431240f322768c22ce38982c531208cffeb7e1cbf8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapTypedWorker.java": "d4a8e0f0338c999ba0321d3d36bf960e4b59614d1e7e97d2d0939892541e481e",
+    "scripts/v53/bootstrap_typed_process_evidence.py": "3a2101f2d701f40d643eabec2f46566f89371e7228075f2d6fd5b3c3d5918f0d"
+  },
+  "status": "PASS"
+}

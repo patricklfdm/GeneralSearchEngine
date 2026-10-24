@@ -194,3 +194,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Immutable bootstrap result](PHASE_2_BOOTSTRAP_RESULT_READER.md): read original commit after real local progress while preserving live node locks; current runtime integrity remains a separate owner check.
 
 - [Progressed partial-group resume](PHASE_2_BOOTSTRAP_PROGRESS_RESUME.md): finish unsealed nodes while preserving completed live voters, exact original authority and exclusive unsealed ownership.
+
+- [Typed bootstrap process recovery](PHASE_2_BOOTSTRAP_TYPED_PROCESS.md): 72 twice-interrupted halt/SIGKILL cases across all six profiles, including live completed voters and 264 child processes.
