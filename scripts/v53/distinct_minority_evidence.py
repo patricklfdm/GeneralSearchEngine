@@ -312,4 +312,3 @@ def qualify(root):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('root');args=parser.parse_args();print(json.dumps(qualify(args.root),sort_keys=True))
-
