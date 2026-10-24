@@ -61,6 +61,15 @@ final class MembershipPendingContext {
                 && binding.get("storage").equals(owner.storageId().toString()),"pending context root/owner changed");
     }
 
+    /** Exact recorded backing metadata, not the owner's latest grant. The caller
+     * must bind both frames to its retained journal and physical source. */
+    static Decoded backingPromise(Context context) {
+        validateStructure(context);return MembershipFormat.decode(context.promise.clone(),"records","PROMISE");
+    }
+    static Decoded backingBasis(Context context) {
+        validateStructure(context);return MembershipFormat.decode(context.basis.clone(),"records","BASIS");
+    }
+
     static Context create(MembershipRoot root,MembershipIdentity owner,Decoded oldSelector,Map<String,byte[]> originalFiles,
             MembershipPendingAccept.Vote originalVote,Decoded backingPromise,MembershipSelection.Source backing,
             Map<String,byte[]> backingImages,MembershipCurrentGeneration.Verifier verifier) {

@@ -206,3 +206,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Three-owner context publication](PHASE_2_CONTEXT_PUBLICATION.md): actual new proof, typed apply-once, two publications per owner and a fresh grant after context/source reclamation.
 
 - [Context completion process recovery](PHASE_2_CONTEXT_COMPLETION_PROCESS.md): source/context/floor handoff across 86 repeated-death cases, with independent physical replay.
+
+- [Retained context under a later durable promise](PHASE_2_CONTEXT_DURABLE_FENCE.md): distinguish exact backing, installed selection and latest promise during recovery; new context campaigns remain disabled.

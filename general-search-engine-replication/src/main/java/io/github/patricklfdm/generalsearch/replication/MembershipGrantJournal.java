@@ -324,18 +324,31 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipPendingContext.Reconstructed retainedContextOriginal()throws IOException {
         return retainedContextOriginal(false);
     }
+    private Decoded retainedContextBasis() {
+        require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),"complete retained context required");
+        var context=pendingContext.active().orElseThrow();
+        var backingPromise=MembershipPendingContext.backingPromise(context);var backingBasis=MembershipPendingContext.backingBasis(context);
+        String id=(String)backingBasis.value().get("basisId");var savedPromise=promises.get(id);var savedBasis=bases.get(id);
+        var installed=selections.get(current.manifest.value().get("selection"));
+        require(savedPromise!=null && savedBasis!=null && Arrays.equals(savedPromise.bytes(),backingPromise.bytes())
+                && Arrays.equals(savedBasis.bytes(),backingBasis.bytes()),"retained context exact backing grant missing");
+        require(promise!=null && installed!=null && promise.value().get("view").equals(current.capsule.context.authority())
+                && compareBallot(object(promise.value().get("ballot")),object(backingPromise.value().get("ballot")))>=0
+                && compareBallot(object(backingPromise.value().get("ballot")),object(installed.value().get("ballot")))>=0,
+                "retained context backing/installed/latest order changed");
+        current.capsule.context.ballot(promise.value().get("ballot"),true);
+        return backingBasis;
+    }
     private MembershipPendingContext.Reconstructed retainedContextOriginal(boolean replacingVote)throws IOException {
         require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),"complete retained context required");
-        require(promise!=null && basis!=null && selection!=null && (replacingVote || !pendingAccept.pending()) && !inactive.pending()
-                && promise.digest().equals(current.manifest.value().get("promise"))
-                && basis.digest().equals(current.manifest.value().get("basis"))
-                && selection.digest().equals(current.manifest.value().get("selection")),"retained context installed authority changed");
-        var original=MembershipPendingContext.reconstruct(pendingContext.active().orElseThrow(),root,identity,promise,originalSource(),
-                sources.original(basis).images(),capsuleVerifier);
+        require((replacingVote || !pendingAccept.pending()) && !inactive.pending(),"retained context installed authority changed");
+        var backing=retainedContextBasis();var installed=selections.get(current.manifest.value().get("selection"));
+        var original=MembershipPendingContext.reconstruct(pendingContext.active().orElseThrow(),root,identity,
+                promises.get((String)backing.value().get("basisId")),retainedSource(backing),sources.original(backing).images(),capsuleVerifier);
         require(pendingAccept.active()!=null && (replacingVote || Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes()))
                 && original.selector().value().get("generation").equals(inactive.slot())
                 && original.capsule().terminal().equals(current.capsule.terminal())
-                && original.vote().entry().digest().equals(selection.value().get("nextEntry")),"retained context original/current binding changed");
+                && original.vote().entry().digest().equals(installed.value().get("nextEntry")),"retained context original/current binding changed");
         var expected=original.originalFiles();var record=retirement.authority();
         if(record.isPresent() || !inactive.exists()) {
             var floor=floors.retained().orElseThrow(()->new IllegalArgumentException("retained context missing governing retirement floor"));
@@ -361,7 +374,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var original=retainedContextOriginal();applicationReferencesIdle();
         MembershipGenerationFiles.Guard guard=()->{checkOwner();retainedContextOriginal();applicationReferencesIdle();};
         try {
-            cut.at("CONTEXT_OWNER_VALIDATED");guard.check();sources.resealOriginal(basis,guard);
+            cut.at("CONTEXT_OWNER_VALIDATED");guard.check();sources.resealOriginal(retainedContextBasis(),guard);
             pendingContext.install(pendingContext.active().orElseThrow(),null,guard,cut);
             cut.at("CONTEXT_OWNER_BEFORE_RETURN");guard.check();return original;
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
@@ -399,6 +412,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private MembershipPendingAccept.Vote contextAcceptance(MembershipPendingContext.Reconstructed original)throws IOException {
         checkOwner();otherAuthorityTransactionsIdle();applicationReferencesIdle();
+        require(promise!=null && basis!=null && selection!=null && promise.digest().equals(current.manifest.value().get("promise"))
+                && basis.digest().equals(current.manifest.value().get("basis")) && selection.digest().equals(current.manifest.value().get("selection")),
+                "context acceptance requires installed current ballot");
         require(!inactive.exists() && !inactive.pending() && !pendingContext.pending(),"context acceptance requires retired original and complete context");
         floors.checkRelease(current);
         var old=original.vote();var bound=object(promise.value().get("ballot"));
@@ -1044,7 +1060,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),
                 "source still owns pending ACCEPT authority");
         var original=retainedContextOriginal();applicationReferencesIdle();
-        require(id.equals(original.vote().promise().value().get("basisId")) && !id.equals(basis.value().get("basisId")),
+        require(id.equals(original.vote().promise().value().get("basisId")) && !id.equals(retainedContextBasis().value().get("basisId")),
                 "context source retirement requires original predecessor, not backing");
         require(!inactive.exists() && !inactive.pending(),"context source retirement requires retired generation");
     }
@@ -1308,15 +1324,19 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Observation of this owner's forced original grant, not an assertion of remote force. */
     synchronized MembershipSelection.Source originalSource() throws IOException {
         require(current!=null && basis!=null,"complete current grant required");checkOwner();
-        require(basis.value().get("view").equals(current.capsule.context.authority()),"obsolete original grant; fresh campaign required");
-        var original=sources.original(basis);var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        return retainedSource(basis);
+    }
+    /** Read an exact retained grant without substituting the latest promise/basis. */
+    private MembershipSelection.Source retainedSource(Decoded retainedBasis)throws IOException {
+        checkOwner();require(retainedBasis.value().get("view").equals(current.capsule.context.authority()),"obsolete original grant; fresh campaign required");
+        var original=sources.original(retainedBasis);var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
         var capsule=Objects.requireNonNull(capsuleVerifier.verify(localRoot,original.packet(),original.images()));
         require(Arrays.equals(capsule.packet.bytes(),original.packet().bytes()),"original verifier substituted source");
-        var reference=Map.<String,Object>of("voter",identity.nodeId().value(),"basisId",basis.value().get("basisId"),"basisDigest",basis.digest());
-        var owned=new HashSet<Owned>();String parent=cutDigest(object(basis.value().get("cut")));
-        owned.add(new Owned(identity.nodeId().value(),identity.storageId(),basis.digest(),parent));
-        if(basis.value().get("accepted")!=null)owned.add(new Owned(identity.nodeId().value(),identity.storageId(),(String)basis.value().get("accepted"),parent));
-        var result=MembershipSelection.Source.verify(capsule,basis,reference,identity,owned);checkOwner();return result;
+        var reference=Map.<String,Object>of("voter",identity.nodeId().value(),"basisId",retainedBasis.value().get("basisId"),"basisDigest",retainedBasis.digest());
+        var owned=new HashSet<Owned>();String parent=cutDigest(object(retainedBasis.value().get("cut")));
+        owned.add(new Owned(identity.nodeId().value(),identity.storageId(),retainedBasis.digest(),parent));
+        if(retainedBasis.value().get("accepted")!=null)owned.add(new Owned(identity.nodeId().value(),identity.storageId(),(String)retainedBasis.value().get("accepted"),parent));
+        var result=MembershipSelection.Source.verify(capsule,retainedBasis,reference,identity,owned);checkOwner();return result;
     }
     private MembershipSelection.Decision decision(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
         require(current!=null && promise!=null && basis!=null,"complete current grant required");checkOwner();
