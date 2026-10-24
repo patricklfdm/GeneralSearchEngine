@@ -1,0 +1,349 @@
+{
+  "base": "4d3bdf3c5ee5b54d23084e326982a9196eaab266",
+  "compiledInputs": {
+    "path": "target/v53-covered-minority-process/inputs1.json",
+    "sha256": "5150bf6fbbbf5fab6fd8419b10f8c67fb794e97ddc2174a54f76fde60c039031"
+  },
+  "compiledMainClasses": {
+    "classes": 706,
+    "path": "target/v53-covered-minority-process/compiled-main-classes.json",
+    "sha256": "f4cc438a1fa0bd10b363350f9c92ae9c680a674a374547d6fde6ae2a5e043828",
+    "unchangedFrom": "target/v53-covered-minority/compiled-main-classes.json"
+  },
+  "draftFailures": [
+    "Older initial prototype omitted final owner trace files and was not used as the qualified original.",
+    "First draft interrupted model omitted the separately inventoried generation manifest; corrected before qualification.",
+    "Initial linked-input negative expected a different message; actual shared reader correctly rejected file type/capacity. Exact expected reason corrected."
+  ],
+  "jars": {
+    "target/v53-covered-minority-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-minority-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "774428beefe4ce641d9dcab242af431c98a507e344592fb8d2c789c08b7e7882"
+  },
+  "junit": {
+    "path": "target/v53-covered-minority-process/junit.xml",
+    "sha256": "3f3c6924cc01cb5d6bb6ee2dbd766d8384cdeb561b8c7c2acf032e59d11c10db",
+    "tests": 1
+  },
+  "limitations": [
+    "Process death is not power loss or kernel/filesystem failure",
+    "Four/five voters and backup source not qualified by this batch",
+    "Bare ACCEPT only, no proof/context-bearing or cross-view recovery",
+    "Small image, not maximal capacity; typed DATA semantics remain Java producer check"
+  ],
+  "logs": {
+    "target/v53-covered-minority-process/finalization.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-process/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-process/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-process/python-tests.log": "6bd1ff4b2acbf2cc7c0e598f496b49c50774c85560cb87ce328c531e89653b0d",
+    "target/v53-covered-minority-process/qualification.log": "01bada6970bc43f0efc4610def4dac639775b5b5326af55a06da29b320d4eb3c",
+    "target/v53-covered-minority-process/replay1.log": "bae360c6023711e492fd50473abe4d50c22db9f1b3730bb520da2b159a973399",
+    "target/v53-covered-minority-process/run1.log": "9f3bbcac7c3ad0518c420f7fed23dee14c18cabb5d95f1cd13d05fb9553348e2",
+    "target/v53-covered-minority-replay/draft-clean-1.log": "a2c761515f7b58e7e0cbe05ef23a26d9b5b7e5dcddbf43bd636a60707a5aa142",
+    "target/v53-covered-minority-replay/draft-clean-2.log": "672bc4b1b24cae8fca65cf9750e651a7c20f9b94c0a1e61982971c14642759be",
+    "target/v53-covered-minority-replay/draft-interrupted-1.log": "c49eb0ad445b2d8a61e67d3fc19d8a9b0142d514f567a847dfca4b69a42afa79",
+    "target/v53-covered-minority-replay/draft-interrupted-2.log": "af1c6f65ef66c3ec175d41cdb16c35216534fb011876601c947c36e0ca3b5bc0",
+    "target/v53-covered-minority-replay/draft-negatives-1.log": "f816a2cb180afde5e6d1bff3deba459670d4b2d2121cad437b80a45da27fcd7d",
+    "target/v53-covered-minority-replay/draft-tests.log": "670a39115e7523a8984e4842e16547cb2094b03fad392b037b4b9dc8b2656e62",
+    "target/v53-covered-minority-replay/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-replay/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-minority-replay/python-tests.log": "100dffcea5e9922aae4402f092ad0d33e6735c7a4302c143fb53ad8942e8619d",
+    "target/v53-covered-minority-replay/replay.log": "54b36ae575abf5ef3adbed91760bda13b50ff5e2ec0d7a3fbb09781e1020c271"
+  },
+  "originalOwnerQualification": {
+    "index": "docs/v5x/v5.3/phase2-evidence/covered-minority.json",
+    "sha256": "b545842df35125a7f510d15afe64e3573d02b6d075f884d63cb35b1ed869d2a2"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-covered-minority-process/producer-classes.json",
+    "sha256": "bf264858d21bfdd6896c9a0b031fa0cf4c95881f427a67caaf6f466c6249ac40"
+  },
+  "pythonInputs": {
+    "path": "target/v53-covered-minority-process/python-inputs.json",
+    "sha256": "a44d237b27b328fe34d77426acaa76ea2b93149c8590bc32668f7e07fdc3f2e5"
+  },
+  "pythonTests": 17,
+  "raws": {
+    "clean": {
+      "inventory": "target/v53-covered-minority-process/clean-inventory.json",
+      "members": 2078,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-6d366b37-18c8-47d1-9e40-15252bffde7f",
+      "sha256": "0233151cbdae6e31b8067d4f91162f3690b83431a0557008eb01b08e4f2dfe8d"
+    },
+    "interrupted": {
+      "inventory": "target/v53-covered-minority-process/interrupted-inventory.json",
+      "members": 2278,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-95e6e862-bc30-435f-bc24-2ad48cb0075b",
+      "sha256": "54d45bb0d2c02e25f359ba8bee447774392bdbb81432d47d8c64278d16f1b4e7"
+    },
+    "process": {
+      "inventory": "target/v53-covered-minority-process/process-inventory.json",
+      "members": 3457,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority-process/run-2d02c9a2-b66b-4e0e-b649-18b55df1dfad",
+      "sha256": "7a350ed94a9fd5cac579b0fcf89806f5bb55f1c342a2889bf4d2048c1045418e"
+    }
+  },
+  "replays": {
+    "owner": {
+      "normalSha256": "1d1276a3ba93f08041bccd98f10306f92a447875e4202c6f99f157ac32b2627c",
+      "optimizedSha256": "1d1276a3ba93f08041bccd98f10306f92a447875e4202c6f99f157ac32b2627c",
+      "result": {
+        "clean": {
+          "freshProcesses": false,
+          "independentImageSemantics": false,
+          "maximalCapacity": false,
+          "nodePublications": 5,
+          "publicBootstrap": true,
+          "publicRuntime": false,
+          "status": "PASS",
+          "voters": 3
+        },
+        "freshProcesses": false,
+        "interrupted": {
+          "cases": 12,
+          "freshProcesses": false,
+          "independentImageSemantics": false,
+          "interruptions": 24,
+          "maximalCapacity": false,
+          "publicBootstrap": true,
+          "publicRuntime": false,
+          "status": "PASS",
+          "voters": 3
+        },
+        "negatives": [
+          {
+            "case": "missing-stage",
+            "reason": "context selection covered minority clean inventory"
+          },
+          {
+            "case": "extra-stage",
+            "reason": "context selection covered minority interruptions inventory"
+          },
+          {
+            "case": "bootstrap-seal",
+            "reason": "admitted original public bootstrap"
+          },
+          {
+            "case": "minority-payload",
+            "reason": "covered original minority ENTRY"
+          },
+          {
+            "case": "majority-entry",
+            "reason": "covered distinct majority ENTRY"
+          },
+          {
+            "case": "unselected-voter",
+            "reason": "admitted exact slot-1-accepted: node-1"
+          },
+          {
+            "case": "published-proof",
+            "reason": "admitted exact slot-1-proved: node-2"
+          },
+          {
+            "case": "published-image",
+            "reason": "admitted exact slot-1-applied: node-3"
+          },
+          {
+            "case": "selected-choice",
+            "reason": "admitted exact round-4-selected: node-1"
+          },
+          {
+            "case": "early-vote-delete",
+            "reason": "admitted exact before-install: node-1"
+          },
+          {
+            "case": "uncleared-vote",
+            "reason": "admitted exact round-4-installed: node-1"
+          },
+          {
+            "case": "lost-old-generation",
+            "reason": "admitted exact round-4-installed: node-1"
+          },
+          {
+            "case": "lost-original-source",
+            "reason": "admitted exact round-4-settled: node-1"
+          },
+          {
+            "case": "stale-image",
+            "reason": "admitted exact round-4-installed: node-1"
+          },
+          {
+            "case": "unretired-source",
+            "reason": "admitted exact round-5-settled: node-1"
+          },
+          {
+            "case": "observations",
+            "reason": "covered actual owner observations"
+          },
+          {
+            "case": "duplicate-observation",
+            "reason": "covered actual owner observations"
+          },
+          {
+            "case": "owner-call",
+            "reason": "covered complete owner calls"
+          },
+          {
+            "case": "early-clear-event",
+            "reason": "covered exact settlement force order"
+          },
+          {
+            "case": "false-settlement",
+            "reason": "covered unexpected vote settlement"
+          },
+          {
+            "case": "missing-case",
+            "reason": "context selection covered minority interruptions inventory"
+          },
+          {
+            "case": "wrong-second-cut",
+            "reason": "covered exact interruption identity"
+          },
+          {
+            "case": "missing-recovery-force",
+            "reason": "covered exact interruption force order: second"
+          },
+          {
+            "case": "early-selector",
+            "reason": "covered exact interruption snapshot: first"
+          },
+          {
+            "case": "torn-candidate",
+            "reason": "covered exact interruption snapshot: first"
+          },
+          {
+            "case": "resumed-old-vote",
+            "reason": "covered exact interruption snapshot: final"
+          },
+          {
+            "case": "missing-final-source",
+            "reason": "covered exact interruption snapshot: final"
+          },
+          {
+            "case": "false-original-return",
+            "reason": "covered exact interruption force order: first"
+          },
+          {
+            "case": "typed-image",
+            "reason": "admitted exact typed inspection image"
+          },
+          {
+            "case": "linked-original",
+            "reason": "bootstrap plan evidence file type/capacity"
+          }
+        ],
+        "portableReplay": "PASS",
+        "status": "PASS"
+      }
+    },
+    "process": {
+      "normalSha256": "f092326efb74bcd3addc5c6d7ad7352267a7125392da2e6a5ac0bd4df5589176",
+      "optimizedSha256": "f092326efb74bcd3addc5c6d7ad7352267a7125392da2e6a5ac0bd4df5589176",
+      "result": {
+        "cases": 24,
+        "freshProcesses": 72,
+        "lockProbes": 12,
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "original-vote",
+            "reason": "admitted exact minority-accepted: node-1"
+          },
+          {
+            "case": "missing-case",
+            "reason": "context selection covered process inventory"
+          },
+          {
+            "case": "first-prefix",
+            "reason": "covered process exact first snapshot"
+          },
+          {
+            "case": "second-prefix",
+            "reason": "covered process exact second snapshot"
+          },
+          {
+            "case": "final-vote",
+            "reason": "covered process exact final snapshot"
+          },
+          {
+            "case": "retained-source",
+            "reason": "covered process exact final snapshot"
+          },
+          {
+            "case": "retained-generation",
+            "reason": "covered process exact final snapshot"
+          },
+          {
+            "case": "first-force",
+            "reason": "covered process exact first force/death order"
+          },
+          {
+            "case": "second-force",
+            "reason": "covered process exact second force/death order"
+          },
+          {
+            "case": "final-force",
+            "reason": "covered process exact final force/death order"
+          },
+          {
+            "case": "kill-handshake",
+            "reason": "covered process exact first force/death order"
+          },
+          {
+            "case": "false-return",
+            "reason": "covered process exact second force/death order"
+          },
+          {
+            "case": "capacity",
+            "reason": "covered process capacity/scope"
+          },
+          {
+            "case": "runtime-flag",
+            "reason": "covered process capacity/scope"
+          },
+          {
+            "case": "receipt-flag",
+            "reason": "covered process exact receipt"
+          },
+          {
+            "case": "exit-code",
+            "reason": "covered process exact receipt"
+          },
+          {
+            "case": "admitted-path",
+            "reason": "covered process exact admitted paths"
+          },
+          {
+            "case": "observations",
+            "reason": "covered process actual observations"
+          },
+          {
+            "case": "stderr",
+            "reason": "covered process stderr"
+          }
+        ],
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    }
+  },
+  "schema": "gse-v53-covered-minority-recovery-local-v1",
+  "scope": [
+    "Three-voter actual admitted EMPTY bootstrap and disjoint majority publication",
+    "Complete clean physical chain and 12 twice-interrupted IOException cases",
+    "24 halt/kill cases with second halt recovery: 72 fresh workers and 12 driver lock probes"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredMinorityProcessTest.java": "d5194d3afece6db5b313bf07b617944e110b97446091351909b5dd7c4640e288",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredMinorityProcessWorker.java": "6f7f32fbdc1f56cf4d2905149ff47cce70185871a41cba00a5e8c6ea02509b1f",
+    "scripts/v53/covered_minority_evidence.py": "d609ddb971777f7c48d5e451e9e4e8f7c165fde2d5ee16e80e1f58b9d84162b3",
+    "scripts/v53/covered_minority_process_evidence.py": "10e3df70b1342c3b4427c2d73737bc8fe728c909d41171296b07f4700f735d1f",
+    "scripts/v53/test_covered_minority.py": "2e51d18c2bb612ee512d817c358fc7d141aeeece77ba9364b0dc6fb92096ae98",
+    "scripts/v53/test_covered_minority_process.py": "74a088bacc4e59d5d0ea11b42223fe499198b307d324021e039aebcbd44c90bd"
+  },
+  "status": "PASS"
+}

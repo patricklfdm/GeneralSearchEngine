@@ -50,8 +50,9 @@ the losing document absent. Additional cases interrupt installation/clearing
 twice, reject damaged authority and verify observation fencing.
 
 These are local owner calls and injected IOException boundaries, not fresh-process
-halt/SIGKILL or power-loss qualification. Independent complete physical replay,
-all size/source profiles, proof-bearing/context-bearing recovery, cross-view
+halt/SIGKILL or power-loss qualification. The [physical/process follow-up](PHASE_2_COVERED_MINORITY_RECOVERY.md) now qualifies
+independent replay and 24 repeated-process cases on this same runtime. All size/source
+profiles, proof-bearing/context-bearing recovery, cross-view
 adoption, maximal bytes/headroom and protected acceptance remain separate pending
 obligations. Raw snapshots and callback traces are retained for that next audit;
 a green Java test alone does not close those obligations.

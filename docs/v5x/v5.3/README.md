@@ -238,3 +238,6 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Distinct minority ENTRY under a newer selection](PHASE_2_DISTINCT_MINORITY.md): actual admitted same-parent replacement, publication and source reclamation; covered-prefix and crash recovery remain open.
 
 - [Covered bare minority vote recovery](PHASE_2_COVERED_MINORITY.md): exact advanced selector/source authority and bounded vote clearing; process/cross-view qualification remains open.
+
+[Covered-minority physical/process recovery](PHASE_2_COVERED_MINORITY_RECOVERY.md)
+adds independent replay and 24 admitted repeated-process cases. Phase 2 remains OPEN.
