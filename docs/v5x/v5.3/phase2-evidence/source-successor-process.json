@@ -1,0 +1,161 @@
+{
+  "base": "78b773af259e44f7d65027ae504a57a69fed144e",
+  "compiledInputs": {
+    "target/v53-source-successor-process/inputs1.json": "db71f72eb94a7cbfa38d8e9ea0d35060d5e0d71b76ee8e97e7a47c01586a04ee"
+  },
+  "compiledMainClasses": {
+    "classes": 707,
+    "comparison": "identical to corrected mixed context runtime",
+    "path": "target/v53-source-successor-process/compiled-main-classes.json",
+    "sha256": "c64efb6197e15ab5bd06c298dba9322504c3b7c518b2c4c83bc5d40400993fca"
+  },
+  "jars": {
+    "target/v53-covered-context-mixed/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-context-mixed/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "f6e0670ef9dbdf5ee1ca77bbe9ebd35c45cf2add41a4c6494d631b1ecd2f63c2"
+  },
+  "logs": {
+    "target/v53-source-successor-process/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-source-successor-process/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-source-successor-process/prepared-python-tests.log": "6273232de4d3ef7acd4ecafa5c86beeeb974f56586b21089a2990b3f72facbe6",
+    "target/v53-source-successor-process/python-tests-optimized.log": "6f8afb37792466e8ea62b9b94ea2bd420e28c32503b2e97f4cc286ae8b7b186a",
+    "target/v53-source-successor-process/python-tests.log": "0e73b611c6bb988fe31effbdf59fb2eadfa0640760f05c5f80ada8a05e6489b6",
+    "target/v53-source-successor-process/run1.log": "13735af297594bf9c2ee14788130bf28b77bfa35b72c4d613023e634921b33c9"
+  },
+  "producerClasses": {
+    "path": "target/v53-source-successor-process/producer-classes.json",
+    "sha256": "9c2527d348cf67f0a25ba18024ef79d383d75a79b9eda4173a23f410b49550ad"
+  },
+  "pythonInputs": {
+    "path": "target/v53-source-successor-process/python-inputs.json",
+    "sha256": "6202db444707cfbcd0fc2c9a2a96db4e5c35d0e87448c7817fa30917388092e1"
+  },
+  "pythonTests": 20,
+  "raws": {
+    "v53-covered-context-run-2109f954-9174-4ae5-9ca3-cc8df18dab3b": {
+      "inventory": "target/v53-source-successor-process/v53-covered-context-run-2109f954-9174-4ae5-9ca3-cc8df18dab3b-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-2109f954-9174-4ae5-9ca3-cc8df18dab3b",
+      "sha256": "becb42400876cba5339b294cf4b7af24c904c37ab46a181313302df72ea17c96"
+    },
+    "v53-source-successor-process-run-59b410b3-0c1b-40d1-9c60-330c1d77a735": {
+      "inventory": "target/v53-source-successor-process/v53-source-successor-process-run-59b410b3-0c1b-40d1-9c60-330c1d77a735-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-source-successor-process/run-59b410b3-0c1b-40d1-9c60-330c1d77a735",
+      "sha256": "8c899301f89483ccfb4457a54ae6c52ce7414af4d75ce0ad989948ce7f5e27a0"
+    }
+  },
+  "readerFiles": {
+    "target/v53-source-successor-process/normal.json": "917ec8ef81ad1a35e46eaac0657258814a71f3f7e4fa2f40b07708eee0e9f3c3",
+    "target/v53-source-successor-process/optimized.json": "917ec8ef81ad1a35e46eaac0657258814a71f3f7e4fa2f40b07708eee0e9f3c3"
+  },
+  "replay": {
+    "cases": 30,
+    "freshProcesses": 90,
+    "lockProbes": 15,
+    "maximalCapacity": false,
+    "negatives": [
+      {
+        "case": "reference-vote",
+        "reason": "admitted exact headroom-floors: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "first-vote",
+        "reason": "successor process exact first",
+        "status": "REJECTED"
+      },
+      {
+        "case": "second-journal",
+        "reason": "successor process exact second",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-extra",
+        "reason": "successor process exact final",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "context process exact force/death order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "kill-handshake",
+        "reason": "context process kill handshake",
+        "status": "REJECTED"
+      },
+      {
+        "case": "returned-runtime",
+        "reason": "context process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-code",
+        "reason": "successor process exact first exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stderr",
+        "reason": "successor process stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-path",
+        "reason": "successor process lock path",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-exit",
+        "reason": "successor process lock exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-stderr",
+        "reason": "successor process lock stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admitted-path",
+        "reason": "successor process admitted inputs",
+        "status": "REJECTED"
+      },
+      {
+        "case": "observations",
+        "reason": "successor process original observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt",
+        "reason": "successor process exact receipt",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "peakImages": 7,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "status": "PASS"
+  },
+  "reports": {
+    "target/v53-source-successor-process/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceSuccessorProcessTest.xml": {
+      "sha256": "abbcce7fa9a4be94baf18452a6539772cdc9ada7c2690373b219aa5963b83874",
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-source-successor-process-local-v1",
+  "scope": {
+    "crossView": false,
+    "freshProcesses": true,
+    "maximalBytes": false,
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceSuccessorProcessTest.java": "8e22ca72e00b4338da564bd79c040d9f2e247f23ce71bb76408de01e21831b56",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceSuccessorProcessWorker.java": "cb4f0f0ce791e4214a7598159e288329286954740d3ee32500f8a1abf480acc3",
+    "scripts/v53/source_successor_process_evidence.py": "084ab2209812ceca18eb2de6b4b328f77f411e046c4974e89ce5dcd4cffa5fec",
+    "scripts/v53/test_source_successor_process.py": "f9688b1361438fdc1296b4945d36c4612be43f95073234273c228c943f12016b"
+  },
+  "status": "PASS"
+}

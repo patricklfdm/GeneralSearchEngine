@@ -278,3 +278,6 @@ unchanged production runtime. Phase 2 remains open.
 [Mixed original-ballot completion](PHASE_2_COVERED_CONTEXT_MIXED.md) adds admitted
 3/4/5-voter storage routes and exact forced-successor source reclamation, while
 preserving the seven-image limit. Phase 2 remains open.
+
+[Forced-successor source process recovery](PHASE_2_SOURCE_SUCCESSOR_PROCESS.md)
+adds 30 repeated-death cases / 90 workers and fifteen live lock probes.

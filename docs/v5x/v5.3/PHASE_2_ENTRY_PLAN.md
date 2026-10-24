@@ -88,3 +88,7 @@ remaining mixed/lifetime/cross-view profiles and the closure audit remain pendin
 The seven-image limit remains enforced before a protected capture; larger
 profiles first complete an existing selected successor and reclaim its obsolete
 source. This is local storage orchestration, not an automatic runtime policy.
+
+[Forced-successor source process recovery](PHASE_2_SOURCE_SUCCESSOR_PROCESS.md)
+qualifies fifteen reclamation boundaries under halt/SIGKILL and a second recovery
+interruption, preserving exact admitted authority and the original vote.
