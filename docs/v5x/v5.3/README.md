@@ -202,3 +202,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Context-backed source retirement](PHASE_2_CONTEXT_SOURCE_RELEASE.md): exact predecessor reclamation with the original vote and separate backing preserved; full transferred lifetime remains open.
 
 - [Context-backed acceptance](PHASE_2_CONTEXT_ACCEPTANCE.md): force the exact successor, retire redundant context/floor, and reserve completion space before ACK.
+
+- [Three-owner context publication](PHASE_2_CONTEXT_PUBLICATION.md): actual new proof, typed apply-once, two publications per owner and a fresh grant after context/source reclamation.

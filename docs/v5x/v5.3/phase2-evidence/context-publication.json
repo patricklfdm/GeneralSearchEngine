@@ -1,0 +1,145 @@
+{
+  "base": "3c873ee6a3c3eb9b5df31d09e44c19b50cc0ac5b",
+  "compiledInventory": {
+    "path": "target/v53-context-publication/inputs1.json",
+    "sha256": "2f2aec602f36ff7a62f9ac618fd3386d6fb8abfbe9b3faccca08b29f55115146"
+  },
+  "compiledMainClasses": {
+    "classes": 700,
+    "path": "target/v53-context-publication/compiled-main-classes.json",
+    "sha256": "8c8ccdda76a57ac415b9fdbd864b01dd808963ebaf312beb93229d80eea63eff",
+    "unchangedFrom": "context-acceptance"
+  },
+  "jars": {
+    "target/v53-context-publication/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-publication/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "954a9f6a5725a0288cf95eddb6ab2d1108e4a8c702fe035f03e9652355d66df8"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "one clean three-voter profile, not process-death/power-loss/distributed election",
+    "conditional historical bootstrap/observations; core producer rather than independent Python image semantics",
+    "fenced retained-context later campaigns, full maximal/old-joint-new lifetime and Phase 2 closure pending"
+  ],
+  "logs": {
+    "replay1.stderr": "45e397f8098b0a9edb43bc9713f3a8cbde42d7e83eaf05adda1e7e80386d3a69",
+    "replay2-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "637680c6a3f3285245c3d802256534f9c58eae20cc23dcbcc44490472d5036c1"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-publication/producer-classes.json",
+    "sha256": "3c5226276070db4f9a6c8c7f4512f39e6de9d63b36ce52c9492bf5cf13c1546f"
+  },
+  "raw": {
+    "indexSha256": "1b7055fa819c8c0d0ae4ce999becd6aef9abdcaa80c321b19715b3f4c4400cf7",
+    "members": 1260,
+    "path": "general-search-engine-replication/target/v53-context-publication/run-4f1b637b-812f-412d-91b8-3b46b7fd983c"
+  },
+  "replay": {
+    "acceptBallot": 21,
+    "applicationSequence": 43,
+    "entryOrigin": 20,
+    "freshProcesses": false,
+    "imageSemantics": "separate-core-producer",
+    "negatives": [
+      {
+        "case": "old-certified",
+        "reason": "staged exact old-certified owner: node-1"
+      },
+      {
+        "case": "prepared",
+        "reason": "context publication exact prepared: node-1"
+      },
+      {
+        "case": "installed",
+        "reason": "context publication exact installed: node-1"
+      },
+      {
+        "case": "context",
+        "reason": "context publication exact context: node-1"
+      },
+      {
+        "case": "context-floor",
+        "reason": "context publication exact context-floor: node-1"
+      },
+      {
+        "case": "context-retired",
+        "reason": "context publication exact context-retired: node-1"
+      },
+      {
+        "case": "source-retired",
+        "reason": "context publication exact source-retired: node-1"
+      },
+      {
+        "case": "reaccepted",
+        "reason": "context publication exact reaccepted: node-1"
+      },
+      {
+        "case": "published",
+        "reason": "carried exact publication/retirement bytes"
+      },
+      {
+        "case": "continued",
+        "reason": "carried exact publication/retirement bytes"
+      },
+      {
+        "case": "fresh",
+        "reason": "staged exact fresh owner: node-1"
+      },
+      {
+        "case": "bad-original",
+        "reason": "round exact original forced end"
+      },
+      {
+        "case": "new-origin",
+        "reason": "context publication exact reaccepted: node-1"
+      },
+      {
+        "case": "lost-context-source",
+        "reason": "context publication exact source-retired: node-1"
+      },
+      {
+        "case": "changed-context",
+        "reason": "context publication exact context-retired: node-1"
+      },
+      {
+        "case": "kept-context",
+        "reason": "context publication exact reaccepted: node-1"
+      },
+      {
+        "case": "lost-application-ack",
+        "reason": "carried original applied ends"
+      },
+      {
+        "case": "false-process",
+        "reason": "context publication receipt scope"
+      }
+    ],
+    "nodePublications": 6,
+    "nodes": 3,
+    "originalFirst": true,
+    "physicalBytes": true,
+    "portableReplay": "PASS",
+    "processForceOrder": false,
+    "publishedCut": 3,
+    "runtimeEnabled": false,
+    "status": "PASS"
+  },
+  "retainedFindings": [
+    "replay1 rejected its own fresh-stage mutation for a different precise reason than initially listed; expectation corrected to exact snapshot mismatch, original validation had already passed"
+  ],
+  "schema": "gse-v53-context-publication-local-v1",
+  "scope": [
+    "three actual contextual owners from old certified entry through source/floor retirement and exact new acceptance",
+    "actual new proof/certificate, typed apply-once, two publications per node, fresh higher grant without unresolved tail",
+    "three external lock probes; all snapshots after owner closure",
+    "18 exact negatives and normal/optimized/portable original-first replay"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextPublicationTest.java": "81cec72972aa2c9a96c6f4f402541b1d8af90ebcbfda3f95301b6d2e59070ef1",
+    "scripts/v53/context_publication_evidence.py": "40da89776c8e35f9ef5e133948657b38ab31f9d3391184e375eb4ff72291d269"
+  },
+  "status": "PASS"
+}
