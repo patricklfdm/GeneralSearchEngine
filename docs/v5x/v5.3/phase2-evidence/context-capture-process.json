@@ -1,0 +1,176 @@
+{
+  "base": "3c63cfdbe454b44f3b48da000e58ed04f1ebabaa",
+  "compiledInputs": [
+    {
+      "path": "target/v53-context-capture-process/inputs1.json",
+      "sha256": "3db5be803225833acb1c45a1dc8027d479ff95ae35d7b6cbfec899fbd8f22b57"
+    },
+    {
+      "path": "target/v53-context-capture-process/inputs2.json",
+      "sha256": "16737cb5f43a8bce6f8d5ba89c78f17c558f1b69f9e2b081389cdd6264be6a89"
+    }
+  ],
+  "compiledMainClasses": {
+    "changed": [],
+    "classes": 702,
+    "path": "target/v53-context-capture-process/compiled-main-classes.json",
+    "sha256": "354fc418f664daa40d7ed818298e4133e5706db62d99ec2b106741952bf33060"
+  },
+  "failedRun": [
+    "initial driver replayed a grant before completing an empty retained source-retirement intent; existing runtime correctly refused; corrected caller ordering"
+  ],
+  "jars": {
+    "target/v53-context-capture-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-capture-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "22f64a0da3c546f9b252ceb45666efa535ed706c5c5b633ed477b1b62c5ec2d2"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "later selected installation, slot reuse and complete floor lifetime remain open",
+    "process death is not power loss; conditional historical bootstrap/quorum fixture",
+    "small physical payloads, not maximal byte qualification; no full-store old/joint/new claim"
+  ],
+  "logs": {
+    "deletion-draft-replay.txt": "45ed7e3f1201bfa49d06c8c9b03f8c22e0287fa82a8907aed91474da6b08d583",
+    "draft-case-replay.txt": "81a981c3c959fd746e346e91d28e63ad8e298c3f42c6f8b85f8df6294203f100",
+    "draft2-case-replay.txt": "90839806dafd010a5e7c34f9826e1b00aeacfe06fe1334f1eb472a21ba9a9aa4",
+    "half-case-error.txt": "a9b7a47a5525e043a4393f43fd2069af79f9b4f51a4770d972a39db6de229a72",
+    "normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay.log": "3a71483d81d6ee08f8a30902e8d94d4fc3c2ffc2eec550524bf5c6b8bf94eb56",
+    "rotation-case-replay.txt": "58b3b50a912dbc303b84ebfc1e251b2379eb94df228a745d2799e54774d0c463",
+    "run1.log": "08918be22a6cd93cb1c6d01e43a396e88efb58623fc1fcb3ad7dc4467eeaac1a",
+    "run2-draft-case-replay.txt": "0e788f2e9bae6af0e506c534f7e2470cec8c6dfd707fec118bf00f8fd53551de",
+    "run2.log": "0ac2fc6c1270a159c631f9befdddfe38a72fffcaaf13225ac40bfb36ef082520"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-capture-process/producer-classes.json",
+    "sha256": "afa2eea5329ba88f387d0ca3f989aa1d569475e7d15df6b9b819da787c01a4d8"
+  },
+  "raws": {
+    "failed": {
+      "index": "target/v53-context-capture-process/failed-raw-index.json",
+      "members": 7665,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-capture-process/run-b1597b32-0f3b-4181-8c0b-5c355a0889c1",
+      "sha256": "8c01bce8bfab481b8707f6c3cd0c6a25240b97e227ea59550863024764a61f70"
+    },
+    "passed": {
+      "index": "target/v53-context-capture-process/passed-raw-index.json",
+      "members": 20942,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-capture-process/run-186f9f12-dbeb-4009-ad92-62983d67fdb9",
+      "sha256": "bdc7228bdf2adadb73301c100f1b93dc740bcb66a9ad1bc15ae0ef6d5dd4bd02"
+    }
+  },
+  "replay": {
+    "cases": 100,
+    "freshProcesses": 300,
+    "historicalBootstrap": "conditional-fixture",
+    "installedSelection": 21,
+    "lockProbes": 50,
+    "negatives": [
+      {
+        "case": "reference",
+        "reason": "context checksum"
+      },
+      {
+        "case": "missing",
+        "reason": "capture process case inventory"
+      },
+      {
+        "case": "seed",
+        "reason": "context capture exact process seed"
+      },
+      {
+        "case": "first",
+        "reason": "capture process exact first prefix"
+      },
+      {
+        "case": "second",
+        "reason": "context capture exact process second interruption"
+      },
+      {
+        "case": "recovered",
+        "reason": "capture process exact recovered authority"
+      },
+      {
+        "case": "final",
+        "reason": "capture process exact continuing authority"
+      },
+      {
+        "case": "source",
+        "reason": "capture process exact continuing authority"
+      },
+      {
+        "case": "first-force",
+        "reason": "capture process first force/death order"
+      },
+      {
+        "case": "second-force",
+        "reason": "capture process second force/death order"
+      },
+      {
+        "case": "resume-force",
+        "reason": "capture process resume force/ack order"
+      },
+      {
+        "case": "early-grant",
+        "reason": "capture process second force/death order"
+      },
+      {
+        "case": "wrong-grant",
+        "reason": "capture process resume force/ack order"
+      },
+      {
+        "case": "ack",
+        "reason": "capture process unrelated acknowledgement"
+      },
+      {
+        "case": "scope",
+        "reason": "capture process receipt scope"
+      },
+      {
+        "case": "inputs",
+        "reason": "capture process receipt scope"
+      },
+      {
+        "case": "capacity",
+        "reason": "capture process resume force/ack order"
+      },
+      {
+        "case": "truncated",
+        "reason": "capture process complete trace"
+      },
+      {
+        "case": "stderr",
+        "reason": "capture process stderr"
+      },
+      {
+        "case": "link",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "originalFirst": true,
+    "originalVote": 20,
+    "peakReservedImages": 7,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "runtimeEnabled": false,
+    "status": "PASS",
+    "steadyReservedImages": 6,
+    "subsequentGrant": 24
+  },
+  "schema": "gse-v53-context-capture-process-local-v1",
+  "scope": [
+    "100 repeated process-death cases; 300 workers and 50 fresh-process live-lock probes",
+    "capture/context rebind and covered intermediate deletion; exact next capture 24 after recovery",
+    "all snapshots and complete first/second/resume force/return traces independently derived",
+    "original-first mutation rejection and optimized/relocated replay; no runtime Java change"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextCaptureProcessTest.java": "b1684ee1670cc27750668ca4ea61ee54efa19900aa0bb4e48fbbe1d060a7d9f7",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextCaptureWorker.java": "d34796194ef40f7e332ca0e41b0aa79decc1bf1cb266f66d6e3e0b3327e74134",
+    "scripts/v53/context_capture_process_evidence.py": "b5eb2b4665f5bee90ab3589b19e471e064381ba80dec9ff8a6c3403d478c8033"
+  },
+  "status": "PASS"
+}

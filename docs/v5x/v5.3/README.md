@@ -214,3 +214,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Protected context capture](PHASE_2_CONTEXT_CAPTURE.md): actual source/BASIS/context force before a fresh local grant, exact repeated-interruption recovery and bounded capture refusal; later selected installation remains open.
 
 - [Intermediate context backing retirement](PHASE_2_CONTEXT_BACKING_RETIREMENT.md): repeated protected capture and exact obsolete-source deletion within seven peak/six steady image reservations.
+
+- [Protected capture/reclamation process recovery](PHASE_2_CONTEXT_CAPTURE_PROCESS.md): 100 twice-interrupted halt/SIGKILL cases and a subsequent exact fresh capture with fixed original authority.
