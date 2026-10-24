@@ -72,3 +72,9 @@ closure requirement or establish remote historical ownership.
 The [closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) tracks the complete remaining
 storage obligations while local batches continue. Component PASS results cannot
 close the phase without the integrated recovery, resource and physical audit.
+
+[Applied-but-unpublished covered recovery](PHASE_2_COVERED_STAGING.md) adds
+explicit typed retirement of derived staging under an exact newer published
+selection, preserving original votes and all voting fences. Hidden endpoints,
+protected-context coverage, complete process/lifetime profiles and the closure
+audit remain pending.

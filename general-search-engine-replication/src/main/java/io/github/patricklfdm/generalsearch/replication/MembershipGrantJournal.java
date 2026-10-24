@@ -596,6 +596,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(vote!=null,"settlement requires original vote");
         require(appliedEnd!=null && replayFiles!=null && !appliedEnd.present() && !replayFiles.present()
                 && (pendingContext==null || pendingContext.active().isEmpty() && !pendingContext.pending()),"settlement conflicts with derived or protected authority");
+        verifySettlementAuthority(vote,originals,next,installed);
+    }
+    private void verifySettlementAuthority(MembershipPendingAccept.Vote vote,Map<String,byte[]> originals,
+            MembershipCapsule next,Map<String,byte[]> installed)throws IOException {
         var old=originalGeneration(originals);var selector=vote.selector().value();
         require(selector.get("root").equals(root.manifestDigest()) && selector.get("node").equals(identity.nodeId().value())
                 && selector.get("generation").equals(old.generation.value().get("generation")) && selector.get("digest").equals(old.generation.digest()),"settlement original selector changed");
@@ -934,6 +938,32 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && Arrays.equals(vote.payload(),current.capsule.packet.objectBytes((String)vote.entry().value().get("payload")))
                 && current.accepted!=null && current.capsule.context.record(current.accepted,"ACCEPT").value().get("entry").equals(vote.entry().digest()),
                 "staged retirement changed carried entry/payload");
+        retireApplication(configuration,storage,observations,vote,originals,old,local,Map.of(),null,new byte[0]);
+    }
+    /** Retire only old derived staging before installing an authenticated covering
+     * prefix. The current selector and original certified vote remain unchanged;
+     * typed replay must match an authenticated endpoint of the selected prefix. */
+    synchronized <K,T> void retireCoveredApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,
+            List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,
+            List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images)throws IOException {
+        require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();otherApplicationTransactionsIdle();
+        require(selection!=null && !inactive.pending() && !pendingAccept.pending(),"covered staging requires completed original authorities");
+        var vote=pendingAccept.active();require(vote!=null && vote.certificate()!=null
+                && Arrays.equals(vote.selector().bytes(),current.selector.bytes()),"covered staging requires current original certificate");
+        require(pendingContext==null || pendingContext.active().isEmpty() && !pendingContext.pending(),"covered staging conflicts with protected context");
+        verifyVote(vote);var originals=current.copyFiles();var old=originalGeneration(originals);
+        var selected=verifyDecision(offered,bridges);require(Arrays.equals(selection.bytes(),selected.selected().bytes()),"installation differs from original selection");
+        var plan=installationPlan(selected,bridges,retainedBridges,images,false);
+        verifySettlementAuthority(vote,originals,selected.longest().capsule,plan.files);
+        var authority=Map.<String,Object>of("mode","covered-prefix","coveringGeneration",plan.manifest.digest(),"coveringSelector",plan.selector.digest());
+        retireApplication(configuration,storage,observations,vote,originals,old,originalSource(),authority,
+                selected.longest().capsule,plan.files.getOrDefault("ancestry.gsr",new byte[0]));
+    }
+    private <K,T> void retireApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,
+            MembershipPendingAccept.Vote vote,Map<String,byte[]> originals,MembershipFloor.Copy old,MembershipSelection.Source local,
+            Map<String,Object> extraAuthority,MembershipCapsule covering,byte[] coveringAncestry)throws IOException {
         require(observations.size()<=12,"application phased observation count");var owned=Set.copyOf(observations);
         var packet=MembershipPendingAccept.packet(old.capsule.packet,vote);var images=new TreeMap<String,byte[]>();
         for(String h:old.capsule.packet.images().keySet())images.put(h,originals.get(h+".image"));
@@ -943,7 +973,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         verified.context.certificate(vote.certificate(),owned);
         byte[] ancestry=originals.getOrDefault("ancestry.gsr",new byte[0]);
         var parents=applicationParents(old.capsule,originals.get(MembershipSelectedSources.FILE),originals.get(MembershipSelectionCoverage.FILE),ancestry,vote.promise(),vote.selected());
-        var authority=new TreeMap<String,Object>();authority.put("pending",hash(vote.bytes()));authority.put("oldGeneration",old.generation.digest());
+        var authority=new TreeMap<String,Object>(extraAuthority);authority.put("pending",hash(vote.bytes()));authority.put("oldGeneration",old.generation.digest());
         authority.put("selector",current.selector.digest());authority.put("generation",current.manifest.digest());authority.put("promise",promise.digest());
         authority.put("selection",selection.digest());authority.put("basis",basis.digest());authority.put("source",hash(local.capsule.packet.bytes()));
         authority.put("ancestry",hash(ancestry));authority.put("coverage",hash(originals.getOrDefault(MembershipSelectionCoverage.FILE,new byte[0])));
@@ -967,6 +997,10 @@ final class MembershipGrantJournal implements AutoCloseable {
             cut.at("STAGED_RETIREMENT_AUTHORITY_VALIDATED");guard.check();
             var plan=replayFiles.executeRetained(vote.selector(),vote.certificate(),identity,work->MembershipCheckpointPlan.replay(configuration,storage,
                     old.capsule,packet,vote.certificate(),images,owned,work),guard,cut).renewAncestors(parents,ancestry);
+            if(covering!=null) {
+                var statement=plan.statement.value();covering.verifyAncestry(coveringAncestry,List.of(new MembershipCapsule.Anchor(
+                        object(statement.get("end")),(String)statement.get("catalogAfter"),(String)statement.get("applicationAfter"))));
+            }
             guard.check();appliedEnd.retireSuperseded(plan,vote.selector(),identity,authority,guard,cut);
             guard.check();replayFiles.releaseCompletion();cut.at("STAGED_RETIREMENT_BEFORE_RETURN");guard.check();
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
@@ -1571,7 +1605,14 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private MembershipSelection.Decision decision(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
         require(current!=null && promise!=null && basis!=null,"complete current grant required");checkOwner();
-        var ballot=object(promise.value().get("ballot"));fence(ballot);var local=originalSource();
+        var ballot=object(promise.value().get("ballot"));fence(ballot);
+        var result=verifyDecision(offered,bridges);fence(ballot);return result;
+    }
+    /** Pure original-decision verification also supports exact derived cleanup.
+     * Selection/installation callers separately retain their live voting fence. */
+    private MembershipSelection.Decision verifyDecision(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
+        require(current!=null && promise!=null && basis!=null,"complete current grant required");checkOwner();
+        var ballot=object(promise.value().get("ballot"));var local=originalSource();
         require(offered.size()>=2 && offered.size()<=6 && bridges.size()<=6,"selected source/ancestry capacity");
         var verified=new ArrayList<MembershipSelection.Source>();MembershipSelection.Source proposer=null;
         for(var source:offered) {
@@ -1582,7 +1623,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             verified.add(source);if(source.owner.nodeId().value().equals(ballot.get("proposer")))proposer=source;
         }
         require(proposer!=null,"selection missing proposer");
-        var result=new MembershipSelection.Campaign(proposer).select(verified,bridges);checkSelection(result.selected());fence(ballot);checkOwner();return result;
+        var result=new MembershipSelection.Campaign(proposer).select(verified,bridges);checkSelection(result.selected());checkOwner();return result;
     }
     /** Records the immutable selection only. No installation, ACCEPT or installation ACK is authorized. */
     synchronized Decoded selectCurrent(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
@@ -1632,15 +1673,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var ballot=object(selection.value().get("ballot"));
         boolean settles=pendingAccept!=null && pendingAccept.active()!=null
                 && !selected.longest().capsule.context.cut.equals(current.capsule.context.cut);
-        var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
-        // A completed receipt retains its original materialization even after safe source retirement.
-        if(installed)ancestors.addAll(current.capsule.ancestryAnchors(current.ancestry()).values());
-        for(var original:bases.values()) {
-            var value=sources.original(original).packet().capsule().value();ancestors.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)value.get("catalog"),(String)value.get("application")));
-        }
-        var complete=MembershipGenerationPlan.installationBridges(selected,bridges,retainedBridges,ancestors);
-        var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images);
-        plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,ancestors);checkOwner();fence(ballot);
+        var plan=installationPlan(selected,bridges,retainedBridges,images,installed);checkOwner();fence(ballot);
         if(settles)verifySettlement(pendingAccept.active(),current.copyFiles(),selected.longest().capsule,plan.files);
         if(retainedOriginal!=null) {
             require(retainedOriginal.capsule().context.cut.equals(selected.selected().value().get("cut"))
@@ -1664,6 +1697,18 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(appliedEnd!=null && pendingAccept.active()!=null)reservePublicationImage();
             cut.at("INSTALL_BEFORE_RETURN");checkOwner();fence(ballot);return current.manifest;
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
+    }
+    private MembershipGenerationPlan installationPlan(MembershipSelection.Decision selected,List<MembershipSelection.Bridge> bridges,
+            List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images,boolean installed)throws IOException {
+        var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
+        // A completed receipt retains its original materialization even after safe source retirement.
+        if(installed)ancestors.addAll(current.capsule.ancestryAnchors(current.ancestry()).values());
+        for(var original:bases.values()) {
+            var value=sources.original(original).packet().capsule().value();ancestors.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)value.get("catalog"),(String)value.get("application")));
+        }
+        var complete=MembershipGenerationPlan.installationBridges(selected,bridges,retainedBridges,ancestors);
+        var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images);
+        plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,ancestors);return plan;
     }
     private Decoded prepareBound(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images) throws IOException {
         require((sources==null)==(images==null),"grant source mode mismatch");

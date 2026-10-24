@@ -253,3 +253,9 @@ results for the pinned-source deletion path. Maximal and cross-view closure rema
 [Covered PROOF/certificate recovery](PHASE_2_COVERED_PHASED_VOTES.md) extends the
 stable-view cleanup to actual unapplied phased originals while preserving source
 bytes and the guards against staged application or protected-context disposal.
+
+[Covered applied-staging recovery](PHASE_2_COVERED_STAGING.md) now connects an
+admitted lagging certificate's actual applied end to a newer selected published
+prefix through explicit typed cleanup. Original votes and sources remain pinned;
+installation and ACK fencing, protected-context exclusion and frozen bounds
+remain in force. Phase 2 remains OPEN.

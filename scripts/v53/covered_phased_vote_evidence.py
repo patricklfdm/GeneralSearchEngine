@@ -22,7 +22,7 @@ def profile(root):
     return value
 
 
-def layout(root,mode):
+def layout(root,mode,extras=()):
     p=profile(root);names=['node-'+str(i+1) for i in range(p['size'])];lagging=names[:p['size']-(p['size']//2+1)];majority=names[len(lagging):]
     required={'profile.json','original-plan.gsbp','original-application.image','initial','calls.json','observations.json','entry.gsr','payload.bin','initial-votes','lagging-proved','before-install'}
     required|={f'round-1-{s}' for s in ('prepared','selected','installed','settled')}|{'round-3-prepared','round-3-selected'}
@@ -34,10 +34,10 @@ def layout(root,mode):
     elif mode=='interrupted':required|={'interruptions.json'}|{'interrupted-'+cut for cut in model.CUTS}
     elif mode=='prepared':pass
     else:raise ValueError('covered phased mode')
-    selection.layout(root,required,'covered phased '+mode);return p,names,lagging,majority
+    selection.layout(root,required|set(extras),'covered phased '+mode);return p,names,lagging,majority
 
 
-def prefix(root,p,names,lagging,majority):
+def prefix(root,p,names,lagging,majority,staging=None):
     observed=[];group=b.campaign(root,b.original(root,p['size'],p['backup']),1)
     ballot=e.f.decode(c.current(group['node-1'])[1]['promise.gsr'],'records','PROMISE')['ballot'];body=d.payload(404,'majority-selected');entry=d.entry(group,body,ballot)
     e.need(t.plans.read(root/'entry.gsr',16384)==entry and t.plans.read(root/'payload.bin',e.MIB)==body,'covered phased original ENTRY')
@@ -52,13 +52,14 @@ def prefix(root,p,names,lagging,majority):
     if p['phase']=='CERTIFICATE':
         for node in lagging:group[node]=dict(group[node],**{'pending.accept':append(group[node]['pending.accept'],frames['CERTIFICATE'])})
         b.match(root,'lagging-certified',group)
+    if staging is not None:group=staging(root,group,lagging,majority,observed)
     before,after,_=model.advanced_campaign(root,group,3,names,False,phases(p['phase']));b.match(root,'before-install',before)
     for node in majority:
         _,members,packet=c.current(c.inventory(root/'slot-1-settled'/node));b.typed_image(root/('typed-1-'+node),members[packet['capsule']['application']+'.image'])
     return before,after,observed
 
 
-def calls(root,p,names,lagging,majority,before,after,clean):
+def calls(root,p,names,lagging,majority,before,after,clean,staging=False):
     expected=[]
     def many(nodes,label):expected.extend((n,label) for n in nodes)
     def maintain(nodes,label):many(nodes,label+'-copy');many(nodes,label+'-maintain')
@@ -71,8 +72,10 @@ def calls(root,p,names,lagging,majority,before,after,clean):
     campaign(1);maintain(names,'round-1-settled');expected.append((names[-1],'entry'));many(names,'initial-vote');publish(1,majority)
     many(lagging,'lagging-proof')
     if p['phase']=='CERTIFICATE':many(lagging,'lagging-certificate')
+    if staging:many(lagging,'lagging-apply')
     campaign(3,False)
     if clean:
+        if staging:many(lagging,'retire-covered-application')
         many(names,'install-3');maintain(names,'round-3-settled');campaign(4);maintain(names,'round-4-settled');expected.append((names[-1],'entry'));publish(2,names)
     rows=read(root/'calls.json',8*e.MIB);e.need(type(rows) is list and len(rows)==len(expected),'covered phased owner call inventory')
     for row,(node,operation) in zip(rows,expected):
@@ -86,6 +89,7 @@ def calls(root,p,names,lagging,majority,before,after,clean):
                   'certificate':['CERTIFICATE_CANDIDATE_FORCED','CERTIFICATE_PARENT_FORCED','CERTIFICATE_BEFORE_RETURN'],
                   'apply':['APPLY_ACK_DIRECTORY_FORCED','APPLY_BEFORE_RETURN','APPLY_ACK_DIRECTORY_FORCED','APPLY_BEFORE_RETURN'],
                   'publish':['PUBLICATION_SELECTOR_FORCED','PUBLICATION_BEFORE_RETURN','PUBLICATION_BEFORE_RETURN']}.get(phase)
+        if operation=='lagging-apply':required=['APPLY_ACK_DIRECTORY_FORCED','APPLY_BEFORE_RETURN']
         if operation in ('lagging-proof','lagging-certificate'):
             label=operation.split('-')[1].upper();required=[label+'_CANDIDATE_FORCED',label+'_PARENT_FORCED',label+'_BEFORE_RETURN',label+'_BEFORE_RETURN']
         if required:e.need([v for v in events if v in set(required)]==required,'covered phased force before response: '+operation)

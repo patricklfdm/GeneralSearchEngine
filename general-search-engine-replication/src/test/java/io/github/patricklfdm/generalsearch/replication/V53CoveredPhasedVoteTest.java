@@ -12,7 +12,9 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipContext.
 class V53CoveredPhasedVoteTest {
     @TempDir Path temp;
     record Prepared(V53BootstrapPublicationTest.Fixture f,V53DistinctMinorityTest.Installation installation,String phase) {}
-    Prepared prepared(int size,boolean backup,String phase)throws Exception {
+    @FunctionalInterface interface BeforeCampaign {void run(V53BootstrapPublicationTest.Fixture fixture)throws Exception;}
+    Prepared prepared(int size,boolean backup,String phase)throws Exception {return prepared(size,backup,phase,f->{});}
+    Prepared prepared(int size,boolean backup,String phase,BeforeCampaign beforeCampaign)throws Exception {
         Path raw=Path.of("target/v53-covered-phased-vote/run-"+UUID.randomUUID());Files.createDirectories(raw);
         System.out.println("v53CoveredPhasedVoteEvidence="+raw.toAbsolutePath());
         Files.write(raw.resolve("profile.json"),canonical(Map.of("size",size,"backup",backup,"phase",phase),16384));
@@ -37,7 +39,7 @@ class V53CoveredPhasedVoteTest {
             }
             f.snapshot("lagging-certified");
         }else assertEquals("PROOF",phase);
-        var installation=V53DistinctMinorityTest.campaign(f,3,all,false);f.snapshot("before-install");
+        beforeCampaign.run(f);var installation=V53DistinctMinorityTest.campaign(f,3,all,false);f.snapshot("before-install");
         save(f);return new Prepared(f,installation,phase);
     }
     static void save(V53BootstrapPublicationTest.Fixture f)throws Exception {
