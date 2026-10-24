@@ -1,0 +1,743 @@
+{
+  "base": "18aa3b7c37c830556770f35c27b13656dbc701aa",
+  "compiledInventory": {
+    "path": "target/v53-context-capture/inputs3.json",
+    "sha256": "68e3a2c2f590a7f129e1e5db596ceab20de8227333fa6c8dd32f977a854de434"
+  },
+  "compiledMainClasses": {
+    "changed": [
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal$Applied.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipPendingContext.class"
+    ],
+    "classes": 702,
+    "instructionEquivalent": [
+      "io.github.patricklfdm.generalsearch.replication.MembershipGrantJournal$Applied"
+    ],
+    "path": "target/v53-context-capture/compiled-main-classes.json",
+    "sha256": "95dad851c0481ef57d66b0f1e17ba61de7d7a5fec23a5ce69e4ba0be23b9d96d"
+  },
+  "jars": {
+    "target/v53-context-capture/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-capture/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "017d9d1f05ca4f38964237962a88913f468eb42348e1e2821491367eb04407b2"
+  },
+  "javaMethods": 68,
+  "limitations": [
+    "later selection/install and intermediate backing retirement remain disabled",
+    "repeated IOException is not halt/SIGKILL or power-loss qualification",
+    "conditional historical bootstrap/quorum fixture; no maximal full-store old/joint/new qualification",
+    "resource refusal checked in Java; independent file replay distinguishes materialized images from empty completion reservations"
+  ],
+  "logs": {
+    "Applied-after.txt": "63b83804243b1fa856c0affc06cf23589920e6083c38eab7d3ac55e522dac89f",
+    "Applied-before.txt": "63b83804243b1fa856c0affc06cf23589920e6083c38eab7d3ac55e522dac89f",
+    "capture-inventory-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "capture-inventory-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context-acceptance-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context-acceptance-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context-capture-cuts-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context-capture-cuts-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context-capture-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "context-capture-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "draft-replay-error.txt": "797b816842fa3f9125d364a8c2c7f07052d551fb2d7ce2708b6fbba29930bd13",
+    "durable-fence-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "durable-fence-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "journal-context-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "journal-context-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pending-context-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pending-context-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pending-transfer-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pending-transfer-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "red-candidate.log": "c54d93d4d14530c6c38bf4519dbcd9931b55584186e14477987b434fef35a0c5",
+    "replay.log": "5bbf00bb256dc7cf75c474b56e4d7b53f771610e4d93a5a355ce6819cb0378bc",
+    "run1.log": "e072497c291a6bbd3430ff925d951794b087c3f585e8725f488ded4540bc49c0",
+    "run2.log": "fe7577ea3483c62a3d15a5d36eee14567e8f84d25ed78a14b9eeb8296cc4abaa",
+    "run3.log": "d2ad6a4081a03598129abf6af9e7ef0591275c54fc9943a3485b13d7ed21c85f",
+    "source-release-cuts-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source-release-cuts-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source-release-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source-release-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "v53ContextCaptureCuts-draft.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "v53ContextCaptureEvidence-draft.stderr": "8d8a38a7b83b97ad231d1f87dcdbf22115c8aa62bc05999af6f10b83c9689817",
+    "v53ContextCaptureEvidence-draft2.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "newJavaMethods": 7,
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-capture/producer-classes.json",
+    "sha256": "c58825f1663118ecbae9eb1d1b805f2099feab12a736f36cf53d53a8f8b49ffd"
+  },
+  "redGreen": [
+    "well-framed stale context candidate originally refused after source/BASIS recovery wrote bytes; exact early next-context validation now refuses unchanged"
+  ],
+  "replays": {
+    "capture-inventory": {
+      "index": "target/v53-context-capture/capture-inventory-raw-index.json",
+      "members": 595,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-capture-inventory/run-44c8f9a6-0f9f-4d4c-8416-09b8963208c2",
+      "result": {
+        "cases": 12,
+        "contextCaptureEnabled": false,
+        "freshProcesses": false,
+        "negatives": [
+          {
+            "case": "missing-case",
+            "reason": "capture inventory evidence inventory"
+          },
+          {
+            "case": "corrupt-original",
+            "reason": "packet checksum"
+          },
+          {
+            "case": "intent",
+            "reason": "capture inventory exact intent"
+          },
+          {
+            "case": "mutated-prefix",
+            "reason": "capture inventory original cut bytes"
+          },
+          {
+            "case": "resolver-filled-prefix",
+            "reason": "capture inventory resolver mutated bytes"
+          },
+          {
+            "case": "recovery-lost-source",
+            "reason": "capture inventory exact recovery"
+          },
+          {
+            "case": "recovery-changed-basis",
+            "reason": "capture inventory exact recovery"
+          },
+          {
+            "case": "recovery-left-intent",
+            "reason": "capture inventory exact recovery"
+          },
+          {
+            "case": "scope",
+            "reason": "capture inventory receipt scope"
+          },
+          {
+            "case": "symlink",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "profiles": [
+          3,
+          4,
+          5
+        ],
+        "runtimeEnabled": false,
+        "status": "PASS"
+      },
+      "sha256": "c9bdaba445896da524d8eb155ffc36f05a9f62da9007b8a03f26f6b22cf4c70e"
+    },
+    "context-acceptance": {
+      "index": "target/v53-context-capture/context-acceptance-raw-index.json",
+      "members": 2451,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-acceptance/run-e23c777f-9542-4e87-a3cb-01b4aa5b08ab",
+      "result": {
+        "acceptBallot": 21,
+        "cases": 26,
+        "entryOrigin": 20,
+        "freshProcesses": false,
+        "imageSemanticClaim": false,
+        "laterCampaigns": false,
+        "negatives": [
+          {
+            "case": "bad-original",
+            "reason": "context checksum"
+          },
+          {
+            "case": "changed-first",
+            "reason": "context acceptance exact first prefix"
+          },
+          {
+            "case": "changed-second",
+            "reason": "context acceptance exact second prefix"
+          },
+          {
+            "case": "wrong-vote",
+            "reason": "context acceptance exact final authority"
+          },
+          {
+            "case": "kept-context",
+            "reason": "context acceptance exact final authority"
+          },
+          {
+            "case": "kept-floor",
+            "reason": "context acceptance exact final authority"
+          },
+          {
+            "case": "lost-source",
+            "reason": "context acceptance exact final authority"
+          },
+          {
+            "case": "changed-selector",
+            "reason": "context acceptance exact final authority"
+          },
+          {
+            "case": "first-force",
+            "reason": "context acceptance first force order"
+          },
+          {
+            "case": "second-force",
+            "reason": "context acceptance second force order"
+          },
+          {
+            "case": "resume-force",
+            "reason": "context acceptance resume force order"
+          },
+          {
+            "case": "old-proof-ack",
+            "reason": "context acceptance unrelated acknowledgement"
+          },
+          {
+            "case": "scope",
+            "reason": "context acceptance receipt scope"
+          },
+          {
+            "case": "linked-source",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "runtimeEnabled": false,
+        "status": "PASS"
+      },
+      "sha256": "be8c6bf074b2285671b33d5595e420b8c1aee8c80016f5a77b91d9e6f9cc6a3e"
+    },
+    "context-capture": {
+      "index": "target/v53-context-capture/context-capture-raw-index.json",
+      "members": 344,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-capture/run-57fc76de-0437-4192-8482-5fd0235a6994",
+      "result": {
+        "cases": 2,
+        "contextCaptureEnabled": true,
+        "freshProcesses": false,
+        "installedBallot": 21,
+        "negatives": [
+          {
+            "case": "reference",
+            "reason": "context checksum"
+          },
+          {
+            "case": "missing",
+            "reason": "context capture evidence inventory"
+          },
+          {
+            "case": "original-vote",
+            "reason": "context capture exact clean capture"
+          },
+          {
+            "case": "backing",
+            "reason": "context capture exact clean capture"
+          },
+          {
+            "case": "stale-context",
+            "reason": "context capture exact clean capture"
+          },
+          {
+            "case": "scope",
+            "reason": "context capture receipt scope"
+          },
+          {
+            "case": "order",
+            "reason": "context capture clean force order"
+          },
+          {
+            "case": "implicit-grant",
+            "reason": "context capture clean explicit grant"
+          }
+        ],
+        "originalBallot": 20,
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "runtimeEnabled": false,
+        "selectedInstallEnabled": false,
+        "status": "PASS"
+      },
+      "sha256": "a1392c4a24cd97a4e825e35269e0f1f9f97e13bd5f41706187c4ab1b023ba842"
+    },
+    "context-capture-cuts": {
+      "index": "target/v53-context-capture/context-capture-cuts-raw-index.json",
+      "members": 5654,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-capture-cuts/run-e6b87bd9-7f30-4524-9044-184204613ade",
+      "result": {
+        "cases": 34,
+        "contextCaptureEnabled": true,
+        "freshProcesses": false,
+        "installedBallot": 21,
+        "negatives": [
+          {
+            "case": "reference",
+            "reason": "context checksum"
+          },
+          {
+            "case": "missing",
+            "reason": "context capture evidence inventory"
+          },
+          {
+            "case": "original-vote",
+            "reason": "context capture exact explicit grant"
+          },
+          {
+            "case": "backing",
+            "reason": "context capture exact explicit grant"
+          },
+          {
+            "case": "stale-context",
+            "reason": "context capture exact explicit grant"
+          },
+          {
+            "case": "scope",
+            "reason": "context capture receipt scope"
+          },
+          {
+            "case": "order",
+            "reason": "context capture first force order"
+          },
+          {
+            "case": "implicit-grant",
+            "reason": "context capture explicit grant boundary"
+          },
+          {
+            "case": "second-cut",
+            "reason": "context capture exact second interruption"
+          }
+        ],
+        "originalBallot": 20,
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "runtimeEnabled": false,
+        "selectedInstallEnabled": false,
+        "status": "PASS"
+      },
+      "sha256": "037adb7808ccc88211d8266698ff57ef43c1b6f1c81656c16ce3088ab93ff1e9"
+    },
+    "durable-fence": {
+      "index": "target/v53-context-capture/durable-fence-raw-index.json",
+      "members": 478,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-durable-fence/run-74258bec-e679-4715-99b7-7fcb890f3695",
+      "result": {
+        "backingBallot": 21,
+        "freshProcesses": false,
+        "latestPromise": 22,
+        "negatives": [
+          {
+            "case": "bad-reference",
+            "reason": "context checksum"
+          },
+          {
+            "case": "missing-stage",
+            "reason": "context fence evidence inventory"
+          },
+          {
+            "case": "changed-context",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "lost-backing",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "used-latest",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "changed-entry",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "removed-promise",
+            "reason": "context fence exact final bytes"
+          },
+          {
+            "case": "false-fence",
+            "reason": "context fence exact higher promise"
+          },
+          {
+            "case": "foreign-proposer",
+            "reason": "context fence higher proposer identity"
+          },
+          {
+            "case": "foreign-incarnation",
+            "reason": "context fence higher proposer identity"
+          },
+          {
+            "case": "old-ack",
+            "reason": "context fence returned authority"
+          },
+          {
+            "case": "missing-reseal",
+            "reason": "context fence complete reseals"
+          },
+          {
+            "case": "scope",
+            "reason": "context fence receipt scope"
+          },
+          {
+            "case": "linked-context",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "newCampaignEnabled": false,
+        "originalFirst": true,
+        "originalOrigin": 20,
+        "portableReplay": "PASS",
+        "promiseInput": "forced-fixture-frame",
+        "runtimeEnabled": false,
+        "stages": 3,
+        "status": "PASS"
+      },
+      "sha256": "2455b16208cf8ed2ac7800dca3b3d642685d5014e4955fb06b6c4e2ec318b3bb"
+    },
+    "journal-context": {
+      "index": "target/v53-context-capture/journal-context-raw-index.json",
+      "members": 1385,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-journal-context/run-9a1d21e3-3c53-461e-a4bc-757fa90260be",
+      "result": {
+        "cases": 12,
+        "freshProcesses": false,
+        "fullOwnerProgress": false,
+        "imageSemanticClaim": false,
+        "interruptionModel": "injected-IOException",
+        "interruptionsPerCase": 2,
+        "negatives": [
+          {
+            "case": "missing-case",
+            "reason": "owner context case inventory"
+          },
+          {
+            "case": "changed-vote",
+            "reason": "owner context protected authority changed"
+          },
+          {
+            "case": "missing-original",
+            "reason": "owner context protected authority changed"
+          },
+          {
+            "case": "changed-source",
+            "reason": "owner context protected authority changed"
+          },
+          {
+            "case": "changed-context",
+            "reason": "context checksum"
+          },
+          {
+            "case": "lost-prefix",
+            "reason": "owner context interrupted exact prefix"
+          },
+          {
+            "case": "second-crash-progress",
+            "reason": "owner context second interruption changed bytes"
+          },
+          {
+            "case": "force-order",
+            "reason": "owner context force-before-metadata order"
+          },
+          {
+            "case": "old-ack",
+            "reason": "owner context returned old acknowledgement"
+          },
+          {
+            "case": "false-process",
+            "reason": "owner context receipt scope"
+          },
+          {
+            "case": "linked-source",
+            "reason": "owner context linked/nonregular member"
+          },
+          {
+            "case": "extra-all-snapshots",
+            "reason": "owner context initial authority inventory"
+          }
+        ],
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "remoteOwnershipVerified": false,
+        "retirementAuthorized": false,
+        "runtimeEnabled": false,
+        "sourceOwnership": "actual-local-force",
+        "status": "PASS"
+      },
+      "sha256": "71d7504c807b591c7f051cb79e6b7ee7ee9fe0b7a2ad7cba787b366443ddedfa"
+    },
+    "pending-context": {
+      "index": "target/v53-context-capture/pending-context-raw-index.json",
+      "members": 16,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-pending-context/run-d2986836-c0b8-4b97-9a62-b5b0adc14251",
+      "result": {
+        "backingBallot": 21,
+        "borrowedImages": 1,
+        "borrowedObjects": 12,
+        "contextBytes": 11136,
+        "contextForced": false,
+        "execution": "pure-context-codec-reconstruction",
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "imageSemanticClaim": false,
+        "maximumContextBytes": 1466800,
+        "maximumPayloadIndependentlyReplayed": false,
+        "negatives": [
+          "context-checksum",
+          "context-truncated",
+          "context-version",
+          "context-flags",
+          "context-oversize",
+          "segment-overflow",
+          "trailing-context",
+          "missing-metadata",
+          "changed-metadata",
+          "context-entry-binding",
+          "context-vote-identity",
+          "envelope-inventory",
+          "backing-missing-certificate",
+          "changed-original-source",
+          "changed-original-vote",
+          "missing-backing-image",
+          "changed-backing-image",
+          "changed-backing-promise",
+          "changed-root",
+          "extra-member",
+          "linked-member",
+          "false-retirement-authority"
+        ],
+        "origin": 20,
+        "originalFirst": true,
+        "originalMetadataMembers": 6,
+        "originalParentCut": 1,
+        "originalVotePhase": "CERTIFICATE",
+        "pendingIndex": 2,
+        "physicalBytes": true,
+        "portableReplay": "PASS",
+        "remoteOwnershipVerified": false,
+        "retirementAuthorized": false,
+        "runtimeEnabled": false,
+        "selectedCut": 0,
+        "status": "PASS"
+      },
+      "sha256": "80ec4862a67b948602694e1b1b452a47cd1c0552b445f2e262eddfbf66dd8e23"
+    },
+    "pending-transfer": {
+      "index": "target/v53-context-capture/pending-transfer-raw-index.json",
+      "members": 119,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-pending-transfer/run-df0061c1-8222-42ae-bc2d-e74a59f2102f",
+      "result": {
+        "contextForced": false,
+        "fullOwnerProgress": false,
+        "maximumBytesIndependentlyReplayed": false,
+        "negatives": [
+          {
+            "case": "missing-round",
+            "reason": "transfer complete round inventory"
+          },
+          {
+            "case": "extra-round",
+            "reason": "transfer complete round inventory"
+          },
+          {
+            "case": "linked-current",
+            "reason": "transfer linked/nonregular member"
+          },
+          {
+            "case": "changed-current",
+            "reason": "transfer current round marker"
+          },
+          {
+            "case": "earlier-current",
+            "reason": "transfer current round marker"
+          },
+          {
+            "case": "changed-backing-ballot",
+            "reason": "context higher local source ballot/grant"
+          },
+          {
+            "case": "stale-context",
+            "reason": "context exact supplied selector/backing grant"
+          },
+          {
+            "case": "missing-certificate",
+            "reason": "context exact borrowed original certificate"
+          },
+          {
+            "case": "changed-original-metadata",
+            "reason": "context exact original metadata inventory/bytes"
+          },
+          {
+            "case": "false-retirement",
+            "reason": "transfer exact receipt scope"
+          },
+          {
+            "case": "false-force",
+            "reason": "transfer exact receipt scope"
+          },
+          {
+            "case": "false-source-ownership",
+            "reason": "transfer exact receipt scope"
+          }
+        ],
+        "newSourceOwnership": "conditional-fixture",
+        "originalFirst": true,
+        "originalVotePhase": "CERTIFICATE",
+        "portableReplay": "PASS",
+        "retirementAuthorized": false,
+        "rounds": 7,
+        "runtimeEnabled": false,
+        "status": "PASS",
+        "transfers": 6
+      },
+      "sha256": "fcb907c09d212eb178c3fd35c3721172d675df2f9748f3d6c00c8a0793b4aa97"
+    },
+    "source-release": {
+      "index": "target/v53-context-capture/source-release-raw-index.json",
+      "members": 261,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-source-release/run-c69a00cb-c9d3-4d98-ba53-95f4be14370d",
+      "result": {
+        "backing": "edef0d7b-b441-48ba-85cb-e3531e072a58",
+        "cases": 1,
+        "freshProcesses": false,
+        "fullOwnerProgress": false,
+        "imageSemanticClaim": false,
+        "negatives": [
+          {
+            "case": "bad-original",
+            "reason": "context checksum"
+          },
+          {
+            "case": "lost-context",
+            "reason": "context source exact deletion"
+          },
+          {
+            "case": "lost-vote",
+            "reason": "context source exact deletion"
+          },
+          {
+            "case": "lost-backing",
+            "reason": "context source exact deletion"
+          },
+          {
+            "case": "wrong-journal",
+            "reason": "context source exact deletion"
+          },
+          {
+            "case": "kept-source",
+            "reason": "context source exact deletion"
+          },
+          {
+            "case": "changed-recovery",
+            "reason": "context source reopen changed authority"
+          },
+          {
+            "case": "force-order",
+            "reason": "context source clean force order"
+          },
+          {
+            "case": "old-ack",
+            "reason": "context source old acknowledgement"
+          },
+          {
+            "case": "false-process",
+            "reason": "context source receipt scope"
+          },
+          {
+            "case": "linked-context",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "predecessor": "080d8df6-c085-436d-9cc5-d653faac95c4",
+        "runtimeEnabled": false,
+        "status": "PASS"
+      },
+      "sha256": "ab58cb5c8923370bcf6e749eaa6a04fafe0c254ca931dcbca0d656a49673009b"
+    },
+    "source-release-cuts": {
+      "index": "target/v53-context-capture/source-release-cuts-raw-index.json",
+      "members": 1826,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-source-release-cuts/run-27418d99-f0a2-488a-af6a-8a2bae260068",
+      "result": {
+        "backing": "d24a247f-38ae-4c8d-b777-18f782898054",
+        "cases": 14,
+        "freshProcesses": false,
+        "fullOwnerProgress": false,
+        "imageSemanticClaim": false,
+        "negatives": [
+          {
+            "case": "bad-original",
+            "reason": "context checksum"
+          },
+          {
+            "case": "lost-context",
+            "reason": "context source exact resumed deletion"
+          },
+          {
+            "case": "lost-vote",
+            "reason": "context source exact resumed deletion"
+          },
+          {
+            "case": "lost-backing",
+            "reason": "context source exact resumed deletion"
+          },
+          {
+            "case": "wrong-journal",
+            "reason": "context source exact resumed deletion"
+          },
+          {
+            "case": "kept-source",
+            "reason": "context source exact resumed deletion"
+          },
+          {
+            "case": "changed-recovery",
+            "reason": "context source second interruption changed authority"
+          },
+          {
+            "case": "force-order",
+            "reason": "context source first force order"
+          },
+          {
+            "case": "old-ack",
+            "reason": "context source old acknowledgement"
+          },
+          {
+            "case": "false-process",
+            "reason": "context source receipt scope"
+          },
+          {
+            "case": "linked-context",
+            "reason": "owner context linked/nonregular member"
+          },
+          {
+            "case": "wrong-prefix",
+            "reason": "context source exact interrupted prefix"
+          }
+        ],
+        "originalFirst": true,
+        "portableReplay": "PASS",
+        "predecessor": "d8a05a9a-3a93-457b-94b2-a7738b847a32",
+        "runtimeEnabled": false,
+        "status": "PASS"
+      },
+      "sha256": "8ba1b0b15c352b62cc7a414f131ac521a7ec0b8bc091fbdf11a42e88ffb5cef3"
+    }
+  },
+  "schema": "gse-v53-context-capture-local-v1",
+  "scope": [
+    "private protected capture after exact predecessor/generation retirement; no original ENTRY/vote substitution",
+    "source/BASIS/context force before explicit grant; source/candidate plan validation before recovery writes",
+    "two complete captures plus bounded image/journal refusal, unmarked promise, fencing and corruption assertions",
+    "34 twice-interrupted IOException cases with independent physical/force-order replay and live external lock probes"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "198fc0067031a75278ad3bfe20f3bcb7fe6ff7098f7c4bd2807e9980c4fb6db4",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingContext.java": "627305a648659d2d19db2f6a3d00a2466dc8d4b1c82486516e33ef409876d657",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextCaptureTest.java": "c76b40f9c35bc6150b02c11465d6f91b9f22cdfbeaba9f0a7effcb857c03b56b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextSourceReleaseTest.java": "d6e5a07a938c0f196c19a8d0a25570f8d60bb017dd0e3b8a0c697180db32029b",
+    "scripts/v53/context_capture_evidence.py": "2176937a86614cc62421a13d2a4d20b8993f2200cf2dbd58ff7f8cdb562782fd"
+  },
+  "status": "PASS"
+}

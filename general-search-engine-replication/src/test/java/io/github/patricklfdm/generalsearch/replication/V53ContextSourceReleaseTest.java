@@ -106,7 +106,7 @@ class V53ContextSourceReleaseTest {
             var high=new TreeMap<>(object(owner.promised().orElseThrow().value().get("ballot")));high.put("counter",22L);
             owner.observeCurrent(high);events.clear();owner.retireSource(predecessor);done(node,owner);
             assertThrows(IllegalArgumentException.class,()->owner.acceptCurrent(V53ContextRetirementTest.seed.entry(),V53ContextRetirementTest.seed.payload()));
-            assertThrows(IllegalArgumentException.class,()->owner.prepareCurrent(high));V53JournalContextTest.noAck(events);
+            assertThrows(IllegalArgumentException.class,()->owner.prepareCurrent(object(owner.promised().orElseThrow().value().get("ballot"))));V53JournalContextTest.noAck(events);
         }
         assertEquals(0,r.usage().leases());
     }

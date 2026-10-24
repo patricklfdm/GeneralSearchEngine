@@ -229,18 +229,30 @@ final class MembershipGrantJournal implements AutoCloseable {
                 require(journal.pendingBytes()<=maximum-journal.storedJournal().length,"combined pending/grant journal capacity");
             }
             MembershipCaptureFiles.Plan pending=null;
+            boolean protectedCapture=withCapture && journal.capture.pending() && withContext
+                    && Files.exists(path.resolve(MembershipPendingContextFiles.FILE),LinkOption.NOFOLLOW_LINKS);
             if(withCapture && journal.capture.pending()) {
                 require(!journal.rotation.pending() && !journal.sourceRetirement.pending(),"capture conflicts with other pending authority");
                 if(journal.current==null)journal.reloadGenerations();
                 require(journal.pendingAccept==null || !journal.pendingAccept.pending(),"capture conflicts with incomplete pending vote");
                 require(!journal.inactive.pending(),"capture conflicts with pending selector");
-                pending=journal.capturePlan(journal.promise);
-                journal.checkBasis(pending.basis(),journal.promise);
-                journal.capture.bind(pending);
+                if(!protectedCapture) {
+                    pending=journal.capturePlan(journal.promise);
+                    journal.checkBasis(pending.basis(),journal.promise);
+                    journal.capture.bind(pending);
+                }
             }
-            journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases,
+            if(protectedCapture) {
+                var ownerJournal=journal;var plan=new MembershipCaptureFiles.Plan[1];
+                journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases,null,journal.promise,originals->{
+                    ownerJournal.pendingContext=new MembershipPendingContextFiles(path,root,identity,resources,
+                            Math.min(MembershipPendingContextFiles.MAXIMUM_METADATA,maximum-ownerJournal.storedJournal().length-ownerJournal.pendingBytes()));
+                    plan[0]=ownerJournal.contextCapturePlan(ownerJournal.promise,originals);
+                    ownerJournal.checkBasis(plan[0].basis(),ownerJournal.promise);ownerJournal.capture.bind(plan[0]);return plan[0];
+                });pending=plan[0];
+            }else journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases,
                     withSourceRetirement?journal.sourceRetirement.decision().orElse(null):null,pending);
-            if(withContext)journal.pendingContext=new MembershipPendingContextFiles(path,root,identity,resources,
+            if(withContext && journal.pendingContext==null)journal.pendingContext=new MembershipPendingContextFiles(path,root,identity,resources,
                     Math.min(MembershipPendingContextFiles.MAXIMUM_METADATA,maximum-journal.storedJournal().length-journal.pendingBytes()));
             if(journal.current==null)journal.reloadGenerations();
             if(withFloors) {
@@ -263,6 +275,10 @@ final class MembershipGrantJournal implements AutoCloseable {
                 }
             }
             journal.checkOwner();
+            if(protectedCapture) {
+                journal.contextCaptureIdle(true);journal.retainedContextOriginal(false,true);
+                journal.resumeCapture(pending);pending=null;
+            }
             if(withContext && (journal.pendingContext.active().isPresent() || journal.pendingContext.pending())) {
                 if(!journal.recoverContextAcceptance())journal.retainPendingContext();
             }
@@ -325,7 +341,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         return retainedContextOriginal(false);
     }
     private Decoded retainedContextBasis() {
-        require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),"complete retained context required");
+        return retainedContextBasis(false);
+    }
+    private Decoded retainedContextBasis(boolean rebinding) {
+        require(pendingContext!=null && pendingContext.active().isPresent() && (rebinding || !pendingContext.pending()),"complete retained context required");
         var context=pendingContext.active().orElseThrow();
         var backingPromise=MembershipPendingContext.backingPromise(context);var backingBasis=MembershipPendingContext.backingBasis(context);
         String id=(String)backingBasis.value().get("basisId");var savedPromise=promises.get(id);var savedBasis=bases.get(id);
@@ -340,9 +359,12 @@ final class MembershipGrantJournal implements AutoCloseable {
         return backingBasis;
     }
     private MembershipPendingContext.Reconstructed retainedContextOriginal(boolean replacingVote)throws IOException {
-        require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),"complete retained context required");
+        return retainedContextOriginal(replacingVote,false);
+    }
+    private MembershipPendingContext.Reconstructed retainedContextOriginal(boolean replacingVote,boolean rebinding)throws IOException {
+        require(pendingContext!=null && pendingContext.active().isPresent() && (rebinding || !pendingContext.pending()),"complete retained context required");
         require((replacingVote || !pendingAccept.pending()) && !inactive.pending(),"retained context installed authority changed");
-        var backing=retainedContextBasis();var installed=selections.get(current.manifest.value().get("selection"));
+        var backing=retainedContextBasis(rebinding);var installed=selections.get(current.manifest.value().get("selection"));
         var original=MembershipPendingContext.reconstruct(pendingContext.active().orElseThrow(),root,identity,
                 promises.get((String)backing.value().get("basisId")),retainedSource(backing),sources.original(backing).images(),capsuleVerifier);
         require(pendingAccept.active()!=null && (replacingVote || Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes()))
@@ -550,6 +572,50 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipSourcePacket votePacket(){return MembershipPendingAccept.packet(current,pendingAccept==null?null:pendingAccept.active());}
     private MembershipCaptureFiles.Plan capturePlan(Decoded grant)throws IOException {
         return MembershipCaptureFiles.plan(current,grant,identity,votePacket(),voteAccepted());
+    }
+    /** A pending source is derived only from already validated complete backing bytes.
+     * Source inventory admission has not forced anything and supplies no Owned receipt. */
+    private MembershipCaptureFiles.Plan contextCapturePlan(Decoded grant,MembershipBasisSources.Originals originals)throws IOException {
+        var context=pendingContext.active().orElseThrow();var backingPromise=MembershipPendingContext.backingPromise(context);
+        var backingBasis=MembershipPendingContext.backingBasis(context);String id=(String)backingBasis.value().get("basisId");
+        require(promises.containsKey(id) && bases.containsKey(id) && Arrays.equals(promises.get(id).bytes(),backingPromise.bytes())
+                && Arrays.equals(bases.get(id).bytes(),backingBasis.bytes()),"context capture backing grant absent");
+        var stored=originals.read(backingBasis);var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        var backing=Objects.requireNonNull(capsuleVerifier.verify(localRoot,stored.packet(),stored.images()));
+        require(Arrays.equals(backing.packet.bytes(),stored.packet().bytes()),"context capture verifier substituted backing");
+        var original=MembershipPendingContext.reconstructStored(context,root,identity,backingPromise,backingBasis,backing,stored.images(),capsuleVerifier);
+        require(pendingAccept.active()!=null && Arrays.equals(original.vote().bytes(),pendingAccept.active().bytes()),"context capture original vote changed");
+        var protectedSource=MembershipPendingTransfer.capture(original,current.capsule,current.images(),capsuleVerifier);
+        var plan=MembershipCaptureFiles.plan(current,grant,identity,protectedSource.capsule().packet,original.vote().accept().digest(),protectedSource.images());
+        MembershipPendingContext.Context expected=context;
+        if(!Arrays.equals(backingBasis.bytes(),plan.basis().bytes()))expected=MembershipPendingContext.rebindStored(context,root,identity,
+                backingPromise,backingBasis,backing,stored.images(),grant,plan.basis(),protectedSource.capsule(),plan.images(),capsuleVerifier);
+        // Validate even a well-framed foreign candidate before resuming the source or
+        // appending its BASIS. A syntactic context prefix is never repair authority.
+        long remainingBasis=basis==null?plan.basis().bytes().length-tornBasis.length:0;
+        require(pendingContext.completionAllowance(expected)+remainingBasis<=maximum-storedJournal().length-pendingBytes(),"context capture completion capacity");
+        return plan;
+    }
+    private void contextCaptureIdle(boolean recovering)throws IOException {
+        checkOwner();applicationReferencesIdle();
+        require(!inactive.exists() && !inactive.pending() && !pendingAccept.pending() && !sourceRetirement.pending()
+                && !rotation.pending() && !floors.pending() && !floors.releasing() && !retirement.pending()
+                && (recovering || !capture.pending() && !pendingContext.pending()),"context capture requires idle retired original generation");
+        var original=retainedContextOriginal(false,recovering);
+        require(!sources.retainedIdentities().contains(original.vote().promise().value().get("basisId")),"context capture requires retired predecessor source");
+    }
+    private void completeContextCapture(MembershipCaptureFiles.Plan plan)throws IOException {
+        contextCaptureIdle(true);var prior=pendingContext.active().orElseThrow();var oldBasis=retainedContextBasis(true);
+        var oldPromise=promises.get((String)oldBasis.value().get("basisId"));MembershipPendingContext.Context expected=prior;
+        if(!Arrays.equals(oldBasis.bytes(),plan.basis().bytes())) {
+            expected=MembershipPendingContext.rebind(prior,root,identity,oldPromise,retainedSource(oldBasis),sources.original(oldBasis).images(),
+                    plan.promise(),retainedSource(plan.basis()),sources.original(plan.basis()).images(),capsuleVerifier);
+        }
+        require(pendingContext.completionAllowance(expected)<=maximum-storedJournal().length-pendingBytes(),"context capture completion capacity");
+        MembershipGenerationFiles.Guard guard=()->{checkOwner();contextCaptureIdle(true);};
+        sources.resealOriginal(plan.basis(),guard);
+        pendingContext.install(expected,MembershipPendingContext.encode(prior),guard,cut);
+        require(Arrays.equals(retainedContextBasis().bytes(),plan.basis().bytes()),"context capture did not install exact backing");
     }
     private MembershipCapsule verifiedPacket(MembershipSourcePacket packet)throws IOException {
         var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
@@ -1218,6 +1284,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** The same writer monitor will own later generation installation; external changes are refused. */
     synchronized Decoded prepareCurrent(Map<String,Object> incoming) throws IOException {
         require(current!=null,"current generation required");checkOwner();
+        if(pendingContext!=null && pendingContext.active().isPresent())return prepareContextCurrent(incoming);
         if(carriedVoteUntransferred() && promise!=null && basis!=null && promise.value().get("ballot").equals(incoming)) {
             // Replaying an already forced grant does not begin a new campaign or
             // mutate its source, including while derived staging is being retired.
@@ -1230,6 +1297,33 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),
                 "uninstalled adoption fence; prefix recovery required");
         return prepareBound(voteCapsule(),incoming,voteAccepted(),current.images());
+    }
+    private Decoded prepareContextCurrent(Map<String,Object> incoming)throws IOException {
+        contextCaptureIdle(false);var context=current.capsule.context;var next=ballot(context.ballot(incoming,true));
+        observe(context,next);fence(next);
+        if(promise.value().get("ballot").equals(next)) {
+            require(basis!=null && Arrays.equals(basis.bytes(),retainedContextBasis().bytes()),"incomplete context capture; fresh ballot required");
+            // This only acknowledges an already complete protected capture, never the
+            // installed pre-transfer grant or an unmarked later PROMISE.
+            require(!basis.digest().equals(current.manifest.value().get("basis")),"context capture duplicate requires transferred backing");
+            originalSource();cut.at("GRANT_BEFORE_RETURN");checkOwner();fence(next);return basis;
+        }
+        int completion=RESERVATION+MembershipPendingContext.MAXIMUM;
+        if(completion>maximum-journal.length-pendingBytes())throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,
+                AutomaticReplicationException.Outcome.NOT_SUBMITTED,Optional.empty(),"protected capture journal completion capacity",null);
+        var grant=decode(encode("records","PROMISE",Map.of("root",root.manifestDigest(),"view",context.authority(),
+                "ballot",next,"basisId",UUID.randomUUID().toString())),"records","PROMISE");
+        var plan=contextCapturePlan(grant,sources::original);checkBasis(plan.basis(),grant);
+        var capsule=Objects.requireNonNull(capsuleVerifier.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),plan.packet(),plan.images()));
+        require(Arrays.equals(capsule.packet.bytes(),plan.packet().bytes()),"context capture verifier substituted source");
+        var reservation=sources.prepare(plan.basis(),capsule,plan.images());
+        try(var retained=reservation) {
+            append(grant,next);promise=grant;basis=null;selection=null;promises.put(plan.id(),grant);
+            capture.write(plan,this::checkOwner,cut);retained.captureRecovering(this::checkOwner);fence(next);
+            append(plan.basis(),next);basis=plan.basis();bases.put(plan.id(),basis);
+            completeContextCapture(plan);checkOwner();fence(next);capture.clear(this::checkOwner,cut);
+            cut.at("GRANT_BEFORE_RETURN");checkOwner();fence(next);return basis;
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     void observeCurrent(Map<String,Object> incoming) {live();require(current!=null,"current generation required");observe(current.capsule.context,incoming);}
     synchronized Optional<Owned> currentOwnedTail() throws IOException {
@@ -1456,6 +1550,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             sources.resumeCapture(plan,this::checkOwner);
             append(plan.basis(),bound);basis=plan.basis();bases.put(plan.id(),basis);
         }else require(Arrays.equals(basis.bytes(),plan.basis().bytes()),"completed capture basis changed");
+        if(pendingContext!=null && pendingContext.active().isPresent())completeContextCapture(plan);
         checkOwner();fence(bound);capture.clear(this::checkOwner,cut);
     }
 

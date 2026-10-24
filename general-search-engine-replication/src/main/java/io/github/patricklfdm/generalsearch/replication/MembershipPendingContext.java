@@ -118,6 +118,23 @@ final class MembershipPendingContext {
         return next;
     }
 
+    /** Plan an exact backing replacement from read-only admitted bytes. This does not
+     * establish force/ownership; the journal must separately seal source and context. */
+    static Context rebindStored(Context prior,MembershipRoot root,MembershipIdentity owner,Decoded oldPromise,
+            Decoded oldBasis,MembershipCapsule oldSource,Map<String,byte[]> oldImages,Decoded nextPromise,
+            Decoded nextBasis,MembershipCapsule nextSource,Map<String,byte[]> nextImages,MembershipCurrentGeneration.Verifier verifier) {
+        var original=reconstructStored(prior,root,owner,oldPromise,oldBasis,oldSource,oldImages,verifier);
+        require(compareBallot(object(nextPromise.value().get("ballot")),object(oldPromise.value().get("ballot")))>0,
+                "pending context rebind requires newer backing ballot");
+        var binding=new TreeMap<>(validateStructure(prior));binding.put("backingPacket",identity(nextSource.packet.bytes()));
+        var next=decode(encode(new Context(canonical(binding,BINDING_MAXIMUM),prior.selector,nextPromise.bytes(),nextBasis.bytes(),prior.envelope,prior.metadata)));
+        var restored=reconstructStored(next,root,owner,nextPromise,nextBasis,nextSource,nextImages,verifier);
+        require(Arrays.equals(original.vote().bytes(),restored.vote().bytes()),"pending context rebind changed original authority");
+        var before=original.originalFiles();var after=restored.originalFiles();require(before.keySet().equals(after.keySet()),"pending context rebind changed original inventory");
+        for(String name:before.keySet())require(Arrays.equals(before.get(name),after.get(name)),"pending context rebind changed original metadata");
+        return next;
+    }
+
     static byte[] encode(Context context) {
         Objects.requireNonNull(context);validateStructure(context);
         List<byte[]> parts=List.of(context.binding,context.selector,context.promise,context.basis,context.envelope);
@@ -223,17 +240,27 @@ final class MembershipPendingContext {
 
     static Reconstructed reconstruct(Context context,MembershipRoot root,MembershipIdentity owner,Decoded backingPromise,
             MembershipSelection.Source backing,Map<String,byte[]> backingImages,MembershipCurrentGeneration.Verifier verifier) {
+        Objects.requireNonNull(backing);require(backing.owner.equals(owner),"pending context root/owner changed");
+        return reconstructStored(context,root,owner,backingPromise,backing.basis,backing.capsule,backingImages,verifier);
+    }
+    /** Read-only reconstruction from an exact verified packet and retained grant bytes.
+     * Does not assert that BASIS/tail were forced, return a Source/Owned, or authorize a grant. */
+    static Reconstructed reconstructStored(Context context,MembershipRoot root,MembershipIdentity owner,Decoded backingPromise,
+            Decoded backingBasis,MembershipCapsule backing,Map<String,byte[]> backingImages,MembershipCurrentGeneration.Verifier verifier) {
         Objects.requireNonNull(root);Objects.requireNonNull(owner);Objects.requireNonNull(backingPromise);Objects.requireNonNull(backing);
         Objects.requireNonNull(backingImages);Objects.requireNonNull(verifier);var binding=validateStructure(context);
         require(binding.get("root").equals(root.manifestDigest()) && binding.get("node").equals(owner.nodeId().value())
-                && binding.get("storage").equals(owner.storageId().toString()) && backing.owner.equals(owner),"pending context root/owner changed");
-        require(Arrays.equals(context.promise,backingPromise.bytes()) && Arrays.equals(context.basis,backing.basis.bytes()),"pending context backing original grant changed");
-        exactIdentity(backing.capsule.packet.bytes(),binding.get("backingPacket"),"pending context backing packet changed");
-        backing.capsule.packet.bind(backing.basis);backing.capsule.packet.verifyImages(backingImages);
-        var rootRecord=MembershipFormat.decode(backing.capsule.packet.objectBytes(backing.capsule.context.recordRootDigest()),"records","ROOT");
+                && binding.get("storage").equals(owner.storageId().toString()),"pending context root/owner changed");
+        require(owner.nodeId().value().equals(backingBasis.value().get("voter")) && owner.equals(backing.context.identities.get(owner.nodeId().value()))
+                && backing.context.voters().contains(owner.nodeId().value()),"pending context backing eligible identity");
+        backing.context.ballot(backingBasis.value().get("ballot"),true);
+        require(Arrays.equals(context.promise,backingPromise.bytes()) && Arrays.equals(context.basis,backingBasis.bytes()),"pending context backing original grant changed");
+        exactIdentity(backing.packet.bytes(),binding.get("backingPacket"),"pending context backing packet changed");
+        backing.packet.bind(backingBasis);backing.packet.verifyImages(backingImages);
+        var rootRecord=MembershipFormat.decode(backing.packet.objectBytes(backing.context.recordRootDigest()),"records","ROOT");
         require(rootRecord.rootDigest().equals(root.manifestDigest()) && rootRecord.value().get("groupId").equals(root.groupId().value().toString())
                 && rootRecord.value().get("historyId").equals(root.historyId().toString()),"pending context original root identity changed");
-        var packet=MembershipSourcePacket.reconstruct(context.envelope,backing.capsule.packet);
+        var packet=MembershipSourcePacket.reconstruct(context.envelope,backing.packet);
         var images=new TreeMap<String,byte[]>();
         for(var image:packet.images().entrySet()) {
             byte[] original=backingImages.get(image.getKey());require(original!=null && original.length==image.getValue()
@@ -250,15 +277,15 @@ final class MembershipPendingContext {
         var oldPromise=MembershipFormat.decode(originals.get("promise.gsr"),"records","PROMISE");
         var selected=MembershipFormat.decode(originals.get("selected.gsr"),"records","SELECTED");
         require(compareBallot(object(backingPromise.value().get("ballot")),object(oldPromise.value().get("ballot")))>0
-                && backing.capsule.terminal().equals(capsule.terminal()),"pending context backing ballot/parent changed");
-        var entry=MembershipFormat.decode(backing.capsule.packet.objectBytes(digest(binding.get("entry"))),"records","ENTRY");
-        var accept=MembershipFormat.decode(backing.capsule.packet.objectBytes(digest(binding.get("accept"))),"records","ACCEPT");
-        byte[] payload=backing.capsule.packet.objectBytes(digest(binding.get("payload")));
-        Decoded proof=binding.get("proof")==null?null:MembershipFormat.decode(backing.capsule.packet.objectBytes(digest(binding.get("proof"))),"records","PROOF");
-        Decoded certificate=binding.get("certificate")==null?null:MembershipFormat.decode(backing.capsule.packet.objectBytes(digest(binding.get("certificate"))),"records","CERTIFICATE");
+                && backing.terminal().equals(capsule.terminal()),"pending context backing ballot/parent changed");
+        var entry=MembershipFormat.decode(backing.packet.objectBytes(digest(binding.get("entry"))),"records","ENTRY");
+        var accept=MembershipFormat.decode(backing.packet.objectBytes(digest(binding.get("accept"))),"records","ACCEPT");
+        byte[] payload=backing.packet.objectBytes(digest(binding.get("payload")));
+        Decoded proof=binding.get("proof")==null?null:MembershipFormat.decode(backing.packet.objectBytes(digest(binding.get("proof"))),"records","PROOF");
+        Decoded certificate=binding.get("certificate")==null?null:MembershipFormat.decode(backing.packet.objectBytes(digest(binding.get("certificate"))),"records","CERTIFICATE");
         var vote=new MembershipPendingAccept.Vote(selector,oldPromise,selected,entry,accept,payload,proof,certificate);
         exactIdentity(vote.bytes(),binding.get("vote"),"pending context original vote bytes changed");
-        require(accept.digest().equals(backing.basis.value().get("accepted")),"pending context backing omitted original owned acceptance");
+        require(accept.digest().equals(backingBasis.value().get("accepted")),"pending context backing omitted original owned acceptance");
         byte[] ancestry=originals.getOrDefault("ancestry.gsr",new byte[0]);capsule.verifyAncestry(ancestry,List.of());
         MembershipPendingAccept.verify(vote,capsule,originals.get(MembershipSelectionCoverage.FILE),ancestry,owner,List.of(oldPromise),List.of(selected));
         return new Reconstructed(selector,manifest,capsule,vote,originals);
