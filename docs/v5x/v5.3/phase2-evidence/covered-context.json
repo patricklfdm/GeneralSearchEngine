@@ -1,0 +1,506 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "reason": "old exact parent/entry rule rejects covered context",
+      "status": "FAIL"
+    },
+    {
+      "attempt": 2,
+      "reason": "first selected install only; no complete maintenance claim",
+      "status": "PASS"
+    },
+    {
+      "attempt": 3,
+      "reason": "old floor release cannot precede inactive retirement; new plan needed original byte retention",
+      "status": "FAIL"
+    },
+    {
+      "attempt": 4,
+      "reason": "six admitted certificate profiles, ACCEPT/PROOF variants and repeated exception interruptions",
+      "status": "PASS"
+    },
+    {
+      "attempt": 5,
+      "reason": "corruption and volatile fencing plus existing context/install regressions",
+      "status": "PASS"
+    }
+  ],
+  "base": "b73c81e7a07f52a84c3d3db0ee382059415be447",
+  "compiledInputs": {
+    "target/v53-covered-context/inputs1.json": "1ae5586d0e6b416ceb0f95bdf3355eb73fdfcdd51fd0d950bc439da2ef6619a3",
+    "target/v53-covered-context/inputs2.json": "4f3163257947273e7f79929c7a50c2dbb892df06b7de949e126fc8327dfa62e9",
+    "target/v53-covered-context/inputs3.json": "4cbfea4ad5e7df3445f38f09b674129d898ee45dcd3e5deac38388fe0b01befb",
+    "target/v53-covered-context/inputs4.json": "20cc8778db353a39ae4c304487a0dd5748b1b2971f91bb96d108556ec07e1442",
+    "target/v53-covered-context/inputs5.json": "eb6f804d5e7068ca5be37dca159920bf8b322fc67a6b9c760b3e10ff73d4c408"
+  },
+  "compiledMainClasses": {
+    "appliedCodeComparison": {
+      "target/v53-covered-context/applied-after.txt": "7b014d07b7b35ef5a1a1a9f3ba03123c8af26d5f78cc06dd69c54b20d7365162",
+      "target/v53-covered-context/applied-before.txt": "7b014d07b7b35ef5a1a1a9f3ba03123c8af26d5f78cc06dd69c54b20d7365162"
+    },
+    "changed": [
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal$Applied.class",
+      "general-search-engine-replication/target/classes/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.class"
+    ],
+    "classes": 707,
+    "path": "target/v53-covered-context/compiled-main-classes.json",
+    "sha256": "d5c4d63bf4618bde1711837387fd63d9d50589ae2736807f230f1917c9c303a3"
+  },
+  "jars": {
+    "target/v53-covered-context/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-context/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "227e7944e04b6a7f3e8e254323e52d33d3c66f369850b7cf397e161bb3e52d9b"
+  },
+  "logs": {
+    "target/v53-covered-context/contract-draft.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context/normal-before-receipt.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context/optimized-before-receipt.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context/python-initial.log": "698d16d7b93c4bd9707d3cfacda6fb1e0fea99ed0cda6e69bedc42772940540a",
+    "target/v53-covered-context/python-tests-optimized.log": "32123c06afaa22405df0ae455b2a9957a73a7a30732623e89bdb1eee75d7e097",
+    "target/v53-covered-context/python-tests.log": "32123c06afaa22405df0ae455b2a9957a73a7a30732623e89bdb1eee75d7e097",
+    "target/v53-covered-context/reader-development-clean.log": "d5b68163c7eb01a9b34ecc4ac2cc01615386aba66ec657a79ffa3255472ed8e6",
+    "target/v53-covered-context/reader-development-interruptions.log": "008318f109b8f940238593da3767c2465ad54c255d5231d49ced53bc20a6eacf",
+    "target/v53-covered-context/reader-development-prefix.log": "91d69a357c2af495613a8b525b9677315c0cf680ca5b883cf5e0d4fa788c0e4a",
+    "target/v53-covered-context/reader-development-prefix2.log": "3b7a2328a757d4f8b71735374f2f0fad856fc2a3ed829ac91be6861d6c835927",
+    "target/v53-covered-context/reader-development-run3.log": "a49805697d2fc049b3a64917136a8f848090a1ee6ace8fa388f09a779edb8e2d",
+    "target/v53-covered-context/regression-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-covered-context/run1.log": "41dc675bff9038ab7ebda1eedf2832161ba97cda5723b9d71e1dfcf0e221d972",
+    "target/v53-covered-context/run2.log": "453bf9a95a009a4674470195c559e83e882e936f58ad1a4aab91922f7d278552",
+    "target/v53-covered-context/run3.log": "704d7dcb906b0a54c7bc4476f9c09c11643f85a03b1de64a0be26f67566fce38",
+    "target/v53-covered-context/run4.log": "0c570eab94e2c5ccd581a2a543b725e8a2459b7ffb43f8680acffc9b6274a131",
+    "target/v53-covered-context/run5.log": "621c6e4f16bf828f5d37dc723e63fad8f28a65bb1bef9873179a8a8bd374200c"
+  },
+  "originalFailureSources": {
+    "target/v53-covered-context/journal-run1.java.txt": "84986f6fae031357e7a75ea655494c8160cd4bc67fae636281a8525cd2e4590d",
+    "target/v53-covered-context/journal-run2.java.txt": "ecff645f1dddecb725004ed9032b5e01085265e7d7749bf293e9e387c87afc13",
+    "target/v53-covered-context/producer-draft.txt": "7079be65a39df430c26f479802b242e89fa8c696d19441829dcc6523e72317ca",
+    "target/v53-covered-context/producer-run2.java.txt": "7079be65a39df430c26f479802b242e89fa8c696d19441829dcc6523e72317ca",
+    "target/v53-covered-context/producer-run3.java.txt": "c2e0d1a68fd244d98222bcd4166674c7566625fc14b0311b9fa965624d72cd37",
+    "target/v53-covered-context/producer-run4.java.txt": "712a666df411713433fd2fe5362a20e2ae2ce47b9e4a8d8ce75320d949f4fafd"
+  },
+  "producerClasses": {
+    "path": "target/v53-covered-context/producer-classes.json",
+    "sha256": "ea7cb97eb44173a4ad7ec5edc1e216f009d9ff867cad9b536ead807fb160bb60"
+  },
+  "pythonInputs": {
+    "path": "target/v53-covered-context/python-inputs.json",
+    "sha256": "736286a17c193cc8401ef675e657df53fc0d40ca8914038c880e8ca9aae1a5d1"
+  },
+  "pythonTests": 27,
+  "raws": {
+    "run1-v53-covered-context-run-96b1456b-bca3-4e19-8ca2-93d6b9bf6fdc": {
+      "inventory": "target/v53-covered-context/run1-v53-covered-context-run-96b1456b-bca3-4e19-8ca2-93d6b9bf6fdc-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-96b1456b-bca3-4e19-8ca2-93d6b9bf6fdc",
+      "sha256": "56170d7d223020e20186aefc3ba24b7004379d3a0c712710ad05daa7b45ec904"
+    },
+    "run2-v53-covered-context-run-89a5f688-f425-40a4-aa9e-8f8aea4263c7": {
+      "inventory": "target/v53-covered-context/run2-v53-covered-context-run-89a5f688-f425-40a4-aa9e-8f8aea4263c7-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-89a5f688-f425-40a4-aa9e-8f8aea4263c7",
+      "sha256": "5cd80622dc2f80f2f1333b835279df75baeecb13fbd7dd0472be0aaee62d9bf0"
+    },
+    "run3-v53-covered-context-profiles-run-3f443c99-da36-442b-8efa-6285980ad072": {
+      "inventory": "target/v53-covered-context/run3-v53-covered-context-profiles-run-3f443c99-da36-442b-8efa-6285980ad072-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-profiles/run-3f443c99-da36-442b-8efa-6285980ad072",
+      "sha256": "d6be875eea52a39d5d76fa1eb92cc54b2b3de5408cea2a4c67d14281bedd56d2"
+    },
+    "run3-v53-covered-context-run-3b248e0f-094c-4b87-9bc6-b11754ebd745": {
+      "inventory": "target/v53-covered-context/run3-v53-covered-context-run-3b248e0f-094c-4b87-9bc6-b11754ebd745-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-3b248e0f-094c-4b87-9bc6-b11754ebd745",
+      "sha256": "d4dc9d70c67809be53a835d08f29d99389f19b578ead40ec8fd7f8ea216a32d6"
+    },
+    "run3-v53-covered-context-run-b25c14a4-b1b8-4ebf-938c-6f50e6d2670a": {
+      "inventory": "target/v53-covered-context/run3-v53-covered-context-run-b25c14a4-b1b8-4ebf-938c-6f50e6d2670a-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-b25c14a4-b1b8-4ebf-938c-6f50e6d2670a",
+      "sha256": "b78396ad322864db5be2ea0c38d799cafc644f4ae4e1231260e918bca0456ab8"
+    },
+    "run3-v53-covered-context-run-c12661c3-46e4-4c6c-88bc-19abd4706c39": {
+      "inventory": "target/v53-covered-context/run3-v53-covered-context-run-c12661c3-46e4-4c6c-88bc-19abd4706c39-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-c12661c3-46e4-4c6c-88bc-19abd4706c39",
+      "sha256": "41a05a0fe9c32963a757eae774720d8204dca93672ad5cd43f42125fc1b2013c"
+    },
+    "run4-v53-covered-context-profiles-run-9dccec9e-cd33-4d75-9028-2cec6a818c81": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-profiles-run-9dccec9e-cd33-4d75-9028-2cec6a818c81-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context-profiles/run-9dccec9e-cd33-4d75-9028-2cec6a818c81",
+      "sha256": "6f5772ded073fb836b31f3b83307e68c9a2ad352bcfd0dd6b0265d8a6d9174fa"
+    },
+    "run4-v53-covered-context-run-05de555e-72f3-462d-8994-5407836dfc50": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-run-05de555e-72f3-462d-8994-5407836dfc50-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-05de555e-72f3-462d-8994-5407836dfc50",
+      "sha256": "8b232f660bd0a0c121abd4a1e2ee93acd7e85a5869bdb70655d3f0a2425f95e7"
+    },
+    "run4-v53-covered-context-run-085f1cf4-8826-4663-94ea-48d6035aab28": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-run-085f1cf4-8826-4663-94ea-48d6035aab28-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-085f1cf4-8826-4663-94ea-48d6035aab28",
+      "sha256": "3b0c38c12fff32c6e29e38eb8ae719613fa05204fb221f34711680cc8f61b4d4"
+    },
+    "run4-v53-covered-context-run-1775f6ec-a3b7-42e3-84cb-c5f5f3cf7ae1": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-run-1775f6ec-a3b7-42e3-84cb-c5f5f3cf7ae1-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-1775f6ec-a3b7-42e3-84cb-c5f5f3cf7ae1",
+      "sha256": "198745647f43bfe7bbb91ba4dc090cca14cc3b2dc67df1928fd0420710d28408"
+    },
+    "run4-v53-covered-context-run-2a26cf8a-388f-4132-af21-be70af76219a": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-run-2a26cf8a-388f-4132-af21-be70af76219a-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-2a26cf8a-388f-4132-af21-be70af76219a",
+      "sha256": "db0005dac2ecda2b712cf188403b0570c7e140f22384819d9b80061c4fcff8fa"
+    },
+    "run4-v53-covered-context-run-7c1546d6-6eb6-4d47-96c4-2fb62212d4a9": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-run-7c1546d6-6eb6-4d47-96c4-2fb62212d4a9-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-7c1546d6-6eb6-4d47-96c4-2fb62212d4a9",
+      "sha256": "01cbb3630d3da2756e666cfbad1ecf5f07c9f88991b070a7598ac8c09b28131a"
+    },
+    "run4-v53-covered-context-run-851a5137-2655-4f82-beb6-e04a1fea9597": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-run-851a5137-2655-4f82-beb6-e04a1fea9597-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-851a5137-2655-4f82-beb6-e04a1fea9597",
+      "sha256": "d5e86a6d60d15a4046de74521b57ba2bf6f78391d3b906dec4ba4171385ed3e4"
+    },
+    "run4-v53-covered-context-run-c6d3097b-3d9f-4d3c-af71-cacf25198682": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-run-c6d3097b-3d9f-4d3c-af71-cacf25198682-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-c6d3097b-3d9f-4d3c-af71-cacf25198682",
+      "sha256": "ff51a937a4327ef09415b26b61b766cb398e120e79762ccfe26bd4ec7e84b14e"
+    },
+    "run4-v53-covered-context-run-de8eaba0-5ca0-4c5f-9130-0fec4618d3a9": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-run-de8eaba0-5ca0-4c5f-9130-0fec4618d3a9-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-de8eaba0-5ca0-4c5f-9130-0fec4618d3a9",
+      "sha256": "d472c5f2d53d10c1b31d63c97119e0d5131188fbdb343f11288c2efd4cbf406a"
+    },
+    "run4-v53-covered-context-run-e3c49c8c-c59c-4003-8b23-e17b3c6c6290": {
+      "inventory": "target/v53-covered-context/run4-v53-covered-context-run-e3c49c8c-c59c-4003-8b23-e17b3c6c6290-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-e3c49c8c-c59c-4003-8b23-e17b3c6c6290",
+      "sha256": "fc1de10982f8cf465e6464a7752d1820a99b3ea0e4d234b08435260c74bc3aa3"
+    },
+    "run5-v53-context-acceptance-run-3c2823e1-0a57-4585-b394-4e0122d23a1d": {
+      "inventory": "target/v53-covered-context/run5-v53-context-acceptance-run-3c2823e1-0a57-4585-b394-4e0122d23a1d-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-acceptance/run-3c2823e1-0a57-4585-b394-4e0122d23a1d",
+      "sha256": "b5b28afbb568b6068755d2e50b31360b5f85f7676452db650734421158372b73"
+    },
+    "run5-v53-context-durable-fence-run-951d0783-bec8-4ea2-b51b-98f5fef16c8e": {
+      "inventory": "target/v53-covered-context/run5-v53-context-durable-fence-run-951d0783-bec8-4ea2-b51b-98f5fef16c8e-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-durable-fence/run-951d0783-bec8-4ea2-b51b-98f5fef16c8e",
+      "sha256": "6bd0ab8a5a25d9fcc55c44aab21882687a20e9d565e63171e2b5372c1f1dfc52"
+    },
+    "run5-v53-context-installation-cuts-run-d7534663-a940-4b9f-90ea-00ca33a68ca6": {
+      "inventory": "target/v53-covered-context/run5-v53-context-installation-cuts-run-d7534663-a940-4b9f-90ea-00ca33a68ca6-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation-cuts/run-d7534663-a940-4b9f-90ea-00ca33a68ca6",
+      "sha256": "fc769ba318e30681e1ad3efafa9cf04af4becf5bfbab9192b58e23780618e286"
+    },
+    "run5-v53-context-installation-run-9c16d66a-8fa7-4d95-b467-8feafc73db6d": {
+      "inventory": "target/v53-covered-context/run5-v53-context-installation-run-9c16d66a-8fa7-4d95-b467-8feafc73db6d-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation/run-9c16d66a-8fa7-4d95-b467-8feafc73db6d",
+      "sha256": "9331dac1624dc067b9fcc9aadfffc31dc313209344adfa65e65d55cffcd319f0"
+    },
+    "run5-v53-context-intermediate-retirement-run-7c03c0a0-2f6c-447e-b425-ce6a298f5be1": {
+      "inventory": "target/v53-covered-context/run5-v53-context-intermediate-retirement-run-7c03c0a0-2f6c-447e-b425-ce6a298f5be1-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-intermediate-retirement/run-7c03c0a0-2f6c-447e-b425-ce6a298f5be1",
+      "sha256": "980504b6615db7171767ee75c9d88dada34159c35210a82fae34b53a3ce80dfa"
+    },
+    "run5-v53-context-mixed-acceptance-run-edfe52f0-c6b4-496d-9d77-736434e0501c": {
+      "inventory": "target/v53-covered-context/run5-v53-context-mixed-acceptance-run-edfe52f0-c6b4-496d-9d77-736434e0501c-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-mixed-acceptance/run-edfe52f0-c6b4-496d-9d77-736434e0501c",
+      "sha256": "636b4f50f4dcc5ae1c2952fb5c799c371c42b093e613bfed75d5c4af234648eb"
+    },
+    "run5-v53-context-mixed-recovery-run-088a8642-61e1-4441-9335-d47a0008b1e4": {
+      "inventory": "target/v53-covered-context/run5-v53-context-mixed-recovery-run-088a8642-61e1-4441-9335-d47a0008b1e4-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-mixed-recovery/run-088a8642-61e1-4441-9335-d47a0008b1e4",
+      "sha256": "51e684134b862406f59176fc4dd490a842f554b888b14ab94039e411f7b79512"
+    },
+    "run5-v53-context-publication-run-1c2fd1ce-71ff-4fec-b234-0a3f49d59306": {
+      "inventory": "target/v53-covered-context/run5-v53-context-publication-run-1c2fd1ce-71ff-4fec-b234-0a3f49d59306-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-publication/run-1c2fd1ce-71ff-4fec-b234-0a3f49d59306",
+      "sha256": "20d4a794f6edd5354466c02821c8b41e9296f2b302a57c59950e45875093de83"
+    },
+    "run5-v53-context-publication-run-cb6b0a4e-76ad-4849-a335-64732df7be8f": {
+      "inventory": "target/v53-covered-context/run5-v53-context-publication-run-cb6b0a4e-76ad-4849-a335-64732df7be8f-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-publication/run-cb6b0a4e-76ad-4849-a335-64732df7be8f",
+      "sha256": "a2d80fe11316a48528f30be37b7ad423639f312ef0fd6c81426e0982a1fd8f9a"
+    },
+    "run5-v53-context-publication-run-f7cfedb9-f60e-4d7f-a284-cc8f4779d263": {
+      "inventory": "target/v53-covered-context/run5-v53-context-publication-run-f7cfedb9-f60e-4d7f-a284-cc8f4779d263-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-publication/run-f7cfedb9-f60e-4d7f-a284-cc8f4779d263",
+      "sha256": "0de2ac9e47c14b2ab2ff30b6057a61bfe54873fc684c74cf1f32c22f05acd375"
+    },
+    "run5-v53-context-retirement-run-38ae4344-1067-4652-97cb-7e76a154450e": {
+      "inventory": "target/v53-covered-context/run5-v53-context-retirement-run-38ae4344-1067-4652-97cb-7e76a154450e-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-retirement/run-38ae4344-1067-4652-97cb-7e76a154450e",
+      "sha256": "fec4b9eca6594678be9ea39816ff785839ff3adfccd513683b9db0b3402e0678"
+    },
+    "run5-v53-context-retirement-run-3a8180d0-33b8-4332-9ecd-62dbd1c676ff": {
+      "inventory": "target/v53-covered-context/run5-v53-context-retirement-run-3a8180d0-33b8-4332-9ecd-62dbd1c676ff-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-retirement/run-3a8180d0-33b8-4332-9ecd-62dbd1c676ff",
+      "sha256": "7800dbf098f9483725d41e7f5ac38cfee141d313830afd739f9dd3ea46fe64e1"
+    },
+    "run5-v53-context-selection-cuts-run-87498ba1-06b3-434a-80c1-f700acdc133c": {
+      "inventory": "target/v53-covered-context/run5-v53-context-selection-cuts-run-87498ba1-06b3-434a-80c1-f700acdc133c-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-selection-cuts/run-87498ba1-06b3-434a-80c1-f700acdc133c",
+      "sha256": "233647ff05051a75901fcbe5e3cad41b4b69375ccad10f293c13da2d4e0a38ed"
+    },
+    "run5-v53-context-selection-run-3ff6c20d-167d-48ff-aade-c0b70a47e0df": {
+      "inventory": "target/v53-covered-context/run5-v53-context-selection-run-3ff6c20d-167d-48ff-aade-c0b70a47e0df-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-selection/run-3ff6c20d-167d-48ff-aade-c0b70a47e0df",
+      "sha256": "02912fdc1140fc6f8e80522f0c9b53a0d72a06759614a926c7f6c2c3e9b0c6bc"
+    },
+    "run5-v53-context-source-release-run-1220b9fe-c6c0-441b-971b-db00c575cd8c": {
+      "inventory": "target/v53-covered-context/run5-v53-context-source-release-run-1220b9fe-c6c0-441b-971b-db00c575cd8c-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-source-release/run-1220b9fe-c6c0-441b-971b-db00c575cd8c",
+      "sha256": "0709fdfe6737332d0ef7eb39e37ef9f6295b36cba450e22dd21a6d8dabb6ee90"
+    },
+    "run5-v53-context-source-release-run-dc562827-a765-45a0-ac57-02b04cb94ac4": {
+      "inventory": "target/v53-covered-context/run5-v53-context-source-release-run-dc562827-a765-45a0-ac57-02b04cb94ac4-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-source-release/run-dc562827-a765-45a0-ac57-02b04cb94ac4",
+      "sha256": "d05002d01deb8951b1025f218250faacf3bbc596cc9afeac9514adc4a4bc3dee"
+    },
+    "run5-v53-covered-context-run-86493ba8-f7a2-4bc3-9f9f-34581e659a0b": {
+      "inventory": "target/v53-covered-context/run5-v53-covered-context-run-86493ba8-f7a2-4bc3-9f9f-34581e659a0b-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-86493ba8-f7a2-4bc3-9f9f-34581e659a0b",
+      "sha256": "1b629e020401e3a9c5525db786ca0a230b2daec5556684c2a17a3ac64767d4f4"
+    },
+    "run5-v53-covered-context-run-bd0e6d50-be18-4918-99f8-272918a959be": {
+      "inventory": "target/v53-covered-context/run5-v53-covered-context-run-bd0e6d50-be18-4918-99f8-272918a959be-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-context/run-bd0e6d50-be18-4918-99f8-272918a959be",
+      "sha256": "c89c5747ce1007fbc891f6222ae0e8c10c4d6055942515e3b4b35b7d1e351f79"
+    }
+  },
+  "readerFiles": {
+    "target/v53-covered-context/normal.json": "ba31e408515934e3121252cb232767647fbc55fc12db6976c7fd6b01f8282161",
+    "target/v53-covered-context/optimized.json": "ba31e408515934e3121252cb232767647fbc55fc12db6976c7fd6b01f8282161",
+    "target/v53-covered-context/regression-replay.json": "cac14f854057b87ef0c775e6d6238f330dd73c95c1d513e44aad98d5697d7721",
+    "target/v53-covered-context/roots.json": "323b7d4e476345b3d4e4b53c1a4b4d8814f195b5fd00b173d356aeb5dc71f507"
+  },
+  "replay": {
+    "independentImageSemantics": false,
+    "maximalCapacity": false,
+    "negatives": [
+      {
+        "case": "context",
+        "reason": "admitted exact contexts: node-1"
+      },
+      {
+        "case": "floor",
+        "reason": "admitted exact original-retired: node-1"
+      },
+      {
+        "case": "selected-original",
+        "reason": "admitted exact advanced-selected: node-1"
+      },
+      {
+        "case": "installed-original",
+        "reason": "admitted exact covered-installed: node-1"
+      },
+      {
+        "case": "floor-release",
+        "reason": "admitted exact floor-released: node-1"
+      },
+      {
+        "case": "continuation",
+        "reason": "admitted exact slot-2-settled: node-1"
+      },
+      {
+        "case": "bootstrap",
+        "reason": "admitted original public bootstrap"
+      },
+      {
+        "case": "source",
+        "reason": "admitted exact round-4-prepared: node-1"
+      },
+      {
+        "case": "selection",
+        "reason": "admitted exact round-4-selected: node-1"
+      },
+      {
+        "case": "ownership",
+        "reason": "covered actual owner observations"
+      },
+      {
+        "case": "force-order",
+        "reason": "covered context installation cleanup force order"
+      },
+      {
+        "case": "extra-file",
+        "reason": "context selection covered context evidence inventory"
+      },
+      {
+        "case": "linked",
+        "reason": "application evidence inventory bound"
+      },
+      {
+        "case": "first",
+        "reason": "covered context exact interrupted first"
+      },
+      {
+        "case": "second",
+        "reason": "covered context exact interrupted second"
+      },
+      {
+        "case": "trace",
+        "reason": "covered context exact interrupted trace"
+      },
+      {
+        "case": "receipt-type",
+        "reason": "covered context profile receipt"
+      }
+    ],
+    "originalFirst": true,
+    "physicalBytes": true,
+    "portableReplay": "PASS",
+    "profiles": [
+      {
+        "backup": false,
+        "freshProcesses": false,
+        "nodePublications": 5,
+        "peakPhysicalImages": 6,
+        "phase": "CERTIFICATE",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "size": 3,
+        "status": "PASS"
+      },
+      {
+        "backup": true,
+        "freshProcesses": false,
+        "nodePublications": 5,
+        "peakPhysicalImages": 6,
+        "phase": "CERTIFICATE",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "size": 3,
+        "status": "PASS"
+      },
+      {
+        "backup": false,
+        "freshProcesses": false,
+        "nodePublications": 7,
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "size": 4,
+        "status": "PASS"
+      },
+      {
+        "backup": true,
+        "freshProcesses": false,
+        "nodePublications": 7,
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "size": 4,
+        "status": "PASS"
+      },
+      {
+        "backup": false,
+        "freshProcesses": false,
+        "nodePublications": 8,
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "size": 5,
+        "status": "PASS"
+      },
+      {
+        "backup": true,
+        "freshProcesses": false,
+        "nodePublications": 8,
+        "peakPhysicalImages": 7,
+        "phase": "CERTIFICATE",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "size": 5,
+        "status": "PASS"
+      },
+      {
+        "backup": false,
+        "freshProcesses": false,
+        "nodePublications": 5,
+        "peakPhysicalImages": 6,
+        "phase": "ACCEPT",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "size": 3,
+        "status": "PASS"
+      },
+      {
+        "backup": false,
+        "freshProcesses": false,
+        "nodePublications": 5,
+        "peakPhysicalImages": 6,
+        "phase": "PROOF",
+        "powerLoss": false,
+        "publicBootstrap": true,
+        "publicRuntime": false,
+        "size": 3,
+        "status": "PASS"
+      }
+    ],
+    "recovery": {
+      "cases": 11,
+      "freshProcesses": false,
+      "interruptions": 22,
+      "powerLoss": false,
+      "status": "PASS"
+    },
+    "status": "PASS"
+  },
+  "reports": {
+    "target/v53-covered-context/run4-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CoveredContextTest.xml": {
+      "sha256": "4e732b861163e25fe6403918c9a18b4f97164209444a8e298149fda28796aef7",
+      "tests": 3
+    },
+    "target/v53-covered-context/run5-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ContextAcceptanceTest.xml": {
+      "sha256": "190b14eff8e6afc6a2136b760a4e91a1ac22d7bfc363acac75cfe3d62089a860",
+      "tests": 5
+    },
+    "target/v53-covered-context/run5-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ContextDurableFenceTest.xml": {
+      "sha256": "71e6c93e21a8aa3331da190aff36f86b3fe7e7bdff5ec228ca09c3883e0221f9",
+      "tests": 4
+    },
+    "target/v53-covered-context/run5-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ContextInstallationTest.xml": {
+      "sha256": "edf9fb9239e9c2065a215d78970966fb62973616709267dd5bb744e7f6ff3fc3",
+      "tests": 6
+    },
+    "target/v53-covered-context/run5-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ContextMixedAcceptanceTest.xml": {
+      "sha256": "0d3aab3b44c05c4d0f90b4a30b254da701fb60362461b2f8e852567f0da51578",
+      "tests": 1
+    },
+    "target/v53-covered-context/run5-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ContextSelectionTest.xml": {
+      "sha256": "656d87f74de2ae912b522325809b13497649cc551cd1404932c67ea20e558e47",
+      "tests": 5
+    },
+    "target/v53-covered-context/run5-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CoveredContextTest.xml": {
+      "sha256": "962578ab8dd846635c56c1ef4186b1dd97130829e56c9012b0b1d6d7d7cd5b53",
+      "tests": 2
+    },
+    "target/v53-covered-context/run5-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationInstallTest.xml": {
+      "sha256": "86944f28d961b8da2ede9ba3797f1046744fb83bb7517822fe4b9794eefc6b68",
+      "tests": 11
+    }
+  },
+  "schema": "gse-v53-covered-context-local-v1",
+  "scope": {
+    "crossView": false,
+    "freshProcesses": false,
+    "maximalCapacity": false,
+    "mixedOriginalCoveredCompletion": false,
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java": "63216208584f01424af1be66309217cd5d7c70f24c6610c905fe16855d7ce61d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "e3fcb90f1ccb111a4c1da1d71a8e382f8461080eebebcda60d18aa94e6b95992",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredContextTest.java": "ee9bda5081b0b1da576fdea39a0eac9599c09c72c34e24840ec647b412e9726d",
+    "scripts/v53/covered_context_evidence.py": "7f78e983c572074841dd606b18a8b087a2b934e13b74a3188f1324a0e5f6d98c",
+    "scripts/v53/test_covered_context.py": "23a37aa3c0eafd4fb9e831e136cbe331b0fbfc73263e4875603a12db40ff9b63"
+  },
+  "status": "PASS"
+}

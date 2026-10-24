@@ -266,3 +266,7 @@ the unchanged production classes. Complete Phase 2 storage closure remains open.
 
 [Hidden covered applied endpoints](PHASE_2_HIDDEN_STAGING.md) extends the local
 cleanup authority to an exact supplemental RANGE proof; Phase 2 remains open.
+
+[Covered protected contexts](PHASE_2_COVERED_CONTEXT.md) connect an advanced
+stable-view selection to exact original-byte retention, forced empty-vote cleanup
+and ordinary floor maintenance. Phase 2 remains open.

@@ -77,5 +77,6 @@ close the phase without the integrated recovery, resource and physical audit.
 explicit typed retirement of derived staging under an exact newer published
 selection, preserving original votes and all voting fences.
 [Hidden endpoint cleanup](PHASE_2_HIDDEN_STAGING.md) now has supplemental-proof
-owner qualification. Protected-context coverage, complete process/lifetime
-profiles and the closure audit remain pending.
+owner qualification. [Covered protected contexts](PHASE_2_COVERED_CONTEXT.md)
+now have a local selection/install/cleanup and floor-maintenance implementation;
+complete process/lifetime profiles and the closure audit remain pending.

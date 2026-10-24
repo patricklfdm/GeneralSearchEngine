@@ -281,7 +281,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 journal.resumeCapture(pending);pending=null;
             }
             if(withContext && (journal.pendingContext.active().isPresent() || journal.pendingContext.pending())) {
-                if(!journal.recoverContextAcceptance())journal.retainPendingContext();
+                if(!journal.recoverCoveredContext() && !journal.recoverContextAcceptance())journal.retainPendingContext();
             }
             if(withVotes)journal.recoverVote();
             if(pending!=null) {
@@ -369,6 +369,17 @@ final class MembershipGrantJournal implements AutoCloseable {
         var backing=retainedContextBasis(rebinding);var installed=selections.get(current.manifest.value().get("selection"));
         var original=MembershipPendingContext.reconstruct(pendingContext.active().orElseThrow(),root,identity,
                 promises.get((String)backing.value().get("basisId")),retainedSource(backing),sources.original(backing).images(),capsuleVerifier);
+        if(contextCoveredBy(original,current.capsule)) {
+            require(!installing && !inactive.pending() && inactive.exists()
+                    && promise.digest().equals(current.manifest.value().get("promise"))
+                    && basis!=null && basis.digest().equals(current.manifest.value().get("basis"))
+                    && selection!=null && selection.digest().equals(current.manifest.value().get("selection")),
+                    "covered context requires exact completed installed decision");
+            require(pendingAccept.active()==null?replacingVote && !pendingAccept.pending()
+                    :Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes()),"covered context original vote changed");
+            verifyContextCoverage(original,current.capsule,current.ancestry(),selection);
+            contextRetirementFloor(original);contextIntermediate(original,inactive.originalFiles());return original;
+        }
         require(pendingAccept.active()!=null && (replacingVote || Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes()))
                 && !Arrays.equals(original.selector().bytes(),current.selector.bytes())
                 && original.capsule().terminal().equals(current.capsule.terminal())
@@ -415,9 +426,27 @@ final class MembershipGrantJournal implements AutoCloseable {
         var installed=selections.get(current.manifest.value().get("selection"));
         return installed!=null && basis!=null && pendingContext.active().isPresent()
                 && Arrays.equals(basis.bytes(),MembershipPendingContext.backingBasis(pendingContext.active().orElseThrow()).bytes())
-                && selection.value().get("cut").equals(current.capsule.context.cut)
-                && Objects.equals(selection.value().get("nextEntry"),installed.value().get("nextEntry"))
+                && (selection.value().get("cut").equals(current.capsule.context.cut)
+                    && Objects.equals(selection.value().get("nextEntry"),installed.value().get("nextEntry"))
+                    || number(object(selection.value().get("cut")).get("index"))>number(current.capsule.context.cut.get("index")))
                 && compareBallot(object(selection.value().get("ballot")),object(installed.value().get("ballot")))>0;
+    }
+    private boolean contextCoveredBy(MembershipPendingContext.Reconstructed original,MembershipCapsule capsule) {
+        return number(capsule.context.cut.get("index"))>=number(original.vote().entry().value().get("index"));
+    }
+    /** Selection may settle the old slot, but never discard its protected originals.
+     * The exact backing can retain a higher selected ACCEPT for the same entry. */
+    private void verifyContextCoverage(MembershipPendingContext.Reconstructed original,MembershipCapsule next,byte[] ancestry,Decoded chosen)throws IOException {
+        checkOwner();applicationReferencesIdle();var backing=retainedContextBasis();var source=retainedSource(backing);
+        require(contextCoveredBy(original,next) && next.context.view.get("operation")==null
+                && next.context.authority().equals(original.capsule().context.authority()),"covered context requires advanced stable prefix");
+        next.verifyAncestry(ancestry,List.of(original.capsule().terminal(),source.capsule.terminal()));
+        require(basis!=null && Arrays.equals(basis.bytes(),backing.bytes()) && chosen.value().get("ballot").equals(promise.value().get("ballot"))
+                && chosen.value().get("view").equals(next.context.authority()) && chosen.value().get("cut").equals(next.context.cut)
+                && compareBallot(object(promise.value().get("ballot")),object(original.vote().promise().value().get("ballot")))>0
+                && list(chosen.value().get("sources")).stream().map(MembershipFormat::object).anyMatch(row->row.equals(source.reference())),
+                "covered context missing exact selected backing");
+        MembershipContextTail.selected(original,source.capsule.packet,(String)backing.value().get("accepted"));
     }
     private MembershipFloorFiles.Retained contextRetirementFloor(MembershipPendingContext.Reconstructed original)throws IOException {
         var floor=floors.retained().orElseThrow(()->new IllegalArgumentException("retained context missing governing retirement floor"));
@@ -503,6 +532,35 @@ final class MembershipGrantJournal implements AutoCloseable {
         var original=retainedContextOriginal(true);
         if(!pendingAccept.pending() && Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes()))return false;
         completeContextAcceptance(original,contextAcceptance(original),false);return true;
+    }
+    /** A forced covering selector can finish an exact empty vote/context cleanup.
+     * No ACK is emitted; governing floor release remains explicit maintenance. */
+    private boolean recoverCoveredContext()throws IOException {
+        if(pendingContext.active().isEmpty() || pendingContext.pending())return false;
+        var original=retainedContextOriginal(true);
+        if(!contextCoveredBy(original,current.capsule))return false;
+        completeCoveredContext(original);return true;
+    }
+    private void completeCoveredContext(MembershipPendingContext.Reconstructed original)throws IOException {
+        byte[] context=pendingContext.activeBytes().orElseThrow(),selector=current.selector.bytes();
+        byte[] boundPromise=promise.bytes(),boundBasis=basis.bytes(),boundSelection=selection.bytes();
+        MembershipGenerationFiles.Guard guard=()->{
+            checkOwner();otherAuthorityTransactionsIdle();applicationReferencesIdle();
+            require(Arrays.equals(selector,current.selector.bytes()) && Arrays.equals(boundPromise,promise.bytes())
+                    && Arrays.equals(boundBasis,basis.bytes()) && Arrays.equals(boundSelection,selection.bytes()),"covered context installed authority changed");
+            if(pendingContext.active().isPresent()) {
+                require(Arrays.equals(context,pendingContext.activeBytes().orElseThrow()),"covered context metadata changed");
+                require(Arrays.equals(original.vote().bytes(),retainedContextOriginal(true).vote().bytes()),"covered context reconstructed vote changed");
+            }else require(pendingAccept.active()==null && !pendingAccept.pending(),"covered context removed before empty vote");
+        };
+        try {
+            cut.at("CONTEXT_SETTLEMENT_VALIDATED");guard.check();
+            if(pendingAccept.active()!=null)pendingAccept.clearSettled(original.vote(),guard,cut);
+            else require(!pendingAccept.pending(),"covered context unexpected empty-vote candidate");
+            pendingAccept.sealActive(guard,cut);cut.at("CONTEXT_SETTLEMENT_EMPTY_FORCED");guard.check();
+            pendingContext.clearRedundant(context,guard,cut);cut.at("CONTEXT_SETTLEMENT_CLEARED");guard.check();
+            replayFiles.releaseCompletion();appliedEnd.releaseEmptyCompletion();releasePublicationImage();
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     private void completeContextAcceptance(MembershipPendingContext.Reconstructed original,MembershipPendingAccept.Vote vote,boolean acknowledge)throws IOException {
         byte[] context=pendingContext.activeBytes().orElseThrow(),prior=original.vote().bytes(),next=vote.bytes();
@@ -1655,9 +1713,12 @@ final class MembershipGrantJournal implements AutoCloseable {
             require(basis!=null && Arrays.equals(basis.bytes(),retainedContextBasis().bytes())
                     && !basis.digest().equals(current.manifest.value().get("basis")),"context selection requires latest protected capture");
         }else floorIdle();
-        var selected=decision(offered,bridges).selected();var ballot=object(selected.value().get("ballot"));
-        if(original!=null)require(selected.value().get("cut").equals(original.capsule().context.cut)
-                && original.vote().entry().digest().equals(selected.value().get("nextEntry")),"context selection must carry exact original parent/entry");
+        var calculated=decision(offered,bridges);var selected=calculated.selected();var ballot=object(selected.value().get("ballot"));
+        if(original!=null) {
+            if(contextCoveredBy(original,calculated.longest().capsule))verifyContextCoverage(original,calculated.longest().capsule,MembershipGenerationPlan.ancestry(bridges),selected);
+            else require(selected.value().get("cut").equals(original.capsule().context.cut)
+                    && original.vote().entry().digest().equals(selected.value().get("nextEntry")),"context selection must carry exact original parent/entry");
+        }
         if(selection!=null) {require(Arrays.equals(selection.bytes(),selected.bytes()),"selection already fixed; fresh ballot required");return selection;}
         if(original!=null) {
             // The complete context/source remains pinned. Do not turn selection
@@ -1696,8 +1757,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         boolean settles=pendingAccept!=null && pendingAccept.active()!=null
                 && !selected.longest().capsule.context.cut.equals(current.capsule.context.cut);
         var plan=installationPlan(selected,bridges,retainedBridges,images,installed);checkOwner();fence(ballot);
-        if(settles)verifySettlement(pendingAccept.active(),current.copyFiles(),selected.longest().capsule,plan.files);
-        if(retainedOriginal!=null) {
+        if(settles) {
+            if(retainedOriginal!=null)verifyContextCoverage(retainedOriginal,selected.longest().capsule,plan.files.getOrDefault("ancestry.gsr",new byte[0]),selection);
+            else verifySettlement(pendingAccept.active(),current.copyFiles(),selected.longest().capsule,plan.files);
+        }
+        if(retainedOriginal!=null && !settles) {
             require(retainedOriginal.capsule().context.cut.equals(selected.selected().value().get("cut"))
                     && retainedOriginal.vote().entry().digest().equals(selected.selected().value().get("nextEntry")),"context installation changed original tail");
             MembershipContextTail.selected(retainedOriginal,MembershipSourcePacket.decode(plan.files.get("source.gscp")),(String)plan.manifest.value().get("ownedTail"));
@@ -1713,7 +1777,8 @@ final class MembershipGrantJournal implements AutoCloseable {
             releasePublicationImage();
             inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(ballot);},current::check,cut);
             reloadGenerations();
-            if(pendingAccept!=null && settledVoteCandidate(pendingAccept.active()))retireSettledVote();
+            if(retainedOriginal!=null && settles)completeCoveredContext(retainedOriginal);
+            else if(pendingAccept!=null && settledVoteCandidate(pendingAccept.active()))retireSettledVote();
             // The former active generation now occupies the future publication slot.
             // Keep its maximum completion reservation until authorized retirement.
             if(appliedEnd!=null && pendingAccept.active()!=null)reservePublicationImage();
@@ -1729,8 +1794,28 @@ final class MembershipGrantJournal implements AutoCloseable {
             var value=sources.original(original).packet().capsule().value();ancestors.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)value.get("catalog"),(String)value.get("application")));
         }
         var complete=MembershipGenerationPlan.installationBridges(selected,bridges,retainedBridges,ancestors);
-        var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images);
+        var retained=new TreeMap<String,byte[]>();
+        if(installed) {
+            // An exact retry can follow explicit floor/source maintenance. Keep
+            // the already forced extra objects, rechecked against the immutable
+            // local source below; neither the choice nor owned tail can change.
+            var base=MembershipGenerationPlan.selected(root,identity,current.generation,promise,basis,selected,complete,images);
+            var ordinary=MembershipSourcePacket.decode(base.files.get("source.gscp"));
+            for(String h:current.capsule.packet.objectNames())if(!ordinary.objectNames().contains(h))retained.put(h,current.capsule.packet.objectBytes(h));
+        }else if(pendingContext!=null && pendingContext.active().isPresent()) {
+            var original=retainedContextOriginal();
+            if(contextCoveredBy(original,selected.longest().capsule)) {
+                retainInstallationVote(retained,original.vote().accept(),original.capsule().packet,original.vote());
+                if(current.accepted!=null)retainInstallationVote(retained,decode(current.capsule.packet.objectBytes(current.accepted),"records","ACCEPT"),current.capsule.packet,null);
+            }
+        }
+        var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images,retained);
         plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,ancestors);return plan;
+    }
+    private static void retainInstallationVote(Map<String,byte[]> objects,Decoded accept,MembershipSourcePacket packet,MembershipPendingAccept.Vote original) {
+        var entry=original==null?decode(packet.objectBytes((String)accept.value().get("entry")),"records","ENTRY"):original.entry();
+        byte[] payload=original==null?packet.objectBytes((String)entry.value().get("payload")):original.payload();
+        objects.put(accept.digest(),accept.bytes());objects.put(entry.digest(),entry.bytes());objects.put(hash(payload),payload);
     }
     private Decoded prepareBound(MembershipCapsule source,Map<String,Object> incoming,String accepted,Map<String,byte[]> images) throws IOException {
         require((sources==null)==(images==null),"grant source mode mismatch");
