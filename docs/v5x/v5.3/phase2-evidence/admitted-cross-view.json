@@ -1,0 +1,193 @@
+{
+  "attempts": {
+    "firstJava": "omitted retained hidden first-endpoint proof at INTENT",
+    "firstPython": "nonexistent test_context module; corrected to test_context_evidence without discarding failed log",
+    "secondJava": "four joint floor copies plus two generations and two sources exceed seven images on soon removed voter",
+    "sourceMaps": {
+      "target/v53-admitted-cross-view/inputs1.json": "569a0bb88a5042c477363704b77c0cf3155e644e45f2e953860de7375eb659d2",
+      "target/v53-admitted-cross-view/inputs2.json": "89e95c99a9da76bd42abc58726513fd871f8bdd42496609612b16cf9b412dc08",
+      "target/v53-admitted-cross-view/inputs3.json": "c7c04bdd9c5c12ad8be4e572f3b59b5f3ecff89a641fc8091f2b2f07ef342829"
+    }
+  },
+  "base": "b2c7794b0171879ffdde859ccd5dda949bd06f40",
+  "compiledInputs": {
+    "target/v53-admitted-cross-view/inputs3.json": "c7c04bdd9c5c12ad8be4e572f3b59b5f3ecff89a641fc8091f2b2f07ef342829"
+  },
+  "compiledMainClasses": {
+    "classes": 707,
+    "comparison": "identical to corrected mixed context runtime",
+    "path": "target/v53-admitted-cross-view/compiled-main-classes.json",
+    "sha256": "c64efb6197e15ab5bd06c298dba9322504c3b7c518b2c4c83bc5d40400993fca"
+  },
+  "jars": {
+    "target/v53-covered-context-mixed/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-context-mixed/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "f6e0670ef9dbdf5ee1ca77bbe9ebd35c45cf2add41a4c6494d631b1ecd2f63c2"
+  },
+  "logs": {
+    "target/v53-admitted-cross-view/backup-image-reader.log": "167358e74295447b7c354c0df9d619b4bde01c5694035177e0ef1ecd730d668e",
+    "target/v53-admitted-cross-view/contract-draft.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-admitted-cross-view/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-admitted-cross-view/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-admitted-cross-view/partial-reader1.log": "9fcd1d9b616192ae5a30ca1bd40f6ef8a25ac62ba72020fc3029aa2b51eb561e",
+    "target/v53-admitted-cross-view/partial-reader2.log": "b5d012030b6f4f31b637c7f6d6f30744aa66542dbbeb5e0ba3b8b78e87006a5e",
+    "target/v53-admitted-cross-view/profile1-reader1.log": "4b4dcf0e67cc31fa2ce893aad32da3caf44da842e45e99c318cde21695470750",
+    "target/v53-admitted-cross-view/profile1-reader2.log": "4b4dcf0e67cc31fa2ce893aad32da3caf44da842e45e99c318cde21695470750",
+    "target/v53-admitted-cross-view/profile1-reader3.log": "4b4dcf0e67cc31fa2ce893aad32da3caf44da842e45e99c318cde21695470750",
+    "target/v53-admitted-cross-view/profile2-reader1.log": "454300dee66d7b0016f4fa92946fab97680537710e1463f9c5507cd5227c5510",
+    "target/v53-admitted-cross-view/profile3-reader1.log": "659c145fba36db71d4661976d7c38bc60f84faae438aa5dfe62892fef2052be8",
+    "target/v53-admitted-cross-view/python-tests-final-optimized.log": "27aeba3f06b9768b07439464dd1a417ec055fc6e211e01b225ad0a3ae8e4ec21",
+    "target/v53-admitted-cross-view/python-tests-final.log": "25d718152414a917d6eb4a014d599eff20a2b538451c2591d104ace11b9de0dd",
+    "target/v53-admitted-cross-view/python-tests-final2-optimized.log": "27aeba3f06b9768b07439464dd1a417ec055fc6e211e01b225ad0a3ae8e4ec21",
+    "target/v53-admitted-cross-view/python-tests-final2.log": "27aeba3f06b9768b07439464dd1a417ec055fc6e211e01b225ad0a3ae8e4ec21",
+    "target/v53-admitted-cross-view/python-tests-optimized.log": "6508051d44078a986bbb87b1424ea7510c64abe4a4549be6c75a6e2edfd5fac9",
+    "target/v53-admitted-cross-view/python-tests.log": "2e4107cb5fda67ce7479f53b64010a62911fd8349a7b5f723fd8f5b62fcc2b16",
+    "target/v53-admitted-cross-view/python-tests2.log": "25d718152414a917d6eb4a014d599eff20a2b538451c2591d104ace11b9de0dd",
+    "target/v53-admitted-cross-view/run1.log": "7aff37b2273fdaf619f134a05468a61f22c7fdd81d95cb2d178f92b0e13b5b0d",
+    "target/v53-admitted-cross-view/run2.log": "05e16c7e352b7c965f78312bb07267111e1cdd51b4185abbc755b15f8f9f537a",
+    "target/v53-admitted-cross-view/run3.log": "c59ddea53ae920e7e63f6b58d0847ba3aa4db9587d5f608f32d863c58b6bf8f3"
+  },
+  "producerClasses": {
+    "path": "target/v53-admitted-cross-view/producer-classes.json",
+    "sha256": "95797345ac4ad01b2e261e42ac30fe94a2b4113270e60e4406ee9df9bea9ee84"
+  },
+  "pythonInputs": {
+    "path": "target/v53-admitted-cross-view/python-inputs.json",
+    "sha256": "905d05f38707d4f88796ac6b80f066209a9ab8a22c2faa62e895813d4b9bbedd"
+  },
+  "pythonTests": 16,
+  "raws": {
+    "v53-admitted-cross-view-run-c795a8a7-d955-4f2f-83be-791a0ddd22cf": {
+      "inventory": "target/v53-admitted-cross-view/v53-admitted-cross-view-run-c795a8a7-d955-4f2f-83be-791a0ddd22cf-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-admitted-cross-view/run-c795a8a7-d955-4f2f-83be-791a0ddd22cf",
+      "sha256": "afd467686f505bad7171b5b51c08e63d24b69e8a38162a2ee7c5e194b604d769"
+    },
+    "v53-admitted-cross-view-run-dc56fb0f-bb03-4dae-a3a0-4e7b0ef8b56e": {
+      "inventory": "target/v53-admitted-cross-view/v53-admitted-cross-view-run-dc56fb0f-bb03-4dae-a3a0-4e7b0ef8b56e-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-admitted-cross-view/run-dc56fb0f-bb03-4dae-a3a0-4e7b0ef8b56e",
+      "sha256": "4f0ff6438103c0da3dcf99ed85d27533f4de7581e1fcd156d663138bf180b75a"
+    },
+    "v53-admitted-cross-view-run-dde237a3-3ac4-4668-a53a-01f876ff6ac5": {
+      "inventory": "target/v53-admitted-cross-view/v53-admitted-cross-view-run-dde237a3-3ac4-4668-a53a-01f876ff6ac5-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-admitted-cross-view/run-dde237a3-3ac4-4668-a53a-01f876ff6ac5",
+      "sha256": "1050841b292ea70f968ee6723eeaf45609604643fbf23cac1c525898981dbb27"
+    }
+  },
+  "readerFiles": {
+    "target/v53-admitted-cross-view/normal.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-admitted-cross-view/optimized.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c"
+  },
+  "replay": {
+    "negatives": [
+      {
+        "case": "initial-admission",
+        "reason": "admitted original public bootstrap",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-authority-vote",
+        "reason": "admitted exact slot-1-accepted: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "hidden-intent-parent",
+        "reason": "admitted exact slot-6-published: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-grant-source",
+        "reason": "admitted exact campaign-3-prepared: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-final-vote",
+        "reason": "admitted exact slot-7-proved: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-fence",
+        "reason": "admitted exact removed-1-adopted: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-regrant",
+        "reason": "admitted exact removed-1-refused: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "new-stable-source",
+        "reason": "admitted exact campaign-4-prepared: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "control-image",
+        "reason": "cross-view control image changed",
+        "status": "REJECTED"
+      },
+      {
+        "case": "data-sequence",
+        "reason": "cross-view application sequence/documents",
+        "status": "REJECTED"
+      },
+      {
+        "case": "data-document",
+        "reason": "cross-view application document bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "observations",
+        "reason": "cross-view exact observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "cross-view force before return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-force",
+        "reason": "cross-view force before return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-voter",
+        "reason": "context selection admitted publication voters inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "public-runtime",
+        "reason": "cross-view receipt",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "profiles": 4,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "removals": 6,
+    "slots": 60,
+    "status": "PASS"
+  },
+  "reports": {
+    "target/v53-admitted-cross-view/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53AdmittedCrossViewTest.xml": {
+      "sha256": "dc80d69ec68cfb0f9ba285370c2a13006bb324fe4ae38a8e19c62c5eff39fcd0",
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-admitted-cross-view-local-v1",
+  "scope": {
+    "crossView": true,
+    "freshProcesses": false,
+    "maximalApplicationBytes": false,
+    "powerLoss": false,
+    "profiles": "initial 5/4 voters EMPTY and verified backup; REMOVE only",
+    "publicBootstrap": true,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdmittedCrossViewTest.java": "7a707777f4b04119b4413cf9875e6665cb922256242932c5c75f61f2bf71fd5e",
+    "scripts/v53/admitted_cross_view_evidence.py": "939ed87aef16e6c2eb4ed32cb978b8e39e9c1d54873334c1c49b38624f35f76a",
+    "scripts/v53/test_admitted_cross_view.py": "f672e50338fbeadc87a4ec5ded248db9e87adcc95c027b11a8a89a21ed6972da"
+  },
+  "status": "PASS"
+}

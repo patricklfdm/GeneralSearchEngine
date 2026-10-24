@@ -99,3 +99,11 @@ adds 32 repeated-death cases / 96 workers using the original supplemental proof.
 [Full shared-journal boundary](PHASE_2_FULL_JOURNAL.md) tests actual compaction
 and repeated process death at the complete owner's unchanged 32 MiB shared
 budget, with the application completion allowance explicitly preserved.
+
+[Admitted cross-view storage](PHASE_2_ADMITTED_CROSS_VIEW.md) now connects public
+five/four-voter EMPTY and verified-backup provisioning to six actual REMOVE
+transitions, 60 slots and 232 owner publications. Both majorities, exact original
+checkpoint ancestry, seven-image maintenance, removed-node adoption/fencing and
+post-transition typed DATA have independent physical replay. This is a local
+storage matrix; process-death, maximal bytes, ADD/REPLACE learner and distributed
+runtime qualification remain separate obligations.
