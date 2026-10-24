@@ -62,6 +62,7 @@ must fail for exact reasons; normal, `-O` and relocated replay must agree.
 See [retained receipt index](phase2-evidence/context-acceptance.json). These are
 actual local-owner exception tests, not process-death, power-loss or network
 qualification. Historical bootstrap and remote observations remain conditional.
-Later campaigns from a still-retained context, complete phased application and
-publication, maximal resources and coordinated old/joint/new lifetime still need
-their own integration evidence.
+[Three-owner publication](PHASE_2_CONTEXT_PUBLICATION.md) subsequently covers a
+clean phased application/publication history, and [combined process recovery](PHASE_2_CONTEXT_COMPLETION_PROCESS.md) covers repeated halt/SIGKILL through source, vote,
+context and floor handoff. Later campaigns from a still-retained context, maximal
+resources and complete coordinated old/joint/new lifetime remain open.

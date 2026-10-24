@@ -1,0 +1,144 @@
+{
+  "base": "abf5c67cf112732743671bc5df4dda4fe6db7ada",
+  "compiledInventory": {
+    "path": "target/v53-context-completion-process/inputs1.json",
+    "sha256": "029168a76fe3fda3b0c9623e9edd7e3a89174f1772ae44f5521c2ffc9301ca01"
+  },
+  "compiledMainClasses": {
+    "classes": 700,
+    "path": "target/v53-context-completion-process/compiled-main-classes.json",
+    "sha256": "8c8ccdda76a57ac415b9fdbd864b01dd808963ebaf312beb93229d80eea63eff",
+    "unchangedFrom": "context-publication"
+  },
+  "jars": {
+    "target/v53-context-completion-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-completion-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "954a9f6a5725a0288cf95eddb6ab2d1108e4a8c702fe035f03e9652355d66df8"
+  },
+  "javaMethods": 1,
+  "limitations": [
+    "one local three-voter-derived profile; historical bootstrap and remote observations conditional",
+    "halt/SIGKILL is not power loss or distributed election; later fenced-context campaigns and maximal/cross-view lifetimes remain open"
+  ],
+  "logs": {
+    "replay1-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "replay1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run1.log": "4d15f7f40837cb785839e5f0e76caf0665df393528d030d0172c472011b3c0d0"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-completion-process/producer-classes.json",
+    "sha256": "6f8999f77bd2b0287d76e79840abf1b73d1e42d5d1a896cc792eeb99c9bbe04f"
+  },
+  "raw": {
+    "indexSha256": "4a1df2a10a65b3477eb246b58f01525030a8bf2d2d655621482caef802b4707a",
+    "members": 9823,
+    "path": "general-search-engine-replication/target/v53-context-completion-process/run-f21cc473-a1ea-4563-a1bf-2fcdb41a24b6"
+  },
+  "replay": {
+    "acceptBallot": 21,
+    "cases": 86,
+    "entryOrigin": 20,
+    "freshProcesses": 258,
+    "imageSemanticClaim": false,
+    "laterCampaigns": false,
+    "lockProbes": 43,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "completion case inventory"
+      },
+      {
+        "case": "bad-original",
+        "reason": "context checksum"
+      },
+      {
+        "case": "first-prefix",
+        "reason": "completion exact first physical prefix"
+      },
+      {
+        "case": "second-prefix",
+        "reason": "completion exact second physical prefix"
+      },
+      {
+        "case": "final-vote",
+        "reason": "completion exact final authority"
+      },
+      {
+        "case": "kept-context",
+        "reason": "completion exact final authority"
+      },
+      {
+        "case": "kept-floor",
+        "reason": "completion exact final authority"
+      },
+      {
+        "case": "lost-source",
+        "reason": "completion exact final authority"
+      },
+      {
+        "case": "first-force",
+        "reason": "completion first force order"
+      },
+      {
+        "case": "second-force",
+        "reason": "completion second force order"
+      },
+      {
+        "case": "resume-force",
+        "reason": "completion resume force order"
+      },
+      {
+        "case": "wrong-marker",
+        "reason": "completion first death boundary"
+      },
+      {
+        "case": "old-ack",
+        "reason": "completion unrelated acknowledgement"
+      },
+      {
+        "case": "premature-return",
+        "reason": "completion recovery acknowledgement ordering"
+      },
+      {
+        "case": "wrong-return",
+        "reason": "completion recovery acknowledgement ordering"
+      },
+      {
+        "case": "capacity",
+        "reason": "completion result scope/capacity"
+      },
+      {
+        "case": "scope",
+        "reason": "completion receipt scope/inputs"
+      },
+      {
+        "case": "inputs",
+        "reason": "completion receipt scope/inputs"
+      },
+      {
+        "case": "linked-source",
+        "reason": "owner context linked/nonregular member"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "runtimeEnabled": false,
+    "status": "PASS"
+  },
+  "schema": "gse-v53-context-completion-process-local-v1",
+  "scope": [
+    "86 cases, 258 workers and 43 external live-lock probes across source retirement and exact successor completion",
+    "every case has a second process death at active successor force, then exact recovery and two explicit duplicate ACKs",
+    "19 exact negatives, normal/optimized/portable original-first physical/force replay",
+    "lock-safe prerequisite snapshot plus separate external probe; production class bytes unchanged"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextCompletionProcessTest.java": "8216bcaa5867fd004e9450146631198a5a521e5afdf96284c0708299e6f8f7ed",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextCompletionWorker.java": "9844d7658ea960d0782dcbd9d41a9c6595efd49890fc9c74dec9667b63c82fa6",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextRetirementTest.java": "ecdbcee9212a21ee74723beaa4e5c305f9a041179b4ecfdc02b66d4aed0540bc",
+    "scripts/v53/context_completion_process_evidence.py": "0f6e5ef993394a21d3dac87b3dfb36503e6c325c02974276b8b6161342b00997"
+  },
+  "status": "PASS"
+}

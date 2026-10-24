@@ -62,7 +62,8 @@ class V53ContextRetirementTest {
         V53JournalApplicationTest.copy(seed.fixture().f.node(2),evidence.resolve("peer"));
         try(var owner=open(node,1,resources,event->{events.add(event);peak[0]=Math.max(peak[0],resources.usage().counts().getOrDefault(MembershipResources.Unit.APPLICATION,0));})) {
             events.clear();var ballot=new TreeMap<>(object(owner.promised().orElseThrow().value().get("ballot")));ballot.put("counter",24L);owner.observeCurrent(ballot);
-            establish(owner);V53JournalApplicationTest.copy(node,evidence.resolve("floor"));
+            establish(owner);snapshotOwned(node,evidence.resolve("floor"));
+            new V53MembershipOwnershipTest().probe(node.resolve("replica.lock"));
             assertTrue(owner.retireContextOriginal().isPresent());done(node,owner);V53JournalContextTest.noAck(events);
             for(var action:List.<org.junit.jupiter.api.function.Executable>of(owner::releaseFloor,owner::rotateJournal,
                     ()->owner.prepareCurrent(ballot),()->owner.acceptCurrent(seed.entry(),seed.payload()),owner::discardRedundantPendingContext))
@@ -76,6 +77,16 @@ class V53ContextRetirementTest {
         Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-context-retirement-v1","status","PASS","oldSlot",oldSlot,
                 "peakImages",peak[0],"freshProcesses",false,"nextCampaign",false,"runtimeEnabled",false),16384));
         System.out.println("v53ContextRetirementEvidence="+evidence.toAbsolutePath());return evidence;
+    }
+    // Opening/closing another descriptor to a live POSIX lock inode can release
+    // this JVM's lock. Recreate empty lock placeholders without reading them.
+    static void snapshotOwned(Path from,Path to)throws IOException {
+        Files.createDirectory(to);try(var paths=Files.walk(from)){for(Path p:paths.toList()) {
+            Path dest=to.resolve(from.relativize(p));
+            if(Files.isDirectory(p))Files.createDirectories(dest);
+            else if(p.getFileName().toString().endsWith(".lock")){assertEquals(0,Files.size(p));Files.createFile(dest);}
+            else Files.copy(p,dest);
+        }}
     }
     @Test void freshProcessesRetireAfterHaltOrSigkillAndASecondDeathDuringContextRecovery()throws Exception {
         V53ContextRetirementProcess.qualify(completeScenario(),seed.fixture().f.observations);

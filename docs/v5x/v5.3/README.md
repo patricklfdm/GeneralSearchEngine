@@ -204,3 +204,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Context-backed acceptance](PHASE_2_CONTEXT_ACCEPTANCE.md): force the exact successor, retire redundant context/floor, and reserve completion space before ACK.
 
 - [Three-owner context publication](PHASE_2_CONTEXT_PUBLICATION.md): actual new proof, typed apply-once, two publications per owner and a fresh grant after context/source reclamation.
+
+- [Context completion process recovery](PHASE_2_CONTEXT_COMPLETION_PROCESS.md): source/context/floor handoff across 86 repeated-death cases, with independent physical replay.
