@@ -1,0 +1,198 @@
+{
+  "base": "e0ff534394176bcb2bb9432e4de9e09de6b6d6d6",
+  "compiledInputs": {
+    "target/v53-hidden-staging-process/inputs1.json": "ea6fc55277851587d5c120ef61bdc92f0a66356a4ecceebd1448c35333e66c79"
+  },
+  "compiledMainClasses": {
+    "classes": 707,
+    "comparison": "identical to corrected mixed context runtime",
+    "path": "target/v53-hidden-staging-process/compiled-main-classes.json",
+    "sha256": "c64efb6197e15ab5bd06c298dba9322504c3b7c518b2c4c83bc5d40400993fca"
+  },
+  "jars": {
+    "target/v53-covered-context-mixed/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-context-mixed/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "f6e0670ef9dbdf5ee1ca77bbe9ebd35c45cf2add41a4c6494d631b1ecd2f63c2"
+  },
+  "logs": {
+    "target/v53-hidden-staging-process/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-hidden-staging-process/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-hidden-staging-process/prior-owner-replay.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-hidden-staging-process/python-tests-optimized.log": "1d8170c6d126f7d82088a647b4863a8c5c09c279d6d63f82f2fda0ad3a747c0d",
+    "target/v53-hidden-staging-process/python-tests.log": "5c4fa7ff70d8c635fafb800ad9e4cd51b5f366237c2741dbc00cb4477a53fe73",
+    "target/v53-hidden-staging-process/reader-attempt1.stderr": "7a6237282ef0bc0459a64e6e55868a44a57f4e18fe5bac7911f9bb21f24500f0",
+    "target/v53-hidden-staging-process/run1.log": "d84d8b6ca1e8c2601ba96ec2fb14adead3c3d342db2a3ab424df259d8d0da8e6"
+  },
+  "producerClasses": {
+    "path": "target/v53-hidden-staging-process/producer-classes.json",
+    "sha256": "394672efda5295dfb944995e604a582a8cf017f55905f2596c65ce2fd86dddb8"
+  },
+  "pythonInputs": {
+    "path": "target/v53-hidden-staging-process/python-inputs.json",
+    "sha256": "776cb2ea8b2db243e2d57895472c3d5d6e67d81e687fba22c26d009c0aaedda0"
+  },
+  "pythonTests": 21,
+  "raws": {
+    "v53-covered-phased-vote-run-c751a87c-9fa6-4a79-93aa-47bc9ebb5d8f": {
+      "inventory": "target/v53-hidden-staging-process/v53-covered-phased-vote-run-c751a87c-9fa6-4a79-93aa-47bc9ebb5d8f-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-phased-vote/run-c751a87c-9fa6-4a79-93aa-47bc9ebb5d8f",
+      "sha256": "1a7ae427b4f07a8a823b3fd549b73dbd03b0b0e91afbefe11cfbc9b5b65c6d61"
+    },
+    "v53-hidden-staging-process-run-3b29d9aa-ba24-43ca-954d-587a3f4e3e91": {
+      "inventory": "target/v53-hidden-staging-process/v53-hidden-staging-process-run-3b29d9aa-ba24-43ca-954d-587a3f4e3e91-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-hidden-staging-process/run-3b29d9aa-ba24-43ca-954d-587a3f4e3e91",
+      "sha256": "a64942436c0807b1a1a8921d29bd71908257e45be874d467a0c11f58d3b19aa6"
+    }
+  },
+  "readerCorrection": {
+    "reason": "binary proof passed to JSON comparison before negative qualification",
+    "sourceSha256": "5177bdb7b8067841fc732df952499028b099cca0f5ee5b63188eb606c6f4686f",
+    "stderrSha256": "7a6237282ef0bc0459a64e6e55868a44a57f4e18fe5bac7911f9bb21f24500f0"
+  },
+  "readerFiles": {
+    "target/v53-hidden-staging-process/normal.json": "fbac6b73a5eeb37bee458a87ae0f28c12dd043eeee10a59eeb812a3ced829f9a",
+    "target/v53-hidden-staging-process/optimized.json": "fbac6b73a5eeb37bee458a87ae0f28c12dd043eeee10a59eeb812a3ced829f9a",
+    "target/v53-hidden-staging-process/prior-owner-replay.json": "67d716a82aee5e03e318abb17083def8acece991fe231d05220c3b14f4e7b51d"
+  },
+  "replay": {
+    "cases": 32,
+    "freshProcesses": 96,
+    "lockProbes": 16,
+    "maximalCapacity": false,
+    "negatives": [
+      {
+        "case": "hidden-proof",
+        "reason": "hidden staging exact applied ancestry",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offered-proof",
+        "reason": "hidden process exact offered proof",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-applied",
+        "reason": "admitted exact lagging-applied: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "first-marker",
+        "reason": "staging process exact first snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "second-vote",
+        "reason": "staging process exact second snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-source",
+        "reason": "staging process exact final snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cleanup-force",
+        "reason": "staging process exact force/death order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "replay-force",
+        "reason": "staging process replay force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "kill-handshake",
+        "reason": "staging process kill handshake",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-ack",
+        "reason": "covered staging emitted old ACK",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peak-images",
+        "reason": "staging process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "runtime",
+        "reason": "staging process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-code",
+        "reason": "staging process exact first exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-cut",
+        "reason": "staging process exact second exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stderr",
+        "reason": "staging process stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-path",
+        "reason": "staging process lock probe",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-exit",
+        "reason": "staging process lock exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-stderr",
+        "reason": "staging process lock stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt",
+        "reason": "staging process exact receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "admitted-path",
+        "reason": "staging process admitted paths",
+        "status": "REJECTED"
+      },
+      {
+        "case": "observations",
+        "reason": "staging process original observations",
+        "status": "REJECTED"
+      }
+    ],
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "replaySemantics": "producer-only",
+    "status": "PASS"
+  },
+  "reports": {
+    "target/v53-hidden-staging-process/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53HiddenStagingProcessTest.xml": {
+      "sha256": "f48db650ce0bb13935c5caca4487f4e23b49d09f5332ca2749b745ad7a69444e",
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-hidden-staging-process-local-v1",
+  "scope": {
+    "crossView": false,
+    "freshProcesses": true,
+    "maximalBytes": false,
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53HiddenStagingProcessTest.java": "93947a9dc0a002832fa5e7ca48bc2734622206acf8b83dce7902c7e749062b3f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53HiddenStagingProcessWorker.java": "15f012b85d14a37265c1dbe86e2242ad38e8c9bf849bb58d9320426eecff6cb7",
+    "scripts/v53/hidden_staging_evidence.py": "023323a0852d1cbd2e3c1593164bd72a38a8574ee346871922f13e500769fd5a",
+    "scripts/v53/hidden_staging_process_evidence.py": "ccab901daecdbb5ab829b0dbfefa7585e85ddcd0899d3b30404a1609a8be743a",
+    "scripts/v53/test_hidden_staging_process.py": "5edfee76c314beda000803e99bb2626379c9cfb45e62d888fed708b08d8d234b"
+  },
+  "status": "PASS"
+}

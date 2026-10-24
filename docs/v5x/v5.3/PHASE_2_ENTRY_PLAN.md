@@ -92,3 +92,6 @@ source. This is local storage orchestration, not an automatic runtime policy.
 [Forced-successor source process recovery](PHASE_2_SOURCE_SUCCESSOR_PROCESS.md)
 qualifies fifteen reclamation boundaries under halt/SIGKILL and a second recovery
 interruption, preserving exact admitted authority and the original vote.
+
+[Hidden applied-endpoint process recovery](PHASE_2_HIDDEN_STAGING_PROCESS.md)
+adds 32 repeated-death cases / 96 workers using the original supplemental proof.

@@ -30,7 +30,7 @@ def prefix(root,clean):
     if clean:
         extras|={'staging-retired','round-3-installed','round-3-settled','continued.gsr'}|{f'round-4-{v}' for v in ('prepared','selected','installed','settled')}
         extras|={f'slot-3-{v}' for v in ('accepted','proved','certified','applied','published','settled')}|{'typed-3-'+n for n in names}
-    else:extras|={'interruptions.json'}|{'interrupted-'+v for v in CUTS}
+    elif clean is False:extras|={'interruptions.json'}|{'interrupted-'+v for v in CUTS}
     profile,names,lagging,majority=p.layout(root,'prepared',extras);e.need(profile['phase']=='CERTIFICATE','hidden staging certificate profile')
     before,after,observed=p.prefix(root,profile,names,lagging,majority,staging=extend)
     after={n:q.without_staging(v) for n,v in after.items()}

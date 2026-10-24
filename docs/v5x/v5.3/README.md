@@ -281,3 +281,6 @@ preserving the seven-image limit. Phase 2 remains open.
 
 [Forced-successor source process recovery](PHASE_2_SOURCE_SUCCESSOR_PROCESS.md)
 adds 30 repeated-death cases / 90 workers and fifteen live lock probes.
+
+[Hidden applied-endpoint process recovery](PHASE_2_HIDDEN_STAGING_PROCESS.md)
+adds 32 repeated-death cases / 96 workers using the original supplemental proof.

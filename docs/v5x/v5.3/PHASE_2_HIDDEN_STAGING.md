@@ -50,3 +50,6 @@ power-loss qualification for this new hidden-endpoint path. Protected contexts,
 complete cross-view storage, maximal capacity/lifetime and the final S/N storage
 mapping remain in the [closure checklist](PHASE_2_CLOSURE_CHECKLIST.md). Public
 runtime, frozen limits/formats, workflows and V5.2 remain unchanged.
+
+The subsequent [dedicated process gate](PHASE_2_HIDDEN_STAGING_PROCESS.md) now
+qualifies repeated halt/SIGKILL recovery for this hidden-endpoint path.
