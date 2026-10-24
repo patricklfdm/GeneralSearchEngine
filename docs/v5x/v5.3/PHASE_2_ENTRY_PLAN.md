@@ -95,3 +95,7 @@ interruption, preserving exact admitted authority and the original vote.
 
 [Hidden applied-endpoint process recovery](PHASE_2_HIDDEN_STAGING_PROCESS.md)
 adds 32 repeated-death cases / 96 workers using the original supplemental proof.
+
+[Full shared-journal boundary](PHASE_2_FULL_JOURNAL.md) tests actual compaction
+and repeated process death at the complete owner's unchanged 32 MiB shared
+budget, with the application completion allowance explicitly preserved.

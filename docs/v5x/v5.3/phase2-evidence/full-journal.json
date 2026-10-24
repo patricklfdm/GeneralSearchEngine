@@ -1,0 +1,156 @@
+{
+  "attempts": {
+    "firstJava": "producer exception-class expectation at physical bound",
+    "prematureReader": "incomplete producer inventory refused before any negative qualification",
+    "sourceMaps": {
+      "target/v53-full-journal/inputs1.json": "9fb5730ed5ea90ded238024cd3a7c7314fbb7a2da20f2af9a619585cf6fb7f89",
+      "target/v53-full-journal/inputs2.json": "832c154c5ec35ddca07357cc9a919036d1f0595460ad76468b2e08de45bc92aa"
+    }
+  },
+  "base": "e77613770fd10729f57e1ae977f0bdada0bdd8e1",
+  "compiledInputs": {
+    "target/v53-full-journal/inputs2.json": "832c154c5ec35ddca07357cc9a919036d1f0595460ad76468b2e08de45bc92aa"
+  },
+  "compiledMainClasses": {
+    "classes": 707,
+    "comparison": "identical to corrected mixed context runtime",
+    "path": "target/v53-full-journal/compiled-main-classes.json",
+    "sha256": "c64efb6197e15ab5bd06c298dba9322504c3b7c518b2c4c83bc5d40400993fca"
+  },
+  "jars": {
+    "target/v53-covered-context-mixed/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-covered-context-mixed/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "f6e0670ef9dbdf5ee1ca77bbe9ebd35c45cf2add41a4c6494d631b1ecd2f63c2"
+  },
+  "logs": {
+    "target/v53-full-journal/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-full-journal/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-full-journal/premature-reader.stderr": "6807b944df3fecd63e5a9040442dd7cbd502fe7ccfecf7b3e182544af334583b",
+    "target/v53-full-journal/python-tests-attempt1.log": "f8eedb8d2b4a9fcc29f53f0866a8f0e1578aa33f41062d219e219b33b54aeb4e",
+    "target/v53-full-journal/python-tests-optimized.log": "3c67198eb2ae93efec833b35aaec4830b9dbd29cf77e4f36bddf0ae93bc06dab",
+    "target/v53-full-journal/python-tests.log": "cd525064bfd32ffbb95c75ba0aa7f95428c319cfe8e34f24e5564f024b472126",
+    "target/v53-full-journal/run1.log": "22c72c5678f155120918e8d8e160acaa4f260d6bca7cf52f367acf533ff2e5ee",
+    "target/v53-full-journal/run2.log": "8482b1c3b6cfa4d7d7b1b2f7967181f5f9759635e7da939271ad23793fbdc741"
+  },
+  "producerClasses": {
+    "path": "target/v53-full-journal/producer-classes.json",
+    "sha256": "6c017745b989c4060f648b2543eb9340ef58349d685a785715e71d20e2d9a86e"
+  },
+  "pythonInputs": {
+    "path": "target/v53-full-journal/python-inputs.json",
+    "sha256": "fe705272c3ca5253930894d822575d55fcc5eb63e36bd72820b34139c9280413"
+  },
+  "pythonTests": 17,
+  "raws": {
+    "v53-full-journal-run-4b9e5e75-cc64-4883-a8f3-5e69960048e6": {
+      "inventory": "target/v53-full-journal/v53-full-journal-run-4b9e5e75-cc64-4883-a8f3-5e69960048e6-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-full-journal/run-4b9e5e75-cc64-4883-a8f3-5e69960048e6",
+      "sha256": "89bc3ea2dd7a24a8752d48e316ed0b7895a90072df452bab29fe1c2979be53ec"
+    },
+    "v53-full-journal-run-fa466cf5-d857-493d-8abc-e77b5a5502c4": {
+      "inventory": "target/v53-full-journal/v53-full-journal-run-fa466cf5-d857-493d-8abc-e77b5a5502c4-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-full-journal/run-fa466cf5-d857-493d-8abc-e77b5a5502c4",
+      "sha256": "e76e4715dd28f027c0c92df918e1e320b6e3bcf98be154cadc80e8d3d0b392e3"
+    }
+  },
+  "readerFiles": {
+    "target/v53-full-journal/normal.json": "e2614bdf5648afce96c65a825b98a7563bfd76ed57026f1bdb26b4c657facacf",
+    "target/v53-full-journal/optimized.json": "e2614bdf5648afce96c65a825b98a7563bfd76ed57026f1bdb26b4c657facacf"
+  },
+  "replay": {
+    "cases": 12,
+    "fixtureFrames": 89876,
+    "fixtureHistory": "preconstructed-complete-abandoned-promises",
+    "freshProcesses": 38,
+    "journalBytes": 31279080,
+    "lockProbes": 6,
+    "negatives": [
+      {
+        "case": "first-journal",
+        "reason": "full journal first snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "second-candidate",
+        "reason": "full journal second snapshot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-source",
+        "reason": "full journal exact new source",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "full journal force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit",
+        "reason": "full journal exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stderr",
+        "reason": "full journal stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "result",
+        "reason": "full journal result",
+        "status": "REJECTED"
+      },
+      {
+        "case": "kill-marker",
+        "reason": "full journal kill handshake",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-path",
+        "reason": "full journal lock binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-stderr",
+        "reason": "full journal lock stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-exit",
+        "reason": "full journal lock exit",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "reservedBytes": 2275352,
+    "sharedMaximum": 33554432,
+    "status": "PASS"
+  },
+  "reports": {
+    "target/v53-full-journal/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53FullJournalTest.xml": {
+      "sha256": "0e51a395aff86afed00cba4312e53ca7f4d4ac1d57c75683eeade51b36ca696b",
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-full-journal-local-v1",
+  "scope": {
+    "crossView": false,
+    "fixtureHistory": "preconstructed-complete-abandoned-promises",
+    "freshProcesses": true,
+    "maximalApplicationBytes": false,
+    "maximalSharedJournal": true,
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FullJournalTest.java": "0e333855030ad7826f1f8e2ddd1ac61049d45ce2baefd5ecb5de887f88140a02",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FullJournalWorker.java": "5170bd39de8337e374ce802eb1ba78f7d94d32f5e678f40c304ab3e62a8a8219",
+    "scripts/v53/full_journal_evidence.py": "f6a95f8bda02ec50b91b33fb6772510b4f775839e734803ed91f5c0c77e75b12",
+    "scripts/v53/test_full_journal.py": "b83a63cc94210dba498419598e4082fee4570afca06ac2c40d92a492ef5aec7d"
+  },
+  "status": "PASS"
+}
