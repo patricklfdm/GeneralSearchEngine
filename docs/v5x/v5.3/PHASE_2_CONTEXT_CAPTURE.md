@@ -3,8 +3,9 @@
 Phase 2 remains **OPEN**. The private local owner can now capture a fresh grant
 while one original pending context is retained, after its old generation and
 predecessor source have retired. The current installed generation and governing
-floor remain unchanged. Later selected installation and continuous bounded source
-reclamation remain separate work.
+floor remain unchanged. [Intermediate backing retirement](PHASE_2_CONTEXT_BACKING_RETIREMENT.md)
+subsequently adds bounded repeated source reclamation; later selected installation
+remains separate work.
 
 ## Exact local transaction
 

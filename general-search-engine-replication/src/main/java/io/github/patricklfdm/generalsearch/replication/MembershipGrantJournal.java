@@ -1120,15 +1120,40 @@ final class MembershipGrantJournal implements AutoCloseable {
         var plan=MembershipSourceRetirementPlan.create(root,identity,current,retained,promise,promises.get(id),originalBasis,capsule,original.images());
         checkOwner();return plan;
     }
-    /** The old vote's separate complete context/backing replaces its physical source
-     * dependency. Never use this permission for the context backing source itself. */
+    /** A forced context may cover the predecessor or a strictly intermediate
+     * backing. The installed grant and latest backing are never disposable. */
     private void contextSourceRetirement(String id)throws IOException {
         require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),
                 "source still owns pending ACCEPT authority");
-        var original=retainedContextOriginal();applicationReferencesIdle();
-        require(id.equals(original.vote().promise().value().get("basisId")) && !id.equals(retainedContextBasis().value().get("basisId")),
-                "context source retirement requires original predecessor, not backing");
+        var original=retainedContextOriginal();applicationReferencesIdle();var backing=retainedContextBasis();
+        require(!id.equals(backing.value().get("basisId")),"context source retirement cannot remove backing");
         require(!inactive.exists() && !inactive.pending(),"context source retirement requires retired generation");
+        if(id.equals(original.vote().promise().value().get("basisId")))return;
+        // After the forced decision prunes the journal and begins deletion, the
+        // original frames survive only in that exact retained decision. Never
+        // reconstruct authority from a partially deleted source directory.
+        var priorPromise=promises.get(id);var priorBasis=bases.get(id);
+        if(priorPromise==null) {
+            var decision=sourceRetirement.decision().orElseThrow(()->new IllegalArgumentException("context source retirement original decision absent"));
+            require(id.equals(decision.id()),"context source retirement different decision");
+            priorPromise=decision.promise();priorBasis=decision.basis();
+        }
+        var installed=selections.get(current.manifest.value().get("selection"));
+        require(priorBasis!=null && id.equals(priorBasis.value().get("basisId"))
+                && priorPromise.value().get("root").equals(backing.value().get("root"))
+                && priorPromise.value().get("view").equals(backing.value().get("view"))
+                && priorBasis.value().get("voter").equals(identity.nodeId().value())
+                && original.vote().accept().digest().equals(priorBasis.value().get("accepted"))
+                && compareBallot(object(priorPromise.value().get("ballot")),object(installed.value().get("ballot")))>0
+                && compareBallot(object(priorPromise.value().get("ballot")),object(backing.value().get("ballot")))<0,
+                "context source retirement requires covered intermediate backing");
+        if(promises.containsKey(id)) {
+            var packet=sources.original(id,priorPromise,priorBasis).packet();
+            var vote=original.vote();var originals=new ArrayList<byte[]>(List.of(vote.entry().bytes(),vote.payload(),vote.accept().bytes()));
+            if(vote.proof()!=null)originals.add(vote.proof().bytes());
+            if(vote.certificate()!=null)originals.add(vote.certificate().bytes());
+            for(var bytes:originals)require(Arrays.equals(bytes,packet.objectBytes(hash(bytes))),"context source retirement original bytes changed");
+        }
     }
     /** Complete one exact source retirement; all other writer mutations remain blocked. */
     synchronized Decoded retireSource(String id)throws IOException {

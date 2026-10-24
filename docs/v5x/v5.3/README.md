@@ -207,8 +207,10 @@ requiring application bytes. It remains separate from typed/committed admission.
 
 - [Context completion process recovery](PHASE_2_CONTEXT_COMPLETION_PROCESS.md): source/context/floor handoff across 86 repeated-death cases, with independent physical replay.
 
-- [Retained context under a later durable promise](PHASE_2_CONTEXT_DURABLE_FENCE.md): distinguish exact backing, installed selection and latest promise during recovery; new context campaigns remain disabled.
+- [Retained context under a later durable promise](PHASE_2_CONTEXT_DURABLE_FENCE.md): distinguish exact backing, installed selection and latest promise during recovery; protected capture is covered by the later gate below.
 
-- [Deferred capture inventory](PHASE_2_CAPTURE_INVENTORY.md): reserve complete backing sources before resolving an exact pending capture; context PREPARE/rebind integration remains open.
+- [Deferred capture inventory](PHASE_2_CAPTURE_INVENTORY.md): reserve complete backing sources before resolving an exact pending capture; the following protected-capture gate integrates context PREPARE/rebind.
 
 - [Protected context capture](PHASE_2_CONTEXT_CAPTURE.md): actual source/BASIS/context force before a fresh local grant, exact repeated-interruption recovery and bounded capture refusal; later selected installation remains open.
+
+- [Intermediate context backing retirement](PHASE_2_CONTEXT_BACKING_RETIREMENT.md): repeated protected capture and exact obsolete-source deletion within seven peak/six steady image reservations.
