@@ -16,6 +16,11 @@ final class MembershipSourceRetirementPlan {
     static MembershipSourceRetirementPlan create(MembershipRoot root,MembershipIdentity identity,
             MembershipCurrentGeneration current,MembershipFloorFiles.Retained retained,Decoded highest,
             Decoded promise,Decoded basis,MembershipCapsule original,Map<String,byte[]> images) throws IOException {
+        return create(root,identity,current,retained,highest,promise,basis,original,images,null);
+    }
+    static MembershipSourceRetirementPlan create(MembershipRoot root,MembershipIdentity identity,
+            MembershipCurrentGeneration current,MembershipFloorFiles.Retained retained,Decoded highest,
+            Decoded promise,Decoded basis,MembershipCapsule original,Map<String,byte[]> images,MembershipPendingContext.Reconstructed context) throws IOException {
         current.check();require(promise.kind().equals("PROMISE") && (basis==null || basis.kind().equals("BASIS")) && highest.kind().equals("PROMISE"),"source retirement grant records");
         String id=(String)promise.value().get("basisId");require(id!=null,"source retirement original identity");
         require(promise.value().get("root").equals(root.manifestDigest()) && highest.value().get("root").equals(root.manifestDigest())
@@ -59,7 +64,7 @@ final class MembershipSourceRetirementPlan {
                 for(String digest:List.of(accept.digest(),entry.digest(),(String)entry.value().get("payload")))
                     require(Arrays.equals(original.packet.objectBytes(digest),current.capsule.packet.objectBytes(digest)),"source retirement loses above-floor original bytes");
                 if(number(accept.value().get("index"))>number(current.capsule.context.cut.get("index")))
-                    require(accept.digest().equals(current.accepted),"source retirement loses unresolved ownership");
+                    require(accept.digest().equals(current.accepted) || MembershipContextTail.retained(current,accept,context),"source retirement loses unresolved ownership");
             }
         }
         var files=new TreeMap<String,byte[]>();files.put(MembershipBasisSources.PACKET,original.packet.bytes());images.forEach((digest,bytes)->files.put(digest+".image",bytes));

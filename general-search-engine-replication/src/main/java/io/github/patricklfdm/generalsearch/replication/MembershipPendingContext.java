@@ -285,10 +285,10 @@ final class MembershipPendingContext {
         Decoded certificate=binding.get("certificate")==null?null:MembershipFormat.decode(backing.packet.objectBytes(digest(binding.get("certificate"))),"records","CERTIFICATE");
         var vote=new MembershipPendingAccept.Vote(selector,oldPromise,selected,entry,accept,payload,proof,certificate);
         exactIdentity(vote.bytes(),binding.get("vote"),"pending context original vote bytes changed");
-        require(accept.digest().equals(backingBasis.value().get("accepted")),"pending context backing omitted original owned acceptance");
         byte[] ancestry=originals.getOrDefault("ancestry.gsr",new byte[0]);capsule.verifyAncestry(ancestry,List.of());
         MembershipPendingAccept.verify(vote,capsule,originals.get(MembershipSelectionCoverage.FILE),ancestry,owner,List.of(oldPromise),List.of(selected));
-        return new Reconstructed(selector,manifest,capsule,vote,originals);
+        var result=new Reconstructed(selector,manifest,capsule,vote,originals);
+        MembershipContextTail.selected(result,backing.packet,(String)backingBasis.value().get("accepted"));return result;
     }
     private MembershipPendingContext() {}
 }

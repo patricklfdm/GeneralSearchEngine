@@ -374,6 +374,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && original.vote().entry().digest().equals(installed.value().get("nextEntry"))
                 && compareBallot(object(installed.value().get("ballot")),object(original.vote().promise().value().get("ballot")))>0,
                 "retained context original/current binding changed");
+        MembershipContextTail.selected(original,current.capsule.packet,current.accepted);
         var expected=original.originalFiles();var record=retirement.authority();
         if(installing) {
             // The inactive slot may contain only part of the caller's exact
@@ -392,7 +393,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 require(inventory.equals(record.orElseThrow().value().get("files")),"retained context retirement inventory changed");
             }else if(inactive.exists()) {
                 var old=contextIntermediate(original,retirement.original());
-                var plan=MembershipRetirementPlan.create(root,identity,current,floor,old);
+                var plan=MembershipRetirementPlan.create(root,identity,current,floor,old,original);
                 require(Arrays.equals(plan.record.bytes(),record.orElseThrow().bytes()),"context intermediate retirement inventory changed");
             }
             if(inactive.exists()) {
@@ -404,7 +405,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(Arrays.equals(physical.get("generation.gsr"),expected.get("generation.gsr"))) {
                 require(original.selector().value().get("generation").equals(inactive.slot()) && physical.keySet().equals(expected.keySet()),"retained context incomplete original without retirement authority");
                 for(var row:physical.entrySet())require(Arrays.equals(expected.get(row.getKey()),row.getValue()),"retained context original physical bytes changed");
-            }else MembershipRetirementPlan.create(root,identity,current,contextRetirementFloor(original),contextIntermediate(original,physical));
+            }else MembershipRetirementPlan.create(root,identity,current,contextRetirementFloor(original),contextIntermediate(original,physical),original);
         }else contextRetirementFloor(original);
         return original;
     }
@@ -433,10 +434,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         var old=originalGeneration(files);var ballot=object(decode(files.get("promise.gsr"),"records","PROMISE").value().get("ballot"));
         var installed=selections.get(current.manifest.value().get("selection"));
         require(old.generation.value().get("generation").equals(inactive.slot()) && old.capsule.terminal().equals(original.capsule().terminal())
-                && original.vote().accept().digest().equals(old.generation.value().get("ownedTail"))
                 && compareBallot(ballot,object(original.vote().promise().value().get("ballot")))>0
                 && compareBallot(ballot,object(installed.value().get("ballot")))<0,"context intermediate generation changed");
-        return old;
+        MembershipContextTail.selected(original,old.capsule.packet,(String)old.generation.value().get("ownedTail"));return old;
     }
     private MembershipPendingContext.Reconstructed resealPendingContext()throws IOException {
         var original=retainedContextOriginal();applicationReferencesIdle();
@@ -485,14 +485,13 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && basis.digest().equals(current.manifest.value().get("basis")) && selection.digest().equals(current.manifest.value().get("selection")),
                 "context acceptance requires installed current ballot");
         require(!inactive.exists() && !inactive.pending() && !pendingContext.pending(),"context acceptance requires retired original and complete context");
-        floors.checkRelease(current);
         var old=original.vote();var bound=object(promise.value().get("ballot"));
         require(compareBallot(bound,object(old.accept().value().get("ballot")))>0,"context acceptance requires newer installed ballot");
         var value=Map.<String,Object>of("root",root.manifestDigest(),"authority",current.capsule.context.authority(),
                 "ballot",bound,"entry",old.entry().digest(),"index",old.entry().value().get("index"));
         var vote=new MembershipPendingAccept.Vote(current.selector,promise,selection,old.entry(),decode(encode("records","ACCEPT",value),"records","ACCEPT"),old.payload());
         MembershipPendingAccept.verify(vote,current,identity,promises.values(),selections.values());
-        bindInstalledVote(vote);pendingAccept.matches(vote);
+        bindInstalledVote(vote);pendingAccept.matches(vote);floors.checkRelease(current,vote);
         require(Arrays.equals(pendingAccept.active().bytes(),old.bytes()) || Arrays.equals(pendingAccept.active().bytes(),vote.bytes()),
                 "context acceptance active vote differs from exact predecessor/successor");
         return vote;
@@ -633,7 +632,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var original=MembershipPendingContext.reconstructStored(context,root,identity,backingPromise,backingBasis,backing,stored.images(),capsuleVerifier);
         require(pendingAccept.active()!=null && Arrays.equals(original.vote().bytes(),pendingAccept.active().bytes()),"context capture original vote changed");
         var protectedSource=MembershipPendingTransfer.capture(original,current.capsule,current.images(),capsuleVerifier);
-        var plan=MembershipCaptureFiles.plan(current,grant,identity,protectedSource.capsule().packet,original.vote().accept().digest(),protectedSource.images());
+        var plan=MembershipCaptureFiles.plan(current,grant,identity,protectedSource.capsule().packet,MembershipPendingAccept.accepted(current,original.vote()),protectedSource.images());
         MembershipPendingContext.Context expected=context;
         if(!Arrays.equals(backingBasis.bytes(),plan.basis().bytes()))expected=MembershipPendingContext.rebindStored(context,root,identity,
                 backingPromise,backingBasis,backing,stored.images(),grant,plan.basis(),protectedSource.capsule(),plan.images(),capsuleVerifier);
@@ -1102,6 +1101,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Decoded> retireContextOriginal()throws IOException {
         contextMaintenanceIdle();return retireInactiveChecked();
     }
+    private MembershipPendingContext.Reconstructed retirementContext()throws IOException {
+        return pendingContext!=null && pendingContext.active().isPresent()?retainedContextOriginal():null;
+    }
     private Optional<Decoded> retireInactiveChecked()throws IOException {
         require(!floors.pending() && !inactive.pending(),"pending floor/selector must finish before retirement");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
@@ -1115,12 +1117,12 @@ final class MembershipGrantJournal implements AutoCloseable {
                 require(!(inactive.exists() && !current.adopted && current.manifest.value().get("selection")==null)
                         && !inactive.incompleteOrSelected(selection==null?null:selection.digest(),number(current.capsule.context.cut.get("index"))),"pending generation must finish before retirement");
                 var original=originalGeneration(inactive.originalFiles());
-                var plan=MembershipRetirementPlan.create(root,identity,current,floor,original);
+                var plan=MembershipRetirementPlan.create(root,identity,current,floor,original,retirementContext());
                 inactive.forceOriginal(cut);checkOwner();retirement.prepare(plan,this::checkWithoutRetirement,cut);record=plan.record;
             }else {
                 record=saved.get();bindRetirement(record,floor);retirement.checkSaved(record);
                 if(inactive.exists()) {
-                    var original=originalGeneration(retirement.original());var plan=MembershipRetirementPlan.create(root,identity,current,floor,original);
+                    var original=originalGeneration(retirement.original());var plan=MembershipRetirementPlan.create(root,identity,current,floor,original,retirementContext());
                     require(Arrays.equals(record.bytes(),plan.record.bytes()),"retirement differs from saved original generation");
                 }
                 retirement.sealAuthority(record,this::checkWithoutRetirement,cut);
@@ -1139,7 +1141,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(!inactive.exists() && !inactive.pending() && !retirement.pending() && !rotation.pending(),"pending generation/retirement/rotation before floor release");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
         try {
-            if(!floors.exists())return;floors.release(current,this::checkOwner,cut);
+            if(!floors.exists())return;
+            var successor=pendingAccept==null || pendingAccept.pending()?null:pendingAccept.active();
+            if(successor!=null && Arrays.equals(successor.selector().bytes(),current.selector.bytes()))verifyVote(successor);else successor=null;
+            floors.release(current,successor,this::checkOwner,cut);
             if(appliedEnd!=null && pendingAccept.active()!=null)reserveApplicationCompletion();
             cut.at("FLOOR_RELEASE_BEFORE_RETURN");checkOwner();
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
@@ -1164,7 +1169,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var original=sources.original(id,promises.get(id),originalBasis);var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
         var capsule=Objects.requireNonNull(capsuleVerifier.verify(rootRecord,original.packet(),original.images()));
         require(Arrays.equals(capsule.packet.bytes(),original.packet().bytes()),"source retirement verifier substituted source");
-        var plan=MembershipSourceRetirementPlan.create(root,identity,current,retained,promise,promises.get(id),originalBasis,capsule,original.images());
+        var plan=MembershipSourceRetirementPlan.create(root,identity,current,retained,promise,promises.get(id),originalBasis,capsule,original.images(),retirementContext());
         checkOwner();return plan;
     }
     /** A forced context may cover the predecessor or a backing strictly between
@@ -1192,11 +1197,13 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && priorPromise.value().get("root").equals(backing.value().get("root"))
                 && priorPromise.value().get("view").equals(backing.value().get("view"))
                 && priorBasis.value().get("voter").equals(identity.nodeId().value())
-                && original.vote().accept().digest().equals(priorBasis.value().get("accepted"))
+                && priorBasis.value().get("accepted")!=null
                 && !priorBasis.digest().equals(current.manifest.value().get("basis"))
                 && compareBallot(object(priorPromise.value().get("ballot")),floorBallot)>0
                 && compareBallot(object(priorPromise.value().get("ballot")),object(backing.value().get("ballot")))<0,
                 "context source retirement requires covered intermediate backing");
+        require(MembershipContextTail.retained(current,current.capsule.context.record((String)priorBasis.value().get("accepted"),"ACCEPT"),original),
+                "context source retirement loses intermediate accepted tail");
         if(promises.containsKey(id)) {
             var packet=sources.original(id,priorPromise,priorBasis).packet();
             var vote=original.vote();var originals=new ArrayList<byte[]>(List.of(vote.entry().bytes(),vote.payload(),vote.accept().bytes()));
@@ -1220,7 +1227,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(saved.isPresent())require(Arrays.equals(saved.get().bytes(),decision.bytes()),"source retirement differs from original source");
             }else {decision=saved.orElseThrow(()->new IllegalArgumentException("source retirement original decision absent"));require(decision.id().equals(id),"source retirement different original identity");}
             require(!rotation.pending() || saved.isPresent(),"journal rotation preceded source retirement authority");
-            decision.bind(root,identity,current,retained,promise);sourceRetirement.publish(decision,this::checkOwner,cut);
+            decision.bind(root,identity,current,retained,promise,retirementContext());sourceRetirement.publish(decision,this::checkOwner,cut);
             var protectedPromises=new HashSet<String>();protectedPromises.add((String)current.manifest.value().get("promise"));
             for(var copy:retained.copies())if(copy.owner.equals(identity))protectedPromises.add((String)copy.generation.value().get("promise"));
             byte[] compact;
@@ -1232,10 +1239,10 @@ final class MembershipGrantJournal implements AutoCloseable {
                 var bound=object(promise.value().get("ballot"));observed.updateAndGet(prior->prior==null || compareBallot(bound,prior)>0?bound:prior);
             }
             require(!promises.containsKey(id) && !bases.containsKey(id),"source retirement journal still references original");
-            decision.bind(root,identity,current,retained,promise);checkOwner();cut.at("SOURCE_RETIREMENT_JOURNAL_PRUNED");checkOwner();
+            decision.bind(root,identity,current,retained,promise,retirementContext());checkOwner();cut.at("SOURCE_RETIREMENT_JOURNAL_PRUNED");checkOwner();
             sources.deleteRetired(decision,this::checkOwner,cut);require(!sources.retainedIdentities().contains(id),"source retirement still owns original files");
             sources.releaseRetiredLeases(id);
-            decision.bind(root,identity,current,retained,promise);sourceRetirement.clear(this::checkOwner,cut);cut.at("SOURCE_RETIREMENT_BEFORE_RETURN");checkOwner();return decision.record();
+            decision.bind(root,identity,current,retained,promise,retirementContext());sourceRetirement.clear(this::checkOwner,cut);cut.at("SOURCE_RETIREMENT_BEFORE_RETURN");checkOwner();return decision.record();
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     /** Compact exact original frames, retaining every original BASIS/SELECTED and live promise. */
@@ -1578,9 +1585,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         var complete=MembershipGenerationPlan.installationBridges(selected,bridges,retainedBridges,ancestors);
         var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images);
         plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,ancestors);checkOwner();fence(ballot);
-        if(retainedOriginal!=null)require(retainedOriginal.capsule().context.cut.equals(selected.selected().value().get("cut"))
-                && retainedOriginal.vote().entry().digest().equals(selected.selected().value().get("nextEntry"))
-                && retainedOriginal.vote().accept().digest().equals(plan.manifest.value().get("ownedTail")),"context installation changed original tail");
+        if(retainedOriginal!=null) {
+            require(retainedOriginal.capsule().context.cut.equals(selected.selected().value().get("cut"))
+                    && retainedOriginal.vote().entry().digest().equals(selected.selected().value().get("nextEntry")),"context installation changed original tail");
+            MembershipContextTail.selected(retainedOriginal,MembershipSourcePacket.decode(plan.files.get("source.gscp")),(String)plan.manifest.value().get("ownedTail"));
+        }
         if(installed) {
             require(Arrays.equals(current.manifest.bytes(),plan.manifest.bytes()) && !inactive.pending(),"installed generation differs from original plan");checkOwner();fence(ballot);return current.manifest;
         }

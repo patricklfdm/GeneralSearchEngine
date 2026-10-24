@@ -164,7 +164,7 @@ final class MembershipFloorFiles implements AutoCloseable {
         cut.at("RETIREMENT_BORROWED_IMAGES_FORCED");check();owner.check();
     }
     /** Exact cleanup authority; never reconstruct a floor from partially deleted copies. */
-    private Decoded releasePlan(MembershipCurrentGeneration current,Retained retained) throws IOException {
+    private Decoded releasePlan(MembershipCurrentGeneration current,Retained retained,MembershipPendingAccept.Vote successor) throws IOException {
         current.check();var own=retained.copies().stream().filter(c->c.owner.equals(local)).findFirst().orElseThrow();
         current.verifyParents(List.of(own.capsule.terminal()));
         if(own.generation.value().get("ownedTail")!=null) {
@@ -174,7 +174,7 @@ final class MembershipFloorFiles implements AutoCloseable {
                 for(String digest:List.of(accept.digest(),entry.digest(),(String)entry.value().get("payload")))
                     require(Arrays.equals(own.capsule.packet.objectBytes(digest),current.capsule.packet.objectBytes(digest)),"floor release loses original above-floor bytes");
                 if(number(accept.value().get("index"))>number(current.capsule.context.cut.get("index")))
-                    require(accept.digest().equals(current.manifest.value().get("ownedTail")),"floor release loses unresolved ownership");
+                    require(accept.digest().equals(current.manifest.value().get("ownedTail")) || MembershipContextTail.successor(current,accept,successor),"floor release loses unresolved ownership");
             }
         }
         var inventory=new ArrayList<Map<String,Object>>();
@@ -209,17 +209,21 @@ final class MembershipFloorFiles implements AutoCloseable {
         if(releasing())require(prefix(AdmissionPaths.read(path.resolve(RELEASE),65536),record.bytes()),"floor release requires exact original decision");
     }
     /** Read-only preflight for a transition which must finish by releasing this floor. */
-    void checkRelease(MembershipCurrentGeneration current)throws IOException {
+    void checkRelease(MembershipCurrentGeneration current)throws IOException {checkRelease(current,null);}
+    void checkRelease(MembershipCurrentGeneration current,MembershipPendingAccept.Vote successor)throws IOException {
         require(releaseEnabled && !releasing(),"complete unreleased floor required");check();
         var retained=retainedOriginal().orElseThrow(()->new IllegalArgumentException("complete floor required before release"));
-        validateRelease(releasePlan(current,retained),current);
+        validateRelease(releasePlan(current,retained,successor),current);
     }
     void release(MembershipCurrentGeneration current,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut) throws IOException {
+        release(current,null,owner,cut);
+    }
+    void release(MembershipCurrentGeneration current,MembershipPendingAccept.Vote successor,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut) throws IOException {
         require(releaseEnabled,"floor release owner required");check();owner.check();if(!exists)return;
         if(files.isEmpty() && directories.isEmpty()){clearReleased(owner,cut);return;}
         Decoded record;
         if(files.containsKey(FLOOR)) {
-            var retained=retainedOriginal().orElseThrow(()->new IllegalArgumentException("complete floor required before release"));record=releasePlan(current,retained);
+            var retained=retainedOriginal().orElseThrow(()->new IllegalArgumentException("complete floor required before release"));record=releasePlan(current,retained,successor);
         }else {
             require(releasing(),"incomplete floor cannot be released");record=decode(AdmissionPaths.read(path.resolve(RELEASE),65536),"records","RETIREMENT");
         }

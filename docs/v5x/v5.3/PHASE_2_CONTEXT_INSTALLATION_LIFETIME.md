@@ -57,8 +57,9 @@ The new source cuts use injected IOException; they do not establish process-deat
 or power-loss behavior for the repeated-installation path. Historical bootstrap is
 still conditional, images are small, and this path requires the same original
 ACCEPT digest. [Subsequent typed publication](PHASE_2_CONTEXT_INSTALLED_PUBLICATION.md) connects this
-small-image lifetime through actual voting and continuation. Mixed higher-ballot
-acceptances, full-capacity journal/image/staging headroom, admitted bootstrap to
+small-image lifetime through actual voting and continuation.
+[Mixed higher-ballot acceptances](PHASE_2_CONTEXT_MIXED_ACCEPTANCE.md) now have a
+separate local qualification. Full-capacity journal/image/staging headroom, admitted bootstrap to
 complete lifetime, and coordinated old/joint/new profiles remain separate Phase 2
 obligations. Public online membership remains disabled.
 
