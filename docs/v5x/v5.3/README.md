@@ -245,3 +245,7 @@ adds independent replay and 24 admitted repeated-process cases. Phase 2 remains 
 [Source-backed inactive retirement](PHASE_2_RETIREMENT_SOURCE_IMAGES.md) extends
 covered-minority clean qualification to all six initial profiles without increasing
 the seven-image bound. Its distinct recovery obligations remain tracked.
+
+[Source-backed retirement process recovery](PHASE_2_RETIREMENT_SOURCE_PROCESS.md)
+adds 64 twice-interrupted cases, 192 fresh workers and retained cross-process lock
+results for the pinned-source deletion path. Maximal and cross-view closure remain open.

@@ -53,10 +53,10 @@ reader derives the admitted floor, source-backed binding and every intermediate
 write/deletion state. Final verified counts, hashes and executed checks are in the
 [retained evidence index](phase2-evidence/retirement-source-images.json).
 
-The new source-backed retirement path still requires fresh-process halt/SIGKILL
-qualification; the preceding covered-vote process matrix qualifies the earlier
-transaction and does not substitute for these new force boundaries. This batch
-also does not establish maximum byte headroom, power-loss behavior, proof/context-
+The subsequent [source-backed process gate](PHASE_2_RETIREMENT_SOURCE_PROCESS.md)
+qualifies these new force boundaries with fresh-process halt/SIGKILL; the preceding
+covered-vote process matrix qualifies the earlier transaction. This batch
+does not establish maximum byte headroom, power-loss behavior, proof/context-
 bearing covered recovery or complete cross-view lifetime. Public membership
 runtime, workflows and the V5.2 cloud experiment remain outside this local batch.
 

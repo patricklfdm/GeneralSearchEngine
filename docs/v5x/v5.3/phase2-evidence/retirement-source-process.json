@@ -1,0 +1,193 @@
+{
+  "base": "922484f067b8320f0f6c46c381d25ed18eeb667f",
+  "compiledInputs": {
+    "path": "target/v53-retirement-source-process/inputs1.json",
+    "sha256": "f02c3e716d067024179aa0630a3f5a6a85357c53dbfcf370304096d668d0873c"
+  },
+  "compiledMainClasses": {
+    "classes": 707,
+    "path": "target/v53-retirement-source-process/compiled-main-classes.json",
+    "sha256": "d8515ada4afcf0443715eadc7bbede2ed5977efdf9f640fcb5845be86fcbb8fe",
+    "unchangedFrom": "docs/v5x/v5.3/phase2-evidence/retirement-source-images.json"
+  },
+  "jars": {
+    "target/v53-retirement-source-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-retirement-source-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "fb7ac9252b107ce1b8d833b5b05dc80a6d319f81727e8974e68ff50eef590273"
+  },
+  "javaTests": 1,
+  "junit": {
+    "path": "target/v53-retirement-source-process/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53RetirementSourceProcessTest.xml",
+    "sha256": "4612ea5447cb4f8e79e2f06f2ad8ce8b2a4a6ce534edef526a947a2892e49528"
+  },
+  "limitations": [
+    "Small application images and one admitted profile; no maximal byte headroom",
+    "No proof/context-bearing covered recovery, complete cross-view lifetime, power-loss or public runtime acceptance"
+  ],
+  "logs": {
+    "target/v53-retirement-source-process/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-retirement-source-process/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-retirement-source-process/partial-replay.log": "d9c87eb600b10f9423dc8a1184b353e33c9581cc5a1f82468c2a07f448cc09c5",
+    "target/v53-retirement-source-process/python-tests1.log": "806f01f047c8ec9a9c18ca86883baa0158190fbc78ef7598b22902e1f44741d1",
+    "target/v53-retirement-source-process/replay.log": "e450a5f711d56456165b70de4e4e16d18caa62d69642d1020dfefe9f5151f482",
+    "target/v53-retirement-source-process/run1.log": "d11dec071dff574626c5f97f2f791142c5660b2303f6700a411a60a9cc05c114"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-retirement-source-process/producer-classes.json",
+    "sha256": "96009562f4975458d784d506eeb9bc7d516a73eece2c989abaacf2e2df9d1d72"
+  },
+  "pythonInputs": {
+    "path": "target/v53-retirement-source-process/python-inputs.json",
+    "sha256": "5815c6d4c9a8c3277d7688c1bcf1fc9f399b7ceb48f736dc6a9a44fa6545917b"
+  },
+  "pythonTests": 15,
+  "raws": {
+    "v53-covered-minority-run-b6433c9a-c616-4bbf-a209-01183a488b09": {
+      "inventory": "target/v53-retirement-source-process/v53-covered-minority-run-b6433c9a-c616-4bbf-a209-01183a488b09-inventory.json",
+      "members": 1633,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-covered-minority/run-b6433c9a-c616-4bbf-a209-01183a488b09",
+      "sha256": "78ebe743c2d84a3bfd2e5ef080425f69d6de0c735a1db8d892a07d7a0cf9897f"
+    },
+    "v53-retirement-source-images-run-4d277f5e-2c14-4e53-93fd-5f6f38bada55": {
+      "inventory": "target/v53-retirement-source-process/v53-retirement-source-images-run-4d277f5e-2c14-4e53-93fd-5f6f38bada55-inventory.json",
+      "members": 1685,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-retirement-source-images/run-4d277f5e-2c14-4e53-93fd-5f6f38bada55",
+      "sha256": "62a8c1d074f376a0a98ada2f9caa9457f167748c5db26ffa28d793c390e66421"
+    },
+    "v53-retirement-source-process-run-6256076f-8bcd-4a0f-9670-cf8c1ea06908": {
+      "inventory": "target/v53-retirement-source-process/v53-retirement-source-process-run-6256076f-8bcd-4a0f-9670-cf8c1ea06908-inventory.json",
+      "members": 12223,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-retirement-source-process/run-6256076f-8bcd-4a0f-9670-cf8c1ea06908",
+      "sha256": "e4b02a8591b3f7f0bc626b1c088b13cb267038b17d7a4bae7654ee636714a973"
+    }
+  },
+  "replay": {
+    "normalSha256": "54eb94333a40f975f03cfacd62bfa2fe0930573becf3eb3f108802f9ca61fc15",
+    "optimizedSha256": "54eb94333a40f975f03cfacd62bfa2fe0930573becf3eb3f108802f9ca61fc15",
+    "result": {
+      "cases": 64,
+      "freshProcesses": 192,
+      "lockProbes": 32,
+      "maximalBytes": false,
+      "maximumImages": 7,
+      "maximumSources": 6,
+      "negatives": [
+        {
+          "case": "original-vote",
+          "reason": "admitted exact minority-accepted: node-1"
+        },
+        {
+          "case": "floor",
+          "reason": "source retirement exact admitted floor"
+        },
+        {
+          "case": "missing-case",
+          "reason": "context selection source process inventory"
+        },
+        {
+          "case": "first-prefix",
+          "reason": "source process exact first snapshot"
+        },
+        {
+          "case": "second-prefix",
+          "reason": "source process exact second snapshot"
+        },
+        {
+          "case": "final-authority",
+          "reason": "source process exact final snapshot"
+        },
+        {
+          "case": "backing-source",
+          "reason": "source process exact first snapshot"
+        },
+        {
+          "case": "early-delete",
+          "reason": "source process exact first snapshot"
+        },
+        {
+          "case": "first-force",
+          "reason": "source process exact first force/death order"
+        },
+        {
+          "case": "second-force",
+          "reason": "source process exact second force/death order"
+        },
+        {
+          "case": "final-force",
+          "reason": "source process exact final force/death order"
+        },
+        {
+          "case": "kill-handshake",
+          "reason": "source process exact first force/death order"
+        },
+        {
+          "case": "false-return",
+          "reason": "source process exact second force/death order"
+        },
+        {
+          "case": "capacity",
+          "reason": "source process capacity/scope"
+        },
+        {
+          "case": "runtime-flag",
+          "reason": "source process capacity/scope"
+        },
+        {
+          "case": "receipt-flag",
+          "reason": "source process exact receipt"
+        },
+        {
+          "case": "exit-code",
+          "reason": "source process exact first exit"
+        },
+        {
+          "case": "exit-cut",
+          "reason": "source process exact first exit"
+        },
+        {
+          "case": "lock-path",
+          "reason": "source process exact lock probe"
+        },
+        {
+          "case": "lock-exit",
+          "reason": "source process lock exit"
+        },
+        {
+          "case": "lock-stderr",
+          "reason": "source process lock stderr"
+        },
+        {
+          "case": "admitted-path",
+          "reason": "source process exact admitted paths"
+        },
+        {
+          "case": "observations",
+          "reason": "source process actual observations"
+        },
+        {
+          "case": "stderr",
+          "reason": "source process stderr"
+        }
+      ],
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "publicBootstrap": true,
+      "runtimeEnabled": false,
+      "status": "PASS"
+    }
+  },
+  "schema": "gse-v53-retirement-source-process-local-v1",
+  "scope": [
+    "Actual admitted four-voter EMPTY minority/majority publication and retained three-copy floor",
+    "32 source-backed retirement boundaries with halt and SIGKILL, each followed by a second fresh-process interruption and exact completion",
+    "192 workload workers plus 32 retained lock-probe processes; normal and optimized original-first replay, 24 mutations, portable copy"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementSourceProcessTest.java": "4fd10e9caa7d98dad069c6b41523077975d6432cd3d49da9e40c98616dc6756a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementSourceProcessWorker.java": "820c761826a9178ce8d886e77ddb2cb7cd220dcf94d05d08ccbd561b9b96d254",
+    "scripts/v53/retirement_source_process_evidence.py": "f558e0cffdcdb6690723f2b71270b76645e8f209f6329f6a328ca9d8310efdb1",
+    "scripts/v53/test_retirement_source_process.py": "f7988d975e6bf96b697c1731810d97573910e0d3d388c6b1975d81087a21d9f4"
+  },
+  "status": "PASS"
+}
