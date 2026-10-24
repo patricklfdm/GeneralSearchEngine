@@ -226,3 +226,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Publication after repeated protected installation](PHASE_2_CONTEXT_INSTALLED_PUBLICATION.md): actual ballot-27 proof, typed apply-once, publication, obsolete-source cleanup, BARRIER continuation and an empty-tail ballot-28 grant.
 
 - [Installed source process recovery](PHASE_2_CONTEXT_INSTALLED_SOURCE_PROCESS.md): 30 repeated-death cases across obsolete source reclamation and exact successor acceptance; Phase 2 remains open.
+
+- [Context generation process recovery](PHASE_2_CONTEXT_GENERATION_PROCESS.md): selected slot reuse and intermediate retirement through repeated halt/SIGKILL, with original authority and force-order replay.

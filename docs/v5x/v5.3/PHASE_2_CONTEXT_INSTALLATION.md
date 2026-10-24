@@ -52,5 +52,8 @@ maximal coordinated lifetime still needs qualification.
 This path currently requires the materialized tail's original ACCEPT digest to
 match the retained context, not merely the ENTRY. Mixed higher-ballot acceptances
 of the same entry require separate context-backed retirement qualification.
-Full publication after this new installation, maximal old/joint/new lifetimes,
-public runtime and Phase 2 closure remain open.
+[Small-image publication after repeated installations](PHASE_2_CONTEXT_INSTALLED_PUBLICATION.md)
+now has local composition evidence. Maximal old/joint/new lifetimes, public
+runtime and Phase 2 closure remain open.
+
+[Dedicated process recovery](PHASE_2_CONTEXT_GENERATION_PROCESS.md) adds 84 twice-interrupted cases across installation and intermediate retirement. It retains the small-image and conditional-bootstrap limits above.

@@ -1,0 +1,163 @@
+{
+  "base": "eebb3e3c657e432720f662f7f9ec95f16b9dd639",
+  "compiledInputs": {
+    "path": "target/v53-context-generation-process/inputs1.json",
+    "sha256": "0c1c742c1d7efa6fabfdedfabe15a950f09d14f1027996034ad892221b896399"
+  },
+  "compiledMainClasses": {
+    "changed": [],
+    "classes": 702,
+    "path": "target/v53-context-generation-process/compiled-main-classes.json",
+    "sha256": "492601f385476023706cbd6978b0b0e8f5a40d42c0961173d8b2200aacb4f10c"
+  },
+  "jars": {
+    "target/v53-context-generation-process/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-generation-process/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "05827067ef68c2ef0139d08128f63a38290593f6c9fc1c3baea71ad5f1ec6909"
+  },
+  "javaExecutions": 1,
+  "limitations": [
+    "small images and conditional historical bootstrap; not maximal or cross-view/admitted-bootstrap lifetime",
+    "local halt/SIGKILL process death, not power loss or all filesystem schedules",
+    "mixed higher-ballot ACCEPT digests for the same ENTRY remain a separate obligation"
+  ],
+  "logs": {
+    "process-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "process-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-unit.log": "d22c310f3795fdc4e299e13807ef5d1be40afc3bef70758d16b5e109e19588f3",
+    "replay1.log": "4aaf42db3cc06717c15d67782a1a7d1b3de83bd5eaefe1bbd6841b5bc6b2ecf8",
+    "run1.log": "e463967b385a9d02f9150dac204f62ab3384d4e8167a57a4e9a7a8704d548db4"
+  },
+  "oracleInputs": {
+    "path": "target/v53-context-generation-process/oracle-inputs.json",
+    "sha256": "617c05e830bce6886662294eb0d8770979b2e225572c1645bbe854c5cb438425"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-generation-process/producer-classes.json",
+    "sha256": "1e15ed7802c6d4fe9c34123e9274cce4f6f82f12b58a6845c5688dd3b92b718a"
+  },
+  "raws": {
+    "process": {
+      "index": "target/v53-context-generation-process/process-raw-index.json",
+      "members": 26681,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-generation-process/run-eed5b7ea-62d6-4257-9b58-1f28c0fcc871",
+      "sha256": "a7cd507d8845aeafe935ff01b9a5983d8bd52c722544039d83e24f2036dfed55"
+    }
+  },
+  "replays": {
+    "process": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-generation-process/run-eed5b7ea-62d6-4257-9b58-1f28c0fcc871",
+      "result": {
+        "cases": 84,
+        "freshProcesses": 252,
+        "historicalBootstrap": "conditional-fixture",
+        "installationCases": 30,
+        "installedBallot": 22,
+        "lockProbes": 42,
+        "negatives": [
+          {
+            "case": "reference",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection generation process inventory"
+          },
+          {
+            "case": "peer",
+            "reason": "context capture exact generation process exact peer"
+          },
+          {
+            "case": "first-install",
+            "reason": "generation process first physical prefix"
+          },
+          {
+            "case": "first-retire",
+            "reason": "generation process first physical prefix"
+          },
+          {
+            "case": "second",
+            "reason": "generation process second physical prefix"
+          },
+          {
+            "case": "recovered",
+            "reason": "generation process recovered authority"
+          },
+          {
+            "case": "final",
+            "reason": "generation process final successor"
+          },
+          {
+            "case": "source",
+            "reason": "generation process final successor"
+          },
+          {
+            "case": "first-force",
+            "reason": "generation process first force/death order"
+          },
+          {
+            "case": "second-force",
+            "reason": "generation process second force/death order"
+          },
+          {
+            "case": "resume-force",
+            "reason": "generation process resume force/ack order"
+          },
+          {
+            "case": "early-ack",
+            "reason": "generation process second force/death order"
+          },
+          {
+            "case": "wrong-install",
+            "reason": "generation process resume force/ack order"
+          },
+          {
+            "case": "wrong-accept",
+            "reason": "generation process resume force/ack order"
+          },
+          {
+            "case": "scope",
+            "reason": "generation process receipt scope/inputs"
+          },
+          {
+            "case": "inputs",
+            "reason": "generation process receipt scope/inputs"
+          },
+          {
+            "case": "capacity",
+            "reason": "generation process resume force/ack order"
+          },
+          {
+            "case": "stderr",
+            "reason": "generation process stderr"
+          },
+          {
+            "case": "link",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "peakReservedImages": 7,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "retirementCases": 54,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    }
+  },
+  "schema": "gse-v53-context-generation-process-local-v1",
+  "scope": [
+    "84 selected-generation installation and intermediate retirement cases, 252 fresh workers and 42 live-lock probes",
+    "second fresh owner stops during context-source force; final owner repeats exact installation/retirement and forces successor acceptance",
+    "actual selected peer owners, unchanged peer stores, original-first physical/force-order derivation and 20 negative variants"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextGenerationProcessTest.java": "dd753464791b4a2da1865d8911e8f359e8f77438d6f22c75455205a57b72f4b8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextGenerationWorker.java": "8bf7bf76858bf4543e8d72349a6eb37dc929a29d580e6821fd2894fae8737046",
+    "scripts/v53/context_generation_process_evidence.py": "94e1d416709de78d958e1f3e20628a31454a71470a7ebad972935194566c87a1"
+  },
+  "status": "PASS"
+}
