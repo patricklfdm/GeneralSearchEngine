@@ -208,6 +208,12 @@ final class MembershipFloorFiles implements AutoCloseable {
         }
         if(releasing())require(prefix(AdmissionPaths.read(path.resolve(RELEASE),65536),record.bytes()),"floor release requires exact original decision");
     }
+    /** Read-only preflight for a transition which must finish by releasing this floor. */
+    void checkRelease(MembershipCurrentGeneration current)throws IOException {
+        require(releaseEnabled && !releasing(),"complete unreleased floor required");check();
+        var retained=retainedOriginal().orElseThrow(()->new IllegalArgumentException("complete floor required before release"));
+        validateRelease(releasePlan(current,retained),current);
+    }
     void release(MembershipCurrentGeneration current,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut) throws IOException {
         require(releaseEnabled,"floor release owner required");check();owner.check();if(!exists)return;
         if(files.isEmpty() && directories.isEmpty()){clearReleased(owner,cut);return;}

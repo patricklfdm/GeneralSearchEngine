@@ -263,7 +263,9 @@ final class MembershipGrantJournal implements AutoCloseable {
                 }
             }
             journal.checkOwner();
-            if(withContext && (journal.pendingContext.active().isPresent() || journal.pendingContext.pending()))journal.retainPendingContext();
+            if(withContext && (journal.pendingContext.active().isPresent() || journal.pendingContext.pending())) {
+                if(!journal.recoverContextAcceptance())journal.retainPendingContext();
+            }
             if(withVotes)journal.recoverVote();
             if(pending!=null) {
                 require(!journal.floors.pending() && !journal.floors.releasing() && !journal.retirement.pending(),"capture conflicts with pending floor/retirement");
@@ -320,14 +322,17 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Reconstruct old authority from an already forced local context/source; never
      * manufacture a current-generation ownership receipt from these metadata. */
     private MembershipPendingContext.Reconstructed retainedContextOriginal()throws IOException {
+        return retainedContextOriginal(false);
+    }
+    private MembershipPendingContext.Reconstructed retainedContextOriginal(boolean replacingVote)throws IOException {
         require(pendingContext!=null && pendingContext.active().isPresent() && !pendingContext.pending(),"complete retained context required");
-        require(promise!=null && basis!=null && selection!=null && !pendingAccept.pending() && !inactive.pending()
+        require(promise!=null && basis!=null && selection!=null && (replacingVote || !pendingAccept.pending()) && !inactive.pending()
                 && promise.digest().equals(current.manifest.value().get("promise"))
                 && basis.digest().equals(current.manifest.value().get("basis"))
                 && selection.digest().equals(current.manifest.value().get("selection")),"retained context installed authority changed");
         var original=MembershipPendingContext.reconstruct(pendingContext.active().orElseThrow(),root,identity,promise,originalSource(),
                 sources.original(basis).images(),capsuleVerifier);
-        require(pendingAccept.active()!=null && Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes())
+        require(pendingAccept.active()!=null && (replacingVote || Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes()))
                 && original.selector().value().get("generation").equals(inactive.slot())
                 && original.capsule().terminal().equals(current.capsule.terminal())
                 && original.vote().entry().digest().equals(selection.value().get("nextEntry")),"retained context original/current binding changed");
@@ -372,6 +377,82 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(pendingContext==null || pendingContext.active().isEmpty() && !pendingContext.pending(),
                 "retained pending context requires transferred lifetime completion");
     }
+    /** Only the exact carried entry may replace context-backed old voting authority.
+     * The backing source stays retained; a reacceptance is not a context/source rebind. */
+    synchronized Owned acceptRetainedCurrent(Decoded proposed,byte[] payload)throws IOException {
+        require(pendingContext!=null,"context-aware storage owner required");checkOwner();
+        if(pendingContext.active().isEmpty() && !pendingContext.pending()) {
+            var active=pendingAccept.active();
+            require(active!=null && Arrays.equals(active.selector().bytes(),current.selector.bytes())
+                    && Arrays.equals(active.entry().bytes(),proposed.bytes()) && Arrays.equals(active.payload(),payload)
+                    && selection!=null && active.entry().digest().equals(selection.value().get("nextEntry")),
+                    "context acceptance retry requires exact installed successor");
+            verifyVote(active);releaseFloor();return acceptCurrent(proposed,payload);
+        }
+        var original=retainedContextOriginal(true);
+        require(Arrays.equals(original.vote().entry().bytes(),proposed.bytes()) && Arrays.equals(original.vote().payload(),payload),
+                "context acceptance changed original entry/payload");
+        var vote=contextAcceptance(original);var bound=object(vote.accept().value().get("ballot"));fence(bound);
+        completeContextAcceptance(original,vote,true);
+        cut.at("CONTEXT_ACCEPT_BEFORE_RETURN");checkOwner();fence(bound);
+        return new Owned(identity.nodeId().value(),identity.storageId(),vote.accept().digest(),cutDigest(current.capsule.context.cut));
+    }
+    private MembershipPendingAccept.Vote contextAcceptance(MembershipPendingContext.Reconstructed original)throws IOException {
+        checkOwner();otherAuthorityTransactionsIdle();applicationReferencesIdle();
+        require(!inactive.exists() && !inactive.pending() && !pendingContext.pending(),"context acceptance requires retired original and complete context");
+        floors.checkRelease(current);
+        var old=original.vote();var bound=object(promise.value().get("ballot"));
+        require(compareBallot(bound,object(old.accept().value().get("ballot")))>0,"context acceptance requires newer installed ballot");
+        var value=Map.<String,Object>of("root",root.manifestDigest(),"authority",current.capsule.context.authority(),
+                "ballot",bound,"entry",old.entry().digest(),"index",old.entry().value().get("index"));
+        var vote=new MembershipPendingAccept.Vote(current.selector,promise,selection,old.entry(),decode(encode("records","ACCEPT",value),"records","ACCEPT"),old.payload());
+        MembershipPendingAccept.verify(vote,current,identity,promises.values(),selections.values());
+        bindInstalledVote(vote);pendingAccept.matches(vote);
+        require(Arrays.equals(pendingAccept.active().bytes(),old.bytes()) || Arrays.equals(pendingAccept.active().bytes(),vote.bytes()),
+                "context acceptance active vote differs from exact predecessor/successor");
+        return vote;
+    }
+    /** Reopen can finish only a prefix of the uniquely selected successor, never issue an ACK. */
+    private boolean recoverContextAcceptance()throws IOException {
+        if(pendingContext.active().isEmpty() || pendingContext.pending())return false;
+        var original=retainedContextOriginal(true);
+        if(!pendingAccept.pending() && Arrays.equals(pendingAccept.active().bytes(),original.vote().bytes()))return false;
+        completeContextAcceptance(original,contextAcceptance(original),false);return true;
+    }
+    private void completeContextAcceptance(MembershipPendingContext.Reconstructed original,MembershipPendingAccept.Vote vote,boolean acknowledge)throws IOException {
+        byte[] context=pendingContext.activeBytes().orElseThrow(),prior=original.vote().bytes(),next=vote.bytes();
+        var bound=object(vote.accept().value().get("ballot"));
+        boolean installed=Arrays.equals(pendingAccept.active().bytes(),next);
+        publicationCapacity(vote,acknowledge && !pendingAccept.pending() && !installed
+                ?AutomaticReplicationException.Outcome.NOT_SUBMITTED:AutomaticReplicationException.Outcome.INDETERMINATE);
+        long peak=Math.max((long)pendingAccept.activeLength()+next.length,2L*(next.length+MembershipPendingAccept.PROOF_MAXIMUM)+MembershipPendingAccept.CERTIFICATE_MAXIMUM);
+        require(peak-pendingAccept.bytes()+RESERVATION<=maximum-storedJournal().length-pendingBytes(),
+                "context acceptance and phased completion exceed shared journal capacity");
+        MembershipGenerationFiles.Guard guard=()->{
+            checkOwner();otherAuthorityTransactionsIdle();applicationReferencesIdle();
+            if(pendingContext.active().isPresent()) {
+                require(Arrays.equals(context,pendingContext.activeBytes().orElseThrow()),"context acceptance original context changed");
+                require(Arrays.equals(prior,retainedContextOriginal(true).vote().bytes()),"context acceptance reconstructed original changed");
+            }else require(!pendingAccept.pending() && Arrays.equals(next,pendingAccept.active().bytes()),"context removed without complete successor");
+            require(Arrays.equals(prior,pendingAccept.active().bytes()) || Arrays.equals(next,pendingAccept.active().bytes()),"context acceptance active vote changed");
+        };
+        try {
+            cut.at("CONTEXT_ACCEPT_VALIDATED");guard.check();if(acknowledge)fence(bound);
+            if(!installed || pendingAccept.pending())pendingAccept.install(vote,()->{guard.check();if(acknowledge)fence(bound);},cut);
+            // Re-force even after rename/lost return before discarding the sole old metadata.
+            pendingAccept.sealActive(guard,cut);guard.check();
+            require(!pendingAccept.pending() && Arrays.equals(next,pendingAccept.active().bytes()),"context acceptance successor incomplete");
+            cut.at("CONTEXT_ACCEPT_SUCCESSOR_FORCED");guard.check();
+            pendingContext.clearRedundant(context,guard,cut);
+            cut.at("CONTEXT_ACCEPT_CLEARED");guard.check();
+            // Floor copies were required while the old vote depended on the context.
+            // The fully forced current vote now owns its exact selector/entry instead.
+            // Reclaim those copies before reserving replay input/output + applied end;
+            // no acknowledgement is returned until all completion slots are owned.
+            releaseFloor();reserveApplicationCompletion();
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+
     /** Roll back the optional duplicate metadata only while its complete originals still exist.
      * Safe after a lost cleanup return: an absent context grants no new authority. */
     synchronized void discardRedundantPendingContext()throws IOException {
@@ -486,7 +567,9 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && !floors.pending() && !floors.releasing() && !retirement.pending(),"pending ACCEPT conflicts with other authority transaction");
     }
     private void bindVoteCandidate(MembershipPendingAccept.Vote vote)throws IOException {
-        verifyVote(vote);voteTransactionIdle();
+        verifyVote(vote);voteTransactionIdle();bindInstalledVote(vote);
+    }
+    private void bindInstalledVote(MembershipPendingAccept.Vote vote)throws IOException {
         require(vote.proof()==null || pendingAccept.active()!=null && vote.sameAcceptance(pendingAccept.active()),"PROOF candidate requires original active ACCEPT");
         require(vote.certificate()==null || pendingAccept.active()!=null && pendingAccept.active().proof()!=null && vote.sameProof(pendingAccept.active()),"certificate candidate requires original active PROOF");
         require(selection!=null && promise!=null && Arrays.equals(vote.promise().bytes(),promise.bytes())

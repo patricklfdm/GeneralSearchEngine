@@ -32,7 +32,8 @@ class V53ContextSourceReleaseTest {
         assertArrayEquals(Files.readAllBytes(base.resolve("retired/pending.accept")),owner.retainPendingContext().vote().bytes());
         assertEquals(V53ContextRetirementTest.seed.phased().certificate().digest(),owner.currentCertificate().orElseThrow().digest());
     }
-    @Test void exactSeparateBackingAllowsOriginalSourceRetirementAndReopen()throws Exception {
+    @Test void exactSeparateBackingAllowsOriginalSourceRetirementAndReopen()throws Exception {releaseScenario();}
+    Path releaseScenario()throws Exception {
         Path node=copy("clean"),evidence=Path.of("target/v53-context-source-release/run-"+UUID.randomUUID());Files.createDirectories(evidence);
         V53JournalApplicationTest.copy(base,evidence.resolve("original-retirement"));var r=V53ContextRetirementTest.resources();var events=new ArrayList<String>();int before,after;
         try(var owner=open(node,r,events::add)) {
@@ -50,7 +51,7 @@ class V53ContextSourceReleaseTest {
         Files.write(evidence.resolve("events.json"),canonical(events,1024*1024));Files.write(evidence.resolve("receipt.json"),canonical(Map.of(
                 "schema","gse-v53-context-source-release-v1","status","PASS","predecessor",predecessor,"backing",backing,
                 "beforeImages",before,"afterImages",after,"freshProcesses",false,"runtimeEnabled",false),16384));
-        System.out.println("v53ContextSourceReleaseEvidence="+evidence.toAbsolutePath());
+        System.out.println("v53ContextSourceReleaseEvidence="+evidence.toAbsolutePath());return evidence;
     }
     @Test void repeatedInterruptionPreservesContextAndCompletesTheSameDeletion()throws Exception {
         Path evidence=Path.of("target/v53-context-source-release-cuts/run-"+UUID.randomUUID());Files.createDirectories(evidence);

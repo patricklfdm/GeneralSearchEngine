@@ -200,3 +200,5 @@ requiring application bytes. It remains separate from typed/committed admission.
 - [Public offline bootstrap](PHASE_2_PUBLIC_BOOTSTRAP.md): typed plan/apply/resume and immutable result inspection; online membership and learner admission remain disabled.
 
 - [Context-backed source retirement](PHASE_2_CONTEXT_SOURCE_RELEASE.md): exact predecessor reclamation with the original vote and separate backing preserved; full transferred lifetime remains open.
+
+- [Context-backed acceptance](PHASE_2_CONTEXT_ACCEPTANCE.md): force the exact successor, retire redundant context/floor, and reserve completion space before ACK.
