@@ -47,7 +47,7 @@ def publication(work, slot, before, first):
     phase, values = pending(originals['node-1']['pending.accept'], ('PROOF', 'CERTIFICATE')); entry = values['ENTRY']; cert = values['CERTIFICATE']
     selected = f.decode(members['selected.gsr'], 'records', 'SELECTED')
     need(entry['kind'] == ('DATA' if slot == 2 else 'BARRIER') and entry['index'] == slot and entry['previous'] == cap['cut']['entry']
-         and entry['origin'] == dict(selected['ballot'], counter=20 if slot == 2 else 21), 'carried first/subsequent origin')
+         and entry['origin'] == (dict(selected['ballot'], counter=20) if slot == 2 else selected['ballot']), 'carried first/subsequent origin')
     need(slot != 2 or digest(phase['ENTRY']) == selected['nextEntry'], 'carried original selected entry')
     accept = dict(root=root_hash, authority=selected['view'], ballot=selected['ballot'], entry=digest(phase['ENTRY']), index=slot)
     need(values['ACCEPT'] == accept and {k: v for k, v in values['PROOF'].items() if k != 'accepts'} == accept

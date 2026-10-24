@@ -56,7 +56,8 @@ evidence must fail for its specified reason after the original passes.
 The new source cuts use injected IOException; they do not establish process-death
 or power-loss behavior for the repeated-installation path. Historical bootstrap is
 still conditional, images are small, and this path requires the same original
-ACCEPT digest. Mixed higher-ballot acceptances, full typed publication after this
-new lifetime, full-capacity journal/image/staging headroom, admitted bootstrap to
+ACCEPT digest. [Subsequent typed publication](PHASE_2_CONTEXT_INSTALLED_PUBLICATION.md) connects this
+small-image lifetime through actual voting and continuation. Mixed higher-ballot
+acceptances, full-capacity journal/image/staging headroom, admitted bootstrap to
 complete lifetime, and coordinated old/joint/new profiles remain separate Phase 2
 obligations. Public online membership remains disabled.

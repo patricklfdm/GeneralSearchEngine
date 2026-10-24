@@ -18,7 +18,9 @@ class V53ContextInstallationLifetimeTest {
     }
     Map<String,Object> ballot(long n){return reference.seed().fixture().f.initial.application.f.f.f.fixture.source.ballot(n);}
     void snapshot(Path group,Path path)throws Exception {V53JournalApplicationTest.copy(group,path);}
-    @Test void repeatedSlotsAndSourceReclamationLeaveRoomForTheExactSuccessor()throws Exception {
+    record Scenario(Path evidence,Path group) {}
+    @Test void repeatedSlotsAndSourceReclamationLeaveRoomForTheExactSuccessor()throws Exception {sourceRetirementCuts(scenario().evidence());}
+    Scenario scenario()throws Exception {
         reference=new V53ContextPublicationTest().scenario();Path group=temp.resolve("group");
         snapshot(reference.evidence().resolve("carried-snapshots/source-retired"),group);
         Path raw=Path.of("target/v53-context-installation-lifetime/run-"+UUID.randomUUID());Files.createDirectories(raw);snapshot(reference.evidence(),raw.resolve("reference"));
@@ -66,7 +68,7 @@ class V53ContextInstallationLifetimeTest {
         Files.write(raw.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-context-installation-lifetime-v1","status","PASS","rounds",List.of(22,23,24,25,26,27),
                 "nodes",3,"originalVote",20,"floorBallot",21,"freshProcesses",false,"runtimeEnabled",false),16384));
         System.out.println("v53ContextInstallationLifetimeEvidence="+raw.toAbsolutePath());
-        sourceRetirementCuts(raw);
+        return new Scenario(raw,group);
     }
     void sourceRetirementCuts(Path referenceRaw)throws Exception {
         Path raw=Path.of("target/v53-context-installed-source-cuts/run-"+UUID.randomUUID());Files.createDirectories(raw);

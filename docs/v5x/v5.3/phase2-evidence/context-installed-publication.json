@@ -1,0 +1,327 @@
+{
+  "base": "20f10e31154e972ff5f09d50398c64fafa357bbc",
+  "compiledInputs": {
+    "path": "target/v53-context-installed-publication/inputs1.json",
+    "sha256": "c400e7e39bc6be97a58a7ad86812af0c04c6895eab46da2e9158de58f7fcc380"
+  },
+  "compiledMainClasses": {
+    "changed": [],
+    "classes": 702,
+    "path": "target/v53-context-installed-publication/compiled-main-classes.json",
+    "sha256": "492601f385476023706cbd6978b0b0e8f5a40d42c0961173d8b2200aacb4f10c"
+  },
+  "jars": {
+    "target/v53-context-installed-publication/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "86904fe05db94c7e0c395e365f8ad01836ca7a8b0c39a1fc809b797b06097dca",
+    "target/v53-context-installed-publication/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "05827067ef68c2ef0139d08128f63a38290593f6c9fc1c3baea71ad5f1ec6909"
+  },
+  "javaExecutions": 2,
+  "limitations": [
+    "small images, three owners and conditional historical bootstrap; not maximal or cross-view/admitted-bootstrap lifetime",
+    "clean composed execution, not fresh-process interruptions or power-loss qualification",
+    "mixed higher-ballot ACCEPT digests for the same ENTRY remain a separate obligation",
+    "Python derives physical/protocol bytes; typed image semantics are checked by the actual core producer"
+  ],
+  "logs": {
+    "legacy-publication-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "legacy-publication-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lifetime-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lifetime-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publication-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publication-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-unit.log": "e6c1928e8ab514e05ebbbdca15234fdae1777148c78845ee16cc9e3ed46f2f9c",
+    "replay.log": "672e3594ff086ea19f8b846be713b2870dbfca36bffc55319d5b1f0393e003d0",
+    "run1.log": "ae2b7a4ab4e4e67b4528579b460ed47dacd3f6404424daed451b8f6f47d6228c"
+  },
+  "oracleInputs": {
+    "path": "target/v53-context-installed-publication/oracle-inputs.json",
+    "sha256": "f213167cf04bbc5159c1e227d711ede3c1aaac4e2c5844085a8424b4ed8238a8"
+  },
+  "paidCloud": false,
+  "phase2": "OPEN",
+  "producerClasses": {
+    "path": "target/v53-context-installed-publication/producer-classes.json",
+    "sha256": "b9f7e46fa32c62c5b567e98317b2cabde90eea96c3cf47b4754e28e1951f6a6d"
+  },
+  "raws": {
+    "legacy-publication": {
+      "index": "target/v53-context-installed-publication/legacy-publication-raw-index.json",
+      "members": 1269,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-publication/run-95065c83-d432-4673-9c1d-6ebce5bb16b3",
+      "sha256": "b5bf5e8b69c038aaee96b415609fba9b6647702518b07e95720ce9df1012876e"
+    },
+    "lifetime": {
+      "index": "target/v53-context-installed-publication/lifetime-raw-index.json",
+      "members": 5095,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation-lifetime/run-9b818117-3147-4870-ae21-7c5d5b695558",
+      "sha256": "9841af7f9b1501956d2d4059bff31de499c8249f42304d9a3deb5388be720ed3"
+    },
+    "publication": {
+      "index": "target/v53-context-installed-publication/publication-raw-index.json",
+      "members": 5513,
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installed-publication/run-9eb58334-f1dc-4a69-b70b-86c73c63230c",
+      "sha256": "ea2918de3829ccf3ecf48f4b7482b2701b157be13035ba1be94f77e3109f2221"
+    }
+  },
+  "replays": {
+    "legacy-publication": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-publication/run-95065c83-d432-4673-9c1d-6ebce5bb16b3",
+      "result": {
+        "acceptBallot": 21,
+        "applicationSequence": 43,
+        "entryOrigin": 20,
+        "freshProcesses": false,
+        "imageSemantics": "separate-core-producer",
+        "negatives": [
+          {
+            "case": "old-certified",
+            "reason": "staged exact old-certified owner: node-1"
+          },
+          {
+            "case": "prepared",
+            "reason": "context publication exact prepared: node-1"
+          },
+          {
+            "case": "installed",
+            "reason": "context publication exact installed: node-1"
+          },
+          {
+            "case": "context",
+            "reason": "context publication exact context: node-1"
+          },
+          {
+            "case": "context-floor",
+            "reason": "context publication exact context-floor: node-1"
+          },
+          {
+            "case": "context-retired",
+            "reason": "context publication exact context-retired: node-1"
+          },
+          {
+            "case": "source-retired",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "reaccepted",
+            "reason": "context publication exact reaccepted: node-1"
+          },
+          {
+            "case": "published",
+            "reason": "carried exact publication/retirement bytes"
+          },
+          {
+            "case": "continued",
+            "reason": "carried exact publication/retirement bytes"
+          },
+          {
+            "case": "fresh",
+            "reason": "staged exact fresh owner: node-1"
+          },
+          {
+            "case": "bad-original",
+            "reason": "round exact original forced end"
+          },
+          {
+            "case": "new-origin",
+            "reason": "context publication exact reaccepted: node-1"
+          },
+          {
+            "case": "lost-context-source",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "changed-context",
+            "reason": "context publication exact context-retired: node-1"
+          },
+          {
+            "case": "kept-context",
+            "reason": "context publication exact reaccepted: node-1"
+          },
+          {
+            "case": "lost-application-ack",
+            "reason": "carried original applied ends"
+          },
+          {
+            "case": "false-process",
+            "reason": "context publication receipt scope"
+          }
+        ],
+        "nodePublications": 6,
+        "nodes": 3,
+        "originalFirst": true,
+        "physicalBytes": true,
+        "portableReplay": "PASS",
+        "processForceOrder": false,
+        "publishedCut": 3,
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "lifetime": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installation-lifetime/run-9b818117-3147-4870-ae21-7c5d5b695558",
+      "result": {
+        "finalBallot": 27,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection installation lifetime inventory"
+          },
+          {
+            "case": "capture",
+            "reason": "context capture exact selection capture"
+          },
+          {
+            "case": "selected",
+            "reason": "context capture exact installation lifetime selection"
+          },
+          {
+            "case": "installed",
+            "reason": "context capture exact installation lifetime install"
+          },
+          {
+            "case": "generation",
+            "reason": "context capture exact installation lifetime generation retirement"
+          },
+          {
+            "case": "context",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "vote",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "floor",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "journal",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "kept-source",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "latest-source",
+            "reason": "installation lifetime source retirement"
+          },
+          {
+            "case": "accepted",
+            "reason": "context capture exact installation lifetime successor"
+          },
+          {
+            "case": "scope",
+            "reason": "installation lifetime scope"
+          },
+          {
+            "case": "linked",
+            "reason": "owner context linked/nonregular member"
+          }
+        ],
+        "originalFirst": true,
+        "originalVote": 20,
+        "owners": 3,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "rounds": [
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "runtimeEnabled": false,
+        "status": "PASS"
+      }
+    },
+    "publication": {
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-context-installed-publication/run-9eb58334-f1dc-4a69-b70b-86c73c63230c",
+      "result": {
+        "acceptBallot": 27,
+        "applicationSequence": 43,
+        "entryOrigin": 20,
+        "freshBallot": 28,
+        "freshProcesses": false,
+        "historicalBootstrap": "conditional-fixture",
+        "maximalCapacity": false,
+        "negatives": [
+          {
+            "case": "original",
+            "reason": "context publication exact source-retired: node-1"
+          },
+          {
+            "case": "missing",
+            "reason": "context selection installed publication inventory"
+          },
+          {
+            "case": "published",
+            "reason": "carried exact publication/retirement bytes"
+          },
+          {
+            "case": "reclaimed",
+            "reason": "installed publication exact source reclamation"
+          },
+          {
+            "case": "continued",
+            "reason": "carried exact publication/retirement bytes"
+          },
+          {
+            "case": "fresh",
+            "reason": "installed publication exact fresh"
+          },
+          {
+            "case": "ack",
+            "reason": "carried original applied ends"
+          },
+          {
+            "case": "origin",
+            "reason": "carried first/subsequent origin"
+          },
+          {
+            "case": "tail",
+            "reason": "installed publication empty fresh tail"
+          },
+          {
+            "case": "source",
+            "reason": "installed publication exact source reclamation"
+          },
+          {
+            "case": "scope",
+            "reason": "installed publication receipt scope"
+          }
+        ],
+        "nodePublications": 6,
+        "nodes": 3,
+        "originalFirst": true,
+        "physicalBytes": true,
+        "portableReplay": "PASS",
+        "powerLoss": false,
+        "publishedCut": 3,
+        "runtimeEnabled": false,
+        "status": "PASS",
+        "typedImageSemantics": "separate-core-producer"
+      }
+    }
+  },
+  "schema": "gse-v53-context-installed-publication-local-v1",
+  "scope": [
+    "six actual protected installations followed by actual ballot-27 ACCEPT/PROOF/certificate, typed application and checkpoint publication",
+    "old source reclamation, BARRIER continuation, once-only document, application sequence 43 and empty-tail ballot 28",
+    "source/build-bound original-first physical replay and exact negative reasons under normal/optimized/relocated execution"
+  ],
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextInstallationLifetimeTest.java": "c815e86a66b06df89eaeca3f45074c12d79a8ad982d7c098025aab3d161cc853",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContextInstalledPublicationTest.java": "3e2e5fad30c65a65b92c7f9fc9dc58597685da4be707529293fe375fb67ab153",
+    "scripts/v53/carried_publication_evidence.py": "03c4df8f89e5b073050c7c7a53c54404293fa1fd8ab7ac1fb57b17ed2956651a",
+    "scripts/v53/context_installed_publication_evidence.py": "9280e8aa904593b20ebf9a17b6dd2ec0bdf39c8a8458d6716439b07396e96d27"
+  },
+  "status": "PASS"
+}
