@@ -1,0 +1,236 @@
+{
+  "attempts": {
+    "firstJava": "native backup limit includes original 32-byte request ID",
+    "firstReplay": "selected generation manifest was mistakenly read from the members-only mapping; corrected Python reader replays unchanged Java output",
+    "fourthJava": "same source as third attempt with restored 4g heap; original runtime storage stays on Linux and retained copies on D",
+    "secondJava": "two slots completed; final campaign missing retained installation ancestry in test driver; original raw archived on D",
+    "sourceMaps": {
+      "target/v53-max-application/inputs1.json": "2630e4bf60da2d9b31c10e2bfc9c9d7a645801d63104a10042f62ba7702b2d5d",
+      "target/v53-max-application/inputs2.json": "273b5f40ff6e77e6e0574e0f35d9db4a9ed763f1db9319675f738d41eff5ffde",
+      "target/v53-max-application/inputs3.json": "c084d14b6fbe9b8529149910690f49724e0b4fb99fedba7a896865e66df957b0",
+      "target/v53-max-application/inputs4.json": "c084d14b6fbe9b8529149910690f49724e0b4fb99fedba7a896865e66df957b0"
+    },
+    "thirdJava": "incorrect 1g test heap caused OOM at first governing-floor copy; retained original sources and dump"
+  },
+  "base": "7f9f737e7aa84c2ed2e39ddb5054d63f1eeb5564",
+  "compiledInputs": {
+    "target/v53-max-application/inputs4.json": "c084d14b6fbe9b8529149910690f49724e0b4fb99fedba7a896865e66df957b0"
+  },
+  "compiledMainClasses": {
+    "classes": 709,
+    "comparison": "identical to publication-capacity corrected runtime",
+    "path": "target/v53-max-application/compiled-main-classes.json",
+    "sha256": "c851593d18974f0ef033f93f05b71561c773f96cfa9f572b2a0a2ad54d2f95f4"
+  },
+  "diagnostics": {
+    "target/v53-max-application/completed-producer-classes.json": "ca25d8a8614e00bf836bc5ee6b9ad50dc18b37e5c1b76057c6366ee4b225c112",
+    "target/v53-max-application/diagnostics.json": "cc037b4ff20389719d9a2e4a85a189b1d316db435c5b3259cf4078f058cdd3ed",
+    "target/v53-max-application/replay-attempt1/inputs.json": "02898cc65f1c75d06f3964dfb1a91d2c2ec1a3ddeb359ea1c761e1784de11879",
+    "target/v53-max-application/replay-attempt1/normal.stderr": "854f988b0a3b52c38551d0b99b9b7b04c55d65519085812bc207e8daa706f7d8",
+    "target/v53-max-application/replay-attempt1/regressions-after.log": "89381c0c2673863d48ec9ea84019ed4c9753e0ede57e9512330899ed0a0c60af",
+    "target/v53-max-application/replay-attempt1/regressions-before.log": "c6ae1691e96502776eb5e048eaa3a0bcb52ba728061bad10affeb685ed3b7b81",
+    "target/v53-max-application/run2-thread-sample.dumpstream": "6863173822e2dcc328fb5ea3e503beebb36425fce379821567862bae173ad860",
+    "target/v53-max-application/run3-outcome.json": "fb4f32dda05a53507451e836061e33832504b4af93a847cd5aed638db5e1115b"
+  },
+  "failedRetained": [
+    {
+      "archive": "/mnt/d/GSE-Archives/GeneralSearchEngine/v53-max-failed-20261024/run-7d5542fa-f3d9-49c8-9179-adfd79f3320b.tar.gz",
+      "archiveSha256": "a97af021fb6269a33980b4874aee1874013da0c35f5726619e24418ea01b7bef",
+      "manifest": "/mnt/d/GSE-Archives/GeneralSearchEngine/v53-max-failed-20261024/run-7d5542fa-f3d9-49c8-9179-adfd79f3320b-manifest.json",
+      "manifestSha256": "3d2e5bda5b4842ac08da093ff0774f2b68c5ecdfea53605618bbc5714d9ce219",
+      "originalBytes": 19601081939,
+      "removedBytes": 19600855893,
+      "removedFiles": 2578,
+      "source": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-max-application/run-7d5542fa-f3d9-49c8-9179-adfd79f3320b",
+      "status": "ARCHIVED_VERIFIED"
+    }
+  ],
+  "failedThird": {
+    "bytes": 3020308855,
+    "classification": "five-owner maximum-image test heap misconfiguration; not evidence of successful completion",
+    "configuredHeap": "1g",
+    "dump": "target/v53-max-application/attempt3/2026-10-24T18-18-40_870-jvmRun1.dump",
+    "dumpSha256": "b280a07582a8dc0057488ba01595dccf8de8f7fbe773dc5c45e516c449b95e16",
+    "files": 379,
+    "inventory": "target/v53-max-application/attempt3/raw-inventory.json",
+    "inventorySha256": "1a3f397352020da53c4963657049a8ad4b0b4c3216ccc1b7f2b84a65a6e3d115",
+    "logicalLimitsChanged": false,
+    "priorMaximumRunsHeap": "4g",
+    "raw": "/mnt/d/GSE-Archives/GeneralSearchEngine/v53-maximum-run3-20261025/producer/run-34b3d7c0-e3fb-40b4-aa8f-13413dcd6bb3",
+    "reason": "Java heap space at floor-copy cloning",
+    "sourceInputs": "inputs3.json",
+    "status": "FAIL"
+  },
+  "jars": {
+    "target/v53-capsule-boundary/jars/general-search-engine-5.3.0-SNAPSHOT.jar": "cfa03351fa3631bbacf1c39a55df6eadc1c9254bc37861d5ae8895c6c196c75a",
+    "target/v53-capsule-boundary/jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "9b3c8a4fdc88afc03ea5d6f5018ee33adfe65643db342314395cb90894547ca7"
+  },
+  "logs": {
+    "target/v53-max-application/archive-check.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-max-application/archive.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-max-application/cross-view-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-max-application/cross-view-optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-max-application/extract.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-max-application/failed-retention.log": "ce21d3b35478d6f46c8c281a3bc1b46ccb2fe5bc494c846c0f712755528f9a06",
+    "target/v53-max-application/first-campaign-validation.log": "1868bba58f7375e85d0c3859a54f0f64576f2526e6ded98151a0f50217b2733b",
+    "target/v53-max-application/initial-publication-validation.log": "d29bf271e5382d67a560df6980c1e97b8dafdea2fbd561c035992081e6965356",
+    "target/v53-max-application/normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-max-application/optimized.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-max-application/peak-resource-validation.log": "f4fb40b1f27ea80edeb8440ed69a069e7f0bc35d2b08ff4215bcadb3f6b9d125",
+    "target/v53-max-application/portable.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "target/v53-max-application/python-tests-final-optimized.log": "67628a28d00c36e5738b5088ee8971595cea098b46a48f12578d5e976deaa168",
+    "target/v53-max-application/python-tests-final.log": "120563c8bd22c51ebc9df1297036cd9d12fd04039d36da8d31026fb7dcc90893",
+    "target/v53-max-application/python-tests1.log": "fe4988a7fe402c28910775152ccb012e903125901080fe3c18a3d0a2893c856b",
+    "target/v53-max-application/python-tests2.log": "c223735c4ff4a1891c28f06e97302c8deb33f4b920fae7e5c74a599034a5e887",
+    "target/v53-max-application/python-tests3.log": "92cd6f9e491f82eebb1173ffacb902a43be31b24b25dc6719a210906371fb795",
+    "target/v53-max-application/replay-progress-resumed.log": "7bc7245693c73b8018e2ec064a0ed6b8a20d5faf92b2093de75601841d9df788",
+    "target/v53-max-application/replay-progress.log": "cd031604b0abfd76b8efddd73ab0d58e88a9f9bf2c845489730be5586c02a1f3",
+    "target/v53-max-application/resume-portable-progress.log": "011136f7e0cc60bbd83567631cae582da2a1b502db29f30334431302f5f8c168",
+    "target/v53-max-application/run1.log": "dc4f266a40417f01dd8519fcf552c67673df77668b1733c7f92c2af91498689e",
+    "target/v53-max-application/run2.log": "9031457a45eeaf8a216e7917018eadbfbd9f34070e04dffa9ce9b62d5fcf93b4",
+    "target/v53-max-application/run3-driver.log": "0e531b8676c52495e83e64ab45a247d74f7fee163c84bdfdd61eb6f3af6be4c5",
+    "target/v53-max-application/run3.log": "3a7a7efa533670f017fa9a4ab765589f2a289f6d73c85ff7ef461fd9883d0e0a",
+    "target/v53-max-application/run4-driver.log": "b142e19b62a9b0b426e7d260e14c506987992bdda4672e4532a1a5777b0827da",
+    "target/v53-max-application/run4-replay-progress.log": "6cbc2ab13233261adcbd15aa39a92fa0243b4229b7bf90318bbaa4160c19c4b0",
+    "target/v53-max-application/run4-replay-repaired-progress.log": "f3645ee81ce584857b9ca15c0e2e5573da65f49656e5d5263ae4757d30042062",
+    "target/v53-max-application/run4.log": "2ccdb31e4e7515c750eb1e7199d38f14fb354dd52fed89aa9483417b45f8e5d3",
+    "target/v53-max-application/shared-reader-profile1.log": "04a23f47dcc0bb3bc29e5116b9cb73eda79e00898ca7b83e52f41d3d105059bb",
+    "target/v53-max-application/shared-reader-tests-optimized.log": "ba524a15bb40d1ddce6d9b36078e7d0bd46741a27def15ab633207f6f232510d",
+    "target/v53-max-application/shared-reader-tests.log": "31503230e36d8e43e62ace46f2caf83387e5a1dff128bbd85d8ac4daa732ad6a",
+    "target/v53-max-application/source-validation.log": "6a0db2df02391cac1a4991a8425f40872ed0d74b72ede4f4f9ffaa63d0816c09"
+  },
+  "portableRetention": {
+    "archive": "/mnt/d/GSE-Archives/GeneralSearchEngine/v53-maximum-run4-20261025/maximum-raw.tar.gz",
+    "archiveSha256": "63410e4a4c4f0434b8a44b899bab32d7da6661eb992c4c2c2e889a5b39012128",
+    "inventory": "target/v53-max-application/portable-inventory.json",
+    "inventorySha256": "a10b6abdf76b88cd585a7e25696598f5a5a94a73dab91358d388cc54915d09d0",
+    "portable": "/mnt/d/GSE-Archives/GeneralSearchEngine/v53-maximum-run4-20261025/portable-evidence",
+    "raw": "/mnt/d/GSE-Archives/GeneralSearchEngine/v53-maximum-run4-20261025/producer/run-dee4ae41-94a7-40c9-b7a7-2ce2e5fdcf1c",
+    "status": "PASS"
+  },
+  "producerClasses": {
+    "path": "target/v53-max-application/producer-classes.json",
+    "sha256": "030ff044d02743f9fc44e6ef5888b498714318edeb3f361d36d1eacbb2c5a955"
+  },
+  "pythonInputs": {
+    "path": "target/v53-max-application/python-inputs.json",
+    "sha256": "2fce4e4fbac0e143aeb3cec2d52603baa4f7a808b75a91f0cc8086d37d59d810"
+  },
+  "pythonTests": 26,
+  "readerFiles": {
+    "target/v53-max-application/cross-view-normal.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-max-application/cross-view-optimized.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-max-application/normal.json": "d65e7f6211e4f60057d14dc7418c318d55c011317cdee8b2eb8bb87730181d5f",
+    "target/v53-max-application/optimized.json": "d65e7f6211e4f60057d14dc7418c318d55c011317cdee8b2eb8bb87730181d5f",
+    "target/v53-max-application/portable.json": "d65e7f6211e4f60057d14dc7418c318d55c011317cdee8b2eb8bb87730181d5f"
+  },
+  "replay": {
+    "containerLimit": 67108864,
+    "documents": 1024,
+    "imageBytes": 469761824,
+    "leases": 16,
+    "maximumCapsule": false,
+    "metadataBytes": 35771824,
+    "nativeImageBytes": 67108832,
+    "negativeCases": [
+      {
+        "case": "history",
+        "reason": "cross-view application identity",
+        "status": "REJECTED"
+      },
+      {
+        "case": "sequence",
+        "reason": "cross-view application sequence/documents",
+        "status": "REJECTED"
+      },
+      {
+        "case": "documents",
+        "reason": "cross-view application sequence/documents",
+        "status": "REJECTED"
+      },
+      {
+        "case": "document-bytes",
+        "reason": "cross-view application document bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "checkpoint-crc",
+        "reason": "cross-view checkpoint CRC32C mismatch",
+        "status": "REJECTED"
+      },
+      {
+        "case": "container-limit",
+        "reason": "bootstrap validation image header",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-image",
+        "reason": "maximum seven complete images",
+        "status": "REJECTED"
+      },
+      {
+        "case": "eighth-image",
+        "reason": "maximum seven complete images",
+        "status": "REJECTED"
+      },
+      {
+        "case": "short-image",
+        "reason": "maximum seven complete images",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt-publicRuntime",
+        "reason": "maximum receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt-peakImages",
+        "reason": "maximum receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt-imageBytes",
+        "reason": "maximum receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt-administrationBytes",
+        "reason": "maximum receipt",
+        "status": "REJECTED"
+      }
+    ],
+    "negativeScope": "original-first-component-mutations",
+    "peakImages": 7,
+    "powerLoss": false,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "slots": 2,
+    "stagingBytes": 469840132,
+    "status": "PASS",
+    "voters": 5
+  },
+  "reports": {
+    "target/v53-max-application/junit/run4.xml": {
+      "sha256": "d04d84203186e94f4a38d87af392352fdb06f6f916b81b3b111da020cb92796a",
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-maximum-application-local-v1",
+  "scope": {
+    "containerMaximum": 67108864,
+    "crossView": false,
+    "freshProcesses": false,
+    "maximalCapsule": false,
+    "nativeMaximumApplicationBytes": 67108832,
+    "powerLoss": false,
+    "profiles": "five initial voters from verified backup; native maximum image; two BARRIER publications and three campaigns",
+    "publicBootstrap": true,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaximumApplicationTest.java": "14f4ff7beeeeb3e327e659fa705bc079d0476eb922fc6f3ca89c219521fe810d",
+    "scripts/v53/maximum_application_evidence.py": "e2f1a5b4d34d193032e53e1395db4c991b68206455b690025ef6f39a99e5b5b8",
+    "scripts/v53/test_maximum_application.py": "73704b064c5cdda501edba051d464b4dace7e7aaf563ad65340c895ef3b11c69"
+  },
+  "status": "PASS"
+}
