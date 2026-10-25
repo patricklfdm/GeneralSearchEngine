@@ -1,8 +1,13 @@
 from contextlib import ExitStack
 from copy import deepcopy
 from pathlib import Path
+import contextlib
+import io
+import runpy
+import sys
 import tempfile
 import unittest
+import warnings
 from unittest.mock import patch
 from urllib.parse import urlsplit, urlunsplit
 from . import cloud_native_cleanup as n, cloud_preflight as f, cloud_preflight_read as r
@@ -76,6 +81,53 @@ class NativeCleanupTest(unittest.TestCase):
         return n.reconcile_native(SOURCE,self.output,role=self.role)
 
     def mutations(self):return [r for r in self.calls if r['method']!='GET' and not r['url'].endswith(':testIamPermissions') and 'iamcredentials.googleapis.com' not in r['url'] and 'sts.googleapis.com' not in r['url']]
+
+    def cli(self):
+        self.count+=1;self.output=self.root/f'cli-{self.count}';stdout=io.StringIO()
+        # Match the workflow's python -m entry: execute under __main__, while
+        # the strict provider guard imports the module by its canonical name.
+        with patch.object(sys,'argv',['cloud_native_cleanup','--source',SOURCE,'--role',self.role,'--output',str(self.output)]), \
+             contextlib.redirect_stdout(stdout),warnings.catch_warnings():
+            warnings.filterwarnings('ignore',message=".*scripts.v52.cloud_native_cleanup.*found in sys.modules.*",category=RuntimeWarning)
+            with self.assertRaises(SystemExit) as stopped:runpy.run_module('scripts.v52.cloud_native_cleanup',run_name='__main__')
+        return stopped.exception.code,stdout.getvalue()
+
+    def test_module_cli_expired_lease_reaches_exact_id_cleanup(self):
+        self.prepared();code,output=self.cli()
+        self.assertEqual(0,code,output)
+        result=strict((self.output/'receipt.json').read_bytes())
+        self.assertEqual('PASS',result['status']);self.assertEqual(13,result['resourceDeletesSubmitted'])
+        self.assertTrue(result['leaseReleased']);self.assertIsNone(self.get(a.LEASE))
+        self.assertEqual({},self.server.resources);self.assertFalse(result['fullRemoteQualification'])
+
+    def test_module_cli_cleaning_failure_preserves_original_terminal_ledger(self):
+        lease=self.prepared();lease['phase']='CLEANING';self.put(a.LEASE,lease)
+        first=next(row for row in lease['resources'] if row['spec']['kind']=='instance')
+        name=first['spec']['name'];first['id']=None;self.put(a.LEASE,lease)
+        op=next(v for v in self.server.operations.values() if v['targetLink'].endswith('/'+name))
+        op['error']=dict(errors=[dict(code='ZONE_RESOURCE_POOL_EXHAUSTED')])
+        self.server.resources.clear()
+        sha=a.validate_request(self.req,domain='native');key=c.attempt_key(self.req)+'completion.json'
+        completion=dict(schema='gse-v52-owned-completion-v1',execution=self.req['execution'],
+            requestSha256=sha,status='FAIL',evidenceSha256=None,cleanupSha256='c'*64)
+        self.put(key,completion);self.put(a.LEDGER,a.finish(self.get(a.LEDGER),self.req,completion))
+        ledger=deepcopy(self.server.objects[a.LEDGER]);original=deepcopy(self.server.objects[key])
+        code,output=self.cli();self.assertEqual(0,code,output)
+        result=strict((self.output/'receipt.json').read_bytes())
+        self.assertEqual('PASS',result['status']);self.assertIsNone(self.get(a.LEASE))
+        self.assertEqual(0,result['resourceDeletesSubmitted'])
+        self.assertEqual(ledger,self.server.objects[a.LEDGER]);self.assertEqual(original,self.server.objects[key])
+
+    def test_module_cli_active_lease_waits_without_mutations(self):
+        self.prepared(active=True);code,output=self.cli()
+        self.assertEqual(0,code,output);self.assertEqual('WAITING',strict((self.output/'receipt.json').read_bytes())['status'])
+        self.assertEqual([],self.mutations());self.assertEqual(13,len(self.server.resources))
+
+    def test_module_cli_missing_original_context_rejects_without_mutations(self):
+        self.prepared();self.server.objects.pop(p.context_key(self.req));code,output=self.cli()
+        self.assertEqual(2,code,output);self.assertIn('V52_CLEANUP_REJECTED',output)
+        self.assertFalse((self.output/'receipt.json').exists());self.assertIsNotNone(self.get(a.LEASE))
+        self.assertEqual([],self.mutations());self.assertEqual(13,len(self.server.resources))
 
     def test_expired_native_resources_use_original_ids_and_finish_original_failed_charge(self):
         lease=self.prepared();result=self.execute()
