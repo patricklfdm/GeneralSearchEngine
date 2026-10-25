@@ -20,6 +20,13 @@ separate trusted code paths; they are not a security sandbox against Python code
 execution. Offline adapters, subclasses/lookalikes and native records passed to
 an OfflineOwner remain rejected.
 
+The `python -m` entry delegates to the canonical imported module's `main()`.
+This keeps the factory's adapter class identical to the exact type accepted by
+the provider guard; a second class defined under `__main__` cannot accidentally
+block reconciliation. CLI regressions exercise expired and already-CLEANING
+leases, ACTIVE/WAITING and missing-context rejection through the module entry,
+not only direct calls to the imported reconciliation function.
+
 Cleanup requires exact current master source, its dedicated workflow/run/attempt,
 fresh diagnostic permission/bucket observations and named control reads. It does
 not require Java, a build artifact, full CI, current image availability or a new
