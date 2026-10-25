@@ -1587,6 +1587,29 @@ final class MembershipGrantJournal implements AutoCloseable {
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     void observeCurrent(Map<String,Object> incoming) {live();require(current!=null,"current generation required");observe(current.capsule.context,incoming);}
+    /** Phase 3's private controller shares this writer; no caller-assigned ballot or source. */
+    synchronized MembershipSelection.Source beginActivation() throws IOException {
+        require(current!=null,"current generation required");checkOwner();
+        require(identity.equals(current.capsule.context.identities.get(identity.nodeId().value()))
+                && current.capsule.context.voters().contains(identity.nodeId().value()),"activation requires current voter");
+        long counter=reserveCounter();
+        prepareCurrent(Map.of("counter",counter,"proposer",identity.nodeId().value(),"incarnation",identity.storageId().toString()));
+        return originalSource();
+    }
+    MembershipIdentity activationIdentity() {return identity;}
+    synchronized MembershipContext activationContext() throws IOException {
+        require(current!=null,"current generation required");checkOwner();return current.capsule.context;
+    }
+    /** Volatile replies cannot outlive the exact live owner, grant, view or installed selection. */
+    synchronized void checkActivation(Decoded original,Decoded selected,boolean installed) throws IOException {
+        require(current!=null && promise!=null && basis!=null,"activation grant unavailable");checkOwner();
+        require(Arrays.equals(original.bytes(),basis.bytes()) && original.value().get("ballot").equals(promise.value().get("ballot"))
+                && original.value().get("view").equals(current.capsule.context.authority()),"activation grant/view changed");
+        fence(object(original.value().get("ballot")));
+        if(selected!=null)require(selection!=null && Arrays.equals(selected.bytes(),selection.bytes()),"activation selection changed");
+        if(installed)require(selected!=null && selected.digest().equals(current.manifest.value().get("selection"))
+                && selected.value().get("cut").equals(current.manifest.value().get("cut")),"activation not locally installed");
+    }
     synchronized Optional<Owned> currentOwnedTail() throws IOException {
         require(current!=null,"current generation required");checkOwner();require(pendingAccept==null || !pendingAccept.pending(),"pending ACCEPT is not complete");String tail=voteAccepted();return tail==null?Optional.empty():Optional.of(new Owned(identity.nodeId().value(),identity.storageId(),tail,cutDigest(current.capsule.context.cut)));
     }

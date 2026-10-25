@@ -27,8 +27,18 @@ outside this instruction.
 
 ## Work rules
 
-- All development edits and commits stay on this branch. Do not push, open a PR,
-  merge, tag, publish or dispatch a V5.3 cloud experiment under this instruction.
+### Phase 3 entry authorization, 2026-10-25
+
+After local Phase 2 closure, the operator explicitly requested: push and enter
+the first Phase 3 batch. The completed Phase 2 head `f0d4dca` was pushed to
+`origin/feat/v53-cluster-operations`. This supersedes the earlier no-push and
+Phase-2 stop boundary for that action. The [Phase 3 entry plan](PHASE_3_ENTRY_PLAN.md)
+defines the new batch and remaining closure work. Coherent local commits remain
+authorized. This does not authorize a PR, merge, tag, paid run or release.
+
+- Development edits and commits stay on this branch. Phase 3 batch 3A is committed
+  locally after validation; further pushes and protected acceptance are reported
+  separately from the already-completed Phase 2 push.
 - Keep the running V5.2 Runner checkout, artifacts, lease, configuration, budgets
   and workflows untouched. A local branch is not the source of its running job.
 - Run focused local checks for each changed component and retain their results.
@@ -55,7 +65,7 @@ outside this instruction.
 | Phase 4 | Public add/remove/replace, queryable operation identities, retirement and same-version maintenance |
 | Phase 5 | Combined read/election/reconfiguration/restart/resource hardening and independent physical evidence |
 | Phase 6 | Freeze and execute local workloads; prepare the separately authorized cloud plan |
-| Integration | Incorporate released V5.2, pin actual controls, run unified compatibility/build/runtime/evidence acceptance, then request push/PR |
+| Integration | Incorporate released V5.2, pin actual controls, run unified compatibility/build/runtime/evidence acceptance, then request integration PR |
 
 Phases may have several local commits. Entry research now includes quorum arithmetic
 and single-slot ballots, a bounded multi-slot transition model and an abstract

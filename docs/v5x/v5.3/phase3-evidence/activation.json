@@ -1,0 +1,131 @@
+{
+  "schema": "gse-v53-phase3-activation-local-v1",
+  "status": "PASS",
+  "date": "2026-10-25",
+  "sourceParent": "f0d4dcaf0eaab7bc8a7ca5d86facc052260e5b1a",
+  "scope": "private activation component; real admitted stable owners plus conditional joint sources",
+  "publicRuntime": false,
+  "realNetwork": false,
+  "fullPhase3Qualification": false,
+  "protectedCI": false,
+  "paidCloud": false,
+  "java": {
+    "tests": 104,
+    "suites": 14,
+    "newTests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "conditionalProfileViews": 21,
+    "realAdmittedSizes": [
+      3,
+      4,
+      5
+    ]
+  },
+  "python": {
+    "normal": 533,
+    "optimized": 533,
+    "buildContracts": 29
+  },
+  "replay": {
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "negativeCases": 10,
+    "originalFiles": 463,
+    "originalBytes": 580763
+  },
+  "sourceInputs": {
+    "path": "target/v53-phase3-activation/qualified-source-inputs.json",
+    "bytes": 30165,
+    "sha256": "a7c67a1dbc1f26b615c4af5d8931b375727142b1c8aba2b331aa7f8206d74567"
+  },
+  "buildInputs": {
+    "path": "target/v53-phase3-activation/build-inputs.json",
+    "bytes": 181314,
+    "sha256": "c68227cad273e7fcc8bae0cb19eedf71cf7f35024ef9684ae2687f054220c4a6"
+  },
+  "artifacts": {
+    "target/v53-phase3-activation/artifacts/general-search-engine-5.3.0-SNAPSHOT.jar": {
+      "bytes": 860591,
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    "target/v53-phase3-activation/artifacts/general-search-engine-replication-5.3.0-SNAPSHOT.jar": {
+      "bytes": 1137747,
+      "sha256": "7777a524a45d13c044017380d028f376f386a9391b3070fcf93151415e4b4f6d"
+    }
+  },
+  "evidence": [
+    {
+      "path": "target/v53-phase3-activation/java-reports.json",
+      "bytes": 2700,
+      "sha256": "bc8eb38a77a33e753f29e960b3fc7ff1e7eac7bcb0057b6c9858f578007ba090"
+    },
+    {
+      "path": "target/v53-phase3-activation/final-java.log",
+      "bytes": 11878,
+      "sha256": "1dbe6b215ed150ed19e862b37df3684772b32eb8263ebb32468f80615a198296"
+    },
+    {
+      "path": "target/v53-phase3-activation/python.log",
+      "bytes": 634,
+      "sha256": "37eb1df0fb7a81894e69e2e305f111f03bd97d8c3aaf0d86c14dc013240c0a4e"
+    },
+    {
+      "path": "target/v53-phase3-activation/python-optimized.log",
+      "bytes": 634,
+      "sha256": "b7838f9ad6f7c41b915dd91330d3344b5de2eef9f984980bac0adcb343379957"
+    },
+    {
+      "path": "target/v53-phase3-activation/build-contracts.log",
+      "bytes": 281,
+      "sha256": "9ca55889db5ea6b5a8ef0fda0fb6e68f8112aa31be1c69a4a76e525abc7e1c5a"
+    },
+    {
+      "path": "target/v53-phase3-activation/replay.json",
+      "bytes": 1307,
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    },
+    {
+      "path": "target/v53-phase3-activation/replay-optimized.json",
+      "bytes": 1307,
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    },
+    {
+      "path": "target/v53-phase3-activation/replay-portable.json",
+      "bytes": 1769,
+      "sha256": "8ee4d854c3061f48ffc5a26c7e8d24c41bad51a4dbc912ff287099fdc8ac63cd"
+    },
+    {
+      "path": "target/v53-phase3-activation/raw-inventory.json",
+      "bytes": 75069,
+      "sha256": "42f9582110687f905b6141470e8ea8975c571c574bb1bcd134da2fbb21950122"
+    },
+    {
+      "path": "target/v53-phase3-activation/contract.json",
+      "bytes": 166,
+      "sha256": "a42e57197e1655ce3b1fd63af0b7af2c26d34505791c5295f09cb7e6841cc1a7"
+    }
+  ],
+  "retainedFailures": [
+    {
+      "path": "target/v53-phase3-activation/attempt1.log",
+      "bytes": 7318,
+      "sha256": "ebcecfda9586f000fc80676b777decd2d81227c2e1c13bc1803a9b62d6207be2"
+    }
+  ],
+  "limits": [
+    "No socket authentication or live source-transfer ownership qualification",
+    "No learner delivery or automatic joint completion",
+    "No service READY or inherited read qualification",
+    "S/N inventory remains PLANNED for owning distributed gates",
+    "Local Ubuntu JDK 21.0.12.1, not pinned hosted qualification"
+  ],
+  "remoteBoundary": {
+    "pushedThrough": "f0d4dcaf0eaab7bc8a7ca5d86facc052260e5b1a",
+    "branch": "feat/v53-cluster-operations",
+    "phase3Batch": "local commit only"
+  },
+  "buildWorkspace": "/tmp/gse-v53-phase3-fz_gpnz9"
+}

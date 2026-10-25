@@ -1,18 +1,23 @@
 # V5.3 — controlled cluster operations
 
-**Status:** local development branch, started 2026-10-21. Phases 0, 1 and 2 are locally closed;
+**Status:** development branch, started 2026-10-21. Phases 0, 1 and 2 are locally closed;
+Phase 3's [first activation batch](PHASE_3_ACTIVATION.md) is locally qualified;
 no V5.3 runtime, release, protected CI or cloud acceptance is claimed.
 
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
-cloud qualification continues, with local commits and no push. The branch starts
-at `73f3bd5c21c97eee564397ab11af7b66bc1b13a3`. V5.2 is still an unpublished
-development predecessor; its eventual published artifacts are not yet pinned.
+cloud qualification continues. The initial local-only instruction was extended
+on 2026-10-25 to push completed Phase 2 and start Phase 3. The branch starts
+at `73f3bd5c21c97eee564397ab11af7b66bc1b13a3`; actual released V5.2 controls
+and changes after that base still need separate verification/integration.
 
 The [Phase 2 closure audit](PHASE_2_CLOSURE_AUDIT.md) is the current local storage
 status. It covers public offline bootstrap, retained promises/selection/votes,
 typed publication, configuration-aware adoption and bounded recovery/reclamation.
 Native maximum application and near-envelope capacity evidence are included.
-Unified review remains pending; automatic membership and Phase 3 have not started.
+Unified review remains pending. [Phase 3's entry/checklist](PHASE_3_ENTRY_PLAN.md)
+tracks the internal protocol work; public automatic membership is still disabled.
+The Phase 2 closure receipt binds its original `f0d4dca` documentation snapshot,
+not these subsequent progress updates.
 
 The following storage notes are a chronological record. Intermediate open items
 are resolved only as mapped in the closure audit; runtime/cloud obligations remain

@@ -1,5 +1,23 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3A private activation
+
+The operator authorized pushing completed Phase 2 and entering Phase 3's first
+batch. `f0d4dca` was pushed to `origin/feat/v53-cluster-operations`; no PR or merge
+was performed. Phase 3A is a separately validated local commit.
+
+The [activation batch](PHASE_3_ACTIVATION.md) connects the real journal to frozen
+PREPARE/PROMISE/SELECTED/INSTALL_ACK frames. It fixes the first eligible source
+quorum, requires every selected installation, retains exact bounded retries and
+rejects delayed/higher-fenced work. The [entry checklist](PHASE_3_ENTRY_PLAN.md)
+maps subsequent transport, learner, joint completion and distributed qualification.
+
+104 focused Java tests, 533 Python tests in both modes, independent three-profile
+physical/wire replay and ten negatives pass. The receipt retains the recorder's
+original failed run and separate successful-source validation. Public runtime,
+full S/N acceptance, protected CI, predecessor integration and cloud work remain
+pending. Historical Phase 2 documents/receipts keep their original scope.
+
 ## 2026-10-25 — Phase 2 local closure
 
 The [final audit](PHASE_2_CLOSURE_AUDIT.md) and [receipt](phase2-evidence/closure.json)

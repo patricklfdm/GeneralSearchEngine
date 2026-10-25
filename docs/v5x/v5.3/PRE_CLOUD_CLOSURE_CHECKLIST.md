@@ -1,17 +1,17 @@
 # V5.3 local pre-cloud completion audit
 
-Status: **OPEN**, future roadmap. The active operator goal is continuous local
-development through Phase 2 closure, with a local commit after each validated
-batch and unified operator acceptance afterwards. This document retains the
-later pre-cloud obligations; it does not authorize automatically continuing into
-Phases 3–6 after that goal is complete.
+Status: **OPEN**, future roadmap. Phase 2 is locally closed. On 2026-10-25 the
+operator authorized pushing its completed branch and entering the first Phase 3
+batch. The [Phase 3 entry plan](PHASE_3_ENTRY_PLAN.md) is the current batch boundary.
+Later pre-cloud obligations remain; this request does not authorize automatically
+completing Phases 3–6 or dispatching cloud experiments.
 
 | Required stage | Current authoritative state / required completion evidence |
 | --- | --- |
 | Phase 0 contract | [Local closure audit](PHASE_0_CLOSURE_AUDIT.md); retain exact protocol/API/format/resource/acceptance contracts |
 | Phase 1 foundations | [Local closure audit](PHASE_1_CLOSURE_AUDIT.md); later storage/runtime evidence must replace conditional fixture assumptions |
 | Phase 2 storage | [Local closure audit](PHASE_2_CLOSURE_AUDIT.md) and [checklist](PHASE_2_CLOSURE_CHECKLIST.md) complete; unified operator review remains pending |
-| Phase 3 protocol | Required: real learner lifecycle, selected activation, joint transition/finalization, authority discovery, bounded retries and adversarial deterministic/network/process qualification |
+| Phase 3 protocol | [Entry/checklist](PHASE_3_ENTRY_PLAN.md) open; [private activation](PHASE_3_ACTIVATION.md) locally qualified. Required: real learner lifecycle, joint transition/finalization, authority discovery, bounded retries and adversarial deterministic/network/process qualification |
 | Phase 4 public operations | Required: enabled APIs for add/remove/replace and queryable identities, actual inherited read semantics, operation/result retirement, same-version maintenance and compatibility |
 | Phase 5 hardening | Required: combined election/read/reconfiguration/restart/resource cases with independent original physical/history validation, exact negatives and preserved failures; frozen S/N inventory mapped requirement by requirement |
 | Phase 6 local workload | Required: frozen executable workloads, complete prescribed histories/repetitions/controls, resource and causal measurements, portable original-first replay and no measurement retry relabeling |
@@ -28,7 +28,7 @@ before their implementation. A component test, dummy runtime, omitted scenario o
 weakened oracle cannot replace a stage. Unavailable external release evidence must
 be recorded honestly while independent implementation work continues.
 
-Work and commits stay on `feat/v53-cluster-operations`, with no push/PR/tag/cloud
-dispatch under this authorization. Protected acceptance requiring a remote push
-and actual paid runs remain separate operator-controlled actions; their pending
-status must remain visible at the final local handoff.
+Work and commits stay on `feat/v53-cluster-operations`. The completed Phase 2
+push is recorded in the development sequence; PR/merge/tag/cloud dispatch remain
+separate operator-controlled actions. Pending protected and unified acceptance
+must remain visible at the local handoff.
