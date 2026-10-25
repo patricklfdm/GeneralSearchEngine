@@ -25,6 +25,7 @@ final class MembershipSourcePacket {
     Decoded capsule() {return capsule;}
     String inventoryDigest() {return hash(index);}
     byte[] objectBytes(String hash) {byte[] bytes=objects.get(hash);require(bytes!=null,"missing packet object");return bytes.clone();}
+    int objectSize(String hash) {byte[] bytes=objects.get(hash);require(bytes!=null,"missing packet object");return bytes.length;}
     Set<String> objectNames() {return objects.keySet();}
     byte[] bytes() {return encode(capsule,objects,images);}
     Map<String,Long> images() {return images;}

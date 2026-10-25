@@ -969,6 +969,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(groups>6 || renewed.size()>5 || bytes>MembershipSelectionCoverage.MAXIMUM)
             throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,outcome,Optional.empty(),
                     "next publication ancestry/coverage capacity; retain original authority and complete maintenance before new work",null);
+        if(!MembershipPublicationCapacity.admits(current.capsule,current.coverage().orElse(null),kind,vote.payload().length,groups))
+            throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,outcome,Optional.empty(),
+                    "next publication packet/envelope/generation capacity; retain original authority",null);
     }
 
     record Applied(MembershipCheckpointPlan plan,MembershipAppliedEndFiles.Endorsement endorsement) {}
