@@ -251,6 +251,19 @@ class OperatorTest(unittest.TestCase):
         self.assertEqual('http',report['credentialFailureKind']);self.assertEqual(403,report['credentialHttpStatus'])
         self.assertNotIn('never-public',str(report));self.run.assert_called_once()
 
+    def test_provider_failure_reaches_public_diagnostics_without_raw_messages(self):
+        def fail(*args):
+            path=args[-1];(path/'native').mkdir(parents=True)
+            o.artifacts.save(path/'native/failure.json',dict(code='V52_RUNNER_RESOURCES_REJECTED',
+                providerCode='V52_PROVIDER_CAPACITY_UNAVAILABLE',providerMessage='never-public'))
+            raise ValueError('never-public')
+        self.run.side_effect=fail
+        with self.assertRaises(ValueError):self.execute('run',self.request())
+        report=o.artifacts.read(self.output/'diagnostics/failure.json')
+        self.assertEqual('V52_PROVIDER_CAPACITY_UNAVAILABLE',report['providerCode'])
+        self.assertEqual('V52_RUNNER_RESOURCES_REJECTED',report['causeCode'])
+        self.assertNotIn('never-public',str(report));self.run.assert_called_once()
+
     def test_unknown_credential_diagnostics_are_not_projected(self):
         def fail(*args):
             path=args[-1];(path/'native').mkdir(parents=True)

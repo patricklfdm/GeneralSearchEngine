@@ -59,6 +59,14 @@ previous attempts in the old sequence failed: the ledger binds sequence identity
 at its first reservation. A new sequence does not reset prior reserved costs.
 A rerun is never used as a substitute for a selected original.
 
+Resource-admission diagnostics project the provider's closed `providerCode` along
+with the existing phase/cause and cleanup result. Zone-capacity rejection is
+reported as `V52_PROVIDER_CAPACITY_UNAVAILABLE`, distinct from an unknown insert
+failure (`V52_PROVIDER_INSERT_REJECTED`). Both stop the original submission and
+run fenced cleanup; neither retries a mutation nor changes the frozen topology.
+After a source fix, earlier successful shards remain retained evidence for their
+original source, but cannot be joined to a new-source sequence by this workflow.
+
 Time and accumulated cost budgets remain soft warnings. Each operation prints
 progress at least every minute, including during prepared-artifact download.
 The `execution_host` input defaults to `github-hosted`: prepare, the five drill shards

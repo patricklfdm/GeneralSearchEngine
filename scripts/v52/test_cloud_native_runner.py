@@ -103,6 +103,29 @@ class NativeRunnerTest(unittest.TestCase):
             self.assertFalse(session.api.admission.build['ci']['fullCiRequired'])
         self.assertEqual({},self.case.server.resources);self.assertIsNone(self.case.get(n.a.LEASE))
 
+    def test_capacity_failure_reports_closed_cause_and_cleans_without_replaying_insert(self):
+        from .test_cloud_provider import reject_instance
+        reject_instance(self.case.server)
+        with self.assertRaisesRegex(ValueError,'V52_PROVIDER_CAPACITY_UNAVAILABLE'):self.open()
+        failure=strict((self.output/'failure.json').read_bytes())
+        self.assertEqual('resources',failure['phase'])
+        self.assertEqual('V52_PROVIDER_CAPACITY_UNAVAILABLE',failure['providerCode'])
+        self.assertNotIn('never-public',str(failure))
+        self.assertEqual('PASS',strict((self.output/'cleanup.json').read_bytes())['status'])
+        self.assertIsNone(self.case.get(n.a.LEASE));self.assertEqual({},self.case.server.resources)
+        inserts=[e for e in self.case.server.events if e['method']=='POST' and 'compute.googleapis.com' in e['url']]
+        self.assertEqual(11,len(inserts));self.assertEqual('FAIL',next(iter(self.state()['attempts'].values()))['status'])
+
+    def test_failed_insert_residual_is_deleted_by_original_id_through_native_wire_policy(self):
+        from .test_cloud_provider import reject_instance
+        reject_instance(self.case.server,keep_resource=True)
+        with self.assertRaisesRegex(ValueError,'V52_PROVIDER_CAPACITY_UNAVAILABLE'):self.open()
+        self.assertEqual({},self.case.server.resources);self.assertIsNone(self.case.get(n.a.LEASE))
+        op=next(v for v in self.case.server.operations.values() if v['operationType']=='insert' and '/instances/' in v['targetLink'])
+        deletes=[e for e in self.case.server.events if e['method']=='DELETE' and '/instances/' in e['url']]
+        self.assertEqual(1,len(deletes));self.assertIn('/instances/'+op['targetId']+'?',deletes[0]['url'])
+        self.assertEqual('PASS',strict((self.output/'cleanup.json').read_bytes())['status'])
+
     def test_standalone_build_admits_and_cleans_mock_resources_without_ci(self):
         self.git.use_standalone()
         with self.open() as session:

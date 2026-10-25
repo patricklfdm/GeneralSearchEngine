@@ -107,6 +107,28 @@ class NativeCleanupTest(unittest.TestCase):
                  if row['method']=='DELETE' and 'compute.googleapis.com' in row['url']]
         self.assertEqual({row['id'] for row in lease['resources']},set(deletes))
 
+    def test_failed_original_insert_with_target_id_releases_stranded_lease_preserving_failure(self):
+        lease=self.prepared();lease['phase']='CLEANING'
+        instances=[row for row in lease['resources'] if row['spec']['kind']=='instance']
+        instances[0]['id']=None
+        for row in instances[1:]:row.update(attempted=False,id=None)
+        name=instances[0]['spec']['name']
+        op=next(v for v in self.server.operations.values() if v['targetLink'].endswith('/'+name))
+        op['error']=dict(errors=[dict(code='ZONE_RESOURCE_POOL_EXHAUSTED',message='never-public')])
+        self.server.resources.clear();self.put(a.LEASE,lease)
+        sha=a.validate_request(self.req,domain='native');key=c.attempt_key(self.req)+'completion.json'
+        completion=dict(schema='gse-v52-owned-completion-v1',execution=self.req['execution'],
+            requestSha256=sha,status='FAIL',evidenceSha256=None,cleanupSha256='c'*64)
+        self.put(key,completion);self.put(a.LEDGER,a.finish(self.get(a.LEDGER),self.req,completion))
+        original_ledger=deepcopy(self.server.objects[a.LEDGER]);original_completion=deepcopy(self.server.objects[key])
+        result=self.execute()
+        self.assertEqual('PASS',result['status']);self.assertEqual(0,result['resourceDeletesSubmitted'])
+        self.assertIsNone(self.get(a.LEASE));self.assertEqual({},self.server.resources)
+        self.assertEqual(original_ledger,self.server.objects[a.LEDGER])
+        self.assertEqual(original_completion,self.server.objects[key])
+        self.assertEqual('FAIL',a.inspect_ledger(self.get(a.LEDGER),domain='native')['attempts'][sha]['status'])
+        self.assertFalse(result['fullRemoteQualification'])
+
     def test_original_v2_lease_cleans_all_thirteen_ids_after_canonical_migration(self):
         suite=a.suite;old=suite.read(suite.LEGACY_V2_PLAN)
         with patch.object(suite,'PLAN_SHA',suite.LEGACY_V2_SHA),patch.object(suite,'load',return_value=old), \

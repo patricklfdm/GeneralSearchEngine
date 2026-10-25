@@ -57,6 +57,14 @@ It never creates resources or deletes by name. The scoped wire gate rechecks
 ownership after any credential refresh, including the lease generation and phase
 before a cleanup CAS. A concurrent renewal/replacement blocks that original write.
 
+A DONE insertion error with a target ID also resolves the original operation.
+It never proves that creation succeeded: reconciliation still checks ownership,
+the exact target ID and final absence. This permits current cleanup code to finish
+an older CLEANING lease stranded by such a response, using the retained original
+source/configuration and operation. The original FAIL completion and finished
+ledger charge remain unchanged; only successful cleanup releases the lease. A
+cleanup PASS cannot promote that failed experiment to qualified evidence.
+
 Every provider/control mutation is sent once. Lost CAS replies may only observe
 the original value; an uncertain DELETE is not automatically repeated. A later
 manual reconciliation checks the original operation and current exact-ID absence.
