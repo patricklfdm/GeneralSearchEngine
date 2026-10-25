@@ -16,6 +16,10 @@ class V53AdmittedCrossViewTest {
         final V53BootstrapPublicationTest.Fixture f;
         List<MembershipBootstrapTarget<Integer,Doc>> active;
         int slot,counter=2;
+        @FunctionalInterface interface BeforeAdoption {
+            void before(MembershipBootstrapTarget<Integer,Doc> target,MembershipFloor.Copy remote)throws Exception;
+        }
+        BeforeAdoption beforeAdoption=(target,remote)->{};
         Walk(V53BootstrapPublicationTest.Fixture f)throws Exception {this.f=f;active=f.request.targets();f.campaign(1);}
         MembershipContext current()throws Exception {
             try(var owner=f.open(active.getFirst(),"inspect-context")){return owner.floorCopyCurrent().capsule.context;}
@@ -127,6 +131,7 @@ class V53AdmittedCrossViewTest {
             MembershipFloor.Copy remote;
             try(var owner=f.open(active.getFirst(),"removal-source-"+number)){remote=owner.floorCopyCurrent();}
             var images=new TreeMap<String,byte[]>();for(String h:remote.capsule.packet.images().keySet())images.put(h,remote.fileBytes(h+".image"));
+            beforeAdoption.before(removed,remote);
             try(var owner=f.open(removed,"removed-adopt-"+number)) {
                 var manifest=owner.adoptCurrent(remote.capsule.packet,images,List.of());
                 assertArrayEquals(manifest.bytes(),owner.adoptCurrent(remote.capsule.packet,images,List.of()).bytes());

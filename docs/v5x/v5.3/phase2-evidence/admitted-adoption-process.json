@@ -1,0 +1,132 @@
+{
+  "base": "86b18df3892d2dca828829ef1d4c8c2e878c6682",
+  "compiledInputs": {
+    "target/v53-admitted-adoption-process/inputs1.json": "8217798cc8e124a9a774ffa93fb4a664f6a0406db49768f7242159dab4e7a947"
+  },
+  "javaTests": 1,
+  "producerClasses": {
+    "path": "target/v53-admitted-adoption-process/producer-classes.json",
+    "sha256": "254758d2cd74ec776144e4851be427c9c4f95ad40c57ea099f4fb6e56f2d7b1a"
+  },
+  "productionClasses": {
+    "comparison": "identical to corrected mixed context runtime",
+    "count": 707,
+    "path": "target/v53-admitted-adoption-process/compiled-main-classes.json",
+    "sha256": "c64efb6197e15ab5bd06c298dba9322504c3b7c518b2c4c83bc5d40400993fca"
+  },
+  "pythonInputs": {
+    "path": "target/v53-admitted-adoption-process/python-inputs.json",
+    "sha256": "f3296bb74f70ea12668427b9d755965cf72fa95b69255fd332564442cfd8a0b9"
+  },
+  "pythonTests": 6,
+  "raw": {
+    "inventory": "target/v53-admitted-adoption-process/raw-inventory.json",
+    "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-admitted-adoption-process/run-18e7eb57-d332-46f7-87da-2030d24f559e",
+    "sha256": "47cf7f149abe73e8a0c34368831d651bbd9fdcfa3c2e2ac8b76c1e2c84c3dbe2"
+  },
+  "replay": {
+    "cases": 152,
+    "freshProcesses": 456,
+    "lockProbes": 76,
+    "maximalCapacity": false,
+    "negativeCases": [
+      {
+        "case": "first-journal",
+        "reason": "admitted adoption exact first",
+        "status": "REJECTED"
+      },
+      {
+        "case": "second-selector",
+        "reason": "admitted adoption exact second",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-extra",
+        "reason": "admitted adoption exact final",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-admission",
+        "reason": "admitted adoption exact first",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "context process exact force/death order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "kill-handshake",
+        "reason": "context process kill handshake",
+        "status": "REJECTED"
+      },
+      {
+        "case": "returned-runtime",
+        "reason": "context process result scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "exit-code",
+        "reason": "admitted adoption exact first exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stderr",
+        "reason": "admitted adoption stderr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-path",
+        "reason": "admitted adoption lock path",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-exit",
+        "reason": "admitted adoption lock exit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lock-stderr",
+        "reason": "admitted adoption lock stderr",
+        "status": "REJECTED"
+      }
+    ],
+    "negativeScope": "original-first-case-mutations",
+    "originalFirst": true,
+    "peakImages": 3,
+    "powerLoss": false,
+    "profiles": 4,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "status": "PASS"
+  },
+  "retainedFiles": {
+    "target/v53-admitted-adoption-process/junit.xml": "06bdcffd397d76eb143c87eb48b7fd26e37a41be4830ec5cb53370fa4303e962",
+    "target/v53-admitted-adoption-process/normal.json": "bd29720b965b8b9fbfd47859a307a4b1256587a4c7ce8a2489313ab45d8d4462",
+    "target/v53-admitted-adoption-process/optimized.json": "bd29720b965b8b9fbfd47859a307a4b1256587a4c7ce8a2489313ab45d8d4462",
+    "target/v53-admitted-adoption-process/portable.json": "95c57e59fb66f00afa9bcee83c8fd96542aaacb6ee72d448ebc3bdfd1add437c",
+    "target/v53-admitted-adoption-process/python-final.log": "c6b9b1f09add0403cc07e90bfdf272129b1ddfa2f8f7675ea8218862f2516371",
+    "target/v53-admitted-adoption-process/python-optimized.log": "c6b9b1f09add0403cc07e90bfdf272129b1ddfa2f8f7675ea8218862f2516371",
+    "target/v53-admitted-adoption-process/raw.tar.gz": "90cb8a2e91c5dfe4023b25a23057edacefda1e5cc04f7887eec6f4be89d69c04",
+    "target/v53-admitted-adoption-process/reader-attempt1.py.txt": "c09d17829ebcc49fd664a4b6b6fde1788660b65f7cea0b0767421a0f2eb20f15",
+    "target/v53-admitted-adoption-process/replay-progress1.log": "a144450a323777663cbf3e6cd91d0a7b21e6224ccd757d2e85d3a85b95b27bdb",
+    "target/v53-admitted-adoption-process/run1.log": "1159c5bfa290e8b3c2297a75972e7b99a8135cb1149ded4e6a5a558458299a0c"
+  },
+  "schema": "gse-v53-admitted-adoption-process-local-v1",
+  "scope": {
+    "maximalCapacity": false,
+    "powerLoss": false,
+    "processDeath": true,
+    "publicBootstrap": true,
+    "publicLearner": false,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdmittedAdoptionProcessTest.java": "6aaae31bf06bb674375e1189fda0fcb31cea7582e9d63193c8ade649968bf43d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdmittedAdoptionProcessWorker.java": "fcecae5850868c254aa4c7894d57d64e82dd4b23b1e22e88040027d98d53eefb",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdmittedCrossViewTest.java": "6e7a1b4da7ee1fd2aca770164f0cbdbfd37540f937d106004b6c0026aa22b843",
+    "scripts/v53/admitted_adoption_process_evidence.py": "7baa8d3e1b7375d836a8e3db9a98f077671354c5d689609380dbca61fde32ec7",
+    "scripts/v53/test_admitted_adoption_process.py": "16fa67120cea8ef8d6fc00248cd97ac8186bc488b5a09933bc614d949b979937"
+  },
+  "status": "PASS"
+}

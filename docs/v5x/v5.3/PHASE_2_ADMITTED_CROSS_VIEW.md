@@ -101,3 +101,8 @@ qualification remains a separate pending batch.
 The later [stable campaign ancestry regression](PHASE_2_ADMITTED_CAMPAIGN_ANCESTRY.md)
 supplies an exact existing bridge when stable RANGE compaction hides an old
 source cut. Membership-edge profiles keep their direct-anchor behavior.
+
+The [admitted adoption process follow-up](PHASE_2_ADMITTED_ADOPTION_PROCESS.md)
+now interrupts the removed owner twice across 152 cases on fresh processes,
+using original publicly provisioned groups and actual remote FINAL bytes.
+It retains the same frozen resource limits and disabled public runtime.
