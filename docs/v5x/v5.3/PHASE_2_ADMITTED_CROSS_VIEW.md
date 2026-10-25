@@ -97,3 +97,7 @@ The [follow-up index](phase2-evidence/offline-image-reader.json) records the new
 reader hashes and results. Original frozen producer evidence and its source files
 remain intact. No Java workload was rerun for this extraction, and maximum-image
 qualification remains a separate pending batch.
+
+The later [stable campaign ancestry regression](PHASE_2_ADMITTED_CAMPAIGN_ANCESTRY.md)
+supplies an exact existing bridge when stable RANGE compaction hides an old
+source cut. Membership-edge profiles keep their direct-anchor behavior.

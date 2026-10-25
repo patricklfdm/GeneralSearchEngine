@@ -24,9 +24,14 @@ class V53BootstrapPublicationTest {
         List<MembershipSelection.Bridge> bridges=List.of();
         Map<String,Object> ballot;
         long peakImages,peakMetadata,peakStaging;
-        Fixture(Path root,Path raw,int size,boolean backup)throws Exception {
-            this.raw=raw;var helper=new V53BootstrapCoordinatorTest();helper.temp=root;
-            request=helper.request("group",size,backup);
+        @FunctionalInterface interface Observation {void at(MembershipBootstrapTarget<Integer,Doc> target,String operation,String event)throws java.io.IOException;}
+        Observation observer=(target,operation,event)->{};
+        static MembershipBootstrapRequest<Integer,Doc> request(Path root,int size,boolean backup)throws Exception {
+            var helper=new V53BootstrapCoordinatorTest();helper.temp=root;return helper.request("group",size,backup);
+        }
+        Fixture(Path root,Path raw,int size,boolean backup)throws Exception {this(raw,request(root,size,backup));}
+        Fixture(Path raw,MembershipBootstrapRequest<Integer,Doc> request)throws Exception {
+            this.raw=raw;this.request=request;
             var plan=MembershipStorageOperations.planBootstrap(builder(),request);
             result=MembershipStorageOperations.applyBootstrap(builder(),request,plan);
             assertEquals(result,MembershipStorageOperations.readBootstrapResult(plan.operationDirectory()));
@@ -41,7 +46,7 @@ class V53BootstrapPublicationTest {
             return MembershipGrantJournal.openBootstrapped(t.replicaDirectory(),t.materialization().directory(),result.root(),t.identity(),resources,
                     (r,p,i)->MembershipCapsule.verify(r,p,i,observations),MembershipGrantJournal.MAXIMUM,event->{
                         V53RetirementImagesTest.bounded(resources);var u=resources.usage();peakImages=Math.max(peakImages,u.counts().getOrDefault(MembershipResources.Unit.APPLICATION,0));
-                        peakMetadata=Math.max(peakMetadata,u.metadata());peakStaging=Math.max(peakStaging,u.staging());events.add(event);
+                        peakMetadata=Math.max(peakMetadata,u.metadata());peakStaging=Math.max(peakStaging,u.staging());events.add(event);observer.at(t,operation,event);
                     });
         }
         void snapshot(String name)throws Exception {

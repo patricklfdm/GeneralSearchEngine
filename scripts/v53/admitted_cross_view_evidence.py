@@ -11,6 +11,7 @@ from . import bootstrap_publication_evidence as b
 from . import context_evidence as context
 from .retirement_source_process_evidence import same, read
 from .offline_fixture_image import application
+from .ancestry_pruning_evidence import frames as ancestry_frames
 from scripts.v43 import derived_format_v12 as core
 
 e,c,t,selection=b.e,b.c,b.t,b.selection
@@ -24,6 +25,25 @@ def retain_item(packet,item):
         proof={k:v for k,v in cert.items() if k!='proofs'};accept={k:v for k,v in proof.items() if k!='accepts'}
         keys|={e.digest(e.f.encode('records','PROOF',proof)),e.digest(e.f.encode('records','ACCEPT',accept))}
     return {k:objects[k] for k in keys}
+
+
+def retained_campaign_ancestry(members,packet,prior):
+    """Only the already verified original source's hidden endpoint is retained."""
+    cap=packet['capsule'];cuts=[cap['cut']]
+    for item in cap['items']:
+        statement=e.f.decode(packet['objects'][item['statement']],'records','CHECKPOINT')
+        cuts.extend((statement['start'],statement['end']))
+    if prior in cuts:return b''
+    raw=members.get('ancestry.gsr',b'');e.need(bool(raw),'cross-view missing original source ancestry')
+    groups=[]
+    for frame in ancestry_frames(raw):
+        if int.from_bytes(frame[8:10],'big')==e.f.catalog()['records']['CHECKPOINT']['id']:
+            groups.append([frame])
+        else:
+            e.need(bool(groups),'cross-view ancestry without statement');groups[-1].append(frame)
+    found=[b''.join(group) for group in groups if e.f.decode(group[0],'records','CHECKPOINT')['start']==prior]
+    e.need(len(found)==1,'cross-view exact original source ancestry')
+    return found[0]
 
 
 class Walk:
@@ -159,6 +179,8 @@ class Walk:
         for n in names:
             chosen[n]=dict(prepared[n],**{'grants.gsr':prepared[n]['grants.gsr']+selected})
             prefix,old,_=c.current(self.group[n]);files=dict(zip(('promise.gsr','basis.gsr','selected.gsr','selected-sources.gsr','source.gscp'),(rows[n][0][1],rows[n][1][1],selected,b''.join(rows[v][1][1] for v in names),members['source.gscp'])))
+            ancestry=retained_campaign_ancestry(members,packet,e.f.decode(old['basis.gsr'],'records','BASIS')['cut'])
+            if ancestry:files['ancestry.gsr']=ancestry
             files.update({h+'.image':members[h+'.image'] for h in packet['images']});selector,generation=c.generation(files,cap,n,'b' if prefix=='generations/a/' else 'a',None)
             installed[n]=dict(chosen[n],**generation,**{'selector.gsr':selector})
         self.snapshot(f'campaign-{counter}-selected',chosen);self.snapshot(f'campaign-{counter}-installed',installed)

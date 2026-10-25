@@ -1,0 +1,188 @@
+{
+  "base": "f48607f44dd2b430008d7a2aa65199e37c34b620",
+  "compiledInputs": {
+    "target/v53-admitted-campaign-ancestry/inputs-after.json": "69baa35f6dd9cedd2788636b69e3ea4a5872bbf272782387bfdd85e119d16b00",
+    "target/v53-admitted-campaign-ancestry/inputs-before.json": "5872ed1134fa4541acc635877c3eef1e7217977deebdb0057a042153f5ef5271"
+  },
+  "crossViewRegression": {
+    "negatives": [
+      {
+        "case": "initial-admission",
+        "reason": "admitted original public bootstrap",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-authority-vote",
+        "reason": "admitted exact slot-1-accepted: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "hidden-intent-parent",
+        "reason": "admitted exact slot-6-published: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-grant-source",
+        "reason": "admitted exact campaign-3-prepared: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-final-vote",
+        "reason": "admitted exact slot-7-proved: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-fence",
+        "reason": "admitted exact removed-1-adopted: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-regrant",
+        "reason": "admitted exact removed-1-refused: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "new-stable-source",
+        "reason": "admitted exact campaign-4-prepared: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "control-image",
+        "reason": "cross-view control image changed",
+        "status": "REJECTED"
+      },
+      {
+        "case": "data-sequence",
+        "reason": "cross-view application sequence/documents",
+        "status": "REJECTED"
+      },
+      {
+        "case": "data-document",
+        "reason": "cross-view application document bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "observations",
+        "reason": "cross-view exact observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "cross-view force before return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-force",
+        "reason": "cross-view force before return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-voter",
+        "reason": "context selection admitted publication voters inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "public-runtime",
+        "reason": "cross-view receipt",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "profiles": 4,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "removals": 6,
+    "slots": 60,
+    "status": "PASS"
+  },
+  "javaTests": 1,
+  "priorFailure": "missing retained installation ancestry",
+  "producerClasses": {
+    "target/v53-admitted-campaign-ancestry/producer-classes/V53AdmittedCampaignAncestryTest.class": "dcc77595517a748fb3698c617892086c85af0e1ae3b17a6831fafd05edf8f0b6",
+    "target/v53-admitted-campaign-ancestry/producer-classes/V53AdmittedCrossViewTest$Walk.class": "5e94b2541a02abc4b2e26ba4bcd36dd5c5eaeb1901d0f7af37f9af4de71f24b5",
+    "target/v53-admitted-campaign-ancestry/producer-classes/V53AdmittedCrossViewTest.class": "09b9d70d3fec6e3e7ab46719e5493451bc5b713bcc659bf078fbf220628faf16",
+    "target/v53-admitted-campaign-ancestry/producer-classes/V53BootstrapPublicationTest$Fixture$Observation.class": "145de3c6c35d67c5958ba1e4ed19e8cd2583dd2ef61483535dc9a04b81c07697",
+    "target/v53-admitted-campaign-ancestry/producer-classes/V53BootstrapPublicationTest$Fixture.class": "b865e16bbff18b15736fec23957733a9d6e42e4a7c81e64c32e8163ee70ea734",
+    "target/v53-admitted-campaign-ancestry/producer-classes/V53BootstrapPublicationTest.class": "4bd81ad37719e8908ec34e26874ba2b2c3d5d8e82e1a43dbfbc1e3eb8cff2597"
+  },
+  "productionClasses": {
+    "comparison": "identical to corrected mixed context runtime",
+    "count": 707,
+    "path": "target/v53-admitted-campaign-ancestry/compiled-main-classes.json",
+    "sha256": "c64efb6197e15ab5bd06c298dba9322504c3b7c518b2c4c83bc5d40400993fca"
+  },
+  "pythonTests": 13,
+  "raws": {
+    "run-ad07cfd7-708b-4000-88ee-daa7904f5c9b": {
+      "inventory": "target/v53-admitted-campaign-ancestry/run-ad07cfd7-708b-4000-88ee-daa7904f5c9b-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-admitted-campaign-ancestry/run-ad07cfd7-708b-4000-88ee-daa7904f5c9b",
+      "sha256": "4a16451405c92250076942c4a3de079ddc3d94f5d74951ecc9576a0a0418ae6e"
+    },
+    "run-ad2ee02b-ea2e-4eee-b290-036dc090e03f": {
+      "inventory": "target/v53-admitted-campaign-ancestry/run-ad2ee02b-ea2e-4eee-b290-036dc090e03f-inventory.json",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/general-search-engine-replication/target/v53-admitted-campaign-ancestry/run-ad2ee02b-ea2e-4eee-b290-036dc090e03f",
+      "sha256": "8688a2ea34a68cd456943136be06e10abc57f148c2edcec22615f954543d7362"
+    }
+  },
+  "replay": {
+    "hiddenOriginalIndex": 1,
+    "negativeCases": [
+      {
+        "case": "missing-ancestry",
+        "reason": "admitted exact campaign-4-installed: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-ancestry",
+        "reason": "admitted exact campaign-4-installed: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selector",
+        "reason": "admitted exact campaign-4-installed: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "admitted campaign force order",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "slots": 2,
+    "status": "PASS",
+    "voters": 5
+  },
+  "retainedFiles": {
+    "target/v53-admitted-campaign-ancestry/after.log": "b1d0723a40bef8dff1f8161ee54e7595fb1fe5cf43bc7a1e4e00fb24ade8cb6a",
+    "target/v53-admitted-campaign-ancestry/after.xml": "334795d1423ed491d2bd49cd6ec75856447859b62883931e5a626f094fea66e9",
+    "target/v53-admitted-campaign-ancestry/before.log": "7488d62b3ddff9b729b3a6d743306319446f2654fce205fd43ae30bad389586f",
+    "target/v53-admitted-campaign-ancestry/before.xml": "d9f6a41518aa2fef7e40d66acbf91a453697a90b973c6c31d679550c00004cd4",
+    "target/v53-admitted-campaign-ancestry/cross-normal2.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-admitted-campaign-ancestry/cross-optimized.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-admitted-campaign-ancestry/normal.json": "6bfc5904bcea691af3270339275b899dbabbe9345e48d73990eef4d43fecbf2b",
+    "target/v53-admitted-campaign-ancestry/optimized.json": "6bfc5904bcea691af3270339275b899dbabbe9345e48d73990eef4d43fecbf2b",
+    "target/v53-admitted-campaign-ancestry/python-final.log": "0d5f8346517fbbc9f8c76001a173ca4ace78dc0d43bc08446621d0299d7dcd04",
+    "target/v53-admitted-campaign-ancestry/python-optimized.log": "21b2edaafb65a0502fab9b56b42580528e39a225900a579715d35a6e05729506"
+  },
+  "schema": "gse-v53-admitted-campaign-ancestry-local-v1",
+  "scope": {
+    "fixtureAncestryCorrected": true,
+    "maximalBytes": false,
+    "powerLoss": false,
+    "productionChanged": false,
+    "publicRuntime": false
+  },
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdmittedCampaignAncestryTest.java": "97dda91cd7c3e32bb0f343166a6d8689c505ed7d212a9174ff14940c7e9ef48d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdmittedCrossViewTest.java": "d814b6d199c6f8ceff8aef4b6eda713482e3dbc4c5630e67ffe3486e041580a0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapPublicationTest.java": "de849e5d65dd1c1eb941561892db3d90ba615e3e676f765e2fe0d7b8790cb056",
+    "scripts/v53/admitted_campaign_evidence.py": "50dc01c20ddaad4e882c3fd972c5fd706e80cdf1982399397c70703c2d452546",
+    "scripts/v53/admitted_cross_view_evidence.py": "886e1f1a6b31a0e5380474aed77a247829adf84941692a1e8c6eb8b12cff20e1",
+    "scripts/v53/test_admitted_campaign_ancestry.py": "1d78c9cecdfcd7e2c36fdbc27e23eb834befc679b72d683bb1af00f11183f246"
+  },
+  "status": "PASS"
+}

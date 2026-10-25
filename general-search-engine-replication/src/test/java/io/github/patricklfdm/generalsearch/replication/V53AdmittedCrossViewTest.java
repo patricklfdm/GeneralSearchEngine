@@ -42,17 +42,24 @@ class V53AdmittedCrossViewTest {
             try(var owner=f.open(first,"allocate-"+counter)){assertEquals(counter,owner.reserveCounter());}
             f.ballot=Map.of("counter",(long)counter,"proposer",first.identity().nodeId().value(),"incarnation",first.identity().storageId().toString());
             var offers=new ArrayList<MembershipSelection.Source>();var images=new TreeMap<String,byte[]>();var old=new TreeMap<String,String>();
+            var oldCuts=new TreeMap<String,Map<String,Object>>();
             for(var t:voters)try(var owner=f.open(t,"prepare-"+counter)) {
                 owner.originalBasis().ifPresent(b->old.put(t.identity().nodeId().value(),(String)b.value().get("basisId")));
+                owner.originalBasis().ifPresent(b->oldCuts.put(t.identity().nodeId().value(),object(b.value().get("cut"))));
                 owner.prepareCurrent(f.ballot);var source=owner.originalSource();offers.add(source);
                 for(String h:source.capsule.packet.images().keySet())images.put(h,Files.readAllBytes(t.replicaDirectory().resolve("sources/"+source.basis.value().get("basisId")+"/"+h+".image")));
             }
             f.snapshot("campaign-"+counter+"-prepared");
             for(var t:voters)try(var owner=f.open(t,"select-"+counter)){owner.selectCurrent(offers,List.of());}
             f.snapshot("campaign-"+counter+"-selected");
-            // Membership edges expose both prior source cuts directly. Old round-only
-            // hidden endpoints do not become extra installation authority.
-            for(var t:voters)try(var owner=f.open(t,"install-"+counter)){owner.installCurrent(offers,List.of(),List.of(),images);}
+            // A compacted stable RANGE may hide the previous frozen source cut.
+            // Supply only its actual applied-end bridge, never unused round proofs.
+            for(var t:voters)try(var owner=f.open(t,"install-"+counter)) {
+                var prior=oldCuts.get(t.identity().nodeId().value());
+                var retained=prior!=null && offers.getFirst().capsule.anchor(number(prior.get("index")))==null
+                        ?f.bridges.stream().filter(b->b.statement.value().get("start").equals(prior)).toList():List.<MembershipSelection.Bridge>of();
+                owner.installCurrent(offers,List.of(),retained,images);
+            }
             f.snapshot("campaign-"+counter+"-installed");maintain("campaign-"+counter+"-settled",voters,old);
         }
         void publish(String kind,Object command,List<MembershipBootstrapTarget<Integer,Doc>> targets)throws Exception {
