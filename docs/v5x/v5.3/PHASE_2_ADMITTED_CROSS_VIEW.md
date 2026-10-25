@@ -80,3 +80,20 @@ one producer JVM. It does not establish process-death recovery, maximal bytes,
 ADD/REPLACE learner eligibility, network liveness or a power-loss guarantee.
 Those claims require their own evidence. The Phase 2 closure audit and remaining
 maximal-resource qualification stay open.
+
+## Shared fixed-fixture image reader follow-up
+
+The independent `OfflineApplication` backup decoder now lives in
+`scripts/v53/offline_fixture_image.py`. It retains exact history, sequence, profile,
+codec, index, ordered document, manifest and content-identity checks. A table-based
+CRC32C implementation is checked against the existing bitwise decoder and the
+standard check value. This is a reader for this fixed test fixture, not a general
+production backup importer.
+
+The unchanged retained four-profile evidence was replayed with normal and
+optimized Python. All six removals, 60 slots, 16 original-first evidence mutations
+and portable replay remain equal; 20 focused Python tests pass in both modes.
+The [follow-up index](phase2-evidence/offline-image-reader.json) records the new
+reader hashes and results. Original frozen producer evidence and its source files
+remain intact. No Java workload was rerun for this extraction, and maximum-image
+qualification remains a separate pending batch.

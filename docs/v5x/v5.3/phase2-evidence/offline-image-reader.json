@@ -1,0 +1,122 @@
+{
+  "base": "7a19c1b8e4df0ed09da0d17d4eaadbcaab7cb4e0",
+  "pythonTests": 20,
+  "reference": {
+    "index": "docs/v5x/v5.3/phase2-evidence/admitted-cross-view.json",
+    "reexecutedJava": false,
+    "sha256": "30b1b2247049b9f57a15c854c38e65e7a57c5250555ecdbe3aa04b927f06411b"
+  },
+  "replay": {
+    "negatives": [
+      {
+        "case": "initial-admission",
+        "reason": "admitted original public bootstrap",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-authority-vote",
+        "reason": "admitted exact slot-1-accepted: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "hidden-intent-parent",
+        "reason": "admitted exact slot-6-published: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-grant-source",
+        "reason": "admitted exact campaign-3-prepared: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-final-vote",
+        "reason": "admitted exact slot-7-proved: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-fence",
+        "reason": "admitted exact removed-1-adopted: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-regrant",
+        "reason": "admitted exact removed-1-refused: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "new-stable-source",
+        "reason": "admitted exact campaign-4-prepared: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "control-image",
+        "reason": "cross-view control image changed",
+        "status": "REJECTED"
+      },
+      {
+        "case": "data-sequence",
+        "reason": "cross-view application sequence/documents",
+        "status": "REJECTED"
+      },
+      {
+        "case": "data-document",
+        "reason": "cross-view application document bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "observations",
+        "reason": "cross-view exact observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "cross-view force before return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-force",
+        "reason": "cross-view force before return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-voter",
+        "reason": "context selection admitted publication voters inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "public-runtime",
+        "reason": "cross-view receipt",
+        "status": "REJECTED"
+      }
+    ],
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "profiles": 4,
+    "publicBootstrap": true,
+    "publicRuntime": false,
+    "removals": 6,
+    "slots": 60,
+    "status": "PASS"
+  },
+  "retainedFiles": {
+    "target/v53-offline-image-reader/cross-view-normal.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-offline-image-reader/cross-view-optimized.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-offline-image-reader/shared-reader-tests-optimized.log": "ba524a15bb40d1ddce6d9b36078e7d0bd46741a27def15ab633207f6f232510d",
+    "target/v53-offline-image-reader/shared-reader-tests.log": "31503230e36d8e43e62ace46f2caf83387e5a1dff128bbd85d8ac4daa732ad6a"
+  },
+  "schema": "gse-v53-offline-image-reader-local-v1",
+  "scope": {
+    "maximalImageQualified": false,
+    "newJavaExecution": false,
+    "powerLoss": false,
+    "productionChanged": false,
+    "publicRuntime": false,
+    "sharedFixedFixtureReader": true
+  },
+  "sourceInputs": {
+    "scripts/v53/admitted_cross_view_evidence.py": "c0cf6cebd36a9b3d20a73d1ef53bccccf10bcdc3b27a4f888169e1498f75fa1f",
+    "scripts/v53/offline_fixture_image.py": "cbded290d27705c74b3c5c0150bacc247aad3721081ecd0a28287950e9554d02",
+    "scripts/v53/test_offline_fixture_image.py": "fae0cf7afcd52b63afc1db5bda9e88f41c8821e9a8516ecd0c8a59cf563611b0"
+  },
+  "status": "PASS"
+}
