@@ -10,7 +10,7 @@ Phases 3–6 after that goal is complete.
 | --- | --- |
 | Phase 0 contract | [Local closure audit](PHASE_0_CLOSURE_AUDIT.md); retain exact protocol/API/format/resource/acceptance contracts |
 | Phase 1 foundations | [Local closure audit](PHASE_1_CLOSURE_AUDIT.md); later storage/runtime evidence must replace conditional fixture assumptions |
-| Phase 2 storage | [Closure checklist](PHASE_2_CLOSURE_CHECKLIST.md) remains OPEN: complete durable recovery, adoption, phased votes/application, floors, retirement, rotation and offline initialization |
+| Phase 2 storage | [Local closure audit](PHASE_2_CLOSURE_AUDIT.md) and [checklist](PHASE_2_CLOSURE_CHECKLIST.md) complete; unified operator review remains pending |
 | Phase 3 protocol | Required: real learner lifecycle, selected activation, joint transition/finalization, authority discovery, bounded retries and adversarial deterministic/network/process qualification |
 | Phase 4 public operations | Required: enabled APIs for add/remove/replace and queryable identities, actual inherited read semantics, operation/result retirement, same-version maintenance and compatibility |
 | Phase 5 hardening | Required: combined election/read/reconfiguration/restart/resource cases with independent original physical/history validation, exact negatives and preserved failures; frozen S/N inventory mapped requirement by requirement |

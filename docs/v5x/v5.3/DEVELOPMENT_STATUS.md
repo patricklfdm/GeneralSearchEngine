@@ -1,5 +1,14 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 2 local closure
+
+The [final audit](PHASE_2_CLOSURE_AUDIT.md) and [receipt](phase2-evidence/closure.json)
+record the completed local storage scope, source-bound validation, retained failures
+and remaining runtime qualifications. Local commits are complete through Phase 2;
+unified operator review is pending. Phase 3, push, protected CI, paid cloud and
+integration with the eventual released V5.2 are not performed under this closure.
+The older entries below describe their respective source snapshots.
+
 ## 2026-10-21 — local entry
 
 - Created `feat/v53-cluster-operations` from merged master

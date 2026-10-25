@@ -1,12 +1,22 @@
 # V5.3 — controlled cluster operations
 
-**Status:** local development branch, started 2026-10-21. Phases 0 and 1 are locally closed;
+**Status:** local development branch, started 2026-10-21. Phases 0, 1 and 2 are locally closed;
 no V5.3 runtime, release, protected CI or cloud acceptance is claimed.
 
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
 cloud qualification continues, with local commits and no push. The branch starts
 at `73f3bd5c21c97eee564397ab11af7b66bc1b13a3`. V5.2 is still an unpublished
 development predecessor; its eventual published artifacts are not yet pinned.
+
+The [Phase 2 closure audit](PHASE_2_CLOSURE_AUDIT.md) is the current local storage
+status. It covers public offline bootstrap, retained promises/selection/votes,
+typed publication, configuration-aware adoption and bounded recovery/reclamation.
+Native maximum application and near-envelope capacity evidence are included.
+Unified review remains pending; automatic membership and Phase 3 have not started.
+
+The following storage notes are a chronological record. Intermediate open items
+are resolved only as mapped in the closure audit; runtime/cloud obligations remain
+future work. Earlier evidence retains its original source and scope.
 
 ## Frozen local contract
 

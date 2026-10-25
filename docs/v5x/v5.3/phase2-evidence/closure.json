@@ -1,0 +1,532 @@
+{
+  "admittedCrossView": {
+    "raw": "target/v53-phase2-closure/isolated-cross-view-raw",
+    "replay": {
+      "negatives": [
+        {
+          "case": "initial-admission",
+          "reason": "admitted original public bootstrap",
+          "status": "REJECTED"
+        },
+        {
+          "case": "old-authority-vote",
+          "reason": "admitted exact slot-1-accepted: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "hidden-intent-parent",
+          "reason": "admitted exact slot-6-published: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "joint-grant-source",
+          "reason": "admitted exact campaign-3-prepared: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "joint-final-vote",
+          "reason": "admitted exact slot-7-proved: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "removed-fence",
+          "reason": "admitted exact removed-1-adopted: node-5",
+          "status": "REJECTED"
+        },
+        {
+          "case": "removed-regrant",
+          "reason": "admitted exact removed-1-refused: node-5",
+          "status": "REJECTED"
+        },
+        {
+          "case": "new-stable-source",
+          "reason": "admitted exact campaign-4-prepared: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "control-image",
+          "reason": "cross-view control image changed",
+          "status": "REJECTED"
+        },
+        {
+          "case": "data-sequence",
+          "reason": "cross-view application sequence/documents",
+          "status": "REJECTED"
+        },
+        {
+          "case": "data-document",
+          "reason": "cross-view application document bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "observations",
+          "reason": "cross-view exact observations",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "cross-view force before return",
+          "status": "REJECTED"
+        },
+        {
+          "case": "removed-force",
+          "reason": "cross-view force before return",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-voter",
+          "reason": "context selection admitted publication voters inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "public-runtime",
+          "reason": "cross-view receipt",
+          "status": "REJECTED"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "profiles": 4,
+      "publicBootstrap": true,
+      "publicRuntime": false,
+      "removals": 6,
+      "slots": 60,
+      "status": "PASS"
+    },
+    "status": "PASS"
+  },
+  "base": "3ff81e616058ccf1ab0c54fed728974081016e1f",
+  "currentJava": {
+    "reports": {
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V50LogicalFixtureTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "44aacb8e4b31154765c02d01db1f8fa623e0aef2824df3b7a8217b4db03929f9",
+        "skipped": 0,
+        "tests": 1
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V50PublicApiInventoryTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "cd0687b26ea003488675960b11b8c1048c6456dae5811d25be53961f14fbabd7",
+        "skipped": 0,
+        "tests": 3
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V50RecoveryTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "1f00b3502eb4e513d6887dd1cffa02c39de296bdf51f380c634df26f7ed4c39f",
+        "skipped": 0,
+        "tests": 8
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V51ApplicationRebuildTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "df000e941261f711d3e805073ccca3e8ab48884ec743321ee52d3e1965392ea4",
+        "skipped": 0,
+        "tests": 5
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V51PublicApiInventoryTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "14250d5ac55059c5cd770fe67fbf53f0137ddad59e3b2bc5f4bcf1f16c901a65",
+        "skipped": 0,
+        "tests": 2
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V51VersionBoundaryTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "07c6749ec049dc5eaaef000945e49d1830060f43cd344a199bb25ff209d07bd9",
+        "skipped": 0,
+        "tests": 3
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V52ApplicationReadCutTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "b6f96a1834c253d003d5b5c766eed034b522e57aa998f02187fea097ae5ff56b",
+        "skipped": 0,
+        "tests": 4
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V52PublicApiInventoryTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "8658b839bbd269c484d917d855c8bf9238803750122d6fe6373da8f4aca4f8c8",
+        "skipped": 0,
+        "tests": 1
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53AdmittedCrossViewTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "613ffca55a2f6b3c426c32f0c60a6429ec4573b970d2965fc1ad8047e939afda",
+        "skipped": 0,
+        "tests": 1
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53CatalogTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "eb285a81b312ea0fc75f59fe5a8a3f032ffec375555e955bad87f4fca04b4ade",
+        "skipped": 0,
+        "tests": 7
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ContextTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "c70cb760bf7584ecf7a96621f808d6a46457ce19f761647fbeffdf4602740233",
+        "skipped": 0,
+        "tests": 7
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53DeclarationsTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "82ef91281b1be5f653d8f4a9c0a52dfd1eb189290f5ce969f97842efce4acbd7",
+        "skipped": 0,
+        "tests": 14
+      },
+      "target/v53-phase2-closure/isolated-junit/TEST-io.github.patricklfdm.generalsearch.replication.V53FormatTest.xml": {
+        "errors": 0,
+        "failures": 0,
+        "sha256": "64bdcd485b1242b44f4441994e6ccfdce09ff34eff937d1cfecae73349799069",
+        "skipped": 0,
+        "tests": 5
+      }
+    },
+    "status": "PASS",
+    "tests": 61
+  },
+  "documents": {
+    "docs/v5x/v5.3/DEVELOPMENT_STATUS.md": "5d1dd0b6122cccea53cf7f6ad88a3c68680ca93218f4fd36a581c7d4f5090d30",
+    "docs/v5x/v5.3/PHASE_2_CLOSURE_AUDIT.md": "5dd86d55cee74f244eec4f29985b5552fb667622b602571666b0d9969a7d5e70",
+    "docs/v5x/v5.3/PHASE_2_CLOSURE_CHECKLIST.md": "06765929f73db3406cac86de5a001856508f16bd6f6d6714ca99e6cf4a3d1bd0",
+    "docs/v5x/v5.3/PHASE_2_ENTRY_PLAN.md": "a0bccf135b55b8b2293875eaf22cdafa4c866a27715b07fd9ef933d3ae3fa657",
+    "docs/v5x/v5.3/PRE_CLOUD_CLOSURE_CHECKLIST.md": "9e4573735fc0ab2473c091ba7e13dde338c3dbf235a5a1a3a421cc7b7c3f34a6",
+    "docs/v5x/v5.3/README.md": "7e1cf1092c6392519938c0988b4f087fe837260ad643fb08d787ce2635871b8e"
+  },
+  "historicalIndexes": 109,
+  "isolatedRuntimeComparison": {
+    "emptyPackageDeclarations": [
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/bitmap/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "714985ae26a25d6c138f8e1be0c4812ab35ac49748e315980f3bf37cd4dc39d7",
+        "oldSha256": "5b6d9d61ec35b092ba44ac6a173fd6583ababa6f4dc60e724a986676cea88d7e",
+        "path": "io/github/patricklfdm/generalsearch/bitmap/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/durability/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "782027e6c108a278fa26fa923e5a3a24107bc731619775e759d2bf1f88127bed",
+        "oldSha256": "6b3f6bf267cb8614cfbdd4473a69829985262529ba3da390dc29a20604728765",
+        "path": "io/github/patricklfdm/generalsearch/durability/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/engine/exception/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "9e7bbe7e2b3adcf75641b31c18150dc77242df885fe09d17165e6ffee625758f",
+        "oldSha256": "e7e13cdd9b5ab52f639b4b767c3368d37d79c9a63e65d47c1158115cbdd71016",
+        "path": "io/github/patricklfdm/generalsearch/engine/exception/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/engine/metrics/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "d355452c8979cfe7b5837a6a7d2b9fdab21f00206360b13eca55c23a73d7c512",
+        "oldSha256": "fd907e2129e2adf5d3f1469f9fa48f8ac6f75ffde071d6f43163bc6f6d6cddb2",
+        "path": "io/github/patricklfdm/generalsearch/engine/metrics/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/engine/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "6ac215ba57bc5fc634bbcbb69bedea8bf69aa06a334539443ab336f6721b406a",
+        "oldSha256": "0e8588e5fbf060ecb1e75a8bfc1cb92840a00fe228b61e2b875d922b05e2d207",
+        "path": "io/github/patricklfdm/generalsearch/engine/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/index/equality/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "599f8a11e87d5e07ef0f1f0cbd28f6d8379751495eb5dfd52f2be5f1fd750fce",
+        "oldSha256": "f289ba979f8bd32fc0685e2f48b9fb8cd4d5d074a58149440f16bd2487d5c108",
+        "path": "io/github/patricklfdm/generalsearch/index/equality/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/index/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "1a9398b24c9c7f7ff060f54ff1853467dd5cb7a0e945e8563d1072164e6bf85a",
+        "oldSha256": "d9a319c8959aaede6eec210d8758a8b1d48b1dbb5122253385bf8a76466d96da",
+        "path": "io/github/patricklfdm/generalsearch/index/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/index/prefix/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "610bcc6b37fdded09a5db3aa49d086d7ee73dd55394b257a9028b5f89303fe62",
+        "oldSha256": "a4e9dc2bf229435800da251f5d7372d7f1b770b16d5a5509c338a475695f2a63",
+        "path": "io/github/patricklfdm/generalsearch/index/prefix/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/index/range/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "44d923d8828fc17f9db69239c73e6f31ddf85061dc1d149b18997c354f53165a",
+        "oldSha256": "b31df433d89e2e85297de5ea34da3376a8922b15aaa167e1d609999bb965f547",
+        "path": "io/github/patricklfdm/generalsearch/index/range/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/internal/index/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "0377b313cc37f9bcdad60f2441057da2570ac6024ef501cfd60f36a039025a4e",
+        "oldSha256": "dd92651af40b50ffda5d0e4baaa85d6a1085c13f3a8d71422228d72f957a54c7",
+        "path": "io/github/patricklfdm/generalsearch/internal/index/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/model/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "56f0a737d7ce2df7bcb107a0bcdea4179aa4b1886b3c0b803b607c3b3ca9a453",
+        "oldSha256": "584004d57fb0d92f6b859bd35d9f0f2b9e70ec9ceeddae318505c1e1ede54147",
+        "path": "io/github/patricklfdm/generalsearch/model/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/query/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "152788c8179af7964a71f0f580592c93216db871c75e06912a30842d49cf389c",
+        "oldSha256": "7438eaace318f6d237e4f23866bab2f2fbd6f7f57030555504940b24bd830c56",
+        "path": "io/github/patricklfdm/generalsearch/query/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/schema/annotation/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "e600ba4d4cdaf312ade266af8fcb93dab90e8610e1a524ec62aef3108f28df9f",
+        "oldSha256": "189550fe2425ff0ff6bc085a22940259171725449fc7c564de61fa9143c97cd9",
+        "path": "io/github/patricklfdm/generalsearch/schema/annotation/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/schema/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "4b3fe208851fd57ca5c9c3724f2170a668b2e5390417c1d1fb1d26022daf3ae0",
+        "oldSha256": "712463e415e76fddc7035304377caed5f2fcfe391ce2cbe87f52d695a441fd18",
+        "path": "io/github/patricklfdm/generalsearch/schema/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/search/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "e4ef2605e3cb17e3071a10f184b7340a3fa486a6cf5a89feedd0b552cff9915e",
+        "oldSha256": "f25f12f16d6a16e9c0d527bc2d578166ce9fdfa0cb61b3978d68347563db677d",
+        "path": "io/github/patricklfdm/generalsearch/search/package-info.class"
+      },
+      {
+        "decoded": {
+          "flags": 5632,
+          "major": 65,
+          "minor": 0,
+          "name": "io/github/patricklfdm/generalsearch/storage/package-info",
+          "parent": "java/lang/Object",
+          "source": "package-info.java"
+        },
+        "newSha256": "6ba5ce14b0011174fcef78c783b6aaf530454f6eec86e2a760a1bd25c3318313",
+        "oldSha256": "e117ca550162fd70e71156505119b6b07a00963c9286383d32724f4a5809e95d",
+        "path": "io/github/patricklfdm/generalsearch/storage/package-info.class"
+      }
+    ],
+    "identicalExecutableAndOtherClasses": 693,
+    "jarDifferences": "16 empty package-info constant-pool orderings and six empty ZIP directories; all other members identical",
+    "status": "PASS"
+  },
+  "jars": {
+    "target/v53-phase2-closure/isolated-jars/general-search-engine-5.3.0-SNAPSHOT.jar": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd",
+    "target/v53-phase2-closure/isolated-jars/general-search-engine-replication-5.3.0-SNAPSHOT.jar": "9b3c8a4fdc88afc03ea5d6f5018ee33adfe65643db342314395cb90894547ca7"
+  },
+  "laterInventory": {
+    "byScenario": {
+      "S01": 168,
+      "S02": 336,
+      "S03": 200,
+      "S04": 840,
+      "S05": 336,
+      "S06": 756,
+      "S07": 90,
+      "S08": 24,
+      "S09": 336,
+      "S10": 224
+    },
+    "execution": "inventory-only",
+    "negativeFamilies": 24,
+    "planFileSha256": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+    "retainedInventory": "target/v53-phase1-inventory/finite-final/inventory.json.gz",
+    "retainedInventorySha256": "73118ad5130d368368c803ba7d40ece52efb71208237d3b9470089c13a3bcfe8",
+    "runtimeQualified": false,
+    "scenarios": 3310,
+    "status": "PASS"
+  },
+  "maximalImageIndex": {
+    "path": "docs/v5x/v5.3/phase2-evidence/maximum-application.json",
+    "sha256": "1d84ae28bac703fb16a2473eccb23b89e3b40f8b48414d12065ec11ddc08313a"
+  },
+  "metadataAdmissionIndex": {
+    "path": "docs/v5x/v5.3/phase2-evidence/publication-capacity.json",
+    "sha256": "50700a54b20e176fce1a452fad4f29c5c3268189da1755442ad7408cc795c7e1"
+  },
+  "operatorAcceptance": "PENDING_UNIFIED_REVIEW",
+  "productionClasses": 709,
+  "pythonTests": {
+    "currentBuildFixtures": 29,
+    "v53Normal": 530,
+    "v53Optimized": 530
+  },
+  "retainedFiles": {
+    "target/v53-phase2-closure/compiled-main-classes.json": "6e95379142d253a436db3483bc14fc23731f5fb3aca4d728a737c1041b761d9e",
+    "target/v53-phase2-closure/contract-final.json": "bf61f42e82ab2332d3167119e99f660e294fcc1b04f727eaa50466379ffe4819",
+    "target/v53-phase2-closure/cross-view-normal.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-phase2-closure/cross-view-optimized.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-phase2-closure/cross-view-raw-inventory.json": "abe2fb3b9c156a2546a5be15eab72d3ae152942cb383b318a2b49daa36c834f3",
+    "target/v53-phase2-closure/current-build-fixtures.log": "fb88754c4ec4bdf9e6d536402d875e909ab01ca34496d4162eefd24f5d5f80c1",
+    "target/v53-phase2-closure/finite-inventory.json": "930e7d9cf5939ecc30452d10877f8e0281d881e05c3c608ee99d1a10230d2798",
+    "target/v53-phase2-closure/isolated-build.json": "f2fd78f76926a65a9b1b30fe2494e9eaf82bbdea2a2daff1fb000262769786d3",
+    "target/v53-phase2-closure/isolated-cross-view-normal.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-phase2-closure/isolated-cross-view-optimized.json": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c",
+    "target/v53-phase2-closure/isolated-jar-difference.json": "7261bb15daabf6cada7f6557a31810e5d7a3fdb727dc6321d3027dbc939c4620",
+    "target/v53-phase2-closure/isolated-java-complete.json": "beadbec6a9abdf9485314d74e3ec92fa076478d8c2bcd260cde67cebfe4f0374",
+    "target/v53-phase2-closure/isolated-java-inputs.json": "c084d14b6fbe9b8529149910690f49724e0b4fb99fedba7a896865e66df957b0",
+    "target/v53-phase2-closure/isolated-java-reports.json": "53a86510da45724a157ef4c877cfd23dff3b70740a5ecd810a28679f5199272d",
+    "target/v53-phase2-closure/isolated-java.log": "e99458e88c547272bcb046fb229b5ca36ffe33e98787ea43d3d8dba37acd6aa2",
+    "target/v53-phase2-closure/isolated-main-classes.json": "6e95379142d253a436db3483bc14fc23731f5fb3aca4d728a737c1041b761d9e",
+    "target/v53-phase2-closure/isolated-package-metadata.json": "c8aa6c6b3013853475b55951fb38a3c8e056001fa12b86d3ee7048a773dee17f",
+    "target/v53-phase2-closure/isolated-package.log": "b72033aabdaa1a0cf3571366b72720d222c82b25fcf306e2cc4eb7bb56817a36",
+    "target/v53-phase2-closure/isolated-producer-classes.json": "030ff044d02743f9fc44e6ef5888b498714318edeb3f361d36d1eacbb2c5a955",
+    "target/v53-phase2-closure/isolated-source-inventory.json": "f251dfc07d1241bd6dc7dbafbb7cdf16acc60d0919c1209bd8791bfd91ecb9f3",
+    "target/v53-phase2-closure/java-complete.json": "1ee3ed2d2793a3f8c98bb5feffb1afbe5a5e7acee63649d17761c193d1c5bee3",
+    "target/v53-phase2-closure/java-inputs.json": "c084d14b6fbe9b8529149910690f49724e0b4fb99fedba7a896865e66df957b0",
+    "target/v53-phase2-closure/java-reports.json": "e416793f1f7de01b29d26a8064945beb53596f8aa3a82ad84d3eb7d73542f0a6",
+    "target/v53-phase2-closure/java.log": "657d2bf43608410d2a470426cb616715147d9ff1949359828d44300b1c2353c5",
+    "target/v53-phase2-closure/legacy-helper.diff": "0131f702f31931225dbe8710984d6851f10067489f6197a28b1807b4cb0b369f",
+    "target/v53-phase2-closure/phase2-indexes.json": "0013bd0034d5f9b37387708300ffcb3f2aa602df10b428c3e103dfdbc6c2afbc",
+    "target/v53-phase2-closure/predecessor-scope.json": "4c32620551ba07963e1c1034c8295a6f986a068b4dcb8a4a3212230cd481d685",
+    "target/v53-phase2-closure/producer-classes.json": "030ff044d02743f9fc44e6ef5888b498714318edeb3f361d36d1eacbb2c5a955",
+    "target/v53-phase2-closure/python-all-optimized.log": "43a925e7c0b529172bbba96426d882c903034b3b4979058a2fd04e0b7e01757e",
+    "target/v53-phase2-closure/python-all.log": "cf318f0d9017dbb38f39dcf4c03c20fceed635056d441f493e81a27bcab154b7",
+    "target/v53-phase2-closure/python-inputs-at-normal-completion.json": "2fce4e4fbac0e143aeb3cec2d52603baa4f7a808b75a91f0cc8086d37d59d810",
+    "target/v53-phase2-closure/python-receipt.json": "2192017744bf611286db8646f2561907b873eeb10964a9e789c96165e1575354",
+    "target/v53-phase2-closure/retained-index-audit.json": "ba862e5ae022d10754cb6272318a47f0201e3225b233dfaf66b70ee060bfbcb2",
+    "target/v53-phase2-closure/sandbox-attempt1-inventory.json": "c214e8729bbc2610591833896e689f3ebc84fd21d3ef6e3688f630f9b3623085",
+    "target/v53-phase2-closure/shared-build-observation/receipt.json": "5feb5b712db464bc058eb792646c004056c4609c5e912f08ffbf128d9176d6c2",
+    "target/v53-phase2-closure/socket-retry-inputs.json": "c084d14b6fbe9b8529149910690f49724e0b4fb99fedba7a896865e66df957b0",
+    "target/v53-phase2-closure/socket-retry.log": "2ac9c234b4e312c90d9885c52e61295252eead22ea9dc758d8e4fa4efd353dc6",
+    "target/v53-phase2-closure/source-audit.json": "d52c245b302bc4a7d291c903627f2bd32aa362a25d2900a2cecce2446a9decbb"
+  },
+  "retentionAudit": {
+    "caveats": [
+      {
+        "actual": "d028455de8cfe437310838f1baf4139e05aec2d6001125ca3b481afbc925421d",
+        "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "index": "covered-minority-recovery.json",
+        "interpretation": "self-captured empty stdout before finalization printed receipt; excluded as validation authority; immutable index preserved",
+        "location": "$/logs/target/v53-covered-minority-process/finalization.log",
+        "path": "target/v53-covered-minority-process/finalization.log",
+        "reason": "digest mismatch"
+      }
+    ],
+    "historicalBuildObservations": 99,
+    "references": 1036,
+    "uniqueFiles": 1023
+  },
+  "schema": "gse-v53-phase2-local-closure-v1",
+  "scope": {
+    "fullPhysicalMatrix": false,
+    "learnerRuntime": false,
+    "localStorage": true,
+    "networkQualification": false,
+    "paidCloud": false,
+    "phase3Started": false,
+    "powerLoss": false,
+    "predecessorReleaseIntegration": false,
+    "publicOfflineBootstrap": true,
+    "publicRuntime": false,
+    "pushed": false
+  },
+  "status": "LOCALLY_CLOSED"
+}

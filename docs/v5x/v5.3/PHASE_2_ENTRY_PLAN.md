@@ -1,8 +1,14 @@
 # Phase 2 — configuration-aware storage
 
-Status: **OPEN**, local development only. Phase 1 is locally closed; its conditional
-context/capsule/selection helpers do not provide durable ownership observations.
-The public membership factory remains disabled throughout this storage entry batch.
+Status: **LOCALLY CLOSED**, 2026-10-25. The [closure audit](PHASE_2_CLOSURE_AUDIT.md)
+and [checklist](PHASE_2_CLOSURE_CHECKLIST.md) bind the final source and evidence.
+Public offline bootstrap is implemented; the public membership runtime remains
+disabled. Unified operator acceptance and released V5.2 integration remain later.
+
+The table and chronological notes below preserve the scope and open items at each
+historical batch. Their intermediate “pending” statements are superseded only for
+local storage obligations mapped by the closure audit, never for distributed
+runtime or later acceptance. No historical result is relabelled as a current run.
 
 ## Batches and dependencies
 
