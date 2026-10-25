@@ -15,6 +15,20 @@ def configuration():
         imageProject='offline-images',imageName='pinned-image',imageId='123456',machineType='e2-standard-4',diskType='pd-ssd',port=19752)
 
 
+def reject_instance(server, *, keep_resource=False, lose_reply=False):
+    """DONE/error can have an allocated target ID without a surviving VM."""
+    def fault(stage, event):
+        if stage != 'after' or event['method'] != 'POST' or '/instances?' not in event['url']: return
+        name = strict(event['body'])['name']
+        op = next(v for v in server.operations.values() if v['operationType']=='insert' and v['targetLink'].endswith('/'+name))
+        op['error'] = dict(errors=[dict(code='ZONE_RESOURCE_POOL_EXHAUSTED',message='never-public-provider-detail')])
+        if not keep_resource:
+            key = next(k for k in server.resources if k[2]==name); del server.resources[key]
+        if lose_reply: raise ConnectionError('lost failed insertion response')
+        return 200, encoded(op)
+    server.fault = fault
+
+
 class ProviderTest(unittest.TestCase):
     def setUp(self):
         self.cfg=configuration();self.req=fixture();self.req['configurationSha256']=p.config(self.cfg)
@@ -170,6 +184,90 @@ class ProviderTest(unittest.TestCase):
         with self.assertRaises(TimeoutError):self.prepare()
         self.assertEqual('FAIL',self.owner.cleanup_result['status']);self.assertIsNotNone(self.store.get(a.LEASE))
         self.assertEqual(1,len(self.compute_mutations()));self.assertEqual([],self.compute_mutations('DELETE'))
+
+    def test_failed_insert_with_target_id_is_never_admitted_and_cleanup_releases(self):
+        for residual in (False, True):
+            with self.subTest(residual=residual):
+                self.setUp(); reject_instance(self.server,keep_resource=residual)
+                with self.assertRaisesRegex(ValueError,'V52_PROVIDER_CAPACITY_UNAVAILABLE') as error:self.prepare()
+                self.assertNotIn('never-public',str(error.exception))
+                self.assertEqual('PASS',self.owner.cleanup_result['status']);self.assertIsNone(self.store.get(a.LEASE))
+                self.assertEqual({},self.server.resources);self.assertEqual(11,len(self.compute_mutations()))
+                self.assertEqual(10+int(residual),len(self.compute_mutations('DELETE')))
+                self.assertTrue(all(url.urlsplit(e['url']).path.split('/')[-1].isdigit() for e in self.compute_mutations('DELETE')))
+                self.assertEqual('FAIL',next(iter(a.inspect_ledger(self.store.get(a.LEDGER)[1],domain='offline')['attempts'].values()))['status'])
+
+    def test_failed_insert_lost_reply_resolves_once_without_reissuing(self):
+        reject_instance(self.server,lose_reply=True)
+        with self.assertRaises(ConnectionError):self.prepare()
+        self.assertEqual('PASS',self.owner.cleanup_result['status']);self.assertIsNone(self.store.get(a.LEASE))
+        self.assertEqual({},self.server.resources);self.assertEqual(11,len(self.compute_mutations()))
+
+    def test_failed_insert_receipt_replays_id_after_operation_expiry(self):
+        op=self.server.operation(url.urlsplit(self.provider.scope(self.spec)).path,'firewalls',self.spec['name'],'123',self.provider.operation_id(self.spec),'insert')
+        op['error']=dict(errors=[dict(code='ZONE_RESOURCE_POOL_EXHAUSTED',message='never-public')])
+        self.provider.remember(self.spec,op);self.server.operations.clear()
+        result=self.provider.operation(self.spec)
+        self.assertEqual('DONE',result['state']);self.assertEqual('123',result['id'])
+        self.assertEqual('V52_PROVIDER_INSERT_REJECTED',result['failureCode'])
+        self.assertIs(True,self.store.get(self.provider.receipt_key(self.spec))[1]['operation']['error'])
+        self.assertNotIn('never-public',str(self.store.get(self.provider.receipt_key(self.spec))))
+
+    def test_failed_insert_bindings_pending_and_failed_delete_stay_closed(self):
+        op=self.server.operation(url.urlsplit(self.provider.scope(self.spec)).path,'firewalls',self.spec['name'],'123',self.provider.operation_id(self.spec),'insert')
+        op['error']=True
+        for key,value in (('clientOperationId','foreign'),('targetLink','https://evil/'),('targetId',True),('status','UNKNOWN')):
+            with self.subTest(key=key),self.assertRaises(ValueError):self.provider.decode(self.spec,dict(op,**{key:value}))
+        self.assertEqual('PENDING',self.provider.decode(self.spec,dict(op,status='RUNNING'))['state'])
+        self.assertIsNone(self.provider.decode(self.spec,dict(op,status='RUNNING'))['id'])
+        op.update(operationType='delete',clientOperationId=self.provider.operation_id(self.spec,'delete','123'))
+        with self.assertRaises(ValueError):self.provider.decode(self.spec,op,'delete','123')
+
+    def test_failed_insert_cannot_authorize_deletion_of_replacement(self):
+        reject_instance(self.server,keep_resource=True)
+        original=self.server.fault
+        def replace(stage,event):
+            response=original(stage,event)
+            if response is not None:
+                key=next(k for k in self.server.resources if k[1]=='instances')
+                self.server.resources[key]['id']='9999999'
+            return response
+        self.server.fault=replace
+        with self.assertRaises(ValueError):self.prepare()
+        self.assertEqual('FAIL',self.owner.cleanup_result['status']);self.assertIsNotNone(self.store.get(a.LEASE))
+        self.assertEqual(['9999999'],[v['id'] for v in self.server.resources.values()])
+        self.assertTrue(all('/9999999?' not in e['url'] for e in self.compute_mutations('DELETE')))
+
+    def test_failed_insert_without_id_requires_actual_absence(self):
+        for residual in (False,True):
+            with self.subTest(residual=residual):
+                self.setUp();reject_instance(self.server,keep_resource=residual);original=self.server.fault
+                def no_id(stage,event):
+                    response=original(stage,event)
+                    if response is not None:
+                        op=next(v for v in self.server.operations.values() if '/instances/' in v['targetLink'])
+                        op.pop('targetId');return self.reply(op)
+                self.server.fault=no_id
+                with self.assertRaisesRegex(ValueError,'V52_PROVIDER_CAPACITY_UNAVAILABLE'):self.prepare()
+                self.assertEqual('FAIL' if residual else 'PASS',self.owner.cleanup_result['status'])
+                self.assertEqual(residual,self.store.get(a.LEASE) is not None)
+                self.assertEqual(10,len(self.compute_mutations('DELETE')))
+
+    def test_operation_diagnostics_are_closed_and_never_enable_mutation_retry(self):
+        from . import cloud_read_retry
+        for error in (True,{'errors':[]},{'errors':[{'code':'SECRET','message':'private'}]},
+                      {'errors':[{'code':'ZONE_RESOURCE_POOL_EXHAUSTED'},{'code':'PERMISSION_DENIED'}]},
+                      {'errors':[{'code':['unhashable']}]},'private'):
+            self.assertEqual('V52_PROVIDER_INSERT_REJECTED',p.insertion_failure(error))
+        for code in p.CAPACITY_ERRORS:
+            self.assertEqual('V52_PROVIDER_CAPACITY_UNAVAILABLE',p.insertion_failure({'errors':[{'code':code}]}))
+        for code in p.OPERATION_FAILURES:
+            error=p.OperationRejected(code)
+            self.assertEqual(dict(providerCode=code),p.operation_failure(error))
+            self.assertIsNone(cloud_read_retry.reason(error))
+        for value in (None,[],{},dict(providerCode=['unhashable']),dict(providerCode='private')):
+            self.assertEqual({},p.public_operation_failure(value))
+        self.assertEqual({},p.operation_failure(ValueError('private')))
 
     def test_operation_pagination_empty_page_then_original(self):
         op=self.server.operation(url.urlsplit(self.provider.scope(self.spec)).path,'firewalls',self.spec['name'],'123',self.provider.operation_id(self.spec),'insert')

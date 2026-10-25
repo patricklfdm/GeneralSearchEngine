@@ -299,6 +299,7 @@ def open_native(source,plan_path,approval_path,confirmation,package_path,output,
         failure.update(credentials.failure(error))
         failure.update(cloud_sdk_runtime.failure(error))
         failure.update(cloud_read_retry.failure(error))
+        failure.update(p.operation_failure(error))
         diagnostic(output/'failure.json',failure)
         if session is not None:
             try:session.close()

@@ -20,6 +20,37 @@ READ_FAILURES = {
     'V52_CONTROL_LEASE_ABSENT': 'V5.2 guest lease absent',
     'V52_CONTROL_LEASE_INACTIVE': 'V5.2 guest lease inactive/changed',
 }
+OPERATION_FAILURES = frozenset(('V52_PROVIDER_INSERT_REJECTED', 'V52_PROVIDER_CAPACITY_UNAVAILABLE'))
+CAPACITY_ERRORS = frozenset(('ZONE_RESOURCE_POOL_EXHAUSTED', 'ZONE_RESOURCE_POOL_EXHAUSTED_WITH_DETAILS'))
+
+
+class OperationRejected(ValueError):
+    """Terminal original submission failure; never retry the mutation in place."""
+    retryable = False
+
+    def __init__(self, code):
+        need(type(code) is str and code in OPERATION_FAILURES, 'V5.2 unknown operation failure')
+        self.code = code
+        super().__init__(code)
+
+
+def public_operation_failure(value):
+    code = value.get('providerCode') if type(value) is dict else None
+    return dict(providerCode=code) if type(code) is str and code in OPERATION_FAILURES else {}
+
+
+def operation_failure(error):
+    return public_operation_failure(dict(providerCode=error.code)) if type(error) is OperationRejected else {}
+
+
+def insertion_failure(error):
+    # Classification affects diagnostics only. Boolean retained error flags and
+    # unfamiliar/mixed provider errors remain terminal generic failures. Never
+    # retain raw provider messages or promote a known target ID to success.
+    errors = error.get('errors') if type(error) is dict else None
+    capacity = type(errors) is list and 0 < len(errors) <= 100 and all(
+        type(row) is dict and type(row.get('code')) is str and row['code'] in CAPACITY_ERRORS for row in errors)
+    return 'V52_PROVIDER_CAPACITY_UNAVAILABLE' if capacity else 'V52_PROVIDER_INSERT_REJECTED'
 
 
 class ControlReadError(ValueError):
@@ -281,8 +312,13 @@ class Plan:
         if target is not None: a.numeric(target)
         need(identity is None or target is None or target == identity, 'V5.2 delete target changed')
         if status != 'DONE': return dict(spec=deepcopy(spec),state='PENDING',id=None)
-        if op.get('error'): need(action=='insert' and target is None, 'V5.2 unresolved operation failure')
-        else: a.numeric(target)
+        if op.get('error'):
+            need(action=='insert', 'V5.2 unresolved operation failure')
+            # DONE resolves the original operation, not successful creation.
+            # GCP can report an error with a targetId. Keep that incarnation for
+            # exact-ID/absence reconciliation, including a partially created VM.
+            return dict(spec=deepcopy(spec),state='DONE',id=target,failureCode=insertion_failure(op['error']))
+        a.numeric(target)
         return dict(spec=deepcopy(spec),state='DONE',id=target)
 
 class Provider(Plan):
@@ -386,6 +422,7 @@ class Provider(Plan):
                 return result
             need(self.api.clock()<deadline, 'V5.2 original operation deadline')
             self.sleep(min(.25,deadline-self.api.clock()))
+            need(self.api.clock()<deadline, 'V5.2 original operation deadline')
             op = self.api.call('GET',self.scope(spec)+'/operations/'+original_name,deadline=deadline)
 
     def owned_insert(self, spec):
@@ -420,7 +457,9 @@ class Provider(Plan):
         # Each mutation is sent once. An uncertain response leaves the retained
         # intent for the shared reconciler; it never creates another resource.
         op = self.api.call('POST',endpoint,body,deadline=until)
-        result = self.wait(spec,op,until); need(result['id'] is not None,'V5.2 original insertion rejected')
+        result = self.wait(spec,op,until)
+        if 'failureCode' in result: raise OperationRejected(result['failureCode'])
+        need(result['id'] is not None,'V5.2 original insertion rejected')
         observed = self.describe(spec,identity=result['id'],deadline=until)
         need(observed is not None,'V5.2 inserted resource absent'); return observed
 
