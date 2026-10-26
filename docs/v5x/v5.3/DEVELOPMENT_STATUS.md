@@ -1,5 +1,21 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B offline-survivor retention investigation
+
+The [survivor investigation](PHASE_3_SURVIVOR_RETENTION.md) locates the first loss
+of a genuine offline voter's ancestry at fresh joint installation. Isolated
+retain-all diagnostics reach native TCP adoption and, after actual majority-copy
+maintenance, a fresh election; they then hit the unchanged six-bridge capacity
+before the next ACCEPT. The proposed durable policy must retain possible peer
+endpoints while safely retiring obsolete round coverage. Conditional stable-view
+research and exact diagnostic results are bound by the
+[research receipt](phase3-evidence/survivor-retention.json).
+
+No Java implementation, frozen format/resource bound, public runtime or workflow
+is changed by this research batch. Durable obligation tracking, automatic owner
+integration and all remaining 3B–3E qualification are still open.
+
+
 ## 2026-10-26 — Phase 3B complete generation copies, locally qualified
 
 The [generation-copy batch](PHASE_3_GENERATION_COPY.md) adds complete current

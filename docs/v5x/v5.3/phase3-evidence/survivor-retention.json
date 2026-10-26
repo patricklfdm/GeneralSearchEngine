@@ -1,0 +1,527 @@
+{
+  "baseCommit": "a7dc460eaf7262a0cc96fb77f78f33eb35a16559",
+  "boundaries": [
+    "No production Java, POM, wire/disk catalog, resource limit, workflow or V5.2 experiment change. Native overlays are isolated diagnostics and are not committed as the runtime.",
+    "Original missing ancestry, incomplete bridge propagation, occupied inactive generation, retain-all capacity exhaustion, and the extra-bridge fixture failure remain retained. The final explicit-pin diagnostic is separately source-bound.",
+    "Only a volatile test registry records the genuine offline node endpoint. The successful native diagnostic is not durable pin tracking, autonomous election, full physical/history replay or Phase 3 acceptance.",
+    "The finite model assumes atomic intent persistence, complete-copy observation and safe same-tip consolidation. Stable sizes 3/4/5 and eight delivery outcomes are tested; joint transitions, actual bytes, source/image lifetime, crash ordering and runtime performance remain open.",
+    "Diagnostic inventory inspection verifies selected hashes, unchanged offline files, original applied-end ACK bytes and bridge endpoints/majorities. It does not reconstruct every original vote, application result or force order.",
+    "Durable obligations before dispatch, uncertainty across restart/selection, authenticated state transfer, bounded maintenance, native cross-view contexts and complete 3C-3E are still required."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 5241,
+      "path": "target/v53-survivor-ancestry/PROGRESS.md",
+      "sha256": "21536769f6d9b335f92ea2df35d9b76515f6d55b84536de6aa10180a8550ee92"
+    },
+    {
+      "bytes": 8496,
+      "path": "target/v53-survivor-ancestry/V53SurvivingAdoptionProbe.java",
+      "sha256": "48dafb1dda26f49156086dd36244fd42df1ae0b83f91b80a2999b7af4c7b9fae"
+    },
+    {
+      "bytes": 797,
+      "path": "target/v53-survivor-ancestry/V53SurvivorPin.java",
+      "sha256": "b17a3e8a1c3f2924037e0ecf1f684eedf0d99d4f25bb3de192f470d0456ecdc1"
+    },
+    {
+      "bytes": 1230,
+      "path": "target/v53-survivor-ancestry/audit.py",
+      "sha256": "66b25ef8a62a8822d4d7d3ce956d8e971e5407adb13dd56558dd49f735ea9227"
+    },
+    {
+      "bytes": 107,
+      "path": "target/v53-survivor-ancestry/collect.log",
+      "sha256": "c2c69d29c049d3234308bae866cfcdf7a0bb9250cbcb76022b283b5cf44ec928"
+    },
+    {
+      "bytes": 2633,
+      "path": "target/v53-survivor-ancestry/collect.py",
+      "sha256": "bdee2a4c52577bb81310d0d05f2d595a4b52040f2b59edd30bcd88167ed40865"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-survivor-ancestry/contract-check.json",
+      "sha256": "e707478b5c0efac91a50b79cadc7f2cc014f7ca9e1f87c41ca0eb5f2dbbf1f9f"
+    },
+    {
+      "bytes": 9708,
+      "path": "target/v53-survivor-ancestry/diagnostic-integrity-initial.py",
+      "sha256": "d82955256b064abd3987fd4c493f9f606cd7243da1063a0df7c6de732f2c5158"
+    },
+    {
+      "bytes": 64956,
+      "path": "target/v53-survivor-ancestry/diagnostic-v3-final.json",
+      "sha256": "e0588b3d2faf401c72cb588930174a1f9985666d147d90f94ff1745f4740e527"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/diagnostic-v3-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/diagnostic-v3-integrity.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2104,
+      "path": "target/v53-survivor-ancestry/diagnostic-v3-integrity.stderr",
+      "sha256": "27e797285fc441f5766a4862a70b31d4174d4c291514b27d2b88df5f2ca1b87d"
+    },
+    {
+      "bytes": 64956,
+      "path": "target/v53-survivor-ancestry/diagnostic-v3-optimized.json",
+      "sha256": "e0588b3d2faf401c72cb588930174a1f9985666d147d90f94ff1745f4740e527"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/diagnostic-v3-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 64956,
+      "path": "target/v53-survivor-ancestry/diagnostic-v3.json",
+      "sha256": "e0588b3d2faf401c72cb588930174a1f9985666d147d90f94ff1745f4740e527"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/diagnostic-v3.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 35528948,
+      "path": "target/v53-survivor-ancestry/diagnostics.tar.gz",
+      "sha256": "1b8dfe407614824df60340fee449fbbbccc65b93a5c8aec00efc7faff19e28f4"
+    },
+    {
+      "bytes": 5675,
+      "path": "target/v53-survivor-ancestry/finalize.py",
+      "sha256": "e1586f5b0846a7a14ba595928a9b01bf918384d99462673b2c0cd666221a4af7"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/initial-contract-check.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1358,
+      "path": "target/v53-survivor-ancestry/initial-finalize.log",
+      "sha256": "a3f26dc4a9dc9603b524247bd59f7354d0fd2d8056015c97e3657b358b426aaf"
+    },
+    {
+      "bytes": 3439,
+      "path": "target/v53-survivor-ancestry/initial-receipt.json",
+      "sha256": "d47b38b7c4108a835f1f2fab55a211dd84dc3dfcb322b772cca24936f3c1121a"
+    },
+    {
+      "bytes": 684,
+      "path": "target/v53-survivor-ancestry/initial-source-inputs.json",
+      "sha256": "7c6f6e67555a4f016e63944101f30ace5b2b526e1a26bbee96a85a0cb1941c1a"
+    },
+    {
+      "bytes": 22946,
+      "path": "target/v53-survivor-ancestry/inspect-original-missing-ancestor.json",
+      "sha256": "00fd174e5b576366d7d3d3181fe0c101c1f4694fedb28c457ae6445d882a4904"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/inspect-original-missing-ancestor.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 54234,
+      "path": "target/v53-survivor-ancestry/inspect-retain-all-v2.json",
+      "sha256": "ccca5f8184005d37a005e18335eaf39e5971e8449ea1ced4c7c47cdbe9750e30"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/inspect-retain-all-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 14240,
+      "path": "target/v53-survivor-ancestry/inspect-retain-all.json",
+      "sha256": "557df10421bcb1a786dd2d9d684e0394dd6dc19fe59acdca76c589e3b48b2f63"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/inspect-retain-all.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 11900,
+      "path": "target/v53-survivor-ancestry/inspect-selected-pin-v4.json",
+      "sha256": "64d912993f8f0f14faec9654b0088d9aab1a45c17d64f056c4be4b23e44fe020"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/inspect-selected-pin-v4.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 65457,
+      "path": "target/v53-survivor-ancestry/integrity-final-retain-all-v3-normal.json",
+      "sha256": "4cac2d0739b20a457fb57a377a050b95f68455f183b5e8a359f942e988223771"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/integrity-final-retain-all-v3-normal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 65457,
+      "path": "target/v53-survivor-ancestry/integrity-final-retain-all-v3-optimized.json",
+      "sha256": "4cac2d0739b20a457fb57a377a050b95f68455f183b5e8a359f942e988223771"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/integrity-final-retain-all-v3-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 83860,
+      "path": "target/v53-survivor-ancestry/integrity-final-selected-pin-v5-normal.json",
+      "sha256": "2c8943d8aadbbf9a5174b6b21f93a08f0ae02b3d9bd89a846dc36b983b1107e9"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/integrity-final-selected-pin-v5-normal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 83860,
+      "path": "target/v53-survivor-ancestry/integrity-final-selected-pin-v5-optimized.json",
+      "sha256": "2c8943d8aadbbf9a5174b6b21f93a08f0ae02b3d9bd89a846dc36b983b1107e9"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/integrity-final-selected-pin-v5-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1312,
+      "path": "target/v53-survivor-ancestry/lineage-audit-v2.log",
+      "sha256": "398ff46c828e03a69b59200baef7dc8a5b29fb397d5173de0a94ecc88ef0dffc"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-survivor-ancestry/lineage-audit.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2319,
+      "path": "target/v53-survivor-ancestry/lineage_audit.py",
+      "sha256": "7c988f2b96a4cf0b3ae7a8a7245fa6e80b3a63e6515629519bfdc801eb21ce6b"
+    },
+    {
+      "bytes": 2318,
+      "path": "target/v53-survivor-ancestry/lineage_audit_initial.py",
+      "sha256": "5c1ab8a85f9b0914030e10084c3acc66ee0a3ab5ebb17eb5f7ee074f0bb61ed5"
+    },
+    {
+      "bytes": 17775,
+      "path": "target/v53-survivor-ancestry/original-lineage.json",
+      "sha256": "00ec726b058ea09981e43cb1f8f8b38b61c975e5f5ca723f7b802569ed5ed09d"
+    },
+    {
+      "bytes": 2200,
+      "path": "target/v53-survivor-ancestry/original-make-probe.py",
+      "sha256": "d50ef53c838a9e75ab7a63109daf07ddbb6b6990eca6239df220b884de0b20a0"
+    },
+    {
+      "bytes": 633,
+      "path": "target/v53-survivor-ancestry/original-probe-base.json",
+      "sha256": "89f2328bc0afedc20dbd6dfb952ede766f315d16bff313b583bf7e8b45d7105b"
+    },
+    {
+      "bytes": 210,
+      "path": "target/v53-survivor-ancestry/original-probe-inputs.json",
+      "sha256": "25985528ad762b038da3673fc468eeec70d6496d99611e118b84a4dcbe52df03"
+    },
+    {
+      "bytes": 2824,
+      "path": "target/v53-survivor-ancestry/original-probe.log",
+      "sha256": "121d41fc5de0f9b285b1902f88ec8b098e04217432aa36045f8648a56b9c9b3e"
+    },
+    {
+      "bytes": 854,
+      "path": "target/v53-survivor-ancestry/original-run-probe.py",
+      "sha256": "bb88879531e47fa26f8ba510b12aa929b89bbeefa89e5361d55840d1b12b912f"
+    },
+    {
+      "bytes": 3497,
+      "path": "target/v53-survivor-ancestry/origins.json",
+      "sha256": "fca224318f9eb7af3a1cf961e8254012ad99b690b61bd13ac5feac3a7b6f0277"
+    },
+    {
+      "bytes": 5645,
+      "path": "target/v53-survivor-ancestry/probe-v2.py",
+      "sha256": "2f8196fd5a8219fe4909c79322c53cf2b30d3f52b61e76982391dc826a74e628"
+    },
+    {
+      "bytes": 5647,
+      "path": "target/v53-survivor-ancestry/probe-v3.py",
+      "sha256": "a9f103ad18c4e0aa9515f11d590ea0a8314cb4411c5db3ce53504fb164df3e84"
+    },
+    {
+      "bytes": 6347,
+      "path": "target/v53-survivor-ancestry/probe-v4.py",
+      "sha256": "b20a67b4b2464cc31f08b6015e65669fb3b6eee4ac36bbcdac388f3b8706b7cb"
+    },
+    {
+      "bytes": 6783,
+      "path": "target/v53-survivor-ancestry/probe-v5.py",
+      "sha256": "ae5cc5d4b850793277fce316872c203799ffa44473879ac2ed825fba57be7214"
+    },
+    {
+      "bytes": 4283,
+      "path": "target/v53-survivor-ancestry/probe.py",
+      "sha256": "39302bbf371ff453b1de7d94188fbc43f18f3b97cf2b151efcd08f7f1364db03"
+    },
+    {
+      "bytes": 10429197,
+      "path": "target/v53-survivor-ancestry/raw-inventory.json",
+      "sha256": "bfb5a1b33dd03aa39a2ba816d32902afd73c292a61774458400d829372a792c9"
+    },
+    {
+      "bytes": 106,
+      "path": "target/v53-survivor-ancestry/research-tests-initial.log",
+      "sha256": "6d09082634a27ad2e4746610b5cfb44eac52602673244cf2bc45dc4ae52d7c30"
+    },
+    {
+      "bytes": 106,
+      "path": "target/v53-survivor-ancestry/research-tests-v2-optimized.log",
+      "sha256": "6d09082634a27ad2e4746610b5cfb44eac52602673244cf2bc45dc4ae52d7c30"
+    },
+    {
+      "bytes": 106,
+      "path": "target/v53-survivor-ancestry/research-tests-v2.log",
+      "sha256": "5f9a2b4e4e457ee86a7b06e25d3dd843455a6b48ba4cdea90107a52cfb559ab4"
+    },
+    {
+      "bytes": 1463,
+      "path": "target/v53-survivor-ancestry/research-v2-optimized.json",
+      "sha256": "4d0121ad8bce7e90066ec40b768d866c3fd44808104119a1f3feda98ecd23d4e"
+    },
+    {
+      "bytes": 1463,
+      "path": "target/v53-survivor-ancestry/research-v2.json",
+      "sha256": "4d0121ad8bce7e90066ec40b768d866c3fd44808104119a1f3feda98ecd23d4e"
+    },
+    {
+      "bytes": 41697,
+      "path": "target/v53-survivor-ancestry/retain-all-inputs.json",
+      "sha256": "a9652ffb0905773fce846b1feb322c4a980e7a18d0771a0c6fd95e71354440a9"
+    },
+    {
+      "bytes": 176,
+      "path": "target/v53-survivor-ancestry/retain-all-receipt.json",
+      "sha256": "fb62268143e0627315e3fdf8b477832e2df059f965e233ef205f06fbb1f925e9"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-survivor-ancestry/retain-all-terminal.json",
+      "sha256": "28ac3dea742ce1b6e0f0e3a49ef54dbe5f6b6de9c1091b16d8603cfd69a3d533"
+    },
+    {
+      "bytes": 41697,
+      "path": "target/v53-survivor-ancestry/retain-all-v2-inputs.json",
+      "sha256": "82a6ed08562874dd7ddaba8f6e76686d76793a5fd34bcfc3ca3fc5a22aff943c"
+    },
+    {
+      "bytes": 174,
+      "path": "target/v53-survivor-ancestry/retain-all-v2-receipt.json",
+      "sha256": "b25f19efd34cc7903dcc26d26fe52b2042ef92c8713d97cab21b3cf876596546"
+    },
+    {
+      "bytes": 105,
+      "path": "target/v53-survivor-ancestry/retain-all-v2-terminal.json",
+      "sha256": "24b4cec5fbb97561b102fd258e56a4c1ad98b1eb500f9b0c10acde1beb81fc72"
+    },
+    {
+      "bytes": 45,
+      "path": "target/v53-survivor-ancestry/retain-all-v2-workspace.txt",
+      "sha256": "26e4306eeb5a27e03b46aa19e2ec8cc01b5564efbd626cf6cc4948f48591cf01"
+    },
+    {
+      "bytes": 1219,
+      "path": "target/v53-survivor-ancestry/retain-all-v2.log",
+      "sha256": "f0b2c70166667729ee7f27499b81249e102302a926de3c9808d058781d8eb0f6"
+    },
+    {
+      "bytes": 41697,
+      "path": "target/v53-survivor-ancestry/retain-all-v3-inputs.json",
+      "sha256": "92b737f10e87cc415b376193c117819f19d2c107a3b4e14208d7b6ea68730025"
+    },
+    {
+      "bytes": 288,
+      "path": "target/v53-survivor-ancestry/retain-all-v3-receipt.json",
+      "sha256": "514758d7f33f583a9a45feb187fdae6813b1844fb361fb5cba4c3c167befe4e8"
+    },
+    {
+      "bytes": 105,
+      "path": "target/v53-survivor-ancestry/retain-all-v3-terminal.json",
+      "sha256": "feb4599fdbe43ff140e4113cfe19ba272d39ffb2f4882c4857e9c1a97a491744"
+    },
+    {
+      "bytes": 45,
+      "path": "target/v53-survivor-ancestry/retain-all-v3-workspace.txt",
+      "sha256": "ca1651a46c5af3c3b255e52f05b822bd428df295368fb8d07175a26c749c6b4b"
+    },
+    {
+      "bytes": 1278,
+      "path": "target/v53-survivor-ancestry/retain-all-v3.log",
+      "sha256": "d055a5ede816a1b0936c0e8263b3603f7e07f09a42bc833e8639480698a19d31"
+    },
+    {
+      "bytes": 42,
+      "path": "target/v53-survivor-ancestry/retain-all-workspace.txt",
+      "sha256": "d563bec9bd4b9582082e1113a74fb2e7884ad05839d087b4647c91750d925ec7"
+    },
+    {
+      "bytes": 1424,
+      "path": "target/v53-survivor-ancestry/retain-all.log",
+      "sha256": "58b74fe6d6c6cd6dbf4b2ea9cc61dff79fcd3a0f46e82c261bb29acf683b7ea6"
+    },
+    {
+      "bytes": 41848,
+      "path": "target/v53-survivor-ancestry/selected-pin-v4-inputs.json",
+      "sha256": "c1ebda67d1948f431863c2bf779703d19264d6b9c2a088873d1ad5ee7d0a4165"
+    },
+    {
+      "bytes": 174,
+      "path": "target/v53-survivor-ancestry/selected-pin-v4-receipt.json",
+      "sha256": "3613d251359237ed8ebf2394ed639abe0c733ea55484c82f9f96f69396ff5800"
+    },
+    {
+      "bytes": 107,
+      "path": "target/v53-survivor-ancestry/selected-pin-v4-terminal.json",
+      "sha256": "1c13260458d5667452d08469a51deb0364943662b09fa53176c39c038f83a1c4"
+    },
+    {
+      "bytes": 47,
+      "path": "target/v53-survivor-ancestry/selected-pin-v4-workspace.txt",
+      "sha256": "3947a987e472646955597b122cc706e30a675c583cbf8eab3ea781aad04792ca"
+    },
+    {
+      "bytes": 1309,
+      "path": "target/v53-survivor-ancestry/selected-pin-v4.log",
+      "sha256": "03ebf58bd0a70b90a8a510bb6bb04523f4dfab1a7c0fa8394f2e3c6a70ec797c"
+    },
+    {
+      "bytes": 41848,
+      "path": "target/v53-survivor-ancestry/selected-pin-v5-inputs.json",
+      "sha256": "a5ce68f304e82c832e5eaf4d2e220fd78913d6477e3c63c157cd8f2ab001cb98"
+    },
+    {
+      "bytes": 130,
+      "path": "target/v53-survivor-ancestry/selected-pin-v5-receipt.json",
+      "sha256": "b5de1ec7e4655552b515077c7be168763bfcb93bb553995cbcbfd6d7170a9d7d"
+    },
+    {
+      "bytes": 107,
+      "path": "target/v53-survivor-ancestry/selected-pin-v5-terminal.json",
+      "sha256": "5f29a27ec8cdb56d05f7b4b46a2f9a904048c298564b06d9e9a4753e19e7f3bc"
+    },
+    {
+      "bytes": 47,
+      "path": "target/v53-survivor-ancestry/selected-pin-v5-workspace.txt",
+      "sha256": "142d4c47e31e8652c916e3e8fc471bdec83f06262445bda4e4b2050cbf0cc849"
+    },
+    {
+      "bytes": 948,
+      "path": "target/v53-survivor-ancestry/selected-pin-v5.log",
+      "sha256": "98d524103fe0b220b36acd645357c5dbc88007b29a2e49970a2a4836d61377b2"
+    },
+    {
+      "bytes": 684,
+      "path": "target/v53-survivor-ancestry/source-inputs.json",
+      "sha256": "0aefa15965408ef8569ea883e16db5de0147983af17e8c61d67be4a305d59968"
+    },
+    {
+      "bytes": 107,
+      "path": "target/v53-survivor-ancestry/tests-final-optimized.log",
+      "sha256": "0f2e3092b4b255302f6917996103b90a65222defab722610ec4104aea2a3ef7c"
+    },
+    {
+      "bytes": 107,
+      "path": "target/v53-survivor-ancestry/tests-final.log",
+      "sha256": "b59469fc5e0ab95b5ee5ae31881cdbcff0682ccbc8e9c40e5a6aecd59045ea01"
+    },
+    {
+      "bytes": 711,
+      "path": "target/v53-survivor-ancestry/validation-summary.json",
+      "sha256": "b34e2ae39f4a23df10bcff5b604500e79306849ba8126732a174abe76e379c4d"
+    }
+  ],
+  "schema": "gse-v53-survivor-retention-research-v1",
+  "sourceFiles": [
+    {
+      "bytes": 8831,
+      "path": "scripts/v53/survivor_retention_research.py",
+      "sha256": "50e8ffdf0d0a768ca6cb5decb550b96845411755fc953cc5218b207b217cb116"
+    },
+    {
+      "bytes": 9702,
+      "path": "scripts/v53/survivor_retention_diagnostic.py",
+      "sha256": "a105907379d04ad7ea26b3bc6ab163216833939d441e815fe125fbbe68d97f0d"
+    },
+    {
+      "bytes": 4403,
+      "path": "scripts/v53/test_survivor_retention.py",
+      "sha256": "a406c80e4b1e45bfc929954878b7664df750db0fdeaea7f1e936bb5826026004"
+    },
+    {
+      "bytes": 7566,
+      "path": "docs/v5x/v5.3/PHASE_3_SURVIVOR_RETENTION.md",
+      "sha256": "1ed852187ba5a64a1e6b96a84698e60c666f211893fa470ac4ae284fc5b34cc4"
+    },
+    {
+      "bytes": 105767,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "66b34b1440141430686933396f8c919b03b2ab6cb2af24889a081b5e7edb3286"
+    },
+    {
+      "bytes": 12431,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "04a78957c70ccf7caaada6597e9834883979967a90500cab9d0ace96323b2277"
+    }
+  ],
+  "status": "RESEARCH_RECORDED",
+  "validation": {
+    "diagnosticIntegrity": {
+      "fullProtocolReplay": false,
+      "histories": 2,
+      "mutationsPerHistory": 4,
+      "portableInventory": true
+    },
+    "model": {
+      "conditionalStableViewsOnly": true,
+      "furtherPublications": 80000,
+      "histories": 8,
+      "maximumBridgeGroups": 6
+    },
+    "nativeDiagnostic": {
+      "automaticRuntime": false,
+      "continuationSlots": [
+        10,
+        21
+      ],
+      "continuedPublications": 12,
+      "maximumBridgeGroups": 4,
+      "maximumCoverageBytes": 2241,
+      "volatilePinRegistry": true
+    },
+    "phase3Complete": false,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "qualification": false,
+    "retainedFiles": 56124,
+    "status": "RESEARCH_RECORDED",
+    "tests": 9
+  }
+}

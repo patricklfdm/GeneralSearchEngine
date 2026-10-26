@@ -117,6 +117,13 @@ installations and retained-image borrowing address the unequal-cut and unpublish
 tail cases. Its source-bound component evidence passes; it does not close autonomous
 election/discovery/adoption, repeated maintenance or cross-view pending contexts.
 
+The [offline-survivor investigation](PHASE_3_SURVIVOR_RETENTION.md) reproduces the
+missing-ancestor failure on a real still-governing node. Retain-all reaches adoption
+and majority-floor maintenance but exhausts the existing ancestry bound. Durable
+possible-peer-endpoint retention, safe retirement of obsolete round coverage, and
+actual automatic integration are required. The conditional research does not
+qualify a runtime policy or close this item.
+
 ## First batch boundary
 
 The [complete generation-copy batch](PHASE_3_GENERATION_COPY.md) is locally
