@@ -19,9 +19,9 @@ def load(path):
     return json.loads(b.t.plans.read(Path(path),e.MIB))
 
 
-def case(root,size):
+def case(root,size,*,additional=()):
     e.need(root.is_dir() and not root.is_symlink(),'source export case directory')
-    e.need({p.name for p in root.iterdir()}=={'original-plan.gsbp','original-application.image','initial','captured','after','exported','contents.json'},'source export case inventory')
+    e.need({p.name for p in root.iterdir()}=={'original-plan.gsbp','original-application.image','initial','captured','after','exported','contents.json'}|set(additional),'source export case inventory')
     before=b.original(root,size,False);local='node-1';files=before[local]
     _,initial,packet=c.current(files);cap=packet['capsule'];r=cap['root']
     actual=c.inventory(root/'captured'/local);identity=e.f.decode(files['node.gsr'],'records','NODE')['identity']

@@ -1,5 +1,23 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3B complete source scratch
+
+The [receiving component](PHASE_3_SOURCE_RECEIVE.md) stages an exact packet and all
+declared application images with exclusive file ownership, original-deadline
+checks, shared capacity reservations, validation before force and guarded cleanup.
+A real TCP test receives the complete source with duplicate chunks. No received
+byte becomes a remote force observation or an installation ACK.
+
+29 final Java tests pass, with nine unchanged source-export tests retained from the
+preceding qualification run. All 542 Python tests pass in both modes. Independent
+three-size physical replay, ten negatives and relocated replay pass. A reproduced
+post-commit packet-integrity defect and the reader's inventory comparison error
+were corrected; their failed observations remain in the
+[receipt](phase3-evidence/source-receive.json). Complete source exchange, referenced
+record fetching, abandoned-scratch recovery, authority discovery/adoption, learner
+transitions and distributed closure remain open. Public runtime and S/N acceptance
+are not enabled by this component.
+
 ## 2026-10-25 — Phase 3B original source export lifetime
 
 The [source-side export component](PHASE_3_SOURCE_EXPORT.md) pins an exact forced

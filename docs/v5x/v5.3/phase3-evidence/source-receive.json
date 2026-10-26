@@ -1,0 +1,150 @@
+{
+  "schema": "gse-v53-phase3-source-receive-local-v1",
+  "status": "PASS",
+  "date": "2026-10-25",
+  "sourceParent": "ef752b9578d5bfca88751742233512ccd06d3abd",
+  "scope": "exclusive complete-source scratch; complete protocol still open",
+  "publicRuntime": false,
+  "fullPhase3Qualification": false,
+  "protectedCI": false,
+  "paidCloud": false,
+  "java": {
+    "finalRunTests": 29,
+    "unchangedExportTestsFromPrecedingRun": 9,
+    "uniqueFocusedTests": 38,
+    "newReceiveTests": 15,
+    "suites": 7,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "actualTcpCompleteSource": true,
+    "regressionFailsBeforeFix": true
+  },
+  "python": {
+    "normal": 542,
+    "optimized": 542
+  },
+  "replay": {
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "negativeCases": 10,
+    "rawNetwork": false,
+    "originalFiles": 595,
+    "originalBytes": 634650
+  },
+  "sourceInputs": {
+    "path": "target/v53-source-receive/qualified-source-inputs.json",
+    "bytes": 260538,
+    "sha256": "ffae2422957ee7da2d2be649ff6fb23e0ddafc76fe9b01cb1dd50e5316df0a74"
+  },
+  "buildInputs": {
+    "path": "target/v53-source-receive/qualified-build-inputs.json",
+    "bytes": 195293,
+    "sha256": "9e98f7be9e8c1d18ced2515bafc6a5ae8be041dbdb48e1714182bb0c275db374"
+  },
+  "artifacts": [
+    {
+      "path": "target/v53-source-receive/core.jar",
+      "bytes": 860591,
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "path": "target/v53-source-receive/replication.jar",
+      "bytes": 1180021,
+      "sha256": "31952e287892185a0b3d43e4a93db830b448cb9b0f23377fb6fbf5f3f2c5d257"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-source-receive/qualified-java-reports.json",
+      "bytes": 1703,
+      "sha256": "5301585fa1f8640eef1bdad86e0e178094747dd29dafd22b8d906d53524182c7"
+    },
+    {
+      "path": "target/v53-source-receive/first-tests.log",
+      "bytes": 5756,
+      "sha256": "afd65f5f987744855a18f84fa0275030d7f1a3796f4756d9773d1e613fbb3019"
+    },
+    {
+      "path": "target/v53-source-receive/final-tests.log",
+      "bytes": 6441,
+      "sha256": "e0355e3593264fda5e2e3f9326b0943cceb64346cc7e8dc1920ad3b721627e54"
+    },
+    {
+      "path": "target/v53-source-receive/qualification-tests.log",
+      "bytes": 6441,
+      "sha256": "8716676183cef8b62f2e796407dccbf7c5e80af5f74401d3769db10614d59ef6"
+    },
+    {
+      "path": "target/v53-source-receive/recheck-regression-after.log",
+      "bytes": 6044,
+      "sha256": "e69a52c0cc9970139e2db11ccb9fb3074efef5ab7b2c922c3b227f56e78ee8c1"
+    },
+    {
+      "path": "target/v53-source-receive/python.log",
+      "bytes": 643,
+      "sha256": "24bc9144202b17594b82d4c07dba4b400bb5dcf1d5c21d40c2ac206c88e5e489"
+    },
+    {
+      "path": "target/v53-source-receive/python-optimized.log",
+      "bytes": 643,
+      "sha256": "f5117df1fffb59743e1070e0eee70bf17a34530f25b4aca306d26e6e0fd89c4b"
+    },
+    {
+      "path": "target/v53-source-receive/final-replay.json",
+      "bytes": 1229,
+      "sha256": "e79d15161b6e11554592501653529551eaac8e616f6111e4c577403cca4a4133"
+    },
+    {
+      "path": "target/v53-source-receive/final-replay-optimized.json",
+      "bytes": 1229,
+      "sha256": "e79d15161b6e11554592501653529551eaac8e616f6111e4c577403cca4a4133"
+    },
+    {
+      "path": "target/v53-source-receive/final-replay-portable.json",
+      "bytes": 1229,
+      "sha256": "e79d15161b6e11554592501653529551eaac8e616f6111e4c577403cca4a4133"
+    },
+    {
+      "path": "target/v53-source-receive/export-replay.json",
+      "bytes": 1225,
+      "sha256": "0653857332cecb3ca0bb2812faae59acd3e0acfe31ebfd236975c493cc6b69d2"
+    },
+    {
+      "path": "target/v53-source-receive/qualified-raw-inventory.json",
+      "bytes": 149530,
+      "sha256": "9458eb25391e4619f3981543500f22a2ac78cbc9e56e98d1a5ab989aa2dec6d1"
+    }
+  ],
+  "retainedFailures": [
+    {
+      "path": "target/v53-source-receive/first-replay-failure.json",
+      "bytes": 488,
+      "sha256": "0c21faddcde0f58b74ccdf884d4b2990daffb6308dbe085235526c05755c9a5b"
+    },
+    {
+      "path": "target/v53-source-receive/recheck-regression-before.log",
+      "bytes": 6339,
+      "sha256": "eb86938477061b99373089ca80686d6f0e235af71ee32e14af923a2e59671a78"
+    },
+    {
+      "path": "target/v53-source-receive/recheck-regression-before-inputs.json",
+      "bytes": 195293,
+      "sha256": "14c4dd1cdbd58b5d503e98f35641a7e2494f622c60ca23443c557a1bf9e7e623"
+    },
+    {
+      "path": "target/v53-source-receive/pre-recheck-replication.jar",
+      "bytes": 1179885,
+      "sha256": "88e212f85c100a7203089714c4649c280e81c0c58dd1faa52a8cbbe3a3eb57af"
+    }
+  ],
+  "limits": [
+    "Original records/descriptors supplied by caller; discovery and complete source exchange still open",
+    "New scratch is separate from frozen authority; automatic crash discard/recovery still open",
+    "Received bytes never manufacture Owned observations or installation ACKs",
+    "Physical trace is network false; TCP integration is separately recorded JUnit evidence",
+    "Same local Ubuntu JDK; no protected/cloud qualification or full S/N family closure"
+  ],
+  "buildWorkspace": "/tmp/gse-v53-source-receive-x2ey7o0s"
+}
