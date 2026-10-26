@@ -1,5 +1,21 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B native current-target retention quorum
+
+The [retention quorum component](PHASE_3_RETENTION_QUORUM.md) connects exact native
+durable intent/ACK handling to the existing TCP endpoint. It binds the installed
+selection, original ballot, current target and shared resource owner; identical
+bounded retries preserve uncertainty, and higher-ballot fencing prevents replies
+even after force. [A04](PHASE_3_CONTRACT_AMENDMENTS.md) explicitly adds two internal
+unpublished wire kinds without altering the original 45 fixture frames or bounds.
+
+The [source-bound receipt](phase3-evidence/retention-quorum.json) separates stable
+3/4/5-voter network histories, lost-ACK replay, ten fresh-process crash cases and
+Java-only fault checks. The permit invokes a recorded callback; real automatic
+dispatch, future-publication target proof, complete offline-survivor continuation,
+cross-view contexts, learners/joint completion and full 3B–3E remain open.
+
+
 ## 2026-10-26 — Phase 3B selector-coupled retention merge
 
 The [selected-retention component](PHASE_3_SELECTED_RETENTION.md) now preserves

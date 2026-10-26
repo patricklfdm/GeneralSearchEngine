@@ -1,0 +1,438 @@
+{
+  "baseCommit": "4f1a1854a44828904020f3093153bea6b819405d",
+  "boundaries": [
+    "Four stable native TCP histories establish same-view current-target retention ACKs; a permit invokes a recorded test callback, not a production peer installation.",
+    "Ten halt/SIGKILL cases reuse one native bootstrap/election/publication prelude. No power-loss claim.",
+    "The first build failed in test evidence JSON serialization; its logs and raw files remain. Its completed related tests do not make that build successful.",
+    "A04 adds two unpublished internal 1.3 wire messages. Existing 45 fixture bytes and schemas, storage kinds and resource bounds are unchanged.",
+    "Future publication targets, full owner lifecycle/offline-survivor continuation, cross-view contexts, learner/joint completion and full Phase 3 remain open.",
+    "No public runtime enablement, protected CI, push, workflow, cloud run or V5.2 Runner changes."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 4556,
+      "path": "target/v53-retention-quorum/DESIGN_AUDIT.md",
+      "sha256": "e8e7903895b7eb5450426d52e1273e35a84eedec606f2da1504c443115568624"
+    },
+    {
+      "bytes": 8230689,
+      "path": "target/v53-retention-quorum/build-evidence.tar.gz",
+      "sha256": "a224bba1d91137d10d6928401b7671647365417d7c5fb2855d41a3eee4c2706f"
+    },
+    {
+      "bytes": 262,
+      "path": "target/v53-retention-quorum/catalog-compatibility.json",
+      "sha256": "8ffa673fed64fbd7e533f618b0db61054a9a841dbfedc44c3cdf0bcf49906635"
+    },
+    {
+      "bytes": 1554,
+      "path": "target/v53-retention-quorum/collect.py",
+      "sha256": "8b5d2f994987a895b5ec6f6bca07269a80858530b4f5bfab12833363bbd467fc"
+    },
+    {
+      "bytes": 9205,
+      "path": "target/v53-retention-quorum/concurrency-build-2.log",
+      "sha256": "7466436f756238e0e48a22084321048cd2d147de8a2f95a6952a4fba218a1554"
+    },
+    {
+      "bytes": 226,
+      "path": "target/v53-retention-quorum/concurrency-build.log",
+      "sha256": "e08e7f2a5c9c340069a5ca1121855002c97d400a92418d0136900c598ac23425"
+    },
+    {
+      "bytes": 475843,
+      "path": "target/v53-retention-quorum/concurrency-inputs.json",
+      "sha256": "40a705da952149267757f0d0a013ec2c896dd6d76e5bab0f168a6a146b1ff350"
+    },
+    {
+      "bytes": 51,
+      "path": "target/v53-retention-quorum/concurrency-workspace.txt",
+      "sha256": "74286072256f21b809e9d01ec1c33bd1c1fc4abc113d72c1e49ead82eee80897"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-retention-quorum/contract-check.json",
+      "sha256": "c551a51bb5e779742cc7753a262aca4ccc851975f33fd572ffd50b694df698e2"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-retention-quorum/contract-preliminary.json",
+      "sha256": "2c0e43a9823549389c80a0baa5f74d10ebcda22567e04f68cfd25702cc2657ec"
+    },
+    {
+      "bytes": 8185,
+      "path": "target/v53-retention-quorum/evidence-build.log",
+      "sha256": "d861b57a807a87d805dc163cdb5dd5ebe0a1f6713fc947fbfe7efdc78e00e781"
+    },
+    {
+      "bytes": 476238,
+      "path": "target/v53-retention-quorum/evidence-inputs.json",
+      "sha256": "42e182a28b9883c01810c11ae96b89f27909a0ac727ee5418917a7d18e4b6ffa"
+    },
+    {
+      "bytes": 48,
+      "path": "target/v53-retention-quorum/evidence-workspace.txt",
+      "sha256": "1ff6a96bfe40cc42bd8e40b557a1b63ed4a653610636888d999c1ff38fef79f6"
+    },
+    {
+      "bytes": 5971,
+      "path": "target/v53-retention-quorum/finalize.py",
+      "sha256": "a8ff62132aaae22eff4df841f81f05f7b6c6b6d5f3e5e2d405af717be4698856"
+    },
+    {
+      "bytes": 475843,
+      "path": "target/v53-retention-quorum/initial-inputs.json",
+      "sha256": "3600748e02edc119ea3fdb6d0eb5fd80a8ba397f79985f9238396f592a9ebd71"
+    },
+    {
+      "bytes": 47,
+      "path": "target/v53-retention-quorum/initial-workspace.txt",
+      "sha256": "8ca41f8dcce58434e05bc1f589daa772010986ef674bdbc73c79b56d874401cd"
+    },
+    {
+      "bytes": 756,
+      "path": "target/v53-retention-quorum/python-normal.log",
+      "sha256": "ffbe92a0f199327774888dced96b3ab87f05c77cac584ce5f2f5713139e6aaed"
+    },
+    {
+      "bytes": 756,
+      "path": "target/v53-retention-quorum/python-optimized.log",
+      "sha256": "e97a2f86c09fe2f6867862f1578122e7215205e5c7822166411dbc5039abd0b2"
+    },
+    {
+      "bytes": 476238,
+      "path": "target/v53-retention-quorum/qualification-inputs.json",
+      "sha256": "0374d8376848676398c230c21692517c9d6b25095b8b18a8f6ec562fcb3166e7"
+    },
+    {
+      "bytes": 53,
+      "path": "target/v53-retention-quorum/qualification-workspace.txt",
+      "sha256": "5ee4a0ec93651a546e722466568f13ddb84ee6547498023250cd7af9c2955b30"
+    },
+    {
+      "bytes": 1177660,
+      "path": "target/v53-retention-quorum/raw-inventory.json",
+      "sha256": "03cdae5120f144ba7cf6f320e7614482f7adaba9c5a635c8196d6d6cd2c25f2c"
+    },
+    {
+      "bytes": 1958835,
+      "path": "target/v53-retention-quorum/raw-retention-quorum.tar.gz",
+      "sha256": "48bdc704dcf4ad3fa9605426c9ea92d000f92f9980f156e9b8c431698ad08bda"
+    },
+    {
+      "bytes": 2169,
+      "path": "target/v53-retention-quorum/replay-attempt-1.json",
+      "sha256": "e987228692d7befb6f690c5e7e5b74731d7f63e8bd9e7deb22f21cd199031644"
+    },
+    {
+      "bytes": 2169,
+      "path": "target/v53-retention-quorum/replay-optimized.json",
+      "sha256": "e987228692d7befb6f690c5e7e5b74731d7f63e8bd9e7deb22f21cd199031644"
+    },
+    {
+      "bytes": 2169,
+      "path": "target/v53-retention-quorum/replay-portable.json",
+      "sha256": "e987228692d7befb6f690c5e7e5b74731d7f63e8bd9e7deb22f21cd199031644"
+    },
+    {
+      "bytes": 2169,
+      "path": "target/v53-retention-quorum/replay.json",
+      "sha256": "e987228692d7befb6f690c5e7e5b74731d7f63e8bd9e7deb22f21cd199031644"
+    },
+    {
+      "bytes": 832,
+      "path": "target/v53-retention-quorum/snapshot.py",
+      "sha256": "40ce05bb4eacee0277cceb1fe21c436911a6d285b10f9b51314d01bfd81a18fd"
+    },
+    {
+      "bytes": 1524,
+      "path": "target/v53-retention-quorum/validation-summary.json",
+      "sha256": "a00a5164e4d88fbbf8c3a32e93200f2e51afc0c40a1bb228d3ce3034f7604e44"
+    },
+    {
+      "bytes": 70322,
+      "path": "target/v53-retention-quorum/format-qualification/java.json",
+      "sha256": "c4e6804f4f7b8ae7e74bac4fc824a7c18340af058f0b64072d000f7c2b60fd71"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-retention-quorum/format-qualification/java.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 61,
+      "path": "target/v53-retention-quorum/format-qualification/java.stdout",
+      "sha256": "a9584f828b3303d8743c4825acbdb3fff50a6ba323f4eaee5eb631f81f321fbd"
+    },
+    {
+      "bytes": 324,
+      "path": "target/v53-retention-quorum/format-qualification/receipt.json",
+      "sha256": "ad24773c7d11e13adac7511ffab1cb5446fddbd9d71cde079fc4579e17c2bcb5"
+    },
+    {
+      "bytes": 104,
+      "path": "target/v53-retention-quorum/format-qualification/validation.json",
+      "sha256": "72a0a19bed2a08c12cee4d725e411869e0a0c4c08cee59bb7700f55c4b23dd29"
+    }
+  ],
+  "schema": "gse-v53-retention-quorum-v1",
+  "sourceFiles": [
+    {
+      "bytes": 20330,
+      "path": "docs/v5x/v5.3/API_FORMAT_AND_COMPATIBILITY.md",
+      "sha256": "71eaf582d24873a52f64223f6a8b7d8d527411456d5dd96404e4627a97c35eb9"
+    },
+    {
+      "bytes": 111075,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "23d26ba4d8b4daab012212d3ee1c2466a235088125b59a3c8ecffb551da0e854"
+    },
+    {
+      "bytes": 5555,
+      "path": "docs/v5x/v5.3/PHASE_0_CONTRACT.md",
+      "sha256": "1407c2ec9d058eaa94c6ab7c841ad3400180c9436feb543c6ef50ffa04c9a52b"
+    },
+    {
+      "bytes": 3796,
+      "path": "docs/v5x/v5.3/PHASE_3_CONTRACT_AMENDMENTS.md",
+      "sha256": "5dc044ddef43cc493b5b19210fb0622fbf3e1b491e41f5c76374dea9aaf56f59"
+    },
+    {
+      "bytes": 14848,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "d2c971a4e6d8bd55b18d38a1c14a7859842d35a7c6cae243a45a400fd1261c77"
+    },
+    {
+      "bytes": 5181,
+      "path": "docs/v5x/v5.3/PHASE_3_RETENTION_QUORUM.md",
+      "sha256": "1539efcf3f08fdf03a361a30fc3ef7b4ef3012ce7bc72683b7d3762f1ada3673"
+    },
+    {
+      "bytes": 126762,
+      "path": "docs/v5x/v5.3/byte-fixtures.json",
+      "sha256": "44b45489f08017c4ded2e97a0e6728816584ee62a10aa337ee9ed02fcac585ad"
+    },
+    {
+      "bytes": 26729,
+      "path": "docs/v5x/v5.3/format-catalog.json",
+      "sha256": "5b7becc22f33e0af1a3b1e5c623fbd3191d76499d6ade45d284285877408e2ef"
+    },
+    {
+      "bytes": 19791,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivation.java",
+      "sha256": "802c68d84bdb5164aad935205c84bf12381b4904627cae4d12d16cd8bc84171b"
+    },
+    {
+      "bytes": 18688,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "sha256": "08378c674f09da2bafc545607c1e0d13d3a410cab84b2ff5278ac3c516e2aed3"
+    },
+    {
+      "bytes": 12370,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFormat.java",
+      "sha256": "c3555d7ca72089e7710f42b6eb1238f2b7f8681404f4ba34bc097d30ae1e7884"
+    },
+    {
+      "bytes": 220659,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "61c7a008c68d5fd0feebd0f83d352f661af0c0b38e3da15bb491011a0c86e7f9"
+    },
+    {
+      "bytes": 15390,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionPlan.java",
+      "sha256": "c4bc485b665e571e0ed39b913cc8b37b9e2e5ae755c6e378d6942c16742bae5c"
+    },
+    {
+      "bytes": 1805,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetentionIntent.java",
+      "sha256": "42c84897e3eac12879b383ef3fc80d966c529ee851f927eb71b04d073bdd1984"
+    },
+    {
+      "bytes": 9305,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetentionQuorum.java",
+      "sha256": "d7173ed0077768e40058fa76777760ded4f8edfa9e8d64c0351df3352801952a"
+    },
+    {
+      "bytes": 14051,
+      "path": "general-search-engine-replication/src/main/resources/replication/membership-format-v13.json",
+      "sha256": "269cca899cfba92be78a8b2a30da496b4e5c80175495e907c572161876dae808"
+    },
+    {
+      "bytes": 14606,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapPublicationTest.java",
+      "sha256": "4ee8b61ac857d489ac802dfa5c65e5d3290a19f165a87e9d447c0b961b49090a"
+    },
+    {
+      "bytes": 7502,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FormatTest.java",
+      "sha256": "155f2f4e527eda367ab28fbcaa7d10f9fdee785d8bc3ddee05a07970a5989676"
+    },
+    {
+      "bytes": 17300,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalApplicationTest.java",
+      "sha256": "7849d481486aa20af569d7ac7db505d674d9a49173232fe44d6146664e95544b"
+    },
+    {
+      "bytes": 10394,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedCrossViewTest.java",
+      "sha256": "f191ac3379008bdb1721097069e3c27435c4127648283aa89f468f3f0528fefc"
+    },
+    {
+      "bytes": 4266,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetentionAckCrashTest.java",
+      "sha256": "a01ddbcbf0ed9e209b4421eda0c9969ba07561d4a3c9bf8ad4e2b16de68985d2"
+    },
+    {
+      "bytes": 2165,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetentionAckWorker.java",
+      "sha256": "983f49c90f985f9686334ba3e05d06362e5c4308295e24fb9503483b267b981f"
+    },
+    {
+      "bytes": 16556,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetentionQuorumTest.java",
+      "sha256": "4e3558946504c70737522c4b9f8e6ae3a87ff1dacfe18d5074cffc15f43a7955"
+    },
+    {
+      "bytes": 21420,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceExchangeTest.java",
+      "sha256": "9f196a835f747744752db38dc954b01d92ae8385aed88c3d6ccf64d646e325bd"
+    },
+    {
+      "bytes": 126762,
+      "path": "general-search-engine-replication/src/test/resources/replication/v53/byte-fixtures.json",
+      "sha256": "44b45489f08017c4ded2e97a0e6728816584ee62a10aa337ee9ed02fcac585ad"
+    },
+    {
+      "bytes": 23983,
+      "path": "scripts/v53/bootstrap_publication_evidence.py",
+      "sha256": "827ed5ad11c0f393d832383302e66de5d772f01c9cf8795e0cafd525b205bdb6"
+    },
+    {
+      "bytes": 19685,
+      "path": "scripts/v53/carried_publication_evidence.py",
+      "sha256": "03c4df8f89e5b073050c7c7a53c54404293fa1fd8ab7ac1fb57b17ed2956651a"
+    },
+    {
+      "bytes": 3154,
+      "path": "scripts/v53/contract_check.py",
+      "sha256": "531a001e27c8b837292bbe4176e33b46a4c60df7a677827f95747259afbcf917"
+    },
+    {
+      "bytes": 7315,
+      "path": "scripts/v53/format_fixture.py",
+      "sha256": "892fc4ecbf68b47b37001a6c4cb32e2f2a14825dfa6a46cb39e80abc1151401e"
+    },
+    {
+      "bytes": 3281,
+      "path": "scripts/v53/format_qualification.py",
+      "sha256": "1f9058260dca0c03848b917b93ea827fb94ca3a6ed7f17dc928ceedfeaf92646"
+    },
+    {
+      "bytes": 9096,
+      "path": "scripts/v53/peer_retention_evidence.py",
+      "sha256": "5c995a3b3c5572689a7a8343d4d039837ec862f2c0d29e3d0fe8d9c3ad79f5f7"
+    },
+    {
+      "bytes": 9374,
+      "path": "scripts/v53/peer_retention_source_evidence.py",
+      "sha256": "79962cf6d7653fcb91064fc5edcac56a28b07d952b97a9d646012c0c3060d220"
+    },
+    {
+      "bytes": 14308,
+      "path": "scripts/v53/retention_quorum_evidence.py",
+      "sha256": "4e332c58e1aff435110e480388af98b6e7a3c1132992b618f5df1aba48657520"
+    },
+    {
+      "bytes": 18059,
+      "path": "scripts/v53/selected_retention_evidence.py",
+      "sha256": "4f15a3aa696cc4d4a51e224d66f68ed61a2c0ab88fd10e68769cb20d751ef390"
+    },
+    {
+      "bytes": 5650,
+      "path": "scripts/v53/source_packet.py",
+      "sha256": "e11a76b10abb27146842d55d11c7cefbb76d6619fb5f8dbeeb013f37def9dfcf"
+    },
+    {
+      "bytes": 994,
+      "path": "scripts/v53/test_format_qualification.py",
+      "sha256": "298b2135360f5acbde766c25d686c00fd76452090e70f5c43509fe0aae628046"
+    },
+    {
+      "bytes": 2395,
+      "path": "scripts/v53/test_retention_quorum_evidence.py",
+      "sha256": "8c7770981b76d1ac068f83941e6e7fb5199677f475dc466d27a07abfd336fb00"
+    }
+  ],
+  "validation": {
+    "actualPeerDispatch": false,
+    "autonomousRuntime": false,
+    "currentSyntaxFixtures": 47,
+    "evidenceNegatives": 9,
+    "independentPrelude": {
+      "bootstrap": "EMPTY",
+      "crashCasesShareOnePrelude": true,
+      "crashVoters": 3,
+      "networkVoters": [
+        3,
+        3,
+        4,
+        5
+      ],
+      "publicationsPerHistory": 1
+    },
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53RetentionQuorumTest",
+        "tests": 6
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53RetentionAckCrashTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53FormatTest",
+        "tests": 5
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PeerRetentionPlanTest",
+        "tests": 6
+      }
+    ],
+    "javaTests": 18,
+    "killLockProbes": 5,
+    "originalFixtureBytesUnchanged": 45,
+    "phase3Complete": false,
+    "portableReplay": true,
+    "processCases": 10,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 655,
+    "retainedRawFiles": 5761,
+    "scope": "same-view-current-target-quorum",
+    "separateJavaOnly": [
+      "bounded failure threshold",
+      "deadline and malformed ACK rejection",
+      "late-future close cancellation",
+      "duplicate after real-copy narrowing",
+      "native higher-ballot fence between force and ACK",
+      "invalid request and wrong resource owner"
+    ],
+    "stableNativeNetworkHistories": 4,
+    "status": "PASS"
+  }
+}

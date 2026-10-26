@@ -8,6 +8,12 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+The latest [native current-target retention quorum](PHASE_3_RETENTION_QUORUM.md)
+adds dedicated forced intent/ACK exchanges under [A04](PHASE_3_CONTRACT_AMENDMENTS.md).
+Its native network and process evidence covers already-current same-view targets.
+It does not close automatic dispatch, future-publication retention, the complete
+offline-survivor history, joint transition or any remaining 3B–3E requirement.
+
 | Batch | Deliverable | Frozen obligations | Closure evidence still required |
 | --- | --- | --- | --- |
 | 3A | [Private durable activation](PHASE_3_ACTIVATION.md), locally qualified | S02, S07, S09, S10; N04/N05/N08–N11/N17/N18 feed into later complete gates | Own grant, fixed eligible sources, exact installations, retries/deadline/fencing pass component checks; complete network/process qualification remains 3B/3E |

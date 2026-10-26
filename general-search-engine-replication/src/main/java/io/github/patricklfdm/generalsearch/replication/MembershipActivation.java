@@ -216,7 +216,7 @@ final class MembershipActivation implements AutoCloseable {
     private void clearExchanges(){exchanges.values().forEach(Exchange::close);exchanges.clear();}
     @Override public void close(){abandon();state=State.CLOSED;}
 
-    private static Decoded frame(String kind,MembershipContext context,MembershipIdentity sender,MembershipIdentity recipient,
+    static Decoded frame(String kind,MembershipContext context,MembershipIdentity sender,MembershipIdentity recipient,
             Map<String,Object> ballot,UUID trace,long sequence,Map<String,Object> payload) {
         return decode(encode("wire",kind,Map.of("root",context.root,"view",context.authority(),"sender",MembershipBootstrapSeed.identity(sender),
                 "recipient",MembershipBootstrapSeed.identity(recipient),"ballot",ballot,"trace",trace.toString(),"sequence",sequence,"payload",payload)),"wire",kind);

@@ -206,6 +206,11 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         long received=clock.getAsLong();require(!closed,"activation endpoint closed");String kind=request.kind();Scope active;
+        if(kind.equals("RETENTION_INTENT")) {
+            scratchOwner.check();var reply=owner.recordPeerRetention(sender,request);
+            long elapsed=clock.getAsLong()-received;
+            require(!closed && elapsed>=0 && elapsed<budget,"retention endpoint closed/original deadline");return reply;
+        }
         if(kind.equals("STATUS_PROBE")) {
             // Discovery must work before a grant and after an obsolete campaign
             // ends. It neither enters/revives that scope nor observes a promise.

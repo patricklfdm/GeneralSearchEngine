@@ -123,6 +123,23 @@ final class MembershipPeerRetentionPlan {
         var next=new TreeMap<>(peers);next.put(peer.nodeId().value(),new Peer(peer,List.of(old.getFirst(),current.terminal())));
         return new MembershipPeerRetentionPlan(root,view,next);
     }
+    /** Conservative remote intent at this owner's already authenticated current
+     * target. A locally confirmed newer endpoint need not be regressed by a late
+     * identical request. Imported claims alone can never discard a lower point. */
+    MembershipPeerRetentionPlan recordDispatch(MembershipCapsule current,byte[] ancestry,MembershipIdentity peer,
+            MembershipCapsule.Anchor lower,MembershipCapsule.Anchor upper) {
+        context(current,ancestry,true);var old=possible(peer);
+        require(upper.equals(current.terminal()) && index(lower)<index(upper),"retention intent exact advancing target");
+        current.verifyAncestry(ancestry,List.of(lower,upper));
+        var points=new TreeMap<Long,MembershipCapsule.Anchor>();old.forEach(a->points.put(index(a),a));
+        for(var anchor:List.of(lower,upper)) {
+            if(index(anchor)<points.firstKey())continue;
+            var existing=points.putIfAbsent(index(anchor),anchor);
+            require(existing==null || existing.equals(anchor),"retention intent conflicting endpoint");
+        }
+        var next=new TreeMap<>(peers);next.put(peer.nodeId().value(),new Peer(peer,List.copyOf(points.values())));
+        return new MembershipPeerRetentionPlan(root,view,next);
+    }
     private static void copy(MembershipCapsule current,byte[] ancestry,MembershipFloor.Copy copy) {
         Objects.requireNonNull(copy).check();
         require(copy.capsule.context.root.equals(current.context.root) && copy.owner.equals(current.context.identities.get(copy.owner.nodeId().value()))

@@ -477,6 +477,46 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized MembershipPeerRetentionFiles.State reconcilePeerRetention(List<MembershipFloor.Copy> joining)throws IOException {
         var plan=peerRetentionState().plan();return retainPeerPlan(plan.reconcile(current.capsule,current.ancestry(),joining));
     }
+    synchronized void checkRetentionResources(MembershipResources budget)throws IOException {
+        require(resources==budget,"retention requires actual storage resource owner");peerRetentionState();
+    }
+    /** No dispatch permission: construct a bounded request under the actual
+     * installed round. A pending identical target can be resumed after lost ACKs. */
+    synchronized MembershipRetentionIntent peerRetentionIntent(MembershipIdentity peer,Map<String,Object> ballot)throws IOException {
+        var state=peerRetentionState();checkRetentionRound(ballot,null);
+        require(!peer.equals(identity),"retention intent self dispatch");var possible=state.plan().possible(peer);
+        require(possible.size()==1 || possible.getLast().equals(current.capsule.terminal()),"retention intent different unresolved target");
+        return new MembershipRetentionIntent(Map.of("selection",current.manifest.value().get("selection"),
+                "peer",MembershipPeerRetentionPlan.identity(peer),"lower",MembershipRetentionIntent.anchor(possible.getFirst()),
+                "upper",MembershipRetentionIntent.anchor(current.capsule.terminal())));
+    }
+    private void checkRetentionRound(Map<String,Object> ballot,MembershipRetentionIntent intent)throws IOException {
+        checkActivationBallot(current.capsule.context.authority(),ballot);
+        var selected=current.selectedRecord().orElseThrow(()->new IllegalArgumentException("retention intent installed selection required"));
+        require(selected.value().get("ballot").equals(ballot) && promise!=null && promise.value().get("ballot").equals(ballot)
+                && promise.digest().equals(current.manifest.value().get("promise")),"retention intent inactive round");
+        if(intent!=null)require(intent.payload.get("selection").equals(selected.digest()) && intent.upper.equals(current.capsule.terminal()),"retention intent changed selected target");
+    }
+    /** Atomic force under the original native fence. The ACK is not a vote or a
+     * completed peer installation. A higher observed PREPARE fences the reply. */
+    synchronized Decoded recordPeerRetention(MembershipIdentity sender,Decoded request)throws IOException {
+        require(request.kind().equals("RETENTION_INTENT"),"retention request kind");peerRetentionState();
+        var value=request.value();var ballot=object(value.get("ballot"));
+        current.capsule.context.wire(request,sender,identity,ballot,UUID.fromString((String)value.get("trace")),number(value.get("sequence")));
+        require(sender.nodeId().value().equals(ballot.get("proposer")),"retention intent requires current proposer");
+        var intent=new MembershipRetentionIntent(object(value.get("payload")));checkRetentionRound(ballot,intent);
+        var plan=peerRetention.state().plan().recordDispatch(current.capsule,current.ancestry(),intent.peer,intent.lower,intent.upper);
+        if(!Arrays.equals(plan.bytes(),peerRetention.state().plan().bytes()))retainPeerPlan(plan);
+        checkRetentionRound(ballot,intent);cut.at("RETENTION_ACK_BEFORE_RETURN");checkRetentionRound(ballot,intent);
+        var response=new TreeMap<>(value);response.put("sender",value.get("recipient"));response.put("recipient",value.get("sender"));
+        var state=peerRetention.state();response.put("payload",Map.of("intent",intent.digest,"revision",state.revision(),"ledger",state.digest()));
+        return decode(encode("wire","RETENTION_ACK",response),"wire","RETENTION_ACK");
+    }
+    synchronized void checkPeerRetentionDispatch(MembershipRetentionIntent intent,Map<String,Object> ballot)throws IOException {
+        peerRetentionState();checkRetentionRound(ballot,intent);
+        var points=peerRetention.state().plan().possible(intent.peer);
+        require(points.stream().anyMatch(intent.upper::equals),"retention intent target no longer retained");
+    }
 
     /** Resolve only an already retained proven prefix. Raw incoming or newly published
      * prefixes require their own typed proof path; no catch-and-trust fallback exists. */
