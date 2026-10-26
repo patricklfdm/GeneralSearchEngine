@@ -20,7 +20,17 @@ class V53AdmittedCrossViewTest {
             void before(MembershipBootstrapTarget<Integer,Doc> target,MembershipFloor.Copy remote)throws Exception;
         }
         BeforeAdoption beforeAdoption=(target,remote)->{};
-        Walk(V53BootstrapPublicationTest.Fixture f)throws Exception {this.f=f;active=f.request.targets();f.campaign(1);}
+        @FunctionalInterface interface Adoption {
+            void adopt(MembershipBootstrapTarget<Integer,Doc> target,MembershipFloor.Copy remote,Map<String,byte[]> images,int number)throws Exception;
+        }
+        Adoption adoption;
+        Walk(V53BootstrapPublicationTest.Fixture f)throws Exception {
+            this.f=f;active=f.request.targets();f.campaign(1);
+            adoption=(target,remote,images,number)->{try(var owner=f.open(target,"removed-adopt-"+number)) {
+                var manifest=owner.adoptCurrent(remote.capsule.packet,images,List.of());
+                assertArrayEquals(manifest.bytes(),owner.adoptCurrent(remote.capsule.packet,images,List.of()).bytes());
+            }};
+        }
         MembershipContext current()throws Exception {
             try(var owner=f.open(active.getFirst(),"inspect-context")){return owner.floorCopyCurrent().capsule.context;}
         }
@@ -132,10 +142,7 @@ class V53AdmittedCrossViewTest {
             try(var owner=f.open(active.getFirst(),"removal-source-"+number)){remote=owner.floorCopyCurrent();}
             var images=new TreeMap<String,byte[]>();for(String h:remote.capsule.packet.images().keySet())images.put(h,remote.fileBytes(h+".image"));
             beforeAdoption.before(removed,remote);
-            try(var owner=f.open(removed,"removed-adopt-"+number)) {
-                var manifest=owner.adoptCurrent(remote.capsule.packet,images,List.of());
-                assertArrayEquals(manifest.bytes(),owner.adoptCurrent(remote.capsule.packet,images,List.of()).bytes());
-            }
+            adoption.adopt(removed,remote,images,number);
             f.snapshot("removed-"+number+"-adopted");
             var before=V53ReplayFilesTest.files(removed.replicaDirectory());
             try(var owner=f.open(removed,"removed-refusal-"+number)) {

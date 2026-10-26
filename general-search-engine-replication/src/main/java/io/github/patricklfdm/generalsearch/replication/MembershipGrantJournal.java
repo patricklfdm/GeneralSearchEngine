@@ -1785,13 +1785,20 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Certificate-derived root fence only. Prefix installation and any vote remain separate operations. */
     synchronized Decoded fenceMembershipPrefix(MembershipSourcePacket packet,Map<String,byte[]> images,List<MembershipSelection.Bridge> bridges) throws IOException {
+        require(current!=null && inactive!=null,"generation owner required");checkOwner();
+        var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        var incoming=Objects.requireNonNull(capsuleVerifier.verify(localRoot,packet,images));
+        require(Arrays.equals(incoming.packet.bytes(),packet.bytes()),"adoption verifier substituted source");
+        return fenceMembershipPrefix(incoming,images,bridges);
+    }
+    /** Accept only an already authenticated complete history; raw incoming bytes still
+     * require the original verifier. Historical proof never supplies a fresh vote. */
+    synchronized Decoded fenceMembershipPrefix(MembershipCapsule incoming,Map<String,byte[]> images,List<MembershipSelection.Bridge> bridges) throws IOException {
         require(pendingAccept==null || pendingAccept.active()==null,"pending ACCEPT requires covered-prefix publication before adoption");
         require(current!=null && inactive!=null,"generation owner required");checkOwner();rotationIdle();
         require(!inactive.pending() && !(inactive.exists() && !current.adopted && current.manifest.value().get("selection")==null)
                 && !inactive.incompleteOrSelected(selection==null?null:selection.digest(),number(current.capsule.context.cut.get("index"))),"pending generation installation must finish before adoption");floorIdle();
-        var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
-        var incoming=Objects.requireNonNull(capsuleVerifier.verify(localRoot,packet,images));
-        require(Arrays.equals(incoming.packet.bytes(),packet.bytes()),"adoption verifier substituted source");
+        checkIncomingHistory(incoming,images);
         var ancestry=new java.io.ByteArrayOutputStream();require(bridges.size()<=6,"adoption ancestry count");
         for(var bridge:bridges){ancestry.writeBytes(bridge.statement.bytes());for(var ack:bridge.acknowledgements)ancestry.writeBytes(ack.bytes());}
         incoming.verifyAncestry(ancestry.toByteArray(),List.of(current.capsule.terminal()));
@@ -1810,11 +1817,18 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Adopts authenticated membership state, without granting a vote, installation ACK or READY. */
     synchronized Decoded adoptCurrent(MembershipSourcePacket packet,Map<String,byte[]> images,List<MembershipSelection.Bridge> bridges) throws IOException {
-        require(pendingAccept==null || pendingAccept.active()==null,"pending ACCEPT requires covered-prefix publication before adoption");
-        require(current!=null && inactive!=null,"generation owner required");checkOwner();floorIdle();
+        require(current!=null && inactive!=null,"generation owner required");checkOwner();
         var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
         var incoming=Objects.requireNonNull(capsuleVerifier.verify(localRoot,packet,images));
-        require(Arrays.equals(incoming.packet.bytes(),packet.bytes()),"adoption verifier substituted source");packet.verifyImages(images);
+        require(Arrays.equals(incoming.packet.bytes(),packet.bytes()),"adoption verifier substituted source");
+        return adoptCurrent(incoming,images,bridges);
+    }
+    /** Native adoption receives a typed proof from complete verified local or network
+     * history. It preserves all local ancestry, tail, fence and install obligations. */
+    synchronized Decoded adoptCurrent(MembershipCapsule incoming,Map<String,byte[]> images,List<MembershipSelection.Bridge> bridges) throws IOException {
+        require(pendingAccept==null || pendingAccept.active()==null,"pending ACCEPT requires covered-prefix publication before adoption");
+        require(current!=null && inactive!=null,"generation owner required");checkOwner();floorIdle();
+        checkIncomingHistory(incoming,images);var packet=incoming.packet;
         var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
         for(var original:bases.values()) {
             var cap=sources.original(original).packet().capsule().value();
@@ -1854,6 +1868,13 @@ final class MembershipGrantJournal implements AutoCloseable {
             inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(bound);},current::check,cut);
             reloadGenerations();cut.at("ADOPTION_INSTALL_BEFORE_RETURN");checkOwner();fence(bound);return current.manifest;
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
+    }
+    private void checkIncomingHistory(MembershipCapsule incoming,Map<String,byte[]> images)throws IOException {
+        Objects.requireNonNull(incoming);
+        var localRoot=AdmissionPaths.read(directory.resolve("root.gsr"),16384);
+        require(incoming.context.root.equals(root.manifestDigest())
+                && Arrays.equals(localRoot,incoming.packet.objectBytes(incoming.context.recordRootDigest())),"adoption historical root differs");
+        incoming.packet.verifyImages(images);
     }
     /** Observation of this owner's forced original grant, not an assertion of remote force. */
     synchronized MembershipSelection.Source originalSource() throws IOException {

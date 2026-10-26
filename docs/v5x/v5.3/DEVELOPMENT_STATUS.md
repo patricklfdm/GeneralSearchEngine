@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B native cross-view adoption
+
+The [native cross-view batch](PHASE_3_OWNED_CROSS_VIEW.md) connects authenticated
+complete received history to the actual storage owner's original adoption/fence
+rules. Four public-bootstrap histories cover 5→4→3 and 4→3 with EMPTY and backup
+sources. Six removed nodes acquire the original prefix and ancestry over TCP,
+adopt it, then reopen in new JVMs and refuse further voting. Unknown raw packets,
+foreign roots and changed images remain rejected. Historical copies create no
+new voter observations or installation acknowledgement.
+
+Java qualification passes 63 tests across eight suites, including 38 repeated
+halt/SIGKILL recovery cases and 19 lock probes. Complete normal/optimized/portable
+physical replay and 22 evidence negatives agree; 23 focused Python tests pass in
+normal and optimized modes. The [receipt](phase3-evidence/owned-cross-view.json)
+binds the exact build and evidence inventories, distinguishes the two Java build
+snapshots and retains earlier failed attempts. This is component qualification,
+not complete Phase 3 acceptance.
+
+Autonomous election/discovery scheduling, native pending-context turnover,
+learner ADD/REPLACE and joint completion, generalized distributed publication and
+the complete Phase 3 audit remain open. Public membership is still disabled.
+
 ## 2026-10-26 — Phase 3B owner-bound recovery and continuation
 
 The [native owner recovery batch](PHASE_3_OWNED_RECOVERY.md) opens the private

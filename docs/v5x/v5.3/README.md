@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Native cross-view adoption](PHASE_3_OWNED_CROSS_VIEW.md) now exercises verified
+TCP prefix acquisition, original storage adoption and removed-node reopening
+through actual public-bootstrap REMOVE histories. Independent original-first,
+optimized and portable replay pass. Autonomous elections, native pending contexts, learners/joint
+completion and the full Phase 3 gate remain open.
+
 [Owner-bound recovery and continuation](PHASE_3_OWNED_RECOVERY.md) connects the
 private storage owner to its original selected/source/floor/inactive/retirement
 history, including fresh-process grants and phased publication. Automatic

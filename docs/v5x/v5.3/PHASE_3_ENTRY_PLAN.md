@@ -94,6 +94,15 @@ and fresh-process grants are qualified separately from cross-configuration pendi
 contexts, automatic adoption/elections and complete runtime integration. Its
 component evidence does not close the remaining 3B–3E obligations.
 
+[Native cross-view adoption](PHASE_3_OWNED_CROSS_VIEW.md) now connects a complete
+verified history to the existing native owner's fence/adoption transaction.
+Actual 5→4→3 and 4→3 EMPTY/backup histories acquire the newer original over TCP;
+removed nodes reopen and reject new voting. All 19 installation boundaries have
+halt/SIGKILL recovery checks. Campaigns and votes are still explicitly test-driven.
+The source-bound local batch qualification includes independent portable replay;
+autonomous election and native pending-context ownership remain 3B obligations. Learner/joint delivery,
+generalized publication and the complete 3C–3E gates remain required.
+
 ## First batch boundary
 
 The subsequent [retained-copy verifier](PHASE_3_RETAINED_PROVENANCE.md) separates
