@@ -32,7 +32,13 @@ final class MembershipSourceReceive implements AutoCloseable {
     MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Decoded promise,Decoded basis,
             UUID session,MembershipSourceExport.Content offer,MembershipResources resources,int chunkLimit,
             LongSupplier clock,long started,long budget)throws IOException {
+        this(directory,root,source,promise,basis,session,UUID.randomUUID(),offer,resources,chunkLimit,clock,started,budget);
+    }
+    MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Decoded promise,Decoded basis,
+            UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,int chunkLimit,
+            LongSupplier clock,long started,long budget)throws IOException {
         MembershipValidation.digest(root);MembershipValidation.uuid(session);
+        MembershipValidation.uuid(packetTransfer);
         require(promise.family().equals("records") && promise.kind().equals("PROMISE")
                 && basis.family().equals("records") && basis.kind().equals("BASIS"),"receive original record kinds");
         for(String field:List.of("root","view","ballot","basisId"))require(Objects.equals(promise.value().get(field),basis.value().get(field)),"receive original grant binding");
@@ -48,7 +54,7 @@ final class MembershipSourceReceive implements AutoCloseable {
         try{Files.createDirectory(this.directory);key=MembershipBasisSources.key(this.directory);}
         catch(IOException|RuntimeException|Error error){records.close();throw error;}
         directoryKey=key;
-        try{create(offer,"source.gscp",MembershipResources.Unit.SOURCE);check();}
+        try{create(offer,"source.gscp",MembershipResources.Unit.SOURCE,packetTransfer);check();}
         catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
     private void time(){long elapsed=clock.getAsLong()-started;if(elapsed<0 || elapsed>=budget){failed=true;throw new IllegalArgumentException("original source receive deadline");}}
@@ -62,11 +68,14 @@ final class MembershipSourceReceive implements AutoCloseable {
         require(!closed && !failed,"source receive closed/failed");
         try{time();directory();}catch(IOException|RuntimeException error){failed=true;throw error;}
     }
-    private MembershipTransfer.Binding binding(MembershipSourceExport.Content content) {
-        return new MembershipTransfer.Binding(root,session,UUID.randomUUID(),source,basisId,basis.digest(),cut,content.digest(),content.bytes(),content.kind());
+    private MembershipTransfer.Binding binding(MembershipSourceExport.Content content,UUID id) {
+        return new MembershipTransfer.Binding(root,session,id,source,basisId,basis.digest(),cut,content.digest(),content.bytes(),content.kind());
     }
     private void create(MembershipSourceExport.Content offer,String name,MembershipResources.Unit unit)throws IOException {
-        var binding=binding(offer);
+        create(offer,name,unit,UUID.randomUUID());
+    }
+    private void create(MembershipSourceExport.Content offer,String name,MembershipResources.Unit unit,UUID id)throws IOException {
+        var binding=binding(offer,id);
         var file=new MembershipReceiveFile(directory.resolve(name),binding,resources,unit,chunkLimit,clock,started,budget,MembershipReceiveFile.Events.NONE);
         files.put(name,file);bindings.put(name,binding);
     }

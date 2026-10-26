@@ -1,0 +1,139 @@
+{
+  "schema": "gse-v53-phase3-source-exchange-local-v1",
+  "status": "PASS",
+  "date": "2026-10-25",
+  "sourceParent": "2cc4214f1d2b46453429a74afa73abf79346ab79",
+  "scope": "complete original-source delivery over actual loopback TCP",
+  "publicRuntime": false,
+  "fullPhase3Qualification": false,
+  "protectedCI": false,
+  "paidCloud": false,
+  "java": {
+    "tests": 43,
+    "suites": 7,
+    "newExchangeTests": 14,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "realAdmittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "idReuseRegressionFailsBeforeFix": true
+  },
+  "python": {
+    "normal": 545,
+    "optimized": 545
+  },
+  "replay": {
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "negativeCases": 13,
+    "realNetwork": true,
+    "orderedExchanges": 45,
+    "originalFiles": 598,
+    "originalBytes": 760244
+  },
+  "sourceInputs": {
+    "path": "target/v53-source-exchange/qualified-source-inputs.json",
+    "bytes": 261595,
+    "sha256": "d4cca56be86fa1d8386d8b318ddfca06aa7c8961b57bf7d8b864efc2891d7478"
+  },
+  "buildInputs": {
+    "path": "target/v53-source-exchange/build-inputs.json",
+    "bytes": 195882,
+    "sha256": "5ad4869879d2d1ce91de52972a133fe276ae07ecf297a2d7751ed4c06557a641"
+  },
+  "artifacts": [
+    {
+      "path": "target/v53-source-exchange/core.jar",
+      "bytes": 860591,
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "path": "target/v53-source-exchange/replication.jar",
+      "bytes": 1199806,
+      "sha256": "c893f214e085fe65f2e88689abe28ca6f01118db6a22ccf544f0c7552ed26427"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-source-exchange/java-reports.json",
+      "bytes": 1368,
+      "sha256": "8d03873cfa3d08a0185ba451b9b7676af98d6be3c7cc8c8c1e3ed0d49a88dd20"
+    },
+    {
+      "path": "target/v53-source-exchange/first-tests.log",
+      "bytes": 5768,
+      "sha256": "b4191665c6305703c7a41b7deb00cd8efa96d22ea1c6d57b85d0a71bdabb2f41"
+    },
+    {
+      "path": "target/v53-source-exchange/qualification-tests.log",
+      "bytes": 6453,
+      "sha256": "c44c2582f44e1fa17ed483ae0d55130139b1318dfa2108b456936c8f24adce8f"
+    },
+    {
+      "path": "target/v53-source-exchange/python.log",
+      "bytes": 646,
+      "sha256": "3f5807fb6a34c28df3c1eb3ca4f27ddcb48d10dfc444903fa5d1fae296f01913"
+    },
+    {
+      "path": "target/v53-source-exchange/python-optimized.log",
+      "bytes": 646,
+      "sha256": "f70d3fe2649b9a2b1584e871315825efe5770397adf6a2c8c369c3e25ff436f4"
+    },
+    {
+      "path": "target/v53-source-exchange/replay.json",
+      "bytes": 1478,
+      "sha256": "0c99e65ea564a74577dda0173b0f704ad7fbbebcd1ba933f3b6d85b50ea5443d"
+    },
+    {
+      "path": "target/v53-source-exchange/replay-optimized.json",
+      "bytes": 1478,
+      "sha256": "0c99e65ea564a74577dda0173b0f704ad7fbbebcd1ba933f3b6d85b50ea5443d"
+    },
+    {
+      "path": "target/v53-source-exchange/replay-portable.json",
+      "bytes": 1478,
+      "sha256": "0c99e65ea564a74577dda0173b0f704ad7fbbebcd1ba933f3b6d85b50ea5443d"
+    },
+    {
+      "path": "target/v53-source-exchange/receive-replay.json",
+      "bytes": 1229,
+      "sha256": "e79d15161b6e11554592501653529551eaac8e616f6111e4c577403cca4a4133"
+    },
+    {
+      "path": "target/v53-source-exchange/raw-inventory.json",
+      "bytes": 150800,
+      "sha256": "fde0a7991fb201084828a3c71a51acbed9f9972779ac1b14a65a82f80b6aca4c"
+    }
+  ],
+  "retainedFailures": [
+    {
+      "path": "target/v53-source-exchange/id-reuse-before.log",
+      "bytes": 7650,
+      "sha256": "1be71612d01060d1deb391d9a560264d6354ebf8367e965d20683339e0c4101c"
+    },
+    {
+      "path": "target/v53-source-exchange/id-reuse-before-inputs.json",
+      "bytes": 451083,
+      "sha256": "adb8c45faee05a1892450feba2b84e55c05125fcb3333c09b9939e08684bdcd8"
+    },
+    {
+      "path": "target/v53-source-exchange/pre-id-reuse-replication.jar",
+      "bytes": 1199717,
+      "sha256": "af229593ced4cd3f68bff8e42dc0fd7f2f5489e7a035637a655a7700bb219f59"
+    }
+  ],
+  "limits": [
+    "Trusted private authentic identities; no TLS/Byzantine claim",
+    "No remote Owned observations or installation/voting ACK from received bytes",
+    "Automatic activation, referenced voting records, discovery/adoption and scratch restart recovery remain open",
+    "Registered source/reader must use compatible chunk limits; the wire does not negotiate them",
+    "No maximum-envelope network timing, public runtime or complete S/N family claim",
+    "Local Ubuntu JDK; no protected or cloud execution"
+  ],
+  "buildWorkspace": "/tmp/gse-v53-source-exchange-a0kvlrme"
+}

@@ -1,5 +1,25 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3B complete original-source exchange
+
+The [source exchange component](PHASE_3_SOURCE_EXCHANGE.md) now fetches actual
+original BASIS/PROMISE records, packet and declared images through frozen
+SOURCE_OFFER/CHUNK/TRANSFER_COMMIT frames. A bounded per-peer session retains the
+last exact response for lost-reply retries, prevents transfer-ID reuse and owns
+its original source export. The pull checks exact framing/context, original
+deadline, live fencing guard and stricter caller limits; it cleans up failed or
+cancelled scratch without changing source authority.
+
+43 focused Java tests and 545 Python tests in both modes pass. The three-size
+real TCP trace has 45 ordered exchanges and passes independent physical/wire replay,
+13 exact negatives and relocated replay. A transfer-ID reuse regression failed on
+the earlier implementation and passes after the correction; the
+[receipt](phase3-evidence/source-exchange.json) retains both outcomes. Generic
+voting-record service, automatic activation integration, root-bound newer-prefix
+discovery/adoption, source rotation and abandoned-scratch recovery remain open,
+as do learner/joint completion and distributed S/N acceptance. This is not Phase 3
+closure, protected CI, cloud or maximum-envelope performance acceptance.
+
 ## 2026-10-25 — Phase 3B complete source scratch
 
 The [receiving component](PHASE_3_SOURCE_RECEIVE.md) stages an exact packet and all

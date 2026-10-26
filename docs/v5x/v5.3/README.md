@@ -4,7 +4,8 @@
 Phase 3's [first activation batch](PHASE_3_ACTIVATION.md) and subsequent
 [TCP transport](PHASE_3_TRANSPORT.md) and
 [original source export lifetime](PHASE_3_SOURCE_EXPORT.md) and
-[complete source receiving scratch](PHASE_3_SOURCE_RECEIVE.md) components are locally qualified;
+[complete source receiving scratch](PHASE_3_SOURCE_RECEIVE.md), plus their
+[complete source exchange](PHASE_3_SOURCE_EXCHANGE.md), are locally qualified;
 no V5.3 runtime, release, protected CI or cloud acceptance is claimed.
 
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
