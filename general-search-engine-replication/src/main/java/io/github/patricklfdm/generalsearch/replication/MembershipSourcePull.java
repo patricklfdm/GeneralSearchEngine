@@ -14,6 +14,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipSourcePull implements AutoCloseable {
     @FunctionalInterface interface Link {CompletableFuture<Decoded> exchange(MembershipIdentity peer,Decoded request,String kind,long deadline);}
     @FunctionalInterface interface Guard {void check()throws IOException;}
+    @FunctionalInterface interface RecordVerifier {void verify(Decoded original)throws IOException;}
     private record Offer(UUID id,MembershipSourceExport.Content content) {}
     private record Record(Decoded value,MembershipResources.Lease lease)implements AutoCloseable {
         @Override public void close(){lease.close();}
@@ -33,6 +34,7 @@ final class MembershipSourcePull implements AutoCloseable {
     private volatile boolean closed;
     private CompletableFuture<Decoded> pending;
     private MembershipSourceReceive received;
+    private Record receivedRecord;
 
     MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,
             MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget) {
@@ -105,6 +107,13 @@ final class MembershipSourcePull implements AutoCloseable {
         require(exchange(request("TRANSFER_COMMIT",p),"TRANSFER_COMMIT").value().get("payload").equals(p),"source transfer commit binding");
     }
     private Record record(String reference,String kind)throws IOException {
+        return record(reference,kind,value->{
+            require(value.value().get("view").equals(context.authority()) && value.value().get("ballot").equals(ballot),"referenced grant root/view/ballot");
+            if(kind.equals("BASIS"))require(value.value().get("voter").equals(source.nodeId().value()),"referenced basis source identity");
+        });
+    }
+    private Record record(String reference,String kind,RecordVerifier verifier)throws IOException {
+        require(MembershipRecordExport.KINDS.contains(kind),"referenced record kind");
         var offer=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.RECORD,reference,null);
         require(offer.content.bytes()<=number(object(object(CATALOG.get("records")).get(kind)).get("maximum")),"referenced record kind capacity");
         var lease=resources.reserve(MembershipResources.Unit.CONTROL,"source-record-"+UUID.randomUUID(),offer.content.bytes());
@@ -112,11 +121,22 @@ final class MembershipSourcePull implements AutoCloseable {
             byte[] bytes=new byte[Math.toIntExact(offer.content.bytes())];int offset=0;
             while(offset<bytes.length){byte[] part=chunk(offer,offset);System.arraycopy(part,0,bytes,offset,part.length);offset+=part.length;}
             require(hash(bytes).equals(reference),"referenced record digest");Decoded value=decode(bytes,"records",kind);
-            require(value.value().get("root").equals(context.root) && value.value().get("view").equals(context.authority())
-                    && value.value().get("ballot").equals(ballot),"referenced grant root/view/ballot");
-            if(kind.equals("BASIS"))require(value.value().get("voter").equals(source.nodeId().value()),"referenced basis source identity");
+            require(value.value().get("root").equals(context.root),"referenced record root");verifier.verify(value);
             commit(offer);check();return new Record(value,lease);
         }catch(IOException|RuntimeException|Error error){lease.close();throw error;}
+    }
+    /** Borrowed actual bytes, not an Owned receipt. The protocol must validate its expected
+     * context/parent/phase before commit; carried records may have an older original ballot. */
+    Decoded fetchRecord(String reference,String kind,RecordVerifier verifier)throws IOException {
+        Objects.requireNonNull(verifier);
+        synchronized(this){require(!used && !closed,"source pull single use");used=true;}
+        Record result=null;
+        try {
+            result=record(reference,kind,verifier);
+            synchronized(this){check();receivedRecord=result;return result.value;}
+        }catch(IOException|RuntimeException|Error error){
+            if(result!=null)result.close();try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;
+        }
     }
     private void receiveFile(MembershipSourceReceive receiver,MembershipTransfer.Binding binding,Offer offer)throws IOException {
         require(binding.transfer().equals(offer.id) && binding.digest().equals(offer.content.digest()) && binding.bytes()==offer.content.bytes(),"source file offer binding");
@@ -148,6 +168,7 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     @Override public synchronized void close()throws IOException {
         closed=true;if(pending!=null)pending.cancel(true);
+        if(receivedRecord!=null){receivedRecord.close();receivedRecord=null;}
         if(received!=null){received.close();received=null;}
     }
 }

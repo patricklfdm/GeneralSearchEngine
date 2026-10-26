@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3B original referenced records
+
+The [record exchange](PHASE_3_RECORD_EXCHANGE.md) serves seven typed record kinds
+from actual retained journal/vote/current-packet storage. It shares bounded source
+sessions, original deadlines and exact retries; semantic validation precedes
+transfer commit. Physical retirement, expiry and owner closure revoke reads.
+A real TCP PREPARE handler obtains the proposer's actual PROMISE before forcing
+its own grant. Received bytes never manufacture remote voting observations.
+
+51 focused Java tests across eight suites and 548 Python tests in both modes pass.
+Three actual bootstrap sizes produce 15 record-transfer and three PREPARE exchanges;
+independent original-first, 13 negative and portable replays pass. Existing source,
+export and activation replays also pass. A regression first reproduced missing
+access to published records after pending-vote retirement; the corrected lookup
+and final-source tests pass. The [receipt](phase3-evidence/record-exchange.json)
+retains that failure and earlier build setup errors separately.
+
+Production dispatch/session ownership, full activation, newer-prefix discovery and
+adoption, source rotation, scratch recovery, learner/joint completion and distributed
+qualification remain open. No public runtime, protected CI or cloud acceptance.
+
+
 ## 2026-10-25 — Phase 3B complete original-source exchange
 
 The [source exchange component](PHASE_3_SOURCE_EXCHANGE.md) now fetches actual

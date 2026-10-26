@@ -47,6 +47,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private int applicationMetadata;
     private MembershipResources.Lease publicationImage;
     private final Set<MembershipSourceExport> sourceExports=new HashSet<>();
+    private final Set<MembershipRecordExport> recordExports=new HashSet<>();
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -1731,6 +1732,44 @@ final class MembershipGrantJournal implements AutoCloseable {
         expireSourceExports();require(sourceExports.contains(export),"source export closed/expired");
     }
     synchronized void releaseSourceExport(MembershipSourceExport export){sourceExports.remove(export);export.revoke();}
+    /** A bounded live borrow from forced storage; never accepts caller-supplied record bytes. */
+    synchronized MembershipRecordExport exportRecord(String digest,String kind,Map<String,Object> exchangeBallot,
+            LongSupplier clock,long started,long budget)throws IOException {
+        require(budget>0 && budget<Long.MAX_VALUE/2,"record export time budget");Objects.requireNonNull(clock);
+        require(current!=null && resources!=null,"record export storage owner required");checkOwner();
+        expireRecordExports();current.capsule.context.ballot(exchangeBallot,true);
+        var record=retainedRecord(digest,kind);
+        var export=new MembershipRecordExport(this,current.capsule.context,identity,exchangeBallot,record,resources,clock,started,budget);
+        recordExports.add(export);
+        try{checkRecordExport(export);return export;}
+        catch(IOException|RuntimeException|Error error){releaseRecordExport(export);throw error;}
+    }
+    /** Lookup only retained journal, complete active vote or verified current packet, never a candidate file. */
+    private Decoded retainedRecord(String digest,String kind) {
+        require(digest!=null && digest.matches("[0-9a-f]{64}") && MembershipRecordExport.KINDS.contains(kind),"record export reference/kind");
+        for(var values:List.of(promises.values(),bases.values(),selections.values()))for(var value:values)
+            if(value.kind().equals(kind) && value.digest().equals(digest))return value;
+        if(pendingAccept!=null && !pendingAccept.pending() && pendingAccept.active()!=null) {
+            var vote=pendingAccept.active();
+            for(var value:Arrays.asList(vote.promise(),vote.selected(),vote.entry(),vote.accept(),vote.proof(),vote.certificate()))
+                if(value!=null && value.kind().equals(kind) && value.digest().equals(digest))return value;
+        }
+        if(current.capsule.packet.objectNames().contains(digest)) {
+            require(current.capsule.packet.objectSize(digest)<=number(object(object(CATALOG.get("records")).get(kind)).get("maximum")),"record export typed extent");
+            return current.capsule.context.record(digest,kind);
+        }
+        throw new IllegalArgumentException("original forced record unavailable");
+    }
+    private void expireRecordExports(){for(var export:List.copyOf(recordExports))if(export.expired())releaseRecordExport(export);}
+    synchronized void checkRecordExport(MembershipRecordExport export)throws IOException {
+        expireRecordExports();require(recordExports.contains(export),"record export closed/expired");
+        try {
+            checkOwner();require(current.capsule.context.authority().equals(export.context().authority()),"record export view changed");
+            retainedRecord(export.digest(),export.kind());
+            expireRecordExports();require(recordExports.contains(export),"record export closed/expired");
+        }catch(IOException|RuntimeException error){releaseRecordExport(export);throw error;}
+    }
+    synchronized void releaseRecordExport(MembershipRecordExport export){recordExports.remove(export);export.revoke();}
     /** Read an exact retained grant without substituting the latest promise/basis. */
     private MembershipSelection.Source retainedSource(Decoded retainedBasis)throws IOException {
         checkOwner();require(retainedBasis.value().get("view").equals(current.capsule.context.authority()),"obsolete original grant; fresh campaign required");
@@ -1982,6 +2021,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
     synchronized Optional<Decoded> originalSelection() {live();return Optional.ofNullable(selection);}
     @Override public synchronized void close() throws IOException {
+        for(var export:List.copyOf(recordExports))releaseRecordExport(export);
         for(var export:List.copyOf(sourceExports))releaseSourceExport(export);
         if(!closed){closed=true;try{releasePublicationImage();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }

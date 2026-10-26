@@ -1,0 +1,182 @@
+{
+  "schema": "gse-v53-phase3-record-exchange-local-v1",
+  "status": "PASS",
+  "date": "2026-10-25",
+  "sourceParent": "a76ae95b155fd826b9fc920c7fa7595b77371c85",
+  "scope": "bounded original referenced records and actual TCP PROMISE-before-PREPARE",
+  "publicRuntime": false,
+  "fullPhase3Qualification": false,
+  "protectedCI": false,
+  "paidCloud": false,
+  "java": {
+    "tests": 51,
+    "suites": 8,
+    "newRecordTests": 10,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "realAdmittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "supportedRecordKinds": [
+      "PROMISE",
+      "BASIS",
+      "SELECTED",
+      "ENTRY",
+      "ACCEPT",
+      "PROOF",
+      "CERTIFICATE"
+    ],
+    "publishedOriginalRegressionFailsBeforeFix": true
+  },
+  "python": {
+    "normal": 548,
+    "optimized": 548
+  },
+  "replay": {
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "negativeCases": 13,
+    "realNetwork": true,
+    "transferExchanges": 15,
+    "prepareExchanges": 3
+  },
+  "sourceInputs": {
+    "path": "target/v53-record-exchange/qualified-source-inputs.json",
+    "bytes": 452489,
+    "sha256": "1027c9cc7afb4c2ba88a70ff4272a522204379d969be0175945f02575b99367a"
+  },
+  "buildInputs": {
+    "path": "target/v53-record-exchange/final-build-inputs.json",
+    "bytes": 188843,
+    "sha256": "4b6268ec6a2db440cabddb7cbfc513c0179d1667e99ee9045dff5d3fe70d04cc"
+  },
+  "artifacts": [
+    {
+      "path": "target/v53-record-exchange/core.jar",
+      "bytes": 860591,
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "path": "target/v53-record-exchange/replication.jar",
+      "bytes": 1206054,
+      "sha256": "8b714d9e51b67c7a18b9bd21f865d67883cddc1f27029c1d727753ed0e1afb1e"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-record-exchange/java-reports.json",
+      "bytes": 1556,
+      "sha256": "ff12045d3697441473732376d689170d4fd649fb1f467f7f263686753bb93a43"
+    },
+    {
+      "path": "target/v53-record-exchange/final-tests.log",
+      "bytes": 7041,
+      "sha256": "52e28b9f961d3096e0a3d5d445d43da3849c0d8ebe1e54b9fbc9647367eb0e73"
+    },
+    {
+      "path": "target/v53-record-exchange/python.log",
+      "bytes": 649,
+      "sha256": "3b61c3b1bba3853c5cfd54e7fe15c74115c7dd24841b8a96c141b1ca5b0e5b43"
+    },
+    {
+      "path": "target/v53-record-exchange/python-optimized.log",
+      "bytes": 649,
+      "sha256": "ccf6a44f9af338a32ca6d6943e8ec0a73788c8349ac6e257f15df0650400b9a6"
+    },
+    {
+      "path": "target/v53-record-exchange/raw-inventory.json",
+      "bytes": 93899,
+      "sha256": "505ad5c7b54c14a747978e4668a9b0b05161606f7907f07c0548a0eb41fd65b3"
+    },
+    {
+      "path": "target/v53-record-exchange/replay.json",
+      "bytes": 1509,
+      "sha256": "2938725672c541dda5a43dd5db917f66d7c257ce7157993344b7d23e32322a5a"
+    },
+    {
+      "path": "target/v53-record-exchange/replay-optimized.json",
+      "bytes": 1509,
+      "sha256": "2938725672c541dda5a43dd5db917f66d7c257ce7157993344b7d23e32322a5a"
+    },
+    {
+      "path": "target/v53-record-exchange/replay-portable.json",
+      "bytes": 1509,
+      "sha256": "2938725672c541dda5a43dd5db917f66d7c257ce7157993344b7d23e32322a5a"
+    },
+    {
+      "path": "target/v53-record-exchange/portable-evidence.tar.gz",
+      "bytes": 164346,
+      "sha256": "1a56ba661692af4c114b0cd81c923989c71ffd897c376e4cda2313448525d28c"
+    },
+    {
+      "path": "target/v53-record-exchange/source-replay.json",
+      "bytes": 1478,
+      "sha256": "0c99e65ea564a74577dda0173b0f704ad7fbbebcd1ba933f3b6d85b50ea5443d"
+    },
+    {
+      "path": "target/v53-record-exchange/export-replay.json",
+      "bytes": 1225,
+      "sha256": "0653857332cecb3ca0bb2812faae59acd3e0acfe31ebfd236975c493cc6b69d2"
+    },
+    {
+      "path": "target/v53-record-exchange/activation-replay.json",
+      "bytes": 1307,
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    }
+  ],
+  "retainedEarlier": [
+    {
+      "path": "target/v53-record-exchange/tests.log",
+      "bytes": 614,
+      "sha256": "d3c93e09a7b9808d872306326108e4a62cf53670ced3019c1751ed13afff9815"
+    },
+    {
+      "path": "target/v53-record-exchange/qualification-tests.log",
+      "bytes": 5230,
+      "sha256": "677ceab22b784e97b956d8880bcd014051e81ebe8011d46eeb4dca6c02834155"
+    },
+    {
+      "path": "target/v53-record-exchange/tests-corrected.log",
+      "bytes": 7040,
+      "sha256": "da32544808bef7dc0227eb97ce9e0f90dc43f926811f9bd235839a1e8ee6abc4"
+    },
+    {
+      "path": "target/v53-record-exchange/pre-test-inputs.json",
+      "bytes": 188843,
+      "sha256": "9665d8ddb74ff0fbf98756b646f87e11fe2b58f2f82854726bdecd85ada89988"
+    },
+    {
+      "path": "target/v53-record-exchange/first-replay.json",
+      "bytes": 1509,
+      "sha256": "2938725672c541dda5a43dd5db917f66d7c257ce7157993344b7d23e32322a5a"
+    },
+    {
+      "path": "target/v53-record-exchange/published-before.log",
+      "bytes": 6264,
+      "sha256": "bce25c5cb81981d5621f0ccb3ed1e3a76c15accbfc0559498b4dd21e73126c33"
+    },
+    {
+      "path": "target/v53-record-exchange/published-before-inputs.json",
+      "bytes": 188843,
+      "sha256": "0e66f61c50e651029354bda6d51a13e0401c1f5e065c250b9c9abda217638667"
+    },
+    {
+      "path": "target/v53-record-exchange/pre-published-record.jar",
+      "bytes": 1205956,
+      "sha256": "9df32f89cf6101b0568c50f13bc47833ff938c779b369bcd5e75e927975e162f"
+    }
+  ],
+  "caveats": [
+    "First Maven invocation used the repository POM rather than the reactor POM; no tests ran.",
+    "First compile exposed a wrong static helper qualifier; corrected before runtime tests.",
+    "First 50-test run passed before adding published-record access; not relabelled as final-source qualification.",
+    "New published-record regression failed against that earlier implementation before the retained packet lookup was added.",
+    "Seven-kind vote fixture uses private initial provisioning; the TCP PROMISE and published-record cases use real public offline bootstrap.",
+    "Serving a record is not a remote force observation or install/voting ACK.",
+    "Production dispatch/session registration, complete activation, discovery/adoption, rotation, scratch recovery, learners/joint transitions, publication and distributed closure remain open."
+  ]
+}

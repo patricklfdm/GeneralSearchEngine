@@ -11,7 +11,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** A bounded read-only borrow of one actual retained original source. No disk mutation,
  * extra physical source copy, remote ownership receipt or voting authorization. */
-final class MembershipSourceExport implements AutoCloseable {
+final class MembershipSourceExport implements MembershipTransferExport {
     record Content(String digest,long bytes,MembershipTransfer.Kind kind) {}
     private record Member(Content content,Path path,byte[] record,Object fileKey) {}
     private final MembershipGrantJournal owner;
@@ -49,12 +49,21 @@ final class MembershipSourceExport implements AutoCloseable {
     void revoke(){if(!closed){closed=true;control.close();}}
     MembershipSelection.Source source()throws IOException {synchronized(owner){owner.checkSourceExport(this);return source;}}
     Decoded promise()throws IOException {synchronized(owner){owner.checkSourceExport(this);return promise;}}
+    @Override public MembershipContext context(){return source.capsule.context;}
+    @Override public MembershipIdentity identity(){return source.owner;}
+    @Override public Map<String,Object> ballot(){return object(source.basis.value().get("ballot"));}
+    @Override public Map<String,Content> references()throws IOException {
+        var result=new HashMap<String,Content>();for(var content:contents())result.put(content.digest(),content);
+        var packet=result.values().stream().filter(v->v.kind()==MembershipTransfer.Kind.CAPSULE).findFirst().orElseThrow();
+        require(result.putIfAbsent((String)source.basis.value().get("capsule"),packet)==null,"source capsule reference alias");
+        return Map.copyOf(result);
+    }
     List<Content> contents()throws IOException {
         synchronized(owner){owner.checkSourceExport(this);return members.values().stream().map(Member::content).sorted(Comparator.comparing(Content::digest)).toList();}
     }
     /** No caller-controlled filesystem path; one bounded content-addressed chunk only.
      * The owning journal serializes this check/read/recheck against retirement. */
-    byte[] read(String digest,long offset,int maximum)throws IOException {
+    @Override public byte[] read(String digest,long offset,int maximum)throws IOException {
         synchronized(owner) {
             owner.checkSourceExport(this);var member=members.get(digest);
             require(member!=null && maximum>0 && maximum<=4*1024*1024,"source export member/chunk bound");

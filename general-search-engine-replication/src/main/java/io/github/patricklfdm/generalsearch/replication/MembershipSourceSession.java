@@ -11,8 +11,10 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * An unknown transfer's initial REQUEST asks for an offer; subsequent REQUESTs fetch bytes.
  * Only the last exact exchange is replayable. Transfer completion is never an installation ACK. */
 final class MembershipSourceSession implements MembershipTransport.Handler,AutoCloseable {
-    private final MembershipSourceExport export;
-    private final MembershipSelection.Source source;
+    private final MembershipTransferExport export;
+    private final MembershipContext context;
+    private final MembershipIdentity owner;
+    private final Map<String,Object> ballot;
     private final MembershipIdentity reader;
     private final UUID session;
     private final MembershipResources resources;
@@ -31,24 +33,22 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
     private Decoded lastResponse;
     private MembershipResources.Lease responseLease;
 
-    MembershipSourceSession(MembershipSourceExport export,MembershipIdentity reader,UUID session,MembershipResources resources,
+    MembershipSourceSession(MembershipTransferExport export,MembershipIdentity reader,UUID session,MembershipResources resources,
             int chunkLimit,int frameLimit,LongSupplier clock,long started,long budget)throws IOException {
         require(chunkLimit>0 && frameLimit>=4096 && frameLimit<=FRAME && budget>0 && budget<Long.MAX_VALUE/2,"source session limits");
         this.export=Objects.requireNonNull(export);this.reader=Objects.requireNonNull(reader);MembershipValidation.uuid(session);this.session=session;
         this.resources=Objects.requireNonNull(resources);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
-        this.chunkLimit=Math.min(chunkLimit,4*1024*1024);this.frameLimit=frameLimit;source=export.source();
-        require(!reader.equals(source.owner) && reader.equals(source.capsule.context.identities.get(reader.nodeId().value())),"source session exact reader");
+        this.chunkLimit=Math.min(chunkLimit,4*1024*1024);this.frameLimit=frameLimit;
+        context=export.context();owner=export.identity();ballot=export.ballot();
+        require(!reader.equals(owner) && reader.equals(context.identities.get(reader.nodeId().value())),"source session exact reader");
         metadata=resources.reserve(MembershipResources.Unit.CONTROL,"source-session-"+UUID.randomUUID(),32768);
         try {
-            var refs=new HashMap<String,MembershipSourceExport.Content>();
-            for(var value:export.contents())require(refs.put(value.digest(),value)==null,"source duplicate content reference");
-            var packet=refs.values().stream().filter(v->v.kind()==MembershipTransfer.Kind.CAPSULE).findFirst().orElseThrow();
-            require(refs.size()<=10 && refs.putIfAbsent((String)source.basis.value().get("capsule"),packet)==null,"source capsule reference alias");
-            references=Map.copyOf(refs);time();
+            references=Map.copyOf(export.references());
+            require(!references.isEmpty() && references.size()<=11 && references.values().stream().distinct().count()<=10,"source content count");time();
         }catch(IOException|RuntimeException|Error error){metadata.close();throw error;}
     }
     private void time(){long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"original source session deadline/closed");}
-    private void check()throws IOException {time();export.contents();time();}
+    private void check()throws IOException {time();require(references.equals(export.references()),"source references changed");time();}
     private static Decoded response(Decoded request,String kind,Map<String,Object> payload) {
         var fields=new TreeMap<>(request.value());fields.put("sender",request.value().get("recipient"));fields.put("recipient",request.value().get("sender"));fields.put("payload",payload);
         return decode(encode("wire",kind,fields),"wire",kind);
@@ -65,8 +65,8 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
     @Override public synchronized Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         try {
             check();require(sender.equals(reader),"source session foreign reader");
-            source.capsule.context.wire(request,sender,source.owner,object(source.basis.value().get("ballot")),session,number(request.value().get("sequence")));
             require(request.size()<=frameLimit,"source request frame capacity");String digest=request.digest();
+            context.wire(request,sender,owner,ballot,session,number(request.value().get("sequence")));
             if(digest.equals(lastRequest)){require(lastResponse!=null,"source replay unavailable");return lastResponse;}
             long next=number(request.value().get("sequence"));require(sequence<MembershipValidation.MAX && next==sequence+1,"source session exchange sequence");
             var p=object(request.value().get("payload"));UUID id=UUID.fromString((String)p.get("id"));Decoded result;
