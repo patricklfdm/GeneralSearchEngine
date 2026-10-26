@@ -1,5 +1,19 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B immutable peer-retention projection
+
+The [peer-retention projection](PHASE_3_PEER_RETENTION_PLAN.md) implements bounded
+known/pending endpoint tracking, conservative selected-state merge, actual complete
+copy observation and authenticated configuration reconciliation. All seven change
+profiles have conditional component coverage; one native bootstrap/publication
+test obtains actual old/new materializations. The final focused package passes
+22 Java tests. Source/build scope is retained in the
+[component receipt](phase3-evidence/peer-retention-plan.json).
+
+This is unused immutable planning code, not a durable receipt, quorum recording,
+dispatch permission or the offline-survivor runtime fix. Persistence, selection
+propagation, autonomous owner integration and complete 3B–3E remain required.
+
 ## 2026-10-26 — Phase 3B offline-survivor retention investigation
 
 The [survivor investigation](PHASE_3_SURVIVOR_RETENTION.md) locates the first loss

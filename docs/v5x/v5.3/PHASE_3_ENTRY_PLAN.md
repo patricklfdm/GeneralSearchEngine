@@ -126,6 +126,12 @@ qualify a runtime policy or close this item.
 
 ## First batch boundary
 
+The [peer-retention projection](PHASE_3_PEER_RETENTION_PLAN.md) now defines and tests
+the immutable known/pending endpoint rules, actual-copy narrowing and conservative
+merge. It is not used by the runtime and does not persist or replicate intent.
+Durable owner storage, source/selection propagation and full survivor qualification
+are still required; the previous investigation remains open.
+
 The [complete generation-copy batch](PHASE_3_GENERATION_COPY.md) is locally
 qualified in six native network histories with independent physical/transcript
 replay and exact evidence negatives. It provides original materializations for

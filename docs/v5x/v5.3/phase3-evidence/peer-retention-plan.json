@@ -1,0 +1,149 @@
+{
+  "baseCommit": "51c6024e1138a62f1fdcab48b0bb0f39ae97525c",
+  "evidence": [
+    {
+      "bytes": 166,
+      "path": "target/v53-peer-retention-plan/contract-check.json",
+      "sha256": "ba499e2c1592b3ee2cc3957e8d5a4fc6dc88f6bd3ec8d850281adc8762ed9e29"
+    },
+    {
+      "bytes": 471531,
+      "path": "target/v53-peer-retention-plan/current-inputs.json",
+      "sha256": "9664172b65a9fb33e2e078ebffeb7c978b94ba7c81ae5e2f0797115641b9babd"
+    },
+    {
+      "bytes": 50,
+      "path": "target/v53-peer-retention-plan/current-workspace.txt",
+      "sha256": "30ad4bd80228c84ccc3ae17fc7c17f71a9f910c5550560b7c8197fd414fd1185"
+    },
+    {
+      "bytes": 9614,
+      "path": "target/v53-peer-retention-plan/current.log",
+      "sha256": "a0eba447420d868fd52a5cec9a7d0855d8315d8edb234e092c5658d0fb9b2004"
+    },
+    {
+      "bytes": 471531,
+      "path": "target/v53-peer-retention-plan/final-inputs.json",
+      "sha256": "d8880c20cfe3764cb0d288a2a867dfec48d28fa52e03ff3fa1bb5f0daf42d794"
+    },
+    {
+      "bytes": 48,
+      "path": "target/v53-peer-retention-plan/final-workspace.txt",
+      "sha256": "cbccb7985758d72adf600c0adfa4d631a769000d7fc4f044987cebf6f32b2e8c"
+    },
+    {
+      "bytes": 9592,
+      "path": "target/v53-peer-retention-plan/final.log",
+      "sha256": "4236f97fd44d0db985e8513310d1ba56339ff387a3bc96ce4ff023dc7285a027"
+    },
+    {
+      "bytes": 471531,
+      "path": "target/v53-peer-retention-plan/initial-inputs.json",
+      "sha256": "bff09074554e646a52b18f2fd17827e0c2ef8a2faea103de5d3e951216658dc7"
+    },
+    {
+      "bytes": 50,
+      "path": "target/v53-peer-retention-plan/initial-workspace.txt",
+      "sha256": "079f46746f446dceb1fd1843b8bdb227b107813340f887a26a1d51668668725d"
+    },
+    {
+      "bytes": 7335,
+      "path": "target/v53-peer-retention-plan/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyFaultTest.xml",
+      "sha256": "607f61fabddd6438b58d8a18328c12f24b57752cd6703988636e86f0bcba70d2"
+    },
+    {
+      "bytes": 7676,
+      "path": "target/v53-peer-retention-plan/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest.xml",
+      "sha256": "e66b6f7aebb38386a387050e9b5b42419b0e311a94c3272c21a02125e94d5d12"
+    },
+    {
+      "bytes": 8840,
+      "path": "target/v53-peer-retention-plan/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SelectedSourcesTest.xml",
+      "sha256": "d69ef3919d59dfbc6175936a5b514857a835b455c318d17819bae9dd5fc60275"
+    },
+    {
+      "bytes": 838,
+      "path": "target/v53-peer-retention-plan/snapshot.py",
+      "sha256": "f285fe8bf26dadad09e649d2daa0b2f788a0742ed6685e3d16e90c990fec911a"
+    },
+    {
+      "bytes": 1226,
+      "path": "target/v53-peer-retention-plan/validation-summary.json",
+      "sha256": "afb98274d1cfae384f9f0eac845d62c18c9683b1bb80e1f056b33e273f0164ba"
+    }
+  ],
+  "schema": "gse-v53-peer-retention-plan-v1",
+  "sourceFiles": [
+    {
+      "bytes": 10030,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionPlan.java",
+      "sha256": "6bcbd36156f06fbe3ac2ff72934eba815b556a1cb4f4823070d999d34756e0e6"
+    },
+    {
+      "bytes": 10811,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionPlanTest.java",
+      "sha256": "ef833fb16d42f84a7a2bf372c09eea616eed4c47a769951baa80b6ac3bded017"
+    },
+    {
+      "bytes": 2929,
+      "path": "docs/v5x/v5.3/PHASE_3_PEER_RETENTION_PLAN.md",
+      "sha256": "e675370ff5017dc2f19928e39092fa00dd995c89bc56ca276f38da7745458592"
+    },
+    {
+      "bytes": 106597,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "07698bbcd269fb3e100cd87395e019a9bb7512d3416a2f0eec034284cdc3bd4f"
+    },
+    {
+      "bytes": 12825,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "f1ed9691af10cb39a2269d36fec4a3f94d433b2f6a88d5908504d134e5d6b8fe"
+    }
+  ],
+  "validation": {
+    "artifacts": [
+      {
+        "bytes": 860591,
+        "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd",
+        "snapshotPath": "/tmp/gse-v53-peer-retention-plan-final-o6qaqit4/target/general-search-engine-5.3.0-SNAPSHOT.jar"
+      },
+      {
+        "bytes": 1370624,
+        "sha256": "238860f73e1acc8aff9b5230e0ea2a59138d20194c0620d7cbdaa38296d8854c",
+        "snapshotPath": "/tmp/gse-v53-peer-retention-plan-final-o6qaqit4/general-search-engine-replication/target/general-search-engine-replication-5.3.0-SNAPSHOT.jar"
+      }
+    ],
+    "durable": false,
+    "independentPhysicalReplay": false,
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PeerRetentionPlanTest",
+        "tests": 6
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53SelectedSourcesTest",
+        "tests": 12
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53GenerationCopyFaultTest",
+        "tests": 4
+      }
+    ],
+    "nativeComponentHistories": 1,
+    "phase3Complete": false,
+    "profiles": 7,
+    "profilesConditional": true,
+    "runtimeIntegrated": false,
+    "scope": "immutable-planning-component",
+    "status": "PASS"
+  }
+}
