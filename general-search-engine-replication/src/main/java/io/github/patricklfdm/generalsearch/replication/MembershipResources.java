@@ -63,6 +63,15 @@ final class MembershipResources {
     final class Lease implements AutoCloseable {
         private final Key key; private long bytes; private boolean released;
         private Lease(Key key,long bytes) { this.key=key;this.bytes=bytes; }
+        /** Account a declared control body before allocating it, without releasing its header slot. */
+        void reserveControl(long total) {
+            synchronized(MembershipResources.this) {
+                require(!released && leases.get(key)==this && key.unit==Unit.CONTROL,"control reservation owner");
+                require(total>=bytes && total<=Unit.CONTROL.bytes,"control reservation extent");
+                long additional=total-bytes;require(additional<=queueLimit-queued,"global queued-byte capacity");
+                queued+=additional;bytes=total;
+            }
+        }
         /** Increase one existing image reservation in place; never alias two physical files. */
         void reserveApplicationMaximum() {
             synchronized(MembershipResources.this) {

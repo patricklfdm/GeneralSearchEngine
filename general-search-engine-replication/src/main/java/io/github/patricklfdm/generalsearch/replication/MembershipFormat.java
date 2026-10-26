@@ -17,6 +17,7 @@ final class MembershipFormat {
     record Decoded(String family, String kind, Map<String, Object> value, byte[] bytes) {
         Decoded { bytes = bytes.clone(); value = object(freeze(value)); }
         @Override public byte[] bytes() { return bytes.clone(); }
+        int size() { return bytes.length; }
         String digest() { return hash(bytes); }
         String rootDigest() {
             require(family.equals("records") && kind.equals("ROOT"), "not a ROOT record");

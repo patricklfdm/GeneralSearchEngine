@@ -1,0 +1,142 @@
+{
+  "schema": "gse-v53-phase3-transport-local-v1",
+  "status": "PASS",
+  "date": "2026-10-25",
+  "sourceParent": "2f3522fe0545aa4eccaef1e32a93ea50e6928b34",
+  "scope": "private loopback TCP component over real public offline bootstrap",
+  "publicRuntime": false,
+  "realNetwork": true,
+  "fullPhase3Qualification": false,
+  "protectedCI": false,
+  "paidCloud": false,
+  "java": {
+    "tests": 54,
+    "suites": 10,
+    "newTests": 17,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "realAdmittedSizes": [
+      3,
+      4,
+      5
+    ]
+  },
+  "python": {
+    "normal": 536,
+    "optimized": 536
+  },
+  "replay": {
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "negativeCases": 10,
+    "orderedExchanges": 38,
+    "originalFiles": 385,
+    "originalBytes": 494296
+  },
+  "sourceInputs": {
+    "path": "target/v53-phase3-transport/qualified-source-inputs.json",
+    "bytes": 199293,
+    "sha256": "e9d7c0311a5fcce13da1b2aac08794d998a3fef3cc422b083c6f6d792efb14dc"
+  },
+  "buildInputs": {
+    "path": "target/v53-phase3-transport/final-build-inputs.json",
+    "bytes": 175484,
+    "sha256": "c33751624ba6f8b05644d6eb1a58142ef0b07214b9b7fb2d3e9c3c1765db6a9e"
+  },
+  "artifacts": [
+    {
+      "path": "target/v53-phase3-transport/core.jar",
+      "bytes": 860591,
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "path": "target/v53-phase3-transport/replication.jar",
+      "bytes": 1158044,
+      "sha256": "233532bf099a867ca958f4aa1b683d31c5912e37b8cf65f34369f5883a206ab9"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-phase3-transport/final-java-reports.json",
+      "bytes": 1929,
+      "sha256": "86560f5c42a38cef4682d2aa22a0b13d0e7d24cf7c884dc2112fb96bd6165a09"
+    },
+    {
+      "path": "target/v53-phase3-transport/qualification-tests.log",
+      "bytes": 6219,
+      "sha256": "8c37c24ac1c21e816b8492c58481db190b1afab23027930dc07ccb0dae9ce22c"
+    },
+    {
+      "path": "target/v53-phase3-transport/final-network-tests.log",
+      "bytes": 4393,
+      "sha256": "36466d76e2bb748fb4722fd5e7831a227618486a414b0d26e430fac53b76ca4e"
+    },
+    {
+      "path": "target/v53-phase3-transport/api-tests.log",
+      "bytes": 4879,
+      "sha256": "0461ded1e4df92497ea0587d758fef736b0a6278d1c588293963e4f1012b1d91"
+    },
+    {
+      "path": "target/v53-phase3-transport/python-all.log",
+      "bytes": 637,
+      "sha256": "1822e1845edf385ec7efaef87affe099a3a04b286a64226e21b553cd572dbbf4"
+    },
+    {
+      "path": "target/v53-phase3-transport/python-optimized.log",
+      "bytes": 637,
+      "sha256": "19f5baa7222ce1d4bbffb6d86edea8596faa3fea7363a7d6798bd328da4a62bd"
+    },
+    {
+      "path": "target/v53-phase3-transport/final-replay.json",
+      "bytes": 1315,
+      "sha256": "4ac91a9201b280d184ec7e3cde9a96119722037e38e6a2108010c05d02b7397f"
+    },
+    {
+      "path": "target/v53-phase3-transport/final-replay-optimized.json",
+      "bytes": 1315,
+      "sha256": "4ac91a9201b280d184ec7e3cde9a96119722037e38e6a2108010c05d02b7397f"
+    },
+    {
+      "path": "target/v53-phase3-transport/final-replay-portable.json",
+      "bytes": 1315,
+      "sha256": "4ac91a9201b280d184ec7e3cde9a96119722037e38e6a2108010c05d02b7397f"
+    },
+    {
+      "path": "target/v53-phase3-transport/activation-replay.json",
+      "bytes": 1307,
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    },
+    {
+      "path": "target/v53-phase3-transport/raw-inventory.json",
+      "bytes": 60246,
+      "sha256": "16873e1409941e492def0da02f26ba080b780961b5f4b0cb6ef167d1c6681c2d"
+    }
+  ],
+  "retainedFailures": [
+    {
+      "path": "target/v53-phase3-transport/first-tests.log",
+      "bytes": 5387,
+      "sha256": "188a27ad4add061aff3b971f5261af9725d8835e67f59fd286e812f8873dcfc0"
+    }
+  ],
+  "preliminarySocketRun": {
+    "path": "target/v53-phase3-transport/socket-tests.log",
+    "bytes": 4633,
+    "sha256": "8d43c0ec7276d409ae2664b81689d9666074614a07854bc6ba2ac32679b459af"
+  },
+  "limits": [
+    "Trusted private network and authentic exclusive identities assumed; no TLS or Byzantine authentication",
+    "Source delivery/staging ownership and newer-authority discovery still open",
+    "No learner, automatic joint completion, public READY or inherited reads qualification",
+    "S/N inventory remains PLANNED for owning distributed gates",
+    "Local Ubuntu JDK 21.0.12.1; no pinned hosted acceptance"
+  ],
+  "remoteBoundary": {
+    "branch": "feat/v53-cluster-operations",
+    "pushedThrough": "f0d4dcaf0eaab7bc8a7ca5d86facc052260e5b1a",
+    "phase3Batch": "local commit only"
+  },
+  "buildWorkspace": "/tmp/gse-v53-transport-qy3tje9m"
+}

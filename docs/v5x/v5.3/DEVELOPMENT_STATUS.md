@@ -1,5 +1,21 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3B TCP transport component
+
+The [private transport component](PHASE_3_TRANSPORT.md) adds actual bounded TCP
+delivery of frozen 1.3 frames, root/full-identity correlation, independent peer
+progress, header-before-body reservation, one-attempt I/O and explicit close/drain.
+Protocol controllers keep the original deadline and three-attempt ownership.
+The complete source-delivery/discovery work in 3B remains open.
+
+54 focused Java tests across ten suites passed, including 17 new wire/network
+tests and V5.0–V5.3 API inventories. The actual three-profile network trace has
+38 ordered STATUS exchanges from public offline bootstrap, with independently
+reconstructed original and unchanged final storage. Ten exact negative variants
+and relocated replay pass. No learner or public READY has been enabled, and no
+distributed S/N requirement is relabelled by this component result. The
+[receipt](phase3-evidence/transport.json) records local source/build/test evidence.
+
 ## 2026-10-25 — Phase 3A private activation
 
 The operator authorized pushing completed Phase 2 and entering Phase 3's first

@@ -1,10 +1,11 @@
 # V5.3 local pre-cloud completion audit
 
 Status: **OPEN**, future roadmap. Phase 2 is locally closed. On 2026-10-25 the
-operator authorized pushing its completed branch and entering the first Phase 3
-batch. The [Phase 3 entry plan](PHASE_3_ENTRY_PLAN.md) is the current batch boundary.
-Later pre-cloud obligations remain; this request does not authorize automatically
-completing Phases 3–6 or dispatching cloud experiments.
+operator authorized pushing its completed branch and entering Phase 3. The later
+continuous goal now covers **Phase 3 through closure**, with automatic local commits
+after validated batches. The [Phase 3 entry plan](PHASE_3_ENTRY_PLAN.md) is the stop
+boundary. Later pre-cloud obligations remain; this request does not authorize
+automatically completing Phases 4–6 or dispatching cloud experiments.
 
 | Required stage | Current authoritative state / required completion evidence |
 | --- | --- |

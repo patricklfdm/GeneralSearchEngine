@@ -27,6 +27,16 @@ outside this instruction.
 
 ## Work rules
 
+### Continuous Phase 3 authorization, 2026-10-25
+
+After batch 3A, the operator set the active goal to advance **all of Phase 3 to
+closure**, validating and committing each batch locally, then continuing without
+per-batch confirmation. The complete [Phase 3 checklist](PHASE_3_ENTRY_PLAN.md)
+is now the stop boundary. This supersedes the first-batch-only limit below.
+No further push, PR, merge, paid experiment or release is implied. All open
+transport, learner, joint completion and distributed evidence obligations remain
+required; component passes do not redefine closure.
+
 ### Phase 3 entry authorization, 2026-10-25
 
 After local Phase 2 closure, the operator explicitly requested: push and enter
@@ -36,7 +46,7 @@ Phase-2 stop boundary for that action. The [Phase 3 entry plan](PHASE_3_ENTRY_PL
 defines the new batch and remaining closure work. Coherent local commits remain
 authorized. This does not authorize a PR, merge, tag, paid run or release.
 
-- Development edits and commits stay on this branch. Phase 3 batch 3A is committed
+- Development edits and commits stay on this branch. Each Phase 3 batch is committed
   locally after validation; further pushes and protected acceptance are reported
   separately from the already-completed Phase 2 push.
 - Keep the running V5.2 Runner checkout, artifacts, lease, configuration, budgets
