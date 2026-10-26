@@ -17,6 +17,7 @@ final class MembershipSourceReceive implements AutoCloseable {
     private final Map<String,Object> parent;
     private final Decoded promise,basis;
     private final String root,cut;
+    private final Map<String,Object> expectedCut;
     private final UUID session,basisId;
     private final MembershipIdentity source;
     private final MembershipResources resources;
@@ -44,21 +45,35 @@ final class MembershipSourceReceive implements AutoCloseable {
     MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Decoded promise,Decoded basis,
             UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,int chunkLimit,
             LongSupplier clock,long started,long budget,MembershipSourceExport localImages)throws IOException {
+        this(directory,root,source,promise,basis,object(basis.value().get("cut")),session,packetTransfer,offer,resources,chunkLimit,clock,started,budget,localImages);
+    }
+    /** No frozen grant: only content for the exact discovered cut. */
+    MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Map<String,Object> expectedCut,
+            UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,int chunkLimit,
+            LongSupplier clock,long started,long budget)throws IOException {
+        this(directory,root,source,null,null,expectedCut,session,packetTransfer,offer,resources,chunkLimit,clock,started,budget,null);
+    }
+    private MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Decoded promise,Decoded basis,
+            Map<String,Object> expectedCut,UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,
+            int chunkLimit,LongSupplier clock,long started,long budget,MembershipSourceExport localImages)throws IOException {
         MembershipValidation.digest(root);MembershipValidation.uuid(session);
-        MembershipValidation.uuid(packetTransfer);
+        MembershipValidation.uuid(packetTransfer);require((promise==null)==(basis==null),"receive optional grant pair");
+        this.expectedCut=Map.copyOf(expectedCut);
+        if(basis!=null) {
         require(promise.family().equals("records") && promise.kind().equals("PROMISE")
                 && basis.family().equals("records") && basis.kind().equals("BASIS"),"receive original record kinds");
         for(String field:List.of("root","view","ballot","basisId"))require(Objects.equals(promise.value().get(field),basis.value().get(field)),"receive original grant binding");
         require(root.equals(basis.value().get("root")) && source.nodeId().value().equals(basis.value().get("voter"))
                 && promise.value().get("basisId")!=null,"receive source root/identity");
+        }
         require(offer.kind()==MembershipTransfer.Kind.CAPSULE && chunkLimit>0 && budget>0 && budget<Long.MAX_VALUE/2,"receive packet/limits");
         this.root=root;this.source=source;this.promise=promise;this.basis=basis;this.session=session;this.resources=resources;
         this.localImages=localImages;
         require(localImages==null || localImages.context().root.equals(root),"receive borrowed image root");
         this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;this.chunkLimit=chunkLimit;
-        basisId=UUID.fromString((String)basis.value().get("basisId"));cut=cutDigest(object(basis.value().get("cut")));time();
+        basisId=basis==null?null:UUID.fromString((String)basis.value().get("basisId"));cut=cutDigest(expectedCut);time();
         this.directory=AdmissionPaths.safe(directory);parent=AdmissionPaths.binding(this.directory);AdmissionPaths.absent(this.directory);
-        records=resources.reserve(MembershipResources.Unit.CONTROL,"received-records-"+UUID.randomUUID(),promise.size()+(long)basis.size());
+        records=resources.reserve(MembershipResources.Unit.CONTROL,"received-records-"+UUID.randomUUID(),basis==null?4096:promise.size()+(long)basis.size());
         Object key;
         try{Files.createDirectory(this.directory);key=MembershipBasisSources.key(this.directory);}
         catch(IOException|RuntimeException|Error error){records.close();throw error;}
@@ -78,7 +93,7 @@ final class MembershipSourceReceive implements AutoCloseable {
         try{time();directory();}catch(IOException|RuntimeException error){failed=true;throw error;}
     }
     private MembershipTransfer.Binding binding(MembershipSourceExport.Content content,UUID id) {
-        return new MembershipTransfer.Binding(root,session,id,source,basisId,basis.digest(),cut,content.digest(),content.bytes(),content.kind());
+        return new MembershipTransfer.Binding(root,session,id,source,basisId,basis==null?null:basis.digest(),cut,content.digest(),content.bytes(),content.kind());
     }
     private void create(MembershipSourceExport.Content offer,String name,MembershipResources.Unit unit)throws IOException {
         create(offer,name,unit,UUID.randomUUID());
@@ -105,7 +120,10 @@ final class MembershipSourceReceive implements AutoCloseable {
         try {
             file.finish(incoming,path->{
                 if(name.equals("source.gscp")) {
-                    var received=MembershipSourcePacket.decode(AdmissionPaths.read(path,MembershipSourcePacket.MAXIMUM));received.bind(basis);
+                    var received=MembershipSourcePacket.decode(AdmissionPaths.read(path,MembershipSourcePacket.MAXIMUM));
+                    if(basis!=null)received.bind(basis);
+                    else require(received.capsule().value().get("root").equals(root)
+                            && received.capsule().value().get("cut").equals(expectedCut),"received prefix root/cut");
                     // Reserve every declared image before accepting any application chunk.
                     for(var image:new TreeMap<>(received.images()).entrySet()) {
                         if(localImages!=null && localImages.hasImage(image.getKey(),image.getValue()))borrowedImages.put(image.getKey(),image.getValue());
@@ -125,8 +143,8 @@ final class MembershipSourceReceive implements AutoCloseable {
         for(String digest:packet.images().keySet())images.put(digest,borrowedImages.containsKey(digest)?localImages.image(digest,borrowedImages.get(digest)):files.get(digest+".image").bytes());
         packet.verifyImages(images);for(var file:files.values())file.checkVerified();check();return Collections.unmodifiableMap(images);
     }
-    synchronized Decoded basis()throws IOException {check();return basis;}
-    synchronized Decoded promise()throws IOException {check();return promise;}
+    synchronized Decoded basis()throws IOException {check();require(basis!=null,"read-only prefix has no BASIS");return basis;}
+    synchronized Decoded promise()throws IOException {check();require(promise!=null,"read-only prefix has no PROMISE");return promise;}
     synchronized MembershipIdentity sourceIdentity()throws IOException {check();return source;}
     /** Recheck a borrowed complete source without allocating another image map. */
     synchronized void recheck()throws IOException {

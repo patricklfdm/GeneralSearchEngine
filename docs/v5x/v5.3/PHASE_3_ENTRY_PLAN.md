@@ -65,6 +65,14 @@ cut without creating a campaign scope; finite original-deadline queries expose o
 unverified hints. Root-bound newer-source acquisition, historical proof provenance,
 verified adoption and autonomous election integration remain required within 3B.
 
+[Complete current-prefix acquisition](PHASE_3_PREFIX_DISCOVERY.md) adds read-only
+packet/image retrieval by the exact discovered cut through the actual endpoint.
+The transfer is separate from PROMISE/BASIS and makes no historical force
+observations. Joint/final old-view retrieval is checked against actual adopted
+storage with explicitly conditional historical fixtures. Full historical provenance,
+compacted cross-view ancestry, automatic verified adoption/fresh elections and
+maximal combined image lifetime remain open.
+
 ## First batch boundary
 
 Implement an internal activation controller over `MembershipGrantJournal`, using

@@ -154,6 +154,28 @@ final class MembershipCurrentGeneration implements AutoCloseable {
     private static void checkFile(Path path,FileIdentity expected) throws IOException {
         require(expected.equals(inspect(path,expected.bytes(),expected.digest())),"current inode changed");
     }
+    /** Called only while the journal serializes owner validation and generation replacement.
+     * Expose indexed packet/images, never a caller-supplied path or a voting record. */
+    Map<String,MembershipSourceExport.Content> transferContents() {
+        var result=new TreeMap<String,MembershipSourceExport.Content>();
+        for(var item:files.entrySet())if(item.getKey().equals(PACKET) || item.getKey().endsWith(".image")) {
+            var file=item.getValue();var kind=item.getKey().equals(PACKET)?MembershipTransfer.Kind.CAPSULE:MembershipTransfer.Kind.APPLICATION;
+            require(result.put(file.digest(),new MembershipSourceExport.Content(file.digest(),file.bytes(),kind))==null,"current duplicate content");
+        }
+        return Map.copyOf(result);
+    }
+    byte[] transferChunk(String digest,long offset,int maximum)throws IOException {
+        var entry=files.entrySet().stream().filter(v->(v.getKey().equals(PACKET) || v.getKey().endsWith(".image"))
+                && v.getValue().digest().equals(digest)).findFirst().orElseThrow(()->new IllegalArgumentException("current content absent"));
+        var file=entry.getValue();var source=path.resolve(entry.getKey());
+        require(maximum>0 && maximum<=4*1024*1024 && offset>=0 && offset<file.bytes(),"current chunk bounds");
+        checkFile(source,file);var buffer=java.nio.ByteBuffer.allocate((int)Math.min(maximum,file.bytes()-offset));
+        try(var channel=java.nio.channels.FileChannel.open(source,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
+            require(channel.size()==file.bytes(),"current content length");channel.position(offset);
+            while(buffer.hasRemaining())require(channel.read(buffer)>0,"current incomplete read");
+        }
+        checkFile(source,file);return buffer.array();
+    }
     private Map<String,byte[]> materialize(MembershipSourcePacket packet) throws IOException {
         var images=new TreeMap<String,byte[]>();
         for(var image:packet.images().entrySet())images.put(image.getKey(),AdmissionPaths.read(path.resolve(image.getKey()+".image"),Math.toIntExact(image.getValue())));

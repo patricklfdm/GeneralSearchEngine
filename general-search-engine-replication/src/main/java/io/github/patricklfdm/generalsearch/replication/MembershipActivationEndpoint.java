@@ -30,6 +30,8 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private final ScheduledExecutorService expiry;
     private final Object registry=new Object();
     private volatile Scope scope;
+    private final Object prefixRegistry=new Object();
+    private volatile MembershipTransferService prefixService;
     private volatile boolean closed;
     private Control control;
     private int waiters;
@@ -124,7 +126,23 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private void releaseEndedControl() {
         synchronized(registry){if(control!=null && control.finished && control.active.ended){control.close();control=null;}}
     }
-    private void expire(){var active=scope;if(active!=null && active.expired())active.close();releaseEndedControl();}
+    private void expire(){var active=scope;if(active!=null && active.expired())active.close();var prefix=prefixService;if(prefix!=null)prefix.poll();releaseEndedControl();}
+    private Decoded prefix(MembershipIdentity sender,Decoded request,long received)throws IOException {
+        var active=prefixService;
+        if(active!=null && active.contains(sender,request))return active.handle(sender,request);
+        if(!request.kind().equals("CHUNK") || number(request.value().get("sequence"))!=1)return null;
+        var current=owner.activationContext();
+        if(!object(request.value().get("payload")).get("digest").equals(cutDigest(current.cut)))return null;
+        synchronized(prefixRegistry) {
+            require(!closed,"prefix endpoint closed");active=prefixService;
+            if(active==null || !active.poll() || !active.sameCut(current.cut)) {
+                if(active!=null)active.close();
+                prefixService=active=MembershipTransferService.prefix(owner,resources,bounds,
+                        ()->{require(!closed,"prefix endpoint closed");scratchOwner.check();},clock,received,budget);
+            }
+        }
+        return active.handle(sender,request);
+    }
     Usage usage(){synchronized(registry){var active=scope;return new Usage(waiters,active==null?0:active.pending.size(),control!=null && !control.finished,active==null || active.ended,closed);}}
     private final class Control implements AutoCloseable {
         final Scope active;
@@ -179,6 +197,9 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             long elapsed=clock.getAsLong()-received;
             require(!closed && elapsed>=0 && elapsed<budget,"discovery endpoint closed/original deadline");return reply;
         }
+        if(kind.equals("CHUNK") || kind.equals("TRANSFER_COMMIT")) {
+            var response=prefix(sender,request,received);if(response!=null)return response;
+        }
         if(kind.equals("PREPARE")) {
             // No control queue or writer monitor before the higher-ballot fence.
             owner.observeActivation(sender,request);
@@ -214,7 +235,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public void close()throws IOException {
         synchronized(registry){closed=true;if(control!=null)control.result.completeExceptionally(new IOException("activation endpoint closed"));}
-        expiry.shutdownNow();var active=scope;if(active!=null)active.close();controls.shutdownNow();
+        expiry.shutdownNow();synchronized(prefixRegistry){if(prefixService!=null)prefixService.close();}var active=scope;if(active!=null)active.close();controls.shutdownNow();
         try {require(controls.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS)
                 && expiry.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"activation endpoint close timeout");}
         catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation endpoint close interrupted",error);}

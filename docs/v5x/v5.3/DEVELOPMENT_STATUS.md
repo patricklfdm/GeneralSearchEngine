@@ -1,5 +1,29 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B complete read-only current-prefix acquisition
+
+The [prefix acquisition path](PHASE_3_PREFIX_DISCOVERY.md) fetches the exact current
+packet and every indexed application image through the real activation endpoint,
+without a PROMISE/BASIS grant. It reuses the existing bounded transfer engine and
+finite identical retries. The actual source generation owns every byte; replacement
+revokes its borrow, and receiving-side fencing/deadline/close prevents late use.
+Historical identities may read a newer configuration without becoming voters.
+
+Downloads remain untrusted until the complete historical verifier accepts the exact
+root/cut/packet. Missing historical observations still reject; no Owned witness,
+adoption, public read or READY is inferred from content hashes. The
+[local receipt](phase3-evidence/prefix-discovery.json) records the source-bound
+Java/Python results and original-first normal/optimized/portable replay. Actual
+TCP histories cover original public bootstrap and BARRIER publication at sizes
+3/4/5. Old-view retrieval from adopted joint/final storage is separately tested
+with explicitly conditional historical fixtures.
+
+This closes the byte-acquisition component, not the complete historical trust or
+autonomous adoption path. Historical ACCEPT/PROOF provenance, compacted cross-view
+ancestry, automatic adoption/elections, maximal receiving-image lifetime, learner/
+joint completion and the full Phase 3 distributed qualification remain open.
+No push, protected CI, paid experiment or release.
+
 ## 2026-10-26 — Phase 3B root-bound read-only discovery
 
 The [STATUS discovery path](PHASE_3_DISCOVERY.md) separates historical permanent

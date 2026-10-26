@@ -66,7 +66,7 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
         try {
             check();require(sender.equals(reader),"source session foreign reader");
             require(request.size()<=frameLimit,"source request frame capacity");String digest=request.digest();
-            context.wire(request,sender,owner,ballot,session,number(request.value().get("sequence")));
+            export.request(sender,request,session);
             if(digest.equals(lastRequest)){require(lastResponse!=null,"source replay unavailable");return lastResponse;}
             long next=number(request.value().get("sequence"));require(sequence<MembershipValidation.MAX && next==sequence+1,"source session exchange sequence");
             var p=object(request.value().get("payload"));UUID id=UUID.fromString((String)p.get("id"));Decoded result;

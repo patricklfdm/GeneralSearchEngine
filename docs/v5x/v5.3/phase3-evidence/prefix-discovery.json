@@ -1,0 +1,174 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-prefix-discovery/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1304062,
+      "path": "target/v53-prefix-discovery/replication.jar",
+      "sha256": "948641ec81574c7ade411851e6efb0858b9add7948f661ac1025775d9c1a33c1"
+    }
+  ],
+  "automaticCrossViewAdoption": false,
+  "autonomousElection": false,
+  "buildInputs": {
+    "bytes": 460545,
+    "path": "target/v53-prefix-discovery/qualified-inputs.json",
+    "sha256": "d70a1df372cecea4643c0ec79f5fc0ceae6fb1089319845b08dd7105274d2183"
+  },
+  "caveats": [
+    "The first build passed 86 tests, including 12 initial prefix tests. The second fresh build passed the final 14 prefix tests, 20 activation-driver tests and nine existing export tests. Production Java/POM/resource inputs are identical across both builds; only the prefix test file changed. The final 117 count deduplicates suites and excludes the earlier version of that test.",
+    "The two broad Python runs passed 576 tests. Additional first-row inventory/UUID checks were added to the new independent reader; its three focused tests then pass normally and with assertions disabled, and its final bytes pass all three original-first replay modes.",
+    "Actual TCP evidence uses public offline bootstrap plus real BARRIER voting/publication at stable sizes 3/4/5. Separate old-view downloads from adopted joint/final storage retain explicitly conditional historical force fixtures; they are not a complete distributed membership transition.",
+    "Root-bound known permanent identities may download current bytes without election eligibility. Downloads and their commit acknowledgements cannot establish historical Owned witnesses, adoption, public reads or READY.",
+    "Full historical ACCEPT/PROOF provenance, compacted cross-view ancestry, automatic verified adoption/elections, maximal combined receiving-image lifetime, learners/joint completion and complete distributed qualification remain open."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 7472,
+      "path": "target/v53-prefix-discovery/initial-java-tests.log",
+      "sha256": "9c8b9a1ced1a99438b2063bcb500cd20d918584f44f9ca890d666d118737d1d3"
+    },
+    {
+      "bytes": 460312,
+      "path": "target/v53-prefix-discovery/initial-inputs.json",
+      "sha256": "d3584c3cc59e37986786b64d55ff8820bf2dee53d18667627d15b4f290f4676e"
+    },
+    {
+      "bytes": 5994,
+      "path": "target/v53-prefix-discovery/qualified-java-tests.log",
+      "sha256": "5b0f592150b60fa3cbe10cf844cff28f66fb1d7b81758432b99b3da961724cc5"
+    },
+    {
+      "bytes": 294,
+      "path": "target/v53-prefix-discovery/build-input-check.json",
+      "sha256": "2ecdbdc8a696c3d8ab5ccf2c6874977de01f9d04f666a370cd9492c4f219a7a7"
+    },
+    {
+      "bytes": 2142,
+      "path": "target/v53-prefix-discovery/java-reports.json",
+      "sha256": "2142a2b28e1c2a95b22ba413260fee8ebc6131212e5413e472d1528a37480419"
+    },
+    {
+      "bytes": 1747,
+      "path": "target/v53-prefix-discovery/java-unique-reports.json",
+      "sha256": "c7d173045182193a31e9b7161643f73edbd070da71b60314f7e70dcf0f74443b"
+    },
+    {
+      "bytes": 677,
+      "path": "target/v53-prefix-discovery/python-normal.log",
+      "sha256": "cab22bf7ea06154cfb7322e4677ea58830651d4162561e08da6a4035c4da2cb2"
+    },
+    {
+      "bytes": 677,
+      "path": "target/v53-prefix-discovery/python-optimized.log",
+      "sha256": "1ce2c6edc9a38c23f1ddc570428f43d819e61cf629137e5f2d6923e7939c3a83"
+    },
+    {
+      "bytes": 101,
+      "path": "target/v53-prefix-discovery/reader-tests-normal.log",
+      "sha256": "199ba496f288116d36c62f29346d4fbf0bd75745a1c893abfcbdaa4c6d5b1033"
+    },
+    {
+      "bytes": 101,
+      "path": "target/v53-prefix-discovery/reader-tests-optimized.log",
+      "sha256": "edb4e2159c923ea45a32656078835cdf531c3d7b414c670dd786978875cb0678"
+    },
+    {
+      "bytes": 114,
+      "path": "target/v53-prefix-discovery/qualification.log",
+      "sha256": "414fed874bc9226b34ca3b41fc2fabd60f3406145aca2396f5147cb1b74e32b0"
+    },
+    {
+      "bytes": 408728,
+      "path": "target/v53-prefix-discovery/raw-inventory.json",
+      "sha256": "452af6f6d03a1384afcccff1bff5a7d87ec89b8b25309af584eed01f6081ee63"
+    },
+    {
+      "bytes": 1330,
+      "path": "target/v53-prefix-discovery/replay.json",
+      "sha256": "cbd4ff477a3d23124dbb17fd39337e435e2fcc4b11807c6e7ec9ee72df5d1c8e"
+    },
+    {
+      "bytes": 1330,
+      "path": "target/v53-prefix-discovery/replay-optimized.json",
+      "sha256": "cbd4ff477a3d23124dbb17fd39337e435e2fcc4b11807c6e7ec9ee72df5d1c8e"
+    },
+    {
+      "bytes": 1330,
+      "path": "target/v53-prefix-discovery/replay-portable.json",
+      "sha256": "cbd4ff477a3d23124dbb17fd39337e435e2fcc4b11807c6e7ec9ee72df5d1c8e"
+    },
+    {
+      "bytes": 871919,
+      "path": "target/v53-prefix-discovery/portable-evidence.tar.gz",
+      "sha256": "853749191215cbef5eddad5554acd5a376133cc212a4ad41413eff7ffeddfa52"
+    },
+    {
+      "bytes": 1246,
+      "path": "target/v53-prefix-discovery/driver-replay.json",
+      "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-prefix-discovery/endpoint-replay.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 1478,
+      "path": "target/v53-prefix-discovery/source-exchange-replay.json",
+      "sha256": "0c99e65ea564a74577dda0173b0f704ad7fbbebcd1ba933f3b6d85b50ea5443d"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "finalTests": 43,
+    "initialTests": 86,
+    "prefixTests": 14,
+    "skips": 0,
+    "suites": 9,
+    "uniqueTests": 117
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "normal": {
+      "finalReaderTests": 3,
+      "seconds": 91.469,
+      "tests": 576
+    },
+    "optimized": {
+      "finalReaderTests": 3,
+      "seconds": 92.907,
+      "tests": 576
+    }
+  },
+  "replay": {
+    "exchanges": 21,
+    "negativeCases": 13,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "stableSizes": [
+      3,
+      4,
+      5
+    ]
+  },
+  "schema": "gse-v53-phase3-prefix-discovery-local-v1",
+  "scope": "read-only complete current-generation packet/image acquisition through the real activation endpoint without creating a vote or historical ownership observation",
+  "sourceInputs": {
+    "bytes": 460660,
+    "path": "target/v53-prefix-discovery/source-inputs.json",
+    "sha256": "e205e340018920f163a9590ce79313f308f4ea4147e2e131071b49e09cde603d"
+  },
+  "sourceParent": "8fc132a4106c9a6b615e66745a710477153e7f1e",
+  "status": "PASS",
+  "verifiedBuildInputs": 1109
+}

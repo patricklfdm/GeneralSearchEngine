@@ -13,7 +13,11 @@ final class MembershipTransfer implements AutoCloseable {
                    UUID basisId,String basisDigest,String cutDigest,String digest,long bytes,Kind kind) {
         Binding {
             MembershipValidation.digest(root);uuid(session);uuid(transfer);Objects.requireNonNull(source,"source");
-            uuid(basisId);MembershipValidation.digest(basisDigest);MembershipValidation.digest(cutDigest);
+            // A read-only prefix has no grant. Never invent a BASIS identity for it.
+            require((basisId==null)==(basisDigest==null),"transfer optional grant pair");
+            if(basisId!=null){uuid(basisId);MembershipValidation.digest(basisDigest);}
+            else require(kind!=Kind.RECORD,"read-only prefix cannot be a grant record");
+            MembershipValidation.digest(cutDigest);
             MembershipValidation.digest(digest);Objects.requireNonNull(kind,"kind");
             long limit=switch(kind) { case RECORD -> MembershipFormat.FRAME; case CAPSULE -> 32*MembershipResources.MIB;
                 case APPLICATION -> 64*MembershipResources.MIB; };

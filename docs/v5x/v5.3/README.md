@@ -54,6 +54,12 @@ the actual activation endpoint before or after an election scope. Historical
 identities can discover newer cuts without voting or changing local authority.
 Complete source provenance and adoption still require separate verification.
 
+[Complete current-prefix acquisition](PHASE_3_PREFIX_DISCOVERY.md) now uses that
+hint to fetch the actual selected packet and every application image without a
+PREPARE/BASIS grant. It reuses bounded transfer/retry ownership, revokes reads on
+generation replacement and retains explicit historical verification. Autonomous
+cross-view adoption and the complete Phase 3 protocol remain open.
+
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
 cloud qualification continues. The initial local-only instruction was extended
 on 2026-10-25 to push completed Phase 2 and start Phase 3. The branch starts

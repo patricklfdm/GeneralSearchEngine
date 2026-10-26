@@ -17,6 +17,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
     private final MembershipContext context;
     private final MembershipIdentity identity;
     private final Map<String,Object> ballot;
+    private final boolean prefix;
     private final MembershipResources resources;
     private final ReplicationBounds bounds;
     private final MembershipSourcePull.Guard guard;
@@ -35,11 +36,19 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
     }
     MembershipTransferService(MembershipGrantJournal owner,Map<String,Object> ballot,MembershipResources resources,
             ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipTransport.Events events)throws IOException {
-        require(budget>0 && budget<Long.MAX_VALUE/2,"transfer service time budget");
+        this(owner,ballot,resources,bounds,guard,clock,started,budget,events,false);
+    }
+    static MembershipTransferService prefix(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget)throws IOException {
+        return new MembershipTransferService(owner,Map.of(),resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,true);
+    }
+    private MembershipTransferService(MembershipGrantJournal owner,Map<String,Object> ballot,MembershipResources resources,
+            ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipTransport.Events events,boolean prefix)throws IOException {
+        require(budget>0 && budget<Long.MAX_VALUE/2,"transfer service time budget");this.prefix=prefix;
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
         this.guard=Objects.requireNonNull(guard);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
         this.events=Objects.requireNonNull(events);
-        context=owner.activationContext();identity=owner.activationIdentity();context.ballot(ballot,true);this.ballot=Map.copyOf(ballot);
+        context=owner.activationContext();identity=owner.activationIdentity();if(!prefix)context.ballot(ballot,true);this.ballot=Map.copyOf(ballot);
         frameLimit=Math.min(FRAME,bounds.maxFrameBytes());chunkLimit=Math.min(4*1024*1024,bounds.snapshotChunkBytes());
         require(frameLimit>=4096,"transfer service frame limit");guard.check();time();
         metadata=resources.reserve(MembershipResources.Unit.CONTROL,"transfer-service-"+UUID.randomUUID(),32768);
@@ -50,7 +59,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
     /** Called by the runtime's existing periodic loop; this service creates no background thread. */
     boolean poll(){if(expired())close();return !closed;}
     private void live()throws IOException {
-        try{time();guard.check();time();}
+        try{time();guard.check();if(prefix)require(owner.activationContext().cut.equals(context.cut),"prefix service cut changed");time();}
         catch(IOException|RuntimeException error){close();throw error;}
     }
     private final class Entry {
@@ -67,10 +76,13 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     var payload=object(request.value().get("payload"));
                     // A competing next request cannot initialize an unconstructed trace.
                     initial(request);
-                    var export=owner.exportTransfer((String)payload.get("digest"),context.authority(),ballot,clock,started,budget);
+                    var export=prefix?owner.exportPrefix((String)payload.get("digest"),object(request.value().get("ballot")),
+                            (String)request.value().get("view"),resources,clock,started,budget):
+                            owner.exportTransfer((String)payload.get("digest"),context.authority(),ballot,clock,started,budget);
                     try {
                         require(export.identity().equals(identity) && export.context().root.equals(context.root)
-                                && export.context().authority().equals(context.authority()) && export.ballot().equals(ballot),"transfer export scope changed");
+                                && export.context().authority().equals(context.authority())
+                                && (prefix?export.context().cut.equals(context.cut):export.ballot().equals(ballot)),"transfer export scope changed");
                         session=new MembershipSourceSession(export,key.reader,key.trace,resources,chunkLimit,frameLimit,clock,started,budget);
                     }catch(IOException|RuntimeException|Error error){export.close();throw error;}
                 }
@@ -90,7 +102,8 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         live();require(request.size()<=frameLimit,"transfer service frame capacity");
         require(request.kind().equals("CHUNK") || request.kind().equals("TRANSFER_COMMIT"),"transfer service request kind");
         UUID trace=UUID.fromString((String)request.value().get("trace"));
-        context.wire(request,reader,identity,ballot,trace,number(request.value().get("sequence")));
+        if(prefix)MembershipPrefixExport.envelope(context,identity,reader,request);
+        else context.wire(request,reader,identity,ballot,trace,number(request.value().get("sequence")));
         require(!reader.equals(identity),"transfer self request");var key=new Key(reader,trace);Entry entry;
         synchronized(this) {
             time();int active=calls.getOrDefault(reader,0);
@@ -108,6 +121,10 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         }
         catch(IOException|RuntimeException|Error error){entry.abort();if(expired())close();throw error;}
         finally {synchronized(this){int count=calls.get(reader);if(count==1)calls.remove(reader);else calls.put(reader,count-1);}}
+    }
+    boolean sameCut(Map<String,Object> cut){return context.cut.equals(cut);}
+    synchronized boolean contains(MembershipIdentity reader,Decoded request) {
+        return traces.containsKey(new Key(reader,UUID.fromString((String)request.value().get("trace"))));
     }
     Usage usage() {
         List<Entry> entries;int active;boolean stopped;

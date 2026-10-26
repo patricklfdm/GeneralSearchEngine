@@ -33,6 +33,7 @@ final class MembershipSourcePull implements AutoCloseable {
     private long sequence;
     private boolean used;
     private boolean completeSource;
+    private final Map<String,Object> prefixCut;
     private volatile boolean closed;
     private CompletableFuture<Decoded> pending;
     private MembershipSourceReceive received;
@@ -40,10 +41,24 @@ final class MembershipSourcePull implements AutoCloseable {
 
     MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,
             MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget) {
+        this(verified,local,source,ballot,session,resources,bounds,link,guard,clock,started,budget,null);
+    }
+    /** Snapshot the actual local fence, independently of the unverified remote hint. */
+    static MembershipSourcePull prefix(MembershipGrantJournal owner,MembershipDiscovery.Hint hint,MembershipResources resources,
+            ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget)throws IOException {
+        synchronized(owner) {
+            var state=owner.discoveryState(resources);var capsule=owner.activationCapsule();
+            return new MembershipSourcePull(capsule,owner.activationIdentity(),hint.peer(),state.ballot(),UUID.randomUUID(),resources,bounds,link,
+                    ()->{guard.check();owner.checkActivationBallot(state.context().authority(),state.ballot());},clock,started,budget,hint.cut());
+        }
+    }
+    private MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,
+            MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget,Map<String,Object> prefixCut) {
         require(budget>0 && budget<Long.MAX_VALUE/2,"source pull time budget");context=Objects.requireNonNull(verified).context;
+        this.prefixCut=prefixCut==null?null:Map.copyOf(prefixCut);
         originalRoot=decode(verified.packet.objectBytes(context.recordRootDigest()),"records","ROOT");
         require(local.equals(context.identities.get(local.nodeId().value())) && source.equals(context.identities.get(source.nodeId().value()))
-                && !local.equals(source),"source pull permanent identities");context.ballot(ballot,true);
+                && !local.equals(source),"source pull permanent identities");context.ballot(ballot,prefixCut==null);
         this.local=local;this.source=source;this.ballot=Map.copyOf(ballot);MembershipValidation.uuid(session);this.session=session;
         this.resources=Objects.requireNonNull(resources);this.link=Objects.requireNonNull(link);this.guard=Objects.requireNonNull(guard);
         this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;frameLimit=Math.min(FRAME,bounds.maxFrameBytes());
@@ -69,7 +84,9 @@ final class MembershipSourcePull implements AutoCloseable {
                 try {
                     long left=budget-(clock.getAsLong()-started);require(left>0,"original source pull deadline");
                     Decoded result=future.get(left,TimeUnit.NANOSECONDS);check();require(result.size()<=frameLimit,"source pull response frame limit");
-                    MembershipWire.correlated(request,result,kind);context.wire(result,source,local,ballot,session,number(request.value().get("sequence")));
+                    MembershipWire.correlated(request,result,kind);
+                    if(prefixCut==null)context.wire(result,source,local,ballot,session,number(request.value().get("sequence")));
+                    else MembershipWire.envelope(result,context.root,source,local);
                     // Return the real rejection to the runtime; never turn it into a source or retry it.
                     if(result.kind().equals("REJECT"))throw new Rejected(result);
                     retry.complete(request.digest(),clock.getAsLong());return result;
@@ -116,6 +133,7 @@ final class MembershipSourcePull implements AutoCloseable {
         });
     }
     private Record record(String reference,String kind,RecordVerifier verifier)throws IOException {
+        require(prefixCut==null,"read-only prefix cannot fetch grant records");
         require(MembershipRecordExport.KINDS.contains(kind),"referenced record kind");
         var offer=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.RECORD,reference,null);
         require(offer.content.bytes()<=number(object(object(CATALOG.get("records")).get(kind)).get("maximum")),"referenced record kind capacity");
@@ -194,11 +212,36 @@ final class MembershipSourcePull implements AutoCloseable {
             }
         }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
+    /** Borrowed untrusted bytes; receipt is neither a vote nor proof of historical force. */
+    MembershipSourceReceive fetchPrefix(Path scratch)throws IOException {
+        synchronized(this){require(prefixCut!=null && !used && !closed,"read-only prefix single use");used=true;}
+        try {
+            var packet=offer(UUID.randomUUID(),cutDigest(prefixCut),MembershipTransfer.Kind.CAPSULE,null,null);
+            MembershipSourceReceive staging;
+            synchronized(this) {
+                check();received=new MembershipSourceReceive(scratch,context.root,source,prefixCut,session,packet.id,packet.content,
+                        resources,chunkLimit,clock,started,budget);staging=received;
+            }
+            receiveFile(staging,staging.packetBinding(),packet);
+            for(var binding:staging.imageBindings()) {
+                var offer=offer(binding.transfer(),binding.digest(),MembershipTransfer.Kind.APPLICATION,binding.digest(),binding.bytes());receiveFile(staging,binding,offer);
+            }
+            staging.recheck();check();completeSource=true;return staging;
+        }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
+    }
+    /** Caller supplies real historical provenance. Hashes/downloads alone cannot verify it. */
+    MembershipCapsule verifiedPrefix(MembershipCurrentGeneration.Verifier verifier)throws IOException {
+        check();require(prefixCut!=null && completeSource && received!=null,"complete read-only prefix required");
+        var packet=received.packet();var capsule=Objects.requireNonNull(verifier.verify(originalRoot,packet,received.images()));
+        require(capsule.context.root.equals(context.root) && capsule.context.cut.equals(prefixCut)
+                && Arrays.equals(capsule.packet.bytes(),packet.bytes()),"prefix verifier substituted bytes/cut");
+        received.recheck();check();return capsule;
+    }
     /** Observe only this contacted owner's original frozen grant after every source
      * transfer commits. Generic records or a packet copied from another peer cannot
      * establish this observation. Historical witnesses remain explicit verifier input. */
     MembershipSelection.Source verifiedOriginalSource(MembershipCurrentGeneration.Verifier verifier)throws IOException {
-        check();require(completeSource && received!=null,"complete original source exchange required");
+        check();require(prefixCut==null && completeSource && received!=null,"complete original source exchange required");
         var basis=received.basis();var packet=received.packet();var images=received.images();
         require(received.sourceIdentity().equals(source) && basis.value().get("voter").equals(source.nodeId().value())
                 && basis.value().get("view").equals(context.authority()) && basis.value().get("ballot").equals(ballot),"original source owner/view/ballot");

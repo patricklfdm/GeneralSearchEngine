@@ -48,6 +48,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipResources.Lease publicationImage;
     private final Set<MembershipSourceExport> sourceExports=new HashSet<>();
     private final Set<MembershipRecordExport> recordExports=new HashSet<>();
+    private final Set<MembershipPrefixExport> prefixExports=new HashSet<>();
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -1766,6 +1767,24 @@ final class MembershipGrantJournal implements AutoCloseable {
         expireSourceExports();require(sourceExports.contains(export),"source export closed/expired");
     }
     synchronized void releaseSourceExport(MembershipSourceExport export){sourceExports.remove(export);export.revoke();}
+    /** Read-only current generation, requiring neither PREPARE nor a frozen BASIS. */
+    synchronized MembershipPrefixExport exportPrefix(String cut,Map<String,Object> ballot,String view,
+            MembershipResources budget,LongSupplier clock,long started,long limit)throws IOException {
+        require(current!=null && resources==budget,"prefix export actual shared owner required");checkOwner();
+        for(var old:List.copyOf(prefixExports))if(old.expired() || old.generation!=current)releasePrefixExport(old);
+        require(cutDigest(current.capsule.context.cut).equals(cut),"prefix cut changed");
+        require(prefixExports.size()<6,"prefix export owner capacity");
+        var export=new MembershipPrefixExport(this,current,ballot,view,resources,clock,started,limit);prefixExports.add(export);
+        try{checkPrefixExport(export);return export;}
+        catch(IOException|RuntimeException|Error error){releasePrefixExport(export);throw error;}
+    }
+    synchronized void checkPrefixExport(MembershipPrefixExport export)throws IOException {
+        try {
+            require(prefixExports.contains(export) && !export.expired() && current==export.generation,"prefix export closed/expired/replaced");
+            checkOwner();require(!export.expired(),"prefix export deadline after owner check");
+        }catch(IOException|RuntimeException error){releasePrefixExport(export);throw error;}
+    }
+    synchronized void releasePrefixExport(MembershipPrefixExport export){prefixExports.remove(export);export.revoke();}
     /** A bounded live borrow from forced storage; never accepts caller-supplied record bytes. */
     synchronized MembershipRecordExport exportRecord(String digest,String kind,Map<String,Object> exchangeBallot,
             LongSupplier clock,long started,long budget)throws IOException {
@@ -2090,6 +2109,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
     synchronized Optional<Decoded> originalSelection() {live();return Optional.ofNullable(selection);}
     @Override public synchronized void close() throws IOException {
+        for(var export:List.copyOf(prefixExports))releasePrefixExport(export);
         for(var export:List.copyOf(recordExports))releaseRecordExport(export);
         for(var export:List.copyOf(sourceExports))releaseSourceExport(export);
         if(!closed){closed=true;try{releasePublicationImage();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
