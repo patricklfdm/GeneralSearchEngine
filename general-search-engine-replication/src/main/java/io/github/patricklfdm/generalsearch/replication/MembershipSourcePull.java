@@ -229,6 +229,31 @@ final class MembershipSourcePull implements AutoCloseable {
             staging.recheck();check();completeSource=true;return staging;
         }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
+    static final class RetainedCopy {
+        private final MembershipSourcePull pull;
+        private RetainedCopy(MembershipSourcePull pull){this.pull=pull;}
+        void check(Decoded root,MembershipSourcePacket packet)throws IOException {
+            pull.check();require(pull.completeSource && pull.received!=null,"complete retained source exchange required");
+            require(Arrays.equals(root.bytes(),pull.originalRoot.bytes()) && pull.received.sourceIdentity().equals(pull.source)
+                    && Arrays.equals(packet.bytes(),pull.received.packet().bytes()),"retained copy original root/source/packet");
+            if(pull.prefixCut!=null)require(packet.capsule().value().get("cut").equals(pull.prefixCut),"retained copy discovered cut");
+            else {
+                var basis=pull.received.basis();packet.bind(basis);
+                require(basis.value().get("voter").equals(pull.source.nodeId().value()) && basis.value().get("view").equals(pull.context.authority())
+                        && basis.value().get("ballot").equals(pull.ballot),"retained copy original grant");
+            }
+            pull.received.recheck();pull.check();
+        }
+    }
+    private MembershipCapsule retainedCapsule()throws IOException {
+        check();require(completeSource && received!=null,"complete retained source exchange required");
+        return MembershipCapsule.verifyRetained(originalRoot,received.packet(),received.images(),new RetainedCopy(this));
+    }
+    /** Authenticate a complete historical copy from the exact current-generation
+     * endpoint. Does not manufacture Owned observations for former voters. */
+    MembershipCapsule verifiedPrefix()throws IOException {
+        require(prefixCut!=null,"read-only prefix required");return retainedCapsule();
+    }
     /** Caller supplies real historical provenance. Hashes/downloads alone cannot verify it. */
     MembershipCapsule verifiedPrefix(MembershipCurrentGeneration.Verifier verifier)throws IOException {
         check();require(prefixCut!=null && completeSource && received!=null,"complete read-only prefix required");
@@ -239,13 +264,20 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     /** Observe only this contacted owner's original frozen grant after every source
      * transfer commits. Generic records or a packet copied from another peer cannot
-     * establish this observation. Historical witnesses remain explicit verifier input. */
+     * establish this observation. Historical evidence uses either the completed-copy
+     * path or the separately supplied strict verifier; neither counts old votes anew. */
+    MembershipSelection.Source verifiedOriginalSource()throws IOException {
+        require(prefixCut==null,"original grant source required");return originalSource(retainedCapsule());
+    }
     MembershipSelection.Source verifiedOriginalSource(MembershipCurrentGeneration.Verifier verifier)throws IOException {
         check();require(prefixCut==null && completeSource && received!=null,"complete original source exchange required");
-        var basis=received.basis();var packet=received.packet();var images=received.images();
+        return originalSource(Objects.requireNonNull(verifier.verify(originalRoot,received.packet(),received.images())));
+    }
+    private MembershipSelection.Source originalSource(MembershipCapsule capsule)throws IOException {
+        check();require(prefixCut==null && completeSource && received!=null,"complete original source exchange required");
+        var basis=received.basis();var packet=received.packet();
         require(received.sourceIdentity().equals(source) && basis.value().get("voter").equals(source.nodeId().value())
                 && basis.value().get("view").equals(context.authority()) && basis.value().get("ballot").equals(ballot),"original source owner/view/ballot");
-        var capsule=Objects.requireNonNull(verifier.verify(originalRoot,packet,images));
         require(capsule.context.root.equals(context.root) && capsule.context.authority().equals(context.authority())
                 && Arrays.equals(capsule.packet.bytes(),packet.bytes()),"original source verifier substituted prefix");
         String parent=cutDigest(object(basis.value().get("cut")));var owned=new HashSet<Owned>();

@@ -75,6 +75,13 @@ maximal combined image lifetime remain open.
 
 ## First batch boundary
 
+The subsequent [retained-copy verifier](PHASE_3_RETAINED_PROVENANCE.md) separates
+complete authentic historical copies from new actual-owner vote observations. It
+retains full original-byte/quorum checks and exact statement reuse, so former voters
+need not remain online merely to verify those copied historical statements. Its
+scope is the complete received capsule and original source; supplemental ancestry,
+durable reopen, automatic adoption/elections and the remaining 3B–3E work stay open.
+
 Implement an internal activation controller over `MembershipGrantJournal`, using
 the existing PREPARE/PROMISE/SELECTED/INSTALL_ACK envelopes and contextual verifier.
 Exercise actual admitted storage at sizes 3/4/5, plus joint-quorum and adverse

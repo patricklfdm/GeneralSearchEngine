@@ -13,10 +13,19 @@ final class MembershipCapsule {
     private final Map<Long,Map<String,Object>> anchors;
     private final Map<Long,Anchor> states;
     private final Set<Owned> observations;
+    /** An exact already-verified historical statement, not a new voter observation. */
+    private record Historical(String kind,String record,String binding) {}
+    private final Set<Historical> history;
+    private static Historical certificate(Decoded certificate,Map<String,Object> parent) {
+        return new Historical("CERTIFICATE",certificate.digest(),cutDigest(parent));
+    }
+    private static Historical checkpoint(Decoded statement,List<?> endorsements) {
+        return new Historical("CHECKPOINT",statement.digest(),hash(canonical(endorsements,8192)));
+    }
     private final Decoded highestMembershipCertificate;
-    private MembershipCapsule(MembershipContext context,MembershipSourcePacket packet,Map<Long,Map<String,Object>> anchors,Map<Long,Anchor> states,Set<Owned> observations,Decoded highestMembershipCertificate) {
+    private MembershipCapsule(MembershipContext context,MembershipSourcePacket packet,Map<Long,Map<String,Object>> anchors,Map<Long,Anchor> states,Set<Owned> observations,Set<Historical> history,Decoded highestMembershipCertificate) {
         this.context=context;this.packet=packet;this.anchors=Map.copyOf(anchors);this.states=Map.copyOf(states);this.observations=Set.copyOf(observations);
-        this.highestMembershipCertificate=highestMembershipCertificate;
+        this.highestMembershipCertificate=highestMembershipCertificate;this.history=Set.copyOf(history);
     }
     boolean containsCut(Map<String,Object> cut) {return cut.equals(anchors.get(number(cut.get("index"))));}
     Map<Long,Map<String,Object>> anchors() {return anchors;}
@@ -29,13 +38,14 @@ final class MembershipCapsule {
             if(packet.objectNames().contains(observation.record()))owned.add(observation);
         for(var observation:additional)if(packet.objectNames().contains(observation.record()))owned.add(observation);
         var root=decode(this.packet.objectBytes(this.context.recordRootDigest()),"records","ROOT");
-        return verify(root,packet,images,owned);
+        return verify(root,packet,images,owned,history,false);
     }
     /** Only certificates actually authenticated while walking membership edges, never inventory extras. */
     Optional<Decoded> membershipCertificateFence(){return Optional.ofNullable(highestMembershipCertificate);}
     /** A publication must retain the exact phases and independently owned observations, including for DATA. */
     Decoded publicationCertificate(Decoded certificate,Map<String,Object> parent) {
-        return context.certificateAt(certificate,observations,parent);
+        return history.contains(certificate(certificate,parent))?context.certificateStructure(certificate,parent):
+                context.certificateAt(certificate,observations,parent);
     }
 
     /** Retain one already authenticated original proof through a compacted range.
@@ -51,10 +61,26 @@ final class MembershipCapsule {
         var value=new TreeMap<>(packet.capsule().value());value.put("inventory",hash(MembershipSourcePacket.index(objects,packet.images())));
         var retained=MembershipSourcePacket.decode(MembershipSourcePacket.encode(decode(encode("records","CAPSULE",value),"records","CAPSULE"),objects,packet.images()));
         var owned=new HashSet<Owned>();for(var observation:original.observations)if(names.contains(observation.record()))owned.add(observation);
-        var result=verifyExtension(retained,images,owned);result.publicationCertificate(certificate,parent);return result;
+        var retainedHistory=new HashSet<>(history);retainedHistory.add(certificate(certificate,parent));
+        for(var observation:observations)if(retained.objectNames().contains(observation.record()))owned.add(observation);
+        var root=decode(packet.objectBytes(context.recordRootDigest()),"records","ROOT");
+        var result=verify(root,retained,images,owned,retainedHistory,false);result.publicationCertificate(certificate,parent);return result;
     }
 
     static MembershipCapsule verify(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,Set<Owned> owned) {
+        return verify(root,packet,images,owned,Set.of(),false);
+    }
+    /** The only whole-copy admission is a complete authenticated owner's source exchange.
+     * A bare packet, witness tuple, content hash or generic record cannot mint this token. */
+    static MembershipCapsule verifyRetained(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,
+            MembershipSourcePull.RetainedCopy copy)throws java.io.IOException {
+        Objects.requireNonNull(copy).check(root,packet);
+        var result=verify(root,packet,images,Set.of(),Set.of(),true);copy.check(root,packet);return result;
+    }
+    private static MembershipCapsule verify(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,
+            Set<Owned> owned,Set<Historical> inherited,boolean retainedCopy) {
+        var history=new HashSet<Historical>();
+        for(var item:inherited)if(packet.objectNames().contains(item.record()))history.add(item);
         require(root.family().equals("records") && root.kind().equals("ROOT"),"capsule ROOT kind");packet.verifyImages(images);
         require(Arrays.equals(root.bytes(),packet.objectBytes(root.digest())),"capsule original ROOT bytes");
         var capsule=packet.capsule().value();var currentCut=object(capsule.get("cut"));
@@ -84,7 +110,9 @@ final class MembershipCapsule {
                         && number(at.get("index"))<MAX && number(end.get("index"))==number(at.get("index"))+1,"membership edge shape");
                 priorRange=false;
                 var cert=context.record((String)item.get("certificate"),"CERTIFICATE");
-                var entry=context.certificateAt(cert,owned,at);var entryValue=entry.value();
+                var proof=certificate(cert,at);
+                var entry=retainedCopy || history.contains(proof)?context.certificateStructure(cert,at):context.certificateAt(cert,owned,at);
+                history.add(proof);var entryValue=entry.value();
                 if(highestMembershipCertificate==null || compareBallot(object(cert.value().get("ballot")),object(highestMembershipCertificate.value().get("ballot")))>=0)
                     highestMembershipCertificate=cert;
                 String kind=(String)entryValue.get("kind");String descriptorHash=(String)item.get("descriptor");
@@ -102,14 +130,15 @@ final class MembershipCapsule {
                 var accept=new TreeMap<>(cert.value());accept.remove("accepts");accept.remove("proofs");bytes.add(hash(encode("records","ACCEPT",accept)));
                 accept.put("accepts",cert.value().get("accepts"));bytes.add(hash(encode("records","PROOF",accept)));
             }
-            checkpoint(context,packet,statement,list(item.get("endorsements")),owned,bytes);
+            var endorsements=list(item.get("endorsements"));var proof=checkpoint(statement,endorsements);
+            checkpoint(context,packet,statement,endorsements,owned,bytes,retainedCopy || history.contains(proof));history.add(proof);
             long size=0;for(String hash:bytes)size+=packet.objectBytes(hash).length;
             require(size<=(item.get("kind").equals("RANGE")?16:48)*1024,"complete capsule item byte capacity");
             at=end;catalog=(String)s.get("catalogAfter");application=(String)s.get("applicationAfter");anchors.put(number(at.get("index")),at);states.put(number(at.get("index")),new Anchor(at,catalog,application));
         }
         require(list(capsule.get("items")).size()<=3*changes+1,"capsule logical item bound");
         require(at.equals(currentCut) && catalog.equals(capsule.get("catalog")) && application.equals(capsule.get("application")),"capsule terminal state");
-        return new MembershipCapsule(context,packet,anchors,states,owned,highestMembershipCertificate);
+        return new MembershipCapsule(context,packet,anchors,states,owned,history,highestMembershipCertificate);
     }
     void verifyAncestry(byte[] bytes,Collection<Anchor> required) {
         var lower=ancestryAnchors(bytes);
@@ -198,14 +227,14 @@ final class MembershipCapsule {
         return result;
     }
     private static void checkpoint(MembershipContext context,MembershipSourcePacket packet,Decoded statement,List<?> endorsements,
-                                   Set<Owned> owned,Set<String> bytes) {
+                                   Set<Owned> owned,Set<String> bytes,boolean historical) {
         var cut=object(statement.value().get("end"));var voters=new ArrayList<String>();
         for(Object hash:endorsements) {
             var ack=context.record((String)hash,"CHECKPOINT_ACK");var value=ack.value();String voter=(String)value.get("voter");
             var id=context.identities.get(voter);
             require(id!=null && id.storageId().toString().equals(value.get("incarnation")) && value.get("cut").equals(cut)
                     && value.get("statement").equals(statement.digest()),"checkpoint exact statement/end identity");
-            require(owned.contains(new Owned(voter,id.storageId(),ack.digest(),cutDigest(cut))),"checkpoint before owned applied end");
+            require(historical || owned.contains(new Owned(voter,id.storageId(),ack.digest(),cutDigest(cut))),"checkpoint before owned applied end");
             voters.add(voter);bytes.add(ack.digest());
         }
         orderedNodes(voters);quorum(object(cut.get("view")),voters);

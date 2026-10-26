@@ -89,8 +89,9 @@ def validate(directory):
     e.need(e.f.canonical(load(root/'receipt.json'))==e.f.canonical(expected),'prefix scope/receipt');return expected
 
 
-def qualify(directory):
-    original=validate(directory);results=[]
+def qualify(directory,validator=None):
+    validator=validate if validator is None else validator
+    original=validator(directory);results=[]
     variants=[('scope','prefix scope/receipt'),('missing-profile','prefix complete inventory'),('storage','admitted exact after'),('force','prefix authority writes'),
               ('scratch','prefix complete received bytes'),('hint','prefix discovery original cut'),('grant','prefix exact offer'),('sequence','prefix exact correlation'),
               ('reference','prefix exact request'),('bytes','prefix exact data'),('commit','prefix exact commit'),('truncated','prefix transcript incomplete'),('extra','prefix extra exchange')]
@@ -120,7 +121,7 @@ def qualify(directory):
                     else:value['payload']['id']=str(uuid.UUID(int=53))
                     rows[index][field]=base64.b64encode(e.f.encode('wire',kind,value)).decode()
                 p.write_text(json.dumps(rows))
-            try:validate(target)
+            try:validator(target)
             except ValueError as error:e.need(reason in str(error),'prefix unrelated negative: '+name+': '+str(error))
             else:raise ValueError('prefix accepted negative: '+name)
             results.append(dict(case=name,status='REJECTED',reason=reason))

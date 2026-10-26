@@ -1,5 +1,10 @@
 # Phase 3B — read-only complete current-prefix acquisition
 
+This is the original byte-acquisition batch. The later
+[retained-copy component](PHASE_3_RETAINED_PROVENANCE.md) adds a typed complete-copy
+verification path; the strict explicitly supplied verifier described below remains
+available. This batch's original evidence and qualification scope are unchanged.
+
 Status: component implementation and local qualification on the V5.3 development
 branch. This extends [STATUS discovery](PHASE_3_DISCOVERY.md) with complete bytes;
 full historical provenance, autonomous discovery/adoption and Phase 3 closure remain

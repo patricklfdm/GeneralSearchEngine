@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B authentic retained historical copies
+
+The [retained-copy verifier](PHASE_3_RETAINED_PROVENANCE.md) now separates previously
+verified historical statements from new voter observations. Only a completed exact
+current-generation/original-BASIS transfer can provide its internal capability;
+raw packet/hash inputs and partial/generic record transfers cannot. Full original
+bytes, both governing majorities, descriptors, checkpoint endorsements and complete
+state validation remain required. Reuse is bound to the exact historical statement,
+parent and endorsement set; unused inventory records gain no authority.
+
+The [local receipt](phase3-evidence/retained-provenance.json) records Java/Python
+qualification and original-first real-TCP replay at stable sizes 3/4/5. Joint/final
+fixture checks remain distinct from actual distributed reconfiguration. A failed
+negative-fixture construction is retained separately from its correction.
+
+This follows the existing crash-fault/authentic-replica assumption, not Byzantine
+or signature authentication. New voting still requires actual-owner observations.
+Supplemental ancestry, durable runtime reopening, automatic adoption/elections,
+maximal combined image lifetime, learner/joint completion, generalized publication
+and full Phase 3 qualification remain open. No push, protected CI, paid experiment
+or release is claimed.
+
 ## 2026-10-26 — Phase 3B complete read-only current-prefix acquisition
 
 The [prefix acquisition path](PHASE_3_PREFIX_DISCOVERY.md) fetches the exact current

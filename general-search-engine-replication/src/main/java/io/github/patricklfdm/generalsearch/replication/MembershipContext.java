@@ -199,6 +199,15 @@ final class MembershipContext {
     }
     /** Historical proof verification; the caller must separately establish this parent cut. */
     Decoded certificateAt(Decoded certificate,Set<Owned> owned,Map<String,Object> parent) {
+        var entry=certificateStructure(certificate,parent);var cert=certificate.value();
+        var accept=new TreeMap<>(cert);accept.remove("accepts");accept.remove("proofs");
+        String accepted=hash(encode("records","ACCEPT",accept));accept.put("accepts",cert.get("accepts"));
+        witnesses(list(cert.get("accepts")),"ACCEPT",accepted,owned,parent);
+        witnesses(list(cert.get("proofs")),"PROOF",hash(encode("records","PROOF",accept)),owned,parent);return entry;
+    }
+    /** Structure only: complete original bytes and both governing phased quorums.
+     * This does not establish force ownership or admit a new vote/certificate. */
+    Decoded certificateStructure(Decoded certificate,Map<String,Object> parent) {
         checkType(parent,"cut");var governing=object(parent.get("view"));checkView(governing);
         String authority=viewDigest(root,governing);
         require(certificate.family().equals("records") && certificate.kind().equals("CERTIFICATE"),"certificate kind");
@@ -214,8 +223,8 @@ final class MembershipContext {
         byte[] acceptance=encode("records","ACCEPT",accept);var proof=new TreeMap<>(accept);proof.put("accepts",cert.get("accepts"));
         byte[] proofBytes=encode("records","PROOF",proof);
         require(Arrays.equals(inventory.get(hash(acceptance)),acceptance) && Arrays.equals(inventory.get(hash(proofBytes)),proofBytes),"missing exact phased record");
-        witnesses(list(cert.get("accepts")),"ACCEPT",hash(acceptance),owned,parent);
-        witnesses(list(cert.get("proofs")),"PROOF",hash(proofBytes),owned,parent);
+        witnessShape(list(cert.get("accepts")),"ACCEPT",hash(acceptance),parent);
+        witnessShape(list(cert.get("proofs")),"PROOF",hash(proofBytes),parent);
         return entry;
     }
     private Map<String,Object> activeOperation() {

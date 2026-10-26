@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+The latest [retained historical copy component](PHASE_3_RETAINED_PROVENANCE.md)
+verifies complete authenticated current-prefix/BASIS copies without manufacturing
+new votes from historical witness hashes. Automatic adoption, durable runtime
+reopening, supplemental ancestry and the complete Phase 3 gate remain open.
+
 **Status:** development branch, started 2026-10-21. Phases 0, 1 and 2 are locally closed;
 Phase 3's [first activation batch](PHASE_3_ACTIVATION.md) and subsequent
 [TCP transport](PHASE_3_TRANSPORT.md) and

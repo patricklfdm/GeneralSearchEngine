@@ -1,0 +1,196 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-retained-provenance/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1308109,
+      "path": "target/v53-retained-provenance/replication.jar",
+      "sha256": "82d3f0957410a7a945f2e7c3e149d05b369e268f90359abfc540f193fbb7a221"
+    }
+  ],
+  "automaticCrossViewAdoption": false,
+  "autonomousElection": false,
+  "buildInputs": {
+    "bytes": 461224,
+    "path": "target/v53-retained-provenance/corrected-inputs.json",
+    "sha256": "c8926ed025d36f74c2aca78af03aafd387ed825a272693493939d4aca5050f7c"
+  },
+  "caveats": [
+    "The corrected 48-test build uses the final Java/POM/resource inputs. The initial 47-test pass and later 48-test negative-fixture construction error remain separate. The corrected fixture uses two legal old-majority witnesses for a joint FINAL and rejects specifically for missing both governing majorities.",
+    "Real TCP histories use public bootstrap and actual BARRIER voting/publication at stable sizes 3/4/5. Adopted joint/final fixtures conditionally assume original remote membership forces and are not distributed membership-transition acceptance.",
+    "The completed-copy capability follows the frozen crash-fault/authentic-exclusive-identity assumption. It neither adds Byzantine/signature claims nor fabricates Owned values for historical witnesses. Fresh voting and raw untyped verification remain strict.",
+    "Only exact used historical statements are reusable; unused inventory records and changed certificate/parent/endorsement sets gain no authority. Receiving ownership must remain live through use; the capability is not a durable reopening credential.",
+    "Supplemental ancestry, runtime reopening, autonomous adoption/elections, maximal combined image lifetime, learners/joint completion, generalized publication and complete Phase 3 S/N qualification remain open."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 4443,
+      "path": "target/v53-retained-provenance/compile.log",
+      "sha256": "30e6c987ae8f61df038d95d955b1ae6c2c11d6344a1f20d26c131eda29e7aed3"
+    },
+    {
+      "bytes": 460785,
+      "path": "target/v53-retained-provenance/compile-inputs.json",
+      "sha256": "864bf3235fdd7daeb71835ed3d850fa912880c22cd673714015191319b4af4f7"
+    },
+    {
+      "bytes": 7041,
+      "path": "target/v53-retained-provenance/initial-java-tests.log",
+      "sha256": "10f5c9b539c8e0e57c0893869ff19df2a3ec2261c4eb229557d0159bf8063d3f"
+    },
+    {
+      "bytes": 460985,
+      "path": "target/v53-retained-provenance/initial-inputs.json",
+      "sha256": "39e461e7f5d018e4dac7a0cef9ee0280fc5040d2d39e3050bbe6a4b77167ab48"
+    },
+    {
+      "bytes": 9011,
+      "path": "target/v53-retained-provenance/qualified-java-tests.log",
+      "sha256": "debbb1af7f98191b283ace81282bc0b2a511a35af39d94047bb7f56b527b995d"
+    },
+    {
+      "bytes": 461224,
+      "path": "target/v53-retained-provenance/qualified-inputs.json",
+      "sha256": "fdba8cd9174566e61a630aa0ec81d99254bde1a6d9de900fb0134ef7a7f5f30c"
+    },
+    {
+      "bytes": 7051,
+      "path": "target/v53-retained-provenance/corrected-java-tests.log",
+      "sha256": "0464e86839fceffd314f42824fc9e3dca7af40bee0fa2845cdcaaa2a2ef242ab"
+    },
+    {
+      "bytes": 43,
+      "path": "target/v53-retained-provenance/build-input-check.json",
+      "sha256": "b4efec186929b230c00be1032291c6f05af56e02fe6d06d18a408156ed8ffc08"
+    },
+    {
+      "bytes": 3809,
+      "path": "target/v53-retained-provenance/java-reports.json",
+      "sha256": "3fb517cf2a01fad51c2acf4ffe9cf298df29590a0d05476729b5360abfcb7418"
+    },
+    {
+      "bytes": 680,
+      "path": "target/v53-retained-provenance/python-normal.log",
+      "sha256": "c3d6a5c4f7a9be59183305197e69d233f45718a6bc34991fb8ccfb6880919e14"
+    },
+    {
+      "bytes": 680,
+      "path": "target/v53-retained-provenance/python-optimized.log",
+      "sha256": "08cd4984efe6eefa48060ac0afa29024ac54bdd9e991849a2373b3b270cd60a6"
+    },
+    {
+      "bytes": 164,
+      "path": "target/v53-retained-provenance/python-tests.json",
+      "sha256": "7369c083ae43d7c78bf063330f3f013f518586a5d674c162ad7189c3c145946d"
+    },
+    {
+      "bytes": 33038,
+      "path": "target/v53-retained-provenance/python-inputs.json",
+      "sha256": "ada590e68cf27f72f644c3c019d45be9dbdf753d76b1ba246a612590db9fa916"
+    },
+    {
+      "bytes": 62,
+      "path": "target/v53-retained-provenance/python-input-check.json",
+      "sha256": "e6361e8b6c53c87097c91a36b8e8fb03b70efdaf467ca140a1eb5cf16092e3bc"
+    },
+    {
+      "bytes": 408728,
+      "path": "target/v53-retained-provenance/raw-inventory.json",
+      "sha256": "3ade24d5e11f13000ca5282b1027d012212bc8f0630d4f8959315940a14e9e38"
+    },
+    {
+      "bytes": 93,
+      "path": "target/v53-retained-provenance/qualification.log",
+      "sha256": "4fc57b25724ba42ebf499a6d64c49b5e830339e9e4665b13bc7d55c30b44344c"
+    },
+    {
+      "bytes": 113,
+      "path": "target/v53-retained-provenance/qualification-success.json",
+      "sha256": "d6a60fe3e5a497711bdf18ab84016b5968572856643a0b8b1447480af6d06c38"
+    },
+    {
+      "bytes": 1335,
+      "path": "target/v53-retained-provenance/replay.json",
+      "sha256": "b2877de65294e1921f5bd3af1cb43d7b9284a010446a951fa69107550e085821"
+    },
+    {
+      "bytes": 1335,
+      "path": "target/v53-retained-provenance/replay-optimized.json",
+      "sha256": "b2877de65294e1921f5bd3af1cb43d7b9284a010446a951fa69107550e085821"
+    },
+    {
+      "bytes": 1335,
+      "path": "target/v53-retained-provenance/replay-portable.json",
+      "sha256": "b2877de65294e1921f5bd3af1cb43d7b9284a010446a951fa69107550e085821"
+    },
+    {
+      "bytes": 1330,
+      "path": "target/v53-retained-provenance/prefix-replay.json",
+      "sha256": "cbd4ff477a3d23124dbb17fd39337e435e2fcc4b11807c6e7ec9ee72df5d1c8e"
+    },
+    {
+      "bytes": 871681,
+      "path": "target/v53-retained-provenance/portable-evidence.tar.gz",
+      "sha256": "4954e67dc93c245ac39e17c328916434883ac2860093b31aecf51c28fc9e98e8"
+    },
+    {
+      "bytes": 4094,
+      "path": "target/v53-retained-provenance/qualify.py",
+      "sha256": "076c0e9df6da211d6fe207cb8d1bd701ebe8b5539ffa25308d7cdfd7fe6dacd3"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "initialTests": 47,
+    "retainedFailedAttempt": {
+      "errors": 1,
+      "reason": "negative fixture rejected by byte array minimum before historical verifier",
+      "tests": 48
+    },
+    "retainedProvenanceTests": 12,
+    "skips": 0,
+    "suites": 6,
+    "tests": 48
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "normal": {
+      "seconds": 92.845,
+      "tests": 579
+    },
+    "optimized": {
+      "seconds": 91.658,
+      "tests": 579
+    }
+  },
+  "replay": {
+    "exchanges": 21,
+    "negativeCases": 13,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "stableSizes": [
+      3,
+      4,
+      5
+    ]
+  },
+  "schema": "gse-v53-phase3-retained-provenance-local-v1",
+  "scope": "complete authenticated historical capsule copies, separate from new actual-owner voting observations",
+  "sourceInputs": {
+    "bytes": 461342,
+    "path": "target/v53-retained-provenance/source-inputs.json",
+    "sha256": "55fb36143465299c987e7f96a01fe55f0fac79575c95ebd4b791261e2ad1fce9"
+  },
+  "sourceParent": "0ba7fb6ec4f31a6f214eb2b6595df3f3d8143cb2",
+  "status": "PASS",
+  "verifiedBuildInputs": 1110
+}
