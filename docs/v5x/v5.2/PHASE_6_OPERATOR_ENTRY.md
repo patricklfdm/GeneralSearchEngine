@@ -570,3 +570,47 @@ only read operations within one 300-second check window. Identity/mount drift an
 unknown `REMOTE_EXIT` remain terminal. Initialization and measured histories are
 never resubmitted by this mechanism. See the
 [native storage timing and diagnostic contract](PHASE_6_NATIVE_STORAGE.md#slow-read-checks-and-closed-receiver-diagnostics).
+
+
+### Failed history diagnostics on hosted runners
+
+Runner `40248542476/1` (source `ff15db5a044f60b8abbd61036f9e27a672d8d957`)
+completed `published-v51-legacy-strong-r1`, then failed during the original
+`candidate-legacy-strong-r1` workload before its physical replay. Its original
+620-byte diagnostic artifact retained only `V52_MEMBER_HISTORY_REJECTED` and
+`ValueError`; the provider completion had `evidenceSha256: null`. Cleanup was
+PASS and the lease was released. The original workload exception cannot be
+recovered from those retained records; this correction does not establish its
+root cause or claim that the workload now passes.
+
+`remote_history` now records a bounded `failure-diagnostic.json` beside the
+history's evidence, first before receiver cleanup and again after it. The
+original workload exception remains primary if collection or a delivery endpoint
+also raises during close. Preparation, original workload, receiver close and
+physical replay are distinguished. Diagnostic write failures cannot bypass
+cleanup, replace the original exception, continue later histories or grant PASS.
+
+The member captures the failed history and completed-history count before guest
+closure. The operator revalidates and copies only the closed projection into
+`target/v52-runner/diagnostics/failure.json`. The existing always-run diagnostic
+upload retains it for 90 days, and Summary displays a failed-history table.
+It includes known reason codes, exception categories, repository module/line,
+controller stage, bounded offered/completed-call histograms, stopped-process
+exit codes and separate close failures. Unknown error text becomes a generic
+code plus the owned check location; it is never silently treated as success.
+Missing, malformed, oversized or linked optional inputs are omitted, so absent
+telemetry must not be interpreted as zero errors.
+
+No raw exception text, local variables, SSH keys, credentials, command lines,
+provider logs, document/query bodies or private workspace trees are uploaded.
+The history projection is capped at 32 KiB; offered counters inspect at most
+4,096 entries and call counters inspect at most 16,384 entries with an explicit
+truncation flag. Partial diagnostics are not a retained evidence bundle and
+cannot replace a successful member seal or complete-set replay. No operation,
+history or measurement is retried, and measurement parameters, soft time/cost
+budgets, workflow provenance and resource cleanup authority remain unchanged.
+
+Local fault-injection tests cover the original-response observation failure,
+late collection failure, preparation and replay rejection, failed diagnostic
+writes, unsafe input rejection and the complete history-to-operator upload and
+Summary path. These are diagnostic regressions, not a new cloud qualification.

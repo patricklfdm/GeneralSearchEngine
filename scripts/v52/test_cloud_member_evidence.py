@@ -155,7 +155,9 @@ class AuthorityTest(unittest.TestCase):
         self.member_case()
         with patch.object(e,'replay_history',side_effect=self.fake_replay) as replay,patch.object(e.history,'run',side_effect=AssertionError('workload rerun')):
             value=self.replay_member()
-        self.assertEqual(5,replay.call_count);self.assertEqual('MEMBER_REPLAYED_NOT_QUALIFIED',value['status'])
+        selected=self.original.request['selection']['member']['histories']
+        self.assertEqual(selected,[call.args[1] for call in replay.call_args_list])
+        self.assertEqual('MEMBER_REPLAYED_NOT_QUALIFIED',value['status'])
         self.assertFalse(value['paidCloud']);self.assertFalse(value['fullRemoteQualification'])
         self.assertEqual(4_000_000,value['accounting']['totalReservedCostMicrousd'])
         saved=auth.artifacts.read(self.parent/'replay/receipt.json');self.assertNotIn('result',next(iter(saved['histories'].values())))

@@ -13,7 +13,7 @@ from . import cloud_runner_workflow as workflow, cloud_runner_provenance as orig
 from . import cloud_credentials as credentials, cloud_artifacts as artifacts, cloud_preflight_read as reads
 from . import cloud_authority as a, cloud_inputs as inputs, cloud_native_runner as native
 from . import cloud_member as member, cloud_sdk_runtime as sdk_runtime, cloud_read_retry
-from . import cloud_runner_host as execution_host, cloud_provider as provider
+from . import cloud_runner_host as execution_host, cloud_provider as provider, history_diagnostics
 from .evidence import need, encoded, digest, strict
 
 OPERATIONS = ('prepare', 'run', 'verify-set')
@@ -115,7 +115,7 @@ def execute_native(source, output):
             path = output/relative
             if path.is_file():
                 try:
-                    inner = artifacts.read(path)
+                    inner = strict(inputs.regular(path,65536))
                     failure.update(credentials.public_failure(inner))
                     failure.update(sdk_runtime.public_failure(inner))
                     failure.update(cloud_read_retry.public_failure(inner))
@@ -126,6 +126,11 @@ def execute_native(source, output):
                     if type(status) is int and 100 <= status <= 599: failure['httpStatus'] = status
                     if relative=='run/member/failure.json' and inner.get('phase') in member.FAILURE_PHASES:
                         failure['memberPhase']=inner['phase']
+                        name=inner.get('history');completed=inner.get('completedHistories')
+                        if name in preparation.suite.load()['histories'] and type(completed) is int and 0<=completed<=33:
+                            failure.update(history=name,completedHistories=completed)
+                            detail=history_diagnostics.project(inner.get('historyDiagnostic'))
+                            if detail is not None and detail['history']==name:failure['historyDiagnostic']=detail
                 except Exception: pass  # A broken diagnostic cannot mask the original operation failure.
         if phase == 'prepare':
             try:
@@ -249,7 +254,12 @@ def summary(output):
     def cell(v): return html.escape(str(v)).replace('|', '&#124;').replace('\n', ' ')
     print('| Item | Result |\n| --- | --- |')
     for key, item in value.items():
-        if key not in ('runRequest', 'selected', 'totals'): print('| '+cell(key)+' | '+cell(item)+' |')
+        if key not in ('runRequest', 'selected', 'totals', 'historyDiagnostic'): print('| '+cell(key)+' | '+cell(item)+' |')
+    detail=history_diagnostics.project(value.get('historyDiagnostic'))
+    if detail is not None:
+        print('\n### Failed original history (diagnostic only)\n\n| Item | Result |\n| --- | --- |')
+        for key in ('history','stage','failure','observations','closure','cleanupFailure'):
+            if key in detail:print('| '+cell(key)+' | '+cell(detail[key])+' |')
     if 'totals' in value:
         print('\n### Complete original set\n\n| Metric | Value |\n| --- | --- |')
         for key, item in value['totals'].items(): print('| '+cell(key)+' | '+cell(item)+' |')

@@ -77,6 +77,25 @@ class MemberTest(unittest.TestCase):
         receipt=m.native.strict((self.root/'run/receipt.json').read_bytes())
         self.assertEqual('FAIL',receipt['status']);self.assertEqual('OSError',receipt['guestCloseFailure'])
         with self.assertRaisesRegex(ValueError,'already consumed'):m.run(self.session,'key',self.root/'retry')
+    def test_second_original_history_failure_keeps_identity_and_completed_count_before_guest_close(self):
+        from . import history_diagnostics as diagnostic
+        names=['published-v51-legacy-strong-r1','candidate-legacy-strong-r1']
+        self.selection['member']['histories']=names;self.failure=names[1]
+        run=self.execute
+        def execute(root,name,expected,**kwargs):
+            kwargs['progress']('original-workload')
+            try:return run(root,name,expected,**kwargs)
+            except ValueError as error:
+                diagnostic.retain(root,name,'original-workload',error,None)
+                raise
+        self.run.side_effect=execute
+        self.guests.close.side_effect=OSError('private cleanup failure')
+        with self.assertRaisesRegex(ValueError,'original work failed'):m.run(self.session,'key',self.root/'run')
+        failure=m.native.artifacts.read(self.root/'run/failure.json')
+        self.assertEqual(names,self.rows);self.assertEqual(names[1],failure['history'])
+        self.assertEqual(1,failure['completedHistories']);self.assertEqual('original-workload',failure['historyDiagnostic']['stage'])
+        self.assertEqual(names[1],failure['historyDiagnostic']['history']);self.guests.close.assert_called_once()
+
     def test_java_failure_prevents_every_history_and_closes_original_guest_scope(self):
         self.storage.install_java.side_effect=ValueError('partial Java')
         with self.assertRaisesRegex(ValueError,'partial Java'):m.run(self.session,'key',self.root/'run')
