@@ -38,8 +38,12 @@ rotation, abandoned scratch recovery or complete network/process qualification.
 The [incoming activation endpoint](PHASE_3_ACTIVATION_ENDPOINT.md) subsequently
 owns PREPARE/SELECTED controls and source dispatch, with one bounded worker,
 duplicate sharing, higher-ballot fencing and automatic expiry/cancellation. Real
-TCP histories still use an explicitly driven outgoing campaign. Automatic campaign
-scheduling/rotation and the other open 3B obligations above remain required.
+TCP histories still use an explicitly driven outgoing campaign. The subsequent [outgoing driver](PHASE_3_ACTIVATION_DRIVER.md) owns bounded
+current-view source/installation scheduling and fresh-ballot failed-source rotation.
+It retains original deadlines and actual source files through all selected ACKs.
+Autonomous election ownership, durable source maintenance across repeated rounds,
+historical provenance, cross-view discovery/adoption, abandoned scratch restart
+recovery and complete distributed qualification remain required.
 
 ## First batch boundary
 

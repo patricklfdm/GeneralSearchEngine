@@ -46,10 +46,19 @@ final class MembershipActivation implements AutoCloseable {
     private State state=State.PREPARING;
 
     MembershipActivation(MembershipGrantJournal owner,MembershipResources resources,LongSupplier clock,long budget) throws IOException {
+        this(owner,resources,clock,clock.getAsLong(),budget);
+    }
+    /** A fresh ballot does not grant the enclosing activation another time budget. */
+    MembershipActivation(MembershipGrantJournal owner,MembershipResources resources,LongSupplier clock,long started,long budget) throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"activation time budget");
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);
-        this.clock=Objects.requireNonNull(clock);this.budget=budget;started=clock.getAsLong();
-        own=owner.beginActivation();ballot=object(own.basis.value().get("ballot"));
+        this.clock=Objects.requireNonNull(clock);this.budget=budget;this.started=started;
+        long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"original activation deadline");
+        synchronized(owner) {
+            elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"original activation deadline");
+            own=owner.beginActivation();
+        }
+        ballot=object(own.basis.value().get("ballot"));
         offered.put(own.owner.nodeId().value(),own);check();
     }
     State state(){return state;}

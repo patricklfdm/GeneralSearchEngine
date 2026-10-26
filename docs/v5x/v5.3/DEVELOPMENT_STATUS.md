@@ -1,5 +1,29 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B outgoing activation and failed-source rotation
+
+The [outgoing driver](PHASE_3_ACTIVATION_DRIVER.md) now owns concurrent PREPARE,
+complete original-source selection and every selected remote installation before
+local installation. Failed selected peers trigger a fresh ballot with a bounded
+alternative opportunity. All rounds and retries share one original deadline;
+known higher promises fence before writer admission. Pending workers and receiving
+files are drained before another round. Original failed sources remain durable.
+
+The final fresh build passes 96 Java tests in eleven suites, including twenty
+new driver tests; 564 Python tests pass in normal and optimized modes. The
+[receipt](phase3-evidence/activation-driver.json) binds independent original-first
+and portable replay of three actual TCP stable-size histories, 156 source exchanges,
+ten control exchanges and eight installations, plus ten exact negatives. A new
+writer-wait regression first reproduced an expired request still forcing a grant;
+the correction checks the original budget inside the writer monitor. Initial
+recorder and chunk-profile replay errors remain separately retained.
+
+This qualifies bounded current-view activation invocations, not autonomous election,
+public READY or complete Phase 3. Historical provenance/ancestry delivery,
+newer-view discovery/adoption, abandoned scratch restart recovery, repeated-round
+source maintenance, learner/joint transitions, carried voting/publication and
+complete distributed S/N qualification remain open. No push, CI or cloud execution.
+
 ## 2026-10-25 — Phase 3B incoming activation ownership
 
 The [incoming endpoint](PHASE_3_ACTIVATION_ENDPOINT.md) connects real PREPARE,

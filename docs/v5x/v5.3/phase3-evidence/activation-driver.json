@@ -1,0 +1,209 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-activation-driver/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1265961,
+      "path": "target/v53-activation-driver/replication.jar",
+      "sha256": "4f8b2caf2eb14236fcc58e4ceb6e5a38a7e2d4de55c6e8a78a64a07e421a25d4"
+    }
+  ],
+  "automaticCampaign": true,
+  "autonomousElection": false,
+  "buildInputs": {
+    "bytes": 456837,
+    "path": "target/v53-activation-driver/final-inputs.json",
+    "sha256": "129832f0bba3299bec4d59cd92724bbad69b9021e6d9757dbb80ee4f93506db7"
+  },
+  "caveats": [
+    "The first build invocation used a nonexistent reactor path; the corrected invocation ran thirteen tests with one recording-only null-kind error. Neither is final acceptance.",
+    "The second sixteen-test execution passed. Independent replay initially assumed the older 1 KiB transfer profile; the actual default 4 MiB profile is now explicit and bounded, while all original byte/identity/cut checks remain exact. The unchanged second trace passes the corrected reader.",
+    "A deterministic writer-wait regression fails before correction: after the original budget expires while waiting for the journal monitor, a new allocator/grant/source is still forced. Final construction rechecks inside that monitor before allocation; the final twenty driver tests pass.",
+    "The final build uses a fresh isolated directory, and every Java/POM/resource input is rechecked against its exact workspace and artifact source.",
+    "Actual TCP histories cover current-view bootstrap states at stable sizes 3/4/5. The seven transition profiles only qualify scheduling arithmetic here; distributed learner/joint transitions are not inferred.",
+    "Lost-ACK and source-rotation faults use real journals and endpoints with deterministic injected link outcomes, separate from the healthy TCP physical transcript. No fresh-JVM or full S/N closure is claimed.",
+    "Invocation campaign count is at most six and actual unchanged resource admission may stop earlier. Original failed sources are never deleted just to retry. Governing-floor maintenance and crash/session recovery remain required.",
+    "Historical provenance/ancestry transfer, newer-view discovery/adoption, autonomous election, learners/joint completion, carried voting/publication and complete Phase 3 qualification remain open."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 8729,
+      "path": "target/v53-activation-driver/final-java-tests.log",
+      "sha256": "11fd885d3c94a515cd8c680bde19885f302e415a9e65713b9281b30ec378a14c"
+    },
+    {
+      "bytes": 43,
+      "path": "target/v53-activation-driver/build-input-check.json",
+      "sha256": "212a4927f5c8ad7193a9ef3fb9fb2b0b1bc800388e3efaa73ae47b74e03dac25"
+    },
+    {
+      "bytes": 2148,
+      "path": "target/v53-activation-driver/java-reports.json",
+      "sha256": "0a9de69a60a548b54caf85aa0bdea58ec65cccf708af6c4933cf498819e02c16"
+    },
+    {
+      "bytes": 665,
+      "path": "target/v53-activation-driver/python.log",
+      "sha256": "e97afd44ad39caf34431da410746dc870b2f3cb737abbff06a94d2c638122e76"
+    },
+    {
+      "bytes": 665,
+      "path": "target/v53-activation-driver/python-optimized.log",
+      "sha256": "a6520689114bd53f56a4ebe30fc1ba660cd813aae4b7d277b798e659829c289d"
+    },
+    {
+      "bytes": 139,
+      "path": "target/v53-activation-driver/qualification.log",
+      "sha256": "c46fb5e7216d4bb6af3c251181c3f81b2b84dc917f719261cf790b84da0031f3"
+    },
+    {
+      "bytes": 57669,
+      "path": "target/v53-activation-driver/raw-inventory.json",
+      "sha256": "7aebf9d13b20dbeaa2c6765d442137b2e8ebafc97f623e4b9797b1d5aae2d5c5"
+    },
+    {
+      "bytes": 1246,
+      "path": "target/v53-activation-driver/replay.json",
+      "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+    },
+    {
+      "bytes": 1246,
+      "path": "target/v53-activation-driver/replay-optimized.json",
+      "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+    },
+    {
+      "bytes": 1246,
+      "path": "target/v53-activation-driver/replay-portable.json",
+      "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+    },
+    {
+      "bytes": 192303,
+      "path": "target/v53-activation-driver/portable-evidence.tar.gz",
+      "sha256": "714df2b96db447cda4ac87b165a7d9b3753513b4abbb950e3e584f94dda0f346"
+    },
+    {
+      "bytes": 1307,
+      "path": "target/v53-activation-driver/activation-replay.json",
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-activation-driver/endpoint-replay.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 1794,
+      "path": "target/v53-activation-driver/selected-replay.json",
+      "sha256": "980bb3d0d71e31ecc217b7350c7d94ecac7701176bebc50b78eb93ee27fd7c78"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-activation-driver/service-replay.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    },
+    {
+      "bytes": 1315,
+      "path": "target/v53-activation-driver/transport-replay.json",
+      "sha256": "4ac91a9201b280d184ec7e3cde9a96119722037e38e6a2108010c05d02b7397f"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "admittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "driverTests": 20,
+    "errors": 0,
+    "failures": 0,
+    "schedulingArithmeticProfiles": 7,
+    "skips": 0,
+    "suites": 11,
+    "tests": 96
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "python": {
+      "seconds": 92.842,
+      "tests": 564
+    },
+    "python-optimized": {
+      "seconds": 92.558,
+      "tests": 564
+    }
+  },
+  "replay": {
+    "chunkBytes": 4194304,
+    "controlExchanges": 10,
+    "negativeCases": 10,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "selectedInstallations": 8,
+    "sourceExchanges": 156
+  },
+  "retainedEarlier": [
+    {
+      "bytes": 276,
+      "path": "target/v53-activation-driver/initial-tests.log",
+      "sha256": "9b164ff83f52cc0e039d4ce7a0ab65326f1fd79e6a8ca56bc400d36364a6e833"
+    },
+    {
+      "bytes": 456486,
+      "path": "target/v53-activation-driver/initial-inputs.json",
+      "sha256": "8d6d3b169cc23cf4ed55ff2427e1541d7b81f5a36ec1d2e8456301b4fdf6b2ed"
+    },
+    {
+      "bytes": 8164,
+      "path": "target/v53-activation-driver/initial-java-tests.log",
+      "sha256": "5b903f7341388d898576045ebadea07db8ced6b5119964b1f823892aebda6931"
+    },
+    {
+      "bytes": 456721,
+      "path": "target/v53-activation-driver/second-inputs.json",
+      "sha256": "488e2e035e707d59ab3ea95b199c3d90a23d2b18a327eafa53d442c3cdbee757"
+    },
+    {
+      "bytes": 4816,
+      "path": "target/v53-activation-driver/second-java-tests.log",
+      "sha256": "afa736670cac51057130282e526c023b481a1805bc9e62b628519a3764ab3831"
+    },
+    {
+      "bytes": 1689,
+      "path": "target/v53-activation-driver/second-replay.stderr",
+      "sha256": "c7db40562e622a9d335feae62e8fde3c01c4eabadef69dc85e8e9ac270f9bf92"
+    },
+    {
+      "bytes": 1246,
+      "path": "target/v53-activation-driver/second-replay-corrected.json",
+      "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+    },
+    {
+      "bytes": 456721,
+      "path": "target/v53-activation-driver/writer-red-inputs.json",
+      "sha256": "a2764378c7a45fb4d5a4f59c14b20fc4be227cb19254e3d33dc0e907fde0cc3b"
+    },
+    {
+      "bytes": 12856,
+      "path": "target/v53-activation-driver/writer-red-tests.log",
+      "sha256": "3a8199b67ba8a9b4aaaf769ea9073ffd6d4172d82d6d2e0c3337aee17776b885"
+    }
+  ],
+  "schema": "gse-v53-phase3-activation-driver-local-v1",
+  "scope": "bounded current-view automatic outgoing selection/installation with original deadlines, cancellation and fresh-ballot failed-source rotation",
+  "sourceInputs": {
+    "bytes": 456837,
+    "path": "target/v53-activation-driver/source-inputs.json",
+    "sha256": "8ce463758a0008cb180d2c89d077fe9042ea680c3b31835d507d5feebd385e10"
+  },
+  "sourceParent": "4f19d24e29e88b86f89aab49dd69b8f6f68fbedb",
+  "status": "PASS",
+  "verifiedBuildInputs": 1099
+}

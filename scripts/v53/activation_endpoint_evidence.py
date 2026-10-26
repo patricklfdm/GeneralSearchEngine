@@ -17,7 +17,7 @@ b=p.b
 load=p.load
 
 
-def case(root,size):
+def case(root,size,*,borrow_images=False,concurrent_controls=False,chunk_bytes=1024):
     directory=root/f'stable-{size}';result=a.case(directory,size)
     before=b.original(directory,size,False);_,initial,packet=c.current(before['node-1'])
     selected=(directory/'selected.gsr').read_bytes();selection=e.f.decode(selected,'records','SELECTED')
@@ -33,6 +33,8 @@ def case(root,size):
         e.need(set(row)=={'request','response'},'endpoint network row')
         _,request=p.t.wire(row['request']);groups.setdefault(request['trace'],[]).append(row)
     observed=groups.pop(control_trace,None)
+    if concurrent_controls and observed is not None:
+        observed=sorted(observed,key=lambda row:p.t.wire(row['request'])[1]['sequence'])
     e.need(observed==controls,'endpoint original control delivery')
     # Expected transfers are derived from original owners and the fixed selection,
     # not from whatever references happen to be offered in the network trace.
@@ -40,7 +42,7 @@ def case(root,size):
     for receiver in names[1:]:
         expected[(receiver,'node-1',e.digest(records['node-1']['PROMISE']))]=[(e.digest(records['node-1']['PROMISE']),records['node-1']['PROMISE'],'RECORD')]
         expected[(receiver,'node-1',e.digest(selected))]=[(e.digest(selected),selected,'RECORD')]
-        for reader,source,with_images in [('node-1',receiver,True)]+[(receiver,source,False) for source in names if source!=receiver]:
+        for reader,source,with_images in [('node-1',receiver,not borrow_images)]+[(receiver,source,False) for source in names if source!=receiver]:
             values=[(e.digest(records[source][kind]),records[source][kind],'RECORD') for kind in ('BASIS','PROMISE')]
             values.append((e.digest(packet['capsuleBytes']),initial['source.gscp'],'CAPSULE'))
             if with_images:values.extend((h,initial[h+'.image'],'APPLICATION') for h in sorted(packet['images']))
@@ -52,7 +54,7 @@ def case(root,size):
         # The independent format uses full immutable identities in transcript().
         e.need(key in expected,'endpoint unexpected/duplicate source transfer')
         contents=expected.pop(key)
-        count+=p.transcript(rows,contents,selection['root'],selection['view'],selection['ballot'],identities[key[0]],identities[key[1]],'endpoint source')
+        count+=p.transcript(rows,contents,selection['root'],selection['view'],selection['ballot'],identities[key[0]],identities[key[1]],'endpoint source',chunk_bytes=chunk_bytes)
     e.need(not expected,'endpoint missing source transfer')
     return dict(size=size,selected=result['selected'],installed=result['installed']),count
 

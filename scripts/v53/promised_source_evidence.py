@@ -19,7 +19,8 @@ b=a.b
 load=a.load
 
 
-def transcript(rows,expected,root,view,ballot,sender,recipient,label):
+def transcript(rows,expected,root,view,ballot,sender,recipient,label,*,chunk_bytes=1024):
+    e.need(type(chunk_bytes) is int and 0<chunk_bytes<=4*e.MIB,label+' chunk bound')
     position=0;trace=None;ids=set()
     def exchange(wanted,answer):
         nonlocal position,trace
@@ -38,8 +39,8 @@ def transcript(rows,expected,root,view,ballot,sender,recipient,label):
         e.need(tid not in ids,label+' reused transfer');ids.add(tid);digest=e.digest(raw)
         e.need(request==dict(id=tid,action='REQUEST',offset=0,digest=reference,bytes='')
                and offer==dict(id=tid,digest=digest,bytes=len(raw),kind=kind),label+' original offer')
-        for offset in range(0,len(raw),1024):
-            request,response=exchange('CHUNK','CHUNK');part=raw[offset:offset+1024]
+        for offset in range(0,len(raw),chunk_bytes):
+            request,response=exchange('CHUNK','CHUNK');part=raw[offset:offset+chunk_bytes]
             e.need(request==dict(id=tid,action='REQUEST',offset=offset,digest=digest,bytes='')
                    and response==dict(id=tid,action='DATA',offset=offset,digest=e.digest(part),bytes=base64.b64encode(part).decode()),label+' exact data')
         request,response=exchange('TRANSFER_COMMIT','TRANSFER_COMMIT')

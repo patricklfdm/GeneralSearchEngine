@@ -118,6 +118,10 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         var active=enter(campaign.ownSource().capsule,campaign.ballot(),campaign.started(),Math.min(budget,campaign.budget()));
         active.granted();
     }
+    /** Revoke only the outgoing owner's failed round, never an intervening peer scope. */
+    void abandon(Map<String,Object> ballot) {
+        var active=scope;if(active!=null && active.ballot.equals(ballot))active.close();releaseEndedControl();
+    }
     private void releaseEndedControl() {
         synchronized(registry){if(control!=null && control.finished && control.active.ended){control.close();control=null;}}
     }
