@@ -49,6 +49,11 @@ process death and resumes interrupted cleanup. Actual receiving SIGKILL followed
 by a new driver activation is locally qualified. This does not close autonomous
 runtime recovery, historical provenance, cross-view adoption or the full Phase 3 gate.
 
+[Read-only discovery](PHASE_3_DISCOVERY.md) adds a root-bound STATUS path through
+the actual activation endpoint before or after an election scope. Historical
+identities can discover newer cuts without voting or changing local authority.
+Complete source provenance and adoption still require separate verification.
+
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
 cloud qualification continues. The initial local-only instruction was extended
 on 2026-10-25 to push completed Phase 2 and start Phase 3. The branch starts

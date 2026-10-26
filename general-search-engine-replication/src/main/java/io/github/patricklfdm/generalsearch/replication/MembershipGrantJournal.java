@@ -1608,6 +1608,20 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized MembershipContext activationContext() throws IOException {
         require(current!=null,"current generation required");checkOwner();return current.capsule.context;
     }
+    record DiscoveryState(MembershipContext context,Map<String,Object> ballot) {}
+    /** Reuse the actual observed root fence for correlation; discovery must not
+     * allocate a new ballot or require its own PREPARE before finding a newer view. */
+    synchronized DiscoveryState discoveryState(MembershipResources budget)throws IOException {
+        require(current!=null && resources==budget,"discovery requires actual storage resource owner");checkOwner();
+        var bound=observed.get();require(bound!=null,"discovery requires initialized root fence");
+        return new DiscoveryState(current.capsule.context,Map.copyOf(bound));
+    }
+    /** Read the actual forced current cut without allocating a ballot or granting a
+     * vote. Cross-view discovery must not use current-voter wire admission. */
+    synchronized Decoded discoveryStatus(MembershipIdentity sender,Decoded request)throws IOException {
+        require(current!=null,"current generation required");checkOwner();
+        var reply=MembershipDiscovery.answer(current.capsule.context,identity,sender,request);checkOwner();return reply;
+    }
     synchronized MembershipCapsule activationCapsule() throws IOException {
         require(current!=null,"current generation required");checkOwner();return current.capsule;
     }

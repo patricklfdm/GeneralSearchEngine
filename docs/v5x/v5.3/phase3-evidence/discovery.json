@@ -1,0 +1,172 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-discovery/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1294383,
+      "path": "target/v53-discovery/replication.jar",
+      "sha256": "4802a25019801ffe23f94c2ac33dd034a37e1f0ee4dfbfdc8f4466769acd1c16"
+    }
+  ],
+  "autonomousElection": false,
+  "buildInputs": {
+    "bytes": 459800,
+    "path": "target/v53-discovery/qualified2-inputs.json",
+    "sha256": "13449f47c52fbbcece1faa924bec00cc949bcf397d9b78fb16051211379b8760"
+  },
+  "caveats": [
+    "The initial actual TCP matrix passed, but eight pre-election query tests errored because the constructor required a caller-selected campaign ballot. The corrected query snapshots the existing observed fence and needs no new grant. Original failed reports are retained.",
+    "The intermediate 76-test build qualified discovery, activation, adoption and transport before STATUS routing was added to MembershipActivationEndpoint. The final 46-test build covers that endpoint integration and its actual TCP paths; the intermediate result is not relabelled as final-source validation.",
+    "The actual original-bootstrap TCP matrix includes real activation and certified BARRIER publication at stable sizes 3/4/5. Joint/final adopted-store cases separately use conditional historical-observation fixtures and are not a complete distributed membership transition.",
+    "A returned cut/ready flag is an unverified diagnostic hint. No peer directory, authority, promise, installation, vote, public read or READY derives from it. Permanent known identities are authenticated under the existing private-network crash-fault assumption.",
+    "Historical proof provenance, newer complete-source acquisition/adoption, autonomous election, learners/joint completion, generalized voting/publication and complete distributed qualification remain open."
+  ],
+  "crossViewAdoption": false,
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 6947,
+      "path": "target/v53-discovery/qualified2-java-tests.log",
+      "sha256": "5c65d83bf18339518b01a2d7a7c032fa437786111410ff4e69d1679e362844b8"
+    },
+    {
+      "bytes": 43,
+      "path": "target/v53-discovery/build-input-check.json",
+      "sha256": "6e523ae6310743ce8525295b2d08f7fbf7b852d35206248f6d31d7bb8eed923c"
+    },
+    {
+      "bytes": 1374,
+      "path": "target/v53-discovery/java-reports.json",
+      "sha256": "b20deb3be7cc2f8b7c8487bc837047620fbc7f0d95f7569f4509fe9ace011a00"
+    },
+    {
+      "bytes": 674,
+      "path": "target/v53-discovery/python-normal.log",
+      "sha256": "6123398d72593a12ea48bc32c37a6bea5b765aeeaf306646ebf2837980c1192d"
+    },
+    {
+      "bytes": 674,
+      "path": "target/v53-discovery/python-optimized.log",
+      "sha256": "6d15a66f750ea64265b492dc4807bbbbbb6ccb53dafe7433a575c6d022d3d63c"
+    },
+    {
+      "bytes": 96,
+      "path": "target/v53-discovery/qualification.log",
+      "sha256": "57cae617ae949bc0102400fe3a018a33fb3c59ed545d846c2cd8b38578df359c"
+    },
+    {
+      "bytes": 407933,
+      "path": "target/v53-discovery/raw-inventory.json",
+      "sha256": "f6d9639e2fb3ff0bdbd9310cfe60aa6a8e88ff16889033a60d75e4e64113b638"
+    },
+    {
+      "bytes": 1347,
+      "path": "target/v53-discovery/replay.json",
+      "sha256": "5bd008ebbd23d959e981eadfac6b647536e7c56c1bd499e37cfb04a74526ffb5"
+    },
+    {
+      "bytes": 1347,
+      "path": "target/v53-discovery/replay-optimized.json",
+      "sha256": "5bd008ebbd23d959e981eadfac6b647536e7c56c1bd499e37cfb04a74526ffb5"
+    },
+    {
+      "bytes": 1347,
+      "path": "target/v53-discovery/replay-portable.json",
+      "sha256": "5bd008ebbd23d959e981eadfac6b647536e7c56c1bd499e37cfb04a74526ffb5"
+    },
+    {
+      "bytes": 837360,
+      "path": "target/v53-discovery/portable-evidence.tar.gz",
+      "sha256": "1610dc5caf7a46acfec563449588f36ce0a4305563da735d09576a46519e8c36"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-discovery/endpoint-replay.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 1315,
+      "path": "target/v53-discovery/transport-replay.json",
+      "sha256": "4ac91a9201b280d184ec7e3cde9a96119722037e38e6a2108010c05d02b7397f"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "discoveryTests": 14,
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "suites": 7,
+    "tests": 46
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "normal": {
+      "seconds": 96.833,
+      "tests": 573
+    },
+    "optimized": {
+      "seconds": 95.896,
+      "tests": 573
+    }
+  },
+  "replay": {
+    "exchanges": 38,
+    "negativeCases": 11,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "stableSizes": [
+      3,
+      4,
+      5
+    ]
+  },
+  "retainedEarlier": [
+    {
+      "bytes": 459473,
+      "path": "target/v53-discovery/initial-inputs.json",
+      "sha256": "8724057ce467d8561b92bcfcc1bea2f863c7fa112957502c85d1ce8f6d4baaab"
+    },
+    {
+      "bytes": 18008,
+      "path": "target/v53-discovery/initial-java-tests.log",
+      "sha256": "6129e2188fb2bcbc1a2e148fd0abc9f141119f52f11b3210df43a7c4103b96b5"
+    },
+    {
+      "bytes": 1347,
+      "path": "target/v53-discovery/initial-replay.json",
+      "sha256": "5bd008ebbd23d959e981eadfac6b647536e7c56c1bd499e37cfb04a74526ffb5"
+    },
+    {
+      "bytes": 459692,
+      "path": "target/v53-discovery/qualified-inputs.json",
+      "sha256": "26108436d78c9e0fcca9050bd01bd139ea3f76949237bae887326324e9a91abf"
+    },
+    {
+      "bytes": 7604,
+      "path": "target/v53-discovery/qualified-java-tests.log",
+      "sha256": "acf17ba12759ff87cd0e1905cd137bd13c70a072064691093033334722d9a5a5"
+    },
+    {
+      "bytes": 3958,
+      "path": "target/v53-discovery/earlier-results.json",
+      "sha256": "7f334547915368439f16038cde86f3a7248e9cd941d0d6cce3b7dc2bbf284e00"
+    }
+  ],
+  "schema": "gse-v53-phase3-discovery-local-v1",
+  "scope": "read-only root-bound STATUS discovery through actual activation endpoints with bounded queries and unchanged authority",
+  "sourceInputs": {
+    "bytes": 459800,
+    "path": "target/v53-discovery/source-inputs.json",
+    "sha256": "238c07223f40a1ce3d8db3af4a9ce3a7823dd495bd135476df9b9ea1e5b78893"
+  },
+  "sourceParent": "e8b23e6f665fcaa6c585e5bf549a74f480518fae",
+  "status": "PASS",
+  "verifiedBuildInputs": 1107
+}

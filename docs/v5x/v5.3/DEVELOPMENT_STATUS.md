@@ -1,5 +1,25 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B root-bound read-only discovery
+
+The [STATUS discovery path](PHASE_3_DISCOVERY.md) separates historical permanent
+identities from current voting eligibility. The actual activation endpoint can
+report its forced cut before a campaign exists or after its scope ends, without
+allocating a ballot, granting a vote or reviving that scope. Outgoing queries reuse
+the owner's observed fence and shared budget, permit only bounded identical
+transport retries and discard late replies after fencing, close or deadline.
+
+The returned cut remains an unverified hint. It neither learns unknown endpoints
+nor changes configuration, installs a prefix or authorizes READY. Complete source
+provenance/acquisition, cross-view adoption, autonomous elections, learner/joint
+transitions and the full Phase 3 qualification remain open. Final local evidence
+is recorded in the [receipt](phase3-evidence/discovery.json): 46 Java tests in seven
+suites, including fourteen discovery tests; 573 Python tests normally and with
+assertions disabled; 38 actual TCP exchanges at stable sizes 3/4/5; and eleven
+exact negatives in normal, optimized and portable replay. The first run's eight
+pre-election query errors and the intermediate 76-test build remain separate.
+No push, protected CI, paid cloud or release is claimed.
+
 ## 2026-10-26 — Phase 3B receiving scratch restart recovery
 
 The [derived-work scope](PHASE_3_SCRATCH_RECOVERY.md) now binds incoming/outgoing

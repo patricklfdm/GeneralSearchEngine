@@ -59,6 +59,12 @@ addresses the named receiving scopes. The autonomous owner lifecycle, historical
 provenance, cross-view adoption, repeated-round source maintenance and complete
 distributed qualification remain required.
 
+[Read-only STATUS discovery](PHASE_3_DISCOVERY.md) now separates permanent identity
+authentication from current-voter admission. The actual endpoint reports its forced
+cut without creating a campaign scope; finite original-deadline queries expose only
+unverified hints. Root-bound newer-source acquisition, historical proof provenance,
+verified adoption and autonomous election integration remain required within 3B.
+
 ## First batch boundary
 
 Implement an internal activation controller over `MembershipGrantJournal`, using
