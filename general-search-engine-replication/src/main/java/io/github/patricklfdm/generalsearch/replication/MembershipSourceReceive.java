@@ -115,6 +115,11 @@ final class MembershipSourceReceive implements AutoCloseable {
     }
     synchronized Decoded basis()throws IOException {check();return basis;}
     synchronized Decoded promise()throws IOException {check();return promise;}
+    synchronized MembershipIdentity sourceIdentity()throws IOException {check();return source;}
+    /** Recheck a borrowed complete source without allocating another image map. */
+    synchronized void recheck()throws IOException {
+        packet();for(var file:files.values())file.checkVerified();check();
+    }
     /** Cleanup can be retried after an I/O failure; reservations for remaining files stay live. */
     @Override public synchronized void close()throws IOException {
         if(closed)return;

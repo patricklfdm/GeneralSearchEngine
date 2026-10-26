@@ -32,6 +32,9 @@ final class MembershipActivation implements AutoCloseable {
     private final MembershipSelection.Source own;
     private final Map<String,Object> ballot;
     private final Map<String,MembershipSelection.Source> offered=new TreeMap<>();
+    // The caller owns these files. Keep checking their lifetime until every
+    // selected installation has its own durable state; never borrow freed scratch.
+    private final Map<String,MembershipSourceReceive> receivedSources=new TreeMap<>();
     private final Map<String,Exchange> exchanges=new TreeMap<>();
     // At most five PREPARE and five SELECTED headers. Keep correlation after a
     // successful phase so a delayed authenticated higher promise still fences us.
@@ -58,6 +61,7 @@ final class MembershipActivation implements AutoCloseable {
             long elapsed=clock.getAsLong()-started;
             require(elapsed>=0 && elapsed<budget,"original activation deadline");
             owner.checkActivation(own.basis,decision==null?null:decision.selected(),state==State.INSTALLED);
+            for(var source:receivedSources.values())source.recheck();
         }catch(IOException|RuntimeException error){abandon();throw error;}
     }
     private void peer(MembershipIdentity peer) {
@@ -91,6 +95,18 @@ final class MembershipActivation implements AutoCloseable {
         exchange.retry.complete(exchange.request.digest(),clock.getAsLong());exchange.response=response;exchange.close();
     }
     /** Only complete, verified source packets enter quorum arithmetic. No same-ballot reselection. */
+    void promised(MembershipIdentity peer,Decoded reply,MembershipSourceReceive received,
+            MembershipCurrentGeneration.Verifier verifier,List<MembershipSelection.Bridge> ancestry)throws IOException {
+        require(state==State.PREPARING,"late promise after fixed selection");
+        var exchange=response(peer,reply,"PROMISE");
+        try {
+            var source=MembershipPromisedSource.verify(own,peer,exchange.request,reply,received,verifier);
+            var previous=receivedSources.putIfAbsent(peer.nodeId().value(),received);
+            require(previous==null || previous==received,"promised source staging owner changed");
+            check();promised(peer,new Prepared(reply,source),ancestry);
+        }catch(IOException|RuntimeException error){abandon();throw error;}
+    }
+    /** In-process verified-source adapter. The network path uses the received-file overload. */
     void promised(MembershipIdentity peer,Prepared reply,List<MembershipSelection.Bridge> ancestry) throws IOException {
         require(state==State.PREPARING,"late promise after fixed selection");
         var exchange=response(peer,reply.response(),"PROMISE");var source=reply.source();
@@ -143,7 +159,7 @@ final class MembershipActivation implements AutoCloseable {
     }
     private void finish() throws IOException {
         if(installed.size()!=decision.sources().size())return;
-        owner.checkActivation(own.basis,decision.selected(),true);check();clearExchanges();state=State.INSTALLED;
+        owner.checkActivation(own.basis,decision.selected(),true);check();clearExchanges();receivedSources.clear();state=State.INSTALLED;
     }
     /** Caller must still complete carried-entry voting and a current stable BARRIER before READY. */
     Decoded votingSelection() throws IOException {check();require(state==State.INSTALLED,"all selected installations required");return decision.selected();}
@@ -157,7 +173,7 @@ final class MembershipActivation implements AutoCloseable {
         var active=exchanges.get(peer.nodeId().value());
         if(active!=null && active.response==null && number(active.request.value().get("sequence"))==id)abandon();
     }
-    void abandon(){state=State.ABANDONED;clearExchanges();requests.clear();offered.clear();installed.clear();decision=null;bridges=List.of();}
+    void abandon(){state=State.ABANDONED;clearExchanges();requests.clear();offered.clear();receivedSources.clear();installed.clear();decision=null;bridges=List.of();}
     private void clearExchanges(){exchanges.values().forEach(Exchange::close);exchanges.clear();}
     @Override public void close(){abandon();state=State.CLOSED;}
 

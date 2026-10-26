@@ -1,0 +1,182 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-promised-source/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1220721,
+      "path": "target/v53-promised-source/replication.jar",
+      "sha256": "ca637e90bfdfbe08a36f2d07950181868353eafe84945ca27b784b72eb173287"
+    }
+  ],
+  "buildInputs": {
+    "bytes": 454109,
+    "path": "target/v53-promised-source/final-build-inputs.json",
+    "sha256": "70cf5abf62777b958faac90ee2aa20eb92f56e1496e047ca4aec23ee42405e67"
+  },
+  "caveats": [
+    "The first Java compilation failed on an invalid test catch; corrected initial 51-test execution passed. The lifetime regression then failed against that implementation. All 53 final tests passed together after the borrow fix.",
+    "Real TCP evidence stops at fixed source selection; the installation lifetime handoff uses the actual storage operations through an in-process adapter.",
+    "Matched authenticated PROMISE replies establish only their original peer-local BASIS/tail observation. Historical certificate/checkpoint observations remain explicit independent verifier inputs; absent historical witnesses are rejected.",
+    "All source files remain borrowed until every selected actual installation completes. A closed owner abandons the campaign without deleting the retained selection.",
+    "Complete runtime/network installation, historical provenance, newer-prefix discovery/adoption, source rotation, scratch recovery, learner/joint transitions and distributed closure remain open."
+  ],
+  "date": "2026-10-25",
+  "evidence": [
+    {
+      "bytes": 1557,
+      "path": "target/v53-promised-source/java-reports.json",
+      "sha256": "bb2706a115827ff5509d155b52a86c1a0ab27c55f36c53321965bdf58ac4528f"
+    },
+    {
+      "bytes": 7006,
+      "path": "target/v53-promised-source/final-tests.log",
+      "sha256": "a3533645cb67f3d4ef4a2d32db357a0347ba3fcbca3356d28ce3c189a21f85ab"
+    },
+    {
+      "bytes": 655,
+      "path": "target/v53-promised-source/python.log",
+      "sha256": "8abfd46428392650a3befee4bd8daf4e44752a6dc76688d3d42d0c7f7079f85e"
+    },
+    {
+      "bytes": 655,
+      "path": "target/v53-promised-source/python-optimized.log",
+      "sha256": "15c9e7bef32f0fea0146a84bc611737edaa5b0861dbc27a3f2b5664b8f50883d"
+    },
+    {
+      "bytes": 156,
+      "path": "target/v53-promised-source/qualification.log",
+      "sha256": "be9b861bea4b2cd33738acf241dac937d53e67b2e010016ba63368752fc17520"
+    },
+    {
+      "bytes": 52327,
+      "path": "target/v53-promised-source/raw-inventory.json",
+      "sha256": "9bf71aed51933e1f83762526dfa736bdf9e693af6e8d1d163d1e4416fa27cb0d"
+    },
+    {
+      "bytes": 1912,
+      "path": "target/v53-promised-source/replay.json",
+      "sha256": "6ad451c461ddc7445667bdf28d0bbb4826d8fa8cf4bb8509c4e82c7e94f8a9c0"
+    },
+    {
+      "bytes": 1912,
+      "path": "target/v53-promised-source/replay-optimized.json",
+      "sha256": "6ad451c461ddc7445667bdf28d0bbb4826d8fa8cf4bb8509c4e82c7e94f8a9c0"
+    },
+    {
+      "bytes": 1912,
+      "path": "target/v53-promised-source/replay-portable.json",
+      "sha256": "6ad451c461ddc7445667bdf28d0bbb4826d8fa8cf4bb8509c4e82c7e94f8a9c0"
+    },
+    {
+      "bytes": 168010,
+      "path": "target/v53-promised-source/portable-evidence.tar.gz",
+      "sha256": "a2d9ad184f4194afef6e4fd8bc034b3b7959aa9ad8aaddadd23ca8f5ea1dcb5f"
+    },
+    {
+      "bytes": 1229,
+      "path": "target/v53-promised-source/receive-replay.json",
+      "sha256": "e79d15161b6e11554592501653529551eaac8e616f6111e4c577403cca4a4133"
+    },
+    {
+      "bytes": 1509,
+      "path": "target/v53-promised-source/record-replay.json",
+      "sha256": "2938725672c541dda5a43dd5db917f66d7c257ce7157993344b7d23e32322a5a"
+    },
+    {
+      "bytes": 1307,
+      "path": "target/v53-promised-source/activation-replay.json",
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "newSourceTests": 10,
+    "realAdmittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "skips": 0,
+    "suites": 8,
+    "tests": 53
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "python": {
+      "seconds": 88.485,
+      "tests": 554
+    },
+    "python-optimized": {
+      "seconds": 91.492,
+      "tests": 554
+    }
+  },
+  "replay": {
+    "negativeCases": 16,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "prepareExchanges": 5,
+    "realNetwork": true,
+    "recordExchanges": 15,
+    "sourceExchanges": 75
+  },
+  "retainedEarlier": [
+    {
+      "bytes": 453878,
+      "path": "target/v53-promised-source/source-inputs.json",
+      "sha256": "abe1da951fb2a65a9b80dd7c44a4df8e98b53229953bef8c36abb4161828dec2"
+    },
+    {
+      "bytes": 5533,
+      "path": "target/v53-promised-source/tests.log",
+      "sha256": "33e97b1eef59626045ee955eb5718ada1ea88c4864933536b90cd12d2484bf2f"
+    },
+    {
+      "bytes": 454109,
+      "path": "target/v53-promised-source/build-inputs.json",
+      "sha256": "ef939856f6e635032062cbce513ef8e9837f27e3ec918e04d8acc5aa412dd073"
+    },
+    {
+      "bytes": 6907,
+      "path": "target/v53-promised-source/qualified-tests.log",
+      "sha256": "991502a6ea9cce7457918cf6208dd2d11ea0e74b256e22c7dd9d28cec7fc0393"
+    },
+    {
+      "bytes": 1912,
+      "path": "target/v53-promised-source/initial-replay.json",
+      "sha256": "6ad451c461ddc7445667bdf28d0bbb4826d8fa8cf4bb8509c4e82c7e94f8a9c0"
+    },
+    {
+      "bytes": 454109,
+      "path": "target/v53-promised-source/lifetime-before-inputs.json",
+      "sha256": "077564ac19ba005e1a7b44f6ca093561971f101542c5772a358b38292b0da71e"
+    },
+    {
+      "bytes": 6337,
+      "path": "target/v53-promised-source/lifetime-before.log",
+      "sha256": "cb437b7221e7f8f92f7a571cd23fd459c8034f922c7f0077fc7a9dbb3c6f5a41"
+    },
+    {
+      "bytes": 1220459,
+      "path": "target/v53-promised-source/before-lifetime.jar",
+      "sha256": "ccd6ec3784a681da27b73554dd5a8e52b00602c06900f140bbc76f542b7d9f40"
+    }
+  ],
+  "schema": "gse-v53-phase3-promised-source-local-v1",
+  "scope": "correlated original network PROMISE and received source through fixed quorum selection, with installation borrow lifetime",
+  "sourceInputs": {
+    "bytes": 454223,
+    "path": "target/v53-promised-source/qualified-source-inputs.json",
+    "sha256": "dfde1bae8853c56eb355439b02a205e9b9806b46546641dfb90673dfd4cf5bad"
+  },
+  "sourceParent": "4a2227968a446352439f36685fb8fa204b7cdecb",
+  "status": "PASS"
+}

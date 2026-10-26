@@ -22,6 +22,12 @@ PLANNED until their owning complete qualification passes. A component test does 
 close an S family. Phase 4 owns enabled public operations/reads and Phase 5 owns
 combined hardening; this phase must provide their real protocol dependencies.
 
+Within 3B, [original network PROMISE binding](PHASE_3_PROMISED_SOURCE.md) now feeds
+complete verified received sources into fixed quorum selection. It retains receive
+ownership through selected installation and rejects missing historical provenance.
+The real TCP trace ends at selection; complete network installation, historical
+witness delivery and the remaining discovery/recovery work are still open.
+
 ## First batch boundary
 
 Implement an internal activation controller over `MembershipGrantJournal`, using

@@ -1,5 +1,25 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3B original network PROMISE through selection
+
+The [received-source binding](PHASE_3_PROMISED_SOURCE.md) connects an actual current
+PREPARE/PROMISE exchange to complete owned source files and the fixed source quorum.
+It cannot substitute a prefix or infer historical checkpoint witnesses from packet
+hashes. Borrowed receive ownership is checked until all selected durable installations
+complete; a reproduced use-after-close regression now abandons the campaign while
+retaining its original forced selection.
+
+The final isolated build passes 53 Java tests across eight suites. Actual TCP at
+sizes 3/4/5 produces five original promises, fifteen reverse record exchanges and
+75 source exchanges. Independent physical/wire replay, sixteen exact negatives,
+optimized and portable replay pass. The [receipt](phase3-evidence/promised-source.json)
+retains the earlier compilation error and failing lifetime regression separately.
+
+This qualifies network source selection, not the complete network installation loop.
+Historical provenance, newer-prefix discovery/adoption, source rotation, abandoned
+scratch recovery, learner/joint transitions and generalized publication remain open.
+Phase 3 and public automatic membership remain open/disabled.
+
 ## 2026-10-25 — Phase 3B runtime-scoped transfer dispatch
 
 The [transfer service](PHASE_3_TRANSFER_SERVICE.md) now resolves references from

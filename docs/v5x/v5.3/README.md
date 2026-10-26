@@ -16,6 +16,11 @@ qualified: it selects actual retained sources by reference and owns bounded
 per-peer sessions through close, expiry and fencing. Complete runtime activation,
 discovery, learners and joint transitions remain open.
 
+[Original network promises through source selection](PHASE_3_PROMISED_SOURCE.md)
+now bind the current reply to complete received bytes and retain their ownership
+until all selected installations complete. Historical witnesses still require
+explicit provenance; the complete network installation loop remains open.
+
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
 cloud qualification continues. The initial local-only instruction was extended
 on 2026-10-25 to push completed Phase 2 and start Phase 3. The branch starts
