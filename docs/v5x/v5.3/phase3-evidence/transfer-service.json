@@ -1,0 +1,178 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-transfer-service/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1216839,
+      "path": "target/v53-transfer-service/replication.jar",
+      "sha256": "a81b8e8736dcbfda2d3bd2e82be467ef31440dbb01467d6f683f3bb06fc18bbf"
+    }
+  ],
+  "buildInputs": {
+    "bytes": 453243,
+    "path": "target/v53-transfer-service/final-build-inputs.json",
+    "sha256": "8f52a79eb2d98eb5a8722ee05ac946f7e7d353bd4d7c713a9a7669d6b4ddcf1a"
+  },
+  "caveats": [
+    "The initial 60-test execution passed; three additional service tests and observed lifetime serialization were subsequently qualified in a 12-test run. The unchanged 51 other tests and production JARs retain their initial results; repeated cases are counted once.",
+    "Seven-kind vote setup uses private initial provisioning. Actual TCP and published-record cases use public offline bootstrap.",
+    "Observed lifecycle counts are source-bound execution evidence; physical/wire bytes are independently reconstructed and Java assertions check resource release.",
+    "The periodic runtime must poll expiry and close the service outside the journal monitor on campaign replacement, fencing or shutdown. The complete runtime owner loop is not enabled.",
+    "No force observation, install ACK or vote is manufactured from received bytes.",
+    "Complete network activation, provenance, newer-prefix discovery/adoption, source rotation, abandoned-scratch recovery, learner/joint transitions, publication and distributed closure remain open."
+  ],
+  "date": "2026-10-25",
+  "evidence": [
+    {
+      "bytes": 3049,
+      "path": "target/v53-transfer-service/java-reports.json",
+      "sha256": "6ee6bcab5e05103dd1fcce3fb81de3e6d7c461d3883ae51c1fcb0d9105ddf2e2"
+    },
+    {
+      "bytes": 7726,
+      "path": "target/v53-transfer-service/tests.log",
+      "sha256": "979d348dc98d55a323fbb00c1d87294808c443c41e672adfc1354ec43cfa2a99"
+    },
+    {
+      "bytes": 4568,
+      "path": "target/v53-transfer-service/final-tests.log",
+      "sha256": "db2e74175867b0b8231543e0f1873278fbdcce11e127323978b494437c5d47e9"
+    },
+    {
+      "bytes": 652,
+      "path": "target/v53-transfer-service/python.log",
+      "sha256": "63d7dac1f5b59c5c597b55ef20f781dfa8b2dcc978e87bea75915d6170dbdc0a"
+    },
+    {
+      "bytes": 652,
+      "path": "target/v53-transfer-service/python-optimized.log",
+      "sha256": "d803b9a1b02df76f9ed76c37b1ba5be0d4944bec8dd3b2fb03e95d302fd22df4"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-transfer-service/qualification.log",
+      "sha256": "435d76ac3a6f846dc8531c4270b3b8abfdfaae2e0982a6a42ac15d7327ed2198"
+    },
+    {
+      "bytes": 73244,
+      "path": "target/v53-transfer-service/raw-inventory.json",
+      "sha256": "701557c4ec9c2eba7d1e7034973ca5cd7d14103bf24db7721203124b919b161f"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-service/replay.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-service/replay-optimized.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-service/replay-portable.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    },
+    {
+      "bytes": 190551,
+      "path": "target/v53-transfer-service/portable-evidence.tar.gz",
+      "sha256": "b818dd192cd8a64037acb50b40d56b28080319444361394bb0a511fc9da30d98"
+    },
+    {
+      "bytes": 1478,
+      "path": "target/v53-transfer-service/source-replay.json",
+      "sha256": "0c99e65ea564a74577dda0173b0f704ad7fbbebcd1ba933f3b6d85b50ea5443d"
+    },
+    {
+      "bytes": 1509,
+      "path": "target/v53-transfer-service/record-replay.json",
+      "sha256": "2938725672c541dda5a43dd5db917f66d7c257ce7157993344b7d23e32322a5a"
+    },
+    {
+      "bytes": 1225,
+      "path": "target/v53-transfer-service/export-replay.json",
+      "sha256": "0653857332cecb3ca0bb2812faae59acd3e0acfe31ebfd236975c493cc6b69d2"
+    },
+    {
+      "bytes": 1307,
+      "path": "target/v53-transfer-service/activation-replay.json",
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "newServiceTests": 12,
+    "productionJarUnchangedDuringAdditionalQualification": true,
+    "realAdmittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "skips": 0,
+    "suites": 9,
+    "tests": 63
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "python": {
+      "seconds": 87.927,
+      "tests": 551
+    },
+    "python-optimized": {
+      "seconds": 88.519,
+      "tests": 551
+    }
+  },
+  "replay": {
+    "negativeCases": 15,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "realNetwork": true,
+    "recordExchanges": 9,
+    "sourceExchanges": 45
+  },
+  "retainedEarlier": [
+    {
+      "bytes": 453010,
+      "path": "target/v53-transfer-service/source-inputs.json",
+      "sha256": "b681f79b8f55896755f91f4eda7d6d5d51daac349e0c76c7400bc7ac9d491a5f"
+    },
+    {
+      "bytes": 453010,
+      "path": "target/v53-transfer-service/initial-build-inputs.json",
+      "sha256": "b681f79b8f55896755f91f4eda7d6d5d51daac349e0c76c7400bc7ac9d491a5f"
+    },
+    {
+      "bytes": 860591,
+      "path": "target/v53-transfer-service/initial-core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1216839,
+      "path": "target/v53-transfer-service/initial-replication.jar",
+      "sha256": "a81b8e8736dcbfda2d3bd2e82be467ef31440dbb01467d6f683f3bb06fc18bbf"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-service/initial-replay.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    }
+  ],
+  "schema": "gse-v53-phase3-transfer-service-local-v1",
+  "scope": "runtime-scoped original-source and referenced-record dispatch with bounded session ownership",
+  "sourceInputs": {
+    "bytes": 453358,
+    "path": "target/v53-transfer-service/qualified-source-inputs.json",
+    "sha256": "c638432a27ecfd7ef3093cc68f1a69b1d6bb329821610608b1d1165721875fab"
+  },
+  "sourceParent": "9309d3510d9d131e39acfc4419ecb398993d2bb3",
+  "status": "PASS"
+}

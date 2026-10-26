@@ -1714,7 +1714,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         return exportSource(original,System::nanoTime,budget);
     }
     synchronized MembershipSourceExport exportSource(Decoded original,LongSupplier clock,long budget)throws IOException {
-        require(budget>0 && budget<Long.MAX_VALUE/2,"source export time budget");long started=Objects.requireNonNull(clock).getAsLong();
+        return exportSource(original,clock,Objects.requireNonNull(clock).getAsLong(),budget);
+    }
+    private MembershipSourceExport exportSource(Decoded original,LongSupplier clock,long started,long budget)throws IOException {
+        require(budget>0 && budget<Long.MAX_VALUE/2,"source export time budget");
         require(current!=null && sources!=null && resources!=null,"source export storage owner required");
         checkOwner();sourceIdle();expireSourceExports();require(sourceExports.size()<6,"source export owner capacity");
         require(original.family().equals("records") && original.kind().equals("BASIS"),"source export requires BASIS");
@@ -1738,7 +1741,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(budget>0 && budget<Long.MAX_VALUE/2,"record export time budget");Objects.requireNonNull(clock);
         require(current!=null && resources!=null,"record export storage owner required");checkOwner();
         expireRecordExports();current.capsule.context.ballot(exchangeBallot,true);
-        var record=retainedRecord(digest,kind);
+        require(kind!=null && MembershipRecordExport.KINDS.contains(kind),"record export reference/kind");var record=retainedRecord(digest,kind);
         var export=new MembershipRecordExport(this,current.capsule.context,identity,exchangeBallot,record,resources,clock,started,budget);
         recordExports.add(export);
         try{checkRecordExport(export);return export;}
@@ -1746,19 +1749,39 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     /** Lookup only retained journal, complete active vote or verified current packet, never a candidate file. */
     private Decoded retainedRecord(String digest,String kind) {
-        require(digest!=null && digest.matches("[0-9a-f]{64}") && MembershipRecordExport.KINDS.contains(kind),"record export reference/kind");
+        require(digest!=null && digest.matches("[0-9a-f]{64}") && (kind==null || MembershipRecordExport.KINDS.contains(kind)),"record export reference/kind");
         for(var values:List.of(promises.values(),bases.values(),selections.values()))for(var value:values)
-            if(value.kind().equals(kind) && value.digest().equals(digest))return value;
+            if((kind==null || value.kind().equals(kind)) && value.digest().equals(digest))return value;
         if(pendingAccept!=null && !pendingAccept.pending() && pendingAccept.active()!=null) {
             var vote=pendingAccept.active();
             for(var value:Arrays.asList(vote.promise(),vote.selected(),vote.entry(),vote.accept(),vote.proof(),vote.certificate()))
-                if(value!=null && value.kind().equals(kind) && value.digest().equals(digest))return value;
+                if(value!=null && (kind==null || value.kind().equals(kind)) && value.digest().equals(digest))return value;
         }
         if(current.capsule.packet.objectNames().contains(digest)) {
+            if(kind==null) {
+                long maximum=MembershipRecordExport.KINDS.stream().mapToLong(k->number(object(object(CATALOG.get("records")).get(k)).get("maximum"))).max().orElseThrow();
+                require(current.capsule.packet.objectSize(digest)>=HEADER && current.capsule.packet.objectSize(digest)<=maximum,"record export typed extent");
+                byte[] header=current.capsule.packet.objectBytes(digest);int id=Short.toUnsignedInt(ByteBuffer.wrap(header).getShort(8));
+                kind=MembershipRecordExport.KINDS.stream().filter(k->number(object(object(CATALOG.get("records")).get(k)).get("id"))==id).findFirst()
+                        .orElseThrow(()->new IllegalArgumentException("original forced record kind unavailable"));
+            }
             require(current.capsule.packet.objectSize(digest)<=number(object(object(CATALOG.get("records")).get(kind)).get("maximum")),"record export typed extent");
             return current.capsule.context.record(digest,kind);
         }
         throw new IllegalArgumentException("original forced record unavailable");
+    }
+    /** Resolve the initial content reference from actual storage. A BASIS starts the complete
+     * frozen source; all other supported record references retain only that exact record. */
+    synchronized MembershipTransferExport exportTransfer(String reference,String authority,Map<String,Object> exchangeBallot,
+            LongSupplier clock,long started,long budget)throws IOException {
+        require(current!=null && resources!=null,"transfer storage owner required");checkOwner();
+        require(authority.equals(current.capsule.context.authority()),"transfer view changed");current.capsule.context.ballot(exchangeBallot,true);
+        var record=retainedRecord(reference,null);
+        if(record.kind().equals("BASIS")) {
+            require(record.value().get("ballot").equals(exchangeBallot),"transfer original basis ballot");
+            return exportSource(record,clock,started,budget);
+        }
+        return exportRecord(reference,record.kind(),exchangeBallot,clock,started,budget);
     }
     private void expireRecordExports(){for(var export:List.copyOf(recordExports))if(export.expired())releaseRecordExport(export);}
     synchronized void checkRecordExport(MembershipRecordExport export)throws IOException {

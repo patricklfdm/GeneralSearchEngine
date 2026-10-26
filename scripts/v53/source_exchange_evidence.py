@@ -26,8 +26,8 @@ def wire(value):
     return kind,e.f.decode(raw,'wire',kind)
 
 
-def case(root,size):
-    x.case(root,size,additional=('received','wire.json'))
+def case(root,size,*,additional=()):
+    x.case(root,size,additional=('received','wire.json',*additional))
     files=c.inventory(root/'captured/node-1');_,_,packet=c.current(files);r=packet['capsule']['root']
     grants=c.journal(files['grants.gsr'],r,'node-1');promise,basis=grants[-2:]
     prefix='sources/'+basis[2]['basisId']+'/'

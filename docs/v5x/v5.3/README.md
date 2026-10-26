@@ -11,6 +11,11 @@ no V5.3 runtime, release, protected CI or cloud acceptance is claimed.
 The [referenced-record exchange](PHASE_3_RECORD_EXCHANGE.md) is locally qualified,
 including actual original PROMISE delivery before a receiver grants PREPARE.
 
+The [runtime-scoped transfer service](PHASE_3_TRANSFER_SERVICE.md) is also locally
+qualified: it selects actual retained sources by reference and owns bounded
+per-peer sessions through close, expiry and fencing. Complete runtime activation,
+discovery, learners and joint transitions remain open.
+
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
 cloud qualification continues. The initial local-only instruction was extended
 on 2026-10-25 to push completed Phase 2 and start Phase 3. The branch starts

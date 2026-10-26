@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3B runtime-scoped transfer dispatch
+
+The [transfer service](PHASE_3_TRANSFER_SERVICE.md) now resolves references from
+actual retained storage and owns incoming sessions within one runtime view/ballot
+lifetime. It shares original deadlines, per-peer concurrency and global resources;
+failed traces cannot reopen, and close/fencing/expiry revoke work and release
+exports. No caller preregisters source bytes and no transfer manufactures a vote.
+
+63 Java tests across nine suites and 551 Python tests in both modes pass. Real TCP
+at sizes 3/4/5 serves a complete source and separate original record to two peers.
+Independent original-first replay verifies 54 exchanges, unchanged authority,
+complete received bytes and the observed close lifecycle; 15 exact negatives and
+portable/optimized replay pass. All seven record kinds, published records after
+vote retirement, delayed close, lost replies and capacity boundaries also pass.
+The [receipt](phase3-evidence/transfer-service.json) distinguishes the initial
+60-test run from the later twelve-test expansion, with unchanged production JARs.
+
+The complete runtime owner loop and network activation, authenticated provenance,
+newer-prefix discovery/adoption, source rotation, abandoned-scratch recovery,
+learner/joint transitions, publication and distributed qualification remain open.
+Phase 3 and public automatic membership are not closed/enabled by this component.
+
 ## 2026-10-25 — Phase 3B original referenced records
 
 The [record exchange](PHASE_3_RECORD_EXCHANGE.md) serves seven typed record kinds
