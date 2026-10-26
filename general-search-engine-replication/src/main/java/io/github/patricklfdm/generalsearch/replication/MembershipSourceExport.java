@@ -61,6 +61,18 @@ final class MembershipSourceExport implements MembershipTransferExport {
     List<Content> contents()throws IOException {
         synchronized(owner){owner.checkSourceExport(this);return members.values().stream().map(Member::content).sorted(Comparator.comparing(Content::digest)).toList();}
     }
+    /** Reuse only an exact pinned physical application, never a packet's asserted hash. */
+    boolean hasImage(String digest,long bytes)throws IOException {
+        synchronized(owner){owner.checkSourceExport(this);var member=members.get(digest);return member!=null
+                && member.content.kind()==MembershipTransfer.Kind.APPLICATION && member.content.bytes()==bytes;}
+    }
+    byte[] image(String digest,long size)throws IOException {
+        synchronized(owner) {
+            require(hasImage(digest,size),"pinned original image unavailable");byte[] bytes=new byte[Math.toIntExact(size)];int offset=0;
+            while(offset<bytes.length){byte[] part=read(digest,offset,4*1024*1024);System.arraycopy(part,0,bytes,offset,part.length);offset+=part.length;}
+            require(hash(bytes).equals(digest),"pinned original image changed");owner.checkSourceExport(this);return bytes;
+        }
+    }
     /** No caller-controlled filesystem path; one bounded content-addressed chunk only.
      * The owning journal serializes this check/read/recheck against retirement. */
     @Override public byte[] read(String digest,long offset,int maximum)throws IOException {

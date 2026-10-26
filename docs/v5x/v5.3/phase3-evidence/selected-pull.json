@@ -1,0 +1,208 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-selected-pull/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1229453,
+      "path": "target/v53-selected-pull/replication.jar",
+      "sha256": "c6d8402f4b2c850222bd7ea3caa366220033a213c37f3310096a15d1d52b597f"
+    }
+  ],
+  "buildInputs": {
+    "bytes": 455077,
+    "path": "target/v53-selected-pull/qualified-build-inputs.json",
+    "sha256": "996f7e56869e5c2c3c7f7ac1c371344740bea4fb6eceedb403c0cac46eda74fc"
+  },
+  "caveats": [
+    "Initial 59 Java tests passed. An added retained-tail installation test then reproduced resource ownership/count failure at the unchanged seven-image limit. Exact pinned image reuse corrected it; the final affected-component build passes all 87 tests together.",
+    "The initial evidence reader used logical node names for the physical bootstrap layout. The original stderr is retained; corrected replay passed before the image-reuse change. Final replay checks the actual borrowed-image layout independently.",
+    "Real TCP histories begin with public offline bootstrap at stable sizes 3/4/5 and end after all selected installations, without service READY. Progressed-prefix and retained-tail cases use actual in-process storage and explicit historical observations.",
+    "Only completed direct exchange with the original source owner establishes its own frozen BASIS/tail observation. Historical checkpoint/certificate witnesses remain explicit verifier inputs.",
+    "Pinned local images retain their original physical ownership and reservation; copied remote files still reserve normally. This is not heterogeneous maximum-envelope or performance acceptance.",
+    "Automatic owner loop, historical provenance/compacted ancestry delivery, newer-prefix discovery/adoption, fair source rotation, scratch crash recovery, learner/joint transitions and voting/publication remain open."
+  ],
+  "date": "2026-10-25",
+  "evidence": [
+    {
+      "bytes": 2134,
+      "path": "target/v53-selected-pull/java-reports.json",
+      "sha256": "da5cc10013839009b8008b6d00b362aa5ba0cc4b9d43bae87f4ada01ea977a16"
+    },
+    {
+      "bytes": 8461,
+      "path": "target/v53-selected-pull/qualified-tests.log",
+      "sha256": "9105c1eeddc8f75b7ae4617ed4b6427fcd0e37196030953ca30e94ea516de1af"
+    },
+    {
+      "bytes": 658,
+      "path": "target/v53-selected-pull/python.log",
+      "sha256": "5c8840012af4a026a1f2c1a2a6a5c31441719c12df821d4dd8099f6fee439078"
+    },
+    {
+      "bytes": 658,
+      "path": "target/v53-selected-pull/python-optimized.log",
+      "sha256": "43dfb7273ca2b4a1fc85bccc6e201fafd6af72510bda820d1d72aa29ed663c25"
+    },
+    {
+      "bytes": 146,
+      "path": "target/v53-selected-pull/qualification.log",
+      "sha256": "3f5881692642b231cb8a7910674ebbb87c3202e84799a89fc1550653f0fd6c9b"
+    },
+    {
+      "bytes": 120746,
+      "path": "target/v53-selected-pull/raw-inventory.json",
+      "sha256": "eb2cb53331088d3ee42f4015c9a5d2e510c84e87e954cd7391996aebc7b6c24a"
+    },
+    {
+      "bytes": 1794,
+      "path": "target/v53-selected-pull/replay.json",
+      "sha256": "980bb3d0d71e31ecc217b7350c7d94ecac7701176bebc50b78eb93ee27fd7c78"
+    },
+    {
+      "bytes": 1794,
+      "path": "target/v53-selected-pull/replay-optimized.json",
+      "sha256": "980bb3d0d71e31ecc217b7350c7d94ecac7701176bebc50b78eb93ee27fd7c78"
+    },
+    {
+      "bytes": 1794,
+      "path": "target/v53-selected-pull/replay-portable.json",
+      "sha256": "980bb3d0d71e31ecc217b7350c7d94ecac7701176bebc50b78eb93ee27fd7c78"
+    },
+    {
+      "bytes": 352545,
+      "path": "target/v53-selected-pull/portable-evidence.tar.gz",
+      "sha256": "9aefe4d1d4e64091f2609bec8ee8a6f1465a1c648e2172c7948fadeb27eac8f6"
+    },
+    {
+      "bytes": 1225,
+      "path": "target/v53-selected-pull/export-replay.json",
+      "sha256": "0653857332cecb3ca0bb2812faae59acd3e0acfe31ebfd236975c493cc6b69d2"
+    },
+    {
+      "bytes": 1229,
+      "path": "target/v53-selected-pull/receive-replay.json",
+      "sha256": "e79d15161b6e11554592501653529551eaac8e616f6111e4c577403cca4a4133"
+    },
+    {
+      "bytes": 1478,
+      "path": "target/v53-selected-pull/source-replay.json",
+      "sha256": "0c99e65ea564a74577dda0173b0f704ad7fbbebcd1ba933f3b6d85b50ea5443d"
+    },
+    {
+      "bytes": 1509,
+      "path": "target/v53-selected-pull/record-replay.json",
+      "sha256": "2938725672c541dda5a43dd5db917f66d7c257ce7157993344b7d23e32322a5a"
+    },
+    {
+      "bytes": 1912,
+      "path": "target/v53-selected-pull/promised-replay.json",
+      "sha256": "6ad451c461ddc7445667bdf28d0bbb4826d8fa8cf4bb8509c4e82c7e94f8a9c0"
+    },
+    {
+      "bytes": 1307,
+      "path": "target/v53-selected-pull/activation-replay.json",
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "newReceiverTests": 11,
+    "realAdmittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "skips": 0,
+    "suites": 11,
+    "tests": 87
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "python": {
+      "seconds": 88.032,
+      "tests": 557
+    },
+    "python-optimized": {
+      "seconds": 88.614,
+      "tests": 557
+    }
+  },
+  "replay": {
+    "allSelectedInstallations": 8,
+    "installationPullExchanges": 123,
+    "negativeCases": 14,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "realNetwork": true,
+    "remoteInstallations": 5
+  },
+  "retainedEarlier": [
+    {
+      "bytes": 454738,
+      "path": "target/v53-selected-pull/source-inputs.json",
+      "sha256": "f13ff4aa360b5cb5a900ce91cfd4e38740a7fe1d581cd23a7197ab6a172ad992"
+    },
+    {
+      "bytes": 7702,
+      "path": "target/v53-selected-pull/tests.log",
+      "sha256": "49341be879a313ec475b813e0eee0da4110db6667b284968531da80f9a907a07"
+    },
+    {
+      "bytes": 1228537,
+      "path": "target/v53-selected-pull/initial-replication.jar",
+      "sha256": "1bf6fd6252204d6711a2533ad3061c1166f0b12e08a6bebec483a271f4340db0"
+    },
+    {
+      "bytes": 455077,
+      "path": "target/v53-selected-pull/final-build-inputs.json",
+      "sha256": "13a71d7226174fce6df3ee592ccc3a9ab55c9ba970d0ab4310be9a59e7a52a2c"
+    },
+    {
+      "bytes": 9336,
+      "path": "target/v53-selected-pull/final-tests.log",
+      "sha256": "b6307297615aad13377b488b1845452de3ab347c371bec32ab2575f079491707"
+    },
+    {
+      "bytes": 7802,
+      "path": "target/v53-selected-pull/capacity-diagnostic.log",
+      "sha256": "6ddc497d8050a59ae1d545cadd3f982ead82149580b4c4a9313a8173809f97b4"
+    },
+    {
+      "bytes": 4691,
+      "path": "target/v53-selected-pull/capacity-correction.log",
+      "sha256": "fa1beabc97c51782b18fe83bc0c3ab24755a12685250d5bb9bcac275bef058fe"
+    },
+    {
+      "bytes": 1737,
+      "path": "target/v53-selected-pull/initial-replay.stderr",
+      "sha256": "2802a43dde6bb7de69747b234c47ccc3f9a90a0eec57d417e60c5ea40b126057"
+    },
+    {
+      "bytes": 8571,
+      "path": "target/v53-selected-pull/initial-evidence-reader.py",
+      "sha256": "4db7dc2d90a39fcaeb6088c740d874f4f43207d841040aee46a45f290b4fddd8"
+    },
+    {
+      "bytes": 1793,
+      "path": "target/v53-selected-pull/corrected-initial-replay.json",
+      "sha256": "2cb45a48bfc4fbca1c3e68521dd0ae927786043497de114057850cd6f0b61ae3"
+    }
+  ],
+  "schema": "gse-v53-phase3-selected-pull-local-v1",
+  "scope": "original SELECTED and per-owner source retrieval through actual network installation, with bounded pinned image reuse",
+  "sourceInputs": {
+    "bytes": 455077,
+    "path": "target/v53-selected-pull/qualified-source-inputs.json",
+    "sha256": "a9532f53682aaad88281b9cb29faa8f345d8d831256431b2fadb74f13eb9c86a"
+  },
+  "sourceParent": "c412f6858f1edb85996192d16f8fad60875410d2",
+  "status": "PASS"
+}

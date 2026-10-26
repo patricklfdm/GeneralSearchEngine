@@ -21,6 +21,12 @@ now bind the current reply to complete received bytes and retain their ownership
 until all selected installations complete. Historical witnesses still require
 explicit provenance; the complete network installation loop remains open.
 
+The subsequent [selected receiving component](PHASE_3_SELECTED_PULL.md) now fetches
+the original selection and each source over TCP before actual durable installation.
+Exact pinned local image reuse preserves the seven-image bound. Three stable-size
+histories reach every selected installation; automatic ownership/discovery,
+historical provenance, learner/joint transitions and public READY remain open.
+
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
 cloud qualification continues. The initial local-only instruction was extended
 on 2026-10-25 to push completed Phase 2 and start Phase 3. The branch starts

@@ -182,7 +182,7 @@ final class MembershipActivation implements AutoCloseable {
         return decode(encode("wire",kind,Map.of("root",context.root,"view",context.authority(),"sender",MembershipBootstrapSeed.identity(sender),
                 "recipient",MembershipBootstrapSeed.identity(recipient),"ballot",ballot,"trace",trace.toString(),"sequence",sequence,"payload",payload)),"wire",kind);
     }
-    private static MembershipContext incoming(MembershipGrantJournal owner,MembershipIdentity sender,Decoded request,String kind) throws IOException {
+    static MembershipContext incoming(MembershipGrantJournal owner,MembershipIdentity sender,Decoded request,String kind) throws IOException {
         require(request.kind().equals(kind),"activation request kind");var context=owner.activationContext();var value=request.value();
         var ballot=object(value.get("ballot"));
         context.wire(request,sender,owner.activationIdentity(),ballot,UUID.fromString((String)value.get("trace")),number(value.get("sequence")));

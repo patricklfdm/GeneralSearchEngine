@@ -28,6 +28,13 @@ ownership through selected installation and rejects missing historical provenanc
 The real TCP trace ends at selection; complete network installation, historical
 witness delivery and the remaining discovery/recovery work are still open.
 
+The subsequent [selected receiving component](PHASE_3_SELECTED_PULL.md) qualifies
+original decision/source retrieval through all selected durable installations in
+real TCP stable-3/4/5 histories. Exact pinned local image reuse fixes the observed
+seven-image retained-tail refusal. It does not close the automatic owner loop,
+historical provenance/ancestry transport, heterogeneous-view discovery, source
+rotation, abandoned scratch recovery or complete network/process qualification.
+
 ## First batch boundary
 
 Implement an internal activation controller over `MembershipGrantJournal`, using

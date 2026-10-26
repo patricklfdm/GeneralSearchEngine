@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3B receiving and installing the original selected state
+
+The [selected receiver](PHASE_3_SELECTED_PULL.md) fetches the actual original
+SELECTED and every remote source from its permanent owner, recomputes the decision,
+then forces the selected generation before returning INSTALL_ACK. Actual TCP
+bootstrap/selection/install histories now cover sizes 3/4/5 through all selected
+installations. This remains separate from the automatic runtime and public READY.
+
+An added retained-tail test reproduced exhausted image-count admission. Borrowing
+an exact locally pinned image, with ownership and byte rechecks, now completes that
+installation at the unchanged seven-image limit. Missing images retain normal
+transfer reservations. The final isolated build passes 87 Java tests / eleven
+suites; 557 Python tests pass in both modes. Independent original-first replay,
+fourteen negatives and portable replay verify 123 receiving-side exchanges and
+eight actual installations. The [receipt](phase3-evidence/selected-pull.json)
+retains both the original capacity failure and corrected evidence-reader failure.
+
+Historical provenance/compacted ancestry delivery, newer-view discovery/adoption,
+fair source rotation, scratch crash recovery and the automatic owner loop remain
+open. Learner/joint transitions, carried voting/publication and complete distributed
+qualification are still required before Phase 3 closure.
+
 ## 2026-10-25 — Phase 3B original network PROMISE through selection
 
 The [received-source binding](PHASE_3_PROMISED_SOURCE.md) connects an actual current

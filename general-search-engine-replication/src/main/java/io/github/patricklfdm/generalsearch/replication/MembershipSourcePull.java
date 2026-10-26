@@ -20,6 +20,7 @@ final class MembershipSourcePull implements AutoCloseable {
         @Override public void close(){lease.close();}
     }
     private final MembershipContext context;
+    private final Decoded originalRoot;
     private final MembershipIdentity local,source;
     private final Map<String,Object> ballot;
     private final UUID session;
@@ -31,6 +32,7 @@ final class MembershipSourcePull implements AutoCloseable {
     private final int frameLimit,chunkLimit,maximumAttempts;
     private long sequence;
     private boolean used;
+    private boolean completeSource;
     private volatile boolean closed;
     private CompletableFuture<Decoded> pending;
     private MembershipSourceReceive received;
@@ -39,6 +41,7 @@ final class MembershipSourcePull implements AutoCloseable {
     MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,
             MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget) {
         require(budget>0 && budget<Long.MAX_VALUE/2,"source pull time budget");context=Objects.requireNonNull(verified).context;
+        originalRoot=decode(verified.packet.objectBytes(context.recordRootDigest()),"records","ROOT");
         require(local.equals(context.identities.get(local.nodeId().value())) && source.equals(context.identities.get(source.nodeId().value()))
                 && !local.equals(source),"source pull permanent identities");context.ballot(ballot,true);
         this.local=local;this.source=source;this.ballot=Map.copyOf(ballot);MembershipValidation.uuid(session);this.session=session;
@@ -145,6 +148,9 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     /** Result is borrowed from this pull and remains physically owned/reserved until close. */
     MembershipSourceReceive fetch(Path scratch,String originalBasisDigest)throws IOException {
+        return fetch(scratch,originalBasisDigest,null);
+    }
+    MembershipSourceReceive fetch(Path scratch,String originalBasisDigest,MembershipSourceExport localImages)throws IOException {
         synchronized(this){require(!used && !closed,"source pull single use");used=true;}
         try(Record basis=record(originalBasisDigest,"BASIS")) {
             var fields=new TreeMap<String,Object>();for(String field:List.of("root","view","ballot","basisId"))fields.put(field,basis.value.value().get(field));
@@ -155,16 +161,33 @@ final class MembershipSourcePull implements AutoCloseable {
                 MembershipSourceReceive staging;
                 synchronized(this) {
                     check();received=new MembershipSourceReceive(scratch,context.root,source,promise.value,basis.value,session,packet.id,packet.content,
-                            resources,chunkLimit,clock,started,budget);
+                            resources,chunkLimit,clock,started,budget,localImages);
                     staging=received;
                 }
                 receiveFile(staging,staging.packetBinding(),packet);
                 for(var binding:staging.imageBindings()) {
                     var offer=offer(binding.transfer(),binding.digest(),MembershipTransfer.Kind.APPLICATION,binding.digest(),binding.bytes());receiveFile(staging,binding,offer);
                 }
-                staging.images();check();return staging;
+                staging.images();check();completeSource=true;return staging;
             }
         }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
+    }
+    /** Observe only this contacted owner's original frozen grant after every source
+     * transfer commits. Generic records or a packet copied from another peer cannot
+     * establish this observation. Historical witnesses remain explicit verifier input. */
+    MembershipSelection.Source verifiedOriginalSource(MembershipCurrentGeneration.Verifier verifier)throws IOException {
+        check();require(completeSource && received!=null,"complete original source exchange required");
+        var basis=received.basis();var packet=received.packet();var images=received.images();
+        require(received.sourceIdentity().equals(source) && basis.value().get("voter").equals(source.nodeId().value())
+                && basis.value().get("view").equals(context.authority()) && basis.value().get("ballot").equals(ballot),"original source owner/view/ballot");
+        var capsule=Objects.requireNonNull(verifier.verify(originalRoot,packet,images));
+        require(capsule.context.root.equals(context.root) && capsule.context.authority().equals(context.authority())
+                && Arrays.equals(capsule.packet.bytes(),packet.bytes()),"original source verifier substituted prefix");
+        String parent=cutDigest(object(basis.value().get("cut")));var owned=new HashSet<Owned>();
+        owned.add(new Owned(source.nodeId().value(),source.storageId(),basis.digest(),parent));
+        if(basis.value().get("accepted")!=null)owned.add(new Owned(source.nodeId().value(),source.storageId(),(String)basis.value().get("accepted"),parent));
+        var result=MembershipSelection.Source.verify(capsule,basis,Map.of("voter",source.nodeId().value(),"basisId",basis.value().get("basisId"),"basisDigest",basis.digest()),source,owned);
+        received.recheck();check();return result;
     }
     @Override public synchronized void close()throws IOException {
         closed=true;if(pending!=null)pending.cancel(true);
