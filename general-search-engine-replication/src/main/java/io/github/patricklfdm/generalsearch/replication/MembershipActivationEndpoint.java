@@ -25,7 +25,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private final LongSupplier clock;
     private final long budget;
     private final Path scratch;
-    private final Object directoryKey;
+    private final MembershipScratch scratchOwner;
     private final ExecutorService controls;
     private final ScheduledExecutorService expiry;
     private final Object registry=new Object();
@@ -33,7 +33,6 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private volatile boolean closed;
     private Control control;
     private int waiters;
-    private boolean removed;
 
     MembershipActivationEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,MembershipCurrentGeneration.Verifier verifier,
@@ -45,8 +44,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         this.ancestry=List.copyOf(ancestry);this.retained=List.copyOf(retained);
         require(ancestry.size()<=6 && retained.size()<=6,"activation endpoint ancestry capacity");
         this.clock=Objects.requireNonNull(clock);this.budget=budget;
-        this.scratch=scratch.toAbsolutePath().normalize();AdmissionPaths.safe(this.scratch.getParent());Files.createDirectory(this.scratch);
-        directoryKey=MembershipBasisSources.key(this.scratch);
+        scratchOwner=owner.openScratch(scratch,MembershipScratch.Role.INCOMING,resources,event->{});this.scratch=scratchOwner.directory();
         controls=Executors.newSingleThreadExecutor(Thread.ofVirtual().name("gse-membership-control-"+owner.activationIdentity().nodeId().value()).factory());
         expiry=Executors.newSingleThreadScheduledExecutor(Thread.ofPlatform().daemon().name("gse-membership-expiry-"+owner.activationIdentity().nodeId().value()).factory());
         expiry.scheduleWithFixedDelay(this::expire,100,100,TimeUnit.MILLISECONDS);
@@ -64,6 +62,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         boolean expired(){long elapsed=clock.getAsLong()-started;return elapsed<0 || elapsed>=limit;}
         void check()throws IOException {
             require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");
+            scratchOwner.check();
             owner.checkActivationBallot(capsule.context.authority(),ballot);
             require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");
         }
@@ -213,6 +212,6 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 && expiry.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"activation endpoint close timeout");}
         catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation endpoint close interrupted",error);}
         synchronized(registry){if(control!=null){control.close();control=null;}}
-        if(!removed) {AdmissionPaths.safe(scratch);require(directoryKey.equals(MembershipBasisSources.key(scratch)),"activation endpoint scratch replaced");Files.delete(scratch);removed=true;}
+        scratchOwner.close();
     }
 }

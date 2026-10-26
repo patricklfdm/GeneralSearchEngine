@@ -106,8 +106,8 @@ class V53ActivationEndpointTest {
     @Test void closePreservesForeignScratchAndCanFinishAfterItsRemoval()throws Exception {
         try(var l=new Local()) {
             Path foreign=Files.writeString(l.scratch.resolve("foreign"),"operator data");
-            assertThrows(DirectoryNotEmptyException.class,l.endpoint::close);assertEquals("operator data",Files.readString(foreign));
-            Files.delete(foreign);l.endpoint.close();assertFalse(Files.exists(l.scratch));
+            assertThrows(IllegalArgumentException.class,l.endpoint::close);assertEquals("operator data",Files.readString(foreign));
+            Files.delete(foreign);l.endpoint.close();assertEquals(Set.of("owner.json","scope.lock"),MembershipBasisSources.children(l.scratch,8));
         }
     }
     @Test void localRegistrationKeepsOriginalCampaignStartAndReleasesExportsOnExpiry()throws Exception {

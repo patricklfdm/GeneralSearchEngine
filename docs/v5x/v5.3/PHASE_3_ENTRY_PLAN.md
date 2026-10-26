@@ -51,6 +51,14 @@ bounded supplemental RANGE assembly. Its higher capsule is already verified;
 complete historical ACCEPT/PROOF provenance, automatic missing-ancestry discovery,
 and newer-view adoption remain required.
 
+[Receiving scratch recovery](PHASE_3_SCRATCH_RECOVERY.md) now validates an exact
+identity-owned derived workspace before discarding bounded abandoned receives.
+Twenty halt/SIGKILL cases cover repeated cleanup interruption; a separate killed
+receive is reopened through the actual owner and completes new activation. This
+addresses the named receiving scopes. The autonomous owner lifecycle, historical
+provenance, cross-view adoption, repeated-round source maintenance and complete
+distributed qualification remain required.
+
 ## First batch boundary
 
 Implement an internal activation controller over `MembershipGrantJournal`, using

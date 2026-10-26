@@ -235,7 +235,12 @@ class V53ActivationDriverTest {
     @Test void higherOriginalSourceRejectionFencesBeforeSelection()throws Exception {
         try(var l=local();var driver=l.driver(3)) {
             var normal=l.override.get();l.override.set((p,r,k,d)->r.kind().equals("CHUNK")?CompletableFuture.completedFuture(reject(r,"STALE_EPOCH",true,false)):normal.exchange(p,r,k,d));
-            assertThrows(IOException.class,driver::run);assertEquals(1,driver.campaigns());
+            // The writer can observe the higher root promise before the exchange
+            // worker publishes its fatal IOException. Both paths must fence, never retry.
+            var failure=assertThrows(Exception.class,driver::run);assertTrue(failure instanceof IOException || failure instanceof IllegalArgumentException);
+            var reasons=new ArrayList<String>();for(Throwable cause=failure;cause!=null;cause=cause.getCause())reasons.add(String.valueOf(cause.getMessage()));
+            assertTrue(reasons.stream().anyMatch(v->v.contains("higher activation promise") || v.contains("higher ballot observed")),reasons.toString());
+            assertEquals(1,driver.campaigns());
             assertThrows(IllegalArgumentException.class,()->l.owners.getFirst().checkActivation(l.owners.getFirst().originalBasis().orElseThrow(),null,false));
             assertFalse(l.events.get("node-1").contains("SELECTED_FORCED"));
         }
@@ -251,7 +256,10 @@ class V53ActivationDriverTest {
             var run=CompletableFuture.runAsync(()->assertThrows(Exception.class,driver::run));assertTrue(entered.await(10,TimeUnit.SECONDS));
             try(var dirs=Files.list(temp)){assertTrue(dirs.anyMatch(p->p.getFileName().toString().startsWith("driver-")));}
             driver.close();run.get(5,TimeUnit.SECONDS);assertTrue(pending.isCancelled());
-            try(var dirs=Files.list(temp)){assertFalse(dirs.anyMatch(p->p.getFileName().toString().startsWith("driver-")));}
+            try(var dirs=Files.list(temp)) {
+                var owned=dirs.filter(p->p.getFileName().toString().startsWith("driver-")).toList();assertEquals(1,owned.size());
+                assertEquals(Set.of("owner.json","scope.lock"),MembershipBasisSources.children(owned.getFirst(),8));
+            }
         }
     }
     @Test void callerCampaignLimitDoesNotRetireOriginalFailedSources()throws Exception {
@@ -264,7 +272,7 @@ class V53ActivationDriverTest {
     @Test void cancelledDriverPreservesForeignScratch()throws Exception {
         try(var l=local()) {
             Path scratch=temp.resolve("foreign-driver");var driver=new MembershipActivationDriver(l.owners.getFirst(),l.endpoints.getFirst(),l.budgets.getFirst(),l.bound,l.override.get(),V53ActivationEndpointTest.verifier(),List.of(),List.of(),scratch,()->0,BUDGET,1);
-            Path foreign=Files.writeString(scratch.resolve("foreign"),"operator");assertThrows(DirectoryNotEmptyException.class,driver::close);assertEquals("operator",Files.readString(foreign));Files.delete(foreign);driver.close();
+            Path foreign=Files.writeString(scratch.resolve("foreign"),"operator");assertThrows(IllegalArgumentException.class,driver::close);assertEquals("operator",Files.readString(foreign));Files.delete(foreign);driver.close();
         }
     }
     @Test void realTcpAutomaticActivationInstallsEverySelectedVoterAtThreeSizes()throws Exception {

@@ -1601,6 +1601,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         return originalSource();
     }
     MembershipIdentity activationIdentity() {return identity;}
+    synchronized MembershipScratch openScratch(Path path,MembershipScratch.Role role,MembershipResources budget,MembershipScratch.Events events)throws IOException {
+        require(current!=null && resources==budget,"scratch requires actual storage resource owner");checkOwner();allocator.checkScratchPath(path);
+        return MembershipScratch.open(path,root.manifestDigest(),identity,role,budget,()->{synchronized(this){checkOwner();allocator.checkScratchPath(path);}},events);
+    }
     synchronized MembershipContext activationContext() throws IOException {
         require(current!=null,"current generation required");checkOwner();return current.capsule.context;
     }

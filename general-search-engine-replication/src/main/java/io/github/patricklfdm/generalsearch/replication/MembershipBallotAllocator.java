@@ -211,6 +211,10 @@ final class MembershipBallotAllocator implements AutoCloseable {
         AdmissionPaths.exact(directory.resolve(CURRENT),current);
     }
 
+    synchronized void checkScratchPath(Path path)throws IOException {
+        checkOwner();AdmissionPaths.disjoint(materialization==null?List.of(directory,path):List.of(directory,materialization,path));
+    }
+
     private void forceFile(Path path) throws IOException {
         AdmissionPaths.regular(path);
         try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) { channel.force(true); }

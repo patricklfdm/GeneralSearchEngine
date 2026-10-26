@@ -1,5 +1,29 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B receiving scratch restart recovery
+
+The [derived-work scope](PHASE_3_SCRATCH_RECOVERY.md) now binds incoming/outgoing
+receiving directories to the exact root, permanent local identity, role and physical
+path. Startup takes exclusive ownership, validates the entire finite inventory and
+reserves existing bytes before deleting abandoned derived files. Both activation
+components use their actual journal and shared budget; durable replica and admitted
+materialization paths cannot be used as scratch. Normal close leaves only the small
+marker/lock, and interrupted cleanup resumes without touching authority files.
+
+The final isolated build passes 73 Java tests in eleven suites, including thirteen
+scratch unit tests, twenty actual halt/SIGKILL histories across sixty JVMs, and
+activation after a killed receiving scope. All 570 Python tests pass normally and
+with assertions disabled. The [receipt](phase3-evidence/scratch-recovery.json)
+binds original-first normal/optimized/portable replay, ten exact negatives and the
+related actual TCP/source regressions. Earlier scope-directory and asynchronous
+fencing assertion failures remain retained separately from final qualification.
+
+This is bounded receiving-component recovery, not complete autonomous runtime
+recovery or public READY. Historical proof provenance, cross-view discovery/adoption,
+repeated-round source maintenance, election ownership, learner/joint transitions,
+generalized voting/publication and the complete Phase 3 S/N mapping remain open.
+No push, protected CI, paid cloud execution or release.
+
 ## 2026-10-26 — Phase 3B original checkpoint provenance and compacted ancestry
 
 The [checkpoint pull](PHASE_3_CHECKPOINT_PROVENANCE.md) fetches the actual retained

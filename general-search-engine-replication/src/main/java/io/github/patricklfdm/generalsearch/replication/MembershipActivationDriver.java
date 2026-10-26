@@ -27,14 +27,14 @@ final class MembershipActivationDriver implements AutoCloseable {
     private final long budget;
     private final int maximumCampaigns;
     private final Path scratch;
-    private final Object directoryKey;
+    private final MembershipScratch scratchOwner;
     private final CountDownLatch finished=new CountDownLatch(1);
     private final Object lifecycle=new Object();
     private final AtomicReference<Throwable> fatal=new AtomicReference<>();
     private volatile boolean closed;
     private volatile Round active;
     private Thread runner;
-    private boolean used,removed;
+    private boolean used;
     private long started;
     private int campaigns;
     private Decoded selected,basis;
@@ -53,11 +53,11 @@ final class MembershipActivationDriver implements AutoCloseable {
         this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);this.link=Objects.requireNonNull(link);
         this.verifier=Objects.requireNonNull(verifier);this.ancestry=List.copyOf(ancestry);this.retained=List.copyOf(retained);
         this.clock=Objects.requireNonNull(clock);this.budget=budget;this.maximumCampaigns=maximumCampaigns;
-        this.scratch=scratch.toAbsolutePath().normalize();AdmissionPaths.safe(this.scratch.getParent());Files.createDirectory(this.scratch);
-        directoryKey=MembershipBasisSources.key(this.scratch);
+        scratchOwner=owner.openScratch(scratch,MembershipScratch.Role.OUTGOING,resources,event->{});this.scratch=scratchOwner.directory();
     }
     private long remaining()throws IOException {
         if(closed || Thread.currentThread().isInterrupted())throw new IOException("activation driver closed/interrupted");
+        scratchOwner.check();
         Throwable failure=fatal.get();if(failure!=null)throw failure("activation driver fenced/failed",failure);
         long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"original activation driver deadline");return budget-elapsed;
     }
@@ -278,6 +278,6 @@ final class MembershipActivationDriver implements AutoCloseable {
         }
         round=active;if(round!=null){round.close();active=null;}
         synchronized(lifecycle){if(resultLease!=null){resultLease.close();resultLease=null;}if(basis!=null)endpoint.abandon(object(basis.value().get("ballot")));}
-        if(!removed){AdmissionPaths.safe(scratch);require(directoryKey.equals(MembershipBasisSources.key(scratch)),"activation driver scratch replaced");Files.delete(scratch);removed=true;}
+        scratchOwner.close();
     }
 }

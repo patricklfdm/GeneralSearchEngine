@@ -43,6 +43,12 @@ fetches authenticated retained CHECKPOINT/ACK records and assembles compacted
 ancestry by contacting the ACKs' permanent owners. Full historical capsule
 provenance and cross-view discovery remain open.
 
+[Receiving scratch restart recovery](PHASE_3_SCRATCH_RECOVERY.md) now owns exact
+incoming/outgoing workspaces, discards only bounded identified derived files after
+process death and resumes interrupted cleanup. Actual receiving SIGKILL followed
+by a new driver activation is locally qualified. This does not close autonomous
+runtime recovery, historical provenance, cross-view adoption or the full Phase 3 gate.
+
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
 cloud qualification continues. The initial local-only instruction was extended
 on 2026-10-25 to push completed Phase 2 and start Phase 3. The branch starts

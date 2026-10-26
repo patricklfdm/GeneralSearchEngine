@@ -1,0 +1,196 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-scratch-recovery/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1286164,
+      "path": "target/v53-scratch-recovery/replication.jar",
+      "sha256": "418aa8ddf59a96796aabb7f07dccd746dade734f6fc5ac78f6eddb75f7efb0bc"
+    }
+  ],
+  "autonomousElection": false,
+  "buildInputs": {
+    "bytes": 458963,
+    "path": "target/v53-scratch-recovery/qualified3-inputs.json",
+    "sha256": "4973fa648efb1ad431ce2dc2bbb2d698641efcb28063f602083906f8d4f8718f"
+  },
+  "caveats": [
+    "The first integration run failed one outdated assertion that required deleting the scope directory. The new persistent marker/lock permit exact restart ownership. Assertions now require exactly those two small files, no received children, cancelled exchanges and released resources.",
+    "The first full 72-test run exposed an existing asynchronous fencing assertion that required IOException. The actual storage fence can throw IllegalArgumentException before the peer worker publishes its fatal IOException. The test now checks one of those two types, the specific higher-promise/fence cause, no retry and no SELECTED force; the production fencing order was not weakened.",
+    "The twenty process histories reconstruct real public bootstrap and retained source bytes, but are receiving-component process deaths rather than complete runtime/election crash tests. A separate actual killed-receive integration case opens through the journal owner and completes a new selected installation.",
+    "Only known exact-owned derived data is discarded. Legacy or unknown scratch is refused. Runtime callers must reuse stable incoming/outgoing paths and abort component startup on recovery failure rather than allocate another path.",
+    "Portable replay inspects original recorded path/inode bindings; it does not recreate host inode identities. Halt/SIGKILL evidence is not power-loss evidence.",
+    "Full historical proof provenance, cross-view discovery/adoption, repeated-round source maintenance, autonomous election, learner/joint completion, generalized voting/publication and complete distributed S/N qualification remain open."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 8095,
+      "path": "target/v53-scratch-recovery/qualified3-java-tests.log",
+      "sha256": "627bd23020fcebdb006bd04e74c937e7309ee5c703a26b203e5db46add153545"
+    },
+    {
+      "bytes": 43,
+      "path": "target/v53-scratch-recovery/build-input-check.json",
+      "sha256": "50cb6e2f2fc047f7e26cbc7d2ee7b451a964847e66e3fdd14c39f124d58cc3c8"
+    },
+    {
+      "bytes": 2144,
+      "path": "target/v53-scratch-recovery/java-reports.json",
+      "sha256": "5422dc3b495868d4a4ce3b8f0d0b2c7075888f1e061d809a55b85adff5244fed"
+    },
+    {
+      "bytes": 671,
+      "path": "target/v53-scratch-recovery/python-normal.log",
+      "sha256": "8d615d4d5c30b06e3f96dbe02d4f18a9b8bf00cfdc6c402f4c240c39ccf3acab"
+    },
+    {
+      "bytes": 671,
+      "path": "target/v53-scratch-recovery/python-optimized.log",
+      "sha256": "a3a7f7fcee46bfbeab7c7b45b1dc2e429511382b7c3abf2647a2c01724e85a98"
+    },
+    {
+      "bytes": 106,
+      "path": "target/v53-scratch-recovery/qualification.log",
+      "sha256": "771a6ba4a35eccb821726c53f137816d4831fd5974258628d8d3880a6ab7332b"
+    },
+    {
+      "bytes": 69157,
+      "path": "target/v53-scratch-recovery/raw-inventory.json",
+      "sha256": "785fdedf88cf84db83e7dcf1119680040a0805629441504d4715c4fd75cfaa5c"
+    },
+    {
+      "bytes": 5331,
+      "path": "target/v53-scratch-recovery/replay.json",
+      "sha256": "16b7183422a7fab01e98097cf382f860da119121474f19a616305a61783eac8f"
+    },
+    {
+      "bytes": 5331,
+      "path": "target/v53-scratch-recovery/replay-optimized.json",
+      "sha256": "16b7183422a7fab01e98097cf382f860da119121474f19a616305a61783eac8f"
+    },
+    {
+      "bytes": 5331,
+      "path": "target/v53-scratch-recovery/replay-portable.json",
+      "sha256": "16b7183422a7fab01e98097cf382f860da119121474f19a616305a61783eac8f"
+    },
+    {
+      "bytes": 74763,
+      "path": "target/v53-scratch-recovery/portable-evidence.tar.gz",
+      "sha256": "cd5a4680ccc805703d67010ae0fada2bfd1200523cfc7d8f77e9c76bc66fe372"
+    },
+    {
+      "bytes": 1246,
+      "path": "target/v53-scratch-recovery/driver-replay.json",
+      "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-scratch-recovery/endpoint-replay.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 1229,
+      "path": "target/v53-scratch-recovery/receive-replay.json",
+      "sha256": "e79d15161b6e11554592501653529551eaac8e616f6111e4c577403cca4a4133"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "activationAfterKill": 1,
+    "errors": 0,
+    "failures": 0,
+    "processCases": 20,
+    "processFreshJvms": 60,
+    "scratchUnitTests": 13,
+    "skips": 0,
+    "suites": 11,
+    "tests": 73
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "normal": {
+      "seconds": 88.888,
+      "tests": 570
+    },
+    "optimized": {
+      "seconds": 88.78,
+      "tests": 570
+    }
+  },
+  "replay": {
+    "freshJvms": 60,
+    "negativeCases": 10,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "processCases": 20
+  },
+  "retainedEarlier": [
+    {
+      "bytes": 458220,
+      "path": "target/v53-scratch-recovery/initial-inputs.json",
+      "sha256": "955459897fbd0461ef12b6023a961608295467f88b6e161ba555959e1ea99b62"
+    },
+    {
+      "bytes": 4517,
+      "path": "target/v53-scratch-recovery/initial-java-tests.log",
+      "sha256": "2a47a615691ba4fecc523b1f1c8f04bdcd5561887eebe8ff9b8085d54e277293"
+    },
+    {
+      "bytes": 458220,
+      "path": "target/v53-scratch-recovery/integrated-inputs.json",
+      "sha256": "ca0fa7356f47fbc0abdce4e5d2c6814388c0b902a179427f1a91c85f0d066211"
+    },
+    {
+      "bytes": 8011,
+      "path": "target/v53-scratch-recovery/integrated-java-tests.log",
+      "sha256": "c631910dea83004c53df47446049a4cbc9695ff7e90cf4efe1eab7fe3da83f68"
+    },
+    {
+      "bytes": 458416,
+      "path": "target/v53-scratch-recovery/process-inputs.json",
+      "sha256": "df2472f335b06cbe1ab8877908ba415a756ae7d12de9d857677eaecadbe7829c"
+    },
+    {
+      "bytes": 5363,
+      "path": "target/v53-scratch-recovery/process-java-tests.log",
+      "sha256": "6e71efca7019b8c2de97165607670091f28e299c5e4de3dc479a8e6564e0fcf2"
+    },
+    {
+      "bytes": 5331,
+      "path": "target/v53-scratch-recovery/process-replay.json",
+      "sha256": "16b7183422a7fab01e98097cf382f860da119121474f19a616305a61783eac8f"
+    },
+    {
+      "bytes": 458649,
+      "path": "target/v53-scratch-recovery/qualified-inputs.json",
+      "sha256": "bc86900869360f5cb7b940517a7a0c7b95b0c047b23b038d97c968592538cdd1"
+    },
+    {
+      "bytes": 10817,
+      "path": "target/v53-scratch-recovery/qualified-java-tests.log",
+      "sha256": "f7dfd5eacaf343b63e6da4fc22852bb6af192b6adbce20a274bf8bdebe2089b7"
+    },
+    {
+      "bytes": 4480,
+      "path": "target/v53-scratch-recovery/earlier-results.json",
+      "sha256": "48007128063ae832ab2438d09fe42e6819b6c23ed3c73de4653ceefbed891c77"
+    }
+  ],
+  "schema": "gse-v53-phase3-scratch-recovery-local-v1",
+  "scope": "bounded identity-owned receiving workspace, repeated interrupted deletion and activation after actual receiving SIGKILL",
+  "sourceInputs": {
+    "bytes": 458963,
+    "path": "target/v53-scratch-recovery/source-inputs.json",
+    "sha256": "253c2f2d424faa016a0d42dc9570b986645a347646d869016edbad10686deaaf"
+  },
+  "sourceParent": "519d99f8d2eacf5b6369001a4bd6294e3a263439",
+  "status": "PASS",
+  "verifiedBuildInputs": 1105
+}
