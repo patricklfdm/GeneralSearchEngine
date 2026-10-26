@@ -38,6 +38,11 @@ final class MembershipSourcePull implements AutoCloseable {
     private CompletableFuture<Decoded> pending;
     private MembershipSourceReceive received;
     private Record receivedRecord;
+    private final List<MembershipResources.Lease> ancestryLeases=new ArrayList<>();
+    private MembershipCapsule ancestryPrefix,ancestryResult;
+    private Decoded ancestryManifest;
+    private byte[] ancestryBytes;
+    private boolean completeAncestry;
 
     MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,
             MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget) {
@@ -229,6 +234,59 @@ final class MembershipSourcePull implements AutoCloseable {
             staging.recheck();check();completeSource=true;return staging;
         }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
+    /** One separately bounded read-only exchange. It copies the actual manifest and
+     * its complete ancestry file; it never turns copied ACKs into new observations. */
+    MembershipCapsule fetchAncestry(MembershipCapsule higher)throws IOException {
+        synchronized(this){require(prefixCut!=null && !used && !closed,"ancestry pull single use");used=true;}
+        try {
+            check();require(higher.context.root.equals(context.root) && higher.context.cut.equals(prefixCut)
+                    && Arrays.equals(higher.packet.objectBytes(higher.context.recordRootDigest()),originalRoot.bytes()),"ancestry expected prefix");
+            ancestryPrefix=higher;
+            var manifestOffer=offer(UUID.randomUUID(),MembershipPrefixExport.ancestryReference(higher.context),MembershipTransfer.Kind.RECORD,null,null);
+            ancestryManifest=decode(metadataBlob(manifestOffer,65536),"records","GENERATION");
+            var fields=ancestryManifest.value();var cap=higher.packet.capsule();
+            require(fields.get("node").equals(source.nodeId().value()) && fields.get("capsule").equals(cap.digest()),"ancestry manifest owner/capsule");
+            for(String name:List.of("root","cut","catalog","application"))require(fields.get(name).equals(cap.value().get(name)),"ancestry manifest prefix binding");
+            var files=new TreeMap<String,Map<String,Object>>();String previous=null;
+            for(Object value:list(fields.get("files"))) {
+                var row=object(value);String name=(String)row.get("path");
+                require(previous==null || previous.compareTo(name)<0,"ancestry manifest file order");previous=name;files.put(name,row);
+            }
+            var packet=files.get(MembershipBasisSources.PACKET);
+            require(packet!=null && packet.get("sha256").equals(hash(higher.packet.bytes()))
+                    && number(packet.get("size"))==higher.packet.bytes().length,"ancestry manifest exact packet");
+            var ancestry=files.get("ancestry.gsr");
+            if(ancestry==null)ancestryBytes=new byte[0];
+            else {
+                long length=number(ancestry.get("size"));require(length>0 && length<=96*1024,"ancestry offered capacity");
+                String digest=(String)ancestry.get("sha256");
+                ancestryBytes=metadataBlob(offer(UUID.randomUUID(),digest,MembershipTransfer.Kind.RECORD,digest,length),96*1024);
+            }
+            check();completeAncestry=true;
+            ancestryResult=higher.retainingAncestry(ancestryBytes,new RetainedAncestry(this));check();return ancestryResult;
+        }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
+    }
+    private byte[] metadataBlob(Offer offer,int maximum)throws IOException {
+        require(offer.content.bytes()<=maximum,"ancestry metadata capacity");
+        synchronized(this){check();ancestryLeases.add(resources.reserve(MembershipResources.Unit.CONTROL,"ancestry-copy-"+UUID.randomUUID(),offer.content.bytes()));}
+        byte[] bytes=new byte[Math.toIntExact(offer.content.bytes())];int offset=0;
+        while(offset<bytes.length){check();byte[] part=chunk(offer,offset);System.arraycopy(part,0,bytes,offset,part.length);offset+=part.length;}
+        require(hash(bytes).equals(offer.content.digest()),"ancestry metadata digest");commit(offer);check();return bytes;
+    }
+    static final class RetainedAncestry {
+        private final MembershipSourcePull pull;
+        private RetainedAncestry(MembershipSourcePull pull){this.pull=pull;}
+        void check(MembershipCapsule prefix,byte[] bytes)throws IOException {
+            pull.check();require(pull.completeAncestry && pull.ancestryManifest!=null && pull.ancestryPrefix!=null
+                    && Arrays.equals(prefix.packet.bytes(),pull.ancestryPrefix.packet.bytes())
+                    && Arrays.equals(bytes,pull.ancestryBytes),"complete retained ancestry exchange required");pull.check();
+        }
+    }
+    Decoded ancestryManifest()throws IOException {check();require(ancestryResult!=null,"ancestry pull incomplete");return ancestryManifest;}
+    byte[] ancestryBytes()throws IOException {check();require(ancestryResult!=null,"ancestry pull incomplete");return ancestryBytes.clone();}
+    List<MembershipSelection.Bridge> ancestry()throws IOException {
+        check();require(ancestryResult!=null,"ancestry pull incomplete");var result=ancestryResult.verifiedAncestry(ancestryBytes);check();return result;
+    }
     static final class RetainedCopy {
         private final MembershipSourcePull pull;
         private RetainedCopy(MembershipSourcePull pull){this.pull=pull;}
@@ -290,5 +348,7 @@ final class MembershipSourcePull implements AutoCloseable {
         closed=true;if(pending!=null)pending.cancel(true);
         if(receivedRecord!=null){receivedRecord.close();receivedRecord=null;}
         if(received!=null){received.close();received=null;}
+        for(var lease:ancestryLeases)lease.close();ancestryLeases.clear();
+        ancestryManifest=null;ancestryPrefix=null;ancestryResult=null;ancestryBytes=null;
     }
 }

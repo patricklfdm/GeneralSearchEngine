@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Retained supplemental ancestry delivery](PHASE_3_RETAINED_ANCESTRY.md) now extends
+complete historical copies to the selected generation's original manifest and
+ancestor file. Exact proof reuse does not create new votes or adopt a configuration;
+autonomous integration and full Phase 3 qualification remain open.
+
 The latest [retained historical copy component](PHASE_3_RETAINED_PROVENANCE.md)
 verifies complete authenticated current-prefix/BASIS copies without manufacturing
 new votes from historical witness hashes. Automatic adoption, durable runtime

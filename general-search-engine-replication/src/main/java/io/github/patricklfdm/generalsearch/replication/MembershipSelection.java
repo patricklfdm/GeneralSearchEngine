@@ -58,13 +58,13 @@ final class MembershipSelection {
         }
         void verify(MembershipCapsule longer,MembershipCapsule.Anchor lower) {
             verifyEndpoints(longer,lower);var end=object(statement.value().get("end"));var view=object(end.get("view"));
-            var voters=new ArrayList<String>();
+            var voters=new ArrayList<String>();boolean historical=longer.historicalCheckpoint(statement,acknowledgements);
             for(var ack:acknowledgements) {
                 require(ack.family().equals("records") && ack.kind().equals("CHECKPOINT_ACK"),"ancestry ACK kind");
                 var v=ack.value();String voter=(String)v.get("voter");var identity=longer.context.identities.get(voter);
                 require(identity!=null && v.get("root").equals(longer.context.root) && v.get("statement").equals(statement.digest())
                         && v.get("cut").equals(end) && identity.storageId().toString().equals(v.get("incarnation")),"ancestry ACK binding");
-                require(owned.contains(new Owned(voter,identity.storageId(),ack.digest(),cutDigest(end))),"ancestry ACK before owned end");voters.add(voter);
+                require(historical || owned.contains(new Owned(voter,identity.storageId(),ack.digest(),cutDigest(end))),"ancestry ACK before owned end");voters.add(voter);
             }
             orderedNodes(voters);quorum(view,voters);
         }

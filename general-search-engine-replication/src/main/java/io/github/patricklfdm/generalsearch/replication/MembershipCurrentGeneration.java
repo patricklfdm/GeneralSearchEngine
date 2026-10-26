@@ -164,10 +164,26 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         }
         return Map.copyOf(result);
     }
+    /** Original selector-bound manifest and supplemental ancestry only. */
+    Map<String,MembershipSourceExport.Content> ancestryContents() {
+        var result=new TreeMap<String,MembershipSourceExport.Content>();
+        result.put(manifest.digest(),new MembershipSourceExport.Content(manifest.digest(),manifest.size(),MembershipTransfer.Kind.RECORD));
+        var ancestry=files.get("ancestry.gsr");
+        if(ancestry!=null)require(result.put(ancestry.digest(),new MembershipSourceExport.Content(ancestry.digest(),ancestry.bytes(),MembershipTransfer.Kind.RECORD))==null,"ancestry content collision");
+        return Map.copyOf(result);
+    }
+    byte[] ancestryChunk(String digest,long offset,int maximum)throws IOException {
+        FileIdentity file;Path source;
+        if(digest.equals(manifest.digest())){file=manifestIdentity;source=path.resolve(MANIFEST);}
+        else {file=files.get("ancestry.gsr");require(file!=null && file.digest().equals(digest),"current ancestry content absent");source=path.resolve("ancestry.gsr");}
+        return readChunk(source,file,offset,maximum);
+    }
     byte[] transferChunk(String digest,long offset,int maximum)throws IOException {
         var entry=files.entrySet().stream().filter(v->(v.getKey().equals(PACKET) || v.getKey().endsWith(".image"))
                 && v.getValue().digest().equals(digest)).findFirst().orElseThrow(()->new IllegalArgumentException("current content absent"));
-        var file=entry.getValue();var source=path.resolve(entry.getKey());
+        return readChunk(path.resolve(entry.getKey()),entry.getValue(),offset,maximum);
+    }
+    private static byte[] readChunk(Path source,FileIdentity file,long offset,int maximum)throws IOException {
         require(maximum>0 && maximum<=4*1024*1024 && offset>=0 && offset<file.bytes(),"current chunk bounds");
         checkFile(source,file);var buffer=java.nio.ByteBuffer.allocate((int)Math.min(maximum,file.bytes()-offset));
         try(var channel=java.nio.channels.FileChannel.open(source,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {

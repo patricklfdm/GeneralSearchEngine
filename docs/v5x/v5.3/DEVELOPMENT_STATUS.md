@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B retained supplemental ancestry
+
+The [retained ancestry transfer](PHASE_3_RETAINED_ANCESTRY.md) serves the actual
+selected generation's original manifest and complete supplemental ancestry under
+one read-only owner borrow. The receiver binds those bytes to its already verified
+prefix and preserves exact historical checkpoint/endorsement authority separately
+from new `Owned` observations. Old/removed readers can use this path without
+requiring fresh contact with each former voter.
+
+Real TCP histories start from public bootstrap and two actual phased publications
+at sizes 3/4/5, preserving the compacted intermediate position, original forces and
+typed DATA images. Independent replay derives the complete original storage before
+checking both transfers; joint/final cases remain conditional fixture qualification.
+The [source-bound receipt](phase3-evidence/retained-ancestry.json) records the exact
+local test and portable negative-replay results.
+
+The manifest/ancestry formats, original transfer deadlines, six-owner borrow limit
+and resource budgets remain unchanged. Copied proof is not a new vote, installation
+ACK or READY. Automatic cross-view adoption/elections, durable reopening, unavailable
+required ancestry, maximal combined lifetime, learner/joint completion, generalized
+publication and the full Phase 3 gate remain open. No push or cloud execution.
+
 ## 2026-10-26 — Phase 3B authentic retained historical copies
 
 The [retained-copy verifier](PHASE_3_RETAINED_PROVENANCE.md) now separates previously

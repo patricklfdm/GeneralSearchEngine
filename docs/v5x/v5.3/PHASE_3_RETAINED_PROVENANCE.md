@@ -1,5 +1,9 @@
 # Phase 3B — authentic complete historical copies
 
+The later [supplemental ancestry component](PHASE_3_RETAINED_ANCESTRY.md) extends
+this boundary to original retained ancestor files. This document and its original
+receipt continue to describe the preceding complete-capsule batch.
+
 Status: internal component implementation; local qualification is recorded in the
 [source-bound receipt](phase3-evidence/retained-provenance.json). Autonomous adoption,
 runtime reopen and the full Phase 3 gate remain open.

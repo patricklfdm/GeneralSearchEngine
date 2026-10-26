@@ -132,7 +132,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         if(active!=null && active.contains(sender,request))return active.handle(sender,request);
         if(!request.kind().equals("CHUNK") || number(request.value().get("sequence"))!=1)return null;
         var current=owner.activationContext();
-        if(!object(request.value().get("payload")).get("digest").equals(cutDigest(current.cut)))return null;
+        if(!MembershipPrefixExport.reference(current,(String)object(request.value().get("payload")).get("digest")))return null;
         synchronized(prefixRegistry) {
             require(!closed,"prefix endpoint closed");active=prefixService;
             if(active==null || !active.poll() || !active.sameCut(current.cut)) {

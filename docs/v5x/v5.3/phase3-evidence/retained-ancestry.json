@@ -1,0 +1,217 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-retained-ancestry/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1312318,
+      "path": "target/v53-retained-ancestry/replication.jar",
+      "sha256": "c75451ee53a78a64dcca6b4d200192c8d00a64131cffb76091aa5b1d6c340d3a"
+    }
+  ],
+  "automaticCrossViewAdoption": false,
+  "autonomousElection": false,
+  "buildInputs": {
+    "bytes": 461903,
+    "path": "target/v53-retained-ancestry/qualified-inputs.json",
+    "sha256": "6c446125f1b9e93c0d58a42b8262bbf2647b9fcc08280f35df03c81b045fdef0"
+  },
+  "caveats": [
+    "The initial build passed 63 tests; a fresh final build passed the added malformed-copy regression and strengthened witness-reuse regression. Production inputs and both runtime JARs are byte-identical across the two builds. The unique count deduplicates the repeated test; the exact test-only extension diff is retained.",
+    "Real TCP histories reconstruct public bootstrap, two original phased publications, DATA image state and maintenance at stable sizes 3/4/5. Only two endpoints run during the copy; complete retained ancestry is obtained from one actual source. No copied ACK is counted as a new Owned observation.",
+    "Adopted joint/final and removed-reader tests use actual local storage/transfer with conditional original membership force fixtures; they do not establish a full distributed member transition.",
+    "This uses the frozen crash-fault/authentic-exclusive-replica assumption, not Byzantine/signature authentication. A private completed-transfer capability and exact manifest/packet bindings do not replace structural, endpoint, incarnation or majority checks.",
+    "The complete receiving owners must stay live through use. The historical key set is bounded to the current packet plus the attached six-bridge set; it is not a durable reopening credential or deletion permission.",
+    "Automatic cross-view adoption/elections, durable reopening, unavailable required ancestry, maximal combined lifetime, learner/joint completion, generalized publication and complete Phase 3 S/N qualification remain open."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 461470,
+      "path": "target/v53-retained-ancestry/compile-inputs.json",
+      "sha256": "0fc235447fc1dc5fdf30d44ee73b57cd5544cd6ddac5a25ded01350373ce9794"
+    },
+    {
+      "bytes": 4439,
+      "path": "target/v53-retained-ancestry/compile.log",
+      "sha256": "7d6ab08f9a5cf412289548e4f46f532ee73a00b4569067baca6c0a32c39d1382"
+    },
+    {
+      "bytes": 461668,
+      "path": "target/v53-retained-ancestry/initial-inputs.json",
+      "sha256": "0fb686735e88599d79613fd76f88781ab0afa2b3834690e2c31a9ca85dc41564"
+    },
+    {
+      "bytes": 6887,
+      "path": "target/v53-retained-ancestry/initial-java-tests.log",
+      "sha256": "b76f41e3fb15cfd0bf8e85da9ba5e5c3a87568c61d59fd0cf432482230142a25"
+    },
+    {
+      "bytes": 4981,
+      "path": "target/v53-retained-ancestry/qualified-java-tests.log",
+      "sha256": "8efd6e4838b2566b28136e09720e3803a5ceb4c2580335a64af8f15460064cf8"
+    },
+    {
+      "bytes": 287,
+      "path": "target/v53-retained-ancestry/build-input-check.json",
+      "sha256": "f60a4c6c21c6cc2505387e0bee35d562dfeb603c054725e4110211af9b334075"
+    },
+    {
+      "bytes": 1508,
+      "path": "target/v53-retained-ancestry/java-reports.json",
+      "sha256": "8d65dc512527be0f664ed24e555b022a9d80eec8bb3521595bae3d148c86e4ba"
+    },
+    {
+      "bytes": 12841,
+      "path": "target/v53-retained-ancestry/java-unique-cases.json",
+      "sha256": "fa653e1288759570e15a0e7fd9c4637ae5bef5098cd3a7386c90f21899b3507a"
+    },
+    {
+      "bytes": 7587,
+      "path": "target/v53-retained-ancestry/qualified-test-diff.patch",
+      "sha256": "688a24ab912a5f63dafc8ff8a79afc87c32e8f9766f6d9a5a4359fb0e7f17306"
+    },
+    {
+      "bytes": 549,
+      "path": "target/v53-retained-ancestry/artifact-comparison.json",
+      "sha256": "cf1178edfaa23d2c334900ca6f3bb76bdca0acc223f522b63d61794653c7ed88"
+    },
+    {
+      "bytes": 33273,
+      "path": "target/v53-retained-ancestry/python-inputs.json",
+      "sha256": "01858d548c811e309095b81e5e2f5bacb846bb0de497200b2bb0cc0dd190ac4a"
+    },
+    {
+      "bytes": 62,
+      "path": "target/v53-retained-ancestry/python-input-check.json",
+      "sha256": "ad6407679de86f53803cb8404bfe48703e42c65efdbda27cfaeb9f9ebfeff76f"
+    },
+    {
+      "bytes": 162,
+      "path": "target/v53-retained-ancestry/python-tests.json",
+      "sha256": "5a13848b1a581c41e74e38dd809ff592f2323ba504556b96940afb9c6b7596a1"
+    },
+    {
+      "bytes": 683,
+      "path": "target/v53-retained-ancestry/python-normal.log",
+      "sha256": "fa65e3638afa700db26b911e8cfa5f6256fafbe8274ef99c3f00c7fece607b99"
+    },
+    {
+      "bytes": 683,
+      "path": "target/v53-retained-ancestry/python-optimized.log",
+      "sha256": "a31a0c4346172068ca0a04f7ae115737b1d7808daa6c9873d48432c02ce45977"
+    },
+    {
+      "bytes": 650210,
+      "path": "target/v53-retained-ancestry/raw-inventory.json",
+      "sha256": "61334ab0d92736bd389104833cd26c3a2be18e67ebf0434aa09344abd1b10702"
+    },
+    {
+      "bytes": 1808,
+      "path": "target/v53-retained-ancestry/initial-replay.json",
+      "sha256": "5e88f0b146f42b1ea3cacaf0c2dabe9737b959cb81344b1824e6936bfa7c94da"
+    },
+    {
+      "bytes": 1808,
+      "path": "target/v53-retained-ancestry/replay.json",
+      "sha256": "5e88f0b146f42b1ea3cacaf0c2dabe9737b959cb81344b1824e6936bfa7c94da"
+    },
+    {
+      "bytes": 1808,
+      "path": "target/v53-retained-ancestry/replay-optimized.json",
+      "sha256": "5e88f0b146f42b1ea3cacaf0c2dabe9737b959cb81344b1824e6936bfa7c94da"
+    },
+    {
+      "bytes": 1808,
+      "path": "target/v53-retained-ancestry/replay-portable.json",
+      "sha256": "5e88f0b146f42b1ea3cacaf0c2dabe9737b959cb81344b1824e6936bfa7c94da"
+    },
+    {
+      "bytes": 1615689,
+      "path": "target/v53-retained-ancestry/portable-evidence.tar.gz",
+      "sha256": "fd6d2f99cca7d8b71caadf577b359123b0daff9df59798921bb19e9408deaef7"
+    },
+    {
+      "bytes": 1330,
+      "path": "target/v53-retained-ancestry/prefix-replay.json",
+      "sha256": "cbd4ff477a3d23124dbb17fd39337e435e2fcc4b11807c6e7ec9ee72df5d1c8e"
+    },
+    {
+      "bytes": 1335,
+      "path": "target/v53-retained-ancestry/provenance-replay.json",
+      "sha256": "b2877de65294e1921f5bd3af1cb43d7b9284a010446a951fa69107550e085821"
+    },
+    {
+      "bytes": 1276,
+      "path": "target/v53-retained-ancestry/checkpoint-replay.json",
+      "sha256": "c3dac279d42c4279abcff04ec3d570095e524e21000fed694647d72a8dce7e54"
+    },
+    {
+      "bytes": 63,
+      "path": "target/v53-retained-ancestry/qualification.log",
+      "sha256": "9728f27b550580fd33ceae5c4720fe96718c34d8115997e8238c08baea86d0c7"
+    },
+    {
+      "bytes": 152,
+      "path": "target/v53-retained-ancestry/qualification-success.json",
+      "sha256": "cdf7d62afab35b6c8caf646956c60a5e717a48898fbe270e852968dc3260ffbd"
+    },
+    {
+      "bytes": 4276,
+      "path": "target/v53-retained-ancestry/qualify.py",
+      "sha256": "8860d55dbd6e73fd566b5843ffc9fb5891fc874a7c5dd4fe1cc1a6773279a27e"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "finalTargetedTests": 2,
+    "initialTests": 63,
+    "retainedAncestryTests": 11,
+    "skips": 0,
+    "suites": 6,
+    "uniqueTests": 64
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "normal": {
+      "seconds": 92.2,
+      "tests": 582
+    },
+    "optimized": {
+      "seconds": 94.201,
+      "tests": 582
+    }
+  },
+  "replay": {
+    "ancestryExchanges": 18,
+    "negativeCases": 16,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "prefixExchanges": 21,
+    "relatedCheckpoint": "PASS",
+    "relatedPrefix": "PASS",
+    "relatedProvenance": "PASS",
+    "stableSizes": [
+      3,
+      4,
+      5
+    ]
+  },
+  "schema": "gse-v53-phase3-retained-ancestry-local-v1",
+  "scope": "complete selector-bound supplemental ancestry copies, distinct from fresh checkpoint observations",
+  "sourceInputs": {
+    "bytes": 462019,
+    "path": "target/v53-retained-ancestry/source-inputs.json",
+    "sha256": "4c60837b7958dc81670e1d19e76cde36f972cd2762f63cc8500706e2589edd0b"
+  },
+  "sourceParent": "69f47ef835888a6d11f8248e243f1f0b750f12f8",
+  "status": "PASS",
+  "verifiedBuildInputs": 1111
+}

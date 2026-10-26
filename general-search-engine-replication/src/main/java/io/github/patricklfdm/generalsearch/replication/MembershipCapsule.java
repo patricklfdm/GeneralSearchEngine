@@ -158,6 +158,25 @@ final class MembershipCapsule {
     }
     /** Original statements/endorsements only after the whole retained ancestry verifies. */
     List<MembershipSelection.Bridge> verifiedAncestry(byte[] bytes) {
+        var bridges=ancestryFrames(bytes);var lower=new HashMap<Map<String,Object>,Anchor>();
+        for(var bridge:bridges) {
+            var value=bridge.statement.value();var anchor=new Anchor(object(value.get("start")),(String)value.get("catalogBefore"),(String)value.get("applicationBefore"));
+            require(lower.putIfAbsent(anchor.cut(),anchor)==null,"duplicate generation ancestry");bridge.verify(this,anchor);
+        }
+        return bridges;
+    }
+    /** Extend only exact historical authority from an authenticated complete manifest/ancestry copy. */
+    MembershipCapsule retainingAncestry(byte[] bytes,MembershipSourcePull.RetainedAncestry copy)throws java.io.IOException {
+        Objects.requireNonNull(copy).check(this,bytes);var retained=new HashSet<Historical>();
+        for(var item:history)if(packet.objectNames().contains(item.record()))retained.add(item);
+        for(var bridge:ancestryFrames(bytes))retained.add(checkpoint(bridge.statement,bridge.acknowledgements.stream().map(Decoded::digest).toList()));
+        var result=new MembershipCapsule(context,packet,anchors,states,observations,retained,highestMembershipCertificate);
+        result.verifiedAncestry(bytes);copy.check(this,bytes);return result;
+    }
+    boolean historicalCheckpoint(Decoded statement,List<Decoded> acknowledgements) {
+        return history.contains(checkpoint(statement,acknowledgements.stream().map(Decoded::digest).toList()));
+    }
+    private List<MembershipSelection.Bridge> ancestryFrames(byte[] bytes) {
         require(bytes.length<=96*1024,"generation ancestry capacity");var bridges=new ArrayList<MembershipSelection.Bridge>();
         Decoded statement=null;var acks=new ArrayList<Decoded>();int offset=0;
         while(offset<bytes.length) {
@@ -171,11 +190,6 @@ final class MembershipCapsule {
             }else {require(statement!=null && acks.size()<6,"orphan/excess ancestry ACK");acks.add(frame);}
         }
         if(statement!=null)bridges.add(ancestryBridge(statement,acks));
-        var lower=new HashMap<Map<String,Object>,Anchor>();
-        for(var bridge:bridges) {
-            var value=bridge.statement.value();var anchor=new Anchor(object(value.get("start")),(String)value.get("catalogBefore"),(String)value.get("applicationBefore"));
-            require(lower.putIfAbsent(anchor.cut(),anchor)==null,"duplicate generation ancestry");bridge.verify(this,anchor);
-        }
         return List.copyOf(bridges);
     }
     private MembershipSelection.Bridge ancestryBridge(Decoded statement,List<Decoded> acknowledgements) {

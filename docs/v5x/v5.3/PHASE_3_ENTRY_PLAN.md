@@ -73,6 +73,13 @@ storage with explicitly conditional historical fixtures. Full historical provena
 compacted cross-view ancestry, automatic verified adoption/fresh elections and
 maximal combined image lifetime remain open.
 
+The [retained ancestry delivery component](PHASE_3_RETAINED_ANCESTRY.md) now copies
+the original selected-generation manifest and supplemental proof through a bounded
+read-only exchange. Exact original-prefix and historical endorsement checks avoid
+requiring live former voters for that retained copy. Automatic cross-view adoption,
+durable reopening, missing required ancestry, maximal combined resource lifetime
+and the remaining complete 3B–3E obligations remain open.
+
 ## First batch boundary
 
 The subsequent [retained-copy verifier](PHASE_3_RETAINED_PROVENANCE.md) separates
