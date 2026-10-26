@@ -2,7 +2,8 @@
 
 **Status:** development branch, started 2026-10-21. Phases 0, 1 and 2 are locally closed;
 Phase 3's [first activation batch](PHASE_3_ACTIVATION.md) and subsequent
-[TCP transport component](PHASE_3_TRANSPORT.md) are locally qualified;
+[TCP transport](PHASE_3_TRANSPORT.md) and
+[original source export lifetime](PHASE_3_SOURCE_EXPORT.md) components are locally qualified;
 no V5.3 runtime, release, protected CI or cloud acceptance is claimed.
 
 The operator authorized development on `feat/v53-cluster-operations` while V5.2

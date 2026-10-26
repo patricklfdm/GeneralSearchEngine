@@ -1,5 +1,21 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3B original source export lifetime
+
+The [source-side export component](PHASE_3_SOURCE_EXPORT.md) pins an exact forced
+PROMISE/BASIS, packet and application files during bounded asynchronous delivery.
+It refuses retirement before a deletion decision, detects changed files, and
+returns capacity on close/expiry. It never renews the original deadline or grants
+remote voting authority. Actual TCP chunk delivery versus retirement passes with
+real admitted owners and a governing floor.
+
+48 focused Java tests across eight suites and all 539 V5.3 Python tests in normal
+and optimized modes pass. Independent three-size original-byte replay, ten exact
+negatives and relocated replay pass. The [receipt](phase3-evidence/source-export.json)
+keeps that physical trace separate from the TCP race test. Received-file staging,
+authority discovery, learner/joint completion and distributed qualification remain
+open. No full S/N family, public runtime, CI or cloud acceptance is claimed.
+
 ## 2026-10-25 — Phase 3B TCP transport component
 
 The [private transport component](PHASE_3_TRANSPORT.md) adds actual bounded TCP

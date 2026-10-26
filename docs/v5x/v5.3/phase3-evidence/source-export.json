@@ -1,0 +1,119 @@
+{
+  "schema": "gse-v53-phase3-source-export-local-v1",
+  "status": "PASS",
+  "date": "2026-10-25",
+  "sourceParent": "6b2e4a2fef6c35429d8a754c5efdcf3e4ae9daad",
+  "scope": "read-only original-source lifetime and TCP retirement exclusion",
+  "publicRuntime": false,
+  "fullPhase3Qualification": false,
+  "protectedCI": false,
+  "paidCloud": false,
+  "java": {
+    "tests": 48,
+    "suites": 8,
+    "newTests": 9,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "realAdmittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "tcpRetirementRace": true
+  },
+  "python": {
+    "normal": 539,
+    "optimized": 539
+  },
+  "replay": {
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "negativeCases": 10,
+    "rawNetwork": false,
+    "originalFiles": 589,
+    "originalBytes": 621690
+  },
+  "sourceInputs": {
+    "path": "target/v53-source-export/qualified-source-inputs.json",
+    "bytes": 240656,
+    "sha256": "cb0f536e13c1524c010f5ea637076ba3951e4fd6919de98d484c7beded39f3da"
+  },
+  "buildInputs": {
+    "path": "target/v53-source-export/build-inputs.json",
+    "bytes": 175875,
+    "sha256": "1653387955028033cf52e9ed92381f5effce155c8be7c5a4760f796469bb5cef"
+  },
+  "artifacts": [
+    {
+      "path": "target/v53-source-export/core.jar",
+      "bytes": 860591,
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "path": "target/v53-source-export/replication.jar",
+      "bytes": 1166446,
+      "sha256": "8a7b6f2ec2457dccd3020412fefbcfa6b5f1532c7a88513a33940d840a61b889"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "target/v53-source-export/java-reports.json",
+      "bytes": 1555,
+      "sha256": "36166d888aab94b983f2550092f09ea08531cd16d0030725a210fe2bf404fdb1"
+    },
+    {
+      "path": "target/v53-source-export/first-tests.log",
+      "bytes": 6970,
+      "sha256": "236bf489274c9a544754f7e1e486a4a10d676c2a4dbeae02fd5b9bdcefe81862"
+    },
+    {
+      "path": "target/v53-source-export/final-export-tests.log",
+      "bytes": 4388,
+      "sha256": "314f53b882fbf35be8edc1ac470328e47768b94d0b3c366181de97b98017697a"
+    },
+    {
+      "path": "target/v53-source-export/python.log",
+      "bytes": 640,
+      "sha256": "ccc9c8750797e2f97f68e643b694b50665f1aababf65db40e107b242df477a82"
+    },
+    {
+      "path": "target/v53-source-export/python-optimized.log",
+      "bytes": 640,
+      "sha256": "fa6072b5f349746a5df0c1581db0a08373e204da65df71a7380f93f9f74f369c"
+    },
+    {
+      "path": "target/v53-source-export/replay.json",
+      "bytes": 1225,
+      "sha256": "0653857332cecb3ca0bb2812faae59acd3e0acfe31ebfd236975c493cc6b69d2"
+    },
+    {
+      "path": "target/v53-source-export/replay-optimized.json",
+      "bytes": 1225,
+      "sha256": "0653857332cecb3ca0bb2812faae59acd3e0acfe31ebfd236975c493cc6b69d2"
+    },
+    {
+      "path": "target/v53-source-export/replay-portable.json",
+      "bytes": 1225,
+      "sha256": "0653857332cecb3ca0bb2812faae59acd3e0acfe31ebfd236975c493cc6b69d2"
+    },
+    {
+      "path": "target/v53-source-export/activation-replay.json",
+      "bytes": 1307,
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    },
+    {
+      "path": "target/v53-source-export/raw-inventory.json",
+      "bytes": 147363,
+      "sha256": "1c6be1d5e39266780105487c17d806d38884b9da179ac93663a26a4becf1b1ab"
+    }
+  ],
+  "limits": [
+    "Source-side borrow only; complete receiver, delivery, discovery and distributed activation remain open",
+    "Physical replay reports network false; real TCP race is a separately recorded JUnit test",
+    "No public membership operations, protected acceptance or cloud execution",
+    "Local Ubuntu JDK 21.0.12.1; S/N families remain PLANNED"
+  ],
+  "buildWorkspace": "/tmp/gse-v53-source-export-iafsq210"
+}

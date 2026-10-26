@@ -7,6 +7,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.LongSupplier;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipContext.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
@@ -45,6 +46,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipAppliedEndFiles appliedEnd;
     private int applicationMetadata;
     private MembershipResources.Lease publicationImage;
+    private final Set<MembershipSourceExport> sourceExports=new HashSet<>();
     private volatile boolean failed,closed;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
@@ -1394,6 +1396,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Complete one exact source retirement; all other writer mutations remain blocked. */
     synchronized Decoded retireSource(String id)throws IOException {
         require(sourceRetirement!=null,"source retirement owner required");checkOwner();applicationReferencesIdle();require(pendingAccept==null || !pendingAccept.pending(),"pending ACCEPT requires exact original completion");
+        expireSourceExports();require(sourceExports.stream().noneMatch(export->export.basisId().equals(id)),"source export pins original files");
         if(pendingContext!=null && pendingContext.active().isPresent())contextSourceRetirement(id);
         require(!inactive.exists() && !inactive.pending() && !floors.pending() && !retirement.pending(),"pending generation/floor/retirement before source deletion");
         require(promise!=null && (promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest())),"uninstalled adoption fence; prefix recovery required");
@@ -1704,6 +1707,30 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(current!=null && basis!=null,"complete current grant required");checkOwner();
         return retainedSource(basis);
     }
+    /** Read-only transfer authority for an exact forced retained BASIS. A higher grant may
+     * coexist with this borrow; it cannot change these originals or renew its deadline. */
+    synchronized MembershipSourceExport exportSource(Decoded original,long budget)throws IOException {
+        return exportSource(original,System::nanoTime,budget);
+    }
+    synchronized MembershipSourceExport exportSource(Decoded original,LongSupplier clock,long budget)throws IOException {
+        require(budget>0 && budget<Long.MAX_VALUE/2,"source export time budget");long started=Objects.requireNonNull(clock).getAsLong();
+        require(current!=null && sources!=null && resources!=null,"source export storage owner required");
+        checkOwner();sourceIdle();expireSourceExports();require(sourceExports.size()<6,"source export owner capacity");
+        require(original.family().equals("records") && original.kind().equals("BASIS"),"source export requires BASIS");
+        String id=(String)original.value().get("basisId");var exact=bases.get(id);var granted=promises.get(id);
+        require(exact!=null && granted!=null && Arrays.equals(exact.bytes(),original.bytes()),"source export original basis absent/changed");
+        var source=retainedSource(exact);
+        var export=new MembershipSourceExport(this,directory.resolve(MembershipBasisSources.DIRECTORY).resolve(id),source,granted,resources,clock,started,budget);
+        sourceExports.add(export);
+        try {checkSourceExport(export);return export;}
+        catch(IOException|RuntimeException|Error error){releaseSourceExport(export);throw error;}
+    }
+    private void expireSourceExports(){for(var export:List.copyOf(sourceExports))if(export.expired())releaseSourceExport(export);}
+    synchronized void checkSourceExport(MembershipSourceExport export)throws IOException {
+        expireSourceExports();require(sourceExports.contains(export),"source export closed/expired");checkOwner();
+        expireSourceExports();require(sourceExports.contains(export),"source export closed/expired");
+    }
+    synchronized void releaseSourceExport(MembershipSourceExport export){sourceExports.remove(export);export.revoke();}
     /** Read an exact retained grant without substituting the latest promise/basis. */
     private MembershipSelection.Source retainedSource(Decoded retainedBasis)throws IOException {
         checkOwner();require(retainedBasis.value().get("view").equals(current.capsule.context.authority()),"obsolete original grant; fresh campaign required");
@@ -1955,6 +1982,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Decoded> originalBasis() {live();return Optional.ofNullable(basis);}
     synchronized Optional<Decoded> originalSelection() {live();return Optional.ofNullable(selection);}
     @Override public synchronized void close() throws IOException {
+        for(var export:List.copyOf(sourceExports))releaseSourceExport(export);
         if(!closed){closed=true;try{releasePublicationImage();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }
 }
