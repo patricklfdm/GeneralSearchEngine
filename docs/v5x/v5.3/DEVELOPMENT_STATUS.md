@@ -1,5 +1,25 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B selector-coupled retention merge
+
+The [selected-retention component](PHASE_3_SELECTED_RETENTION.md) now preserves
+every selected original snapshot in the installed generation's recovery intent.
+The native owner conservatively merges their possible endpoints before installation
+success or recovered-owner exposure. Original revision/digest binding prevents a
+later real-copy observation from being undone by replaying an old merge. Completion
+space is checked before SELECTED; a one-byte-short case leaves all files unchanged.
+
+Sixteen actual halt/SIGKILL cases pass, including eight live lock probes. Independent
+original-bootstrap, first-publication, selection and complete file-map replay pass
+with twelve exact evidence negatives in normal, optimized and relocated modes.
+The [receipt](phase3-evidence/selected-retention.json) separates the Java snapshots,
+overlapping tests and the separate Java narrowing/source-retirement scenario.
+
+This closes local selected-plan persistence for the qualified path, not quorum
+recording before dispatch or automatic peer maintenance. Complete offline-survivor
+continuation, native cross-view pending contexts, learners/joint transitions and
+the remaining 3B–3E gates stay open. No public runtime, push or paid execution.
+
 ## 2026-10-26 — Phase 3B original-source retention capture
 
 The [frozen retention source](PHASE_3_PEER_RETENTION_SOURCE.md) binds the exact

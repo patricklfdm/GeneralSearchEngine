@@ -15,6 +15,7 @@ final class MembershipPeerRetentionSource {
         @Override public byte[] localBytes(){return localBytes.clone();}
     }
     private record Raw(Decoded promise,byte[] state) {}
+    static byte[] wrapper(Frozen value){return encode(value.promise,value.localBytes);}
     private static byte[] encode(Decoded promise,byte[] localBytes) {
         require(promise.family().equals("records") && promise.kind().equals("PROMISE")
                 && promise.value().get("basisId")!=null,"retention source requires capture promise");
@@ -64,6 +65,13 @@ final class MembershipPeerRetentionSource {
         require(found!=null,"retention source original snapshot missing");
         var state=MembershipPeerRetentionFiles.decodeOwned(found.state,source.capsule.context.root,source.owner);
         return new Frozen(found.promise,found.state,state);
+    }
+    static Frozen included(byte[] envelope,Decoded basis,MembershipIdentity owner,byte[] wrapper) {
+        var cap=MembershipSourcePacket.included(envelope,basis,wrapper);var raw=decode(wrapper);
+        for(String field:List.of("root","view","ballot","basisId"))
+            require(raw.promise.value().get(field).equals(basis.value().get(field)),"included retention original promise binding");
+        require(basis.value().get("voter").equals(owner.nodeId().value()),"included retention source owner");
+        return new Frozen(raw.promise,raw.state,MembershipPeerRetentionFiles.decodeOwned(raw.state,(String)cap.value().get("root"),owner));
     }
     private MembershipPeerRetentionSource() {}
 }

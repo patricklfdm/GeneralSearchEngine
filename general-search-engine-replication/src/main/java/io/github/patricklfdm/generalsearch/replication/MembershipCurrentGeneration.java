@@ -275,6 +275,9 @@ final class MembershipCurrentGeneration implements AutoCloseable {
     Optional<byte[]> selectedSources()throws IOException {
         check();return files.containsKey(MembershipSelectedSources.FILE)?Optional.of(AdmissionPaths.read(path.resolve(MembershipSelectedSources.FILE),MembershipSelectedSources.MAXIMUM)):Optional.empty();
     }
+    Optional<Decoded> selectedRecord()throws IOException {
+        check();return files.containsKey("selected.gsr")?Optional.of(decode(AdmissionPaths.read(path.resolve("selected.gsr"),65536),"records","SELECTED")):Optional.empty();
+    }
     Map<String,byte[]> copyFiles() throws IOException {
         check();var result=new TreeMap<String,byte[]>();
         for(var file:files.entrySet())result.put(file.getKey(),AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(file.getValue().bytes())));

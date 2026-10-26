@@ -82,6 +82,10 @@ final class MembershipPeerRetentionFiles implements AutoCloseable {
         require(Arrays.equals(bytes,encode(root,owner,revision,(String)previous,plan)),"peer retention noncanonical container");
         return new State(revision,hash(bytes),plan);
     }
+    static byte[] successor(byte[] before,String root,MembershipIdentity owner,MembershipPeerRetentionPlan plan) {
+        var state=decodeOwned(before,root,owner);require(state.revision()<MembershipBallotAllocator.MAX,"peer retention revision exhausted");
+        return encode(root,owner,state.revision()+1,state.digest(),plan);
+    }
     private void candidate(byte[] bytes) {
         int length=extent(bytes);if(length<0 || bytes.length<length)return;
         var decoded=decode(bytes);var value=object(parse(Arrays.copyOfRange(bytes,HEADER,bytes.length),MAXIMUM-HEADER));

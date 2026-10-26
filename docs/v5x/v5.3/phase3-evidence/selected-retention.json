@@ -1,0 +1,362 @@
+{
+  "baseCommit": "d49de6b74eaf8d1cd105c22b1c4c73f6209e0727",
+  "boundaries": [
+    "Original native bootstrap/publication and sixteen selector/ledger process cuts have independent exact file replay. They reuse one genuine prelude, not sixteen independent bootstrap histories.",
+    "Local selected-plan persistence does not constitute quorum intent or permission to dispatch. Public membership is disabled.",
+    "Java-only narrowing, source-retirement, DATA-publication and capacity cases are not represented as new independent full-history replay.",
+    "No frozen record or resource ceiling changed. GSRS is an opaque bounded source object; repeated unresolved histories still require bounded automatic maintenance.",
+    "Automatic observation/maintenance, quorum recording, complete offline-survivor recovery, cross-view contexts, learners/joint completion and full 3B-3E remain open.",
+    "No power-loss qualification, protected CI, push, workflow, paid execution or V5.2 changes."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 3280,
+      "path": "target/v53-selected-retention/DESIGN_AUDIT.md",
+      "sha256": "6e045ddb4416d22b981ba169f51b844266414e081896c1b6abb3de34b9fc4fda"
+    },
+    {
+      "bytes": 5131886,
+      "path": "target/v53-selected-retention/build-evidence.tar.gz",
+      "sha256": "73c187594690bbf047821176c92e820b10cc16be4bdb50c53d53e0a009fae00e"
+    },
+    {
+      "bytes": 475119,
+      "path": "target/v53-selected-retention/capacity-inputs.json",
+      "sha256": "06dd30e754988ccff8aea4463b407776e2af061ec5724ad83d836e284b1dd059"
+    },
+    {
+      "bytes": 50,
+      "path": "target/v53-selected-retention/capacity-workspace.txt",
+      "sha256": "55ee366563995927b16f08f717bde15cc35823b424436049903a064d4debbed2"
+    },
+    {
+      "bytes": 5167,
+      "path": "target/v53-selected-retention/capacity.log",
+      "sha256": "7985f4bee5547387bdb90a9d7d3fedcc5437f7329f4db819efe7ab15c90eb671"
+    },
+    {
+      "bytes": 1555,
+      "path": "target/v53-selected-retention/collect.py",
+      "sha256": "0adf6e2f5a72f215f15fde04458805daa97e12caab2c47bddc05daf97779c9d9"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-selected-retention/contract-check.json",
+      "sha256": "27cd4dcc86052424a77cf5502d127a381001e216d2bd9424346527207cb0ec74"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-selected-retention/contract-preliminary.json",
+      "sha256": "4f7676c807886b6adfc801975b1c155447a91b8328a8f74e8b8274e67bf96657"
+    },
+    {
+      "bytes": 6385,
+      "path": "target/v53-selected-retention/finalize.py",
+      "sha256": "cf05e23aa654f6e3b680f283f11b393809b00ee0f5407f1f758c0a0bacc37c66"
+    },
+    {
+      "bytes": 474360,
+      "path": "target/v53-selected-retention/initial-inputs.json",
+      "sha256": "52ecd1bdaa4600b9b492b3946266e37f5a74e0eb4a96db2e5b162b7bbca07186"
+    },
+    {
+      "bytes": 49,
+      "path": "target/v53-selected-retention/initial-workspace.txt",
+      "sha256": "0e3e2bb72a5d0285cba30cd94d5db4847f1e1fa5063dbfbdbbcf2fe7b8141453"
+    },
+    {
+      "bytes": 7357,
+      "path": "target/v53-selected-retention/initial.log",
+      "sha256": "8c7a131fb0cbfbc89c559b835a8c8efe6e9b564bca6f5912d56ab9ae9e402cdb"
+    },
+    {
+      "bytes": 474765,
+      "path": "target/v53-selected-retention/process-inputs.json",
+      "sha256": "fda51d4ea90985770f3f173307ce4e363cd210456d71f46a1230293c0af5522b"
+    },
+    {
+      "bytes": 49,
+      "path": "target/v53-selected-retention/process-workspace.txt",
+      "sha256": "b72b4b957d3fa95492cf860aa3190f9d5e3e6f924dcc8abd7bb3744553c19301"
+    },
+    {
+      "bytes": 9277,
+      "path": "target/v53-selected-retention/process.log",
+      "sha256": "ad6d32936d4c60a7715653ed69275c78f067228c224c824a8359b1d30ed7ae45"
+    },
+    {
+      "bytes": 112,
+      "path": "target/v53-selected-retention/python-tests-optimized.log",
+      "sha256": "fc924f6e1fea3cec579bda3420051891bdf01c960fe5ca7e49fdfc8005bd9c0c"
+    },
+    {
+      "bytes": 112,
+      "path": "target/v53-selected-retention/python-tests.log",
+      "sha256": "cac5b565578e1b31f6787112c1d12a0e79d4751c7f652d4b10f39d4362432419"
+    },
+    {
+      "bytes": 322784,
+      "path": "target/v53-selected-retention/raw-inventory.json",
+      "sha256": "a189bddd7549c734e570d2d9ae26d1b2203db9d91217dfedd0ca2afeb12d1f6f"
+    },
+    {
+      "bytes": 702384,
+      "path": "target/v53-selected-retention/raw-selected-retention.tar.gz",
+      "sha256": "beb1d61c89b7cb5f5ea8fb8c2204a568e96c8caa9be2bc200799b1586b765b70"
+    },
+    {
+      "bytes": 2509,
+      "path": "target/v53-selected-retention/replay-attempt-1.json",
+      "sha256": "eac6602edf3b992bd38bfa40b04786a422a869a11fa1d6950e97aaa9b4ac0ee7"
+    },
+    {
+      "bytes": 2509,
+      "path": "target/v53-selected-retention/replay-optimized.json",
+      "sha256": "eac6602edf3b992bd38bfa40b04786a422a869a11fa1d6950e97aaa9b4ac0ee7"
+    },
+    {
+      "bytes": 2509,
+      "path": "target/v53-selected-retention/replay-portable.json",
+      "sha256": "eac6602edf3b992bd38bfa40b04786a422a869a11fa1d6950e97aaa9b4ac0ee7"
+    },
+    {
+      "bytes": 2509,
+      "path": "target/v53-selected-retention/replay.json",
+      "sha256": "eac6602edf3b992bd38bfa40b04786a422a869a11fa1d6950e97aaa9b4ac0ee7"
+    },
+    {
+      "bytes": 836,
+      "path": "target/v53-selected-retention/snapshot.py",
+      "sha256": "f789af94dab4aef0dc30c2d3b0d1546b3b8a80a4cdbdcee8cbca70d13dd459c7"
+    },
+    {
+      "bytes": 2220,
+      "path": "target/v53-selected-retention/validation-summary.json",
+      "sha256": "ddd54e0c51421b48319ef68175311b78a05b4097b7ad60a3b0d50809f0f78017"
+    }
+  ],
+  "schema": "gse-v53-selected-retention-v1",
+  "sourceFiles": [
+    {
+      "bytes": 27440,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java",
+      "sha256": "e3a0d083f9b2a00f63097b1e49b69d2eb2af84706656b3ec3f0787665d4252bc"
+    },
+    {
+      "bytes": 19948,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java",
+      "sha256": "c35719b9ad6b66423bf8441b6e81b954a94dcc2029c6e6ce56db4f785994ab75"
+    },
+    {
+      "bytes": 216784,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "0f72a338c3b2cd61c5b3201e8bc52e1a8b0f08846a20d3bb0bfdeffce60056de"
+    },
+    {
+      "bytes": 11298,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionFiles.java",
+      "sha256": "1908dd4d3ac59e8d0c474ff0cb172a84b2a840a2fb16086195e82e8d515dd18f"
+    },
+    {
+      "bytes": 14130,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionPlan.java",
+      "sha256": "5694b39a4ee81b42df177440ba2ac1df1eea9e5c68a3b1b81060d79d1e8b8f19"
+    },
+    {
+      "bytes": 6329,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionSource.java",
+      "sha256": "d2c5f63c48ea821bdccf62b7e91ca1f7025704171b894160a012e78a1a50e9bf"
+    },
+    {
+      "bytes": 13969,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePacket.java",
+      "sha256": "4de1ca931e69ab78c17671f5de4a610f01af8860034ab41be7391ee7f2c9c3c6"
+    },
+    {
+      "bytes": 8588,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectedRetention.java",
+      "sha256": "64ed7c9c5cb32290c06da496b16e880cf85ba50c7cc3c08245486cdf24179add"
+    },
+    {
+      "bytes": 9361,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SelectedRetentionTest.java",
+      "sha256": "a369d20fcec44ee227970e78534efbdee5ff11e797a400868470b5e83882382e"
+    },
+    {
+      "bytes": 4855,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SelectedRetentionCrashTest.java",
+      "sha256": "58ce3df190d51a59b7ed781ef2287c5ea44d2a9ae2fac1af93f4ff9f46330718"
+    },
+    {
+      "bytes": 3123,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SelectedRetentionWorker.java",
+      "sha256": "cd8e96fead5c9205341e1f50c7214bfd983d31aab87ba37d0e60012abadbfcc4"
+    },
+    {
+      "bytes": 14671,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionFilesTest.java",
+      "sha256": "f898d42a4e0dd481431ed4aa4f6444852b0cf351f436c19854355a230ab3b53b"
+    },
+    {
+      "bytes": 11359,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionPlanTest.java",
+      "sha256": "0f98cfa88a71da94d83e4dbac54bdb35771cbd7eaaa5b47d8083c2cbc4528241"
+    },
+    {
+      "bytes": 13903,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionSourceTest.java",
+      "sha256": "4bd9f62c563b44139cfc83b72f4a51141f67c1de8a7204b34842090d22b075f2"
+    },
+    {
+      "bytes": 1964,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionSourceWorker.java",
+      "sha256": "f7db734a59dd97ef3fb94ef6fe31cad47bf619f1d4468fa8286ceefb0b7ff7ec"
+    },
+    {
+      "bytes": 14606,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapPublicationTest.java",
+      "sha256": "4ee8b61ac857d489ac802dfa5c65e5d3290a19f165a87e9d447c0b961b49090a"
+    },
+    {
+      "bytes": 18059,
+      "path": "scripts/v53/selected_retention_evidence.py",
+      "sha256": "4f15a3aa696cc4d4a51e224d66f68ed61a2c0ab88fd10e68769cb20d751ef390"
+    },
+    {
+      "bytes": 2634,
+      "path": "scripts/v53/test_selected_retention_evidence.py",
+      "sha256": "d8d093b3039a8db6e6b8e714ef7259a50cb96507f5a6decbc9ac234ae962d28a"
+    },
+    {
+      "bytes": 9374,
+      "path": "scripts/v53/peer_retention_source_evidence.py",
+      "sha256": "79962cf6d7653fcb91064fc5edcac56a28b07d952b97a9d646012c0c3060d220"
+    },
+    {
+      "bytes": 9096,
+      "path": "scripts/v53/peer_retention_evidence.py",
+      "sha256": "5c995a3b3c5572689a7a8343d4d039837ec862f2c0d29e3d0fe8d9c3ad79f5f7"
+    },
+    {
+      "bytes": 23983,
+      "path": "scripts/v53/bootstrap_publication_evidence.py",
+      "sha256": "827ed5ad11c0f393d832383302e66de5d772f01c9cf8795e0cafd525b205bdb6"
+    },
+    {
+      "bytes": 5624,
+      "path": "docs/v5x/v5.3/PHASE_3_SELECTED_RETENTION.md",
+      "sha256": "2a2a2a401373d5d7093d3cec27baec68777d095c2b066e7b34a7bf48885ca5b7"
+    },
+    {
+      "bytes": 110108,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "79c52c1bfc9fb3e546782983545f7d105e825a34049be802fb83a314125605e1"
+    },
+    {
+      "bytes": 14434,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "0a0a121f9e7252181c87806dc5f22d47a6b6ec4a6c9760775e9ab80c0a709666"
+    }
+  ],
+  "validation": {
+    "autonomousRuntime": false,
+    "distinctJavaTests": 22,
+    "evidenceNegatives": 12,
+    "independentPrelude": {
+      "bootstrap": "EMPTY",
+      "preparations": 2,
+      "publications": 1,
+      "sharedAcrossCrashCases": true,
+      "voters": 3
+    },
+    "java": [
+      {
+        "productionMatchesCurrent": true,
+        "snapshot": "initial",
+        "suites": [
+          {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "suite": "V53PeerRetentionSourceTest",
+            "tests": 5
+          },
+          {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "suite": "V53SelectedRetentionTest",
+            "tests": 2
+          }
+        ]
+      },
+      {
+        "productionMatchesCurrent": true,
+        "snapshot": "process",
+        "suites": [
+          {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "suite": "V53PeerRetentionFilesTest",
+            "tests": 6
+          },
+          {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "suite": "V53SelectedRetentionTest",
+            "tests": 3
+          },
+          {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "suite": "V53PeerRetentionPlanTest",
+            "tests": 6
+          },
+          {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "suite": "V53SelectedRetentionCrashTest",
+            "tests": 1
+          }
+        ]
+      },
+      {
+        "productionMatchesCurrent": true,
+        "snapshot": "capacity",
+        "suites": [
+          {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "suite": "V53SelectedRetentionTest",
+            "tests": 1
+          }
+        ]
+      }
+    ],
+    "javaExecutions": 24,
+    "killLockProbes": 8,
+    "phase3Complete": false,
+    "portableReplay": true,
+    "processCases": 16,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 13,
+    "quorumDispatch": false,
+    "retainedRawFiles": 1853,
+    "scope": "native-selector-retention-merge",
+    "separateJavaOnly": [
+      "later real-copy narrowing across two reopens",
+      "source retirement and subsequent DATA publication",
+      "one-byte-short completion capacity refusal"
+    ],
+    "status": "PASS"
+  }
+}

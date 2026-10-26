@@ -47,6 +47,21 @@ final class MembershipSourcePacket {
         return new Envelope(capsule,index,rows(value.get("objects"),65536,FRAME,true),
                 rows(value.get("images"),7,64*1024*1024,false));
     }
+    /** Exact structural inclusion in an original BASIS. This does not authenticate
+     * an owner observation or verify the capsule's application/history. */
+    static Decoded included(byte[] bytes,Decoded basis,byte[] member) {
+        require(bytes.length>=8 && bytes.length<=ENVELOPE-HEADER,"included source envelope bound");
+        var input=ByteBuffer.wrap(bytes);var original=envelope(input);require(!input.hasRemaining(),"included source envelope trailing bytes");
+        require(Arrays.equals(original.index,canonical(parse(original.index,ENVELOPE),ENVELOPE)),"included source canonical index");
+        var cap=original.capsule;var v=basis.value();
+        require(basis.family().equals("records") && basis.kind().equals("BASIS"),"included source basis kind");
+        require(v.get("root").equals(cap.value().get("root")) && v.get("cut").equals(cap.value().get("cut"))
+                && v.get("capsule").equals(cap.digest()) && v.get("inventory").equals(hash(original.index))
+                && cap.value().get("inventory").equals(hash(original.index))
+                && v.get("view").equals(MembershipContext.viewDigest((String)v.get("root"),object(object(v.get("cut")).get("view")))),"included source original basis binding");
+        require(Objects.equals(original.objects.get(hash(member)),(long)member.length),"included source exact member");
+        return cap;
+    }
     /** Rebuild only the exact old indexed objects, borrowing their bytes from a verified backing packet. */
     static MembershipSourcePacket reconstruct(byte[] encodedEnvelope,MembershipSourcePacket backing) {
         Objects.requireNonNull(encodedEnvelope);Objects.requireNonNull(backing);

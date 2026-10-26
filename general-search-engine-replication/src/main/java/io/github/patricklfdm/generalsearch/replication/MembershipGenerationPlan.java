@@ -40,6 +40,8 @@ final class MembershipGenerationPlan {
         var packet=capsule.packet;
         require(local.equals(capsule.context.identities.get(local.nodeId().value())) && capsule.context.voters().contains(local.nodeId().value()),"installed local eligible identity");
         capsule.verifyAncestry(files.getOrDefault("ancestry.gsr",new byte[0]),ancestors);
+        if(files.containsKey("selected.gsr"))MembershipSelectedRetention.find(capsule,decode(files.get("selected.gsr"),"records","SELECTED"),local)
+                .ifPresent(retention->retention.plan.required(capsule,files.getOrDefault("ancestry.gsr",new byte[0])));
         if(files.containsKey(MembershipSelectedSources.FILE))MembershipSelectedSources.parents(files.get(MembershipSelectedSources.FILE),
                 decode(files.get("selected.gsr"),"records","SELECTED"),capsule,files.getOrDefault("ancestry.gsr",new byte[0]));
         if(files.containsKey(MembershipSelectionCoverage.FILE)) {
@@ -163,6 +165,11 @@ final class MembershipGenerationPlan {
      * selection or owned-tail authority and consume the same bounded packet. */
     static MembershipGenerationPlan selected(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
             MembershipSelection.Decision decision,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images,Map<String,byte[]> retained) {
+        return selected(root,local,slot,promise,basis,decision,bridges,images,retained,null);
+    }
+    static MembershipGenerationPlan selected(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
+            MembershipSelection.Decision decision,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images,Map<String,byte[]> retained,
+            MembershipSelectedRetention retention) {
         require(Set.of("a","b").contains(slot) && bridges.size()<=6,"generation slot/ancestry limit");
         var original=decision.longest().capsule.packet;original.verifyImages(images);
         var objects=new TreeMap<String,byte[]>();for(String h:original.objectNames())objects.put(h,original.objectBytes(h));
@@ -171,6 +178,7 @@ final class MembershipGenerationPlan {
             require(row.getKey().equals(hash(row.getValue())) && Arrays.equals(row.getValue(),localSource.capsule.packet.objectBytes(row.getKey())),"retained installation object differs from exact local source");
             objects.put(row.getKey(),row.getValue());
         }
+        if(retention!=null){byte[] bytes=retention.bytes();objects.put(hash(bytes),bytes);}
         String tail=null;
         if(decision.carried()!=null) {
             var carried=decision.carried();tail=carried.accepted.digest();

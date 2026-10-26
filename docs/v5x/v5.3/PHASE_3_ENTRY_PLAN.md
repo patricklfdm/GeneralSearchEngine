@@ -146,6 +146,15 @@ recapture have local component evidence. Durable quorum intent, atomic selected-
 preservation after source retirement and autonomous observation/maintenance remain
 required; a copied local snapshot alone does not authorize dispatch or close 3B.
 
+[Selector-coupled retention merging](PHASE_3_SELECTED_RETENTION.md) now carries
+the exact original source snapshots and local pre-install ledger in the selected
+generation, then completes their conservative union before exposing the native
+owner. Sixteen halt/SIGKILL cases, original-first independent file replay and
+twelve evidence negatives qualify this local installation/recovery boundary.
+Later actual observation is not undone on reopen; insufficient completion space
+refuses before SELECTED. Quorum recording before dispatch, automatic maintenance,
+the complete offline-survivor history and remaining 3B–3E gates remain required.
+
 The [complete generation-copy batch](PHASE_3_GENERATION_COPY.md) is locally
 qualified in six native network histories with independent physical/transcript
 replay and exact evidence negatives. It provides original materializations for

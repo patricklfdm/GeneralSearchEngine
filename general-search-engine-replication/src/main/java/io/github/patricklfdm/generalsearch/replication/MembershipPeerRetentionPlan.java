@@ -91,6 +91,25 @@ final class MembershipPeerRetentionPlan {
         context(current,ancestry,false);return anchors();
     }
     void capture(MembershipCapsule current,byte[] ancestry){context(current,ancestry,true);}
+    /** Metadata projection only; the installation must authenticate these anchors. */
+    List<MembershipCapsule.Anchor> recorded(){return anchors();}
+    static MembershipPeerRetentionPlan mergeRecorded(String root,Map<String,Object> view,List<MembershipPeerRetentionPlan> originals) {
+        require(!originals.isEmpty() && originals.size()<=7,"selected retention local/source count");
+        var first=originals.getFirst();var union=new TreeMap<String,TreeMap<Long,MembershipCapsule.Anchor>>();
+        first.peers.keySet().forEach(n->union.put(n,new TreeMap<>()));
+        for(var plan:originals) {
+            require(plan.root.equals(root) && plan.view.equals(view) && plan.peers.keySet().equals(first.peers.keySet()),"selected retention original root/view");
+            for(var row:plan.peers.entrySet()) {
+                require(row.getValue().identity.equals(first.peers.get(row.getKey()).identity),"selected retention original identity");
+                for(var anchor:row.getValue().possible) {
+                    var previous=union.get(row.getKey()).putIfAbsent(index(anchor),anchor);
+                    require(previous==null || previous.equals(anchor),"selected retention conflicting endpoint");
+                }
+            }
+        }
+        var peers=new TreeMap<String,Peer>();union.forEach((n,points)->peers.put(n,new Peer(first.peers.get(n).identity,List.copyOf(points.values()))));
+        return new MembershipPeerRetentionPlan(root,view,peers);
+    }
     List<MembershipCapsule.Anchor> possible(MembershipIdentity peer) {
         var value=peers.get(peer.nodeId().value());require(value!=null && value.identity.equals(peer),"peer retention unknown identity");
         return value.possible;
