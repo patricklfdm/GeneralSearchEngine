@@ -111,6 +111,12 @@ original-first physical/image replay. The remaining automatic network/election
 ownership, cross-view pending-context transitions and complete 3C–3E gates are still
 required. Component qualification does not close an S family or enable public READY.
 
+The [unequal compacted-ancestry batch](PHASE_3_NATIVE_ANCESTRY.md) is locally
+qualified against the corrected sources. Its fixed-source proof acquisition, ordered remote
+installations and retained-image borrowing address the unequal-cut and unpublished
+tail cases. Its source-bound component evidence passes; it does not close autonomous
+election/discovery/adoption, repeated maintenance or cross-view pending contexts.
+
 ## First batch boundary
 
 The [native network integration](PHASE_3_NATIVE_NETWORK.md) now connects complete

@@ -11,7 +11,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 /** One complete source received into a new, caller-owned scratch directory outside authority.
  * Original records must first be fetched from the authenticated peer. This class checks bytes
  * and ownership, but does not manufacture Owned observations or authorize an install ACK. */
-final class MembershipSourceReceive implements AutoCloseable {
+final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorrow {
     private final Path directory;
     private final Object directoryKey;
     private final Map<String,Object> parent;
@@ -27,7 +27,7 @@ final class MembershipSourceReceive implements AutoCloseable {
     private final int chunkLimit;
     private final Map<String,MembershipReceiveFile> files=new TreeMap<>();
     private final Map<String,MembershipTransfer.Binding> bindings=new TreeMap<>();
-    private final MembershipSourceExport localImages;
+    private final MembershipImageBorrow localImages;
     private final Map<String,Long> borrowedImages=new TreeMap<>();
     private MembershipSourcePacket packet;
     private boolean closed,failed,removed;
@@ -44,18 +44,23 @@ final class MembershipSourceReceive implements AutoCloseable {
     }
     MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Decoded promise,Decoded basis,
             UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,int chunkLimit,
-            LongSupplier clock,long started,long budget,MembershipSourceExport localImages)throws IOException {
+            LongSupplier clock,long started,long budget,MembershipImageBorrow localImages)throws IOException {
         this(directory,root,source,promise,basis,object(basis.value().get("cut")),session,packetTransfer,offer,resources,chunkLimit,clock,started,budget,localImages);
     }
     /** No frozen grant: only content for the exact discovered cut. */
     MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Map<String,Object> expectedCut,
             UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,int chunkLimit,
             LongSupplier clock,long started,long budget)throws IOException {
-        this(directory,root,source,null,null,expectedCut,session,packetTransfer,offer,resources,chunkLimit,clock,started,budget,null);
+        this(directory,root,source,expectedCut,session,packetTransfer,offer,resources,chunkLimit,clock,started,budget,null);
+    }
+    MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Map<String,Object> expectedCut,
+            UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,int chunkLimit,
+            LongSupplier clock,long started,long budget,MembershipImageBorrow localImages)throws IOException {
+        this(directory,root,source,null,null,expectedCut,session,packetTransfer,offer,resources,chunkLimit,clock,started,budget,localImages);
     }
     private MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Decoded promise,Decoded basis,
             Map<String,Object> expectedCut,UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,
-            int chunkLimit,LongSupplier clock,long started,long budget,MembershipSourceExport localImages)throws IOException {
+            int chunkLimit,LongSupplier clock,long started,long budget,MembershipImageBorrow localImages)throws IOException {
         MembershipValidation.digest(root);MembershipValidation.uuid(session);
         MembershipValidation.uuid(packetTransfer);require((promise==null)==(basis==null),"receive optional grant pair");
         this.expectedCut=Map.copyOf(expectedCut);
@@ -69,7 +74,7 @@ final class MembershipSourceReceive implements AutoCloseable {
         require(offer.kind()==MembershipTransfer.Kind.CAPSULE && chunkLimit>0 && budget>0 && budget<Long.MAX_VALUE/2,"receive packet/limits");
         this.root=root;this.source=source;this.promise=promise;this.basis=basis;this.session=session;this.resources=resources;
         this.localImages=localImages;
-        require(localImages==null || localImages.context().root.equals(root),"receive borrowed image root");
+        require(localImages==null || localImages.imageRoot().equals(root),"receive borrowed image root");
         this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;this.chunkLimit=chunkLimit;
         basisId=basis==null?null:UUID.fromString((String)basis.value().get("basisId"));cut=cutDigest(expectedCut);time();
         this.directory=AdmissionPaths.safe(directory);parent=AdmissionPaths.binding(this.directory);AdmissionPaths.absent(this.directory);
@@ -142,6 +147,15 @@ final class MembershipSourceReceive implements AutoCloseable {
         packet();var images=new TreeMap<String,byte[]>();
         for(String digest:packet.images().keySet())images.put(digest,borrowedImages.containsKey(digest)?localImages.image(digest,borrowedImages.get(digest)):files.get(digest+".image").bytes());
         packet.verifyImages(images);for(var file:files.values())file.checkVerified();check();return Collections.unmodifiableMap(images);
+    }
+    @Override public synchronized String imageRoot()throws IOException {recheck();return root;}
+    @Override public synchronized boolean hasImage(String digest,long bytes)throws IOException {
+        recheck();return Objects.equals(packet.images().get(digest),bytes);
+    }
+    @Override public synchronized byte[] image(String digest,long bytes)throws IOException {
+        require(hasImage(digest,bytes),"received original image unavailable");
+        byte[] result=borrowedImages.containsKey(digest)?localImages.image(digest,bytes):files.get(digest+".image").bytes();
+        require(result.length==bytes && hash(result).equals(digest),"received borrowed image changed");recheck();return result;
     }
     synchronized Decoded basis()throws IOException {check();require(basis!=null,"read-only prefix has no BASIS");return basis;}
     synchronized Decoded promise()throws IOException {check();require(promise!=null,"read-only prefix has no PROMISE");return promise;}

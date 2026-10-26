@@ -1,0 +1,915 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-native-ancestry/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1357199,
+      "path": "target/v53-native-ancestry/replication.jar",
+      "sha256": "0db05b45d8930852933156ea19ba771f63eb1549188288b27a820532ef70447d"
+    }
+  ],
+  "baseCommit": "82e2db3f2c51bc2e4a3dc3ac3d4800606170c925",
+  "caveats": [
+    "All seventeen Java suites run in one fresh isolated build. Source/POM inventory, compiled artifacts, retained raw files and complete Python normal/optimized suites are bound separately.",
+    "Twelve actual public-bootstrap histories cover 3/4/5 voters, EMPTY/backup, lower proposer and lower follower. Two additional real unpublished accepted-tail histories cover both directions at size three. Current batch reopening is same-JVM; existing owner recovery regressions supply their separately scoped fresh-process/crash evidence.",
+    "Exact original sources are fixed before missing proof I/O. Authenticated complete current-prefix/manifest/ancestry can prove the unchanged original BASIS packet without producing a new historical vote or changing its accepted tail.",
+    "Install other selected remotes before the longest remote generation, then install locally. Complete original/received images may be borrowed only through actual pinned physical owners; old local backing sources remain pinned through the original export lifetime. Borrowed images never expand remote source inventory.",
+    "Five deterministic new proof faults and received/retained image ownership tests supplement normal original-first physical/image replay, exact mutations, optimized replay and relocated archive replay. Component evidence does not close an entire protocol family.",
+    "Earlier missing-ancestry, lost local key, union-image, longest-generation lifetime, compilation, accepted-tail capacity and oracle duplicate-control failures are retained. Prior-source successes are diagnostic evidence only and never substitute for this final qualification.",
+    "Campaigns are explicitly invoked. Autonomous election/discovery/adoption, repeated maintenance, native cross-view pending contexts, learner/joint transitions, generalized publication and the complete 3B\u20133E gate remain open.",
+    "No public factory, persisted format, resource/deadline bound, POM, workflow, V5.2 Runner, push, paid cloud or release change."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 6760,
+      "path": "target/v53-native-ancestry/NEXT_INTEGRATION.md",
+      "sha256": "8fd6540af1f3dcc42ab00d38bcc8566f348496959fbc72b5aaf10a517b5a8b65"
+    },
+    {
+      "bytes": 10097,
+      "path": "target/v53-native-ancestry/PLAN.md",
+      "sha256": "1aaf67e06cd491dad3888971bd526ac93629db7eeee5c163aa9b4d26566e77a9"
+    },
+    {
+      "bytes": 1246,
+      "path": "target/v53-native-ancestry/activation-driver-replay.json",
+      "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/activation-driver-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-native-ancestry/activation-endpoint-replay.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/activation-endpoint-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1307,
+      "path": "target/v53-native-ancestry/activation-replay.json",
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/activation-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1352,
+      "path": "target/v53-native-ancestry/audit.py",
+      "sha256": "5bfcd4300d42a78fe089306b516c6965d193a76a5e354a80d585bd209c30371c"
+    },
+    {
+      "bytes": 41,
+      "path": "target/v53-native-ancestry/base-commit.txt",
+      "sha256": "aefe86d3c3310bc140a313ca701bd2c3da5b7af36fd6593f7cec86c2c0deff9a"
+    },
+    {
+      "bytes": 468018,
+      "path": "target/v53-native-ancestry/bound-probe-inputs.json",
+      "sha256": "7c6184bae6cee8072ba43cf9113742978236df16d7d73626bf1b98364769511f"
+    },
+    {
+      "bytes": 50,
+      "path": "target/v53-native-ancestry/bound-probe-workspace.txt",
+      "sha256": "f56a3e8e7a6216facc20230c15f015e17ed63151f0fa771e88c0ae115b73fad3"
+    },
+    {
+      "bytes": 7294,
+      "path": "target/v53-native-ancestry/bound-probe.log",
+      "sha256": "b46a31dc1b7b598f71ca360a37ed9a15b08087a7b9f7e9d5fa5939ac96328470"
+    },
+    {
+      "bytes": 189656,
+      "path": "target/v53-native-ancestry/build-input-check.json",
+      "sha256": "9ef9d12b09a375da248cbd1c2fa06db530ce119734193fa953f7427310195d15"
+    },
+    {
+      "bytes": 66,
+      "path": "target/v53-native-ancestry/collect-result.json",
+      "sha256": "5e6612b74169212076753016fc416c7ca328bb896c00794331d12e9e3b8f748b"
+    },
+    {
+      "bytes": 3688,
+      "path": "target/v53-native-ancestry/collect.py",
+      "sha256": "eb8b8ffc132d9d91bd5751187bec25cb79771303758b95d30d5977c8ab090f8b"
+    },
+    {
+      "bytes": 733,
+      "path": "target/v53-native-ancestry/component-replay.log",
+      "sha256": "f204dd0283a1016a6687210935c028325cde081c7d5969a7b7d37f3ea050116b"
+    },
+    {
+      "bytes": 468417,
+      "path": "target/v53-native-ancestry/diagnostic-inputs.json",
+      "sha256": "a0827f70916135ac8221c954d3758752a1aaba0d23c9cd43b88b7391d2c54a21"
+    },
+    {
+      "bytes": 49,
+      "path": "target/v53-native-ancestry/diagnostic-workspace.txt",
+      "sha256": "52b4373156819501bb0455b39a3bdd6b23bbc9ac527846a24f4a1975c3e58ddd"
+    },
+    {
+      "bytes": 8264,
+      "path": "target/v53-native-ancestry/diagnostic.log",
+      "sha256": "a8650ead0ba1e149c99282e6000789d1d22d1541585b3cc6e80f57cd81d41214"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-native-ancestry/documentation-draft-updated.json",
+      "sha256": "e53231d24e75b45676797bd1fb6b1a25469a1916b365c0ff194ea4797a8bba31"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-native-ancestry/documentation-draft.json",
+      "sha256": "78cf7dfd6bf9808b87271f494ccaae8960028f465234491b307449eaf2738719"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-native-ancestry/documentation-matrix-pass.json",
+      "sha256": "e53231d24e75b45676797bd1fb6b1a25469a1916b365c0ff194ea4797a8bba31"
+    },
+    {
+      "bytes": 468618,
+      "path": "target/v53-native-ancestry/exact-images-inputs.json",
+      "sha256": "383796afccb186d9718f8a99b4a3628f07f1fe3a71b6a703763532343821fb60"
+    },
+    {
+      "bytes": 51,
+      "path": "target/v53-native-ancestry/exact-images-workspace.txt",
+      "sha256": "34e1a193495e4969e2ddec7c3b1503bd05d80c2797a35e0a5bda074b90dc3078"
+    },
+    {
+      "bytes": 4972,
+      "path": "target/v53-native-ancestry/exact-images.log",
+      "sha256": "1b565b8974b87159c74924320a226fbcfb7100f8b9ab79cc08845e5b0fe6aa3a"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-native-ancestry/final-contract.json",
+      "sha256": "84f38f7daa3eec0e196daeee2138f124ad801f703a69d839dc51ee3ac79eea15"
+    },
+    {
+      "bytes": 3963,
+      "path": "target/v53-native-ancestry/finalize-docs.py",
+      "sha256": "8b19935eaa075dbe6221a646e51b95197895742fc283b24eeaad650cad94dbea"
+    },
+    {
+      "bytes": 2673,
+      "path": "target/v53-native-ancestry/first-profile-negatives.json",
+      "sha256": "382517becd6fce7cc1b33954ff72a6f1e8c49e353ca9a53243e245444e8956d2"
+    },
+    {
+      "bytes": 468417,
+      "path": "target/v53-native-ancestry/integration-probe-inputs.json",
+      "sha256": "051e9aa554c0f9ae2e390cb4935b8f50853a299014959e5ce6a2fdfcd5deca45"
+    },
+    {
+      "bytes": 56,
+      "path": "target/v53-native-ancestry/integration-probe-workspace.txt",
+      "sha256": "4ad1e3f362d9dc5e5685bc5ec8b71835794f892323e183e3797ef01d145da1cc"
+    },
+    {
+      "bytes": 6717,
+      "path": "target/v53-native-ancestry/integration-probe.log",
+      "sha256": "b19cc5fcd0a336ac582fc7c6ea8a1fe4075c9d5224a0866f2a746528b452b7e5"
+    },
+    {
+      "bytes": 3320,
+      "path": "target/v53-native-ancestry/java-reports.json",
+      "sha256": "6bffacb025b398662d8fa2fe7487842426fdb9df939392ef539ca0e543165c63"
+    },
+    {
+      "bytes": 468417,
+      "path": "target/v53-native-ancestry/local-proof-fix-inputs.json",
+      "sha256": "fd1d8dade1b1f479b7fa0e5a9ef8ff3d8ef04240ded8df0adb3726a6df3ebe61"
+    },
+    {
+      "bytes": 54,
+      "path": "target/v53-native-ancestry/local-proof-fix-workspace.txt",
+      "sha256": "9818b236ae52ff1ef09e9b053bf26e92a798c9d77d2c99d0951dfcc2d2bda791"
+    },
+    {
+      "bytes": 8274,
+      "path": "target/v53-native-ancestry/local-proof-fix.log",
+      "sha256": "423323a0413eefd2241aed851559c9405fa24bb6520b8db7f3b2b2d6483c487e"
+    },
+    {
+      "bytes": 2513,
+      "path": "target/v53-native-ancestry/make_oracle.py",
+      "sha256": "86d1f23464745de570116458867311b652f922dc2586ed215f4a46840d2ed1f1"
+    },
+    {
+      "bytes": 423,
+      "path": "target/v53-native-ancestry/matrix-replay.log",
+      "sha256": "7c9a2e8a4859f6048206947fc1ff66bd608e8c98efc0f6116c3c00c173cbc79a"
+    },
+    {
+      "bytes": 3120,
+      "path": "target/v53-native-ancestry/matrix-stage.json",
+      "sha256": "997671a279a6eeb7c0d5bc18767e2f929cd26fd8ca339f2a5f8897d4112e24af"
+    },
+    {
+      "bytes": 2332,
+      "path": "target/v53-native-ancestry/normal-normal.json",
+      "sha256": "7fb21bdced3c49f12779b4fd3531b5a5b8665fadf80b839e9a839ddfa5922c29"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/normal-normal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2332,
+      "path": "target/v53-native-ancestry/normal-optimized.json",
+      "sha256": "7fb21bdced3c49f12779b4fd3531b5a5b8665fadf80b839e9a839ddfa5922c29"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/normal-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2332,
+      "path": "target/v53-native-ancestry/normal-portable.json",
+      "sha256": "7fb21bdced3c49f12779b4fd3531b5a5b8665fadf80b839e9a839ddfa5922c29"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/normal-portable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 469041,
+      "path": "target/v53-native-ancestry/ordered-install-inputs.json",
+      "sha256": "9b6a6e1053749ce3095298fae7af1dedffc83ec2b3c1fb4aff82d8f84a06e5ce"
+    },
+    {
+      "bytes": 54,
+      "path": "target/v53-native-ancestry/ordered-install-workspace.txt",
+      "sha256": "f0ca6b15155143a3c3e9db1b3d65881919960b0c6b790fa5c14d4fc1c3107496"
+    },
+    {
+      "bytes": 5400,
+      "path": "target/v53-native-ancestry/ordered-install.log",
+      "sha256": "eb1f95536cec0b6692ef2e4ce51ad98bfe8c8cac8f029561cdf554e491346ada"
+    },
+    {
+      "bytes": 179095,
+      "path": "target/v53-native-ancestry/original-failure-inventory.json",
+      "sha256": "e4998dd3aa971e655627942d666738d207927b14631152404371992e81718e94"
+    },
+    {
+      "bytes": 469041,
+      "path": "target/v53-native-ancestry/original-lifetime-inputs.json",
+      "sha256": "cf342ef66c93f179aedbe7857b7190f076707c3222f302e52b7bc0f53f1c3739"
+    },
+    {
+      "bytes": 593,
+      "path": "target/v53-native-ancestry/original-lifetime-java-reports.json",
+      "sha256": "83f9f4de6161279441ed186c61a969b19df62c9afef0311dd8d87579b51f6fb5"
+    },
+    {
+      "bytes": 56,
+      "path": "target/v53-native-ancestry/original-lifetime-workspace.txt",
+      "sha256": "c8b91e93bb71320504a023da4fe77a547bc4ade112ba5a53c3bdd814c69b67dc"
+    },
+    {
+      "bytes": 8216,
+      "path": "target/v53-native-ancestry/original-lifetime.log",
+      "sha256": "9bbe1661518956c0af33191d41ab3ef6b6034aff473a4b32e876ee00d1590ba6"
+    },
+    {
+      "bytes": 474,
+      "path": "target/v53-native-ancestry/original-regression.json",
+      "sha256": "f088b79c96500f38e92505e4d025f480335eac829e4786e011db02cacd9f91a6"
+    },
+    {
+      "bytes": 669,
+      "path": "target/v53-native-ancestry/owned-recovery-crash-replay.json",
+      "sha256": "0fcc7b547e59ed9274fd1766ebcad455f17e921e899497440ecf253a064fbaf8"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/owned-recovery-crash-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1270,
+      "path": "target/v53-native-ancestry/owned-recovery-replay.json",
+      "sha256": "f1a219df3e1857a5a9e7332e86082fbd61e8914fc705d81008518a21460db2b5"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/owned-recovery-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 30974,
+      "path": "target/v53-native-ancestry/pre-image-reuse-oracle.py",
+      "sha256": "9910d1429f6f16d6b627219c96edc9d8206be86d9e7063ff43026f94945a4226"
+    },
+    {
+      "bytes": 468018,
+      "path": "target/v53-native-ancestry/probe-inputs.json",
+      "sha256": "555c4cc001309bbb2518611f14e4dbed2ab4c43ab40d24d2da821b0b1f5c83a7"
+    },
+    {
+      "bytes": 44,
+      "path": "target/v53-native-ancestry/probe-workspace.txt",
+      "sha256": "71e4ce745443ce22e750d20a710fe520102186adc3cae94346451d51c798c166"
+    },
+    {
+      "bytes": 5327,
+      "path": "target/v53-native-ancestry/probe.log",
+      "sha256": "dc8a54766537f9f8ba732a13514038d961157f22656bf11bc53dfe7f65425caa"
+    },
+    {
+      "bytes": 718,
+      "path": "target/v53-native-ancestry/python-all-draft.log",
+      "sha256": "463114e642870b55419d9ca8a2936c95f56b8ccfdb657b653ef19382e6ed2724"
+    },
+    {
+      "bytes": 723,
+      "path": "target/v53-native-ancestry/python-all-optimized.log",
+      "sha256": "05e5764cc1044dd5d082bd4e53b8a7fe0e47a5253330715a7c8c7529bb8cb2db"
+    },
+    {
+      "bytes": 723,
+      "path": "target/v53-native-ancestry/python-all.log",
+      "sha256": "ec5b5cfa34f7d55a07549120ef4c1e02f9a81154686d605c56776372f9f26298"
+    },
+    {
+      "bytes": 469356,
+      "path": "target/v53-native-ancestry/qualification-inputs.json",
+      "sha256": "7f600ddf1d2cffbb1423a5791124ddc6348b6688b94abfaad7ca92e22b6912e5"
+    },
+    {
+      "bytes": 52,
+      "path": "target/v53-native-ancestry/qualification-workspace.txt",
+      "sha256": "c50dffa441565377870e1ad16dbbbcc013ddb34159a198d31269ce78f4057114"
+    },
+    {
+      "bytes": 15138,
+      "path": "target/v53-native-ancestry/qualification.log",
+      "sha256": "5336e5b4f5c35292d4a9656a90f5cda796d3d481d578971663ac724c899b019b"
+    },
+    {
+      "bytes": 11398141,
+      "path": "target/v53-native-ancestry/raw-inventory.json",
+      "sha256": "feab78d4f43dcdb1581fc8c5feb8ee45be0f22666d939aef8b9a2bb64e7e590f"
+    },
+    {
+      "bytes": 9393330,
+      "path": "target/v53-native-ancestry/raw.tar.gz",
+      "sha256": "c09359d39feefaa2264aeec05f9f4889da5211a0815450d03ff0fe92e5effa3c"
+    },
+    {
+      "bytes": 6045,
+      "path": "target/v53-native-ancestry/receipt.py",
+      "sha256": "90feff896dcb5c4eeccaac7de20a25a5a160c23a2d380e1c0c98073508cd4ff5"
+    },
+    {
+      "bytes": 3408,
+      "path": "target/v53-native-ancestry/replay.py",
+      "sha256": "9c6458a61dc780d76ba6350eb7cbbef02c2d8706e053d732ec2e2aa72d1d45df"
+    },
+    {
+      "bytes": 1808,
+      "path": "target/v53-native-ancestry/retained-ancestry-replay.json",
+      "sha256": "5e88f0b146f42b1ea3cacaf0c2dabe9737b959cb81344b1824e6936bfa7c94da"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/retained-ancestry-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 469242,
+      "path": "target/v53-native-ancestry/retained-image-probe-inputs.json",
+      "sha256": "d419dd5ae3f5b4e13b6a74558d787f7040c9ff05e416ec2a72723e3bec3bd9ce"
+    },
+    {
+      "bytes": 585,
+      "path": "target/v53-native-ancestry/retained-image-probe-java-reports.json",
+      "sha256": "1ec9e35a363dba1e2698fdd3bb6f61d04877375dff43c59d876aec141f62b8ae"
+    },
+    {
+      "bytes": 59,
+      "path": "target/v53-native-ancestry/retained-image-probe-workspace.txt",
+      "sha256": "53660689dc0caff3862c02e4f1a557dd4c787899199bbaf86f31416aead64da8"
+    },
+    {
+      "bytes": 5586,
+      "path": "target/v53-native-ancestry/retained-image-probe.log",
+      "sha256": "b2dd6bcdd3bf689ef10cb4accfd8f336f6d1245fee7d0b973be46a85225cc826"
+    },
+    {
+      "bytes": 3609,
+      "path": "target/v53-native-ancestry/retained-image-tail-replay.json",
+      "sha256": "87bc83d05da03ed92add08dc2a3f1c4ac4f97f78d9bdbebfee59d19c3cac9999"
+    },
+    {
+      "bytes": 1794,
+      "path": "target/v53-native-ancestry/selected-pull-replay.json",
+      "sha256": "980bb3d0d71e31ecc217b7350c7d94ecac7701176bebc50b78eb93ee27fd7c78"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/selected-pull-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 830,
+      "path": "target/v53-native-ancestry/snapshot.py",
+      "sha256": "9d464f9a9d5ea63fb68fc442031a237333f9aeb6818d5381ec2ca56b302c37b1"
+    },
+    {
+      "bytes": 1478,
+      "path": "target/v53-native-ancestry/source-exchange-replay.json",
+      "sha256": "0c99e65ea564a74577dda0173b0f704ad7fbbebcd1ba933f3b6d85b50ea5443d"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/source-exchange-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1225,
+      "path": "target/v53-native-ancestry/source-export-replay.json",
+      "sha256": "0653857332cecb3ca0bb2812faae59acd3e0acfe31ebfd236975c493cc6b69d2"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/source-export-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 34998,
+      "path": "target/v53-native-ancestry/source-inputs.json",
+      "sha256": "532b5107ae64543a803350b0479475f0bd6bd80d810c9337c3ed6f515dd705ac"
+    },
+    {
+      "bytes": 1229,
+      "path": "target/v53-native-ancestry/source-receive-replay.json",
+      "sha256": "e79d15161b6e11554592501653529551eaac8e616f6111e4c577403cca4a4133"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/source-receive-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1890,
+      "path": "target/v53-native-ancestry/stage-matrix.py",
+      "sha256": "080c45e022c4cfd879de71017b1009bfd16430c209fef6dde2bfb9473dc42e48"
+    },
+    {
+      "bytes": 469041,
+      "path": "target/v53-native-ancestry/tail-and-regression-inputs.json",
+      "sha256": "6588c6f961e76b0a7476fa7ac72be9886b3c5646e943841a60b544cbcf923368"
+    },
+    {
+      "bytes": 3194,
+      "path": "target/v53-native-ancestry/tail-and-regression-java-reports.json",
+      "sha256": "130d2f0c92ac7c2fd4817553b2c5dca92d6bac6deedad0b9c3958ef73c80a284"
+    },
+    {
+      "bytes": 58,
+      "path": "target/v53-native-ancestry/tail-and-regression-workspace.txt",
+      "sha256": "59a1af3d26a9c1da7d13997655ce735ca5146002407373aaef5a566ae0254f03"
+    },
+    {
+      "bytes": 13569,
+      "path": "target/v53-native-ancestry/tail-and-regression.log",
+      "sha256": "2cd635fafc9f47307f94d6f2f45081b1566d1c1bcaa02485a0b82bb552d8c61b"
+    },
+    {
+      "bytes": 2811,
+      "path": "target/v53-native-ancestry/tails-normal.json",
+      "sha256": "7f6818a2b62040ffdf269711a822ddeeef3f3b93b385d521afd96d4ae4dd5957"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/tails-normal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2811,
+      "path": "target/v53-native-ancestry/tails-optimized.json",
+      "sha256": "7f6818a2b62040ffdf269711a822ddeeef3f3b93b385d521afd96d4ae4dd5957"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/tails-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2811,
+      "path": "target/v53-native-ancestry/tails-portable.json",
+      "sha256": "7f6818a2b62040ffdf269711a822ddeeef3f3b93b385d521afd96d4ae4dd5957"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-ancestry/tails-portable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 468618,
+      "path": "target/v53-native-ancestry/unequal-matrix-inputs.json",
+      "sha256": "f9ee100e30ad8a16198d1a96c2cdc14b110963c0dbbd35cf965a1e26270f49db"
+    },
+    {
+      "bytes": 53,
+      "path": "target/v53-native-ancestry/unequal-matrix-workspace.txt",
+      "sha256": "bd0392455044b5b2f285f25c8233fbd4d461905fca31c718825bbb7fe7701715"
+    },
+    {
+      "bytes": 7658,
+      "path": "target/v53-native-ancestry/unequal-matrix.log",
+      "sha256": "20a470a907b39b0408ee25a462fd02baeb6360ad4fb09d2a5ed1c04ba40d55b5"
+    },
+    {
+      "bytes": 6278,
+      "path": "target/v53-native-ancestry/validation-summary.json",
+      "sha256": "2594c0075740eecc7b781157f81d04eef9a23a2fd480a372b76a21eb5f8b826d"
+    },
+    {
+      "bytes": 10633,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest.xml",
+      "sha256": "f4b8d5c78b4f6c8340c237eb1ae225705349424daadb400b56aea3dba2da02ee"
+    },
+    {
+      "bytes": 9376,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml",
+      "sha256": "fa7eb2fec4f69c1e3691a86d3eb0947580f10c13199071a437abac1ee0ee7a9f"
+    },
+    {
+      "bytes": 9138,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationTest.xml",
+      "sha256": "00d6ac843ad9c128cf136f4f49facceecf6f1052695a4f01b9209564bbd2c3bf"
+    },
+    {
+      "bytes": 7590,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53AdmittedCampaignAncestryTest.xml",
+      "sha256": "228a3eaac54a34e265e644be4d16340479fc6d4741af3110dddcd01d4e5bc49e"
+    },
+    {
+      "bytes": 9134,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeAncestryFaultTest.xml",
+      "sha256": "5ee271acba3915ae590d635729a8d4fb81f517f73d33274104bfb65ec52f18f7"
+    },
+    {
+      "bytes": 10223,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeAncestryTest.xml",
+      "sha256": "f21a84266b840cd1db212008ee2c5de904c0911663d71f8b9b2ccb56b59d6856"
+    },
+    {
+      "bytes": 8046,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53NativePromisedSourceTest.xml",
+      "sha256": "55156b175f2507abd6de3b24059da7f516a35b9a48079d064d6673b11b20959f"
+    },
+    {
+      "bytes": 8436,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53OwnedRecoveryTest.xml",
+      "sha256": "80341b291110e856c39b27bbcb81ceec4e06aa7043ee9932675331ca4163d771"
+    },
+    {
+      "bytes": 7905,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ReceivedImageBorrowTest.xml",
+      "sha256": "35fcb320603f52642cd9cd773604eef3fe297fb867946497d03c9de180587ef2"
+    },
+    {
+      "bytes": 9248,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53RetainedAncestryTest.xml",
+      "sha256": "ee4e3a17cff28a72ab130ccc23a3697a0ce5f8aaf051538ae59fb3a02ca0ad51"
+    },
+    {
+      "bytes": 7523,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53RetainedImageBorrowTest.xml",
+      "sha256": "850fe7816c5447427fb2f1ca6a6fd3322f02c604195495ed1b1775189861b4df"
+    },
+    {
+      "bytes": 7157,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ScratchActivationTest.xml",
+      "sha256": "5e65288c1e1c9b3589d50bbe14940490365287835a98159d09b2cc8f50a775c8"
+    },
+    {
+      "bytes": 9088,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ScratchTest.xml",
+      "sha256": "be0a2f3271e5e5ca89ec25f6d2644f5446a8d015cf018d2f81612e94b744464d"
+    },
+    {
+      "bytes": 9566,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SelectedPullTest.xml",
+      "sha256": "22b57f865cd914926f5c0a75531711bd56d697d225acb44a95d474e4f6698d02"
+    },
+    {
+      "bytes": 9642,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceExchangeTest.xml",
+      "sha256": "56a66229efbab0d3411ab96e5d8eddfdb694704bfb28f526432e20c7c2ad17da"
+    },
+    {
+      "bytes": 8841,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceExportTest.xml",
+      "sha256": "f8edce0776cdddd8def0bd598e7a1e8fe5ab62a866f8ffad62d385d2dc0f8d2d"
+    },
+    {
+      "bytes": 9919,
+      "path": "target/v53-native-ancestry/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceReceiveTest.xml",
+      "sha256": "f3278e56447668f502c2526db5558f25ed239adba2c57dc05c3b24ef93ba7444"
+    }
+  ],
+  "schema": "gse-v53-native-ancestry-local-qualification-v1",
+  "scope": "native-activation-across-unequal-compacted-histories",
+  "status": "PASS",
+  "validation": {
+    "components": {
+      "activation": {
+        "evidenceNegatives": 10,
+        "original": {
+          "cases": [
+            {
+              "case": "stable-3",
+              "installed": 2,
+              "selected": 2,
+              "status": "PASS"
+            },
+            {
+              "case": "stable-4",
+              "installed": 3,
+              "selected": 3,
+              "status": "PASS"
+            },
+            {
+              "case": "stable-5",
+              "installed": 3,
+              "selected": 3,
+              "status": "PASS"
+            }
+          ],
+          "network": false,
+          "publicRuntime": false,
+          "schema": "gse-v53-activation-component-v1",
+          "status": "PASS",
+          "syntheticOwners": false
+        }
+      },
+      "activation-driver": {
+        "evidenceNegatives": 10,
+        "original": {
+          "automaticCampaign": true,
+          "cases": [
+            {
+              "installed": 2,
+              "selected": 2,
+              "size": 3
+            },
+            {
+              "installed": 3,
+              "selected": 3,
+              "size": 4
+            },
+            {
+              "installed": 3,
+              "selected": 3,
+              "size": 5
+            }
+          ],
+          "network": true,
+          "publicRuntime": false,
+          "schema": "gse-v53-activation-driver-v1",
+          "status": "PASS"
+        }
+      },
+      "activation-endpoint": {
+        "evidenceNegatives": 10,
+        "original": {
+          "automaticCampaign": false,
+          "cases": [
+            {
+              "installed": 2,
+              "selected": 2,
+              "size": 3
+            },
+            {
+              "installed": 3,
+              "selected": 3,
+              "size": 4
+            },
+            {
+              "installed": 3,
+              "selected": 3,
+              "size": 5
+            }
+          ],
+          "network": true,
+          "publicRuntime": false,
+          "schema": "gse-v53-activation-endpoint-v1",
+          "status": "PASS"
+        }
+      },
+      "owned-recovery": {
+        "evidenceNegatives": 12,
+        "original": {
+          "freshProcesses": 54,
+          "nodePublications": 72,
+          "profiles": 6,
+          "publicRuntime": false,
+          "status": "PASS"
+        }
+      },
+      "owned-recovery-crash": {
+        "evidenceNegatives": 6,
+        "original": {
+          "cases": 4,
+          "freshProcesses": 5,
+          "powerLoss": false,
+          "publicRuntime": false,
+          "status": "PASS"
+        }
+      },
+      "retained-ancestry": {
+        "evidenceNegatives": 16,
+        "original": {
+          "adoption": false,
+          "cases": [
+            {
+              "ancestryExchanges": 6,
+              "prefixExchanges": 7,
+              "size": 3
+            },
+            {
+              "ancestryExchanges": 6,
+              "prefixExchanges": 7,
+              "size": 4
+            },
+            {
+              "ancestryExchanges": 6,
+              "prefixExchanges": 7,
+              "size": 5
+            }
+          ],
+          "network": true,
+          "publicRuntime": false,
+          "schema": "gse-v53-retained-ancestry-v1",
+          "scope": "authenticated-complete-supplemental-ancestry",
+          "status": "PASS"
+        }
+      },
+      "selected-pull": {
+        "evidenceNegatives": 14,
+        "original": {
+          "cases": [
+            {
+              "installed": 2,
+              "ready": false,
+              "selected": 2,
+              "size": 3
+            },
+            {
+              "installed": 3,
+              "ready": false,
+              "selected": 3,
+              "size": 4
+            },
+            {
+              "installed": 3,
+              "ready": false,
+              "selected": 3,
+              "size": 5
+            }
+          ],
+          "network": true,
+          "publicRuntime": false,
+          "schema": "gse-v53-selected-pull-v1",
+          "scope": "original-network-selection-through-all-selected-installations",
+          "status": "PASS"
+        }
+      },
+      "source-exchange": {
+        "evidenceNegatives": 13,
+        "original": {
+          "cases": [
+            {
+              "exchanges": 15,
+              "size": 3
+            },
+            {
+              "exchanges": 15,
+              "size": 4
+            },
+            {
+              "exchanges": 15,
+              "size": 5
+            }
+          ],
+          "network": true,
+          "publicRuntime": false,
+          "schema": "gse-v53-source-exchange-v1",
+          "scope": "complete-original-source-delivery",
+          "status": "PASS"
+        }
+      },
+      "source-export": {
+        "evidenceNegatives": 10,
+        "original": {
+          "cases": [
+            {
+              "contents": 4,
+              "size": 3
+            },
+            {
+              "contents": 4,
+              "size": 4
+            },
+            {
+              "contents": 4,
+              "size": 5
+            }
+          ],
+          "network": false,
+          "publicRuntime": false,
+          "schema": "gse-v53-source-export-v1",
+          "scope": "read-only-original-source-lifetime",
+          "status": "PASS"
+        }
+      },
+      "source-receive": {
+        "evidenceNegatives": 10,
+        "original": {
+          "cases": [
+            {
+              "contents": 4,
+              "size": 3
+            },
+            {
+              "contents": 4,
+              "size": 4
+            },
+            {
+              "contents": 4,
+              "size": 5
+            }
+          ],
+          "network": false,
+          "publicRuntime": false,
+          "schema": "gse-v53-source-receive-v1",
+          "scope": "complete-source-scratch-only",
+          "status": "PASS"
+        }
+      }
+    },
+    "javaSuites": 17,
+    "javaTests": 144,
+    "matrices": {
+      "normal": {
+        "evidenceNegatives": 22,
+        "original": {
+          "historicalObservationsSupplied": false,
+          "independentImageSemantics": true,
+          "installed": 32,
+          "profiles": 12,
+          "publicRuntime": false,
+          "sourceExchanges": 864,
+          "status": "PASS"
+        }
+      },
+      "tails": {
+        "evidenceNegatives": 27,
+        "original": {
+          "historicalObservationsSupplied": false,
+          "installed": 4,
+          "profiles": 2,
+          "publicRuntime": false,
+          "sourceExchanges": 72,
+          "status": "PASS",
+          "unpublishedTailPreserved": true
+        }
+      }
+    },
+    "phase3Complete": false,
+    "publicRuntime": false,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 622,
+    "replayModes": [
+      "normal",
+      "optimized",
+      "portable"
+    ],
+    "status": "PASS"
+  }
+}

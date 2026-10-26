@@ -82,7 +82,7 @@ final class MembershipActivationDriver implements AutoCloseable {
     /** The returned record is only an installed selection; voting must still check its live owner. */
     Decoded run()throws IOException {
         synchronized(lifecycle){require(!used && !closed,"activation driver single use/closed");used=true;runner=Thread.currentThread();started=clock.getAsLong();}
-        String deferred=null;
+        String deferred=null;PeerUnavailable lastUnavailable=null;
         try {
             while(campaigns<maximumCampaigns) {
                 remaining();Round round=new Round();active=round;campaigns++;
@@ -94,11 +94,11 @@ final class MembershipActivationDriver implements AutoCloseable {
                     round.success=true;
                 }catch(PeerUnavailable error) {
                     // No same-ballot replacement. No local generation has been installed.
-                    remaining();deferred=error.peer.nodeId().value();
+                    remaining();deferred=error.peer.nodeId().value();lastUnavailable=error;
                 }finally {round.close();active=null;}
                 if(selected!=null)return selection();
             }
-            throw new IOException("activation driver campaign capacity exhausted");
+            throw new IOException("activation driver campaign capacity exhausted",lastUnavailable);
         }catch(IOException|RuntimeException|Error error) {
             synchronized(lifecycle){if(resultLease!=null){resultLease.close();resultLease=null;}selected=null;}
             if(basis!=null)endpoint.abandon(object(basis.value().get("ballot")));throw error;
@@ -139,6 +139,7 @@ final class MembershipActivationDriver implements AutoCloseable {
         final MembershipSourceExport localImages;
         final List<Task> tasks=new ArrayList<>();
         final BlockingQueue<Task> completions=new ArrayBlockingQueue<>(10);
+        MembershipActivationAncestry history;
         volatile boolean ended;
         boolean success;
         Round()throws IOException {
@@ -146,7 +147,20 @@ final class MembershipActivationDriver implements AutoCloseable {
             try {localImages=(MembershipSourceExport)owner.exportTransfer(own.basis.digest(),own.capsule.context.authority(),campaign.ballot(),clock,started,budget);}
             catch(IOException|RuntimeException error){campaign.close();throw error;}
         }
-        void check()throws IOException {remaining();require(!ended,"activation driver round ended");owner.checkActivation(own.basis,null,false);remaining();}
+        void checkBase()throws IOException {remaining();require(!ended,"activation driver round ended");owner.checkActivation(own.basis,null,false);remaining();}
+        void check()throws IOException {checkBase();if(history!=null)history.recheck();}
+        MembershipActivationAncestry.Resolution history(List<MembershipSelection.Source> sources)throws IOException {
+            require(history==null,"activation original source set already fixed");
+            if(!ancestry.isEmpty())return new MembershipActivationAncestry.Resolution(sources,ancestry);
+            var received=new TreeMap<String,MembershipSourceReceive>();
+            for(var task:snapshot())if(!task.install && task.received!=null && sources.stream().anyMatch(s->s.owner.equals(task.peer)))
+                received.put(task.peer.nodeId().value(),task.received);
+            history=new MembershipActivationAncestry(owner,resources,bounds,(peer,request,kind,deadline)->snapshot().stream()
+                    .filter(t->!t.install && t.peer.equals(peer)).findFirst().orElseThrow().exchange(peer,request,kind,deadline),
+                    this::checkBase,clock,started,budget,scratch.resolve("source-"+UUID.randomUUID()),received);
+            try{return history.resolve(sources);}
+            catch(MembershipActivationAncestry.Failure error){if(unavailable(error.getCause()))throw new PeerUnavailable(error.source,error.getCause());throw error;}
+        }
         Task start(MembershipIdentity peer,boolean install)throws IOException {
             check();Decoded request=install?campaign.installation(peer):campaign.prepare(peer);
             var task=new Task(peer,request,install);synchronized(tasks){tasks.add(task);}task.thread.start();return task;
@@ -173,7 +187,7 @@ final class MembershipActivationDriver implements AutoCloseable {
                     if(launched<order.size()){start(order.get(launched++),false);pending++;lastLaunch=clock.getAsLong();}
                     continue;
                 }
-                if(nativeHistory)campaign.promised(task.peer,task.reply,task.received,task.pull,ancestry);
+                if(nativeHistory)campaign.promised(task.peer,task.reply,task.received,task.pull,this::history);
                 else campaign.promised(task.peer,task.reply,task.received,verifier,ancestry);
             }
             var selected=campaign.sources().stream().map(s->s.owner).toList();
@@ -181,23 +195,34 @@ final class MembershipActivationDriver implements AutoCloseable {
             completions.clear();check();
         }
         void install()throws IOException {
-            var sources=campaign.sources();int pending=0;
-            for(var source:sources)if(!source.owner.equals(own.owner)){start(source.owner,true);pending++;}
+            var sources=campaign.sources();var longest=MembershipActivationAncestry.longest(sources);int pending=0;
+            // A selected receiver may still need this exact current generation's
+            // supplemental ancestry. Keep its owner unchanged until every other
+            // remote installation ACKs; generation replacement must still revoke
+            // prefix exports. Local installation remains last in every case.
+            for(var source:sources)if(!source.owner.equals(own.owner) && !source.owner.equals(longest.owner)){start(source.owner,true);pending++;}
+            installed(pending);
+            if(!longest.owner.equals(own.owner)){start(longest.owner,true);installed(1);}
+            check();var images=new TreeMap<String,byte[]>();
+            for(var image:own.capsule.packet.images().entrySet())images.put(image.getKey(),localImages.image(image.getKey(),image.getValue()));
+            for(var task:snapshot())if(task.received!=null && sources.stream().anyMatch(s->s.owner.equals(task.peer)))images.putAll(task.received.images());
+            var materialization=longest.capsule.packet;
+            images.keySet().retainAll(materialization.images().keySet());materialization.verifyImages(images);
+            check();campaign.installLocal(retained,images);check();
+        }
+        void installed(int pending)throws IOException {
             while(pending>0) {
                 var task=next(TimeUnit.MILLISECONDS.toNanos(50));if(task==null)continue;pending--;
                 if(task.error!=null){if(unavailable(task.error))throw new PeerUnavailable(task.peer,task.error);throw failure("activation installation failed",task.error);}
                 campaign.installed(task.peer,task.reply);
             }
-            check();var images=new TreeMap<String,byte[]>();
-            for(var image:own.capsule.packet.images().entrySet())images.put(image.getKey(),localImages.image(image.getKey(),image.getValue()));
-            for(var task:snapshot())if(task.received!=null && sources.stream().anyMatch(s->s.owner.equals(task.peer)))images.putAll(task.received.images());
-            check();campaign.installLocal(retained,images);check();
         }
         List<Task> snapshot(){synchronized(tasks){return List.copyOf(tasks);}}
         void stop(){ended=true;for(var task:snapshot())task.stop();}
         @Override public void close()throws IOException {
             stop();IOException failure=null;
             try {
+                if(history!=null)try{history.close();}catch(IOException|RuntimeException error){failure=new IOException("activation ancestry cleanup failed",error);}
                 for(var task:snapshot())try{task.drain();task.release();}catch(IOException|RuntimeException error){if(failure==null)failure=new IOException("activation peer drain/cleanup failed",error);else failure.addSuppressed(error);}
             }finally {
                 localImages.close();campaign.close();if(!success || failure!=null)endpoint.abandon(object(own.basis.value().get("ballot")));

@@ -1550,7 +1550,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Complete one exact source retirement; all other writer mutations remain blocked. */
     synchronized Decoded retireSource(String id)throws IOException {
         require(sourceRetirement!=null,"source retirement owner required");checkOwner();applicationReferencesIdle();require(pendingAccept==null || !pendingAccept.pending(),"pending ACCEPT requires exact original completion");
-        expireSourceExports();require(sourceExports.stream().noneMatch(export->export.basisId().equals(id)),"source export pins original files");
+        expireSourceExports();require(sourceExports.stream().noneMatch(export->export.pinsSource(id)),"source export pins original files");
         if(pendingContext!=null && pendingContext.active().isPresent())contextSourceRetirement(id);
         require(!inactive.exists() && !inactive.pending() && !floors.pending() && !retirement.pending(),"pending generation/floor/retirement before source deletion");
         require(promise!=null && (promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest())),"uninstalled adoption fence; prefix recovery required");
@@ -1913,6 +1913,15 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(current!=null && basis!=null,"complete current grant required");checkOwner();
         return retainedSource(basis);
     }
+    /** The active original grant may reuse only its actual selected prefix's ancestry. */
+    synchronized List<MembershipSelection.Bridge> activationAncestry(Decoded original)throws IOException {
+        checkActivation(original,null,false);var source=originalSource();current.check();
+        require(current.capsule.sameProvenPrefix(source.capsule.packet),"activation ancestry original prefix changed");
+        var bridges=current.capsule.verifiedAncestry(current.ancestry());
+        // The native source reader must have retained the exact original historical keys.
+        source.capsule.retainingVerifiedAncestry(bridges);current.check();checkActivation(original,null,false);
+        return List.copyOf(bridges);
+    }
     /** Read-only transfer authority for an exact forced retained BASIS. A higher grant may
      * coexist with this borrow; it cannot change these originals or renew its deadline. */
     synchronized MembershipSourceExport exportSource(Decoded original,long budget)throws IOException {
@@ -1940,6 +1949,20 @@ final class MembershipGrantJournal implements AutoCloseable {
         expireSourceExports();require(sourceExports.contains(export),"source export closed/expired");
     }
     synchronized void releaseSourceExport(MembershipSourceExport export){sourceExports.remove(export);export.revoke();}
+    /** Reuse exact already-accounted local images without exporting their old authority.
+     * The existing borrow pins each backing original against retirement until expiry/close. */
+    synchronized boolean pinSourceImage(MembershipSourceExport export,String digest,long bytes)throws IOException {
+        checkSourceExport(export);sourceIdle();
+        for(String id:new TreeSet<>(sources.retainedIdentities())) {
+            var original=bases.get(id);if(original==null)continue; // no partial PROMISE-only capture
+            var copy=sources.original(original);Long size=copy.packet().images().get(digest);
+            if(size!=null && size==bytes) {
+                export.pinImage(id,directory.resolve(MembershipBasisSources.DIRECTORY).resolve(id).resolve(digest+".image"),digest,bytes);
+                checkSourceExport(export);return true;
+            }
+        }
+        checkSourceExport(export);return false;
+    }
     /** Read-only current generation, requiring neither PREPARE nor a frozen BASIS. */
     synchronized MembershipPrefixExport exportPrefix(String cut,Map<String,Object> ballot,String view,
             MembershipResources budget,LongSupplier clock,long started,long limit)throws IOException {
@@ -2037,6 +2060,16 @@ final class MembershipGrantJournal implements AutoCloseable {
         var original=sources.original(retainedBasis);var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
         var capsule=ownedHistory?sources.verifiedOriginal(retainedBasis,new HistoryRead(this)):
                 Objects.requireNonNull(capsuleVerifier.verify(localRoot,original.packet(),original.images()));
+        if(ownedHistory && current.capsule.sameProvenPrefix(original.packet())) {
+            current.check();byte[] ancestry=current.ancestry();
+            if(ancestry.length!=0) {
+                // A BASIS copy retains the exact source packet, not a generation's
+                // supplemental file. Project only the actual owner's authenticated
+                // same-prefix history; do not turn copied ACKs into fresh votes.
+                capsule=current.capsule.materialization(original.packet(),original.images(),current.capsule.verifiedAncestry(ancestry));
+            }
+            current.check();
+        }
         require(Arrays.equals(capsule.packet.bytes(),original.packet().bytes()),"original verifier substituted source");
         var reference=Map.<String,Object>of("voter",identity.nodeId().value(),"basisId",retainedBasis.value().get("basisId"),"basisDigest",retainedBasis.digest());
         var owned=new HashSet<Owned>();String parent=cutDigest(object(retainedBasis.value().get("cut")));

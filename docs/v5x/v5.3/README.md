@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Automatic compacted-ancestry integration](PHASE_3_NATIVE_ANCESTRY.md) is locally
+qualified against the corrected sources. It fixes original proof acquisition across
+unequal cuts, longest-source installation lifetime and exact retained-image reuse
+with an unpublished accepted tail. Autonomous election/adoption and the complete
+3B–3E gates remain open.
+
 [Native network activation](PHASE_3_NATIVE_NETWORK.md) now connects authenticated
 original history to the actual driver, endpoint and selected installation path.
 Six published 3/4/5-voter EMPTY/backup histories pass real TCP activation and native

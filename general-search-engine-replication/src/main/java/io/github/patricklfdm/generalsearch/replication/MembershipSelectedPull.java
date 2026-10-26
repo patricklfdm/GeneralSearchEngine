@@ -27,10 +27,12 @@ final class MembershipSelectedPull implements AutoCloseable {
     private final List<MembershipSourceReceive> receives=new ArrayList<>();
     private final List<MembershipSelection.Source> sources=new ArrayList<>();
     private final Map<String,byte[]> images=new TreeMap<>();
-    private final List<MembershipSelection.Bridge> ancestry,retained;
+    private List<MembershipSelection.Bridge> ancestry;
+    private final List<MembershipSelection.Bridge> retained;
     private final Path scratch;
     private final Object directoryKey;
     private MembershipSourceExport localExport;
+    private MembershipActivationAncestry history;
     private Decoded selected;
     private boolean closed,removed;
 
@@ -65,12 +67,14 @@ final class MembershipSelectedPull implements AutoCloseable {
             var decisionPull=pull(proposer);String digest=(String)object(request.value().get("payload")).get("selection");
             selected=decisionPull.fetchRecord(digest,"SELECTED",this::selection);
             localExport=(MembershipSourceExport)owner.exportTransfer(own.basis.digest(),own.capsule.context.authority(),object(own.basis.value().get("ballot")),clock,started,budget);
+            var originalReceives=new TreeMap<String,MembershipSourceReceive>();
             for(Object value:list(selected.value().get("sources"))) {
                 check();var reference=object(value);String node=(String)reference.get("voter");MembershipSelection.Source source;
                 if(node.equals(own.owner.nodeId().value()))source=own;
                 else {
                     var client=pull(own.capsule.context.identities.get(node));
                     var received=client.fetch(this.scratch.resolve("source-"+sources.size()),(String)reference.get("basisDigest"),localExport);receives.add(received);
+                    originalReceives.put(node,received);
                     source=nativeHistory?client.verifiedOriginalSource():client.verifiedOriginalSource(verifier);merge(received.images());
                 }
                 require(source.reference().equals(reference),"selected pull exact source reference");sources.add(source);
@@ -80,9 +84,21 @@ final class MembershipSelectedPull implements AutoCloseable {
                 while(offset<bytes.length){check();byte[] chunk=localExport.read(content.digest(),offset,4*1024*1024);System.arraycopy(chunk,0,bytes,offset,chunk.length);offset+=chunk.length;}
                 require(hash(bytes).equals(content.digest()),"selected pull local image digest");images.put(content.digest(),bytes);
             }
+            if(nativeHistory && ancestry.isEmpty()) {
+                // The local source has no receiving directory. Its slot can hold the
+                // supplemental prefix within the existing restart-recovery layout.
+                int localSlot=0;while(!sources.get(localSlot).owner.equals(own.owner))localSlot++;
+                history=new MembershipActivationAncestry(owner,resources,bounds,link,this::checkBase,clock,started,budget,
+                        this.scratch.resolve("source-"+localSlot),originalReceives);
+                var complete=history.resolve(List.copyOf(sources));sources.clear();sources.addAll(complete.sources());this.ancestry=complete.bridges();
+            }
             var original=sources.stream().filter(s->s.owner.equals(proposer)).findFirst().orElseThrow();
             var recomputed=new MembershipSelection.Campaign(original).select(sources,this.ancestry);
-            require(Arrays.equals(recomputed.selected().bytes(),selected.bytes()),"selected pull decision differs from original");check();
+            require(Arrays.equals(recomputed.selected().bytes(),selected.bytes()),"selected pull decision differs from original");
+            // Keep every original receiving owner live, but install only the exact
+            // selected prefix's images. Lower sources may have different images.
+            images.keySet().retainAll(recomputed.longest().capsule.packet.images().keySet());
+            recomputed.longest().capsule.packet.verifyImages(images);check();
         }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
     private MembershipSourcePull pull(MembershipIdentity peer) {
@@ -106,18 +122,20 @@ final class MembershipSelectedPull implements AutoCloseable {
             require(prior==null || Arrays.equals(prior,image.getValue()),"selected pull conflicting image");
         }
     }
-    private void check()throws IOException {
+    private void checkBase()throws IOException {
         require(!closed,"selected pull closed");long elapsed=clock.getAsLong()-started;
         require(elapsed>=0 && elapsed<budget,"original selected pull deadline");guard.check();owner.checkActivation(own.basis,null,false);
         for(var received:receives)received.recheck();if(localExport!=null)localExport.source();
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"original selected pull deadline");
     }
+    private void check()throws IOException {checkBase();if(history!=null)history.recheck();}
     Decoded install()throws IOException {
         check();var reply=MembershipActivation.install(owner,proposer,request,List.copyOf(sources),ancestry,retained,images);
         owner.checkActivation(own.basis,selected,true);check();return reply;
     }
     @Override public void close()throws IOException {
         if(removed)return;closed=true;IOException failure=null;
+        if(history!=null)try{history.close();}catch(IOException|RuntimeException error){failure=new IOException("selected ancestry cleanup",error);}
         for(var pull:pulls)try{pull.close();}catch(IOException|RuntimeException error){if(failure==null)failure=new IOException("selected pull cleanup",error);else failure.addSuppressed(error);}
         if(localExport!=null)localExport.close();images.clear();sources.clear();receives.clear();
         try {AdmissionPaths.safe(scratch);require(directoryKey.equals(MembershipBasisSources.key(scratch)),"selected pull scratch replaced");Files.delete(scratch);removed=true;}

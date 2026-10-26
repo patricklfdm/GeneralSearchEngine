@@ -219,13 +219,16 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     /** Borrowed untrusted bytes; receipt is neither a vote nor proof of historical force. */
     MembershipSourceReceive fetchPrefix(Path scratch)throws IOException {
+        return fetchPrefix(scratch,null);
+    }
+    MembershipSourceReceive fetchPrefix(Path scratch,MembershipImageBorrow originalImages)throws IOException {
         synchronized(this){require(prefixCut!=null && !used && !closed,"read-only prefix single use");used=true;}
         try {
             var packet=offer(UUID.randomUUID(),cutDigest(prefixCut),MembershipTransfer.Kind.CAPSULE,null,null);
             MembershipSourceReceive staging;
             synchronized(this) {
                 check();received=new MembershipSourceReceive(scratch,context.root,source,prefixCut,session,packet.id,packet.content,
-                        resources,chunkLimit,clock,started,budget);staging=received;
+                        resources,chunkLimit,clock,started,budget,originalImages);staging=received;
             }
             receiveFile(staging,staging.packetBinding(),packet);
             for(var binding:staging.imageBindings()) {

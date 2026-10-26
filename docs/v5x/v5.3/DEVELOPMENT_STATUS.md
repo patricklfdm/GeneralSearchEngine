@@ -1,5 +1,26 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B unequal compacted histories, locally qualified
+
+The [native ancestry batch](PHASE_3_NATIVE_ANCESTRY.md) now automatically obtains
+missing original history after fixing the selected source set. It preserves the
+exact original BASIS/tail while authenticating the complete current prefix and its
+supplemental ancestry. Selected installation keeps the longest remote generation
+available until the other remote receivers finish. Exact already-retained local
+images can be reused without expanding the wire inventory or the seven-image cap.
+
+All fourteen corrected-source histories pass original-first physical replay:
+36 selected installations, 936 source exchanges and 49 exact evidence mutations.
+Normal, optimized and unpacked portable results agree; all 622 Python tests also
+pass normally and under `-O`. The final isolated build passes 144 tests in
+17 suites, and all ten related component/crash replay qualifications pass. The
+[source-bound receipt](phase3-evidence/native-ancestry.json) records the exact
+validation scopes. Earlier failed sources and original evidence remain retained.
+
+Autonomous election/discovery/adoption, repeated maintenance, native cross-view
+pending contexts, learner/joint transitions, generalized publication and complete
+3B–3E qualification remain open. Public membership is still disabled.
+
 ## 2026-10-26 — Phase 3B native network activation
 
 The [native network batch](PHASE_3_NATIVE_NETWORK.md) connects complete original

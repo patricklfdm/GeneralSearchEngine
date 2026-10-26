@@ -120,17 +120,24 @@ final class MembershipActivation implements AutoCloseable {
     /** Native complete-source verification retains the same physical receive lifetime. */
     void promised(MembershipIdentity peer,Decoded reply,MembershipSourceReceive received,
             MembershipSourcePull pull,List<MembershipSelection.Bridge> ancestry)throws IOException {
+        promised(peer,reply,received,pull,sources->new MembershipActivationAncestry.Resolution(sources,ancestry));
+    }
+    void promised(MembershipIdentity peer,Decoded reply,MembershipSourceReceive received,
+            MembershipSourcePull pull,MembershipActivationAncestry.Resolver history)throws IOException {
         require(state==State.PREPARING,"late promise after fixed selection");
         var exchange=response(peer,reply,"PROMISE");
         try {
             var source=MembershipPromisedSource.verify(own,peer,exchange.request,reply,received,pull);
             var previous=receivedSources.putIfAbsent(peer.nodeId().value(),received);
             require(previous==null || previous==received,"promised source staging owner changed");
-            check();promised(peer,new Prepared(reply,source),ancestry);
+            check();promised(peer,new Prepared(reply,source),history);
         }catch(IOException|RuntimeException error){abandon();throw error;}
     }
     /** In-process verified-source adapter. The network paths retain the received-file owner. */
     void promised(MembershipIdentity peer,Prepared reply,List<MembershipSelection.Bridge> ancestry) throws IOException {
+        promised(peer,reply,sources->new MembershipActivationAncestry.Resolution(sources,ancestry));
+    }
+    private void promised(MembershipIdentity peer,Prepared reply,MembershipActivationAncestry.Resolver history) throws IOException {
         require(state==State.PREPARING,"late promise after fixed selection");
         var exchange=response(peer,reply.response(),"PROMISE");var source=reply.source();
         require(source.owner.equals(peer) && source.capsule.context.root.equals(own.capsule.context.root)
@@ -143,10 +150,19 @@ final class MembershipActivation implements AutoCloseable {
         try {
             complete(exchange,reply.response());offered.put(peer.nodeId().value(),source);check();
             if(!quorum())return;
-            var selected=new MembershipSelection.Campaign(own).select(List.copyOf(offered.values()),ancestry);
-            var forced=owner.selectCurrent(selected.sources(),ancestry);
+            // Freeze the first complete eligible sources before any missing-ancestry I/O.
+            var original=List.copyOf(offered.values());var resolved=history.resolve(original);check();
+            require(resolved.sources().size()==original.size(),"activation history changed source set");
+            for(int i=0;i<original.size();i++) {
+                var before=original.get(i);var after=resolved.sources().get(i);
+                require(before.owner.equals(after.owner) && Arrays.equals(before.basis.bytes(),after.basis.bytes())
+                        && Arrays.equals(before.capsule.packet.bytes(),after.capsule.packet.bytes()),"activation history changed original source");
+            }
+            var proposer=resolved.sources().stream().filter(s->s.owner.equals(own.owner)).findFirst().orElseThrow();
+            var selected=new MembershipSelection.Campaign(proposer).select(resolved.sources(),resolved.bridges());
+            var forced=owner.selectCurrent(selected.sources(),resolved.bridges());
             require(Arrays.equals(forced.bytes(),selected.selected().bytes()),"durable activation selection mismatch");
-            decision=selected;bridges=List.copyOf(ancestry);check();clearExchanges();state=State.INSTALLING;
+            decision=selected;bridges=resolved.bridges();check();clearExchanges();state=State.INSTALLING;
         }catch(IOException|RuntimeException error){abandon();throw error;}
     }
     private boolean quorum() {
