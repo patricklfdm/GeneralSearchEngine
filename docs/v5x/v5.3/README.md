@@ -27,6 +27,11 @@ Exact pinned local image reuse preserves the seven-image bound. Three stable-siz
 histories reach every selected installation; automatic ownership/discovery,
 historical provenance, learner/joint transitions and public READY remain open.
 
+The [incoming activation endpoint](PHASE_3_ACTIVATION_ENDPOINT.md) now connects
+those components to bounded PREPARE/SELECTED handling, duplicate sharing, early
+higher-ballot fencing and automatic scope expiry. Outgoing campaign scheduling,
+newer-view discovery, historical provenance and the remaining Phase 3 work stay open.
+
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
 cloud qualification continues. The initial local-only instruction was extended
 on 2026-10-25 to push completed Phase 2 and start Phase 3. The branch starts

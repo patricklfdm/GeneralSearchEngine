@@ -1,0 +1,234 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-activation-endpoint/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1245361,
+      "path": "target/v53-activation-endpoint/replication.jar",
+      "sha256": "fa957007141ccbcb8e11807f65b76f35270989f618bb8e3a87aa949b24423df7"
+    }
+  ],
+  "automaticCampaign": false,
+  "buildInputs": {
+    "bytes": 455959,
+    "path": "target/v53-activation-endpoint/final-source-build-inputs.json",
+    "sha256": "1bf48d80e8048686cfa159f7f2d83260648b8a3274582a6e6e3856b34fd5e664"
+  },
+  "caveats": [
+    "Initial eight endpoint tests completed with two exception-type assertion failures; synchronization and allowed deadline/cancellation outcomes were corrected without retrying a failed observation as success.",
+    "The first deadline red-test compile lacked the new diagnostic accessor; a compatible pre-correction variant then demonstrably issued one source I/O after its original budget expired. Final corrected execution issues none.",
+    "An incremental build reused the deadline red-test bytecode after source timestamp restoration. javap established that mismatch; this run is disqualified. Final artifact qualification uses a fresh isolated directory.",
+    "After the first fresh 75-test build, review identified missing propagation of authenticated higher source rejections. A new regression fails against that endpoint; the corrected final 76-test build validates higher fencing and foreign-reply refusal.",
+    "The private incoming endpoint owns one current-view control worker and expiry. Outgoing campaigns are still driven explicitly; no automatic election, READY, historical witness discovery or full distributed S/N acceptance is claimed.",
+    "Historical provenance/ancestry delivery, newer-prefix discovery/adoption, fair failed-source rotation, scratch crash recovery, learner/joint transitions and generalized voting/publication remain open."
+  ],
+  "date": "2026-10-25",
+  "evidence": [
+    {
+      "bytes": 8331,
+      "path": "target/v53-activation-endpoint/current-tests.log",
+      "sha256": "34f359e094fc2557e1401444294fd2c5b160c30cec9eebc016c26f62ce0ebec4"
+    },
+    {
+      "bytes": 57757,
+      "path": "target/v53-activation-endpoint/current-endpoint-javap.txt",
+      "sha256": "635b7b290335e1da5c21be079b7c4d32a6f4be5806957682926209b98df761d7"
+    },
+    {
+      "bytes": 40,
+      "path": "target/v53-activation-endpoint/build-input-check.json",
+      "sha256": "db356a707ba709f9960b6072d23f1f15e9f7e4208f1fd1b353f19f3e72b71948"
+    },
+    {
+      "bytes": 1952,
+      "path": "target/v53-activation-endpoint/java-reports.json",
+      "sha256": "0f02cf62aaf54328fe79c914c2b2a61950e09cfe5b2e0c3d8e0a99312df2ebdd"
+    },
+    {
+      "bytes": 661,
+      "path": "target/v53-activation-endpoint/python.log",
+      "sha256": "8757bc3927d1b8a7ce1a00f7f5ebe25346b4f65b665cc77061735e9b9025fabd"
+    },
+    {
+      "bytes": 661,
+      "path": "target/v53-activation-endpoint/python-optimized.log",
+      "sha256": "2b2b9a2ef91123e45194d68cff3304f935c3c7985108e459d0b7260b19adb935"
+    },
+    {
+      "bytes": 125,
+      "path": "target/v53-activation-endpoint/qualification.log",
+      "sha256": "88bebd143a6a9c840d584ba2d6fbeff9023aee04559d4327b1acaf23dd398924"
+    },
+    {
+      "bytes": 57669,
+      "path": "target/v53-activation-endpoint/raw-inventory.json",
+      "sha256": "372aea39ca954d53c14c2734b3bc24c9b551aeef7cdba7a547bc05dbb8cb72a8"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-activation-endpoint/replay.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-activation-endpoint/replay-optimized.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-activation-endpoint/replay-portable.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 218272,
+      "path": "target/v53-activation-endpoint/portable-evidence.tar.gz",
+      "sha256": "cae044eb613532dc404790b660a96a3fcb1fe033e17dab8651b4e90fe62383df"
+    },
+    {
+      "bytes": 1307,
+      "path": "target/v53-activation-endpoint/activation-replay.json",
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    },
+    {
+      "bytes": 1794,
+      "path": "target/v53-activation-endpoint/selected-replay.json",
+      "sha256": "980bb3d0d71e31ecc217b7350c7d94ecac7701176bebc50b78eb93ee27fd7c78"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-activation-endpoint/service-replay.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    },
+    {
+      "bytes": 1315,
+      "path": "target/v53-activation-endpoint/transport-replay.json",
+      "sha256": "4ac91a9201b280d184ec7e3cde9a96119722037e38e6a2108010c05d02b7397f"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "admittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "endpointTests": 12,
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "suites": 10,
+    "tests": 76
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "python": {
+      "seconds": 91.585,
+      "tests": 560
+    },
+    "python-optimized": {
+      "seconds": 91.064,
+      "tests": 560
+    }
+  },
+  "replay": {
+    "controlExchanges": 10,
+    "negativeCases": 10,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "portable": "PASS",
+    "selectedInstallations": 8,
+    "sourceExchanges": 213
+  },
+  "retainedEarlier": [
+    {
+      "bytes": 455602,
+      "path": "target/v53-activation-endpoint/initial-inputs.json",
+      "sha256": "7e5999165faab9167b173122f538ab202e73d46a3ea6488780791a8840e46c72"
+    },
+    {
+      "bytes": 14069,
+      "path": "target/v53-activation-endpoint/initial-tests.log",
+      "sha256": "d35dec93251d8551bf0b84c1c27460bc31f576687a8cc13c73946dd19c59905a"
+    },
+    {
+      "bytes": 13516,
+      "path": "target/v53-activation-endpoint/initial-endpoint.java",
+      "sha256": "d1d9818e6c86c37839d415bb1f4f00eb9f6ddd4db5fbcacbc76b608093ecb732"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-activation-endpoint/initial-replay.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 5966,
+      "path": "target/v53-activation-endpoint/deadline-red.log",
+      "sha256": "3768b255cb99ef459334accdfbcc97a7448b0fe4b7317a3c88c0fdeb9dc06fcf"
+    },
+    {
+      "bytes": 6597,
+      "path": "target/v53-activation-endpoint/deadline-red-execution.log",
+      "sha256": "89149c09e9efa3357514bd4f635f7d81391ea5996df7c28261d201f3288b0646"
+    },
+    {
+      "bytes": 6464,
+      "path": "target/v53-activation-endpoint/deadline-red-io.log",
+      "sha256": "64bbd0839fc0a79e6352f4282a4c7cf51497dcfd58b996c9853745152f18b5ae"
+    },
+    {
+      "bytes": 14439,
+      "path": "target/v53-activation-endpoint/deadline-pre-correction.java",
+      "sha256": "376a2fca4727996997e83cccb20f9e6ec44053340648c41bf3f81909a618275d"
+    },
+    {
+      "bytes": 9832,
+      "path": "target/v53-activation-endpoint/final-tests.log",
+      "sha256": "4cbb105fe26aafcd1bcbdba64b4d67f27c3b754b39565df8144614b85cb2b0e3"
+    },
+    {
+      "bytes": 57959,
+      "path": "target/v53-activation-endpoint/stale-endpoint-javap.txt",
+      "sha256": "bcd141195a650f9bf7afb59faed9d33d8867344a4fd44ee048db749adffe22e9"
+    },
+    {
+      "bytes": 18842,
+      "path": "target/v53-activation-endpoint/stale-endpoint.class",
+      "sha256": "6a8256a9660db8b6399245c8c3974418334c49250393f0ecb0b02cfa31a9f09e"
+    },
+    {
+      "bytes": 8359,
+      "path": "target/v53-activation-endpoint/qualified-tests.log",
+      "sha256": "89f6870a83020654cd0d17d33f9064452196cba642a76e1d61cf7b5c0fc6ac0f"
+    },
+    {
+      "bytes": 1245044,
+      "path": "target/v53-activation-endpoint/first-fresh-replication.jar",
+      "sha256": "a217a16a4a3bbd5d739bdb8c4662a8076fe66ec061175fed1832a139e1fcbdbb"
+    },
+    {
+      "bytes": 455959,
+      "path": "target/v53-activation-endpoint/qualified-build-inputs.json",
+      "sha256": "0653be0cfb931f0524e9269bab304668a841c4e0bcfb3ae2cd695703718bc265"
+    },
+    {
+      "bytes": 6396,
+      "path": "target/v53-activation-endpoint/higher-reject-red.log",
+      "sha256": "9ffa05a0a7f683613c6f26e9c932d38a77169b73461ac6fd9b2e1b4d81a65a85"
+    }
+  ],
+  "schema": "gse-v53-phase3-activation-endpoint-local-v1",
+  "scope": "bounded current-view PREPARE/SELECTED endpoint with original source dispatch, duplicate task sharing, higher fencing and automatic expiry",
+  "sourceInputs": {
+    "bytes": 455959,
+    "path": "target/v53-activation-endpoint/source-inputs.json",
+    "sha256": "6517c1fbe98a6509eb0da3bb69d494fb26a886c8a418c87a38163e1f4893723e"
+  },
+  "sourceParent": "3fd3ee7e503d86c1908481b0c473838ed0721683",
+  "status": "PASS",
+  "verifiedBuildInputs": 1097
+}

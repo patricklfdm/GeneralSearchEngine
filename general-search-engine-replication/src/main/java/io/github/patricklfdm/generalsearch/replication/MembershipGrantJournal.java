@@ -30,7 +30,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private final Map<String,Decoded> promises=new TreeMap<>(), bases=new TreeMap<>();
     private final Map<String,Decoded> selections=new TreeMap<>();
     private MembershipBasisSources sources;
-    private MembershipCurrentGeneration current;
+    private volatile MembershipCurrentGeneration current;
     private MembershipCurrentGeneration.Verifier capsuleVerifier;
     private MembershipGenerationFiles inactive;
     private MembershipFloorFiles floors;
@@ -1603,6 +1603,19 @@ final class MembershipGrantJournal implements AutoCloseable {
     MembershipIdentity activationIdentity() {return identity;}
     synchronized MembershipContext activationContext() throws IOException {
         require(current!=null,"current generation required");checkOwner();return current.capsule.context;
+    }
+    synchronized MembershipCapsule activationCapsule() throws IOException {
+        require(current!=null,"current generation required");checkOwner();return current.capsule;
+    }
+    /** Authenticate a current-view proposer before observing its ballot. This does
+     * not wait for the writer monitor and cannot grant or install anything. */
+    void observeActivation(MembershipIdentity sender,Decoded request) {
+        live();var generation=current;require(generation!=null,"current generation required");
+        var context=MembershipActivation.incoming(generation.capsule.context,identity,sender,request,"PREPARE");
+        observe(context,object(request.value().get("ballot")));
+    }
+    synchronized void checkActivationBallot(String view,Map<String,Object> ballot)throws IOException {
+        require(current!=null && current.capsule.context.authority().equals(view),"activation view changed");checkOwner();fence(ballot);
     }
     /** Volatile replies cannot outlive the exact live owner, grant, view or installed selection. */
     synchronized void checkActivation(Decoded original,Decoded selected,boolean installed) throws IOException {

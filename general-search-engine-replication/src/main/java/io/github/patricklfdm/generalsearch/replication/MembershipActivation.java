@@ -53,6 +53,8 @@ final class MembershipActivation implements AutoCloseable {
         offered.put(own.owner.nodeId().value(),own);check();
     }
     State state(){return state;}
+    long started(){return started;}
+    long budget(){return budget;}
     Map<String,Object> ballot(){return ballot;}
     MembershipSelection.Source ownSource(){return own;}
     private void check() throws IOException {
@@ -183,9 +185,12 @@ final class MembershipActivation implements AutoCloseable {
                 "recipient",MembershipBootstrapSeed.identity(recipient),"ballot",ballot,"trace",trace.toString(),"sequence",sequence,"payload",payload)),"wire",kind);
     }
     static MembershipContext incoming(MembershipGrantJournal owner,MembershipIdentity sender,Decoded request,String kind) throws IOException {
-        require(request.kind().equals(kind),"activation request kind");var context=owner.activationContext();var value=request.value();
+        return incoming(owner.activationContext(),owner.activationIdentity(),sender,request,kind);
+    }
+    static MembershipContext incoming(MembershipContext context,MembershipIdentity local,MembershipIdentity sender,Decoded request,String kind) {
+        require(request.kind().equals(kind),"activation request kind");var value=request.value();
         var ballot=object(value.get("ballot"));
-        context.wire(request,sender,owner.activationIdentity(),ballot,UUID.fromString((String)value.get("trace")),number(value.get("sequence")));
+        context.wire(request,sender,local,ballot,UUID.fromString((String)value.get("trace")),number(value.get("sequence")));
         require(sender.nodeId().value().equals(ballot.get("proposer")) && sender.storageId().toString().equals(ballot.get("incarnation")),"activation request from non-proposer");
         return context;
     }

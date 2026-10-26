@@ -35,6 +35,12 @@ seven-image retained-tail refusal. It does not close the automatic owner loop,
 historical provenance/ancestry transport, heterogeneous-view discovery, source
 rotation, abandoned scratch recovery or complete network/process qualification.
 
+The [incoming activation endpoint](PHASE_3_ACTIVATION_ENDPOINT.md) subsequently
+owns PREPARE/SELECTED controls and source dispatch, with one bounded worker,
+duplicate sharing, higher-ballot fencing and automatic expiry/cancellation. Real
+TCP histories still use an explicitly driven outgoing campaign. Automatic campaign
+scheduling/rotation and the other open 3B obligations above remain required.
+
 ## First batch boundary
 
 Implement an internal activation controller over `MembershipGrantJournal`, using

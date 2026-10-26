@@ -1,5 +1,26 @@
 # V5.3 development status
 
+## 2026-10-25 — Phase 3B incoming activation ownership
+
+The [incoming endpoint](PHASE_3_ACTIVATION_ENDPOINT.md) connects real PREPARE,
+original-source service and SELECTED installation with one bounded control worker,
+exact duplicate sharing, higher-ballot observation before writer admission and
+automatic scope expiry. Close and replacement cancel pending source futures.
+An incoming request retains the time spent waiting for the writer in its original
+budget; the retained regression reproduces the earlier post-wait reset.
+
+The final fresh build passes 76 Java tests across ten suites, including twelve
+endpoint tests; all 560 Python tests pass in normal and optimized modes.
+The [receipt](phase3-evidence/activation-endpoint.json) binds independent replay of
+213 source exchanges, ten control exchanges and eight actual installations at
+stable sizes 3/4/5, with ten exact negatives and portable replay. It retains the
+original deadline and higher-rejection regressions and a disqualified incremental
+build separately from final validation. The
+outgoing campaign is still explicitly driven. Automatic campaigns/rotation,
+historical provenance and ancestry, newer-view adoption, scratch crash recovery,
+learner/joint transitions and publication remain open. This is not Phase 3 closure,
+public READY, protected CI or cloud acceptance.
+
 ## 2026-10-25 — Phase 3B receiving and installing the original selected state
 
 The [selected receiver](PHASE_3_SELECTED_PULL.md) fetches the actual original
