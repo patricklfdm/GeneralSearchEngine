@@ -217,6 +217,41 @@ class OperatorTest(unittest.TestCase):
         self.download.side_effect=ValueError('synthetic original failed')
         with self.assertRaisesRegex(ValueError,'original failed'):self.execute('run',self.request())
         self.run.assert_not_called();self.assertFalse((self.output/'result').exists())
+    def test_failed_history_diagnostics_reach_uploaded_json_and_summary_after_close_failure(self):
+        from . import remote_history as history,cloud_member as member
+        from .test_history_diagnostics import NAME,SECRET,evidence,observation_error
+        def fail(source,plan,approval,confirmation,package,key,path):
+            root=path/'member';root.mkdir(parents=True)
+            owner=history.Receivers(root/NAME,NAME,{})
+            evidence(owner);finish=owner.finish
+            def close(failure):
+                finish(failure);raise OSError(SECRET)
+            progress=member.Progress('canonical-1-legacy',emit=lambda row:None)
+            progress.update('original-workload',name=NAME,completed=1)
+            try:
+                with patch.object(history,'source',return_value={}),patch.object(owner,'prepare'), \
+                     patch.object(owner,'observe',side_effect=observation_error),patch.object(owner,'finish',side_effect=close):
+                    history.run(owner.root,NAME,{},receiver_factory=lambda *args:owner)
+            except BaseException as error:
+                member.failure_record(root,'history',error,progress)
+                raise
+        self.run.side_effect=fail
+        with self.assertRaisesRegex(ValueError,'original responses missing'):
+            self.execute('run',self.request())
+        self.run.assert_called_once();self.assertFalse((self.output/'result').exists())
+        report=o.artifacts.read(self.output/'diagnostics/failure.json')
+        self.assertEqual('V52_MEMBER_HISTORY_REJECTED',report['causeCode'])
+        self.assertEqual(1,report['completedHistories']);self.assertEqual(NAME,report['history'])
+        detail=report['historyDiagnostic']
+        self.assertEqual('ORIGINAL_RESPONSES_MISSING',detail['failure']['reasonCode'])
+        self.assertEqual('original-workload',detail['stage']);self.assertEqual('IO_FAILED',detail['cleanupFailure']['reasonCode'])
+        self.assertEqual({'OBSERVED':1,'UNOBSERVED':1},detail['observations']['offers']['completion'])
+        self.assertNotIn(SECRET,str(report));self.assertFalse(report['fullRemoteQualification'])
+        out=io.StringIO()
+        with redirect_stdout(out):o.summary(self.output)
+        self.assertIn(NAME,out.getvalue());self.assertIn('ORIGINAL_RESPONSES_MISSING',out.getvalue())
+        self.assertIn('measurement_load',out.getvalue());self.assertNotIn(SECRET,out.getvalue())
+
     def test_failed_original_run_exports_only_safe_diagnostic_code_and_never_retries(self):
         def fail(*args):
             path=args[-1];(path/'native').mkdir(parents=True)

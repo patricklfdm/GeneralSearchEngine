@@ -11,6 +11,7 @@ import threading
 import time
 from . import cloud_native_runner as native,cloud_staging as staging,cloud_suite as suite
 from . import remote_history as history,remote_host_domains as domains,measurement_bundle as bundle
+from . import history_diagnostics as diagnostics
 from .evidence import need,encoded,digest
 
 
@@ -18,10 +19,18 @@ _CAPTURE=object()
 FAILURE_PHASES=frozenset(('guest-identity','storage','java-installation','placement','history','correlation','completion','guest-close'))
 
 
-def failure_record(root,phase,error):
-    native.diagnostic(root/'failure.json',dict(status='FAIL',phase=phase,
+def failure_record(root,phase,error,progress):
+    record=dict(status='FAIL',phase=phase,
         code='V52_MEMBER_'+phase.upper().replace('-','_')+'_REJECTED',
-        errorType=type(error).__name__,fullRemoteQualification=False))
+        errorType=type(error).__name__,fullRemoteQualification=False)
+    try:
+        snapshot=progress.snapshot();name=snapshot['history']
+        if name in suite.load()['histories']:
+            record.update(history=name,completedHistories=snapshot['completed'])
+            detail=diagnostics.report(root,name)
+            if detail is not None:record['historyDiagnostic']=detail
+    except Exception:pass  # Diagnostic enrichment must not mask the original exception.
+    native.diagnostic(root/'failure.json',record)
 
 
 class Captured:
@@ -37,11 +46,11 @@ class Progress:
         self.began=time.monotonic();self.stop=threading.Event();self.lock=threading.Lock()
         self.emit=emit or (lambda row:print(encoded(row).decode(),flush=True));self.interval=interval
         self.thread=threading.Thread(target=self.beat,name='v52-member-progress',daemon=True)
-    def report(self):
+    def snapshot(self):
         with self.lock:
-            row=dict(member=self.member,history=self.history,stage=self.stage,completed=self.completed,
+            return dict(member=self.member,history=self.history,stage=self.stage,completed=self.completed,
                      elapsedSeconds=round(time.monotonic()-self.began,1))
-        self.emit(row)
+    def report(self):self.emit(self.snapshot())
     def update(self,stage,*,name=None,completed=None):
         with self.lock:
             self.stage=stage
@@ -127,7 +136,7 @@ def run(session,key,output):
         receipt['status']='MEMBER_EXECUTED_NOT_QUALIFIED'
     except BaseException as error:
         failure=error;receipt['failure']=dict(type=type(error).__name__)
-        failure_record(root,phase,error)
+        failure_record(root,phase,error,progress)
         raise
     finally:
         try:
@@ -136,7 +145,7 @@ def run(session,key,output):
         except BaseException as error:
             receipt['status']='FAIL';receipt['guestCloseFailure']=type(error).__name__
             if failure is None:
-                failure_record(root,'guest-close',error)
+                failure_record(root,'guest-close',error,progress)
                 raise
         finally:
             progress.close();receipt['elapsedSeconds']=round(time.monotonic()-progress.began,3)
