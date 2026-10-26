@@ -47,7 +47,7 @@ final class MembershipSelection {
             require(bytes<=16*1024,"ancestry range byte capacity");
             this.statement=statement;this.acknowledgements=List.copyOf(acknowledgements);this.owned=Set.copyOf(owned);
         }
-        void verify(MembershipCapsule longer,MembershipCapsule.Anchor lower) {
+        void verifyEndpoints(MembershipCapsule longer,MembershipCapsule.Anchor lower) {
             var s=statement.value();var start=object(s.get("start"));var end=object(s.get("end"));var view=object(start.get("view"));
             var upper=longer.anchor(number(end.get("index")));
             require(s.get("root").equals(longer.context.root) && s.get("scope").equals("RANGE") && view.get("operation")==null
@@ -55,6 +55,9 @@ final class MembershipSelection {
             require(start.equals(lower.cut()) && s.get("catalogBefore").equals(lower.catalog()) && s.get("applicationBefore").equals(lower.application())
                     && upper!=null && end.equals(upper.cut()) && s.get("catalogAfter").equals(upper.catalog())
                     && s.get("applicationAfter").equals(upper.application()),"ancestry exact frozen endpoints");
+        }
+        void verify(MembershipCapsule longer,MembershipCapsule.Anchor lower) {
+            verifyEndpoints(longer,lower);var end=object(statement.value().get("end"));var view=object(end.get("view"));
             var voters=new ArrayList<String>();
             for(var ack:acknowledgements) {
                 require(ack.family().equals("records") && ack.kind().equals("CHECKPOINT_ACK"),"ancestry ACK kind");

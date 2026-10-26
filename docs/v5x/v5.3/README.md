@@ -38,6 +38,11 @@ with fresh-ballot failed-source rotation and one original deadline. Current-view
 invocations are locally qualified; election ownership, cross-view discovery,
 historical provenance, crash cleanup, learners and joint completion remain open.
 
+The [checkpoint provenance component](PHASE_3_CHECKPOINT_PROVENANCE.md) now
+fetches authenticated retained CHECKPOINT/ACK records and assembles compacted
+ancestry by contacting the ACKs' permanent owners. Full historical capsule
+provenance and cross-view discovery remain open.
+
 The operator authorized development on `feat/v53-cluster-operations` while V5.2
 cloud qualification continues. The initial local-only instruction was extended
 on 2026-10-25 to push completed Phase 2 and start Phase 3. The branch starts

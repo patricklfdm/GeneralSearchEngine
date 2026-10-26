@@ -170,7 +170,7 @@ class V53RecordExchangeTest {
                 }
                 assertEquals(0,receiving.usage().leases());
             }
-            assertEquals(MembershipRecordExport.KINDS,kinds);
+            assertEquals(Set.of("PROMISE","BASIS","SELECTED","ENTRY","ACCEPT","PROOF","CERTIFICATE"),kinds);
         }
         assertEquals(0,r.usage().leases());
     }

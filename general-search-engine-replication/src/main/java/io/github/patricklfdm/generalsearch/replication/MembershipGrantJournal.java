@@ -1761,7 +1761,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         catch(IOException|RuntimeException|Error error){releaseRecordExport(export);throw error;}
     }
     /** Lookup only retained journal, complete active vote or verified current packet, never a candidate file. */
-    private Decoded retainedRecord(String digest,String kind) {
+    private Decoded retainedRecord(String digest,String kind)throws IOException {
         require(digest!=null && digest.matches("[0-9a-f]{64}") && (kind==null || MembershipRecordExport.KINDS.contains(kind)),"record export reference/kind");
         for(var values:List.of(promises.values(),bases.values(),selections.values()))for(var value:values)
             if((kind==null || value.kind().equals(kind)) && value.digest().equals(digest))return value;
@@ -1779,7 +1779,22 @@ final class MembershipGrantJournal implements AutoCloseable {
                         .orElseThrow(()->new IllegalArgumentException("original forced record kind unavailable"));
             }
             require(current.capsule.packet.objectSize(digest)<=number(object(object(CATALOG.get("records")).get(kind)).get("maximum")),"record export typed extent");
-            return current.capsule.context.record(digest,kind);
+            if(!kind.equals("CHECKPOINT") && !kind.equals("CHECKPOINT_ACK"))return current.capsule.context.record(digest,kind);
+        }
+        // A packet inventory can contain unused records. Possession of an extra ACK
+        // is not an authenticated checkpoint, even if its voter happens to be local.
+        if(kind==null || kind.equals("CHECKPOINT") || kind.equals("CHECKPOINT_ACK")) {
+            for(Object value:list(current.capsule.packet.capsule().value().get("items"))) {
+                var item=object(value);
+                if((kind==null || kind.equals("CHECKPOINT")) && digest.equals(item.get("statement")))
+                    return current.capsule.context.record(digest,"CHECKPOINT");
+                if((kind==null || kind.equals("CHECKPOINT_ACK")) && list(item.get("endorsements")).contains(digest))
+                    return current.capsule.context.record(digest,"CHECKPOINT_ACK");
+            }
+            for(var bridge:current.capsule.verifiedAncestry(current.ancestry())) {
+                if((kind==null || kind.equals("CHECKPOINT")) && digest.equals(bridge.statement.digest()))return bridge.statement;
+                for(var ack:bridge.acknowledgements)if((kind==null || kind.equals("CHECKPOINT_ACK")) && digest.equals(ack.digest()))return ack;
+            }
         }
         throw new IllegalArgumentException("original forced record unavailable");
     }

@@ -9,7 +9,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 /** One exact record from live forced storage, charged before copying. No disk pin or new ACK.
  * Every read rechecks the owner and continued physical retention; retirement ends the borrow. */
 final class MembershipRecordExport implements MembershipTransferExport {
-    static final Set<String> KINDS=Set.of("PROMISE","BASIS","SELECTED","ENTRY","ACCEPT","PROOF","CERTIFICATE");
+    static final Set<String> KINDS=Set.of("PROMISE","BASIS","SELECTED","ENTRY","ACCEPT","PROOF","CERTIFICATE","CHECKPOINT","CHECKPOINT_ACK");
     private final MembershipGrantJournal owner;
     private final MembershipContext context;
     private final MembershipIdentity identity;

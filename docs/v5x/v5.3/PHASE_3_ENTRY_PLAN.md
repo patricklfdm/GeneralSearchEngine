@@ -45,6 +45,12 @@ Autonomous election ownership, durable source maintenance across repeated rounds
 historical provenance, cross-view discovery/adoption, abandoned scratch restart
 recovery and complete distributed qualification remain required.
 
+[Checkpoint provenance and ancestry delivery](PHASE_3_CHECKPOINT_PROVENANCE.md)
+adds exact original-owner observations for current-view retained checkpoints and
+bounded supplemental RANGE assembly. Its higher capsule is already verified;
+complete historical ACCEPT/PROOF provenance, automatic missing-ancestry discovery,
+and newer-view adoption remain required.
+
 ## First batch boundary
 
 Implement an internal activation controller over `MembershipGrantJournal`, using

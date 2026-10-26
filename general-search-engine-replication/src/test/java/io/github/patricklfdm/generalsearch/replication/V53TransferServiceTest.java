@@ -198,7 +198,7 @@ class V53TransferServiceTest {
                     }
                     assertEquals(0,receiving.usage().leases());
                 }
-                assertEquals(MembershipRecordExport.KINDS,kinds);assertEquals(7,service.usage().traces());
+                assertEquals(Set.of("PROMISE","BASIS","SELECTED","ENTRY","ACCEPT","PROOF","CERTIFICATE"),kinds);assertEquals(7,service.usage().traces());
             }
         }
         assertEquals(0,r.usage().leases());

@@ -120,6 +120,15 @@ final class MembershipCapsule {
     }
     /** Return only fully authenticated lower endpoints; packed inventory extras are not ancestry. */
     Map<Map<String,Object>,Anchor> ancestryAnchors(byte[] bytes) {
+        var lower=new HashMap<Map<String,Object>,Anchor>();
+        for(var bridge:verifiedAncestry(bytes)) {
+            var value=bridge.statement.value();var anchor=new Anchor(object(value.get("start")),(String)value.get("catalogBefore"),(String)value.get("applicationBefore"));
+            lower.put(anchor.cut(),anchor);
+        }
+        return Map.copyOf(lower);
+    }
+    /** Original statements/endorsements only after the whole retained ancestry verifies. */
+    List<MembershipSelection.Bridge> verifiedAncestry(byte[] bytes) {
         require(bytes.length<=96*1024,"generation ancestry capacity");var bridges=new ArrayList<MembershipSelection.Bridge>();
         Decoded statement=null;var acks=new ArrayList<Decoded>();int offset=0;
         while(offset<bytes.length) {
@@ -138,7 +147,7 @@ final class MembershipCapsule {
             var value=bridge.statement.value();var anchor=new Anchor(object(value.get("start")),(String)value.get("catalogBefore"),(String)value.get("applicationBefore"));
             require(lower.putIfAbsent(anchor.cut(),anchor)==null,"duplicate generation ancestry");bridge.verify(this,anchor);
         }
-        return Map.copyOf(lower);
+        return List.copyOf(bridges);
     }
     private MembershipSelection.Bridge ancestryBridge(Decoded statement,List<Decoded> acknowledgements) {
         var digests=new HashSet<String>();acknowledgements.forEach(ack->digests.add(ack.digest()));

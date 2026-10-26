@@ -1,5 +1,28 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B original checkpoint provenance and compacted ancestry
+
+The [checkpoint pull](PHASE_3_CHECKPOINT_PROVENANCE.md) fetches the actual retained
+statement and exact original-owner ACKs for an intermediate anchor hidden by a
+compacted RANGE. Exports reject unused packet inventory records. The completed
+bridge remains bound to the live local root/view/ballot and its original deadline;
+local and remote receipts share bounded reservations and cancellation.
+
+The final fresh build passes 133 Java tests in fifteen suites, including sixteen
+checkpoint tests; all 567 Python tests pass in normal and optimized modes. The
+[receipt](phase3-evidence/checkpoint-provenance.json) binds three real TCP histories
+at stable sizes 3/4/5, 33 exchanges, eight original ACK owners and ten evidence
+negatives, with portable replay and unchanged authority directories. Two regressions
+reproduce missing local-owner fences. The unused-inventory regression passes with
+the proper storage owner and fails when unauthenticated inventory export is restored.
+Earlier fixture/compilation failures remain recorded, rather than relabelled green.
+
+This closes the checkpoint component only. Full historical ACCEPT/PROOF provenance,
+newer-view discovery/adoption, scratch restart recovery, repeated-round source
+maintenance, autonomous election, learner/joint transitions, generalized voting/
+publication and complete distributed S/N qualification remain open. No public READY,
+protected CI, push or cloud acceptance is claimed.
+
 ## 2026-10-26 — Phase 3B outgoing activation and failed-source rotation
 
 The [outgoing driver](PHASE_3_ACTIVATION_DRIVER.md) now owns concurrent PREPARE,

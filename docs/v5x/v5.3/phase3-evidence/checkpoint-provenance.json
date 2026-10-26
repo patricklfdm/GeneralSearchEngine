@@ -1,0 +1,281 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-checkpoint-provenance/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1273931,
+      "path": "target/v53-checkpoint-provenance/replication.jar",
+      "sha256": "7f5495ec9d59f815943d6d53f0f3b7d388bb2b73a3509841b03506a6988104ea"
+    }
+  ],
+  "autonomousElection": false,
+  "buildInputs": {
+    "bytes": 457709,
+    "path": "target/v53-checkpoint-provenance/qualified2-inputs.json",
+    "sha256": "8c80e4a82de279d6238f42aad0a65b5aac7294178fa939a8812282308b96335d"
+  },
+  "caveats": [
+    "The initial 32-test run and unchanged original TCP replay passed before expanding the negatives and local-owner fence tests.",
+    "The wider pre-fence run has one failure: the seven-kind dispatch fixture compared its original seven records against the expanded nine-kind export inventory. Both original-seven-kind fixtures now enumerate exactly the records they exercise; new checkpoint kinds have separate actual-storage/network qualification. The failed intermediate run was explicitly stopped after recording that failure and the two completed checkpoint-storage suites; its incomplete remainder is not reported green.",
+    "The first fence regression invocation did not compile because the test caught an exception that observeCurrent does not throw. Its corrected two-test run reproduces both missing local-owner checks; both pass on the final source.",
+    "A first 133-test qualification had one error: the unused-inventory adversarial fixture opened a metadata-only current generation without record-export ownership. It now opens the generation owner, first proves a valid ACK can be exported and checks both exact refusals. Its focused test passes; restoring the unsafe inventory-only export reproduces one expected assertion failure.",
+    "The final build uses a fresh isolated directory and rechecks every Java/POM/resource input against the exact workspace. It includes all 16 checkpoint tests and associated activation, transfer, selection and API regressions.",
+    "TCP scenarios use real public offline bootstrap and actual BARRIER/DATA publication before current-view ancestry retrieval. Fault delivery and copied-owner negatives are deterministic component tests; the unused-inventory negative uses a separate model/storage fixture.",
+    "The higher capsule must already be verified. Full historical membership ACCEPT/PROOF provenance, unavailable original owners, automatic missing-ancestry discovery and cross-view adoption remain open.",
+    "Autonomous election, repeated-round source maintenance, scratch crash recovery, learner/joint completion, generalized voting/publication and complete distributed S/N qualification remain required for Phase 3 closure."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 10084,
+      "path": "target/v53-checkpoint-provenance/qualified2-java-tests.log",
+      "sha256": "3c67d95ecaf9c6b0ae0b7a52213506bb5c4f4ebcd24dc9327381af9677600a4b"
+    },
+    {
+      "bytes": 43,
+      "path": "target/v53-checkpoint-provenance/build-input-check.json",
+      "sha256": "bdc6e5270ae5b729aceb095d921f1df6ad1902c30483a70b739262f6eaf5fbd5"
+    },
+    {
+      "bytes": 2910,
+      "path": "target/v53-checkpoint-provenance/java-reports.json",
+      "sha256": "800431d2d86538389016571f954f47a86f7b50d9512fa4152db52721fa0bd131"
+    },
+    {
+      "bytes": 668,
+      "path": "target/v53-checkpoint-provenance/python-initial.log",
+      "sha256": "8ebdf14b2ed61f84caf4091e1ba613725a51e3685aaa4d9bf36e1946cee0a520"
+    },
+    {
+      "bytes": 668,
+      "path": "target/v53-checkpoint-provenance/python-optimized.log",
+      "sha256": "b7c27843900165a1fe2b95fb96e7128c33326446c0852f0afba273860dd13497"
+    },
+    {
+      "bytes": 163,
+      "path": "target/v53-checkpoint-provenance/qualification.log",
+      "sha256": "45d87f37472914fd3d45c360219a991d495c8e876fcced8d2127b8ed5eb355f9"
+    },
+    {
+      "bytes": 648824,
+      "path": "target/v53-checkpoint-provenance/raw-inventory.json",
+      "sha256": "e9e49b7fc4f06ac06a2c2c18d5012fe5e242955cd0f2675afd4a65f8b5e58a6e"
+    },
+    {
+      "bytes": 1276,
+      "path": "target/v53-checkpoint-provenance/replay.json",
+      "sha256": "c3dac279d42c4279abcff04ec3d570095e524e21000fed694647d72a8dce7e54"
+    },
+    {
+      "bytes": 1276,
+      "path": "target/v53-checkpoint-provenance/replay-optimized.json",
+      "sha256": "c3dac279d42c4279abcff04ec3d570095e524e21000fed694647d72a8dce7e54"
+    },
+    {
+      "bytes": 1276,
+      "path": "target/v53-checkpoint-provenance/replay-portable.json",
+      "sha256": "c3dac279d42c4279abcff04ec3d570095e524e21000fed694647d72a8dce7e54"
+    },
+    {
+      "bytes": 1544074,
+      "path": "target/v53-checkpoint-provenance/portable-evidence.tar.gz",
+      "sha256": "8f8652411c021c4e7e05f1af797bc3cd30fe6ac5de04616611ebbab0d28e54a0"
+    },
+    {
+      "bytes": 1307,
+      "path": "target/v53-checkpoint-provenance/activation-replay.json",
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    },
+    {
+      "bytes": 1246,
+      "path": "target/v53-checkpoint-provenance/driver-replay.json",
+      "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-checkpoint-provenance/endpoint-replay.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 1794,
+      "path": "target/v53-checkpoint-provenance/selected-replay.json",
+      "sha256": "980bb3d0d71e31ecc217b7350c7d94ecac7701176bebc50b78eb93ee27fd7c78"
+    },
+    {
+      "bytes": 1509,
+      "path": "target/v53-checkpoint-provenance/record-replay.json",
+      "sha256": "2938725672c541dda5a43dd5db917f66d7c257ce7157993344b7d23e32322a5a"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-checkpoint-provenance/service-replay.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    },
+    {
+      "bytes": 1315,
+      "path": "target/v53-checkpoint-provenance/transport-replay.json",
+      "sha256": "4ac91a9201b280d184ec7e3cde9a96119722037e38e6a2108010c05d02b7397f"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "admittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "checkpointTests": 16,
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "suites": 15,
+    "tests": 133
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "python-initial": {
+      "seconds": 91.705,
+      "tests": 567
+    },
+    "python-optimized": {
+      "seconds": 89.587,
+      "tests": 567
+    }
+  },
+  "replay": {
+    "chunkBytes": 1024,
+    "negativeCases": 10,
+    "normal": "PASS",
+    "optimized": "PASS",
+    "originalOwners": 8,
+    "portable": "PASS",
+    "sourceExchanges": 33
+  },
+  "retainedEarlier": [
+    {
+      "bytes": 457358,
+      "path": "target/v53-checkpoint-provenance/initial-inputs.json",
+      "sha256": "a863a61b7d5a1c240bde6400840db7374d671f3c730cde8ee0e47963babe84fa"
+    },
+    {
+      "bytes": 5997,
+      "path": "target/v53-checkpoint-provenance/initial-java-tests.log",
+      "sha256": "717bca6e15725de5aba5a27c1bf9eac8dd2c48d40137f10f58aa4bf039ef179e"
+    },
+    {
+      "bytes": 1276,
+      "path": "target/v53-checkpoint-provenance/initial-replay.json",
+      "sha256": "c3dac279d42c4279abcff04ec3d570095e524e21000fed694647d72a8dce7e54"
+    },
+    {
+      "bytes": 457709,
+      "path": "target/v53-checkpoint-provenance/final-inputs.json",
+      "sha256": "1ead35b410844787fc9b13c817018c0fb6a9fe36f2708b2c16e2304ccbba1001"
+    },
+    {
+      "bytes": 9535,
+      "path": "target/v53-checkpoint-provenance/final-java-tests.log",
+      "sha256": "2bace630a91cdcdbaf43f20de7b2d465cfd42c4fdf3f3ae9a2aea3f4b66da4d2"
+    },
+    {
+      "bytes": 2330,
+      "path": "target/v53-checkpoint-provenance/earlier-java-reports.json",
+      "sha256": "6cf74d4ee720962ea6b4160d2866ed3521cce8429e21ecf56f2eb44a18bf7bac"
+    },
+    {
+      "bytes": 292,
+      "path": "target/v53-checkpoint-provenance/intermediate-stop.json",
+      "sha256": "6ba038fcefe84036eb3f66b608691e08d6f10c0dfbefe56728e60140dd803b8a"
+    },
+    {
+      "bytes": 330,
+      "path": "target/v53-checkpoint-provenance/earlier-parent-replay.json",
+      "sha256": "4809d9703b76a69825ae7a2d965fc79f7fc80835458150196ee8bead9d71762c"
+    },
+    {
+      "bytes": 555,
+      "path": "target/v53-checkpoint-provenance/earlier-ancestor-replay.json",
+      "sha256": "ec5fe10e367047053f6f5ad1899bd151425c61969078db6d46718307d65c186d"
+    },
+    {
+      "bytes": 457709,
+      "path": "target/v53-checkpoint-provenance/fence-red-inputs.json",
+      "sha256": "a5cfc9a7aebf5f87dda6cb0211ba51b668d127a061bd3eb749c6627b3f7b443a"
+    },
+    {
+      "bytes": 5546,
+      "path": "target/v53-checkpoint-provenance/fence-red-java-tests.log",
+      "sha256": "0c3ac9ca8619d03fe04f70a504cc3cf55cff798f1baa638734da5c3f43fad1a3"
+    },
+    {
+      "bytes": 457709,
+      "path": "target/v53-checkpoint-provenance/fence-red2-inputs.json",
+      "sha256": "550f4b1c9bd92653b3698b94e63bcbc0b9c8e96fad7fbcd1ffb21d15f95a6b59"
+    },
+    {
+      "bytes": 7961,
+      "path": "target/v53-checkpoint-provenance/fence-red2-java-tests.log",
+      "sha256": "07f0d020e0b655825635273f42a31fc41921295980161f34b48cac45ed6e27ee"
+    },
+    {
+      "bytes": 415,
+      "path": "target/v53-checkpoint-provenance/fence-red-results.json",
+      "sha256": "99daced29986fce11de0c8e4468e5204e08b7e9bd82b50dabde1c64ea0f91d5e"
+    },
+    {
+      "bytes": 457709,
+      "path": "target/v53-checkpoint-provenance/qualified-inputs.json",
+      "sha256": "40f85ebfcd9cda1fe0c68a1ae8020855035d1cd2a74ca28a1317b23a9f2d80bc"
+    },
+    {
+      "bytes": 11792,
+      "path": "target/v53-checkpoint-provenance/qualified-java-tests.log",
+      "sha256": "e8157ab9c6aeafab645675cabc86a37efa28950cdbf98ee1d05a422c8dceb2e4"
+    },
+    {
+      "bytes": 3391,
+      "path": "target/v53-checkpoint-provenance/qualified-results.json",
+      "sha256": "e13f602fb32cfd6edf6b93fe0b434fbc132c8e849419952367463a668c949c89"
+    },
+    {
+      "bytes": 457709,
+      "path": "target/v53-checkpoint-provenance/owner-fixture-inputs.json",
+      "sha256": "8c80e4a82de279d6238f42aad0a65b5aac7294178fa939a8812282308b96335d"
+    },
+    {
+      "bytes": 4531,
+      "path": "target/v53-checkpoint-provenance/owner-fixture-java-tests.log",
+      "sha256": "31e95856873861cd4b5633b9e8f8acfea0200613becb56b5ab3f13de0a54df41"
+    },
+    {
+      "bytes": 457709,
+      "path": "target/v53-checkpoint-provenance/owner-proof-red-inputs.json",
+      "sha256": "d863db15ddad8bdea735438507ecfc06096f3ab5041d3149e9c6327ef23e866e"
+    },
+    {
+      "bytes": 6677,
+      "path": "target/v53-checkpoint-provenance/owner-proof-red-java-tests.log",
+      "sha256": "14b59c46a0dbc1351cdc45ac6134288e740c8525cfd579d01c7448eca9ca9221"
+    },
+    {
+      "bytes": 444,
+      "path": "target/v53-checkpoint-provenance/owner-proof-red-results.json",
+      "sha256": "89164f8c88eb78e6feeb9b5890174b43cad766a5331e77d0d1a5f6d4eef409c3"
+    }
+  ],
+  "schema": "gse-v53-phase3-checkpoint-provenance-local-v1",
+  "scope": "retained authenticated checkpoint records, exact-owner ACK observations and bounded current-view compacted ancestry delivery",
+  "sourceInputs": {
+    "bytes": 457709,
+    "path": "target/v53-checkpoint-provenance/source-inputs.json",
+    "sha256": "872e00eb0e626ddbe6158d6c679fe09a4837b62bd5af229706509074a0e5cc9c"
+  },
+  "sourceParent": "26a72bfc0796f042169e2da502642fcb08a11c17",
+  "status": "PASS",
+  "verifiedBuildInputs": 1101
+}

@@ -141,6 +141,28 @@ final class MembershipSourcePull implements AutoCloseable {
             if(result!=null)result.close();try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;
         }
     }
+    record CheckpointReceipt(Decoded acknowledgement,Owned owned) {}
+    /** A checkpoint observation requires contacting the ACK's permanent owner.
+     * Statement/ACK bytes from a source packet alone do not establish this receipt. */
+    CheckpointReceipt fetchCheckpointAcknowledgement(Decoded statement,Decoded expected)throws IOException {
+        checkpointAcknowledgement(context,source,statement,expected);
+        var actual=fetchRecord(expected.digest(),"CHECKPOINT_ACK",value->{
+            require(Arrays.equals(value.bytes(),expected.bytes()),"checkpoint original ACK bytes");
+            checkpointAcknowledgement(context,source,statement,value);
+        });
+        check();return new CheckpointReceipt(actual,new Owned(source.nodeId().value(),source.storageId(),actual.digest(),cutDigest(object(statement.value().get("end")))));
+    }
+    /** Semantic check only. Callers must separately obtain the actual owned record. */
+    static void checkpointAcknowledgement(MembershipContext context,MembershipIdentity source,Decoded statement,Decoded acknowledgement) {
+        require(statement.family().equals("records") && statement.kind().equals("CHECKPOINT")
+                && acknowledgement.family().equals("records") && acknowledgement.kind().equals("CHECKPOINT_ACK"),"checkpoint observation record kinds");
+        var s=statement.value();var a=acknowledgement.value();var end=object(s.get("end"));var view=object(end.get("view"));
+        require(source.equals(context.identities.get(source.nodeId().value())) && a.get("voter").equals(source.nodeId().value())
+                && a.get("incarnation").equals(source.storageId().toString()),"checkpoint observation original owner");
+        require(s.get("root").equals(context.root) && a.get("root").equals(context.root) && a.get("statement").equals(statement.digest())
+                && a.get("cut").equals(end),"checkpoint observation statement/end");
+        require(nodes(view,"old").contains(source.nodeId().value()) || nodes(view,"new").contains(source.nodeId().value()),"checkpoint observation eligible owner");
+    }
     private void receiveFile(MembershipSourceReceive receiver,MembershipTransfer.Binding binding,Offer offer)throws IOException {
         require(binding.transfer().equals(offer.id) && binding.digest().equals(offer.content.digest()) && binding.bytes()==offer.content.bytes(),"source file offer binding");
         for(long offset=0;offset<binding.bytes();) {check();byte[] bytes=chunk(offer,offset);receiver.chunk(binding,offset,bytes,hash(bytes));offset+=bytes.length;}
