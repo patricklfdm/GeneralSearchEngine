@@ -1,0 +1,279 @@
+{
+  "baseCommit": "46755b9496544e507de65b16410f49b12226f976",
+  "boundaries": [
+    "The local journal record is not a quorum receipt or permission to dispatch. No public runtime, push, workflow or cloud change.",
+    "Immutable quorum intent/selection propagation, automatic observation/consolidation, cross-view pending-context integration and complete 3B-3E remain open.",
+    "Independent replay reconstructs original bootstrap and fourteen local retention transactions. The separate native publication history is asserted in Java, without a new full protocol replay claim.",
+    "Qualified and codec-final builds have identical production Java. The latter adds all-seven-profile codec assertions only. Earlier failures and the initial-source recovery regression remain distinct.",
+    "No power-loss claim. Candidates are disposable only because no dispatch can precede active replacement and parent force; active ambiguity survives restart."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 7074261,
+      "path": "target/v53-peer-retention-storage/build-evidence.tar.gz",
+      "sha256": "684f0b7842f32f8144e1be3eefa652f84d22aa137fb9036729be2f6582dcb8d3"
+    },
+    {
+      "bytes": 472727,
+      "path": "target/v53-peer-retention-storage/codec-final-inputs.json",
+      "sha256": "041ac32c89222592126595fa2155e6cdeff8b6bcc8f300be79f746c0d93b2b03"
+    },
+    {
+      "bytes": 57,
+      "path": "target/v53-peer-retention-storage/codec-final-workspace.txt",
+      "sha256": "263e3041fa6d1ad7bd9b52746605c8a7c4c5a34374ea90c730c799030f98596b"
+    },
+    {
+      "bytes": 9196,
+      "path": "target/v53-peer-retention-storage/codec-final.log",
+      "sha256": "5368f3475acc54fc87c5aac1c9d38e496a69a0b1c4315347cd40e8ce81784f67"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-peer-retention-storage/contract-check.json",
+      "sha256": "7b815a5406a3d7a1a79a947b715610455fb6938200d35dd2e76745be172a7332"
+    },
+    {
+      "bytes": 472377,
+      "path": "target/v53-peer-retention-storage/corrected-inputs.json",
+      "sha256": "8550d9fff3587b7aa17641ec1fe7338fc7e760f44ac2eae56ff3f0e782e51d1d"
+    },
+    {
+      "bytes": 55,
+      "path": "target/v53-peer-retention-storage/corrected-workspace.txt",
+      "sha256": "fc97120383974d4a7bde9496e4b20968c3646470fe0dc86ec9dd618f66f7adbc"
+    },
+    {
+      "bytes": 11412,
+      "path": "target/v53-peer-retention-storage/corrected.log",
+      "sha256": "7543e9c2804757f17dc0bee4f13379003a3ba2b907ffa7c6dbfef0d04797d7c4"
+    },
+    {
+      "bytes": 5430,
+      "path": "target/v53-peer-retention-storage/finalize.py",
+      "sha256": "fa6a1ca872f366bfc46257e74504c9fcdf0984050517fd5468ade0e8b6aeaf48"
+    },
+    {
+      "bytes": 472377,
+      "path": "target/v53-peer-retention-storage/initial-inputs.json",
+      "sha256": "719e5cd36608992ef09eadd7b989854ab23ca4b585b7773d984f15c5fced6ba8"
+    },
+    {
+      "bytes": 53,
+      "path": "target/v53-peer-retention-storage/initial-workspace.txt",
+      "sha256": "9b2ee91bf32a37dae96b6aa5b13572f78752f237e80079f57e0f6e8f9fc89274"
+    },
+    {
+      "bytes": 11540,
+      "path": "target/v53-peer-retention-storage/initial.log",
+      "sha256": "e80ce70c83b9507397b4d63970cb6300cec74d97d32e49d0d6b773b89bee7935"
+    },
+    {
+      "bytes": 472377,
+      "path": "target/v53-peer-retention-storage/journal-inputs.json",
+      "sha256": "3a84c769afd6d0b212be310073aa3e5016bf9b471464144c459b65f05e2e96e8"
+    },
+    {
+      "bytes": 53,
+      "path": "target/v53-peer-retention-storage/journal-workspace.txt",
+      "sha256": "15b6acc597bc5a91c789c842623bd07881e3657a91ae6cb17b231406ab3c3a8f"
+    },
+    {
+      "bytes": 13725,
+      "path": "target/v53-peer-retention-storage/journal.log",
+      "sha256": "20abe891e3f99877f50b19b6513d17c0006f4d8ad0ef16f162eeb3f45220dae1"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-peer-retention-storage/python-tests-optimized.log",
+      "sha256": "d094b1bd2c8318c96097f80c50da282add5b2972970a77046de8db6c8935f6ca"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-peer-retention-storage/python-tests.log",
+      "sha256": "56e03afda220e7ba78bbcecf9a2e53a0149cfc3e311fa10bbd01b25e8e5ba671"
+    },
+    {
+      "bytes": 472498,
+      "path": "target/v53-peer-retention-storage/qualified-inputs.json",
+      "sha256": "e454cca07a2c1f5e449682fc5341587e4db85beacc56d9a60f360ef02fef7c40"
+    },
+    {
+      "bytes": 55,
+      "path": "target/v53-peer-retention-storage/qualified-workspace.txt",
+      "sha256": "aa36c273547059b61ab86d119a6dfef825e4a5a945d8e294dbf5faeed332beb3"
+    },
+    {
+      "bytes": 11574,
+      "path": "target/v53-peer-retention-storage/qualified.log",
+      "sha256": "d9e60a42a5c1aab48252cf44dea6d3c3d18818775f45b02af8e0f2bbdd472a38"
+    },
+    {
+      "bytes": 479277,
+      "path": "target/v53-peer-retention-storage/raw-inventory.json",
+      "sha256": "fb06f6cdc0efcd5ea76d1273862051980ba00a8091fb41f297e5bee812455715"
+    },
+    {
+      "bytes": 935222,
+      "path": "target/v53-peer-retention-storage/raw-transactions.tar.gz",
+      "sha256": "ce26d5a340fe009dac3f0e95137f09c89a0003924bde643a30ec31dc4745b401"
+    },
+    {
+      "bytes": 1846,
+      "path": "target/v53-peer-retention-storage/replay-optimized.json",
+      "sha256": "c742c43e3edc3068c4bc83fd43f655ee5f3f90cb67ba4beb48440aaddae81f3c"
+    },
+    {
+      "bytes": 1846,
+      "path": "target/v53-peer-retention-storage/replay-portable.json",
+      "sha256": "c742c43e3edc3068c4bc83fd43f655ee5f3f90cb67ba4beb48440aaddae81f3c"
+    },
+    {
+      "bytes": 1846,
+      "path": "target/v53-peer-retention-storage/replay.json",
+      "sha256": "c742c43e3edc3068c4bc83fd43f655ee5f3f90cb67ba4beb48440aaddae81f3c"
+    },
+    {
+      "bytes": 844,
+      "path": "target/v53-peer-retention-storage/snapshot.py",
+      "sha256": "22014b003407317650480df13b09bbfcd3f6f3ef703eb1c3dc46e97ce9f1d42a"
+    },
+    {
+      "bytes": 1371,
+      "path": "target/v53-peer-retention-storage/validation-summary.json",
+      "sha256": "88aa6b8ba08573aac9a749173b1f474ce3e28ef9f6330317a59080f461714c62"
+    }
+  ],
+  "schema": "gse-v53-peer-retention-storage-v1",
+  "sourceFiles": [
+    {
+      "bytes": 20521,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java",
+      "sha256": "b41018ffeeec870e90a1ea89617c0fcc45b9d3eb69d3f7e14041405ff9e26e75"
+    },
+    {
+      "bytes": 212291,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "3ed16d45d8d86bfe1da8b5a1589911edaff28dfb01f626fe79008df7774fcaa1"
+    },
+    {
+      "bytes": 12553,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionPlan.java",
+      "sha256": "16917ffaf57342ebdce6635cffc7cd2996ce367701d62365e539f99e31f5ea7b"
+    },
+    {
+      "bytes": 10342,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionFiles.java",
+      "sha256": "83fcdcb0e2a8aa2c78136def2f7ef8596ead9031fd6abd4eea0b5ed8ab355618"
+    },
+    {
+      "bytes": 14671,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionFilesTest.java",
+      "sha256": "f898d42a4e0dd481431ed4aa4f6444852b0cf351f436c19854355a230ab3b53b"
+    },
+    {
+      "bytes": 11359,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionPlanTest.java",
+      "sha256": "0f98cfa88a71da94d83e4dbac54bdb35771cbd7eaaa5b47d8083c2cbc4528241"
+    },
+    {
+      "bytes": 2128,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionWorker.java",
+      "sha256": "2c832e179cda59c955eae6b632a5f6c87c30d33f3052598ab3d7472e19f73389"
+    },
+    {
+      "bytes": 9096,
+      "path": "scripts/v53/peer_retention_evidence.py",
+      "sha256": "5c995a3b3c5572689a7a8343d4d039837ec862f2c0d29e3d0fe8d9c3ad79f5f7"
+    },
+    {
+      "bytes": 1737,
+      "path": "scripts/v53/test_peer_retention_evidence.py",
+      "sha256": "74b9234b4a3bb3fcabdac63ac231f32050f6f76a963f71a3b0989e71f0675922"
+    },
+    {
+      "bytes": 6822,
+      "path": "docs/v5x/v5.3/PHASE_3_PEER_RETENTION_STORAGE.md",
+      "sha256": "64fce71da1ce5f5894d21416ddb1e29b6cb1cbecc2bf9a7e660476aaf0a00c70"
+    },
+    {
+      "bytes": 107578,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "13c03f8857197c168bd8d27aa3b3e2ab636275cb9c3cf6f87973926f6380253f"
+    },
+    {
+      "bytes": 13294,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "f22126f44413277d0d06f585cb3170a0d2a89fe33e3ff46f6c6d0142834aa4a1"
+    }
+  ],
+  "validation": {
+    "autonomousRuntime": false,
+    "earlierRecoveryRegression": {
+      "finalSourceQualification": false,
+      "snapshot": "initial",
+      "tests": 4
+    },
+    "evidenceNegatives": 8,
+    "failedSnapshots": [
+      "initial",
+      "corrected",
+      "journal"
+    ],
+    "java": {
+      "codec-final": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "suite": "V53PeerRetentionPlanTest",
+          "tests": 6
+        }
+      ],
+      "qualified": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "suite": "V53GenerationCopyFaultTest",
+          "tests": 4
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "suite": "V53PeerRetentionFilesTest",
+          "tests": 6
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "suite": "V53PeerRetentionPlanTest",
+          "tests": 6
+        }
+      ]
+    },
+    "killLockProbes": 7,
+    "nativeHistory": {
+      "automaticPropagation": false,
+      "campaigns": 2,
+      "independentFullHistoryReplay": false,
+      "publications": 3,
+      "voters": 3
+    },
+    "phase3Complete": false,
+    "portableReplay": true,
+    "processCases": 14,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 4,
+    "quorumReplication": false,
+    "retainedRawFiles": 2764,
+    "scope": "native-local-retention-component",
+    "status": "PASS"
+  }
+}

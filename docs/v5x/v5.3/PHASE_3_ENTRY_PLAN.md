@@ -132,6 +132,13 @@ merge. It is not used by the runtime and does not persist or replicate intent.
 Durable owner storage, source/selection propagation and full survivor qualification
 are still required; the previous investigation remains open.
 
+The [native local retention store](PHASE_3_PEER_RETENTION_STORAGE.md) subsequently
+adds owner-bound force/recovery and byte accounting, with fourteen process-cut
+cases and independent local-transaction replay. Explicit native publication and
+fresh selection retain its endpoints. Durable **quorum** intent, immutable selected
+state propagation and autonomous integration remain unimplemented; this local
+component does not close the offline-survivor obligation or 3B.
+
 The [complete generation-copy batch](PHASE_3_GENERATION_COPY.md) is locally
 qualified in six native network histories with independent physical/transcript
 replay and exact evidence negatives. It provides original materializations for

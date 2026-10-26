@@ -144,7 +144,8 @@ final class MembershipBallotAllocator implements AutoCloseable {
                 MembershipSourceRetirementFiles.FILE,MembershipCaptureFiles.FILE,MembershipPendingAccept.FILE,MembershipPendingAccept.NEXT));
         if(applying){names.add(MembershipAppliedEndFiles.DIRECTORY);names.add(MembershipReplayFiles.DIRECTORY);}
         if(context){names.add(MembershipPendingContextFiles.FILE);names.add(MembershipPendingContextFiles.NEXT);}
-        if(materialization!=null)names.addAll(Set.of(MembershipBootstrapCommitData.PREPARED,MembershipBootstrapCommitData.SEAL,MembershipBootstrapAdmissionData.FILE));
+        if(materialization!=null)names.addAll(Set.of(MembershipBootstrapCommitData.PREPARED,MembershipBootstrapCommitData.SEAL,MembershipBootstrapAdmissionData.FILE,
+                MembershipPeerRetentionFiles.FILE,MembershipPeerRetentionFiles.NEXT));
         return open(requested,root,identity,cut,names,materialization);
     }
 
@@ -190,6 +191,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
         var required=new HashSet<>(additional);required.remove(MembershipGenerationFiles.PENDING);required.remove(MembershipFloorFiles.DIRECTORY);required.remove(MembershipRetirementFiles.DIRECTORY);required.remove(MembershipJournalRotation.PENDING);required.remove(MembershipSourceRetirementFiles.FILE);required.remove(MembershipCaptureFiles.FILE);required.remove(MembershipPendingAccept.NEXT);
         required.remove(MembershipAppliedEndFiles.DIRECTORY);required.remove(MembershipReplayFiles.DIRECTORY);
         required.remove(MembershipPendingContextFiles.FILE);required.remove(MembershipPendingContextFiles.NEXT);
+        required.remove(MembershipPeerRetentionFiles.FILE);required.remove(MembershipPeerRetentionFiles.NEXT);
         require(seen.containsAll(required),"incomplete grant authority");
     }
 

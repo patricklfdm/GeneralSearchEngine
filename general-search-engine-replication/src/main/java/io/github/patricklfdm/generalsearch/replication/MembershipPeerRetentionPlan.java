@@ -15,6 +15,8 @@ final class MembershipPeerRetentionPlan {
             require(!possible.isEmpty() && possible.size()<=2,"peer retention unresolved endpoint capacity");
             long previous=-1;
             for(var anchor:possible) {
+                checkType(anchor.cut(),"cut");MembershipContext.checkView(object(anchor.cut().get("view")));
+                MembershipValidation.digest(anchor.catalog());MembershipValidation.digest(anchor.application());
                 require(index(anchor)>previous,"peer retention endpoint order");previous=index(anchor);
             }
         }
@@ -32,6 +34,37 @@ final class MembershipPeerRetentionPlan {
     }
     private static long viewPosition(Map<String,Object> view){return 2*number(view.get("generation"))+(view.get("operation")==null?0:1);}
     private static long index(MembershipCapsule.Anchor anchor){return number(anchor.cut().get("index"));}
+    static Map<String,Object> identity(MembershipIdentity id) {
+        return Map.of("node",id.nodeId().value(),"storage",id.storageId().toString(),
+                "host",id.endpoint().host(),"port",(long)id.endpoint().port());
+    }
+    /** Private canonical metadata, never a capsule, voter receipt or remote proof. */
+    byte[] bytes() {
+        var rows=new ArrayList<Object>();
+        for(var peer:peers.values())rows.add(Map.of("identity",identity(peer.identity),"possible",peer.possible.stream()
+                .map(a->Map.of("cut",a.cut(),"catalog",a.catalog(),"application",a.application())).toList()));
+        return canonical(Map.of("root",root,"view",view,"peers",rows),32768);
+    }
+    static MembershipPeerRetentionPlan decode(byte[] bytes) {
+        var value=object(parse(bytes,32768));require(value.keySet().equals(Set.of("root","view","peers")),"peer retention plan fields");
+        var rows=list(value.get("peers"));require(rows.size()>=3 && rows.size()<=6,"peer retention plan count");
+        var peers=new TreeMap<String,Peer>();String prior="";
+        for(var row:rows) {
+            var p=object(row);require(p.keySet().equals(Set.of("identity","possible")),"peer retention peer fields");
+            var encoded=object(p.get("identity"));var id=MembershipContext.identity(encoded);
+            require(encoded.equals(identity(id)),"peer retention identity fields");String name=id.nodeId().value();
+            require(name.compareTo(prior)>0,"peer retention peer order");prior=name;
+            var points=list(p.get("possible"));require(!points.isEmpty() && points.size()<=2,"peer retention point count");
+            var anchors=new ArrayList<MembershipCapsule.Anchor>();
+            for(var point:points) {
+                var a=object(point);require(a.keySet().equals(Set.of("cut","catalog","application")),"peer retention anchor fields");
+                anchors.add(new MembershipCapsule.Anchor(object(a.get("cut")),(String)a.get("catalog"),(String)a.get("application")));
+            }
+            peers.put(name,new Peer(id,anchors));
+        }
+        var plan=new MembershipPeerRetentionPlan((String)value.get("root"),object(value.get("view")),peers);
+        require(Arrays.equals(bytes,plan.bytes()),"peer retention noncanonical plan");return plan;
+    }
     /** Initial identities and their common state come from the authenticated genesis. */
     static MembershipPeerRetentionPlan genesis(MembershipCapsule capsule) {
         require(number(capsule.context.cut.get("index"))==0,"peer retention initialization requires genesis");

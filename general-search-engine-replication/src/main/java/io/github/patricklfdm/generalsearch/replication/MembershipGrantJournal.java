@@ -43,6 +43,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipCaptureFiles capture;
     private MembershipPendingAccept pendingAccept;
     private MembershipPendingContextFiles pendingContext;
+    private MembershipPeerRetentionFiles peerRetention;
     private MembershipReplayFiles replayFiles;
     private MembershipAppliedEndFiles appliedEnd;
     private int applicationMetadata;
@@ -84,8 +85,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         MembershipGrantJournal journal=null;MembershipCurrentGeneration selected=null;
         try {
             journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);
+            journal.resources=resources;
             journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);
+            journal.loadPeerRetention();
             selected=MembershipCurrentGeneration.readOwned(new HistoryRead(journal),resources,cut);
+            if(journal.peerRetention!=null)journal.peerRetention.state().plan().required(selected.capsule,selected.ancestry());
             return new RetainedHistory(journal,selected);
         }catch(IOException|RuntimeException|Error error) {
             if(selected!=null)selected.close();
@@ -286,6 +290,14 @@ final class MembershipGrantJournal implements AutoCloseable {
         return openGenerations(requested,root,identity,resources,(r,p,i)->MembershipCapsule.verify(r,p,i,Set.of()),cut,
                 true,true,true,true,maximum,true,true,true,true,true,Objects.requireNonNull(materialization),true);
     }
+    /** Required-retention entry for the future automatic owner. Legacy component
+     * opens remain usable, but cannot silently replace this entry after initialization. */
+    static MembershipGrantJournal openRetainingPeers(Path requested,Path materialization,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,int maximum,MembershipBallotAllocator.Cut cut)throws IOException {
+        var owner=openBootstrapped(requested,materialization,root,identity,resources,maximum,cut);
+        try{owner.initializePeerRetention();return owner;}
+        catch(IOException|RuntimeException|Error error){try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
+    }
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
             boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,
@@ -335,7 +347,9 @@ final class MembershipGrantJournal implements AutoCloseable {
                     withSourceRetirement?journal.sourceRetirement.decision().orElse(null):null,pending);
             if(withContext && journal.pendingContext==null)journal.pendingContext=new MembershipPendingContextFiles(path,root,identity,resources,
                     Math.min(MembershipPendingContextFiles.MAXIMUM_METADATA,maximum-journal.storedJournal().length-journal.pendingBytes()));
+            if(materialization!=null)journal.loadPeerRetention();
             if(journal.current==null)journal.reloadGenerations();
+            if(journal.peerRetention!=null)journal.recoverPeerRetention();
             if(withFloors) {
                 journal.floors=ownedHistory?new MembershipFloorFiles(path,root,identity,resources,new HistoryRead(journal),withFloorRelease):
                         new MembershipFloorFiles(path,root,identity,resources,verifier,withFloorRelease);
@@ -382,6 +396,57 @@ final class MembershipGrantJournal implements AutoCloseable {
         current=ownedHistory?MembershipCurrentGeneration.readOwned(new HistoryRead(this),resources,cut):
                 new MembershipCurrentGeneration(directory,root,identity,resources,promises.values(),bases.values(),selections.values(),capsuleVerifier,cut,true);
         inactive=new MembershipGenerationFiles(directory,current.generation,resources);
+    }
+
+    private void loadPeerRetention()throws IOException {
+        if(Files.exists(directory.resolve(MembershipPeerRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS)
+                || Files.exists(directory.resolve(MembershipPeerRetentionFiles.NEXT),LinkOption.NOFOLLOW_LINKS))
+            peerRetention=new MembershipPeerRetentionFiles(new HistoryRead(this),resources,maximum-storedJournal().length-pendingBytes());
+    }
+    private void recoverPeerRetention()throws IOException {
+        if(peerRetention.initialized())peerRetention.state().plan().required(current.capsule,current.ancestry());
+        else requireRetentionGenesis();
+        peerRetention.discardUnexposed(cut);
+        if(!peerRetention.initialized())peerRetention.install(MembershipPeerRetentionPlan.genesis(current.capsule),maximum-storedJournal().length-pendingBytes(),cut);
+        else peerRetention.reseal(cut);
+    }
+    /** Explicit private opt-in before the first campaign. A non-genesis history
+     * cannot reconstruct lost peer uncertainty from its own latest selector. */
+    synchronized MembershipPeerRetentionFiles.State initializePeerRetention()throws IOException {
+        require(ownedHistory,"peer retention requires native history owner");checkOwner();
+        if(peerRetention!=null){require(!peerRetention.pending(),"peer retention recovery required");return peerRetention.state();}
+        requireRetentionGenesis();
+        peerRetention=new MembershipPeerRetentionFiles(new HistoryRead(this),resources,maximum-storedJournal().length-pendingBytes());
+        try{return peerRetention.install(MembershipPeerRetentionPlan.genesis(current.capsule),maximum-storedJournal().length-pendingBytes(),cut);}
+        catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    private void requireRetentionGenesis()throws IOException {
+        require(number(current.capsule.context.cut.get("index"))==0,"peer retention initialization requires unused genesis");
+        var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        var genesis=decode(AdmissionPaths.read(directory.resolve("genesis.gsr"),65536),"records","GENESIS");
+        var layout=new MembershipBootstrapLayout(rootRecord,genesis,current.capsule.packet.images().get((String)genesis.value().get("application")));
+        var metadata=layout.metadata(identity);
+        require(Arrays.equals(storedJournal(),metadata.get(FILE)) && Arrays.equals(current.selector.bytes(),metadata.get(MembershipCurrentGeneration.SELECTOR))
+                && Arrays.equals(current.manifest.bytes(),metadata.get("generations/a/generation.gsr")),"peer retention initialization changed bootstrap authority");
+        AdmissionPaths.exact(directory.resolve(MembershipBallotAllocator.CURRENT),metadata.get(MembershipBallotAllocator.CURRENT));
+        AdmissionPaths.exact(directory.resolve(MembershipPendingAccept.FILE),MembershipPendingAccept.empty());
+    }
+    synchronized MembershipPeerRetentionFiles.State peerRetentionState()throws IOException {
+        checkOwner();require(peerRetention!=null && !peerRetention.pending(),"peer retention not initialized/recovered");
+        peerRetention.state().plan().required(current.capsule,current.ancestry());return peerRetention.state();
+    }
+    private MembershipPeerRetentionFiles.State retainPeerPlan(MembershipPeerRetentionPlan plan)throws IOException {
+        require(ownedHistory,"peer retention requires native history owner");plan.required(current.capsule,current.ancestry());
+        try{return peerRetention.install(plan,maximum-storedJournal().length-pendingBytes(),cut);}catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    synchronized MembershipPeerRetentionFiles.State retainPeerDispatch(MembershipIdentity peer)throws IOException {
+        var plan=peerRetentionState().plan();return retainPeerPlan(plan.dispatch(current.capsule,current.ancestry(),peer));
+    }
+    synchronized MembershipPeerRetentionFiles.State retainPeerObservation(MembershipFloor.Copy copy)throws IOException {
+        var plan=peerRetentionState().plan();return retainPeerPlan(plan.observe(current.capsule,current.ancestry(),copy));
+    }
+    synchronized MembershipPeerRetentionFiles.State reconcilePeerRetention(List<MembershipFloor.Copy> joining)throws IOException {
+        var plan=peerRetentionState().plan();return retainPeerPlan(plan.reconcile(current.capsule,current.ancestry(),joining));
     }
 
     /** Resolve only an already retained proven prefix. Raw incoming or newly published
@@ -443,7 +508,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             }catch(IOException failure){throw new java.io.UncheckedIOException(failure);}
         };
     }
-    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes());}
+    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes())+(peerRetention==null?0:peerRetention.bytes());}
 
     /** Exact private persistence under the real local owner and forced source. No old ACK.
      * Original generation deletion additionally requires explicit governing-floor maintenance. */
@@ -1094,6 +1159,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             parents.add(first.parent());parents.add(first.end());
         }
         parents.add(original.terminal());addFloorParent(parents);
+        if(peerRetention!=null)parents.addAll(peerRetention.state().plan().required(original,ancestry));
         for(var basis:bases.values()) {
             var cap=sources.original(basis).packet().capsule().value();
             parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
@@ -1325,6 +1391,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(capture!=null)capture.check();
         if(pendingAccept!=null)pendingAccept.check();
         if(pendingContext!=null)pendingContext.check();
+        if(peerRetention!=null)peerRetention.check();
         if(appliedEnd!=null)appliedEnd.check();
         if(replayFiles!=null)replayFiles.check();
     }
@@ -1332,6 +1399,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         checkBaseOwner();
         if(current!=null)current.check();
         if(inactive!=null)inactive.check();
+        if(current!=null && peerRetention!=null && peerRetention.initialized())
+            peerRetention.state().plan().required(current.capsule,current.ancestry());
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
     private void checkOwner() throws IOException {checkWithoutRetirement();if(retirement!=null)retirement.check();}
@@ -1862,6 +1931,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(current!=null && inactive!=null,"generation owner required");checkOwner();floorIdle();
         checkIncomingHistory(incoming,images);var packet=incoming.packet;
         var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
+        if(peerRetention!=null)ancestors.addAll(peerRetention.state().plan().required(current.capsule,current.ancestry()));
         for(var original:bases.values()) {
             var cap=sources.original(original).packet().capsule().value();
             ancestors.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
@@ -2182,6 +2252,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipGenerationPlan installationPlan(MembershipSelection.Decision selected,List<MembershipSelection.Bridge> bridges,
             List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images,boolean installed)throws IOException {
         var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
+        if(peerRetention!=null)ancestors.addAll(peerRetention.state().plan().required(current.capsule,current.ancestry()));
         // A completed receipt retains its original materialization even after safe source retirement.
         if(installed)ancestors.addAll(current.capsule.ancestryAnchors(current.ancestry()).values());
         for(var original:bases.values()) {
@@ -2319,6 +2390,6 @@ final class MembershipGrantJournal implements AutoCloseable {
         for(var export:List.copyOf(prefixExports))releasePrefixExport(export);
         for(var export:List.copyOf(recordExports))releaseRecordExport(export);
         for(var export:List.copyOf(sourceExports))releaseSourceExport(export);
-        if(!closed){closed=true;try{releasePublicationImage();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
+        if(!closed){closed=true;try{releasePublicationImage();if(peerRetention!=null)peerRetention.close();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }
 }

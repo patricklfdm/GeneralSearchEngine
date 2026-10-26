@@ -23,6 +23,7 @@ class V53PeerRetentionPlanTest {
         for(int size:List.of(3,4,5)) {
             var zero=capsule(size,0);var one=capsule(size,1);var peer=V53DeclarationsTest.node(2);
             var initial=MembershipPeerRetentionPlan.genesis(zero);var pending=initial.dispatch(one,new byte[0],peer);
+            assertArrayEquals(pending.bytes(),MembershipPeerRetentionPlan.decode(pending.bytes()).bytes());
             assertEquals(List.of(0L),cuts(initial.possible(peer)));assertEquals(List.of(0L,1L),cuts(pending.possible(peer)));
             assertEquals(List.of(0L,1L),cuts(pending.observe(one,new byte[0],copy(size,0,2)).possible(peer)));
             var confirmed=pending.observe(one,new byte[0],copy(size,1,2));assertEquals(List.of(1L),cuts(confirmed.possible(peer)));
@@ -63,9 +64,11 @@ class V53PeerRetentionPlanTest {
             var learner=copy(size,6,6);var retiring=V53DeclarationsTest.node(size);
             assertThrows(IllegalArgumentException.class,()->initial.reconcile(joint,new byte[0],List.of()));
             var entered=initial.reconcile(joint,new byte[0],List.of(learner));
+            assertArrayEquals(entered.bytes(),MembershipPeerRetentionPlan.decode(entered.bytes()).bytes());
             assertEquals(List.of(0L),cuts(entered.possible(retiring)));assertEquals(List.of(6L),cuts(entered.possible(learner.owner)));
             assertThrows(IllegalArgumentException.class,()->entered.reconcile(capsule(size,0),new byte[0],List.of()));
             var completed=entered.reconcile(stable,new byte[0],List.of());
+            assertArrayEquals(completed.bytes(),MembershipPeerRetentionPlan.decode(completed.bytes()).bytes());
             assertThrows(IllegalArgumentException.class,()->completed.possible(retiring));
             assertEquals(List.of(6L),cuts(completed.possible(learner.owner)));
             assertThrows(IllegalArgumentException.class,()->completed.reconcile(joint,new byte[0],List.of()));
@@ -91,8 +94,10 @@ class V53PeerRetentionPlanTest {
                 assertEquals(0,resources.usage().leases());
             }
             var entered=original.reconcile(joint,new byte[0],joining);
+            assertArrayEquals(entered.bytes(),MembershipPeerRetentionPlan.decode(entered.bytes()).bytes());
             assertEquals(List.of(0L),cuts(entered.possible(V53DeclarationsTest.node(size))));
             var completed=entered.reconcile(next,new byte[0],List.of());
+            assertArrayEquals(completed.bytes(),MembershipPeerRetentionPlan.decode(completed.bytes()).bytes());
             if(kind.equals("REMOVE"))assertThrows(IllegalArgumentException.class,()->completed.possible(V53DeclarationsTest.node(size)));
             else assertEquals(List.of(6L),cuts(completed.possible(V53DeclarationsTest.node(6))));
         }

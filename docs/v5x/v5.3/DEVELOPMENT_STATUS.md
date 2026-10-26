@@ -1,5 +1,21 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B native local retention transactions
+
+The [retention storage component](PHASE_3_PEER_RETENTION_STORAGE.md) persists the
+exact bounded plan under the real native lock, sharing the existing JOURNAL byte
+ceiling. The required-retention entry refuses lost state after local progress.
+Publication, fresh installation and adoption retain its necessary endpoints.
+Six storage tests include fourteen halt/SIGKILL update cases and an explicitly
+driven three-publication/two-campaign native history. Independent local-transaction
+replay, eight exact evidence negatives and portable replay are retained in the
+[receipt](phase3-evidence/peer-retention-storage.json).
+
+This is local durability only. Quorum intent propagation, immutable selection
+transfer, automatic observation/maintenance and the actual offline-survivor
+runtime remain open, alongside the complete 3B–3E requirements. Public membership
+is not enabled and no remote push or paid execution occurs.
+
 ## 2026-10-26 — Phase 3B immutable peer-retention projection
 
 The [peer-retention projection](PHASE_3_PEER_RETENTION_PLAN.md) implements bounded
