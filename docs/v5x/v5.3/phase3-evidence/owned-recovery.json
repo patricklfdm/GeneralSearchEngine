@@ -1,0 +1,416 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-owned-recovery/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1334932,
+      "path": "target/v53-owned-recovery/replication.jar",
+      "sha256": "7bc9d03e864fbdc70fb39891517dc653dd24ff5c0bb7366b972c741a035a3ef1"
+    }
+  ],
+  "automaticCrossViewAdoption": false,
+  "autonomousElections": false,
+  "baseCommit": "7aa9a61f3a416845aac63ab392de44fe2d124ff1",
+  "caveats": [
+    "Private bootstrap-admitted storage entry. No public factory, workflow, POM, limits, paid experiment or push change.",
+    "Actual local phases at all six size/source profiles. Fresh workers receive paths and a new requested ballot, no fixture historical observation set.",
+    "Four successive retirement halt/SIGKILL interruptions and recovery are process-death evidence, not power-loss durability or availability SLA.",
+    "Cross-configuration pending-context turnover, incoming verified adoption, autonomous election ownership, learners/joint completion and full Phase 3 mapping remain open.",
+    "The full 590-test Python normal/optimized run precedes only the final prepared-state negative fixture adjustment. That fixture has five final focused tests in both modes and exact original-first/optimized/portable negative replay; production Java inputs are identical to all 69 final Java tests.",
+    "Intermediate ancestry failure, historical six-profile pass, canonical mutation encoding failure and malformed prepared-journal mutation remain separate retained attempts. Failed qualification is not counted as successful rejection."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 91,
+      "path": "target/v53-owned-recovery/build-input-check.json",
+      "sha256": "ef23faa8b921b0139a4bec8eda6ac0510ce4e3a0621ba9d037ac376cddd4581e"
+    },
+    {
+      "bytes": 1886,
+      "path": "target/v53-owned-recovery/collect.py",
+      "sha256": "c8867e263730598f3acb472758e3917a2f3a21fd69e5ba33bfa0d955c365d452"
+    },
+    {
+      "bytes": 49,
+      "path": "target/v53-owned-recovery/collection.json",
+      "sha256": "8d783a10c541a81405a02ae3f8e1ce017a6c66af5631ecbb38292cf43e4d242d"
+    },
+    {
+      "bytes": 463014,
+      "path": "target/v53-owned-recovery/compile-inputs.json",
+      "sha256": "88ec931c7ab9ddae90746b91d538e606fccd755d738a48678f9b4670129a9673"
+    },
+    {
+      "bytes": 45,
+      "path": "target/v53-owned-recovery/compile-workspace.txt",
+      "sha256": "8ac6fd36b320d86a665ccf1b819be269e2d901caeb96975cc78da601eff0f4e0"
+    },
+    {
+      "bytes": 4433,
+      "path": "target/v53-owned-recovery/compile.log",
+      "sha256": "48a7e88e1be67169b9f943da35df5a427bb2ecd2045dce1b6b04055021844a1f"
+    },
+    {
+      "bytes": 141623,
+      "path": "target/v53-owned-recovery/compiled-files.json",
+      "sha256": "ab54290e79f61297060cc15633aa1a665e5af80af39c187db6a95de8b79f32dd"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-owned-recovery/contract-final.log",
+      "sha256": "ecc6830b96a716eba0e3d2b30fd879e66b4ce770ad1f50142c8298998f421f2c"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-owned-recovery/contract-initial.log",
+      "sha256": "8e37c5184212f771d680197b4497b40ef7128390a184a58993a8a6d770253579"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-owned-recovery/contract-updated.log",
+      "sha256": "9e6d5a1fee51752625c8bfab992422b576b96a35a6f511168eec6040eb02dd9d"
+    },
+    {
+      "bytes": 738,
+      "path": "target/v53-owned-recovery/copy-inputs.py",
+      "sha256": "f3c828595542cbec86e2bd1dcae30b758edd932c241554dbbd113748979f3bb1"
+    },
+    {
+      "bytes": 633785,
+      "path": "target/v53-owned-recovery/crash-raw.tar.gz",
+      "sha256": "4fd69e5b66faf7ba562292e2195eed686a4fa1078d2ee95d89cfd9607ae5f911"
+    },
+    {
+      "bytes": 669,
+      "path": "target/v53-owned-recovery/crash-replay.json",
+      "sha256": "0fcc7b547e59ed9274fd1766ebcad455f17e921e899497440ecf253a064fbaf8"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-owned-recovery/crash-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1849,
+      "path": "target/v53-owned-recovery/diagnostic-notes.md",
+      "sha256": "195818e1ea81f376372ed8671f8ac00ca3be0ad4beaea4315c6e52cc38fce19f"
+    },
+    {
+      "bytes": 669,
+      "path": "target/v53-owned-recovery/final-crash-replay-optimized.json",
+      "sha256": "0fcc7b547e59ed9274fd1766ebcad455f17e921e899497440ecf253a064fbaf8"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-owned-recovery/final-crash-replay-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 669,
+      "path": "target/v53-owned-recovery/final-crash-replay-portable.json",
+      "sha256": "0fcc7b547e59ed9274fd1766ebcad455f17e921e899497440ecf253a064fbaf8"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-owned-recovery/final-crash-replay-portable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 463635,
+      "path": "target/v53-owned-recovery/final-inputs.json",
+      "sha256": "301769c49314732b68b3780bb6aac89c3248a2df28d7a6266aad0547d1cbc74c"
+    },
+    {
+      "bytes": 33735,
+      "path": "target/v53-owned-recovery/final-python-inputs.json",
+      "sha256": "87d158ee010db85b225386010c812e3dc006abbf21acb344f647dbf467afed13"
+    },
+    {
+      "bytes": 691,
+      "path": "target/v53-owned-recovery/final-python-normal.log",
+      "sha256": "f0183ffe1d0a03ea87262ea1bcb5acf0184afb54257a6cfc4bd405530c911bda"
+    },
+    {
+      "bytes": 691,
+      "path": "target/v53-owned-recovery/final-python-optimized.log",
+      "sha256": "510a0fc10b6823c4c9d93b5bc0ad8a07d6c3d9de02be8ac4ea1a5dbb51cb2878"
+    },
+    {
+      "bytes": 49,
+      "path": "target/v53-owned-recovery/final-python-results.json",
+      "sha256": "e7fba54397aa47d9c6ac55572d94bc3993b4bc0f36581ab3f5a6f65c5f8241c3"
+    },
+    {
+      "bytes": 232,
+      "path": "target/v53-owned-recovery/final-reader-inputs.json",
+      "sha256": "2ac57f1ad4cb7ca8500f2039ebc64d098c290fbd7e5025405b1bf66680e24f8a"
+    },
+    {
+      "bytes": 1270,
+      "path": "target/v53-owned-recovery/final-replay-optimized.json",
+      "sha256": "f1a219df3e1857a5a9e7332e86082fbd61e8914fc705d81008518a21460db2b5"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-owned-recovery/final-replay-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1270,
+      "path": "target/v53-owned-recovery/final-replay-portable.json",
+      "sha256": "f1a219df3e1857a5a9e7332e86082fbd61e8914fc705d81008518a21460db2b5"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-owned-recovery/final-replay-portable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1270,
+      "path": "target/v53-owned-recovery/final-replay.json",
+      "sha256": "f1a219df3e1857a5a9e7332e86082fbd61e8914fc705d81008518a21460db2b5"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-owned-recovery/final-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 43,
+      "path": "target/v53-owned-recovery/final-workspace.txt",
+      "sha256": "3d5892902bbb560e5396ea1cc8c153c41c29d0e0ad17d86e31d92f5c46803f5f"
+    },
+    {
+      "bytes": 88,
+      "path": "target/v53-owned-recovery/historical-profile-reader.log",
+      "sha256": "bac4832390b08b0e2ebfae2379acd42b3b63270607149a26a4d8dfca7bd523ba"
+    },
+    {
+      "bytes": 1724,
+      "path": "target/v53-owned-recovery/java-reports.json",
+      "sha256": "cd2c5d615a9050a2bd1311c1037a2cd0753254159cdbc0ce38bc4f8aae864d21"
+    },
+    {
+      "bytes": 187,
+      "path": "target/v53-owned-recovery/java-version.log",
+      "sha256": "f2cd23c52a518f94e2950b9bed898639933c0b2ee04c5d14deb6906176a84af8"
+    },
+    {
+      "bytes": 463406,
+      "path": "target/v53-owned-recovery/lifecycle-inputs.json",
+      "sha256": "f4beffb1ee516029ce44d611e01c4a5e308f0e80745877ea7c08e79fa631ed9c"
+    },
+    {
+      "bytes": 47,
+      "path": "target/v53-owned-recovery/lifecycle-workspace.txt",
+      "sha256": "551dd9c38dfa4dbaa1d86797dce9475100c58637b16a2982c92978c565b892e8"
+    },
+    {
+      "bytes": 463406,
+      "path": "target/v53-owned-recovery/lifecycle2-inputs.json",
+      "sha256": "1fa234c16b87e8de90ced96f8c01c868747222d8976aeda0cc539608b4d76c3c"
+    },
+    {
+      "bytes": 48,
+      "path": "target/v53-owned-recovery/lifecycle2-workspace.txt",
+      "sha256": "e390f03243f917fe1cf722cec63587a34781d04ac63d6a3346a2607371b9f695"
+    },
+    {
+      "bytes": 8229,
+      "path": "target/v53-owned-recovery/lifecycle2.log",
+      "sha256": "271c676fb061421eedba81c8fccdaaabd02ec580688ffecf3126e9e8aa113080"
+    },
+    {
+      "bytes": 463406,
+      "path": "target/v53-owned-recovery/lifecycle3-inputs.json",
+      "sha256": "2d83b1c0ed1e029efb3300757a983467937b611bfdff847e3b0a10809c06799c"
+    },
+    {
+      "bytes": 48,
+      "path": "target/v53-owned-recovery/lifecycle3-workspace.txt",
+      "sha256": "6d6c66083e3daa2ee4f2086c4d5ed077caa61e7c35bc994c7eeac310a8c0a5fc"
+    },
+    {
+      "bytes": 5383,
+      "path": "target/v53-owned-recovery/lifecycle3.log",
+      "sha256": "fbbd163e6326b9c8259254e5a724de6ac8872ca52d7f22b2dfe4052d1476e02e"
+    },
+    {
+      "bytes": 1710,
+      "path": "target/v53-owned-recovery/next-integration.md",
+      "sha256": "5694f23da1a4fd5b17e1f107c7135f2a2d7b15096a6e785ee8a628414461e313"
+    },
+    {
+      "bytes": 103,
+      "path": "target/v53-owned-recovery/python-final-fixture-optimized.log",
+      "sha256": "0f7e4b97443e54aca647179972594d13bb587afcbf151fab8228148587ea844a"
+    },
+    {
+      "bytes": 103,
+      "path": "target/v53-owned-recovery/python-final-fixture.log",
+      "sha256": "d03ce458f2a6cd2b4f27522f3aacad03ce1872c028853507c3ad02ca621bdcad"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-owned-recovery/python-focused-final-optimized.log",
+      "sha256": "af55efa5c3ceb122f8184c380aa405d3f3b4e7e0c1e892773d0eff31d0645c8a"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-owned-recovery/python-focused-final.log",
+      "sha256": "56e03afda220e7ba78bbcecf9a2e53a0149cfc3e311fa10bbd01b25e8e5ba671"
+    },
+    {
+      "bytes": 103,
+      "path": "target/v53-owned-recovery/python-focused-final2-optimized.log",
+      "sha256": "0f7e4b97443e54aca647179972594d13bb587afcbf151fab8228148587ea844a"
+    },
+    {
+      "bytes": 103,
+      "path": "target/v53-owned-recovery/python-focused-final2.log",
+      "sha256": "d03ce458f2a6cd2b4f27522f3aacad03ce1872c028853507c3ad02ca621bdcad"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-owned-recovery/python-focused.log",
+      "sha256": "d094b1bd2c8318c96097f80c50da282add5b2972970a77046de8db6c8935f6ca"
+    },
+    {
+      "bytes": 33735,
+      "path": "target/v53-owned-recovery/python-inputs.json",
+      "sha256": "e0fe152133eb52173f7c30bed22cced6af58a82b4cf69d318b50bb43b72af177"
+    },
+    {
+      "bytes": 690,
+      "path": "target/v53-owned-recovery/python-normal.log",
+      "sha256": "2cca5b1227c73ebcf8627022c02abb8fd4009ac9e3bd71be236d7dc9a9611474"
+    },
+    {
+      "bytes": 690,
+      "path": "target/v53-owned-recovery/python-optimized.log",
+      "sha256": "59296157692a199f1820456f97fc42b720b12b11321bf5d560c5d95e840da24e"
+    },
+    {
+      "bytes": 103,
+      "path": "target/v53-owned-recovery/python-reader-canonical-optimized.log",
+      "sha256": "0f7e4b97443e54aca647179972594d13bb587afcbf151fab8228148587ea844a"
+    },
+    {
+      "bytes": 103,
+      "path": "target/v53-owned-recovery/python-reader-canonical.log",
+      "sha256": "d03ce458f2a6cd2b4f27522f3aacad03ce1872c028853507c3ad02ca621bdcad"
+    },
+    {
+      "bytes": 49,
+      "path": "target/v53-owned-recovery/python-results.json",
+      "sha256": "e7fba54397aa47d9c6ac55572d94bc3993b4bc0f36581ab3f5a6f65c5f8241c3"
+    },
+    {
+      "bytes": 463635,
+      "path": "target/v53-owned-recovery/qualified-inputs.json",
+      "sha256": "d742afdfda6c3115d63ce8d9ba600ca417f3c6fb5e491f7b54034a1741f0f0b4"
+    },
+    {
+      "bytes": 47,
+      "path": "target/v53-owned-recovery/qualified-workspace.txt",
+      "sha256": "876bc69df2d8cf0bc3dd14d075d77d922d1b445fcf0157cbc1d0922395ff211c"
+    },
+    {
+      "bytes": 7822,
+      "path": "target/v53-owned-recovery/qualified.log",
+      "sha256": "4999e5f1434edfd9f57b84948dc5344bdfcfb2d1a428e1ed10080d9afc1791b1"
+    },
+    {
+      "bytes": 3211335,
+      "path": "target/v53-owned-recovery/raw-inventory.json",
+      "sha256": "902a2402bc138ca9e5d348a6435f71514cef3ff4c48aa06eeaff63b2d5448898"
+    },
+    {
+      "bytes": 6160386,
+      "path": "target/v53-owned-recovery/raw.tar.gz",
+      "sha256": "5610b1b4ee6b331b8c1154e2a668d92a1eb09aeef5ba965a50ed8375cd8ae391"
+    },
+    {
+      "bytes": 205,
+      "path": "target/v53-owned-recovery/replay-modes.json",
+      "sha256": "918de808934deb69f4e0596ad786e50649f6e486daf405fbf5b8370c07821f18"
+    },
+    {
+      "bytes": 193,
+      "path": "target/v53-owned-recovery/replay-modes.log",
+      "sha256": "f53f91f80bb51f2d5f694339a3af94f9899ace25e6f75426e6c50266c238b032"
+    },
+    {
+      "bytes": 1524,
+      "path": "target/v53-owned-recovery/replay-modes.py",
+      "sha256": "bbe099c134f9799bd21ce12653e08ff8ed343bf69260330b60215668b3b89c5f"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-owned-recovery/replay-qualified.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2332,
+      "path": "target/v53-owned-recovery/replay-qualified.stderr",
+      "sha256": "96078da61f7187b18de06b71bc8947633c0d648560b50f2127d3b158731e70f3"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-owned-recovery/replay.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1781,
+      "path": "target/v53-owned-recovery/replay.stderr",
+      "sha256": "2b51f1d523191bd58c1ab35ee2148dd178192a1f1a88a2ce97df4322ae5ced30"
+    },
+    {
+      "bytes": 2408,
+      "path": "target/v53-owned-recovery/source-inputs.json",
+      "sha256": "4e43720076248216ad422160fb68a5c1d22235dc7464d0c44fd0c5e16abc8cfb"
+    },
+    {
+      "bytes": 501,
+      "path": "target/v53-owned-recovery/validation-summary.json",
+      "sha256": "7719d7060f88511906b3bc61ad3c3515122c486823e94ceca52739b251b9e24e"
+    }
+  ],
+  "phase3Complete": false,
+  "publicRuntime": false,
+  "schema": "gse-v53-owned-recovery-local-qualification-v1",
+  "scope": "native-owner-stable-history-recovery-and-continuation",
+  "status": "PASS",
+  "validation": {
+    "crashFreshProcesses": 5,
+    "crashInterruptions": 4,
+    "evidenceNegatives": 18,
+    "finalFixtureModes": [
+      "normal",
+      "optimized"
+    ],
+    "finalFixtureTests": 5,
+    "javaSuites": 9,
+    "javaTests": 69,
+    "nodePublications": 72,
+    "normalFreshProcesses": 54,
+    "phase3Complete": false,
+    "profiles": 6,
+    "publicRuntime": false,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 590,
+    "replayModes": [
+      "normal",
+      "optimized",
+      "portable"
+    ],
+    "status": "PASS"
+  }
+}

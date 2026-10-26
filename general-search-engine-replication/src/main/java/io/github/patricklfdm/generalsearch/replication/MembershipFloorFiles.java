@@ -17,6 +17,7 @@ final class MembershipFloorFiles implements AutoCloseable {
     private final MembershipIdentity local;
     private final MembershipResources resources;
     private final MembershipCurrentGeneration.Verifier verifier;
+    private final MembershipGrantJournal.HistoryRead historyOwner;
     private final boolean releaseEnabled;
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
     private final Map<String,FileIdentity> files=new TreeMap<>();
@@ -31,7 +32,16 @@ final class MembershipFloorFiles implements AutoCloseable {
     }
     MembershipFloorFiles(Path parent,MembershipRoot root,MembershipIdentity local,MembershipResources resources,
             MembershipCurrentGeneration.Verifier verifier,boolean releaseEnabled) throws IOException {
-        this.parent=parent;path=parent.resolve(DIRECTORY);this.root=root;this.local=local;this.resources=resources;this.verifier=verifier;this.releaseEnabled=releaseEnabled;
+        this(parent,root,local,resources,Objects.requireNonNull(verifier),null,releaseEnabled);
+    }
+    MembershipFloorFiles(Path parent,MembershipRoot root,MembershipIdentity local,MembershipResources resources,
+            MembershipGrantJournal.HistoryRead owner,boolean releaseEnabled)throws IOException {
+        this(parent,root,local,resources,null,Objects.requireNonNull(owner),releaseEnabled);
+    }
+    private MembershipFloorFiles(Path parent,MembershipRoot root,MembershipIdentity local,MembershipResources resources,
+            MembershipCurrentGeneration.Verifier verifier,MembershipGrantJournal.HistoryRead owner,boolean releaseEnabled)throws IOException {
+        this.parent=parent;path=parent.resolve(DIRECTORY);this.root=root;this.local=local;this.resources=resources;this.verifier=verifier;this.historyOwner=owner;this.releaseEnabled=releaseEnabled;
+        if(owner!=null){owner.check();require(parent.equals(owner.directory()) && root.equals(owner.root()) && local.equals(owner.identity()),"floor history owner binding");}
         try{capture();reserve(null);if(!releasing() && complete()) {
             read();
             for(String name:files.keySet())if(!name.equals(FLOOR))force(path.resolve(name));
@@ -121,7 +131,13 @@ final class MembershipFloorFiles implements AutoCloseable {
             require(members.containsKey("generation.gsr") && members.containsKey(PACKET),"retained floor copy absent");
             var generation=decode(members.get("generation.gsr"),"records","GENERATION");require(generation.digest().equals(id),"retained floor generation digest");
             var packet=MembershipSourcePacket.decode(members.get(PACKET));var images=new TreeMap<String,byte[]>();packet.images().keySet().forEach(h->images.put(h,members.get(h+".image")));
-            var capsule=Objects.requireNonNull(verifier.verify(rootBytes,packet,images));require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"floor verifier substituted source");
+            MembershipCapsule capsule;
+            if(historyOwner==null)capsule=Objects.requireNonNull(verifier.verify(rootBytes,packet,images));
+            else {
+                var retained=new RetainedCopy(this,floor,generation,ref,packet,members);
+                try{capsule=MembershipCapsule.verifyStored(rootBytes,packet,images,retained);}finally{retained.active=false;}
+            }
+            require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"floor verifier substituted source");
             String voter=(String)ref.get("voter");var owner=capsule.context.identities.get(voter);require(owner!=null,"retained floor unknown identity");
             // The forced FLOOR remembers the admitted copy observation. Reopen checks its
             // original full bytes, never invents a new remote ACK or eligible vote.
@@ -131,6 +147,29 @@ final class MembershipFloorFiles implements AutoCloseable {
         }
         require(expected.equals(files.keySet()) && directories.size()==copies.size() && own!=null,"retained floor inventory/owner");
         MembershipFloor.verify(floor,root,own,copies);check();return Optional.of(new Retained(floor,List.copyOf(copies)));
+    }
+    static final class RetainedCopy implements MembershipCapsule.StoredCopy {
+        private final MembershipFloorFiles source;
+        private final Decoded floor,generation;
+        private final Map<String,Object> reference;
+        private final MembershipSourcePacket packet;
+        private final Map<String,byte[]> members;
+        private boolean active=true;
+        private RetainedCopy(MembershipFloorFiles source,Decoded floor,Decoded generation,Map<String,Object> reference,
+                MembershipSourcePacket packet,Map<String,byte[]> members) {
+            this.source=source;this.floor=floor;this.generation=generation;this.reference=reference;this.packet=packet;this.members=Map.copyOf(members);
+        }
+        public void check(Decoded root,MembershipSourcePacket packet)throws IOException {
+            require(active && source.historyOwner!=null,"floor history read expired");source.historyOwner.check();source.check();
+            require(source.complete() && Arrays.equals(floor.bytes(),AdmissionPaths.read(source.path.resolve(FLOOR),16384))
+                    && root.rootDigest().equals(source.root.manifestDigest()) && Arrays.equals(this.packet.bytes(),packet.bytes())
+                    && list(floor.value().get("sources")).contains(reference) && generation.digest().equals(reference.get("generation")),"floor history original binding");
+        }
+        public byte[] ancestry(){require(active,"floor history read expired");return members.getOrDefault("ancestry.gsr",new byte[0]).clone();}
+        public Optional<byte[]> coverage(){require(active,"floor history read expired");return Optional.ofNullable(members.get(MembershipSelectionCoverage.FILE)).map(byte[]::clone);}
+        public Decoded record(String name,String kind) {
+            require(active && Set.of("promise.gsr","selected.gsr").contains(name) && members.containsKey(name),"floor history record scope");return decode(members.get(name),"records",kind);
+        }
     }
     Decoded establish(MembershipFloor.Copy current,List<MembershipFloor.Copy> offered,
             MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut) throws IOException {

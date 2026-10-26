@@ -169,7 +169,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         } catch(IOException | RuntimeException | Error error){close();throw error;}
     }
     /** Private construction prevents a bare packet or path from asserting local provenance. */
-    static final class RetainedCopy {
+    static final class RetainedCopy implements MembershipCapsule.StoredCopy {
         private final MembershipCurrentGeneration source;
         private final MembershipSourcePacket packet;
         private final byte[] ancestry;
@@ -177,16 +177,16 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         private RetainedCopy(MembershipCurrentGeneration source,MembershipSourcePacket packet,byte[] ancestry) {
             this.source=source;this.packet=packet;this.ancestry=ancestry.clone();
         }
-        void check(Decoded root,MembershipSourcePacket packet)throws IOException {
+        public void check(Decoded root,MembershipSourcePacket packet)throws IOException {
             require(active && source.historyOwner!=null,"stored history read expired");source.check();
             require(root.rootDigest().equals(source.root.manifestDigest()) && Arrays.equals(this.packet.bytes(),packet.bytes())
                     && Arrays.equals(root.bytes(),packet.objectBytes(root.digest())),"stored history copy binding");
         }
-        byte[] ancestry(){require(active,"stored history read expired");return ancestry.clone();}
-        Optional<byte[]> coverage()throws IOException {
+        public byte[] ancestry(){require(active,"stored history read expired");return ancestry.clone();}
+        public Optional<byte[]> coverage()throws IOException {
             require(active,"stored history read expired");return source.coverage();
         }
-        Decoded record(String name,String kind)throws IOException {
+        public Decoded record(String name,String kind)throws IOException {
             require(active && Set.of("promise.gsr","selected.gsr").contains(name),"stored history record scope");source.check();
             require(source.files.containsKey(name),"stored history original record missing");
             return decode(AdmissionPaths.read(source.path.resolve(name),65536),"records",kind);

@@ -128,6 +128,45 @@ final class MembershipGenerationFiles implements AutoCloseable {
         for(var file:files.entrySet())result.put(file.getKey(),AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(limit(file.getKey()))));
         check();return result;
     }
+    /** Read a complete original inactive generation under its actual journal owner.
+     * A partial install is never a historical proof and creates no force observation. */
+    MembershipCapsule verifiedOriginal(MembershipGrantJournal.HistoryRead owner)throws IOException {
+        var originals=originalFiles();
+        require(originals.containsKey("generation.gsr") && originals.containsKey("source.gscp"),"complete inactive history required");
+        var manifest=decode(originals.get("generation.gsr"),"records","GENERATION");
+        var packet=MembershipSourcePacket.decode(originals.get("source.gscp"));var images=new TreeMap<String,byte[]>();
+        packet.images().keySet().forEach(h->images.put(h,originals.get(h+".image")));
+        var copy=new RetainedCopy(this,owner,manifest,packet,originals);
+        try {
+            var root=decode(AdmissionPaths.read(parent.resolve("root.gsr"),16384),"records","ROOT");
+            var capsule=MembershipCapsule.verifyStored(root,packet,images,copy);
+            MembershipFloor.Copy.validateMaterialization(manifest,capsule,owner.identity(),originals);copy.check(root,packet);return capsule;
+        }finally {copy.active=false;}
+    }
+    static final class RetainedCopy implements MembershipCapsule.StoredCopy {
+        private final MembershipGenerationFiles source;
+        private final MembershipGrantJournal.HistoryRead owner;
+        private final Decoded manifest;
+        private final MembershipSourcePacket packet;
+        private final Map<String,byte[]> originals;
+        private boolean active=true;
+        private RetainedCopy(MembershipGenerationFiles source,MembershipGrantJournal.HistoryRead owner,Decoded manifest,
+                MembershipSourcePacket packet,Map<String,byte[]> originals) {
+            this.source=source;this.owner=owner;this.manifest=manifest;this.packet=packet;this.originals=originals;
+        }
+        public void check(Decoded root,MembershipSourcePacket packet)throws IOException {
+            require(active,"inactive history expired");owner.check();source.check();
+            require(source.parent.equals(owner.directory()) && root.rootDigest().equals(owner.root().manifestDigest())
+                    && manifest.value().get("generation").equals(source.slot) && Arrays.equals(this.packet.bytes(),packet.bytes()),"inactive history binding");
+            owner.generation(manifest);
+        }
+        public byte[] ancestry(){require(active,"inactive history expired");return originals.getOrDefault("ancestry.gsr",new byte[0]).clone();}
+        public Optional<byte[]> coverage(){require(active,"inactive history expired");return Optional.ofNullable(originals.get(MembershipSelectionCoverage.FILE)).map(byte[]::clone);}
+        public Decoded record(String name,String kind) {
+            require(active && Set.of("promise.gsr","selected.gsr").contains(name) && originals.containsKey(name),"inactive history record scope");
+            return decode(originals.get(name),"records",kind);
+        }
+    }
     void forceOriginal(MembershipBallotAllocator.Cut cut) throws IOException {
         check();for(String name:files.keySet())force(path.resolve(name));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(directory);
         cut.at("RETIREMENT_OLD_FILES_FORCED");check();

@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B owner-bound recovery and continuation
+
+The [native owner recovery batch](PHASE_3_OWNED_RECOVERY.md) opens the private
+bootstrap-admitted storage path without caller-supplied historical observations.
+Selected history, retained BASIS, floor, inactive generation and complete retirement
+originals have exact owner-bound readers. Original generations with equal cuts
+retain their distinct coverage/ancestry; deletion recovery uses its saved original.
+New grants and votes still require their original forcing and ownership paths.
+
+Final Java qualification passes 69 tests across nine suites. Actual public-bootstrap
+histories cover all six 3/4/5-voter EMPTY/backup profiles, 72 node publications and
+54 fresh-process grants/reopens. A further five JVMs complete one retirement across
+four halt/SIGKILL interruptions. Independent replay includes 18 exact evidence
+negatives. The Python suite passes 590 normal/optimized tests; the last fixture-only
+adjustment has five focused tests plus full original-evidence replay. Source/build
+inputs and failed attempts are retained in the [receipt](phase3-evidence/owned-recovery.json).
+
+This advances internal same-view storage recovery. Cross-configuration pending
+contexts, automatic incoming adoption/elections, learners/joint completion,
+generalized distributed publication and complete Phase 3 qualification remain
+open. No public runtime, workflow, push, paid experiment or release change.
+
 ## 2026-10-26 — Phase 3B owned selected-history reopening
 
 The [selected-history reader](PHASE_3_OWNED_GENERATION.md) now acquires the actual

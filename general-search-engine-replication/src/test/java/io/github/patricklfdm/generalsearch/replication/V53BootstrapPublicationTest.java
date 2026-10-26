@@ -24,6 +24,7 @@ class V53BootstrapPublicationTest {
         List<MembershipSelection.Bridge> bridges=List.of();
         Map<String,Object> ballot;
         long peakImages,peakMetadata,peakStaging;
+        boolean ownedHistory;
         @FunctionalInterface interface Observation {void at(MembershipBootstrapTarget<Integer,Doc> target,String operation,String event)throws java.io.IOException;}
         Observation observer=(target,operation,event)->{};
         static MembershipBootstrapRequest<Integer,Doc> request(Path root,int size,boolean backup)throws Exception {
@@ -43,11 +44,13 @@ class V53BootstrapPublicationTest {
         MembershipGrantJournal open(MembershipBootstrapTarget<Integer,Doc> t,String operation)throws Exception {
             assertEquals(0,resources.usage().leases());var events=new ArrayList<String>();
             calls.add(Map.of("node",t.identity().nodeId().value(),"operation",operation,"events",events));
-            return MembershipGrantJournal.openBootstrapped(t.replicaDirectory(),t.materialization().directory(),result.root(),t.identity(),resources,
-                    (r,p,i)->MembershipCapsule.verify(r,p,i,observations),MembershipGrantJournal.MAXIMUM,event->{
+            MembershipBallotAllocator.Cut cut=event->{
                         V53RetirementImagesTest.bounded(resources);var u=resources.usage();peakImages=Math.max(peakImages,u.counts().getOrDefault(MembershipResources.Unit.APPLICATION,0));
                         peakMetadata=Math.max(peakMetadata,u.metadata());peakStaging=Math.max(peakStaging,u.staging());events.add(event);observer.at(t,operation,event);
-                    });
+                    };
+            return ownedHistory?MembershipGrantJournal.openBootstrapped(t.replicaDirectory(),t.materialization().directory(),result.root(),t.identity(),resources,MembershipGrantJournal.MAXIMUM,cut):
+                    MembershipGrantJournal.openBootstrapped(t.replicaDirectory(),t.materialization().directory(),result.root(),t.identity(),resources,
+                    (r,p,i)->MembershipCapsule.verify(r,p,i,observations),MembershipGrantJournal.MAXIMUM,cut);
         }
         void snapshot(String name)throws Exception {
             Path path=Files.createDirectory(raw.resolve(name));

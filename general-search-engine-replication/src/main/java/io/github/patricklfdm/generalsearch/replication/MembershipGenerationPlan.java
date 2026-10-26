@@ -11,14 +11,28 @@ final class MembershipGenerationPlan {
     final Decoded manifest,selector;
     final SortedMap<String,byte[]> files;
     final long metadata;
-    private MembershipGenerationPlan(Decoded manifest,Decoded selector,SortedMap<String,byte[]> files,long metadata) {
+    private final MembershipCapsule authority;
+    private final List<MembershipSelection.Bridge> bridges;
+    private MembershipGenerationPlan(Decoded manifest,Decoded selector,SortedMap<String,byte[]> files,long metadata,MembershipCapsule authority,List<MembershipSelection.Bridge> bridges) {
         this.manifest=manifest;this.selector=selector;this.files=Collections.unmodifiableSortedMap(files);this.metadata=metadata;
+        this.authority=authority;this.bridges=List.copyOf(bridges);
     }
     void verify(Decoded root,MembershipIdentity local,MembershipCurrentGeneration.Verifier verifier,Collection<MembershipCapsule.Anchor> ancestors) {
         var packet=MembershipSourcePacket.decode(files.get("source.gscp"));var images=new TreeMap<String,byte[]>();
         for(String hash:packet.images().keySet())images.put(hash,files.get(hash+".image"));
         var capsule=Objects.requireNonNull(verifier.verify(root,packet,images));
         require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"generation verifier substituted source");
+        verifyCapsule(capsule,local,ancestors);
+    }
+    /** Recheck the typed proof that constructed this exact plan, without turning raw packets into authority. */
+    void verifyOwned(Decoded root,MembershipIdentity local,Collection<MembershipCapsule.Anchor> ancestors) {
+        var packet=MembershipSourcePacket.decode(files.get("source.gscp"));var images=new TreeMap<String,byte[]>();
+        for(String hash:packet.images().keySet())images.put(hash,files.get(hash+".image"));
+        require(Arrays.equals(root.bytes(),authority.packet.objectBytes(root.digest())),"generation original root changed");
+        verifyCapsule(authority.materialization(packet,images,bridges),local,ancestors);
+    }
+    private void verifyCapsule(MembershipCapsule capsule,MembershipIdentity local,Collection<MembershipCapsule.Anchor> ancestors) {
+        var packet=capsule.packet;
         require(local.equals(capsule.context.identities.get(local.nodeId().value())) && capsule.context.voters().contains(local.nodeId().value()),"installed local eligible identity");
         capsule.verifyAncestry(files.getOrDefault("ancestry.gsr",new byte[0]),ancestors);
         if(files.containsKey(MembershipSelectedSources.FILE))MembershipSelectedSources.parents(files.get(MembershipSelectedSources.FILE),
@@ -111,7 +125,7 @@ final class MembershipGenerationPlan {
         var manifest=decode(encode("records","GENERATION",value),"records","GENERATION");metadata=Math.addExact(metadata,manifest.bytes().length);
         require(metadata<=MembershipResources.Unit.GENERATION.bytes,"complete generation metadata capacity");files.put(MembershipCurrentGeneration.MANIFEST,manifest.bytes());
         var selector=decode(encode("records","SELECTOR",Map.of("root",root.manifestDigest(),"node",local.nodeId().value(),"generation",slot,"digest",manifest.digest())),"records","SELECTOR");
-        return new MembershipGenerationPlan(manifest,selector,files,metadata);
+        return new MembershipGenerationPlan(manifest,selector,files,metadata,capsule,bridges);
     }
     static MembershipGenerationPlan adopted(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,
             MembershipCapsule incoming,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images) {
@@ -134,7 +148,7 @@ final class MembershipGenerationPlan {
         var manifest=decode(encode("records","GENERATION",value),"records","GENERATION");metadata=Math.addExact(metadata,manifest.bytes().length);
         require(metadata<=MembershipResources.Unit.GENERATION.bytes,"complete generation metadata capacity");files.put(MembershipCurrentGeneration.MANIFEST,manifest.bytes());
         var selector=decode(encode("records","SELECTOR",Map.of("root",root.manifestDigest(),"node",local.nodeId().value(),"generation",slot,"digest",manifest.digest())),"records","SELECTOR");
-        return new MembershipGenerationPlan(manifest,selector,files,metadata);
+        return new MembershipGenerationPlan(manifest,selector,files,metadata,incoming,bridges);
     }
     static MembershipGenerationPlan selected(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
             MembershipSelection.Decision decision,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images) {
@@ -183,6 +197,6 @@ final class MembershipGenerationPlan {
         require(metadata<=MembershipResources.Unit.GENERATION.bytes,"complete generation metadata capacity");
         files.put(MembershipCurrentGeneration.MANIFEST,manifest.bytes());
         var selector=decode(encode("records","SELECTOR",Map.of("root",root.manifestDigest(),"node",local.nodeId().value(),"generation",slot,"digest",manifest.digest())),"records","SELECTOR");
-        return new MembershipGenerationPlan(manifest,selector,files,metadata);
+        return new MembershipGenerationPlan(manifest,selector,files,metadata,decision.longest().capsule,bridges);
     }
 }

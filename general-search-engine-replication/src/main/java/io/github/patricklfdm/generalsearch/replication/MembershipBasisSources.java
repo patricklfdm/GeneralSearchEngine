@@ -236,6 +236,30 @@ final class MembershipBasisSources implements AutoCloseable {
     Original original(Decoded basis) throws IOException {
         return original((String)basis.value().get("basisId"),null,basis);
     }
+    /** Complete original BASIS under the real owning journal, not a reconstructed voter claim. */
+    MembershipCapsule verifiedOriginal(Decoded basis,MembershipGrantJournal.HistoryRead owner)throws IOException {
+        owner.basis(basis);var original=original(basis);var copy=new RetainedCopy(this,owner,basis,original.packet());
+        try {return MembershipCapsule.verifyStored(decode(root,"records","ROOT"),original.packet(),original.images(),copy);}
+        finally {copy.active=false;}
+    }
+    static final class RetainedCopy implements MembershipCapsule.StoredCopy {
+        private final MembershipBasisSources source;
+        private final MembershipGrantJournal.HistoryRead owner;
+        private final Decoded basis;
+        private final MembershipSourcePacket original;
+        private boolean active=true;
+        private RetainedCopy(MembershipBasisSources source,MembershipGrantJournal.HistoryRead owner,Decoded basis,MembershipSourcePacket original) {
+            this.source=source;this.owner=owner;this.basis=basis;this.original=original;
+        }
+        public void check(Decoded root,MembershipSourcePacket packet)throws IOException {
+            require(active,"original source history expired");owner.basis(basis);source.check();
+            require(source.directory.equals(owner.directory().resolve(DIRECTORY)) && Arrays.equals(root.bytes(),source.root)
+                    && Arrays.equals(original.bytes(),packet.bytes()),"original source history binding");packet.bind(basis);
+        }
+        public byte[] ancestry(){require(active,"original source history expired");return new byte[0];}
+        public Optional<byte[]> coverage(){require(active,"original source history expired");return Optional.empty();}
+        public Decoded record(String name,String kind){throw new IllegalArgumentException("source history has no generation coverage");}
+    }
     /** Re-seal an already complete original source before publishing a dependent local context.
      * All original identities stay pinned; this is neither a new grant nor a remote ACK. */
     void resealOriginal(Decoded basis,MembershipGenerationFiles.Guard owner)throws IOException {

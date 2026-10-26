@@ -40,6 +40,19 @@ final class MembershipCapsule {
         var root=decode(this.packet.objectBytes(this.context.recordRootDigest()),"records","ROOT");
         return verify(root,packet,images,owned,history,false);
     }
+    boolean sameProvenPrefix(MembershipSourcePacket candidate) {
+        var a=new TreeMap<>(packet.capsule().value());var b=new TreeMap<>(candidate.capsule().value());
+        a.remove("inventory");b.remove("inventory");return a.equals(b) && packet.images().equals(candidate.images());
+    }
+    /** Materialization may attach exact original tail records, not change the proven prefix.
+     * Every supplemental bridge is verified before its historical key is retained. */
+    MembershipCapsule materialization(MembershipSourcePacket candidate,Map<String,byte[]> images,List<MembershipSelection.Bridge> bridges) {
+        require(sameProvenPrefix(candidate),"materialization changed proven prefix");
+        for(var bridge:bridges) {
+            var v=bridge.statement.value();bridge.verify(this,new Anchor(object(v.get("start")),(String)v.get("catalogBefore"),(String)v.get("applicationBefore")));
+        }
+        return verifyExtension(candidate,images,Set.of()).retainingCompleteAncestry(MembershipGenerationPlan.ancestry(bridges));
+    }
     /** Only certificates actually authenticated while walking membership edges, never inventory extras. */
     Optional<Decoded> membershipCertificateFence(){return Optional.ofNullable(highestMembershipCertificate);}
     /** A publication must retain the exact phases and independently owned observations, including for DATA. */
@@ -77,10 +90,17 @@ final class MembershipCapsule {
         Objects.requireNonNull(copy).check(root,packet);
         var result=verify(root,packet,images,Set.of(),Set.of(),true);copy.check(root,packet);return result;
     }
+    /** Only complete original storage readers can issue this short-lived local-copy capability. */
+    sealed interface StoredCopy permits MembershipCurrentGeneration.RetainedCopy,MembershipBasisSources.RetainedCopy,MembershipFloorFiles.RetainedCopy,MembershipGenerationFiles.RetainedCopy,MembershipRetirementFiles.RetainedCopy {
+        void check(Decoded root,MembershipSourcePacket packet)throws java.io.IOException;
+        byte[] ancestry();
+        Optional<byte[]> coverage()throws java.io.IOException;
+        Decoded record(String name,String kind)throws java.io.IOException;
+    }
     /** Complete original selected storage, checked under the exact exclusive local owner.
      * The history token never supplies fresh ACCEPT/PROOF observations. */
     static MembershipCapsule verifyStored(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,
-            MembershipCurrentGeneration.RetainedCopy copy)throws java.io.IOException {
+            StoredCopy copy)throws java.io.IOException {
         Objects.requireNonNull(copy).check(root,packet);
         byte[] ancestry=copy.ancestry();
         var result=verify(root,packet,images,Set.of(),Set.of(),true).retainingCompleteAncestry(ancestry);

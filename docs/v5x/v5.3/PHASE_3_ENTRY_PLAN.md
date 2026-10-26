@@ -87,6 +87,13 @@ cuts require no caller historical observations. This does not yet replace all
 voting-runtime recovery paths: pending/floor/inactive/source dependencies, typed
 incoming adoption and autonomous new elections remain required, alongside 3C–3E.
 
+The [owner-bound recovery batch](PHASE_3_OWNED_RECOVERY.md) connects the private
+bootstrap-admitted storage entry to selected history, original BASIS, floor,
+inactive-generation and retained-retirement proof. Actual same-view continuation
+and fresh-process grants are qualified separately from cross-configuration pending
+contexts, automatic adoption/elections and complete runtime integration. Its
+component evidence does not close the remaining 3B–3E obligations.
+
 ## First batch boundary
 
 The subsequent [retained-copy verifier](PHASE_3_RETAINED_PROVENANCE.md) separates

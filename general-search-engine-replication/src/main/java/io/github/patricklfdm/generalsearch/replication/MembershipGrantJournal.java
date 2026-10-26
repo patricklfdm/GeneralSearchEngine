@@ -32,6 +32,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipBasisSources sources;
     private volatile MembershipCurrentGeneration current;
     private MembershipCurrentGeneration.Verifier capsuleVerifier;
+    private boolean ownedHistory;
     private MembershipGenerationFiles inactive;
     private MembershipFloorFiles floors;
     private MembershipRetirementFiles retirement;
@@ -102,6 +103,16 @@ final class MembershipGrantJournal implements AutoCloseable {
         Collection<Decoded> promises(){return List.copyOf(owner.promises.values());}
         Collection<Decoded> bases(){return List.copyOf(owner.bases.values());}
         Collection<Decoded> selections(){return List.copyOf(owner.selections.values());}
+        void basis(Decoded basis)throws IOException {
+            check();var retained=owner.bases.get((String)basis.value().get("basisId"));
+            require(retained!=null && Arrays.equals(retained.bytes(),basis.bytes()),"original history requires journal-owned BASIS");
+        }
+        void generation(Decoded manifest)throws IOException {
+            check();var value=manifest.value();
+            require(owner.promises.values().stream().anyMatch(p->p.digest().equals(value.get("promise"))),"history original promise absent");
+            if(value.get("basis")!=null)require(owner.bases.values().stream().anyMatch(p->p.digest().equals(value.get("basis"))),"history original basis absent");
+            if(value.get("selection")!=null)require(owner.selections.containsKey(value.get("selection")),"history original selection absent");
+        }
     }
     static final class RetainedHistory implements AutoCloseable {
         private final MembershipGrantJournal owner;
@@ -256,11 +267,24 @@ final class MembershipGrantJournal implements AutoCloseable {
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
             boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,boolean withCapture,boolean withVotes,boolean withApplication,boolean withContext,Path materialization)throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,withFloors,withRetirement,withRotation,withFloorRelease,maximum,
+                withSourceRetirement,withCapture,withVotes,withApplication,withContext,materialization,false);
+    }
+    /** Native original-history storage open. No historical observation set is supplied by the caller. */
+    static MembershipGrantJournal openBootstrapped(Path requested,Path materialization,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,int maximum,MembershipBallotAllocator.Cut cut)throws IOException {
+        return openGenerations(requested,root,identity,resources,(r,p,i)->MembershipCapsule.verify(r,p,i,Set.of()),cut,
+                true,true,true,true,maximum,true,true,true,true,true,Objects.requireNonNull(materialization),true);
+    }
+    private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
+            boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,
+            boolean withCapture,boolean withVotes,boolean withApplication,boolean withContext,Path materialization,boolean ownedHistory)throws IOException {
         require(maximum>=RESERVATION && maximum<=MAXIMUM,"grant journal capacity");
         Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
         var owner=materialization!=null?MembershipBallotAllocator.openBootstrapped(path,materialization,root,identity,cut):withContext?MembershipBallotAllocator.openWithPendingContext(path,root,identity,cut):withApplication?MembershipBallotAllocator.openWithAppliedEnd(path,root,identity,cut):withVotes?MembershipBallotAllocator.openWithPendingAccept(path,root,identity,cut):withCapture?MembershipBallotAllocator.openWithCaptureRecovery(path,root,identity,cut):withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
         try {
-            journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut,withCapture);journal.resources=resources;journal.capsuleVerifier=verifier;journal.floorReleaseEnabled=withFloorRelease;
+            journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut,withCapture);journal.resources=resources;journal.ownedHistory=ownedHistory;journal.capsuleVerifier=ownedHistory?journal::verifyKnownHistory:verifier;journal.floorReleaseEnabled=withFloorRelease;
             journal.applicationMetadata=withApplication?MembershipAppliedEndFiles.METADATA+MembershipReplayFiles.METADATA:0;
             if(withRotation)journal.rotation=new MembershipJournalRotationFiles(path);
             if(withSourceRetirement)journal.sourceRetirement=new MembershipSourceRetirementFiles(path);
@@ -303,7 +327,8 @@ final class MembershipGrantJournal implements AutoCloseable {
                     Math.min(MembershipPendingContextFiles.MAXIMUM_METADATA,maximum-journal.storedJournal().length-journal.pendingBytes()));
             if(journal.current==null)journal.reloadGenerations();
             if(withFloors) {
-                journal.floors=new MembershipFloorFiles(path,root,identity,resources,verifier,withFloorRelease);
+                journal.floors=ownedHistory?new MembershipFloorFiles(path,root,identity,resources,new HistoryRead(journal),withFloorRelease):
+                        new MembershipFloorFiles(path,root,identity,resources,verifier,withFloorRelease);
                 var parents=new ArrayList<MembershipCapsule.Anchor>();journal.addFloorParent(parents);journal.current.verifyParents(parents);
             }
             if(withRetirement)journal.retirement=new MembershipRetirementFiles(path,resources,journal.floors,journal.sources);
@@ -344,10 +369,49 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void reloadGenerations() throws IOException {
         if(current!=null)current.close();if(inactive!=null)inactive.close();
-        current=new MembershipCurrentGeneration(directory,root,identity,resources,promises.values(),bases.values(),selections.values(),capsuleVerifier,cut,true);
+        current=ownedHistory?MembershipCurrentGeneration.readOwned(new HistoryRead(this),resources,cut):
+                new MembershipCurrentGeneration(directory,root,identity,resources,promises.values(),bases.values(),selections.values(),capsuleVerifier,cut,true);
         inactive=new MembershipGenerationFiles(directory,current.generation,resources);
     }
 
+    /** Resolve only an already retained proven prefix. Raw incoming or newly published
+     * prefixes require their own typed proof path; no catch-and-trust fallback exists. */
+    private MembershipCapsule verifyKnownHistory(Decoded rootRecord,MembershipSourcePacket packet,Map<String,byte[]> images) {
+        try {
+            checkBaseOwner();require(rootRecord.rootDigest().equals(root.manifestDigest()),"owned history foreign root");
+            if(current!=null && current.capsule.sameProvenPrefix(packet)) {
+                current.check();var result=current.capsule.materialization(packet,images,current.capsule.verifiedAncestry(current.ancestry()));current.check();return result;
+            }
+            if(inactive!=null && inactive.exists() && !inactive.pending()) {
+                var originals=inactive.originalFiles();
+                if(originals.containsKey("source.gscp") && originals.containsKey("generation.gsr")) {
+                    var original=MembershipSourcePacket.decode(originals.get("source.gscp"));
+                    var a=new TreeMap<>(original.capsule().value());var b=new TreeMap<>(packet.capsule().value());a.remove("inventory");b.remove("inventory");
+                    if(a.equals(b) && original.images().equals(packet.images())) {
+                        var capsule=inactive.verifiedOriginal(new HistoryRead(this));return capsule.materialization(packet,images,
+                                capsule.verifiedAncestry(originals.getOrDefault("ancestry.gsr",new byte[0])));
+                    }
+                }
+            }
+            if(sources!=null)for(var basis:bases.values())if(sources.retainedIdentities().contains(basis.value().get("basisId"))) {
+                var original=sources.original(basis);
+                // Decode and verify only the exact selected candidate. All source files are
+                // already bounded and owned; no unbounded trust cache is retained.
+                var a=new TreeMap<>(original.packet().capsule().value());var b=new TreeMap<>(packet.capsule().value());a.remove("inventory");b.remove("inventory");
+                if(a.equals(b) && original.packet().images().equals(packet.images())) {
+                    var capsule=sources.verifiedOriginal(basis,new HistoryRead(this));return capsule.materialization(packet,images,List.of());
+                }
+            }
+            if(floors!=null)for(var copy:floors.retained().map(MembershipFloorFiles.Retained::copies).orElse(List.of()))
+                if(copy.capsule.sameProvenPrefix(packet))return copy.capsule.materialization(packet,images,
+                        copy.capsule.verifiedAncestry(copy.fileNames().contains("ancestry.gsr")?copy.fileBytes("ancestry.gsr"):new byte[0]));
+            throw new IllegalArgumentException("original historical prefix not retained by owner");
+        }catch(IOException error){throw new java.io.UncheckedIOException(error);}
+    }
+    private void verifyPlan(MembershipGenerationPlan plan,Collection<MembershipCapsule.Anchor> parents)throws IOException {
+        var original=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+        if(ownedHistory)plan.verifyOwned(original,identity,parents);else plan.verify(original,identity,capsuleVerifier,parents);
+    }
     private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes());}
 
     /** Exact private persistence under the real local owner and forced source. No old ACK.
@@ -1186,7 +1250,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         for(var original:bases.values()) {
             var cap=sources.original(original).packet().capsule().value();parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
         }
-        plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,parents);checkOwner();fence(bound);
+        verifyPlan(plan,parents);checkOwner();fence(bound);
         if(installed)require(Arrays.equals(current.manifest.bytes(),plan.manifest.bytes()) && !inactive.pending(),"publication differs from original completed representation");
         else inactive.checkPlan(plan);
         try {
@@ -1288,7 +1352,21 @@ final class MembershipGrantJournal implements AutoCloseable {
         var manifest=decode(files.get("generation.gsr"),"records","GENERATION");var packet=MembershipSourcePacket.decode(files.get("source.gscp"));
         var images=new TreeMap<String,byte[]>();packet.images().keySet().forEach(h->images.put(h,files.get(h+".image")));
         var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
-        var capsule=Objects.requireNonNull(capsuleVerifier.verify(localRoot,packet,images));require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"retirement verifier substituted source");
+        MembershipCapsule capsule;
+        if(ownedHistory && retirement!=null && retirement.authority().isPresent()
+                && Arrays.equals(retirement.original().get("generation.gsr"),manifest.bytes())) {
+            var original=retirement.original();require(original.keySet().equals(files.keySet())
+                    && original.entrySet().stream().allMatch(e->Arrays.equals(e.getValue(),files.get(e.getKey()))),"retirement original bytes substituted");
+            capsule=retirement.verifiedOriginal(new HistoryRead(this));
+        }else if(ownedHistory && inactive!=null && inactive.exists() && !inactive.pending()
+                && Arrays.equals(inactive.originalFiles().get("generation.gsr"),manifest.bytes())) {
+            // Two generations may share the same proven cut but retain different original
+            // coverage/ancestry. Resolve the exact owning generation before prefix reuse.
+            var original=inactive.originalFiles();require(original.keySet().equals(files.keySet())
+                    && original.entrySet().stream().allMatch(e->Arrays.equals(e.getValue(),files.get(e.getKey()))),"inactive original bytes substituted");
+            capsule=inactive.verifiedOriginal(new HistoryRead(this));
+        }else capsule=Objects.requireNonNull(capsuleVerifier.verify(localRoot,packet,images));
+        require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"retirement verifier substituted source");
         var value=manifest.value();
         require(promises.values().stream().anyMatch(p->p.digest().equals(value.get("promise"))),"retirement original promise absent");
         if(value.get("basis")!=null)require(bases.values().stream().anyMatch(p->p.digest().equals(value.get("basis"))),"retirement original basis absent");
@@ -1904,7 +1982,8 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipSelection.Source retainedSource(Decoded retainedBasis)throws IOException {
         checkOwner();require(retainedBasis.value().get("view").equals(current.capsule.context.authority()),"obsolete original grant; fresh campaign required");
         var original=sources.original(retainedBasis);var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
-        var capsule=Objects.requireNonNull(capsuleVerifier.verify(localRoot,original.packet(),original.images()));
+        var capsule=ownedHistory?sources.verifiedOriginal(retainedBasis,new HistoryRead(this)):
+                Objects.requireNonNull(capsuleVerifier.verify(localRoot,original.packet(),original.images()));
         require(Arrays.equals(capsule.packet.bytes(),original.packet().bytes()),"original verifier substituted source");
         var reference=Map.<String,Object>of("voter",identity.nodeId().value(),"basisId",retainedBasis.value().get("basisId"),"basisDigest",retainedBasis.digest());
         var owned=new HashSet<Owned>();String parent=cutDigest(object(retainedBasis.value().get("cut")));
@@ -2039,7 +2118,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             }
         }
         var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images,retained);
-        plan.verify(decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT"),identity,capsuleVerifier,ancestors);return plan;
+        verifyPlan(plan,ancestors);return plan;
     }
     private static void retainInstallationVote(Map<String,byte[]> objects,Decoded accept,MembershipSourcePacket packet,MembershipPendingAccept.Vote original) {
         var entry=original==null?decode(packet.objectBytes((String)accept.value().get("entry")),"records","ENTRY"):original.entry();

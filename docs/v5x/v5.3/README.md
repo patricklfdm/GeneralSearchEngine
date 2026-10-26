@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Owner-bound recovery and continuation](PHASE_3_OWNED_RECOVERY.md) connects the
+private storage owner to its original selected/source/floor/inactive/retirement
+history, including fresh-process grants and phased publication. Automatic
+cross-view adoption/elections, learners and full Phase 3 qualification remain open.
+
 [Owned selected-history reopening](PHASE_3_OWNED_GENERATION.md) now reconstructs
 historical proof from the actual locked journal and selected generation in fresh
 processes, without external historical observations. Full voting-runtime recovery,
