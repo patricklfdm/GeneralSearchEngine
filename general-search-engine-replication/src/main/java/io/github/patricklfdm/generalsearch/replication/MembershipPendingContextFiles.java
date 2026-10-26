@@ -53,6 +53,53 @@ final class MembershipPendingContextFiles implements AutoCloseable {
 
     Optional<MembershipPendingContext.Context> active(){live();return Optional.ofNullable(active);}
     Optional<byte[]> activeBytes(){live();return activeBytes==null?Optional.empty():Optional.of(activeBytes.clone());}
+
+    /** Reconstruct only the exact active context through this journal's complete
+     * backing source. Candidate bytes and arbitrary caller packets cannot mint proof. */
+    MembershipCapsule verifiedOriginal(MembershipGrantJournal.HistoryRead owner)throws IOException {
+        check();require(active!=null,"active context history required");owner.check();
+        require(directory.equals(owner.directory()) && root.equals(owner.root()) && identity.equals(owner.identity()),"context history owner binding");
+        var promise=MembershipPendingContext.backingPromise(active);var basis=MembershipPendingContext.backingBasis(active);owner.grant(promise,basis);
+        var source=owner.original(basis);var files=MembershipPendingContext.originalFiles(active,source.packet(),source.images());
+        var packet=MembershipSourcePacket.decode(files.get("source.gscp"));var images=new TreeMap<String,byte[]>();
+        packet.images().keySet().forEach(h->images.put(h,files.get(h+".image")));
+        var copy=new RetainedCopy(this,owner,promise,basis,activeBytes.clone(),source.packet(),packet,files);
+        try {
+            var localRoot=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
+            var capsule=MembershipCapsule.verifyStored(localRoot,packet,images,copy);
+            MembershipFloor.Copy.validateMaterialization(decode(files.get("generation.gsr"),"records","GENERATION"),capsule,identity,files);
+            copy.check(localRoot,packet);return capsule;
+        }finally{copy.active=false;}
+    }
+    static final class RetainedCopy implements MembershipCapsule.StoredCopy {
+        private final MembershipPendingContextFiles context;
+        private final MembershipGrantJournal.HistoryRead owner;
+        private final Decoded promise,basis;
+        private final byte[] binding;
+        private final MembershipSourcePacket backing,packet;
+        private final Map<String,byte[]> files;
+        private boolean active=true;
+        private RetainedCopy(MembershipPendingContextFiles context,MembershipGrantJournal.HistoryRead owner,Decoded promise,Decoded basis,
+                byte[] binding,MembershipSourcePacket backing,MembershipSourcePacket packet,Map<String,byte[]> files) {
+            this.context=context;this.owner=owner;this.promise=promise;this.basis=basis;this.binding=binding;
+            this.backing=backing;this.packet=packet;this.files=files;
+        }
+        public void check(Decoded root,MembershipSourcePacket packet)throws IOException {
+            require(active,"context history expired");context.check();owner.grant(promise,basis);
+            require(context.directory.equals(owner.directory()) && Arrays.equals(binding,context.activeBytes)
+                    && root.rootDigest().equals(owner.root().manifestDigest()) && Arrays.equals(this.packet.bytes(),packet.bytes()),"context history binding changed");
+            var source=owner.original(basis);require(Arrays.equals(source.packet().bytes(),backing.bytes()),"context history backing changed");
+            var original=MembershipPendingContext.originalFiles(context.active,source.packet(),source.images());
+            require(original.keySet().equals(files.keySet()),"context history inventory changed");
+            for(var file:files.entrySet())require(Arrays.equals(file.getValue(),original.get(file.getKey())),"context history original changed");
+        }
+        public byte[] ancestry(){require(active,"context history expired");return files.getOrDefault("ancestry.gsr",new byte[0]).clone();}
+        public Optional<byte[]> coverage(){require(active,"context history expired");return Optional.ofNullable(files.get(MembershipSelectionCoverage.FILE)).map(byte[]::clone);}
+        public Decoded record(String name,String kind) {
+            require(active && Set.of("promise.gsr","selected.gsr").contains(name) && files.containsKey(name),"context history record scope");
+            return decode(files.get(name),"records",kind);
+        }
+    }
     boolean pending(){live();return nextIdentity!=null;}
     long bytes(){live();return storedBytes();}
     private long storedBytes(){return (activeBytes==null?0L:activeBytes.length)+(nextBytes==null?0L:nextBytes.length);}

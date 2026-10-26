@@ -17,6 +17,14 @@ class V53DistinctMinorityTest {
         return campaign(f,counter,targets,true);
     }
     static Installation campaign(V53BootstrapPublicationTest.Fixture f,int counter,List<MembershipBootstrapTarget<Integer,Doc>> targets,boolean install)throws Exception {
+        return campaign(f,counter,targets,install,List.of());
+    }
+    static Installation campaign(V53BootstrapPublicationTest.Fixture f,int counter,List<MembershipBootstrapTarget<Integer,Doc>> targets,
+            boolean install,List<MembershipSelection.Bridge> bridges)throws Exception {
+        return campaign(f,counter,targets,install,bridges,Map.of());
+    }
+    static Installation campaign(V53BootstrapPublicationTest.Fixture f,int counter,List<MembershipBootstrapTarget<Integer,Doc>> targets,
+            boolean install,List<MembershipSelection.Bridge> bridges,Map<String,List<MembershipSelection.Bridge>> retained)throws Exception {
         var proposer=targets.getLast();
         try(var owner=f.open(proposer,"allocate-"+counter)){assertEquals(counter,owner.reserveCounter());}
         f.ballot=Map.of("counter",(long)counter,"proposer",proposer.identity().nodeId().value(),"incarnation",proposer.identity().storageId().toString());
@@ -27,12 +35,12 @@ class V53DistinctMinorityTest {
             for(String h:source.capsule.packet.images().keySet())images.put(h,Files.readAllBytes(t.replicaDirectory().resolve("sources/"+source.basis.value().get("basisId")+"/"+h+".image")));
         }
         f.snapshot("round-"+counter+"-prepared");
-        for(var t:targets)try(var owner=f.open(t,"select-"+counter)){owner.selectCurrent(sources,List.of());}
+        for(var t:targets)try(var owner=f.open(t,"select-"+counter)){owner.selectCurrent(sources,bridges);}
         f.snapshot("round-"+counter+"-selected");
         var longest=sources.getLast();for(var source:sources)if(number(source.capsule.context.cut.get("index"))>number(longest.capsule.context.cut.get("index")))longest=source;
         images.keySet().retainAll(longest.capsule.packet.images().keySet());
         if(install) {
-            for(var t:targets)try(var owner=f.open(t,"install-"+counter)){owner.installCurrent(sources,List.of(),images);}
+            for(var t:targets)try(var owner=f.open(t,"install-"+counter)){owner.installCurrent(sources,bridges,retained.getOrDefault(t.identity().nodeId().value(),List.of()),images);}
             f.snapshot("round-"+counter+"-installed");
         }
         return new Installation(sources,images,obsolete);
@@ -65,6 +73,10 @@ class V53DistinctMinorityTest {
         publish(f,slot,entry,payload,f.request.targets());
     }
     static void publish(V53BootstrapPublicationTest.Fixture f,int slot,Decoded entry,byte[] payload,List<MembershipBootstrapTarget<Integer,Doc>> targets)throws Exception {
+        publishWithSequence(f,slot,entry,payload,targets,f.result.applicationSequence()+1);
+    }
+    static void publishWithSequence(V53BootstrapPublicationTest.Fixture f,int slot,Decoded entry,byte[] payload,
+            List<MembershipBootstrapTarget<Integer,Doc>> targets,long expectedSequence)throws Exception {
             var accepts=new HashSet<Owned>();Decoded accepted=null;
             for(var t:targets)try(var owner=f.open(t,"accept-"+slot)) {
                 var ack=owner.acceptCurrent(entry,payload);assertEquals(ack,owner.acceptCurrent(entry,payload));accepts.add(ack);
@@ -99,7 +111,7 @@ class V53DistinctMinorityTest {
             f.snapshot("slot-"+slot+"-published");maintain(f,"slot-"+slot+"-settled",targets,Map.of());
             for(var t:targets)try(var owner=f.open(t,"inspect-"+slot)) {
                 var c=owner.floorCopyCurrent();assertEquals((long)slot,c.capsule.context.cut.get("index"));
-                assertEquals(f.result.applicationSequence()+1,c.capsule.context.catalog.get("applicationSequence"));
+                assertEquals(expectedSequence,c.capsule.context.catalog.get("applicationSequence"));
                 var state=MembershipApplicationImage.read(builder().configuration(),t.materialization(),c.fileBytes(c.capsule.terminal().application()+".image"),f.raw.resolve("typed-"+slot+"-"+t.identity().nodeId().value()));
                 assertEquals(1,state.documents().stream().filter(d->d.equals(new Doc(404,"majority-selected"))).count());
                 assertEquals(0,state.documents().stream().filter(d->d.id()==403).count());

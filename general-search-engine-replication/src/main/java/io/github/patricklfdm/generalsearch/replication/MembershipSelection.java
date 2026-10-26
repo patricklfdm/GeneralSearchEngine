@@ -16,6 +16,12 @@ final class MembershipSelection {
             this.capsule=capsule;this.basis=basis;this.owner=owner;this.accepted=accepted;this.entry=entry;
         }
         Map<String,Object> reference() {return Map.of("voter",owner.nodeId().value(),"basisId",basis.value().get("basisId"),"basisDigest",basis.digest());}
+        /** Attach verified historical coverage to the exact already-owned source.
+         * This cannot change its packet, original grant or accepted tail. */
+        Source withVerifiedHistory(MembershipCapsule complete) {
+            require(Arrays.equals(capsule.packet.bytes(),complete.packet.bytes()),"source history changed original packet");
+            return new Source(complete,basis,owner,accepted,entry);
+        }
         static Source verify(MembershipCapsule capsule,Decoded basis,Map<String,Object> expected,MembershipIdentity owner,Set<Owned> owned) {
             checkType(expected,"source");capsule.packet.bind(basis);var context=capsule.context;var value=basis.value();
             require(expected.get("basisDigest").equals(basis.digest()) && expected.get("basisId").equals(value.get("basisId"))

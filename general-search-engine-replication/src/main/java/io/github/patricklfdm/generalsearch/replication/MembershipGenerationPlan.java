@@ -26,10 +26,15 @@ final class MembershipGenerationPlan {
     }
     /** Recheck the typed proof that constructed this exact plan, without turning raw packets into authority. */
     void verifyOwned(Decoded root,MembershipIdentity local,Collection<MembershipCapsule.Anchor> ancestors) {
+        require(Arrays.equals(root.bytes(),authority.packet.objectBytes(root.digest())),"generation original root changed");
+        verifyCapsule(verifiedMaterialization(),local,ancestors);
+    }
+    /** Reconstruct this plan with its exact original prefix and authenticated
+     * supplemental bridges, including when later settlement checks need them. */
+    MembershipCapsule verifiedMaterialization() {
         var packet=MembershipSourcePacket.decode(files.get("source.gscp"));var images=new TreeMap<String,byte[]>();
         for(String hash:packet.images().keySet())images.put(hash,files.get(hash+".image"));
-        require(Arrays.equals(root.bytes(),authority.packet.objectBytes(root.digest())),"generation original root changed");
-        verifyCapsule(authority.materialization(packet,images,bridges),local,ancestors);
+        return authority.materialization(packet,images,bridges);
     }
     private void verifyCapsule(MembershipCapsule capsule,MembershipIdentity local,Collection<MembershipCapsule.Anchor> ancestors) {
         var packet=capsule.packet;

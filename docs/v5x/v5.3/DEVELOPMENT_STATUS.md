@@ -1,5 +1,28 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B native original pending-context recovery
+
+The [native context batch](PHASE_3_OWNED_CONTEXT.md) binds recovery to the exact
+active forced context or complete inactive original, its journal-owned grant and
+complete backing source. Equal-cut current copies cannot substitute the original
+generation's hidden publication coverage. Selection and installed settlement retain
+only already authenticated supplemental ancestry; historical copies create no new
+voter observations. Raw, damaged and candidate-only authority remains rejected.
+
+One final isolated build passes 58 Java tests across nine suites. Eight actual
+public-bootstrap histories cover 3/4/5 voters with EMPTY/backup sources, including
+ACCEPT/PROOF/CERTIFICATE on three-voter EMPTY, and independently replay 110 node
+publications. Twenty-two halt/SIGKILL cases use 66 child JVMs and eleven lock probes.
+All fourteen evidence negatives agree across normal, optimized and portable replay;
+all 601 Python tests pass normally and under `-O`. The
+[receipt](phase3-evidence/owned-context.json) binds source/build/evidence inventories
+and retains the reproduced original failure and intermediate failed attempts.
+
+These are explicitly driven same-view histories. Autonomous discovery/elections,
+complete native network integration, cross-view pending contexts, learner/joint
+completion, generalized publication and the complete Phase 3 audit remain open.
+No public runtime, push, workflow, paid experiment or V5.2 Runner change.
+
 ## 2026-10-26 — Phase 3B native cross-view adoption
 
 The [native cross-view batch](PHASE_3_OWNED_CROSS_VIEW.md) connects authenticated

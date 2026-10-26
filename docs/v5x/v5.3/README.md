@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native original pending-context recovery](PHASE_3_OWNED_CONTEXT.md) now preserves
+the actual old generation's proof across original retirement, later majority
+publication and covered settlement. Eight same-view profiles and 22 repeated
+halt/SIGKILL cases pass independent physical/image and portable replay. Automatic
+network/election integration, cross-view pending contexts, learners/joint completion
+and full Phase 3 acceptance remain open.
+
 [Native cross-view adoption](PHASE_3_OWNED_CROSS_VIEW.md) now exercises verified
 TCP prefix acquisition, original storage adoption and removed-node reopening
 through actual public-bootstrap REMOVE histories. Independent original-first,

@@ -48,10 +48,20 @@ final class MembershipCapsule {
      * Every supplemental bridge is verified before its historical key is retained. */
     MembershipCapsule materialization(MembershipSourcePacket candidate,Map<String,byte[]> images,List<MembershipSelection.Bridge> bridges) {
         require(sameProvenPrefix(candidate),"materialization changed proven prefix");
+        byte[] ancestry=checkedAncestry(bridges);
+        return verifyExtension(candidate,images,Set.of()).retainingCompleteAncestry(ancestry);
+    }
+    /** Preserve the exact independently authenticated bridges when a caller later
+     * validates their serialized form. Bare statements never acquire authority. */
+    MembershipCapsule retainingVerifiedAncestry(List<MembershipSelection.Bridge> bridges) {
+        return retainingCompleteAncestry(checkedAncestry(bridges));
+    }
+    private byte[] checkedAncestry(List<MembershipSelection.Bridge> bridges) {
+        byte[] bytes=MembershipGenerationPlan.ancestry(bridges);
         for(var bridge:bridges) {
             var v=bridge.statement.value();bridge.verify(this,new Anchor(object(v.get("start")),(String)v.get("catalogBefore"),(String)v.get("applicationBefore")));
         }
-        return verifyExtension(candidate,images,Set.of()).retainingCompleteAncestry(MembershipGenerationPlan.ancestry(bridges));
+        return bytes;
     }
     /** Only certificates actually authenticated while walking membership edges, never inventory extras. */
     Optional<Decoded> membershipCertificateFence(){return Optional.ofNullable(highestMembershipCertificate);}
@@ -91,7 +101,7 @@ final class MembershipCapsule {
         var result=verify(root,packet,images,Set.of(),Set.of(),true);copy.check(root,packet);return result;
     }
     /** Only complete original storage readers can issue this short-lived local-copy capability. */
-    sealed interface StoredCopy permits MembershipCurrentGeneration.RetainedCopy,MembershipBasisSources.RetainedCopy,MembershipFloorFiles.RetainedCopy,MembershipGenerationFiles.RetainedCopy,MembershipRetirementFiles.RetainedCopy {
+    sealed interface StoredCopy permits MembershipCurrentGeneration.RetainedCopy,MembershipBasisSources.RetainedCopy,MembershipFloorFiles.RetainedCopy,MembershipGenerationFiles.RetainedCopy,MembershipRetirementFiles.RetainedCopy,MembershipPendingContextFiles.RetainedCopy {
         void check(Decoded root,MembershipSourcePacket packet)throws java.io.IOException;
         byte[] ancestry();
         Optional<byte[]> coverage()throws java.io.IOException;

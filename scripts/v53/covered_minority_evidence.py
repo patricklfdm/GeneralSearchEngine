@@ -37,12 +37,14 @@ def publication(root,group,slot,entry,payload,observations,names,first=None):
         for record in (accept,proof):observations.append(dict(voter=node,storage=ids[node],record=e.digest(record),parent=e.digest(e.f.canonical(cap['cut']))))
     image=t.plans.read(root/f'slot-{slot}-applied/{representative}/applied-end/application.image',64*e.MIB)
     after=copy.deepcopy(e.f.decode(packet['objects'][cap['catalog']],'records','CATALOG'));after['cut']=dict(cap['cut'],index=slot,entry=e.digest(entry))
-    if slot==1:after.update(application=e.digest(image),applicationSequence=after['applicationSequence']+1,lastDataIndex=slot)
+    kind=e.f.decode(entry,'records','ENTRY')['kind']
+    e.need(kind in ('DATA','BARRIER'),'covered publication operation kind')
+    if kind=='DATA':after.update(application=e.digest(image),applicationSequence=after['applicationSequence']+1,lastDataIndex=slot)
     else:e.need(image==members[cap['application']+'.image'],'admitted BARRIER exact image')
     catalog=e.f.encode('records','CATALOG',after)
     start=e.f.decode(packet['objects'][cap['items'][0]['statement']],'records','CHECKPOINT') if cap['items'] else dict(root=r,scope='RANGE',start=cap['cut'],catalogBefore=cap['catalog'],applicationBefore=cap['application'])
     statement=dict(start,end=after['cut'],catalogAfter=e.digest(catalog),applicationAfter=after['application']);statement_raw=e.f.encode('records','CHECKPOINT',statement)
-    lower=c.anchor(cap) if slot>1 else None;lower_raw=e.f.encode('records','CHECKPOINT',dict(statement,start=lower['cut'],catalogBefore=lower['catalog'],applicationBefore=lower['application'])) if lower else None
+    lower=c.anchor(cap) if cap['cut']['index']>0 else None;lower_raw=e.f.encode('records','CHECKPOINT',dict(statement,start=lower['cut'],catalogBefore=lower['catalog'],applicationBefore=lower['application'])) if lower else None
     acks=[];lower_acks=[];applied=dict(group)
     for node in names:
         files=phases[node]

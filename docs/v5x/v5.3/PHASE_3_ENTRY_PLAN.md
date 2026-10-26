@@ -103,6 +103,14 @@ The source-bound local batch qualification includes independent portable replay;
 autonomous election and native pending-context ownership remain 3B obligations. Learner/joint delivery,
 generalized publication and the complete 3C–3E gates remain required.
 
+[Native original pending-context recovery](PHASE_3_OWNED_CONTEXT.md) subsequently
+binds the old generation's exact coverage and ancestry to its actual forced context
+and backing journal/source. Eight same-view public-bootstrap histories cover normal
+retirement/rebinding/settlement, with 22 repeated halt/SIGKILL cases and independent
+original-first physical/image replay. The remaining automatic network/election
+ownership, cross-view pending-context transitions and complete 3C–3E gates are still
+required. Component qualification does not close an S family or enable public READY.
+
 ## First batch boundary
 
 The subsequent [retained-copy verifier](PHASE_3_RETAINED_PROVENANCE.md) separates

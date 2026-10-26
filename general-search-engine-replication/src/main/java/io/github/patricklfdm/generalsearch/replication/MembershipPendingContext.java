@@ -70,6 +70,24 @@ final class MembershipPendingContext {
         validateStructure(context);return MembershipFormat.decode(context.basis.clone(),"records","BASIS");
     }
 
+    /** Pure byte reconstruction. No historical proof, force or ownership capability. */
+    static Map<String,byte[]> originalFiles(Context context,MembershipSourcePacket backing,Map<String,byte[]> backingImages) {
+        var binding=validateStructure(context);
+        exactIdentity(backing.bytes(),binding.get("backingPacket"),"pending context backing packet changed");
+        backing.bind(backingBasis(context));backing.verifyImages(backingImages);
+        var packet=MembershipSourcePacket.reconstruct(context.envelope,backing);var files=copyMutable(context.metadata);
+        files.put("source.gscp",packet.bytes());
+        for(var image:packet.images().entrySet()) {
+            byte[] bytes=backingImages.get(image.getKey());
+            require(bytes!=null && bytes.length==image.getValue() && hash(bytes).equals(image.getKey()),"pending context original image changed");
+            files.put(image.getKey()+".image",bytes.clone());
+        }
+        return Collections.unmodifiableMap(files);
+    }
+    private static TreeMap<String,byte[]> copyMutable(Map<String,byte[]> source) {
+        var result=new TreeMap<String,byte[]>();source.forEach((name,bytes)->result.put(name,bytes.clone()));return result;
+    }
+
     static Context create(MembershipRoot root,MembershipIdentity owner,Decoded oldSelector,Map<String,byte[]> originalFiles,
             MembershipPendingAccept.Vote originalVote,Decoded backingPromise,MembershipSelection.Source backing,
             Map<String,byte[]> backingImages,MembershipCurrentGeneration.Verifier verifier) {

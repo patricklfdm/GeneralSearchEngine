@@ -15,22 +15,26 @@ e, c, t, selection = q.e, q.c, q.t, q.b.selection
 CUTS = q.CUTS
 
 
-def original(root):
+def original(root,prelude=0):
+    e.need(type(prelude) is int and prelude in (0,2), "context process prelude")
     paths = {'original-plan.gsbp', 'original-application.image', 'initial', 'profile.json',
              'entry.gsr', 'payload.bin', 'calls.json', 'observations.json', 'initial-votes',
              'contexts', 'original-retired', 'majority-reaccepted', 'advanced-selected',
-             'original-proved', 'original-certified', 'typed-1-node-2', 'typed-1-node-3'}
+             'original-proved', 'original-certified', f'typed-{prelude+1}-node-2', f'typed-{prelude+1}-node-3'}
     for counter, stages in ((1, ('prepared', 'selected', 'installed', 'settled')),
                             (3, ('prepared', 'selected', 'installed')), (4, ('prepared', 'selected'))):
         paths |= {f'round-{counter}-{stage}' for stage in stages}
-    paths |= {'slot-1-'+stage for stage in ('accepted', 'proved', 'certified', 'applied', 'published', 'settled')}
+    for slot in range(1,prelude+2):
+        paths |= {f'slot-{slot}-'+stage for stage in ('accepted', 'proved', 'certified', 'applied', 'published', 'settled')}
+    for slot in range(1,prelude+1):
+        paths |= {f'entry-{slot}.gsr',f'payload-{slot}.bin'}|{f'typed-{slot}-node-{n}' for n in (1,2,3)}
     selection.layout(root, paths, 'context process originals')
-    profile, names, majority, before, after, observed = q.prefix(root)
+    profile, names, majority, before, after, observed = q.prefix(root,prelude)
     same(profile, dict(size=3, backup=False, phase='CERTIFICATE'), 'context process original profile')
-    q.calls(root, profile, names, majority, False); q.covered.observations(root, observed)
+    q.calls(root, profile, names, majority, False,prelude); q.covered.observations(root, observed)
     for node in majority:
-        _, members, packet = c.current(c.inventory(root/'slot-1-settled'/node))
-        q.b.typed_image(root/('typed-1-'+node), members[packet['capsule']['application']+'.image'])
+        _, members, packet = c.current(c.inventory(root/f'slot-{prelude+1}-settled'/node))
+        q.b.typed_image(root/(f'typed-{prelude+1}-'+node), members[packet['capsule']['application']+'.image'])
     return before['node-1'], after['node-1']
 
 
@@ -63,6 +67,15 @@ def validate(root):
     targets = [dict(node=paths[1+2*i]['path'], materialization=paths[2+2*i]['path']) for i in range(3)]
     same(inputs['targets'], targets, 'context process admitted paths')
     same(inputs['observations'], read(root/'reference/observations.json'), 'context process original observations')
+    results,peaks=validate_cases(root,initial,installed,targets)
+    same(read(root/'receipt.json'), dict(schema='gse-v53-covered-context-process-v1', status='PASS', cases=results,
+         freshProcesses=66, lockProbes=11, inputsSha256=e.digest(raw), publicBootstrap=True, powerLoss=False, runtimeEnabled=False), 'context process exact receipt')
+    return dict(status='PASS', cases=22, freshProcesses=66, lockProbes=11, peakImages=max(peaks),
+                publicBootstrap=True, powerLoss=False, publicRuntime=False, maximalCapacity=False, originalFirst=True,
+                independentImageSemantics=False)
+
+
+def validate_cases(root,initial,installed,targets):
     results = []; peaks = []
     for mode in ('halt', 'kill'):
         for cut in CUTS:
@@ -89,11 +102,7 @@ def validate(root):
                 same(trace(case/'lock.stdout'), [dict(event='LOCK_HELD', path=targets[0]['node']+'/replica.lock')], 'context process lock probe')
                 same(read(case/'lock.exit.json'), dict(exitCode=0), 'context process lock exit')
             results.append(dict(case=name, mode=mode, cut=cut, second=second, status='PASS', exitCodes=[73 if mode == 'halt' else 137, 73, 0]))
-    same(read(root/'receipt.json'), dict(schema='gse-v53-covered-context-process-v1', status='PASS', cases=results,
-         freshProcesses=66, lockProbes=11, inputsSha256=e.digest(raw), publicBootstrap=True, powerLoss=False, runtimeEnabled=False), 'context process exact receipt')
-    return dict(status='PASS', cases=22, freshProcesses=66, lockProbes=11, peakImages=max(peaks),
-                publicBootstrap=True, powerLoss=False, publicRuntime=False, maximalCapacity=False, originalFirst=True,
-                independentImageSemantics=False)
+    return results,peaks
 
 
 VARIANTS = {

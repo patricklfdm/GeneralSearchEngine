@@ -13,6 +13,7 @@ import uuid
 from pathlib import Path
 from . import covered_minority_evidence as covered
 from . import pending_context_evidence as context
+from .ancestry_pruning_evidence import frames as ancestry_frames
 
 d, b, e, c, t = covered.d, covered.b, covered.e, covered.c, covered.t
 match = b.match
@@ -45,6 +46,25 @@ def capture(files, phases):
     return e.packet_bytes(packet['capsule'], objects, images), tail
 
 
+def original_bridge(files,cap,lower):
+    """Use only ancestry from a previously reconstructed physical generation."""
+    original=c.current(files)[1].get('ancestry.gsr',b'');groups=[]
+    for raw in ancestry_frames(original):
+        if int.from_bytes(raw[8:10],'big')==e.f.catalog()['records']['CHECKPOINT']['id']:groups.append([raw])
+        else:
+            e.need(bool(groups),'covered context orphan ancestry ACK');groups[-1].append(raw)
+    matched=[]
+    for parts in groups:
+        value=e.f.decode(parts[0],'records','CHECKPOINT')
+        if dict(cut=value['start'],catalog=value['catalogBefore'],application=value['applicationBefore'])==lower:
+            e.need(value['root']==cap['root'] and value['scope']=='RANGE' and len(parts)>1 and
+                   dict(cut=value['end'],catalog=value['catalogAfter'],application=value['applicationAfter'])==c.anchor(cap),
+                   'covered context original ancestry endpoint')
+            matched.append(b''.join(parts))
+    e.need(len(matched)==1,'covered context authenticated parent')
+    return matched[0]
+
+
 def campaign(root, group, counter, phases, carried=False):
     names = sorted(group); proposer = names[-1]
     identity = e.f.decode(group[proposer]['node.gsr'], 'records', 'NODE')['identity']
@@ -74,7 +94,7 @@ def campaign(root, group, counter, phases, carried=False):
         prepared[node] = changed; rows[node] = (promise, basis); packets[node] = packet
     match(root, f'round-{counter}-prepared', prepared)
     longest = max(reversed(names), key=lambda n: packets[n]['capsule']['cut']['index']); packet = packets[longest]; cap = packet['capsule']
-    choices = []
+    choices = []; bridges = {}
     for node in names:
         local = packets[node]['capsule']
         e.need(local['root'] == cap['root'] and local['cut']['view'] == cap['cut']['view'] and cap['cut']['view']['operation'] is None, 'covered context stable authority')
@@ -82,7 +102,8 @@ def campaign(root, group, counter, phases, carried=False):
         else:
             e.need(len(cap['items']) == 1 and cap['items'][0]['kind'] == 'RANGE', 'covered context range')
             statement = e.f.decode(packet['objects'][cap['items'][0]['statement']], 'records', 'CHECKPOINT')
-            e.need(dict(cut=statement['start'], catalog=statement['catalogBefore'], application=statement['applicationBefore']) == c.anchor(local), 'covered context authenticated parent')
+            if dict(cut=statement['start'], catalog=statement['catalogBefore'], application=statement['applicationBefore']) != c.anchor(local):
+                bridges[local['cut']['index']]=original_bridge(group[longest],cap,c.anchor(local))
         tail = rows[node][1][2]['accepted']
         if tail:
             accepted = e.f.decode(packets[node]['objects'][tail], 'records', 'ACCEPT')
@@ -110,6 +131,15 @@ def campaign(root, group, counter, phases, carried=False):
                 for h in (accept['entry'], original_entry['payload']): local_objects[h] = packets[node]['objects'][h]
         raw = e.packet_bytes(cap, local_objects, packet['images'])
         members = {'promise.gsr': rows[node][0][1], 'basis.gsr': rows[node][1][1], 'selected.gsr': selected, 'selected-sources.gsr': b''.join(rows[n][1][1] for n in names), 'source.gscp': raw}
+        installation_bridges=dict(bridges)
+        for kind,_,basis in c.journal(files['grants.gsr'],cap['root'],node):
+            if kind!='BASIS':continue
+            retained=e.p.decode(files['sources/'+basis['basisId']+'/source.gscp'])['capsule']
+            if retained['cut']['index'] in (0,cap['cut']['index']):continue
+            index=retained['cut']['index']
+            if index not in installation_bridges:
+                installation_bridges[index]=original_bridge(group[node],cap,c.anchor(retained))
+        if installation_bridges:members['ancestry.gsr']=b''.join(installation_bridges[index] for index in sorted(installation_bridges))
         if tail: members['owned-tail.gsr'] = objects[tail]
         source_prefix = 'sources/'+rows[longest][1][2]['basisId']
         members.update({h+'.image': prepared[longest][source_prefix+'/'+h+'.image'] for h in packet['images']})
@@ -159,11 +189,14 @@ def release(files):
     return {k:v for k,v in files.items() if k != 'floor-copies' and not k.startswith('floor-copies/')}
 
 
-def initial(root):
+def initial(root,prelude=0):
+    e.need(type(prelude) is int and prelude in (0,2),'covered context prelude')
     profile = read(root/'profile.json'); e.exact(profile, 'size backup phase')
     size, backup, phase = profile['size'], profile['backup'], profile['phase']; phases = phase_names(phase)
     e.need(type(size) is int and size in (3,4,5) and type(backup) is bool, 'covered context profile')
     group = b.campaign(root, b.original(root,size,backup), 1); names = sorted(group); majority = names[size-(size//2+1):]; observed = []
+    first=None
+    for slot in range(1,prelude+1):group,first=b.publication(root,group,slot,first,observed)
     ballot = e.f.decode(c.current(group[names[0]])[1]['promise.gsr'], 'records', 'PROMISE')['ballot']
     payload = d.payload(404, 'majority-selected'); entry = d.entry(group,payload,ballot)
     e.need(t.plans.read(root/'entry.gsr',16384) == entry and t.plans.read(root/'payload.bin',e.MIB) == payload, 'covered context original ENTRY')
@@ -188,21 +221,21 @@ def initial(root):
     return profile,names,majority,group,observed,entry,payload,phases
 
 
-def prefix(root):
-    profile,names,majority,group,observed,entry,payload,phases = initial(root)
+def prefix(root,prelude=0):
+    profile,names,majority,group,observed,entry,payload,phases = initial(root,prelude)
     for node in majority:
         files = group[node]; _, members, _ = c.current(files); frames, values = c.pending(files['pending.accept'],phases)
         accept = e.f.encode('records','ACCEPT',dict(values['ACCEPT'],ballot=e.f.decode(members['promise.gsr'],'records','PROMISE')['ballot']))
         changed = release(files); changed.pop('pending.context')
         changed['pending.accept'] = e.container([files['selector.gsr'],members['promise.gsr'],members['selected.gsr'],entry,accept],payload); group[node] = changed
         observed.append(dict(voter=node,storage=e.f.decode(files['node.gsr'],'records','NODE')['identity']['storage'],record=e.digest(accept),parent=e.digest(e.f.canonical(c.current(files)[2]['capsule']['cut']))))
-    match(root,'majority-reaccepted',group); group,_ = covered.publication(root,group,1,entry,payload,observed,majority)
+    match(root,'majority-reaccepted',group); group,_ = covered.publication(root,group,prelude+1,entry,payload,observed,majority)
     before, after, _ = campaign(root,group,4,phases); match(root,'advanced-selected',before)
     return profile,names,majority,before,after,observed
 
 
-def clean(root):
-    root = Path(root); p,names,majority,before,group,observed = prefix(root); layout(root,p,names,majority,True)
+def clean(root,prelude=0):
+    root = Path(root); p,names,majority,before,group,observed = prefix(root,prelude); layout(root,p,names,majority,True,prelude)
     match(root,'covered-installed',group)
     for node in names:
         if node not in majority:
@@ -212,8 +245,8 @@ def clean(root):
     group = d.settle(root,'round-4-settled',group,names)
     _,group,ballot = campaign(root,group,5,()); match(root,'round-5-installed',group); group = d.settle(root,'round-5-settled',group,names)
     barrier = d.entry(group,b'',ballot,'BARRIER'); e.need(t.plans.read(root/'barrier.gsr',16384) == barrier,'covered context continuation ENTRY')
-    group,_ = covered.publication(root,group,2,barrier,b'',observed,names); covered.observations(root,observed); calls(root,p,names,majority,True)
-    for slot,owners in ((1,majority),(2,names)):
+    group,_ = covered.publication(root,group,prelude+2,barrier,b'',observed,names); covered.observations(root,observed); calls(root,p,names,majority,True,prelude)
+    for slot,owners in [(s,names) for s in range(1,prelude+1)]+[(prelude+1,majority),(prelude+2,names)]:
         for node in owners:
             _,members,packet = c.current(c.inventory(root/f'slot-{slot}-settled'/node)); b.typed_image(root/f'typed-{slot}-{node}',members[packet['capsule']['application']+'.image'])
     peak=0
@@ -222,10 +255,10 @@ def clean(root):
             for node in names:
                 files=c.inventory(stage/node);images=[raw for path,raw in files.items() if path.endswith('.image')]
                 e.need(len(images)<=7 and all(len(raw)<=64*e.MIB for raw in images),'covered context physical image bound');peak=max(peak,len(images))
-    return dict(status='PASS',**p,nodePublications=len(names)+len(majority),peakPhysicalImages=peak,publicBootstrap=True,freshProcesses=False,powerLoss=False,publicRuntime=False)
+    return dict(status='PASS',**p,nodePublications=(prelude+1)*len(names)+len(majority),peakPhysicalImages=peak,publicBootstrap=True,freshProcesses=False,powerLoss=False,publicRuntime=False)
 
 
-def layout(root,p,names,majority,complete):
+def layout(root,p,names,majority,complete,prelude=0):
     paths={'original-plan.gsbp','original-application.image','initial','profile.json','entry.gsr','payload.bin','calls.json','observations.json',
            'initial-votes','contexts','original-retired','majority-reaccepted','advanced-selected'}
     paths|={f'round-1-{s}' for s in ('prepared','selected','installed','settled')}
@@ -233,7 +266,8 @@ def layout(root,p,names,majority,complete):
     paths|={f'round-4-{s}' for s in ('prepared','selected')}
     if p['phase']!='ACCEPT':paths.add('original-proved')
     if p['phase']=='CERTIFICATE':paths.add('original-certified')
-    for slot,owners in [(1,majority)]+([(2,names)] if complete else []):
+    for slot in range(1,prelude+1):paths|={f'entry-{slot}.gsr',f'payload-{slot}.bin'}
+    for slot,owners in [(s,names) for s in range(1,prelude+1)]+[(prelude+1,majority)]+([(prelude+2,names)] if complete else []):
         paths|={f'slot-{slot}-{s}' for s in ('accepted','proved','certified','applied','published','settled')}
         paths|={f'typed-{slot}-{n}' for n in owners}
     if complete:
@@ -243,7 +277,7 @@ def layout(root,p,names,majority,complete):
     b.selection.layout(root,paths,'covered context evidence')
 
 
-def calls(root,p,names,majority,complete):
+def calls(root,p,names,majority,complete,prelude=0):
     expected=[]
     def many(nodes,label):expected.extend((n,label) for n in nodes)
     def maintain(nodes,label):many(nodes,label+'-copy');many(nodes,label+'-maintain')
@@ -255,18 +289,23 @@ def calls(root,p,names,majority,complete):
         maintain(nodes,f'slot-{slot}-settled');many(nodes,f'inspect-{slot}')
     expected.append((names[0],'allocate-1'))
     for label in ('prepare','select','install'):many(names,label+'-1')
-    maintain(names,'round-1-settled');expected.append((names[-1],'entry'));many(names,'initial-vote')
+    maintain(names,'round-1-settled')
+    for slot in range(1,prelude+1):expected.append((names[0],f'entry-{slot}'));publish(slot,names)
+    expected.append((names[-1],'entry'));many(names,'initial-vote')
     if p['phase']!='ACCEPT':many(names,'original-proof')
     if p['phase']=='CERTIFICATE':many(names,'original-certificate')
-    campaign_order(3);many(names,'retain-context');many(names,'context-retirement');many(majority,'majority-reaccept');publish(1,majority);campaign_order(4,False)
+    campaign_order(3);many(names,'retain-context');many(names,'context-retirement');many(majority,'majority-reaccept');publish(prelude+1,majority);campaign_order(4,False)
     if complete:
         many(names,'install-4');many([n for n in names if n not in majority],'release-covered-floor');maintain(names,'round-4-settled')
-        campaign_order(5);maintain(names,'round-5-settled');expected.append((names[-1],'entry'));publish(2,names)
+        campaign_order(5);maintain(names,'round-5-settled');expected.append((names[-1],'entry'));publish(prelude+2,names)
+        if prelude:many(names,'native-final')
     rows=read(root/'calls.json',8*e.MIB)
     e.need(type(rows) is list and [(v.get('node'),v.get('operation')) for v in rows]==expected,'covered context call inventory')
     for row in rows:
         e.exact(row,'node operation events');events=row['events']
         e.need(type(events) is list and all(type(v) is str for v in events),'covered context force trace type')
+        if row['operation']=='native-final':
+            e.need(not any(event.startswith(('PROMISE_','BASIS_','SELECTED_','CONTEXT_','INSTALL_')) for event in events),'covered context final reopen wrote authority')
         if row['operation']=='install-4' and row['node'] not in majority:
             required=['INSTALL_SELECTOR_RENAMED','INSTALL_PARENT_FORCED','CONTEXT_SETTLEMENT_VALIDATED','SETTLED_VOTE_RENAMED','SETTLED_VOTE_PARENT_FORCED',
                       'CONTEXT_SETTLEMENT_EMPTY_FORCED','CONTEXT_REDUNDANT_DELETED','CONTEXT_REDUNDANT_PARENT_FORCED','CONTEXT_SETTLEMENT_CLEARED','INSTALL_BEFORE_RETURN']

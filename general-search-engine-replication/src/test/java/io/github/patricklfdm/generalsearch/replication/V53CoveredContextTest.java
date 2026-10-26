@@ -12,21 +12,27 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipContext.
 /** Actual admitted context outlives its original generation, then a majority advances. */
 class V53CoveredContextTest {
     @TempDir Path temp;
-    record Prepared(V53BootstrapPublicationTest.Fixture f,V53DistinctMinorityTest.Installation installation) {}
+    boolean ownedHistory;
+    int precedingSlots;
+    record Prepared(V53BootstrapPublicationTest.Fixture f,V53DistinctMinorityTest.Installation installation,long expectedSequence,List<MembershipSelection.Bridge> bridges) {
+        Prepared(V53BootstrapPublicationTest.Fixture f,V53DistinctMinorityTest.Installation installation){this(f,installation,f.result.applicationSequence()+1,List.of());}
+    }
     record Original(V53BootstrapPublicationTest.Fixture f,Decoded entry,byte[] payload) {}
     Original original(int size,boolean backup,String phase)throws Exception {
+        assertTrue(precedingSlots==0 || precedingSlots==2,"covered context prelude");
         Path raw=Path.of("target/v53-covered-context/run-"+UUID.randomUUID());Files.createDirectories(raw);
         System.out.println("v53CoveredContextEvidence="+raw.toAbsolutePath());
         Files.write(raw.resolve("profile.json"),canonical(Map.of("size",size,"backup",backup,"phase",phase),16384));
         var f=new V53BootstrapPublicationTest.Fixture(Files.createDirectory(temp.resolve("group-"+UUID.randomUUID())),raw,size,backup);
+        f.ownedHistory=ownedHistory;
         try {
-            f.campaign(1);var all=f.request.targets();var majority=all.subList(size-(size/2+1),size);
+            f.campaign(1);for(int slot=1;slot<=precedingSlots;slot++)f.publish(slot,slot==2);var all=f.request.targets();var majority=all.subList(size-(size/2+1),size);
             var payload=V53DistinctMinorityTest.payload(f,404,"majority-selected");var entry=V53DistinctMinorityTest.entry(f,payload,"DATA");
             Files.write(raw.resolve("entry.gsr"),entry.bytes());Files.write(raw.resolve("payload.bin"),payload);
             V53DistinctMinorityTest.vote(f,all,entry,payload,"initial-vote");f.snapshot("initial-votes");
             if(!phase.equals("ACCEPT")) {
                 var vote=MembershipPendingAccept.decode(Files.readAllBytes(all.getFirst().replicaDirectory().resolve("pending.accept")));
-                var accepts=new HashSet<>(f.observations);var fields=new TreeMap<>(vote.accept().value());
+                var accepts=f.observations.stream().filter(o->o.record().equals(vote.accept().digest())).collect(java.util.stream.Collectors.toSet());var fields=new TreeMap<>(vote.accept().value());
                 fields.put("accepts",V53PublicationLifetimeTest.witnesses(f.result.root().manifestDigest(),"ACCEPT",vote.accept(),accepts));
                 var proof=decode(encode("records","PROOF",fields),"records","PROOF");var proofs=new HashSet<Owned>();
                 for(var t:all)try(var owner=f.open(t,"original-proof")){proofs.add(owner.proveCurrent(proof,accepts));}
@@ -34,7 +40,8 @@ class V53CoveredContextTest {
                 if(phase.equals("CERTIFICATE")) {
                     fields=new TreeMap<>(proof.value());fields.put("proofs",V53PublicationLifetimeTest.witnesses(f.result.root().manifestDigest(),"PROOF",proof,proofs));
                     var certificate=decode(encode("records","CERTIFICATE",fields),"records","CERTIFICATE");
-                    for(var t:all)try(var owner=f.open(t,"original-certificate")){owner.certifyCurrent(certificate,f.observations);}
+                    var phased=new HashSet<>(accepts);phased.addAll(proofs);
+                    for(var t:all)try(var owner=f.open(t,"original-certificate")){owner.certifyCurrent(certificate,phased);}
                     f.snapshot("original-certified");
                 }else assertEquals("PROOF",phase);
             }
@@ -55,12 +62,14 @@ class V53CoveredContextTest {
         var all=f.request.targets();var majority=all.subList(size-(size/2+1),size);
         try {
             for(var t:majority)try(var owner=f.open(t,"majority-reaccept")){f.observations.add(owner.acceptRetainedCurrent(entry,payload));}
-            f.snapshot("majority-reaccepted");V53DistinctMinorityTest.publish(f,1,entry,payload,majority);
-            var advanced=V53DistinctMinorityTest.campaign(f,4,all,false);f.snapshot("advanced-selected");
-            return new Prepared(f,advanced);
+            long sequence=f.result.applicationSequence()+1+(precedingSlots>=2?1:0);
+            f.snapshot("majority-reaccepted");V53DistinctMinorityTest.publishWithSequence(f,Math.toIntExact(number(entry.value().get("index"))),entry,payload,majority,sequence);
+            var bridges=List.copyOf(f.bridges);
+            var advanced=V53DistinctMinorityTest.campaign(f,4,all,false,bridges);f.snapshot("advanced-selected");
+            return new Prepared(f,advanced,sequence,bridges);
         }finally{V53CoveredPhasedVoteTest.save(f);}
     }
-    static void install(Prepared p,MembershipGrantJournal owner)throws Exception {owner.installCurrent(p.installation().sources(),List.of(),p.installation().images());}
+    static void install(Prepared p,MembershipGrantJournal owner)throws Exception {owner.installCurrent(p.installation().sources(),p.bridges(),p.installation().images());}
     static MembershipGrantJournal open(Prepared p,MembershipResources resources,MembershipBallotAllocator.Cut cut)throws Exception {
         var f=p.f();var t=f.request.targets().getFirst();
         return MembershipGrantJournal.openBootstrapped(t.replicaDirectory(),t.materialization().directory(),f.result.root(),t.identity(),resources,
@@ -73,9 +82,11 @@ class V53CoveredContextTest {
             f.snapshot("covered-installed");
             for(var t:all.subList(0,all.size()-(all.size()/2+1)))try(var owner=f.open(t,"release-covered-floor")){owner.retireInactive();owner.releaseFloor();}
             f.snapshot("floor-released");V53DistinctMinorityTest.maintain(f,"round-4-settled",all,p.installation().obsolete());
-            var next=V53DistinctMinorityTest.campaign(f,5,all);V53DistinctMinorityTest.maintain(f,"round-5-settled",all,next.obsolete());
+            var retained=new TreeMap<String,List<MembershipSelection.Bridge>>();
+            for(var t:all.subList(0,all.size()-(all.size()/2+1)))retained.put(t.identity().nodeId().value(),p.bridges());
+            var next=V53DistinctMinorityTest.campaign(f,5,all,true,List.of(),retained);V53DistinctMinorityTest.maintain(f,"round-5-settled",all,next.obsolete());
             var barrier=V53DistinctMinorityTest.entry(f,new byte[0],"BARRIER");Files.write(f.raw.resolve("barrier.gsr"),barrier.bytes());
-            V53DistinctMinorityTest.publish(f,2,barrier,new byte[0]);assertEquals(0,f.resources.usage().leases());
+            V53DistinctMinorityTest.publishWithSequence(f,Math.toIntExact(number(barrier.value().get("index"))),barrier,new byte[0],all,p.expectedSequence());assertEquals(0,f.resources.usage().leases());
         }finally{V53CoveredPhasedVoteTest.save(f);}
     }
     @Test void publishedMajorityCanCoverProtectedOriginalsForEveryInitialProfile()throws Exception {
