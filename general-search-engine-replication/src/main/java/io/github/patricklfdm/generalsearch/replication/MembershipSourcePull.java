@@ -239,13 +239,15 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     /** One separately bounded read-only exchange. It copies the actual manifest and
      * its complete ancestry file; it never turns copied ACKs into new observations. */
-    MembershipCapsule fetchAncestry(MembershipCapsule higher)throws IOException {
+    MembershipCapsule fetchAncestry(MembershipCapsule higher)throws IOException {return fetchAncestry(higher,false);}
+    private MembershipCapsule fetchAncestry(MembershipCapsule higher,boolean completeGeneration)throws IOException {
         synchronized(this){require(prefixCut!=null && !used && !closed,"ancestry pull single use");used=true;}
         try {
             check();require(higher.context.root.equals(context.root) && higher.context.cut.equals(prefixCut)
                     && Arrays.equals(higher.packet.objectBytes(higher.context.recordRootDigest()),originalRoot.bytes()),"ancestry expected prefix");
             ancestryPrefix=higher;
-            var manifestOffer=offer(UUID.randomUUID(),MembershipPrefixExport.ancestryReference(higher.context),MembershipTransfer.Kind.RECORD,null,null);
+            var reference=completeGeneration?MembershipPrefixExport.generationReference(higher.context):MembershipPrefixExport.ancestryReference(higher.context);
+            var manifestOffer=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.RECORD,null,null);
             ancestryManifest=decode(metadataBlob(manifestOffer,65536),"records","GENERATION");
             var fields=ancestryManifest.value();var cap=higher.packet.capsule();
             require(fields.get("node").equals(source.nodeId().value()) && fields.get("capsule").equals(cap.digest()),"ancestry manifest owner/capsule");
@@ -268,6 +270,79 @@ final class MembershipSourcePull implements AutoCloseable {
             check();completeAncestry=true;
             ancestryResult=higher.retainingAncestry(ancestryBytes,new RetainedAncestry(this));check();return ancestryResult;
         }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
+    }
+    /** Complete original current-generation copy from its actual permanent owner.
+     * The observation covers this exact generation only, never a historical vote.
+     * The caller retains both pulls through completion and stores its governing
+     * floor before retiring any local original. */
+    MembershipFloor.Copy fetchGeneration(MembershipSourcePull prefix)throws IOException {
+        Objects.requireNonNull(prefix);require(prefix!=this,"generation requires separate complete prefix receive");
+        try {
+            check();prefix.check();
+            require(prefix.prefixCut!=null && prefix.completeSource && prefix.received!=null
+                    && prefix.prefixCut.equals(prefixCut) && prefix.source.equals(source) && prefix.local.equals(local)
+                    && prefix.context.root.equals(context.root) && prefix.context.authority().equals(context.authority())
+                    && prefix.ballot.equals(ballot) && prefix.resources==resources && prefix.started==started && prefix.budget==budget,
+                    "generation original prefix owner/deadline");
+            var complete=fetchAncestry(prefix.verifiedPrefix(),true);prefix.received.recheck();
+            var files=new TreeMap<String,byte[]>();files.put("generation.gsr",ancestryManifest.bytes());
+            files.put("source.gscp",prefix.received.packet().bytes());
+            for(var image:prefix.received.images().entrySet())files.put(image.getKey()+".image",image.getValue());
+            var members=list(ancestryManifest.value().get("files"));require(members.size()<32,"generation complete file count");
+            long metadata=ancestryManifest.size();
+            for(Object value:members) {
+                var member=object(value);String name=(String)member.get("path");long bytes=number(member.get("size"));
+                long maximum=MembershipGenerationFiles.limit(name);require(bytes>0 && bytes<=maximum,"generation original member extent");
+                if(!name.endsWith(".image")){metadata=Math.addExact(metadata,bytes);require(metadata<=MembershipResources.Unit.GENERATION.bytes,"generation original metadata capacity");}
+            }
+            for(Object value:members) {
+                check();prefix.received.recheck();var member=object(value);String name=(String)member.get("path"),digest=(String)member.get("sha256");
+                long bytes=number(member.get("size"));byte[] original=files.get(name);
+                if(original==null) {
+                    require(!name.equals("source.gscp") && !name.endsWith(".image"),"generation original image missing");
+                    original=name.equals("ancestry.gsr")?ancestryBytes:metadataBlob(
+                            offer(UUID.randomUUID(),digest,MembershipTransfer.Kind.RECORD,digest,bytes),Math.toIntExact(MembershipGenerationFiles.limit(name)));
+                    files.put(name,original);
+                }
+                require(original.length==bytes && hash(original).equals(digest),"generation exact original member");
+            }
+            var original=new GenerationCopy(this,prefix,files);
+            original.check(complete);
+            complete=complete.retainingGeneration(original);
+            MembershipFloor.Copy.validateMaterialization(ancestryManifest,complete,source,files);
+            prefix.received.recheck();prefix.check();check();
+            var forced=new Owned(source.nodeId().value(),source.storageId(),ancestryManifest.digest(),cutDigest(complete.context.cut));
+            var result=MembershipFloor.Copy.verify(ancestryManifest,complete,source,Set.of(forced),files);
+            prefix.received.recheck();prefix.check();check();return result;
+        }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
+    }
+    /** Only a fully downloaded current-generation owner can mint this provenance.
+     * It never authenticates a bare packet or creates historical voting receipts. */
+    static final class GenerationCopy {
+        private final MembershipSourcePull pull,prefix;
+        private final Map<String,byte[]> files;
+        private GenerationCopy(MembershipSourcePull pull,MembershipSourcePull prefix,Map<String,byte[]> files) {
+            this.pull=pull;this.prefix=prefix;this.files=Map.copyOf(files);
+        }
+        void check(MembershipCapsule capsule)throws IOException {
+            pull.check();prefix.check();prefix.received.recheck();
+            require(pull.completeAncestry && pull.ancestryManifest!=null && prefix.completeSource
+                    && capsule.context.cut.equals(pull.prefixCut) && capsule.context.root.equals(pull.context.root)
+                    && Arrays.equals(capsule.packet.bytes(),prefix.received.packet().bytes())
+                    && Arrays.equals(files.get("source.gscp"),capsule.packet.bytes())
+                    && Arrays.equals(files.get("generation.gsr"),pull.ancestryManifest.bytes()),"generation original copy binding");
+            var fields=pull.ancestryManifest.value();require(fields.get("node").equals(pull.source.nodeId().value()),"generation original owner");
+            var expected=new TreeSet<String>();expected.add("generation.gsr");
+            for(Object row:list(fields.get("files"))) {
+                var file=object(row);String name=(String)file.get("path");byte[] bytes=files.get(name);
+                require(expected.add(name) && bytes!=null && bytes.length==number(file.get("size"))
+                        && hash(bytes).equals(file.get("sha256")),"generation complete original inventory");
+            }
+            require(expected.equals(files.keySet()),"generation original inventory extras");pull.check();prefix.check();
+        }
+        byte[] ancestry(){return files.getOrDefault("ancestry.gsr",new byte[0]).clone();}
+        Optional<byte[]> coverage(){return Optional.ofNullable(files.get(MembershipSelectionCoverage.FILE)).map(byte[]::clone);}
+        Decoded record(String name,String kind){return decode(Objects.requireNonNull(files.get(name)),"records",kind);}
     }
     private byte[] metadataBlob(Offer offer,int maximum)throws IOException {
         require(offer.content.bytes()<=maximum,"ancestry metadata capacity");

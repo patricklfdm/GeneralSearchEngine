@@ -1,5 +1,25 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B complete generation copies, locally qualified
+
+The [generation-copy batch](PHASE_3_GENERATION_COPY.md) adds complete current
+materialization delivery from the actual native peer. Exact source/root/cut,
+inventory, original deadline and provenance checks precede any governing-floor
+copy observation. Compacted first/current publication coverage retains its actual
+historical proof without creating new voting observations.
+
+Six actual public-bootstrap 3/4/5-voter EMPTY/backup histories now pass native TCP
+generation copying and governing floor establishment/release: sixteen exact copies,
+270 exchanges and 21 intended evidence mutations. Normal, optimized and portable
+replay agree. Thirty-six Java tests in six suites and four related physical/crash
+replays pass; the [receipt](phase3-evidence/generation-copy.json) distinguishes the
+three build snapshots and retained failed attempts. All 631 Python tests pass in
+both modes; the final negative-fixture correction has focused and full physical replay.
+A separate genuine offline-survivor diagnostic fails because later compaction
+omits its still-required old ancestor. That is an outstanding owner-lifecycle
+obligation, not resolved by complete generation copying or removed-node recovery.
+Full Phase 3 and public membership remain open.
+
 ## 2026-10-26 — Phase 3B unequal compacted histories, locally qualified
 
 The [native ancestry batch](PHASE_3_NATIVE_ANCESTRY.md) now automatically obtains

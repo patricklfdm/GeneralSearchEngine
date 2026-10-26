@@ -19,25 +19,32 @@ final class MembershipPrefixExport implements MembershipTransferExport {
     private final LongSupplier clock;
     private final long started,budget;
     private final Map<String,MembershipSourceExport.Content> references;
-    private final boolean ancestry;
+    private final boolean ancestry,completeGeneration;
     private boolean closed;
 
     MembershipPrefixExport(MembershipGrantJournal owner,MembershipCurrentGeneration generation,Map<String,Object> ballot,
             String requestView,MembershipResources resources,LongSupplier clock,long started,long budget,boolean ancestry) {
+        this(owner,generation,ballot,requestView,resources,clock,started,budget,ancestry,false);
+    }
+    MembershipPrefixExport(MembershipGrantJournal owner,MembershipCurrentGeneration generation,Map<String,Object> ballot,
+            String requestView,MembershipResources resources,LongSupplier clock,long started,long budget,boolean ancestry,boolean completeGeneration) {
         require(budget>0 && budget<Long.MAX_VALUE/2,"prefix export budget");MembershipValidation.digest(requestView);
-        this.owner=owner;this.generation=generation;this.ancestry=ancestry;this.ballot=Map.copyOf(ballot);this.requestView=requestView;
+        this.owner=owner;this.generation=generation;this.ancestry=ancestry;this.completeGeneration=completeGeneration;this.ballot=Map.copyOf(ballot);this.requestView=requestView;
         this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
-        context().ballot(ballot,false);var contents=new TreeMap<>(ancestry?generation.ancestryContents():generation.transferContents());
-        var first=ancestry?contents.get(generation.manifest.digest()):contents.values().stream().filter(v->v.kind()==MembershipTransfer.Kind.CAPSULE).findFirst().orElseThrow();
-        require(contents.putIfAbsent(ancestry?ancestryReference(context()):cutDigest(context().cut),first)==null,"prefix cut reference collision");references=Map.copyOf(contents);
+        context().ballot(ballot,false);var contents=new TreeMap<>(completeGeneration?generation.generationContents():ancestry?generation.ancestryContents():generation.transferContents());
+        var first=ancestry || completeGeneration?contents.get(generation.manifest.digest()):contents.values().stream().filter(v->v.kind()==MembershipTransfer.Kind.CAPSULE).findFirst().orElseThrow();
+        require(contents.putIfAbsent(completeGeneration?generationReference(context()):ancestry?ancestryReference(context()):cutDigest(context().cut),first)==null,"prefix cut reference collision");references=Map.copyOf(contents);
         metadata=resources.reserve(MembershipResources.Unit.CONTROL,"prefix-export-"+UUID.randomUUID(),4096);
     }
     /** Derived lookup alias only, never an authority record or manifest digest. */
     static String ancestryReference(MembershipContext context) {
         return hash(canonical(Map.of("root",context.root,"cut",context.cut,"scope","retained-current-ancestry"),16384));
     }
+    static String generationReference(MembershipContext context) {
+        return hash(canonical(Map.of("root",context.root,"cut",context.cut,"scope","retained-current-generation"),16384));
+    }
     static boolean reference(MembershipContext context,String digest) {
-        return digest.equals(cutDigest(context.cut)) || digest.equals(ancestryReference(context));
+        return digest.equals(cutDigest(context.cut)) || digest.equals(ancestryReference(context)) || digest.equals(generationReference(context));
     }
     boolean expired(){long elapsed=clock.getAsLong()-started;return closed || elapsed<0 || elapsed>=budget;}
     void revoke(){if(!closed){closed=true;metadata.close();}}
@@ -61,7 +68,7 @@ final class MembershipPrefixExport implements MembershipTransferExport {
     }
     @Override public byte[] read(String digest,long offset,int maximum)throws IOException {
         synchronized(owner) {
-            owner.checkPrefixExport(this);byte[] bytes=ancestry?generation.ancestryChunk(digest,offset,maximum):generation.transferChunk(digest,offset,maximum);owner.checkPrefixExport(this);return bytes;
+            owner.checkPrefixExport(this);byte[] bytes=completeGeneration?generation.generationChunk(digest,offset,maximum):ancestry?generation.ancestryChunk(digest,offset,maximum):generation.transferChunk(digest,offset,maximum);owner.checkPrefixExport(this);return bytes;
         }
     }
     @Override public void close(){owner.releasePrefixExport(this);}

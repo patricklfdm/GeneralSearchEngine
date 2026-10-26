@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Complete native generation copying](PHASE_3_GENERATION_COPY.md) is locally qualified
+across six actual 3/4/5-voter EMPTY/backup histories. It supplies the full original
+materialization needed by a governing floor, including compacted publication
+coverage. Automatic offline-survivor ancestry retention and the remaining 3B–3E
+integration stay open.
+
 [Automatic compacted-ancestry integration](PHASE_3_NATIVE_ANCESTRY.md) is locally
 qualified against the corrected sources. It fixes original proof acquisition across
 unequal cuts, longest-source installation lifetime and exact retained-image reuse

@@ -1970,7 +1970,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         for(var old:List.copyOf(prefixExports))if(old.expired() || old.generation!=current)releasePrefixExport(old);
         require(MembershipPrefixExport.reference(current.capsule.context,cut),"prefix cut changed");
         require(prefixExports.size()<6,"prefix export owner capacity");
-        var export=new MembershipPrefixExport(this,current,ballot,view,resources,clock,started,limit,cut.equals(MembershipPrefixExport.ancestryReference(current.capsule.context)));prefixExports.add(export);
+        var export=new MembershipPrefixExport(this,current,ballot,view,resources,clock,started,limit,cut.equals(MembershipPrefixExport.ancestryReference(current.capsule.context)),cut.equals(MembershipPrefixExport.generationReference(current.capsule.context)));prefixExports.add(export);
         try{checkPrefixExport(export);return export;}
         catch(IOException|RuntimeException|Error error){releasePrefixExport(export);throw error;}
     }

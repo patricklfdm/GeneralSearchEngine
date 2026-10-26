@@ -115,16 +115,25 @@ final class MembershipCapsule {
         byte[] ancestry=copy.ancestry();
         var result=verify(root,packet,images,Set.of(),Set.of(),true).retainingCompleteAncestry(ancestry);
         var coverage=copy.coverage();
-        if(coverage.isPresent()) {
-            var value=object(parse(coverage.get(),MembershipSelectionCoverage.MAXIMUM));
-            boolean round="gse-v53-round-coverage/1.3".equals(value.get("schema"));
-            require(round || "gse-v53-selected-coverage/1.3".equals(value.get("schema")),"stored history coverage schema");
-            var proofs=new HashSet<>(result.history);result.retainCoverageCertificate(value,proofs);
-            if(round)result.retainCoverageCertificate(object(value.get("first")),proofs);
-            result=new MembershipCapsule(result.context,result.packet,result.anchors,result.states,Set.of(),proofs,result.highestMembershipCertificate);
-            MembershipSelectionCoverage.verify(coverage.get(),result,copy.record("promise.gsr","PROMISE"),copy.record("selected.gsr","SELECTED"),ancestry);
-        }
+        if(coverage.isPresent())result=result.retainingCoverage(coverage.get(),copy.record("promise.gsr","PROMISE"),copy.record("selected.gsr","SELECTED"),ancestry);
         copy.check(root,packet);return result;
+    }
+    /** A complete native network generation may authenticate its original compacted
+     * publication coverage, without turning historical witnesses into current votes. */
+    MembershipCapsule retainingGeneration(MembershipSourcePull.GenerationCopy copy)throws java.io.IOException {
+        Objects.requireNonNull(copy).check(this);byte[] ancestry=copy.ancestry();var result=retainingCompleteAncestry(ancestry);
+        var coverage=copy.coverage();
+        if(coverage.isPresent())result=result.retainingCoverage(coverage.get(),copy.record("promise.gsr","PROMISE"),copy.record("selected.gsr","SELECTED"),ancestry);
+        copy.check(this);return result;
+    }
+    private MembershipCapsule retainingCoverage(byte[] coverage,Decoded promise,Decoded selected,byte[] ancestry) {
+        var value=object(parse(coverage,MembershipSelectionCoverage.MAXIMUM));
+        boolean round="gse-v53-round-coverage/1.3".equals(value.get("schema"));
+        require(round || "gse-v53-selected-coverage/1.3".equals(value.get("schema")),"stored history coverage schema");
+        var proofs=new HashSet<>(history);retainCoverageCertificate(value,proofs);
+        if(round)retainCoverageCertificate(object(value.get("first")),proofs);
+        var result=new MembershipCapsule(context,packet,anchors,states,Set.of(),proofs,highestMembershipCertificate);
+        MembershipSelectionCoverage.verify(coverage,result,promise,selected,ancestry);return result;
     }
     private void retainCoverageCertificate(Map<String,Object> coverage,Set<Historical> proofs) {
         var parent=object(object(coverage.get("parent")).get("cut"));

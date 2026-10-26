@@ -119,6 +119,13 @@ election/discovery/adoption, repeated maintenance or cross-view pending contexts
 
 ## First batch boundary
 
+The [complete generation-copy batch](PHASE_3_GENERATION_COPY.md) is locally
+qualified in six native network histories with independent physical/transcript
+replay and exact evidence negatives. It provides original materializations for
+network governing floors, preserving compacted coverage provenance. Autonomous survivor recovery
+still needs bounded retention/acquisition of its original hidden ancestors; neither
+these copies nor removed-node-only adoption close that requirement.
+
 The [native network integration](PHASE_3_NATIVE_NETWORK.md) now connects complete
 original-source verification to the driver, endpoint and selected receiver without
 an external historical verifier. Six equal-cut published histories cover stable

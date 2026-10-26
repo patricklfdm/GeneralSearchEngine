@@ -1,0 +1,544 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-generation-copy/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1362620,
+      "path": "target/v53-generation-copy/replication.jar",
+      "sha256": "15d43dd49ca90db77c6f414faddf4d81880a20fd36a1aa7b541d6b3e43cd5a53"
+    }
+  ],
+  "baseCommit": "4d4cc8866639fae512ef3a70b725ca672a1aeaa5",
+  "caveats": [
+    "This qualifies a private generation-copy component. Six actual 3/4/5-voter EMPTY/backup histories reconstruct original bootstrap, two phased publications, all copied bytes, wire exchanges, majority floor and release. Public runtime and full Phase 3 remain open.",
+    "Eighteen stable/joint/final and accepted-tail shapes are conditional fixture tests, not actual distributed joint transitions. Eight receiving cases plus ten ownership/cancellation/metadata/removed-owner cases retain bounded retry, original deadline and reservation behavior.",
+    "All production and POM inputs match across three isolated build snapshots. Four unchanged successful suites are retained from initial, whose whole build failed in the new network test. Final network and fault suites use separately successful builds; no failed whole build is called successful.",
+    "The first network test could not encode node IDs as object keys. A second test deliberately rejected an insufficient floor then improperly reused the failed storage owner. The corrected fixture uses canonical node rows and checks minority admission before the mutation. Production fail-closed behavior is unchanged.",
+    "The original negative fixture attempted an unencodable singleton FLOOR. Corrected minority evidence uses two valid references from the actual four-voter history. Original unmodified history is validated before every mutation; rejection reasons must match.",
+    "All 631 Python tests passed normally and optimized before that final fixture correction. Nine focused tests in both modes and complete normal/optimized/portable physical replay cover the final Python bytes. Exact prior/final source inventories and the difference are retained.",
+    "Four related original/crash physical qualifications run in normal mode against this production source. Only the new six-profile matrix is claimed to have all three replay modes in this batch.",
+    "The genuine offline-survivor missing cut-1 ancestry remains unresolved. Automatic peer-history retention, discovery/adoption/election ownership, cross-view pending contexts, learners/joint transitions, generalized publication and full 3B-3E acceptance remain required.",
+    "No public factory, persisted/wire format, resource/deadline bound, POM, workflow, V5.2 Runner, push, paid cloud or release change."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 3518,
+      "path": "target/v53-generation-copy/NEXT_INTEGRATION.md",
+      "sha256": "a6d858a03fdae70592a67acc73a5a75c31e67b3c77069acc0a5278eb23c3a2c6"
+    },
+    {
+      "bytes": 1283,
+      "path": "target/v53-generation-copy/audit.py",
+      "sha256": "297c7dfb13732690fa16a6f5cfe4fa23f14f0703b17926eb7c84d35fe7ecd2d9"
+    },
+    {
+      "bytes": 129229,
+      "path": "target/v53-generation-copy/build-input-check.json",
+      "sha256": "e29fbbde9e5ee07b5bf0b58ccbbc0d0d6ae61f20e85539a5d31f8ede5f1e47ab"
+    },
+    {
+      "bytes": 72,
+      "path": "target/v53-generation-copy/collect-result.json",
+      "sha256": "a57acf3a7888fa2048c65517a1b2f76639f5096aa6992535d71f1f5ce2e9c550"
+    },
+    {
+      "bytes": 4725,
+      "path": "target/v53-generation-copy/collect.py",
+      "sha256": "7906dfaa4cfde89889b6101956d2ca459034b5f4f5a76c0c6cac4f9418fadb78"
+    },
+    {
+      "bytes": 1115,
+      "path": "target/v53-generation-copy/component-v1-owned-generation-crash.json",
+      "sha256": "8f64d292f50753866ebe2e4370ef466172eb2c136c1a3b3e79e42104466d9a3b"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-generation-copy/component-v1-owned-generation-crash.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1487,
+      "path": "target/v53-generation-copy/component-v1-owned-generation.json",
+      "sha256": "41af640634047a14d033735392d05ecfb966f527aa07bdb6139031081df67386"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-generation-copy/component-v1-owned-generation.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1808,
+      "path": "target/v53-generation-copy/component-v1-retained-ancestry.json",
+      "sha256": "5e88f0b146f42b1ea3cacaf0c2dabe9737b959cb81344b1824e6936bfa7c94da"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-generation-copy/component-v1-retained-ancestry.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1335,
+      "path": "target/v53-generation-copy/component-v1-retained-provenance.json",
+      "sha256": "b2877de65294e1921f5bd3af1cb43d7b9284a010446a951fa69107550e085821"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-generation-copy/component-v1-retained-provenance.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 336,
+      "path": "target/v53-generation-copy/component-v1.log",
+      "sha256": "dfde38457bd9e5a8404483ca23e6d5151f06dfd0b8e0055d5bd6a43a8a7c1bdd"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-generation-copy/contract-draft.json",
+      "sha256": "3cdb434dd0d61b3abcc2f70efa57914ca2dc1188199d374263674ed92e235167"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-generation-copy/contract-final.json",
+      "sha256": "bca2ce14827f58bde149122e657019ceec5194bf2b5b586872aa24a0886682a2"
+    },
+    {
+      "bytes": 470416,
+      "path": "target/v53-generation-copy/fault-v3-inputs.json",
+      "sha256": "ee11015b21815403e5153f3832969274cb69bd1c3a27356b314ae7fbf94861a7"
+    },
+    {
+      "bytes": 47,
+      "path": "target/v53-generation-copy/fault-v3-workspace.txt",
+      "sha256": "f083cce1227a74d38e56c683f3fa1f42aa10a779231c83f42a4bce6bba496ee0"
+    },
+    {
+      "bytes": 4981,
+      "path": "target/v53-generation-copy/fault-v3.log",
+      "sha256": "500021d58490541749fe5228e74b6dc554afcbd8e31fa19981083be7ad7cf5a8"
+    },
+    {
+      "bytes": 470416,
+      "path": "target/v53-generation-copy/fault-v4-inputs.json",
+      "sha256": "bfd1374ff70c2f1aee5d0ec47e71157799594b4a4f0ed32ee9b183c4001c0df7"
+    },
+    {
+      "bytes": 47,
+      "path": "target/v53-generation-copy/fault-v4-workspace.txt",
+      "sha256": "e35105c1059e7f145b4687abfac69f837de9a3c32ad86b1e46694e4867eb556f"
+    },
+    {
+      "bytes": 4981,
+      "path": "target/v53-generation-copy/fault-v4.log",
+      "sha256": "3aba20c95c355508ff113634392fa8f6b4a1848e972037b1fe1f3894db65fc9e"
+    },
+    {
+      "bytes": 470416,
+      "path": "target/v53-generation-copy/faults-inputs.json",
+      "sha256": "22219e4c39fc1f87df2f32a02872fa70fd3d7e79d079e4e2b8e87b8bae6061b5"
+    },
+    {
+      "bytes": 45,
+      "path": "target/v53-generation-copy/faults-workspace.txt",
+      "sha256": "f856d21b8334c06ab847f7273c48019512182d8b8248906d0389f751135511ef"
+    },
+    {
+      "bytes": 469993,
+      "path": "target/v53-generation-copy/initial-inputs.json",
+      "sha256": "9f8932a1b609518d59ffb5984b9f10ec0f527e9e950287ae21f94230b4148d7a"
+    },
+    {
+      "bytes": 46,
+      "path": "target/v53-generation-copy/initial-workspace.txt",
+      "sha256": "c9bb6a4777a76ebd227833ba6b3d7fde76a795194391ea76b9547523127be5c2"
+    },
+    {
+      "bytes": 9166,
+      "path": "target/v53-generation-copy/initial.log",
+      "sha256": "1a35f9262150203943a4a0d7cbe0653061d5747ff95d777aa82daa46d747bb9d"
+    },
+    {
+      "bytes": 1859,
+      "path": "target/v53-generation-copy/java-reports.json",
+      "sha256": "ca25ce9fb4fb0379585693c66e30eab3d0b3f990bda99b0457ba1f8a981013f3"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-generation-copy/matrix-v1-normal.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1645,
+      "path": "target/v53-generation-copy/matrix-v1-normal.stderr",
+      "sha256": "ed7f675d45aa2b888db299c37951f7fe91a2f823362d10588be01de38415bc1b"
+    },
+    {
+      "bytes": 527,
+      "path": "target/v53-generation-copy/matrix-v1.log",
+      "sha256": "a4ce640bcf29a1a93774305febc621609b0a6bc549448020fa41d48c8d079c6a"
+    },
+    {
+      "bytes": 2199,
+      "path": "target/v53-generation-copy/matrix-v2-normal.json",
+      "sha256": "c21bf073b106cadcc8bf625327903ded1067f9652f7b1817c38e5ac96f735599"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-generation-copy/matrix-v2-normal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2199,
+      "path": "target/v53-generation-copy/matrix-v2-optimized.json",
+      "sha256": "c21bf073b106cadcc8bf625327903ded1067f9652f7b1817c38e5ac96f735599"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-generation-copy/matrix-v2-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2199,
+      "path": "target/v53-generation-copy/matrix-v2-portable.json",
+      "sha256": "c21bf073b106cadcc8bf625327903ded1067f9652f7b1817c38e5ac96f735599"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-generation-copy/matrix-v2-portable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 252,
+      "path": "target/v53-generation-copy/matrix-v2.log",
+      "sha256": "bfb8da4254d3ddc843453897ea017507adc385479fed71ef348437ec24a913e0"
+    },
+    {
+      "bytes": 117,
+      "path": "target/v53-generation-copy/network-v2-first-profile.json",
+      "sha256": "b999062378988d1f7c1c3083ef8de028c5f5a3c1a8c2f46bcf6920cc81d00286"
+    },
+    {
+      "bytes": 470416,
+      "path": "target/v53-generation-copy/network-v2-inputs.json",
+      "sha256": "848e874c4c28bce3d3297f72854160f6d0a7b30f81eefaaf2a592a1bee73c997"
+    },
+    {
+      "bytes": 49,
+      "path": "target/v53-generation-copy/network-v2-workspace.txt",
+      "sha256": "facbdad4cb6095a35940a4d77a663d46bf65aa7f7a1c33701abefb4ac47bc198"
+    },
+    {
+      "bytes": 7759,
+      "path": "target/v53-generation-copy/network-v2.log",
+      "sha256": "0ac0dff015f6421a47341df48e04af89ffcbe1d09fcd27f79c371e7bb4ba54a3"
+    },
+    {
+      "bytes": 470416,
+      "path": "target/v53-generation-copy/network-v3-inputs.json",
+      "sha256": "666072a57c5a9edffffa8a86c746fafce58ed4d9a00609ef0f64c636bbbcb2e3"
+    },
+    {
+      "bytes": 49,
+      "path": "target/v53-generation-copy/network-v3-workspace.txt",
+      "sha256": "913ea5f0684bfec9ce71b1e43e0cbe8a4e0e126b63c84ccf4b72f261020b313d"
+    },
+    {
+      "bytes": 5167,
+      "path": "target/v53-generation-copy/network-v3.log",
+      "sha256": "e85cdc63766a311e3297a7286ca408166125b39bbd294f3aac39182ff0f5de5e"
+    },
+    {
+      "bytes": 448,
+      "path": "target/v53-generation-copy/origins.json",
+      "sha256": "384753b95b5e75e7214fa53c3581a139dad4377508726030e395e4888cb0792c"
+    },
+    {
+      "bytes": 732,
+      "path": "target/v53-generation-copy/python-all-optimized.log",
+      "sha256": "83194c8fe385e85e4a3ae429dc752ef324c2fc85b55a2a76630943d6a36a523e"
+    },
+    {
+      "bytes": 732,
+      "path": "target/v53-generation-copy/python-all.log",
+      "sha256": "ae0a2d9f58b07bc942a98c478c933ce1fd67e1f59a4113eaa66976cd3e2325e0"
+    },
+    {
+      "bytes": 107,
+      "path": "target/v53-generation-copy/python-focused-final-optimized.log",
+      "sha256": "5684d13977a1f6829bcd5f644c72b35ab6f8d42951d571a5f230c4cc35a359f3"
+    },
+    {
+      "bytes": 107,
+      "path": "target/v53-generation-copy/python-focused-final.log",
+      "sha256": "5684d13977a1f6829bcd5f644c72b35ab6f8d42951d571a5f230c4cc35a359f3"
+    },
+    {
+      "bytes": 107,
+      "path": "target/v53-generation-copy/python-focused.log",
+      "sha256": "7c758af7411e05fc2e6c4fb89045f7a03d9a5957d5305092903a23a66373d034"
+    },
+    {
+      "bytes": 131655,
+      "path": "target/v53-generation-copy/python-inputs-final.json",
+      "sha256": "ec34386e258a266bb421444a42d77ee81baecc4c59562aae2f70b3dfcbd6eae9"
+    },
+    {
+      "bytes": 131655,
+      "path": "target/v53-generation-copy/python-inputs.json",
+      "sha256": "ec236f6536ff367fbda7440830f8c19c6fff04b3322f7516bc983eb2b513a74a"
+    },
+    {
+      "bytes": 450,
+      "path": "target/v53-generation-copy/python-validation-scope.json",
+      "sha256": "72c9308194e3efd0bf4124b1b2ef85592c20a454743d0daf168eb22c1eea246c"
+    },
+    {
+      "bytes": 5938039,
+      "path": "target/v53-generation-copy/raw-inventory.json",
+      "sha256": "539608856057eaaa3f216d8ca0ff67e1ecba0c32f17554ab94fcef7b05638f71"
+    },
+    {
+      "bytes": 3756377,
+      "path": "target/v53-generation-copy/raw.tar.gz",
+      "sha256": "ad9b9e57671f5808e6f05a9a24abb2bcef5b1f447b567d140a2e39bd6e07a4c2"
+    },
+    {
+      "bytes": 6353,
+      "path": "target/v53-generation-copy/receipt.py",
+      "sha256": "a6e5d0863959ceaf9c023c9b2c0381d56cecbd0642200e8959acd962cf157159"
+    },
+    {
+      "bytes": 2623,
+      "path": "target/v53-generation-copy/replay.py",
+      "sha256": "50c48d4b812fb222cd500bd7e2f18021c0a11848c31decadae32214d1df64165"
+    },
+    {
+      "bytes": 830,
+      "path": "target/v53-generation-copy/snapshot.py",
+      "sha256": "e71dc6017b2884291e99091beab089f3bac9ebca0f11d37712a5a54ec7d91da7"
+    },
+    {
+      "bytes": 4394,
+      "path": "target/v53-generation-copy/validation-summary.json",
+      "sha256": "fe4c9d982de1128af6c5300bcd0608bc12f1428afdb86121870bcb5a0d256b6b"
+    },
+    {
+      "bytes": 7276,
+      "path": "target/v53-generation-copy/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyFaultTest.xml",
+      "sha256": "a1e4685f944ac7df9212287ca975cb3791c1b5972648114a1cb8b9303441746a"
+    },
+    {
+      "bytes": 6992,
+      "path": "target/v53-generation-copy/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyNetworkTest.xml",
+      "sha256": "eba14ae9233a8a53713bdaae71308be5ba813a4f184beab4e32a4b99f6c4e177"
+    },
+    {
+      "bytes": 7436,
+      "path": "target/v53-generation-copy/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest.xml",
+      "sha256": "ff10daf41da02e61c43abec4828475429a1432143f4b3dce9dba1bce80bb5a86"
+    },
+    {
+      "bytes": 8223,
+      "path": "target/v53-generation-copy/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53OwnedGenerationTest.xml",
+      "sha256": "c850f462ae56663b22dc9bf4c70dd6ef26831749435e5a301c2d65b3ac200125"
+    },
+    {
+      "bytes": 8903,
+      "path": "target/v53-generation-copy/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53RetainedAncestryTest.xml",
+      "sha256": "9cfeb7678974f435edbff91fdf9597f0d6436af240c70cf8c92a70b8e914f135"
+    },
+    {
+      "bytes": 9159,
+      "path": "target/v53-generation-copy/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53RetainedProvenanceTest.xml",
+      "sha256": "a8d874a76aa71ae1c08bc56f8401d6774125ed53fa9eebdbea55d6d3834614d7"
+    }
+  ],
+  "schema": "gse-v53-generation-copy-local-qualification-v1",
+  "scope": "complete-native-generation-copy-and-governing-floor",
+  "status": "PASS",
+  "validation": {
+    "components": {
+      "owned-generation": {
+        "evidenceNegatives": 13,
+        "original": {
+          "cases": [
+            {
+              "freshReaders": 3,
+              "size": 3
+            },
+            {
+              "freshReaders": 4,
+              "size": 4
+            },
+            {
+              "freshReaders": 5,
+              "size": 5
+            }
+          ],
+          "freshVotes": false,
+          "publicRuntime": false,
+          "schema": "gse-v53-owned-generation-v1",
+          "scope": "owned-selected-history-reopen",
+          "status": "PASS"
+        }
+      },
+      "owned-generation-crash": {
+        "evidenceNegatives": 4,
+        "original": {
+          "cases": [
+            {
+              "cut": "CURRENT_VALIDATED",
+              "exit": 23,
+              "mode": "halt"
+            },
+            {
+              "cut": "CURRENT_FILES_FORCED",
+              "exit": 23,
+              "mode": "halt"
+            },
+            {
+              "cut": "CURRENT_GENERATION_FORCED",
+              "exit": 23,
+              "mode": "halt"
+            },
+            {
+              "cut": "CURRENT_SELECTOR_FORCED",
+              "exit": 23,
+              "mode": "halt"
+            },
+            {
+              "cut": "CURRENT_DIRECTORY_FORCED",
+              "exit": 23,
+              "mode": "halt"
+            },
+            {
+              "cut": "CURRENT_VALIDATED",
+              "exit": 137,
+              "mode": "kill"
+            },
+            {
+              "cut": "CURRENT_FILES_FORCED",
+              "exit": 137,
+              "mode": "kill"
+            },
+            {
+              "cut": "CURRENT_GENERATION_FORCED",
+              "exit": 137,
+              "mode": "kill"
+            },
+            {
+              "cut": "CURRENT_SELECTOR_FORCED",
+              "exit": 137,
+              "mode": "kill"
+            },
+            {
+              "cut": "CURRENT_DIRECTORY_FORCED",
+              "exit": 137,
+              "mode": "kill"
+            }
+          ],
+          "powerLoss": false,
+          "scope": "selected-history-reseal-process-death",
+          "status": "PASS"
+        }
+      },
+      "retained-ancestry": {
+        "evidenceNegatives": 16,
+        "original": {
+          "adoption": false,
+          "cases": [
+            {
+              "ancestryExchanges": 6,
+              "prefixExchanges": 7,
+              "size": 3
+            },
+            {
+              "ancestryExchanges": 6,
+              "prefixExchanges": 7,
+              "size": 4
+            },
+            {
+              "ancestryExchanges": 6,
+              "prefixExchanges": 7,
+              "size": 5
+            }
+          ],
+          "network": true,
+          "publicRuntime": false,
+          "schema": "gse-v53-retained-ancestry-v1",
+          "scope": "authenticated-complete-supplemental-ancestry",
+          "status": "PASS"
+        }
+      },
+      "retained-provenance": {
+        "evidenceNegatives": 13,
+        "original": {
+          "adoption": false,
+          "cases": [
+            {
+              "exchanges": 7,
+              "size": 3
+            },
+            {
+              "exchanges": 7,
+              "size": 4
+            },
+            {
+              "exchanges": 7,
+              "size": 5
+            }
+          ],
+          "network": true,
+          "publicRuntime": false,
+          "schema": "gse-v53-retained-provenance-v1",
+          "scope": "authenticated-complete-historical-copy",
+          "status": "PASS"
+        }
+      }
+    },
+    "evidenceNegatives": 21,
+    "javaBuildScopes": {
+      "fault-v4": "/tmp/gse-v53-generation-copy-fault-v4-22xtikds",
+      "initial": "/tmp/gse-v53-generation-copy-initial-aooagn6s",
+      "network-v3": "/tmp/gse-v53-generation-copy-network-v3-ynvdjqp8"
+    },
+    "javaSuites": 6,
+    "javaTests": 36,
+    "matrix": {
+      "floorCopies": 16,
+      "historicalObservationsSupplied": false,
+      "profiles": 6,
+      "publicRuntime": false,
+      "sourceExchanges": 270,
+      "status": "PASS"
+    },
+    "phase3Complete": false,
+    "publicRuntime": false,
+    "python": {
+      "completeSuiteModes": [
+        "normal",
+        "optimized"
+      ],
+      "completeSuiteTests": 631,
+      "reason": "Use well-formed two-copy evidence from actual four-voter history for minority mutation; original input bytes remain unchanged.",
+      "subsequentChanges": [
+        "scripts/v53/generation_copy_evidence.py"
+      ],
+      "subsequentFocusedModes": [
+        "normal",
+        "optimized"
+      ],
+      "subsequentFocusedTests": 9,
+      "subsequentPhysicalReplay": "matrix-v2"
+    },
+    "replayModes": [
+      "normal",
+      "optimized",
+      "portable"
+    ],
+    "status": "PASS"
+  }
+}

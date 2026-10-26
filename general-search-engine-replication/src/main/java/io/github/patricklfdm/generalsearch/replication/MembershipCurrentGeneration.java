@@ -223,6 +223,26 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         if(ancestry!=null)require(result.put(ancestry.digest(),new MembershipSourceExport.Content(ancestry.digest(),ancestry.bytes(),MembershipTransfer.Kind.RECORD))==null,"ancestry content collision");
         return Map.copyOf(result);
     }
+    /** Complete original generation for a governing-floor copy. Its records are
+     * historical materialization bytes, not new voting observations. */
+    Map<String,MembershipSourceExport.Content> generationContents() {
+        var result=new TreeMap<String,MembershipSourceExport.Content>();
+        result.put(manifest.digest(),new MembershipSourceExport.Content(manifest.digest(),manifest.size(),MembershipTransfer.Kind.RECORD));
+        for(var entry:files.entrySet()) {
+            var file=entry.getValue();var kind=entry.getKey().equals(PACKET)?MembershipTransfer.Kind.CAPSULE:
+                    entry.getKey().endsWith(".image")?MembershipTransfer.Kind.APPLICATION:MembershipTransfer.Kind.RECORD;
+            var content=new MembershipSourceExport.Content(file.digest(),file.bytes(),kind);
+            var previous=result.putIfAbsent(file.digest(),content);
+            require(previous==null || previous.equals(content),"generation content kind collision");
+        }
+        return Map.copyOf(result);
+    }
+    byte[] generationChunk(String digest,long offset,int maximum)throws IOException {
+        if(digest.equals(manifest.digest()))return readChunk(path.resolve(MANIFEST),manifestIdentity,offset,maximum);
+        var entry=files.entrySet().stream().filter(v->v.getValue().digest().equals(digest)).findFirst()
+                .orElseThrow(()->new IllegalArgumentException("current generation content absent"));
+        return readChunk(path.resolve(entry.getKey()),entry.getValue(),offset,maximum);
+    }
     byte[] ancestryChunk(String digest,long offset,int maximum)throws IOException {
         FileIdentity file;Path source;
         if(digest.equals(manifest.digest())){file=manifestIdentity;source=path.resolve(MANIFEST);}
