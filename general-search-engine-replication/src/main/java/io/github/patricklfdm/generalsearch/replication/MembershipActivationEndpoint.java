@@ -21,6 +21,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private final ReplicationBounds bounds;
     private final MembershipSourcePull.Link link;
     private final MembershipCurrentGeneration.Verifier verifier;
+    private final boolean nativeHistory;
     private final List<MembershipSelection.Bridge> ancestry,retained;
     private final LongSupplier clock;
     private final long budget;
@@ -37,12 +38,23 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private int waiters;
 
     MembershipActivationEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Link link,List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
+            Path scratch,LongSupplier clock,long budget)throws IOException {
+        this(owner,resources,bounds,link,null,ancestry,retained,scratch,clock,budget,true);
+    }
+    MembershipActivationEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,MembershipCurrentGeneration.Verifier verifier,
             List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
             Path scratch,LongSupplier clock,long budget)throws IOException {
+        this(owner,resources,bounds,link,Objects.requireNonNull(verifier),ancestry,retained,scratch,clock,budget,false);
+    }
+    private MembershipActivationEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Link link,MembershipCurrentGeneration.Verifier verifier,
+            List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
+            Path scratch,LongSupplier clock,long budget,boolean nativeHistory)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"activation endpoint budget");
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
-        this.link=Objects.requireNonNull(link);this.verifier=Objects.requireNonNull(verifier);
+        this.link=Objects.requireNonNull(link);this.verifier=verifier;this.nativeHistory=nativeHistory;
         this.ancestry=List.copyOf(ancestry);this.retained=List.copyOf(retained);
         require(ancestry.size()<=6 && retained.size()<=6,"activation endpoint ancestry capacity");
         this.clock=Objects.requireNonNull(clock);this.budget=budget;
@@ -169,8 +181,12 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                         active.check();response=MembershipActivation.prepare(owner,sender,request,promise).response();active.granted();
                     }
                 } else {
-                    try(var incoming=new MembershipSelectedPull(owner,sender,request,resources,bounds,active::exchange,verifier,ancestry,retained,
-                            scratch.resolve("selected-"+UUID.randomUUID()),active::check,clock,active.started,active.limit)) {response=incoming.install();}
+                    Path destination=scratch.resolve("selected-"+UUID.randomUUID());
+                    try(var incoming=nativeHistory?
+                            new MembershipSelectedPull(owner,sender,request,resources,bounds,active::exchange,ancestry,retained,
+                                    destination,active::check,clock,active.started,active.limit):
+                            new MembershipSelectedPull(owner,sender,request,resources,bounds,active::exchange,verifier,ancestry,retained,
+                                    destination,active::check,clock,active.started,active.limit)) {response=incoming.install();}
                 }
                 active.check();lease.reserveControl(request.size()+(long)response.size());active.check();
                 synchronized(registry){finished=true;result.complete(response);}

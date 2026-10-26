@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Native network activation](PHASE_3_NATIVE_NETWORK.md) now connects authenticated
+original history to the actual driver, endpoint and selected installation path.
+Six published 3/4/5-voter EMPTY/backup histories pass real TCP activation and native
+reopen without caller historical observations. Unequal-cut ancestry discovery,
+autonomous election/adoption, learners/joint completion and full Phase 3 remain open.
+
 [Native original pending-context recovery](PHASE_3_OWNED_CONTEXT.md) now preserves
 the actual old generation's proof across original retirement, later majority
 publication and covered settlement. Eight same-view profiles and 22 repeated

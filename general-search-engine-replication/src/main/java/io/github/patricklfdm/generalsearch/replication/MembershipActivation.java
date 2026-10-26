@@ -117,7 +117,19 @@ final class MembershipActivation implements AutoCloseable {
             check();promised(peer,new Prepared(reply,source),ancestry);
         }catch(IOException|RuntimeException error){abandon();throw error;}
     }
-    /** In-process verified-source adapter. The network path uses the received-file overload. */
+    /** Native complete-source verification retains the same physical receive lifetime. */
+    void promised(MembershipIdentity peer,Decoded reply,MembershipSourceReceive received,
+            MembershipSourcePull pull,List<MembershipSelection.Bridge> ancestry)throws IOException {
+        require(state==State.PREPARING,"late promise after fixed selection");
+        var exchange=response(peer,reply,"PROMISE");
+        try {
+            var source=MembershipPromisedSource.verify(own,peer,exchange.request,reply,received,pull);
+            var previous=receivedSources.putIfAbsent(peer.nodeId().value(),received);
+            require(previous==null || previous==received,"promised source staging owner changed");
+            check();promised(peer,new Prepared(reply,source),ancestry);
+        }catch(IOException|RuntimeException error){abandon();throw error;}
+    }
+    /** In-process verified-source adapter. The network paths retain the received-file owner. */
     void promised(MembershipIdentity peer,Prepared reply,List<MembershipSelection.Bridge> ancestry) throws IOException {
         require(state==State.PREPARING,"late promise after fixed selection");
         var exchange=response(peer,reply.response(),"PROMISE");var source=reply.source();

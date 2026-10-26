@@ -36,9 +36,22 @@ final class MembershipSelectedPull implements AutoCloseable {
 
     MembershipSelectedPull(MembershipGrantJournal owner,MembershipIdentity proposer,Decoded request,
             MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
+            List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
+            Path scratch,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget)throws IOException {
+        this(owner,proposer,request,resources,bounds,link,null,ancestry,retained,scratch,guard,clock,started,budget,true);
+    }
+    MembershipSelectedPull(MembershipGrantJournal owner,MembershipIdentity proposer,Decoded request,
+            MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
             MembershipCurrentGeneration.Verifier verifier,List<MembershipSelection.Bridge> ancestry,
             List<MembershipSelection.Bridge> retained,Path scratch,MembershipSourcePull.Guard guard,
             LongSupplier clock,long started,long budget)throws IOException {
+        this(owner,proposer,request,resources,bounds,link,Objects.requireNonNull(verifier),ancestry,retained,scratch,guard,clock,started,budget,false);
+    }
+    private MembershipSelectedPull(MembershipGrantJournal owner,MembershipIdentity proposer,Decoded request,
+            MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
+            MembershipCurrentGeneration.Verifier verifier,List<MembershipSelection.Bridge> ancestry,
+            List<MembershipSelection.Bridge> retained,Path scratch,MembershipSourcePull.Guard guard,
+            LongSupplier clock,long started,long budget,boolean nativeHistory)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"selected pull time budget");
         this.owner=Objects.requireNonNull(owner);this.proposer=Objects.requireNonNull(proposer);this.request=Objects.requireNonNull(request);
         this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);this.link=Objects.requireNonNull(link);
@@ -58,7 +71,7 @@ final class MembershipSelectedPull implements AutoCloseable {
                 else {
                     var client=pull(own.capsule.context.identities.get(node));
                     var received=client.fetch(this.scratch.resolve("source-"+sources.size()),(String)reference.get("basisDigest"),localExport);receives.add(received);
-                    source=client.verifiedOriginalSource(verifier);merge(received.images());
+                    source=nativeHistory?client.verifiedOriginalSource():client.verifiedOriginalSource(verifier);merge(received.images());
                 }
                 require(source.reference().equals(reference),"selected pull exact source reference");sources.add(source);
             }

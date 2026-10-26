@@ -113,6 +113,15 @@ required. Component qualification does not close an S family or enable public RE
 
 ## First batch boundary
 
+The [native network integration](PHASE_3_NATIVE_NETWORK.md) now connects complete
+original-source verification to the driver, endpoint and selected receiver without
+an external historical verifier. Six equal-cut published histories cover stable
+3/4/5 voters and EMPTY/backup, with independently replayed original publications,
+real TCP transfers, all selected installations and same-JVM native reopen.
+Automatic missing-ancestry discovery, unequal compacted cuts, autonomous
+elections/adoption, cross-view pending contexts, learner/joint transitions,
+generalized publication and complete 3B–3E qualification remain required.
+
 The subsequent [retained-copy verifier](PHASE_3_RETAINED_PROVENANCE.md) separates
 complete authentic historical copies from new actual-owner vote observations. It
 retains full original-byte/quorum checks and exact statement reuse, so former voters

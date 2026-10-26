@@ -11,6 +11,15 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * checkpoint provenance must still be supplied by the capsule verifier. */
 final class MembershipPromisedSource {
     private MembershipPromisedSource() {}
+    /** Native history comes only from this complete original-owner exchange.
+     * The shared adapter still checks every original PREPARE/PROMISE binding. */
+    static MembershipSelection.Source verify(MembershipSelection.Source own,MembershipIdentity peer,
+            Decoded request,Decoded reply,MembershipSourceReceive received,MembershipSourcePull pull)throws IOException {
+        var source=Objects.requireNonNull(pull).verifiedOriginalSource();
+        require(source.owner.equals(peer) && Arrays.equals(source.basis.bytes(),received.basis().bytes()),
+                "native promised source original grant changed");
+        return verify(own,peer,request,reply,received,(root,packet,images)->source.capsule);
+    }
     static MembershipSelection.Source verify(MembershipSelection.Source own,MembershipIdentity peer,
             Decoded request,Decoded reply,MembershipSourceReceive received,MembershipCurrentGeneration.Verifier verifier)throws IOException {
         Objects.requireNonNull(received);Objects.requireNonNull(verifier);

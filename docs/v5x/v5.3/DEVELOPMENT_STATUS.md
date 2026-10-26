@@ -1,5 +1,25 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B native network activation
+
+The [native network batch](PHASE_3_NATIVE_NETWORK.md) connects complete original
+source history to the actual outgoing driver, incoming endpoint and selected
+receiver, without caller historical observations. Six actual public-bootstrap
+histories cover 3/4/5 voters with EMPTY/backup, two original publications, native
+reopen, real TCP activation and final reopen. Fixed selections, all sixteen selected
+installations, 312 source exchanges and unchanged application state pass independent
+reconstruction. Native reopens here occur in the same JVM.
+
+The final isolated build passes 72 Java tests in seven suites; all 609 Python tests
+pass normally and under `-O`. Fourteen native evidence mutations and the existing
+component evidence are independently replayed; normal, optimized and portable
+results are source-bound in the [receipt](phase3-evidence/native-network.json).
+
+These are explicitly invoked, equal-cut campaigns. Automatic missing-ancestry
+discovery, unequal compacted histories, autonomous adoption/elections, cross-view
+pending contexts, learner/joint completion, generalized publication and complete
+Phase 3 qualification remain open. No public runtime, push or cloud change.
+
 ## 2026-10-26 — Phase 3B native original pending-context recovery
 
 The [native context batch](PHASE_3_OWNED_CONTEXT.md) binds recovery to the exact

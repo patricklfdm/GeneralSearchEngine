@@ -1,0 +1,382 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-native-network/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1343566,
+      "path": "target/v53-native-network/replication.jar",
+      "sha256": "06f432ca5a7aaedc799a924fe1a4d668f30c21369739fe66d483a584666614f2"
+    }
+  ],
+  "baseCommit": "19fea478ccd7157595474516278564d75f377103",
+  "caveats": [
+    "All seven Java suites run in one fresh isolated build; Python validators were added afterward and are bound separately to their complete normal/optimized suites and exact retained replays.",
+    "Six actual public-bootstrap histories cover stable 3/4/5 voters with EMPTY/backup, original BARRIER and DATA publication, native reopen, real TCP activation and a further same-JVM native reopen. No caller historical verifier enters the new production constructors.",
+    "The native path requires complete original-owner source transfer and the same exact PREPARE/PROMISE/root/view/ballot/source checks. It creates no new historical voter observation.",
+    "Every original history, actual core application image, new grant, fixed quorum, selected installation and reopen is independently reconstructed before intended evidence mutations. Normal, optimized and relocated replay agree.",
+    "Boundary tests cover old-history rejection without provenance, correlation, original grants, close/expiry/fencing, unrelated completed pulls, and accepted-tail precedence; existing driver/endpoint/selection fault suites and their evidence are replayed separately.",
+    "The first integration probe failed only because the evidence serializer rejected hyphenated object keys; its source snapshot and log are retained. The corrected one-profile build is not substituted for the final six-profile qualification.",
+    "The six histories have equal published cuts and explicitly invoked campaigns. Automatic missing-ancestry discovery, unequal compacted cuts, autonomous adoption/elections, cross-view pending contexts, learner/joint transitions, distributed publication and full Phase 3 remain open.",
+    "No public factory, durable format, resource/deadline limit, POM, workflow, V5.2 Runner, push, cloud or release change."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 2679,
+      "path": "target/v53-native-network/PLAN.md",
+      "sha256": "dc9799461a6c47423ab002d49d8f37d4de86f827fa2e8b887798524ef5ff8cca"
+    },
+    {
+      "bytes": 1246,
+      "path": "target/v53-native-network/activation-driver-replay.json",
+      "sha256": "f13d7b3f9d99aa17e3ac59c09b2ec4ad31027573d15468f8bdd8825abe70c376"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/activation-driver-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1253,
+      "path": "target/v53-native-network/activation-endpoint-replay.json",
+      "sha256": "d35b23a76546d44000b6b5c7edaa047855a638263893199d25dc1fc0f1620111"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/activation-endpoint-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1307,
+      "path": "target/v53-native-network/activation-replay.json",
+      "sha256": "0b000127c2f1052bdca4559c5a5fc39786226253885f6fa2eb9b901e106840c6"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/activation-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1350,
+      "path": "target/v53-native-network/audit.py",
+      "sha256": "d966803b9716827db4f9b201b42d0ee227a85849d68c7535b1c8af810ac76ac7"
+    },
+    {
+      "bytes": 41,
+      "path": "target/v53-native-network/base-commit.txt",
+      "sha256": "c7c16470d627e9428e5750b36681cd486ace8a4ed364573aafa804ee5977f162"
+    },
+    {
+      "bytes": 467360,
+      "path": "target/v53-native-network/bound-history-inputs.json",
+      "sha256": "fc2e4a74c2de548f7446b8415a7739f368f914a2fb717349fa4deb8fcb052377"
+    },
+    {
+      "bytes": 51,
+      "path": "target/v53-native-network/bound-history-workspace.txt",
+      "sha256": "a46578017b8a9c5f79cfb65a14ea5dbf1e12d6dd0fd1581997166503f02dbf4a"
+    },
+    {
+      "bytes": 5419,
+      "path": "target/v53-native-network/bound-history.log",
+      "sha256": "d8e9d74f2e92974d0da6aaa63b2870414274f2e558ba30363642d521066ffd77"
+    },
+    {
+      "bytes": 34,
+      "path": "target/v53-native-network/build-input-check.json",
+      "sha256": "5acc7797a2c510a4fcdece01eee61c1834dea12b491936100ce78cd0b61a2f00"
+    },
+    {
+      "bytes": 68,
+      "path": "target/v53-native-network/collect.log",
+      "sha256": "4d9cef87224977f3f14ca023b494aa4d4e2714f3756ff7697899dab23286c574"
+    },
+    {
+      "bytes": 4255,
+      "path": "target/v53-native-network/collect.py",
+      "sha256": "f987c89ab30baf7b324cbb5309dfab7e0aa183f2d55269191bdc354991765ff9"
+    },
+    {
+      "bytes": 141842,
+      "path": "target/v53-native-network/compiled-files.json",
+      "sha256": "e298502176fdf9f1d05905df5e88c74b460a4bc5cb6b6f643314cb90c43a6fe4"
+    },
+    {
+      "bytes": 1054554,
+      "path": "target/v53-native-network/components.tar.gz",
+      "sha256": "f6492971db2e3e78ba962913dafbe06306593c9792715f8b03db2c3a10052eea"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-native-network/contract-check.log",
+      "sha256": "78cf7dfd6bf9808b87271f494ccaae8960028f465234491b307449eaf2738719"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/draft-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/draft-test-compile-corrected.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1382,
+      "path": "target/v53-native-network/draft-test-compile.log",
+      "sha256": "7c094f10ce63a1f1f0d02ceb38cad09e19d0895c06979c02fc1db3430a52a91d"
+    },
+    {
+      "bytes": 392,
+      "path": "target/v53-native-network/first-native-replay.log",
+      "sha256": "33b7cae3d179eb1e0194b68940679d8e806d2df1d1172a6f2f3f198aea12a3db"
+    },
+    {
+      "bytes": 1369,
+      "path": "target/v53-native-network/java-reports.json",
+      "sha256": "751212ad93001cbabf04c661a1eb6ca8f4c5ce798dedd40c1648eab5a675c192"
+    },
+    {
+      "bytes": 1559,
+      "path": "target/v53-native-network/native-initial-qualification.json",
+      "sha256": "94e8e6c230f46dd3e3fb8fcf779329e3af33d74eee351d344d3ce5d2eeccebda"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/native-initial-qualification.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 467158,
+      "path": "target/v53-native-network/probe-inputs.json",
+      "sha256": "c274c8e27c4e90f543cb49e391eee4b141c73352110acc7cc280c619715418e6"
+    },
+    {
+      "bytes": 43,
+      "path": "target/v53-native-network/probe-workspace.txt",
+      "sha256": "5de8a64c74998a29e9e34147cb0ab47c695aae6883c4d8e203f915aee28b0355"
+    },
+    {
+      "bytes": 7124,
+      "path": "target/v53-native-network/probe.log",
+      "sha256": "c9171cb2f7750c9c7901b8c2c6b66e310d46a476c6cad8d4b4a4b381bf7fc3f2"
+    },
+    {
+      "bytes": 1912,
+      "path": "target/v53-native-network/promised-source-replay.json",
+      "sha256": "6ad451c461ddc7445667bdf28d0bbb4826d8fa8cf4bb8509c4e82c7e94f8a9c0"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/promised-source-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 710,
+      "path": "target/v53-native-network/python-all-optimized.log",
+      "sha256": "aacde64758b567ecf1786784032f0abe5e530e97fcab6301d7d0eb83c746f3c4"
+    },
+    {
+      "bytes": 710,
+      "path": "target/v53-native-network/python-all.log",
+      "sha256": "85abc92404f4a09f29db2a0b0c22fa1e7b11fd30223bf8973e52bcfadd427770"
+    },
+    {
+      "bytes": 106,
+      "path": "target/v53-native-network/python-focused.log",
+      "sha256": "133449d6f429f0588126e0403937f271f33f90517460d5c4b39d69c2eeda0f25"
+    },
+    {
+      "bytes": 467360,
+      "path": "target/v53-native-network/qualification-inputs.json",
+      "sha256": "e21291545c39dc4362c0bf7f82e10e859256a6da447d3d6655e22ef0aed6482c"
+    },
+    {
+      "bytes": 51,
+      "path": "target/v53-native-network/qualification-workspace.txt",
+      "sha256": "812dd0fae38bedd3b0ffbd3a51aee12fb28c776f7667a979858ce60e6e180c75"
+    },
+    {
+      "bytes": 8799,
+      "path": "target/v53-native-network/qualification.log",
+      "sha256": "60c1e116171cbadcf1f42bacc2494b81bc0d9448fe97b042056ed385a74a0c59"
+    },
+    {
+      "bytes": 2099121,
+      "path": "target/v53-native-network/raw-inventory.json",
+      "sha256": "8675ee24d6f83ce32e87b06b6f73ee951c2074824a78b9e8e92d317cbf3eb98e"
+    },
+    {
+      "bytes": 1559,
+      "path": "target/v53-native-network/raw-normal.json",
+      "sha256": "94e8e6c230f46dd3e3fb8fcf779329e3af33d74eee351d344d3ce5d2eeccebda"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/raw-normal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1559,
+      "path": "target/v53-native-network/raw-optimized.json",
+      "sha256": "94e8e6c230f46dd3e3fb8fcf779329e3af33d74eee351d344d3ce5d2eeccebda"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/raw-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1559,
+      "path": "target/v53-native-network/raw-portable.json",
+      "sha256": "94e8e6c230f46dd3e3fb8fcf779329e3af33d74eee351d344d3ce5d2eeccebda"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/raw-portable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4281641,
+      "path": "target/v53-native-network/raw.tar.gz",
+      "sha256": "2e755f6246d18cf5c166df7e0c0d1ad7fed91f1294b1cb409e96fe3ec727dffe"
+    },
+    {
+      "bytes": 394,
+      "path": "target/v53-native-network/receipt-count-error.log",
+      "sha256": "227e50f9540f8bfbfe3970b2586c381f7d4827d550445a73908c2b3f72e7d950"
+    },
+    {
+      "bytes": 5845,
+      "path": "target/v53-native-network/receipt.py",
+      "sha256": "4130d73d503b085d77e9524c58238589e668b09820f9b3fa92de1757b31b0a2d"
+    },
+    {
+      "bytes": 947,
+      "path": "target/v53-native-network/replay-modes.json",
+      "sha256": "a287f0ee292421c7fabfc5d0eb6bf56dedf272e7adb623e22f3ce551b7ff4747"
+    },
+    {
+      "bytes": 145,
+      "path": "target/v53-native-network/replay.log",
+      "sha256": "bc0c2b6a7a182b320623201d6f7f7923358c2c0cfeb5cd6cdd47f939062c63db"
+    },
+    {
+      "bytes": 2323,
+      "path": "target/v53-native-network/replay.py",
+      "sha256": "d99bee6f2e0cdda1652165dba57a5c6b566e924d68807cb3cc69f655a2be5e47"
+    },
+    {
+      "bytes": 1794,
+      "path": "target/v53-native-network/selected-pull-replay.json",
+      "sha256": "980bb3d0d71e31ecc217b7350c7d94ecac7701176bebc50b78eb93ee27fd7c78"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-network/selected-pull-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 828,
+      "path": "target/v53-native-network/snapshot.py",
+      "sha256": "e4258b8277cb511035ab149091a5b4f3f695e98356f30a744ebe20b26747889d"
+    },
+    {
+      "bytes": 34776,
+      "path": "target/v53-native-network/source-inputs.json",
+      "sha256": "ceb77d407af4499dfba1c0cafcf5099d32c7053076c8c54c231d0041ddb6135e"
+    },
+    {
+      "bytes": 43,
+      "path": "target/v53-native-network/stage-raw.log",
+      "sha256": "5a611d43b94681a730b0d8e72a20fd692546bae188eb614a612e69333354d56a"
+    },
+    {
+      "bytes": 1210,
+      "path": "target/v53-native-network/stage-raw.py",
+      "sha256": "33ac42b68fc5ac0ea001b628777a9d29be430af4de05d047920cdb682fa7852c"
+    },
+    {
+      "bytes": 998,
+      "path": "target/v53-native-network/staged-base-inputs.json",
+      "sha256": "b013d5b1c65051c5e849a963dff046d6a2f83b53886df87372a447065a76997b"
+    },
+    {
+      "bytes": 639,
+      "path": "target/v53-native-network/validation-summary.json",
+      "sha256": "a0635c854c4951991e196849691bd8c87c41271d9330e8dd3ed70c928b6c086f"
+    },
+    {
+      "bytes": 10385,
+      "path": "target/v53-native-network/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest.xml",
+      "sha256": "09b2293f1c98cac2301164d0e2bf18f5410c39778064e02f1974ece4e8b49e6e"
+    },
+    {
+      "bytes": 9128,
+      "path": "target/v53-native-network/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml",
+      "sha256": "55d8830049f61c814e54c6f5095efaf44a3c7eb84251152f2b403de0c12e948e"
+    },
+    {
+      "bytes": 8891,
+      "path": "target/v53-native-network/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationTest.xml",
+      "sha256": "27c0ce8f296fc9987d5babf3c9ff16a245c7e95791d55255fed6f6a422e0a96d"
+    },
+    {
+      "bytes": 8284,
+      "path": "target/v53-native-network/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeActivationTest.xml",
+      "sha256": "b1091120c5d96415f6c43a6c11168bebabaa8f8bb645b93abb40dfd2298211c4"
+    },
+    {
+      "bytes": 7798,
+      "path": "target/v53-native-network/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53NativePromisedSourceTest.xml",
+      "sha256": "beac97f6fa4369549a6e798b7dd9c64f8aea2b4e0152c54d810e1583541e7e3d"
+    },
+    {
+      "bytes": 8705,
+      "path": "target/v53-native-network/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53PromisedSourceTest.xml",
+      "sha256": "077265e5d73d27a77b80b752da52fb798eb441313b521dd068c89d2ef2893e2c"
+    },
+    {
+      "bytes": 9318,
+      "path": "target/v53-native-network/junit/TEST-io.github.patricklfdm.generalsearch.replication.V53SelectedPullTest.xml",
+      "sha256": "859f71e0ff1cfb03090d3fb58808b01fca3e68918f14005df74f9c9718d9d2eb"
+    }
+  ],
+  "schema": "gse-v53-native-network-local-qualification-v1",
+  "scope": "native-history-through-real-tcp-selection-and-installation",
+  "status": "PASS",
+  "validation": {
+    "componentEvidenceNegatives": {
+      "activation": 10,
+      "activation-driver": 10,
+      "activation-endpoint": 10,
+      "promised-source": 16,
+      "selected-pull": 14
+    },
+    "evidenceNegatives": 14,
+    "historicalObservationsSupplied": false,
+    "independentImageSemantics": true,
+    "javaSuites": 7,
+    "javaTests": 72,
+    "nodePublications": 48,
+    "phase3Complete": false,
+    "profiles": 6,
+    "publicRuntime": false,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 609,
+    "replayModes": [
+      "normal",
+      "optimized",
+      "portable"
+    ],
+    "selectedInstallations": 16,
+    "sourceExchanges": 312,
+    "status": "PASS"
+  }
+}

@@ -22,6 +22,7 @@ final class MembershipActivationDriver implements AutoCloseable {
     private final ReplicationBounds bounds;
     private final MembershipSourcePull.Link link;
     private final MembershipCurrentGeneration.Verifier verifier;
+    private final boolean nativeHistory;
     private final List<MembershipSelection.Bridge> ancestry,retained;
     private final LongSupplier clock;
     private final long budget;
@@ -42,8 +43,21 @@ final class MembershipActivationDriver implements AutoCloseable {
 
     MembershipActivationDriver(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,
             MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
+            List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
+            Path scratch,LongSupplier clock,long budget,int maximumCampaigns)throws IOException {
+        this(owner,endpoint,resources,bounds,link,null,ancestry,retained,scratch,clock,budget,maximumCampaigns,true);
+    }
+    MembershipActivationDriver(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,
+            MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
             MembershipCurrentGeneration.Verifier verifier,List<MembershipSelection.Bridge> ancestry,
             List<MembershipSelection.Bridge> retained,Path scratch,LongSupplier clock,long budget,int maximumCampaigns)throws IOException {
+        this(owner,endpoint,resources,bounds,link,Objects.requireNonNull(verifier),ancestry,retained,scratch,clock,budget,maximumCampaigns,false);
+    }
+    private MembershipActivationDriver(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,
+            MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
+            MembershipCurrentGeneration.Verifier verifier,List<MembershipSelection.Bridge> ancestry,
+            List<MembershipSelection.Bridge> retained,Path scratch,LongSupplier clock,long budget,int maximumCampaigns,
+            boolean nativeHistory)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"activation driver budget");
         // A bounded invocation may consume fewer slots than this if durable sources
         // already occupy capacity. Never retire a source merely to retry a campaign.
@@ -51,7 +65,7 @@ final class MembershipActivationDriver implements AutoCloseable {
         require(ancestry.size()<=6 && retained.size()<=6,"activation driver ancestry capacity");
         this.owner=Objects.requireNonNull(owner);this.endpoint=Objects.requireNonNull(endpoint);
         this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);this.link=Objects.requireNonNull(link);
-        this.verifier=Objects.requireNonNull(verifier);this.ancestry=List.copyOf(ancestry);this.retained=List.copyOf(retained);
+        this.verifier=verifier;this.nativeHistory=nativeHistory;this.ancestry=List.copyOf(ancestry);this.retained=List.copyOf(retained);
         this.clock=Objects.requireNonNull(clock);this.budget=budget;this.maximumCampaigns=maximumCampaigns;
         scratchOwner=owner.openScratch(scratch,MembershipScratch.Role.OUTGOING,resources,event->{});this.scratch=scratchOwner.directory();
     }
@@ -159,7 +173,8 @@ final class MembershipActivationDriver implements AutoCloseable {
                     if(launched<order.size()){start(order.get(launched++),false);pending++;lastLaunch=clock.getAsLong();}
                     continue;
                 }
-                campaign.promised(task.peer,task.reply,task.received,verifier,ancestry);
+                if(nativeHistory)campaign.promised(task.peer,task.reply,task.received,task.pull,ancestry);
+                else campaign.promised(task.peer,task.reply,task.received,verifier,ancestry);
             }
             var selected=campaign.sources().stream().map(s->s.owner).toList();
             for(var task:snapshot())if(!selected.contains(task.peer)){task.stop();task.drain();task.release();}
