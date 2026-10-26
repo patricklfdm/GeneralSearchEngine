@@ -80,6 +80,13 @@ requiring live former voters for that retained copy. Automatic cross-view adopti
 durable reopening, missing required ancestry, maximal combined resource lifetime
 and the remaining complete 3B–3E obligations remain open.
 
+[Owned selected-history reopening](PHASE_3_OWNED_GENERATION.md) now restores the
+actual selected packet, supplemental ancestry and original publication coverage
+under the exclusive bootstrap-bound owner. Fresh-process reads and resealing crash
+cuts require no caller historical observations. This does not yet replace all
+voting-runtime recovery paths: pending/floor/inactive/source dependencies, typed
+incoming adoption and autonomous new elections remain required, alongside 3C–3E.
+
 ## First batch boundary
 
 The subsequent [retained-copy verifier](PHASE_3_RETAINED_PROVENANCE.md) separates

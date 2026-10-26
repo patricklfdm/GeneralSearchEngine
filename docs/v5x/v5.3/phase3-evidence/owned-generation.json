@@ -1,0 +1,207 @@
+{
+  "artifacts": [
+    {
+      "bytes": 860591,
+      "path": "target/v53-owned-generation/core.jar",
+      "sha256": "1f0751b2b7e8bee03ed1e8b27a69efeabd7e772829dc2cef9891e1dd8ba7d5dd"
+    },
+    {
+      "bytes": 1318373,
+      "path": "target/v53-owned-generation/replication.jar",
+      "sha256": "f60b30958dda49b6398c532e4ed74cee3ddefbcf2520a79f7a7f81eda0d29ed8"
+    }
+  ],
+  "automaticCrossViewAdoption": false,
+  "baseCommit": "f0a238e7350fbadbf1ff658bfebb8b0a75e6911e",
+  "caveats": [
+    "Read-only selected-generation scope; no pending transaction completion, native voting runtime open, new votes, installation ACK or READY.",
+    "Original histories use actual offline public bootstrap and local phased publication. Fresh reader processes receive only original replica/materialization paths; no historical Owned observations or grant lists.",
+    "43 related Java tests and six final reader tests use byte-identical compiled production classes. Earlier failed fixture setup, newline output and invalid digest-key JSON attempts remain retained and are not passing qualifications.",
+    "The frozen crash-fault/authentic-exclusive-storage assumption applies; no Byzantine/signature claim. Ten halt/SIGKILL cuts do not establish power-loss durability.",
+    "Pending/floor/inactive/source history recovery, typed cross-view adoption and fresh elections, learner/joint transitions, generalized publication and all full Phase 3 S/N mapping remain open."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 462145,
+      "path": "target/v53-owned-generation/compile-inputs.json",
+      "sha256": "764e9a00bdc15483c493f3efe5412d23066177dcd37fa21069a8b1d9c95874a6"
+    },
+    {
+      "bytes": 4437,
+      "path": "target/v53-owned-generation/compile.log",
+      "sha256": "5ab5a5421717acf5ee449d3c4ec546f8ebac42718ece425529673dce5c09bd1f"
+    },
+    {
+      "bytes": 462541,
+      "path": "target/v53-owned-generation/initial-inputs.json",
+      "sha256": "ee006a718e275b99c14af7a38b25932c829beaac6025263a1c5e92bf4537a43e"
+    },
+    {
+      "bytes": 17676,
+      "path": "target/v53-owned-generation/initial-java-tests.log",
+      "sha256": "380f1ccc5391a1b691fbb2b0cdc1b738b8099e6b0100d56e308e38b82c0ea1b8"
+    },
+    {
+      "bytes": 462889,
+      "path": "target/v53-owned-generation/qualified-inputs.json",
+      "sha256": "90adc54f1fb602633df3df78fa07f5d9e139ebf7756d5ef9b6f4f70eb286efc1"
+    },
+    {
+      "bytes": 7206,
+      "path": "target/v53-owned-generation/qualified-java-tests.log",
+      "sha256": "605ac6cc610628e0245320823aa0685389da0f3fa2101bb634d91cefd29bce0a"
+    },
+    {
+      "bytes": 462889,
+      "path": "target/v53-owned-generation/final-inputs.json",
+      "sha256": "f0777f1f59f9b2a4c5179d77c11a0703e646175f1d611fa75378a44ceb990b5a"
+    },
+    {
+      "bytes": 13155,
+      "path": "target/v53-owned-generation/final-java-tests.log",
+      "sha256": "db70dff7a4a7e2cddfc04f82b38b5f7f8735b9b96396d58f120424481e202fc0"
+    },
+    {
+      "bytes": 462889,
+      "path": "target/v53-owned-generation/final-reader-inputs.json",
+      "sha256": "c468ab5562e188f4ac7517f1f85fb39e90049bf609513455d1c4fb5abbdce470"
+    },
+    {
+      "bytes": 5359,
+      "path": "target/v53-owned-generation/final-reader-java-tests.log",
+      "sha256": "3f5e321088601319d045fff4ed0cc4c5ff30e99b9c023512add4a08a38f0e022"
+    },
+    {
+      "bytes": 182,
+      "path": "target/v53-owned-generation/invocation-wrong-directory.log",
+      "sha256": "1f9ab23c58159dfbe4664ad1bd018efff5f2e4f731479f976f85af7f09646c2b"
+    },
+    {
+      "bytes": 58,
+      "path": "target/v53-owned-generation/build-input-check.json",
+      "sha256": "744f235d3372f1c5883fc15039095d0ca1b0a7a7882c23af2d48a550d4ac4944"
+    },
+    {
+      "bytes": 124,
+      "path": "target/v53-owned-generation/class-comparison.json",
+      "sha256": "4f124b17c2fecdd3e6684d8cd46c7965c776b125452d47e81baf9518d97870be"
+    },
+    {
+      "bytes": 897,
+      "path": "target/v53-owned-generation/java-reports.json",
+      "sha256": "3651f833f36102cdc59dd2932c47d902ccdd84417cc0cb0713cf22a3d67a11c2"
+    },
+    {
+      "bytes": 7491,
+      "path": "target/v53-owned-generation/java-cases.json",
+      "sha256": "db55bbb55559441226f449a14ed2bed48dca5f39bfecd7afabad5e6787032ec7"
+    },
+    {
+      "bytes": 105618,
+      "path": "target/v53-owned-generation/final-python-inputs.json",
+      "sha256": "9538ab97ec326b25dfb160a445bafe1fa7aa429da317d9d2b064eb58d81607a3"
+    },
+    {
+      "bytes": 686,
+      "path": "target/v53-owned-generation/final-python-normal.log",
+      "sha256": "3d9c6612147d862a68b47ef09e1e37c76c278b1a1f9cdd3dd798958e5e35bb24"
+    },
+    {
+      "bytes": 686,
+      "path": "target/v53-owned-generation/final-python-optimized.log",
+      "sha256": "ec080e8024f913758c8ad13623af512f9b6e03f171989d1f3a487abdf74ebd94"
+    },
+    {
+      "bytes": 105,
+      "path": "target/v53-owned-generation/final-python-input-check.json",
+      "sha256": "7f7d62b88c157f3f65064d918487b832ad0054693fba192085f3e51b29d0ed07"
+    },
+    {
+      "bytes": 1487,
+      "path": "target/v53-owned-generation/replay.json",
+      "sha256": "41af640634047a14d033735392d05ecfb966f527aa07bdb6139031081df67386"
+    },
+    {
+      "bytes": 1487,
+      "path": "target/v53-owned-generation/replay-optimized.json",
+      "sha256": "41af640634047a14d033735392d05ecfb966f527aa07bdb6139031081df67386"
+    },
+    {
+      "bytes": 1487,
+      "path": "target/v53-owned-generation/replay-portable.json",
+      "sha256": "41af640634047a14d033735392d05ecfb966f527aa07bdb6139031081df67386"
+    },
+    {
+      "bytes": 1115,
+      "path": "target/v53-owned-generation/crash-replay.json",
+      "sha256": "8f64d292f50753866ebe2e4370ef466172eb2c136c1a3b3e79e42104466d9a3b"
+    },
+    {
+      "bytes": 1115,
+      "path": "target/v53-owned-generation/crash-replay-optimized.json",
+      "sha256": "8f64d292f50753866ebe2e4370ef466172eb2c136c1a3b3e79e42104466d9a3b"
+    },
+    {
+      "bytes": 1115,
+      "path": "target/v53-owned-generation/crash-replay-portable.json",
+      "sha256": "8f64d292f50753866ebe2e4370ef466172eb2c136c1a3b3e79e42104466d9a3b"
+    },
+    {
+      "bytes": 1077328,
+      "path": "target/v53-owned-generation/raw-inventory.json",
+      "sha256": "124b2a81c4ca71867dbbfb0e9b09ed3fbbba15b84d5f816086be6857e23e1a80"
+    },
+    {
+      "bytes": 2504377,
+      "path": "target/v53-owned-generation/portable-evidence.tar.gz",
+      "sha256": "9442e91403fa0cf884eb04ab40760c915613aa62e683ff264a16caffa7c5f42c"
+    },
+    {
+      "bytes": 329,
+      "path": "target/v53-owned-generation/qualification-success.json",
+      "sha256": "2502106280dcdb5a7885f432e2a7f221b6d571666a1963a280660ba6ad2cbd9e"
+    },
+    {
+      "bytes": 1769,
+      "path": "target/v53-owned-generation/source-inputs.json",
+      "sha256": "8ccd92694dbd622465fa3dc28cbd0e599462bb4a2d207ecba1752f99c0b6dca2"
+    },
+    {
+      "bytes": 1612,
+      "path": "target/v53-owned-generation/component-notes.md",
+      "sha256": "fa5fbb0508d780f1bd36237acc3533c00312645ff32f9ceafbdc0a26f6d11461"
+    },
+    {
+      "bytes": 1880,
+      "path": "target/v53-owned-generation/next-integration.md",
+      "sha256": "70b947ff6a61423569f4b0de6a90e54796a5ae3f97a9b70b48229208c624d527"
+    }
+  ],
+  "fullRuntimeReopen": false,
+  "phase3Complete": false,
+  "publicRuntime": false,
+  "schema": "gse-v53-owned-generation-local-qualification-v1",
+  "scope": "owned-selected-history-reopen",
+  "status": "PASS",
+  "validation": {
+    "crashCases": 10,
+    "evidenceNegatives": 17,
+    "freshReaders": 12,
+    "javaSuites": 6,
+    "javaTests": 49,
+    "phase3Complete": false,
+    "publicRuntime": false,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 585,
+    "replayModes": [
+      "normal",
+      "optimized",
+      "portable"
+    ],
+    "status": "PASS"
+  }
+}

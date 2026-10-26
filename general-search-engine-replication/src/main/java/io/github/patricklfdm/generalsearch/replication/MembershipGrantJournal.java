@@ -74,6 +74,48 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(promise!=null)observed.set(object(promise.value().get("ballot")));
     }
 
+    /** The original journal is parsed by this owner, never supplied as caller-side grant lists.
+     * This scope reads only selected history; it does not recover pending transactions or admit voting. */
+    static RetainedHistory readRetainedHistory(Path requested,Path materialization,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipBallotAllocator.Cut cut)throws IOException {
+        Objects.requireNonNull(resources);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
+        var owner=MembershipBallotAllocator.openBootstrapped(path,Objects.requireNonNull(materialization),root,identity,cut);
+        MembershipGrantJournal journal=null;MembershipCurrentGeneration selected=null;
+        try {
+            journal=new MembershipGrantJournal(path,root,identity,owner,MAXIMUM,cut);
+            journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);
+            selected=MembershipCurrentGeneration.readOwned(new HistoryRead(journal),resources,cut);
+            return new RetainedHistory(journal,selected);
+        }catch(IOException|RuntimeException|Error error) {
+            if(selected!=null)selected.close();
+            try {if(journal==null)owner.close();else journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;
+        }
+    }
+    /** Private minting binds the complete selected copy to this exact replayed live journal. */
+    static final class HistoryRead {
+        private final MembershipGrantJournal owner;
+        private HistoryRead(MembershipGrantJournal owner){this.owner=owner;}
+        void check()throws IOException{owner.checkBaseOwner();}
+        Path directory(){return owner.directory;}
+        MembershipRoot root(){return owner.root;}
+        MembershipIdentity identity(){return owner.identity;}
+        Collection<Decoded> promises(){return List.copyOf(owner.promises.values());}
+        Collection<Decoded> bases(){return List.copyOf(owner.bases.values());}
+        Collection<Decoded> selections(){return List.copyOf(owner.selections.values());}
+    }
+    static final class RetainedHistory implements AutoCloseable {
+        private final MembershipGrantJournal owner;
+        private final MembershipCurrentGeneration selected;
+        private RetainedHistory(MembershipGrantJournal owner,MembershipCurrentGeneration selected){this.owner=owner;this.selected=selected;}
+        synchronized MembershipCapsule capsule()throws IOException{selected.check();return selected.capsule;}
+        synchronized Map<String,byte[]> images()throws IOException{var images=selected.images();selected.check();return images;}
+        synchronized Decoded manifest()throws IOException{selected.check();return selected.manifest;}
+        synchronized byte[] ancestry()throws IOException {
+            var bytes=selected.ancestry();selected.check();return bytes;
+        }
+        @Override public synchronized void close()throws IOException{try{selected.close();}finally{owner.close();}}
+    }
+
     static MembershipGrantJournal open(Path path,MembershipRoot root,MembershipIdentity identity) throws IOException {
         return open(path,root,identity,MAXIMUM,event->{});
     }

@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B owned selected-history reopening
+
+The [selected-history reader](PHASE_3_OWNED_GENERATION.md) now acquires the actual
+bootstrap-bound storage lock, replays its original grant journal and validates the
+complete selected generation without external historical observations. Exact
+supplemental ancestry and original first/latest publication coverage are recovered
+as history; copied bytes do not create new voting observations. Caller-side grant
+lists cannot mint the private capability, and close or file/owner changes revoke
+further reads.
+
+The [receipt](phase3-evidence/owned-generation.json) records 49 Java tests, 585 Python
+tests in normal/optimized modes, 12 fresh-JVM reads after actual public-bootstrap
+publications, ten halt/SIGKILL recovery cuts and 17 original-first evidence negatives.
+Normal, optimized and portable replay agree. Intermediate fixture/JSON output
+failures and their exact source snapshots remain retained separately.
+
+This is a read-only selected-history recovery component, not full automatic runtime
+open. Pending transactions, floor/inactive/source provenance, typed cross-view
+adoption, fresh elections, learners/joint finalization and full Phase 3 qualification
+remain open. No public runtime, push, protected CI or cloud execution is claimed.
+
+
 ## 2026-10-26 — Phase 3B retained supplemental ancestry
 
 The [retained ancestry transfer](PHASE_3_RETAINED_ANCESTRY.md) serves the actual

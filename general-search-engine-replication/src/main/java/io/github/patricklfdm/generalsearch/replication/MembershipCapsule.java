@@ -77,6 +77,30 @@ final class MembershipCapsule {
         Objects.requireNonNull(copy).check(root,packet);
         var result=verify(root,packet,images,Set.of(),Set.of(),true);copy.check(root,packet);return result;
     }
+    /** Complete original selected storage, checked under the exact exclusive local owner.
+     * The history token never supplies fresh ACCEPT/PROOF observations. */
+    static MembershipCapsule verifyStored(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,
+            MembershipCurrentGeneration.RetainedCopy copy)throws java.io.IOException {
+        Objects.requireNonNull(copy).check(root,packet);
+        byte[] ancestry=copy.ancestry();
+        var result=verify(root,packet,images,Set.of(),Set.of(),true).retainingCompleteAncestry(ancestry);
+        var coverage=copy.coverage();
+        if(coverage.isPresent()) {
+            var value=object(parse(coverage.get(),MembershipSelectionCoverage.MAXIMUM));
+            boolean round="gse-v53-round-coverage/1.3".equals(value.get("schema"));
+            require(round || "gse-v53-selected-coverage/1.3".equals(value.get("schema")),"stored history coverage schema");
+            var proofs=new HashSet<>(result.history);result.retainCoverageCertificate(value,proofs);
+            if(round)result.retainCoverageCertificate(object(value.get("first")),proofs);
+            result=new MembershipCapsule(result.context,result.packet,result.anchors,result.states,Set.of(),proofs,result.highestMembershipCertificate);
+            MembershipSelectionCoverage.verify(coverage.get(),result,copy.record("promise.gsr","PROMISE"),copy.record("selected.gsr","SELECTED"),ancestry);
+        }
+        copy.check(root,packet);return result;
+    }
+    private void retainCoverageCertificate(Map<String,Object> coverage,Set<Historical> proofs) {
+        var parent=object(object(coverage.get("parent")).get("cut"));
+        var certificate=context.record((String)coverage.get("certificate"),"CERTIFICATE");
+        context.certificateStructure(certificate,parent);proofs.add(certificate(certificate,parent));
+    }
     private static MembershipCapsule verify(Decoded root,MembershipSourcePacket packet,Map<String,byte[]> images,
             Set<Owned> owned,Set<Historical> inherited,boolean retainedCopy) {
         var history=new HashSet<Historical>();
@@ -167,11 +191,15 @@ final class MembershipCapsule {
     }
     /** Extend only exact historical authority from an authenticated complete manifest/ancestry copy. */
     MembershipCapsule retainingAncestry(byte[] bytes,MembershipSourcePull.RetainedAncestry copy)throws java.io.IOException {
-        Objects.requireNonNull(copy).check(this,bytes);var retained=new HashSet<Historical>();
+        Objects.requireNonNull(copy).check(this,bytes);var result=retainingCompleteAncestry(bytes);
+        copy.check(this,bytes);return result;
+    }
+    private MembershipCapsule retainingCompleteAncestry(byte[] bytes) {
+        var retained=new HashSet<Historical>();
         for(var item:history)if(packet.objectNames().contains(item.record()))retained.add(item);
         for(var bridge:ancestryFrames(bytes))retained.add(checkpoint(bridge.statement,bridge.acknowledgements.stream().map(Decoded::digest).toList()));
         var result=new MembershipCapsule(context,packet,anchors,states,observations,retained,highestMembershipCertificate);
-        result.verifiedAncestry(bytes);copy.check(this,bytes);return result;
+        result.verifiedAncestry(bytes);return result;
     }
     boolean historicalCheckpoint(Decoded statement,List<Decoded> acknowledgements) {
         return history.contains(checkpoint(statement,acknowledgements.stream().map(Decoded::digest).toList()));

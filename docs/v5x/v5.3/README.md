@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Owned selected-history reopening](PHASE_3_OWNED_GENERATION.md) now reconstructs
+historical proof from the actual locked journal and selected generation in fresh
+processes, without external historical observations. Full voting-runtime recovery,
+automatic adoption/elections and complete Phase 3 qualification remain open.
+
 [Retained supplemental ancestry delivery](PHASE_3_RETAINED_ANCESTRY.md) now extends
 complete historical copies to the selected generation's original manifest and
 ancestor file. Exact proof reuse does not create new votes or adopt a configuration;

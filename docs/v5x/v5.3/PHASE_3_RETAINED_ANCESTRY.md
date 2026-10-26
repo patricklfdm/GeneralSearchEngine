@@ -78,3 +78,10 @@ Remove the ancestry lookup route, receiving capability and exact historical brid
 reuse, preserving the existing explicit-owner checkpoint path and packet/image
 transfer. No persisted format or public API needs migration. Keep original source,
 failed attempts and successful physical evidence bound to their own inputs.
+
+## Subsequent local recovery component
+
+[Owned selected-history reopening](PHASE_3_OWNED_GENERATION.md) subsequently restores
+the actual local selected manifest, ancestry and publication proofs under its
+exclusive journal owner. It is separate from the receiving-lifetime capability
+above. Full runtime recovery, cross-view adoption and Phase 3 closure remain open.

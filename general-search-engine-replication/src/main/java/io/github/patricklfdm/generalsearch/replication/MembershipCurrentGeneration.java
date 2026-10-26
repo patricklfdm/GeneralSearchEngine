@@ -8,7 +8,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipContext.
 import static io.github.patricklfdm.generalsearch.replication.MembershipBasisSources.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** Selected, immutable local generation. Historical remote force evidence remains a separate verifier input.
+/** Selected, immutable local generation. Historical proof comes from explicit observations or its bound local owner.
  * The journal owns installation transactions; this reader never selects or retires a generation. */
 final class MembershipCurrentGeneration implements AutoCloseable {
     static final String DIRECTORY="generations", SELECTOR="selector.gsr", MANIFEST="generation.gsr";
@@ -22,6 +22,9 @@ final class MembershipCurrentGeneration implements AutoCloseable {
     private final FileIdentity selectorIdentity,manifestIdentity;
     private final MembershipIdentity identity;
     private final boolean installations;
+    private final MembershipGrantJournal.HistoryRead historyOwner;
+    private final MembershipRoot root;
+    private boolean closed;
     final MembershipCapsule capsule;
     final String accepted;
     final boolean adopted;
@@ -34,7 +37,22 @@ final class MembershipCurrentGeneration implements AutoCloseable {
     }
     MembershipCurrentGeneration(Path parent,MembershipRoot root,MembershipIdentity identity,MembershipResources resources,
             Collection<Decoded> promises,Collection<Decoded> bases,Collection<Decoded> selections,Verifier verifier,MembershipBallotAllocator.Cut cut,boolean installations) throws IOException {
-        this.parent=parent;this.identity=identity;this.installations=installations;directory=parent.resolve(DIRECTORY);directoryKey=key(directory);
+        this(parent,root,identity,resources,promises,bases,selections,Objects.requireNonNull(verifier),cut,installations,null);
+    }
+    /** Only the exclusive owner can recover a complete selected local copy without external historical observations.
+     * This reader grants no vote and does not complete an adoption transaction or start a runtime. */
+    static MembershipCurrentGeneration readOwned(MembershipGrantJournal.HistoryRead owner,MembershipResources resources,
+            MembershipBallotAllocator.Cut cut)throws IOException {
+        Objects.requireNonNull(owner).check();
+        return new MembershipCurrentGeneration(owner.directory(),owner.root(),owner.identity(),resources,owner.promises(),owner.bases(),
+                owner.selections(),null,cut,true,owner);
+    }
+    private MembershipCurrentGeneration(Path parent,MembershipRoot root,MembershipIdentity identity,MembershipResources resources,
+            Collection<Decoded> promises,Collection<Decoded> bases,Collection<Decoded> selections,Verifier verifier,
+            MembershipBallotAllocator.Cut cut,boolean installations,MembershipGrantJournal.HistoryRead historyOwner)throws IOException {
+        this.parent=parent;this.root=root;this.identity=identity;this.historyOwner=historyOwner;this.installations=installations;
+        if(historyOwner!=null)historyOwner.check();
+        directory=parent.resolve(DIRECTORY);directoryKey=key(directory);
         byte[] selectorBytes=AdmissionPaths.read(parent.resolve(SELECTOR),4096);selector=decode(selectorBytes,"records","SELECTOR");
         bind(selector,root,identity);generation=(String)selector.value().get("generation");path=directory.resolve(generation);
         require(installations?Set.of("a","b").containsAll(children(directory,2)):children(directory,2).equals(Set.of(generation)),"current generation requires sole selected inventory");pathKey=key(path);
@@ -90,7 +108,15 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             var promise=decode(AdmissionPaths.read(path.resolve("promise.gsr"),8192),"records","PROMISE");
             require(promise.digest().equals(value.get("promise")) && promises.stream().anyMatch(p->Arrays.equals(p.bytes(),promise.bytes())),"current promise absent from journal");
             var materializations=materialize(packet);packet.verifyImages(materializations);
-            capsule=Objects.requireNonNull(verifier.verify(localRoot,packet,materializations),"current capsule verifier");
+            if(historyOwner==null) capsule=Objects.requireNonNull(verifier.verify(localRoot,packet,materializations),"current capsule verifier");
+            else {
+                // The capability exists only during this exact validated inventory read. Its check
+                // includes the actual owner, original selector, manifest and every retained byte.
+                var copy=new RetainedCopy(this,packet,inventory.containsKey("ancestry.gsr")?
+                        AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0]);
+                try {capsule=MembershipCapsule.verifyStored(localRoot,packet,materializations,copy);}
+                finally {copy.active=false;}
+            }
             require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"current verifier substituted source");
             require(identity.equals(capsule.context.identities.get(identity.nodeId().value())) && (adopted || capsule.context.voters().contains(identity.nodeId().value())),"current local eligible identity");
             if(adopted) {
@@ -142,10 +168,35 @@ final class MembershipCurrentGeneration implements AutoCloseable {
             AdmissionPaths.forceDirectory(parent);cut.at("CURRENT_DIRECTORY_FORCED");check();
         } catch(IOException | RuntimeException | Error error){close();throw error;}
     }
+    /** Private construction prevents a bare packet or path from asserting local provenance. */
+    static final class RetainedCopy {
+        private final MembershipCurrentGeneration source;
+        private final MembershipSourcePacket packet;
+        private final byte[] ancestry;
+        private boolean active=true;
+        private RetainedCopy(MembershipCurrentGeneration source,MembershipSourcePacket packet,byte[] ancestry) {
+            this.source=source;this.packet=packet;this.ancestry=ancestry.clone();
+        }
+        void check(Decoded root,MembershipSourcePacket packet)throws IOException {
+            require(active && source.historyOwner!=null,"stored history read expired");source.check();
+            require(root.rootDigest().equals(source.root.manifestDigest()) && Arrays.equals(this.packet.bytes(),packet.bytes())
+                    && Arrays.equals(root.bytes(),packet.objectBytes(root.digest())),"stored history copy binding");
+        }
+        byte[] ancestry(){require(active,"stored history read expired");return ancestry.clone();}
+        Optional<byte[]> coverage()throws IOException {
+            require(active,"stored history read expired");return source.coverage();
+        }
+        Decoded record(String name,String kind)throws IOException {
+            require(active && Set.of("promise.gsr","selected.gsr").contains(name),"stored history record scope");source.check();
+            require(source.files.containsKey(name),"stored history original record missing");
+            return decode(AdmissionPaths.read(source.path.resolve(name),65536),"records",kind);
+        }
+    }
     private static void bind(Decoded frame,MembershipRoot root,MembershipIdentity identity) {
         require(frame.value().get("root").equals(root.manifestDigest()) && frame.value().get("node").equals(identity.nodeId().value()),"current root/node binding");
     }
     void check() throws IOException {
+        require(!closed,"current generation closed");if(historyOwner!=null)historyOwner.check();
         require(directoryKey.equals(key(directory)) && pathKey.equals(key(path)) && (installations?Set.of("a","b").containsAll(children(directory,2)):children(directory,2).equals(Set.of(generation))),"current directory changed");
         var expected=new TreeSet<>(files.keySet());expected.add(MANIFEST);require(children(path,32).equals(expected),"current file inventory");
         checkFile(parent.resolve(SELECTOR),selectorIdentity);checkFile(path.resolve(MANIFEST),manifestIdentity);
@@ -230,5 +281,5 @@ final class MembershipCurrentGeneration implements AutoCloseable {
     Optional<Owned> ownedTail() throws IOException {
         check();return accepted==null?Optional.empty():Optional.of(new Owned(identity.nodeId().value(),identity.storageId(),accepted,cutDigest(capsule.context.cut)));
     }
-    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();}
+    @Override public void close(){closed=true;leases.forEach(MembershipResources.Lease::close);leases.clear();}
 }
