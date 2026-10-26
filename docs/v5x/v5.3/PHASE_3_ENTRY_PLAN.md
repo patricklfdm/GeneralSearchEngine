@@ -139,6 +139,13 @@ fresh selection retain its endpoints. Durable **quorum** intent, immutable selec
 state propagation and autonomous integration remain unimplemented; this local
 component does not close the offline-survivor obligation or 3B.
 
+[Original-source retention capture](PHASE_3_PEER_RETENTION_SOURCE.md) now binds the
+exact active local snapshot to its original PROMISE/BASIS inventory. Fresh-process
+capture recovery, duplicate immutability, ordinary compaction and pending-context
+recapture have local component evidence. Durable quorum intent, atomic selected-plan
+preservation after source retirement and autonomous observation/maintenance remain
+required; a copied local snapshot alone does not authorize dispatch or close 3B.
+
 The [complete generation-copy batch](PHASE_3_GENERATION_COPY.md) is locally
 qualified in six native network histories with independent physical/transcript
 replay and exact evidence negatives. It provides original materializations for

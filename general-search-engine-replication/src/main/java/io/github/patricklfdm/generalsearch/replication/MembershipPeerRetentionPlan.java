@@ -90,6 +90,7 @@ final class MembershipPeerRetentionPlan {
     List<MembershipCapsule.Anchor> required(MembershipCapsule current,byte[] ancestry) {
         context(current,ancestry,false);return anchors();
     }
+    void capture(MembershipCapsule current,byte[] ancestry){context(current,ancestry,true);}
     List<MembershipCapsule.Anchor> possible(MembershipIdentity peer) {
         var value=peers.get(peer.nodeId().value());require(value!=null && value.identity.equals(peer),"peer retention unknown identity");
         return value.possible;

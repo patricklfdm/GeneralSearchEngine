@@ -1,0 +1,254 @@
+{
+  "baseCommit": "d2bfef4577f180ebb0553b0a5f9eba654990c7fa",
+  "boundaries": [
+    "A local frozen snapshot is not quorum intent, a peer progress observation, or dispatch permission. Public membership remains disabled.",
+    "Independent replay derives bootstrap and fourteen actual capture transactions. Separate Java publication and pending-context histories are not a new complete protocol replay claim.",
+    "Malformed source fixtures explicitly assume synthetic BASIS ownership only for conditional negative tests.",
+    "Quorum propagation, atomic selected-plan persistence, autonomous maintenance, cross-view contexts and complete 3B-3E remain open.",
+    "No power-loss, protected CI, push, workflow, paid execution or V5.2 change."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 4249787,
+      "path": "target/v53-peer-retention-source/build-evidence.tar.gz",
+      "sha256": "799d1235bec4848aeb3254dff09d82cffc3eed492c07359c632d78b51a15ce92"
+    },
+    {
+      "bytes": 1647,
+      "path": "target/v53-peer-retention-source/collect.py",
+      "sha256": "9b26c58c66621511be1ca29c81f65bdb5b83267ed5c216a22eeef4d382b17990"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-peer-retention-source/contract-check.json",
+      "sha256": "f1d75ea5448db35696bab4181acacebea2edf01daf30a611f3ca51b251524dc5"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-peer-retention-source/contract-preliminary.json",
+      "sha256": "ef550436fbc227f8bc3f99f0f079ef96a81b125d1202ea983499c9224c769529"
+    },
+    {
+      "bytes": 5094,
+      "path": "target/v53-peer-retention-source/finalize.py",
+      "sha256": "1bb9a8eb8ff2f82333ad6705423ca7e1406650e2775c4abf498ce17fb655819a"
+    },
+    {
+      "bytes": 473466,
+      "path": "target/v53-peer-retention-source/initial-inputs.json",
+      "sha256": "d97e9c9e79cb034e05532b0bc1190f201519bf48ebdda7763658f350f98304f9"
+    },
+    {
+      "bytes": 52,
+      "path": "target/v53-peer-retention-source/initial-workspace.txt",
+      "sha256": "84a6e638d771f387afad81cdc87934713658c279c8fd4db8b7d73bbf3fa2f82b"
+    },
+    {
+      "bytes": 8772,
+      "path": "target/v53-peer-retention-source/initial.log",
+      "sha256": "a24e62f1bce9406844246471cfd570226f38a527389461e10fb907e6f35c8593"
+    },
+    {
+      "bytes": 106,
+      "path": "target/v53-peer-retention-source/python-tests-optimized.log",
+      "sha256": "133449d6f429f0588126e0403937f271f33f90517460d5c4b39d69c2eeda0f25"
+    },
+    {
+      "bytes": 106,
+      "path": "target/v53-peer-retention-source/python-tests.log",
+      "sha256": "133449d6f429f0588126e0403937f271f33f90517460d5c4b39d69c2eeda0f25"
+    },
+    {
+      "bytes": 473709,
+      "path": "target/v53-peer-retention-source/qualified-inputs.json",
+      "sha256": "192dafe5d27b442f0515ebe446a27694da33a6310f94818e07e48b8fd36e63c0"
+    },
+    {
+      "bytes": 54,
+      "path": "target/v53-peer-retention-source/qualified-workspace.txt",
+      "sha256": "a6a120dd8331aa6f673313168457190c69dfb7b8c8b9676eb7f3badc55bf5996"
+    },
+    {
+      "bytes": 9412,
+      "path": "target/v53-peer-retention-source/qualified.log",
+      "sha256": "90d117304682039798f0c1b6f6b0337491eb3222db2e74ea68fd40ca32948526"
+    },
+    {
+      "bytes": 453455,
+      "path": "target/v53-peer-retention-source/raw-captures.tar.gz",
+      "sha256": "a443536553ae08495386f3e421f6bd4952de298c030e4595a8535c0f29f958b8"
+    },
+    {
+      "bytes": 272589,
+      "path": "target/v53-peer-retention-source/raw-inventory.json",
+      "sha256": "b2faae3fc4dc9be80f30c4a8cbed8f36da09b636e88152fb025176605a4aab5a"
+    },
+    {
+      "bytes": 1882,
+      "path": "target/v53-peer-retention-source/replay-optimized.json",
+      "sha256": "73407a76c2fba842bf7aa296b4a38ecbfce50f27ac09654074febcc03ebd4a8a"
+    },
+    {
+      "bytes": 1882,
+      "path": "target/v53-peer-retention-source/replay-portable.json",
+      "sha256": "73407a76c2fba842bf7aa296b4a38ecbfce50f27ac09654074febcc03ebd4a8a"
+    },
+    {
+      "bytes": 1882,
+      "path": "target/v53-peer-retention-source/replay-preliminary.json",
+      "sha256": "73407a76c2fba842bf7aa296b4a38ecbfce50f27ac09654074febcc03ebd4a8a"
+    },
+    {
+      "bytes": 1882,
+      "path": "target/v53-peer-retention-source/replay.json",
+      "sha256": "73407a76c2fba842bf7aa296b4a38ecbfce50f27ac09654074febcc03ebd4a8a"
+    },
+    {
+      "bytes": 842,
+      "path": "target/v53-peer-retention-source/snapshot.py",
+      "sha256": "f8e9fd63c7c1214affd91a8fc47cf5d7d84d53f8b41a89a45d44f1ab0b036e4b"
+    },
+    {
+      "bytes": 1183,
+      "path": "target/v53-peer-retention-source/validation-summary.json",
+      "sha256": "769148cf325d7065a25946e2f735ddbd47d6cdebe30079450cea459c8917588f"
+    }
+  ],
+  "schema": "gse-v53-peer-retention-source-v1",
+  "sourceFiles": [
+    {
+      "bytes": 214064,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "dcff9989272cd0031455faa888638554f2ba4ed1a95445797db6f4d93e02ca79"
+    },
+    {
+      "bytes": 10961,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionFiles.java",
+      "sha256": "35ba3c30e15d3cbebc9e786cdacf11802b63f34d9704b7299d3fbdcf720d31aa"
+    },
+    {
+      "bytes": 12646,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionPlan.java",
+      "sha256": "4b009284ebd23a39b267ed9269bc92aa336dc90426176166429fbbf85bc70ff3"
+    },
+    {
+      "bytes": 5588,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionSource.java",
+      "sha256": "6fc72bcad18ac9181de8abec27a24fb081093f5d1e0e717f1de9a08d77357aeb"
+    },
+    {
+      "bytes": 13903,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionSourceTest.java",
+      "sha256": "4bd9f62c563b44139cfc83b72f4a51141f67c1de8a7204b34842090d22b075f2"
+    },
+    {
+      "bytes": 1964,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionSourceWorker.java",
+      "sha256": "f7db734a59dd97ef3fb94ef6fe31cad47bf619f1d4468fa8286ceefb0b7ff7ec"
+    },
+    {
+      "bytes": 15921,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CoveredContextTest.java",
+      "sha256": "9ff9e755825b1809178c6da2d81f715aee2faae6a3b4a96118e50a2b838f3f9a"
+    },
+    {
+      "bytes": 14671,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionFilesTest.java",
+      "sha256": "f898d42a4e0dd481431ed4aa4f6444852b0cf351f436c19854355a230ab3b53b"
+    },
+    {
+      "bytes": 11359,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionPlanTest.java",
+      "sha256": "0f98cfa88a71da94d83e4dbac54bdb35771cbd7eaaa5b47d8083c2cbc4528241"
+    },
+    {
+      "bytes": 12563,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CaptureRecoveryTest.java",
+      "sha256": "928ba77c8e3d05137517133c02b0a70bfcdb37dd394af93e717491e50ab1248d"
+    },
+    {
+      "bytes": 9374,
+      "path": "scripts/v53/peer_retention_source_evidence.py",
+      "sha256": "79962cf6d7653fcb91064fc5edcac56a28b07d952b97a9d646012c0c3060d220"
+    },
+    {
+      "bytes": 2169,
+      "path": "scripts/v53/test_peer_retention_source_evidence.py",
+      "sha256": "eaabedf9e64c5d6040ffea8cd8a5b27fd113d1a1605d6ed6687afa29802ec8fd"
+    },
+    {
+      "bytes": 5152,
+      "path": "docs/v5x/v5.3/PHASE_3_PEER_RETENTION_SOURCE.md",
+      "sha256": "879ef784f73a763174c79e200ca353905f8b4df3ee47930350f1ad6039115023"
+    },
+    {
+      "bytes": 108815,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "1a224016044f7a6e1d431b9f24c36c02c340e428e05adc2e66ac4c230452261a"
+    },
+    {
+      "bytes": 13793,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "b979e1aa451a2f1a9da825d5c723060f3a1ad802c58b210a0e4da9ff4acdb1d2"
+    }
+  ],
+  "validation": {
+    "autonomousRuntime": false,
+    "earlierSnapshot": {
+      "finalSourceQualification": false,
+      "label": "initial",
+      "tests": 15
+    },
+    "evidenceNegatives": 9,
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PeerRetentionSourceTest",
+        "tests": 5
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PeerRetentionFilesTest",
+        "tests": 6
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PeerRetentionPlanTest",
+        "tests": 6
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53CaptureRecoveryTest",
+        "tests": 12
+      }
+    ],
+    "killLockProbes": 7,
+    "pendingContext": {
+      "independentFullHistoryReplay": false,
+      "interruptedRecapture": true,
+      "nativeHistory": true,
+      "precedingPublications": 2
+    },
+    "phase3Complete": false,
+    "portableReplay": true,
+    "processCases": 14,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 8,
+    "quorumPropagation": false,
+    "retainedRawFiles": 1568,
+    "scope": "native-original-source-retention-capture",
+    "status": "PASS"
+  }
+}

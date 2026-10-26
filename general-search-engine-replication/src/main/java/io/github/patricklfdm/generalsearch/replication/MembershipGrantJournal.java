@@ -437,6 +437,8 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private MembershipPeerRetentionFiles.State retainPeerPlan(MembershipPeerRetentionPlan plan)throws IOException {
         require(ownedHistory,"peer retention requires native history owner");plan.required(current.capsule,current.ancestry());
+        require(capture==null || !capture.pending(),"peer retention cannot change an unfinished frozen capture");
+        require(promise==null || basis!=null || current.manifest.value().get("promise").equals(promise.digest()),"peer retention cannot change an incomplete grant");
         try{return peerRetention.install(plan,maximum-storedJournal().length-pendingBytes(),cut);}catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     synchronized MembershipPeerRetentionFiles.State retainPeerDispatch(MembershipIdentity peer)throws IOException {
@@ -939,7 +941,20 @@ final class MembershipGrantJournal implements AutoCloseable {
     private String voteAccepted(){return MembershipPendingAccept.accepted(current,pendingAccept==null?null:pendingAccept.active());}
     private MembershipSourcePacket votePacket(){return MembershipPendingAccept.packet(current,pendingAccept==null?null:pendingAccept.active());}
     private MembershipCaptureFiles.Plan capturePlan(Decoded grant)throws IOException {
-        return MembershipCaptureFiles.plan(current,grant,identity,votePacket(),voteAccepted());
+        return MembershipCaptureFiles.plan(current,grant,identity,retentionPacket(votePacket(),grant),voteAccepted());
+    }
+    private MembershipSourcePacket retentionPacket(MembershipSourcePacket original,Decoded grant)throws IOException {
+        byte[] bytes;
+        if(peerRetention!=null)bytes=peerRetention.activeBytes();
+        else if(Files.exists(directory.resolve(MembershipPeerRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS))
+            // Capture recovery precedes opening all shared-journal users. Read only
+            // exact bounded active bytes under this owner; normal open rechecks them
+            // before any response and does not select an unexposed next candidate.
+            bytes=AdmissionPaths.read(directory.resolve(MembershipPeerRetentionFiles.FILE),MembershipPeerRetentionFiles.MAXIMUM);
+        else return original;
+        var state=MembershipPeerRetentionFiles.decodeOwned(bytes,root.manifestDigest(),identity);
+        state.plan().capture(current.capsule,current.ancestry());
+        return MembershipPeerRetentionSource.freeze(original,grant,identity,bytes);
     }
     /** A pending source is derived only from already validated complete backing bytes.
      * Source inventory admission has not forced anything and supplies no Owned receipt. */
@@ -955,10 +970,12 @@ final class MembershipGrantJournal implements AutoCloseable {
         var original=MembershipPendingContext.reconstructStored(context,root,identity,backingPromise,backingBasis,backing,stored.images(),contextVerifier);
         require(pendingAccept.active()!=null && Arrays.equals(original.vote().bytes(),pendingAccept.active().bytes()),"context capture original vote changed");
         var protectedSource=MembershipPendingTransfer.capture(original,current.capsule,current.images(),capsuleVerifier);
-        var plan=MembershipCaptureFiles.plan(current,grant,identity,protectedSource.capsule().packet,MembershipPendingAccept.accepted(current,original.vote()),protectedSource.images());
+        var packet=retentionPacket(protectedSource.capsule().packet,grant);
+        var captured=packet==protectedSource.capsule().packet?protectedSource.capsule():protectedSource.capsule().materialization(packet,protectedSource.images(),current.capsule.verifiedAncestry(current.ancestry()));
+        var plan=MembershipCaptureFiles.plan(current,grant,identity,packet,MembershipPendingAccept.accepted(current,original.vote()),protectedSource.images());
         MembershipPendingContext.Context expected=context;
         if(!Arrays.equals(backingBasis.bytes(),plan.basis().bytes()))expected=MembershipPendingContext.rebindStored(context,root,identity,
-                backingPromise,backingBasis,backing,stored.images(),grant,plan.basis(),protectedSource.capsule(),plan.images(),contextVerifier);
+                backingPromise,backingBasis,backing,stored.images(),grant,plan.basis(),captured,plan.images(),contextVerifier);
         // Validate even a well-framed foreign candidate before resuming the source or
         // appending its BASIS. A syntactic context prefix is never repair authority.
         long remainingBasis=basis==null?plan.basis().bytes().length-tornBasis.length:0;
@@ -2297,6 +2314,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         var grant=decode(encode("records","PROMISE",Map.of("root",root.manifestDigest(),"view",context.authority(),
                 "ballot",next,"basisId",UUID.randomUUID().toString())),"records","PROMISE");
         var body=new TreeMap<String,Object>(grant.value());body.put("voter",identity.nodeId().value());body.put("cut",context.cut);
+        if(current!=null) {
+            var packet=retentionPacket(source.packet,grant);
+            if(packet!=source.packet)source=source.materialization(packet,images,current.capsule.verifiedAncestry(current.ancestry()));
+        }
         body.put("capsule",source.packet.capsule().digest());body.put("inventory",source.packet.inventoryDigest());body.put("accepted",accepted);
         var frozen=decode(encode("records","BASIS",body),"records","BASIS");source.packet.bind(frozen);checkBasis(frozen,grant);
         if(accepted!=null) {

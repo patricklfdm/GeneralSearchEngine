@@ -13,6 +13,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipContext.
 class V53CoveredContextTest {
     @TempDir Path temp;
     boolean ownedHistory;
+    boolean retainingPeers;
     int precedingSlots;
     record Prepared(V53BootstrapPublicationTest.Fixture f,V53DistinctMinorityTest.Installation installation,long expectedSequence,List<MembershipSelection.Bridge> bridges) {
         Prepared(V53BootstrapPublicationTest.Fixture f,V53DistinctMinorityTest.Installation installation){this(f,installation,f.result.applicationSequence()+1,List.of());}
@@ -25,6 +26,7 @@ class V53CoveredContextTest {
         Files.write(raw.resolve("profile.json"),canonical(Map.of("size",size,"backup",backup,"phase",phase),16384));
         var f=new V53BootstrapPublicationTest.Fixture(Files.createDirectory(temp.resolve("group-"+UUID.randomUUID())),raw,size,backup);
         f.ownedHistory=ownedHistory;
+        if(retainingPeers)for(var target:f.request.targets())try(var owner=f.open(target,"initialize-retention")){owner.initializePeerRetention();}
         try {
             f.campaign(1);for(int slot=1;slot<=precedingSlots;slot++)f.publish(slot,slot==2);var all=f.request.targets();var majority=all.subList(size-(size/2+1),size);
             var payload=V53DistinctMinorityTest.payload(f,404,"majority-selected");var entry=V53DistinctMinorityTest.entry(f,payload,"DATA");

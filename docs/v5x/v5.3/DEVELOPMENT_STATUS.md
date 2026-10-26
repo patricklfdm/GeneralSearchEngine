@@ -1,5 +1,25 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3B original-source retention capture
+
+The [frozen retention source](PHASE_3_PEER_RETENTION_SOURCE.md) binds the exact
+native local ledger to its original PROMISE and immutable BASIS inventory. A newer
+local revision cannot change an existing grant; a fresh grant captures the new
+revision. Incomplete grants exclude updates, and native pending-context recapture
+preserves the old envelope through interruption and reopening.
+
+Fourteen actual halt/SIGKILL captures have independent original-bootstrap and
+complete interrupted/recovered/updated byte replay. Nine evidence mutations reach
+their exact rejections; normal, optimized and relocated results agree. The
+[receipt](phase3-evidence/peer-retention-source.json) distinguishes conditional
+malformed-source fixtures from real native grants and process evidence.
+
+This establishes immutable local snapshot propagation in a source, not replicated
+quorum intent or atomic selected-plan persistence. Automatic maintenance, surviving
+peer uncertainty across selected-source retirement, cross-view pending contexts,
+learners/joint transitions and full 3B–3E acceptance remain open. Public membership
+is disabled; no push, protected CI or paid execution is claimed.
+
 ## 2026-10-26 — Phase 3B native local retention transactions
 
 The [retention storage component](PHASE_3_PEER_RETENTION_STORAGE.md) persists the
