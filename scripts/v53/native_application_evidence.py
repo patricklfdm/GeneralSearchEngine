@@ -72,9 +72,11 @@ def histories(root):
                  'native application history result')
 
 
-def certified(root):
-    """Derive original first certificate from actual three-owner phase snapshots."""
-    group = p.campaign(root, p.original(root, 3, False), 1)
+def certified(root, size=3, backup=False, node='node-1'):
+    """Derive the first certificate and a named owner's end from original phases."""
+    group = p.campaign(root, p.original(root, size, backup), 1)
+    need(node in group, 'native application requested original owner')
+    owner = node
     _, members, packet = c.current(group['node-1']); cap = packet['capsule']; r = cap['root']
     selected = f.decode(members['selected.gsr'], 'records', 'SELECTED')
     entry = f.encode('records', 'ENTRY', dict(root=r, authority=selected['view'], index=1,
@@ -111,12 +113,12 @@ def certified(root):
     catalog = f.encode('records', 'CATALOG', after)
     statement = f.encode('records', 'CHECKPOINT', dict(root=r, scope='RANGE', start=cap['cut'], end=after['cut'],
         catalogBefore=cap['catalog'], catalogAfter=e.digest(catalog), applicationBefore=cap['application'], applicationAfter=cap['application']))
-    ack = f.encode('records', 'CHECKPOINT_ACK', dict(root=r, voter='node-1', incarnation=ids['node-1'], cut=after['cut'], statement=e.digest(statement)))
+    ack = f.encode('records', 'CHECKPOINT_ACK', dict(root=r, voter=owner, incarnation=ids[owner], cut=after['cut'], statement=e.digest(statement)))
     end = dict(zip(('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'application.image', 'ack.gsr'),
-        (group['node-1']['selector.gsr'], certificate, catalog, statement, members[cap['application']+'.image'], ack)))
-    end['plan.json'] = f.canonical(dict(schema='gse-v53-applied-end/1.3', root=r, node='node-1',
+        (group[owner]['selector.gsr'], certificate, catalog, statement, members[cap['application']+'.image'], ack)))
+    end['plan.json'] = f.canonical(dict(schema='gse-v53-applied-end/1.3', root=r, node=owner,
         files=[dict(path=k, **e.info(v)) for k, v in sorted(end.items())]))
-    return phases['node-1'], end, cap['cut'], after['cut']
+    return phases[owner], end, cap['cut'], after['cut']
 
 
 def lines(path):

@@ -8,6 +8,12 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+The [pending-publication boundary](PHASE_3_PENDING_PUBLICATION.md) now identifies
+an exact forced future target under the current native owner. Its byte copies
+cannot reconstruct authority, and no retention/dispatch permission is implied.
+Persisting and propagating future targets, then wiring actual dispatch, remain
+required within 3B; the complete checklist below is unchanged.
+
 The [native certified application path](PHASE_3_NATIVE_APPLICATION.md) recovers the
 actual current certificate and typed application without caller historical voting
 observations. Six stable histories and ten fresh-process cuts qualify this

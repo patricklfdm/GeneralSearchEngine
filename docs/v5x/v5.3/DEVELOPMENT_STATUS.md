@@ -1,5 +1,19 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3 native pending-publication identity
+
+The [pending-publication boundary](PHASE_3_PENDING_PUBLICATION.md) binds the exact
+future endpoint to this live native owner's successful application and original
+forced certificate/end. It rejects reconstructed, foreign and previous-owner
+results; all reads recheck storage ownership and fencing. Six bootstrap histories,
+24 native targets and two fresh JVMs have independent original-first replay.
+Separate real DATA/publication lifecycle checks pass. No publication position,
+disk format, retention ledger or resource limit changes.
+
+This is a live authority capability, not durable future retention or permission
+to dispatch. Persistent target proof, selection propagation, real dispatch,
+automatic offline-survivor maintenance and complete Phase 3 remain open.
+
 ## 2026-10-26 — Phase 3 native certified application recovery
 
 The [native application component](PHASE_3_NATIVE_APPLICATION.md) rechecks and

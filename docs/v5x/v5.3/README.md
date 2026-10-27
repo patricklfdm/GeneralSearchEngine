@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+The [native pending-publication boundary](PHASE_3_PENDING_PUBLICATION.md) identifies
+the exact forced application result under its live owner, without publishing it
+or fabricating remote progress. Original-first local histories and fresh-process
+replay qualify this prerequisite. Durable future-target retention and automatic
+dispatch remain open.
+
 The latest [native application recovery](PHASE_3_NATIVE_APPLICATION.md) applies an
 original forced certificate after native reopen without caller historical vote
 observations. Stable 3/4/5-voter storage histories and fresh-process cuts qualify

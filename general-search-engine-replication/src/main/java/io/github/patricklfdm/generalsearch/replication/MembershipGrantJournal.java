@@ -44,6 +44,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipPendingAccept pendingAccept;
     private MembershipPendingContextFiles pendingContext;
     private MembershipPeerRetentionFiles peerRetention;
+    private Applied nativeApplied;
     private String retentionSelector;
     private MembershipSelectedRetention selectedRetention;
     private MembershipReplayFiles replayFiles;
@@ -1267,6 +1268,63 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
 
     record Applied(MembershipCheckpointPlan plan,MembershipAppliedEndFiles.Endorsement endorsement) {}
+    /** An exact native applied end, still distinct from a published generation.
+     * The capability is local to this live owner. Its original records are inputs
+     * for future durable retention, not a voting/installation receipt or dispatch
+     * permission. Every access rechecks the original authority and complete end. */
+    static final class PendingPublication {
+        private final MembershipGrantJournal owner;
+        private final Applied applied;
+        private final MembershipPendingAccept.Vote vote;
+        private final MembershipCapsule before;
+        private PendingPublication(MembershipGrantJournal owner,Applied applied,MembershipPendingAccept.Vote vote) {
+            this.owner=owner;this.applied=applied;this.vote=vote;this.before=owner.current.capsule;
+        }
+        private void check()throws IOException {
+            owner.checkOwner();owner.applicationTransactionIdle();
+            require(owner.ownedHistory && owner.current.capsule==before && owner.pendingAccept!=null && !owner.pendingAccept.pending()
+                    && owner.pendingAccept.active()!=null && Arrays.equals(owner.pendingAccept.active().bytes(),vote.bytes()),
+                    "pending publication original owner changed");
+            require(owner.promise!=null && owner.selection!=null && Arrays.equals(owner.promise.bytes(),vote.promise().bytes())
+                    && Arrays.equals(owner.selection.bytes(),vote.selected().bytes()) && Arrays.equals(owner.current.selector.bytes(),vote.selector().bytes()),
+                    "pending publication original authority changed");
+            owner.fence(object(vote.accept().value().get("ballot")));owner.verifyVote(vote);
+            require(vote.certificate()!=null && Arrays.equals(vote.certificate().bytes(),applied.plan().originalCertificate().bytes())
+                    && before.terminal().equals(applied.plan().originalParent()),"pending publication original application changed");
+            require(owner.appliedEnd!=null && owner.replayFiles!=null && !owner.replayFiles.present(),"pending publication incomplete replay");
+            owner.appliedEnd.completed(applied.plan(),vote.selector(),owner.identity,applied.endorsement());
+        }
+        MembershipCapsule.Anchor target()throws IOException {
+            synchronized(owner) {
+                check();var catalog=applied.plan().catalog;
+                return new MembershipCapsule.Anchor(object(catalog.value().get("cut")),catalog.digest(),(String)catalog.value().get("application"));
+            }
+        }
+        MembershipCapsule.Anchor parent()throws IOException {synchronized(owner){check();return before.terminal();}}
+        MembershipIdentity owner()throws IOException {synchronized(owner){check();return owner.identity;}}
+        /** Exact original records only, without an additional application image.
+         * A caller cannot reconstruct this capability from these bytes. They do
+         * not prove any peer received or installed the target. */
+        Map<String,byte[]> originals()throws IOException {
+            synchronized(owner) {
+                check();var records=new TreeMap<String,byte[]>();
+                records.put("selector.gsr",vote.selector().bytes());records.put("promise.gsr",vote.promise().bytes());
+                records.put("selected.gsr",vote.selected().bytes());records.put("certificate.gsr",vote.certificate().bytes());
+                records.put("catalog.gsr",applied.plan().catalog.bytes());records.put("statement.gsr",applied.plan().statement.bytes());
+                records.put("ack.gsr",applied.endorsement().acknowledgement().bytes());return Collections.unmodifiableMap(records);
+            }
+        }
+    }
+    /** Only an actual completed native application can identify a future endpoint.
+     * Taking this snapshot does not change any durable state or force a retention
+     * ledger. Publication still requires its complete checkpoint quorum. */
+    synchronized PendingPublication pendingPublication(Applied applied)throws IOException {
+        checkOwner();applicationTransactionIdle();require(ownedHistory,"pending publication requires native owner");
+        require(applied!=null && applied==nativeApplied,"pending publication requires this owner's completed native application");
+        require(pendingAccept!=null && !pendingAccept.pending() && pendingAccept.active()!=null
+                && pendingAccept.active().certificate()!=null,"pending publication requires complete original certificate");
+        var target=new PendingPublication(this,Objects.requireNonNull(applied),pendingAccept.active());target.check();return target;
+    }
     /** A capability for one complete, re-forced native certificate. It carries no
      * fresh remote observations and never advances the published cut. */
     static final class CertifiedCurrent {
@@ -1448,7 +1506,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(proof!=null)proof.check(current.capsule,packet);
             plan=plan.renewAncestors(parents,ancestry);
             guard.check();var endorsement=appliedEnd.force(plan,vote.selector(),identity,guard,cut);
-            guard.check();return new Applied(plan,endorsement);
+            guard.check();var applied=new Applied(plan,endorsement);if(nativeOriginal)nativeApplied=applied;return applied;
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
 

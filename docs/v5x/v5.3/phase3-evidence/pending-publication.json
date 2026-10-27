@@ -1,0 +1,257 @@
+{
+  "baseCommit": "04946dd6ca0750fffa204a67afbb3f91a1dcbf5a",
+  "boundaries": [
+    "Six independent replay histories are actual stable 3/4/5-voter EMPTY/backup bootstraps and first BARRIER applications, not automatic network dispatch or public runtime.",
+    "Two fresh JVMs reopen the same original storage, re-force its certificate/end and expose identical target metadata. They do not add crash or power-loss qualification.",
+    "Separate Java lifecycle checks use a real typed DATA target and real checkpoint quorum publication; those histories are retained but not included in the independent six-history BARRIER replay.",
+    "Both isolated builds use identical production Java bytes. The supplemental lifecycle class was added after the first build; 15 plus two tests are distinct executions, not a claim of a full reactor suite.",
+    "The first independent replay drafts had verifier-only variable-shadowing and directory-inventory errors. Corrections replay unchanged original Java files. See oracle-diagnostics.json.",
+    "No ledger update, future-proof persistence, raw-byte authority constructor, new disk/wire format, image-slot increase or selector publication is introduced by the capability.",
+    "Durable future retention, original-source and selected transfer, actual quorum-gated dispatch, automatic offline-survivor continuation and all remaining Phase 3 gates stay open."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 2370028,
+      "path": "target/v53-pending-publication/build-evidence.tar.gz",
+      "sha256": "c3d527bc34990e53d08057f4f022b58f08214196d0833047ec1b996a08e4d542"
+    },
+    {
+      "bytes": 478316,
+      "path": "target/v53-pending-publication/build-inputs.json",
+      "sha256": "4b709294d1bc2092dab238eee676fd063df021701e0dfce7cfc80371799560f7"
+    },
+    {
+      "bytes": 42,
+      "path": "target/v53-pending-publication/build-workspace.txt",
+      "sha256": "9b2a605d6bc47a4113b07d54f55f70c32621815d03bfdf84802c0d4ac2a6f889"
+    },
+    {
+      "bytes": 5648,
+      "path": "target/v53-pending-publication/build.log",
+      "sha256": "b1b254ef671acfda4e4f667d9a751c03e5693a847ec184b7470dea6e81055a71"
+    },
+    {
+      "bytes": 871873,
+      "path": "target/v53-pending-publication/compiled-inventory.json",
+      "sha256": "d8a825270b48baacd7078882722d2a0eb55c51d92af25e1c9f4cc00152881398"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-pending-publication/contract-check.json",
+      "sha256": "b8bf81e3acfc43302720d4f4c5369e8ea80c72da867eed018ae373d532846184"
+    },
+    {
+      "bytes": 6956,
+      "path": "target/v53-pending-publication/finalize.py",
+      "sha256": "c3849db69a9c8e2fe93b894db610e95aa164720efb36d79b2fe2abfc349b394f"
+    },
+    {
+      "bytes": 4558,
+      "path": "target/v53-pending-publication/lifecycle-build.log",
+      "sha256": "a47b03e8497f771e9b0971d2663985970e42455c20306f64053eef4164c3dc82"
+    },
+    {
+      "bytes": 478642,
+      "path": "target/v53-pending-publication/lifecycle-inputs.json",
+      "sha256": "7a577dd4a9c314cda2ef724cf8f7e40b6daaf12831f86906128d48df92737ced"
+    },
+    {
+      "bytes": 40,
+      "path": "target/v53-pending-publication/lifecycle-workspace.txt",
+      "sha256": "57d3c9f110c50160bcfc2e318718abd76231cb4d6a866b8271841c96c49b2cff"
+    },
+    {
+      "bytes": 614,
+      "path": "target/v53-pending-publication/oracle-diagnostics.json",
+      "sha256": "162d28ed75419dd9db55f0210a7c3ff874fd2649cea07a416469857520f43981"
+    },
+    {
+      "bytes": 87,
+      "path": "target/v53-pending-publication/previous-process-replay.json",
+      "sha256": "5d211dba8b2b219ad557ce6e960989fb7e208e0edeeffdb1169aa0a9a88e2bf0"
+    },
+    {
+      "bytes": 36862,
+      "path": "target/v53-pending-publication/python-inputs.json",
+      "sha256": "d0bf73442670fbcc51aeca56dd9a0dfa264df26bcb3894ae3776af3f18776c88"
+    },
+    {
+      "bytes": 759,
+      "path": "target/v53-pending-publication/python-normal.log",
+      "sha256": "c31a438d2beb77ae18ca3daabaf9a83644b1e17138ca849d6cb4926b49b4ecb0"
+    },
+    {
+      "bytes": 759,
+      "path": "target/v53-pending-publication/python-optimized.log",
+      "sha256": "91f89f1eeb6c74a8cbc00e5d62f0c1839b448a8fd93db0fabeed618b2a61664f"
+    },
+    {
+      "bytes": 1029701,
+      "path": "target/v53-pending-publication/raw-inventory.json",
+      "sha256": "8e25c683f1f7ef0045c990b89f73abdc60c0ffbe814a2fe4d72e9556f4ec576d"
+    },
+    {
+      "bytes": 1430754,
+      "path": "target/v53-pending-publication/raw.tar.gz",
+      "sha256": "957bd730158d503d5d2f68cdb52485b32472ce9633bc6960292a7b1c1ac0024c"
+    },
+    {
+      "bytes": 1149,
+      "path": "target/v53-pending-publication/replay-before-directory-fix.stderr",
+      "sha256": "d9b6392959edf626c242ad66e67e0b5081f07ba72b9afee9f52fa815ec4c3738"
+    },
+    {
+      "bytes": 792,
+      "path": "target/v53-pending-publication/replay-optimized.json",
+      "sha256": "85b8fb9de1ed1cf5f6100ec16b93d46a3039215bd03f88bce6c006544a1e070d"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-pending-publication/replay-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 792,
+      "path": "target/v53-pending-publication/replay-portable.json",
+      "sha256": "85b8fb9de1ed1cf5f6100ec16b93d46a3039215bd03f88bce6c006544a1e070d"
+    },
+    {
+      "bytes": 792,
+      "path": "target/v53-pending-publication/replay.json",
+      "sha256": "85b8fb9de1ed1cf5f6100ec16b93d46a3039215bd03f88bce6c006544a1e070d"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-pending-publication/replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1481,
+      "path": "target/v53-pending-publication/validation-summary.json",
+      "sha256": "d428bc05e06f46178cf66d977d960e34a850053b5ed87305dd70e7a94a365300"
+    }
+  ],
+  "schema": "gse-v53-pending-publication-v1",
+  "sourceFiles": [
+    {
+      "bytes": 113058,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "84511c6e4de4aa0064fdb1d4bf86c8a784c3340e7f99e9d3ff673a7a472bf119"
+    },
+    {
+      "bytes": 15612,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "bd25fceacfe7369921e75e9ad53b6db3e4002dcb21e91a9a514624faa277b164"
+    },
+    {
+      "bytes": 4771,
+      "path": "docs/v5x/v5.3/PHASE_3_PENDING_PUBLICATION.md",
+      "sha256": "61da2e85e40b19089cda09bb1b40c7dc08ed54961fabcabd605d7c6112ae7f1b"
+    },
+    {
+      "bytes": 30614,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "a938825433f3c70e11604354c5f3d79254b3441fe89ab0e6114899fcdb341b35"
+    },
+    {
+      "bytes": 228965,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "8ec98c37b136b60f8d2f1e26fcb6cf4772c9976f8eef87918bb2ebae4e00ba7c"
+    },
+    {
+      "bytes": 4129,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublicationLifecycleTest.java",
+      "sha256": "be60e2cc4c5407802950ddd31dbfbb2f10cb616ffcaf02c18d35f17e74d88dd3"
+    },
+    {
+      "bytes": 8272,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublicationTest.java",
+      "sha256": "d725bb5da498e58563b863897e80086904de7b80fd665b4c8fd52dfe0654df9a"
+    },
+    {
+      "bytes": 1735,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublicationWorker.java",
+      "sha256": "7e6d55047e00884aa4ab9e4b6276ca182af511047e35150a7b688207fc02477d"
+    },
+    {
+      "bytes": 16074,
+      "path": "scripts/v53/native_application_evidence.py",
+      "sha256": "fb074084a3a091ec2d489a3fd1bd33eb6fdbacc662583f36eb17dd13d4782e52"
+    },
+    {
+      "bytes": 5533,
+      "path": "scripts/v53/pending_publication_evidence.py",
+      "sha256": "16241380b52143842df455173bc7ec4faf402801d27645cc6dfa196bddc08b31"
+    }
+  ],
+  "validation": {
+    "actualDispatch": false,
+    "durableFutureRetention": false,
+    "evidenceNegatives": 6,
+    "freshProcesses": 2,
+    "histories": 6,
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "build",
+        "suite": "V53PendingPublicationTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "build",
+        "suite": "V53NativeApplicationTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "build",
+        "suite": "V53CheckpointPlanTest",
+        "tests": 7
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "build",
+        "suite": "V53JournalPublicationTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "lifecycle",
+        "suite": "V53PendingPublicationLifecycleTest",
+        "tests": 2
+      }
+    ],
+    "javaOnly": [
+      "native result ownership",
+      "higher-ballot and close fencing",
+      "identical-byte inode replacement",
+      "typed DATA target",
+      "complete quorum publication invalidates old handle"
+    ],
+    "javaTests": 17,
+    "nativeTargets": 24,
+    "newProductionFormats": false,
+    "phase3Complete": false,
+    "portableReplay": true,
+    "publicRuntime": false,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 658,
+    "scope": "live-native-pending-publication-capability",
+    "status": "PASS"
+  }
+}
