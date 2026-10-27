@@ -1,0 +1,694 @@
+{
+  "baseCommit": "7b221c3cc95dc49fc7e50c69ab157fccab8a5dc5",
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 4312,
+      "path": "target/v53-inherited-adoption/ATTEMPTS.md",
+      "sha256": "0b9fef3f5cbc2bd2d361254722589d59c9763f779a74c0893d7850be04e6dd59"
+    },
+    {
+      "bytes": 4011,
+      "path": "target/v53-inherited-adoption/CONTINUATION.md",
+      "sha256": "c75242a794f5047e5cda5ec208be428906a75d1e98de0f92e7ce2fdfb06d922a"
+    },
+    {
+      "bytes": 3299,
+      "path": "target/v53-inherited-adoption/NEXT-FUTURE-DISPATCH.md",
+      "sha256": "83e20b86a09e1855d1812a6255e5ffd54dcc3de5582217ecb8e671672bf4c543"
+    },
+    {
+      "bytes": 1690,
+      "path": "target/v53-inherited-adoption/NEXT.md",
+      "sha256": "a12ee45056b7dae9aa1a1e0dfe7d7bdd90eac10d5af9678d167894030aa5501a"
+    },
+    {
+      "bytes": 3299,
+      "path": "target/v53-inherited-adoption/attempt-results.json",
+      "sha256": "dc925a7cdb8e6b771bdd6c3a0c29b87fb3b69fac3261d301c327afafccf895c1"
+    },
+    {
+      "bytes": 816,
+      "path": "target/v53-inherited-adoption/changed-files.txt",
+      "sha256": "5001f4fbdcb9942b431de07218e42985cb86f51b20c9eabc89255509d0bd958a"
+    },
+    {
+      "bytes": 324709,
+      "path": "target/v53-inherited-adoption/compiled-inventory.json",
+      "sha256": "454ac6e0a6f80c8c019b267689d844ebca8c9f65ecc0756a140ed6b760d8276d"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-inherited-adoption/contract-before-docs.json",
+      "sha256": "8760e25bd4e30ce67edca873d621208dbe51778ea2857414d12f258f5ae8ebb9"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-inherited-adoption/contract-current.json",
+      "sha256": "9e0fc298b86e6b7296ae52fe5fe5dd28e6b7f9207466e6b73db52ee8bd7e39c5"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-inherited-adoption/contract-draft.json",
+      "sha256": "bc41bbdd90e26a0a8cc062b712a5f90e08af368cd3ba0ac2184346d61fbeca85"
+    },
+    {
+      "bytes": 2563,
+      "path": "target/v53-inherited-adoption/diagnose-fifth.py",
+      "sha256": "1beeb5a23d051a163843fe03a87f8ac4e6839a77e9ef200864f97ed19d60a97c"
+    },
+    {
+      "bytes": 6697,
+      "path": "target/v53-inherited-adoption/fifth-build.log",
+      "sha256": "88593c7990a194adb9f0fe122b485c9581ec41724381a8499e9589cb89ddfac1"
+    },
+    {
+      "bytes": 484463,
+      "path": "target/v53-inherited-adoption/fifth-inputs.json",
+      "sha256": "a1223124c4363be0f55a3ad68c19e03443890b633009b9d21f2b25f4d22f3249"
+    },
+    {
+      "bytes": 106,
+      "path": "target/v53-inherited-adoption/fifth-model-diagnostic-corrected.log",
+      "sha256": "b276b387b6fb96e4e01918399320267cc8127798a5f3004ab4b69e005e3fc9f0"
+    },
+    {
+      "bytes": 5334,
+      "path": "target/v53-inherited-adoption/fifth-model-diagnostic.log",
+      "sha256": "0c549e431eed7a6a139bf281bfeb6056072373f8143cd27d10accb9d87605883"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-inherited-adoption/fifth-workspace.txt",
+      "sha256": "a2e3358a6492066c81d440dc3b184ceab05b0ac78367486856f45a2101ebe818"
+    },
+    {
+      "bytes": 7895,
+      "path": "target/v53-inherited-adoption/finalize.py",
+      "sha256": "d2486e38913a21138bd9a371705c755d010ef4b65496955fea4cd9f4fc72780c"
+    },
+    {
+      "bytes": 8201,
+      "path": "target/v53-inherited-adoption/first-build.log",
+      "sha256": "f08f512a9c2c96827f2720bf92de9675dfe02e97ec9474a940d5df5be7c87197"
+    },
+    {
+      "bytes": 484011,
+      "path": "target/v53-inherited-adoption/first-inputs.json",
+      "sha256": "c366d8e75fcfdf53b660cea3e46cbe30d3b22c7fd274e4a524c190af44122672"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-inherited-adoption/first-workspace.txt",
+      "sha256": "87e126d0f5827eb50a8ef3f6b1653333dc3da376fcbacb0c6add9e25d765c93b"
+    },
+    {
+      "bytes": 9299,
+      "path": "target/v53-inherited-adoption/fourth-build.log",
+      "sha256": "91ad5284ebfdcf4d173fe2d93c527897e10279c015b7a862cdc144b73af0d5a5"
+    },
+    {
+      "bytes": 484463,
+      "path": "target/v53-inherited-adoption/fourth-inputs.json",
+      "sha256": "dd40ad89fc5fd08f8fbb2bf83b157c9e7880c90dea79e5d96762a99c62359109"
+    },
+    {
+      "bytes": 96,
+      "path": "target/v53-inherited-adoption/fourth-workspace.txt",
+      "sha256": "2e8a9c0445d48d96655105b02f39c0aa5ddb6e85dc576504cd9bdb5f6931b8db"
+    },
+    {
+      "bytes": 901,
+      "path": "target/v53-inherited-adoption/prepare-isolated.py",
+      "sha256": "02d24d244dd344db0c31f2b93ada9a55c9b6d8ccaf18d60d1ae398e4de9dc81c"
+    },
+    {
+      "bytes": 762,
+      "path": "target/v53-inherited-adoption/python-optimized-tests.log",
+      "sha256": "7db7df20919ba5c22137d5fd77f8cd2f44040be5a385554509f93e36490ccf24"
+    },
+    {
+      "bytes": 762,
+      "path": "target/v53-inherited-adoption/python-tests.log",
+      "sha256": "ef6db30810384f9b432e2cf54ad8028884a097bc9c99fccef5ebcb0aaad1fd6e"
+    },
+    {
+      "bytes": 43669990,
+      "path": "target/v53-inherited-adoption/raw-inventory.json",
+      "sha256": "be34aacfd647d4e5cc9c615510a4b16f3ed553ac50cd6ac9bb8f0dbd7dcd4023"
+    },
+    {
+      "bytes": 37789,
+      "path": "target/v53-inherited-adoption/reader-source-hashes.json",
+      "sha256": "fb8d262264da1afe9c160eff2f3b12787e171f6a7e907a2f1b785eac047bb29f"
+    },
+    {
+      "bytes": 12579,
+      "path": "target/v53-inherited-adoption/regression-build.log",
+      "sha256": "1f5f57c9c10eb25cf89fbe13d5fa2bf30836724371fd9f46535eb8142f8158a8"
+    },
+    {
+      "bytes": 484463,
+      "path": "target/v53-inherited-adoption/regression-inputs.json",
+      "sha256": "311a106914f08bda4c40ca9174cde241f9c17f96141d2256a7cbf3683f8a6520"
+    },
+    {
+      "bytes": 100,
+      "path": "target/v53-inherited-adoption/regression-workspace.txt",
+      "sha256": "0809b06a1aa689f44192f6c25a2e7713458c50dce47d6859ae597dffa8a03163"
+    },
+    {
+      "bytes": 117955070,
+      "path": "target/v53-inherited-adoption/retained-attempt-evidence.tar.gz",
+      "sha256": "eaa533cd88ec51423cc682548898ea58eb73f2222fc191990909cbf058a1b929"
+    },
+    {
+      "bytes": 8160,
+      "path": "target/v53-inherited-adoption/second-build.log",
+      "sha256": "8412ed2210ef32f663dc414b2574f7a2ece1a18b43f1952ab539ace611cf8d8a"
+    },
+    {
+      "bytes": 484011,
+      "path": "target/v53-inherited-adoption/second-inputs.json",
+      "sha256": "7e5554b2d28c44e587f0166816b039d90d658b188203803bd0ae37e475c73ee0"
+    },
+    {
+      "bytes": 96,
+      "path": "target/v53-inherited-adoption/second-workspace.txt",
+      "sha256": "dfa279cf5b69635d8d86253172753a6a23f47a21e466ecf3b02653c7ac1f7da6"
+    },
+    {
+      "bytes": 14424,
+      "path": "target/v53-inherited-adoption/sixth-build.log",
+      "sha256": "8d0e501d6fb5aa16360d5ca3919d019fdb1bacdca3f014df6d1b3aaf794f4062"
+    },
+    {
+      "bytes": 1786,
+      "path": "target/v53-inherited-adoption/sixth-cross-view-replay.json",
+      "sha256": "48561a3725ec4aa568686f622924a041595f9ac399dac69224d6c32b8874e20c"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-inherited-adoption/sixth-cross-view-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 484463,
+      "path": "target/v53-inherited-adoption/sixth-inputs.json",
+      "sha256": "3ca91cf1c4dbfcd86eeadf611097a09928c96480e0508e5c2e56b081fd5cc945"
+    },
+    {
+      "bytes": 726,
+      "path": "target/v53-inherited-adoption/sixth-owned-adoption-replay.json",
+      "sha256": "9f8cf7832c6d5afc54237531858e84d4b567aed699a6a9ec21b70a0610d215db"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-inherited-adoption/sixth-owned-adoption-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2579,
+      "path": "target/v53-inherited-adoption/sixth-portable-optimized.json",
+      "sha256": "dce35e9c96a2a8106e55ebae4c68c81b6d1d48ef74c27b1287cf49f85a08609c"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-inherited-adoption/sixth-portable-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 7081550,
+      "path": "target/v53-inherited-adoption/sixth-process-evidence.tar.gz",
+      "sha256": "c1420724a3b294ccca7fdb0fbfc159f23b01f9dd9a7774f5269f25cc9501eb88"
+    },
+    {
+      "bytes": 1315129,
+      "path": "target/v53-inherited-adoption/sixth-process-inventory.json",
+      "sha256": "897e52b5b4a157302aab7ee8013f1fa34921db2b304fdeca53b555bb586d4a63"
+    },
+    {
+      "bytes": 2579,
+      "path": "target/v53-inherited-adoption/sixth-qualified.json",
+      "sha256": "dce35e9c96a2a8106e55ebae4c68c81b6d1d48ef74c27b1287cf49f85a08609c"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-inherited-adoption/sixth-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-inherited-adoption/sixth-workspace.txt",
+      "sha256": "30d3cce44a904fbacda7e7795d0e293ab93e0b95f889b5b00a08f709870929b5"
+    },
+    {
+      "bytes": 8236,
+      "path": "target/v53-inherited-adoption/third-build.log",
+      "sha256": "8033d2b6d8699b50a2d145342a97f567668c4ed6712d01dac3c3d8d7d06984bf"
+    },
+    {
+      "bytes": 484127,
+      "path": "target/v53-inherited-adoption/third-inputs.json",
+      "sha256": "04447572906a65513e16f484d097103f151021fa3a4b02a7995bd6e082bb80e2"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-inherited-adoption/third-workspace.txt",
+      "sha256": "b64a63979ac196bb5cf702fa764277dfd1aa6b76212b19373c84a78a92bf6709"
+    },
+    {
+      "bytes": 9108,
+      "path": "target/v53-inherited-adoption/validation-summary.json",
+      "sha256": "1ef422f551ab94c4b2698f37d75445c8e3adc5177517d0749721838885b78fed"
+    },
+    {
+      "bytes": 8956,
+      "path": "target/v53-inherited-adoption/reports/fifth-TEST-io.github.patricklfdm.generalsearch.replication.V53InheritedFutureAdoptionProcessTest.xml",
+      "sha256": "805e36a4ca45c1e02072a5889ff564577243560ebe71ca1ff054df69a48842f6"
+    },
+    {
+      "bytes": 9476,
+      "path": "target/v53-inherited-adoption/reports/first-TEST-io.github.patricklfdm.generalsearch.replication.V53InheritedFutureAdoptionTest.xml",
+      "sha256": "6327e952d79c1443dff75e9d4d498d87fb47d591f26f73a75fe5403e946a4d04"
+    },
+    {
+      "bytes": 10585,
+      "path": "target/v53-inherited-adoption/reports/fourth-TEST-io.github.patricklfdm.generalsearch.replication.V53InheritedFutureAdoptionProcessTest.xml",
+      "sha256": "4eea8cde39dad386ba0516ef205cf5fdf39b05441b71824644043b87446d6562"
+    },
+    {
+      "bytes": 7852,
+      "path": "target/v53-inherited-adoption/reports/regression-TEST-io.github.patricklfdm.generalsearch.replication.V53AdmittedCampaignAncestryTest.xml",
+      "sha256": "18d6251370d727ccc43a1c8ef8206b5cd2a49cb5391ffe0e4e1acffa588a96c4"
+    },
+    {
+      "bytes": 10882,
+      "path": "target/v53-inherited-adoption/reports/regression-TEST-io.github.patricklfdm.generalsearch.replication.V53AdmittedCrossViewTest.xml",
+      "sha256": "8b4aa25b745332c50c9b745f40d2fbb81e70c1fcc25b8316739158e380335eed"
+    },
+    {
+      "bytes": 10540,
+      "path": "target/v53-inherited-adoption/reports/regression-TEST-io.github.patricklfdm.generalsearch.replication.V53OwnedAdoptionProcessTest.xml",
+      "sha256": "f72bee1c3be76704157aeeec6fd4c0bf78dc5ce9d8461fd21822b2fea7259afd"
+    },
+    {
+      "bytes": 9445,
+      "path": "target/v53-inherited-adoption/reports/second-TEST-io.github.patricklfdm.generalsearch.replication.V53InheritedFutureAdoptionTest.xml",
+      "sha256": "05e32b898b42191993da46438ec5760e28c05a429b79d478f8c84c2c3c6e22af"
+    },
+    {
+      "bytes": 7830,
+      "path": "target/v53-inherited-adoption/reports/sixth-TEST-io.github.patricklfdm.generalsearch.replication.V53AdmittedCampaignAncestryTest.xml",
+      "sha256": "2607817b958600feca1f1b41145a28693021ad9f9788487de8fd7623af1ede84"
+    },
+    {
+      "bytes": 10858,
+      "path": "target/v53-inherited-adoption/reports/sixth-TEST-io.github.patricklfdm.generalsearch.replication.V53AdmittedCrossViewTest.xml",
+      "sha256": "1000836ef7c2caebd674abf07935b538fa6684ce95426f9cf7ddd9aee75eb6d9"
+    },
+    {
+      "bytes": 9041,
+      "path": "target/v53-inherited-adoption/reports/sixth-TEST-io.github.patricklfdm.generalsearch.replication.V53InheritedFutureAdoptionProcessTest.xml",
+      "sha256": "3899fba4b1cbf97ac678a19467c2b5fc75520fd7549d5340172cdf650dc96156"
+    },
+    {
+      "bytes": 10518,
+      "path": "target/v53-inherited-adoption/reports/sixth-TEST-io.github.patricklfdm.generalsearch.replication.V53OwnedAdoptionProcessTest.xml",
+      "sha256": "a6f600a3f5ab4741c06fa708b5ec7958a803a0b732d911b73793f8f430b3da93"
+    },
+    {
+      "bytes": 9511,
+      "path": "target/v53-inherited-adoption/reports/third-TEST-io.github.patricklfdm.generalsearch.replication.V53InheritedFutureAdoptionTest.xml",
+      "sha256": "4be30b9ede24596b1a8310b1937c73de9a35b1ebe931177f9d495d880ecf0082"
+    }
+  ],
+  "phase3Complete": false,
+  "schema": "gse-v53-inherited-adoption-evidence-v1",
+  "sourceFiles": [
+    {
+      "bytes": 121452,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "583fcf42316a4297b97c61992e80fe8697ea3e126e342019f689dc501fc7622a"
+    },
+    {
+      "bytes": 18207,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "2c4589744436015252d5fdee9dc433a684edf53705de816d14516c501fa1695b"
+    },
+    {
+      "bytes": 5318,
+      "path": "docs/v5x/v5.3/PHASE_3_INHERITED_ADOPTION.md",
+      "sha256": "e6bcb3d6717af5507ac63d2c151a59c1a12e05ced2f2692dd649c6442908eeb0"
+    },
+    {
+      "bytes": 33161,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "32cd2343fbb3df7247ff1d12e96e520fe6bf798766d38b23c8de78070a0b340d"
+    },
+    {
+      "bytes": 18424,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdmittedCrossViewTest.java",
+      "sha256": "f599f6a445c25b32d7ecca96672af30860092c7438383c2ce2aaae0a90256661"
+    },
+    {
+      "bytes": 3816,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53InheritedFutureAdoptionProcessTest.java",
+      "sha256": "06acce8a521385f173b79fdf531fb68ccfaaaac01522c9a8e36e5d0120ed5bc1"
+    },
+    {
+      "bytes": 9677,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53InheritedFutureAdoptionTest.java",
+      "sha256": "d3c0b0ea6adb3b37361b482fcc675eb2854a64a58e9eca9ec5a4f21abb71b3b3"
+    },
+    {
+      "bytes": 3475,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedAdoptionProcessWorker.java",
+      "sha256": "dbfd8ad362f16e537a1fd5e1f8f27ef8d0619f8edad9e4f1d387c0393029e646"
+    },
+    {
+      "bytes": 33370,
+      "path": "scripts/v53/inherited_adoption_evidence.py",
+      "sha256": "1ef1d9abb11b3f03207e253d557341205227e538013afc3e68a5cc5d8dad66d1"
+    },
+    {
+      "bytes": 8349,
+      "path": "scripts/v53/inherited_adoption_process_evidence.py",
+      "sha256": "239a7e9e0ec80faf753619025a770a45d0f499b3a671bbae99136b97a4b56f73"
+    }
+  ],
+  "status": "LOCAL_COMPONENT_QUALIFICATION",
+  "validation": {
+    "existingCrossViewReplay": {
+      "negatives": [
+        {
+          "case": "initial-admission",
+          "reason": "admitted original public bootstrap",
+          "status": "REJECTED"
+        },
+        {
+          "case": "old-authority-vote",
+          "reason": "admitted exact slot-1-accepted: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "hidden-intent-parent",
+          "reason": "admitted exact slot-6-published: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "joint-grant-source",
+          "reason": "admitted exact campaign-3-prepared: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "joint-final-vote",
+          "reason": "admitted exact slot-7-proved: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "removed-fence",
+          "reason": "admitted exact removed-1-adopted: node-5",
+          "status": "REJECTED"
+        },
+        {
+          "case": "removed-regrant",
+          "reason": "admitted exact removed-1-refused: node-5",
+          "status": "REJECTED"
+        },
+        {
+          "case": "new-stable-source",
+          "reason": "admitted exact campaign-4-prepared: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "control-image",
+          "reason": "cross-view control image changed",
+          "status": "REJECTED"
+        },
+        {
+          "case": "data-sequence",
+          "reason": "cross-view application sequence/documents",
+          "status": "REJECTED"
+        },
+        {
+          "case": "data-document",
+          "reason": "cross-view application document bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "observations",
+          "reason": "cross-view exact observations",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "cross-view force before return",
+          "status": "REJECTED"
+        },
+        {
+          "case": "removed-force",
+          "reason": "cross-view force before return",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-voter",
+          "reason": "context selection admitted publication voters inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "public-runtime",
+          "reason": "cross-view receipt",
+          "status": "REJECTED"
+        }
+      ],
+      "originalFirst": true,
+      "portableReplay": "PASS",
+      "profiles": 4,
+      "publicBootstrap": true,
+      "publicRuntime": false,
+      "removals": 6,
+      "slots": 60,
+      "status": "PASS"
+    },
+    "existingOwnedAdoptionReplay": {
+      "negatives": [
+        {
+          "case": "first-journal",
+          "reason": "admitted adoption exact first",
+          "status": "REJECTED"
+        },
+        {
+          "case": "second-selector",
+          "reason": "admitted adoption exact second",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-extra",
+          "reason": "admitted adoption exact final",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "context process exact force/death order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "lock",
+          "reason": "admitted adoption lock path",
+          "status": "REJECTED"
+        },
+        {
+          "case": "exit",
+          "reason": "admitted adoption exact first exit",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "cases": 38,
+        "freshProcesses": 114,
+        "lockProbes": 19,
+        "originalFirst": true,
+        "peakImages": 3,
+        "powerLoss": false,
+        "publicRuntime": false,
+        "status": "PASS"
+      }
+    },
+    "independentReplay": {
+      "cases": 14,
+      "freshProcesses": 28,
+      "lockProbes": 7,
+      "negatives": [
+        {
+          "case": "interrupted-selector",
+          "reason": "inherited adoption exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "candidate-ledger",
+          "reason": "inherited adoption exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovered-proof",
+          "reason": "inherited adoption exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "selected retention force order: inherited adoption interruption",
+          "status": "REJECTED"
+        },
+        {
+          "case": "lock",
+          "reason": "inherited adoption live ownership lock",
+          "status": "REJECTED"
+        },
+        {
+          "case": "exit",
+          "reason": "inherited adoption exact death exit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "response",
+          "reason": "inherited adoption resumed response",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "automaticDispatch": false,
+        "inheritedProofs": 2,
+        "negatives": [
+          {
+            "case": "original-admission",
+            "reason": "admitted original public bootstrap",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-target",
+            "reason": "admitted exact two-futures: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "carried-selection",
+            "reason": "admitted exact inherited-installed: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "carried-result",
+            "reason": "admitted exact carried-published: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "joint-publication",
+            "reason": "admitted exact slot-6-published: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "final-publication",
+            "reason": "admitted exact slot-7-published: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "rejected-adoption",
+            "reason": "admitted exact rejected-inherited-adoption: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "adopted-selector",
+            "reason": "admitted exact removed-1-adopted: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "inherited-promotion",
+            "reason": "admitted exact removed-1-adopted: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "removed-refusal",
+            "reason": "admitted exact removed-1-refused: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "retired-publication",
+            "reason": "admitted exact slot-9-published: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "force",
+            "reason": "selected retention force order: inherited adoption inherited-adopt",
+            "status": "REJECTED"
+          },
+          {
+            "case": "observations",
+            "reason": "inherited adoption exact original observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "result",
+            "reason": "inherited adoption producer result",
+            "status": "REJECTED"
+          }
+        ],
+        "originalFirst": true,
+        "originalVoters": 4,
+        "phase3Complete": false,
+        "publicRuntime": false,
+        "slots": 9,
+        "snapshots": 83,
+        "status": "PASS",
+        "survivingVoters": 3
+      },
+      "phase3Complete": false,
+      "powerLoss": false,
+      "status": "PASS"
+    },
+    "limitations": [
+      "Four initial Java builds failed due to omitted ancestry in test orchestration; those logs/raw/XML remain failed.",
+      "Fifth passes the reference and process matrix but lacks the final missing-ancestry admission negative; sixth is the final Java snapshot.",
+      "Python model ordering was corrected against unchanged original evidence; exact executable reader hashes are distinct from build-time Python snapshots.",
+      "The existing 661 Python tests ran before the final new readers were completed; they supplement, rather than replace, the complete new normal/optimized/portable oracle gates.",
+      "One actual REMOVE profile is qualified; no full Phase 3, all-seven-profile, ADD/REPLACE, autonomous scheduler, quorum dispatch or arbitrary repeated-campaign headroom claim.",
+      "No public runtime, protected CI, paid cloud, power-loss evidence, V5.2 Runner change or push."
+    ],
+    "phase3Complete": false,
+    "priorPythonTestsPerMode": 661,
+    "qualification": "native-inherited-future-adoption",
+    "status": "PASS",
+    "suites": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 61.016,
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53AdmittedCampaignAncestryTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 964.715,
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53AdmittedCrossViewTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 348.269,
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53InheritedFutureAdoptionProcessTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "seconds": 331.879,
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53OwnedAdoptionProcessTest",
+        "tests": 1
+      }
+    ]
+  }
+}

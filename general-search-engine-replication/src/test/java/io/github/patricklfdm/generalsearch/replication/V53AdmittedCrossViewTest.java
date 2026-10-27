@@ -24,6 +24,11 @@ class V53AdmittedCrossViewTest {
             void adopt(MembershipBootstrapTarget<Integer,Doc> target,MembershipFloor.Copy remote,Map<String,byte[]> images,int number)throws Exception;
         }
         Adoption adoption;
+        java.util.function.UnaryOperator<List<MembershipBootstrapTarget<Integer,Doc>>> publicationParticipants=List::copyOf;
+        @FunctionalInterface interface Published {
+            void after(String kind,List<MembershipBootstrapTarget<Integer,Doc>> targets)throws Exception;
+        }
+        Published afterPublication=(kind,targets)->{};
         Walk(V53BootstrapPublicationTest.Fixture f)throws Exception {
             this.f=f;active=f.request.targets();f.campaign(1);
             adoption=(target,remote,images,number)->{try(var owner=f.open(target,"removed-adopt-"+number)) {
@@ -70,8 +75,16 @@ class V53AdmittedCrossViewTest {
             // Supply only its actual applied-end bridge, never unused round proofs.
             for(var t:voters)try(var owner=f.open(t,"install-"+counter)) {
                 var prior=oldCuts.get(t.identity().nodeId().value());
-                var retained=prior!=null && offers.getFirst().capsule.anchor(number(prior.get("index")))==null
-                        ?f.bridges.stream().filter(b->b.statement.value().get("start").equals(prior)).toList():List.<MembershipSelection.Bridge>of();
+                var cuts=new HashSet<Map<String,Object>>();if(prior!=null)cuts.add(prior);
+                var copy=owner.floorCopyCurrent();
+                var paths=list(copy.generation.value().get("files")).stream().map(MembershipFormat::object).map(row->row.get("path")).toList();
+                byte[] ancestry=paths.contains("ancestry.gsr")?copy.fileBytes("ancestry.gsr"):new byte[0];
+                if(Files.exists(t.replicaDirectory().resolve(MembershipPeerRetentionFiles.FILE)))
+                    owner.peerRetentionState().plan().required(copy.capsule,ancestry).forEach(anchor->cuts.add(anchor.cut()));
+                var retained=copy.capsule.verifiedAncestry(ancestry).stream().filter(bridge->{
+                    var start=object(bridge.statement.value().get("start"));
+                    return cuts.contains(start) && offers.getFirst().capsule.anchor(number(start.get("index")))==null;
+                }).toList();
                 owner.installCurrent(offers,List.of(),retained,images);
             }
             f.snapshot("campaign-"+counter+"-installed");maintain("campaign-"+counter+"-settled",voters,old);
@@ -79,13 +92,31 @@ class V53AdmittedCrossViewTest {
         void publish(String kind,Object command,List<MembershipBootstrapTarget<Integer,Doc>> targets)throws Exception {
             byte[] payload=kind.equals("BARRIER")?new byte[0]:kind.equals("DATA")?(byte[])command:canonical(command,8192);
             var retained=new ArrayList<MembershipSelection.Bridge>();
-            if(kind.equals("INTENT"))try(var owner=f.open(active.getFirst(),"intent-original-ancestry")) {
+            try(var owner=f.open(active.getFirst(),"publication-original-ancestry")) {
                 var copy=owner.floorCopyCurrent();
-                var coverage=object(parse(copy.fileBytes(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM));
-                if(coverage.containsKey("first")) {
-                    var cut=object(object(coverage.get("first")).get("end")).get("cut");
-                    for(var bridge:f.bridges)if(bridge.statement.value().get("start").equals(cut))retained.add(bridge);
+                var paths=list(copy.generation.value().get("files")).stream().map(MembershipFormat::object).map(row->row.get("path")).toList();
+                var cuts=new HashSet<Object>();
+                if(paths.contains(MembershipSelectionCoverage.FILE)) {
+                    var coverage=object(parse(copy.fileBytes(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM));
+                    if(coverage.containsKey("first")) {
+                        // A campaign may start inside an existing compacted RANGE.
+                        // Preserve both original endpoints; neither can be renewed
+                        // by a RANGE endorsement across the membership boundary.
+                        var first=object(coverage.get("first"));
+                        cuts.add(object(first.get("parent")).get("cut"));cuts.add(object(first.get("end")).get("cut"));
+                    }
                 }
+                byte[] ancestry=paths.contains("ancestry.gsr")?copy.fileBytes("ancestry.gsr"):new byte[0];
+                MembershipSelectedSources.parents(copy.fileBytes(MembershipSelectedSources.FILE),
+                        decode(copy.fileBytes("selected.gsr"),"records","SELECTED"),copy.capsule,ancestry).forEach(anchor->cuts.add(anchor.cut()));
+                if(Files.exists(active.getFirst().replicaDirectory().resolve(MembershipPeerRetentionFiles.FILE)))
+                    owner.peerRetentionState().plan().required(copy.capsule,ancestry).forEach(anchor->cuts.add(anchor.cut()));
+                // Renew endpoints inside the new RANGE from fresh applied ends.
+                // Earlier stable eras retain their authenticated stored proof.
+                long start=number(MembershipCheckpointPlan.rangeStart(copy.capsule,kind).get("index"));
+                for(var bridge:copy.capsule.verifiedAncestry(ancestry))
+                    if(cuts.contains(bridge.statement.value().get("start"))
+                            && number(object(bridge.statement.value().get("start")).get("index"))<=start)retained.add(bridge);
             }
             var c=current();var entry=decode(encode("records","ENTRY",Map.of("root",c.root,"authority",c.authority(),"index",(long)++slot,"previous",c.cut.get("entry"),"origin",f.ballot,"kind",kind,"payload",hash(payload))),"records","ENTRY");
             Files.write(f.raw.resolve("entry-"+slot+".gsr"),entry.bytes());Files.write(f.raw.resolve("payload-"+slot+".bin"),payload);
@@ -121,10 +152,10 @@ class V53AdmittedCrossViewTest {
                 var value=applied.get(t.identity().nodeId().value());var manifest=owner.publishCurrent(value,acks,checkpoints,f.bridges);
                 assertArrayEquals(manifest.bytes(),owner.publishCurrent(value,acks,checkpoints,f.bridges).bytes());assertTrue(owner.currentCertificate().isEmpty());assertTrue(owner.currentOwnedTail().isEmpty());
             }
-            f.snapshot("slot-"+slot+"-published");maintain("slot-"+slot+"-settled",targets,Map.of());
+            f.snapshot("slot-"+slot+"-published");afterPublication.after(kind,targets);maintain("slot-"+slot+"-settled",targets,Map.of());
             System.out.println("v53CrossViewProgress="+f.raw.getFileName()+" slot="+slot+" kind="+kind);System.out.flush();
         }
-        void publish(String kind,Object command)throws Exception {publish(kind,command,active);}
+        void publish(String kind,Object command)throws Exception {publish(kind,command,publicationParticipants.apply(active));}
         Map<String,Object> operation()throws Exception {return object(list(current().catalog.get("results")).getLast());}
         void removeLast(int number)throws Exception {
             var old=active;var next=List.copyOf(old.subList(0,old.size()-1));var removed=old.getLast();

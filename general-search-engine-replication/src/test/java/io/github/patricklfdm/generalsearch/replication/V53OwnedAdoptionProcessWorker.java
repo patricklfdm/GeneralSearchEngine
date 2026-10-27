@@ -14,9 +14,9 @@ public final class V53OwnedAdoptionProcessWorker {
         Path node=Path.of((String)inputs.get("node")),application=Path.of((String)inputs.get("materialization")),source=Path.of((String)inputs.get("source"));
         var rr=decode(Files.readAllBytes(node.resolve("root.gsr")),"records","ROOT");
         var root=new MembershipRoot(new ReplicationGroupId(UUID.fromString((String)rr.value().get("groupId"))),UUID.fromString((String)rr.value().get("historyId")),rr.rootDigest());
-        var resources=new MembershipResources(512*MembershipResources.MIB);MembershipCapsule prefix;Map<String,byte[]> images;int[] peak={0};
+        var resources=new MembershipResources(512*MembershipResources.MIB);MembershipCapsule prefix;Map<String,byte[]> images;byte[] ancestry;int[] peak={0};
         try(var original=MembershipGrantJournal.readRetainedHistory(source,Path.of((String)inputs.get("sourceMaterialization")),root,identity(source),resources,event->{})) {
-            prefix=original.capsule();images=original.images();
+            prefix=original.capsule();images=original.images();ancestry=original.ancestry();
         }
         if(resources.usage().leases()!=0)throw new AssertionError("source reader reservation leak");
         try(var owner=MembershipGrantJournal.openBootstrapped(node,application,root,identity(node),resources,MembershipGrantJournal.MAXIMUM,event->{
@@ -30,8 +30,9 @@ public final class V53OwnedAdoptionProcessWorker {
                 }
             }
         })) {
-            var result=owner.adoptCurrent(prefix,images,List.of());
-            if(!Arrays.equals(result.bytes(),owner.adoptCurrent(prefix,images,List.of()).bytes()))throw new IllegalStateException("changed native duplicate");
+            var bridges=prefix.verifiedAncestry(ancestry);
+            var result=owner.adoptCurrent(prefix,images,bridges);
+            if(!Arrays.equals(result.bytes(),owner.adoptCurrent(prefix,images,bridges).bytes()))throw new IllegalStateException("changed native duplicate");
             var offered=new TreeMap<>(object(owner.promised().orElseThrow().value().get("ballot")));offered.put("counter",number(offered.get("counter"))+1);
             try{owner.prepareCurrent(offered);throw new IllegalStateException("removed node admitted new grant");}
             catch(IllegalArgumentException refused){if(!refused.getMessage().equals("grant local eligible identity"))throw refused;}

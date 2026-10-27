@@ -8,6 +8,14 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Inherited future obligations across certified removal](PHASE_3_INHERITED_ADOPTION.md)
+now have native original-history, missing-ancestry refusal and fourteen process
+cut qualifications. A non-accepting fourth node inherits both original proofs,
+then promotes them when adopting its certified removal. Reconciliation in this
+fixture is explicit; automatic future dispatch, repeated-campaign capacity,
+all-seven-profile learner/joint integration and the complete 3B–3E gates remain
+open. Earlier component boundaries below describe their source-bound histories.
+
 [Native inherited-future continuation](PHASE_3_INHERITED_FUTURE.md) connects the
 earlier proof representation to installation, fresh original sources and certified
 publication after an original holder goes offline. Its native component and

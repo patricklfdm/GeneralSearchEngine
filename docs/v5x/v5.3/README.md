@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Inherited obligations across certified removal](PHASE_3_INHERITED_ADOPTION.md)
+are now locally qualified through one actual four-to-three REMOVE, with a
+non-accepting node inheriting both original future proofs before adopting its
+removal. Fourteen process cuts and independent original-first portable replay
+pass. Automatic dispatch, repeated-campaign capacity, learner/joint integration
+and full Phase 3 remain open; earlier entries retain their original scope.
+
 [Native inherited-future continuation](PHASE_3_INHERITED_FUTURE.md) now connects
 original-proof selection, installation, subsequent capture, carried publication
 and recovery. Native continuation and process evidence are locally qualified.

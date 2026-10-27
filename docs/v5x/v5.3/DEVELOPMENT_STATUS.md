@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3 inherited obligations across certified removal
+
+The [native adoption qualification](PHASE_3_INHERITED_ADOPTION.md) follows two
+original unpublished obligations into a non-accepting fourth node, through a real
+four-to-three REMOVE, removal adoption, a new survivor campaign and RETIRE.
+Adoption promotes the inherited obligations without inventing remote progress;
+missing original ancestry is rejected before file changes. The shared test driver
+now retains actual original source/peer anchors across those configuration cuts.
+
+Four final Java suites pass, with fourteen new halt/SIGKILL cases, 28 fresh JVMs
+and seven lock probes. Independent replay agrees normally and after relocation
+under optimized Python; all 21 new negative variants reject for their exact
+reasons. Existing cross-view and 38-case native adoption evidence also replays
+independently. The [receipt](phase3-evidence/inherited-adoption.json) preserves
+the four earlier orchestration failures and distinguishes Java-only campaign
+ancestry coverage from the independent physical gates.
+
+Production Java and formats are unchanged in this batch. This qualifies one
+REMOVE history, not all seven profiles. Repeated unresolved-campaign headroom,
+future-target quorum dispatch, autonomous elections/maintenance, ADD/REPLACE
+learners, joint completion and complete 3B–3E acceptance remain OPEN.
+
 ## 2026-10-26 — Phase 3 inherited future obligations across native continuation
 
 [Native continuation](PHASE_3_INHERITED_FUTURE.md) now installs all original
