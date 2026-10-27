@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Concrete stable control admission](PHASE_3_ROUND_CONTROLS.md) corrects the
+round owner's conceptual `CONTROL` input to the six frozen concrete command
+names. An actual RESERVE/CANCEL TCP regression passes and preserves the permanent
+nonvoting identity. Stable and carried histories also pass corrected-source
+independent portable replay. Learner and joint-transition qualification remain open.
+
 [Native serialized round lifetime](PHASE_3_ROUND_LIFECYCLE.md) now owns actual
 activation, exact carried completion, a fresh barrier and sequential stable slots.
 Its guarded internal readiness checks the original ballot/selection, expected

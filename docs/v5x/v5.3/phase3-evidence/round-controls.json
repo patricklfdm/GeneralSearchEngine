@@ -1,0 +1,115 @@
+{
+  "archive": {
+    "bytes": 6246828,
+    "path": "target/v53-round-controls/evidence.tar.gz",
+    "sha256": "33e540c7d9276c54804aa539a04ead652232d926af48ed78d24965c25ce4d54a"
+  },
+  "automaticElection": false,
+  "baseCommit": "05df2efb32b6911e2e241b072b6926cf6399b317",
+  "controlJavaHistory": {
+    "bytes": 79,
+    "path": "target/v53-round-controls/builds/configured-1269600c/general-search-engine-replication/target/v53-native-dispatch/run-5d0fe868-2974-4b71-8765-eb1e367a2def/round-control-result.json",
+    "sha256": "c9fea6d50c3d57be6ad96288e3c890795278d16e29e57b07ddcc2277337ba209"
+  },
+  "controlRequestTimeoutMillis": 30000,
+  "controlTiming": {
+    "bytes": 37298,
+    "path": "target/v53-round-controls/builds/configured-1269600c/general-search-engine-replication/target/v53-native-dispatch/run-5d0fe868-2974-4b71-8765-eb1e367a2def/round-control-timing.json",
+    "sha256": "54d5ee2e1278af43b92f6a11111dd756a89514ebd975746f941b366eefc07b88"
+  },
+  "defaultTimeoutFailure": {
+    "bytes": 7473,
+    "path": "target/v53-round-controls/corrected-maven.log",
+    "sha256": "e3f86c60262fe273d357307c159104c5aea332b97b2b678a01428f6d11236425"
+  },
+  "defaultTimeoutInputs": {
+    "bytes": 497196,
+    "path": "target/v53-round-controls/corrected-inputs.json",
+    "sha256": "e98d936b1886aff1822d7ee1371534ed35d3ae8335605b2432a0896980260377"
+  },
+  "independentControlHistories": 0,
+  "independentStableCarriedHistories": 2,
+  "javaInputs": {
+    "bytes": 497309,
+    "path": "target/v53-round-controls/configured-inputs.json",
+    "sha256": "ac2649c7dddaded8d8e883251f3c9e298221370c7219ea51c0e6dcfd9ff8419a"
+  },
+  "javaReport": {
+    "bytes": 8535,
+    "path": "target/v53-round-controls/builds/configured-1269600c/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest.xml",
+    "sha256": "f24dd0887b6333252188f23c62918ffffb4d4e9d4f8047beea3a8501e2717a26"
+  },
+  "javaTests": 3,
+  "negativeMutations": 50,
+  "originalFailure": {
+    "bytes": 6716,
+    "path": "target/v53-round-controls/original-maven.log",
+    "sha256": "256098947bbc626ee1421578b856994f8d682a27bc8c0b26f9d8954b6803d8bf"
+  },
+  "originalInputs": {
+    "bytes": 497196,
+    "path": "target/v53-round-controls/original-inputs.json",
+    "sha256": "445da87654d49ac276b74f250fb8b9583d00b826b6d0ceb01b930eb973d07331"
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portable": {
+    "bytes": 9216,
+    "path": "target/v53-round-controls/portable-replay.json",
+    "sha256": "026a4c6b63569fef9f41bde28a4173d82367a34e62b7a3c5a73b25d028a67a16"
+  },
+  "priorReceipt": "round-lifecycle.json",
+  "protectedCI": false,
+  "publicReady": false,
+  "remaining": [
+    "default-timeout publication latency",
+    "full concrete control/learner/joint histories",
+    "automatic election/discovery/adoption and restart lifecycle",
+    "maximum combined headroom and full Phase 3 audit"
+  ],
+  "replay": {
+    "bytes": 9216,
+    "path": "target/v53-round-controls/replay-complete.json",
+    "sha256": "026a4c6b63569fef9f41bde28a4173d82367a34e62b7a3c5a73b25d028a67a16"
+  },
+  "roundBudgetSeconds": 180,
+  "schema": "gse-v53-native-round-controls-v1",
+  "sources": [
+    {
+      "bytes": 132179,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "91db8ecb30678d3593a452d0ccd32e55cadd854131b63629d2ec584c9e1e7121"
+    },
+    {
+      "bytes": 24542,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "02643398124eefb6f10639ec5903cbf9bea7106b89d2e2d42704d81e17b6cbbc"
+    },
+    {
+      "bytes": 2698,
+      "path": "docs/v5x/v5.3/PHASE_3_ROUND_CONTROLS.md",
+      "sha256": "dfa90f36c9591d9cbf7433b413063624423f4bb58a8eaf3ecea14c8af985e8c5"
+    },
+    {
+      "bytes": 4168,
+      "path": "docs/v5x/v5.3/PHASE_3_ROUND_LIFECYCLE.md",
+      "sha256": "53af5c53168cdf0acfe3881275e4645fa589d1b73300e0b206e491c41868db38"
+    },
+    {
+      "bytes": 39561,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "18664b2abb0095d6bca0dc9d90e4c60c82cb86ca2a0651e4a13d146185ad7004"
+    },
+    {
+      "bytes": 11956,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java",
+      "sha256": "76934eac9887c0f2df4f46bdbca340b50f37bdf36a7c42cdb35bb350ca61a31d"
+    },
+    {
+      "bytes": 15811,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundDriverTest.java",
+      "sha256": "498659f338440b4f5d7900a601be527965e12ce9f2c75a171163fad1dea086f7"
+    }
+  ],
+  "status": "PASS"
+}

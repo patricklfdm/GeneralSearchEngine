@@ -16,8 +16,11 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 class V53RoundDriverTest {
     @TempDir Path temp;
     V53NativeDispatchTest.Network network(String old)throws Exception {
+        return network(old,ReplicationBounds.defaults());
+    }
+    V53NativeDispatchTest.Network network(String old,ReplicationBounds bounds)throws Exception {
         var helper=new V53NativeDispatchTest();helper.temp=temp;
-        return helper.new Network(3,ReplicationBounds.defaults(),f->{if(old!=null)V53CarriedSlotDriverTest.prepare(f,old);});
+        return helper.new Network(3,bounds,f->{if(old!=null)V53CarriedSlotDriverTest.prepare(f,old);});
     }
     MembershipRoundDriver<?,?> driver(V53NativeDispatchTest.Network n,MembershipRoundDriver.Events callback)throws Exception {
         return new MembershipRoundDriver<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,n.transports.getFirst(),
@@ -67,6 +70,50 @@ class V53RoundDriverTest {
             for(int i:n.voters)assertEquals(2L,n.owners.get(i).activationContext().cut.get("index"));
             Files.write(n.f.raw.resolve("carried-result.json"),canonical(Map.of("status","PASS","carried",n.selected.value().get("nextEntry"),"slots",2,"publicReady",false),4096));
             Files.write(n.f.raw.resolve("round-result.json"),canonical(Map.of("status","PASS","mode","carried-applied","internalReady",true,"publicReady",false),4096));
+        }
+    }
+    @Test void concreteReserveAndCancelPreserveThePermanentIdentityCatalog()throws Exception {
+        // Qualify control semantics with the supported caller timeout. The
+        // original default-timeout failure is retained separately; this profile
+        // does not establish a five-second response SLA or extend the round.
+        var b=ReplicationBounds.defaults();
+        var bounds=new ReplicationBounds(b.maxFrameBytes(),b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
+                b.maxRetryAttempts(),30_000,b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
+        try(var n=network(null,bounds);var round=driver(n,MembershipRoundDriver.Events.NONE)) {
+            var sends=new ConcurrentHashMap<String,Long>();
+            var durations=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+            n.beforeSend.set(request->sends.putIfAbsent(request.digest(),System.nanoTime()));
+            n.response.set((request,reply)->{
+                var began=sends.get(request.digest());
+                if(began!=null)durations.add(Map.of("request",request.digest(),"kind",request.kind(),"elapsedNanos",System.nanoTime()-began));
+                return reply;
+            });
+            long began=System.nanoTime();
+            try {
+            round.start();assertThrows(IllegalArgumentException.class,()->round.submit("CONTROL",new byte[0]));
+            var own=n.owners.getFirst();var context=own.activationContext();var targets=new ArrayList<Map<String,Object>>();
+            for(var t:n.f.request.targets())targets.add(MembershipBootstrapSeed.identity(t.identity()));
+            int port;try(var socket=new java.net.ServerSocket(0,1,java.net.InetAddress.getByName("127.0.0.1"))){port=socket.getLocalPort();}
+            var learner=new MembershipIdentity(new ReplicationNodeId("node-4"),UUID.randomUUID(),new ReplicationEndpoint("127.0.0.1",port));
+            targets.add(MembershipBootstrapSeed.identity(learner));
+            var request=Map.of("root",context.root,"expected",context.authority(),"number",1L,"kind","ADD","target",targets);
+            assertEquals("PUBLISH_ACK",round.submit("RESERVE",canonical(Map.of("request",request),8192)).kind());
+            for(int i:n.voters) {
+                var observed=n.owners.get(i).activationContext();assertEquals(2L,observed.catalog.get("nextOperation"));
+                assertEquals(learner,observed.identities.get("node-4"));assertFalse(observed.voters().contains("node-4"));
+            }
+            assertEquals("PUBLISH_ACK",round.submit("CANCEL",canonical(Map.of("number",1L),8192)).kind());round.readiness();
+            for(int i:n.voters) {
+                var observed=n.owners.get(i).activationContext();assertEquals(3L,observed.cut.get("index"));
+                assertNull(observed.catalog.get("active"));assertEquals(learner,observed.identities.get("node-4"));
+                assertEquals("CANCELLED",object(list(observed.catalog.get("results")).getFirst()).get("phase"));
+            }
+            assertEquals(MembershipRoundDriver.State.READY,round.state());
+            Files.write(n.f.raw.resolve("round-control-result.json"),canonical(Map.of("status","PASS","slots",3,"controls",List.of("RESERVE","CANCEL"),"publicReady",false),4096));
+            }finally {
+                Files.write(n.f.raw.resolve("round-control-timing.json"),canonical(Map.of("requestTimeoutMillis",bounds.requestTimeoutMillis(),
+                        "roundBudgetNanos",V53NativeDispatchTest.BUDGET,"elapsedNanos",System.nanoTime()-began,"exchanges",durations),1024*1024));
+            }
         }
     }
     @Test void beforeReadyFailureDoesNotRestoreReadinessFromDurablePublication()throws Exception {

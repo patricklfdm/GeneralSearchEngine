@@ -137,7 +137,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     /** The producer supplies only an operation payload; parent, ballot and index
      * are allocated here. No automatic replay of an indeterminate client call. */
     Decoded submit(String kind,byte[] bytes)throws IOException {
-        Objects.requireNonNull(bytes);require(Set.of("DATA","CONTROL","BARRIER").contains(kind),"native stable slot kind");
+        Objects.requireNonNull(bytes);require(Set.of("DATA","BARRIER","RESERVE","PREPARE","READY","SEAL","CANCEL","RETIRE").contains(kind),"native stable slot kind");
         require(bytes.length<=Math.min(FRAME,bounds.maxFrameBytes()),"native round payload bound");
         if(kind.equals("BARRIER"))require(bytes.length==0,"native barrier empty payload");
         enter(State.READY);

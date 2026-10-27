@@ -1,5 +1,15 @@
 # V5.3 development status
 
+## 2026-10-27 — Concrete stable control admission
+
+[Concrete stable control admission](PHASE_3_ROUND_CONTROLS.md) corrects the
+round owner's conceptual `CONTROL` input to the six frozen concrete command
+names. An actual RESERVE/CANCEL TCP regression passes and preserves the permanent
+nonvoting identity. Stable and carried histories also pass corrected-source
+independent portable replay. Learner and joint-transition qualification remain open.
+
+The original positive control regression fails at `native stable slot kind`. The corrected source passes RESERVE/CANCEL under an explicit 30-second request timeout, retaining the 180-second round deadline, plus both previous round histories under default settings. The initial default-timeout CANCEL failure remains retained; this does not establish a default response-time guarantee; all 50 original/lifecycle evidence mutations and relocated optimized replay pass. The prior lifecycle report did not qualify generic CONTROL. This correction explicitly distinguishes the new Java-only control history from the two independently replayed stable/carried histories. See the [receipt](phase3-evidence/round-controls.json).
+
 ## 2026-10-27 — Native serialized round lifetime
 
 [Native serialized round lifetime](PHASE_3_ROUND_LIFECYCLE.md) now owns actual

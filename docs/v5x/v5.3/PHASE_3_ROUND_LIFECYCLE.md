@@ -5,7 +5,11 @@ not full Phase 3 closure or public membership enablement.
 
 `MembershipRoundDriver` owns one bounded native invocation: actual activation,
 completion of an exact selected prior-ballot entry when present, a fresh
-current-ballot BARRIER, and serialized stable DATA/CONTROL/BARRIER submissions.
+current-ballot BARRIER, and serialized stable submissions. Control is a conceptual
+category: the ENTRY format uses concrete RESERVE/PREPARE/READY/SEAL/CANCEL/RETIRE
+names, alongside DATA and BARRIER. The follow-up
+[control admission correction](PHASE_3_ROUND_CONTROLS.md) supplies those names;
+the original lifecycle receipt below qualified BARRIER/DATA and carried BARRIER.
 The caller supplies an operation payload; the driver derives the actual parent,
 index, authority and ballot from its live journal. It does not replay an
 indeterminate client mutation or restore readiness from durable files.
