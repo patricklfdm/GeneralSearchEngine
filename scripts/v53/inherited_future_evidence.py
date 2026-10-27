@@ -34,7 +34,7 @@ def wrapped(promise, ledger, descriptor):
     return frame(0x47535250, s.part(promise)+s.part(ledger)+bytes.fromhex(e.digest(descriptor)), 2)
 
 
-def install(group, sources, grants, names, ballot, futures, extras):
+def install(group, sources, grants, names, ballot, futures, extras, *, selected_prefix=None):
     longest = names[-1]; packet = sources[longest][1]; cap = packet['capsule']
     choices = []
     for node in names:
@@ -53,7 +53,13 @@ def install(group, sources, grants, names, ballot, futures, extras):
     for node in names:
         files = group[node]; prefix, old, _ = c.current(files)
         ledger_intent = s.intent(u.identity(files), selected, files[s.FILE], [sources[n] for n in names])
-        objects = dict(packet['objects']); objects.update(extras); objects.update({h:v[1] for h,v in futures.items()})
+        objects = dict(packet['objects']) if selected_prefix is None else selected_prefix(packet, files['root.gsr'])
+        if selected_prefix is not None and 'owned-tail.gsr' in old:
+            original_accept = old['owned-tail.gsr']; old_packet = c.current(files)[2]
+            original_entry = f.decode(original_accept, 'records', 'ACCEPT')['entry']
+            payload = f.decode(old_packet['objects'][original_entry], 'records', 'ENTRY')['payload']
+            for h in (e.digest(original_accept), original_entry, payload): objects[h] = old_packet['objects'][h]
+        objects.update(extras); objects.update({h:v[1] for h,v in futures.items()})
         objects[e.digest(ledger_intent)] = ledger_intent
         if chosen:
             _, from_node, accept_raw, accept = chosen
@@ -85,7 +91,7 @@ def maintained(group):
     result = dict(group); result.update(p.settled({n:group[n] for n in NAMES})); return result
 
 
-def campaign(root, group, counter, futures):
+def campaign(root, group, counter, futures, *, selected_prefix=None):
     proposer = u.identity(group['node-3']); ballot = dict(counter=counter,proposer='node-3',incarnation=proposer['storage'])
     prepared, grants, sources, extras = dict(group), {}, {}, {}
     for node in NAMES:
@@ -111,7 +117,7 @@ def campaign(root, group, counter, futures):
         if node=='node-3': changed['allocator.gsr']=f.encode('records','ALLOCATOR',dict(root=cap['root'],node=node,counter=counter))
         prepared[node]=changed;grants[node]=(promise,basis);sources[node]=(basis,frozen,wrapper)
     p.match(root,f'round-{counter}-prepared',prepared)
-    chosen, installed=install(prepared,sources,grants,NAMES,ballot,futures,extras)
+    chosen, installed=install(prepared,sources,grants,NAMES,ballot,futures,extras, selected_prefix=selected_prefix)
     p.match(root,f'round-{counter}-selected',chosen)
     return installed, extras
 
@@ -209,7 +215,7 @@ def processes(root,applied,switched,retired,completed):
     return len(cases)
 
 
-def validate(root,require_process=False):
+def validate(root,require_process=False, *, selected_prefix=None):
     root=Path(root)
     required={'original-plan.gsbp','original-application.image','initial','retaining-genesis','calls.json',
               'entry-1.gsr','payload-1.bin','certified','before-future','pending-future','two-futures','proposal-sources',
@@ -223,14 +229,14 @@ def validate(root,require_process=False):
     need(not require_process or process,'inherited future process evidence required')
     if process:required|={'publication-process','future-reapplied'}
     p.selection.layout(root,required,'inherited future evidence inventory')
-    _,group,sources,grants,pending,originals,ballot=original.original_sources(root)
+    _,group,sources,grants,pending,originals,ballot=original.original_sources(root, selected_prefix=selected_prefix)
     futures={e.digest(raw):(u.identity(group[node]),raw) for node,raw in pending.items()}
-    _,group=install(group,sources,grants,sorted(group),ballot,futures,{})
+    _,group=install(group,sources,grants,sorted(group),ballot,futures,{}, selected_prefix=selected_prefix)
     p.match(root,'future-installed',group)
     for n in NAMES:group[n]={k:v for k,v in group[n].items() if k!='applied-end' and not k.startswith('applied-end/')}
     group=vote(group,originals['entry.gsr']);p.match(root,'future-native-retired',group)
     group=maintained(group);p.match(root,'future-install-maintenance',group)
-    group,extras=campaign(root,group,4,futures);p.match(root,'future-reinstalled',group)
+    group,extras=campaign(root,group,4,futures, selected_prefix=selected_prefix);p.match(root,'future-reinstalled',group)
     group=maintained(vote(group,originals['entry.gsr']));p.match(root,'future-reclaimed',group)
     if process:
         applied,switched,retired,group=publish(group,originals,futures,extras,True)
@@ -244,7 +250,7 @@ def validate(root,require_process=False):
             row=next(r for r in plan['peers'] if r['identity']['node']==peer);row['possible']=row['possible'][-1:]
             group[n][s.FILE]=s.r.frame(dict(state,revision=state['revision']+1,previous=e.digest(group[n][s.FILE]),plan=plan))
     group=maintained(group);p.match(root,'future-published-maintenance',group)
-    group,_=campaign(root,group,5,{});p.match(root,'round-5-installed',group)
+    group,_=campaign(root,group,5,{}, selected_prefix=selected_prefix);p.match(root,'round-5-installed',group)
     rows=json.loads((root/'calls.json').read_text())
     for op,names,events in [
         ('record-future',['node-1'],['FUTURE_RETENTION_FORCED','FUTURE_RETENTION_PARENT_FORCED','FUTURE_RETENTION_BEFORE_RETURN']),
@@ -276,8 +282,8 @@ def validate(root,require_process=False):
                 processCases=process_cases,freshProcesses=2*process_cases,phase3Complete=False)
 
 
-def qualify(root,require_process=False):
-    root=Path(root);result=validate(root,require_process);negatives=[]
+def qualify(root,require_process=False, *, selected_prefix=None):
+    root=Path(root);result=validate(root,require_process, selected_prefix=selected_prefix);negatives=[]
     variants=[('original-proof','two-futures/node-1/'+u.FILE,'admitted exact two-futures: node-1'),
               ('installed-proof','future-installed/node-3/selector.gsr','admitted exact future-installed: node-3'),
               ('retirement','future-native-retired/node-2/pending.accept','admitted exact future-native-retired: node-2'),
@@ -305,7 +311,7 @@ def qualify(root,require_process=False):
             elif name=='process-response':changed=before.replace(b'"pending":false',b'"pending":true',1)
             else:changed=before[:-1]+bytes([before[-1]^1])
             need(changed!=before,'inherited future ineffective mutation');path.write_bytes(changed)
-            try:validate(copied,require_process)
+            try:validate(copied,require_process, selected_prefix=selected_prefix)
             except ValueError as error:need(str(error)==reason,'inherited future wrong rejection: '+name+': '+str(error))
             else:raise ValueError('inherited future accepted mutation: '+name)
             negatives.append(dict(case=name,status='REJECTED',reason=reason))
@@ -313,8 +319,12 @@ def qualify(root,require_process=False):
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--negative',action='store_true');parser.add_argument('--process',action='store_true');args=parser.parse_args()
-    print(json.dumps((qualify if args.negative else validate)(args.root,args.process),sort_keys=True))
+    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--negative',action='store_true');parser.add_argument('--process',action='store_true')
+    parser.add_argument('--reachable-selection',action='store_true',help='use the typed live-prefix model for sources built with selected-generation reachability')
+    args=parser.parse_args()
+    from .selected_prefix_evidence import prefix
+    print(json.dumps((qualify if args.negative else validate)(args.root,args.process,
+        selected_prefix=prefix if args.reachable_selection else None),sort_keys=True))
 
 
 if __name__=='__main__':main()

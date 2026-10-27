@@ -37,18 +37,18 @@ def images(root,size,backup,complete=True):
             image.application(members[packet['capsule']['application']+'.image'],history,sequence,documents)
 
 
-def profile(root,size,backup,phase):
-    result=q.clean(root,2)
+def profile(root,size,backup,phase, *, selected_prefix=None):
+    result=q.clean(root,2,selected_prefix=selected_prefix)
     same({k:result[k] for k in ('size','backup','phase')},dict(size=size,backup=backup,phase=phase),'native context original profile')
     images(root,size,backup)
     return result
 
 
-def validate(directory):
+def validate(directory, *, selected_prefix=None):
     root=Path(directory);q.b.selection.layout(root,{name(*p) for p in PROFILES}|{'receipt.json'},'native context profiles')
     rows=[];publications=0;peaks=[];histories=set()
     for size,backup,phase in PROFILES:
-        label=name(size,backup,phase);raw=root/label;result=profile(raw,size,backup,phase)
+        label=name(size,backup,phase);raw=root/label;result=profile(raw,size,backup,phase,selected_prefix=selected_prefix)
         original=c.inventory(raw/'round-1-settled/node-1');history=e.f.decode(original['root.gsr'],'records','ROOT')['historyId']
         e.need(history not in histories,'native context reused history');histories.add(history)
         rows.append(dict(case=label,status='PASS',size=size,backup=backup,phase=phase))
@@ -68,12 +68,12 @@ VARIANTS={
 }
 
 
-def qualify(directory):
-    original=validate(directory);results=[];sample=Path(directory)/name(3,False,'CERTIFICATE')
+def qualify(directory, *, selected_prefix=None):
+    original=validate(directory,selected_prefix=selected_prefix);results=[];sample=Path(directory)/name(3,False,'CERTIFICATE')
     for variant,(path,reason) in VARIANTS.items():
         with tempfile.TemporaryDirectory(prefix='v53-native-context-negative-') as temp:
             target=Path(temp)/'raw';shutil.copytree(sample,target);(target/path).write_bytes(b'changed')
-            try:profile(target,3,False,'CERTIFICATE')
+            try:profile(target,3,False,'CERTIFICATE',selected_prefix=selected_prefix)
             except ValueError as error:e.need(reason in str(error),'native context unrelated negative: '+variant+': '+str(error))
             else:raise ValueError('native context accepted negative: '+variant)
             results.append(dict(case=variant,status='REJECTED',reason=reason))
@@ -81,5 +81,6 @@ def qualify(directory):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--qualify',action='store_true');a=p.parse_args()
-    print(json.dumps(qualify(a.directory) if a.qualify else validate(a.directory),sort_keys=True))
+    p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--qualify',action='store_true');p.add_argument('--reachable-selection',action='store_true');a=p.parse_args()
+    from .selected_prefix_evidence import prefix
+    print(json.dumps((qualify if a.qualify else validate)(a.directory,selected_prefix=prefix if a.reachable_selection else None),sort_keys=True))

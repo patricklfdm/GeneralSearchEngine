@@ -8,6 +8,14 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Selected-generation reachability](PHASE_3_SELECTED_REACHABILITY.md) now prevents
+obsolete election objects from accumulating in each newly selected packet. Eight
+native unresolved campaigns keep twelve objects while preserving both original
+proofs and final publication. Current-source context and inherited-removal
+regressions, thirty-two process cuts and original-first portable replay pass.
+Maximum-size headroom, autonomous dispatch/ownership, learners/joint integration
+and full Phase 3 remain open; earlier entries retain their source-bound scope.
+
 [Inherited future obligations across certified removal](PHASE_3_INHERITED_ADOPTION.md)
 now have native original-history, missing-ancestry refusal and fourteen process
 cut qualifications. A non-accepting fourth node inherits both original proofs,

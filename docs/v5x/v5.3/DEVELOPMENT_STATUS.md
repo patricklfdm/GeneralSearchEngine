@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3 selected-generation reachability
+
+The [selected packet correction](PHASE_3_SELECTED_REACHABILITY.md) starts a new
+generation from its complete typed prefix, then retains the selected original
+proofs, carried entry and exact old owned tail needed by retirement. Original
+source/context/floor bytes are immutable. The native eight-campaign diagnostic
+previously grew from 19 to 40 objects; final native execution stays at twelve,
+keeps one original holder offline and actually publishes the carried result.
+
+Fifteen final Java tests pass across two explicit snapshots, including eight
+native context profiles and thirty-two halt/SIGKILL cases across publication and
+certified removal. Independent original-first replay, fifty-five exact mutations
+and relocated optimized replay pass. Existing 661 Python tests pass, with the
+later new repeated-reader force strengthening identified separately. The
+[receipt](phase3-evidence/selected-reachability.json) retains every failed prototype,
+the reader-force gap, source inventories and verified raw archives.
+
+This closes the reproduced per-election accumulation, not arbitrary lifetime or
+maximum-capacity completion. Future-target quorum dispatch, autonomous owner and
+recovery scheduling, all-seven-profile learners/joint transitions and complete
+3B–3E qualification remain OPEN. No push, public runtime or V5.2/cloud changes.
+
 ## 2026-10-26 — Phase 3 inherited obligations across certified removal
 
 The [native adoption qualification](PHASE_3_INHERITED_ADOPTION.md) follows two

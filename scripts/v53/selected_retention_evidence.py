@@ -71,7 +71,7 @@ def initialize(group):
             for (n, files), identity in zip(sorted(group.items()), identities)}
 
 
-def campaign(root, group, counter, observed):
+def campaign(root, group, counter, observed, *, selected_prefix=None):
     """Only fresh UUIDs are observed. Every other byte is independently derived."""
     names = sorted(group); local = f.decode(group['node-1']['node.gsr'], 'records', 'NODE')['identity']
     ballot = dict(counter=counter, proposer='node-1', incarnation=local['storage'])
@@ -111,7 +111,8 @@ def campaign(root, group, counter, observed):
         prefix, old, _ = b.c.current(group[node]); packet = sources['node-1'][1]
         owner = f.decode(files['node.gsr'], 'records', 'NODE')['identity']
         record = intent(owner, selected, files[FILE], [sources[n] for n in names])
-        raw = b.c.packet_bytes(packet['capsule'], dict(packet['objects'], **{sha(record): record}), packet['images'])
+        objects = dict(packet['objects']) if selected_prefix is None else selected_prefix(packet, files['root.gsr'])
+        raw = b.c.packet_bytes(packet['capsule'], dict(objects, **{sha(record): record}), packet['images'])
         members = dict(zip(('promise.gsr', 'basis.gsr'), grants[node]), **{'selected.gsr': selected,
             'selected-sources.gsr': b''.join(grants[n][1] for n in names), 'source.gscp': raw})
         members.update({h+'.image': old[h+'.image'] for h in packet['images']})

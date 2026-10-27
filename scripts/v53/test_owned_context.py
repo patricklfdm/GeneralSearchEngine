@@ -27,7 +27,7 @@ class OwnedContextEvidenceTest(unittest.TestCase):
         original=dict(size=3,backup=False,phase='CERTIFICATE')
         with patch.object(q.q,'clean',return_value=original) as clean,patch.object(q,'images',side_effect=ValueError('wrong application')):
             with self.assertRaisesRegex(ValueError,'wrong application'):q.profile('raw',3,False,'CERTIFICATE')
-            clean.assert_called_once_with('raw',2)
+            clean.assert_called_once_with('raw',2,selected_prefix=None)
 
     def test_unknown_predecessor_span_cannot_change_replay_scope(self):
         for value in (True,1,-1,3,None,'2'):

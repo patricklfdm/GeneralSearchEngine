@@ -35,10 +35,10 @@ def pending(files, end, peer):
     return u.frame(metadata, originals), originals
 
 
-def original_sources(root):
+def original_sources(root, *, selected_prefix=None):
     """Derive the shared native prelude; callers validate their own later inventory."""
     root = Path(root)
-    _, before, ends = u.prelude(root)
+    _, before, ends = u.prelude(root, selected_prefix=selected_prefix)
     one, original_one = pending(before['node-1'], ends['node-1'], before['node-2'])
     two, original_two = pending(before['node-2'], ends['node-2'], before['node-3'])
     first = dict(before, **{'node-1': dict(before['node-1'], **{u.FILE: one})})

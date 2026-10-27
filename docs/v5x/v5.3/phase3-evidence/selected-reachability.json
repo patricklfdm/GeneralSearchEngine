@@ -1,0 +1,1312 @@
+{
+  "baseCommit": "3376bcb15f48feeb2710b5530afb106a78457c6d",
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 4631,
+      "path": "target/v53-repeated-campaigns/ATTEMPTS.md",
+      "sha256": "2c3db42b899d44091bebf01cd26c48ed2e584e20706bfabbba7a8b63066e3f0c"
+    },
+    {
+      "bytes": 2352,
+      "path": "target/v53-repeated-campaigns/MembershipSelectedObjects.java",
+      "sha256": "35e2dfecfbf72a7d09827a94392d8810b378244ff19022ddae70127f4e21ebf6"
+    },
+    {
+      "bytes": 3673,
+      "path": "target/v53-repeated-campaigns/NEXT-DISPATCH-AUDIT.md",
+      "sha256": "04098f73c8ce9096239a805481074837c653e64b9f9a66fb8f7eec2d6bdb2fa5"
+    },
+    {
+      "bytes": 1604,
+      "path": "target/v53-repeated-campaigns/PLAN.md",
+      "sha256": "8892c4525fa70b8f0153c0adb8fb3b79d0aa93360b0a2b2a8c5fbd642a9692df"
+    },
+    {
+      "bytes": 3420,
+      "path": "target/v53-repeated-campaigns/REACHABILITY.md",
+      "sha256": "ad0fac847086e3dcba28ffc0216b130ddad80151548e7c0d3f9410608bf05134"
+    },
+    {
+      "bytes": 6503,
+      "path": "target/v53-repeated-campaigns/V53RepeatedFutureCampaignTest.java",
+      "sha256": "02e7262ce94ee12b9b1b4bc71f2abcbafca509c9d39d0dfca455e763908725cd"
+    },
+    {
+      "bytes": 3286,
+      "path": "target/v53-repeated-campaigns/V53SelectedObjectsTest.java",
+      "sha256": "500c4bd8133f0b04af82fdf4aeb27c4027c2483db395e0669d1095e5b431967b"
+    },
+    {
+      "bytes": 2502,
+      "path": "target/v53-repeated-campaigns/archive.py",
+      "sha256": "0ccdfd06fbf5c75b3aea7a9deabc822594d7a0afd49aeb91a01513ee1deabc14"
+    },
+    {
+      "bytes": 127,
+      "path": "target/v53-repeated-campaigns/baseline-capacity-predicate.json",
+      "sha256": "ab1718a96a185b5294705f7e258dae97f0f404eb4169320c64e3346142d40a1c"
+    },
+    {
+      "bytes": 1283,
+      "path": "target/v53-repeated-campaigns/changed-files.txt",
+      "sha256": "9f47583730acd1067227e3a292558accf24fb90ea2e7bee1b7d66d585f8534a6"
+    },
+    {
+      "bytes": 653673,
+      "path": "target/v53-repeated-campaigns/compiled-inventory.json",
+      "sha256": "04de4fc56b95c9033aa60ea08a82a8b78e2f9a0b2fd776794b10002e69c0f726"
+    },
+    {
+      "bytes": 5955,
+      "path": "target/v53-repeated-campaigns/complete-docs.py",
+      "sha256": "426cf5d376475cf83536e998da1861d723baeb90153c3cb60ace81f75d59a94f"
+    },
+    {
+      "bytes": 3202,
+      "path": "target/v53-repeated-campaigns/completed-attempts.json",
+      "sha256": "b8d080e4b127932dd50ba10123198e38ab731bb23a1cd7d62e8551818329eb75"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-repeated-campaigns/contract-current.json",
+      "sha256": "e013e6f414918e507fdacbc4fd32ce59827cf9827fa034343212e411cf091f31"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-repeated-campaigns/contract-progress.json",
+      "sha256": "9e0fc298b86e6b7296ae52fe5fe5dd28e6b7f9207466e6b73db52ee8bd7e39c5"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-repeated-campaigns/contract-reviewed.json",
+      "sha256": "9e0fc298b86e6b7296ae52fe5fe5dd28e6b7f9207466e6b73db52ee8bd7e39c5"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-repeated-campaigns/contract.json",
+      "sha256": "9e0fc298b86e6b7296ae52fe5fe5dd28e6b7f9207466e6b73db52ee8bd7e39c5"
+    },
+    {
+      "bytes": 38122,
+      "path": "target/v53-repeated-campaigns/corrected-reader-inputs.json",
+      "sha256": "a5886593d004ebe757c87361d21f12f973560ba8877472b878e6c8b2a1c52564"
+    },
+    {
+      "bytes": 213,
+      "path": "target/v53-repeated-campaigns/current-archive.log",
+      "sha256": "cbda9cec8ec39fbc5fffb158311042a6de1a5af65bb141f7261db2fcd166d030"
+    },
+    {
+      "bytes": 24114431,
+      "path": "target/v53-repeated-campaigns/current-raw-inventory.json",
+      "sha256": "105fe5ec92384a607ff7e6ed6f8534ede073ea03a1566e34bd256dff9994454b"
+    },
+    {
+      "bytes": 1079,
+      "path": "target/v53-repeated-campaigns/current-raw-suites.json",
+      "sha256": "8f69e5b0c956d6012703fd822836fd40faf5653019e861ac6d48a7d410e7c765"
+    },
+    {
+      "bytes": 42009582,
+      "path": "target/v53-repeated-campaigns/current-raw.tar.gz",
+      "sha256": "1f7073fcae0c47929921d4fd2b6426c92250dec8fcc5ab77e2e1ea4fcef5ba49"
+    },
+    {
+      "bytes": 38122,
+      "path": "target/v53-repeated-campaigns/current-reader-inputs.json",
+      "sha256": "6eed26ba118c43d5a40275fe0691715107e934f32429ceab17dd4a69a236d0a2"
+    },
+    {
+      "bytes": 443,
+      "path": "target/v53-repeated-campaigns/earlier-archive.log",
+      "sha256": "25aa1db00a34693ac0be1fc8d3dbfef46eeefa67122b0c6b707e1ef10b6bbc22"
+    },
+    {
+      "bytes": 25627596,
+      "path": "target/v53-repeated-campaigns/earlier-raw-inventory.json",
+      "sha256": "db70fe715cb0ca1cddd7ceb93c4b51bf9ff57c1a876666ae46928dbd4315af1e"
+    },
+    {
+      "bytes": 2632,
+      "path": "target/v53-repeated-campaigns/earlier-raw-suites.json",
+      "sha256": "0f39917dfbd936d97ba0d768585febf7bc0c7c275b6992b1a47b639b192974f2"
+    },
+    {
+      "bytes": 45350272,
+      "path": "target/v53-repeated-campaigns/earlier-raw.tar.gz",
+      "sha256": "44776b2634a43dbd1f679ada54a8c5886d4d0ee4932136f4349b3fbe1752e93a"
+    },
+    {
+      "bytes": 3542,
+      "path": "target/v53-repeated-campaigns/extend-adoption-reader.py",
+      "sha256": "ef00715c44a13abec23ac9f3a60eac0b423f95dfc0d14f9e4d9c4953f42d45fa"
+    },
+    {
+      "bytes": 3214,
+      "path": "target/v53-repeated-campaigns/extend-context-reader.py",
+      "sha256": "d94b713dce8fca0fd137ecf16b570f34aa5dbd491da3ae1d2b00e23a78fd7866"
+    },
+    {
+      "bytes": 2244,
+      "path": "target/v53-repeated-campaigns/extend-reader.py",
+      "sha256": "f803d41713759f4d8a86bd6d7ded6215e0e1fbff2a587d79b5735a06f0f6748b"
+    },
+    {
+      "bytes": 7807,
+      "path": "target/v53-repeated-campaigns/fifth-build.log",
+      "sha256": "8de6aeca41f456d74f381e801f8522ebde5db91c0e1013d03a25efbbb9cf87fc"
+    },
+    {
+      "bytes": 485064,
+      "path": "target/v53-repeated-campaigns/fifth-inputs.json",
+      "sha256": "9b362c83f745e3c6d8596bb347c971af50fda36422d643ffd1f5a3094253d26d"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-repeated-campaigns/fifth-workspace.txt",
+      "sha256": "14d821e195404d41dec2973c56470540f94d1385513da2672dddc59aa81dc49f"
+    },
+    {
+      "bytes": 38122,
+      "path": "target/v53-repeated-campaigns/final-reader-inputs.json",
+      "sha256": "00021f985b24ff2c680a4309feb27a32a7a23648b3ffd30b1b7ce87080a0143d"
+    },
+    {
+      "bytes": 8040,
+      "path": "target/v53-repeated-campaigns/finalize.py",
+      "sha256": "cd674007cb4898cc09090ea889c25e6082a242dbf96865708a975f69e66fbefc"
+    },
+    {
+      "bytes": 5819,
+      "path": "target/v53-repeated-campaigns/first-build.log",
+      "sha256": "454ef046714ef5dc8671d19c477826f2cbb6ba9e747f5d444b88928682007a04"
+    },
+    {
+      "bytes": 484667,
+      "path": "target/v53-repeated-campaigns/first-inputs.json",
+      "sha256": "d4bf8b84427a007648ec1a2419d2d2ea5c15f8fa46ba23d53e3c3e035b944772"
+    },
+    {
+      "bytes": 2584,
+      "path": "target/v53-repeated-campaigns/first-replay.json",
+      "sha256": "3b556ad9c973dcdb83c662fcdc98ff0a39ba0e4ffc5a3e890f6dac88a5b4fa8e"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/first-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-repeated-campaigns/first-workspace.txt",
+      "sha256": "aa770f7716171ae852a1436117e5e4174443f947d52a574242727d6e9b4a1c63"
+    },
+    {
+      "bytes": 5071,
+      "path": "target/v53-repeated-campaigns/fourth-build.log",
+      "sha256": "4da7204efa9522ba18ab6428012867a665f98e534f83211765189b8a121cbfe6"
+    },
+    {
+      "bytes": 485064,
+      "path": "target/v53-repeated-campaigns/fourth-inputs.json",
+      "sha256": "07a1d03aa70140d36d03f14a7eb58ba99507062062e5c71f38436c38fd174510"
+    },
+    {
+      "bytes": 96,
+      "path": "target/v53-repeated-campaigns/fourth-workspace.txt",
+      "sha256": "caf0abd86bea93ac5947a7936c9c0adbea4e70d55e79d32ededd191777ac0dab"
+    },
+    {
+      "bytes": 2579,
+      "path": "target/v53-repeated-campaigns/historical-adoption-reader-replay.json",
+      "sha256": "dce35e9c96a2a8106e55ebae4c68c81b6d1d48ef74c27b1287cf49f85a08609c"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/historical-adoption-reader-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1955,
+      "path": "target/v53-repeated-campaigns/portable-process.json",
+      "sha256": "3451acc4b5c1f55accf5b7d322f3e8358a8842d9c082f6c04551f428bc1fe64b"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/portable-process.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3920,
+      "path": "target/v53-repeated-campaigns/portable-repeated-strengthened.json",
+      "sha256": "43629a0f1a785032d7f493bf5bd05d5169c210cdebc1b220141475ae98cd5b99"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/portable-repeated-strengthened.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3436,
+      "path": "target/v53-repeated-campaigns/portable-repeated.json",
+      "sha256": "2c1c7f3ebf498a3ad9d16f6cb95832b178644705c4f06ee47a3c3ddeffd9b38b"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/portable-repeated.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2579,
+      "path": "target/v53-repeated-campaigns/portable-seventh-adoption.json",
+      "sha256": "dce35e9c96a2a8106e55ebae4c68c81b6d1d48ef74c27b1287cf49f85a08609c"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/portable-seventh-adoption.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 782,
+      "path": "target/v53-repeated-campaigns/portable-seventh-contexts.json",
+      "sha256": "c5f83e091afbad4cffb98a1adba61dd016998be800c714c3a42b00aa8573d043"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/portable-seventh-contexts.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 205,
+      "path": "target/v53-repeated-campaigns/portable-seventh-stopped.json",
+      "sha256": "3bf9af7f09ad7fface3c05a2823a6f245abbb71c6ae11500674a1dae196389a3"
+    },
+    {
+      "bytes": 731,
+      "path": "target/v53-repeated-campaigns/portable-seventh-stream.log",
+      "sha256": "048e60a4d7d021d2baecc3ea31d1f18d8d750872ed7f976ec53fab7d6a4a95e0"
+    },
+    {
+      "bytes": 2621,
+      "path": "target/v53-repeated-campaigns/portable-seventh-stream.py",
+      "sha256": "907b30fa6b6a771c606af244ded38cc7039a66e0796a3aef1ff337cadccad9ed"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/portable-seventh.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2269,
+      "path": "target/v53-repeated-campaigns/portable-seventh.py",
+      "sha256": "0e93fe15e954351300aa8b15d05b5eb3cb830bba7ee102e72e998532a96e369b"
+    },
+    {
+      "bytes": 249,
+      "path": "target/v53-repeated-campaigns/portable.log",
+      "sha256": "ea07f04a291dd9320644d7423cb61cd0553123fc9cdf78a58398da9b3e613f56"
+    },
+    {
+      "bytes": 2287,
+      "path": "target/v53-repeated-campaigns/portable.py",
+      "sha256": "3146981cb3fac0a0cfdd82763565a87aacdfd0a8180196cf47c9b795a3b00177"
+    },
+    {
+      "bytes": 3108,
+      "path": "target/v53-repeated-campaigns/prepare-reader.py",
+      "sha256": "612f2af0ae7dd3f4b86673d3f7b8651cc2d00819ce70b05bbb652bc997a50d36"
+    },
+    {
+      "bytes": 762,
+      "path": "target/v53-repeated-campaigns/python-corrected-tests.log",
+      "sha256": "59acda44187a4ddaabddce025b5a12a61e214a651e99f55b56af3e5c5d1c9f16"
+    },
+    {
+      "bytes": 1667,
+      "path": "target/v53-repeated-campaigns/python-current-tests.log",
+      "sha256": "b718af5b358d69a2b2229f30848220e40fe35561c18ed29987bdaec533f86342"
+    },
+    {
+      "bytes": 762,
+      "path": "target/v53-repeated-campaigns/python-tests.log",
+      "sha256": "f97ed97e588b9dc09cca3913e2742e484aaf3e001ca666e3f53336ddc0e3691e"
+    },
+    {
+      "bytes": 2113,
+      "path": "target/v53-repeated-campaigns/qualify-seventh.py",
+      "sha256": "6314052d69c4e8f0333e585256f159630266ffd42f868e6a99f0def522a55b76"
+    },
+    {
+      "bytes": 136,
+      "path": "target/v53-repeated-campaigns/reader-force-gap.json",
+      "sha256": "005b785be6188aca50c214e6a87c6b62a96a641630e40cc54e5e68c9fad45aa1"
+    },
+    {
+      "bytes": 132971,
+      "path": "target/v53-repeated-campaigns/reader-v1-inputs.json",
+      "sha256": "ea76246624df071e57a42f5c70ed1a61681c89a75e2d7f74419b8682ccc9c9df"
+    },
+    {
+      "bytes": 132971,
+      "path": "target/v53-repeated-campaigns/reader-v2-inputs.json",
+      "sha256": "16db0ad79f42290fcf51929ce1cea9189ea048dd296f805c73bfdfc192563a13"
+    },
+    {
+      "bytes": 133262,
+      "path": "target/v53-repeated-campaigns/reader-v3-inputs.json",
+      "sha256": "7da148657c2e1fb621e72f43124949034c59c6ce5f5eca5e5d6d1d7ff4d42e45"
+    },
+    {
+      "bytes": 4276,
+      "path": "target/v53-repeated-campaigns/repeated_future_evidence.py",
+      "sha256": "90518d3afe8597d06f5ce43eda49fbcf4d2fa9b5061ab7d24dc74109433a4e4d"
+    },
+    {
+      "bytes": 25502,
+      "path": "target/v53-repeated-campaigns/second-build.log",
+      "sha256": "eae1b0b7d8d70f5c42314cf3ab58b08865843c654ee04bd61a99c8d0b8df17d5"
+    },
+    {
+      "bytes": 484867,
+      "path": "target/v53-repeated-campaigns/second-inputs.json",
+      "sha256": "9f97b32233705f3aafa79313ed6b7c22508be5bf79819f8fd24f18551abdfe0d"
+    },
+    {
+      "bytes": 96,
+      "path": "target/v53-repeated-campaigns/second-workspace.txt",
+      "sha256": "2a5ed9ad8ad6d3d0d67db5c1a10bb541460941b3dce7ada51b615d538322b0f4"
+    },
+    {
+      "bytes": 2579,
+      "path": "target/v53-repeated-campaigns/seventh-adoption-replay.json",
+      "sha256": "dce35e9c96a2a8106e55ebae4c68c81b6d1d48ef74c27b1287cf49f85a08609c"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/seventh-adoption-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 11997,
+      "path": "target/v53-repeated-campaigns/seventh-build.log",
+      "sha256": "0b25558df61bb09dc3ab5d885d8e712249ad3df756a18ba20d32e1d8d395a33e"
+    },
+    {
+      "bytes": 782,
+      "path": "target/v53-repeated-campaigns/seventh-contexts-replay.json",
+      "sha256": "c5f83e091afbad4cffb98a1adba61dd016998be800c714c3a42b00aa8573d043"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/seventh-contexts-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 209,
+      "path": "target/v53-repeated-campaigns/seventh-first-context-replay.json",
+      "sha256": "d861cd29fb62030219ce2909bc7a0647cf6ebf4ce5a060158b134dadf502a955"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/seventh-first-context-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 214,
+      "path": "target/v53-repeated-campaigns/seventh-four-voter-replay.json",
+      "sha256": "f1e08bb5f0565e5395ab1584b2b962bfd4bd2dcf20e34ca66ecdb44efa06a176"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/seventh-four-voter-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 485410,
+      "path": "target/v53-repeated-campaigns/seventh-inputs.json",
+      "sha256": "734c67c609cf33d8133a2e45694c5276d762a3673eda778ad6d8647d8cc1691a"
+    },
+    {
+      "bytes": 168,
+      "path": "target/v53-repeated-campaigns/seventh-qualification.log",
+      "sha256": "933f967899175298ef2a16fde1e1296356db432aa9742a8b03850d4715744a84"
+    },
+    {
+      "bytes": 97,
+      "path": "target/v53-repeated-campaigns/seventh-workspace.txt",
+      "sha256": "1cc460e1425de8b9a3b59c107be769a887472487ff8b391b20fa183699a1ffee"
+    },
+    {
+      "bytes": 7512,
+      "path": "target/v53-repeated-campaigns/sixth-build.log",
+      "sha256": "a2e2e01373fe057ea1d5507f2ae7aa1828c62e5c447c2547fe46a4862bf3ea7c"
+    },
+    {
+      "bytes": 1955,
+      "path": "target/v53-repeated-campaigns/sixth-current-process-replay.json",
+      "sha256": "3451acc4b5c1f55accf5b7d322f3e8358a8842d9c082f6c04551f428bc1fe64b"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/sixth-current-process-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 485064,
+      "path": "target/v53-repeated-campaigns/sixth-inputs.json",
+      "sha256": "8ede3d2741bb278c577bf86860762d7338f9341b1c69f6545dd13659ee7f0826"
+    },
+    {
+      "bytes": 1955,
+      "path": "target/v53-repeated-campaigns/sixth-process-replay.json",
+      "sha256": "3451acc4b5c1f55accf5b7d322f3e8358a8842d9c082f6c04551f428bc1fe64b"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/sixth-process-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3436,
+      "path": "target/v53-repeated-campaigns/sixth-qualified-corrected.json",
+      "sha256": "2c1c7f3ebf498a3ad9d16f6cb95832b178644705c4f06ee47a3c3ddeffd9b38b"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/sixth-qualified-final.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3920,
+      "path": "target/v53-repeated-campaigns/sixth-qualified-strengthened.json",
+      "sha256": "43629a0f1a785032d7f493bf5bd05d5169c210cdebc1b220141475ae98cd5b99"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/sixth-qualified.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1411933,
+      "path": "target/v53-repeated-campaigns/sixth-raw-inventory.json",
+      "sha256": "2e345ecf2ac272af8b1da9a5bb4dd53b1ed9d590177781649c8878cf70680a2a"
+    },
+    {
+      "bytes": 4214998,
+      "path": "target/v53-repeated-campaigns/sixth-raw.tar.gz",
+      "sha256": "9c51365ceb06da2260badac285eba9322dd2a4b8a6ab4888bea8291cffd0a171"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/sixth-replay-corrected.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1204,
+      "path": "target/v53-repeated-campaigns/sixth-replay-final.stderr",
+      "sha256": "ac6b9bbbb30e9d6cd6b685e498da4f99b2ba4effb6d4544dda96193a47db2728"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-repeated-campaigns/sixth-replay-strengthened.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 910,
+      "path": "target/v53-repeated-campaigns/sixth-replay.stderr",
+      "sha256": "fad10cbac98f99aeb6b4f34ebf618bda379740b738b9b5f95e37494f2a627dc0"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-repeated-campaigns/sixth-workspace.txt",
+      "sha256": "bd532f7633a5defd8e355f4317161e20c1977d15566f0c34fc893c2eafdd03d1"
+    },
+    {
+      "bytes": 14726,
+      "path": "target/v53-repeated-campaigns/third-build.log",
+      "sha256": "5764f5c222b72624c9024534922eac5490addc878b0f9f5ae5fa92b6853bb36f"
+    },
+    {
+      "bytes": 484867,
+      "path": "target/v53-repeated-campaigns/third-inputs.json",
+      "sha256": "6441523b9d412538f231e4c15f8fb1fa4a10920e39a2da4fdcca89650f5c0aac"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-repeated-campaigns/third-workspace.txt",
+      "sha256": "1c3257ef963e4c6eea495846b05d520609076032eeebac9bd95ce40cfde831d0"
+    },
+    {
+      "bytes": 18774,
+      "path": "target/v53-repeated-campaigns/validation-summary.json",
+      "sha256": "a5d63f8b19ebb158bed7edb5997f4485cf8860a51dd66c6aa3b72576ddc01d86"
+    }
+  ],
+  "phase3Complete": false,
+  "schema": "gse-v53-selected-reachability-evidence-v1",
+  "sourceFiles": [
+    {
+      "bytes": 122852,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "56a7a449788080a5e58ad0adc790b8120ec07e32aac69552cf8b23062e1b41a4"
+    },
+    {
+      "bytes": 18763,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "e3b6a9e86f388615e96f1ef4ebe5610c285b53dd231448eec01da68b8a1fccba"
+    },
+    {
+      "bytes": 6481,
+      "path": "docs/v5x/v5.3/PHASE_3_SELECTED_REACHABILITY.md",
+      "sha256": "08537979643b746eb4aac65d56e75096cd89795677cb3b44ada202a0b567fc1c"
+    },
+    {
+      "bytes": 33717,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "e942ff2aa0d0d1447903d0b10c891ec4ac66a60559b66d536662932044c48ab8"
+    },
+    {
+      "bytes": 22550,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java",
+      "sha256": "1ed34105fb3f5ad4855848dabc67ac4e9f9ecd28ee9418d4e3a95e15e8f71b42"
+    },
+    {
+      "bytes": 250669,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "25e5f4029cc8054657dbbf1005ad0f5da21cb3676efb2a137641cb7e3510b70d"
+    },
+    {
+      "bytes": 2352,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectedObjects.java",
+      "sha256": "35e2dfecfbf72a7d09827a94392d8810b378244ff19022ddae70127f4e21ebf6"
+    },
+    {
+      "bytes": 6503,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RepeatedFutureCampaignTest.java",
+      "sha256": "02e7262ce94ee12b9b1b4bc71f2abcbafca509c9d39d0dfca455e763908725cd"
+    },
+    {
+      "bytes": 3286,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SelectedObjectsTest.java",
+      "sha256": "500c4bd8133f0b04af82fdf4aeb27c4027c2483db395e0669d1095e5b431967b"
+    },
+    {
+      "bytes": 34902,
+      "path": "scripts/v53/covered_context_evidence.py",
+      "sha256": "c8bd43b5d5b84d3b0e9c9a04e2bd53bb7c213fe5b068af5b7f69c52c3f74d8cb"
+    },
+    {
+      "bytes": 15085,
+      "path": "scripts/v53/future_retention_evidence.py",
+      "sha256": "5cbe667a332afa269dffa925294c00f71eac0bdb57c27fe6d0657893321941d9"
+    },
+    {
+      "bytes": 34389,
+      "path": "scripts/v53/inherited_adoption_evidence.py",
+      "sha256": "e907db6e49c3e350526c2b2314cf97c53606f825b6a0052ecf8b8c72f0074959"
+    },
+    {
+      "bytes": 8670,
+      "path": "scripts/v53/inherited_adoption_process_evidence.py",
+      "sha256": "fec3240f4a198a7866b4008be8aab968dd7540c7d32a8612ff9c2c4379b217ce"
+    },
+    {
+      "bytes": 25652,
+      "path": "scripts/v53/inherited_future_evidence.py",
+      "sha256": "a4d846e91f0dffa6539d383a68a67d64e299f2e4c5949bcc8c581a0ab471e6a9"
+    },
+    {
+      "bytes": 5332,
+      "path": "scripts/v53/owned_context_evidence.py",
+      "sha256": "63cdb3d590b5430b321e78337502196b8747b7293799f1528be986add687e2ba"
+    },
+    {
+      "bytes": 10730,
+      "path": "scripts/v53/repeated_future_evidence.py",
+      "sha256": "ba3f0104e12ad2c86c7e40ca02bc66f204ed3cd69b1975b99c0e59adadfa25dc"
+    },
+    {
+      "bytes": 12652,
+      "path": "scripts/v53/selected_future_evidence.py",
+      "sha256": "91c7a829dfbdcf38795a236e3a618f0bec750c7d2fbd015b023a9a703e0a96d1"
+    },
+    {
+      "bytes": 1910,
+      "path": "scripts/v53/selected_prefix_evidence.py",
+      "sha256": "ea448d72cd0ec9e6ef53ea4fe309c85e7f6d592e1bb2a9a1764286d888e796a2"
+    },
+    {
+      "bytes": 18191,
+      "path": "scripts/v53/selected_retention_evidence.py",
+      "sha256": "3e9798030ff0b5e322cdf390eb464c88d616eb18f2e352c493dea90560c9da93"
+    },
+    {
+      "bytes": 2215,
+      "path": "scripts/v53/test_owned_context.py",
+      "sha256": "02898a942f54e1320c1e174268fecf07e8c7e822b538ce53772fd8f56f11114b"
+    }
+  ],
+  "status": "LOCAL_COMPONENT_QUALIFICATION",
+  "validation": {
+    "adoption": {
+      "cases": 14,
+      "freshProcesses": 28,
+      "lockProbes": 7,
+      "negatives": [
+        {
+          "case": "interrupted-selector",
+          "reason": "inherited adoption exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "candidate-ledger",
+          "reason": "inherited adoption exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovered-proof",
+          "reason": "inherited adoption exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "selected retention force order: inherited adoption interruption",
+          "status": "REJECTED"
+        },
+        {
+          "case": "lock",
+          "reason": "inherited adoption live ownership lock",
+          "status": "REJECTED"
+        },
+        {
+          "case": "exit",
+          "reason": "inherited adoption exact death exit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "response",
+          "reason": "inherited adoption resumed response",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "automaticDispatch": false,
+        "inheritedProofs": 2,
+        "negatives": [
+          {
+            "case": "original-admission",
+            "reason": "admitted original public bootstrap",
+            "status": "REJECTED"
+          },
+          {
+            "case": "original-target",
+            "reason": "admitted exact two-futures: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "carried-selection",
+            "reason": "admitted exact inherited-installed: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "carried-result",
+            "reason": "admitted exact carried-published: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "joint-publication",
+            "reason": "admitted exact slot-6-published: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "final-publication",
+            "reason": "admitted exact slot-7-published: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "rejected-adoption",
+            "reason": "admitted exact rejected-inherited-adoption: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "adopted-selector",
+            "reason": "admitted exact removed-1-adopted: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "inherited-promotion",
+            "reason": "admitted exact removed-1-adopted: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "removed-refusal",
+            "reason": "admitted exact removed-1-refused: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "retired-publication",
+            "reason": "admitted exact slot-9-published: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "force",
+            "reason": "selected retention force order: inherited adoption inherited-adopt",
+            "status": "REJECTED"
+          },
+          {
+            "case": "observations",
+            "reason": "inherited adoption exact original observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "result",
+            "reason": "inherited adoption producer result",
+            "status": "REJECTED"
+          }
+        ],
+        "originalFirst": true,
+        "originalVoters": 4,
+        "phase3Complete": false,
+        "publicRuntime": false,
+        "slots": 9,
+        "snapshots": 83,
+        "status": "PASS",
+        "survivingVoters": 3
+      },
+      "phase3Complete": false,
+      "powerLoss": false,
+      "status": "PASS"
+    },
+    "attempts": {
+      "fifth": [
+        {
+          "errors": 1,
+          "failures": 0,
+          "seconds": 35.434,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53RepeatedFutureCampaignTest",
+          "tests": 1
+        }
+      ],
+      "first": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 142.836,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53RepeatedFutureCampaignTest",
+          "tests": 1
+        }
+      ],
+      "fourth": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 1.767,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53SelectedObjectsTest",
+          "tests": 2
+        }
+      ],
+      "second": [
+        {
+          "errors": 1,
+          "failures": 0,
+          "seconds": 4.937,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53RepeatedFutureCampaignTest",
+          "tests": 1
+        },
+        {
+          "errors": 4,
+          "failures": 0,
+          "seconds": 21.216,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53SelectedFutureContinuationTest",
+          "tests": 4
+        },
+        {
+          "errors": 3,
+          "failures": 0,
+          "seconds": 13.718,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53SelectedFutureProofTest",
+          "tests": 3
+        }
+      ],
+      "seventh": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 295.794,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53InheritedFutureAdoptionProcessTest",
+          "tests": 1
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 1248.785,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53OwnedPendingContextTest",
+          "tests": 3
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 152.977,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53SelectedFutureContinuationTest",
+          "tests": 4
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 76.925,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53SelectedFutureProofTest",
+          "tests": 3
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 2.032,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53SelectedObjectsTest",
+          "tests": 2
+        }
+      ],
+      "sixth": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 144.361,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53RepeatedFutureCampaignTest",
+          "tests": 1
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 161.136,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53SelectedFutureCrashTest",
+          "tests": 1
+        }
+      ],
+      "third": [
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 1290.661,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53OwnedPendingContextTest",
+          "tests": 3
+        },
+        {
+          "errors": 1,
+          "failures": 0,
+          "seconds": 34.473,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53RepeatedFutureCampaignTest",
+          "tests": 1
+        },
+        {
+          "errors": 1,
+          "failures": 0,
+          "seconds": 137.686,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53SelectedFutureContinuationTest",
+          "tests": 4
+        },
+        {
+          "errors": 0,
+          "failures": 0,
+          "seconds": 66.055,
+          "skipped": 0,
+          "suite": "io.github.patricklfdm.generalsearch.replication.V53SelectedFutureProofTest",
+          "tests": 3
+        }
+      ]
+    },
+    "contexts": {
+      "negatives": [
+        {
+          "case": "original-context",
+          "reason": "admitted exact contexts: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retired-backing",
+          "reason": "admitted exact original-retired: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "rebound-context",
+          "reason": "admitted exact round-4-prepared: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "covered-vote",
+          "reason": "admitted exact covered-installed: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retained-source",
+          "reason": "admitted exact round-5-installed: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-image",
+          "reason": "admitted exact slot-4-settled: node-1",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "independentImageSemantics": true,
+        "nodePublications": 110,
+        "peakPhysicalImages": 7,
+        "profiles": 8,
+        "publicRuntime": false,
+        "status": "PASS"
+      }
+    },
+    "continuation": {
+      "elections": [
+        3,
+        4,
+        5
+      ],
+      "freshProcesses": 36,
+      "negatives": [
+        {
+          "case": "original-proof",
+          "reason": "admitted exact two-futures: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "installed-proof",
+          "reason": "admitted exact future-installed: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retirement",
+          "reason": "admitted exact future-native-retired: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance",
+          "reason": "admitted exact future-install-maintenance: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "inherited-installed",
+          "reason": "admitted exact future-reinstalled: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "successor-vote",
+          "reason": "admitted exact future-reclaimed: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promotion",
+          "reason": "admitted exact future-republished: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "clearing",
+          "reason": "admitted exact future-republished: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "offline-owner",
+          "reason": "admitted exact future-republished: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "observation",
+          "reason": "admitted exact future-published-maintenance: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "next-election",
+          "reason": "admitted exact round-5-installed: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force-order",
+          "reason": "selected retention force order: inherited future future-republish",
+          "status": "REJECTED"
+        },
+        {
+          "case": "process-ledger",
+          "reason": "inherited future exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "process-clear",
+          "reason": "inherited future exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "process-selector",
+          "reason": "inherited future exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "process-response",
+          "reason": "inherited future exact recovered response",
+          "status": "REJECTED"
+        }
+      ],
+      "offlineOriginalOwner": "node-1",
+      "originalFutureProofs": 2,
+      "phase3Complete": false,
+      "processCases": 18,
+      "processCrashQualification": true,
+      "publicationIndex": 1,
+      "status": "PASS",
+      "survivingOwners": 2
+    },
+    "graphCutsPerProfile": 10,
+    "graphProfiles": 7,
+    "historicalAdoptionReplay": "EXACT_PASS",
+    "limitations": [
+      "The first successful diagnostic establishes original growth, not a passed bounded-count predicate.",
+      "Second failed due to ROOT identity/record confusion; third and fifth preserve missing-owned-tail retirement failures.",
+      "Fourth conditional graph fixture is not native seven-profile transition qualification.",
+      "Sixth and seventh are the final production inputs; Python reader inputs were qualified separately after model corrections.",
+      "The existing 661-test suite precedes the final repeated-reader force/history strengthening; only that new reader changed, and its original plus twelve mutation replays pass normally and after relocation under optimization.",
+      "The original failed Python mock assertion and draft reader name-shadowing failure are retained, not relabelled.",
+      "Eight rounds with two pending original proofs do not establish arbitrary-duration liveness or maximum-size completion headroom.",
+      "Native cross-view qualification is one actual REMOVE; autonomous runtime, future-target quorum dispatch, ADD/REPLACE learners and all remaining Phase 3 obligations stay open.",
+      "No public runtime enablement, protected CI, cloud execution, V5.2 Runner change or push."
+    ],
+    "phase3Complete": false,
+    "pythonTests": 661,
+    "qualification": "native-selected-object-reachability",
+    "repeated": {
+      "negatives": [
+        {
+          "case": "original-proof",
+          "reason": "admitted exact two-futures: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "selected-selector",
+          "reason": "admitted exact round-4-installed: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "carried-accept",
+          "reason": "admitted exact round-5-maintained: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "offline-owner",
+          "reason": "admitted exact round-7-maintained: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "last-original-source",
+          "reason": "admitted exact round-11-installed: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-promotion",
+          "reason": "admitted exact future-republished: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "measurement",
+          "reason": "repeated future exact measured bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "selected retention force order: repeated future install",
+          "status": "REJECTED"
+        },
+        {
+          "case": "carried-force",
+          "reason": "selected retention force order: repeated future repeat-carried",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promotion-force",
+          "reason": "selected retention force order: repeated future future-republish",
+          "status": "REJECTED"
+        },
+        {
+          "case": "floor-force",
+          "reason": "selected retention force order: repeated future maintenance",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unexpected-call",
+          "reason": "repeated future exact surviving owner history",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "arbitraryHeadroom": false,
+        "measurements": [
+          {
+            "counter": 4,
+            "node": "node-2",
+            "originalProofs": 2,
+            "packetBytes": 35580,
+            "packetObjects": 12,
+            "selectionBytes": 13104,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 4,
+            "node": "node-3",
+            "originalProofs": 2,
+            "packetBytes": 35580,
+            "packetObjects": 12,
+            "selectionBytes": 13104,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 5,
+            "node": "node-2",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 5,
+            "node": "node-3",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 6,
+            "node": "node-2",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 6,
+            "node": "node-3",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 7,
+            "node": "node-2",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 7,
+            "node": "node-3",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 8,
+            "node": "node-2",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 8,
+            "node": "node-3",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 9,
+            "node": "node-2",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 9,
+            "node": "node-3",
+            "originalProofs": 2,
+            "packetBytes": 35940,
+            "packetObjects": 12,
+            "selectionBytes": 13464,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 10,
+            "node": "node-2",
+            "originalProofs": 2,
+            "packetBytes": 35945,
+            "packetObjects": 12,
+            "selectionBytes": 13469,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 10,
+            "node": "node-3",
+            "originalProofs": 2,
+            "packetBytes": 35945,
+            "packetObjects": 12,
+            "selectionBytes": 13469,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 11,
+            "node": "node-2",
+            "originalProofs": 2,
+            "packetBytes": 35946,
+            "packetObjects": 12,
+            "selectionBytes": 13469,
+            "sourceDirectories": 1
+          },
+          {
+            "counter": 11,
+            "node": "node-3",
+            "originalProofs": 2,
+            "packetBytes": 35946,
+            "packetObjects": 12,
+            "selectionBytes": 13469,
+            "sourceDirectories": 1
+          }
+        ],
+        "offlineOriginalOwner": "node-1",
+        "originalFutureProofs": 2,
+        "packetGrowthBytes": 366,
+        "phase3Complete": false,
+        "publicationIndex": 1,
+        "rounds": 8,
+        "status": "PASS"
+      }
+    },
+    "status": "PASS"
+  }
+}

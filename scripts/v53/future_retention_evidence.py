@@ -43,11 +43,11 @@ def initial(files):
                 previous=None, parent=None, peers=[])
 
 
-def prelude(root):
+def prelude(root, *, selected_prefix=None):
     group = s.initialize(p.original(root, 3, False))
     group = {node: dict(files, **{FILE: frame(initial(files), {})}) for node, files in group.items()}
     p.match(root, 'retaining-genesis', group)
-    prepared, chosen, installed = s.campaign(root, group, 2, 'round-1-prepared')
+    prepared, chosen, installed = s.campaign(root, group, 2, 'round-1-prepared', selected_prefix=selected_prefix)
     for name, value in [('prepared', prepared), ('selected', chosen), ('installed', installed)]:
         p.match(root, 'round-1-'+name, value)
     group = p.settled(installed); p.match(root, 'round-1-settled', group)

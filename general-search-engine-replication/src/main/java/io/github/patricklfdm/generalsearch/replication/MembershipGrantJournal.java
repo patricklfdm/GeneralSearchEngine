@@ -2731,6 +2731,14 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(current.accepted!=null)retainInstallationVote(retained,decode(current.capsule.packet.objectBytes(current.accepted),"records","ACCEPT"),current.capsule.packet,null);
             }
         }
+        // The previous generation's owned tail is an independent retirement
+        // obligation even after the live vote reaccepts at a newer ballot.
+        // Preserve its exact bytes in the new generation until the existing
+        // governing-floor gate can delete that now-inactive original. Do not
+        // preserve every older ballot: the next installation roots only its
+        // then-current owned tail and any separately protected pending context.
+        if(!installed && current.accepted!=null)
+            retainInstallationVote(retained,decode(current.capsule.packet.objectBytes(current.accepted),"records","ACCEPT"),current.capsule.packet,null);
         var plan=MembershipGenerationPlan.selected(root,identity,installed?current.generation:inactive.slot(),promise,basis,selected,complete,images,retained,retention);
         verifyPlan(plan,ancestors);return plan;
     }

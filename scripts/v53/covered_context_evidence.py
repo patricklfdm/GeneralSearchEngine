@@ -65,7 +65,7 @@ def original_bridge(files,cap,lower):
     return matched[0]
 
 
-def campaign(root, group, counter, phases, carried=False):
+def campaign(root, group, counter, phases, carried=False, *, selected_prefix=None):
     names = sorted(group); proposer = names[-1]
     identity = e.f.decode(group[proposer]['node.gsr'], 'records', 'NODE')['identity']
     ballot = dict(counter=counter, proposer=proposer, incarnation=identity['storage'])
@@ -114,7 +114,8 @@ def campaign(root, group, counter, phases, carried=False):
         sources=[dict(voter=n, basisId=rows[n][1][2]['basisId'], basisDigest=e.digest(rows[n][1][1])) for n in names]))
     chosen = {n:dict(files, **{'grants.gsr': files['grants.gsr']+selected}) for n,files in prepared.items()}
     match(root, f'round-{counter}-selected', chosen)
-    objects = dict(packet['objects']); tail = chosen_tail[2] if chosen_tail else None
+    objects = dict(packet['objects']) if selected_prefix is None else selected_prefix(packet, group[longest]['root.gsr'])
+    tail = chosen_tail[2] if chosen_tail else None
     if tail:
         source = packets[chosen_tail[1]]; entry = e.f.decode(source['objects'][chosen_tail[3]['entry']], 'records', 'ENTRY')
         for h in (tail, chosen_tail[3]['entry'], entry['payload']): objects[h] = source['objects'][h]
@@ -129,6 +130,10 @@ def campaign(root, group, counter, phases, carried=False):
                 local_objects[e.digest(old_members['owned-tail.gsr'])] = old_members['owned-tail.gsr']
                 original_entry = e.f.decode(packets[node]['objects'][accept['entry']], 'records', 'ENTRY')
                 for h in (accept['entry'], original_entry['payload']): local_objects[h] = packets[node]['objects'][h]
+        if selected_prefix is not None and 'owned-tail.gsr' in old_members:
+            accept_raw=old_members['owned-tail.gsr'];old_packet=c.current(files)[2]
+            accept=e.f.decode(accept_raw,'records','ACCEPT');entry=e.f.decode(old_packet['objects'][accept['entry']],'records','ENTRY')
+            for h in (e.digest(accept_raw),accept['entry'],entry['payload']):local_objects[h]=old_packet['objects'][h]
         raw = e.packet_bytes(cap, local_objects, packet['images'])
         members = {'promise.gsr': rows[node][0][1], 'basis.gsr': rows[node][1][1], 'selected.gsr': selected, 'selected-sources.gsr': b''.join(rows[n][1][1] for n in names), 'source.gscp': raw}
         installation_bridges=dict(bridges)
@@ -189,7 +194,7 @@ def release(files):
     return {k:v for k,v in files.items() if k != 'floor-copies' and not k.startswith('floor-copies/')}
 
 
-def initial(root,prelude=0):
+def initial(root,prelude=0, *, selected_prefix=None):
     e.need(type(prelude) is int and prelude in (0,2),'covered context prelude')
     profile = read(root/'profile.json'); e.exact(profile, 'size backup phase')
     size, backup, phase = profile['size'], profile['backup'], profile['phase']; phases = phase_names(phase)
@@ -215,14 +220,14 @@ def initial(root,prelude=0):
             for node in names:
                 raw = group[node]['pending.accept']+certificate; group[node] = dict(group[node], **{'pending.accept':raw[:8]+struct.pack('>I',len(raw))+raw[12:]})
             match(root,'original-certified',group)
-    original = group; _, group, _ = campaign(root,group,3,phases,True); match(root,'round-3-installed',group)
+    original = group; _, group, _ = campaign(root,group,3,phases,True,selected_prefix=selected_prefix); match(root,'round-3-installed',group)
     group = retain(group,original,phases); match(root,'contexts',group)
     group = retire_original(group); match(root,'original-retired',group)
     return profile,names,majority,group,observed,entry,payload,phases
 
 
-def prefix(root,prelude=0):
-    profile,names,majority,group,observed,entry,payload,phases = initial(root,prelude)
+def prefix(root,prelude=0, *, selected_prefix=None):
+    profile,names,majority,group,observed,entry,payload,phases = initial(root,prelude,selected_prefix=selected_prefix)
     for node in majority:
         files = group[node]; _, members, _ = c.current(files); frames, values = c.pending(files['pending.accept'],phases)
         accept = e.f.encode('records','ACCEPT',dict(values['ACCEPT'],ballot=e.f.decode(members['promise.gsr'],'records','PROMISE')['ballot']))
@@ -230,12 +235,12 @@ def prefix(root,prelude=0):
         changed['pending.accept'] = e.container([files['selector.gsr'],members['promise.gsr'],members['selected.gsr'],entry,accept],payload); group[node] = changed
         observed.append(dict(voter=node,storage=e.f.decode(files['node.gsr'],'records','NODE')['identity']['storage'],record=e.digest(accept),parent=e.digest(e.f.canonical(c.current(files)[2]['capsule']['cut']))))
     match(root,'majority-reaccepted',group); group,_ = covered.publication(root,group,prelude+1,entry,payload,observed,majority)
-    before, after, _ = campaign(root,group,4,phases); match(root,'advanced-selected',before)
+    before, after, _ = campaign(root,group,4,phases,selected_prefix=selected_prefix); match(root,'advanced-selected',before)
     return profile,names,majority,before,after,observed
 
 
-def clean(root,prelude=0):
-    root = Path(root); p,names,majority,before,group,observed = prefix(root,prelude); layout(root,p,names,majority,True,prelude)
+def clean(root,prelude=0, *, selected_prefix=None):
+    root = Path(root); p,names,majority,before,group,observed = prefix(root,prelude,selected_prefix=selected_prefix); layout(root,p,names,majority,True,prelude)
     match(root,'covered-installed',group)
     for node in names:
         if node not in majority:
@@ -243,7 +248,7 @@ def clean(root,prelude=0):
             group[node] = {k:v for k,v in files.items() if not k.startswith('generations/') or k == generation_prefix[:-1] or k.startswith(generation_prefix)}
     match(root,'floor-released',group)
     group = d.settle(root,'round-4-settled',group,names)
-    _,group,ballot = campaign(root,group,5,()); match(root,'round-5-installed',group); group = d.settle(root,'round-5-settled',group,names)
+    _,group,ballot = campaign(root,group,5,(),selected_prefix=selected_prefix); match(root,'round-5-installed',group); group = d.settle(root,'round-5-settled',group,names)
     barrier = d.entry(group,b'',ballot,'BARRIER'); e.need(t.plans.read(root/'barrier.gsr',16384) == barrier,'covered context continuation ENTRY')
     group,_ = covered.publication(root,group,prelude+2,barrier,b'',observed,names); covered.observations(root,observed); calls(root,p,names,majority,True,prelude)
     for slot,owners in [(s,names) for s in range(1,prelude+1)]+[(prelude+1,majority),(prelude+2,names)]:

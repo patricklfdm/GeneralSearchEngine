@@ -74,7 +74,8 @@ def required(files):
 
 
 class Walk:
-    def __init__(self, root):
+    def __init__(self, root, *, selected_prefix=None):
+        self.selected_prefix = selected_prefix
         self.root = Path(root); self.names = ['node-'+str(i) for i in range(1, 5)]
         self.group = s.initialize(p.original(self.root, 4, False))
         self.group = {n: dict(files, **{u.FILE: u.frame(u.initial(files), {})}) for n, files in self.group.items()}
@@ -129,7 +130,8 @@ class Walk:
             grants[n], sources[n] = (promise, basis), (basis, frozen, wrapper)
         self.match(label+'-prepared', prepared)
         longest = max(names, key=lambda n: (sources[n][1]['capsule']['cut']['index'], n == proposer))
-        cap = sources[longest][1]['capsule']; objects = dict(sources[longest][1]['objects'])
+        cap = sources[longest][1]['capsule']; objects = (dict(sources[longest][1]['objects']) if self.selected_prefix is None
+                else self.selected_prefix(sources[longest][1],self.group[longest]['root.gsr']))
         tails = [f.decode(grants[n][1], 'records', 'BASIS')['accepted'] for n in names]
         options = [(f.decode(sources[n][1]['objects'][h], 'records', 'ACCEPT')['ballot']['counter'], n, h)
                    for n, h in zip(names, tails) if h]
@@ -150,6 +152,11 @@ class Walk:
             intent = s.intent(u.identity(files), selected, files[s.FILE], [sources[k] for k in names]); self.intents[n] = intent
             content = dict(objects, **{e.digest(intent): intent})
             content.update({e.digest(raw): raw for raw in self.pending.values()})
+            if self.selected_prefix is not None and 'owned-tail.gsr' in previous:
+                old_packet=c.current(files)[2];accept_raw=previous['owned-tail.gsr']
+                old_entry=f.decode(accept_raw,'records','ACCEPT')['entry']
+                payload=f.decode(old_packet['objects'][old_entry],'records','ENTRY')['payload']
+                for h in (e.digest(accept_raw),old_entry,payload):content[h]=old_packet['objects'][h]
             source = c.packet_bytes(cap, content, sources[longest][1]['images']); local = dict(zip(('promise.gsr', 'basis.gsr'), grants[n]))
             local.update({'source.gscp': source, 'selected.gsr': selected, 'selected-sources.gsr': b''.join(grants[k][1] for k in names)})
             if choice: local['owned-tail.gsr'] = content[choice[2]]
@@ -263,8 +270,8 @@ class Walk:
         return entry
 
 
-def prelude(root):
-    walk = Walk(root); names = walk.names; voters = names[:3]
+def prelude(root, *, selected_prefix=None):
+    walk = Walk(root,selected_prefix=selected_prefix); names = walk.names; voters = names[:3]
     walk.campaign(2, names, 'node-1', 'round-1'); walk.settle('round-1-settled', names)
     entry = walk.publication('BARRIER', None, voters, 'slot-1', stop=True)
     walk.match('original-certified')
@@ -319,8 +326,8 @@ def adoption(walk):
     return files,switched,final
 
 
-def validate(root, with_states=False):
-    walk=prelude(root);names=walk.names[:3]
+def validate(root, with_states=False, *, selected_prefix=None):
+    walk=prelude(root,selected_prefix=selected_prefix);names=walk.names[:3]
     walk.campaign(4,names,'node-1','campaign-4');walk.settle('campaign-4-settled',names)
     _,packet,cat=state(walk.group['node-1']);cap=packet['capsule']
     request=dict(root=cap['root'],expected=e.authority(cap['root'],cat['cut']['view']),number=1,kind='REMOVE',target=[u.identity(walk.group[n]) for n in names])
@@ -388,8 +395,8 @@ def validate_calls(walk):
                  'inherited adoption reopened or removed owner wrote authority')
 
 
-def qualify(root):
-    root=Path(root);result=validate(root);negatives=[]
+def qualify(root, *, selected_prefix=None):
+    root=Path(root);result=validate(root,selected_prefix=selected_prefix);negatives=[]
     paths=[('original-admission','initial/target-0/bootstrap-admission.gsbp','admitted original public bootstrap'),
            ('original-target','two-futures/node-1/'+u.FILE,'admitted exact two-futures: node-1'),
            ('carried-selection','inherited-installed/node-4/selector.gsr','admitted exact inherited-installed: node-4'),
@@ -416,7 +423,7 @@ def qualify(root):
                 value=json.loads(raw);value['publicRuntime']=True;raw=f.canonical(value)
             else:raw=raw[:-1]+bytes([raw[-1]^1])
             need(raw!=path.read_bytes(),'inherited adoption ineffective negative');path.write_bytes(raw)
-            try:validate(target)
+            try:validate(target,selected_prefix=selected_prefix)
             except ValueError as error:need(str(error)==reason,'inherited adoption unrelated negative: '+name+': '+str(error))
             else:raise ValueError('inherited adoption accepted negative: '+name)
         negatives.append(dict(case=name,status='REJECTED',reason=reason))
@@ -425,5 +432,6 @@ def qualify(root):
 
 if __name__=='__main__':
     import argparse
-    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');args=parser.parse_args()
-    print(json.dumps((qualify if args.qualify else validate)(args.root),sort_keys=True))
+    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');parser.add_argument('--reachable-selection',action='store_true');args=parser.parse_args()
+    from .selected_prefix_evidence import prefix
+    print(json.dumps((qualify if args.qualify else validate)(args.root,selected_prefix=prefix if args.reachable_selection else None),sort_keys=True))

@@ -61,9 +61,9 @@ def validate_case(root,inputs,states,mode,cut):
     return dict(mode=mode,cut=cut,status='PASS',exitCodes=[73 if mode=='halt' else 137,0])
 
 
-def validate(root,with_states=False):
+def validate(root,with_states=False, *, selected_prefix=None):
     root=Path(root);p.selection.layout(root,{'reference','cases','inputs.json','receipt.json'},'inherited adoption process matrix')
-    original_result,states=original.validate(root/'reference',with_states=True)
+    original_result,states=original.validate(root/'reference',with_states=True,selected_prefix=selected_prefix)
     plan=prior.t.plans.decode((root/'reference/original-plan.gsbp').read_bytes(),(root/'reference/original-application.image').read_bytes(),details=True,size=4,source='EMPTY')
     descriptor=plan['plan']['descriptor'];node=prior.target_paths(descriptor,'node-4');source=prior.target_paths(descriptor,'node-1')
     inputs=record(root/'inputs.json')
@@ -76,8 +76,8 @@ def validate(root,with_states=False):
     return (result,inputs,states) if with_states else result
 
 
-def qualify(root):
-    root=Path(root);result,inputs,states=validate(root,with_states=True);history=original.qualify(root/'reference');negatives=[]
+def qualify(root, *, selected_prefix=None):
+    root=Path(root);result,inputs,states=validate(root,with_states=True,selected_prefix=selected_prefix);history=original.qualify(root/'reference',selected_prefix=selected_prefix);negatives=[]
     cut='RETENTION_PREFIX_WRITTEN';mode='kill';name=mode+'-'+cut
     variants=[('interrupted-selector','inherited adoption exact interrupted files'),('candidate-ledger','inherited adoption exact interrupted files'),
               ('recovered-proof','inherited adoption exact recovered files'),('force','selected retention force order: inherited adoption interruption'),
@@ -104,5 +104,6 @@ def qualify(root):
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');args=parser.parse_args()
-    print(json.dumps((qualify if args.qualify else validate)(args.root),sort_keys=True))
+    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');parser.add_argument('--reachable-selection',action='store_true');args=parser.parse_args()
+    from .selected_prefix_evidence import prefix
+    print(json.dumps((qualify if args.qualify else validate)(args.root,selected_prefix=prefix if args.reachable_selection else None),sort_keys=True))

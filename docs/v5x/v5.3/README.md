@@ -1,5 +1,13 @@
 # V5.3 — controlled cluster operations
 
+[Selected-generation reachability](PHASE_3_SELECTED_REACHABILITY.md) now prevents
+obsolete election objects from accumulating in each newly selected packet. Eight
+native unresolved campaigns keep twelve objects while preserving both original
+proofs and final publication. Current-source context and inherited-removal
+regressions, thirty-two process cuts and original-first portable replay pass.
+Maximum-size headroom, autonomous dispatch/ownership, learners/joint integration
+and full Phase 3 remain open; earlier entries retain their source-bound scope.
+
 [Inherited obligations across certified removal](PHASE_3_INHERITED_ADOPTION.md)
 are now locally qualified through one actual four-to-three REMOVE, with a
 non-accepting node inheriting both original future proofs before adopting its

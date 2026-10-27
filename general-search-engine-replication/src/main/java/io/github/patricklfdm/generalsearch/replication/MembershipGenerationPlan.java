@@ -197,7 +197,7 @@ final class MembershipGenerationPlan {
             MembershipSelectedRetention retention) {
         require(Set.of("a","b").contains(slot) && bridges.size()<=6,"generation slot/ancestry limit");
         var original=decision.longest().capsule.packet;original.verifyImages(images);
-        var objects=new TreeMap<String,byte[]>();for(String h:original.objectNames())objects.put(h,original.objectBytes(h));
+        var objects=MembershipSelectedObjects.prefix(decision.longest().capsule);
         var localSource=decision.sources().stream().filter(s->s.owner.equals(local)).findFirst().orElseThrow();
         for(var row:retained.entrySet()) {
             require(row.getKey().equals(hash(row.getValue())) && Arrays.equals(row.getValue(),localSource.capsule.packet.objectBytes(row.getKey())),"retained installation object differs from exact local source");
