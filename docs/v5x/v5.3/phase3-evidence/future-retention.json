@@ -1,0 +1,490 @@
+{
+  "baseCommit": "f5df207517d75a2dd6b00b43298b2e14ac019d94",
+  "boundaries": [
+    "A local native future target and its peer intentions are one atomic private GSFT record under the unchanged shared 32 MiB JOURNAL ceiling. No new image or wire/catalog frame is added.",
+    "The independent new process matrix uses one actual stable-three EMPTY bootstrap and its first BARRIER. It derives original votes/application, all record/promotion states and complete interrupted/recovered file maps; it is not all-seven-profile or public-runtime acceptance.",
+    "Eighteen halt/SIGKILL cases use 36 fresh JVMs and nine live lock probes. These are process crashes, not power loss.",
+    "Final-source Java separately verifies normal reopening, six original-proof/backing-file refusals, missing-state refusal, duplicate intents and exact versus one-byte-short completion budget. That separate capacity/guard history is not included in the new independent process matrix.",
+    "The final regression suites include fourteen additional peer-ledger process cases and actual selected-merge/lifecycle checks. The peer-ledger physical replay has eight evidence negatives; it is retained separately rather than counted as new future-target cases.",
+    "The shared first-certificate Python helper was extracted without changing existing behavior; the prior finalized pending-publication evidence passes all six original negatives with the current reader, without rerunning that historical workload.",
+    "Only the final isolated package is the 23-test current-source build. Earlier compile and ACK-ordering test-driver failures remain retained; no retries are relabelled as first-pass success.",
+    "Future source capture intentionally refuses before a new promise until immutable propagation is implemented. Selection transfer, carried-entry recovery, governing future-target quorum, actual dispatch, autonomous offline-survivor continuation and full Phase 3 remain open.",
+    "No push, PR, workflow, paid cloud execution, public membership enablement or V5.2 Runner change."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 8750257,
+      "path": "target/v53-future-retention/build-evidence.tar.gz",
+      "sha256": "48977f59c562b1e2f3016aadcf735a03f5d4843ed5973ccfa935276f4914e3b9"
+    },
+    {
+      "bytes": 479290,
+      "path": "target/v53-future-retention/build-inputs.json",
+      "sha256": "3a443d9802731fea3529783d990cceb9754d922e5fb1b581be2aa15f1018dc4c"
+    },
+    {
+      "bytes": 39,
+      "path": "target/v53-future-retention/build-workspace.txt",
+      "sha256": "0d15185783776d3b4d754d6d2fc7e19a125bd2968faf70d34c3abb7b9ac9ae79"
+    },
+    {
+      "bytes": 5130,
+      "path": "target/v53-future-retention/build.log",
+      "sha256": "f6cf8a43f3123ba8bb2258e87de61419ed535447731df86c545f1b366f40a897"
+    },
+    {
+      "bytes": 1468,
+      "path": "target/v53-future-retention/changed-files.txt",
+      "sha256": "fced1aa9deb32de367603c40043803cd6e320754e9b497a020f84cd7da13c578"
+    },
+    {
+      "bytes": 422622,
+      "path": "target/v53-future-retention/compiled-inventory.json",
+      "sha256": "91ca1851103b9f6dafd0e7c3d0280a2dbfceb7309e9c6ed2adcb728801900c8b"
+    },
+    {
+      "bytes": 6524,
+      "path": "target/v53-future-retention/crash-build.log",
+      "sha256": "7aad756e8c5fc88675c520a188e3421f90065e2693d3e16df3c8dcdb1c9b821a"
+    },
+    {
+      "bytes": 479691,
+      "path": "target/v53-future-retention/crash-inputs.json",
+      "sha256": "4d2ec7df342ee16423fc1f9afdea81669f65c1ce3891bbfd8737126079ea7835"
+    },
+    {
+      "bytes": 35,
+      "path": "target/v53-future-retention/crash-workspace.txt",
+      "sha256": "4be4ed1cb4cf8d82c3ebf895d8baadd031e56e33435e2f73f00eb8e6376816a1"
+    },
+    {
+      "bytes": 667,
+      "path": "target/v53-future-retention/diagnostics.json",
+      "sha256": "6aa214c7b7d93e78f446c8b5c68170c54b184c7e41b04bb3c13ec236a3bcb14a"
+    },
+    {
+      "bytes": 10237,
+      "path": "target/v53-future-retention/final-build.log",
+      "sha256": "82ebd8a5f2f7b4d06a9f1126d8e59652cc51a3923534cbf1534988e45ee58139"
+    },
+    {
+      "bytes": 479805,
+      "path": "target/v53-future-retention/final-inputs.json",
+      "sha256": "0fba70146889849935f94e9bea4b25c7104bd1ff3fcb034172e3ffd2faacca07"
+    },
+    {
+      "bytes": 35,
+      "path": "target/v53-future-retention/final-workspace.txt",
+      "sha256": "b225aa1c31fcbf09a95ea29ca259f591431fd268885d59eaeb39b6b4749ab81d"
+    },
+    {
+      "bytes": 7793,
+      "path": "target/v53-future-retention/finalize.py",
+      "sha256": "6fa27bdd32635ee0bd450ac13fa51e2a37ee63a9deba858a9355c8b929227903"
+    },
+    {
+      "bytes": 1846,
+      "path": "target/v53-future-retention/peer-regression-replay.json",
+      "sha256": "c742c43e3edc3068c4bc83fd43f655ee5f3f90cb67ba4beb48440aaddae81f3c"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-retention/peer-regression-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 38,
+      "path": "target/v53-future-retention/portable-workspace.txt",
+      "sha256": "76b28d99cc8ff3caa13f943c352296b26c840bff4f330388db0875f999a761fb"
+    },
+    {
+      "bytes": 792,
+      "path": "target/v53-future-retention/previous-pending-replay.json",
+      "sha256": "85b8fb9de1ed1cf5f6100ec16b93d46a3039215bd03f88bce6c006544a1e070d"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-retention/previous-pending-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 36976,
+      "path": "target/v53-future-retention/python-inputs.json",
+      "sha256": "bba998cd338f5d0adee339d1efef941889912e5bbc6a811ba574db7ee1bd96d8"
+    },
+    {
+      "bytes": 759,
+      "path": "target/v53-future-retention/python-normal.log",
+      "sha256": "bb347a6041b067fa6da750f90f8bc89f3051586d3fb9e7731884a4efe40c99a5"
+    },
+    {
+      "bytes": 759,
+      "path": "target/v53-future-retention/python-optimized.log",
+      "sha256": "f9808acef4590ea11c7e6648101dff54927650e75347f7e709b7afc98a056a8f"
+    },
+    {
+      "bytes": 21875,
+      "path": "target/v53-future-retention/qualified-build.log",
+      "sha256": "373a26301497aa8a82cb8f8b410c22b6dbb296ac9a4386f2a757420b90b9f083"
+    },
+    {
+      "bytes": 479691,
+      "path": "target/v53-future-retention/qualified-inputs.json",
+      "sha256": "25b909d218d243b213d18c25a4ee103f88153536ef4f05da2ee9fce0abe3d50e"
+    },
+    {
+      "bytes": 39,
+      "path": "target/v53-future-retention/qualified-workspace.txt",
+      "sha256": "156bebe1b63f257f9744237a7a63a112566f40c191189dc0722726dce48cba66"
+    },
+    {
+      "bytes": 345445,
+      "path": "target/v53-future-retention/raw-inventory.json",
+      "sha256": "0797073cce9db13b00f0d94f796e451c8da2b8f161e63f2401e24991a142fe5f"
+    },
+    {
+      "bytes": 631904,
+      "path": "target/v53-future-retention/raw.tar.gz",
+      "sha256": "0331e2aa8f29a6852e327e3713669b83a3efa5429491a1b70a16df4e9cf7f817"
+    },
+    {
+      "bytes": 2881,
+      "path": "target/v53-future-retention/replay-optimized.json",
+      "sha256": "dbc54db36c2320fed260586ddf9b4e88ba4c030411ed54dadd6d6a0a08cbe00e"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-retention/replay-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2881,
+      "path": "target/v53-future-retention/replay-portable.json",
+      "sha256": "dbc54db36c2320fed260586ddf9b4e88ba4c030411ed54dadd6d6a0a08cbe00e"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-retention/replay-portable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2881,
+      "path": "target/v53-future-retention/replay.json",
+      "sha256": "dbc54db36c2320fed260586ddf9b4e88ba4c030411ed54dadd6d6a0a08cbe00e"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-retention/replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3225,
+      "path": "target/v53-future-retention/source-inputs.json",
+      "sha256": "0b923f91ad7eaed321bc07ded6e12be9e16e004722d8b85598ed764b7bf546cf"
+    },
+    {
+      "bytes": 5229,
+      "path": "target/v53-future-retention/validation-summary.json",
+      "sha256": "c613c065d8f7574ebf9ba4039534c17f7ca6f774b651130b70037ededfc9fe07"
+    }
+  ],
+  "schema": "gse-v53-phase3-future-retention-v1",
+  "sources": {
+    "docs/v5x/v5.3/DEVELOPMENT_STATUS.md": {
+      "bytes": 114414,
+      "sha256": "250015ea0715b8f0937f716ee32bce4d5af5429078d397f5112317ea4bbd85e1"
+    },
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": {
+      "bytes": 16129,
+      "sha256": "c8b5047576cbf95738085978fb86a6c3d6f245e55522acc02737a24dd696f477"
+    },
+    "docs/v5x/v5.3/PHASE_3_FUTURE_RETENTION.md": {
+      "bytes": 5718,
+      "sha256": "0669b2267ae69195b24ab1e33b5f33e708392518857154d28e20216975940462"
+    },
+    "docs/v5x/v5.3/README.md": {
+      "bytes": 31053,
+      "sha256": "9924122b988caca543c14a084dcaad3038a394e8411fa64aebcb74788ed9a127"
+    },
+    "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md": {
+      "bytes": 6376,
+      "sha256": "794b7a22fe3124d9e43706d97258f0918480c73a32f94600deff9c860356d5f8"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": {
+      "bytes": 30378,
+      "sha256": "bebc9601cc34dcdeb37bb79f2573f6137ee416c48787c28b9851d12b2bd66e9f"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": {
+      "bytes": 20708,
+      "sha256": "a92b927fbb6909e2c64a9d00abd488e16ddadbfe649743c8c9c9015ec5e35ab1"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFutureRetentionFiles.java": {
+      "bytes": 17465,
+      "sha256": "e25a5a49baf57ee3c2f5095eb46a409c00b346b3685cfcca4c368dff843f27d9"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": {
+      "bytes": 238869,
+      "sha256": "9af17b24b949d2a873123407264ab0532f4106df5474677af8abf1145c3e429a"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionFiles.java": {
+      "bytes": 11366,
+      "sha256": "4cbee287515ae0a83c944ce5761dffd09a5f0d8e6495ed634c14bc1eff8c89ec"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionPlan.java": {
+      "bytes": 16068,
+      "sha256": "54f32e1dbc795465d68966bbd91cdb949ba1d31011d741ccc38cc471618ece36"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionCrashTest.java": {
+      "bytes": 5248,
+      "sha256": "bc8e6fda766aab8e9518a33f7e6e1d2c0443e1187cf237aeb1b1a055b7d259d0"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionTest.java": {
+      "bytes": 13593,
+      "sha256": "b8ca0aebfd1956184af2d4f4be1bbabce5ea29ded9e0769282a7bc3000e72923"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionWorker.java": {
+      "bytes": 4290,
+      "sha256": "fc68916dcd917d7d534903746cde86e2303fdba24d034d66c12bce13c2020e85"
+    },
+    "scripts/v53/future_retention_evidence.py": {
+      "bytes": 15027,
+      "sha256": "c29e006089c12fc4dddac42de4e960c7a08014946b8ffa9e5daef5ddbdea4fda"
+    },
+    "scripts/v53/native_application_evidence.py": {
+      "bytes": 16258,
+      "sha256": "bae1ae42ad29f9a818addcc075184280c27c32c33f48372632713b1778e6fc90"
+    }
+  },
+  "status": "LOCAL_COMPONENT_QUALIFIED",
+  "validation": {
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53FutureRetentionTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53FutureRetentionCrashTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PeerRetentionPlanTest",
+        "tests": 6
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PendingPublicationLifecycleTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PeerRetentionFilesTest",
+        "tests": 6
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53SelectedRetentionTest",
+        "tests": 4
+      }
+    ],
+    "javaTests": 23,
+    "phase3Complete": false,
+    "physicalReplay": {
+      "automaticDispatch": false,
+      "cases": [
+        {
+          "action": "record",
+          "cut": "FUTURE_RETENTION_PREFIX_WRITTEN",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "action": "record",
+          "cut": "FUTURE_RETENTION_FORCED",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "action": "record",
+          "cut": "FUTURE_RETENTION_RENAMED",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "action": "record",
+          "cut": "FUTURE_RETENTION_BEFORE_RETURN",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "action": "record",
+          "cut": "FUTURE_RETENTION_PREFIX_WRITTEN",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "action": "record",
+          "cut": "FUTURE_RETENTION_FORCED",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "action": "record",
+          "cut": "FUTURE_RETENTION_RENAMED",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "action": "record",
+          "cut": "FUTURE_RETENTION_BEFORE_RETURN",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "PUBLICATION_SELECTOR_FORCED",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "RETENTION_PREFIX_WRITTEN",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "RETENTION_RENAMED",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "FUTURE_RETENTION_PREFIX_WRITTEN",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "FUTURE_RETENTION_RENAMED",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "PUBLICATION_SELECTOR_FORCED",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "RETENTION_PREFIX_WRITTEN",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "RETENTION_RENAMED",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "FUTURE_RETENTION_PREFIX_WRITTEN",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "action": "publish",
+          "cut": "FUTURE_RETENTION_RENAMED",
+          "mode": "kill",
+          "status": "PASS"
+        }
+      ],
+      "freshProcesses": 36,
+      "governingQuorum": false,
+      "localFutureRetention": true,
+      "negatives": [
+        {
+          "case": "initial",
+          "reason": "admitted exact retaining-genesis: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "certificate",
+          "reason": "admitted exact certified: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "target-proof",
+          "reason": "admitted exact pending-future: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "partial-proof",
+          "reason": "future exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovered-proof",
+          "reason": "future exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promoted-ledger",
+          "reason": "future exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "clear-candidate",
+          "reason": "future exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "publication-selector",
+          "reason": "future exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force-order",
+          "reason": "selected retention force order: future record",
+          "status": "REJECTED"
+        },
+        {
+          "case": "response",
+          "reason": "future exact recovered response",
+          "status": "REJECTED"
+        }
+      ],
+      "phase3Complete": false,
+      "powerLoss": false,
+      "processCases": 18,
+      "selectionPropagation": false,
+      "status": "PASS"
+    },
+    "protectedCI": false,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 658,
+    "rawFiles": 1943,
+    "scope": "native-local-future-retention",
+    "status": "PASS"
+  }
+}

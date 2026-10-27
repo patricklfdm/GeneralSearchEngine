@@ -8,11 +8,18 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+The [local future-retention transaction](PHASE_3_FUTURE_RETENTION.md) now persists
+the exact target proof with peer intentions and recovers publication-time ledger
+promotion before clearing that proof. Its native process matrix and exact capacity
+boundary are locally qualified. Immutable source/selection propagation, carried
+targets and quorum-gated real dispatch remain required within 3B. The temporary
+source-capture refusal must be replaced by that integration, not treated as closure.
+
 The [pending-publication boundary](PHASE_3_PENDING_PUBLICATION.md) now identifies
 an exact forced future target under the current native owner. Its byte copies
 cannot reconstruct authority, and no retention/dispatch permission is implied.
-Persisting and propagating future targets, then wiring actual dispatch, remain
-required within 3B; the complete checklist below is unchanged.
+Local persistence now has the qualification above; propagating future targets and
+wiring actual dispatch remain required within 3B. The checklist below is unchanged.
 
 The [native certified application path](PHASE_3_NATIVE_APPLICATION.md) recovers the
 actual current certificate and typed application without caller historical voting

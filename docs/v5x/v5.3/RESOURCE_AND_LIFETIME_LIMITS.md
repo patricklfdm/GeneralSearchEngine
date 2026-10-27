@@ -82,6 +82,12 @@ verified backup to a new root; old tokens/operation IDs do not cross that bounda
 
 ## Tests and acceptance boundaries
 
+The [Phase 3 local future-retention container](PHASE_3_FUTURE_RETENTION.md) shares
+the existing 32 MiB journal ceiling. Its active and candidate files are each at
+most 3 MiB; before accepting an intention it also reserves the ordinary 64 KiB
+ledger candidate and bounded empty completion record. These are subdivisions of
+the same allowance, not added reservations or another application-image slot.
+
 `test_format_fixture` checks the complete encoded resource formula, malformed
 allocation inputs, integer-vs-boolean rejection, parser budgets and 10,000 DATA
 reducer steps after an actual completed membership operation exhausts its test

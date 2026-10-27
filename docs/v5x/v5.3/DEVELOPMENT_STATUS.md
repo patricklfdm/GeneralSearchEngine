@@ -1,5 +1,26 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3 local future-target transactions
+
+The [future-retention transaction](PHASE_3_FUTURE_RETENTION.md) atomically retains
+the real native target proof and intended peers under the unchanged JOURNAL limit.
+Publication durably merges old/new endpoint uncertainty before clearing the proof;
+recovery completes the same order. Exact completion space is reserved before the
+first write, including a passing exact-budget and rejecting one-byte-short case.
+
+The final isolated package passes 23 Java tests. Eighteen new halt/SIGKILL cases,
+36 fresh JVMs, nine lock probes and ten original-first evidence negatives pass;
+normal, optimized and relocated replay agree. Existing retention/selection and
+publication regressions and all 658 Python tests in both modes pass. The
+[receipt](phase3-evidence/future-retention.json) distinguishes the new stable-three
+local matrix, separate Java checks and retained earlier driver failures.
+
+Immutable future-source propagation, carried-entry selection recovery, future-target
+quorum permission and actual dispatch remain required next. A temporary pre-promise
+guard refuses source capture while this local future state is unresolved. It is
+not the final automatic behavior. Complete offline-survivor continuation and all
+remaining 3B–3E obligations remain open; no push or public runtime is enabled.
+
 ## 2026-10-26 — Phase 3 native pending-publication identity
 
 The [pending-publication boundary](PHASE_3_PENDING_PUBLICATION.md) binds the exact

@@ -44,6 +44,7 @@ final class MembershipPeerRetentionFiles implements AutoCloseable {
     boolean pending(){live();return next!=null;}
     private void live(){require(!failed && !closed,"peer retention closed or failed; reopen required");}
     long bytes(){live();return (active==null?0L:active.length)+(next==null?0L:next.length);}
+    long candidateBytes(){live();return next==null?0L:next.length;}
     private void sharedJournal(){require(resources.usage().counts().getOrDefault(MembershipResources.Unit.JOURNAL,0)==1,"peer retention requires shared journal reservation");}
     private byte[] encode(long revision,String previous,MembershipPeerRetentionPlan plan) {
         return encode(owner.root().manifestDigest(),owner.identity(),revision,previous,plan);

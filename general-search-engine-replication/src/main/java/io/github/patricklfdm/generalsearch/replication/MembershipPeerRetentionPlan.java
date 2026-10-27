@@ -128,8 +128,17 @@ final class MembershipPeerRetentionPlan {
      * identical request. Imported claims alone can never discard a lower point. */
     MembershipPeerRetentionPlan recordDispatch(MembershipCapsule current,byte[] ancestry,MembershipIdentity peer,
             MembershipCapsule.Anchor lower,MembershipCapsule.Anchor upper) {
-        context(current,ancestry,true);var old=possible(peer);
+        context(current,ancestry,true);
         require(upper.equals(current.terminal()) && index(lower)<index(upper),"retention intent exact advancing target");
+        return recordCoveredDispatch(current,ancestry,peer,lower,upper);
+    }
+    /** Promote an independently retained possible target only after the actual
+     * current generation covers it. Old-view obligations survive through FINAL
+     * until the existing explicit configuration reconciliation runs. */
+    MembershipPeerRetentionPlan recordCoveredDispatch(MembershipCapsule current,byte[] ancestry,MembershipIdentity peer,
+            MembershipCapsule.Anchor lower,MembershipCapsule.Anchor upper) {
+        context(current,ancestry,false);var old=possible(peer);
+        require(index(lower)<index(upper) && index(upper)<=index(current.terminal()),"retention covered target must advance");
         current.verifyAncestry(ancestry,List.of(lower,upper));
         var points=new TreeMap<Long,MembershipCapsule.Anchor>();old.forEach(a->points.put(index(a),a));
         for(var anchor:List.of(lower,upper)) {

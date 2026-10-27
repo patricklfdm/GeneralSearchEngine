@@ -44,6 +44,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipPendingAccept pendingAccept;
     private MembershipPendingContextFiles pendingContext;
     private MembershipPeerRetentionFiles peerRetention;
+    private MembershipFutureRetentionFiles futureRetention;
     private Applied nativeApplied;
     private String retentionSelector;
     private MembershipSelectedRetention selectedRetention;
@@ -301,6 +302,14 @@ final class MembershipGrantJournal implements AutoCloseable {
         try{owner.initializePeerRetention();return owner;}
         catch(IOException|RuntimeException|Error error){try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
+    /** Required future-intent entry. Missing state cannot be recreated from a
+     * later tip; legacy component opens do not replace this automatic-owner entry. */
+    static MembershipGrantJournal openRetainingFuturePeers(Path requested,Path materialization,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,int maximum,MembershipBallotAllocator.Cut cut)throws IOException {
+        var owner=openRetainingPeers(requested,materialization,root,identity,resources,maximum,cut);
+        try{owner.initializeFutureRetention();return owner;}
+        catch(IOException|RuntimeException|Error error){try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
+    }
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
             boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,
@@ -351,6 +360,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(withContext && journal.pendingContext==null)journal.pendingContext=new MembershipPendingContextFiles(path,root,identity,resources,
                     Math.min(MembershipPendingContextFiles.MAXIMUM_METADATA,maximum-journal.storedJournal().length-journal.pendingBytes()));
             if(materialization!=null)journal.loadPeerRetention();
+            if(materialization!=null)journal.loadFutureRetention();
             if(journal.current==null)journal.reloadGenerations();
             if(journal.peerRetention!=null)journal.recoverPeerRetention();
             if(withFloors) {
@@ -373,6 +383,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                     }else journal.reserveApplicationCompletion();
                 }
             }
+            if(journal.futureRetention!=null)journal.recoverFutureRetention();
             journal.checkOwner();
             if(protectedCapture) {
                 journal.contextCaptureIdle(true);journal.retainedContextOriginal(false,true);
@@ -382,6 +393,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(!journal.recoverCoveredContext() && !journal.recoverContextAcceptance())journal.retainPendingContext();
             }
             if(withVotes)journal.recoverVote();
+            journal.completeFutureRetention();
             if(pending!=null) {
                 require(!journal.floors.pending() && !journal.floors.releasing() && !journal.retirement.pending(),"capture conflicts with pending floor/retirement");
                 journal.resumeCapture(pending);
@@ -405,6 +417,95 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(Files.exists(directory.resolve(MembershipPeerRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS)
                 || Files.exists(directory.resolve(MembershipPeerRetentionFiles.NEXT),LinkOption.NOFOLLOW_LINKS))
             peerRetention=new MembershipPeerRetentionFiles(new HistoryRead(this),resources,maximum-storedJournal().length-pendingBytes());
+    }
+    private void loadFutureRetention()throws IOException {
+        if(Files.exists(directory.resolve(MembershipFutureRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS)
+                || Files.exists(directory.resolve(MembershipFutureRetentionFiles.NEXT),LinkOption.NOFOLLOW_LINKS)) {
+            require(ownedHistory && peerRetention!=null,"future retention requires native peer ledger");
+            futureRetention=new MembershipFutureRetentionFiles(new HistoryRead(this),resources,maximum-storedJournal().length-pendingBytes());
+            require(pendingBytes()<=maximum-storedJournal().length,"future retention shared completion capacity");
+        }
+    }
+    private void recoverFutureRetention()throws IOException {
+        if(futureRetention.initialized())verifyFutureRetention();else requireRetentionGenesis();
+        futureRetention.recover(cut);
+    }
+    synchronized MembershipFutureRetentionFiles.State initializeFutureRetention()throws IOException {
+        checkOwner();require(ownedHistory && peerRetention!=null,"future retention requires initialized native peers");
+        if(futureRetention!=null && futureRetention.initialized())return futureRetention.state();
+        requireRetentionGenesis();require(peerRetention.state().revision()==0,"future retention initialization requires unused peer ledger");
+        if(futureRetention==null)futureRetention=new MembershipFutureRetentionFiles(new HistoryRead(this),resources,maximum-storedJournal().length-pendingBytes());
+        try {
+            futureRetention.install(futureRetention.proposal(null,List.of(),Map.of()),maximum-storedJournal().length-pendingBytes(),this::checkOwner,cut);
+            return futureRetention.state();
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    private boolean futurePending(){return futureRetention!=null && futureRetention.initialized() && futureRetention.state().pending();}
+    private void verifyFutureRetention()throws IOException {
+        if(!futurePending())return;var state=futureRetention.state();var currentIndex=number(current.capsule.context.cut.get("index"));
+        var parents=new ArrayList<MembershipCapsule.Anchor>();
+        for(var peer:state.peers) {
+            require(peer.identity().equals(current.capsule.context.identities.get(peer.identity().nodeId().value())),"future retention permanent peer changed");
+            peerRetention.state().plan().possible(peer.identity());parents.add(peer.lower());
+        }
+        if(currentIndex>=number(state.target().cut().get("index")))parents.add(state.target());
+        else {
+            require(current.capsule.terminal().equals(state.parent),"future retention lost original parent");
+            state.matches(pendingAccept.active());verifyVote(pendingAccept.active());
+            require(appliedEnd!=null,"future retention application owner unavailable");appliedEnd.retainedTarget(state);
+        }
+        current.capsule.verifyAncestry(current.ancestry(),parents);
+        checkFutureEndpointCapacity(peerRetention.state().plan());
+    }
+    private void checkFutureEndpointCapacity(MembershipPeerRetentionPlan plan) {
+        if(!futurePending())return;var target=futureRetention.state().target();
+        for(var peer:futureRetention.state().peers) {
+            var points=plan.possible(peer.identity());
+            require(number(points.getFirst().cut().get("index"))>=number(target.cut().get("index"))
+                    || points.size()==1 || points.getLast().equals(target),"future retention unresolved endpoint capacity");
+        }
+    }
+    synchronized MembershipFutureRetentionFiles.State futureRetentionState()throws IOException {
+        checkOwner();require(futureRetention!=null && futureRetention.initialized() && !futureRetention.candidate(),"future retention not initialized/recovered");return futureRetention.state();
+    }
+    /** Persist one peer's possible future endpoint from this owner's real applied
+     * end. No transport or governing quorum is implied by this local return. */
+    synchronized MembershipFutureRetentionFiles.State retainFutureDispatch(MembershipIdentity peer,PendingPublication target)throws IOException {
+        var state=futureRetentionState();target.check();require(target.owner==this,"future retention foreign live capability");
+        require(!peer.equals(identity),"future retention self dispatch");var plan=peerRetentionState().plan();
+        var originals=new TreeMap<>(target.originals());var vote=target.vote;
+        originals.put("entry.gsr",vote.entry().bytes());originals.put("accept.gsr",vote.accept().bytes());originals.put("proof.gsr",vote.proof().bytes());
+        var peers=new TreeMap<String,MembershipFutureRetentionFiles.Peer>();
+        if(state.pending()) {
+            require(state.parent.equals(target.parent()) && state.target().equals(target.target()),"future retention different unresolved target");
+            for(String name:MembershipFutureRetentionFiles.RECORDS)require(Arrays.equals(state.record(name).bytes(),originals.get(name)),"future retention changed original target proof");
+            state.peers.forEach(p->peers.put(p.identity().nodeId().value(),p));
+        }
+        if(peers.containsKey(peer.nodeId().value())) {
+            require(peers.get(peer.nodeId().value()).identity().equals(peer),"future retention changed target identity");return state;
+        }
+        var possible=plan.possible(peer);require(possible.size()==1,"future retention earlier dispatch unresolved");
+        peers.put(peer.nodeId().value(),new MembershipFutureRetentionFiles.Peer(peer,possible.getFirst()));
+        byte[] proposed=futureRetention.proposal(target.parent(),List.copyOf(peers.values()),originals);
+        try {
+            long completion=state.pending()?0:MembershipPeerRetentionFiles.MAXIMUM+futureRetention.clearMaximum();
+            futureRetention.install(proposed,maximum-storedJournal().length-pendingBytes()-completion,target::check,cut);
+            cut.at("FUTURE_RETENTION_BEFORE_RETURN");target.check();return futureRetention.state();
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    /** Make covered uncertainty durable in the ordinary ledger before clearing
+     * its original future proof. Replaying this merge never removes an endpoint. */
+    private void completeFutureRetention()throws IOException {
+        if(!futurePending())return;var state=futureRetention.state();
+        if(number(current.capsule.context.cut.get("index"))<number(state.target().cut().get("index")))return;
+        verifyFutureRetention();var plan=peerRetention.state().plan();
+        for(var peer:state.peers)plan=plan.recordCoveredDispatch(current.capsule,current.ancestry(),peer.identity(),peer.lower(),state.target());
+        try {
+            if(!Arrays.equals(plan.bytes(),peerRetention.state().plan().bytes()))retainPeerPlan(plan,MembershipPeerRetentionFiles.MAXIMUM);
+            cut.at("FUTURE_RETENTION_PROMOTED");checkOwner();
+            futureRetention.install(futureRetention.proposal(null,List.of(),Map.of()),maximum-storedJournal().length-pendingBytes()+futureRetention.clearMaximum(),this::checkOwner,cut);
+            cut.at("FUTURE_RETENTION_CLEARED");checkOwner();
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     private void recoverPeerRetention()throws IOException {
         if(peerRetention.initialized())peerRetention.state().plan().required(current.capsule,current.ancestry());
@@ -464,10 +565,14 @@ final class MembershipGrantJournal implements AutoCloseable {
         peerRetention.state().plan().required(current.capsule,current.ancestry());return peerRetention.state();
     }
     private MembershipPeerRetentionFiles.State retainPeerPlan(MembershipPeerRetentionPlan plan)throws IOException {
+        return retainPeerPlan(plan,0);
+    }
+    private MembershipPeerRetentionFiles.State retainPeerPlan(MembershipPeerRetentionPlan plan,long completingFuture)throws IOException {
         require(ownedHistory,"peer retention requires native history owner");plan.required(current.capsule,current.ancestry());
+        checkFutureEndpointCapacity(plan);
         require(capture==null || !capture.pending(),"peer retention cannot change an unfinished frozen capture");
         require(promise==null || basis!=null || current.manifest.value().get("promise").equals(promise.digest()),"peer retention cannot change an incomplete grant");
-        try{return peerRetention.install(plan,maximum-storedJournal().length-pendingBytes(),cut);}catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+        try{return peerRetention.install(plan,maximum-storedJournal().length-pendingBytes()+completingFuture,cut);}catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     synchronized MembershipPeerRetentionFiles.State retainPeerDispatch(MembershipIdentity peer)throws IOException {
         var plan=peerRetentionState().plan();return retainPeerPlan(plan.dispatch(current.capsule,current.ancestry(),peer));
@@ -578,7 +683,12 @@ final class MembershipGrantJournal implements AutoCloseable {
             }catch(IOException failure){throw new java.io.UncheckedIOException(failure);}
         };
     }
-    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes())+(peerRetention==null?0:peerRetention.bytes());}
+    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes())+(peerRetention==null?0:peerRetention.bytes())+(futureRetention==null?0:futureRetention.bytes())+futureCompletionBytes();}
+    private long futureCompletionBytes() {
+        if(!futurePending())return 0;
+        return Math.max(0,MembershipPeerRetentionFiles.MAXIMUM-peerRetention.candidateBytes())
+                +Math.max(0,futureRetention.clearMaximum()-futureRetention.candidateBytes());
+    }
 
     /** Exact private persistence under the real local owner and forced source. No old ACK.
      * Original generation deletion additionally requires explicit governing-floor maintenance. */
@@ -1012,6 +1122,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         return MembershipCaptureFiles.plan(current,grant,identity,retentionPacket(votePacket(),grant),voteAccepted());
     }
     private MembershipSourcePacket retentionPacket(MembershipSourcePacket original,Decoded grant)throws IOException {
+        // The next integration must carry this original proof in the immutable
+        // BASIS inventory. Never create a snapshot silently omitting it meanwhile.
+        if(futureRetention!=null)require(!futurePending(),"future retention source propagation required");
+        else if(Files.exists(directory.resolve(MembershipFutureRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS))
+            require(!MembershipFutureRetentionFiles.decodeOwned(AdmissionPaths.read(directory.resolve(MembershipFutureRetentionFiles.FILE),MembershipFutureRetentionFiles.MAXIMUM),root.manifestDigest(),identity).pending(),"future retention source propagation required");
         byte[] bytes;
         if(peerRetention!=null)bytes=peerRetention.activeBytes();
         else if(Files.exists(directory.resolve(MembershipPeerRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS))
@@ -1547,6 +1662,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 reloadGenerations();cut.at("PUBLICATION_SELECTOR_FORCED");checkOwner();fence(bound);
             }
             if(pendingAccept.active()!=null)retireCoveredApplication();
+            completeFutureRetention();
             cut.at("PUBLICATION_BEFORE_RETURN");checkOwner();fence(bound);return current.manifest;
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
@@ -1578,6 +1694,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(pendingAccept!=null)pendingAccept.check();
         if(pendingContext!=null)pendingContext.check();
         if(peerRetention!=null)peerRetention.check();
+        if(futureRetention!=null)futureRetention.check();
         if(appliedEnd!=null)appliedEnd.check();
         if(replayFiles!=null)replayFiles.check();
     }
@@ -1590,6 +1707,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             var intent=selectedRetentionIntent();
             require(intent==null || !intent.needsCompletion(peerRetention.state()),"selected retention completion required");
         }
+        if(current!=null && futureRetention!=null && futureRetention.initialized())verifyFutureRetention();
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
     private void checkOwner() throws IOException {checkWithoutRetirement();if(retirement!=null)retirement.check();}
@@ -1960,6 +2078,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** The same writer monitor will own later generation installation; external changes are refused. */
     synchronized Decoded prepareCurrent(Map<String,Object> incoming) throws IOException {
         require(current!=null,"current generation required");checkOwner();
+        require(!futurePending(),"future retention source propagation required");
         if(pendingContext!=null && pendingContext.active().isPresent())return prepareContextCurrent(incoming);
         if(carriedVoteUntransferred() && promise!=null && basis!=null && promise.value().get("ballot").equals(incoming)) {
             // Replaying an already forced grant does not begin a new campaign or
@@ -2594,6 +2713,6 @@ final class MembershipGrantJournal implements AutoCloseable {
         for(var export:List.copyOf(prefixExports))releasePrefixExport(export);
         for(var export:List.copyOf(recordExports))releaseRecordExport(export);
         for(var export:List.copyOf(sourceExports))releaseSourceExport(export);
-        if(!closed){closed=true;try{releasePublicationImage();if(peerRetention!=null)peerRetention.close();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
+        if(!closed){closed=true;try{releasePublicationImage();if(futureRetention!=null)futureRetention.close();if(peerRetention!=null)peerRetention.close();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }
 }

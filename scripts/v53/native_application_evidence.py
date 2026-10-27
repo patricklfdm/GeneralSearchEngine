@@ -75,6 +75,11 @@ def histories(root):
 def certified(root, size=3, backup=False, node='node-1'):
     """Derive the first certificate and a named owner's end from original phases."""
     group = p.campaign(root, p.original(root, size, backup), 1)
+    return certified_group(root, group, node)
+
+
+def certified_group(root, group, node='node-1'):
+    """Continue a separately replayed original campaign, retaining its extra files."""
     need(node in group, 'native application requested original owner')
     owner = node
     _, members, packet = c.current(group['node-1']); cap = packet['capsule']; r = cap['root']

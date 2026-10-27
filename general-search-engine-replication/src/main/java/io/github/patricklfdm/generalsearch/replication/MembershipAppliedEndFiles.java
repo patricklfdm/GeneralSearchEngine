@@ -79,6 +79,26 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
     }
     boolean present(){return exists;}
     boolean retirementPending(){return files.containsKey(RETIREMENT) || files.containsKey(RETIREMENT_NEXT);}
+    /** Reopen the already forced local target used by the future-retention
+     * transaction. This neither replays an application nor creates a new ACK. */
+    void retainedTarget(MembershipFutureRetentionFiles.State target)throws IOException {
+        check();require(exists && !retirementPending(),"future retention requires complete local applied end");
+        for(String name:List.of("selector.gsr","certificate.gsr","catalog.gsr","statement.gsr",ACK)) {
+            var bytes=target.record(name).bytes();var file=files.get(name);
+            require(file!=null && file.bytes()==bytes.length && file.digest().equals(hash(bytes)),"future retention differs from original applied end");
+        }
+        require(files.containsKey(IMAGE) && files.get(IMAGE).digest().equals(target.target().application()),"future retention original application image");
+        var inventory=new ArrayList<Map<String,Object>>();
+        files.forEach((name,file)->{if(!name.equals(PLAN))inventory.add(Map.of("path",name,"sha256",file.digest(),"bytes",file.bytes()));});
+        byte[] plan=canonical(Map.of("schema","gse-v53-applied-end/1.3","root",target.root,"node",target.owner.nodeId().value(),"files",inventory),4096);
+        require(files.containsKey(PLAN) && files.get(PLAN).bytes()==plan.length && files.get(PLAN).digest().equals(hash(plan)),"future retention complete applied inventory");
+        require(files.containsKey(PARENT_STATEMENT)==files.containsKey(PARENT_ACK),"future retention partial parent endorsement");
+        boolean gap=false;
+        for(int i=0;i<5;i++) {
+            require(files.containsKey(ancestor(i,false))==files.containsKey(ancestor(i,true)),"future retention partial ancestor endorsement");
+            if(!files.containsKey(ancestor(i,false)))gap=true;else require(!gap,"future retention ancestor gap");
+        }
+    }
     void check()throws IOException {
         require(!closed,"applied-end closed");AdmissionPaths.recheck(binding);
         require(resources.usage().counts().getOrDefault(MembershipResources.Unit.JOURNAL,0)==1,"applied-end lost shared journal reservation");

@@ -1,15 +1,21 @@
 # V5.3 — controlled cluster operations
 
+The [native future-retention transaction](PHASE_3_FUTURE_RETENTION.md) now keeps
+the original applied target and intended peer endpoints across process death,
+then promotes them into the ordinary ledger before clearing temporary proof.
+Local storage/process qualification is complete for this component. Immutable
+source/selection propagation, actual dispatch and complete Phase 3 remain open.
+
 The [native pending-publication boundary](PHASE_3_PENDING_PUBLICATION.md) identifies
 the exact forced application result under its live owner, without publishing it
 or fabricating remote progress. Original-first local histories and fresh-process
-replay qualify this prerequisite. Durable future-target retention and automatic
-dispatch remain open.
+replay qualify this prerequisite. Local future-target durability is qualified above;
+distributed propagation and automatic dispatch remain open.
 
 The latest [native application recovery](PHASE_3_NATIVE_APPLICATION.md) applies an
 original forced certificate after native reopen without caller historical vote
 observations. Stable 3/4/5-voter storage histories and fresh-process cuts qualify
-this internal component. Pending future retention, actual dispatch and full Phase 3
+this internal component. Future-target propagation, actual dispatch and full Phase 3
 remain open; the public membership runtime is not enabled.
 
 [Complete native generation copying](PHASE_3_GENERATION_COPY.md) is locally qualified
