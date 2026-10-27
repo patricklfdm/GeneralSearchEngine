@@ -18,6 +18,13 @@ final class MembershipRetirementPlan {
     }
     static MembershipRetirementPlan create(MembershipRoot root,MembershipIdentity identity,MembershipCurrentGeneration current,
             MembershipFloorFiles.Retained retained,MembershipFloor.Copy old,MembershipPendingContext.Reconstructed context) throws java.io.IOException {
+        return create(root,identity,current,retained,old,context,null);
+    }
+    /** A checked already-forced current vote may carry the same logical slot at
+     * a newer ballot. Merely copying a higher ACCEPT is never sufficient. */
+    static MembershipRetirementPlan create(MembershipRoot root,MembershipIdentity identity,MembershipCurrentGeneration current,
+            MembershipFloorFiles.Retained retained,MembershipFloor.Copy old,MembershipPendingContext.Reconstructed context,
+            MembershipPendingAccept.Vote successor) throws java.io.IOException {
         current.check();old.check();require(old.owner.equals(identity),"retirement local owner");
         var selector=current.selector;var floor=retained.floor();var floorCopies=retained.copies();
         require(selector.kind().equals("SELECTOR") && selector.value().get("root").equals(root.manifestDigest())
@@ -37,7 +44,8 @@ final class MembershipRetirementPlan {
                 for(String original:List.of(digest,entry.digest(),(String)entry.value().get("payload")))
                     require(Arrays.equals(old.capsule.packet.objectBytes(original),current.capsule.packet.objectBytes(original)),"retirement loses original above-floor owned bytes");
                 if(number(accept.value().get("index"))>number(current.capsule.context.cut.get("index")))
-                    require(digest.equals(current.manifest.value().get("ownedTail")) || MembershipContextTail.retained(current,accept,context),"retirement loses unresolved tail ownership");
+                    require(digest.equals(current.manifest.value().get("ownedTail")) || MembershipContextTail.retained(current,accept,context)
+                            || MembershipContextTail.successor(current,accept,successor),"retirement loses unresolved tail ownership");
             }
         }
         var files=new ArrayList<Map<String,Object>>();

@@ -1,5 +1,28 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3 inherited future obligations across native continuation
+
+[Native continuation](PHASE_3_INHERITED_FUTURE.md) now installs all original
+future proofs, recaptures them under a new ballot without changing their owners,
+and publishes the carried result after one original holder stays offline.
+Actual-copy observations then narrow uncertainty before another election. Covered
+installation retains the exact frozen source while deleting only derived staging;
+publication promotes inherited peer obligations before clearing local proof.
+
+Eighteen halt/SIGKILL cases and original-first portable replay pass, including
+16 exact negative rejections. All 661 Python tests pass normally and under `-O`.
+Four continuation tests pass after correcting the covered recovery caller to
+resume a pending selector instead of requesting a second cleanup. Five covered
+exception/reopen boundaries are not counted as process-kill or independent
+physical qualification. The [receipt](phase3-evidence/inherited-future.json)
+distinguishes the earlier aggregate failure, later same-production test snapshot,
+affected regressions, retained archives and unavailable old temporary raw trees.
+
+This qualifies a bounded native continuation. Repeated unresolved-campaign capacity,
+configuration-changing adoption, real future-target quorum dispatch, autonomous
+offline-survivor scheduling, learners/joint completion and all remaining 3B–3E
+gates remain OPEN. No public runtime enablement, push, cloud or V5.2 Runner change.
+
 ## 2026-10-26 — Phase 3 complete selected future proof plans
 
 [Selected future proof materialization](PHASE_3_SELECTED_FUTURE_PROOF.md) now

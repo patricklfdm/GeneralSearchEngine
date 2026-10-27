@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*;
 
-/** Actual native originals, but only an installation proposal. These tests do not
- * remove the journal guard or claim a durable future-ownership handoff. */
+/** Actual native originals and pure proposals. Durable handoff is qualified
+ * separately by V53SelectedFutureContinuationTest. Legacy guards remain. */
 class V53SelectedFutureProofTest {
     @TempDir Path temp;
     record Prepared(V53BootstrapPublicationTest.Fixture fixture,List<MembershipSelection.Source> sources,
@@ -80,10 +80,10 @@ class V53SelectedFutureProofTest {
                 Path proposed=Files.createDirectory(f.raw.resolve("proposed-"+t.identity().nodeId().value()));
                 for(var file:selected.files.entrySet())Files.write(proposed.resolve(file.getKey()),file.getValue());
                 Files.write(proposed.resolve("proposed-selector.gsr"),selected.selector.bytes());
-                // Full native ownership/continuation is still required before
-                // this proposal may enter the durable journal/install path.
+                // A legacy owner without durable imported-proof storage still
+                // refuses this source; proposal construction itself is read-only.
                 assertEquals("selected future retention propagation required",assertThrows(IllegalArgumentException.class,
-                        ()->owner.selectCurrent(setup.sources(),List.of())).getMessage());
+                        ()->MembershipPeerRetentionSource.requireSelectable(setup.sources().getFirst())).getMessage());
                 assertEquals(before,V53ReplayFilesTest.files(t.replicaDirectory()));
             }
             f.snapshot("after-proposal");
@@ -96,7 +96,7 @@ class V53SelectedFutureProofTest {
             assertNull(setup.decision().carried());assertNull(setup.decision().selected().value().get("nextEntry"));
             var retention=MembershipSelectedRetention.capture(setup.decision(),t.identity(),Files.readAllBytes(t.replicaDirectory().resolve(MembershipPeerRetentionFiles.FILE)));
             assertEquals(List.of(0L,1L),retention.requiredParents().stream().map(a->number(a.cut().get("index"))).toList());
-            assertEquals(2,retention.futureObjects().size());assertEquals(0,retention.completionBytes());
+            assertEquals(2,retention.futureObjects().size());assertTrue(retention.completionBytes()>0);
             var plan=MembershipGenerationPlan.selected(f.result.root(),t.identity(),"b",owner.promised().orElseThrow(),owner.originalBasis().orElseThrow(),
                     setup.decision(),List.of(),setup.images(),Map.of(),retention);
             plan.verifyOwned(decode(Files.readAllBytes(t.replicaDirectory().resolve("root.gsr")),"records","ROOT"),t.identity(),retention.requiredParents());

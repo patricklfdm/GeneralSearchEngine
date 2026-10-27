@@ -48,6 +48,10 @@ final class MembershipGenerationPlan {
         if(files.containsKey(MembershipSelectedSources.FILE))MembershipSelectedSources.parents(files.get(MembershipSelectedSources.FILE),
                 decode(files.get("selected.gsr"),"records","SELECTED"),capsule,files.getOrDefault("ancestry.gsr",new byte[0]));
         if(files.containsKey(MembershipSelectionCoverage.FILE)) {
+            var selected=decode(files.get("selected.gsr"),"records","SELECTED");
+            MembershipSelectedRetention.find(capsule,selected,local).ifPresent(retention->{
+                if(!retention.futures().isEmpty())require(MembershipFutureRetentionCompletion.find(capsule,selected,local,files.getOrDefault("ancestry.gsr",new byte[0])).isPresent(),"published future completion missing");
+            });
             MembershipSelectionCoverage.verify(files.get(MembershipSelectionCoverage.FILE),capsule,
                     decode(files.get("promise.gsr"),"records","PROMISE"),decode(files.get("selected.gsr"),"records","SELECTED"),
                     files.getOrDefault("ancestry.gsr",new byte[0]));return;
@@ -137,6 +141,24 @@ final class MembershipGenerationPlan {
         var selector=decode(encode("records","SELECTOR",Map.of("root",root.manifestDigest(),"node",local.nodeId().value(),"generation",slot,"digest",manifest.digest())),"records","SELECTOR");
         return new MembershipGenerationPlan(manifest,selector,files,metadata,capsule,bridges);
     }
+    MembershipGenerationPlan retainingFutureCompletion(MembershipFutureRetentionCompletion completion) {
+        var capsule=verifiedMaterialization();var objects=new TreeMap<String,byte[]>();
+        for(String h:capsule.packet.objectNames())objects.put(h,capsule.packet.objectBytes(h));
+        objects.putAll(completion.objects());var cap=new TreeMap<>(capsule.packet.capsule().value());
+        cap.put("inventory",hash(MembershipSourcePacket.index(objects,capsule.packet.images())));
+        var packet=MembershipSourcePacket.decode(MembershipSourcePacket.encode(decode(encode("records","CAPSULE",cap),"records","CAPSULE"),objects,capsule.packet.images()));
+        var next=new TreeMap<>(files);next.remove(MembershipCurrentGeneration.MANIFEST);next.put("source.gscp",packet.bytes());
+        var inventory=new ArrayList<Map<String,Object>>();long total=0;
+        for(var row:next.entrySet()) {
+            inventory.add(Map.of("path",row.getKey(),"size",(long)row.getValue().length,"sha256",hash(row.getValue())));
+            if(!row.getKey().endsWith(".image"))total=Math.addExact(total,row.getValue().length);
+        }
+        var fields=new TreeMap<>(manifest.value());fields.put("capsule",packet.capsule().digest());fields.put("files",inventory);
+        var nextManifest=decode(encode("records","GENERATION",fields),"records","GENERATION");total=Math.addExact(total,nextManifest.bytes().length);
+        require(total<=MembershipResources.Unit.GENERATION.bytes,"complete future publication capacity");next.put(MembershipCurrentGeneration.MANIFEST,nextManifest.bytes());
+        var selectorFields=new TreeMap<>(selector.value());selectorFields.put("digest",nextManifest.digest());
+        return new MembershipGenerationPlan(nextManifest,decode(encode("records","SELECTOR",selectorFields),"records","SELECTOR"),next,total,authority,bridges);
+    }
     static MembershipGenerationPlan adopted(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,
             MembershipCapsule incoming,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images) {
         require(Set.of("a","b").contains(slot),"generation slot");incoming.packet.verifyImages(images);
@@ -184,7 +206,7 @@ final class MembershipGenerationPlan {
         if(retention!=null){
             // The longest source need not own every selected future obligation.
             // Keep each original proof as a separate bounded indexed object.
-            objects.putAll(retention.futureObjects());byte[] bytes=retention.bytes();objects.put(hash(bytes),bytes);
+            objects.putAll(retention.sourceObjects());byte[] bytes=retention.bytes();objects.put(hash(bytes),bytes);
         }
         String tail=null;
         if(decision.carried()!=null) {

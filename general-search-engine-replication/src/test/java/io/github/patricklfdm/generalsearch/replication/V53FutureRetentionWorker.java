@@ -34,6 +34,7 @@ public final class V53FutureRetentionWorker {
             }else if(action.equals("publish")) {
                 var applied=owner.applyCurrent(builder().configuration(),storage(Path.of((String)self.get("application")),2));
                 acks.addFirst(applied.endorsement().acknowledgement());observations.add(applied.endorsement().owned());
+                acks.sort(Comparator.comparing(ack->(String)ack.value().get("voter")));
                 owner.publishCurrent(applied,acks,observations,List.of());
             }else if(!action.equals("recover"))throw new IllegalArgumentException("unknown action");
             var state=owner.futureRetentionState();var peer=owner.peerRetentionState();

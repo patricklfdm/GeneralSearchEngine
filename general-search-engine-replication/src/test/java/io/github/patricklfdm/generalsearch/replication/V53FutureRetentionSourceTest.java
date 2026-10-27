@@ -41,11 +41,11 @@ class V53FutureRetentionSourceTest {
             for(var t:f.request.targets().subList(1,3))try(var owner=f.open(t,"other-source")) {
                 owner.prepareCurrent(ballot);sources.add(owner.originalSource());assertNull(MembershipPeerRetentionSource.read(owner.originalSource()).future());
             }
-            // Both the holder and a different selected voter must reject before
-            // SELECTED. A successful grant cannot silently discard pending proof.
+            // Legacy owners without the imported-proof transaction still reject.
+            // Native installation/continuation is exercised in its dedicated gate.
             for(var t:f.request.targets().subList(0,2))try(var owner=f.open(t,"selection-guard")) {
                 var before=V53ReplayFilesTest.files(t.replicaDirectory());
-                assertEquals("selected future retention propagation required",assertThrows(IllegalArgumentException.class,()->owner.selectCurrent(sources,List.of())).getMessage());
+                assertEquals("selected future retention propagation required",assertThrows(IllegalArgumentException.class,()->MembershipPeerRetentionSource.requireSelectable(sources.getFirst())).getMessage());
                 assertEquals(before,V53ReplayFilesTest.files(t.replicaDirectory()));
             }
             try(var owner=f.open(self,"original-source-reopen")) {

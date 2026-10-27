@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native inherited-future continuation](PHASE_3_INHERITED_FUTURE.md) now connects
+original-proof selection, installation, subsequent capture, carried publication
+and recovery. Native continuation and process evidence are locally qualified.
+This extends the earlier proposal-only
+boundary below; it does not close automatic dispatch, learners/joint transition
+or Phase 3. Earlier entries describe their original source-bound qualification.
+
 [Selected future proof materialization](PHASE_3_SELECTED_FUTURE_PROOF.md) now retains
 every exact referenced proof, including non-longest sources, and authenticates
 original parents and covered targets. Native selection remains guarded until the

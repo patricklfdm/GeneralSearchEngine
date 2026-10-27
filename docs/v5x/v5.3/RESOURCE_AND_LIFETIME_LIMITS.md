@@ -92,6 +92,16 @@ the existing 73,784-byte GSRP wrapper bound. Its separate original GSFT remains
 inside the existing complete source packet and per-object ceilings. No application
 image is duplicated by the reference; capture admission still checks the full packet.
 
+The [inherited-future continuation](PHASE_3_INHERITED_FUTURE.md) adds a flat GSFS
+descriptor of at most six exact original proofs and 32 KiB, referenced by GSRP
+flag 2 within that same wrapper bound. GSFC publication completion contains the
+selected-intent digest and original ledger, at most `48 + 32 + 4 + 65536` bytes.
+Both remain inside the complete source/generation ceilings. An imported unresolved
+target reserves the same 64 KiB ledger candidate as a local pending target;
+the two share that reservation. The exact-budget/one-byte-short boundary is
+qualified locally; arbitrary repeated-campaign and configuration-changing
+headroom still require their complete owning gates.
+
 `test_format_fixture` checks the complete encoded resource formula, malformed
 allocation inputs, integer-vs-boolean rejection, parser budgets and 10,000 DATA
 reducer steps after an actual completed membership operation exhausts its test

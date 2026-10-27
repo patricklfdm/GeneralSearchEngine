@@ -18,23 +18,29 @@ final class MembershipSelectedRetention {
     private final byte[] bytes,before,after;
     final MembershipPeerRetentionPlan plan;
     private final Map<String,byte[]> futureObjects;
-    private final List<MembershipPeerRetentionSource.Frozen> futures;
+    private final Map<String,byte[]> sourceObjects;
+    private final List<MembershipFutureRetentionSet.Proof> futures;
     private final List<MembershipCapsule.Anchor> parents;
+    private final boolean pendingFutures;
     private final MembershipPeerRetentionFiles.State initial,expected;
     private MembershipSelectedRetention(byte[] bytes,Raw raw,MembershipPeerRetentionPlan plan,
-            Map<String,byte[]> futureObjects,List<MembershipPeerRetentionSource.Frozen> futures) {
-        this.bytes=bytes.clone();before=raw.before.clone();this.plan=plan;
+            Map<String,byte[]> futureObjects,List<MembershipFutureRetentionSet.Proof> futures) {
+        this.bytes=bytes.clone();before=raw.before.clone();
         var retained=new TreeMap<String,byte[]>();futureObjects.forEach((h,b)->retained.put(h,b.clone()));
-        this.futureObjects=Collections.unmodifiableMap(retained);this.futures=List.copyOf(futures);
+        this.sourceObjects=Collections.unmodifiableMap(retained);this.futures=List.copyOf(futures);
+        var proofsOnly=new TreeMap<String,byte[]>();futures.forEach(p->proofsOnly.put(hash(p.bytes()),p.bytes()));this.futureObjects=Collections.unmodifiableMap(proofsOnly);
         var required=new TreeMap<Long,MembershipCapsule.Anchor>();
         plan.recorded().forEach(a->parent(required,a));
         var selectedCut=object(raw.selected.value().get("cut"));long selectedIndex=number(selectedCut.get("index"));
         MembershipCapsule.Anchor unpublished=null;
         for(var source:futures) {
-            var future=source.future();parent(required,future.parent);
+            var future=source.state();parent(required,future.parent);
             future.peers.forEach(p->parent(required,p.lower()));
             var target=future.target();long index=number(target.cut().get("index"));
-            if(index<=selectedIndex)parent(required,target);
+            if(index<=selectedIndex) {
+                parent(required,target);
+                for(var peer:future.peers)plan=plan.projectCoveredDispatch(peer.identity(),peer.lower(),target,selectedCut);
+            }
             else {
                 require(future.parent.cut().equals(selectedCut)
                         && future.record("entry.gsr").digest().equals(raw.selected.value().get("nextEntry")),
@@ -43,14 +49,15 @@ final class MembershipSelectedRetention {
                 unpublished=target;
             }
         }
-        parents=List.copyOf(required.values());
+        parents=List.copyOf(required.values());this.plan=plan;pendingFutures=unpublished!=null;
         String root=(String)raw.selected.value().get("root");initial=MembershipPeerRetentionFiles.decodeOwned(before,root,raw.owner);
         after=Arrays.equals(initial.plan().bytes(),plan.bytes())?before.clone():MembershipPeerRetentionFiles.successor(before,root,raw.owner,plan);
         expected=MembershipPeerRetentionFiles.decodeOwned(after,root,raw.owner);
     }
     byte[] bytes(){return bytes.clone();}
     Map<String,byte[]> futureObjects(){var result=new TreeMap<String,byte[]>();futureObjects.forEach((h,b)->result.put(h,b.clone()));return result;}
-    List<MembershipPeerRetentionSource.Frozen> futures(){return futures;}
+    Map<String,byte[]> sourceObjects(){var result=new TreeMap<String,byte[]>();sourceObjects.forEach((h,b)->result.put(h,b.clone()));return result;}
+    List<MembershipFutureRetentionSet.Proof> futures(){return futures;}
     /** Original parents/lower endpoints and any already-covered target must be
      * authenticated by the installed prefix. An unpublished result is not ancestry. */
     List<MembershipCapsule.Anchor> requiredParents(){return parents;}
@@ -58,6 +65,7 @@ final class MembershipSelectedRetention {
         var previous=parents.putIfAbsent(number(anchor.cut().get("index")),anchor);
         require(previous==null || previous.equals(anchor),"selected retention conflicting original parent");
     }
+    boolean hasPendingFutures(){return pendingFutures;}
     long completionBytes(){return expected.revision()==initial.revision()?0:after.length;}
     /** Later native revisions have already passed this exact merge. Do not restore
      * stale uncertainty after a real observation narrowed a subsequent revision. */
@@ -74,7 +82,9 @@ final class MembershipSelectedRetention {
         var rows=new ArrayList<Row>();var objects=new TreeMap<String,byte[]>();
         for(var source:decision.sources()) {
             var frozen=MembershipPeerRetentionSource.read(source);
-            if(frozen.futureBytes()!=null)objects.put(hash(frozen.futureBytes()),frozen.futureBytes());
+            objects.putAll(frozen.objects());
+            // An inherited descriptor binds the new source's real carried ACCEPT.
+            if(source.accepted!=null)objects.put(source.accepted.digest(),source.accepted.bytes());
             rows.add(new Row(source.basis,source.capsule.packet.envelope(),MembershipPeerRetentionSource.wrapper(frozen)));
         }
         var raw=new Raw(local,decision.selected(),before.clone(),List.copyOf(rows));
@@ -97,6 +107,15 @@ final class MembershipSelectedRetention {
         }
         return Optional.ofNullable(found);
     }
+    static Optional<MembershipSelectedRetention> referenced(MembershipCapsule capsule,String reference,MembershipIdentity local) {
+        require(capsule.packet.objectNames().contains(reference) && capsule.packet.objectSize(reference)<=MAXIMUM,"referenced selected retention missing/extent");
+        byte[] bytes=capsule.packet.objectBytes(reference);var raw=parse(bytes);
+        if(!raw.owner.equals(local))return Optional.empty();
+        return Optional.of(verify(bytes,raw,raw.selected,local,capsule,h->{
+            require(capsule.packet.objectNames().contains(h) && capsule.packet.objectSize(h)<=MembershipFutureRetentionFiles.MAXIMUM,"referenced future proof missing/extent");
+            return capsule.packet.objectBytes(h);
+        }));
+    }
     private static MembershipSelectedRetention verify(byte[] bytes,Raw raw,Decoded selected,MembershipIdentity local,MembershipCapsule authority,
             Function<String,byte[]> futureReader) {
         require(raw.owner.equals(local) && Arrays.equals(raw.selected.bytes(),selected.bytes()),"selected retention identity/selection");
@@ -104,20 +123,22 @@ final class MembershipSelectedRetention {
         require(root.equals(authority.context.root) && local.equals(authority.context.identities.get(local.nodeId().value())),"selected retention original root/owner");
         var refs=list(value.get("sources"));require(raw.rows.size()==refs.size(),"selected retention source count");
         var bases=new ByteArrayOutputStream();var plans=new ArrayList<MembershipPeerRetentionPlan>();
-        var objects=new TreeMap<String,byte[]>();var futures=new ArrayList<MembershipPeerRetentionSource.Frozen>();
+        var objects=new TreeMap<String,byte[]>();var futures=new TreeMap<String,MembershipFutureRetentionSet.Proof>();
         plans.add(MembershipPeerRetentionFiles.decodeOwned(raw.before,root,local).plan());
         for(int i=0;i<raw.rows.size();i++) {
             var row=raw.rows.get(i);var ref=object(refs.get(i));
             var owner=authority.context.identities.get((String)ref.get("voter"));require(owner!=null,"selected retention permanent source absent");
-            var refHash=MembershipPeerRetentionSource.futureReference(row.snapshot);
-            byte[] original=refHash.map(futureReader).orElse(null);
-            var frozen=MembershipPeerRetentionSource.included(row.envelope,row.basis,owner,row.snapshot,original);
-            if(original!=null){objects.put(refHash.orElseThrow(),original);futures.add(frozen);}
+            var frozen=MembershipPeerRetentionSource.includedObjects(row.envelope,row.basis,owner,row.snapshot,futureReader);
+            objects.putAll(frozen.objects());
+            if(frozen.projection()!=null) {
+                String accepted=(String)row.basis.value().get("accepted");objects.put(accepted,futureReader.apply(accepted));
+            }
+            frozen.proofs().forEach(proof->futures.put(hash(proof.bytes()),proof));
             plans.add(frozen.state().plan());bases.writeBytes(row.basis.bytes());
         }
         MembershipSelectedSources.cuts(bases.toByteArray(),selected);
         require(refs.stream().map(MembershipFormat::object).anyMatch(r->r.get("voter").equals(local.nodeId().value())),"selected retention local source absent");
-        return new MembershipSelectedRetention(bytes,raw,MembershipPeerRetentionPlan.mergeRecorded(root,view,plans),objects,futures);
+        return new MembershipSelectedRetention(bytes,raw,MembershipPeerRetentionPlan.mergeRecorded(root,view,plans),objects,List.copyOf(futures.values()));
     }
     private static void part(ByteArrayOutputStream output,byte[] bytes,int maximum) {
         require(bytes.length>0 && bytes.length<=maximum,"selected retention member bound");

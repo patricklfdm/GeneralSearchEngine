@@ -2,7 +2,8 @@
 
 Derive the real bootstrap, votes, applied ends, local future intentions and grants
 before comparing the complete proposed generations. No proposal or stored checksum
-is an installation receipt. The journal's unresolved-future guard stays enabled.
+is an installation receipt. Native handoff is qualified separately by
+inherited_future_evidence; this reader retains the earlier proposal-only scope.
 """
 import argparse
 import json
@@ -34,14 +35,9 @@ def pending(files, end, peer):
     return u.frame(metadata, originals), originals
 
 
-def validate(root):
+def original_sources(root):
+    """Derive the shared native prelude; callers validate their own later inventory."""
     root = Path(root)
-    required = {'original-plan.gsbp', 'original-application.image', 'initial', 'retaining-genesis',
-                'calls.json', 'entry-1.gsr', 'payload-1.bin', 'certified', 'before-future', 'pending-future',
-                'two-futures', 'proposal-sources', 'after-proposal', 'proposed-node-1', 'proposed-node-3'}
-    required |= {'round-1-'+name for name in ('prepared', 'selected', 'installed', 'settled')}
-    required |= {'slot-1-'+name for name in ('accepted', 'proved', 'certified')}
-    p.selection.layout(root, required, 'selected future original inventory')
     _, before, ends = u.prelude(root)
     one, original_one = pending(before['node-1'], ends['node-1'], before['node-2'])
     two, original_two = pending(before['node-2'], ends['node-2'], before['node-3'])
@@ -82,6 +78,19 @@ def validate(root):
         if node == 'node-3': changed['allocator.gsr'] = f.encode('records', 'ALLOCATOR', dict(root=cap['root'], node=node, counter=3))
         prepared[node], sources[node], grants[node] = changed, (basis, frozen, wrapper), (promise, basis)
     p.match(root, 'proposal-sources', prepared)
+    return group, prepared, sources, grants, future, original_one, ballot
+
+
+def validate(root):
+    root = Path(root)
+    required = {'original-plan.gsbp', 'original-application.image', 'initial', 'retaining-genesis',
+                'calls.json', 'entry-1.gsr', 'payload-1.bin', 'certified', 'before-future', 'pending-future',
+                'two-futures', 'proposal-sources', 'after-proposal', 'proposed-node-1', 'proposed-node-3'}
+    required |= {'round-1-'+name for name in ('prepared', 'selected', 'installed', 'settled')}
+    required |= {'slot-1-'+name for name in ('accepted', 'proved', 'certified')}
+    p.selection.layout(root, required, 'selected future original inventory')
+    group, prepared, sources, grants, future, original_one, ballot = original_sources(root)
+    names = sorted(group)
     p.match(root, 'after-proposal', prepared)
     # The actual proposer wins this equal-prefix tie and has NO future proof.
     # Both exact obligations therefore come from other selected originals.

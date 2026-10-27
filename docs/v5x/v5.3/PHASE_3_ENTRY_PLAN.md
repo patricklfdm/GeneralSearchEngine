@@ -8,6 +8,15 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Native inherited-future continuation](PHASE_3_INHERITED_FUTURE.md) connects the
+earlier proof representation to installation, fresh original sources and certified
+publication after an original holder goes offline. Its native component and
+publication process matrix are locally qualified; the covered interruption checks
+are separately identified as Java-only evidence.
+Automatic future-target dispatch, repeated-campaign resource headroom,
+configuration-changing adoption and the complete 3B–3E requirements remain open.
+The following earlier component entries retain their original acceptance scope.
+
 [Complete selected future proof plans](PHASE_3_SELECTED_FUTURE_PROOF.md) now retain
 all original referenced GSFT bytes separately, check carried-result identity and
 require original/covered ancestry. Native SELECTED is still guarded. Durable

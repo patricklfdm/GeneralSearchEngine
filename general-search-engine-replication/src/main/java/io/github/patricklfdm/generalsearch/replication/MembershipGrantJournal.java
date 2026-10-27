@@ -451,8 +451,22 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(currentIndex>=number(state.target().cut().get("index")))parents.add(state.target());
         else {
             require(current.capsule.terminal().equals(state.parent),"future retention lost original parent");
-            state.matches(pendingAccept.active());verifyVote(pendingAccept.active());
-            require(appliedEnd!=null,"future retention application owner unavailable");appliedEnd.retainedTarget(state);
+            var selected=selectedRetentionIntent();
+            boolean inherited=selected!=null && selected.futureObjects().containsKey(state.digest);
+            if(!inherited) {
+                state.matches(pendingAccept.active());verifyVote(pendingAccept.active());
+                // Covering installation retires derived application files before
+                // switching the selector. Its original vote and frozen GSFT must
+                // remain owned by the exact local source of the newer selection.
+                boolean coveredCapture=selection!=null && basis!=null && sources!=null
+                        && !selection.digest().equals(current.manifest.value().get("selection"))
+                        && number(object(selection.value().get("cut")).get("index"))>=number(state.target().cut().get("index"))
+                        && list(selection.value().get("sources")).stream().map(MembershipFormat::object)
+                            .anyMatch(row->row.get("voter").equals(identity.nodeId().value()) && row.get("basisDigest").equals(basis.digest()))
+                        && MembershipPeerRetentionSource.read(sources.original(basis).packet(),basis,identity).proofs().stream()
+                            .anyMatch(proof->hash(proof.bytes()).equals(state.digest));
+                if(!coveredCapture){require(appliedEnd!=null,"future retention application owner unavailable");appliedEnd.retainedTarget(state);}
+            }
         }
         current.capsule.verifyAncestry(current.ancestry(),parents);
         checkFutureEndpointCapacity(peerRetention.state().plan());
@@ -514,18 +528,24 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(!peerRetention.initialized())peerRetention.install(MembershipPeerRetentionPlan.genesis(current.capsule),maximum-storedJournal().length-pendingBytes(),cut);
         else peerRetention.reseal(cut);
         completeSelectedRetention();
+        completeInheritedFutureRetention();
     }
     /** The immutable selected generation carries the recovery intent. Its exact
      * revision boundary prevents a later observation from being merged twice. */
     private MembershipSelectedRetention selectedRetentionIntent()throws IOException {
         if(peerRetention==null || current==null)return null;
         if(!current.selector.digest().equals(retentionSelector)) {
-            selectedRetention=null;
+            selectedRetention=null;importedFuturePending=false;
             if(current.manifest.value().get("selection")!=null && current.coverage().isEmpty()) {
                 var selected=current.selectedRecord().orElseThrow();
                 selectedRetention=MembershipSelectedRetention.find(current.capsule,selected,identity)
                         .orElseThrow(()->new IllegalArgumentException("selected generation missing peer retention intent"));
                 selectedRetention.plan.required(current.capsule,current.ancestry());
+                current.capsule.verifyAncestry(current.ancestry(),selectedRetention.requiredParents());
+                importedFuturePending=selectedRetention.hasPendingFutures();
+            }else if(current.coverage().isPresent() || current.adopted) {
+                var completion=inheritedFutureCompletion();
+                importedFuturePending=completion!=null && completion.needsCompletion(peerRetention.state());
             }
             retentionSelector=current.selector.digest();
         }
@@ -537,6 +557,25 @@ final class MembershipGrantJournal implements AutoCloseable {
             peerRetention.install(intent.plan,maximum-storedJournal().length-pendingBytes(),cut);
             require(!intent.needsCompletion(peerRetention.state()),"selected retention completion changed");
             cut.at("SELECTED_RETENTION_COMPLETED");
+        }
+    }
+    private MembershipFutureRetentionCompletion inheritedFutureCompletion()throws IOException {
+        if(peerRetention==null || current==null)return null;
+        if(current.adopted)return MembershipFutureRetentionCompletion.find(current.capsule,null,identity,current.ancestry()).orElse(null);
+        if(current.coverage().isEmpty())return null;
+        var selected=current.selectedRecord().orElseThrow();
+        var retention=MembershipSelectedRetention.find(current.capsule,selected,identity);
+        if(retention.isEmpty() || retention.get().futures().isEmpty())return null;
+        return MembershipFutureRetentionCompletion.find(current.capsule,selected,identity,current.ancestry())
+                .orElseThrow(()->new IllegalArgumentException("published future completion missing"));
+    }
+    private void completeInheritedFutureRetention()throws IOException {
+        var completion=inheritedFutureCompletion();
+        if(completion!=null && completion.needsCompletion(peerRetention.state())) {
+            peerRetention.install(completion.plan,maximum-storedJournal().length-pendingBytes()+MembershipPeerRetentionFiles.MAXIMUM,cut);
+            require(!completion.needsCompletion(peerRetention.state()),"inherited future promotion changed");
+            importedFuturePending=false;
+            cut.at("INHERITED_FUTURE_RETENTION_PROMOTED");
         }
     }
     /** Explicit private opt-in before the first campaign. A non-genesis history
@@ -684,10 +723,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         };
     }
     private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes())+(peerRetention==null?0:peerRetention.bytes())+(futureRetention==null?0:futureRetention.bytes())+futureCompletionBytes();}
+    private boolean importedFuturePending;
     private long futureCompletionBytes() {
-        if(!futurePending())return 0;
+        if(!futurePending() && !importedFuturePending)return 0;
         return Math.max(0,MembershipPeerRetentionFiles.MAXIMUM-peerRetention.candidateBytes())
-                +Math.max(0,futureRetention.clearMaximum()-futureRetention.candidateBytes());
+                +(futurePending()?Math.max(0,futureRetention.clearMaximum()-futureRetention.candidateBytes()):0);
     }
 
     /** Exact private persistence under the real local owner and forced source. No old ACK.
@@ -1066,6 +1106,15 @@ final class MembershipGrantJournal implements AutoCloseable {
                     && row.get("basisId").equals(b.value().get("basisId")) && row.get("basisDigest").equals(b.digest())),"settlement missing exact original local source");
         var source=sources.original(b);source.packet().bind(b);
         var expected=MembershipPendingAccept.packet(old.capsule.packet,vote);
+        if(peerRetention!=null) {
+            // Reconstruct the exact frozen source, including its original ledger
+            // and future obligations. The live ledger may already have advanced;
+            // it is not evidence of what this earlier PROMISE captured.
+            var frozen=MembershipPeerRetentionSource.read(retainedSource(b));
+            expected=frozen.projection()==null?
+                    MembershipPeerRetentionSource.freeze(expected,frozen.promise(),identity,frozen.localBytes(),frozen.futureBytes()):
+                    MembershipPeerRetentionSource.freezeInherited(expected,frozen.promise(),identity,frozen.localBytes(),frozen.proofs());
+        }
         require(Arrays.equals(expected.bytes(),source.packet().bytes()),"settlement source changed original vote");
         source.packet().verifyImages(source.images());
     }
@@ -1137,6 +1186,17 @@ final class MembershipGrantJournal implements AutoCloseable {
         else {require(future==null,"future source requires original peer ledger");return original;}
         var state=MembershipPeerRetentionFiles.decodeOwned(bytes,root.manifestDigest(),identity);
         state.plan().capture(current.capsule,current.ancestry());
+        var retention=selectedRetentionIntent();
+        // Interrupted capture is reconstructed before the mutable journal users
+        // open. Read the exact installed intent, not an empty inferred snapshot.
+        if(retention==null && peerRetention==null && current.coverage().isEmpty() && current.selectedRecord().isPresent())
+            retention=MembershipSelectedRetention.find(current.capsule,current.selectedRecord().orElseThrow(),identity).orElseThrow();
+        if(retention!=null && !retention.futures().isEmpty()) {
+            var proofs=new TreeMap<String,MembershipFutureRetentionSet.Proof>();
+            for(var proof:retention.futures())if(number(proof.state().target().cut().get("index"))>number(current.capsule.context.cut.get("index")))proofs.put(hash(proof.bytes()),proof);
+            if(future!=null)proofs.put(hash(future),new MembershipFutureRetentionSet.Proof(future,MembershipFutureRetentionFiles.decodeOwned(future,root.manifestDigest(),identity)));
+            return MembershipPeerRetentionSource.freezeInherited(original,grant,identity,bytes,proofs.values());
+        }
         return MembershipPeerRetentionSource.freeze(original,grant,identity,bytes,future);
     }
     /** A pending source is derived only from already validated complete backing bytes.
@@ -1698,6 +1758,14 @@ final class MembershipGrantJournal implements AutoCloseable {
         var bound=object(originalPromise.value().get("ballot"));fence(bound);
         var plan=MembershipGenerationPlan.published(root,identity,installed?current.generation:inactive.slot(),originalPromise,originalBasis,originalSelection,
                 applied.plan(),acknowledgements,checkpoints,bridges,current.selectedSources().orElse(null),current.capsule,current.coverage().orElse(null),current.ancestry());
+        if(peerRetention!=null) {
+            MembershipFutureRetentionCompletion completion=installed?inheritedFutureCompletion():null;
+            if(!installed) {
+                var retained=selectedRetentionIntent();
+                if(retained!=null && !retained.futures().isEmpty())completion=MembershipFutureRetentionCompletion.create(retained,peerRetention.activeBytes(),plan.verifiedMaterialization(),plan.files.getOrDefault("ancestry.gsr",new byte[0]),identity);
+            }
+            if(completion!=null)plan=plan.retainingFutureCompletion(completion);
+        }
         var parents=new ArrayList<MembershipCapsule.Anchor>();parents.add(applied.plan().originalParent());addFloorParent(parents);
         for(var original:bases.values()) {
             var cap=sources.original(original).packet().capsule().value();parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
@@ -1715,6 +1783,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 reloadGenerations();cut.at("PUBLICATION_SELECTOR_FORCED");checkOwner();fence(bound);
             }
             if(pendingAccept.active()!=null)retireCoveredApplication();
+            completeInheritedFutureRetention();
             completeFutureRetention();
             cut.at("PUBLICATION_BEFORE_RETURN");checkOwner();fence(bound);return current.manifest;
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
@@ -1861,6 +1930,11 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipPendingContext.Reconstructed retirementContext()throws IOException {
         return pendingContext!=null && pendingContext.active().isPresent()?retainedContextOriginal():null;
     }
+    private MembershipPendingAccept.Vote retirementSuccessor()throws IOException {
+        var vote=pendingAccept==null?null:pendingAccept.active();
+        if(vote!=null) {require(!pendingAccept.pending(),"retirement successor must be complete");verifyVote(vote);}
+        return vote;
+    }
     private Optional<Decoded> retireInactiveChecked()throws IOException {
         require(!floors.pending() && !inactive.pending(),"pending floor/selector must finish before retirement");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),"uninstalled adoption fence; prefix recovery required");
@@ -1874,12 +1948,12 @@ final class MembershipGrantJournal implements AutoCloseable {
                 require(!(inactive.exists() && !current.adopted && current.manifest.value().get("selection")==null)
                         && !inactive.incompleteOrSelected(selection==null?null:selection.digest(),number(current.capsule.context.cut.get("index"))),"pending generation must finish before retirement");
                 var original=originalGeneration(inactive.originalFiles());
-                var plan=MembershipRetirementPlan.create(root,identity,current,floor,original,retirementContext());
+                var plan=MembershipRetirementPlan.create(root,identity,current,floor,original,retirementContext(),retirementSuccessor());
                 inactive.forceOriginal(cut);checkOwner();retirement.prepare(plan,this::checkWithoutRetirement,cut);record=plan.record;
             }else {
                 record=saved.get();bindRetirement(record,floor);retirement.checkSaved(record);
                 if(inactive.exists()) {
-                    var original=originalGeneration(retirement.original());var plan=MembershipRetirementPlan.create(root,identity,current,floor,original,retirementContext());
+                    var original=originalGeneration(retirement.original());var plan=MembershipRetirementPlan.create(root,identity,current,floor,original,retirementContext(),retirementSuccessor());
                     require(Arrays.equals(record.bytes(),plan.record.bytes()),"retirement differs from saved original generation");
                 }
                 retirement.sealAuthority(record,this::checkWithoutRetirement,cut);
@@ -2296,11 +2370,16 @@ final class MembershipGrantJournal implements AutoCloseable {
             var cap=sources.original(original).packet().capsule().value();
             ancestors.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
         }
+        if(futurePending()) {
+            ancestors.add(futureRetention.state().target());
+            futureRetention.state().peers.forEach(peer->ancestors.add(peer.lower()));
+        }
         incoming.verifyAncestry(MembershipGenerationPlan.ancestry(bridges),ancestors);
         var certificate=incoming.membershipCertificateFence().orElseThrow(()->new IllegalArgumentException("no authenticated membership certificate fence"));
-        if(current.adopted && Arrays.equals(current.capsule.packet.bytes(),packet.bytes())) {
+        if(current.adopted && current.capsule.sameProvenPrefix(packet)) {
             var saved=decode(AdmissionPaths.read(directory.resolve("generations").resolve(current.generation).resolve("promise.gsr"),8192),"records","PROMISE");
             var duplicate=MembershipGenerationPlan.adopted(root,identity,current.generation,saved,incoming,bridges,images);
+            var completion=inheritedFutureCompletion();if(completion!=null)duplicate=duplicate.retainingFutureCompletion(completion);
             require(Arrays.equals(current.manifest.bytes(),duplicate.manifest.bytes()) && !inactive.pending(),"adopted generation differs from original plan");
             checkOwner();fence(object(promise.value().get("ballot")));return current.manifest;
         }
@@ -2317,6 +2396,9 @@ final class MembershipGrantJournal implements AutoCloseable {
             ensureJournalCapacity(adoptedPromise.bytes().length,"adoption journal rotation required");
         }
         var plan=MembershipGenerationPlan.adopted(root,identity,inactive.slot(),adoptedPromise,incoming,bridges,images);
+        var retained=selectedRetentionIntent();
+        if(retained!=null && !retained.futures().isEmpty())plan=plan.retainingFutureCompletion(
+                MembershipFutureRetentionCompletion.create(retained,peerRetention.activeBytes(),incoming,MembershipGenerationPlan.ancestry(bridges),identity));
         // Reject another pending plan or occupied old generation before modifying the root promise.
         inactive.checkPlan(plan);
         var bound=object(adoptedPromise.value().get("ballot"));
@@ -2328,7 +2410,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             }
             cut.at("ADOPTION_INSTALL_FENCED");checkOwner();fence(bound);
             inactive.install(plan,current.selector.bytes(),()->{checkBaseOwner();fence(bound);},current::check,cut);
-            reloadGenerations();cut.at("ADOPTION_INSTALL_BEFORE_RETURN");checkOwner();fence(bound);return current.manifest;
+            reloadGenerations();completeInheritedFutureRetention();completeFutureRetention();cut.at("ADOPTION_INSTALL_BEFORE_RETURN");checkOwner();fence(bound);return current.manifest;
         }catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
     private void checkIncomingHistory(MembershipCapsule incoming,Map<String,byte[]> images)throws IOException {
@@ -2511,7 +2593,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(current!=null && promise!=null && basis!=null,"complete current grant required");checkOwner();
         var ballot=object(promise.value().get("ballot"));fence(ballot);
         var result=verifyDecision(offered,bridges);
-        for(var source:result.sources())MembershipPeerRetentionSource.requireSelectable(source);
+        if(!ownedHistory || peerRetention==null || futureRetention==null)
+            for(var source:result.sources())MembershipPeerRetentionSource.requireSelectable(source);
         fence(ballot);return result;
     }
     /** Pure original-decision verification also supports exact derived cleanup.
@@ -2548,7 +2631,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(selection!=null) {require(Arrays.equals(selection.bytes(),selected.bytes()),"selection already fixed; fresh ballot required");return selection;}
         if(peerRetention!=null) {
             var retention=MembershipSelectedRetention.capture(calculated,identity,peerRetention.activeBytes());
-            require(retention.completionBytes()+selected.bytes().length<=maximum-storedJournal().length-pendingBytes(),"selected retention completion journal capacity");
+            require(retention.completionBytes()+selected.bytes().length+(retention.hasPendingFutures() && !futurePending() && !importedFuturePending?MembershipPeerRetentionFiles.MAXIMUM:0)<=maximum-storedJournal().length-pendingBytes(),"selected retention completion journal capacity");
         }
         if(original!=null) {
             // The complete context/source remains pinned. Do not turn selection
@@ -2610,6 +2693,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             completeSelectedRetention();
             if(retainedOriginal!=null && settles)completeCoveredContext(retainedOriginal);
             else if(pendingAccept!=null && settledVoteCandidate(pendingAccept.active()))retireSettledVote();
+            completeFutureRetention();
             // The former active generation now occupies the future publication slot.
             // Keep its maximum completion reservation until authorized retirement.
             if(appliedEnd!=null && pendingAccept.active()!=null)reservePublicationImage();

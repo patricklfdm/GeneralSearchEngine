@@ -137,9 +137,17 @@ final class MembershipPeerRetentionPlan {
      * until the existing explicit configuration reconciliation runs. */
     MembershipPeerRetentionPlan recordCoveredDispatch(MembershipCapsule current,byte[] ancestry,MembershipIdentity peer,
             MembershipCapsule.Anchor lower,MembershipCapsule.Anchor upper) {
-        context(current,ancestry,false);var old=possible(peer);
+        context(current,ancestry,false);
         require(index(lower)<index(upper) && index(upper)<=index(current.terminal()),"retention covered target must advance");
         current.verifyAncestry(ancestry,List.of(lower,upper));
+        return projectCoveredDispatch(peer,lower,upper,current.context.cut);
+    }
+    /** Pure included-source projection. The resulting plan is not authority:
+     * generation installation must authenticate every recorded endpoint first. */
+    MembershipPeerRetentionPlan projectCoveredDispatch(MembershipIdentity peer,MembershipCapsule.Anchor lower,
+            MembershipCapsule.Anchor upper,Map<String,Object> selectedCut) {
+        require(index(lower)<index(upper) && index(upper)<=number(selectedCut.get("index")),"projected retention covered target");
+        var old=possible(peer);
         var points=new TreeMap<Long,MembershipCapsule.Anchor>();old.forEach(a->points.put(index(a),a));
         for(var anchor:List.of(lower,upper)) {
             if(index(anchor)<points.firstKey())continue;
