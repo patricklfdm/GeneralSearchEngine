@@ -1574,11 +1574,25 @@ final class MembershipGrantJournal implements AutoCloseable {
         final MembershipCapsule.Anchor target;
         final Map<String,Object> ballot;
         final String selection,certificate;
+        private final String requestView;
+        private final Set<String> requestVoters;
         private final PendingPublication pending;
         private Publication(PendingPublication pending)throws IOException {
             this.pending=pending;applied=pending.applied;before=pending.before;target=pending.target();
             ballot=object(pending.vote.accept().value().get("ballot"));selection=pending.vote.selected().digest();
             certificate=pending.vote.certificate().digest();
+            requestView=before.context.authority();requestVoters=Set.copyOf(before.context.voters());
+        }
+        private Publication()throws IOException {
+            checkOwner();applicationTransactionIdle();require(ownedHistory,"published acknowledgement requires native history owner");
+            certificate=current.publishedCertificate().orElseThrow(()->new IllegalArgumentException("no native completed publication"));
+            var selected=current.selectedRecord().orElseThrow(()->new IllegalArgumentException("published original selection unavailable"));
+            pending=null;applied=null;before=current.capsule;target=before.terminal();selection=selected.digest();
+            ballot=object(selected.value().get("ballot"));requestView=(String)selected.value().get("view");
+            var view=object(current.publishedParent().cut().get("view"));
+            require(requestView.equals(MembershipContext.viewDigest(before.context.root,view)),"published original authority mismatch");
+            var voters=new TreeSet<>(MembershipContext.nodes(view,"old"));voters.addAll(MembershipContext.nodes(view,"new"));requestVoters=Set.copyOf(voters);
+            require(published(),"native publication no longer current");
         }
         boolean published()throws IOException {
             synchronized(MembershipGrantJournal.this) {
@@ -1589,14 +1603,18 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(current.publishedCertificate().filter(certificate::equals).isPresent()) {
                     require(current.capsule.terminal().equals(target),"publication scope target changed");return true;
                 }
-                pending.check();return false;
+                require(pending!=null,"published acknowledgement generation changed");pending.check();return false;
             }
         }
         void check()throws IOException {published();}
         void request(MembershipIdentity sender,Decoded request)throws IOException {
             synchronized(MembershipGrantJournal.this) {
                 check();require(request.kind().equals("PUBLISH"),"publication request kind");var value=request.value();
-                before.context.wire(request,sender,identity,ballot,UUID.fromString((String)value.get("trace")),number(value.get("sequence")));
+                MembershipWire.envelope(request,before.context.root,sender,identity);
+                require(value.get("view").equals(requestView) && value.get("ballot").equals(ballot)
+                        && sender.equals(before.context.identities.get(sender.nodeId().value()))
+                        && requestVoters.contains(sender.nodeId().value()) && requestVoters.contains(identity.nodeId().value()),
+                        "publication request original authority/identities");
                 require(sender.nodeId().value().equals(ballot.get("proposer"))
                         && object(value.get("payload")).get("certificate").equals(certificate),"publication request original proposer/certificate");
             }
@@ -1613,6 +1631,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
     }
     synchronized Publication publication(Applied applied)throws IOException {return new Publication(pendingPublication(applied));}
+    /** No new application, vote or publication. Reopen must first finish native
+     * covered staging/retention recovery; only the exact current original can ACK. */
+    synchronized Decoded acknowledgePublished(MembershipIdentity sender,Decoded request)throws IOException {
+        return new Publication().acknowledge(sender,request);
+    }
     /** A capability for one complete, re-forced native certificate. It carries no
      * fresh remote observations and never advances the published cut. */
     static final class CertifiedCurrent {

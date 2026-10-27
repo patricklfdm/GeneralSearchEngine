@@ -8,6 +8,13 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Restarted publication acknowledgement](PHASE_3_PUBLICATION_RESTART.md) supplies
+the exact completed-only native receiver entry after loss of the old scope.
+Original governing view, certificate, selection, ballot and generation remain
+bound through reopen; explicit duplicate delivery does not qualify an autonomous
+sender reconciler. Incoming ACCEPT/PROOF/application, automatic lifecycle,
+learner/joint completion and complete 3B–3E qualification remain required below.
+
 [Native remote publication](PHASE_3_REMOTE_PUBLICATION.md) now supplies exact
 future-quorum-bound sends with write-time fencing, actual remote checkpoint
 receipts and forced selector acknowledgements. The source-bound stable histories

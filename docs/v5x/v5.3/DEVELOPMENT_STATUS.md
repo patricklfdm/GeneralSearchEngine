@@ -1,5 +1,31 @@
 # V5.3 development status
 
+## 2026-10-27 — Phase 3 publication acknowledgement after receiver restart
+
+The [completed-publication receiver](PHASE_3_PUBLICATION_RESTART.md) reconstructs
+the actual native certificate/selection/ballot and original governing view after
+reopen. It returns the original publication ACK without applying a pending result,
+creating a new vote or fetching new remote observations. Higher ballots and
+changed identities/certificates refuse the old request. An explicitly driven
+four-to-three REMOVE additionally checks seven INTENT/FINAL acknowledgements
+against the original view, including the removed voter before FINAL adoption.
+
+The new TCP regression fails on the original implementation. Final native tests
+pass eight halt/SIGKILL cuts across sixteen fresh JVMs, four live-lock probes,
+ordinary restart/refusal checks and the cross-view history. Independent
+original-first replay derives interrupted storage and exact recovered ACKs, with
+88 exact negative mutations and relocated optimized replay. The
+[receipt](phase3-evidence/publication-restart.json) binds the final sources and
+preserves the earlier cross-view fixture failure and its provenance correction.
+Existing 3/4/5-voter remote publication histories also pass independent replay.
+
+The sender's first finite dispatch is allowed to fail while the receiver is dead;
+this qualification explicitly resubmits the identical request after reopen. It
+does not claim autonomous retry/reconciliation. Incoming native ACCEPT/PROOF/
+application controls, automatic election/discovery/maintenance, learner ADD/REPLACE,
+all seven joint profiles, maximum headroom and full Phase 3 remain OPEN. No push,
+protected CI, public runtime, paid cloud or V5.2 Runner change.
+
 ## 2026-10-27 — Phase 3 native remote publication
 
 The [remote publication path](PHASE_3_REMOTE_PUBLICATION.md) now consumes its

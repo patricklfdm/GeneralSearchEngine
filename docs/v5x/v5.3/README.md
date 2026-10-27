@@ -1,5 +1,13 @@
 # V5.3 — controlled cluster operations
 
+[Restarted publication acknowledgement](PHASE_3_PUBLICATION_RESTART.md) reconstructs
+only the actual completed native publication and its original voting authority.
+Duplicate requests after receiver restart cannot reapply pending work or create
+fresh observations. Its process/physical qualification is recorded separately
+from the preceding in-memory remote-publication component. Automatic dispatch
+reconciliation, incoming votes/application, learners/joint completion and whole
+Phase 3 remain open; earlier entries retain their source-bound scope.
+
 [Native remote publication](PHASE_3_REMOTE_PUBLICATION.md) now connects a governing
 future-recording quorum to exact TCP PUBLISH, actual remote checkpoint receipts,
 selector force and a distinct publication acknowledgement. Stable 3/4/5-voter

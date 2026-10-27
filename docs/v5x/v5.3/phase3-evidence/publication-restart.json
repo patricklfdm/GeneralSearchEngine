@@ -1,0 +1,928 @@
+{
+  "autonomous": false,
+  "baseCommit": "25a865d8402b67c8e651269f987e4aea2951674e",
+  "crossView": {
+    "acknowledgements": 7,
+    "independentPhysicalQualification": false,
+    "profile": "REMOVE-4-to-3",
+    "result": {
+      "bytes": 110,
+      "path": "target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/v53-publication-reopen-view/run-6201d847-c83a-40d5-bc32-27ecaaf503ac/acknowledged-views.json",
+      "sha256": "2ce0917645d97cf002584898ee45df13e8b2bb0d349b99c484dc281a4feeb116"
+    }
+  },
+  "date": "2026-10-27",
+  "earlierFixtureFailure": {
+    "bytes": 9881,
+    "path": "target/v53-publication-restart/builds/process-4e353c30/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublishedReopenTest.xml",
+    "sha256": "e26837ecdbd413303e036ff5f621ad9758525e1e3bed4750eb2ac3001d40f68c"
+  },
+  "evidence": [
+    {
+      "bytes": 930,
+      "path": "target/v53-publication-restart/PLAN.md",
+      "sha256": "9228b4fedcc03d29a9991901d8c1f0eda926b1b8e81b424fea55233f3cf97c0e"
+    },
+    {
+      "bytes": 55,
+      "path": "target/v53-publication-restart/archive.log",
+      "sha256": "625fa1443065fec06dab82bc46556188f91e94cfbe2bbf71d21a89352cba882b"
+    },
+    {
+      "bytes": 1442,
+      "path": "target/v53-publication-restart/archive.py",
+      "sha256": "1d65ef6cc27fcf66437db7c4207b66bc9ac8c046301f8786b1eedfe8eb48ea27"
+    },
+    {
+      "bytes": 813,
+      "path": "target/v53-publication-restart/collect.py",
+      "sha256": "341ab64d49bb9ad6bd86cef5fc6abd508b461f80100dde487ccebb813adabed8"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-publication-restart/contract-preliminary.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 855,
+      "path": "target/v53-publication-restart/contract-preliminary.stderr",
+      "sha256": "4d4aecc015f507132f634b4ff224d4226fe3b4bc661020c24208434968a3e971"
+    },
+    {
+      "bytes": 7288,
+      "path": "target/v53-publication-restart/corrected-build.log",
+      "sha256": "741d04717a112862d48891f4643ae6dc0a3e0df4416cd2e39f4318ee3b9aac2c"
+    },
+    {
+      "bytes": 489036,
+      "path": "target/v53-publication-restart/corrected-inputs.json",
+      "sha256": "8cb2b49a2f418073bfbecfae921ba392f0cb6b9df819856907fc4f48ab537e7d"
+    },
+    {
+      "bytes": 100,
+      "path": "target/v53-publication-restart/corrected-workspace.txt",
+      "sha256": "4363712a60ce1cd20668d1c117b054fa1efc5899bd0866b3b1f3cd68efb57491"
+    },
+    {
+      "bytes": 6871,
+      "path": "target/v53-publication-restart/existing-remote-replay.json",
+      "sha256": "ec8db103b3a7cad95834b79d090a7d3815a6396cfa7115826d55dab0d1221cb5"
+    },
+    {
+      "bytes": 8241,
+      "path": "target/v53-publication-restart/final-build.log",
+      "sha256": "f0049c28677ebe30371379931d3c7a8849cf32abb505ecb13e57420f4a2093eb"
+    },
+    {
+      "bytes": 489802,
+      "path": "target/v53-publication-restart/final-inputs.json",
+      "sha256": "49a40e808115abf978535a4fe5012453fb13d5115e1f44dc036c47f79685b4e6"
+    },
+    {
+      "bytes": 17815,
+      "path": "target/v53-publication-restart/final-replay.json",
+      "sha256": "0528f11e832a9bb32c5b1d6f1cc299e434cd16ea3ab8c9731b2691cdf7742dd8"
+    },
+    {
+      "bytes": 1708,
+      "path": "target/v53-publication-restart/final-replay.log",
+      "sha256": "f03775b55738faad88a27ffd7635118e54c5a1adb1b97e20df40ab160c58f4af"
+    },
+    {
+      "bytes": 96,
+      "path": "target/v53-publication-restart/final-workspace.txt",
+      "sha256": "920e02ba78174a7c5714cda2999d5080988e97fc345944850c8850dedd73db06"
+    },
+    {
+      "bytes": 6383,
+      "path": "target/v53-publication-restart/finalize.py",
+      "sha256": "6d3ed3609ad9754f0ebfe0bf1ac0b6b086f0e239404af507aea064b3f8c3e686"
+    },
+    {
+      "bytes": 8287,
+      "path": "target/v53-publication-restart/original-build.log",
+      "sha256": "0958305f8fe7040dd786d26747bdd8f31d2b4aa4d5cdc718e451679194430bc9"
+    },
+    {
+      "bytes": 489036,
+      "path": "target/v53-publication-restart/original-inputs.json",
+      "sha256": "8cb2b49a2f418073bfbecfae921ba392f0cb6b9df819856907fc4f48ab537e7d"
+    },
+    {
+      "bytes": 489036,
+      "path": "target/v53-publication-restart/original-production-inputs.json",
+      "sha256": "3b8d60d5b3aa478f1aedbdbc004855f396af325c68df6450b11cbd194cf8bd64"
+    },
+    {
+      "bytes": 99,
+      "path": "target/v53-publication-restart/original-workspace.txt",
+      "sha256": "0af322aeddee914c4695fff2af323e90e84ef2ef7cd7e87b3709c4572d2720c7"
+    },
+    {
+      "bytes": 17223,
+      "path": "target/v53-publication-restart/portable-replay.json",
+      "sha256": "c09d0dfcd8aa7e87be44f7e5cab60f95e1840082306344ee69b357e3f0fa1cc3"
+    },
+    {
+      "bytes": 1708,
+      "path": "target/v53-publication-restart/portable-replay.log",
+      "sha256": "f03775b55738faad88a27ffd7635118e54c5a1adb1b97e20df40ab160c58f4af"
+    },
+    {
+      "bytes": 600,
+      "path": "target/v53-publication-restart/portable-replay.py",
+      "sha256": "13f47b578ede67c7586e6f8a871cb7cabea4a74bc9bccfa27e05bb7cc1a79d71"
+    },
+    {
+      "bytes": 10421,
+      "path": "target/v53-publication-restart/process-build.log",
+      "sha256": "842eeb66e3dbc940c6165e60ceb8167f9a55e94fe4b5c236cca17affe950dcc6"
+    },
+    {
+      "bytes": 489445,
+      "path": "target/v53-publication-restart/process-inputs.json",
+      "sha256": "f95eb28c4525f397cf1076d9bef73fe515ac57032bcaf97b40c2695b46a6968e"
+    },
+    {
+      "bytes": 17831,
+      "path": "target/v53-publication-restart/process-replay.json",
+      "sha256": "90bad0d240427506166f9c5de76fada645fdcdf5ffd90a10afbe2b5c57b95ab1"
+    },
+    {
+      "bytes": 98,
+      "path": "target/v53-publication-restart/process-workspace.txt",
+      "sha256": "24f6f119d7bf333658781aa40284cf4a539e89c966fbc439c7c88175c50e4d29"
+    },
+    {
+      "bytes": 1715,
+      "path": "target/v53-publication-restart/prototype-reader.json",
+      "sha256": "4f5d9c5d4eb74e0822ced068211118fa7b22ad1f5cb0fc687835ef7f81884bb2"
+    },
+    {
+      "bytes": 770,
+      "path": "target/v53-publication-restart/python-all.log",
+      "sha256": "b1d49806edae6eb7ea014a7c117a85b2de9d843faa46b31480c7cabaaffdfb30"
+    },
+    {
+      "bytes": 770,
+      "path": "target/v53-publication-restart/python-final.log",
+      "sha256": "2520de83ad67701d011d7cbc316a64ec115905ee4b2493d8fe41717c1fb7fe02"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-publication-restart/python-focused-optimized-latest.log",
+      "sha256": "af55efa5c3ceb122f8184c380aa405d3f3b4e7e0c1e892773d0eff31d0645c8a"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-publication-restart/python-focused-optimized.log",
+      "sha256": "af55efa5c3ceb122f8184c380aa405d3f3b4e7e0c1e892773d0eff31d0645c8a"
+    },
+    {
+      "bytes": 770,
+      "path": "target/v53-publication-restart/python-verified.log",
+      "sha256": "be9887dfb5c5d523c5749c9ada01e12460defa683e89228c0de7d24bb8aebc44"
+    },
+    {
+      "bytes": 12060574,
+      "path": "target/v53-publication-restart/raw-inventory.json",
+      "sha256": "ca10b63d2608ca0588119c45488262fc66738c87d4cd3158ce0d73672b32ac6b"
+    },
+    {
+      "bytes": 15354173,
+      "path": "target/v53-publication-restart/raw.tar.gz",
+      "sha256": "bef6806a18b337941aff8bcaa628958106ed890774f39e9605798e771db481a7"
+    },
+    {
+      "bytes": 964,
+      "path": "target/v53-publication-restart/snapshot.py",
+      "sha256": "41969c573e7279de64f14abdde83521a8b6829e6c4cfd3b411a865c39e6452a3"
+    },
+    {
+      "bytes": 11126,
+      "path": "target/v53-publication-restart/source.patch",
+      "sha256": "caf8e09da4ce539c06926d12ca0d666f467f17e18df187134db2c56ecc2947ba"
+    }
+  ],
+  "existingRemoteReplay": {
+    "bytes": 6871,
+    "path": "target/v53-publication-restart/existing-remote-replay.json",
+    "sha256": "ec8db103b3a7cad95834b79d090a7d3815a6396cfa7115826d55dab0d1221cb5"
+  },
+  "independent": [
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "publication restart checkpoint original bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted",
+            "reason": "publication restart exact interrupted files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "recovered",
+            "reason": "publication restart exact recovered files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "publication restart durable acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "request",
+            "reason": "publication restart original request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "publication restart recording delivered before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reapply",
+            "reason": "publication restart no reapplication or new observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "exit",
+            "reason": "publication restart exact exit",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-force",
+            "reason": "selected retention force order: restart original force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-ack",
+            "reason": "publication restart no premature ACK",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "cut": "PUBLICATION_ACK_BEFORE_RETURN",
+          "mode": "halt",
+          "originalDispatch": "IO_FAILED",
+          "phase3Complete": false,
+          "processes": 2,
+          "reapplication": false,
+          "resumedReceipts": 2,
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/v53-future-endpoint/run-07b9c9e3-a25f-42e4-a5a8-484581b27903"
+    },
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "publication restart checkpoint original bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted",
+            "reason": "publication restart exact interrupted files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "recovered",
+            "reason": "publication restart exact recovered files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "publication restart durable acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "request",
+            "reason": "publication restart original request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "publication restart recording delivered before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reapply",
+            "reason": "publication restart no reapplication or new observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "exit",
+            "reason": "publication restart exact exit",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-force",
+            "reason": "selected retention force order: restart original force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-ack",
+            "reason": "publication restart no premature ACK",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "cut": "PUBLICATION_ACK_BEFORE_RETURN",
+          "mode": "kill",
+          "originalDispatch": "IO_FAILED",
+          "phase3Complete": false,
+          "processes": 2,
+          "reapplication": false,
+          "resumedReceipts": 2,
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/v53-future-endpoint/run-2db22477-b03b-4f73-9f8d-a8dbf9753a1e"
+    },
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "publication restart checkpoint original bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted",
+            "reason": "publication restart exact interrupted files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "recovered",
+            "reason": "publication restart exact recovered files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "publication restart durable acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "request",
+            "reason": "publication restart original request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "publication restart recording delivered before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reapply",
+            "reason": "publication restart no reapplication or new observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "exit",
+            "reason": "publication restart exact exit",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-force",
+            "reason": "selected retention force order: restart original force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-ack",
+            "reason": "publication restart no premature ACK",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "cut": "PUBLICATION_BEFORE_RETURN",
+          "mode": "kill",
+          "originalDispatch": "IO_FAILED",
+          "phase3Complete": false,
+          "processes": 2,
+          "reapplication": false,
+          "resumedReceipts": 2,
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/v53-future-endpoint/run-5c2adfa7-5458-4e8e-adc6-15d371788fa6"
+    },
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "publication restart checkpoint original bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted",
+            "reason": "publication restart exact interrupted files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "recovered",
+            "reason": "publication restart exact recovered files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "publication restart durable acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "request",
+            "reason": "publication restart original request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "publication restart recording delivered before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reapply",
+            "reason": "publication restart no reapplication or new observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "exit",
+            "reason": "publication restart exact exit",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-force",
+            "reason": "selected retention force order: restart original force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-ack",
+            "reason": "publication restart no premature ACK",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "cut": "PUBLICATION_SELECTOR_FORCED",
+          "mode": "halt",
+          "originalDispatch": "IO_FAILED",
+          "phase3Complete": false,
+          "processes": 2,
+          "reapplication": false,
+          "resumedReceipts": 2,
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/v53-future-endpoint/run-6872cfcc-3c2c-4e0b-9d3c-078528a7c202"
+    },
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "publication restart checkpoint original bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted",
+            "reason": "publication restart exact interrupted files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "recovered",
+            "reason": "publication restart exact recovered files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "publication restart durable acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "request",
+            "reason": "publication restart original request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "publication restart recording delivered before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reapply",
+            "reason": "publication restart no reapplication or new observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "exit",
+            "reason": "publication restart exact exit",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-force",
+            "reason": "selected retention force order: restart original force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-ack",
+            "reason": "publication restart no premature ACK",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "cut": "PUBLICATION_SELECTOR_FORCED",
+          "mode": "kill",
+          "originalDispatch": "IO_FAILED",
+          "phase3Complete": false,
+          "processes": 2,
+          "reapplication": false,
+          "resumedReceipts": 2,
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/v53-future-endpoint/run-914e137e-af85-4f16-ad7d-9fc180af58ca"
+    },
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "publication restart checkpoint original bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted",
+            "reason": "publication restart exact interrupted files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "recovered",
+            "reason": "publication restart exact recovered files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "publication restart durable acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "request",
+            "reason": "publication restart original request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "publication restart recording delivered before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reapply",
+            "reason": "publication restart no reapplication or new observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "exit",
+            "reason": "publication restart exact exit",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-force",
+            "reason": "selected retention force order: restart original force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-ack",
+            "reason": "publication restart no premature ACK",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "cut": "FUTURE_RETENTION_PROMOTED",
+          "mode": "kill",
+          "originalDispatch": "IO_FAILED",
+          "phase3Complete": false,
+          "processes": 2,
+          "reapplication": false,
+          "resumedReceipts": 2,
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/v53-future-endpoint/run-b0ac929c-ea7c-4bd7-b8df-1e7bffe4f0f0"
+    },
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "publication restart checkpoint original bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted",
+            "reason": "publication restart exact interrupted files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "recovered",
+            "reason": "publication restart exact recovered files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "publication restart durable acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "request",
+            "reason": "publication restart original request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "publication restart recording delivered before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reapply",
+            "reason": "publication restart no reapplication or new observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "exit",
+            "reason": "publication restart exact exit",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-force",
+            "reason": "selected retention force order: restart original force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-ack",
+            "reason": "publication restart no premature ACK",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "cut": "FUTURE_RETENTION_PROMOTED",
+          "mode": "halt",
+          "originalDispatch": "IO_FAILED",
+          "phase3Complete": false,
+          "processes": 2,
+          "reapplication": false,
+          "resumedReceipts": 2,
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/v53-future-endpoint/run-b1617326-82b2-4859-ad97-7f9e272c5f0b"
+    },
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "publication restart checkpoint original bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted",
+            "reason": "publication restart exact interrupted files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "recovered",
+            "reason": "publication restart exact recovered files",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "publication restart durable acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "request",
+            "reason": "publication restart original request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "publication restart recording delivered before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reapply",
+            "reason": "publication restart no reapplication or new observations",
+            "status": "REJECTED"
+          },
+          {
+            "case": "exit",
+            "reason": "publication restart exact exit",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-force",
+            "reason": "selected retention force order: restart original force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "premature-ack",
+            "reason": "publication restart no premature ACK",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "cut": "PUBLICATION_BEFORE_RETURN",
+          "mode": "halt",
+          "originalDispatch": "IO_FAILED",
+          "phase3Complete": false,
+          "processes": 2,
+          "reapplication": false,
+          "resumedReceipts": 2,
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/v53-future-endpoint/run-ec023973-9081-41ac-b501-9312da93fa02"
+    }
+  ],
+  "javaTests": [
+    {
+      "attempt": "final",
+      "name": "V53PublishedReopenTest",
+      "report": {
+        "bytes": 8939,
+        "path": "target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublishedReopenTest.xml",
+        "sha256": "e8d014420d03ee06cea49805aae921c5d237b4560512f8c41abec18b61c1c0a7"
+      },
+      "seconds": 255.116,
+      "tests": 3
+    },
+    {
+      "attempt": "final",
+      "name": "V53PublicationRestartProcessTest",
+      "report": {
+        "bytes": 9574,
+        "path": "target/v53-publication-restart/builds/final-be28da1e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublicationRestartProcessTest.xml",
+        "sha256": "51c763393872f60b720ee95e4fad0aac014223cf6b68103c118ba1ded5caec60"
+      },
+      "seconds": 196.697,
+      "tests": 1
+    },
+    {
+      "attempt": "corrected",
+      "name": "V53RemotePublicationTest",
+      "report": {
+        "bytes": 10840,
+        "path": "target/v53-publication-restart/builds/corrected-de9323b9/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RemotePublicationTest.xml",
+        "sha256": "ec216cfbb50ade7db2bcf9884e6403b443b8f92c019042a14e2e9557b0a5971d"
+      },
+      "seconds": 211.252,
+      "tests": 7
+    }
+  ],
+  "killLockProbes": 4,
+  "negativeMutations": 88,
+  "originalRegression": {
+    "detail": "io.github.patricklfdm.generalsearch.replication.MembershipTransport$Failure: membership exchange I/O failed",
+    "errors": 1,
+    "report": {
+      "bytes": 10030,
+      "path": "target/v53-publication-restart/builds/original-20de34f0/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PublishedReopenTest.xml",
+      "sha256": "b4b2eaf4955bc60b153148a00762facbb09e938b47d798cfab41958a5203ba14"
+    },
+    "tests": 2
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portableReplay": {
+    "bytes": 17223,
+    "path": "target/v53-publication-restart/portable-replay.json",
+    "sha256": "c09d0dfcd8aa7e87be44f7e5cab60f95e1840082306344ee69b357e3f0fa1cc3"
+  },
+  "processes": 16,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "optimizedFocused": 4,
+    "tests": 669
+  },
+  "remaining": [
+    "autonomous publication retry/reconciliation",
+    "native incoming ACCEPT/PROOF/application controls",
+    "autonomous election/discovery/maintenance",
+    "learner ADD/REPLACE and all seven joint profiles",
+    "maximum ancestry/completion headroom",
+    "complete 3B\u20133E protocol/physical/history qualification"
+  ],
+  "schema": "gse-v53-publication-restart-local-v1",
+  "scope": "completed-native-publication-receiver-restart-and-explicit-identical-resubmission",
+  "source": [
+    {
+      "bytes": 127416,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "dbd6663a298915dcde1aa81608452c88bc27882518e313ca6449138abd02cf5e"
+    },
+    {
+      "bytes": 20514,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "ba9cef86f57fb8aab5a829e1dfb76098f049cfe31ab2b663b3467531520ef705"
+    },
+    {
+      "bytes": 3920,
+      "path": "docs/v5x/v5.3/PHASE_3_PUBLICATION_RESTART.md",
+      "sha256": "bab8963dcdade6790c98f44a3c0487c9ccb21d8e0a7849f3aaa5866012728115"
+    },
+    {
+      "bytes": 35533,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "b6a7d39c7c4adea537463dd4da6b2ec42c81e3605dfaba5e2856c416fda1db05"
+    },
+    {
+      "bytes": 19353,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "sha256": "17814be89bc4edf1b1eb783d69f7bee3089f3c67a49c40cb7437bd737f926e3c"
+    },
+    {
+      "bytes": 263514,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "6b92d0c55a527fcd6e5da722bc5cd8ecc5b4606cc1c54d372778b5192cdc61d7"
+    },
+    {
+      "bytes": 6493,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationRestartProcessTest.java",
+      "sha256": "daeef15d95afb9b7b8c2a7ecdd017a805c696b1ae5b409df3631754e2eb0274c"
+    },
+    {
+      "bytes": 3932,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublicationRestartWorker.java",
+      "sha256": "6f06a19a37cd3d4f52f775771af0f56071cd4815936b1dc218b08eab8de0e640"
+    },
+    {
+      "bytes": 9159,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PublishedReopenTest.java",
+      "sha256": "e5f64089458bb920313e1d98b1e883e7093c5bfb1ddfe5e5af01b9aa07efede1"
+    },
+    {
+      "bytes": 16529,
+      "path": "scripts/v53/publication_restart_evidence.py",
+      "sha256": "54ce0825b9dcd6225698935fdc0b81c70a18a361cafe74e50e304a7a9a191d91"
+    },
+    {
+      "bytes": 989,
+      "path": "scripts/v53/test_publication_restart_evidence.py",
+      "sha256": "bcbeaacba55143627b4697c363dfe09b441be8f4e706077bf12097477bc81372"
+    }
+  ],
+  "sourceFilesMatchingFinalBuild": 1130,
+  "status": "PASS"
+}

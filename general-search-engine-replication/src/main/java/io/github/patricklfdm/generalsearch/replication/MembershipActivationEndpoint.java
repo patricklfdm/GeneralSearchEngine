@@ -206,6 +206,13 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         long received=clock.getAsLong();require(!closed,"activation endpoint closed");String kind=request.kind();Scope active;
+        if(kind.equals("PUBLISH")) {
+            // Completed publication survives the old in-memory campaign scope.
+            // This path neither applies a pending certificate nor enters a round.
+            require(nativeHistory,"published acknowledgement requires native endpoint");scratchOwner.check();
+            var reply=owner.acknowledgePublished(sender,request);long elapsed=clock.getAsLong()-received;
+            require(!closed && elapsed>=0 && elapsed<budget,"published endpoint closed/original deadline");return reply;
+        }
         if(kind.equals("RETENTION_INTENT") || kind.equals("FUTURE_RETENTION_INTENT")) {
             scratchOwner.check();var reply=kind.equals("RETENTION_INTENT")?owner.recordPeerRetention(sender,request):owner.recordFutureRetention(sender,request);
             long elapsed=clock.getAsLong()-received;
