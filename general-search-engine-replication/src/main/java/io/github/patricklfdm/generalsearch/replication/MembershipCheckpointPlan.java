@@ -98,12 +98,30 @@ final class MembershipCheckpointPlan {
         require(votes.size()<=12 && Arrays.equals(certificate.bytes(),certified.objectBytes(certificate.digest())),"checkpoint original certificate/observation bound");
         var context=certifiedContext(before,certified,images);context.certificate(certificate,votes);
         var entry=context.record((String)certificate.value().get("entry"),"ENTRY");
+        var result=replayApplication(captured,storage,before,certified,context,entry,images,scratch);
+        return project(before,certified,certificate,images,votes,result);
+    }
+
+    /** Native historical certificate recovery without manufacturing phased
+     * observations from its serialized witnesses. Original ownership is checked
+     * again by the owner after its replay service seals the delegated scratch;
+     * the result still needs a forced applied end. */
+    static <K,T> MembershipCheckpointPlan replayStored(SearchEngineConfiguration<K,T> captured,DurableStorageConfig<K,T> storage,
+            MembershipCapsule before,MembershipSourcePacket certified,Map<String,byte[]> images,
+            MembershipGrantJournal.CertifiedCurrent original,Path scratch)throws IOException {
+        var retained=before.retainingCurrentCertificate(certified,images,original);var certificate=original.certificate();
+        var entry=retained.publicationCertificate(certificate,before.context.cut);
+        var result=replayApplication(captured,storage,retained,certified,retained.context,entry,images,scratch);
+        return projectVerified(retained,certified,certificate,entry,Set.of(),result,retained.context);
+    }
+
+    private static <K,T> MembershipApplicationReplay.Result replayApplication(SearchEngineConfiguration<K,T> captured,DurableStorageConfig<K,T> storage,
+            MembershipCapsule before,MembershipSourcePacket certified,MembershipContext context,Decoded entry,Map<String,byte[]> images,Path scratch)throws IOException {
         var root=root(before);byte[] payload=certified.objectBytes((String)entry.value().get("payload"));
-        var result=MembershipApplicationReplay.replay(captured,storage,images.get(context.catalog.get("application")),
+        return MembershipApplicationReplay.replay(captured,storage,images.get(context.catalog.get("application")),
                 (String)context.catalog.get("application"),UUID.fromString((String)root.value().get("historyId")),
                 number(context.catalog.get("applicationSequence")),number(context.cut.get("index")),
                 List.of(new MembershipApplicationReplay.Step(number(entry.value().get("index")),(String)entry.value().get("kind"),payload)),scratch);
-        return project(before,certified,certificate,images,votes,result);
     }
 
     /** The storage owner may also supply an already semantically verified exact projection. */
@@ -114,6 +132,10 @@ final class MembershipCheckpointPlan {
         require(Arrays.equals(certificate.bytes(),certified.objectBytes(certificate.digest())),"checkpoint original certificate bytes");
         var context=certifiedContext(before,certified,images);context.certificate(certificate,votes);
         var entry=context.record((String)certificate.value().get("entry"),"ENTRY");
+        return projectVerified(before,certified,certificate,entry,votes,application,context);
+    }
+    private static MembershipCheckpointPlan projectVerified(MembershipCapsule before,MembershipSourcePacket certified,Decoded certificate,Decoded entry,
+            Set<Owned> votes,MembershipApplicationReplay.Result application,MembershipContext context) {
         byte[] payload=certified.objectBytes((String)entry.value().get("payload"));
         var catalog=MembershipCatalog.project(context,entry,payload,application);
         var result=new MembershipCheckpointPlan(before,certified,certificate,entry,catalog,application,votes);

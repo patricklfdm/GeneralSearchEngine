@@ -71,6 +71,19 @@ final class MembershipCapsule {
                 context.certificateAt(certificate,observations,parent);
     }
 
+    /** Attach only the native owner's exact pending certificate as historical
+     * authority for application. This is not a complete next-generation copy. */
+    MembershipCapsule retainingCurrentCertificate(MembershipSourcePacket packet,Map<String,byte[]> images,
+            MembershipGrantJournal.CertifiedCurrent original)throws java.io.IOException {
+        Objects.requireNonNull(original).check(this,packet);
+        var retained=materialization(packet,images,List.of());var certificate=original.certificate();
+        var entry=retained.context.certificateStructure(certificate,context.cut);
+        retained.context.control((String)entry.value().get("kind"),command((String)entry.value().get("kind"),packet.objectBytes((String)entry.value().get("payload"))));
+        var proofs=new HashSet<>(retained.history);proofs.add(certificate(certificate,context.cut));
+        var result=new MembershipCapsule(retained.context,packet,retained.anchors,retained.states,retained.observations,proofs,retained.highestMembershipCertificate);
+        original.check(this,packet);return result;
+    }
+
     /** Retain one already authenticated original proof through a compacted range.
      * Does not create observations or import unrelated history. The source packet caps still apply. */
     MembershipCapsule retainingCertificate(MembershipCapsule original,Decoded certificate,Map<String,Object> parent,Map<String,byte[]> images) {

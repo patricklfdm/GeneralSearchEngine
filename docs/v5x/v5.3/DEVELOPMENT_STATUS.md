@@ -1,5 +1,24 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3 native certified application recovery
+
+The [native application component](PHASE_3_NATIVE_APPLICATION.md) rechecks and
+re-forces the original stored certificate, then replays the typed application
+without recreating remote voting observations. Only a newly forced local end
+returns a checkpoint observation; the selector and published cut remain unchanged
+until the existing complete publication gate succeeds.
+
+Six actual 3/4/5-voter EMPTY/backup histories independently replay 72 node
+publications. Ten halt/SIGKILL cases use twenty fresh JVMs and five lock probes.
+The final isolated build passes 13 Java tests; all 658 Python tests pass normally
+and under `-O`. Earlier failed-source logs and separately completed regressions
+remain distinguished in the [receipt](phase3-evidence/native-application.json).
+
+This is a prerequisite for pending-target recovery, not durable future retention,
+selection propagation or actual dispatch. Automatic owner lifecycle, the full
+offline-survivor continuation, cross-view pending contexts, learners/joint
+completion and the complete Phase 3 gate remain open. No public runtime or push.
+
 ## 2026-10-26 — Phase 3B native current-target retention quorum
 
 The [retention quorum component](PHASE_3_RETENTION_QUORUM.md) connects exact native

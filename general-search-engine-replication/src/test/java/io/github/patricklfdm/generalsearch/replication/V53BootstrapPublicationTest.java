@@ -25,6 +25,7 @@ class V53BootstrapPublicationTest {
         Map<String,Object> ballot;
         long peakImages,peakMetadata,peakStaging;
         boolean ownedHistory;
+        boolean nativeApplication;
         @FunctionalInterface interface Observation {void at(MembershipBootstrapTarget<Integer,Doc> target,String operation,String event)throws java.io.IOException;}
         Observation observer=(target,operation,event)->{};
         static MembershipBootstrapRequest<Integer,Doc> request(Path root,int size,boolean backup)throws Exception {
@@ -116,8 +117,9 @@ class V53BootstrapPublicationTest {
             snapshot("slot-"+slot+"-certified");
             var applied=new TreeMap<String,MembershipGrantJournal.Applied>();var acks=new ArrayList<Decoded>();var checkpoints=new HashSet<Owned>();var lower=new TreeMap<Long,List<MembershipAppliedEndFiles.ParentEndorsement>>();
             for(var t:request.targets())try(var owner=open(t,"apply-"+slot)) {
-                var value=owner.applyCurrent(builder().configuration(),t.materialization(),phased);applied.put(t.identity().nodeId().value(),value);
-                assertEquals(value.endorsement().acknowledgement().digest(),owner.applyCurrent(builder().configuration(),t.materialization(),phased).endorsement().acknowledgement().digest());
+                var value=nativeApplication?owner.applyCurrent(builder().configuration(),t.materialization()):owner.applyCurrent(builder().configuration(),t.materialization(),phased);applied.put(t.identity().nodeId().value(),value);
+                var repeated=nativeApplication?owner.applyCurrent(builder().configuration(),t.materialization()):owner.applyCurrent(builder().configuration(),t.materialization(),phased);
+                assertEquals(value.endorsement().acknowledgement().digest(),repeated.endorsement().acknowledgement().digest());
                 acks.add(value.endorsement().acknowledgement());checkpoints.add(value.endorsement().owned());
                 var ends=new ArrayList<>(value.endorsement().ancestors());value.endorsement().parent().ifPresent(ends::add);
                 for(var end:ends)lower.computeIfAbsent(number(object(end.statement().value().get("start")).get("index")),k->new ArrayList<>()).add(end);

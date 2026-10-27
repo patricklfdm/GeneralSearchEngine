@@ -1,0 +1,401 @@
+{
+  "baseCommit": "dc12d5d10148d59e99748b13f5bab2dca28f444f",
+  "boundaries": [
+    "Six real public-bootstrap histories use the native original-certificate overload after owner reopen; stable groups only. Actual local phases are reconstructed independently, never manufactured by recovery from witness hashes.",
+    "Ten halt/SIGKILL cases use one separate three-voter EMPTY bootstrap/certificate prelude and twenty child JVMs. They do not establish power-loss or arbitrary concurrent network behavior.",
+    "The initial source exposed a replay callback inventory-boundary error and an early test hook. That known-failed build was deliberately terminated after its eight application and three round-storage regressions passed. It is not successful full qualification.",
+    "The final source passes thirteen selected Java tests. The earlier eleven tests are separately source-bound, not relabelled as executed on the final source.",
+    "Normal, optimized and relocated original-first replay agree; complete interrupted/recovered files are checked. DATA image semantics use the existing Java typed-inspection assertions and byte binding; no new independent core serializer proof is claimed.",
+    "Future target proof persistence, quorum selection propagation, actual dispatch, full offline-survivor continuation, automatic owner lifecycle and all remaining Phase 3 gates remain open.",
+    "No public membership enablement, format/resource changes, protected CI, push, paid experiment or V5.2 runner changes."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 8715969,
+      "path": "target/v53-native-application/build-evidence.tar.gz",
+      "sha256": "65a808278bd614786a3655602c5246f2e97e81bbb1eedddda7f0c4e81aac4f86"
+    },
+    {
+      "bytes": 1737,
+      "path": "target/v53-native-application/collect.py",
+      "sha256": "930e0bdae03d5b46acc00fc7b3eb53b4ac115cb77ca159d52868c44be764b680"
+    },
+    {
+      "bytes": 78,
+      "path": "target/v53-native-application/collection.json",
+      "sha256": "56895686992e30d0192d89a2852844d4c5cfc3cacf1320194f816fb35f8a2c5b"
+    },
+    {
+      "bytes": 420021,
+      "path": "target/v53-native-application/compiled-inventory.json",
+      "sha256": "7718c085a9a2826bb77a5bd734774ceb866cda3a2198c45bcf23f0ec052822d3"
+    },
+    {
+      "bytes": 166,
+      "path": "target/v53-native-application/contract-check.json",
+      "sha256": "4f5130c987d9514fccb2edfabc73155d37dc5231c8806b92adb65abb1112d1fc"
+    },
+    {
+      "bytes": 36745,
+      "path": "target/v53-native-application/final-python-inputs.json",
+      "sha256": "b898b933c330194c15780f29063af0ad32532b4321329d5960bdb5d8e490be48"
+    },
+    {
+      "bytes": 759,
+      "path": "target/v53-native-application/final-python-normal.log",
+      "sha256": "f63ca048c2c507e00439c498eff406047e30227daebc0777a595cc8c8b8e9b95"
+    },
+    {
+      "bytes": 759,
+      "path": "target/v53-native-application/final-python-optimized.log",
+      "sha256": "b37bde6e072594dff223ca947c07c12cfdcb7b5c6bb196a7ca982712d7be4e11"
+    },
+    {
+      "bytes": 6784,
+      "path": "target/v53-native-application/finalize.py",
+      "sha256": "39e88bfcd874162e9dc8544ed028c5eac72524dff69b20d0f7dff72f5eee554e"
+    },
+    {
+      "bytes": 11921,
+      "path": "target/v53-native-application/implementation-build.log",
+      "sha256": "10e44c87e9159206f3ebd095baf9adeb6199eebca97c49156318e1a78f8d1489"
+    },
+    {
+      "bytes": 477028,
+      "path": "target/v53-native-application/implementation-inputs.json",
+      "sha256": "d0310432cf99687a2c667c2c03fdbbdf18b79986b1913eb35d8ac440c8a2aebc"
+    },
+    {
+      "bytes": 56,
+      "path": "target/v53-native-application/implementation-workspace.txt",
+      "sha256": "75572dd469cda3a2080f36121ba00e7fa39aebae7f4d79ffb38fc22ef1ee7007"
+    },
+    {
+      "bytes": 109,
+      "path": "target/v53-native-application/preliminary-histories.json",
+      "sha256": "7edcca5d665bb9a26f0eee0569fccb8c7eb457b5d023757554e4a9f4f62e1ffc"
+    },
+    {
+      "bytes": 85,
+      "path": "target/v53-native-application/preliminary-processes.json",
+      "sha256": "6b53bd99d445760c92598f40283390c70c7635646dc6d6709d59f9668eba7cda"
+    },
+    {
+      "bytes": 94,
+      "path": "target/v53-native-application/preliminary-size3.json",
+      "sha256": "a5d8969fbb246eec0c718ef307f456a22b17e4061099701c7b1a753c1432576e"
+    },
+    {
+      "bytes": 759,
+      "path": "target/v53-native-application/python-normal.log",
+      "sha256": "b194be1ace9d6975c776ae8182aeda27d7e1124d55428784009b06c8e8c854b6"
+    },
+    {
+      "bytes": 759,
+      "path": "target/v53-native-application/python-optimized.log",
+      "sha256": "944426fe9c4f82c4d75b37f52a65c9f75f0c304fc8397c5b36e3eb337ad73d84"
+    },
+    {
+      "bytes": 6748,
+      "path": "target/v53-native-application/qualification-build.log",
+      "sha256": "50f4b7126ca904cee509d585aa8e222a9b7c4bc9168373d5db35ee084857e4e5"
+    },
+    {
+      "bytes": 477787,
+      "path": "target/v53-native-application/qualification-inputs.json",
+      "sha256": "23f044c52d387cc45a841cae7b6f5f9c33ab6b874c7fabdaeacf2be64ec0e69f"
+    },
+    {
+      "bytes": 55,
+      "path": "target/v53-native-application/qualification-workspace.txt",
+      "sha256": "00df41ebd7c276b69cb51d2d4fce00012ed1ed084954e83f94ff6f40b27c1d17"
+    },
+    {
+      "bytes": 3010216,
+      "path": "target/v53-native-application/raw-inventory.json",
+      "sha256": "e592f25c0469c8d218d42e41eaa7783aee742f766f489974a79f812da03f063e"
+    },
+    {
+      "bytes": 6422405,
+      "path": "target/v53-native-application/raw-native-application.tar.gz",
+      "sha256": "deb318cdacd807a91bcece5b273f35f700651d69478f699e50f81f4813c8aa31"
+    },
+    {
+      "bytes": 1077,
+      "path": "target/v53-native-application/replay-optimized.json",
+      "sha256": "399a40e98938a804fefbf2c1e0b4ba81b55958a9e96c28c435a92568f308b20c"
+    },
+    {
+      "bytes": 1077,
+      "path": "target/v53-native-application/replay-portable.json",
+      "sha256": "399a40e98938a804fefbf2c1e0b4ba81b55958a9e96c28c435a92568f308b20c"
+    },
+    {
+      "bytes": 1077,
+      "path": "target/v53-native-application/replay.json",
+      "sha256": "399a40e98938a804fefbf2c1e0b4ba81b55958a9e96c28c435a92568f308b20c"
+    },
+    {
+      "bytes": 836,
+      "path": "target/v53-native-application/snapshot.py",
+      "sha256": "5c45468666cead2634663fa92fc0feee9afdf3e9342e137c7389b25dd1868560"
+    },
+    {
+      "bytes": 1487,
+      "path": "target/v53-native-application/validation-summary.json",
+      "sha256": "85540a42588c5a6aa18d18f13e0f4bec83dd6c16e2f93a1be3530c97b0613ba1"
+    }
+  ],
+  "schema": "gse-v53-native-application-v1",
+  "sourceFiles": [
+    {
+      "bytes": 112228,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "b86f39a25ba8f79e3c0ffd16327bba73652a575b8e6eff5442f83faeeed02474"
+    },
+    {
+      "bytes": 15230,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "b4fcade1cb22c021eb7cf8348accad1a172a659a57808104f515415756b0fa37"
+    },
+    {
+      "bytes": 4914,
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_APPLICATION.md",
+      "sha256": "a20e9b0cc865a5f09b4009db98f7d79d507ba0d98e6676b883cc85fa05e0be98"
+    },
+    {
+      "bytes": 30265,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "e693288d151a3a8b744ca26b365b15bf606a2621a2bf25e54af9bcd421174ebd"
+    },
+    {
+      "bytes": 11078,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipApplicationImage.java",
+      "sha256": "77c8ddc0be362d071a8dae002877f0335962fb0867583f6a4704f1746c9ff634"
+    },
+    {
+      "bytes": 5489,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipApplicationReplay.java",
+      "sha256": "bff55fe627edef108cabad5564f410da3b301ad4c79456cb6ee2d7d01e1ad060"
+    },
+    {
+      "bytes": 28529,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java",
+      "sha256": "a11defdd0cbdd80bbdecee8feb66bdc1e03d5bcd544430bc50bce9b2b0887890"
+    },
+    {
+      "bytes": 28317,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java",
+      "sha256": "42e3bfd0e727d00db91095206414947ba4e75dba0a5603d7e8571949f00c2fe6"
+    },
+    {
+      "bytes": 5549,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCatalog.java",
+      "sha256": "24509936a46f66e8a154f48ad977b06aa16ca5a845b1a76874f2d05c0d74e757"
+    },
+    {
+      "bytes": 21409,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCheckpointPlan.java",
+      "sha256": "c6b79d67a608a47f7564db411eaaf63179f5580ce917890d9293f2e9f7c68243"
+    },
+    {
+      "bytes": 30877,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipContext.java",
+      "sha256": "593672e82b314344c8447e88b58f2a03923d2dae8358bae139c81728d8fcbf97"
+    },
+    {
+      "bytes": 27440,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java",
+      "sha256": "e3a0d083f9b2a00f63097b1e49b69d2eb2af84706656b3ec3f0787665d4252bc"
+    },
+    {
+      "bytes": 19948,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java",
+      "sha256": "c35719b9ad6b66423bf8441b6e81b954a94dcc2029c6e6ce56db4f785994ab75"
+    },
+    {
+      "bytes": 224211,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "9dcf66c1f77a3b63adf29907aa2aef2859e929defdc8100b6471893aadbc178d"
+    },
+    {
+      "bytes": 17257,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingAccept.java",
+      "sha256": "060bbc7b5cc0f49f73f06350b8f427d9d0afafa3363e01e02338812ec29f9f02"
+    },
+    {
+      "bytes": 13082,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReplayFiles.java",
+      "sha256": "742c36f7a13f42b1dec3f324cf068e737d7134b8d97b47838fe6d1488b94cd3a"
+    },
+    {
+      "bytes": 5716,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+      "sha256": "933459410852d5e90934a422d31902bedf9787f05526b7987d5e361b3a2f5678"
+    },
+    {
+      "bytes": 15309,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapCoordinatorTest.java",
+      "sha256": "df658654480b49bee90e927725698a9b2f3e2ccde5c5ef4cf794dcef6e5b616e"
+    },
+    {
+      "bytes": 14848,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53BootstrapPublicationTest.java",
+      "sha256": "4f81b071c932c51236d2f325417e0bf12b0b7d63a270b0f09e49c5acf22910b9"
+    },
+    {
+      "bytes": 12425,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CheckpointPlanTest.java",
+      "sha256": "319a9989a47e0b388a6d7b6f3b3487ff7bda484bc9af968233bba0181b56ea80"
+    },
+    {
+      "bytes": 17300,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalApplicationTest.java",
+      "sha256": "7849d481486aa20af569d7ac7db505d674d9a49173232fe44d6146664e95544b"
+    },
+    {
+      "bytes": 18786,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalPublicationTest.java",
+      "sha256": "4f2744ac2ef4074b2294969edc7a7d2199f3b463d97aeac6d71d1a0e3b73e412"
+    },
+    {
+      "bytes": 3923,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationCrashTest.java",
+      "sha256": "c5c99ff7259a9f34c95a7d78067687a967e48d72d5619bd0729589b24c64b767"
+    },
+    {
+      "bytes": 6609,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationTest.java",
+      "sha256": "cefec09755c21eed1b3996832e805736a23286223ef9d95900900e6498281388"
+    },
+    {
+      "bytes": 2667,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationWorker.java",
+      "sha256": "a9b571fb2b235fbf99fabcff80367b49c4646d313c6b53d133eba3a6d356fe40"
+    },
+    {
+      "bytes": 12959,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ReplayFilesTest.java",
+      "sha256": "88c6989c8ccfe64e13875477e9f2ebeb54d4f66f1927559f2ec1cb00771364d7"
+    },
+    {
+      "bytes": 11847,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundStorageTest.java",
+      "sha256": "d4966755b864da8274b14034a2cda23db514361d86fff2a85a19b072cc14dddd"
+    },
+    {
+      "bytes": 9174,
+      "path": "scripts/v53/applied_end_evidence.py",
+      "sha256": "450f8fcace759dcfa63961961a0c5452aab945f0c911d490c94a15851952d55d"
+    },
+    {
+      "bytes": 6799,
+      "path": "scripts/v53/bootstrap_admission_evidence.py",
+      "sha256": "aec161dd649fd9efd23e825e233d8d4e7cf833bc9e3b55c8670d5bee06647b65"
+    },
+    {
+      "bytes": 23983,
+      "path": "scripts/v53/bootstrap_publication_evidence.py",
+      "sha256": "827ed5ad11c0f393d832383302e66de5d772f01c9cf8795e0cafd525b205bdb6"
+    },
+    {
+      "bytes": 13235,
+      "path": "scripts/v53/bootstrap_transaction_evidence.py",
+      "sha256": "708694fff88efcd954f559fb7daf768137104e45d0a02a4ff8500a33af01e65f"
+    },
+    {
+      "bytes": 19685,
+      "path": "scripts/v53/carried_publication_evidence.py",
+      "sha256": "03c4df8f89e5b073050c7c7a53c54404293fa1fd8ab7ac1fb57b17ed2956651a"
+    },
+    {
+      "bytes": 10912,
+      "path": "scripts/v53/context_selection_evidence.py",
+      "sha256": "a01fc6103c37c5d6a22f02732dbe980e45d91648c2f07e9886b1256c883ba26d"
+    },
+    {
+      "bytes": 7315,
+      "path": "scripts/v53/format_fixture.py",
+      "sha256": "892fc4ecbf68b47b37001a6c4cb32e2f2a14825dfa6a46cb39e80abc1151401e"
+    },
+    {
+      "bytes": 15960,
+      "path": "scripts/v53/native_application_evidence.py",
+      "sha256": "7295e7c5c309435e01e616f9253e89eea71932ae67051c3493950179ff0d77e9"
+    },
+    {
+      "bytes": 5650,
+      "path": "scripts/v53/source_packet.py",
+      "sha256": "e11a76b10abb27146842d55d11c7cefbb76d6619fb5f8dbeeb013f37def9dfcf"
+    },
+    {
+      "bytes": 1720,
+      "path": "scripts/v53/test_native_application_evidence.py",
+      "sha256": "754c56027cfd194479e13422b8c6b05e8a06a8e403eab49d8cf5b00da3bd7888"
+    }
+  ],
+  "validation": {
+    "actualPeerDispatch": false,
+    "evidenceNegatives": 8,
+    "freshJvms": 20,
+    "futureRetention": false,
+    "independentReplayScratchSemantics": false,
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53NativeApplicationTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53NativeApplicationCrashTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53CheckpointPlanTest",
+        "tests": 7
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53JournalPublicationTest",
+        "tests": 2
+      }
+    ],
+    "javaTests": 13,
+    "killLockProbes": 5,
+    "nativeHistories": 6,
+    "nodePublications": 72,
+    "phase3Complete": false,
+    "portableReplay": true,
+    "previousSnapshotRegressions": {
+      "V53JournalApplicationTest": 8,
+      "V53RoundStorageTest": 3,
+      "wholeBuild": "failed-and-terminated-after-new-test-failures"
+    },
+    "processCases": 10,
+    "publicRuntime": false,
+    "pythonModes": [
+      "normal",
+      "optimized"
+    ],
+    "pythonTests": 658,
+    "scope": "native-current-certificate-application",
+    "separateJavaOnly": [
+      "explicit observation overload remains strict",
+      "native overload rejects non-native owner and proof-only state",
+      "fence during certificate reseal/replay/end prevents response",
+      "local end cannot replace checkpoint majority"
+    ],
+    "status": "PASS"
+  }
+}

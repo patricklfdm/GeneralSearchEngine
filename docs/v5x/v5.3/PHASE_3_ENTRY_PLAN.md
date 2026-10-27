@@ -8,6 +8,12 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+The [native certified application path](PHASE_3_NATIVE_APPLICATION.md) recovers the
+actual current certificate and typed application without caller historical voting
+observations. Six stable histories and ten fresh-process cuts qualify this
+prerequisite. It does not persist a future peer target or enable automatic dispatch;
+the remaining 3B–3E obligations below are unchanged.
+
 The latest [native current-target retention quorum](PHASE_3_RETENTION_QUORUM.md)
 adds dedicated forced intent/ACK exchanges under [A04](PHASE_3_CONTRACT_AMENDMENTS.md).
 Its native network and process evidence covers already-current same-view targets.

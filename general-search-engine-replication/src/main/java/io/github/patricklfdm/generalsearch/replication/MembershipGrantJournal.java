@@ -1267,6 +1267,35 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
 
     record Applied(MembershipCheckpointPlan plan,MembershipAppliedEndFiles.Endorsement endorsement) {}
+    /** A capability for one complete, re-forced native certificate. It carries no
+     * fresh remote observations and never advances the published cut. */
+    static final class CertifiedCurrent {
+        private final MembershipGrantJournal owner;
+        private final MembershipPendingAccept.Vote vote;
+        private CertifiedCurrent(MembershipGrantJournal owner,MembershipPendingAccept.Vote vote){this.owner=owner;this.vote=vote;}
+        Decoded certificate(){return vote.certificate();}
+        void check(MembershipCapsule before,MembershipSourcePacket packet)throws IOException {
+            synchronized(owner) {
+                owner.checkOwner();owner.applicationTransactionIdle();
+                require(owner.ownedHistory && owner.pendingAccept!=null && !owner.pendingAccept.pending()
+                        && owner.pendingAccept.active()!=null && Arrays.equals(owner.pendingAccept.active().bytes(),vote.bytes()),
+                        "native application certificate no longer owned");
+                require(owner.promise!=null && owner.selection!=null && Arrays.equals(owner.promise.bytes(),vote.promise().bytes())
+                        && Arrays.equals(owner.selection.bytes(),vote.selected().bytes()) && Arrays.equals(owner.current.selector.bytes(),vote.selector().bytes()),
+                        "native application original authority changed");
+                owner.fence(object(vote.accept().value().get("ballot")));owner.verifyVote(vote);
+                require(before==owner.current.capsule && Arrays.equals(packet.bytes(),owner.votePacket().bytes()),
+                        "native application substituted original history");
+            }
+        }
+    }
+    private CertifiedCurrent currentApplicationProof()throws IOException {
+        require(ownedHistory,"native application requires original history owner");
+        var vote=pendingAccept.active();require(vote!=null && vote.certificate()!=null,"native application requires complete certificate");
+        var proof=new CertifiedCurrent(this,vote);var before=current.capsule;var packet=votePacket();
+        MembershipGenerationFiles.Guard guard=()->proof.check(before,packet);
+        guard.check();pendingAccept.sealActive(guard,cut);cut.at("NATIVE_CERTIFICATE_RETAINED");guard.check();return proof;
+    }
     /** Retire only derived work from a fenced certificate. The newer installed selection
      * must retain that exact logical entry at the identical parent; voting originals survive.
      * This method never forces or returns an old application ACK. A later volatile
@@ -1383,6 +1412,17 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Real local certificate + typed replay + forced end. This is not selector publication or public readiness. */
     synchronized <K,T> Applied applyCurrent(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations)throws IOException {
+        return applyCurrent(configuration,storage,observations,false);
+    }
+    /** Recover from the exact native forced certificate, including after process
+     * restart. Only the newly forced local applied end creates a new observation. */
+    synchronized <K,T> Applied applyCurrent(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage)throws IOException {
+        require(ownedHistory,"native application requires original history owner");
+        return applyCurrent(configuration,storage,Set.of(),true);
+    }
+    private <K,T> Applied applyCurrent(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,boolean nativeOriginal)throws IOException {
         require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();applicationTransactionIdle();
         require(!pendingAccept.pending(),"application requires completed original certificate");var vote=pendingAccept.active();
         require(vote!=null && vote.certificate()!=null,"application requires actual local certificate");
@@ -1394,14 +1434,18 @@ final class MembershipGrantJournal implements AutoCloseable {
                     && Arrays.equals(current.selector.bytes(),vote.selector().bytes()) && pendingAccept.active()!=null
                     && Arrays.equals(pendingAccept.active().bytes(),vote.bytes()) && !pendingAccept.pending(),"application original authority changed");
         };
-        guard.check();var packet=votePacket();verifiedPacket(packet).context.certificate(vote.certificate(),owned);
+        guard.check();var packet=votePacket();
+        if(!nativeOriginal)verifiedPacket(packet).context.certificate(vote.certificate(),owned);
         publicationCapacity(vote,AutomaticReplicationException.Outcome.INDETERMINATE);
         byte[] ancestry=current.ancestry();var parents=applicationParents(ancestry);
         AdmissionPaths.disjoint(List.of(directory,storage.directory()));reserveApplicationCompletion();
         try {
+            var proof=nativeOriginal?currentApplicationProof():null;
             cut.at("APPLICATION_AUTHORITY_VALIDATED");guard.check();
-            var plan=replayFiles.executeRetained(vote.selector(),vote.certificate(),identity,work->MembershipCheckpointPlan.replay(configuration,storage,
-                    current.capsule,packet,vote.certificate(),current.images(),owned,work),guard,cut);
+            var plan=replayFiles.executeRetained(vote.selector(),vote.certificate(),identity,work->nativeOriginal?
+                    MembershipCheckpointPlan.replayStored(configuration,storage,current.capsule,packet,current.images(),proof,work):
+                    MembershipCheckpointPlan.replay(configuration,storage,current.capsule,packet,vote.certificate(),current.images(),owned,work),guard,cut);
+            if(proof!=null)proof.check(current.capsule,packet);
             plan=plan.renewAncestors(parents,ancestry);
             guard.check();var endorsement=appliedEnd.force(plan,vote.selector(),identity,guard,cut);
             guard.check();return new Applied(plan,endorsement);

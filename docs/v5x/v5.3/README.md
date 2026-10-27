@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+The latest [native application recovery](PHASE_3_NATIVE_APPLICATION.md) applies an
+original forced certificate after native reopen without caller historical vote
+observations. Stable 3/4/5-voter storage histories and fresh-process cuts qualify
+this internal component. Pending future retention, actual dispatch and full Phase 3
+remain open; the public membership runtime is not enabled.
+
 [Complete native generation copying](PHASE_3_GENERATION_COPY.md) is locally qualified
 across six actual 3/4/5-voter EMPTY/backup histories. It supplies the full original
 materialization needed by a governing floor, including compacted publication
