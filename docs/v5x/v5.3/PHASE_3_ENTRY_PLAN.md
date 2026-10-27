@@ -8,6 +8,12 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Native pending checkpoint delivery](PHASE_3_PENDING_CHECKPOINT.md) now supplies
+original remote application ACKs over real TCP before local publication. Its
+native first-BARRIER history and existing retained-record regressions qualify
+this prerequisite. Actual remote publication, native incoming vote/application
+controls and autonomous operation remain required; no whole 3B–3E gate closes.
+
 [Native future-target quorum recording](PHASE_3_FUTURE_QUORUM.md) now qualifies
 three stable real-network histories and ten receiving process cuts, with exact
 original-first portable negatives. This closes the named recording prerequisite,

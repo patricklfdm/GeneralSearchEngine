@@ -1,5 +1,20 @@
 # V5.3 development status
 
+## 2026-10-27 — Phase 3 native pending checkpoint delivery
+
+The [pending checkpoint export](PHASE_3_PENDING_CHECKPOINT.md) resolves actual
+native applied statements/ACKs under their live owner, before selector publication.
+The new regression fails on the original implementation. The corrected immutable
+build passes 29 tests, including existing record/checkpoint transfer gates. A
+real three-voter TCP history fetches both remote ACKs and publishes locally;
+independent original-first and relocated optimized replay pass with ten exact
+negatives. The [receipt](phase3-evidence/pending-checkpoint.json) separates the
+original failure, native success and older retained-history regression scope.
+
+This is explicitly driven BARRIER publication. Incoming native vote/application
+controls, real remote publication bound to future recording, autonomous lifecycle,
+learners/joint transitions, maximum headroom and complete Phase 3 remain OPEN.
+
 ## 2026-10-27 — Phase 3 native future-target quorum recording
 
 The [future-target recording path](PHASE_3_FUTURE_QUORUM.md) forces each voter's

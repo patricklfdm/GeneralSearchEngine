@@ -1,0 +1,383 @@
+{
+  "automaticDispatch": false,
+  "baseCommit": "9117f7371c078664c334f825cd0fbde570c65d97",
+  "date": "2026-10-27",
+  "evidence": [
+    {
+      "bytes": 672,
+      "path": "target/v53-pending-checkpoint/ATTEMPTS.md",
+      "sha256": "4dccd046394fe117be915ea57ef35e1cce1384891df8f1b16d2b0ac6b9ea72c8"
+    },
+    {
+      "bytes": 491,
+      "path": "target/v53-pending-checkpoint/PLAN.md",
+      "sha256": "e86ebb395579f5a39ce2941723a3dcfd68452982a460febb8d7a7253ca92c7d5"
+    },
+    {
+      "bytes": 157,
+      "path": "target/v53-pending-checkpoint/archive-replay.log",
+      "sha256": "9ce2b3da68ecc1cf2c0bf67695ddc5ac9332a73fc6d8c1a2d9e8c1d7c4f91b03"
+    },
+    {
+      "bytes": 3269,
+      "path": "target/v53-pending-checkpoint/archive-replay.py",
+      "sha256": "cbbf0077fa9f786c6ce8d3e11de1c66bee951a32ac82e691ebe682fc7b418312"
+    },
+    {
+      "bytes": 41,
+      "path": "target/v53-pending-checkpoint/base.txt",
+      "sha256": "49c44879f3e60ded48eb2f91d01858aae6b56c4ecc101a910e3db38a18449f06"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-pending-checkpoint/checkpoint_pull_evidence.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 487474,
+      "path": "target/v53-pending-checkpoint/corrected-inputs.json",
+      "sha256": "8b1ce7e3b2b2d5021c92432a5d4d3e40fccc9d0b63011c6a7c651bd0e2fd8fbb"
+    },
+    {
+      "bytes": 99,
+      "path": "target/v53-pending-checkpoint/corrected-workspace.txt",
+      "sha256": "f687b881dfa5c75d439f8b7c01d8c14fe5132320a6d04fcfea1cb5741f3e84c5"
+    },
+    {
+      "bytes": 1275,
+      "path": "target/v53-pending-checkpoint/existing-replay.json",
+      "sha256": "6857dff07674e9cb372d530d9512d2b87076223dc8a7078a6c8ff097cde92061"
+    },
+    {
+      "bytes": 4656,
+      "path": "target/v53-pending-checkpoint/finalize.py",
+      "sha256": "0efeacfbe4966fa81c565805a26ab02ab1c548ee6845e7952c01819bd213aec1"
+    },
+    {
+      "bytes": 6824,
+      "path": "target/v53-pending-checkpoint/original-build.log",
+      "sha256": "b32f1e550b57a2786cec721380908028c84c1301501b1274c5018a3395d3ee9c"
+    },
+    {
+      "bytes": 487474,
+      "path": "target/v53-pending-checkpoint/original-inputs.json",
+      "sha256": "bb189651d7e7f6c932de6363224adbb2b2097a2590c2cc2f299d818469037784"
+    },
+    {
+      "bytes": 98,
+      "path": "target/v53-pending-checkpoint/original-workspace.txt",
+      "sha256": "49b091d463f110ee90a3e1a0994968bab358597d8eda8d4f11bcad3a1ac1d398"
+    },
+    {
+      "bytes": 1770,
+      "path": "target/v53-pending-checkpoint/portable-replay.json",
+      "sha256": "015c7f298faa40eb6ef75ce81ca05ac3a432c7ef78d8a8ce6740a25a470ca036"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-pending-checkpoint/portable-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2970936,
+      "path": "target/v53-pending-checkpoint/raw-inventory.json",
+      "sha256": "efb8fac8f3b321181161b942192c65b4a88c472404dff6c76ca663b676ff52b2"
+    },
+    {
+      "bytes": 2941497,
+      "path": "target/v53-pending-checkpoint/raw.tar.gz",
+      "sha256": "99d48fd381eddf2e6e8a6799986902642abb718311871474ee189644f1fb5a08"
+    },
+    {
+      "bytes": 38479,
+      "path": "target/v53-pending-checkpoint/reader-inputs.json",
+      "sha256": "f9cdca996e3d2d9f746a66249b03acb2ac2c11c08da9da3cda16240446ab13b4"
+    },
+    {
+      "bytes": 98,
+      "path": "target/v53-pending-checkpoint/reader-tests-optimized.log",
+      "sha256": "24cefc2bc38a1c71e18591075993695fc72546b32ff6b5baab3d98032ce96fb5"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-pending-checkpoint/reader-tests.log",
+      "sha256": "3b0dbb90387b342ccecc50446a0fb5e4385d86a3f467e5b97d63f8924fc08aff"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-pending-checkpoint/record_exchange_evidence.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 38358,
+      "path": "target/v53-pending-checkpoint/replay-first-inputs.json",
+      "sha256": "59b0e3fdb4b82042cdcdbcd680a82b4c4f39d531f7c1446adbbdd116646fd21e"
+    },
+    {
+      "bytes": 1767,
+      "path": "target/v53-pending-checkpoint/replay-first.json",
+      "sha256": "bcab4a1fb1490fc63d907e18d95c8adabd791a45012d1fed4d4880ddb79e8830"
+    },
+    {
+      "bytes": 38479,
+      "path": "target/v53-pending-checkpoint/replay-strengthened-inputs.json",
+      "sha256": "f9cdca996e3d2d9f746a66249b03acb2ac2c11c08da9da3cda16240446ab13b4"
+    },
+    {
+      "bytes": 1934,
+      "path": "target/v53-pending-checkpoint/replay-strengthened.json",
+      "sha256": "a5190f5a87fada55ed33d8dbf20274f877c38e2f8d85a4a436b7c1432127e30b"
+    },
+    {
+      "bytes": 963,
+      "path": "target/v53-pending-checkpoint/snapshot.py",
+      "sha256": "d3111fe489aeb059ad810333f80377cdd872b29a2ea2baf40daff852bc62bd57"
+    },
+    {
+      "bytes": 6236,
+      "path": "target/v53-pending-checkpoint/source.patch",
+      "sha256": "acb9325d4f6bc432024536370502c266abd4a197df935f6431b7149c4ad6dd48"
+    },
+    {
+      "bytes": 6705,
+      "path": "target/v53-pending-checkpoint/verified-build.log",
+      "sha256": "925a298f704a0feb8c3635d5d3adbc4fb3510b4431def66ff74a75d03a02e4ed"
+    },
+    {
+      "bytes": 487474,
+      "path": "target/v53-pending-checkpoint/verified-inputs.json",
+      "sha256": "45ec66173e7190458b6a3b066dbc6cac96e0e489be20ecb2ad1854ee84bb08f1"
+    },
+    {
+      "bytes": 98,
+      "path": "target/v53-pending-checkpoint/verified-workspace.txt",
+      "sha256": "058172d07c11de01168aa7aa51d0e293733c7a23ac4f951ec1271ee31fdbab18"
+    }
+  ],
+  "existingReplay": {
+    "results": [
+      {
+        "module": "record_exchange_evidence",
+        "result": {
+          "cases": [
+            {
+              "exchanges": 5,
+              "size": 3
+            },
+            {
+              "exchanges": 5,
+              "size": 4
+            },
+            {
+              "exchanges": 5,
+              "size": 5
+            }
+          ],
+          "network": true,
+          "publicRuntime": false,
+          "schema": "gse-v53-record-exchange-v1",
+          "scope": "original-promise-before-prepare",
+          "status": "PASS"
+        }
+      },
+      {
+        "module": "checkpoint_pull_evidence",
+        "result": {
+          "exchanges": 33,
+          "original": {
+            "cases": [
+              {
+                "exchanges": 9,
+                "owners": 2,
+                "size": 3
+              },
+              {
+                "exchanges": 12,
+                "owners": 3,
+                "size": 4
+              },
+              {
+                "exchanges": 12,
+                "owners": 3,
+                "size": 5
+              }
+            ],
+            "network": true,
+            "publicRuntime": false,
+            "schema": "gse-v53-checkpoint-pull-v1",
+            "scope": "original-compacted-ancestry",
+            "status": "PASS"
+          },
+          "owners": 8
+        }
+      }
+    ],
+    "status": "PASS"
+  },
+  "javaTests": [
+    {
+      "name": "V53PendingCheckpointExportTest",
+      "report": {
+        "bytes": 8552,
+        "path": "target/v53-pending-checkpoint/builds/verified-dac8ce44/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingCheckpointExportTest.xml",
+        "sha256": "0f66b1b536eb1968fec5ecef0bc629e1b1babd0889ab897cc55502373fc95390"
+      },
+      "seconds": 48.241,
+      "tests": 3
+    },
+    {
+      "name": "V53RecordExchangeTest",
+      "report": {
+        "bytes": 9192,
+        "path": "target/v53-pending-checkpoint/builds/verified-dac8ce44/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RecordExchangeTest.xml",
+        "sha256": "59682d7fc22a0d87de276a5944f38adb7dbde593f6e8784b52e1d45abc9bd972"
+      },
+      "seconds": 48.914,
+      "tests": 10
+    },
+    {
+      "name": "V53CheckpointPullTest",
+      "report": {
+        "bytes": 10256,
+        "path": "target/v53-pending-checkpoint/builds/verified-dac8ce44/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53CheckpointPullTest.xml",
+        "sha256": "6e4df52eded9e09507b85b75b253bd48618c0168e076bb91c238553786be468c"
+      },
+      "seconds": 492.243,
+      "tests": 16
+    }
+  ],
+  "nativeSourceFilesMatchingBuild": 1125,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portableReplay": {
+    "bytes": 1770,
+    "path": "target/v53-pending-checkpoint/portable-replay.json",
+    "sha256": "015c7f298faa40eb6ef75ce81ca05ac3a432c7ef78d8a8ce6740a25a470ca036"
+  },
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "newTests": 1,
+    "optimizedNewTests": 1,
+    "relatedReaderTests": 3
+  },
+  "remaining": [
+    "native incoming vote/application controls and actual remote publication",
+    "future-recording-bound actual sends",
+    "autonomous election/discovery/maintenance/reconciliation",
+    "learner and joint transitions",
+    "maximal completion headroom and full 3B\u20133E qualification"
+  ],
+  "replay": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-pending-checkpoint/builds/verified-dac8ce44/general-search-engine-replication/target/v53-future-endpoint/run-aa65eae9-b2ed-4cef-911b-8aa603a39c82",
+    "result": {
+      "negatives": [
+        {
+          "case": "certificate",
+          "reason": "admitted exact certified: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-ack",
+          "reason": "admitted exact before-endpoint: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "published",
+          "reason": "admitted exact after-checkpoint-publication: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "data",
+          "reason": "pending checkpoint exact data",
+          "status": "REJECTED"
+        },
+        {
+          "case": "correlation",
+          "reason": "pending checkpoint exact wire correlation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-commit",
+          "reason": "pending checkpoint incomplete wire",
+          "status": "REJECTED"
+        },
+        {
+          "case": "received",
+          "reason": "pending checkpoint received before publication",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "selected retention force order: pending checkpoint forced original node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "local-force",
+          "reason": "selected retention force order: pending checkpoint local publication",
+          "status": "REJECTED"
+        },
+        {
+          "case": "result",
+          "reason": "pending checkpoint original result",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "automaticDispatch": false,
+        "checkpointTransfers": 2,
+        "exchanges": 6,
+        "originalNativeOwners": 3,
+        "phase3Complete": false,
+        "publishedIndex": 1,
+        "remotePublishedIndex": 0,
+        "status": "PASS"
+      }
+    }
+  },
+  "schema": "gse-v53-pending-checkpoint-local-v1",
+  "scope": "native-pending-checkpoint-TCP-and-local-BARRIER-publication",
+  "source": [
+    {
+      "bytes": 124724,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "7ed4b0f0df64d0b58a24eca1feeb51962794e5347f0c1b9dd39d821a4e753209"
+    },
+    {
+      "bytes": 19559,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "fcbd488518a6d421010f9bf010098f1798b3d3081bb68aba1d0412371a1bfc40"
+    },
+    {
+      "bytes": 3973,
+      "path": "docs/v5x/v5.3/PHASE_3_PENDING_CHECKPOINT.md",
+      "sha256": "dac9e0f500d9285d88016274100e7047345247ddb0e0842f22db53356dc48637"
+    },
+    {
+      "bytes": 34519,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "dd1a7964d278a68ce72be0e176366496bdd6da3f66e711a43fec7334e753dabc"
+    },
+    {
+      "bytes": 258023,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "e77b2b28d25451dd21c6908e4897d7a30ec5a19547915b1ea95dad1fcab34dbb"
+    },
+    {
+      "bytes": 7278,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingCheckpointExportTest.java",
+      "sha256": "a99778cc9f94a64cf32fa995d97a6e369ff5233ca1f31664cf9004ac69e6dd49"
+    },
+    {
+      "bytes": 10473,
+      "path": "scripts/v53/pending_checkpoint_evidence.py",
+      "sha256": "d1f96f4038f13c7aa8807d9e3859182e3600646355602e00ffb1654424e44302"
+    },
+    {
+      "bytes": 686,
+      "path": "scripts/v53/test_pending_checkpoint_evidence.py",
+      "sha256": "0e3d972da78428eeb311de577814c0280a7b90ff7184c06339b70f70e2737aa2"
+    }
+  ],
+  "status": "PASS"
+}

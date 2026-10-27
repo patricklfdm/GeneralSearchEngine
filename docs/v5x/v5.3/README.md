@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Native pending checkpoint delivery](PHASE_3_PENDING_CHECKPOINT.md) now exports
+the live application's own forced ACK before publication. Actual TCP receipts
+from two remote voters enable a native local BARRIER publication, with exact
+independent physical/wire replay. Native incoming voting/application controls,
+remote publication, automatic scheduling and full Phase 3 remain open.
+
 [Native future-target quorum recording](PHASE_3_FUTURE_QUORUM.md) now binds
 each acknowledging voter's own native proof, including the intended target voter.
 Three real network histories, ten process cuts and 33 exact evidence mutations

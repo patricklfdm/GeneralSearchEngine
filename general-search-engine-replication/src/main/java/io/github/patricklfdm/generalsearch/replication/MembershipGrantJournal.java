@@ -2570,7 +2570,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         try{checkRecordExport(export);return export;}
         catch(IOException|RuntimeException|Error error){releaseRecordExport(export);throw error;}
     }
-    /** Lookup only retained journal, complete active vote or verified current packet, never a candidate file. */
+    /** Lookup retained journal, complete active vote, verified current packet or
+     * this live owner's completed native application, never a candidate file. */
     private Decoded retainedRecord(String digest,String kind)throws IOException {
         require(digest!=null && digest.matches("[0-9a-f]{64}") && (kind==null || MembershipRecordExport.KINDS.contains(kind)),"record export reference/kind");
         for(var values:List.of(promises.values(),bases.values(),selections.values()))for(var value:values)
@@ -2604,6 +2605,20 @@ final class MembershipGrantJournal implements AutoCloseable {
             for(var bridge:current.capsule.verifiedAncestry(current.ancestry())) {
                 if((kind==null || kind.equals("CHECKPOINT")) && digest.equals(bridge.statement.digest()))return bridge.statement;
                 for(var ack:bridge.acknowledgements)if((kind==null || kind.equals("CHECKPOINT_ACK")) && digest.equals(ack.digest()))return ack;
+            }
+        }
+        // An unpublished application has already forced its own checkpoint ACK,
+        // but it is not part of the published capsule. Only the live native
+        // capability can expose that record; a copied on-disk end or a hash
+        // supplied by a remote proposer cannot manufacture it. Each borrow read
+        // repeats this lookup, so fencing/replacement revokes pending records.
+        if(nativeApplied!=null && (kind==null || kind.equals("CHECKPOINT") || kind.equals("CHECKPOINT_ACK"))) {
+            var candidates=new ArrayList<Decoded>();
+            candidates.add(nativeApplied.plan().statement);candidates.add(nativeApplied.endorsement().acknowledgement());
+            var renewed=new ArrayList<>(nativeApplied.endorsement().ancestors());nativeApplied.endorsement().parent().ifPresent(renewed::add);
+            for(var parent:renewed){candidates.add(parent.statement());candidates.add(parent.acknowledgement());}
+            for(var candidate:candidates)if(candidate.digest().equals(digest) && (kind==null || candidate.kind().equals(kind))) {
+                pendingPublication(nativeApplied).check();return candidate;
             }
         }
         throw new IllegalArgumentException("original forced record unavailable");
