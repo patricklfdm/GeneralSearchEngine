@@ -1,5 +1,17 @@
 # V5.3 development status
 
+## 2026-10-27 — Native serialized round lifetime
+
+[Native serialized round lifetime](PHASE_3_ROUND_LIFECYCLE.md) now owns actual
+activation, exact carried completion, a fresh barrier and sequential stable slots.
+Its guarded internal readiness checks the original ballot/selection, expected
+published cut and live endpoint scope; close drains children before releasing the
+parent. Local TCP and independent portable replay qualify this bounded owner.
+Election scheduling/discovery, joint/learner completion, maximum combined
+headroom and the full Phase 3 audit remain open.
+
+Final qualification passes ten lifecycle tests and the existing twenty activation regressions. Stable BARRIER/DATA and old-APPLIED/fresh-barrier histories pass strict original physical/network replay, lifecycle validation, 50 exact negatives and portable optimized replay. All 683 Python tests pass. Original deadlines and resource bounds are preserved. This is an internally guarded, caller-started bounded round; no public READY, autonomous election loop or whole Phase 3 closure is claimed. See the [receipt](phase3-evidence/round-lifecycle.json).
+
 ## 2026-10-27 — Native carried-slot continuation
 
 [Native carried-slot continuation](PHASE_3_CARRIED_SLOTS.md) now reaccepts the

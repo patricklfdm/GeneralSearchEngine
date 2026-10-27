@@ -8,6 +8,14 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Native serialized round lifetime](PHASE_3_ROUND_LIFECYCLE.md) now owns actual
+activation, exact carried completion, a fresh barrier and sequential stable slots.
+Its guarded internal readiness checks the original ballot/selection, expected
+published cut and live endpoint scope; close drains children before releasing the
+parent. Local TCP and independent portable replay qualify this bounded owner.
+Election scheduling/discovery, joint/learner completion, maximum combined
+headroom and the full Phase 3 audit remain open.
+
 [Native carried-slot continuation](PHASE_3_CARRIED_SLOTS.md) now reaccepts the
 exact prior-ballot entry before governing maintenance and PROOF, then publishes a
 fresh current-ballot barrier. Four three-voter ACCEPT/PROOF/CERTIFICATE/APPLIED

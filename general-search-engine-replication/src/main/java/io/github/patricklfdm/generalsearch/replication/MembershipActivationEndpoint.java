@@ -220,6 +220,12 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     void abandon(Map<String,Object> ballot) {
         var active=scope;if(active!=null && active.ballot.equals(ballot))active.close();releaseEndedControl();
     }
+    /** Durable selection alone cannot revive an abandoned/expired serving scope. */
+    void checkInstalled()throws IOException {
+        require(slots!=null,"typed native endpoint required");var active=scope;
+        require(active!=null,"native round requires active campaign");active.check();
+        require(owner.voting(resources).ballot.equals(active.ballot),"native round endpoint ballot changed");active.check();
+    }
     /** The serialized outgoing owner uses the same actual maintenance path before
      * creating its own vote. Incoming native slots invoke it automatically. */
     void maintainInstalled()throws IOException {

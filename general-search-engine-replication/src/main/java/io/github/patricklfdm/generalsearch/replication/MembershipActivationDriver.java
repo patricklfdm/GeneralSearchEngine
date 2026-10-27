@@ -81,7 +81,12 @@ final class MembershipActivationDriver implements AutoCloseable {
     }
     /** The returned record is only an installed selection; voting must still check its live owner. */
     Decoded run()throws IOException {
-        synchronized(lifecycle){require(!used && !closed,"activation driver single use/closed");used=true;runner=Thread.currentThread();started=clock.getAsLong();}
+        return run(clock.getAsLong());
+    }
+    /** The outer serialized owner may already have started its invocation. Child
+     * activation and every selected-source retry inherit that exact deadline. */
+    Decoded run(long originalStarted)throws IOException {
+        synchronized(lifecycle){require(!used && !closed,"activation driver single use/closed");used=true;runner=Thread.currentThread();started=originalStarted;}
         String deferred=null;PeerUnavailable lastUnavailable=null;
         try {
             while(campaigns<maximumCampaigns) {

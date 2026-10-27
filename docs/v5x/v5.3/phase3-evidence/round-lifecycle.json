@@ -1,0 +1,147 @@
+{
+  "activationCancellationAfterDrain": [
+    {
+      "bytes": 3565,
+      "path": "target/v53-round-driver/builds/qualified-b76b9129/general-search-engine-replication/target/v53-native-dispatch/run-557637ab-1125-40e8-bc01-748fe3ac9bd4/events.json",
+      "sha256": "74838482f82ecf89e504c93973c3781c09f9594cb778a3eec1dba0f33f2f8b21"
+    }
+  ],
+  "archive": {
+    "bytes": 7454472,
+    "path": "target/v53-round-driver/evidence.tar.gz",
+    "sha256": "541cd4ea56b342646d0e21dafc0d26793e436c5629a38e62aa12d3981616dc77"
+  },
+  "attemptNotes": {
+    "bytes": 1104,
+    "path": "target/v53-round-driver/PLAN.md",
+    "sha256": "bedeba9da05154c360797a76a59af9947d391e9fe50ae5c668460041be004983"
+  },
+  "automaticElection": false,
+  "baseCommit": "b4561f22c8cc8f5080bc637dcf62b34120f3311d",
+  "commandFailure": {
+    "bytes": 612,
+    "path": "target/v53-round-driver/trial-maven.log",
+    "sha256": "cbdeac721ca9275f5a523f4fdeca7e2b71e70395c83e5030cc16964cd5c758b8"
+  },
+  "earlierTrial": {
+    "bytes": 6497,
+    "path": "target/v53-round-driver/guarded-maven.log",
+    "sha256": "0aee1c8ae7a8ea178f1ea4c6eecbd66fbf93b328cb51d24c70623a89649e3228"
+  },
+  "freshProcessCuts": 0,
+  "java": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest",
+      "report": {
+        "bytes": 10707,
+        "path": "target/v53-round-driver/builds/qualified-b76b9129/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest.xml",
+        "sha256": "2485cc494015ddcd0f9b0c6ec61972f460185b7afdfce53b225ed52a0332d361"
+      },
+      "skipped": 0,
+      "tests": 20
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "name": "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest",
+      "report": {
+        "bytes": 11429,
+        "path": "target/v53-round-driver/builds/qualified-b76b9129/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest.xml",
+        "sha256": "390a6eb0709631a5f44561d08acd12428f4febd55d3310e36133c886759dda96"
+      },
+      "skipped": 0,
+      "tests": 10
+    }
+  ],
+  "javaInputs": {
+    "bytes": 497072,
+    "path": "target/v53-round-driver/qualified-inputs.json",
+    "sha256": "a1feade4e8be6394a7845e32a3226d1c2be345f33242b228a86fb3a43153ce23"
+  },
+  "negativeMutations": 50,
+  "optimizedReaderTests": 9,
+  "originalHistories": 2,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portable": {
+    "bytes": 9214,
+    "path": "target/v53-round-driver/portable-replay.json",
+    "sha256": "f3be87ef08b0b54fb8aed6733e59b6baab36126c7efd15aae2623030a3f91e7a"
+  },
+  "protectedCI": false,
+  "publicReady": false,
+  "pythonInputs": {
+    "bytes": 135601,
+    "path": "target/v53-round-driver/python-inputs.json",
+    "sha256": "edf1bfc8785e43409922c47c6592f3245da802a340ca6be0847c86f1a02805e0"
+  },
+  "pythonTests": 683,
+  "remaining": [
+    "automatic election/discovery/adoption and restart lifecycle",
+    "maximum combined completion headroom",
+    "learner and all joint transition profiles",
+    "full Phase 3 process/network/evidence audit"
+  ],
+  "replay": {
+    "bytes": 9214,
+    "path": "target/v53-round-driver/replay-complete.json",
+    "sha256": "f3be87ef08b0b54fb8aed6733e59b6baab36126c7efd15aae2623030a3f91e7a"
+  },
+  "schema": "gse-v53-native-round-local-v1",
+  "scope": "bounded-native-serialized-round",
+  "sources": [
+    {
+      "bytes": 131009,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "3e84adefa653332e30fe3aed71b224dbfd69474e25bdca78988cfcfe524f833f"
+    },
+    {
+      "bytes": 24146,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "8204fce06413fd2bc2be077e34b1e595d726c9b8ebb0bc35d42bce5bb7b733d0"
+    },
+    {
+      "bytes": 3873,
+      "path": "docs/v5x/v5.3/PHASE_3_ROUND_LIFECYCLE.md",
+      "sha256": "f6cb86f73d32e17bbd4794343052afb27e212f17d2ba5aa838870c70b5f4fa79"
+    },
+    {
+      "bytes": 39165,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "cbbaa71b1ca9bda649740dcc6df4488a4a8fa3344314273a4498ed834d2dd2fc"
+    },
+    {
+      "bytes": 24480,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java",
+      "sha256": "41ec51e03b2a96153b4d6f4e250a4cfc066756642cfa0248175bac63df5af9d1"
+    },
+    {
+      "bytes": 28246,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "sha256": "f53c6aa362e8db8078ac4a52be195925642e2a7eef9e909c162bbde73fdb8b15"
+    },
+    {
+      "bytes": 11913,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java",
+      "sha256": "2ec8b7ec6a77287a04b183eb3b6199fd36a77cbe92d764b3c3fb059fa017cec5"
+    },
+    {
+      "bytes": 11989,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundDriverTest.java",
+      "sha256": "63486d80a6bc46a3212ac3276106917787ebfc10cf103ecf1051e7fcdc746046"
+    },
+    {
+      "bytes": 8718,
+      "path": "scripts/v53/round_driver_evidence.py",
+      "sha256": "a1bad14d44ec3bd6ced3961e867c91587ffe9feeb72c5a3255ce8a64503731c1"
+    },
+    {
+      "bytes": 1571,
+      "path": "scripts/v53/test_round_driver_evidence.py",
+      "sha256": "c234d98c5af34f22778a8014ab93a52e2cd2fa052d4a78a13562f9420c000a98"
+    }
+  ],
+  "status": "PASS"
+}
