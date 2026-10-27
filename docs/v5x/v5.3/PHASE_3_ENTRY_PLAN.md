@@ -8,6 +8,12 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Complete selected future proof plans](PHASE_3_SELECTED_FUTURE_PROOF.md) now retain
+all original referenced GSFT bytes separately, check carried-result identity and
+require original/covered ancestry. Native SELECTED is still guarded. Durable
+installation, flat subsequent-campaign propagation and publication-time promotion
+remain the next ownership boundary; the full 3B–3E checklist is unchanged.
+
 [Native old-staging retirement](PHASE_3_NATIVE_RETIREMENT.md) is locally qualified
 against original durable certificates without caller historical observations. It
 preserves pending votes and published cuts; unresolved future proof ownership and

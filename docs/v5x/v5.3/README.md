@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Selected future proof materialization](PHASE_3_SELECTED_FUTURE_PROOF.md) now retains
+every exact referenced proof, including non-longest sources, and authenticates
+original parents and covered targets. Native selection remains guarded until the
+complete durable ownership/continuation chain is implemented; no Phase 3 closure
+or public membership enablement is implied.
+
 [Native old-staging retirement](PHASE_3_NATIVE_RETIREMENT.md) now removes derived
 application work after native reopen using the actual old certificate and exact
 new selection, without caller historical voting observations. Twelve process

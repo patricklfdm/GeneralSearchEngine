@@ -41,7 +41,10 @@ final class MembershipGenerationPlan {
         require(local.equals(capsule.context.identities.get(local.nodeId().value())) && capsule.context.voters().contains(local.nodeId().value()),"installed local eligible identity");
         capsule.verifyAncestry(files.getOrDefault("ancestry.gsr",new byte[0]),ancestors);
         if(files.containsKey("selected.gsr"))MembershipSelectedRetention.find(capsule,decode(files.get("selected.gsr"),"records","SELECTED"),local)
-                .ifPresent(retention->retention.plan.required(capsule,files.getOrDefault("ancestry.gsr",new byte[0])));
+                .ifPresent(retention->{
+                    byte[] ancestry=files.getOrDefault("ancestry.gsr",new byte[0]);
+                    retention.plan.required(capsule,ancestry);capsule.verifyAncestry(ancestry,retention.requiredParents());
+                });
         if(files.containsKey(MembershipSelectedSources.FILE))MembershipSelectedSources.parents(files.get(MembershipSelectedSources.FILE),
                 decode(files.get("selected.gsr"),"records","SELECTED"),capsule,files.getOrDefault("ancestry.gsr",new byte[0]));
         if(files.containsKey(MembershipSelectionCoverage.FILE)) {
@@ -178,7 +181,11 @@ final class MembershipGenerationPlan {
             require(row.getKey().equals(hash(row.getValue())) && Arrays.equals(row.getValue(),localSource.capsule.packet.objectBytes(row.getKey())),"retained installation object differs from exact local source");
             objects.put(row.getKey(),row.getValue());
         }
-        if(retention!=null){byte[] bytes=retention.bytes();objects.put(hash(bytes),bytes);}
+        if(retention!=null){
+            // The longest source need not own every selected future obligation.
+            // Keep each original proof as a separate bounded indexed object.
+            objects.putAll(retention.futureObjects());byte[] bytes=retention.bytes();objects.put(hash(bytes),bytes);
+        }
         String tail=null;
         if(decision.carried()!=null) {
             var carried=decision.carried();tail=carried.accepted.digest();

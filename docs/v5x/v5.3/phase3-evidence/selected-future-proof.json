@@ -1,0 +1,384 @@
+{
+  "baseCommit": "5d53ee03c4c050441410d7db02917d836cc4eaa5",
+  "boundaries": [
+    "All selected original GSFT proofs are separately indexed and bound to their exact original envelope/BASIS/GSRP; missing proof or incorrect carried result refuses.",
+    "Ordinary plan authority checks remain. Original lower/parent and already-covered target anchors must be authenticated by the complete generation; unpublished targets never become published ancestry.",
+    "The actual native fixture has two different peer intentions on non-longest source owners, a real allocated proposer ballot, and exact proposed generations for a holder and nonholder. It verifies unchanged native journals on guarded selection.",
+    "A separate Java case uses a published longest prefix to verify covered-target ancestry without inventing a carried tail. Conditional malformed-source ownership occurs only in rejection tests.",
+    "The first original-first reader found an omitted allocator call in test preparation. The corrected fixture uses actual reserveCounter; earlier raw evidence and logs remain retained, not relabelled.",
+    "Twelve distinct final Java tests pass. The final additional conflicting-result negative is covered by the guards snapshot, which repeats three tests on identical production Java.",
+    "Normal, optimized and relocated independent replay agree and reject twelve exact evidence mutations. Thirteen focused Python regressions pass in both modes; this batch does not claim a full reactor test run or new process crash qualification.",
+    "Native SELECTED still refuses unresolved futures. Durable selected ownership, subsequent-source flattening, carried application/publication, complete capacity headroom and actual quorum-gated dispatch remain required.",
+    "The complete offline-survivor history, learners/joint transitions and all remaining Phase 3B\u20133E gates remain OPEN. No push, public membership enablement, cloud execution or V5.2 Runner changes."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 3095,
+      "path": "target/v53-selected-future/NEXT.md",
+      "sha256": "3b64726aefe3c49a74d9a544decbc8f898077183539ae5d8764dd9a71d70b383"
+    },
+    {
+      "bytes": 9375218,
+      "path": "target/v53-selected-future/build-evidence.tar.gz",
+      "sha256": "466637b26d909da4d829faff693eb9d728d58a9a2c8ab4a25fe6559af62fac72"
+    },
+    {
+      "bytes": 878,
+      "path": "target/v53-selected-future/changed-files.txt",
+      "sha256": "df1983521ff9880150243e53a282f6423b096fa4f8ec700868f0c36a53724d11"
+    },
+    {
+      "bytes": 646109,
+      "path": "target/v53-selected-future/compiled-inventory.json",
+      "sha256": "88e050041199e400889990ba53ae52cac81ac3b06ca5d7b31e5d81a89bf21368"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-selected-future/contract.json",
+      "sha256": "de217ec0c2d8840d5f0eea60c192d3e148f17ce33321c7914807569c6c9aa627"
+    },
+    {
+      "bytes": 7149,
+      "path": "target/v53-selected-future/final-build.log",
+      "sha256": "7a75885586d14c2a2c328f6e7bc01046b27a0bd25fd0c57fdfb9308c0a3285d7"
+    },
+    {
+      "bytes": 482380,
+      "path": "target/v53-selected-future/final-inputs.json",
+      "sha256": "45b9d1e2ad2df8b0bd009decd852fd04c880fb5293a8b91aa82d01f23d8d7072"
+    },
+    {
+      "bytes": 44,
+      "path": "target/v53-selected-future/final-workspace.txt",
+      "sha256": "afcf027da3dfe49662b4a54a7f93de70f1df1d68f43ebd656fc65740642b406b"
+    },
+    {
+      "bytes": 7751,
+      "path": "target/v53-selected-future/finalize.py",
+      "sha256": "4fae0dd773cae0ac7e1be66041456a92fd8ce9a213ceaebb7323942d7a01ba06"
+    },
+    {
+      "bytes": 685,
+      "path": "target/v53-selected-future/goal-scope.json",
+      "sha256": "9283fa2684120acedcb39dbed0c1dafd059a87191c9396aaff816107b4405524"
+    },
+    {
+      "bytes": 5518,
+      "path": "target/v53-selected-future/guards-build.log",
+      "sha256": "25b6ad644e758bf4e9f46997d3b996435f8b69ba3d0242f5bb52e87cfa45d789"
+    },
+    {
+      "bytes": 482500,
+      "path": "target/v53-selected-future/guards-inputs.json",
+      "sha256": "e21edbeb9851e6e13f091f7d5def563412541167998eb7dda61bef9194a1cd4a"
+    },
+    {
+      "bytes": 45,
+      "path": "target/v53-selected-future/guards-workspace.txt",
+      "sha256": "f3a68949af52b63b57b234120ae5afd727f46a5b79b0693aee80dc8555fcd8d0"
+    },
+    {
+      "bytes": 5439,
+      "path": "target/v53-selected-future/proposal-build.log",
+      "sha256": "2138782270c474909ef3c9a1d3d31c1c32d06d2addac1cdd1787063750655a7f"
+    },
+    {
+      "bytes": 6650,
+      "path": "target/v53-selected-future/proposal-corrected-build.log",
+      "sha256": "637c9c5e579e08ccf0ed5b91429931b030699f18178d8e377d63e727ad78f58d"
+    },
+    {
+      "bytes": 482267,
+      "path": "target/v53-selected-future/proposal-corrected-inputs.json",
+      "sha256": "7e6edaa24264d2d075fa1619e6350b92d681a03e3836658fa216672a36d7e167"
+    },
+    {
+      "bytes": 57,
+      "path": "target/v53-selected-future/proposal-corrected-workspace.txt",
+      "sha256": "2863426058d51ad9fb58b5cd9020f3430608b061f6834967729937c9377a1fcf"
+    },
+    {
+      "bytes": 482267,
+      "path": "target/v53-selected-future/proposal-inputs.json",
+      "sha256": "96314753965f65b48a944c3972f92f89a42fad85ce152403348da541fa04deaa"
+    },
+    {
+      "bytes": 47,
+      "path": "target/v53-selected-future/proposal-workspace.txt",
+      "sha256": "6f1f4256764b23fb04f947b7a6126b64da24b0a782da3a69195a71e5db48c6a0"
+    },
+    {
+      "bytes": 112,
+      "path": "target/v53-selected-future/python-normal.log",
+      "sha256": "1b54e7bd3e4f0557cdf06d1076b6ef63ce21d6c17ecec62d2881ac93eafe1fed"
+    },
+    {
+      "bytes": 112,
+      "path": "target/v53-selected-future/python-optimized.log",
+      "sha256": "fc924f6e1fea3cec579bda3420051891bdf01c960fe5ca7e49fdfc8005bd9c0c"
+    },
+    {
+      "bytes": 7006,
+      "path": "target/v53-selected-future/qualified-build.log",
+      "sha256": "e223e00cb0ebeab12d3a8ddb1a3f7724b2d48113904fcc6815fde2379cbfd1b8"
+    },
+    {
+      "bytes": 482380,
+      "path": "target/v53-selected-future/qualified-inputs.json",
+      "sha256": "9524ee8177343c16acdbfe699bf73219f72bb7e63c4bd123c929e3bbefb2b300"
+    },
+    {
+      "bytes": 158,
+      "path": "target/v53-selected-future/qualified-original.txt",
+      "sha256": "fc16d939fdde29f297c275a61a2983419028c80a8696c81c5e6b952ef88afeb6"
+    },
+    {
+      "bytes": 323,
+      "path": "target/v53-selected-future/qualified-replay-failure.json",
+      "sha256": "89efbdc96d969f66f6500f2449ae5d665577e8079d1d01ad4fac59b36042586b"
+    },
+    {
+      "bytes": 48,
+      "path": "target/v53-selected-future/qualified-workspace.txt",
+      "sha256": "dc566ed73f43a792dfff6b5d932f6fb7872fd28a83918a6d30fc40582ff54c79"
+    },
+    {
+      "bytes": 7130813,
+      "path": "target/v53-selected-future/raw-inventory.json",
+      "sha256": "93dade2c6464c8871e6a4a3b22ab9a774f1cf774b1ad56674d403a19407f43c5"
+    },
+    {
+      "bytes": 1405,
+      "path": "target/v53-selected-future/replay-first.json",
+      "sha256": "c12f06bb4940fb10119ef23a31b53ab05dd83a93905a102bdde65fc0b92c32d8"
+    },
+    {
+      "bytes": 1405,
+      "path": "target/v53-selected-future/replay-optimized.json",
+      "sha256": "c12f06bb4940fb10119ef23a31b53ab05dd83a93905a102bdde65fc0b92c32d8"
+    },
+    {
+      "bytes": 1405,
+      "path": "target/v53-selected-future/replay-portable.json",
+      "sha256": "c12f06bb4940fb10119ef23a31b53ab05dd83a93905a102bdde65fc0b92c32d8"
+    },
+    {
+      "bytes": 6987,
+      "path": "target/v53-selected-future/reports/final-TEST-io.github.patricklfdm.generalsearch.replication.V53FutureRetentionSourceTest.xml",
+      "sha256": "221749aa2dbe75fd6f4f0a7727828c86fadf19f050cc04c783409d12ac526c4b"
+    },
+    {
+      "bytes": 7396,
+      "path": "target/v53-selected-future/reports/final-TEST-io.github.patricklfdm.generalsearch.replication.V53NativeRetirementTest.xml",
+      "sha256": "a872c859562f25f6c4131b8aa352caf5ed430943d51a3fc8d44a6405dcacced2"
+    },
+    {
+      "bytes": 7881,
+      "path": "target/v53-selected-future/reports/final-TEST-io.github.patricklfdm.generalsearch.replication.V53SelectedFutureProofTest.xml",
+      "sha256": "ccb55c139c8a2b24e6b1a922226d3c59adf11fb4abac692bd5ce4ed8ead1e802"
+    },
+    {
+      "bytes": 8233,
+      "path": "target/v53-selected-future/reports/final-TEST-io.github.patricklfdm.generalsearch.replication.V53SelectedRetentionTest.xml",
+      "sha256": "63b3ef42e80c9a4f7bae1880089ebd993ba1e91872c5ad731028f1b30f063c43"
+    },
+    {
+      "bytes": 7816,
+      "path": "target/v53-selected-future/reports/guards-TEST-io.github.patricklfdm.generalsearch.replication.V53SelectedFutureProofTest.xml",
+      "sha256": "95ca84d7583ef959b788690de6f1a848dbcb30c0dbbba12e2e66737668880584"
+    },
+    {
+      "bytes": 3505,
+      "path": "target/v53-selected-future/validation-summary.json",
+      "sha256": "9274b6b933d3bba14dfb517ec45fdc85bfa6e43a06bd9e2c3729f7f7ae1ffa45"
+    }
+  ],
+  "phase3Complete": false,
+  "schema": "gse-v53-selected-future-proof-evidence-v1",
+  "sourceFiles": [
+    {
+      "bytes": 118545,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "dad7d66e038d24229a3492c8fd8a371321e4e6d683652bfbbac03b6b34328928"
+    },
+    {
+      "bytes": 17037,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "5320ebfa17d5846c995bc335cada92ae41526f3d7299f283e01cbef3b49db065"
+    },
+    {
+      "bytes": 4719,
+      "path": "docs/v5x/v5.3/PHASE_3_SELECTED_FUTURE_PROOF.md",
+      "sha256": "c3437451874675c82c25a081591129905a921f9b41f3e40607c0ae0f1ce35055"
+    },
+    {
+      "bytes": 32256,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "eeb0039cbf5919dd0f12905cb7145fca5203ef424abfc722d3694af6382d4bf1"
+    },
+    {
+      "bytes": 20319,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java",
+      "sha256": "229152fe889ed315cad4ed4c135ed7151019d0a1777914b2b866872a09d6eb2d"
+    },
+    {
+      "bytes": 243138,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "96a073dab95ab2d596c828c5462b1f28dcb03dd3d34ddc1dd04b53a8d0e7ebc6"
+    },
+    {
+      "bytes": 11489,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionSource.java",
+      "sha256": "83e839fd880350ed1ee484050506b31796c495d5b48097b07cc8d915f4a17c45"
+    },
+    {
+      "bytes": 12091,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectedRetention.java",
+      "sha256": "ebf0b438f94348aa59009014fef01d6e1d338612e1590dc3af7c6673a85309ba"
+    },
+    {
+      "bytes": 14646,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SelectedFutureProofTest.java",
+      "sha256": "cf5bb9aae86471dcbe849576e7b449517b50bf157b6886c49cb0592d66f6c4cb"
+    },
+    {
+      "bytes": 12193,
+      "path": "scripts/v53/selected_future_evidence.py",
+      "sha256": "b677ac166ef4d87a6cad19d08955e3f9ab883de31c0bcb7179df2d2971eb6854"
+    }
+  ],
+  "status": "LOCAL_COMPONENT_QUALIFICATION",
+  "validation": {
+    "failuresRetained": [
+      {
+        "reason": "compile rejected a shadowed lambda parameter",
+        "snapshot": "proposal"
+      },
+      {
+        "reason": "Java tests passed but original-first replay found omitted durable ballot allocation in the new test setup; corrected before qualification",
+        "snapshot": "qualified"
+      }
+    ],
+    "independentReplay": {
+      "automaticDispatch": false,
+      "durableInstallation": false,
+      "negatives": [
+        {
+          "case": "bootstrap",
+          "reason": "admitted exact retaining-genesis: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "certificate",
+          "reason": "admitted exact certified: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "applied",
+          "reason": "admitted exact before-future: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "first-future",
+          "reason": "admitted exact pending-future: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "second-future",
+          "reason": "admitted exact two-futures: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "grant",
+          "reason": "grant basis binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-owner",
+          "reason": "admitted exact proposal-sources: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "native-unchanged",
+          "reason": "admitted exact after-proposal: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proof-copy",
+          "reason": "selected future exact proposed generation: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "selected-tail",
+          "reason": "selected future exact proposed generation: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "selector",
+          "reason": "selected future exact proposed generation: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force-order",
+          "reason": "selected retention force order: selected future second-future",
+          "status": "REJECTED"
+        }
+      ],
+      "nonLongestProofs": true,
+      "originalFutureProofs": 2,
+      "phase3Complete": false,
+      "proposedGenerations": 2,
+      "status": "PASS"
+    },
+    "nativeSelectionGuard": true,
+    "overlaps": "The guards snapshot reruns three proposal tests after adding one conditional conflicting-result negative. Its production Java is identical to final; these are overlapping tests, not 15 distinct tests.",
+    "phase3Complete": false,
+    "proposalOnly": true,
+    "pythonTestsPerMode": 13,
+    "qualification": "original-selected-future-installation-plans",
+    "status": "PASS",
+    "suites": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "final",
+        "suite": "V53SelectedFutureProofTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "final",
+        "suite": "V53FutureRetentionSourceTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "final",
+        "suite": "V53SelectedRetentionTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "final",
+        "suite": "V53NativeRetirementTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "guards",
+        "suite": "V53SelectedFutureProofTest",
+        "tests": 3
+      }
+    ]
+  }
+}

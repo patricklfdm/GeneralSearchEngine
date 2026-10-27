@@ -2623,7 +2623,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         MembershipSelectedRetention retention=null;
         if(peerRetention!=null) {
             retention=installed?selectedRetentionIntent():MembershipSelectedRetention.capture(selected,identity,peerRetention.activeBytes());
-            require(retention!=null,"selected retention installation intent absent");ancestors.addAll(retention.plan.recorded());
+            require(retention!=null,"selected retention installation intent absent");ancestors.addAll(retention.requiredParents());
             require(installed || retention.completionBytes()<=maximum-storedJournal().length-pendingBytes(),"selected retention completion journal capacity");
         }
         // A completed receipt retains its original materialization even after safe source retirement.

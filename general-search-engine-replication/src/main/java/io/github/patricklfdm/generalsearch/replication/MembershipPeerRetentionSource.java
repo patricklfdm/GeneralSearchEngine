@@ -94,13 +94,32 @@ final class MembershipPeerRetentionSource {
         return new Frozen(found.promise,found.state,state,futureBytes,future);
     }
     static Frozen included(byte[] envelope,Decoded basis,MembershipIdentity owner,byte[] wrapper) {
-        var cap=MembershipSourcePacket.included(envelope,basis,wrapper);var raw=decode(wrapper);
+        var raw=decode(wrapper);
         require(raw.future==null,"selected future retention propagation required");
+        return included(envelope,basis,owner,wrapper,null);
+    }
+    /** Exact separately indexed future proof. Inclusion is historical ownership,
+     * never a new voter/application observation or permission to dispatch. */
+    static Frozen included(byte[] envelope,Decoded basis,MembershipIdentity owner,byte[] wrapper,byte[] futureBytes) {
+        var cap=MembershipSourcePacket.included(envelope,basis,wrapper);var raw=decode(wrapper);
         for(String field:List.of("root","view","ballot","basisId"))
             require(raw.promise.value().get(field).equals(basis.value().get(field)),"included retention original promise binding");
         require(basis.value().get("voter").equals(owner.nodeId().value()),"included retention source owner");
-        return new Frozen(raw.promise,raw.state,MembershipPeerRetentionFiles.decodeOwned(raw.state,(String)cap.value().get("root"),owner),null,null);
+        var state=MembershipPeerRetentionFiles.decodeOwned(raw.state,(String)cap.value().get("root"),owner);
+        require((raw.future==null)==(futureBytes==null),"included retention future presence");
+        MembershipFutureRetentionFiles.State future=null;
+        if(futureBytes!=null) {
+            require(futureBytes.length<=MembershipFutureRetentionFiles.MAXIMUM && raw.future.equals(hash(futureBytes)),"included retention future digest/extent");
+            MembershipSourcePacket.included(envelope,basis,futureBytes);
+            future=MembershipFutureRetentionFiles.decodeOwned(futureBytes,(String)cap.value().get("root"),owner);
+            var parent=new MembershipCapsule.Anchor(object(cap.value().get("cut")),(String)cap.value().get("catalog"),(String)cap.value().get("application"));
+            require(future.pending() && future.parent.equals(parent),"included retention future parent");
+            require(future.record("accept.gsr").digest().equals(basis.value().get("accepted")),"included retention future original tail");
+            for(var peer:future.peers)state.plan().possible(peer.identity());
+        }
+        return new Frozen(raw.promise,raw.state,state,futureBytes,future);
     }
+    static Optional<String> futureReference(byte[] wrapper){return Optional.ofNullable(decode(wrapper).future);}
     /** Until selected installation owns these proofs, even a legacy local owner
      * must not accept a new decision that would omit a remote obligation. */
     static void requireSelectable(MembershipSelection.Source source) {

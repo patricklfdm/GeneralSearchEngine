@@ -1,5 +1,28 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3 complete selected future proof plans
+
+[Selected future proof materialization](PHASE_3_SELECTED_FUTURE_PROOF.md) now
+retains every exact GSFT referenced by a selected original source, including both
+non-longest holders in the native fixture. It verifies the original envelope,
+owner and accepted tail, requires the exact carried result when unpublished, and
+authenticates original/lower/covered ancestry at generation verification.
+Unpublished targets never become ordinary published endpoints.
+
+Twelve Java tests pass in the final regression snapshot. The three new proposal
+tests additionally rerun with a conflicting-result negative on identical production
+Java. Original-first normal/optimized/relocated replay derives two complete
+proposed generations and rejects twelve exact evidence mutations. Thirteen focused
+Python tests pass in both modes. The [receipt](phase3-evidence/selected-future-proof.json)
+retains the initial compile failure and the test preparation's missing allocator
+call discovered by independent replay; neither is relabelled as success.
+
+Native SELECTED remains guarded: durable proof handoff across installation/reopen,
+old staging retirement, carried application/publication and fresh-source flattening
+still need integration. Complete source/completion headroom, actual dispatch,
+offline-survivor continuation and all remaining 3B–3E requirements remain OPEN.
+No push, public runtime enablement, cloud execution or V5.2 Runner change.
+
 ## 2026-10-26 — Phase 3 native applied-staging retirement
 
 The [native cleanup path](PHASE_3_NATIVE_RETIREMENT.md) binds the actual old
