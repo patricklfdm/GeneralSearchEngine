@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.replication;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -22,6 +23,8 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private final MembershipSourcePull.Link link;
     private final MembershipCurrentGeneration.Verifier verifier;
     private final boolean nativeHistory;
+    @FunctionalInterface private interface Slots {MembershipSlotEndpoint open(long started,long limit)throws IOException;}
+    private final Slots slots;
     private final List<MembershipSelection.Bridge> ancestry,retained;
     private final LongSupplier clock;
     private final long budget;
@@ -40,21 +43,40 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     MembershipActivationEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
             Path scratch,LongSupplier clock,long budget)throws IOException {
-        this(owner,resources,bounds,link,null,ancestry,retained,scratch,clock,budget,true);
+        this(owner,resources,bounds,link,null,ancestry,retained,scratch,clock,budget,true,null);
+    }
+    /** Typed native service: installation automatically admits slot controls on
+     * this same handler. Every slot inherits the grant's original deadline and
+     * uses the grant's existing source registry, including failed trace markers. */
+    <K,T> MembershipActivationEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Link link,List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
+            Path scratch,LongSupplier clock,long budget,
+            io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage)throws IOException {
+        this(owner,resources,bounds,link,null,ancestry,retained,scratch,clock,budget,true,
+                slots(owner,resources,bounds,link,clock,configuration,storage));
+    }
+    private static <K,T> Slots slots(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Link link,LongSupplier clock,
+            io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage) {
+        Objects.requireNonNull(configuration);Objects.requireNonNull(storage);
+        return (started,limit)->new MembershipSlotEndpoint(owner,resources,bounds,link,clock,started,limit,
+                configuration,storage,MembershipTransport.Events.NONE);
     }
     MembershipActivationEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,MembershipCurrentGeneration.Verifier verifier,
             List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
             Path scratch,LongSupplier clock,long budget)throws IOException {
-        this(owner,resources,bounds,link,Objects.requireNonNull(verifier),ancestry,retained,scratch,clock,budget,false);
+        this(owner,resources,bounds,link,Objects.requireNonNull(verifier),ancestry,retained,scratch,clock,budget,false,null);
     }
     private MembershipActivationEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,MembershipCurrentGeneration.Verifier verifier,
             List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
-            Path scratch,LongSupplier clock,long budget,boolean nativeHistory)throws IOException {
+            Path scratch,LongSupplier clock,long budget,boolean nativeHistory,Slots slots)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"activation endpoint budget");
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
-        this.link=Objects.requireNonNull(link);this.verifier=verifier;this.nativeHistory=nativeHistory;
+        this.link=Objects.requireNonNull(link);this.verifier=verifier;this.nativeHistory=nativeHistory;this.slots=slots;
         this.ancestry=List.copyOf(ancestry);this.retained=List.copyOf(retained);
         require(ancestry.size()<=6 && retained.size()<=6,"activation endpoint ancestry capacity");
         this.clock=Objects.requireNonNull(clock);this.budget=budget;
@@ -70,6 +92,12 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         final Set<CompletableFuture<Decoded>> pending=ConcurrentHashMap.newKeySet();
         volatile boolean ended;
         private MembershipTransferService service;
+        private MembershipGenerationMaintenance maintenance;
+        private final Object slotRegistry=new Object();
+        private MembershipSlotEndpoint slot;
+        private Map<String,Object> slotCut;
+        private int slotCalls;
+        private boolean slotChanging;
         Scope(MembershipCapsule capsule,Map<String,Object> ballot,long started,long limit) {
             this.capsule=capsule;this.ballot=Map.copyOf(ballot);this.started=started;this.limit=limit;
         }
@@ -102,12 +130,61 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             check();MembershipTransferService active;synchronized(this){active=service;}
             require(active!=null,"activation endpoint grant not available");return active.handle(sender,request);
         }
+        void maintain()throws IOException {
+            check();if(!owner.nativeGenerationMaintenanceRequired())return;
+            var work=new MembershipGenerationMaintenance(owner,resources,bounds,this::exchange,this::check,scratch,clock,started,limit);
+            synchronized(this){if(ended || closed){work.close();throw new IOException("native maintenance scope ended");}
+                require(maintenance==null,"native maintenance already active");maintenance=work;}
+            try(work){work.run();}finally{synchronized(this){if(maintenance==work)maintenance=null;}}
+        }
+        Decoded nativeControl(MembershipIdentity sender,Decoded request)throws IOException {
+            check();var installed=owner.voting(resources);
+            require(installed.ballot.equals(ballot),"native dispatch installed ballot changed");
+            installed.before.context.wire(request,sender,owner.activationIdentity(),ballot,
+                    UUID.fromString((String)request.value().get("trace")),number(request.value().get("sequence")));
+            MembershipSlotEndpoint chosen,old=null;boolean replace;
+            synchronized(slotRegistry) {
+                require(!ended && !closed,"native dispatch scope ended");
+                if(slotChanging)throw new MembershipTransport.Failure(MembershipTransport.Reason.CAPACITY,"native slot handoff in progress",null);
+                replace=slot==null || !installed.before.context.cut.equals(slotCut);
+                if(replace) {
+                    if(slotCalls!=0)throw new MembershipTransport.Failure(MembershipTransport.Reason.CAPACITY,"previous native slot still in flight",null);
+                    slotChanging=true;old=slot;slot=null;slotCut=null;chosen=null;
+                }else{chosen=slot;slotCalls++;}
+            }
+            if(replace) {
+                MembershipSlotEndpoint made=null;
+                try {
+                    if(old!=null)old.close();check();installed.check();maintain();made=slots.open(started,limit);check();
+                    synchronized(slotRegistry){require(!ended && !closed,"native dispatch replaced/closed");
+                        slot=chosen=made;slotCut=installed.before.context.cut;slotCalls++;made=null;}
+                }finally {
+                    try{if(made!=null)made.close();}
+                    finally{synchronized(slotRegistry){slotChanging=false;slotRegistry.notifyAll();}}
+                }
+            }
+            try{check();var reply=chosen.handle(sender,request);check();return reply;}
+            finally{synchronized(slotRegistry){slotCalls--;slotRegistry.notifyAll();}}
+        }
         @Override public void close() {
-            MembershipTransferService old;
-            synchronized(this){ended=true;old=service;service=null;}
+            MembershipTransferService old;MembershipSlotEndpoint oldSlot;MembershipGenerationMaintenance cleanup;
+            synchronized(this){ended=true;old=service;service=null;cleanup=maintenance;}
+            synchronized(slotRegistry){oldSlot=slot;slot=null;}
             for(var future:pending)future.cancel(true);
             // Never hold registry, scope or journal monitors while releasing exports.
-            if(old!=null)old.close();
+            RuntimeException failure=null;
+            for(Runnable action:List.<Runnable>of(
+                    ()->{if(cleanup!=null)try{cleanup.close();}catch(IOException error){throw new UncheckedIOException(error);}},
+                    ()->{if(oldSlot!=null)oldSlot.close();},()->{if(old!=null)old.close();})) {
+                try{action.run();}catch(RuntimeException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+            }
+            long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
+            try{synchronized(slotRegistry){while(slotChanging || slotCalls!=0){long left=end-System.nanoTime();
+                require(left>0,"native dispatch close timeout");TimeUnit.NANOSECONDS.timedWait(slotRegistry,left);}}}
+            catch(InterruptedException error){Thread.currentThread().interrupt();var interrupted=new IllegalStateException("native dispatch close interrupted",error);
+                if(failure==null)failure=interrupted;else failure.addSuppressed(interrupted);}
+            catch(RuntimeException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+            if(failure!=null)throw failure;
         }
     }
     private Scope enter(MembershipCapsule capsule,Map<String,Object> ballot,long started,long limit)throws IOException {
@@ -134,6 +211,14 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     /** Revoke only the outgoing owner's failed round, never an intervening peer scope. */
     void abandon(Map<String,Object> ballot) {
         var active=scope;if(active!=null && active.ballot.equals(ballot))active.close();releaseEndedControl();
+    }
+    /** The serialized outgoing owner uses the same actual maintenance path before
+     * creating its own vote. Incoming native slots invoke it automatically. */
+    void maintainInstalled()throws IOException {
+        require(slots!=null,"typed native endpoint required");var active=scope;
+        require(active!=null,"native maintenance requires active campaign");active.check();
+        synchronized(active.slotRegistry){require(!active.slotChanging && active.slotCalls==0,"native slot busy before maintenance");active.slotChanging=true;}
+        try{active.maintain();}finally{synchronized(active.slotRegistry){active.slotChanging=false;active.slotRegistry.notifyAll();}}
     }
     private void releaseEndedControl() {
         synchronized(registry){if(control!=null && control.finished && control.active.ended){control.close();control=null;}}
@@ -180,14 +265,14 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                         });
                         active.check();response=MembershipActivation.prepare(owner,sender,request,promise).response();active.granted();
                     }
-                } else {
+                } else if(request.kind().equals("SELECTED")) {
                     Path destination=scratch.resolve("selected-"+UUID.randomUUID());
                     try(var incoming=nativeHistory?
                             new MembershipSelectedPull(owner,sender,request,resources,bounds,active::exchange,ancestry,retained,
                                     destination,active::check,clock,active.started,active.limit):
                             new MembershipSelectedPull(owner,sender,request,resources,bounds,active::exchange,verifier,ancestry,retained,
                                     destination,active::check,clock,active.started,active.limit)) {response=incoming.install();}
-                }
+                }else response=active.nativeControl(sender,request);
                 active.check();lease.reserveControl(request.size()+(long)response.size());active.check();
                 synchronized(registry){finished=true;result.complete(response);}
             }catch(Throwable error){
@@ -206,7 +291,9 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         long received=clock.getAsLong();require(!closed,"activation endpoint closed");String kind=request.kind();Scope active;
-        if(kind.equals("PUBLISH")) {
+        boolean nativeSlot=slots!=null && (Set.of("ACCEPT","PROOF","APPLY").contains(kind)
+                || (kind.equals("PUBLISH") && owner.currentCertificate().isPresent()));
+        if(kind.equals("PUBLISH") && !nativeSlot) {
             // Completed publication survives the old in-memory campaign scope.
             // This path neither applies a pending certificate nor enters a round.
             require(nativeHistory,"published acknowledgement requires native endpoint");scratchOwner.check();
@@ -239,7 +326,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         }
         active.check();
         if(kind.equals("CHUNK") || kind.equals("TRANSFER_COMMIT"))return active.transfer(sender,request);
-        require(kind.equals("PREPARE") || kind.equals("SELECTED"),"activation endpoint control kind");
+        require(kind.equals("PREPARE") || kind.equals("SELECTED") || nativeSlot,"activation endpoint control kind");
         MembershipActivation.incoming(owner,sender,request,kind);Control task;
         synchronized(registry) {
             require(!closed && active==scope && !active.ended,"activation endpoint replaced/closed");task=control;
@@ -263,11 +350,24 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public void close()throws IOException {
         synchronized(registry){closed=true;if(control!=null)control.result.completeExceptionally(new IOException("activation endpoint closed"));}
-        expiry.shutdownNow();synchronized(prefixRegistry){if(prefixService!=null)prefixService.close();}var active=scope;if(active!=null)active.close();controls.shutdownNow();
-        try {require(controls.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS)
-                && expiry.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"activation endpoint close timeout");}
-        catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation endpoint close interrupted",error);}
-        synchronized(registry){if(control!=null){control.close();control=null;}}
-        scratchOwner.close();
+        expiry.shutdownNow();IOException failure=null;
+        try{synchronized(prefixRegistry){if(prefixService!=null)prefixService.close();}}
+        catch(RuntimeException error){failure=new IOException("activation prefix close failed",error);}
+        try{var active=scope;if(active!=null)active.close();}
+        catch(RuntimeException error){var closing=new IOException("activation scope close failed",error);if(failure==null)failure=closing;else failure.addSuppressed(closing);}
+        controls.shutdownNow();
+        try {boolean controlStopped=controls.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);
+            boolean expiryStopped=expiry.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);
+            require(controlStopped && expiryStopped,"activation endpoint close timeout");}
+        catch(InterruptedException error){Thread.currentThread().interrupt();var interrupted=new IOException("activation endpoint close interrupted",error);
+            if(failure==null)failure=interrupted;else failure.addSuppressed(interrupted);}
+        catch(RuntimeException error){var timeout=new IOException("activation endpoint close failed",error);if(failure==null)failure=timeout;else failure.addSuppressed(timeout);}
+        // A failed drain must retain ownership of storage still reachable by a
+        // worker. A later close can finish it once both executors have stopped.
+        if(controls.isTerminated() && expiry.isTerminated()) {
+            synchronized(registry){if(control!=null){control.close();control=null;}}
+            try{scratchOwner.close();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+        }
+        if(failure!=null)throw failure;
     }
 }

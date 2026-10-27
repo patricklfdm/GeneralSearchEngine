@@ -1,0 +1,377 @@
+"""Replay native activation followed by two continuous stable slots from originals.
+
+Only fresh UUIDs and the typed DATA image are observations. Neither result.json,
+wire ACKs nor a Java assertion supplies vote or floor authority. This explicit
+sender qualification does not establish autonomous elections or joint consensus.
+"""
+import argparse
+import base64
+from collections import defaultdict
+import copy
+import json
+from pathlib import Path
+import shutil
+import struct
+import tempfile
+from . import slot_endpoint_evidence as slot
+from . import promised_source_evidence as transfer
+from . import offline_fixture_image as image
+
+b, c, e, f, need = slot.b, slot.c, slot.e, slot.f, slot.need
+s, future = slot.future.s, slot.future.future
+read = slot.read
+VOTERS = ('node-1', 'node-2')
+
+
+def maintenance(group):
+    """A floor retires the inactive generation; it does not compact original grants."""
+    result = dict(group)
+    for node in VOTERS:
+        files = group[node]; current = c.current(files)[0]
+        files = {k: v for k, v in files.items() if not k.startswith('generations/') or k == current[:-1] or k.startswith(current)}
+        # Actual collection visits self, then the other original majority member.
+        for peer in (node, next(n for n in VOTERS if n != node)):
+            previous = s.r.decode(files[s.FILE]); plan = copy.deepcopy(previous['plan'])
+            identity = future.identity(group[peer]); anchor = c.anchor(c.current(group[peer])[2]['capsule'])
+            next(row for row in plan['peers'] if row['identity'] == identity)['possible'] = [anchor]
+            files[s.FILE] = s.r.frame(dict(previous, revision=previous['revision']+1, previous=e.digest(files[s.FILE]), plan=plan))
+        result[node] = files
+    return result
+
+
+def physical(root):
+    group = s.initialize(b.original(root, 3, False))
+    group = {n: dict(v, **{future.FILE: future.frame(future.initial(v), {})}) for n, v in group.items()}
+    b.match(root, 'before-network', group)
+    _, _, selected = s.campaign(root, {n: group[n] for n in VOTERS}, 2, 'installed', selected_prefix=slot.prefix)
+    group = dict(group, **selected); b.match(root, 'installed', group)
+    _, initial, packet = c.current(group['node-1'])
+    chosen = initial['selected.gsr']; selection = f.decode(chosen, 'records', 'SELECTED')
+    need(b.t.plans.read(root/'selected.gsr', 65536) == chosen, 'native dispatch original selection')
+    states = [copy.deepcopy(group)]; rounds = []; first = None
+    identities = {n: future.identity(files) for n, files in group.items()}
+    for index, kind in ((1, 'BARRIER'), (2, 'DATA')):
+        group = maintenance(group); states.append(copy.deepcopy(group))
+        _, local, packet = c.current(group['node-1']); cap = packet['capsule']
+        text = b'100:next-slot'; payload = b'\x01'+struct.pack('>HIII', 1, 1, 4, 100)+struct.pack('>I', len(text))+text if index == 2 else b''
+        entry = f.encode('records', 'ENTRY', dict(root=cap['root'], authority=selection['view'], index=index,
+            previous=cap['cut']['entry'], origin=selection['ballot'], kind=kind, payload=e.digest(payload)))
+        accept = f.encode('records', 'ACCEPT', dict(root=cap['root'], authority=selection['view'], ballot=selection['ballot'], index=index, entry=e.digest(entry)))
+        def receipt(node, phase, raw):
+            return f.canonical(dict(root=cap['root'], voter=node, incarnation=identities[node]['storage'], phase=phase, record=e.digest(raw)))
+        def witnesses(phase, raw):
+            return [dict(voter=n, incarnation=identities[n]['storage'], receipt=e.digest(receipt(n, phase, raw))) for n in VOTERS]
+        proof = f.encode('records', 'PROOF', dict(f.decode(accept, 'records', 'ACCEPT'), accepts=witnesses('ACCEPT', accept)))
+        certificate = f.encode('records', 'CERTIFICATE', dict(f.decode(proof, 'records', 'PROOF'), proofs=witnesses('PROOF', proof)))
+        raw_image = b.t.plans.read(root/f'applied-{index}/node-1/applied-end/application.image', 64*e.MIB)
+        root_record = f.decode(group['node-1']['root.gsr'], 'records', 'ROOT')
+        image.application(raw_image, root_record['historyId'], index-1, [] if index == 1 else [(100, 'next-slot')])
+        if index == 1: need(raw_image == local[cap['application']+'.image'], 'native dispatch barrier image')
+        catalog = copy.deepcopy(f.decode(packet['objects'][cap['catalog']], 'records', 'CATALOG'))
+        catalog['cut'] = dict(cap['cut'], index=index, entry=e.digest(entry))
+        if index == 2: catalog.update(application=e.digest(raw_image), applicationSequence=1, lastDataIndex=2)
+        catalog = f.encode('records', 'CATALOG', catalog)
+        after = f.decode(catalog, 'records', 'CATALOG'); upper = dict(cut=after['cut'], catalog=e.digest(catalog), application=after['application'])
+        start = f.decode(packet['objects'][cap['items'][0]['statement']], 'records', 'CHECKPOINT') if cap['items'] else dict(
+            root=cap['root'], scope='RANGE', start=cap['cut'], catalogBefore=cap['catalog'], applicationBefore=cap['application'])
+        statement = f.encode('records', 'CHECKPOINT', dict(start, end=after['cut'], catalogAfter=e.digest(catalog), applicationAfter=after['application']))
+        lower = f.encode('records', 'CHECKPOINT', dict(f.decode(statement, 'records', 'CHECKPOINT'), start=cap['cut'], catalogBefore=cap['catalog'], applicationBefore=cap['application'])) if index == 2 else None
+        applied = dict(group); ends = {}; originals = [entry, accept, proof, certificate, payload]
+        for node in VOTERS:
+            files = group[node]; _, own, _ = c.current(files)
+            vote = e.container([files['selector.gsr'], own['promise.gsr'], chosen, entry, accept], payload)+proof+certificate
+            vote = vote[:8]+struct.pack('>I', len(vote))+vote[12:]
+            def ack(value): return f.encode('records', 'CHECKPOINT_ACK', dict(root=cap['root'], voter=node, incarnation=identities[node]['storage'], cut=after['cut'], statement=e.digest(value)))
+            end = dict(zip(('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'application.image', 'ack.gsr'),
+                (files['selector.gsr'], certificate, catalog, statement, raw_image, ack(statement))))
+            if lower: end.update({'parent-statement.gsr': lower, 'parent-ack.gsr': ack(lower)})
+            end['plan.json'] = f.canonical(dict(schema='gse-v53-applied-end/1.3', root=cap['root'], node=node,
+                files=[dict(path=k, **e.info(v)) for k, v in sorted(end.items())]))
+            ends[node] = end
+            applied[node] = dict(files, **{'pending.accept': vote, 'applied-end': None}, **{'applied-end/'+k: v for k, v in end.items()})
+        b.match(root, 'applied-'+str(index), applied); states.append(copy.deepcopy(applied))
+        recorded = dict(applied); intent = dict(selection=e.digest(chosen), certificate=e.digest(certificate), peer=identities['node-2'], lower=c.anchor(cap), parent=c.anchor(cap), upper=upper)
+        for node in VOTERS:
+            files = applied[node]; _, own, _ = c.current(files)
+            records = {k: ends[node][k] for k in ('selector.gsr', 'certificate.gsr', 'catalog.gsr', 'statement.gsr', 'ack.gsr')}
+            records.update({k: own[k] for k in ('promise.gsr', 'selected.gsr')})
+            records.update(dict(zip(('entry.gsr', 'accept.gsr', 'proof.gsr'), originals[:3])))
+            metadata = dict(future.initial(files), revision=2*index-1, previous=e.digest(files[future.FILE]), parent=c.anchor(cap), peers=[dict(identity=identities['node-2'], lower=c.anchor(cap))])
+            recorded[node] = dict(files, **{future.FILE: future.frame(metadata, records)})
+        published = dict(recorded)
+        for node in VOTERS:
+            published[node], _ = slot.publication(recorded[node], ends[node], ends, list(VOTERS), originals, first, node)
+            state = s.r.decode(group[node][s.FILE]); plan = copy.deepcopy(state['plan'])
+            next(v for v in plan['peers'] if v['identity'] == identities['node-2'])['possible'].append(upper)
+            published[node][s.FILE] = s.r.frame(dict(state, revision=state['revision']+1, previous=e.digest(group[node][s.FILE]), plan=plan))
+            published[node][future.FILE] = future.frame(dict(future.initial(group[node]), revision=2*index, previous=e.digest(recorded[node][future.FILE])), {})
+        b.match(root, 'published-'+str(index), published); states.append(copy.deepcopy(published))
+        receipts = {(node, phase): receipt(node, phase, raw) for node in VOTERS for phase, raw in [('ACCEPT', accept), ('PROOF', proof)]}
+        rounds.append(dict(index=index, cap=cap, originals=originals, ends=ends, receipts=receipts, intent=intent, recorded=recorded, published=published, upper=upper))
+        if first is None: first = dict(parent=c.anchor(cap), end=upper, certificate=e.digest(certificate), proof={e.digest(v): v for v in originals})
+        group = published
+    b.match(root, 'after-close', group)
+    return states, rounds, selection, identities
+
+
+def network(root, states, rounds, selection, identities):
+    events = read(root/'events.json'); rows = read(root/'wire.json'); content = {}; refs = defaultdict(set)
+    need(type(events) is list and len(events) < 32768 and type(rows) is list and 0 < len(rows) < 32768, 'native dispatch bounded traces')
+    def add(node, raw, kind='RECORD', reference=None):
+        if not raw: return
+        h = e.digest(raw); content[node, h] = raw; refs[node, h].add((reference or h, kind))
+    for group in states:
+        for node, files in group.items():
+            for name, raw in files.items():
+                if raw is None or not raw: continue
+                if name.endswith('source.gscp'):
+                    packet = e.p.decode(raw); add(node, raw, 'CAPSULE', e.digest(packet['capsuleBytes']))
+                    add(node, raw, 'CAPSULE', e.digest(f.canonical(packet['capsule']['cut'])))
+                    for value in packet['objects'].values(): add(node, value)
+                else: add(node, raw, 'APPLICATION' if name.endswith('.image') else 'RECORD')
+            directory, members, packet = c.current(files)
+            add(node, files[directory+'generation.gsr'], reference=e.digest(f.canonical(dict(root=selection['root'], cut=packet['capsule']['cut'], scope='retained-current-generation'))))
+            for _, raw, _ in c.journal(files['grants.gsr'], selection['root'], node): add(node, raw)
+    for round in rounds:
+        for node in VOTERS:
+            for value in round['originals']: add(node, value)
+        for (node, _), value in round['receipts'].items():
+            add(node, value, reference=e.digest(f.canonical(dict(schema='gse-v53-vote-observation/1.3', receipt=e.digest(value)))))
+    traces = defaultdict(list); controls = defaultdict(list); response_positions = defaultdict(list)
+    for i, event in enumerate(events):
+        if event['event'] == 'WIRE_RESPONSE': response_positions[event['request'], event['response']].append(i)
+    for row in rows:
+        need(set(row) == {'request','response','withheld'} and row['withheld'] is False, 'native dispatch successful wire row')
+        kind, request = transfer.t.wire(row['request']); answer, response = transfer.t.wire(row['response'])
+        sender, target = request['sender']['node'], request['recipient']['node']
+        need(sender in identities and target in identities and sender != target and request['sender'] == identities[sender] and request['recipient'] == identities[target]
+             and request['root'] == selection['root'] and request['view'] == selection['view'] and request['ballot'] == selection['ballot'], 'native dispatch wire authority')
+        need({k:v for k,v in response.items() if k != 'payload'} == dict({k:v for k,v in request.items() if k != 'payload'}, sender=request['recipient'], recipient=request['sender']), 'native dispatch wire correlation')
+        key = (e.digest(base64.b64decode(row['request'], validate=True)), e.digest(base64.b64decode(row['response'], validate=True)))
+        need(response_positions[key], 'native dispatch response event'); at = response_positions[key].pop(0)
+        entry = (kind, request, answer, response, at)
+        if kind in ('CHUNK','TRANSFER_COMMIT'): traces[request['trace']].append((row, entry))
+        else: controls[kind].append(entry)
+    need(not any(response_positions.values()), 'native dispatch unmatched response event')
+    transfers = []
+    for trace in traces.values():
+        logical = {}
+        for row, decoded in trace:
+            sequence = decoded[1]['sequence']; logical.setdefault(sequence, []).append((row, decoded))
+        ordered = []
+        for sequence, attempts in sorted(logical.items()):
+            need(sequence == len(ordered)+1 and len(attempts) <= 3 and all(row == attempts[0][0] for row, _ in attempts), 'native dispatch identical transfer retries')
+            ordered.append(attempts[0])
+        first = ordered[0][1][1]; sender, peer = first['sender']['node'], first['recipient']['node']; expected = []
+        for _, (kind, request, answer, response, _) in ordered:
+            if answer != 'SOURCE_OFFER': continue
+            h = response['payload']['digest']; reference = request['payload']['digest']; offered_kind = response['payload']['kind']
+            need((peer, h) in content and (reference, offered_kind) in refs[peer, h], 'native dispatch original transfer offer')
+            expected.append((reference, content[peer, h], offered_kind))
+        transfer.transcript([{k:row[k] for k in ('request','response')} for row, _ in ordered], expected,
+            selection['root'], selection['view'], selection['ballot'], identities[sender], identities[peer], 'native dispatch transfer', chunk_bytes=4*e.MIB)
+        last = ordered[-1][1]; digest = e.digest(f.encode('wire', last[2], last[3]))
+        delivered = [i for i, ev in enumerate(events) if ev == dict(node=sender, event='NETWORK_RECEIVED', kind=last[2], response=digest)]
+        need(delivered, 'native dispatch transfer delivered')
+        transfers.append(dict(sender=sender, peer=peer, first=first['payload']['digest'], objects=expected, offered=ordered[0][1][4], delivered=min(delivered)))
+    _, installed, _ = c.current(states[0]['node-1']); chosen = installed['selected.gsr']
+    _, remote, _ = c.current(states[0]['node-2'])
+    for kind, answer, sent, response in [('PREPARE','PROMISE',dict(promise=e.digest(installed['promise.gsr'])),dict(basis=e.digest(remote['basis.gsr']))),
+            ('SELECTED','INSTALL_ACK',dict(selection=e.digest(chosen)),dict(selection=e.digest(chosen), cut=selection['cut']))]:
+        entries = controls.pop(kind, []); need(len(entries) == 1, 'native dispatch activation controls')
+        _, req, ans, reply, at = entries[0]
+        need(req['sender'] == identities['node-1'] and req['recipient'] == identities['node-2'] and ans == answer and req['payload'] == sent and reply['payload'] == response, 'native dispatch activation controls')
+        s.ordered([ev['event'] for ev in events[:at] if ev['node'] == 'node-2'], ['PROMISE_FORCED','BASIS_FORCED'] + (['INSTALL_SELECTOR_FORCED','INSTALL_BEFORE_RETURN'] if kind == 'SELECTED' else []), 'native activation before ACK')
+    def original_transfer(reader, peer, expected, before_event):
+        found = [v for v in transfers if v['sender'] == reader and v['peer'] == peer and v['first'] == expected[0][0]]
+        at = next(i for i, ev in enumerate(events) if ev['node'] == reader and ev['event'] == before_event)
+        need(len(found) == 1 and found[0]['objects'] == expected and found[0]['delivered'] < at, 'native dispatch original activation delivery')
+    for reader, peer, name, before_event in [('node-2','node-1','promise.gsr','PROMISE_FORCED'), ('node-2','node-1','selected.gsr','INSTALL_SELECTOR_FORCED')]:
+        raw = c.current(states[0][peer])[1][name]
+        original_transfer(reader, peer, [(e.digest(raw),raw,'RECORD')], before_event)
+    for reader, peer, before_event in [('node-1','node-2','SELECTED_FORCED'), ('node-2','node-1','INSTALL_SELECTOR_FORCED')]:
+        members = c.current(states[0][peer])[1]; basis = f.decode(members['basis.gsr'], 'records', 'BASIS')
+        source = states[0][peer]['sources/'+basis['basisId']+'/source.gscp']; packet = e.p.decode(source)
+        expected = [(e.digest(members[k]),members[k],'RECORD') for k in ('basis.gsr','promise.gsr')]
+        expected.append((e.digest(packet['capsuleBytes']),source,'CAPSULE'))
+        original_transfer(reader, peer, expected, before_event)
+    probes = controls.pop('STATUS_PROBE', []); need(len(probes) == 4, 'native dispatch original floor discovery')
+    for _, req, answer, reply, _ in probes:
+        need(answer == 'STATUS' and req['sequence'] == 1 and reply['payload']['nonce'] == req['payload']['nonce'] and reply['payload']['ready'] is False and
+             reply['payload']['cut'] in [round['cap']['cut'] for round in rounds], 'native dispatch original floor discovery')
+    begin = [i for i, ev in enumerate(events) if ev['event'] == 'SLOT_BEGIN']
+    need(len(begin) == 2 and [events[i].get('index') for i in begin] == [1,2], 'native dispatch slot boundaries')
+    need(all(v[4] > begin[0] for entries in controls.values() for v in entries), 'native dispatch control before first slot')
+    for round, start, stop, before in zip(rounds, begin, begin[1:]+[len(events)], (states[0], states[3])):
+        index = round['index']; entry, accept, proof, certificate, _ = round['originals']
+        part = events[start:stop]
+        for node in VOTERS:
+            own = [(i+start, ev) for i, ev in enumerate(part) if ev['node'] == node]
+            names = [ev['event'] for _, ev in own]
+            required = ['FLOOR_PARENT_FORCED','FLOOR_BEFORE_RETURN','RETENTION_PARENT_FORCED','RETENTION_PARENT_FORCED',
+                'RETIREMENT_DELETE_VALIDATED','RETIREMENT_CLEARED','FLOOR_RELEASE_RELINQUISHED','FLOOR_RELEASE_BEFORE_RETURN',
+                'ACCEPT_PARENT_FORCED','PROOF_PARENT_FORCED','CERTIFICATE_PARENT_FORCED','APPLY_ACK_DIRECTORY_FORCED',
+                'FUTURE_RETENTION_PARENT_FORCED','PUBLICATION_SELECTOR_FORCED','FUTURE_RETENTION_PROMOTED','PUBLICATION_BEFORE_RETURN']
+            s.ordered(names, required, 'native dispatch slot '+str(index)+' '+node)
+            need(names.count('FLOOR_PARENT_FORCED') == names.count('PUBLICATION_SELECTOR_FORCED') == 1, 'native dispatch one floor/publication per slot')
+            floor_at = next(i for i, ev in own if ev['event'] == 'FLOOR_PARENT_FORCED')
+            peer = next(n for n in VOTERS if n != node); directory, members, packet = c.current(before[peer]); cap = packet['capsule']
+            source_reference = e.digest(f.canonical(cap['cut'])); generation_reference = e.digest(f.canonical(dict(root=cap['root'], cut=cap['cut'], scope='retained-current-generation')))
+            expected = [[(source_reference, members['source.gscp'], 'CAPSULE')]+[(h, members[h+'.image'], 'APPLICATION') for h in sorted(packet['images'])],
+                        [(generation_reference, before[peer][directory+'generation.gsr'], 'RECORD')]]
+            if 'ancestry.gsr' in members: expected[1].append((e.digest(members['ancestry.gsr']), members['ancestry.gsr'], 'RECORD'))
+            expected[1] += [(e.digest(value), value, 'RECORD') for key, value in sorted(members.items()) if key not in ('generation.gsr','source.gscp','ancestry.gsr') and not key.endswith('.image')]
+            for objects in expected:
+                matched = [t for t in transfers if t['sender'] == node and t['peer'] == peer and t['first'] == objects[0][0]]
+                need(len(matched) == 1 and matched[0]['objects'] == objects and start < matched[0]['delivered'] < floor_at, 'native dispatch complete copies before floor')
+        for kind, raw in [('ACCEPT',accept),('PROOF',proof),('APPLY',certificate),('FUTURE_RETENTION_INTENT',certificate),('PUBLISH',certificate)]:
+            selected_rows = [v for v in controls[kind] if start < v[4] < stop]
+            need(1 <= len(selected_rows) <= 3, 'native dispatch bounded complete slot controls')
+            first_request = selected_rows[0][1]
+            for _, req, ans, reply, at in selected_rows:
+                need(req == first_request and req['sender'] == identities['node-1'] and req['recipient'] == identities['node-2'], 'native dispatch identical control retries')
+                if kind in ('ACCEPT','PROOF'):
+                    expected = {('acceptance' if kind == 'ACCEPT' else 'proof'): e.digest(raw)}
+                    result = dict(entry=e.digest(entry), receipt=e.digest(round['receipts']['node-2', kind])); required = [kind+'_PARENT_FORCED',kind+'_ACK_BEFORE_RETURN']
+                elif kind == 'APPLY':
+                    expected = dict(certificate=e.digest(certificate), selection=e.digest(chosen)); result = dict(expected, statement=e.digest(round['ends']['node-2']['statement.gsr']), acknowledgement=e.digest(round['ends']['node-2']['ack.gsr']))
+                    required = ['CERTIFICATE_PARENT_FORCED','APPLY_ACK_DIRECTORY_FORCED','APPLICATION_ACK_BEFORE_RETURN']
+                elif kind == 'FUTURE_RETENTION_INTENT':
+                    expected = round['intent']; result = dict(intent=e.digest(f.canonical(expected)), storage='FUTURE', revision=2*index-1, digest=e.digest(round['recorded']['node-2'][future.FILE])); required = ['FUTURE_RETENTION_PARENT_FORCED','FUTURE_RETENTION_ACK_BEFORE_RETURN']
+                else:
+                    expected = dict(certificate=e.digest(certificate)); directory, _, _ = c.current(round['published']['node-2'])
+                    result = dict(certificate=e.digest(certificate), selection=e.digest(chosen), published=round['upper'], generation=e.digest(round['published']['node-2'][directory+'generation.gsr'])); required = ['PUBLICATION_SELECTOR_FORCED','PUBLICATION_BEFORE_RETURN','PUBLICATION_ACK_BEFORE_RETURN']
+                need(ans == ('FUTURE_RETENTION_ACK' if kind == 'FUTURE_RETENTION_INTENT' else kind+'_ACK') and req['payload'] == expected and reply['payload'] == result, 'native dispatch exact control ACK')
+                s.ordered([ev['event'] for ev in events[start:at] if ev['node'] == 'node-2'], required, 'native dispatch '+kind+' ACK')
+        quorum = [(i+start, ev) for i, ev in enumerate(part) if ev['event'] == 'FUTURE_QUORUM_COMPLETE']
+        sends = [i+start for i, ev in enumerate(part) if ev['event'] == 'PUBLICATION_SEND_BOUNDARY']
+        need(len(quorum) == 1 and quorum[0][1]['voters'] == list(VOTERS) and quorum[0][1]['index'] == index and sends and quorum[0][0] < min(sends), 'native dispatch quorum before send')
+        ack_rows = [v for v in controls['FUTURE_RETENTION_INTENT'] if start < v[4] < stop]
+        ack_hashes = {e.digest(f.encode('wire', v[2], v[3])) for v in ack_rows}
+        for node in VOTERS:
+            need(any(ev['node'] == node and ev['event'] == 'FUTURE_RETENTION_PARENT_FORCED' for ev in events[start:quorum[0][0]]), 'native dispatch local quorum force')
+        need(any(ev['event'] == 'NETWORK_RECEIVED' and ev.get('response') in ack_hashes for ev in events[start:quorum[0][0]]), 'native dispatch recording quorum delivered')
+        # Receipt transfers must be from their permanent owners, never inferred from ACKs.
+        for (node, phase), raw in round['receipts'].items():
+            reader = next(n for n in VOTERS if n != node)
+            found = [t for t in transfers if t['sender'] == reader and t['peer'] == node and any(value == raw for _, value, _ in t['objects'])]
+            force = next(i+start for i, ev in enumerate(part) if ev['node'] == node and ev['event'] == phase+'_PARENT_FORCED')
+            dependent = next(i+start for i, ev in enumerate(part) if ev['node'] == reader and ev['event'] == ('PROOF' if phase == 'ACCEPT' else 'CERTIFICATE')+'_PARENT_FORCED')
+            need(found and any(force < t['offered'] < t['delivered'] < dependent for t in found), 'native dispatch original voter receipts')
+        for node in VOTERS:
+            peer = next(n for n in VOTERS if n != node)
+            at = next(i+start for i, ev in enumerate(part) if ev['node'] == node and ev['event'] == 'PUBLICATION_SELECTOR_FORCED')
+            for key in ('ack.gsr',) + (('parent-ack.gsr',) if index == 2 else ()):
+                raw = round['ends'][peer][key]; found = [t for t in transfers if t['sender'] == node and t['peer'] == peer and t['objects'] == [(e.digest(raw),raw,'RECORD')]]
+                force = next(i+start for i, ev in enumerate(part) if ev['node'] == peer and ev['event'] == 'APPLY_ACK_DIRECTORY_FORCED')
+                need(len(found) == 1 and force < found[0]['offered'] < found[0]['delivered'] < at, 'native dispatch original checkpoint before publication')
+    need(set(controls) == {'ACCEPT','PROOF','APPLY','FUTURE_RETENTION_INTENT','PUBLISH'}, 'native dispatch unexpected controls')
+    return len(transfers)
+
+
+def validate(root):
+    root = Path(root)
+    b.selection.layout(root, {'initial','original-plan.gsbp','original-application.image','before-network','installed',
+        'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json','wire.json','failures.json','result.json','selected.gsr'}, 'native dispatch case inventory')
+    states, rounds, selected, identities = physical(root)
+    calls = read(root/'calls.json')
+    need([(row['node'], row['operation']) for row in calls] == [(n,'initialize-retention') for n in sorted(identities)], 'native dispatch bootstrap owner calls')
+    for row in calls:
+        s.ordered(row['events'], ['RETENTION_PARENT_FORCED','FUTURE_RETENTION_PARENT_FORCED'], 'native dispatch initialization')
+    failures = read(root/'failures.json')
+    need(type(failures) is list and len(failures) <= 6 and all(set(row) == {'node','kind','request','failure'} and row['node'] == 'node-3' and row['kind'] == 'FUTURE_RETENTION_INTENT' and row['failure'] == 'java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required' for row in failures), 'native dispatch bounded unselected rejection')
+    transfers = network(root, states, rounds, selected, identities)
+    need(read(root/'result.json') == dict(status='PASS', slots=2, network=True, autonomous=False), 'native dispatch scope')
+    return dict(status='PASS', slots=2, selected=2, transfers=transfers, autonomous=False, phase3Complete=False)
+
+
+NEGATIVES = {
+    'extra-file': 'context selection native dispatch case inventory inventory',
+    'original-selection': 'native dispatch original selection',
+    'installed-selector': 'admitted exact installed: node-2',
+    'old-generation': 'admitted exact applied-1: node-1',
+    'first-vote': 'admitted exact applied-1: node-2',
+    'second-vote': 'admitted exact applied-2: node-2',
+    'first-ack': 'admitted exact applied-1: node-2',
+    'second-ack': 'admitted exact applied-2: node-2',
+    'peer-observation': 'admitted exact applied-2: node-1',
+    'future-proof': 'admitted exact published-1: node-1',
+    'final-selector': 'admitted exact published-2: node-2',
+    'unselected-change': 'admitted exact after-close: node-3',
+    'scope': 'native dispatch scope',
+    'source-bytes': 'native dispatch transfer exact data',
+    'missing-commit': 'native dispatch transfer incomplete transcript',
+    'reply-identity': 'native dispatch wire correlation',
+    'control-ack': 'native dispatch exact control ACK',
+    'floor-force': 'selected retention force order: native dispatch slot 1 node-1',
+    'premature-floor': 'native dispatch complete copies before floor',
+    'missing-delivery': 'native dispatch transfer delivered',
+    'late-activation-delivery': 'native dispatch original activation delivery',
+    'missing-quorum': 'native dispatch quorum before send',
+    'wrong-quorum': 'native dispatch quorum before send',
+    'premature-send': 'native dispatch quorum before send',
+    'initialization': 'selected retention force order: native dispatch initialization',
+}
+
+
+def mutate(root, name):
+    paths = {'extra-file': 'extra', 'original-selection': 'selected.gsr', 'installed-selector': 'installed/node-2/selector.gsr',
+        'old-generation': 'applied-1/node-1/extra-generation', 'first-vote': 'applied-1/node-2/pending.accept',
+        'second-vote': 'applied-2/node-2/pending.accept', 'first-ack': 'applied-1/node-2/applied-end/ack.gsr',
+        'second-ack': 'applied-2/node-2/applied-end/ack.gsr', 'peer-observation': 'applied-2/node-1/'+s.FILE,
+        'future-proof': 'published-1/node-1/'+future.FILE, 'final-selector': 'published-2/node-2/selector.gsr',
+        'unselected-change': 'after-close/node-3/allocator.gsr'}
+    if name in paths: (root/paths[name]).write_bytes(b'changed original'); return
+    if name == 'scope':
+        path = root/'result.json'; value = read(path); value['autonomous'] = True; path.write_text(json.dumps(value)); return
+    if name == 'initialization':
+        path = root/'calls.json'; value = read(path); value[0]['events'].remove('RETENTION_PARENT_FORCED'); path.write_text(json.dumps(value)); return
+    path = root/'events.json'; events = read(path)
+    if name in ('source-bytes','missing-commit','reply-identity','control-ack'):
+        wire_path = root/'wire.json'; rows = read(wire_path)
+        wanted = {'source-bytes':'CHUNK', 'missing-commit':'TRANSFER_COMMIT', 'reply-identity':'PROMISE', 'control-ack':'ACCEPT_ACK'}[name]
+        row = next(v for v in rows if transfer.t.wire(v['response'])[0] == wanted)
+        before = e.digest(base64.b64decode(row['response'])); req_hash = e.digest(base64.b64decode(row['request']))
+        kind, response = transfer.t.wire(row['response'])
+        if name == 'missing-commit':
+            rows.remove(row); events.remove(next(ev for ev in events if ev['event'] == 'WIRE_RESPONSE' and ev['request'] == req_hash and ev['response'] == before))
+        else:
+            if name == 'source-bytes': response['payload'].update(bytes=base64.b64encode(b'changed').decode(), digest=e.digest(b'changed'))
+            elif name == 'reply-identity': response['sender'] = response['recipient']
+            else: response['payload']['receipt'] = '0'*64
+            changed = f.encode('wire',kind,response); row['response'] = base64.b64encode(changed).decode()
+            stamp = next(ev for ev in events if ev['event'] == 'WIRE_RESPONSE' and ev['request'] == req_hash and ev['response'] == before); stamp['response'] = e.digest(changed)
+        wire_path.write_text(json.dumps(rows))
+    elif name == 'missing-delivery':
+        ev = next(v for v in events if v['event'] == 'NETWORK_RECEIVED' and v['kind'] == 'TRANSFER_COMMIT'); events.remove(ev)
+    elif name == 'late-activation-delivery':
+        ev = next(v for v in events if v['node'] == 'node-2' and v['event'] == 'NETWORK_RECEIVED' and v['kind'] == 'TRANSFER_COMMIT'); events.remove(ev)
+        events.insert(next(i for i,v in enumerate(events) if v['event'] == 'SLOT_BEGIN'), ev)
+    elif name in ('missing-quorum','wrong-quorum','premature-send'):
+        pos = next(i for i, v in enumerate(events) if v['event'] == 'FUTURE_QUORUM_COMPLETE')
+        if name == 'missing-quorum': events.pop(pos)
+        elif name == 'wrong-quorum': events[pos]['voters'] = ['node-1']
+        else:
+            item = events.pop(next(i for i, v in enumerate(events) if v['event'] == 'PUBLICATION_SEND_BOUNDARY')); events.insert(pos, item)
+    elif name in ('floor-force','premature-floor'):
+        pos = next(i for i,v in enumerate(events) if v['node'] == 'node-1' and v['event'] == 'FLOOR_PARENT_FORCED'); item = events.pop(pos)
+        if name == 'premature-floor': events.insert(next(i for i,v in enumerate(events) if v['event'] == 'SLOT_BEGIN')+1, item)
+    else: raise ValueError('unknown native dispatch mutation')
+    path.write_text(json.dumps(events))
+
+
+def qualify(root):
+    original = validate(root); results = []
+    for name, reason in NEGATIVES.items():
+        with tempfile.TemporaryDirectory(prefix='v53-native-dispatch-negative-') as temp:
+            dest = Path(temp)/'raw'; shutil.copytree(root, dest); mutate(dest, name)
+            try: validate(dest)
+            except ValueError as error: need(str(error) == reason, 'native dispatch unrelated negative '+name+': '+str(error))
+            else: raise ValueError('native dispatch accepted negative '+name)
+            results.append(dict(case=name, status='REJECTED', reason=reason))
+    return dict(original=original, negatives=results)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(); parser.add_argument('root'); parser.add_argument('--negative', action='store_true'); args = parser.parse_args()
+    print(json.dumps((qualify if args.negative else validate)(args.root), sort_keys=True))

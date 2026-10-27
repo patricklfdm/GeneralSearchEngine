@@ -1,5 +1,14 @@
 # V5.3 — controlled cluster operations
 
+[Native activation-to-slot dispatch](PHASE_3_NATIVE_DISPATCH.md) now keeps the
+actual activation listener/source registry through two stable slot publications.
+A governing floor from complete original network copies retires the inactive
+generation and reconciles prior dispatch before the next slot. Local TCP,
+cancellation/fencing and portable original-first replay qualify this explicit
+three-voter/two-selected-voter integration. Autonomous coordination, repeated
+campaign maintenance, learners/joint completion, maximum combined headroom and
+full 3B–3E remain open.
+
 [Continuous native slot reception](PHASE_3_SLOT_ENDPOINT.md) now connects
 ACCEPT/PROOF/APPLY, governing future retention and PUBLISH on the same handler
 with shared transfer ownership. Stable 3/4/5-voter BARRIER/DATA and existing

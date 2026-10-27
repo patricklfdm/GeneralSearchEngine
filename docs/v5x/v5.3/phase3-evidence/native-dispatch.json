@@ -1,0 +1,234 @@
+{
+  "archive": {
+    "bytes": 5720327,
+    "entries": 10408,
+    "path": "target/v53-native-dispatch/evidence.tar.gz",
+    "sha256": "48d494cd9059f531fec42c6a7ef6cfed6e82327d842c033f193a9e41b53168ef"
+  },
+  "attempts": {
+    "bytes": 3331,
+    "path": "target/v53-native-dispatch/PLAN.md",
+    "sha256": "c4ff2fdcc0451a4f242e9a88e923df8ecaeed21682685e0d07f90a209796e0de"
+  },
+  "autonomous": false,
+  "baseCommit": "4e891e4664b75d1cd44e8cd15bad4b9d11b38a17",
+  "consecutiveSlots": [
+    "BARRIER",
+    "DATA"
+  ],
+  "currentJavaInputBinding": {
+    "bytes": 494831,
+    "path": "target/v53-native-dispatch/drain-inputs.json",
+    "sha256": "ba38830b71b10b7320ecb5a832121c89edbe9ef3915351df03cf2cf1440ee550"
+  },
+  "finalReaderOptimizedTests": 1,
+  "initialJavaInputBinding": {
+    "bytes": 494600,
+    "path": "target/v53-native-dispatch/qualified-inputs.json",
+    "sha256": "2ea9fa2ce7501bb130e71b1cfc845d883558fd7c615e7af89695387f7282dcbf"
+  },
+  "java": [
+    {
+      "attempt": "qualified",
+      "methods": [
+        "waitingForLocalWriterCannotAllocateAfterOriginalDeadline",
+        "unavailablePrepareUsesAnotherSourceWithoutChangingBallot",
+        "everySelectedAckIsRequiredBeforeLocalInstallation",
+        "realTcpAutomaticActivationInstallsEverySelectedVoterAtThreeSizes",
+        "freshBallotCannotAllocateAfterEnclosingDeadline",
+        "higherPromiseAfterRemoteInstallRejectsLateAckAndLocalInstallation",
+        "stalledSourceCannotHoldHealthyAlternativeAndIsDrained",
+        "higherOriginalSourceRejectionFencesBeforeSelection",
+        "exactTransientControlRetryPreservesBytesAndDeadline",
+        "failedSelectedPeerGetsFreshBallotAndAlternativeOpportunity",
+        "closeCancelsPendingPeerAndLeavesNoStagedFiles",
+        "cancelledDriverPreservesForeignScratch",
+        "correlatedHigherPromiseStopsCampaignBeforeWriterAdmission",
+        "callerCampaignLimitDoesNotRetireOriginalFailedSources",
+        "failedInstallationAtDeadlineCannotStartFreshGrant",
+        "malformedReplyFailsWithoutRetryOrForeignFencing",
+        "preferredQuorumHonorsBothMajoritiesAcrossAllSevenProfiles",
+        "preferredFailureFallsBackToPreviouslyDeferredPeer",
+        "closeDuringCapsuleTransferDrainsAndRemovesOnlyOwnedScratch",
+        "stricterCallerRetryLimitIsRespected"
+      ],
+      "name": "V53ActivationDriverTest",
+      "report": {
+        "bytes": 10768,
+        "path": "target/v53-native-dispatch/builds/qualified-58c5debc/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest.xml",
+        "sha256": "88765666768ad84b894813e8fcae4e9ded0b26b91d1e2a1de552f718973038ff"
+      },
+      "seconds": 112.74,
+      "tests": 20
+    },
+    {
+      "attempt": "qualified",
+      "methods": [
+        "nativeActivationReceivesAndPublishesTwoStableSlotsOnOneListener",
+        "lostAcceptReplyDoesNotRecreateSlotOrVote",
+        "closeCancelsNativeMaintenanceBeforeAnAcceptCanBeForced",
+        "expiredGrantCannotBeRevivedByFirstSlotControl",
+        "endedLocalCampaignCannotOpenANewSlot",
+        "higherPrepareFencesAndCancelsNativeMaintenance",
+        "aPoisonedActivationTraceStaysFailedAfterSlotCreation"
+      ],
+      "name": "V53NativeDispatchTest",
+      "report": {
+        "bytes": 10483,
+        "path": "target/v53-native-dispatch/builds/qualified-58c5debc/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+        "sha256": "8bb81a96f8fc240d4cf5753b45105e118040b9d660e7cf3d244273468fadb89a"
+      },
+      "seconds": 205.717,
+      "tests": 7
+    },
+    {
+      "attempt": "qualified",
+      "methods": [
+        "foreignProposerCannotFenceAndObservationDoesNotWaitForWriter",
+        "correlatedHigherSourceRejectionFencesButForeignReplyDoesNot",
+        "validHigherPrepareFencesBeforeTheControlQueueCanAcceptIt",
+        "closePreservesForeignScratchAndCanFinishAfterItsRemoval",
+        "schedulerExpiresPendingWorkWithoutAnIncomingPoll",
+        "duplicateInFlightControlSharesTaskAndDifferentControlIsBounded",
+        "realTcpEndpointOwnsPrepareSourcesAndSelectedInstallationAtThreeSizes",
+        "corruptedOriginalRecordFailsBeforeGrantAndDoesNotRetry",
+        "localRegistrationKeepsOriginalCampaignStartAndReleasesExportsOnExpiry",
+        "sourceFailureDoesNotManufacturePromiseAndExactRetryDoesNotRestartTask",
+        "waitingForWriterDoesNotResetIncomingBudget",
+        "duplicatePrepareSharesOriginalReplyAndExpiryCannotRenewScope"
+      ],
+      "name": "V53ActivationEndpointTest",
+      "report": {
+        "bytes": 9513,
+        "path": "target/v53-native-dispatch/builds/qualified-58c5debc/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml",
+        "sha256": "455ad09d79bcd80b85c5876b511bd9653a1f16068e2cfe4620b8935cbaeaeb0d"
+      },
+      "seconds": 63.531,
+      "tests": 12
+    },
+    {
+      "attempt": "drain",
+      "methods": [
+        "nativeActivationReceivesAndPublishesTwoStableSlotsOnOneListener",
+        "closeCancelsNativeMaintenanceBeforeAnAcceptCanBeForced",
+        "higherPrepareFencesAndCancelsNativeMaintenance"
+      ],
+      "name": "V53NativeDispatchTest",
+      "report": {
+        "bytes": 8782,
+        "path": "target/v53-native-dispatch/builds/drain-5a77cdc9/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+        "sha256": "c65dd713488a697e5cdb9458e46249bea68cf89253360e9d8c62d32a68f8cace"
+      },
+      "seconds": 128.809,
+      "tests": 3
+    },
+    {
+      "attempt": "drain",
+      "methods": [
+        "closePreservesForeignScratchAndCanFinishAfterItsRemoval",
+        "failedDrainRetainsScratchOwnershipUntilWorkerStops"
+      ],
+      "name": "V53ActivationEndpointTest",
+      "report": {
+        "bytes": 7622,
+        "path": "target/v53-native-dispatch/builds/drain-5a77cdc9/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml",
+        "sha256": "aaf25c08a294de061dea2dc6748f42bb640058c725907c278b376de3654eef9f"
+      },
+      "seconds": 15.06,
+      "tests": 2
+    }
+  ],
+  "matrixToCurrentJavaDelta": [
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationEndpointTest.java"
+  ],
+  "negativeMutations": 50,
+  "originalHistories": 2,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portable": {
+    "bytes": 7975,
+    "path": "target/v53-native-dispatch/portable-replay.json",
+    "sha256": "cfc676cd88f66548e6637b1ea03ca82730eae110bc75001627d5f267ff1f8fea"
+  },
+  "postPythonSuiteReaderChange": "Additional causal original activation delivery checks; both histories and all exact negatives replayed on the final reader",
+  "powerLoss": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "pythonTests": 675,
+  "remaining": [
+    "autonomous election/discovery and outgoing whole-slot coordinator",
+    "restart reconciliation and repeated-campaign/source retirement",
+    "carried-entry readiness and learner/joint completion across seven profiles",
+    "maximum combined resource headroom",
+    "complete 3B\u20133E qualification"
+  ],
+  "replay": {
+    "bytes": 7975,
+    "path": "target/v53-native-dispatch/replay-complete.json",
+    "sha256": "cfc676cd88f66548e6637b1ea03ca82730eae110bc75001627d5f267ff1f8fea"
+  },
+  "schema": "gse-v53-native-dispatch-local-v1",
+  "scope": "native-activation-and-two-stable-slots-with-original-governing-maintenance",
+  "selectedVoters": 2,
+  "source": [
+    {
+      "bytes": 22661,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "ab8b549d881f24af684bcdfd284ebf5ff10459abebcb7bd0c57177c89991a768"
+    },
+    {
+      "bytes": 4409,
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_DISPATCH.md",
+      "sha256": "357377af791c4858bf72cfdbbf7e6eaf30020dff89ff1f535cce65f1dfaac656"
+    },
+    {
+      "bytes": 37680,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "67cc3c8829e31e62af8389248647d8110b622b6155f76137bfe1c633c30e7dd2"
+    },
+    {
+      "bytes": 27466,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "sha256": "9b33bc52c5c09ff9a03b1bba3e944473a25dd28fb4989b0513235023c9c53096"
+    },
+    {
+      "bytes": 6067,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "sha256": "f62f7532a5fe4691969d2c42185fb69fd60d253f61ab41fa37790b7ee53a3487"
+    },
+    {
+      "bytes": 272983,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "90271c4a15f0634e6429829275ff8011b91b3cdebd179037eb1428cac7cf0a27"
+    },
+    {
+      "bytes": 19986,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationEndpointTest.java",
+      "sha256": "1dd5ceae2ca2a39c8f2550d8b335a5e2d3a632517a0f11c32a18da985e7616c9"
+    },
+    {
+      "bytes": 17711,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "sha256": "b50052231e3cc369c30e6852a437bd893026cb711dd63ea2d6ac54861992fddd"
+    },
+    {
+      "bytes": 32691,
+      "path": "scripts/v53/native_dispatch_evidence.py",
+      "sha256": "68a177668d618509b0a46864ce6c86e098cade71dc5584ea531dcafa0780d87c"
+    },
+    {
+      "bytes": 712,
+      "path": "scripts/v53/test_native_dispatch_evidence.py",
+      "sha256": "12a5f2e4e075757339c58961aaee76e7c07a410ce26da82d7482213c977f7722"
+    }
+  ],
+  "stableConfiguredVoters": 3,
+  "status": "PASS",
+  "unchangedLimits": {
+    "maximumIdenticalAttempts": 3,
+    "originalScopeBudget": true,
+    "requestTimeoutMillis": 5000,
+    "wireStorageFormats": true
+  }
+}

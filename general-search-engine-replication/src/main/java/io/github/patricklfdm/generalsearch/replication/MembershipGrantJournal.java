@@ -2061,6 +2061,12 @@ final class MembershipGrantJournal implements AutoCloseable {
         parents.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)first.get("catalog"),(String)first.get("snapshot")));
     }
     synchronized Optional<Decoded> governingFloor() throws IOException {require(floors!=null,"floor storage owner required");checkOwner();return floors.read();}
+    /** Read-only admission hint; deletion still requires complete governing copies. */
+    synchronized boolean nativeGenerationMaintenanceRequired()throws IOException {
+        require(ownedHistory && inactive!=null && retirement!=null && floors!=null,"native generation maintenance owner required");
+        checkOwner();require(!inactive.pending() && !retirement.pending() && !floors.pending(),"native maintenance requires recovered storage");
+        return inactive.exists() || floors.exists();
+    }
     synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered) throws IOException {
         require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");var own=floorCopyCurrent();

@@ -110,6 +110,25 @@ class V53ActivationEndpointTest {
             Files.delete(foreign);l.endpoint.close();assertEquals(Set.of("owner.json","scope.lock"),MembershipBasisSources.children(l.scratch,8));
         }
     }
+    @Test void failedDrainRetainsScratchOwnershipUntilWorkerStops()throws Exception {
+        try(var l=new Local()) {
+            var entered=new CountDownLatch(1);var release=new CountDownLatch(1);
+            l.link.set((p,r,k,d)->{
+                entered.countDown();boolean interrupted=false;
+                for(;;)try{release.await();break;}catch(InterruptedException error){interrupted=true;}
+                if(interrupted)Thread.currentThread().interrupt();
+                return CompletableFuture.failedFuture(new IOException("released blocked exchange"));
+            });
+            var request=l.prepare();var call=CompletableFuture.runAsync(()->assertThrows(Exception.class,()->l.endpoint.handle(l.proposer(),request)));
+            try {
+                assertTrue(entered.await(5,TimeUnit.SECONDS));
+                assertThrows(IOException.class,l.endpoint::close);
+                assertThrows(ReplicationException.class,()->MembershipOwnership.own(l.scratch.resolve("scope.lock"),false));
+            }finally{release.countDown();}
+            l.endpoint.close();call.get(5,TimeUnit.SECONDS);
+            try(var available=MembershipOwnership.own(l.scratch.resolve("scope.lock"),false)){assertTrue(available.lock().isValid());}
+        }
+    }
     @Test void localRegistrationKeepsOriginalCampaignStartAndReleasesExportsOnExpiry()throws Exception {
         try(var l=new Local()) {
             Path scratch=temp.resolve("local-registration");
