@@ -13,16 +13,16 @@ ROOT=Path(__file__).resolve().parents[2]
 
 def validate_java(value):
     expected=independent.generate()['fixtures']
-    need(value['schema']=='gse-v53-java-format-output-v1' and len(value['fixtures'])==50, 'Java fixture inventory')
+    need(value['schema']=='gse-v53-java-format-output-v1' and len(value['fixtures'])==52, 'Java fixture inventory')
     rows={(r['family'],r['name']):r for r in value['fixtures']}
-    need(len(rows)==50 and set(rows)=={(r['family'],r['name']) for r in expected}, 'Java fixture kinds')
+    need(len(rows)==52 and set(rows)=={(r['family'],r['name']) for r in expected}, 'Java fixture kinds')
     for original in expected:
         row=rows[(original['family'],original['name'])]
         need(set(row)=={'family','name','hex','sha256'}, 'Java fixture fields')
         data=bytes.fromhex(row['hex'])
         need(hashlib.sha256(data).hexdigest()==row['sha256']==original['sha256'] and row['hex']==original['hex'], 'Java fixture byte drift')
         need(independent.decode(data,row['family'],row['name'])==original['value'], 'independent decode')
-    return dict(status='PASS',syntaxFixtures=50,runtimeEnabled=False,authorityEvidence=False)
+    return dict(status='PASS',syntaxFixtures=52,runtimeEnabled=False,authorityEvidence=False)
 
 
 def run(output):
@@ -41,7 +41,7 @@ def run(output):
         (output/'java.stdout').write_text(result.stdout);(output/'java.stderr').write_text(result.stderr)
         need(result.returncode==0,'Java byte producer: '+result.stderr[-2000:])
         validation=validate_java(json.loads((output/'java.json').read_text()));save(output/'validation.json',validation)
-        receipt.update(status='PASS',syntaxFixtures=50,catalogSha256=hashlib.sha256(independent.CATALOG.read_bytes()).hexdigest(),
+        receipt.update(status='PASS',syntaxFixtures=52,catalogSha256=hashlib.sha256(independent.CATALOG.read_bytes()).hexdigest(),
                        outputSha256=hashlib.sha256((output/'java.json').read_bytes()).hexdigest())
     except BaseException as error:
         receipt.update(status='FAIL',failure=dict(type=type(error).__name__,message=str(error)));raise

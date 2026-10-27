@@ -1403,9 +1403,10 @@ final class MembershipGrantJournal implements AutoCloseable {
                 fence(ballot);}
         }
         void request(MembershipIdentity sender,Decoded request)throws IOException {
-            check();require(Set.of("ACCEPT","PROOF").contains(request.kind()),"native voting request kind");
+            check();require(Set.of("ACCEPT","PROOF","APPLY").contains(request.kind()),"native voting request kind");
             MembershipActivation.incoming(before.context,identity,sender,request,request.kind());
-            require(request.value().get("ballot").equals(ballot),"native voting request ballot");check();
+            require(request.value().get("ballot").equals(ballot),"native voting request ballot");
+            if(request.kind().equals("APPLY"))require(selected.equals(object(request.value().get("payload")).get("selection")),"native application selected binding");check();
         }
         private MembershipPendingAccept.Vote vote()throws IOException {
             check();require(!pendingAccept.pending(),"incomplete pending vote cannot attest");return pendingAccept.active();
@@ -1426,6 +1427,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         Optional<Decoded> acknowledge(MembershipIdentity sender,Decoded request)throws IOException {
             synchronized(MembershipGrantJournal.this){request(sender,request);String phase=request.kind();
+                if(phase.equals("APPLY"))return applicationAcknowledgement(request);
                 var held=record(phase);String reference=(String)object(request.value().get("payload")).get(phase.equals("ACCEPT")?"acceptance":"proof");
                 if(held.isEmpty() || !held.get().digest().equals(reference))return Optional.empty();
                 var record=held.get();observation(record);
@@ -1433,6 +1435,24 @@ final class MembershipGrantJournal implements AutoCloseable {
                         UUID.fromString((String)request.value().get("trace")),number(request.value().get("sequence")),
                         Map.of("entry",record.value().get("entry"),"receipt",hash(MembershipVoteReceipt.bytes(before.context,identity,record))));
                 cut.at(phase+"_ACK_BEFORE_RETURN");check();return Optional.of(response);}
+        }
+        /** Only this live owner's completed native end; no selector publication. */
+        Optional<Applied> application()throws IOException {
+            synchronized(MembershipGrantJournal.this){check();
+                var held=vote();
+                if(nativeApplied==null || held==null || held.certificate()==null || record("PROOF").isEmpty()
+                        || !held.certificate().digest().equals(nativeApplied.plan().originalCertificate().digest()))return Optional.empty();
+                pendingPublication(nativeApplied).check();check();return Optional.of(nativeApplied);}
+        }
+        private Optional<Decoded> applicationAcknowledgement(Decoded request)throws IOException {
+            var applied=application();if(applied.isEmpty())return Optional.empty();var actual=applied.get();
+            String certificate=(String)object(request.value().get("payload")).get("certificate");
+            require(actual.plan().originalCertificate().digest().equals(certificate),"native application acknowledgement certificate");
+            var response=new TreeMap<>(request.value());response.put("sender",request.value().get("recipient"));response.put("recipient",request.value().get("sender"));
+            response.put("payload",Map.of("certificate",certificate,"selection",selected,"statement",actual.plan().statement.digest(),
+                    "acknowledgement",actual.endorsement().acknowledgement().digest()));
+            var ack=decode(encode("wire","APPLY_ACK",response),"wire","APPLY_ACK");
+            cut.at("APPLICATION_ACK_BEFORE_RETURN");check();pendingPublication(actual).check();return Optional.of(ack);
         }
     }
     synchronized Voting voting(MembershipResources budget)throws IOException {

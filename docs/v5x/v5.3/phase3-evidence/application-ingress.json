@@ -1,0 +1,298 @@
+{
+  "archive": {
+    "archive": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-application-ingress/evidence-with-layout.tar.gz",
+    "sha256": "fe01d709e13840f3aba58c2c5d48396c032d8473c35ea08d6cb3c25d3543598a",
+    "size": 11397387
+  },
+  "autonomous": false,
+  "baseCommit": "de83ec33bd6d290778d46fc176b6853e50538b5f",
+  "contractAmendment": "A08",
+  "freshJvms": 20,
+  "independentImageSemantics": true,
+  "java": [
+    {
+      "attempt": "matrix",
+      "methods": [
+        "realTcpCertifiesAndAppliesWithoutPublishingAllStableSizes",
+        "missingOriginalProofVoterPreventsCertificateAndApplication",
+        "duplicateAndReopenedApplicationUseOnlyTheOriginalForcedCertificate",
+        "wrongSelectionAndProofOnlyCannotApplyAndHigherBallotPreventsAck"
+      ],
+      "name": "V53NativeApplicationIngressTest",
+      "report": {
+        "bytes": 10350,
+        "path": "target/v53-native-application-ingress/builds/matrix-0159ee23/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeApplicationIngressTest.xml",
+        "sha256": "0c02a8cd02ab6d55b763839502dd40d6de77a56cda6c2f63fb87a87186619539"
+      },
+      "seconds": 296.966,
+      "tests": 4
+    },
+    {
+      "attempt": "matrix",
+      "methods": [
+        "forcedCertificateRecoversApplicationAfterHaltAndSigkillWithoutFreshRemoteObservations"
+      ],
+      "name": "V53NativeApplicationIngressProcessTest",
+      "report": {
+        "bytes": 10625,
+        "path": "target/v53-native-application-ingress/builds/matrix-0159ee23/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeApplicationIngressProcessTest.xml",
+        "sha256": "76dc71525d81251ec90650d2fda3e124eec32507703961d9443c48a360f64669"
+      },
+      "seconds": 190.187,
+      "tests": 1
+    },
+    {
+      "attempt": "matrix",
+      "methods": [
+        "exactTransportRetriesStopAtThreeAndKeepOriginalDeadlineAndNoVote",
+        "proofCannotCountAnUnreachableOriginalVoterFromTheProposersProofAlone",
+        "alteredPayloadFailsBeforeAnyAcceptanceEvenWithValidChunkHash",
+        "carriedOriginalVoteCannotAcknowledgeANewInstalledRound",
+        "foreignProposerAndUnpromisedBallotNeverReachTheNetwork",
+        "originalReceiptUsesItsOwnLookupNamespaceAndContentDigest"
+      ],
+      "name": "V53NativeVotingLimitsTest",
+      "report": {
+        "bytes": 9979,
+        "path": "target/v53-native-application-ingress/builds/matrix-0159ee23/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeVotingLimitsTest.xml",
+        "sha256": "e3f4c7bbb199e95042c3c7788a86ef7158e4808ea63c3d4c5512eba5fb1e7d0d"
+      },
+      "seconds": 75.203,
+      "tests": 6
+    },
+    {
+      "attempt": "matrix",
+      "methods": [
+        "commandAndReadTokenEncodingRemainExact",
+        "parserCountsObjectKeysAndCapsNestingBeforeRecursiveDecoding",
+        "everyKindMatchesIndependentGoldenBytesAndDefensiveDecodedValues",
+        "malformedAndOlderHeadersFailBeforeReadingABody",
+        "canonicalDuplicateUnknownFloatAndShapeViolationsReject"
+      ],
+      "name": "V53FormatTest",
+      "report": {
+        "bytes": 7989,
+        "path": "target/v53-native-application-ingress/builds/matrix-0159ee23/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FormatTest.xml",
+        "sha256": "f063c5c7614c09bcabcec527da2214f7a7af33b52d2154d0885ccb3a03374f44"
+      },
+      "seconds": 0.049,
+      "tests": 5
+    },
+    {
+      "attempt": "guards",
+      "methods": [
+        "duplicateAndReopenedApplicationUseOnlyTheOriginalForcedCertificate",
+        "originalAcceptWithoutProofCannotAdmitAnApplicationRequest"
+      ],
+      "name": "V53NativeApplicationIngressTest",
+      "report": {
+        "bytes": 8269,
+        "path": "target/v53-native-application-ingress/builds/guards-4fefbd72/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeApplicationIngressTest.xml",
+        "sha256": "6e7317985ea46ce6d606d92b3ea4643ba30885490858969fd245214cc8bddf0e"
+      },
+      "seconds": 24.262,
+      "tests": 2
+    },
+    {
+      "attempt": "guards",
+      "methods": [
+        "noOriginalVoteMeansNoReceiptEvenWithAValidExpectedHash",
+        "realTcpForcesFirstAcceptAndProofAtEveryOriginalVoter",
+        "lostAcknowledgementsAndReopenedDuplicatesDoNotPullOrRewrite",
+        "higherBallotAtForcePreventsAcknowledgementAndRevokesBorrow"
+      ],
+      "name": "V53NativeVotingTest",
+      "report": {
+        "bytes": 10248,
+        "path": "target/v53-native-application-ingress/builds/guards-4fefbd72/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeVotingTest.xml",
+        "sha256": "4f923910e30d87bbe3edc48b86351845d2cdb7608d8574d163b3e9d40a49b38f"
+      },
+      "seconds": 226.692,
+      "tests": 4
+    },
+    {
+      "attempt": "guards",
+      "methods": [
+        "nativeExportNeedsLiveReapplicationAndFencesWithItsOwner",
+        "actualPendingAckCrossesTcpAndSuppliesNativePublication",
+        "pendingStatementAndAckAreOwnExactBytesAndBorrowExpires"
+      ],
+      "name": "V53PendingCheckpointExportTest",
+      "report": {
+        "bytes": 8703,
+        "path": "target/v53-native-application-ingress/builds/guards-4fefbd72/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PendingCheckpointExportTest.xml",
+        "sha256": "44af2e90c839f7f0d59c7fe852d2b8847c1e8c841ea11f5365908d844263176a"
+      },
+      "seconds": 45.15,
+      "tests": 3
+    }
+  ],
+  "killLockProbes": 5,
+  "negativeMutations": 124,
+  "networkApplications": 18,
+  "networkHistories": 6,
+  "networkTransfers": 134,
+  "optimizedFocusedTests": 2,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portable": {
+    "bytes": 24852,
+    "path": "target/v53-native-application-ingress/portable-replay.json",
+    "sha256": "57f1d9d94ced7081091cbe1eb803aaaa519e18d1cf63713db4e43b3c447123bb"
+  },
+  "powerLoss": false,
+  "processCases": 10,
+  "productionFilesMatchingBothSnapshots": 435,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "pythonTests": 673,
+  "remaining": [
+    "autonomous owner election/discovery/dispatch and slot continuation",
+    "ADD/REPLACE learner lifecycle and all seven joint profiles",
+    "maximum combined resource headroom",
+    "complete 3B\u20133E physical/history qualification"
+  ],
+  "replay": {
+    "bytes": 27636,
+    "path": "target/v53-native-application-ingress/replay.json",
+    "sha256": "540639ad0b2dceb89df6388320a63bd393c1b34d5cf9aebba2e27cda461d4fef"
+  },
+  "retainedAttempts": [
+    "smoke: stale production catalog count rejected before runtime; retained",
+    "catalog: one native reopen case and five format tests passed",
+    "matrix: complete six-network/ten-process qualification",
+    "guards: stronger lost-ACK/no-PROOF tests; existing voting and pending checkpoint regressions; unchanged production"
+  ],
+  "schema": "gse-v53-native-application-ingress-local-v1",
+  "scope": "native-certificate-application-ingress",
+  "source": [
+    {
+      "bytes": 20362,
+      "path": "docs/v5x/v5.3/API_FORMAT_AND_COMPATIBILITY.md",
+      "sha256": "11e1a124d5e4059f8a1a8ec754c345bc439c78ffb2aeed0cf8b6e970b8f2b6d6"
+    },
+    {
+      "bytes": 5562,
+      "path": "docs/v5x/v5.3/PHASE_0_CONTRACT.md",
+      "sha256": "5c8f40b6ac93c987de59e6a825089d1dff6c8d2602f02f2ff4af56c64e650d92"
+    },
+    {
+      "bytes": 3592,
+      "path": "docs/v5x/v5.3/PHASE_3_APPLICATION_INGRESS.md",
+      "sha256": "5bf83ccf1d2f98da3275320411ffe98be314790421ade1fcb04504917ba66320"
+    },
+    {
+      "bytes": 14127,
+      "path": "docs/v5x/v5.3/PHASE_3_CONTRACT_AMENDMENTS.md",
+      "sha256": "56b52168d4a4fb2744b9cb4d3aa112bc61e8e07ad343e220feb952f73313d5a5"
+    },
+    {
+      "bytes": 21488,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "864d97a74a90b0acfc42227dfe5df1761344107b28abec2715791ad4d1c6d928"
+    },
+    {
+      "bytes": 36507,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "6cf1046577d610a51a0246033c5590ba66031d9f82b0baebb99f6e2e08a9a7d0"
+    },
+    {
+      "bytes": 147321,
+      "path": "docs/v5x/v5.3/byte-fixtures.json",
+      "sha256": "392f004c2ebb00d0075a2b0cb37bbfd18b56c1000a114c71c1fe58193cdefe32"
+    },
+    {
+      "bytes": 29624,
+      "path": "docs/v5x/v5.3/format-catalog.json",
+      "sha256": "aca4f5c8a6763bbcf233188b89c5b533b8743ca41faaca8f11bfd5d91f0c02fd"
+    },
+    {
+      "bytes": 12370,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFormat.java",
+      "sha256": "15a5f407439229557c6a93480abaf7e6739c9d5a9b374feb9097a3ca779d5145"
+    },
+    {
+      "bytes": 272476,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "28a3a15e2e4c9e6248f4e3c44529bee3ddd1ed1c8b0aaefe5256ea10b3a820bf"
+    },
+    {
+      "bytes": 13033,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipVotingEndpoint.java",
+      "sha256": "a9ff126ff38fd3d59ff23fd631cf3a57ec742b2edca3bc658f58f9fd86e91789"
+    },
+    {
+      "bytes": 15563,
+      "path": "general-search-engine-replication/src/main/resources/replication/membership-format-v13.json",
+      "sha256": "d62563f128f03f5da465e2dea77ebe0772963dd05b358888f502b04be906403e"
+    },
+    {
+      "bytes": 7502,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FormatTest.java",
+      "sha256": "5101a788bf09818e0efebdcc42bb48efa25211d57f09013c541f131b87249ff1"
+    },
+    {
+      "bytes": 4727,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationIngressProcessTest.java",
+      "sha256": "3aa7d0c10ce923851a8f50f81f1dfb5d43bb190d372bc06c8fdd929c8f43db23"
+    },
+    {
+      "bytes": 9165,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationIngressTest.java",
+      "sha256": "4da07f3da369840834578140029ed53eb58eb686dc0d6825191bb2a2db451ce4"
+    },
+    {
+      "bytes": 3299,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationIngressWorker.java",
+      "sha256": "9decce38223be2cdc79866c555a349985b9a5ffd609f08b2da21ae2284367dc9"
+    },
+    {
+      "bytes": 12756,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeVotingTest.java",
+      "sha256": "9037b7e3c432bb97c95b9c09db1c075db404e567781773ab4b224c4887712a44"
+    },
+    {
+      "bytes": 147321,
+      "path": "general-search-engine-replication/src/test/resources/replication/v53/byte-fixtures.json",
+      "sha256": "392f004c2ebb00d0075a2b0cb37bbfd18b56c1000a114c71c1fe58193cdefe32"
+    },
+    {
+      "bytes": 3154,
+      "path": "scripts/v53/contract_check.py",
+      "sha256": "6d563929b4f398b3074a07769d78ee3fa87c43f35ffbbbf56b859b646b9ea700"
+    },
+    {
+      "bytes": 3281,
+      "path": "scripts/v53/format_qualification.py",
+      "sha256": "d64d7db6c648541b00a97d70ca6fed9472edeb29cf12ebcdbb7676706e66a1b1"
+    },
+    {
+      "bytes": 14167,
+      "path": "scripts/v53/native_application_ingress_evidence.py",
+      "sha256": "89ccc7fa3ff381aea085a182cbecc92c82976d1929ff809a2139e70b1089dc75"
+    },
+    {
+      "bytes": 10355,
+      "path": "scripts/v53/native_application_ingress_restart_evidence.py",
+      "sha256": "206984f8046d50411bdae5243059271fbee24e5afc5bcf005725e3fb5e3f1fa9"
+    },
+    {
+      "bytes": 994,
+      "path": "scripts/v53/test_format_qualification.py",
+      "sha256": "fd288e3ac55d40a33479f741d9671e58d8bec4019e2a5e63d4df2964ef9cca87"
+    },
+    {
+      "bytes": 1603,
+      "path": "scripts/v53/test_native_application_ingress_evidence.py",
+      "sha256": "e8f0e42280d26d9a3bd4171f22f5f22dd5ab566a41a71a9fdad981c63ba2db4c"
+    }
+  ],
+  "sourceBinding": {
+    "bytes": 233,
+    "path": "target/v53-native-application-ingress/matrix-source-binding.json",
+    "sha256": "60b9160ad6db0e3c4d54232137c712e3d73b51b291026dd3200d47674aa33603"
+  },
+  "status": "PASS",
+  "syntaxFixtures": 52,
+  "unchangedPriorFrames": 50
+}

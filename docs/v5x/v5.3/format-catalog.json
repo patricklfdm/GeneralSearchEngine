@@ -1307,6 +1307,50 @@
           "view": "hash"
         }
       }
+    },
+    "APPLY": {
+      "id": 27,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "certificate": "hash",
+              "selection": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "APPLY_ACK": {
+      "id": 28,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "certificate": "hash",
+              "selection": "hash",
+              "statement": "hash",
+              "acknowledgement": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
     }
   }
 }

@@ -28,8 +28,13 @@ class V53NativeVotingTest {
         final AtomicBoolean drop=new AtomicBoolean();
         final Decoded entry,accept;
         final byte[] payload;
+        final boolean applicationEnabled;
         Network(int size,boolean data)throws Exception {
-            Path raw=Files.createDirectories(Path.of("target/v53-native-voting/run-"+UUID.randomUUID()));System.out.println("v53NativeVotingEvidence="+raw.toAbsolutePath());
+            this(size,data,false);
+        }
+        Network(int size,boolean data,boolean applicationEnabled)throws Exception {
+            this.applicationEnabled=applicationEnabled;
+            Path raw=Files.createDirectories(Path.of("target/"+(applicationEnabled?"v53-native-application-ingress":"v53-native-voting")+"/run-"+UUID.randomUUID()));System.out.println("v53NativeVotingEvidence="+raw.toAbsolutePath());
             f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve(UUID.randomUUID().toString())),size,false));
             f.ownedHistory=true;f.nativeApplication=true;f.campaign(1);if(data)f.publish(1,false);f.snapshot("before-voting");
             for(var target:f.request.targets()) {
@@ -48,10 +53,13 @@ class V53NativeVotingTest {
         }
         void start(int index)throws Exception {
             var owner=owners.get(index);var resources=budgets.get(index);var bounds=ReplicationBounds.defaults();
-            var endpoint=new MembershipVotingEndpoint(owner,resources,bounds,(peer,request,kind,deadline)->{
+            MembershipSourcePull.Link outgoing=(peer,request,kind,deadline)->{
                 if(noOutgoing.get())throw new AssertionError("duplicate must use own forced vote");
                 return links.get(index).get().exchange(peer,request,kind,deadline);
-            },System::nanoTime,System.nanoTime(),BUDGET);
+            };
+            var endpoint=applicationEnabled?new MembershipVotingEndpoint(owner,resources,bounds,outgoing,System::nanoTime,System.nanoTime(),BUDGET,
+                    builder().configuration(),f.request.targets().get(index).materialization()):
+                    new MembershipVotingEndpoint(owner,resources,bounds,outgoing,System::nanoTime,System.nanoTime(),BUDGET);
             var transport=new MembershipTransport(owner.activationCapsule(),owner.activationIdentity(),bounds,resources,endpoint,(event,request,response)->{
                 if(event.equals("BEFORE_RESPONSE_WRITE")){boolean withheld=response.kind().equals(dropped.get()) && drop.compareAndSet(true,false);
                     var row=new TreeMap<String,Object>(V53SelectedPullTest.wire(request,response));row.put("withheld",withheld);wire.add(row);
@@ -88,7 +96,7 @@ class V53NativeVotingTest {
             for(var endpoint:endpoints)endpoint.close();for(var transport:transports)transport.close();for(var owner:owners)owner.close();
             for(var budget:budgets)assertEquals(0,budget.usage().leases());
             Files.write(f.raw.resolve("wire.json"),canonical(wire,8*1024*1024));Files.write(f.raw.resolve("events.json"),canonical(events,8*1024*1024));
-            f.snapshot("after-voting");V53NativeApplicationTest.save(f);
+            f.snapshot(applicationEnabled?"after-ingress":"after-voting");V53NativeApplicationTest.save(f);
         }
     }
     @Test void realTcpForcesFirstAcceptAndProofAtEveryOriginalVoter()throws Exception {

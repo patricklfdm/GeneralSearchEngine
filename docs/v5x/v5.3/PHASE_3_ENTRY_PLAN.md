@@ -8,6 +8,14 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Native certificate/application ingress](PHASE_3_APPLICATION_INGRESS.md) connects
+original ACCEPT/PROOF observations to durable certificate admission, typed replay
+and the receiver's own pending checkpoint acknowledgement. Stable TCP and process
+recovery are locally qualified; application ACK is not publication or public READY.
+Automatic owner lifecycle/dispatch, learner/joint completion, maximum combined
+headroom and full 3B–3E qualification remain open. Earlier entries retain their
+original source-bound scope.
+
 [Native incoming phased voting](PHASE_3_NATIVE_VOTING.md) connects original
 payload transfer, durable ACCEPT, original-voter receipt acquisition and durable
 PROOF under the installed native selection. Its explicit network/process scope

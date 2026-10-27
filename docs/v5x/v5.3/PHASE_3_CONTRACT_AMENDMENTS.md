@@ -179,3 +179,37 @@ A carried original from a previous installed round is not a current vote receipt
 Native observation and duplicate ACK require the active vote's original ballot,
 SELECTED and selector to match the current voting scope; the old original remains
 retained for recovery until a separately validated successor replaces it.
+
+## A08 — exact native certificate/application ingress
+
+`APPLY` (27) and `APPLY_ACK` (28), each at most 32 KiB, are internal controls in
+unpublished 1.3. All earlier 50 frames, commands, read-token bytes, storage kinds
+and resource ceilings remain unchanged. The new syntax inventory is 24 storage
+and 28 wire kinds. Historical source-bound receipts retain their earlier counts.
+
+The request binds the original CERTIFICATE and installed SELECTED. Its envelope
+must name the exact current proposer, permanent recipient, root, view and ballot.
+The receiver must already own its actual current ACCEPT and PROOF; copied records
+and carried prior-round votes cannot satisfy that requirement. On first certificate
+admission it fetches the original certificate, validates both governing majorities,
+and obtains each named ACCEPT and PROOF observation from that original voter.
+Only then may it force its own certificate and perform native typed application.
+
+The ACK binds certificate, SELECTED, actual checkpoint statement and the receiver's
+own forced checkpoint acknowledgement. It does not publish the selector, authorize
+future-target dispatch, prove another peer applied, or enable public service. Those
+steps retain the existing future-recording and checkpoint-quorum requirements.
+The same bounded writer owns vote/application requests while the independent
+transfer service permits reverse original-owner pulls. Invalid input refuses
+before certificate force; original deadlines, three identical source I/O attempts,
+waiter/control accounting, fencing and close behavior remain in force.
+
+After a lost reply, a live exact completed application can acknowledge without
+reapplying. After restart, its own forced certificate permits idempotent native
+application recovery without fresh historical observations; receiving the same
+request is explicit, not an autonomous redispatch claim. A new selection or higher
+ballot fences both work and acknowledgement. A prior slot's cached application
+cannot answer a new slot's request. No complete Phase 3 gate closes here.
+
+Rollback before publication removes these two internal message kinds and their
+typed ingress together; no existing ACK is reinterpreted as an application ACK.

@@ -9,7 +9,8 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** Native installed-round incoming ACCEPT/PROOF, with original payload and
  * original-voter receipt pulls. One bounded writer; reverse transfers never
- * wait on that writer. No certificate, application or public READY is implied. */
+ * wait on that writer. Optional typed application requires exact original phased
+ * observations before certification. APPLY_ACK is not publication/public READY. */
 final class MembershipVotingEndpoint implements MembershipTransport.Handler,AutoCloseable {
     private final MembershipGrantJournal owner;
     private final MembershipGrantJournal.Voting voting;
@@ -19,6 +20,8 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
     private final MembershipTransferService transfers;
     private final LongSupplier clock;
     private final long started,budget;
+    @FunctionalInterface private interface Application {MembershipGrantJournal.Applied apply()throws IOException;}
+    private final Application application;
     private final ExecutorService writer=Executors.newSingleThreadExecutor(Thread.ofVirtual().name("gse-membership-voting").factory());
     private final Set<MembershipSourcePull> pulls=new HashSet<>();
     private CompletableFuture<Void> completion;
@@ -26,9 +29,19 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
     private volatile boolean closed;
     MembershipVotingEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
             LongSupplier clock,long started,long budget)throws IOException {
+        this(owner,resources,bounds,link,clock,started,budget,(Application)null);
+    }
+    <K,T> MembershipVotingEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
+            LongSupplier clock,long started,long budget,io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage)throws IOException {
+        this(owner,resources,bounds,link,clock,started,budget,()->owner.applyCurrent(configuration,storage));
+        Objects.requireNonNull(configuration);Objects.requireNonNull(storage);
+    }
+    private MembershipVotingEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
+            LongSupplier clock,long started,long budget,Application application)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"voting endpoint budget");
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
-        this.link=Objects.requireNonNull(link);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
+        this.link=Objects.requireNonNull(link);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;this.application=application;
         voting=owner.voting(resources);check();transfers=new MembershipTransferService(owner,voting.ballot,resources,bounds,this::check,clock,started,budget);
     }
     private void check()throws IOException {
@@ -68,7 +81,7 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
                         require(own.record().equals(accepted.digest()),"incoming ACCEPT actual record");check();return own;});
                 });
             });
-        } else {
+        } else if(request.kind().equals("PROOF")) {
             var accepted=voting.record("ACCEPT").orElseThrow(()->new IllegalArgumentException("incoming PROOF requires original own ACCEPT"));
             pull(sender,proofPull->{
                 var proof=proofPull.fetchRecord((String)payload.get("proof"),"PROOF",value->{statement(value);voting.before.context.persistedProof(value,accepted);});
@@ -79,6 +92,24 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
                 }
                 check();var own=owner.proveCurrent(proof,observations);check();return own;
             });
+        } else {
+            require(application!=null,"typed application endpoint required");
+            var accepted=voting.record("ACCEPT").orElseThrow(()->new IllegalArgumentException("incoming APPLY requires original own ACCEPT"));
+            var proof=voting.record("PROOF").orElseThrow(()->new IllegalArgumentException("incoming APPLY requires original own PROOF"));
+            String reference=(String)payload.get("certificate");var certificate=owner.currentCertificate();
+            if(certificate.isPresent())require(certificate.get().digest().equals(reference),"incoming APPLY original certificate conflict");
+            else pull(sender,p->{
+                var proposed=p.fetchRecord(reference,"CERTIFICATE",value->{statement(value);voting.before.context.persistedCertificate(value,proof,accepted);});
+                var observations=new HashSet<MembershipContext.Owned>();
+                for(var phase:List.of(Map.entry("accepts",accepted),Map.entry("proofs",proof)))for(Object witness:list(proposed.value().get(phase.getKey()))) {
+                    var peer=voting.before.context.identities.get((String)object(witness).get("voter"));check();
+                    observations.add(peer.equals(owner.activationIdentity())?voting.observation(phase.getValue()):pull(peer,source->source.fetchVoteObservation(phase.getValue())));
+                }
+                check();owner.certifyCurrent(proposed,observations);check();return proposed;
+            });
+            // A recovered original certificate resumes typed replay without
+            // acquiring fresh historical observations or manufacturing votes.
+            check();application.apply();check();
         }
     }
 
