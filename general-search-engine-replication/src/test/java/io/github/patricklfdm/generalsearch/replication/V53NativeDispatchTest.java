@@ -26,18 +26,24 @@ class V53NativeDispatchTest {
         final List<Map<String,Object>> failures=Collections.synchronizedList(new ArrayList<>());
         final AtomicLong offset=new AtomicLong();
         final AtomicReference<String> drop=new AtomicReference<>("");
+        final AtomicReference<java.util.function.BiFunction<Decoded,Decoded,Decoded>> response=new AtomicReference<>((request,reply)->reply);
+        final AtomicReference<java.util.function.Consumer<Decoded>> beforeSend=new AtomicReference<>(request->{});
         final AtomicReference<MembershipBallotAllocator.Cut> hook=new AtomicReference<>(event->{});
         final AtomicBoolean holdNextQuery=new AtomicBoolean();
         final CountDownLatch queryEntered=new CountDownLatch(1);
         final CompletableFuture<Decoded> heldQuery=new CompletableFuture<>();
         MembershipActivationDriver driver;
+        final ReplicationBounds bounds;
         Decoded selected;
         Map<String,Object> ballot;
         List<Integer> voters;
-        Network()throws Exception {
+        Network()throws Exception {this(3);}
+        Network(int size)throws Exception {this(size,ReplicationBounds.defaults());}
+        Network(int size,ReplicationBounds bounds)throws Exception {
+            this.bounds=bounds;
             Path raw=Files.createDirectories(Path.of("target/v53-native-dispatch/run-"+UUID.randomUUID()));
             System.out.println("v53NativeDispatchEvidence="+raw.toAbsolutePath());
-            f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve(UUID.randomUUID().toString())),3,false));
+            f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve(UUID.randomUUID().toString())),size,false));
             f.ownedHistory=true;f.nativeApplication=true;
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-retention")){owner.initializePeerRetention();owner.initializeFutureRetention();}
             f.snapshot("before-network");
@@ -47,9 +53,9 @@ class V53NativeDispatchTest {
                         MembershipGrantJournal.MAXIMUM,event->{events.add(Map.of("node",target.identity().nodeId().value(),"event",event));
                             if(target.identity().nodeId().value().equals("node-2"))hook.get().at(event);}));
             }
-            for(int i=0;i<3;i++) {
+            for(int i=0;i<size;i++) {
                 int index=i;var owner=owners.get(i);
-                var endpoint=new MembershipActivationEndpoint(owner,resources.get(i),ReplicationBounds.defaults(),
+                var endpoint=new MembershipActivationEndpoint(owner,resources.get(i),bounds,
                         (peer,request,kind,deadline)->{
                             if(index==1 && request.kind().equals("STATUS_PROBE") && holdNextQuery.compareAndSet(true,false)) {
                                 queryEntered.countDown();return heldQuery;
@@ -58,11 +64,12 @@ class V53NativeDispatchTest {
                         },List.of(),List.of(),
                         temp.resolve("incoming-"+UUID.randomUUID()),()->System.nanoTime()+offset.get(),BUDGET,
                         builder().configuration(),f.request.targets().get(i).materialization());endpoints.add(endpoint);
-                var transport=new MembershipTransport(owner.activationCapsule(),owner.activationIdentity(),ReplicationBounds.defaults(),resources.get(i),(sender,request)->{
-                            try{return endpoint.handle(sender,request);}catch(IOException|RuntimeException error){
+                var transport=new MembershipTransport(owner.activationCapsule(),owner.activationIdentity(),bounds,resources.get(i),(sender,request)->{
+                            try{return response.get().apply(request,endpoint.handle(sender,request));}catch(IOException|RuntimeException error){
                                 failures.add(Map.of("node",owner.activationIdentity().nodeId().value(),"kind",request.kind(),"request",request.digest(),"failure",error.toString()));throw error;}
                         },
                         (event,request,response)->{
+                            if(event.equals("BEFORE_REQUEST_WRITE"))beforeSend.get().accept(request);
                             if(event.equals("BEFORE_REQUEST_WRITE") && request.kind().equals("PUBLISH"))events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","PUBLICATION_SEND_BOUNDARY","request",request.digest()));
                             if(event.equals("AFTER_RESPONSE_READ"))events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","NETWORK_RECEIVED","kind",response.kind(),"response",response.digest()));
                             if(event.equals("BEFORE_RESPONSE_WRITE")) {
@@ -75,11 +82,11 @@ class V53NativeDispatchTest {
             }
         }
         void activate()throws Exception {
-            driver=new MembershipActivationDriver(owners.getFirst(),endpoints.getFirst(),resources.getFirst(),ReplicationBounds.defaults(),transports.getFirst()::exchange,
+            driver=new MembershipActivationDriver(owners.getFirst(),endpoints.getFirst(),resources.getFirst(),bounds,transports.getFirst()::exchange,
                     List.of(),List.of(),temp.resolve("outgoing-"+UUID.randomUUID()),System::nanoTime,BUDGET,2);
             selected=driver.run();ballot=object(selected.value().get("ballot"));assertEquals(1,driver.campaigns());
             voters=list(selected.value().get("sources")).stream().map(v->Integer.parseInt(((String)object(v).get("voter")).substring(5))-1).sorted().toList();
-            assertEquals(List.of(0,1),voters);f.snapshot("installed");Files.write(f.raw.resolve("selected.gsr"),selected.bytes());
+            assertEquals(java.util.stream.IntStream.range(0,f.request.targets().size()/2+1).boxed().toList(),voters);f.snapshot("installed");Files.write(f.raw.resolve("selected.gsr"),selected.bytes());
             System.out.println("v53NativeDispatchStage=installed");
         }
         Decoded request(int index,String kind,Map<String,Object> payload)throws Exception {

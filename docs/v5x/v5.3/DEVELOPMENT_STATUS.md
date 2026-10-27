@@ -1,5 +1,16 @@
 # V5.3 development status
 
+## 2026-10-27 — Native whole-slot coordination
+
+[Native whole-slot coordination](PHASE_3_SLOT_DRIVER.md) now drives original
+ACCEPT/PROOF/APPLY receipts and governing-quorum publication through two stable
+slots at sizes 3/4/5. Exact current-image borrowing and durable floor handoff
+preserve the seven-image/six-source limits. Local component checks and independent
+three-voter portable replay qualify this bounded driver; autonomous elections,
+carried-entry readiness, learner/joint completion and full 3B–3E remain open.
+
+The [local receipt](phase3-evidence/slot-driver.json) separates the original image/source capacity failures, the later default-socket timeout, and the final configured profiles. Ten final coordinator tests, seven earlier dispatcher regressions on identical production Java and sixteen unchanged prefix-owner tests pass. All 676 Python tests, four original-first three-voter histories and 100 exact negatives pass, including portable optimized replay. Four/five-voter profiles use the supported 30-second caller request timeout; three-voter/fault profiles retain five seconds. Every two-slot profile keeps the original 180-second round budget. No default-timeout SLA, autonomous/public runtime, Phase 3 closure, protected CI or cloud acceptance is claimed.
+
 ## 2026-10-27 — Phase 3 publication acknowledgement after receiver restart
 
 The [completed-publication receiver](PHASE_3_PUBLICATION_RESTART.md) reconstructs

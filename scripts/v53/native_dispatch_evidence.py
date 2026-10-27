@@ -23,6 +23,19 @@ read = slot.read
 VOTERS = ('node-1', 'node-2')
 
 
+def prefix_transfers(reference, members, packet, local_members):
+    """Only identical original current image bytes may replace an image download.
+
+    Both the older full transfer and the live-image-borrowing implementation are
+    replayable. A hash in a remote packet alone never makes a missing image valid.
+    The independent physical replay already authenticated both member inventories.
+    """
+    first = [(reference, members['source.gscp'], 'CAPSULE')]
+    images = [(h, members[h+'.image'], 'APPLICATION') for h in sorted(packet['images'])]
+    received = [item for item in images if local_members.get(item[0]+'.image') != item[1]]
+    return [first+images, first+received]
+
+
 def maintenance(group):
     """A floor retires the inactive generation; it does not compact original grants."""
     result = dict(group)
@@ -217,13 +230,14 @@ def network(root, states, rounds, selection, identities):
             floor_at = next(i for i, ev in own if ev['event'] == 'FLOOR_PARENT_FORCED')
             peer = next(n for n in VOTERS if n != node); directory, members, packet = c.current(before[peer]); cap = packet['capsule']
             source_reference = e.digest(f.canonical(cap['cut'])); generation_reference = e.digest(f.canonical(dict(root=cap['root'], cut=cap['cut'], scope='retained-current-generation')))
-            expected = [[(source_reference, members['source.gscp'], 'CAPSULE')]+[(h, members[h+'.image'], 'APPLICATION') for h in sorted(packet['images'])],
+            expected = [[(source_reference, members['source.gscp'], 'CAPSULE')],
                         [(generation_reference, before[peer][directory+'generation.gsr'], 'RECORD')]]
             if 'ancestry.gsr' in members: expected[1].append((e.digest(members['ancestry.gsr']), members['ancestry.gsr'], 'RECORD'))
             expected[1] += [(e.digest(value), value, 'RECORD') for key, value in sorted(members.items()) if key not in ('generation.gsr','source.gscp','ancestry.gsr') and not key.endswith('.image')]
-            for objects in expected:
+            for position, objects in enumerate(expected):
                 matched = [t for t in transfers if t['sender'] == node and t['peer'] == peer and t['first'] == objects[0][0]]
-                need(len(matched) == 1 and matched[0]['objects'] == objects and start < matched[0]['delivered'] < floor_at, 'native dispatch complete copies before floor')
+                allowed = prefix_transfers(source_reference, members, packet, c.current(before[node])[1]) if position == 0 else [objects]
+                need(len(matched) == 1 and matched[0]['objects'] in allowed and start < matched[0]['delivered'] < floor_at, 'native dispatch complete copies before floor')
         for kind, raw in [('ACCEPT',accept),('PROOF',proof),('APPLY',certificate),('FUTURE_RETENTION_INTENT',certificate),('PUBLISH',certificate)]:
             selected_rows = [v for v in controls[kind] if start < v[4] < stop]
             need(1 <= len(selected_rows) <= 3, 'native dispatch bounded complete slot controls')

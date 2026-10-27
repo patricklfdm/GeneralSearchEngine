@@ -10,7 +10,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 /** Read-only current-prefix borrow. Replacement revokes it instead of pinning an obsolete
  * generation. Request view/ballot are correlation only; no PROMISE or historical Owned
  * observation is exported. The receiver must authenticate the complete capsule separately. */
-final class MembershipPrefixExport implements MembershipTransferExport {
+final class MembershipPrefixExport implements MembershipTransferExport,MembershipImageBorrow {
     private final MembershipGrantJournal owner;
     final MembershipCurrentGeneration generation;
     private final Map<String,Object> ballot;
@@ -65,6 +65,30 @@ final class MembershipPrefixExport implements MembershipTransferExport {
     }
     @Override public Map<String,MembershipSourceExport.Content> references()throws IOException {
         synchronized(owner){owner.checkPrefixExport(this);return references;}
+    }
+    /** Reuse the exact accounted current image without copying it into receiving
+     * scratch. Replacement revokes this borrow; it does not pin an obsolete
+     * generation or establish any remote copy/voting observation. */
+    @Override public String imageRoot()throws IOException {
+        synchronized(owner){owner.checkPrefixExport(this);return context().root;}
+    }
+    @Override public boolean hasImage(String digest,long bytes)throws IOException {
+        synchronized(owner) {
+            owner.checkPrefixExport(this);MembershipValidation.digest(digest);
+            require(bytes>0 && bytes<=MembershipResources.Unit.APPLICATION.bytes,"prefix borrowed image extent");
+            var content=references.get(digest);
+            return content!=null && content.kind()==MembershipTransfer.Kind.APPLICATION && content.bytes()==bytes;
+        }
+    }
+    @Override public byte[] image(String digest,long bytes)throws IOException {
+        synchronized(owner) {
+            require(hasImage(digest,bytes),"prefix original image unavailable");byte[] result=new byte[Math.toIntExact(bytes)];
+            for(int offset=0;offset<result.length;) {
+                byte[] part=generation.transferChunk(digest,offset,4*1024*1024);
+                System.arraycopy(part,0,result,offset,part.length);offset+=part.length;
+            }
+            require(hash(result).equals(digest),"prefix original image changed");owner.checkPrefixExport(this);return result;
+        }
     }
     @Override public byte[] read(String digest,long offset,int maximum)throws IOException {
         synchronized(owner) {

@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native whole-slot coordination](PHASE_3_SLOT_DRIVER.md) now drives original
+ACCEPT/PROOF/APPLY receipts and governing-quorum publication through two stable
+slots at sizes 3/4/5. Exact current-image borrowing and durable floor handoff
+preserve the seven-image/six-source limits. Local component checks and independent
+three-voter portable replay qualify this bounded driver; autonomous elections,
+carried-entry readiness, learner/joint completion and full 3B–3E remain open.
+
 [Native activation-to-slot dispatch](PHASE_3_NATIVE_DISPATCH.md) now keeps the
 actual activation listener/source registry through two stable slot publications.
 A governing floor from complete original network copies retires the inactive

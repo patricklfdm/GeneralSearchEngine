@@ -1,0 +1,256 @@
+{
+  "archive": {
+    "bytes": 11868130,
+    "path": "target/v53-slot-driver/evidence.tar.gz",
+    "sha256": "d453eeba37bd6391ea63e261a0d1448e0d6a7af6a00e13845b2e235f7ee5d557"
+  },
+  "attemptNotes": {
+    "bytes": 4258,
+    "path": "target/v53-slot-driver/PLAN.md",
+    "sha256": "f4c7ce618160e250c409a5d5c7b09416d6f18ade53b06749f7dfbd4e8886699a"
+  },
+  "autonomousElection": false,
+  "baseCommit": "37774123e369cb28f7be9840f915b266378c2401",
+  "finalJava": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "report": {
+        "bytes": 13443,
+        "path": "target/v53-slot-driver/builds/configured-5a648ac5/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest.xml",
+        "sha256": "055aecd279b4deff89b523170e67bdf45265393ada3effd59050e2682dc8dca9"
+      },
+      "skipped": 0,
+      "suite": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest",
+      "tests": 10
+    }
+  ],
+  "finalJavaInputs": {
+    "bytes": 495566,
+    "path": "target/v53-slot-driver/configured-inputs.json",
+    "sha256": "728e81a99a932324dec459d30ab53d157ede8748d172cc26244943143439d85b"
+  },
+  "independentlyReplayedStableVoters": 3,
+  "negativeMutations": 100,
+  "originalHistories": 4,
+  "originalRoundSeconds": 180,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portable": {
+    "bytes": 16523,
+    "path": "target/v53-slot-driver/portable-replay.json",
+    "sha256": "25c5c97334dfbe85094393f314852c84151a275946dbfdfa0d1fec67129f63b1"
+  },
+  "powerLoss": false,
+  "priorNativeDispatchQualification": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "report": {
+        "bytes": 10379,
+        "path": "target/v53-slot-driver/builds/qualified-882ba375/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+        "sha256": "1be4da7b15dc70cf8c336b381c0cd4c39e12a18b46dbe75c60fdd07519752fed"
+      },
+      "skipped": 0,
+      "suite": "io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest",
+      "tests": 7
+    }
+  ],
+  "priorPrefixQualification": [
+    {
+      "errors": 0,
+      "failures": 0,
+      "report": {
+        "bytes": 10045,
+        "path": "target/v53-slot-driver/builds/borrowed-710defe4/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest.xml",
+        "sha256": "5b6374f7e46bc004c624ffada53c29a82d6eae02bb4aae51a3bd436b2b95856a"
+      },
+      "skipped": 0,
+      "suite": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+      "tests": 16
+    }
+  ],
+  "protectedCI": false,
+  "publicRuntime": false,
+  "pythonTests": 676,
+  "readerOptimizedTests": 2,
+  "remaining": [
+    "autonomous election/discovery/ownership and restart reconciliation",
+    "carried entry before fresh barrier",
+    "learner and all seven joint profiles",
+    "repeated campaign maintenance and maximal combined headroom",
+    "complete 3B\u20133E requirement audit"
+  ],
+  "replay": {
+    "bytes": 16523,
+    "path": "target/v53-slot-driver/replay-complete.json",
+    "sha256": "25c5c97334dfbe85094393f314852c84151a275946dbfdfa0d1fec67129f63b1"
+  },
+  "requestTimeoutMillisByStableProfile": {
+    "3": 5000,
+    "4": 30000,
+    "5": 30000
+  },
+  "retainedAttempts": {
+    "borrowed": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "report": {
+          "bytes": 10045,
+          "path": "target/v53-slot-driver/builds/borrowed-710defe4/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest.xml",
+          "sha256": "5b6374f7e46bc004c624ffada53c29a82d6eae02bb4aae51a3bd436b2b95856a"
+        },
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "tests": 16
+      },
+      {
+        "errors": 1,
+        "failures": 1,
+        "report": {
+          "bytes": 15068,
+          "path": "target/v53-slot-driver/builds/borrowed-710defe4/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest.xml",
+          "sha256": "1c3f046630bd9c965c4f3158c33e5f89d28a3b3340d07760b3c9b264d594d71b"
+        },
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest",
+        "tests": 10
+      }
+    ],
+    "configured": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "report": {
+          "bytes": 13443,
+          "path": "target/v53-slot-driver/builds/configured-5a648ac5/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest.xml",
+          "sha256": "055aecd279b4deff89b523170e67bdf45265393ada3effd59050e2682dc8dca9"
+        },
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest",
+        "tests": 10
+      }
+    ],
+    "initial": [
+      {
+        "errors": 1,
+        "failures": 0,
+        "report": {
+          "bytes": 9771,
+          "path": "target/v53-slot-driver/builds/initial-2e0bfa51/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest.xml",
+          "sha256": "748133e800f351529a55d44bf1b5121be84bd66200298f7db8ded663045ea343"
+        },
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest",
+        "tests": 1
+      }
+    ],
+    "qualified": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "report": {
+          "bytes": 10379,
+          "path": "target/v53-slot-driver/builds/qualified-882ba375/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest.xml",
+          "sha256": "1be4da7b15dc70cf8c336b381c0cd4c39e12a18b46dbe75c60fdd07519752fed"
+        },
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53NativeDispatchTest",
+        "tests": 7
+      },
+      {
+        "errors": 1,
+        "failures": 0,
+        "report": {
+          "bytes": 13333,
+          "path": "target/v53-slot-driver/builds/qualified-882ba375/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest.xml",
+          "sha256": "4cba22f2896652675fe5ac3749a59a93f9ee9682a89b737b9f28233315dea3ef"
+        },
+        "skipped": 0,
+        "suite": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest",
+        "tests": 10
+      }
+    ]
+  },
+  "schema": "gse-v53-slot-driver-local-v1",
+  "scope": "bounded-native-whole-slot-coordination",
+  "source": [
+    {
+      "bytes": 128701,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "d9f7e32f3cec275319a9695e86fd3a796885042eab8e7e36eaf492684cd2c099"
+    },
+    {
+      "bytes": 23139,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "80d9ac4300c32891640027cb6f94c254751ff2c15f9085683164dccd25a8acea"
+    },
+    {
+      "bytes": 4974,
+      "path": "docs/v5x/v5.3/PHASE_3_SLOT_DRIVER.md",
+      "sha256": "aa85287ee917406b223460905833e9c35873e99f8ba50595fe08c6889017ac95"
+    },
+    {
+      "bytes": 38158,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "1de677c8dd6c103bbad86428e7431cca078d96ff9a305c562197e37685b39d33"
+    },
+    {
+      "bytes": 7013,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "sha256": "d2891654cfb4fb7dfb26b963d33fe9c33e3c5a3500ca4f7c2ed2a6b07c848cec"
+    },
+    {
+      "bytes": 469,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipImageBorrow.java",
+      "sha256": "93b199c088304d681c80e171f65f93ea50b4de7b30a5b52f4379f152ba3dffbb"
+    },
+    {
+      "bytes": 7184,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixExport.java",
+      "sha256": "44893e59e2df9a719dd9218186014b4ca90de8679c35c6236dfea53ade4095c0"
+    },
+    {
+      "bytes": 5609,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDelivery.java",
+      "sha256": "c5006126e25e1cf662f56ec7a782d52053baa23abc7a418a143dc5fd404b4ced"
+    },
+    {
+      "bytes": 16466,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDriver.java",
+      "sha256": "71b13e8b6c889d2ff2682558455560bfaa027da1e3e2a943b347d72c1953927c"
+    },
+    {
+      "bytes": 18346,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java",
+      "sha256": "d9d2dbb54fd53295f0f8bbfe1189f27da080cec8ded217b4ee9ce19481f5adbd"
+    },
+    {
+      "bytes": 23123,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixDiscoveryTest.java",
+      "sha256": "a6274033ed380050d3dfda5ad9661829313f2b893b34fa29a36e836b628dcca6"
+    },
+    {
+      "bytes": 13887,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SlotDriverTest.java",
+      "sha256": "1dc55b7dd75479f4047696e94ce61961aa7c1047c0b3806a9406bcc15935cb2a"
+    },
+    {
+      "bytes": 33462,
+      "path": "scripts/v53/native_dispatch_evidence.py",
+      "sha256": "4c19583a695b854518f2dfa6df14fd28b90afd2d78b2547aa39d97d9297e3be9"
+    },
+    {
+      "bytes": 1677,
+      "path": "scripts/v53/test_native_dispatch_evidence.py",
+      "sha256": "7a41f2a687670e8054721038d5daf5afbef39741f1a8040d10aaae64530df821"
+    }
+  ],
+  "stableJavaProfiles": [
+    3,
+    4,
+    5
+  ],
+  "status": "PASS"
+}

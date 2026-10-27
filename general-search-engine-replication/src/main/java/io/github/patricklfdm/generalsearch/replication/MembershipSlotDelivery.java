@@ -13,6 +13,11 @@ final class MembershipSlotDelivery {
     private MembershipSlotDelivery() {}
     static Decoded deliver(MembershipGrantJournal owner,MembershipIdentity peer,Decoded request,MembershipResources resources,
             MembershipTransport transport,LongSupplier clock,long started,long budget)throws IOException {
+        return deliver(owner,peer,request,resources,transport,clock,started,budget,()->{});
+    }
+    static Decoded deliver(MembershipGrantJournal owner,MembershipIdentity peer,Decoded request,MembershipResources resources,
+            MembershipTransport transport,LongSupplier clock,long started,long budget,MembershipSourcePull.Guard parent)throws IOException {
+        Objects.requireNonNull(parent);parent.check();
         require(budget>0 && budget<Long.MAX_VALUE/2,"slot delivery budget");
         var original=owner.voting(resources);String kind=request.kind();
         require(Set.of("ACCEPT","PROOF","APPLY").contains(kind),"slot delivery kind");
@@ -32,7 +37,7 @@ final class MembershipSlotDelivery {
             require(object(request.value().get("payload")).equals(Map.of(kind.equals("ACCEPT")?"acceptance":"proof",record.digest())),"slot delivery original vote request");
             expected=Map.of("entry",record.value().get("entry"),"receipt",hash(MembershipVoteReceipt.bytes(context,peer,record)));
         }
-        MembershipSourcePull.Guard guard=()->{long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"slot delivery original deadline");original.check();};
+        MembershipSourcePull.Guard guard=()->{parent.check();long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"slot delivery original deadline");original.check();parent.check();};
         var retry=new MembershipExchange(request.digest(),started,budget);
         try(var lease=resources.reserve(MembershipResources.Unit.CONTROL,"slot-delivery-"+UUID.randomUUID(),request.size())) {
             for(;;) {

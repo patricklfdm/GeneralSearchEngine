@@ -196,6 +196,36 @@ class V53PrefixDiscoveryTest {
             }
         }
     }
+    @Test void prefixImagesAreBorrowedWithoutReceivingDuplicatesAndExpireWithTheirOwner()throws Exception {
+        var clock=new AtomicLong();try(var l=local(clock)) {
+            var owner=l.owners.getFirst();var budget=l.budgets.getFirst();var state=owner.discoveryState(budget);var before=budget.usage();
+            try(var export=owner.exportPrefix(cutDigest(state.context().cut),state.ballot(),state.context().authority(),budget,clock::get,0,BUDGET);
+                var pull=pull(l)) {
+                var scratch=temp.resolve("borrowed-prefix");var received=pull.fetchPrefix(scratch,export);
+                assertEquals(before.counts().get(MembershipResources.Unit.APPLICATION),budget.usage().counts().get(MembershipResources.Unit.APPLICATION));
+                assertTrue(received.imageBindings().isEmpty());assertEquals(Set.of("source.gscp"),MembershipBasisSources.children(scratch,8));
+                for(var image:received.packet().images().entrySet()) {
+                    assertArrayEquals(export.image(image.getKey(),image.getValue()),received.images().get(image.getKey()));
+                    assertFalse(export.hasImage(image.getKey(),image.getValue()+1));
+                }
+                assertFalse(export.hasImage("f".repeat(64),1));assertEquals(state.context().root,export.imageRoot());
+                clock.set(BUDGET);assertThrows(IllegalArgumentException.class,received::recheck);
+            }
+            assertEquals(before,budget.usage());
+        }
+    }
+    @Test void borrowedCurrentImageRejectsEqualBytesAtAReplacedInode()throws Exception {
+        try(var l=local(new AtomicLong())) {
+            var owner=l.owners.getFirst();var state=owner.discoveryState(l.budgets.getFirst());
+            try(var export=owner.exportPrefix(cutDigest(state.context().cut),state.ballot(),state.context().authority(),l.budgets.getFirst(),()->0L,0,BUDGET)) {
+                var image=export.references().values().stream().filter(v->v.kind()==MembershipTransfer.Kind.APPLICATION).findFirst().orElseThrow();
+                var dir=l.group.fixture.request.targets().getFirst().replicaDirectory();var selector=decode(Files.readAllBytes(dir.resolve("selector.gsr")),"records","SELECTOR");
+                var file=dir.resolve("generations").resolve((String)selector.value().get("generation")).resolve(image.digest()+".image");
+                var replacement=file.resolveSibling("replacement");Files.write(replacement,Files.readAllBytes(file));Files.move(replacement,file,StandardCopyOption.REPLACE_EXISTING);
+                assertThrows(IllegalArgumentException.class,()->export.image(image.digest(),image.bytes()));
+            }
+        }
+    }
     @Test void readOnlySessionRejectsChangedRootIdentityViewBallotAndTrace()throws Exception {
         try(var l=local(new AtomicLong())) {
             var owner=l.owners.get(1);var state=owner.discoveryState(l.budgets.get(1));var reader=l.group.identities.getFirst();

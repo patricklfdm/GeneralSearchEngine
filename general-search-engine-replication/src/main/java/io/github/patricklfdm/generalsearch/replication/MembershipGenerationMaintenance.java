@@ -8,7 +8,8 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** Retire one inactive generation only after acquiring complete original copies
  * from both governing majorities. Hints, control ACKs and caller hashes are never
- * floor authority. Source pins live through force/retirement/release. */
+ * floor authority. Receiving ownership lives through durable floor/observations;
+ * the floor then owns the complete copies through retirement/release. */
 final class MembershipGenerationMaintenance implements AutoCloseable {
     private final MembershipGrantJournal owner;
     private final MembershipGrantJournal.Voting original;
@@ -57,13 +58,18 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         check();if(!owner.nativeGenerationMaintenanceRequired())return;
         var own=owner.floorCopyCurrent();var copies=new ArrayList<MembershipFloor.Copy>();copies.add(own);
         var voters=new TreeSet<String>();voters.add(own.owner.nodeId().value());
+        // The complete copies at this floor share the exact current application.
+        // Borrow its live physical bytes instead of creating one receiving image
+        // per remote copy in addition to the separately accounted floor images.
+        try(var images=owner.exportPrefix(MembershipContext.cutDigest(original.before.context.cut),original.ballot,
+                original.before.context.authority(),resources,clock,started,budget)) {
         for(String node:new TreeSet<>(original.before.context.voters())) {
             if(quorum(voters))break;if(voters.contains(node))continue;check();
             MembershipSourcePull source=null,generation=null;boolean retain=false;
             try {
                 var hint=discover(original.before.context.identities.get(node));check();
                 if(!hint.cut().equals(original.before.context.cut))continue;
-                source=prefix(hint);source.fetchPrefix(scratch.resolve("source-"+UUID.randomUUID()));
+                source=prefix(hint);source.fetchPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);
                 generation=prefix(hint);var copy=generation.fetchGeneration(source);check();
                 require(copy.owner.equals(hint.peer()) && copy.capsule.terminal().equals(own.capsule.terminal()),"native maintenance exact original copy");
                 copies.add(copy);voters.add(node);retain=true;
@@ -77,7 +83,14 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         // Only these complete original copies can rule out an earlier remote
         // possibility. A publication ACK or STATUS hint cannot narrow the ledger.
         for(var copy:copies){owner.retainPeerObservation(copy);check();}
+        // The forced floor now owns every exact copy, and the peer observations
+        // are durable. Delete receiving scratch before reserving retirement's
+        // saved original; otherwise a three-copy floor exceeds six SOURCE slots.
+        List<MembershipSourcePull> received;
+        synchronized(this){received=List.copyOf(pulls);}
+        for(var work:received){release(work);check();}
         owner.retireInactive();check();owner.releaseFloor();check();
+        }
     }
     @Override public void close()throws IOException {
         List<MembershipSourcePull> closing;MembershipDiscovery query;
