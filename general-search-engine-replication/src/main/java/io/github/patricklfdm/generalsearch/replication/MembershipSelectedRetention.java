@@ -38,8 +38,11 @@ final class MembershipSelectedRetention {
     }
     static MembershipSelectedRetention capture(MembershipSelection.Decision decision,MembershipIdentity local,byte[] before) {
         var rows=new ArrayList<Row>();
-        for(var source:decision.sources())rows.add(new Row(source.basis,source.capsule.packet.envelope(),
-                MembershipPeerRetentionSource.wrapper(MembershipPeerRetentionSource.read(source))));
+        for(var source:decision.sources()) {
+            var frozen=MembershipPeerRetentionSource.read(source);
+            require(frozen.future()==null,"selected future retention propagation required");
+            rows.add(new Row(source.basis,source.capsule.packet.envelope(),MembershipPeerRetentionSource.wrapper(frozen)));
+        }
         var raw=new Raw(local,decision.selected(),before.clone(),List.copyOf(rows));
         return verify(encode(raw),raw,decision.selected(),local,decision.longest().capsule);
     }

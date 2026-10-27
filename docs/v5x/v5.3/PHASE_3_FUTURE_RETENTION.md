@@ -91,9 +91,10 @@ reader also pass; the prior pending-publication originals replay unchanged throu
 the extracted first-certificate helper. Earlier compile and worker ACK-ordering
 failures remain retained separately from the final successful package.
 
-Current source capture refuses a pending future record before writing a fresh
-promise, because immutable BASIS propagation has not yet been implemented. That
-guard is temporary integration scaffolding, not the final automatic behavior.
+The subsequent [future-source component](PHASE_3_FUTURE_SOURCE.md) replaces this
+batch's pre-PROMISE refusal with exact original BASIS capture. Selected installation
+still refuses an unresolved reference before SELECTED until the original proof
+has a durable installation owner. That temporary guard is not final behavior.
 The next work must carry the original proof through selection and carried-entry
 recovery, qualify replicated intent quorums for future targets, and connect real
 dispatch. Complete offline-survivor continuation, automatic maintenance and all

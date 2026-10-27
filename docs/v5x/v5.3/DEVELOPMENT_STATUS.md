@@ -1,5 +1,26 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3 immutable future-source capture
+
+The [source component](PHASE_3_FUTURE_SOURCE.md) binds the exact pending native
+proof to a real higher-ballot PROMISE/BASIS as a separately indexed object.
+Legacy/empty captures keep their original bytes, all byte/image limits remain
+unchanged, and duplicate/recovered grants keep the immutable snapshot. Selected
+installation remains explicitly guarded before SELECTED rather than dropping an
+obligation it does not yet own.
+
+The isolated package passes 18 Java tests. Fourteen new halt/SIGKILL cases use
+28 fresh JVMs and seven live lock probes. Original-first replay derives their
+complete physical inventories and rejects ten evidence mutations; normal,
+optimized and relocated results agree. Nineteen focused Python regressions pass.
+The old source matrix also independently passes fourteen cases and nine negatives.
+The [receipt](phase3-evidence/future-source.json) records exact source/build scopes.
+
+This is source capture, not complete selected transfer or future-target quorum
+permission. Carried-entry recovery, actual dispatch, autonomous offline-survivor
+continuation and all remaining 3B–3E requirements remain open. No push or public
+membership enablement occurs.
+
 ## 2026-10-26 — Phase 3 local future-target transactions
 
 The [future-retention transaction](PHASE_3_FUTURE_RETENTION.md) atomically retains

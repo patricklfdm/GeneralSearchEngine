@@ -87,6 +87,10 @@ the existing 32 MiB journal ceiling. Its active and candidate files are each at
 most 3 MiB; before accepting an intention it also reserves the ordinary 64 KiB
 ledger candidate and bounded empty completion record. These are subdivisions of
 the same allowance, not added reservations or another application-image slot.
+The [future-source reference](PHASE_3_FUTURE_SOURCE.md) occupies 32 bytes within
+the existing 73,784-byte GSRP wrapper bound. Its separate original GSFT remains
+inside the existing complete source packet and per-object ceilings. No application
+image is duplicated by the reference; capture admission still checks the full packet.
 
 `test_format_fixture` checks the complete encoded resource formula, malformed
 allocation inputs, integer-vs-boolean rejection, parser budgets and 10,000 DATA

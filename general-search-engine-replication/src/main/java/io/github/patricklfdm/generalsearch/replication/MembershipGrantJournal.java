@@ -1122,11 +1122,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         return MembershipCaptureFiles.plan(current,grant,identity,retentionPacket(votePacket(),grant),voteAccepted());
     }
     private MembershipSourcePacket retentionPacket(MembershipSourcePacket original,Decoded grant)throws IOException {
-        // The next integration must carry this original proof in the immutable
-        // BASIS inventory. Never create a snapshot silently omitting it meanwhile.
-        if(futureRetention!=null)require(!futurePending(),"future retention source propagation required");
+        byte[] future=null;
+        if(futureRetention!=null)future=futureRetention.activeBytes();
         else if(Files.exists(directory.resolve(MembershipFutureRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS))
-            require(!MembershipFutureRetentionFiles.decodeOwned(AdmissionPaths.read(directory.resolve(MembershipFutureRetentionFiles.FILE),MembershipFutureRetentionFiles.MAXIMUM),root.manifestDigest(),identity).pending(),"future retention source propagation required");
+            future=AdmissionPaths.read(directory.resolve(MembershipFutureRetentionFiles.FILE),MembershipFutureRetentionFiles.MAXIMUM);
+        if(future!=null && !MembershipFutureRetentionFiles.decodeOwned(future,root.manifestDigest(),identity).pending())future=null;
         byte[] bytes;
         if(peerRetention!=null)bytes=peerRetention.activeBytes();
         else if(Files.exists(directory.resolve(MembershipPeerRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS))
@@ -1134,10 +1134,10 @@ final class MembershipGrantJournal implements AutoCloseable {
             // exact bounded active bytes under this owner; normal open rechecks them
             // before any response and does not select an unexposed next candidate.
             bytes=AdmissionPaths.read(directory.resolve(MembershipPeerRetentionFiles.FILE),MembershipPeerRetentionFiles.MAXIMUM);
-        else return original;
+        else {require(future==null,"future source requires original peer ledger");return original;}
         var state=MembershipPeerRetentionFiles.decodeOwned(bytes,root.manifestDigest(),identity);
         state.plan().capture(current.capsule,current.ancestry());
-        return MembershipPeerRetentionSource.freeze(original,grant,identity,bytes);
+        return MembershipPeerRetentionSource.freeze(original,grant,identity,bytes,future);
     }
     /** A pending source is derived only from already validated complete backing bytes.
      * Source inventory admission has not forced anything and supplies no Owned receipt. */
@@ -2078,7 +2078,6 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** The same writer monitor will own later generation installation; external changes are refused. */
     synchronized Decoded prepareCurrent(Map<String,Object> incoming) throws IOException {
         require(current!=null,"current generation required");checkOwner();
-        require(!futurePending(),"future retention source propagation required");
         if(pendingContext!=null && pendingContext.active().isPresent())return prepareContextCurrent(incoming);
         if(carriedVoteUntransferred() && promise!=null && basis!=null && promise.value().get("ballot").equals(incoming)) {
             // Replaying an already forced grant does not begin a new campaign or
@@ -2458,7 +2457,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipSelection.Decision decision(List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges) throws IOException {
         require(current!=null && promise!=null && basis!=null,"complete current grant required");checkOwner();
         var ballot=object(promise.value().get("ballot"));fence(ballot);
-        var result=verifyDecision(offered,bridges);fence(ballot);return result;
+        var result=verifyDecision(offered,bridges);
+        for(var source:result.sources())MembershipPeerRetentionSource.requireSelectable(source);
+        fence(ballot);return result;
     }
     /** Pure original-decision verification also supports exact derived cleanup.
      * Selection/installation callers separately retain their live voting fence. */

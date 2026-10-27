@@ -31,7 +31,6 @@ class V53FutureRetentionTest {
                 assertEquals(target.target(),result.target());assertEquals(1,result.peers.size());
                 var original=V53ReplayFilesTest.files(local.replicaDirectory());
                 assertEquals(result.digest,owner.retainFutureDispatch(peer.identity(),target).digest);
-                assertThrows(IllegalArgumentException.class,()->owner.prepareCurrent(Map.of("counter",3L,"proposer","node-1","incarnation",local.identity().storageId().toString())));
                 assertEquals(original,V53ReplayFilesTest.files(local.replicaDirectory()));
                 assertEquals(List.of(0L),V53PeerRetentionPlanTest.cuts(owner.peerRetentionState().plan().possible(peer.identity())));
                 assertEquals(0L,owner.floorCopyCurrent().capsule.context.cut.get("index"));

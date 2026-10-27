@@ -24,6 +24,11 @@ length, and exact GSPR. Maximum extent is 73,784 bytes: 48 + 8 + 8,192 + 65,536.
 The existing per-object, complete packet, inventory and shared journal limits
 remain enforced before PROMISE/capture admission. No resource ceiling is enlarged.
 
+The later [future-source extension](PHASE_3_FUTURE_SOURCE.md) also accepts flags
+one with a 32-byte indexed GSFT reference after the original body. It preserves
+flags-zero bytes and this same maximum; the full future proof is a separate
+source object. The original qualification below remains its historical scope.
+
 Packet objects can include arbitrary application payloads. A matching four-byte
 magic prefix alone does not declare a retention wrapper: decoding must succeed,
 and the original basisId/root/view/ballot must match. An unrelated malformed object

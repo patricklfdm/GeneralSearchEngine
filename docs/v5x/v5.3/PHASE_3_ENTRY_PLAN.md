@@ -11,9 +11,11 @@ checklist, with a local commit after each validated batch and no automatic push.
 The [local future-retention transaction](PHASE_3_FUTURE_RETENTION.md) now persists
 the exact target proof with peer intentions and recovers publication-time ledger
 promotion before clearing that proof. Its native process matrix and exact capacity
-boundary are locally qualified. Immutable source/selection propagation, carried
-targets and quorum-gated real dispatch remain required within 3B. The temporary
-source-capture refusal must be replaced by that integration, not treated as closure.
+boundary are locally qualified. [Immutable future-source capture](PHASE_3_FUTURE_SOURCE.md)
+now binds the proof to a real new PROMISE/BASIS, including native process recovery.
+Selected installation, carried targets and quorum-gated real dispatch remain required
+within 3B. A temporary pre-SELECTED guard replaces the earlier pre-PROMISE refusal;
+it must be removed by complete selected-proof ownership, not treated as closure.
 
 The [pending-publication boundary](PHASE_3_PENDING_PUBLICATION.md) now identifies
 an exact forced future target under the current native owner. Its byte copies

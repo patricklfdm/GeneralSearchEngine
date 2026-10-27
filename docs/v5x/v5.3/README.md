@@ -1,10 +1,16 @@
 # V5.3 — controlled cluster operations
 
+[Immutable future-source capture](PHASE_3_FUTURE_SOURCE.md) now preserves the exact
+unresolved target proof in a new original PROMISE/BASIS. Native process recovery
+and independent replay qualify the source boundary. Selected installation still
+refuses unresolved references before SELECTED until it owns their durable proof;
+carried recovery, actual dispatch and complete Phase 3 remain open.
+
 The [native future-retention transaction](PHASE_3_FUTURE_RETENTION.md) now keeps
 the original applied target and intended peer endpoints across process death,
 then promotes them into the ordinary ledger before clearing temporary proof.
-Local storage/process qualification is complete for this component. Immutable
-source/selection propagation, actual dispatch and complete Phase 3 remain open.
+Local storage/process qualification is complete for this component. Source capture
+is qualified above; selected propagation, actual dispatch and complete Phase 3 remain open.
 
 The [native pending-publication boundary](PHASE_3_PENDING_PUBLICATION.md) identifies
 the exact forced application result under its live owner, without publishing it

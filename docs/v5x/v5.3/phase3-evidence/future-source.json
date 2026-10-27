@@ -1,0 +1,532 @@
+{
+  "baseCommit": "b8b0fd23449ad1c88b283ff0eb91176e1f722139",
+  "boundaries": [
+    "Pending local future proof is separately indexed and bound to an exact new PROMISE/BASIS. Empty/legacy capture bytes and all packet/object/wrapper/image ceilings remain unchanged.",
+    "The new independent process matrix derives actual stable-three EMPTY bootstrap and first BARRIER, actual original votes/application, future proof and exact captured/recovered bytes; it is not all-seven-profile acceptance.",
+    "Fourteen halt/SIGKILL cases use 28 fresh JVMs and seven live lock probes. These process cuts are not power-loss evidence.",
+    "Two separate Java source tests verify normal higher-ballot capture, duplicate/reopen immutability, holder/other-voter refusal before SELECTED and malformed source binding. Synthetic BASIS owners occur only in conditional negative fixtures.",
+    "Final-source regressions separately cover existing local future transactions, selected-ledger installation, no-future original sources and pending-publication lifecycle. The legacy fourteen-case source matrix and nine negatives also replay unchanged.",
+    "Normal, optimized and relocated original-first future-source replay agree, with ten exact evidence negatives. Nineteen focused Python regressions passed; this batch did not rerun all V5.3 Python suites or protected CI.",
+    "Native selection and installation still refuse unresolved future references before SELECTED. This is temporary explicit integration scaffolding; selected proof ownership, carried entry application, future-target quorum and actual dispatch remain open.",
+    "Full source/completion headroom before dispatch, automatic maintenance, the genuine offline-survivor history, learners/joint transitions and all remaining 3B\u20133E obligations remain required.",
+    "No push, PR, workflow, paid cloud execution, public membership enablement or V5.2 Runner change."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 8002908,
+      "path": "target/v53-future-source/build-evidence.tar.gz",
+      "sha256": "c9225cd09e4425a65f3f52287d3344829401f223202782fbfd1d28ec07a2d769"
+    },
+    {
+      "bytes": 480248,
+      "path": "target/v53-future-source/build-inputs.json",
+      "sha256": "414e7353492c1147955e5b75cd1fa7a575b565e9ee1b1f7fc4008cd779a3f5cf"
+    },
+    {
+      "bytes": 36,
+      "path": "target/v53-future-source/build-workspace.txt",
+      "sha256": "2ba69c583db026a11cb78a5ec7c96bddd36da4027b42b2fee1cf9f5449a2e9c3"
+    },
+    {
+      "bytes": 4964,
+      "path": "target/v53-future-source/build.log",
+      "sha256": "8469e9f410579eacff309ffb3e87b0cee3b174eb8faae038d9e39bab9b4ee2cc"
+    },
+    {
+      "bytes": 1244,
+      "path": "target/v53-future-source/changed-files.txt",
+      "sha256": "b237ce2d9d82c43d1e8289ae64bcdcb5702b96f2d68b9abf78b3582a3b042177"
+    },
+    {
+      "bytes": 423361,
+      "path": "target/v53-future-source/compiled-inventory.json",
+      "sha256": "72e52fb3208d28b36c7a254aafbb06e376dd222f510b8dc88196eaf591cabc89"
+    },
+    {
+      "bytes": 394,
+      "path": "target/v53-future-source/diagnostics.json",
+      "sha256": "037c497ae29fc686c6edce4f600599924da47cd85f5d4a0d06c250f98c1c66d7"
+    },
+    {
+      "bytes": 7333,
+      "path": "target/v53-future-source/finalize.py",
+      "sha256": "8d57276dab3db9ab6958ef3e11f624f66eb5b3c8be274c6d491d6074b25ea4da"
+    },
+    {
+      "bytes": 140,
+      "path": "target/v53-future-source/legacy-cli-error.stderr",
+      "sha256": "3532505b38cfe487ace56a81a93e3a00ed1bddf855271925a8a9a4082db55adb"
+    },
+    {
+      "bytes": 1882,
+      "path": "target/v53-future-source/legacy-source-replay.json",
+      "sha256": "73407a76c2fba842bf7aa296b4a38ecbfce50f27ac09654074febcc03ebd4a8a"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-source/legacy-source-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 41,
+      "path": "target/v53-future-source/portable-workspace.txt",
+      "sha256": "643950a44ca0c0447febfe8291e61cf26340efaff4ed2de6be688f13b776d341"
+    },
+    {
+      "bytes": 118,
+      "path": "target/v53-future-source/python-focused.log",
+      "sha256": "e247ae5944b588dbbe905766fa804578ff810509f2814f947ea8ee971378d0c1"
+    },
+    {
+      "bytes": 37087,
+      "path": "target/v53-future-source/python-inputs.json",
+      "sha256": "5e6c5d5da5b1b2e3d88d0424bd4b7ed3123dc888540b1fcb0e40bcf3e2310df3"
+    },
+    {
+      "bytes": 9784,
+      "path": "target/v53-future-source/qualified-build.log",
+      "sha256": "5c763fb8b4f285a5f74f440458a191763028a573b6dc5e6714f4b336d52f1801"
+    },
+    {
+      "bytes": 480643,
+      "path": "target/v53-future-source/qualified-inputs.json",
+      "sha256": "24059f49b44812e7598681ba31fb140679779605201df22258c7e0a16b290c87"
+    },
+    {
+      "bytes": 46,
+      "path": "target/v53-future-source/qualified-workspace.txt",
+      "sha256": "1b75853a1b6cc92a1de9850b2c5c2311e1b21d59b35c648c6e3d1c3e3d5a72dc"
+    },
+    {
+      "bytes": 297220,
+      "path": "target/v53-future-source/raw-inventory.json",
+      "sha256": "607f2936eeb83b3dcc386d9fd195ea4f199c384ede2781c8898fed98f4bf819a"
+    },
+    {
+      "bytes": 669608,
+      "path": "target/v53-future-source/raw.tar.gz",
+      "sha256": "80f7b4bb45278bfdc1cf23fca85ef909b5d30c554a18585c8c6668c977c93e14"
+    },
+    {
+      "bytes": 2204,
+      "path": "target/v53-future-source/replay-first.json",
+      "sha256": "615858d58820788f503084de4c43f626d8804f2093c1a9e16bc740647199af44"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-source/replay-first.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2204,
+      "path": "target/v53-future-source/replay-optimized.json",
+      "sha256": "615858d58820788f503084de4c43f626d8804f2093c1a9e16bc740647199af44"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-source/replay-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2204,
+      "path": "target/v53-future-source/replay-portable.json",
+      "sha256": "615858d58820788f503084de4c43f626d8804f2093c1a9e16bc740647199af44"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-source/replay-portable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2885,
+      "path": "target/v53-future-source/source-inputs.json",
+      "sha256": "801c75275d8ca4734b7662bb9d0fcdfa6fc8e5d48b6b062a82afcaf64a218aed"
+    },
+    {
+      "bytes": 7198,
+      "path": "target/v53-future-source/validation-summary.json",
+      "sha256": "f07aaecf43e6209a42cfc2ce283887ce45a3f17bcc131dbf21659748bdbbcf64"
+    }
+  ],
+  "schema": "gse-v53-phase3-future-source-v1",
+  "sources": {
+    "docs/v5x/v5.3/DEVELOPMENT_STATUS.md": {
+      "bytes": 115655,
+      "sha256": "adef7e98f642d1bffd303352dd0a70d6984c59a4ac5a106760439038f5644195"
+    },
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": {
+      "bytes": 16311,
+      "sha256": "dcf46c19a0de6eb4547385ce22d5e8dbca6bc3180f7539e7bfe3040819277a8b"
+    },
+    "docs/v5x/v5.3/PHASE_3_FUTURE_RETENTION.md": {
+      "bytes": 5805,
+      "sha256": "e1ec87e9cf72bdfa06926e0d3e4216b8ea85ad6830936f1af7795bd974e13e2e"
+    },
+    "docs/v5x/v5.3/PHASE_3_FUTURE_SOURCE.md": {
+      "bytes": 5027,
+      "sha256": "3e4b3442c931f270f865e27f39dfec5df0b3ac64d0f9f0224ab3fc3ebfac1d2d"
+    },
+    "docs/v5x/v5.3/PHASE_3_PEER_RETENTION_SOURCE.md": {
+      "bytes": 5468,
+      "sha256": "92e2756679c84eeee71fa3755c735ef3342a300aad881174c47090144285f292"
+    },
+    "docs/v5x/v5.3/README.md": {
+      "bytes": 31465,
+      "sha256": "0c1c6131c3988e8c1a5c40466681ec1ace80fd315b1efae039ad6644e0a37b5e"
+    },
+    "docs/v5x/v5.3/RESOURCE_AND_LIFETIME_LIMITS.md": {
+      "bytes": 6706,
+      "sha256": "a1791d163524857cc39672a2ae8ae8ccd77cbd0d51cff85ccf03e8e2220c2414"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": {
+      "bytes": 238796,
+      "sha256": "8101ab39db4d4d7004ce3e72b5fc7b629ea92be456898154feedcba7fbb235af"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionSource.java": {
+      "bytes": 9936,
+      "sha256": "5ae56243132ffc3ac6b251a44537425f13492a0dea00bf91b2ea25da9da19830"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectedRetention.java": {
+      "bytes": 8720,
+      "sha256": "a5d8491b81ba29665c71a1fda7fe53e8ca5f04d17b8196f598361a922b5f7423"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionSourceTest.java": {
+      "bytes": 8235,
+      "sha256": "ed9c6903e2547d847070f303e0f61d89137318e7d7da226c37a5228bc6707b22"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionTest.java": {
+      "bytes": 13410,
+      "sha256": "41925a1547c978da92e49c039dd7694c78113df1d2f0c9d77e86d4a1768158ed"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureSourceCrashTest.java": {
+      "bytes": 4765,
+      "sha256": "6ac5e8b81029cf04a2233315854252837f1079413f492adfa6d46627f5704cbe"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureSourceWorker.java": {
+      "bytes": 2262,
+      "sha256": "24cfd3b4b9739ee8c0d230b4dd9249a4388ab4f2f9c2430d6c658cd42052f537"
+    },
+    "scripts/v53/future_source_evidence.py": {
+      "bytes": 9656,
+      "sha256": "7e65c517593b638b34d65be7f7db2ce39856168063c27571173529c41b4c63e6"
+    }
+  },
+  "status": "LOCAL_COMPONENT_QUALIFIED",
+  "validation": {
+    "focusedPythonTests": 19,
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53FutureRetentionSourceTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53FutureSourceCrashTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PeerRetentionSourceTest",
+        "tests": 5
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53FutureRetentionTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53SelectedRetentionTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "suite": "V53PendingPublicationLifecycleTest",
+        "tests": 2
+      }
+    ],
+    "javaTests": 18,
+    "legacySourceReplay": {
+      "negatives": [
+        {
+          "case": "frozen",
+          "reason": "retention checksum",
+          "status": "REJECTED"
+        },
+        {
+          "case": "packet",
+          "reason": "packet checksum",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise",
+          "reason": "capture promise/basis binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "original",
+          "reason": "admitted original public bootstrap",
+          "status": "REJECTED"
+        },
+        {
+          "case": "interrupted",
+          "reason": "exact interrupted capture bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "updated",
+          "reason": "update rewrote original capture",
+          "status": "REJECTED"
+        },
+        {
+          "case": "response",
+          "reason": "capture response boundary",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "capture recovery force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing",
+          "reason": "complete frozen capture matrix",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "autonomousRuntime": false,
+        "cases": [
+          {
+            "cut": "BASIS_FORCED",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "BASIS_WRITTEN",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "CAPTURE_INTENT_FORCED",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "CAPTURE_INTENT_PREFIX_WRITTEN",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "GRANT_BEFORE_RETURN",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "SOURCE_PACKET_FORCED",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "SOURCE_PACKET_PREFIX_WRITTEN",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "BASIS_FORCED",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "BASIS_WRITTEN",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "CAPTURE_INTENT_FORCED",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "CAPTURE_INTENT_PREFIX_WRITTEN",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "GRANT_BEFORE_RETURN",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "SOURCE_PACKET_FORCED",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "SOURCE_PACKET_PREFIX_WRITTEN",
+            "mode": "kill",
+            "status": "PASS"
+          }
+        ],
+        "phase3Complete": false,
+        "quorumPropagation": false,
+        "scope": "native-frozen-retention-capture",
+        "status": "PASS"
+      }
+    },
+    "phase3Complete": false,
+    "physicalReplay": {
+      "automaticDispatch": false,
+      "cases": [
+        {
+          "cut": "CAPTURE_INTENT_PREFIX_WRITTEN",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "cut": "CAPTURE_INTENT_FORCED",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "cut": "SOURCE_PACKET_PREFIX_WRITTEN",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "cut": "SOURCE_PACKET_FORCED",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "cut": "BASIS_WRITTEN",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "cut": "BASIS_FORCED",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "cut": "GRANT_BEFORE_RETURN",
+          "mode": "halt",
+          "status": "PASS"
+        },
+        {
+          "cut": "CAPTURE_INTENT_PREFIX_WRITTEN",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "cut": "CAPTURE_INTENT_FORCED",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "cut": "SOURCE_PACKET_PREFIX_WRITTEN",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "cut": "SOURCE_PACKET_FORCED",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "cut": "BASIS_WRITTEN",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "cut": "BASIS_FORCED",
+          "mode": "kill",
+          "status": "PASS"
+        },
+        {
+          "cut": "GRANT_BEFORE_RETURN",
+          "mode": "kill",
+          "status": "PASS"
+        }
+      ],
+      "freshProcesses": 28,
+      "governingQuorum": false,
+      "negatives": [
+        {
+          "case": "bootstrap",
+          "reason": "admitted exact retaining-genesis: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "certificate",
+          "reason": "admitted exact certified: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "original-target",
+          "reason": "admitted exact pending-future: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "packet",
+          "reason": "future source exact original packet",
+          "status": "REJECTED"
+        },
+        {
+          "case": "basis",
+          "reason": "future source exact original basis",
+          "status": "REJECTED"
+        },
+        {
+          "case": "interrupted-proof",
+          "reason": "future source exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovered-proof",
+          "reason": "future source exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force-order",
+          "reason": "selected retention force order: future source capture",
+          "status": "REJECTED"
+        },
+        {
+          "case": "response",
+          "reason": "future source exact recovered response",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing",
+          "reason": "context selection future source complete process matrix inventory",
+          "status": "REJECTED"
+        }
+      ],
+      "originalSourcePropagation": true,
+      "phase3Complete": false,
+      "powerLoss": false,
+      "processCases": 14,
+      "selectedInstallation": false,
+      "status": "PASS"
+    },
+    "protectedCI": false,
+    "rawFiles": 1754,
+    "scope": "native-future-source-capture",
+    "status": "PASS"
+  }
+}
