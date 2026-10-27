@@ -99,3 +99,34 @@ integration, automatic reconciliation and the complete joint/runtime qualificati
 Individual ACKs alone grant no send permission. This amendment is not a Phase 3
 closure receipt. Rollback before publication removes the two new kinds and this
 internal recording path, restoring the previous catalog without reinterpreting ACKs.
+
+## A06 — exact remote publication acknowledgement
+
+`PUBLISH_ACK` (26, at most 32 KiB) explicitly acknowledges the existing PUBLISH
+certificate after the receiver has forced its complete selected publication and
+finished covered application/retention cleanup. The payload binds original
+certificate, SELECTED, full published cut/catalog/application and local generation
+digest. It is neither an application ACK nor a quorum certificate, and cannot
+narrow retained peer possibilities without a separate verified complete copy.
+All earlier 49 fixtures remain exact; the inventory is 24 records and 26 wire kinds.
+
+A future-recording quorum can dispatch only its own exact PUBLISH to its intended
+permanent recipient. The native owner, original ballot, pending application and
+local retained target are checked before each attempt and immediately before the
+transport writes. Up to three identical I/O/deadline attempts share the original
+budget. Closing, fencing, malformed acknowledgements and rejection do not grant
+permission to retry a different operation. A higher rejection is observed locally.
+
+The receiver scope is minted from actual completed native application. Original
+checkpoint ACKs are obtained from their permanent owners, with both old/new
+majorities where applicable; expected hashes never count as observations. Reverse
+transfers remain available while publication waits. Duplicates share the one
+bounded publication operation, then recheck its actual selector and ballot before
+replying. A higher ballot after force prevents acknowledgement without undoing
+publication. Local recording/dispatch scope does not survive a new owner.
+
+This amendment opens implementation qualification; it is not whole Phase 3 or
+joint-transition acceptance. Autonomous ownership, native incoming votes/application,
+learner transitions and restart dispatch reconciliation remain required. Rollback
+before release removes the new internal message and typed path together, restoring
+the prior catalog without changing legacy wire/token formats or limits.

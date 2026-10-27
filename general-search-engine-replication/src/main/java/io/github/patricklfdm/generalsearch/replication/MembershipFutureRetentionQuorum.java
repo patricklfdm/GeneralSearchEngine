@@ -10,13 +10,48 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** Governing voters force their own proof of one unpublished target. This result
  * is a live internal prerequisite, not an application ACK, installation receipt,
- * durable quorum certificate, or completed publication/dispatch. */
+ * durable quorum certificate, or completed publication. Only Recorded.dispatch
+ * can send its exact publication through a transport write-time guard. */
 final class MembershipFutureRetentionQuorum implements AutoCloseable {
     final class Recorded {
         private Recorded() {}
         void check()throws IOException {synchronized(owner){live();require(complete,"future recording quorum incomplete");}}
         Set<String> voters(){return Set.copyOf(acknowledged);}
         String intent(){return intent.digest;}
+        /** Identical finite retries. A lost response preserves every durable
+         * possibility; a publication ACK is not a complete-copy narrowing. */
+        Decoded dispatch(MembershipTransport transport)throws IOException {
+            require(dispatching.compareAndSet(false,true),"future publication already dispatched");check();
+            var request=MembershipActivation.frame("PUBLISH",context,owner.activationIdentity(),intent.peer,ballot,trace,
+                    context.voters().size()+1L,Map.of("certificate",intent.certificate));
+            var retry=new MembershipExchange(request.digest(),started,budget);
+            try(var lease=resources.reserve(MembershipResources.Unit.CONTROL,"publication-send-"+UUID.randomUUID(),request.size())) {
+                for(;;) {
+                    check();retry.attempt(request.digest(),clock.getAsLong());
+                    var future=transport.exchange(intent.peer,request,"PUBLISH_ACK",started+budget,this::check);
+                    synchronized(MembershipFutureRetentionQuorum.this){dispatchPending=future;if(closed)future.cancel(true);}
+                    try {
+                        long left=budget-(clock.getAsLong()-started);require(left>0,"original future publication deadline");
+                        var response=future.get(left,TimeUnit.NANOSECONDS);check();MembershipWire.correlated(request,response,"PUBLISH_ACK");
+                        if(response.kind().equals("REJECT")) {
+                            var promised=object(object(response.value().get("payload")).get("promised"));context.ballot(promised,true);
+                            if(MembershipContext.compareBallot(promised,ballot)>0)owner.observeCurrent(promised);
+                            throw new MembershipSourcePull.Rejected(response);
+                        }
+                        var payload=object(response.value().get("payload"));
+                        require(payload.get("certificate").equals(intent.certificate) && payload.get("selection").equals(intent.selection)
+                                && payload.get("published").equals(MembershipRetentionIntent.anchor(intent.upper)),"publication acknowledgement changed target");
+                        MembershipValidation.digest((String)payload.get("generation"));retry.complete(request.digest(),clock.getAsLong());return response;
+                    }catch(InterruptedException error){future.cancel(true);Thread.currentThread().interrupt();throw new IOException("publication interrupted",error);}
+                    catch(TimeoutException|CancellationException error){future.cancel(true);throw new IOException("publication original deadline/closed",error);}
+                    catch(ExecutionException error) {
+                        var failure=cause(error);check();if(retryable(failure) && retry.attempts()<3)continue;
+                        if(failure instanceof IOException io)throw io;if(failure instanceof RuntimeException runtime)throw runtime;
+                        throw new IOException("publication exchange failed",failure);
+                    }finally{synchronized(MembershipFutureRetentionQuorum.this){if(dispatchPending==future)dispatchPending=null;}}
+                }
+            }
+        }
     }
     private record Reply(String node,Decoded response,Throwable failure) {}
     private final class Attempt implements AutoCloseable {
@@ -54,6 +89,8 @@ final class MembershipFutureRetentionQuorum implements AutoCloseable {
     private final Set<String> acknowledged=new TreeSet<>();
     private final BlockingQueue<Reply> replies=new ArrayBlockingQueue<>(16);
     private final AtomicBoolean running=new AtomicBoolean();
+    private final AtomicBoolean dispatching=new AtomicBoolean();
+    private CompletableFuture<Decoded> dispatchPending;
     private volatile boolean closed,complete;
     MembershipFutureRetentionQuorum(MembershipGrantJournal owner,MembershipIdentity peer,Map<String,Object> ballot,
             MembershipGrantJournal.PendingPublication target,MembershipResources resources,MembershipSourcePull.Link link,
@@ -111,5 +148,6 @@ final class MembershipFutureRetentionQuorum implements AutoCloseable {
             live();complete=true;return new Recorded();
         }finally{for(var attempt:attempts.values())attempt.close();}
     }
-    @Override public void close(){closed=true;for(var attempt:attempts.values())attempt.close();replies.offer(new Reply(null,null,null));}
+    @Override public void close(){synchronized(this){closed=true;if(dispatchPending!=null)dispatchPending.cancel(true);}
+        for(var attempt:attempts.values())attempt.close();replies.offer(new Reply(null,null,null));}
 }

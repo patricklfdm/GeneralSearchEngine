@@ -1,0 +1,714 @@
+{
+  "autonomous": false,
+  "baseCommit": "bec212d404655b495a4ed5fb227b99e94cf2bec4",
+  "counterfactual": {
+    "expectedFailures": [
+      "expected: <0> but was: <1>",
+      "Expected java.lang.IllegalArgumentException to be thrown, but nothing was thrown."
+    ],
+    "report": {
+      "bytes": 10183,
+      "path": "target/v53-remote-publication/builds/counterfactual-d25922f2/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RemotePublicationTest.xml",
+      "sha256": "b1bf738971f837436a70271d0e077721926d87568e050c488558c7946d5b7565"
+    },
+    "tests": 2
+  },
+  "date": "2026-10-27",
+  "evidence": [
+    {
+      "bytes": 2360,
+      "path": "target/v53-remote-publication/ATTEMPTS.md",
+      "sha256": "04c4545366bf71de4e468d63050f6f0ff64a0efc72d956dcd0221b8bd6996495"
+    },
+    {
+      "bytes": 870,
+      "path": "target/v53-remote-publication/PLAN.md",
+      "sha256": "3db2923dcaaa1d04f1ac947c0ceef6decf000c53814819d863860344adcdfbf6"
+    },
+    {
+      "bytes": 55,
+      "path": "target/v53-remote-publication/archive.log",
+      "sha256": "f2a38134cea0bc10acbf01b49378e18ff23b99993cf4e800dc5873486cdf16e1"
+    },
+    {
+      "bytes": 1441,
+      "path": "target/v53-remote-publication/archive.py",
+      "sha256": "f56a6163dcb1b7e9fd5a72578f88a908df10c214bcf46060b24b5d346eb8c624"
+    },
+    {
+      "bytes": 488358,
+      "path": "target/v53-remote-publication/canonical-inputs.json",
+      "sha256": "1a7564c312a797fcc0157f47e178cb0b0fb47a79301ad2b2c7c6657f82977575"
+    },
+    {
+      "bytes": 99,
+      "path": "target/v53-remote-publication/canonical-workspace.txt",
+      "sha256": "598c7f984c4a035bad6f314984f851c2f8a7d2a82886ecdacae63cdc3e43d1a9"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-remote-publication/contract-preliminary.json",
+      "sha256": "b30262a521732972f46d854cd9fef82d4f8e344e146062412458a18c8858ae7a"
+    },
+    {
+      "bytes": 8453,
+      "path": "target/v53-remote-publication/counterfactual-build.log",
+      "sha256": "45782ac83589817420fa4969288fe61443df8f36cecad2e3e25f6977d0033d74"
+    },
+    {
+      "bytes": 488595,
+      "path": "target/v53-remote-publication/counterfactual-inputs.json",
+      "sha256": "bef255b5f667d3b17a686347e7dbdf05b876c08bafa159e8cba09be73f33a19c"
+    },
+    {
+      "bytes": 488595,
+      "path": "target/v53-remote-publication/counterfactual-mutated-inputs.json",
+      "sha256": "d4ac81e12fb9542f3d6649b7f0fe76fdbe78b2274e9a842eff7a6d599e14e054"
+    },
+    {
+      "bytes": 104,
+      "path": "target/v53-remote-publication/counterfactual-workspace.txt",
+      "sha256": "003fc5a86eff3c229f2d4aa5554603fe6e00645f8bbede351464f0e2da1668c1"
+    },
+    {
+      "bytes": 5859,
+      "path": "target/v53-remote-publication/existing-future-replay.json",
+      "sha256": "fb9ecf0011ea32570585b8aaac4fef5a74d657e6bf9686f9b853f17859a749ef"
+    },
+    {
+      "bytes": 6770,
+      "path": "target/v53-remote-publication/final-build.log",
+      "sha256": "0dafd2496a637e3713ecd2356e60880abbdd2e86de9a51e9a646ac34227082e3"
+    },
+    {
+      "bytes": 488595,
+      "path": "target/v53-remote-publication/final-inputs.json",
+      "sha256": "bef255b5f667d3b17a686347e7dbdf05b876c08bafa159e8cba09be73f33a19c"
+    },
+    {
+      "bytes": 6856,
+      "path": "target/v53-remote-publication/final-replay-inprogress.json",
+      "sha256": "609272db53d8d0272e84fd39b0830d440a7992156eafe7ddfc9676a8a2a5c940"
+    },
+    {
+      "bytes": 6856,
+      "path": "target/v53-remote-publication/final-replay.json",
+      "sha256": "609272db53d8d0272e84fd39b0830d440a7992156eafe7ddfc9676a8a2a5c940"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-remote-publication/final-workspace.txt",
+      "sha256": "4ccdcd67b9acde6b464838fbcd376f0f9deb08acc7cb429cb1f57c680a661936"
+    },
+    {
+      "bytes": 5207,
+      "path": "target/v53-remote-publication/finalize.py",
+      "sha256": "758f866119f870501e8d13d2f13bcded298b69098f03259bf9830dae1eac4415"
+    },
+    {
+      "bytes": 488358,
+      "path": "target/v53-remote-publication/first-inputs.json",
+      "sha256": "514ef21811d0d560fd8f57029df761e7632a4d351b133a57a7007db35bd35588"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-remote-publication/first-workspace.txt",
+      "sha256": "249eabee400066bd76d231863caf9340169d4fbffdf6ee62ae78765cc17f1110"
+    },
+    {
+      "bytes": 488595,
+      "path": "target/v53-remote-publication/formatted-inputs.json",
+      "sha256": "5aabc6654c381f5bc6726b63ce9ac1649de9f41295626f573cae9bf92710fb26"
+    },
+    {
+      "bytes": 99,
+      "path": "target/v53-remote-publication/formatted-workspace.txt",
+      "sha256": "9f48dc681a645747a02d344a896b4004ea0eb4f604ba9eb9536f68ccef70c794"
+    },
+    {
+      "bytes": 34805,
+      "path": "target/v53-remote-publication/initial-build.log",
+      "sha256": "a13272b3568adc36578b9af87158ffa7bdc7f35a9c8e757bb600843c5622966f"
+    },
+    {
+      "bytes": 488358,
+      "path": "target/v53-remote-publication/initial-inputs.json",
+      "sha256": "12964ff673c4368b65e3fc7494607c354dc227109ec8089007fefedf800ad791"
+    },
+    {
+      "bytes": 97,
+      "path": "target/v53-remote-publication/initial-workspace.txt",
+      "sha256": "7920830c1612690deed3de7d8604557719a36895d8366b1cec673656d0df6ae2"
+    },
+    {
+      "bytes": 488595,
+      "path": "target/v53-remote-publication/instrumented-inputs.json",
+      "sha256": "0589ab6d7bc24bca546a062a1aff56c951c88fed220dbffe474b0f3e29e374b6"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-remote-publication/instrumented-workspace.txt",
+      "sha256": "92edbc42c6a449b3065b660fd48c5cb64cad416504a383bf1b949fb6d624b44a"
+    },
+    {
+      "bytes": 100,
+      "path": "target/v53-remote-publication/native-source-check.json",
+      "sha256": "1976b5b65aca64a39bdb5690bf69aba936b0af8eec7b2c78dbeb2d1c3fac8c30"
+    },
+    {
+      "bytes": 137062,
+      "path": "target/v53-remote-publication/original-byte-fixtures.json",
+      "sha256": "27ce49f23e7e071e8c1407d916e01851cafe9cfcf4ba9f43d0adc12d876623af"
+    },
+    {
+      "bytes": 28040,
+      "path": "target/v53-remote-publication/original-format-catalog.json",
+      "sha256": "8cf87dee1426c486efa51bce01156bf4932635c845b6a6ec60054e33fa7aab21"
+    },
+    {
+      "bytes": 6637,
+      "path": "target/v53-remote-publication/portable-replay.json",
+      "sha256": "dce74223be731503639747f61b85d4e312e55cf81eace9da1674fd353f11ca40"
+    },
+    {
+      "bytes": 656,
+      "path": "target/v53-remote-publication/portable-replay.log",
+      "sha256": "6fbe3b43ca2c0fc111e5d95749b8d5e2fc46efce2aa189bd5f7a1193c7df17b4"
+    },
+    {
+      "bytes": 598,
+      "path": "target/v53-remote-publication/portable-replay.py",
+      "sha256": "b0de3cfba1cb471dd7a325c6f5c6e6d36e5dee5f1cfedeed9d3e47430641777e"
+    },
+    {
+      "bytes": 768,
+      "path": "target/v53-remote-publication/python-all.log",
+      "sha256": "cc280527756d1b112255e2a49ecfef71ec02621f2cf5c287fec356931ce09197"
+    },
+    {
+      "bytes": 113,
+      "path": "target/v53-remote-publication/python-tests-final-optimized.log",
+      "sha256": "e535d2e390b58c1e7adf9ef6876bd872a90f9176e61a30fbe2655fff87ddd068"
+    },
+    {
+      "bytes": 113,
+      "path": "target/v53-remote-publication/python-tests-optimized.log",
+      "sha256": "1719a96e750d70cf7382208aa840f153e34e8db8e00e582dd3e6fc673df70f8f"
+    },
+    {
+      "bytes": 113,
+      "path": "target/v53-remote-publication/python-tests.log",
+      "sha256": "7596b1e701abc355a1f6366d58e202e073687760eafd53bee388f7a237b1ce40"
+    },
+    {
+      "bytes": 7046,
+      "path": "target/v53-remote-publication/qualified-build.log",
+      "sha256": "59ecf508ae3a108accd23a78ff9e80feb818e758d309daa7db9c7e9bf39f7bc0"
+    },
+    {
+      "bytes": 488595,
+      "path": "target/v53-remote-publication/qualified-inputs.json",
+      "sha256": "a0f6a870fd12e8c7a0d145010e62066bc42a7a796bd99f5d9dc00e257d51143a"
+    },
+    {
+      "bytes": 6868,
+      "path": "target/v53-remote-publication/qualified-replay.json",
+      "sha256": "b33f029cdf98530f3e4031ee959ac7f3e9b4b9e0ff44d6574a236bcf1fafce54"
+    },
+    {
+      "bytes": 99,
+      "path": "target/v53-remote-publication/qualified-workspace.txt",
+      "sha256": "4872f629ea5304050f131089769f0d898544f1b8ac27ab44ddd477d18092f312"
+    },
+    {
+      "bytes": 11252451,
+      "path": "target/v53-remote-publication/raw-inventory.json",
+      "sha256": "5a129c900f8ba82f1c61eda178f59c9729a656b416e9392a0ca96f749f278570"
+    },
+    {
+      "bytes": 13010130,
+      "path": "target/v53-remote-publication/raw.tar.gz",
+      "sha256": "2789c6e3f4963e826d2138c3b6b92455900a914b599ec1c1ddf952cb9421bd8f"
+    },
+    {
+      "bytes": 38716,
+      "path": "target/v53-remote-publication/reader-inputs.json",
+      "sha256": "8bb4f3a78a63c214cfbb94de6495f2f47a945b9203439bcd2f46ae2b6ac53469"
+    },
+    {
+      "bytes": 9395,
+      "path": "target/v53-remote-publication/second-build.log",
+      "sha256": "6bc08878c4a15cb40fdc537e02266080907ce0d5827a19e11c1721392523cd67"
+    },
+    {
+      "bytes": 488358,
+      "path": "target/v53-remote-publication/second-inputs.json",
+      "sha256": "aba1f0e3bc841cc320d7c79c384ef07c8e3f652142621a06288ab2abf89cf78e"
+    },
+    {
+      "bytes": 96,
+      "path": "target/v53-remote-publication/second-workspace.txt",
+      "sha256": "2da5eddcbe5facffb89168a555fec5d0d3053dbd5180792fc238d8fb051282da"
+    },
+    {
+      "bytes": 963,
+      "path": "target/v53-remote-publication/snapshot.py",
+      "sha256": "d55529ee1bfbcc4e500da4d9e719e9e36b94e757c5f980f565b02eeb2d9c6c83"
+    },
+    {
+      "bytes": 74089,
+      "path": "target/v53-remote-publication/source.patch",
+      "sha256": "501e6fd753819d80274bb848ae563ac54654fc505fe9c2bdcbe51031cb5379f7"
+    },
+    {
+      "bytes": 9258,
+      "path": "target/v53-remote-publication/third-build.log",
+      "sha256": "613b12ab6403646088cafec66edd232ea1a62f4878b632487c9e23a445062844"
+    },
+    {
+      "bytes": 488474,
+      "path": "target/v53-remote-publication/third-inputs.json",
+      "sha256": "85bc4bf5d043b4b9e648151e8e98fca4c239c98e566073cbdcdf13240249ef76"
+    },
+    {
+      "bytes": 95,
+      "path": "target/v53-remote-publication/third-workspace.txt",
+      "sha256": "fd94b76bb814d95569a361a74420fd58b2465a6a5bb3e2322f4ae1f1affbb150"
+    },
+    {
+      "bytes": 488595,
+      "path": "target/v53-remote-publication/unguarded-inputs.json",
+      "sha256": "a0f6a870fd12e8c7a0d145010e62066bc42a7a796bd99f5d9dc00e257d51143a"
+    },
+    {
+      "bytes": 488595,
+      "path": "target/v53-remote-publication/unguarded-mutated-inputs.json",
+      "sha256": "93053c0ac4e2da064d1becbc0e3a75528ea55ead5bb9d8684e3bcce858fd5221"
+    },
+    {
+      "bytes": 99,
+      "path": "target/v53-remote-publication/unguarded-workspace.txt",
+      "sha256": "b0fa3b4e3dffaf7eba7a7d38417d658b03ddcecf8c7814ed1f2d65d04fc769cd"
+    }
+  ],
+  "existingFutureReplay": {
+    "bytes": 5859,
+    "path": "target/v53-remote-publication/existing-future-replay.json",
+    "sha256": "fb9ecf0011ea32570585b8aaac4fef5a74d657e6bf9686f9b853f17859a749ef"
+  },
+  "independent": [
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "remote publication original checkpoint bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "remote publication quorum delivery before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "received",
+            "reason": "remote publication checkpoint delivery before selector",
+            "status": "REJECTED"
+          },
+          {
+            "case": "target",
+            "reason": "remote publication exact request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "published",
+            "reason": "admitted exact after-endpoint: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "remote publication exact durable ACK",
+            "status": "REJECTED"
+          },
+          {
+            "case": "retry",
+            "reason": "remote publication identical retry/duplicate",
+            "status": "REJECTED"
+          },
+          {
+            "case": "force",
+            "reason": "selected retention force order: remote publication force before ACK",
+            "status": "REJECTED"
+          },
+          {
+            "case": "dispatch-order",
+            "reason": "remote publication recorded before actual send",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack-delivery",
+            "reason": "remote publication actual acknowledgement delivery",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "checkpointOwners": 2,
+          "duplicate": 1,
+          "nativeOwners": 3,
+          "phase3Complete": false,
+          "publicationAttempts": 2,
+          "published": "node-3",
+          "recordedVoters": [
+            "node-1",
+            "node-2"
+          ],
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-remote-publication/builds/final-cabfdedc/general-search-engine-replication/target/v53-future-endpoint/run-40893d2a-bdf3-47f9-8beb-9daf2ff06e60"
+    },
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "remote publication original checkpoint bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "remote publication quorum delivery before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "received",
+            "reason": "remote publication checkpoint delivery before selector",
+            "status": "REJECTED"
+          },
+          {
+            "case": "target",
+            "reason": "remote publication exact request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "published",
+            "reason": "admitted exact after-endpoint: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "remote publication exact durable ACK",
+            "status": "REJECTED"
+          },
+          {
+            "case": "retry",
+            "reason": "remote publication identical retry/duplicate",
+            "status": "REJECTED"
+          },
+          {
+            "case": "force",
+            "reason": "selected retention force order: remote publication force before ACK",
+            "status": "REJECTED"
+          },
+          {
+            "case": "dispatch-order",
+            "reason": "remote publication recorded before actual send",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack-delivery",
+            "reason": "remote publication actual acknowledgement delivery",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "checkpointOwners": 3,
+          "duplicate": 1,
+          "nativeOwners": 4,
+          "phase3Complete": false,
+          "publicationAttempts": 2,
+          "published": "node-4",
+          "recordedVoters": [
+            "node-1",
+            "node-2",
+            "node-3"
+          ],
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-remote-publication/builds/final-cabfdedc/general-search-engine-replication/target/v53-future-endpoint/run-59309042-5842-46c9-adc2-2635d2a7f8c2"
+    },
+    {
+      "result": {
+        "negatives": [
+          {
+            "case": "certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "checkpoint",
+            "reason": "remote publication original checkpoint bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "remote publication quorum delivery before dispatch",
+            "status": "REJECTED"
+          },
+          {
+            "case": "received",
+            "reason": "remote publication checkpoint delivery before selector",
+            "status": "REJECTED"
+          },
+          {
+            "case": "target",
+            "reason": "remote publication exact request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "published",
+            "reason": "admitted exact after-endpoint: node-5",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack",
+            "reason": "remote publication exact durable ACK",
+            "status": "REJECTED"
+          },
+          {
+            "case": "retry",
+            "reason": "remote publication identical retry/duplicate",
+            "status": "REJECTED"
+          },
+          {
+            "case": "force",
+            "reason": "selected retention force order: remote publication force before ACK",
+            "status": "REJECTED"
+          },
+          {
+            "case": "dispatch-order",
+            "reason": "remote publication recorded before actual send",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack-delivery",
+            "reason": "remote publication actual acknowledgement delivery",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "autonomous": false,
+          "checkpointOwners": 3,
+          "duplicate": 1,
+          "nativeOwners": 5,
+          "phase3Complete": false,
+          "publicationAttempts": 2,
+          "published": "node-5",
+          "recordedVoters": [
+            "node-1",
+            "node-2",
+            "node-3"
+          ],
+          "status": "PASS"
+        }
+      },
+      "root": "/home/klfdm/perception/GeneralSearchEngine/target/v53-remote-publication/builds/final-cabfdedc/general-search-engine-replication/target/v53-future-endpoint/run-ef6ddff7-69b4-4455-8feb-2be61a4c8852"
+    }
+  ],
+  "javaTests": [
+    {
+      "attempt": "final",
+      "name": "V53FormatTest",
+      "report": {
+        "bytes": 7817,
+        "path": "target/v53-remote-publication/builds/final-cabfdedc/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FormatTest.xml",
+        "sha256": "cedf131fa63c644ee2710107688e8a5ddb410444618a4a9dfb75bfa0673dd077"
+      },
+      "seconds": 0.14,
+      "tests": 5
+    },
+    {
+      "attempt": "final",
+      "name": "V53RemotePublicationTest",
+      "report": {
+        "bytes": 10729,
+        "path": "target/v53-remote-publication/builds/final-cabfdedc/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RemotePublicationTest.xml",
+        "sha256": "4b6268bab8186f59f1438d518fd98a48d6e289fb8baf900181ea99bdaa866fd4"
+      },
+      "seconds": 200.4,
+      "tests": 7
+    },
+    {
+      "attempt": "qualified",
+      "name": "V53MembershipTransportTest",
+      "report": {
+        "bytes": 9731,
+        "path": "target/v53-remote-publication/builds/qualified-7fdf6ba4/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53MembershipTransportTest.xml",
+        "sha256": "bc8c51a621ca43aa98c3f902a53fc639cd03de180ceb383a5beac1b6818b0e3a"
+      },
+      "seconds": 40.083,
+      "tests": 13
+    },
+    {
+      "attempt": "third",
+      "name": "V53FutureRetentionEndpointTest",
+      "report": {
+        "bytes": 11707,
+        "path": "target/v53-remote-publication/builds/third-259e0cda/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FutureRetentionEndpointTest.xml",
+        "sha256": "ef25265b6d628e9fcbd6da17624e596e86d47791e32b82fe33ef36de0275567e"
+      },
+      "seconds": 241.191,
+      "tests": 9
+    }
+  ],
+  "nativeSourceFilesMatchingFinalBuild": 1127,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portableReplay": {
+    "bytes": 6637,
+    "path": "target/v53-remote-publication/portable-replay.json",
+    "sha256": "dce74223be731503639747f61b85d4e312e55cf81eace9da1674fd353f11ca40"
+  },
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "optimizedFocused": 14,
+    "tests": 667
+  },
+  "remaining": [
+    "restarted publication endpoint and dispatch reconciliation",
+    "native incoming ACCEPT/PROOF/application controls",
+    "autonomous election/discovery/maintenance",
+    "learner ADD/REPLACE and all seven joint profiles",
+    "maximal ancestry/completion headroom",
+    "new incoming publication process-kill evidence and complete 3B\u20133E qualification"
+  ],
+  "schema": "gse-v53-remote-publication-local-v1",
+  "scope": "explicit-native-future-quorum-bound-remote-first-BARRIER-publication",
+  "source": [
+    {
+      "bytes": 125695,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "4dd961acd0f3a7837ad3d11af1bd0b7c9d204df4f2726d38b058a89c70ed4d01"
+    },
+    {
+      "bytes": 5562,
+      "path": "docs/v5x/v5.3/PHASE_0_CONTRACT.md",
+      "sha256": "6d734047413e40c447f7f7b17253d2fa53f851ddfd4b1f8bb16330fa0192d6f8"
+    },
+    {
+      "bytes": 8592,
+      "path": "docs/v5x/v5.3/PHASE_3_CONTRACT_AMENDMENTS.md",
+      "sha256": "17f282cd176f1b06ba032e2a78f2508a76143d08baf48fd059f96da69469f2ff"
+    },
+    {
+      "bytes": 20039,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "0bac7a9a865aa6b3e752a24caabfa580abb7879f4273f522d1c04de6914c714b"
+    },
+    {
+      "bytes": 4348,
+      "path": "docs/v5x/v5.3/PHASE_3_REMOTE_PUBLICATION.md",
+      "sha256": "d312d80b06c7a2cf9fdcf5a49e06415f366072eb5d851c6f10bfa767f7c9b003"
+    },
+    {
+      "bytes": 34981,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "55e0cfb3dd76e243557e5f176f032f220843651a1a864b1201b41e4403b4d9fa"
+    },
+    {
+      "bytes": 141473,
+      "path": "docs/v5x/v5.3/byte-fixtures.json",
+      "sha256": "a25ba3fad5ff9a8b7047ecc71da6603c1cc2ef5437007f2d1a1c205eae298ef9"
+    },
+    {
+      "bytes": 28600,
+      "path": "docs/v5x/v5.3/format-catalog.json",
+      "sha256": "05ccbc701e58d1a12c9399a3b7120d0b1fbf23c8259c3e45999de3dd56367e42"
+    },
+    {
+      "bytes": 12370,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFormat.java",
+      "sha256": "e67c9a14ae31e6cd47d986b9dd85cd2d4be485b948d7ba6d08367405aaa92a28"
+    },
+    {
+      "bytes": 12557,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFutureRetentionQuorum.java",
+      "sha256": "753c78a7bba0e0ba6632544b0f17c9c0ae06c77d0926f0680ff1511905463497"
+    },
+    {
+      "bytes": 261420,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "34028feb543995e44ff8aaa3cd9342919683f9fe2b75b963025708cb5cb93a28"
+    },
+    {
+      "bytes": 10069,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationEndpoint.java",
+      "sha256": "ecb6835c941301231a733d98994274aaeac2357e4c15420d528dd6200b8cff8d"
+    },
+    {
+      "bytes": 16655,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java",
+      "sha256": "dfc4cea82daec584a8b615d43d571e13cac95e1a0466f210f702f9b30e558239"
+    },
+    {
+      "bytes": 15025,
+      "path": "general-search-engine-replication/src/main/resources/replication/membership-format-v13.json",
+      "sha256": "b107957b4d6f22cc0115af387e16edba07e616999bebc415f5e3bd37f57b1ac7"
+    },
+    {
+      "bytes": 7502,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FormatTest.java",
+      "sha256": "0875329a2dfde807b4e93e3f9535b0c2b5249680e28cd29c30d090334cfa3f5d"
+    },
+    {
+      "bytes": 12597,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemotePublicationTest.java",
+      "sha256": "315c2299ead73615ca38db494a6d0e606f0e20941efe1aa7912a6c9ff28fb990"
+    },
+    {
+      "bytes": 141473,
+      "path": "general-search-engine-replication/src/test/resources/replication/v53/byte-fixtures.json",
+      "sha256": "a25ba3fad5ff9a8b7047ecc71da6603c1cc2ef5437007f2d1a1c205eae298ef9"
+    },
+    {
+      "bytes": 3154,
+      "path": "scripts/v53/contract_check.py",
+      "sha256": "8e49e9a1bdd311133a5237e71b6708a80d2fac851dfb1b6fd71e7fb9d1db60af"
+    },
+    {
+      "bytes": 3281,
+      "path": "scripts/v53/format_qualification.py",
+      "sha256": "ce78aa6335b5780107fa03a7d28b139538965c50d55b869ae6f3c5081c755623"
+    },
+    {
+      "bytes": 17120,
+      "path": "scripts/v53/remote_publication_evidence.py",
+      "sha256": "f4ecb007db047dc1403f0c7c301876181be560ab1a54e2930e33d4809796e953"
+    },
+    {
+      "bytes": 994,
+      "path": "scripts/v53/test_format_qualification.py",
+      "sha256": "c7838510f94760358ac1ba5b6cfca2b2d51fa131d6dbdc57c1120d719d0ff26d"
+    },
+    {
+      "bytes": 1522,
+      "path": "scripts/v53/test_remote_publication_evidence.py",
+      "sha256": "dfd04048ced9203de89e8c424f997b6f6e852f7d2789f4efbadc16f433a50a69"
+    }
+  ],
+  "status": "PASS"
+}

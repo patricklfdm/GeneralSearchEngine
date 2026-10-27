@@ -1565,6 +1565,54 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && pendingAccept.active().certificate()!=null,"pending publication requires complete original certificate");
         var target=new PendingPublication(this,Objects.requireNonNull(applied),pendingAccept.active());target.check();return target;
     }
+    /** One original native application through exact publication. Unlike the
+     * pending-only capability, this permits idempotent acknowledgement after the
+     * selector changes, but never after another certificate/selection takes over. */
+    final class Publication {
+        final Applied applied;
+        final MembershipCapsule before;
+        final MembershipCapsule.Anchor target;
+        final Map<String,Object> ballot;
+        final String selection,certificate;
+        private final PendingPublication pending;
+        private Publication(PendingPublication pending)throws IOException {
+            this.pending=pending;applied=pending.applied;before=pending.before;target=pending.target();
+            ballot=object(pending.vote.accept().value().get("ballot"));selection=pending.vote.selected().digest();
+            certificate=pending.vote.certificate().digest();
+        }
+        boolean published()throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                checkOwner();fence(ballot);
+                require(promise!=null && promise.value().get("ballot").equals(ballot)
+                        && current.manifest.value().get("selection").equals(selection)
+                        && current.manifest.value().get("promise").equals(promise.digest()),"publication scope authority changed");
+                if(current.publishedCertificate().filter(certificate::equals).isPresent()) {
+                    require(current.capsule.terminal().equals(target),"publication scope target changed");return true;
+                }
+                pending.check();return false;
+            }
+        }
+        void check()throws IOException {published();}
+        void request(MembershipIdentity sender,Decoded request)throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                check();require(request.kind().equals("PUBLISH"),"publication request kind");var value=request.value();
+                before.context.wire(request,sender,identity,ballot,UUID.fromString((String)value.get("trace")),number(value.get("sequence")));
+                require(sender.nodeId().value().equals(ballot.get("proposer"))
+                        && object(value.get("payload")).get("certificate").equals(certificate),"publication request original proposer/certificate");
+            }
+        }
+        Decoded acknowledge(MembershipIdentity sender,Decoded request)throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                request(sender,request);require(published(),"publication acknowledgement before selector");
+                cut.at("PUBLICATION_ACK_BEFORE_RETURN");request(sender,request);require(published(),"publication acknowledgement lost selector");
+                var response=new TreeMap<>(request.value());response.put("sender",request.value().get("recipient"));response.put("recipient",request.value().get("sender"));
+                response.put("payload",Map.of("certificate",certificate,"selection",selection,
+                        "published",MembershipRetentionIntent.anchor(target),"generation",current.manifest.digest()));
+                return decode(encode("wire","PUBLISH_ACK",response),"wire","PUBLISH_ACK");
+            }
+        }
+    }
+    synchronized Publication publication(Applied applied)throws IOException {return new Publication(pendingPublication(applied));}
     /** A capability for one complete, re-forced native certificate. It carries no
      * fresh remote observations and never advances the published cut. */
     static final class CertifiedCurrent {

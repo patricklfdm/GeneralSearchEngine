@@ -8,6 +8,13 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Native remote publication](PHASE_3_REMOTE_PUBLICATION.md) now supplies exact
+future-quorum-bound sends with write-time fencing, actual remote checkpoint
+receipts and forced selector acknowledgements. The source-bound stable histories
+and negative qualification do not close whole 3B–3E gates. Reopened publication
+service, native incoming vote/application controls, autonomous lifecycle, learner
+and joint transitions, maximum headroom and full protocol evidence remain open.
+
 [Native pending checkpoint delivery](PHASE_3_PENDING_CHECKPOINT.md) now supplies
 original remote application ACKs over real TCP before local publication. Its
 native first-BARRIER history and existing retained-record regressions qualify

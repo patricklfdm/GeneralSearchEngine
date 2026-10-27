@@ -97,6 +97,13 @@ final class MembershipTransport implements AutoCloseable {
         workers.execute(()->{var thread=Thread.currentThread();workerThreads.add(thread);try{task.run();}finally{workerThreads.remove(thread);}});
     }
     CompletableFuture<Decoded> exchange(MembershipIdentity recipient,Decoded request,String responseKind,long originalDeadline) {
+        return exchange(recipient,request,responseKind,originalDeadline,()->{});
+    }
+    /** A revocation check at the actual send boundary, after queueing/connect.
+     * It grants no authority itself; typed protocol callers own that decision. */
+    CompletableFuture<Decoded> exchange(MembershipIdentity recipient,Decoded request,String responseKind,long originalDeadline,
+            MembershipSourcePull.Guard beforeWrite) {
+        Objects.requireNonNull(beforeWrite);
         var result=new CompletableFuture<Decoded>();Peer peer;MembershipResources.Lease lease=null;boolean acquired=false;
         try {
             if(closed)throw new Failure(Reason.CLOSED,"membership transport closed",null);
@@ -113,7 +120,7 @@ final class MembershipTransport implements AutoCloseable {
             try {
                 execute(()->{
                     Decoded reply=null;Throwable failure=null;
-                    try{reply=send(peer,request,bytes,responseKind,deadline,result::isCancelled);}
+                    try{reply=send(peer,request,bytes,responseKind,deadline,result::isCancelled,beforeWrite);}
                     catch(Throwable error){failure=classify(error);}
                     finally{owned.close();peer.outgoing.release();outboundCount.decrementAndGet();}
                     // Continuations may immediately submit another request; release first.
@@ -134,13 +141,15 @@ final class MembershipTransport implements AutoCloseable {
         if(error instanceof IllegalArgumentException)return new Failure(Reason.PROTOCOL,"membership frame/context rejected",error);
         return new Failure(Reason.IO,"membership exchange I/O failed",error);
     }
-    private Decoded send(Peer peer,Decoded request,byte[] bytes,String kind,long deadline,BooleanSupplier cancelled)throws IOException {
+    private Decoded send(Peer peer,Decoded request,byte[] bytes,String kind,long deadline,BooleanSupplier cancelled,
+            MembershipSourcePull.Guard beforeWrite)throws IOException {
         try(var channel=SocketChannel.open();var selector=Selector.open()) {
             channels.add(channel);
             try {
                 check(deadline,cancelled);channel.configureBlocking(false);channel.register(selector,SelectionKey.OP_CONNECT);
                 channel.connect(peer.endpoint);while(!channel.finishConnect())ready(selector,SelectionKey.OP_CONNECT,deadline,cancelled);
-                events.at("BEFORE_REQUEST_WRITE",request,null);transfer(channel,selector,ByteBuffer.wrap(bytes),true,deadline,cancelled);
+                events.at("BEFORE_REQUEST_WRITE",request,null);beforeWrite.check();check(deadline,cancelled);
+                transfer(channel,selector,ByteBuffer.wrap(bytes),true,deadline,cancelled);
                 try(var response=read(channel,selector,deadline,cancelled)) {
                     MembershipWire.envelope(response.frame,root,peer.identity,local);MembershipWire.correlated(request,response.frame,kind);
                     events.at("AFTER_RESPONSE_READ",request,response.frame);check(deadline,cancelled);return response.frame;

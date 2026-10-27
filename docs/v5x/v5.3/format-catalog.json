@@ -1284,6 +1284,29 @@
           "view": "hash"
         }
       }
+    },
+    "PUBLISH_ACK": {
+      "id": 26,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "certificate": "hash",
+              "selection": "hash",
+              "published": "retentionAnchor",
+              "generation": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
     }
   }
 }

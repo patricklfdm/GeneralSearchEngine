@@ -1,5 +1,21 @@
 # V5.3 development status
 
+## 2026-10-27 — Phase 3 native remote publication
+
+The [remote publication path](PHASE_3_REMOTE_PUBLICATION.md) now consumes its
+actual future-recording quorum at the transport write boundary. The receiver
+pulls original checkpoint ACKs, forces native publication and acknowledges its
+exact certificate/selection/target/generation. Lost ACKs use identical finite
+retries; higher-ballot responses fence the receiver and propagate rejection.
+
+Final native tests and three real 3/4/5-voter histories pass. Independent
+original-first replay rejects 33 exact evidence mutations; relocated optimized
+replay and counterfactual native checks are bound in the
+[receipt](phase3-evidence/remote-publication.json). Earlier failed attempts remain
+retained with their source boundaries. This is explicitly driven publication:
+automatic operation, native incoming vote/application controls, restarted
+publication service, learners/joint transitions and complete Phase 3 remain OPEN.
+
 ## 2026-10-27 — Phase 3 native pending checkpoint delivery
 
 The [pending checkpoint export](PHASE_3_PENDING_CHECKPOINT.md) resolves actual

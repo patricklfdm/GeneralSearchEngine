@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native remote publication](PHASE_3_REMOTE_PUBLICATION.md) now connects a governing
+future-recording quorum to exact TCP PUBLISH, actual remote checkpoint receipts,
+selector force and a distinct publication acknowledgement. Stable 3/4/5-voter
+histories and original-first replay qualify this explicitly driven path. Native
+incoming votes/application, restarted publication service, autonomous ownership,
+learners/joint completion and whole Phase 3 remain open.
+
 [Native pending checkpoint delivery](PHASE_3_PENDING_CHECKPOINT.md) now exports
 the live application's own forced ACK before publication. Actual TCP receipts
 from two remote voters enable a native local BARRIER publication, with exact
