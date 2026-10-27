@@ -1408,6 +1408,12 @@ final class MembershipGrantJournal implements AutoCloseable {
             require(request.value().get("ballot").equals(ballot),"native voting request ballot");
             if(request.kind().equals("APPLY"))require(selected.equals(object(request.value().get("payload")).get("selection")),"native application selected binding");check();
         }
+        /** The first selected slot can retain an older logical entry. Its new
+         * ACCEPT must precede a floor that would retire the old vote's owner. */
+        boolean carriedSlot()throws IOException {
+            synchronized(MembershipGrantJournal.this){check();return selection.value().get("nextEntry")!=null
+                    && selection.value().get("cut").equals(before.context.cut);}
+        }
         private MembershipPendingAccept.Vote vote()throws IOException {
             check();require(!pendingAccept.pending(),"incomplete pending vote cannot attest");return pendingAccept.active();
         }
@@ -1457,6 +1463,26 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     synchronized Voting voting(MembershipResources budget)throws IOException {
         require(resources==budget,"native voting resource owner");return new Voting();
+    }
+
+    /** Native typed reacceptance may retire only this owner's old derived work,
+     * after matching the exact entry and payload in the installed selection.
+     * The durable old vote survives until acceptCurrent forces its replacement. */
+    synchronized <K,T> Owned acceptCurrent(Decoded proposed,byte[] payload,
+            io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage)throws IOException {
+        require(ownedHistory,"native acceptance requires original history owner");checkOwner();
+        if(carriedVoteUntransferred() && appliedEnd!=null && (appliedEnd.present() || replayFiles.present() || appliedEnd.retirementPending())) {
+            var entry=decode(proposed.bytes(),"records","ENTRY");
+            require(selection!=null && entry.digest().equals(selection.value().get("nextEntry"))
+                    && selection.value().get("cut").equals(current.capsule.context.cut)
+                    && Arrays.equals(entry.bytes(),current.capsule.packet.objectBytes(entry.digest()))
+                    && Arrays.equals(payload,current.capsule.packet.objectBytes((String)entry.value().get("payload"))),
+                    "native carried acceptance exact entry/payload before cleanup");
+            fence(object(promise.value().get("ballot")));
+            retireSupersededApplication(configuration,storage);
+        }
+        return acceptCurrent(proposed,payload);
     }
 
     /** Actual local next-slot vote under the immutable original selection. No certificate, application publication or network ACK. */

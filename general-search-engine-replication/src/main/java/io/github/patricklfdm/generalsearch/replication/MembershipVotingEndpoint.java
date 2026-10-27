@@ -21,7 +21,9 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
     private final LongSupplier clock;
     private final long started,budget;
     @FunctionalInterface private interface Application {MembershipGrantJournal.Applied apply()throws IOException;}
+    @FunctionalInterface private interface Acceptance {MembershipContext.Owned accept(Decoded entry,byte[] payload)throws IOException;}
     private final Application application;
+    private final Acceptance acceptance;
     private final ExecutorService writer=Executors.newSingleThreadExecutor(Thread.ofVirtual().name("gse-membership-voting").factory());
     private final Set<MembershipSourcePull> pulls=new HashSet<>();
     private CompletableFuture<Void> completion;
@@ -29,19 +31,20 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
     private volatile boolean closed;
     MembershipVotingEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
             LongSupplier clock,long started,long budget)throws IOException {
-        this(owner,resources,bounds,link,clock,started,budget,(Application)null);
+        this(owner,resources,bounds,link,clock,started,budget,null,owner::acceptCurrent);
     }
     <K,T> MembershipVotingEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
             LongSupplier clock,long started,long budget,io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage)throws IOException {
-        this(owner,resources,bounds,link,clock,started,budget,()->owner.applyCurrent(configuration,storage));
+        this(owner,resources,bounds,link,clock,started,budget,()->owner.applyCurrent(configuration,storage),
+                (entry,payload)->owner.acceptCurrent(entry,payload,configuration,storage));
         Objects.requireNonNull(configuration);Objects.requireNonNull(storage);
     }
     private MembershipVotingEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Link link,
-            LongSupplier clock,long started,long budget,Application application)throws IOException {
+            LongSupplier clock,long started,long budget,Application application,Acceptance acceptance)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"voting endpoint budget");
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
-        this.link=Objects.requireNonNull(link);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;this.application=application;
+        this.link=Objects.requireNonNull(link);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;this.application=application;this.acceptance=Objects.requireNonNull(acceptance);
         voting=owner.voting(resources);check();transfers=new MembershipTransferService(owner,voting.ballot,resources,bounds,this::check,clock,started,budget);
     }
     private void check()throws IOException {
@@ -77,7 +80,7 @@ final class MembershipVotingEndpoint implements MembershipTransport.Handler,Auto
                         require(value.value().get("root").equals(accepted.value().get("root")) && value.value().get("authority").equals(accepted.value().get("authority"))
                                 && value.value().get("index").equals(accepted.value().get("index")),"incoming ACCEPT entry context");});
                     // Every original buffer remains accounted through its durable use.
-                    return pull(sender,p->{byte[] bytes=p.fetchPayload(entry);check();var own=owner.acceptCurrent(entry,bytes);
+                    return pull(sender,p->{byte[] bytes=p.fetchPayload(entry);check();var own=acceptance.accept(entry,bytes);
                         require(own.record().equals(accepted.digest()),"incoming ACCEPT actual record");check();return own;});
                 });
             });

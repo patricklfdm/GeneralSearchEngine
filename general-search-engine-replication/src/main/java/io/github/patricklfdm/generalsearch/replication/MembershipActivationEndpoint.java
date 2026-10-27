@@ -155,7 +155,8 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             if(replace) {
                 MembershipSlotEndpoint made=null;
                 try {
-                    if(old!=null)old.close();check();installed.check();maintain();made=slots.open(started,limit);check();
+                    if(old!=null)old.close();check();installed.check();
+                    if(!installed.carriedSlot())maintain();made=slots.open(started,limit);check();
                     synchronized(slotRegistry){require(!ended && !closed,"native dispatch replaced/closed");
                         slot=chosen=made;slotCut=installed.before.context.cut;slotCalls++;made=null;}
                 }finally {
@@ -163,7 +164,14 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                     finally{synchronized(slotRegistry){slotChanging=false;slotRegistry.notifyAll();}}
                 }
             }
-            try{check();var reply=chosen.handle(sender,request);check();return reply;}
+            try{
+                check();
+                if(request.kind().equals("PROOF") && installed.carriedSlot()) {
+                    require(installed.record("ACCEPT").isPresent(),"carried maintenance requires actual new ACCEPT");
+                    maintain();check();
+                }
+                var reply=chosen.handle(sender,request);check();return reply;
+            }
             finally{synchronized(slotRegistry){slotCalls--;slotRegistry.notifyAll();}}
         }
         @Override public void close() {

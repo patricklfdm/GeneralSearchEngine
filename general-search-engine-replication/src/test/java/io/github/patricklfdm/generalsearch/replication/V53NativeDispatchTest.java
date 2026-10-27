@@ -15,6 +15,7 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 class V53NativeDispatchTest {
     @TempDir Path temp;
     static final long BUDGET=TimeUnit.SECONDS.toNanos(180);
+    @FunctionalInterface interface Preparation {void prepare(V53BootstrapPublicationTest.Fixture fixture)throws Exception;}
     final class Network implements AutoCloseable {
         final V53BootstrapPublicationTest.Fixture f;
         final List<MembershipGrantJournal> owners=new ArrayList<>();
@@ -39,13 +40,15 @@ class V53NativeDispatchTest {
         List<Integer> voters;
         Network()throws Exception {this(3);}
         Network(int size)throws Exception {this(size,ReplicationBounds.defaults());}
-        Network(int size,ReplicationBounds bounds)throws Exception {
+        Network(int size,ReplicationBounds bounds)throws Exception {this(size,bounds,f->{});}
+        Network(int size,ReplicationBounds bounds,Preparation preparation)throws Exception {
             this.bounds=bounds;
             Path raw=Files.createDirectories(Path.of("target/v53-native-dispatch/run-"+UUID.randomUUID()));
             System.out.println("v53NativeDispatchEvidence="+raw.toAbsolutePath());
             f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve(UUID.randomUUID().toString())),size,false));
             f.ownedHistory=true;f.nativeApplication=true;
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-retention")){owner.initializePeerRetention();owner.initializeFutureRetention();}
+            preparation.prepare(f);
             f.snapshot("before-network");
             for(var target:f.request.targets()) {
                 var budget=new MembershipResources(512*MembershipResources.MIB);resources.add(budget);links.add(new AtomicReference<>());

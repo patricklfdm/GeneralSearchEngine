@@ -36,6 +36,16 @@ def prefix_transfers(reference, members, packet, local_members):
     return [first+images, first+received]
 
 
+def activation_attempts(entries):
+    """A repeated installation ACK may finish after an earlier socket expired.
+
+    Permit only the existing finite, byte-identical request/response attempts;
+    event positions differ but a new trace, source set or ACK cannot substitute.
+    """
+    need(0 < len(entries) <= 3 and all(v[:4] == entries[0][:4] for v in entries), 'native dispatch activation controls')
+    return entries
+
+
 def maintenance(group):
     """A floor retires the inactive generation; it does not compact original grants."""
     result = dict(group)
@@ -61,14 +71,25 @@ def physical(root):
     _, initial, packet = c.current(group['node-1'])
     chosen = initial['selected.gsr']; selection = f.decode(chosen, 'records', 'SELECTED')
     need(b.t.plans.read(root/'selected.gsr', 65536) == chosen, 'native dispatch original selection')
+    return slots(root, group, selection)
+
+
+def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA')):
+    """Replay two complete slots from an independently established installation."""
+    chosen = f.encode('records', 'SELECTED', selection)
     states = [copy.deepcopy(group)]; rounds = []; first = None
     identities = {n: future.identity(files) for n, files in group.items()}
-    for index, kind in ((1, 'BARRIER'), (2, 'DATA')):
+    for index, kind in enumerate(kinds, 1):
         group = maintenance(group); states.append(copy.deepcopy(group))
         _, local, packet = c.current(group['node-1']); cap = packet['capsule']
-        text = b'100:next-slot'; payload = b'\x01'+struct.pack('>HIII', 1, 1, 4, 100)+struct.pack('>I', len(text))+text if index == 2 else b''
+        text = b'100:next-slot'; payload = b'\x01'+struct.pack('>HIII', 1, 1, 4, 100)+struct.pack('>I', len(text))+text if kind == 'DATA' else b''
         entry = f.encode('records', 'ENTRY', dict(root=cap['root'], authority=selection['view'], index=index,
             previous=cap['cut']['entry'], origin=selection['ballot'], kind=kind, payload=e.digest(payload)))
+        if index == 1 and carried is not None:
+            value = f.decode(carried, 'records', 'ENTRY')
+            need(dict(value, origin=selection['ballot']) == f.decode(entry, 'records', 'ENTRY')
+                 and e.digest(carried) == selection['nextEntry'], 'native dispatch exact carried entry')
+            entry = carried
         accept = f.encode('records', 'ACCEPT', dict(root=cap['root'], authority=selection['view'], ballot=selection['ballot'], index=index, entry=e.digest(entry)))
         def receipt(node, phase, raw):
             return f.canonical(dict(root=cap['root'], voter=node, incarnation=identities[node]['storage'], phase=phase, record=e.digest(raw)))
@@ -78,11 +99,11 @@ def physical(root):
         certificate = f.encode('records', 'CERTIFICATE', dict(f.decode(proof, 'records', 'PROOF'), proofs=witnesses('PROOF', proof)))
         raw_image = b.t.plans.read(root/f'applied-{index}/node-1/applied-end/application.image', 64*e.MIB)
         root_record = f.decode(group['node-1']['root.gsr'], 'records', 'ROOT')
-        image.application(raw_image, root_record['historyId'], index-1, [] if index == 1 else [(100, 'next-slot')])
-        if index == 1: need(raw_image == local[cap['application']+'.image'], 'native dispatch barrier image')
+        image.application(raw_image, root_record['historyId'], 1 if kind == 'DATA' else 0, [(100, 'next-slot')] if kind == 'DATA' else [])
+        if kind == 'BARRIER': need(raw_image == local[cap['application']+'.image'], 'native dispatch barrier image')
         catalog = copy.deepcopy(f.decode(packet['objects'][cap['catalog']], 'records', 'CATALOG'))
         catalog['cut'] = dict(cap['cut'], index=index, entry=e.digest(entry))
-        if index == 2: catalog.update(application=e.digest(raw_image), applicationSequence=1, lastDataIndex=2)
+        if kind == 'DATA': catalog.update(application=e.digest(raw_image), applicationSequence=1, lastDataIndex=index)
         catalog = f.encode('records', 'CATALOG', catalog)
         after = f.decode(catalog, 'records', 'CATALOG'); upper = dict(cut=after['cut'], catalog=e.digest(catalog), application=after['application'])
         start = f.decode(packet['objects'][cap['items'][0]['statement']], 'records', 'CHECKPOINT') if cap['items'] else dict(
@@ -127,7 +148,7 @@ def physical(root):
     return states, rounds, selection, identities
 
 
-def network(root, states, rounds, selection, identities):
+def network(root, states, rounds, selection, identities, *, carried_first=False):
     events = read(root/'events.json'); rows = read(root/'wire.json'); content = {}; refs = defaultdict(set)
     need(type(events) is list and len(events) < 32768 and type(rows) is list and 0 < len(rows) < 32768, 'native dispatch bounded traces')
     def add(node, raw, kind='RECORD', reference=None):
@@ -191,10 +212,9 @@ def network(root, states, rounds, selection, identities):
     _, remote, _ = c.current(states[0]['node-2'])
     for kind, answer, sent, response in [('PREPARE','PROMISE',dict(promise=e.digest(installed['promise.gsr'])),dict(basis=e.digest(remote['basis.gsr']))),
             ('SELECTED','INSTALL_ACK',dict(selection=e.digest(chosen)),dict(selection=e.digest(chosen), cut=selection['cut']))]:
-        entries = controls.pop(kind, []); need(len(entries) == 1, 'native dispatch activation controls')
-        _, req, ans, reply, at = entries[0]
-        need(req['sender'] == identities['node-1'] and req['recipient'] == identities['node-2'] and ans == answer and req['payload'] == sent and reply['payload'] == response, 'native dispatch activation controls')
-        s.ordered([ev['event'] for ev in events[:at] if ev['node'] == 'node-2'], ['PROMISE_FORCED','BASIS_FORCED'] + (['INSTALL_SELECTOR_FORCED','INSTALL_BEFORE_RETURN'] if kind == 'SELECTED' else []), 'native activation before ACK')
+        for _, req, ans, reply, at in activation_attempts(controls.pop(kind, [])):
+            need(req['sender'] == identities['node-1'] and req['recipient'] == identities['node-2'] and ans == answer and req['payload'] == sent and reply['payload'] == response, 'native dispatch activation controls')
+            s.ordered([ev['event'] for ev in events[:at] if ev['node'] == 'node-2'], ['PROMISE_FORCED','BASIS_FORCED'] + (['INSTALL_SELECTOR_FORCED','INSTALL_BEFORE_RETURN'] if kind == 'SELECTED' else []), 'native activation before ACK')
     def original_transfer(reader, peer, expected, before_event):
         found = [v for v in transfers if v['sender'] == reader and v['peer'] == peer and v['first'] == expected[0][0]]
         at = next(i for i, ev in enumerate(events) if ev['node'] == reader and ev['event'] == before_event)
@@ -225,6 +245,8 @@ def network(root, states, rounds, selection, identities):
                 'RETIREMENT_DELETE_VALIDATED','RETIREMENT_CLEARED','FLOOR_RELEASE_RELINQUISHED','FLOOR_RELEASE_BEFORE_RETURN',
                 'ACCEPT_PARENT_FORCED','PROOF_PARENT_FORCED','CERTIFICATE_PARENT_FORCED','APPLY_ACK_DIRECTORY_FORCED',
                 'FUTURE_RETENTION_PARENT_FORCED','PUBLICATION_SELECTOR_FORCED','FUTURE_RETENTION_PROMOTED','PUBLICATION_BEFORE_RETURN']
+            if carried_first and index == 1:
+                required.remove('ACCEPT_PARENT_FORCED'); required.insert(0, 'ACCEPT_PARENT_FORCED')
             s.ordered(names, required, 'native dispatch slot '+str(index)+' '+node)
             need(names.count('FLOOR_PARENT_FORCED') == names.count('PUBLICATION_SELECTOR_FORCED') == 1, 'native dispatch one floor/publication per slot')
             floor_at = next(i for i, ev in own if ev['event'] == 'FLOOR_PARENT_FORCED')

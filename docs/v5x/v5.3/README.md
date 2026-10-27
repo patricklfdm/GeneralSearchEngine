@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native carried-slot continuation](PHASE_3_CARRIED_SLOTS.md) now reaccepts the
+exact prior-ballot entry before governing maintenance and PROOF, then publishes a
+fresh current-ballot barrier. Four three-voter ACCEPT/PROOF/CERTIFICATE/APPLIED
+histories, unchanged native regressions and independent original-first portable
+replay qualify that explicit integration. Autonomous owner/election readiness,
+larger combined headroom, learners/joint completion and full 3B–3E remain open.
+
 [Native whole-slot coordination](PHASE_3_SLOT_DRIVER.md) now drives original
 ACCEPT/PROOF/APPLY receipts and governing-quorum publication through two stable
 slots at sizes 3/4/5. Exact current-image borrowing and durable floor handoff

@@ -1,5 +1,16 @@
 # V5.3 development status
 
+## 2026-10-27 — Native carried-slot continuation
+
+[Native carried-slot continuation](PHASE_3_CARRIED_SLOTS.md) now reaccepts the
+exact prior-ballot entry before governing maintenance and PROOF, then publishes a
+fresh current-ballot barrier. Four three-voter ACCEPT/PROOF/CERTIFICATE/APPLIED
+histories, unchanged native regressions and independent original-first portable
+replay qualify that explicit integration. Autonomous owner/election readiness,
+larger combined headroom, learners/joint completion and full 3B–3E remain open.
+
+The original APPLIED regression failed because maintenance ran before reacceptance. The repaired ordering passes all four prior-force boundaries, rejects changed content before cleanup, and preserves the old vote when a higher ballot arrives during remote cleanup. Sixteen Java tests and 680 Python tests pass; five original-first histories and 61 exact mutations also pass portable optimized replay. Default request/round limits and original storage/wire formats are unchanged. This is explicitly started stable-three continuation, not public READY or whole Phase 3 closure. See the [source-bound receipt](phase3-evidence/carried-slots.json).
+
 ## 2026-10-27 — Native whole-slot coordination
 
 [Native whole-slot coordination](PHASE_3_SLOT_DRIVER.md) now drives original

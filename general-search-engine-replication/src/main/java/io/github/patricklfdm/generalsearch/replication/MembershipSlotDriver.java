@@ -16,6 +16,7 @@ final class MembershipSlotDriver implements AutoCloseable {
         void at(String event,Decoded record,Set<String> voters)throws IOException;
     }
     @FunctionalInterface private interface Application {MembershipGrantJournal.Applied apply()throws IOException;}
+    @FunctionalInterface private interface Acceptance {void accept(Decoded entry,byte[] payload)throws IOException;}
     @FunctionalInterface private interface PeerWork {void run(MembershipIdentity peer)throws IOException;}
     // Completed receipts remain accounted after a SourcePull has released its
     // transfer buffers, through construction/forcing of proof and certificate.
@@ -29,6 +30,7 @@ final class MembershipSlotDriver implements AutoCloseable {
     private final LongSupplier clock;
     private final long started,budget;
     private final Application application;
+    private final Acceptance acceptance;
     private final Events events;
     private final List<MembershipIdentity> peers;
     private final Set<String> selected;
@@ -53,6 +55,7 @@ final class MembershipSlotDriver implements AutoCloseable {
         this.endpoint=Objects.requireNonNull(endpoint);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
         this.transport=Objects.requireNonNull(transport);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
         Objects.requireNonNull(configuration);Objects.requireNonNull(storage);application=()->owner.applyCurrent(configuration,storage);
+        acceptance=(entry,payload)->owner.acceptCurrent(entry,payload,configuration,storage);
         this.events=Objects.requireNonNull(events);voting=owner.voting(resources);selection=owner.originalSelection().orElseThrow();
         var local=owner.activationIdentity();require(local.nodeId().value().equals(voting.ballot.get("proposer")),"slot driver original proposer");
         var names=new TreeSet<String>();for(var row:list(selection.value().get("sources")))require(names.add((String)object(row).get("voter")),"slot driver distinct selected voter");
@@ -125,8 +128,12 @@ final class MembershipSlotDriver implements AutoCloseable {
         }).toList();
     }
     private Decoded execute(Decoded entry,byte[] payload)throws IOException {
-        check();endpoint.maintainInstalled();check();owner.acceptCurrent(entry,payload);check();
+        check();boolean carried=voting.carriedSlot();
+        if(!carried)endpoint.maintainInstalled();check();acceptance.accept(entry,payload);check();
         var accept=voting.record("ACCEPT").orElseThrow();deliver("ACCEPT",accept);var accepts=observations(accept);
+        // Every selected owner has now forced the same new-ballot ACCEPT. Only
+        // then may original governing copies retire old generations/staging.
+        if(carried){endpoint.maintainInstalled();check();}
         var values=new TreeMap<>(accept.value());values.put("accepts",witnesses(accept,accepts));var proof=decode(encode("records","PROOF",values),"records","PROOF");
         check();owner.proveCurrent(proof,accepts);check();deliver("PROOF",proof);var proofs=observations(proof);
         values=new TreeMap<>(proof.value());values.put("proofs",witnesses(proof,proofs));var certificate=decode(encode("records","CERTIFICATE",values),"records","CERTIFICATE");
