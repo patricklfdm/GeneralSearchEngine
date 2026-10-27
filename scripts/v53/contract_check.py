@@ -41,12 +41,12 @@ def run():
             if ':' in target or target.startswith('#'):continue
             need((file.parent/target.split('#')[0]).exists(),f'broken local link {file.name}: {target}');links+=1
     c=catalog()
-    for family,count in (('records',24),('wire',23)):
+    for family,count in (('records',24),('wire',25)):
         ids=[v['id'] for v in c[family].values()]
         need(len(ids)==len(set(ids))==count and sorted(ids)==list(range(1,count+1)),family+' kind inventory')
     need(json.loads((DOCS/'byte-fixtures.json').read_text())==generate(),'byte fixture drift')
     result=plan_check(json.loads((DOCS/'acceptance-plan.json').read_text()))
-    return dict(status='PASS',localLinks=links,byteFixtures=47,commandFixtures=9,readTokenFixtures=1,**result)
+    return dict(status='PASS',localLinks=links,byteFixtures=49,commandFixtures=9,readTokenFixtures=1,**result)
 
 
 if __name__=='__main__':print(json.dumps(run(),sort_keys=True))

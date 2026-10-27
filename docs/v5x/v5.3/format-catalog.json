@@ -830,6 +830,59 @@
         }
       }
     },
+    "FUTURE_RETENTION_ACK": {
+      "id": 25,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "digest": "hash",
+              "intent": "hash",
+              "revision": "counter",
+              "storage": {
+                "enum": [
+                  "FUTURE",
+                  "CURRENT"
+                ]
+              }
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "FUTURE_RETENTION_INTENT": {
+      "id": 24,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "certificate": "hash",
+              "lower": "retentionAnchor",
+              "parent": "retentionAnchor",
+              "peer": "identity",
+              "selection": "hash",
+              "upper": "retentionAnchor"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
     "HEARTBEAT": {
       "id": 11,
       "maximum": 8388608,

@@ -1,5 +1,20 @@
 # V5.3 development status
 
+## 2026-10-27 — Phase 3 native future-target quorum recording
+
+The [future-target recording path](PHASE_3_FUTURE_QUORUM.md) forces each voter's
+own applied proof before counting a governing ACK. Exact retries, minority
+refusal, close/deadline/fencing, target-voter recording and actual-copy endpoint
+reconciliation are locally qualified. The final immutable build passes 19 tests;
+three real TCP histories and ten halt/SIGKILL cuts pass independent replay with
+33 exact negatives, including relocated `-O` replay. The [receipt](phase3-evidence/future-quorum.json)
+preserves earlier failures and source boundaries.
+
+Actual publication/dispatch, native voter/application endpoint integration,
+autonomous election/maintenance/reconciliation, maximum completion headroom,
+learners/joint transitions and full 3B–3E qualification remain OPEN. No automatic
+push, public-runtime enablement, protected acceptance or V5.2/cloud change.
+
 ## 2026-10-26 — Phase 3 selected-generation reachability
 
 The [selected packet correction](PHASE_3_SELECTED_REACHABILITY.md) starts a new

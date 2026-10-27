@@ -8,6 +8,12 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Native future-target quorum recording](PHASE_3_FUTURE_QUORUM.md) now qualifies
+three stable real-network histories and ten receiving process cuts, with exact
+original-first portable negatives. This closes the named recording prerequisite,
+not real dispatch, native incoming voting/application controls, autonomous
+reconciliation or any whole 3B–3E gate. Those obligations remain required below.
+
 [Selected-generation reachability](PHASE_3_SELECTED_REACHABILITY.md) now prevents
 obsolete election objects from accumulating in each newly selected packet. Eight
 native unresolved campaigns keep twelve objects while preserving both original

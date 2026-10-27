@@ -206,8 +206,8 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         long received=clock.getAsLong();require(!closed,"activation endpoint closed");String kind=request.kind();Scope active;
-        if(kind.equals("RETENTION_INTENT")) {
-            scratchOwner.check();var reply=owner.recordPeerRetention(sender,request);
+        if(kind.equals("RETENTION_INTENT") || kind.equals("FUTURE_RETENTION_INTENT")) {
+            scratchOwner.check();var reply=kind.equals("RETENTION_INTENT")?owner.recordPeerRetention(sender,request):owner.recordFutureRetention(sender,request);
             long elapsed=clock.getAsLong()-received;
             require(!closed && elapsed>=0 && elapsed<budget,"retention endpoint closed/original deadline");return reply;
         }

@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native future-target quorum recording](PHASE_3_FUTURE_QUORUM.md) now binds
+each acknowledging voter's own native proof, including the intended target voter.
+Three real network histories, ten process cuts and 33 exact evidence mutations
+pass original-first portable replay. This is a recording prerequisite; actual
+publication/dispatch, autonomous operation, learners/joint completion and full
+Phase 3 remain open.
+
 [Selected-generation reachability](PHASE_3_SELECTED_REACHABILITY.md) now prevents
 obsolete election objects from accumulating in each newly selected packet. Eight
 native unresolved campaigns keep twelve objects while preserving both original

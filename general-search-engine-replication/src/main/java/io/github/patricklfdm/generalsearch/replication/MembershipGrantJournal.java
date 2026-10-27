@@ -485,8 +485,13 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Persist one peer's possible future endpoint from this owner's real applied
      * end. No transport or governing quorum is implied by this local return. */
     synchronized MembershipFutureRetentionFiles.State retainFutureDispatch(MembershipIdentity peer,PendingPublication target)throws IOException {
+        require(!peer.equals(identity),"future retention self dispatch");return retainFutureTarget(peer,target);
+    }
+    // Incoming quorum recording may name this voter as the intended recipient.
+    // That records another proposer's uncertainty; it does not send to ourselves.
+    private MembershipFutureRetentionFiles.State retainFutureTarget(MembershipIdentity peer,PendingPublication target)throws IOException {
         var state=futureRetentionState();target.check();require(target.owner==this,"future retention foreign live capability");
-        require(!peer.equals(identity),"future retention self dispatch");var plan=peerRetentionState().plan();
+        var plan=peerRetentionState().plan();
         var originals=new TreeMap<>(target.originals());var vote=target.vote;
         originals.put("entry.gsr",vote.entry().bytes());originals.put("accept.gsr",vote.accept().bytes());originals.put("proof.gsr",vote.proof().bytes());
         var peers=new TreeMap<String,MembershipFutureRetentionFiles.Peer>();
@@ -661,6 +666,66 @@ final class MembershipGrantJournal implements AutoCloseable {
         peerRetentionState();checkRetentionRound(ballot,intent);
         var points=peerRetention.state().plan().possible(intent.peer);
         require(points.stream().anyMatch(intent.upper::equals),"retention intent target no longer retained");
+    }
+
+    /** Snapshot only: this does not record intent or authorize a network send. */
+    synchronized MembershipFutureRetentionIntent futureRetentionIntent(MembershipIdentity peer,Map<String,Object> ballot,PendingPublication target)throws IOException {
+        require(target.owner==this,"future intent foreign native owner");target.check();checkRetentionRound(ballot,null);
+        require(!peer.equals(identity),"future intent self dispatch");var points=peerRetentionState().plan().possible(peer);
+        require(points.size()==1,"future intent earlier dispatch unresolved");
+        return new MembershipFutureRetentionIntent(Map.of("selection",target.vote.selected().digest(),"certificate",target.vote.certificate().digest(),
+                "peer",MembershipPeerRetentionPlan.identity(peer),"lower",MembershipRetentionIntent.anchor(points.getFirst()),
+                "parent",MembershipRetentionIntent.anchor(target.parent()),"upper",MembershipRetentionIntent.anchor(target.target())));
+    }
+    private void checkFutureIntent(MembershipFutureRetentionIntent intent,Map<String,Object> ballot)throws IOException {
+        checkRetentionRound(ballot,null);
+        require(intent.selection.equals(current.selectedRecord().orElseThrow().digest()),"future intent changed selection");
+        require(intent.peer.equals(current.capsule.context.identities.get(intent.peer.nodeId().value()))
+                && current.capsule.context.voters().contains(intent.peer.nodeId().value()),"future intent non-governing identity");
+    }
+    synchronized void checkFutureRetentionRecording(MembershipFutureRetentionIntent intent,Map<String,Object> ballot,PendingPublication target)throws IOException {
+        require(target.owner==this,"future intent foreign native owner");target.check();checkFutureIntent(intent,ballot);
+        require(target.parent().equals(intent.parent) && target.target().equals(intent.upper)
+                && target.vote.certificate().digest().equals(intent.certificate),"future intent changed native application");
+        var state=futureRetentionState();
+        require(state.pending() && state.target().equals(intent.upper) && state.peers.stream().anyMatch(p->p.identity().equals(intent.peer)
+                && p.lower().equals(intent.lower)),"future intent not durably recorded locally");
+    }
+    private Decoded futureRetentionRejection(Decoded request,String reason) {
+        var response=new TreeMap<>(request.value());response.put("sender",request.value().get("recipient"));response.put("recipient",request.value().get("sender"));
+        response.put("payload",Map.of("reason",reason,"promised",object(promise.value().get("ballot"))));
+        return decode(encode("wire","REJECT",response),"wire","REJECT");
+    }
+    /** Forces this voter's own proof before acknowledging an unpublished target.
+     * The sender's digest cannot create nativeApplied, votes, or remote progress. */
+    synchronized Decoded recordFutureRetention(MembershipIdentity sender,Decoded request)throws IOException {
+        require(request.kind().equals("FUTURE_RETENTION_INTENT"),"future retention request kind");checkOwner();peerRetentionState();
+        var value=request.value();var ballot=object(value.get("ballot"));
+        current.capsule.context.wire(request,sender,identity,ballot,UUID.fromString((String)value.get("trace")),number(value.get("sequence")));
+        require(sender.nodeId().value().equals(ballot.get("proposer")),"future intent requires current proposer");
+        var intent=new MembershipFutureRetentionIntent(object(value.get("payload")));checkFutureIntent(intent,ballot);
+        String storage,digest;long revision;
+        if(current.capsule.terminal().equals(intent.upper)) {
+            require(current.publishedCertificate().filter(intent.certificate::equals).isPresent(),"future intent changed published certificate");
+            current.capsule.verifyAncestry(current.ancestry(),List.of(intent.parent,intent.lower));
+            var plan=peerRetention.state().plan().recordCoveredDispatch(current.capsule,current.ancestry(),intent.peer,intent.lower,intent.upper);
+            if(!Arrays.equals(plan.bytes(),peerRetention.state().plan().bytes()))retainPeerPlan(plan);
+            storage="CURRENT";digest=peerRetention.state().digest();revision=peerRetention.state().revision();
+        } else {
+            if(nativeApplied==null)return futureRetentionRejection(request,"NOT_READY");var target=pendingPublication(nativeApplied);
+            require(target.parent().equals(intent.parent) && target.target().equals(intent.upper)
+                    && target.vote.certificate().digest().equals(intent.certificate),"future intent changed native application");
+            current.capsule.verifyAncestry(current.ancestry(),List.of(intent.lower));
+            var points=peerRetention.state().plan().possible(intent.peer);
+            // Distinct old endpoints would require a third possible cut. Obtain
+            // a verified complete peer copy before retrying; never choose one.
+            if(points.size()!=1 || !points.getFirst().equals(intent.lower))return futureRetentionRejection(request,"CAPACITY_EXCEEDED");
+            var state=retainFutureTarget(intent.peer,target);storage="FUTURE";digest=state.digest;revision=state.revision;
+        }
+        checkFutureIntent(intent,ballot);cut.at("FUTURE_RETENTION_ACK_BEFORE_RETURN");checkFutureIntent(intent,ballot);
+        var response=new TreeMap<>(value);response.put("sender",value.get("recipient"));response.put("recipient",value.get("sender"));
+        response.put("payload",Map.of("intent",intent.digest,"storage",storage,"revision",revision,"digest",digest));
+        return decode(encode("wire","FUTURE_RETENTION_ACK",response),"wire","FUTURE_RETENTION_ACK");
     }
 
     /** Resolve only an already retained proven prefix. Raw incoming or newly published

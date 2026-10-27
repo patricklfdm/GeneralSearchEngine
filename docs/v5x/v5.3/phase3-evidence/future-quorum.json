@@ -1,0 +1,696 @@
+{
+  "automaticDispatch": false,
+  "baseCommit": "6cb6844ce609db53d3616e70c9fadd8bb727abd2",
+  "date": "2026-10-27",
+  "evidence": [
+    {
+      "bytes": 1938,
+      "path": "target/v53-future-quorum/ATTEMPTS.md",
+      "sha256": "0985ffcc2f0468d7b20260f9c1819d065e4099dad0a4a669eddb91abf6232d8e"
+    },
+    {
+      "bytes": 1361,
+      "path": "target/v53-future-quorum/PLAN.md",
+      "sha256": "98eeefb86b098828ccee8c7e234121d0e32b575201d44d6f41067e4364c11a58"
+    },
+    {
+      "bytes": 97,
+      "path": "target/v53-future-quorum/archive-replay.log",
+      "sha256": "6554e0ec0a6bfcd406def3951038896a7a10f1af35373037d9c02d2ce941df79"
+    },
+    {
+      "bytes": 3174,
+      "path": "target/v53-future-quorum/archive-replay.py",
+      "sha256": "9fd9a51b9da497a56defe78510f9462828c34460978e16357c341348aee522ec"
+    },
+    {
+      "bytes": 41,
+      "path": "target/v53-future-quorum/base.txt",
+      "sha256": "b898a48ec7552b97cb66966762befd801149640b6d6b8f64c1b602352b4882ab"
+    },
+    {
+      "bytes": 89,
+      "path": "target/v53-future-quorum/catalog-addition.json",
+      "sha256": "5a517f6159b315e75971af35be5d41e7581c8942985df6dc8d2d1f14fc1c89ad"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-future-quorum/contract-current.json",
+      "sha256": "cc232967d4564d7aad0a2448c955858a9e1d313c48a2e61210b80bf66b00d03a"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-future-quorum/contract-draft.json",
+      "sha256": "cc232967d4564d7aad0a2448c955858a9e1d313c48a2e61210b80bf66b00d03a"
+    },
+    {
+      "bytes": 38242,
+      "path": "target/v53-future-quorum/final-reader-inputs.json",
+      "sha256": "06f8c5fe88574024e6036c691e3da077166fc90e45bc72a9ed0a5de8ad34ae19"
+    },
+    {
+      "bytes": 5162,
+      "path": "target/v53-future-quorum/finalize.py",
+      "sha256": "499ad30a2643f4ed769380dac26d99ed14a47c1c16eaad50186bed0d644328d2"
+    },
+    {
+      "bytes": 70795,
+      "path": "target/v53-future-quorum/first-build.log",
+      "sha256": "772c6ed8e6be3dfedf937c8d632ff580cace16658c5acba908b44554b38ff100"
+    },
+    {
+      "bytes": 486195,
+      "path": "target/v53-future-quorum/first-inputs.json",
+      "sha256": "f0923e522bc6030d32f2f20e1a1f8996c513fbde914113ebbd227e445a2724c4"
+    },
+    {
+      "bytes": 90,
+      "path": "target/v53-future-quorum/first-workspace.txt",
+      "sha256": "744127b6d490e08fb3300df04c43cbe14a82db43007c6e3abd9ca3636cb7eab1"
+    },
+    {
+      "bytes": 9319,
+      "path": "target/v53-future-quorum/fourth-build.log",
+      "sha256": "2866ffaa0535cfb9b8b3168053c02c2a97bd48ce4fc7bf75ce8090f50b4220d4"
+    },
+    {
+      "bytes": 486919,
+      "path": "target/v53-future-quorum/fourth-inputs.json",
+      "sha256": "f14eec3a9ad0e1536d7d6a99a607953b7170683e0b453c37a0d20ba5395c6eff"
+    },
+    {
+      "bytes": 91,
+      "path": "target/v53-future-quorum/fourth-workspace.txt",
+      "sha256": "8518c16d5f6afc68963366ad8858974cb8b83774b2a60dec07afdd00aba06c5e"
+    },
+    {
+      "bytes": 38242,
+      "path": "target/v53-future-quorum/network-replay-first-inputs.json",
+      "sha256": "06f8c5fe88574024e6036c691e3da077166fc90e45bc72a9ed0a5de8ad34ae19"
+    },
+    {
+      "bytes": 5847,
+      "path": "target/v53-future-quorum/network-replay-first.json",
+      "sha256": "29ef2fc7c84af935412e2c6e1d49071a5b2fa0d4dd0c8019a842893ff26a0cae"
+    },
+    {
+      "bytes": 126762,
+      "path": "target/v53-future-quorum/original-byte-fixtures.json",
+      "sha256": "44b45489f08017c4ded2e97a0e6728816584ee62a10aa337ee9ed02fcac585ad"
+    },
+    {
+      "bytes": 26729,
+      "path": "target/v53-future-quorum/original-catalog.json",
+      "sha256": "5b7becc22f33e0af1a3b1e5c623fbd3191d76499d6ade45d284285877408e2ef"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-quorum/portable-process.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 9420,
+      "path": "target/v53-future-quorum/portable-replay.json",
+      "sha256": "904766651cc0de00f59b1be2e607d69e53bc6ebf65f18a087939ef272ca80dd4"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-quorum/portable-run-4530455a-f8f8-4265-b996-5f745c8c345e.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-quorum/portable-run-6d21093a-4053-474c-9a3b-8d63a52f2b71.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-future-quorum/portable-run-ec5984a6-f046-41ab-bcfc-c08a0307b31f.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 38242,
+      "path": "target/v53-future-quorum/process-replay-first-inputs.json",
+      "sha256": "06f8c5fe88574024e6036c691e3da077166fc90e45bc72a9ed0a5de8ad34ae19"
+    },
+    {
+      "bytes": 2578,
+      "path": "target/v53-future-quorum/process-replay-first.json",
+      "sha256": "d4d116a59b6ecc135d94bdf8e8b16beb4573c2adfb83a30f70da6c86e9c555de"
+    },
+    {
+      "bytes": 763,
+      "path": "target/v53-future-quorum/python-first.log",
+      "sha256": "7ea307ebe342116da781b39e52ad8a835f6afcd9bcf3400c2634b9469db1af89"
+    },
+    {
+      "bytes": 14247260,
+      "path": "target/v53-future-quorum/raw-inventory.json",
+      "sha256": "f6ca6d9e2ae67a3bd4754146d6c9bbdd10757e4b9408cf3ae9fe1294b6c7eaa3"
+    },
+    {
+      "bytes": 14891659,
+      "path": "target/v53-future-quorum/raw.tar.gz",
+      "sha256": "a0cc906b95da16eaaaa494699b58da29fc5f144d3fa6585ec74d6aaf17b74dc5"
+    },
+    {
+      "bytes": 101,
+      "path": "target/v53-future-quorum/reader-tests-optimized.log",
+      "sha256": "b77b3eecbb8b58408bbf2c56825f5a7e1c3ea451dc9b20633ade6ed8a8a1e8e9"
+    },
+    {
+      "bytes": 102,
+      "path": "target/v53-future-quorum/reader-tests.log",
+      "sha256": "b447673467de6e875ff3540180d0afdf3c3c9ba37ffbad827b4cb2a075505ede"
+    },
+    {
+      "bytes": 9754,
+      "path": "target/v53-future-quorum/second-build.log",
+      "sha256": "219955a3b41aed474c449d63387b829a0f127df7c91e27f1645abcf96e86cc26"
+    },
+    {
+      "bytes": 486195,
+      "path": "target/v53-future-quorum/second-inputs.json",
+      "sha256": "d5a72d7d0572a72ebb2c1f37c70e9782c2b9256c878e4b655e412911fd20c513"
+    },
+    {
+      "bytes": 91,
+      "path": "target/v53-future-quorum/second-workspace.txt",
+      "sha256": "fe6a0816b99ab54832f7aeb447d7b788cca90940becc42d11de073f9d093e028"
+    },
+    {
+      "bytes": 958,
+      "path": "target/v53-future-quorum/snapshot.py",
+      "sha256": "9c4b652fcbe417573807dcb82e4ac73f690e1e4c3de30c933ae74ff32dc64ebd"
+    },
+    {
+      "bytes": 81897,
+      "path": "target/v53-future-quorum/source.patch",
+      "sha256": "3d91d2873492fcb817d1da750aadb87dd6010af630855e29403206562a4ddb55"
+    },
+    {
+      "bytes": 9536,
+      "path": "target/v53-future-quorum/third-build.log",
+      "sha256": "cb07724dbcc642a8a500f7dc4f14dfa21818089cfb8ec28d0c2033ceef25ba58"
+    },
+    {
+      "bytes": 486512,
+      "path": "target/v53-future-quorum/third-inputs.json",
+      "sha256": "7b65973c62fde23eff82903124414606ab906827026fd3140a0f686a79c9f402"
+    },
+    {
+      "bytes": 90,
+      "path": "target/v53-future-quorum/third-workspace.txt",
+      "sha256": "ba5e2a999a1dd7247e3c4d525d1546397d16197568375dd33af6f450a4f34416"
+    }
+  ],
+  "javaTests": [
+    {
+      "name": "V53FormatTest",
+      "report": {
+        "bytes": 7900,
+        "path": "target/v53-future-quorum/builds/fourth-5dc3961e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FormatTest.xml",
+        "sha256": "c2529759c38a85f8569c491c4ed14c8f930b14454e345ee9083bc6534cde8a37"
+      },
+      "seconds": 0.156,
+      "tests": 5
+    },
+    {
+      "name": "V53FutureRetentionEndpointTest",
+      "report": {
+        "bytes": 11699,
+        "path": "target/v53-future-quorum/builds/fourth-5dc3961e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FutureRetentionEndpointTest.xml",
+        "sha256": "4be1673833bed9827bdd0a26d0a7898c204db286af6678441e2bafcce9332711"
+      },
+      "seconds": 215.143,
+      "tests": 9
+    },
+    {
+      "name": "V53FutureRetentionAckCrashTest",
+      "report": {
+        "bytes": 8236,
+        "path": "target/v53-future-quorum/builds/fourth-5dc3961e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FutureRetentionAckCrashTest.xml",
+        "sha256": "68ccd81bf292ee1707e6694b2dd059d78e7cbfd69c9c13caff1a9a723fe4fa53"
+      },
+      "seconds": 65.834,
+      "tests": 1
+    },
+    {
+      "name": "V53FutureRetentionTest",
+      "report": {
+        "bytes": 8092,
+        "path": "target/v53-future-quorum/builds/fourth-5dc3961e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FutureRetentionTest.xml",
+        "sha256": "9c6a6426b5615875a4416f2918aaa8877ad7d45c625a82f5e834809495c4cc64"
+      },
+      "seconds": 76.039,
+      "tests": 4
+    }
+  ],
+  "nativeSourceFilesMatchingFinalBuild": 1124,
+  "network": [
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-future-quorum/builds/fourth-5dc3961e/general-search-engine-replication/target/v53-future-endpoint/run-4530455a-f8f8-4265-b996-5f745c8c345e",
+      "result": {
+        "negatives": [
+          {
+            "case": "original-certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "local-proof",
+            "reason": "admitted exact recorded-quorum: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "target-proof",
+            "reason": "admitted exact recorded-quorum: node-5",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wire-target",
+            "reason": "future quorum exact native request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack-owner",
+            "reason": "future quorum exact native acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "force",
+            "reason": "selected retention force order: future quorum before completion node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "received-ack",
+            "reason": "selected retention force order: future quorum before completion node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "future quorum governing majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "retry",
+            "reason": "future quorum exact bounded retries",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "automaticDispatch": false,
+          "exchanges": 8,
+          "governingFutureRecording": true,
+          "lostAck": false,
+          "phase3Complete": false,
+          "size": 5,
+          "status": "PASS",
+          "voters": [
+            "node-1",
+            "node-2",
+            "node-3"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-future-quorum/builds/fourth-5dc3961e/general-search-engine-replication/target/v53-future-endpoint/run-6d21093a-4053-474c-9a3b-8d63a52f2b71",
+      "result": {
+        "negatives": [
+          {
+            "case": "original-certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "local-proof",
+            "reason": "admitted exact recorded-quorum: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "target-proof",
+            "reason": "admitted exact recorded-quorum: node-4",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wire-target",
+            "reason": "future quorum exact native request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack-owner",
+            "reason": "future quorum exact native acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "force",
+            "reason": "selected retention force order: future quorum before completion node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "received-ack",
+            "reason": "selected retention force order: future quorum before completion node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "future quorum governing majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "retry",
+            "reason": "future quorum exact bounded retries",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "automaticDispatch": false,
+          "exchanges": 6,
+          "governingFutureRecording": true,
+          "lostAck": false,
+          "phase3Complete": false,
+          "size": 4,
+          "status": "PASS",
+          "voters": [
+            "node-1",
+            "node-2",
+            "node-3"
+          ]
+        }
+      }
+    },
+    {
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-future-quorum/builds/fourth-5dc3961e/general-search-engine-replication/target/v53-future-endpoint/run-ec5984a6-f046-41ab-bcfc-c08a0307b31f",
+      "result": {
+        "negatives": [
+          {
+            "case": "original-certificate",
+            "reason": "admitted exact certified: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "local-proof",
+            "reason": "admitted exact recorded-quorum: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "target-proof",
+            "reason": "admitted exact recorded-quorum: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wire-target",
+            "reason": "future quorum exact native request",
+            "status": "REJECTED"
+          },
+          {
+            "case": "ack-owner",
+            "reason": "future quorum exact native acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "force",
+            "reason": "selected retention force order: future quorum before completion node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "received-ack",
+            "reason": "selected retention force order: future quorum before completion node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "quorum",
+            "reason": "future quorum governing majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "retry",
+            "reason": "future quorum exact bounded retries",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "automaticDispatch": false,
+          "exchanges": 4,
+          "governingFutureRecording": true,
+          "lostAck": true,
+          "phase3Complete": false,
+          "size": 3,
+          "status": "PASS",
+          "voters": [
+            "node-1",
+            "node-3"
+          ]
+        }
+      }
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portableReplay": {
+    "bytes": 9420,
+    "path": "target/v53-future-quorum/portable-replay.json",
+    "sha256": "904766651cc0de00f59b1be2e607d69e53bc6ebf65f18a087939ef272ca80dd4"
+  },
+  "process": {
+    "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-future-quorum/builds/fourth-5dc3961e/general-search-engine-replication/target/v53-future-endpoint/run-35e83790-1653-4c5a-9506-e6e969a9842b",
+    "result": {
+      "negatives": [
+        {
+          "case": "original-certificate",
+          "reason": "admitted exact certified: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "partial-proof",
+          "reason": "future ACK exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovered-proof",
+          "reason": "future ACK exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force",
+          "reason": "selected retention force order: future ACK original force",
+          "status": "REJECTED"
+        },
+        {
+          "case": "response",
+          "reason": "future quorum exact native acknowledgement",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate",
+          "reason": "future ACK exact duplicate",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "automaticDispatch": false,
+        "cases": [
+          {
+            "cut": "FUTURE_RETENTION_PREFIX_WRITTEN",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "FUTURE_RETENTION_FORCED",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "FUTURE_RETENTION_RENAMED",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "FUTURE_RETENTION_PARENT_FORCED",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "FUTURE_RETENTION_ACK_BEFORE_RETURN",
+            "mode": "halt",
+            "status": "PASS"
+          },
+          {
+            "cut": "FUTURE_RETENTION_PREFIX_WRITTEN",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "FUTURE_RETENTION_FORCED",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "FUTURE_RETENTION_RENAMED",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "FUTURE_RETENTION_PARENT_FORCED",
+            "mode": "kill",
+            "status": "PASS"
+          },
+          {
+            "cut": "FUTURE_RETENTION_ACK_BEFORE_RETURN",
+            "mode": "kill",
+            "status": "PASS"
+          }
+        ],
+        "freshProcesses": 20,
+        "lockProbes": 5,
+        "nativeReceiver": true,
+        "phase3Complete": false,
+        "powerLoss": false,
+        "processCases": 10,
+        "status": "PASS"
+      }
+    }
+  },
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "earlierScope": "before new independent reader; retained initial Python result",
+    "earlierTests": 661,
+    "newReaderTests": 3,
+    "optimizedReaderTests": 3,
+    "unchangedFormatTest": 1
+  },
+  "remaining": [
+    "actual dispatch and native incoming voting/application controls",
+    "autonomous election/discovery/maintenance/reconciliation",
+    "maximum completion headroom",
+    "ADD/REPLACE learners and all seven joint profiles",
+    "complete 3B\u20133E qualification"
+  ],
+  "schema": "gse-v53-future-quorum-local-v1",
+  "scope": "native-future-target-governing-recording",
+  "source": [
+    {
+      "bytes": 123783,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "1436a184b793f7077845d8a45ff493bd749252025f803aebf9f88d8541419967"
+    },
+    {
+      "bytes": 5560,
+      "path": "docs/v5x/v5.3/PHASE_0_CONTRACT.md",
+      "sha256": "5d7ec2eee2ab8bc6f64b758d56eecb33b9c009088ed5577b5098670fa84c6d3f"
+    },
+    {
+      "bytes": 6538,
+      "path": "docs/v5x/v5.3/PHASE_3_CONTRACT_AMENDMENTS.md",
+      "sha256": "6d804be3aae5bd04e8996f111839c27877501ad55b9dcad10fbcc9cae5d5cd12"
+    },
+    {
+      "bytes": 19162,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "da134f5529297f87c958337bec89ce6065a2933ed313dc837ebc9113c019c7f9"
+    },
+    {
+      "bytes": 5224,
+      "path": "docs/v5x/v5.3/PHASE_3_FUTURE_QUORUM.md",
+      "sha256": "36176b9b1a4805d806a514b55757de79f0aff01b6607fee2193b4c27bbdb7dc9"
+    },
+    {
+      "bytes": 34133,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "12158db20887375f06050de41034c3351f428201d45ae9ecdc35a2fc41915aae"
+    },
+    {
+      "bytes": 137062,
+      "path": "docs/v5x/v5.3/byte-fixtures.json",
+      "sha256": "27ce49f23e7e071e8c1407d916e01851cafe9cfcf4ba9f43d0adc12d876623af"
+    },
+    {
+      "bytes": 28040,
+      "path": "docs/v5x/v5.3/format-catalog.json",
+      "sha256": "8cf87dee1426c486efa51bce01156bf4932635c845b6a6ec60054e33fa7aab21"
+    },
+    {
+      "bytes": 18806,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "sha256": "e613bb532253f2fdf09d1477772db47d211fad40e136004891b8a13a1b96ec77"
+    },
+    {
+      "bytes": 12370,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFormat.java",
+      "sha256": "044549a3a7ed385670015b0bad7af2c16860818cc6b4edf62b744d6a816a6ee4"
+    },
+    {
+      "bytes": 1985,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFutureRetentionIntent.java",
+      "sha256": "903143a8b16094d8ef058017c50e4b40d8c0b9233dc90fd7c9399b1fd9157eae"
+    },
+    {
+      "bytes": 9028,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFutureRetentionQuorum.java",
+      "sha256": "d1567cc134e8af7d4da23f64ff6956acd03ccc4b1ab27c7559c35f062d3b0d01"
+    },
+    {
+      "bytes": 256803,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "304e67cfbdeff4c523e5c51702711248556130969073d767477b238b973e8647"
+    },
+    {
+      "bytes": 14724,
+      "path": "general-search-engine-replication/src/main/resources/replication/membership-format-v13.json",
+      "sha256": "8a278779a6a92ff5dbf562ffe354450a3d9570f3a110d4c333da0b9050fff440"
+    },
+    {
+      "bytes": 7502,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FormatTest.java",
+      "sha256": "1981d173a9c0ecfc614defa9dd1dc1523d8d5c9821914d8db48d46df97261dab"
+    },
+    {
+      "bytes": 4470,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionAckCrashTest.java",
+      "sha256": "ae5f4b17a83dd8c0554393edb26ee381b3d4fb8b33afebef99857a9247853a14"
+    },
+    {
+      "bytes": 2476,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionAckWorker.java",
+      "sha256": "0d03b18265dee531a59f4d8d137088638c2cc122c8f581a08d7d4f2fe1f77352"
+    },
+    {
+      "bytes": 23203,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionEndpointTest.java",
+      "sha256": "fe82ce32c8f6589c6bdb142c44e7966449d36b522c25a939c4f4d4caa632943b"
+    },
+    {
+      "bytes": 137062,
+      "path": "general-search-engine-replication/src/test/resources/replication/v53/byte-fixtures.json",
+      "sha256": "27ce49f23e7e071e8c1407d916e01851cafe9cfcf4ba9f43d0adc12d876623af"
+    },
+    {
+      "bytes": 3154,
+      "path": "scripts/v53/contract_check.py",
+      "sha256": "5192d6048688e09280e4024ada3740c1938e8eeee5d621ec47a2fb952310c5ac"
+    },
+    {
+      "bytes": 3281,
+      "path": "scripts/v53/format_qualification.py",
+      "sha256": "e10da53814660fabc8b4156767d2afd494296c608cb20e894fb0d1053ba381eb"
+    },
+    {
+      "bytes": 20378,
+      "path": "scripts/v53/future_quorum_evidence.py",
+      "sha256": "6ce9dd859bf5987b5aa58ce3f2192b455bc69802478135506ed26413bb6b3ebc"
+    },
+    {
+      "bytes": 994,
+      "path": "scripts/v53/test_format_qualification.py",
+      "sha256": "7d66d164983debd35fe71adb4c71eb7306ff47e741ec422831e8282e03e3e82c"
+    },
+    {
+      "bytes": 2795,
+      "path": "scripts/v53/test_future_quorum_evidence.py",
+      "sha256": "d546f7e2ef358538934b04fc7fb92b406961c9b898c54b2fd4d1a99ed0b238c5"
+    }
+  ],
+  "status": "PASS"
+}

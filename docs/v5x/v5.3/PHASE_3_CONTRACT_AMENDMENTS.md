@@ -57,3 +57,45 @@ Rollback before publication removes the two new messages and their internal
 driver/endpoint methods, and restores the earlier catalog/fixture inventory.
 It must not reinterpret a retention ACK as an existing protocol message. Existing
 V5.0–V5.2 readers, public factories, workflow and release pins are unaffected.
+
+## A05 — native future-target retention acknowledgements
+
+The two new control kinds are FUTURE_RETENTION_INTENT (24) and
+FUTURE_RETENTION_ACK (25), each at most 32 KiB including the unchanged 1.3 header.
+All previous 47 record/wire fixtures, commands, resource limits and read-token
+bytes remain exact. The syntax inventory is now 24 records plus 25 wire kinds.
+This amendment does not claim completed quorum dispatch or public runtime.
+
+A logical intent binds the installed SELECTED digest, original CERTIFICATE,
+permanent intended recipient, original parent, prior possible recipient endpoint
+and exact next applied target. Envelope root/view/ballot/proposer are checked
+against the native owner. Every acknowledging voter uses its own forced native
+applied result and original selector/application ACK; received hashes never
+create application authority or substitute another voter's GSFT. An otherwise
+correlated request before local native application returns NOT_READY without
+writing any intent.
+
+Before publication, the receiver records the target in its own existing GSFT
+transaction. The prior endpoint must equal its single authenticated current
+possibility. Different unresolved lower endpoints refuse before any write and
+return CAPACITY_EXCEEDED and require later verified complete-copy reconciliation; no oldest/newest guess
+replaces the two-endpoint limit. Incoming recording may name the receiver itself
+as the intended target. The outgoing self-dispatch prohibition remains separate.
+
+After exact certified publication, an identical request uses the existing
+ordinary covered-target ledger transaction. The ACK discriminates FUTURE from
+CURRENT and binds the logical intent plus the exact durable store digest and
+revision. Existing real-copy narrowing is preserved. A different certificate,
+selection, native target or unverified parent refuses. The original ballot is
+checked after force and again immediately before acknowledgement; interrupted
+ACK delivery never clears the durable intent.
+
+The [native recording qualification](PHASE_3_FUTURE_QUORUM.md) now covers bounded
+wire retries and governing-quorum accounting, original-first stable network
+histories, receiver restart recovery and explicit complete-copy reconciliation.
+The returned recording has no dispatch method. Required next work: actual dispatch
+bound to the specific intended operation, native voter/application endpoint
+integration, automatic reconciliation and the complete joint/runtime qualification.
+Individual ACKs alone grant no send permission. This amendment is not a Phase 3
+closure receipt. Rollback before publication removes the two new kinds and this
+internal recording path, restoring the previous catalog without reinterpreting ACKs.
