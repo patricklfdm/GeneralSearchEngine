@@ -94,6 +94,22 @@ class V53RemotePublicationTest {
                     "target",target.activationIdentity().nodeId().value(),"quorum",new ArrayList<>(new TreeSet<>(recorded.voters())),"ack",response.digest(),"lostAck",network.lost.get()),65536));
         }
     }
+    @Test void asynchronousReceiptCapacityIsReservedBeforeAnyPublicationWork()throws Exception {
+        try(var network=new Network(3);var quorum=network.quorum()) {
+            var local=network.group.owners.getFirst();var target=network.group.owners.getLast();
+            var request=MembershipActivation.frame("PUBLISH",local.activationContext(),local.activationIdentity(),target.activationIdentity(),network.group.fixture.ballot,
+                    UUID.randomUUID(),1,Map.of("certificate",local.currentCertificate().orElseThrow().digest()));
+            var resources=network.group.budgets.getLast();var held=new ArrayList<MembershipResources.Lease>();
+            long remaining=MembershipResources.QUEUE_LIMIT-resources.usage().queued()-request.size()-MembershipPublicationEndpoint.RECEIPT_CAPACITY+1;
+            var before=network.group.files(2);
+            try {
+                while(remaining>0){long bytes=Math.min(remaining,MembershipResources.Unit.CONTROL.bytes);held.add(resources.reserve(MembershipResources.Unit.CONTROL,"test-receipt-capacity-"+held.size(),bytes));remaining-=bytes;}
+                assertEquals("global queued-byte capacity",assertThrows(IllegalArgumentException.class,()->network.endpoints.getLast().handle(local.activationIdentity(),request)).getMessage());
+                assertEquals(before,network.group.files(2));assertTrue(network.transcript.isEmpty());
+            }finally{for(var lease:held)lease.close();}
+            assertEquals("PUBLISH_ACK",quorum.record().dispatch(network.transports.getFirst()).kind());
+        }
+    }
     @Test void higherBallotBetweenQueueAndWritePreventsAnyPublicationRequest()throws Exception {
         try(var network=new Network(3);var quorum=network.quorum()) {
             var recorded=quorum.record();network.beforeWrite.set(()->network.higher(0));

@@ -1,5 +1,14 @@
 # V5.3 — controlled cluster operations
 
+[Continuous native slot reception](PHASE_3_SLOT_ENDPOINT.md) now connects
+ACCEPT/PROOF/APPLY, governing future retention and PUBLISH on the same handler
+with shared transfer ownership. Stable 3/4/5-voter BARRIER/DATA and existing
+publication/restart regressions are locally qualified. Original checkpoint
+receipts are collected in bounded parallel batches; finite identical delivery,
+fencing, cancellation and independent portable replay remain enforced.
+Autonomous election/dispatch and slot continuation, learners/joint completion,
+maximum combined resource headroom and full 3B–3E remain open.
+
 [Native certificate/application ingress](PHASE_3_APPLICATION_INGRESS.md) connects
 original ACCEPT/PROOF observations to durable certificate admission, typed replay
 and the receiver's own pending checkpoint acknowledgement. Stable TCP and process

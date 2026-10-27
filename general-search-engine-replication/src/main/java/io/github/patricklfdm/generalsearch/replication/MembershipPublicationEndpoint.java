@@ -12,6 +12,10 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * cannot be constructed from received hashes or a caller's expected ACK set.
  * Transfer handling stays independent of the writer, including reverse pulls. */
 final class MembershipPublicationEndpoint implements MembershipTransport.Handler,AutoCloseable {
+    // Current statement plus at most six renewed ancestors, each with at most
+    // six original owners. Completed asynchronous results remain owned by the
+    // publication writer until publication finishes, even after a pull closes.
+    static final long RECEIPT_CAPACITY=7L*6*(HEADER+number(object(object(CATALOG.get("records")).get("CHECKPOINT_ACK")).get("maximum")));
     private final MembershipGrantJournal owner;
     private final MembershipGrantJournal.Publication publication;
     private final MembershipResources resources;
@@ -22,6 +26,7 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
     private final LongSupplier clock;
     private final long started,budget;
     private final ExecutorService writer=Executors.newSingleThreadExecutor(Thread.ofVirtual().name("gse-membership-publication").factory());
+    private final ExecutorService receivers=Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("gse-membership-checkpoint-",0).factory());
     private final Set<MembershipSourcePull> pulls=new HashSet<>();
     private CompletableFuture<Void> completion;
     private volatile boolean closed;
@@ -43,33 +48,64 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
         for(String side:List.of("old","new")) {var members=MembershipContext.nodes(view,side);
             if(voters.stream().filter(members::contains).count()<=members.size()/2)return false;}return true;
     }
+    private MembershipSourcePull.CheckpointReceipt checkpoint(Decoded statement,String node)throws IOException {
+        check();var peer=publication.before.context.identities.get(node);require(peer!=null,"publication checkpoint owner absent");
+        var expected=decode(encode("records","CHECKPOINT_ACK",Map.of("root",statement.value().get("root"),"voter",node,
+                "incarnation",peer.storageId().toString(),"cut",statement.value().get("end"),"statement",statement.digest())),"records","CHECKPOINT_ACK");
+        MembershipSourcePull pull;
+        synchronized(this) {
+            check();pull=new MembershipSourcePull(publication.before,owner.activationIdentity(),peer,publication.ballot,UUID.randomUUID(),resources,bounds,
+                    link,this::check,clock,started,budget);pulls.add(pull);
+        }
+        try(pull){var actual=pull.fetchCheckpointAcknowledgement(statement,expected);check();return actual;}
+        catch(MembershipSourcePull.Rejected error) {
+            var promised=object(object(error.response.value().get("payload")).get("promised"));publication.before.context.ballot(promised,true);
+            if(MembershipContext.compareBallot(promised,publication.ballot)>0)owner.observeCurrent(promised);
+            throw error;
+        }finally{synchronized(this){pulls.remove(pull);}}
+    }
+    private MembershipSourcePull.CheckpointReceipt await(Future<MembershipSourcePull.CheckpointReceipt> work)throws IOException {
+        try {
+            long left=budget-(clock.getAsLong()-started);require(left>0,"publication endpoint original deadline/closed");
+            return work.get(left,TimeUnit.NANOSECONDS);
+        }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("checkpoint wait interrupted",error);}
+        catch(TimeoutException|CancellationException error){throw new IOException("checkpoint original deadline/closed",error);}
+        catch(ExecutionException error) {
+            var cause=error.getCause();if(cause instanceof IOException io)throw io;
+            if(cause instanceof RuntimeException runtime)throw runtime;if(cause instanceof Error fatal)throw fatal;
+            throw new IOException("checkpoint collection failed",cause);
+        }
+    }
     private MembershipSelection.Bridge collect(Decoded statement,Decoded own,MembershipContext.Owned observed)throws IOException {
         var acks=new ArrayList<Decoded>();acks.add(own);var observations=new HashSet<MembershipContext.Owned>();observations.add(observed);
         var received=new TreeSet<String>();received.add(owner.activationIdentity().nodeId().value());
         var view=object(object(statement.value().get("end")).get("view"));var eligible=new TreeSet<>(MembershipContext.nodes(view,"old"));eligible.addAll(MembershipContext.nodes(view,"new"));
-        for(String node:eligible) {
-            if(quorum(statement,received))break;if(received.contains(node))continue;check();
-            var peer=publication.before.context.identities.get(node);require(peer!=null,"publication checkpoint owner absent");
-            var expected=decode(encode("records","CHECKPOINT_ACK",Map.of("root",statement.value().get("root"),"voter",node,
-                    "incarnation",peer.storageId().toString(),"cut",statement.value().get("end"),"statement",statement.digest())),"records","CHECKPOINT_ACK");
-            MembershipSourcePull pull;
-            synchronized(this) {
-                check();pull=new MembershipSourcePull(publication.before,owner.activationIdentity(),peer,publication.ballot,UUID.randomUUID(),resources,bounds,
-                        link,this::check,clock,started,budget);pulls.add(pull);
-            }
-            try(pull) {
-                var actual=pull.fetchCheckpointAcknowledgement(statement,expected);check();
-                acks.add(actual.acknowledgement());observations.add(actual.owned());received.add(node);
-                // Observer receives the actual fetched ACK, never the expected bytes.
-                events.at("PUBLICATION_CHECKPOINT_RECEIVED",statement,actual.acknowledgement());
-            }catch(MembershipSourcePull.Rejected error) {
-                var promised=object(object(error.response.value().get("payload")).get("promised"));publication.before.context.ballot(promised,true);
-                if(MembershipContext.compareBallot(promised,publication.ballot)>0)owner.observeCurrent(promised);
-                throw error;
-            }catch(MembershipTransport.Failure error) {
-                if(error.reason!=MembershipTransport.Reason.IO && error.reason!=MembershipTransport.Reason.DEADLINE)throw error;
-                check(); // A failed owner may be skipped, never counted toward either majority.
-            }finally {synchronized(this){pulls.remove(pull);}}
+        eligible.removeAll(received);
+        // Launch only the next possible old/new quorum, never the whole identity
+        // directory. Each original owner's transfer has its own bounded lease,
+        // identical retries and the same original publication deadline. Receipt
+        // order remains canonical; a failed owner is never counted as a voter.
+        while(!quorum(statement,received) && !eligible.isEmpty()) {
+            var planned=new TreeSet<>(received);var batch=new LinkedHashMap<String,Future<MembershipSourcePull.CheckpointReceipt>>();
+            try {
+                while(!quorum(statement,planned) && !eligible.isEmpty()) {
+                    String node=eligible.pollFirst();planned.add(node);check();
+                    batch.put(node,receivers.submit(()->{
+                        try(var lease=resources.reserve(MembershipResources.Unit.CONTROL,"checkpoint-task-"+UUID.randomUUID(),1024)) {
+                            return checkpoint(statement,node);
+                        }
+                    }));
+                }
+                for(var task:batch.entrySet()) {
+                    try {
+                        var actual=await(task.getValue());check();acks.add(actual.acknowledgement());observations.add(actual.owned());received.add(task.getKey());
+                        events.at("PUBLICATION_CHECKPOINT_RECEIVED",statement,actual.acknowledgement());
+                    }catch(MembershipTransport.Failure error) {
+                        if(error.reason!=MembershipTransport.Reason.IO && error.reason!=MembershipTransport.Reason.DEADLINE)throw error;
+                        check();
+                    }
+                }
+            }finally{for(var task:batch.values())if(!task.isDone())task.cancel(true);}
         }
         require(quorum(statement,received),"publication checkpoint quorum unavailable");
         acks.sort(Comparator.comparing(a->(String)a.value().get("voter")));return new MembershipSelection.Bridge(statement,acks,observations);
@@ -90,7 +126,7 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
         synchronized(this) {
             check();
             if(completion==null) {
-                var lease=resources.reserve(MembershipResources.Unit.CONTROL,"publication-control-"+UUID.randomUUID(),request.size());
+                var lease=resources.reserve(MembershipResources.Unit.CONTROL,"publication-control-"+UUID.randomUUID(),request.size()+RECEIPT_CAPACITY);
                 completion=new CompletableFuture<>();var result=completion;
                 try {writer.execute(()->{Throwable failure=null;try{publish();}catch(Throwable error){failure=error;}finally{lease.close();}
                     if(failure==null)result.complete(null);else result.completeExceptionally(failure);});}
@@ -119,8 +155,10 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
         synchronized(this){closed=true;closing=List.copyOf(pulls);if(completion!=null)completion.cancel(true);}
         IOException failure=null;
         for(var pull:closing)try{pull.close();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
-        transfers.close();writer.shutdown();
-        try{require(writer.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"publication writer close timeout");}
+        transfers.close();receivers.shutdownNow();writer.shutdown();
+        try{long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
+            require(writer.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"publication writer close timeout");
+            require(receivers.awaitTermination(Math.max(0,end-System.nanoTime()),TimeUnit.NANOSECONDS),"publication receivers close timeout");}
         catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException("publication close interrupted",error);}
         if(failure!=null)throw new java.io.UncheckedIOException(failure);
     }
