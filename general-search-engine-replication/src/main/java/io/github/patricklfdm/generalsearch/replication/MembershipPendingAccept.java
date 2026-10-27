@@ -28,6 +28,7 @@ final class MembershipPendingAccept {
         boolean sameProof(Vote other){return Arrays.equals(withCertificate(null).bytes(),other.withCertificate(null).bytes());}
         String phase(){return certificate!=null?"CERTIFICATE":proof!=null?"PROOF":"ACCEPT";}
         @Override public byte[] payload(){return payload.clone();}
+        int payloadSize(){return payload.length;}
         byte[] bytes() {
             var out=new java.io.ByteArrayOutputStream();
             for(var frame:List.of(selector,promise,selected,entry,accept))out.writeBytes(frame.bytes());

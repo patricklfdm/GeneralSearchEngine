@@ -130,3 +130,52 @@ joint-transition acceptance. Autonomous ownership, native incoming votes/applica
 learner transitions and restart dispatch reconciliation remain required. Rollback
 before release removes the new internal message and typed path together, restoring
 the prior catalog without changing legacy wire/token formats or limits.
+
+## A07 — original pending payload and phased-vote receipt transfers
+
+The existing bounded `SOURCE_OFFER(kind=RECORD)` channel may carry the original
+pending ENTRY payload or the canonical witness-hash preimage. RECORD already
+carries bounded unframed ancestry metadata; this does not introduce a new wire or
+disk kind. All 50 fixtures remain byte-identical. The payload is bounded by the
+existing 8 MiB frame allowance; the canonical receipt is at most 2 KiB. BARRIER
+uses its verified empty payload locally and never advertises a zero-length offer.
+
+A receipt contains exactly root, permanent voter/storage identity, ACCEPT or
+PROOF phase, and original record digest. Computing it is only a content reference.
+The native owner serves it only from its actual complete active pending vote,
+under the exact installed selection, current parent and unfenced original ballot.
+Candidate files and copied capsule objects cannot attest a vote. A matching
+original-owner transfer must complete before the receiver creates an observation;
+fetching an ACCEPT or PROOF GSR record alone never suffices. Higher ballot,
+selection/publication replacement, changed physical files, expiry or owner close
+revoke the borrow. PROOF receipts require this owner's actual forced PROOF.
+
+An incoming ACCEPT from the exact proposer pulls its original ACCEPT, ENTRY and
+payload plus the proposer’s own ACCEPT receipt, validates the native journal
+context, and forces the local vote before
+ACK. An incoming PROOF requires this receiver's own ACCEPT and obtains every
+named remote ACCEPT witness from that witness's permanent owner. The pre-existing
+quorum rules validate both governing sets. No certificate or application is
+created by a PROOF_ACK. The exact already-forced phase can be acknowledged after
+reopen without recreating observations, forcing a different record, or applying it.
+
+Transfers and the single bounded voting writer remain independent. Original
+buffers stay reserved through their durable use; waiting controls use the existing
+64-waiter budget. Identical active controls share completion. Source I/O/deadline
+retries remain at most three attempts on the exact request and original deadline;
+failed identical controls retain their failure within the scope. Corrupt data,
+invalid context and changed authority do not authorize a different retry.
+The owner must poll/close the finite scope; automatic lifecycle integration remains
+open. Removing this unpublished path requires removing both receipt production
+and consumption together; generic historical record transfer remains read-only.
+
+The receipt lookup is SHA-256 of canonical `{schema: "gse-v53-vote-observation/1.3",
+receipt: <receipt SHA-256>}`. SOURCE_OFFER and subsequent chunks/commit bind the
+receipt SHA-256 itself. A plain receipt hash is not an attestation lookup, and a
+normal payload selected by its own hash cannot satisfy the distinct receipt
+digest. This separates evidence acquisition from ordinary content possession.
+
+A carried original from a previous installed round is not a current vote receipt.
+Native observation and duplicate ACK require the active vote's original ballot,
+SELECTED and selector to match the current voting scope; the old original remains
+retained for recovery until a separately validated successor replaces it.

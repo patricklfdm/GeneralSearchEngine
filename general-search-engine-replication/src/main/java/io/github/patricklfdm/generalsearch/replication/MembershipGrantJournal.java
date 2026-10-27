@@ -54,6 +54,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipResources.Lease publicationImage;
     private final Set<MembershipSourceExport> sourceExports=new HashSet<>();
     private final Set<MembershipRecordExport> recordExports=new HashSet<>();
+    private final Set<MembershipVoteExport> voteExports=new HashSet<>();
     private final Set<MembershipPrefixExport> prefixExports=new HashSet<>();
     private volatile boolean failed,closed;
 
@@ -1384,6 +1385,60 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         pendingAccept.sealActive(this::checkOwner,cut);
     }
+    /** Native installed-voting lifetime. Caller record hashes cannot construct it. */
+    final class Voting {
+        final MembershipCapsule before;
+        final Map<String,Object> ballot;
+        private final String selected,selector;
+        private Voting()throws IOException {
+            require(ownedHistory && current!=null && pendingAccept!=null && promise!=null && selection!=null,"native installed voting owner required");
+            before=current.capsule;ballot=Map.copyOf(object(promise.value().get("ballot")));
+            selected=selection.digest();selector=current.selector.digest();check();
+        }
+        void check()throws IOException {
+            synchronized(MembershipGrantJournal.this){checkOwner();
+                require(ownedHistory && current.selector.digest().equals(selector) && current.capsule.context.cut.equals(before.context.cut)
+                        && promise!=null && promise.value().get("ballot").equals(ballot) && selection!=null && selection.digest().equals(selected)
+                        && selected.equals(current.manifest.value().get("selection")),"native voting selection changed/uninstalled");
+                fence(ballot);}
+        }
+        void request(MembershipIdentity sender,Decoded request)throws IOException {
+            check();require(Set.of("ACCEPT","PROOF").contains(request.kind()),"native voting request kind");
+            MembershipActivation.incoming(before.context,identity,sender,request,request.kind());
+            require(request.value().get("ballot").equals(ballot),"native voting request ballot");check();
+        }
+        private MembershipPendingAccept.Vote vote()throws IOException {
+            check();require(!pendingAccept.pending(),"incomplete pending vote cannot attest");return pendingAccept.active();
+        }
+        Optional<Decoded> record(String phase)throws IOException {
+            synchronized(MembershipGrantJournal.this){require(Set.of("ACCEPT","PROOF").contains(phase),"original vote phase");
+                var vote=vote();
+                // A carried prior-ballot vote remains original recovery evidence,
+                // but cannot acknowledge this newly installed voting round.
+                if(vote==null || !vote.accept().value().get("ballot").equals(ballot) || !vote.selected().digest().equals(selected)
+                        || !vote.selector().digest().equals(selector))return Optional.empty();
+                return Optional.ofNullable(phase.equals("ACCEPT")?vote.accept():vote.proof());}
+        }
+        Owned observation(Decoded record)throws IOException {
+            synchronized(MembershipGrantJournal.this){require(record(record.kind()).map(r->r.digest().equals(record.digest())).orElse(false),"original own vote missing");
+                MembershipVoteReceipt.bytes(before.context,identity,record);check();
+                return new Owned(identity.nodeId().value(),identity.storageId(),record.digest(),cutDigest(before.context.cut));}
+        }
+        Optional<Decoded> acknowledge(MembershipIdentity sender,Decoded request)throws IOException {
+            synchronized(MembershipGrantJournal.this){request(sender,request);String phase=request.kind();
+                var held=record(phase);String reference=(String)object(request.value().get("payload")).get(phase.equals("ACCEPT")?"acceptance":"proof");
+                if(held.isEmpty() || !held.get().digest().equals(reference))return Optional.empty();
+                var record=held.get();observation(record);
+                var response=MembershipActivation.frame(phase+"_ACK",before.context,identity,sender,ballot,
+                        UUID.fromString((String)request.value().get("trace")),number(request.value().get("sequence")),
+                        Map.of("entry",record.value().get("entry"),"receipt",hash(MembershipVoteReceipt.bytes(before.context,identity,record))));
+                cut.at(phase+"_ACK_BEFORE_RETURN");check();return Optional.of(response);}
+        }
+    }
+    synchronized Voting voting(MembershipResources budget)throws IOException {
+        require(resources==budget,"native voting resource owner");return new Voting();
+    }
+
     /** Actual local next-slot vote under the immutable original selection. No certificate, application publication or network ACK. */
     synchronized Owned acceptCurrent(Decoded proposed,byte[] payload)throws IOException {
         require(pendingAccept!=null,"pending ACCEPT storage owner required");checkOwner();voteTransactionIdle();
@@ -2700,6 +2755,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             LongSupplier clock,long started,long budget)throws IOException {
         require(current!=null && resources!=null,"transfer storage owner required");checkOwner();
         require(authority.equals(current.capsule.context.authority()),"transfer view changed");current.capsule.context.ballot(exchangeBallot,true);
+        var vote=exportVote(reference,exchangeBallot,clock,started,budget);if(vote!=null)return vote;
         var record=retainedRecord(reference,null);
         if(record.kind().equals("BASIS")) {
             require(record.value().get("ballot").equals(exchangeBallot),"transfer original basis ballot");
@@ -2707,6 +2763,35 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         return exportRecord(reference,record.kind(),exchangeBallot,clock,started,budget);
     }
+    private MembershipVoteExport exportVote(String reference,Map<String,Object> exchangeBallot,LongSupplier clock,long started,long budget)throws IOException {
+        for(var export:List.copyOf(voteExports))if(export.expired())releaseVoteExport(export);
+        if(!ownedHistory || pendingAccept==null || pendingAccept.pending() || pendingAccept.active()==null)return null;
+        var vote=pendingAccept.active();String phase=null,record=null;byte[] receipt=null;
+        boolean payload=vote.payloadSize()>0 && reference.equals(vote.entry().value().get("payload"));
+        if(payload){phase="ACCEPT";record=vote.accept().digest();}
+        else for(var candidate:new Decoded[]{vote.accept(),vote.proof()})if(candidate!=null) {
+            // Generic historical record export must remain usable while a prior
+            // vote is retained; only current-next-slot receipts are attested.
+            if(!candidate.value().get("authority").equals(current.capsule.context.authority())
+                    || number(candidate.value().get("index"))!=number(current.capsule.context.cut.get("index"))+1)continue;
+            byte[] bytes=MembershipVoteReceipt.bytes(current.capsule.context,identity,candidate);
+            if(reference.equals(MembershipVoteReceipt.reference(bytes))){phase=candidate.kind();record=candidate.digest();receipt=bytes;break;}
+        }
+        if(phase==null)return null;
+        require(budget>0 && budget<Long.MAX_VALUE/2,"vote export time budget");var scope=voting(resources);
+        require(scope.ballot.equals(exchangeBallot),"vote export ballot changed");byte[] fixed=receipt;
+        var export=new MembershipVoteExport(this,scope,reference,phase,record,payload?vote.payloadSize():fixed.length,
+                payload?vote::payload:()->fixed,resources,Objects.requireNonNull(clock),started,budget);
+        voteExports.add(export);try{checkVoteExport(export);return export;}
+        catch(IOException|RuntimeException|Error error){releaseVoteExport(export);throw error;}
+    }
+    synchronized void checkVoteExport(MembershipVoteExport export)throws IOException {
+        try{require(voteExports.contains(export) && !export.expired(),"vote export closed/expired");
+            export.voting.check();require(export.voting.record(export.phase).map(r->r.digest().equals(export.record)).orElse(false),"original vote export changed");
+            require(!export.expired(),"vote export deadline");}
+        catch(IOException|RuntimeException error){releaseVoteExport(export);throw error;}
+    }
+    synchronized void releaseVoteExport(MembershipVoteExport export){voteExports.remove(export);export.revoke();}
     private void expireRecordExports(){for(var export:List.copyOf(recordExports))if(export.expired())releaseRecordExport(export);}
     synchronized void checkRecordExport(MembershipRecordExport export)throws IOException {
         expireRecordExports();require(recordExports.contains(export),"record export closed/expired");
@@ -3008,6 +3093,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized Optional<Decoded> originalSelection() {live();return Optional.ofNullable(selection);}
     @Override public synchronized void close() throws IOException {
         for(var export:List.copyOf(prefixExports))releasePrefixExport(export);
+        for(var export:List.copyOf(voteExports))releaseVoteExport(export);
         for(var export:List.copyOf(recordExports))releaseRecordExport(export);
         for(var export:List.copyOf(sourceExports))releaseSourceExport(export);
         if(!closed){closed=true;try{releasePublicationImage();if(futureRetention!=null)futureRetention.close();if(peerRetention!=null)peerRetention.close();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}

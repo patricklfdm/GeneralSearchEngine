@@ -8,6 +8,13 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Native incoming phased voting](PHASE_3_NATIVE_VOTING.md) connects original
+payload transfer, durable ACCEPT, original-voter receipt acquisition and durable
+PROOF under the installed native selection. Its explicit network/process scope
+is distinct from certificate/application ingress, autonomous owner lifecycle,
+learner/joint completion and complete 3B–3E qualification, which remain open.
+Earlier entries retain their original source-bound scope.
+
 [Restarted publication acknowledgement](PHASE_3_PUBLICATION_RESTART.md) supplies
 the exact completed-only native receiver entry after loss of the old scope.
 Original governing view, certificate, selection, ballot and generation remain

@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native incoming phased voting](PHASE_3_NATIVE_VOTING.md) connects original
+payload transfer, durable ACCEPT, original-voter receipt acquisition and durable
+PROOF under the installed native selection. Its explicit network/process scope
+is distinct from certificate/application ingress, autonomous owner lifecycle,
+learner/joint completion and complete 3B–3E qualification, which remain open.
+Earlier entries retain their original source-bound scope.
+
 [Restarted publication acknowledgement](PHASE_3_PUBLICATION_RESTART.md) reconstructs
 only the actual completed native publication and its original voting authority.
 Duplicate requests after receiver restart cannot reapply pending work or create

@@ -164,6 +164,26 @@ final class MembershipSourcePull implements AutoCloseable {
             if(result!=null)result.close();try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;
         }
     }
+    /** Exact raw ENTRY payload. Its digest grants no vote; the native journal
+     * validates the entry, codec, parent and original installed selection. */
+    byte[] fetchPayload(Decoded entry)throws IOException {
+        synchronized(this){require(!used && !closed && prefixCut==null,"payload pull single use/current scope");used=true;}
+        require(entry.family().equals("records") && entry.kind().equals("ENTRY") && entry.value().get("root").equals(context.root)
+                && entry.value().get("authority").equals(context.authority()) && number(entry.value().get("index"))==number(context.cut.get("index"))+1,
+                "payload entry context");check();String digest=(String)entry.value().get("payload");
+        if(entry.value().get("kind").equals("BARRIER")){require(digest.equals(hash(new byte[0])),"barrier payload");return new byte[0];}
+        return metadataBlob(offer(UUID.randomUUID(),digest,MembershipTransfer.Kind.RECORD,digest,null),FRAME);
+    }
+    /** Fetch the hash preimage served exclusively by the native original voter.
+     * Generic retained record transfer cannot establish this observation. */
+    Owned fetchVoteObservation(Decoded record)throws IOException {
+        synchronized(this){require(!used && !closed && prefixCut==null,"vote observation single use/current scope");used=true;}
+        require(record.value().get("ballot").equals(ballot),"vote observation ballot");
+        byte[] expected=MembershipVoteReceipt.bytes(context,source,record);String digest=hash(expected);check();
+        byte[] actual=metadataBlob(offer(UUID.randomUUID(),MembershipVoteReceipt.reference(expected),MembershipTransfer.Kind.RECORD,digest,(long)expected.length),2048);
+        require(Arrays.equals(actual,expected),"original vote receipt bytes");check();
+        return new Owned(source.nodeId().value(),source.storageId(),record.digest(),cutDigest(context.cut));
+    }
     record CheckpointReceipt(Decoded acknowledgement,Owned owned) {}
     /** A checkpoint observation requires contacting the ACK's permanent owner.
      * Statement/ACK bytes from a source packet alone do not establish this receipt. */

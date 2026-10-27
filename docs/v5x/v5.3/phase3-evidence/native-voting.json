@@ -1,0 +1,206 @@
+{
+  "archive": {
+    "archive": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-voting/evidence-with-layout.tar.gz",
+    "sha256": "5bd6a1c621cb2d20f42c13f6d830a9253edfbcd35d2b6c7ade4a7ab1390fba71",
+    "size": 25543572
+  },
+  "autonomous": false,
+  "baseCommit": "85427662e1b15c5799b70b8e32975ff8d74c323b",
+  "contractAmendment": "A07; receipt lookup domain separated; all 50 byte fixtures unchanged",
+  "freshJvms": 16,
+  "java": [
+    {
+      "name": "V53NativeVotingTest",
+      "report": {
+        "bytes": 9920,
+        "path": "target/v53-native-voting/builds/carried-80813c21/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeVotingTest.xml",
+        "sha256": "a045d24dd8b7cef0894720856cd3d0613daa3f2d6aa53a89f4805a1451956564"
+      },
+      "seconds": 206.336,
+      "tests": 4
+    },
+    {
+      "name": "V53NativeVotingLimitsTest",
+      "report": {
+        "bytes": 9783,
+        "path": "target/v53-native-voting/builds/carried-80813c21/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeVotingLimitsTest.xml",
+        "sha256": "7b3a9fb3e14e7ffd4bc2a6f16081f452540d0c5b66903118bf13b33debc6cd7a"
+      },
+      "seconds": 60.658,
+      "tests": 6
+    },
+    {
+      "name": "V53NativeVotingProcessTest",
+      "report": {
+        "bytes": 9504,
+        "path": "target/v53-native-voting/builds/carried-80813c21/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeVotingProcessTest.xml",
+        "sha256": "b07df21d7372df5af6bc5404750c0a7baa405144cac441e4b1255d6ec6f5db8e"
+      },
+      "seconds": 85.593,
+      "tests": 1
+    },
+    {
+      "name": "V53RecordExchangeTest",
+      "report": {
+        "bytes": 9101,
+        "path": "target/v53-native-voting/builds/carried-80813c21/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RecordExchangeTest.xml",
+        "sha256": "ba44680d200684a17070d386484e9ed3f436f9b5fd4836cbb5c380b559a448d7"
+      },
+      "seconds": 44.644,
+      "tests": 10
+    },
+    {
+      "name": "V53RemotePublicationTest",
+      "report": {
+        "bytes": 10752,
+        "path": "target/v53-native-voting/builds/carried-80813c21/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RemotePublicationTest.xml",
+        "sha256": "ec996b2f5bea850ee8af018af5251e19f85db2d9b2bbc0b846c1adeeb8d25963"
+      },
+      "seconds": 193.006,
+      "tests": 7
+    }
+  ],
+  "killLockProbes": 4,
+  "nativeFilesMatchingSnapshot": 1481,
+  "negativeMutations": 158,
+  "networkAcknowledgements": 36,
+  "networkHistories": 6,
+  "networkTransfers": 175,
+  "optimizedFocusedTests": 2,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portable": {
+    "bytes": 27566,
+    "path": "target/v53-native-voting/portable-replay.json",
+    "sha256": "809c68588a04f7d33eb289be8297aea28c1d9204dba4cc5b735594df5154f626"
+  },
+  "processCases": 8,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "pythonTests": 671,
+  "remaining": [
+    "native certificate/application ingress",
+    "autonomous owner election/discovery/dispatch and retries",
+    "ADD/REPLACE learners and all seven joint profiles",
+    "maximum combined resource headroom",
+    "complete 3B\u20133E physical/history qualification"
+  ],
+  "replay": {
+    "bytes": 29652,
+    "path": "target/v53-native-voting/replay.json",
+    "sha256": "4fa537a15c381a71931989a9a20d5f1f2e351b6e0a66673e6afc2b7fcce66396"
+  },
+  "retainedAttempts": [
+    "initial reactor selection invocation failed before build; corrected -f reactor/pom.xml",
+    "compiled native TCP prototype passed",
+    "process prototype 25 tests passed before receipt lookup strengthening",
+    "qualified namespace/proposer source passed 27 tests",
+    "within-batch stale-round counterexample failed as expected",
+    "final carried-round correction tests listed above",
+    "file-only archive rejected due to missing empty directories; original inputs rearchived with complete layout"
+  ],
+  "schema": "gse-v53-native-voting-local-v1",
+  "scope": "native-incoming-accept-proof-and-original-owner-receipts",
+  "source": [
+    {
+      "bytes": 11900,
+      "path": "docs/v5x/v5.3/PHASE_3_CONTRACT_AMENDMENTS.md",
+      "sha256": "218c78f06060f7612ee24adcc2f5ba0386e87440ac8d863d7da3ae44f5f17fb6"
+    },
+    {
+      "bytes": 20967,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "1d65c9b78c4245397d531755089c68199abd25bcc1d67699af529d6726e3b971"
+    },
+    {
+      "bytes": 4678,
+      "path": "docs/v5x/v5.3/PHASE_3_NATIVE_VOTING.md",
+      "sha256": "fc97527c9b09b31d422e4cf33cbffdf3ad38d40e7b59eddef3c7f94a53deef01"
+    },
+    {
+      "bytes": 35986,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "ae4350f0f4623770b254c953910be190f1d0cb32045b6029ec4dba65a0914bc1"
+    },
+    {
+      "bytes": 270564,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "a86b026c639e7665229fff0c792df738b46abb7ac7a6577cd5caf713d754ecf8"
+    },
+    {
+      "bytes": 17307,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingAccept.java",
+      "sha256": "d96fb44c6ef229bdcd15b670468e02da18d3f244e63c2773b297f2ac75d58f68"
+    },
+    {
+      "bytes": 37215,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+      "sha256": "4daf0a8bf79ebdb9f851f26b7a77859514bf59ac8b47bbd73d0330b6973f5cc0"
+    },
+    {
+      "bytes": 2927,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipVoteExport.java",
+      "sha256": "7adb4f0820fd9dac4fddf38dc54e44fe6ada21cd4b66ec0fbce1507de7faf670"
+    },
+    {
+      "bytes": 1983,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipVoteReceipt.java",
+      "sha256": "c9a1a2700718f40367c2807ec1227bffb6245c03b76301de04ad570556da68ea"
+    },
+    {
+      "bytes": 10102,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipVotingEndpoint.java",
+      "sha256": "d5244d0bda55e505dfd9f9644289f1b22728bdc923f9538adad3715122ba654f"
+    },
+    {
+      "bytes": 10017,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeVotingLimitsTest.java",
+      "sha256": "b8735b8a457ffeddb27cade4af3b5f53cbe108f364d88f780fa81487b2666fcb"
+    },
+    {
+      "bytes": 4641,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeVotingProcessTest.java",
+      "sha256": "bbec45aad2758567acc58a86323df9fad1abad90315425910334fbea51add3d8"
+    },
+    {
+      "bytes": 12137,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeVotingTest.java",
+      "sha256": "8fd14f816fadb3d0083cc67492ec0073ac0e3c2862aff5e752321ab65c97ca61"
+    },
+    {
+      "bytes": 3134,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeVotingWorker.java",
+      "sha256": "5f4935dab08376dc62b4ca2d4f53f1dc5abffca94861de5967923cc35e9050b7"
+    },
+    {
+      "bytes": 12236,
+      "path": "scripts/v53/native_voting_evidence.py",
+      "sha256": "6580a5941f729f48008c403ca12066614e5d535c57e6e522d03efa842fbf6e72"
+    },
+    {
+      "bytes": 11168,
+      "path": "scripts/v53/native_voting_restart_evidence.py",
+      "sha256": "4d114be12e49651e147ba7b9f23a946f5e614f7006da3271f4c18ae16028c47f"
+    },
+    {
+      "bytes": 1121,
+      "path": "scripts/v53/test_native_voting_evidence.py",
+      "sha256": "6fc53be9d3fee5f77fa1bf1d2794799f195084e74baa5bf67e74f394019a9485"
+    }
+  ],
+  "staleRoundCounterexample": {
+    "baseline": "within-batch implementation without native round binding",
+    "override": {
+      "bytes": 342,
+      "path": "target/v53-native-voting/stale-override.json",
+      "sha256": "f48fbabf72afa776c93cfc1e346556219d24872ebcdf043857e208f21c58f3b3"
+    },
+    "report": {
+      "bytes": 8482,
+      "path": "target/v53-native-voting/builds/stale-b354639f/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53NativeVotingLimitsTest.xml",
+      "sha256": "b4918a13176be5f2e5cc87f9ddf77eea484d4dd82cf227ebaba955b32b631afe"
+    }
+  },
+  "status": "PASS",
+  "testsBoundary": "Explicit sender; stable BARRIER/DATA; no native incoming certificate/application or autonomous dispatch. Existing remote publication regression only."
+}
