@@ -44,11 +44,11 @@ def captured(files,phases=()):
     return e.packet_bytes(packet['capsule'],objects,packet['images']),tail
 
 
-def campaign(root,group,counter,names):
+def campaign(root,group,counter,names,phases=()):
     proposer=names[-1];identity=e.f.decode(group[proposer]['node.gsr'],'records','NODE')['identity']
     ballot=dict(counter=counter,proposer=proposer,incarnation=identity['storage']);prepared=dict(group);rows={};packets={};tails={};identifiers=set()
     for n in names:
-        files=group[n];raw,tail=captured(files);packet=e.p.decode(raw);cap=packet['capsule'];_,members,_=c.current(files)
+        files=group[n];raw,tail=captured(files,phases);packet=e.p.decode(raw);cap=packet['capsule'];_,members,_=c.current(files)
         actual=c.inventory(root/f'round-{counter}-prepared'/n);history=c.journal(actual['grants.gsr'],cap['root'],n);prior=c.journal(files['grants.gsr'],cap['root'],n)
         e.need(history[:len(prior)]==prior and [r[0] for r in history[len(prior):]]==['PROMISE','BASIS'],'minority exact grant extension')
         promise,basis=history[-2:];identifier=promise[2]['basisId']

@@ -1,5 +1,27 @@
 # V5.3 development status
 
+## 2026-10-26 — Phase 3 native applied-staging retirement
+
+The [native cleanup path](PHASE_3_NATIVE_RETIREMENT.md) binds the actual old
+certificate and retained generation to the current owner/selection, re-forces
+that certificate, and replays only to authorize deletion of derived staging.
+Original votes, source bytes and published cut remain unchanged. A volatile
+higher ballot still fences voting/application but permits exact cleanup.
+
+Four final native tests and fourteen existing tests on identical production Java
+pass in separately identified snapshots. Twelve halt/SIGKILL cases use 24 fresh
+JVMs and six live lock probes. Original-first replay derives exact retirement
+markers and complete file maps, with twelve exact negatives and matching normal,
+optimized and relocated results. All 661 Python tests pass in both modes. Existing
+staged/covered replay and their fifteen/seventeen negatives also pass. The
+[receipt](phase3-evidence/native-retirement.json) preserves both earlier test
+setup failures and does not relabel their aggregate builds as successful.
+
+The local future-proof verifier and pre-SELECTED unresolved-proof guard remain.
+Selected future ownership must precede cleanup of those protected targets;
+quorum-gated dispatch, offline-survivor continuation, learners/joint completion
+and all remaining 3B–3E obligations stay open. No push or public runtime enablement.
+
 ## 2026-10-26 — Phase 3 immutable future-source capture
 
 The [source component](PHASE_3_FUTURE_SOURCE.md) binds the exact pending native

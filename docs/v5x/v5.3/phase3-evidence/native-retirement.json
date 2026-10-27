@@ -1,0 +1,568 @@
+{
+  "baseCommit": "09dce0381b612f392112b23de4f69780418fd856",
+  "boundaries": [
+    "Native cleanup derives authority from the exact original locked journal, retained generation and certified vote without external historical voting observations. It never returns an old application ACK.",
+    "Stable-three EMPTY original process replay reconstructs public bootstrap, the first BARRIER certificate/applied ends and a higher-ballot carried selection. Twelve halt/SIGKILL cases use 24 fresh JVMs and six live lock probes; no power-loss claim.",
+    "The independent reader derives complete retirement marker/file maps and force/delete order, unchanged pending certificate/selector and replay claims. Twelve exact negatives and normal/optimized/relocated results pass.",
+    "Covered-prefix cleanup, volatile higher-ballot fencing and new-ballot continuation/publication are separate Java tests, not additional process-matrix profiles.",
+    "Four native tests pass in the final continuation snapshot. Fourteen existing tests pass in the qualified snapshot with identical production Java; only the new continuation test source differs. Initial and intermediate failures remain retained.",
+    "All 661 V5.3 Python tests pass normally and under optimization. Existing staged-handoff replay and fifteen negatives pass with its original conditional-bootstrap boundary; actual six-profile covered replay, 36 in-process interruptions and seventeen negatives also pass.",
+    "No disk/wire/public API/resource/workflow change. Local unresolved future proof still pins its original end, and selection still refuses unresolved imports until complete proof ownership is implemented.",
+    "Selected future transfer, quorum-gated real dispatch, automatic maintenance/offline-survivor continuation, learners/joint transitions and all remaining 3B\u20133E obligations remain required.",
+    "No push, PR, cloud execution, public runtime enablement or V5.2 Runner change."
+  ],
+  "date": "2026-10-26",
+  "evidence": [
+    {
+      "bytes": 25683585,
+      "path": "target/v53-native-retirement/build-evidence.tar.gz",
+      "sha256": "0f3af72dd437a798b843e353cbcf61345bd72148526ee2571964f224fdc10d32"
+    },
+    {
+      "bytes": 481186,
+      "path": "target/v53-native-retirement/build-inputs.json",
+      "sha256": "4c4b366fabda106a22f2a238072a859ce9372e21d6f9d176d4389869f8a4d015"
+    },
+    {
+      "bytes": 40,
+      "path": "target/v53-native-retirement/build-workspace.txt",
+      "sha256": "21f92dc66ffc6bcd4a8b002c51a65037d5972e8dfd80d88b026682010fadcfc2"
+    },
+    {
+      "bytes": 7195,
+      "path": "target/v53-native-retirement/build.log",
+      "sha256": "62bc14014e59abe20372a334cbf746454e467562d8cac9da9c7b8b7c502453c3"
+    },
+    {
+      "bytes": 1074,
+      "path": "target/v53-native-retirement/changed-files.txt",
+      "sha256": "84a6b4b7e8c954d6978d36ef275346c5a2812d963474b323efb59512dce50485"
+    },
+    {
+      "bytes": 424360,
+      "path": "target/v53-native-retirement/compiled-inventory.json",
+      "sha256": "87a2af3dc3180346e3eb8508c09d8828a3d5aee52f7b531020fb92f8cccebbbe"
+    },
+    {
+      "bytes": 6446,
+      "path": "target/v53-native-retirement/continuation-build.log",
+      "sha256": "7899f086c07b573f7ad8cfbacaa7be1582bb97d20b2149b39f8cf9b0d76c1c18"
+    },
+    {
+      "bytes": 481589,
+      "path": "target/v53-native-retirement/continuation-inputs.json",
+      "sha256": "87823feb5f50b8457f409ff200790fc39a7131b1ff09444a6df3db9d05bd30c7"
+    },
+    {
+      "bytes": 53,
+      "path": "target/v53-native-retirement/continuation-workspace.txt",
+      "sha256": "97721204b84b7de0607e943bcdf7bb183bc7b1bee317cd3c401e8b485f002b0c"
+    },
+    {
+      "bytes": 167,
+      "path": "target/v53-native-retirement/contract-initial.json",
+      "sha256": "77ab13d9ea0b7c2c84395d6a0668ae2b9598df76ebd2b2759120660d3db66e85"
+    },
+    {
+      "bytes": 769,
+      "path": "target/v53-native-retirement/diagnostics.json",
+      "sha256": "212ae2aa626622fad6d81d89524d185175e011d504bb31231dfa28128101ca92"
+    },
+    {
+      "bytes": 8272,
+      "path": "target/v53-native-retirement/finalize.py",
+      "sha256": "4d74b189bf6a05a8156f84c3362e9f9cec843cca96ca62de10cf212cbdf1a398"
+    },
+    {
+      "bytes": 2550,
+      "path": "target/v53-native-retirement/legacy-covered-replay.json",
+      "sha256": "00a6b2675a9fe44c6c1ec63012ab560079b275ccda63a57575c6741bc88b7570"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-retirement/legacy-covered-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 774,
+      "path": "target/v53-native-retirement/legacy-staged-replay.json",
+      "sha256": "c8b7ab6f7d5c8912f7832630712a49c1dfe0daa6d2a7426dd936cb3fabe9daf3"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-retirement/legacy-staged-replay.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 53,
+      "path": "target/v53-native-retirement/portable-workspace.txt",
+      "sha256": "8b4368483169509d711a14e241d8d91b97e142733683df4366ee0bd87ae860fd"
+    },
+    {
+      "bytes": 762,
+      "path": "target/v53-native-retirement/python-all.log",
+      "sha256": "95cb7abdc933e490aced4a0b05b0f2de036d24814b45f59b8ab37b7b332ed559"
+    },
+    {
+      "bytes": 127,
+      "path": "target/v53-native-retirement/python-focused.log",
+      "sha256": "007fb3e339aca8eb8d30d7eaab4b522b749d5d4495917baee8162f8f158092a9"
+    },
+    {
+      "bytes": 104,
+      "path": "target/v53-native-retirement/python-initial.log",
+      "sha256": "62cfbeb2911bb226088bfb0918eb4b05008ea70b20bce854ee2ca8a564bd37a5"
+    },
+    {
+      "bytes": 37322,
+      "path": "target/v53-native-retirement/python-inputs.json",
+      "sha256": "5477be5ced53ae825e641f1069ef432700823bb8a5a9978a456e0b4f53f0a808"
+    },
+    {
+      "bytes": 762,
+      "path": "target/v53-native-retirement/python-optimized.log",
+      "sha256": "f260a67e9910d7dbb7cbcc7cdc134f6c368b6c72f360dc7856303183c283454a"
+    },
+    {
+      "bytes": 12293,
+      "path": "target/v53-native-retirement/qualified-build.log",
+      "sha256": "92c283bb93241a4bb31571d4b19b8ff380a704cfddb278d6af82d714328f7428"
+    },
+    {
+      "bytes": 481589,
+      "path": "target/v53-native-retirement/qualified-inputs.json",
+      "sha256": "337814b09bc2db622915c58549088a59bdc64a154fa16e7c672b0da5ebe93e11"
+    },
+    {
+      "bytes": 50,
+      "path": "target/v53-native-retirement/qualified-workspace.txt",
+      "sha256": "af4332903c6d5ba26106309d29546120b606695a4f967f91920cd079f845047d"
+    },
+    {
+      "bytes": 308554,
+      "path": "target/v53-native-retirement/raw-inventory.json",
+      "sha256": "afec9ffc92c8b44b60b401c1d5336104cf15b8ffbcec51f6e27f8177de540a11"
+    },
+    {
+      "bytes": 455337,
+      "path": "target/v53-native-retirement/raw.tar.gz",
+      "sha256": "84ede555b2f50a703dde8d063769728caa026b8317874d2c06aa9271a3911a9a"
+    },
+    {
+      "bytes": 1513,
+      "path": "target/v53-native-retirement/replay-first.json",
+      "sha256": "016650c79cee23e8f28358783b51e2736359bc79c18c5222b37c6e4ef3d76cb8"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-retirement/replay-first.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1513,
+      "path": "target/v53-native-retirement/replay-optimized.json",
+      "sha256": "016650c79cee23e8f28358783b51e2736359bc79c18c5222b37c6e4ef3d76cb8"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-retirement/replay-optimized.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1513,
+      "path": "target/v53-native-retirement/replay-portable.json",
+      "sha256": "016650c79cee23e8f28358783b51e2736359bc79c18c5222b37c6e4ef3d76cb8"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-retirement/replay-portable.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1513,
+      "path": "target/v53-native-retirement/replay-qualified.json",
+      "sha256": "016650c79cee23e8f28358783b51e2736359bc79c18c5222b37c6e4ef3d76cb8"
+    },
+    {
+      "bytes": 0,
+      "path": "target/v53-native-retirement/replay-qualified.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2759,
+      "path": "target/v53-native-retirement/selected-future-followup.md",
+      "sha256": "b25f4521094552bd9cd9f8580bdc01692dee8bfd6de0cf334ab1085f89288d34"
+    },
+    {
+      "bytes": 2490,
+      "path": "target/v53-native-retirement/source-inputs.json",
+      "sha256": "af203975905532188bc0e6c98f7fa1a011926b018cf813ef284cfe3638d2faa6"
+    },
+    {
+      "bytes": 7695,
+      "path": "target/v53-native-retirement/validation-summary.json",
+      "sha256": "9ef87a9f376cea99c3c793309a381b9dc95129ec47c99b1283851ba13280bc6e"
+    }
+  ],
+  "schema": "gse-v53-phase3-native-retirement-v1",
+  "sources": {
+    "docs/v5x/v5.3/DEVELOPMENT_STATUS.md": {
+      "bytes": 117052,
+      "sha256": "86867f4e7e534c344a0be7a021e4c71bf5d7595a8556a7d3cef9f9a7ecbfc91f"
+    },
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": {
+      "bytes": 16635,
+      "sha256": "0efe33070222c993e7e0af588d94e08529beb2946897cbc506791eeaf3bd14bd"
+    },
+    "docs/v5x/v5.3/PHASE_3_NATIVE_RETIREMENT.md": {
+      "bytes": 5166,
+      "sha256": "44e9d766fa031d84b32d2960c66dfdad8760230a627a09e02dcb22eff4df18df"
+    },
+    "docs/v5x/v5.3/README.md": {
+      "bytes": 31884,
+      "sha256": "244637b40742887e9f8ad3bd29c482a4c3f5aff7decc7bf356ef52b31bdd2825"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java": {
+      "bytes": 28990,
+      "sha256": "36188ed546dbcd28c2a6e9df2a97a098abe47151de53acbe2e9db6a25dca3aaa"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCheckpointPlan.java": {
+      "bytes": 22332,
+      "sha256": "e7ec1d79efa1491e3ef2c015f2016fd39d809f046facf3daa81e8b0599df5e83"
+    },
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": {
+      "bytes": 243136,
+      "sha256": "9e8b01cc83aa6a8fa2402355fabb634ea81405a15d73a56f94bbd5fedb147aa4"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeRetirementCrashTest.java": {
+      "bytes": 3945,
+      "sha256": "a4fba682151ec25197bf398cd2e6cdc545130d6fa0b5ac9ec4cc498057269eb3"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeRetirementTest.java": {
+      "bytes": 9021,
+      "sha256": "282c788459794ccd0ce31c3df90fc497735e71ad9886c2c4a79a8bc0915db65c"
+    },
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeRetirementWorker.java": {
+      "bytes": 2505,
+      "sha256": "e9f15b5003deca7522e94e60796b63234da6d8b9cdd435913cf8aa8ea77ec7a6"
+    },
+    "scripts/v53/distinct_minority_evidence.py": {
+      "bytes": 26493,
+      "sha256": "3294c52095e5f3e27490686f634c9132f49c245c634308e4c95d41169b009aa5"
+    },
+    "scripts/v53/native_retirement_evidence.py": {
+      "bytes": 12497,
+      "sha256": "916619fdf994fb6c67d978498cec817cffba69b56b953bc25951923b8bc9b3e5"
+    },
+    "scripts/v53/test_native_retirement_evidence.py": {
+      "bytes": 2129,
+      "sha256": "24ae2b82b3f1018fdb1cb16ace20e78e44d7838c6bfa5e2bde73488de8c3319c"
+    }
+  },
+  "status": "LOCAL_COMPONENT_QUALIFIED",
+  "validation": {
+    "java": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "qualified",
+        "suite": "V53NativeApplicationTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "qualified",
+        "suite": "V53StagedApplicationTest",
+        "tests": 6
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "qualified",
+        "suite": "V53CoveredStagingTest",
+        "tests": 5
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "continuation",
+        "suite": "V53NativeRetirementTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "snapshot": "continuation",
+        "suite": "V53NativeRetirementCrashTest",
+        "tests": 1
+      }
+    ],
+    "javaTests": 18,
+    "legacyCoveredReplay": {
+      "freshProcesses": false,
+      "interruptions": {
+        "cases": 18,
+        "interruptions": 36,
+        "scratchSemantics": "producer-only",
+        "status": "PASS"
+      },
+      "negatives": [
+        {
+          "case": "applied-certificate",
+          "reason": "admitted exact lagging-applied: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "applied-image",
+          "reason": "admitted exact lagging-applied: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "applied-ack",
+          "reason": "admitted exact lagging-applied: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "applied-plan",
+          "reason": "admitted exact lagging-applied: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retired-vote",
+          "reason": "admitted exact staging-retired: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retired-source",
+          "reason": "admitted exact staging-retired: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retired-selector",
+          "reason": "admitted exact staging-retired: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "remaining-image",
+          "reason": "admitted exact staging-retired: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "cleanup-force",
+          "reason": "covered staging exact force/delete order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "cleanup-old-ack",
+          "reason": "covered staging emitted old ACK",
+          "status": "REJECTED"
+        },
+        {
+          "case": "first-authority",
+          "reason": "covered staging exact first snapshot",
+          "status": "REJECTED"
+        },
+        {
+          "case": "first-inventory",
+          "reason": "covered staging exact first snapshot",
+          "status": "REJECTED"
+        },
+        {
+          "case": "partial-delete",
+          "reason": "covered staging exact first snapshot",
+          "status": "REJECTED"
+        },
+        {
+          "case": "replay-claim",
+          "reason": "covered staging exact replay claim",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-force",
+          "reason": "covered staging exact second force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-old-vote",
+          "reason": "covered staging exact final snapshot",
+          "status": "REJECTED"
+        },
+        {
+          "case": "installed-tail",
+          "reason": "covered staging exact post-cleanup installation",
+          "status": "REJECTED"
+        }
+      ],
+      "oldAcknowledgement": false,
+      "powerLoss": false,
+      "profiles": [
+        {
+          "backup": false,
+          "laggingVoters": 1,
+          "nodePublications": 5,
+          "size": 3,
+          "status": "PASS"
+        },
+        {
+          "backup": true,
+          "laggingVoters": 1,
+          "nodePublications": 5,
+          "size": 3,
+          "status": "PASS"
+        },
+        {
+          "backup": false,
+          "laggingVoters": 1,
+          "nodePublications": 7,
+          "size": 4,
+          "status": "PASS"
+        },
+        {
+          "backup": true,
+          "laggingVoters": 1,
+          "nodePublications": 7,
+          "size": 4,
+          "status": "PASS"
+        },
+        {
+          "backup": false,
+          "laggingVoters": 2,
+          "nodePublications": 8,
+          "size": 5,
+          "status": "PASS"
+        },
+        {
+          "backup": true,
+          "laggingVoters": 2,
+          "nodePublications": 8,
+          "size": 5,
+          "status": "PASS"
+        }
+      ],
+      "publicBootstrap": true,
+      "publicRuntime": false,
+      "status": "PASS"
+    },
+    "legacyStagedReplay": {
+      "derivedStagingRetirements": 3,
+      "freshProcesses": false,
+      "imageSemantics": "separate-core-gates",
+      "negatives": [
+        "lost-old-proof",
+        "changed-original-payload",
+        "missing-old-end-ack",
+        "changed-old-end-plan",
+        "old-end-wrong-ancestor",
+        "changed-frozen-certificate",
+        "changed-selection",
+        "old-vote-deleted",
+        "old-source-deleted",
+        "old-generation-deleted",
+        "staging-retained",
+        "rewritten-entry-origin",
+        "old-certificate-reused",
+        "changed-new-first-coverage",
+        "resurrected-tail"
+      ],
+      "newBallot": 21,
+      "nodePublications": 6,
+      "nodes": 3,
+      "oldBallot": 20,
+      "oldCertificates": 3,
+      "originalFirst": true,
+      "physicalBytes": true,
+      "portableReplay": "PASS",
+      "powerLoss": false,
+      "processForceOrder": false,
+      "resourcePeaks": "producer-observed-bounded",
+      "runtimeEnabled": false,
+      "status": "PASS"
+    },
+    "phase3Complete": false,
+    "physicalReplay": {
+      "automaticDispatch": false,
+      "callerHistoricalObservations": false,
+      "freshProcesses": 24,
+      "liveLockProbes": 6,
+      "negatives": [
+        {
+          "case": "original-certificate",
+          "reason": "admitted exact slot-1-certified: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "old-applied-end",
+          "reason": "admitted exact old-applied: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "installed-choice",
+          "reason": "admitted exact round-3-installed: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-response",
+          "reason": "native retirement interrupted before response",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-force",
+          "reason": "native retirement original certificate force",
+          "status": "REJECTED"
+        },
+        {
+          "case": "forged-retirement",
+          "reason": "native retirement exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "deleted-original",
+          "reason": "native retirement exact interrupted files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "replay-claim",
+          "reason": "native retirement exact replay scratch",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovered-original",
+          "reason": "native retirement exact recovered files",
+          "status": "REJECTED"
+        },
+        {
+          "case": "old-ack",
+          "reason": "covered staging emitted old ACK",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-force",
+          "reason": "native retirement exact force/delete order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "published-cut",
+          "reason": "native retirement exact unchanged certificate/cut response",
+          "status": "REJECTED"
+        }
+      ],
+      "newAcknowledgement": false,
+      "powerLoss": false,
+      "processCases": 12,
+      "selectedFutureTransfer": false,
+      "status": "PASS"
+    },
+    "protectedCI": false,
+    "pythonOptimizedTests": 661,
+    "pythonTests": 661,
+    "rawFiles": 1733,
+    "scope": "native-derived-application-retirement",
+    "status": "PASS"
+  }
+}

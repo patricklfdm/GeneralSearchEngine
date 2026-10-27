@@ -1469,12 +1469,43 @@ final class MembershipGrantJournal implements AutoCloseable {
         MembershipGenerationFiles.Guard guard=()->proof.check(before,packet);
         guard.check();pendingAccept.sealActive(guard,cut);cut.at("NATIVE_CERTIFICATE_RETAINED");guard.check();return proof;
     }
+    /** A cleanup-only original certificate, scoped to this owner and exact
+     * retained generation. It does not revive the original ballot's authority. */
+    static final class CertifiedRetirement {
+        private final MembershipGrantJournal owner;
+        private final MembershipPendingAccept.Vote vote;
+        private final MembershipFloor.Copy original;
+        private final MembershipSourcePacket packet;
+        private final MembershipGenerationFiles.Guard guard;
+        private CertifiedRetirement(MembershipGrantJournal owner,MembershipPendingAccept.Vote vote,
+                MembershipFloor.Copy original,MembershipSourcePacket packet,MembershipGenerationFiles.Guard guard) {
+            this.owner=owner;this.vote=vote;this.original=original;this.packet=packet;this.guard=guard;
+        }
+        Decoded certificate(){return vote.certificate();}
+        void check(MembershipCapsule before,MembershipSourcePacket supplied)throws IOException {
+            synchronized(owner) {
+                require(owner.ownedHistory,"native retirement requires original history owner");guard.check();
+                require(owner.pendingAccept.active()!=null && Arrays.equals(owner.pendingAccept.active().bytes(),vote.bytes()),
+                        "native retirement certificate no longer owned");
+                owner.verifyVote(vote);original.check();
+                require(before==original.capsule && Arrays.equals(supplied.bytes(),packet.bytes()),"native retirement substituted original history");
+            }
+        }
+    }
     /** Retire only derived work from a fenced certificate. The newer installed selection
      * must retain that exact logical entry at the identical parent; voting originals survive.
      * This method never forces or returns an old application ACK. A later volatile
      * observation still fences voting, but cannot revoke this exact cleanup authority. */
     synchronized <K,T> void retireSupersededApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations)throws IOException {
+        retireSupersededApplication(configuration,storage,observations,false);
+    }
+    synchronized <K,T> void retireSupersededApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage)throws IOException {
+        require(ownedHistory,"native retirement requires original history owner");retireSupersededApplication(configuration,storage,Set.of(),true);
+    }
+    private <K,T> void retireSupersededApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,boolean nativeOriginal)throws IOException {
         require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();otherApplicationTransactionsIdle();
         require(!inactive.pending() && !pendingAccept.pending(),"staged retirement requires completed original authorities");
         var vote=pendingAccept.active();require(vote!=null && vote.certificate()!=null && voteReferencesInactive(vote),"staged retirement requires original carried certificate");
@@ -1493,7 +1524,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && Arrays.equals(vote.payload(),current.capsule.packet.objectBytes((String)vote.entry().value().get("payload")))
                 && current.accepted!=null && current.capsule.context.record(current.accepted,"ACCEPT").value().get("entry").equals(vote.entry().digest()),
                 "staged retirement changed carried entry/payload");
-        retireApplication(configuration,storage,observations,vote,originals,old,local,Map.of(),null,new byte[0]);
+        retireApplication(configuration,storage,observations,vote,originals,old,local,Map.of(),null,new byte[0],nativeOriginal);
     }
     /** Retire only old derived staging before installing an authenticated covering
      * prefix. The current selector and original certified vote remain unchanged;
@@ -1511,6 +1542,19 @@ final class MembershipGrantJournal implements AutoCloseable {
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,
             List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,
             List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images,List<MembershipSelection.Bridge> appliedBridges)throws IOException {
+        retireCoveredApplication(configuration,storage,observations,offered,bridges,retainedBridges,images,appliedBridges,false);
+    }
+    synchronized <K,T> void retireCoveredApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,
+            List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,
+            List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images,List<MembershipSelection.Bridge> appliedBridges)throws IOException {
+        require(ownedHistory,"native retirement requires original history owner");
+        retireCoveredApplication(configuration,storage,Set.of(),offered,bridges,retainedBridges,images,appliedBridges,true);
+    }
+    private <K,T> void retireCoveredApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,
+            List<MembershipSelection.Source> offered,List<MembershipSelection.Bridge> bridges,
+            List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images,List<MembershipSelection.Bridge> appliedBridges,boolean nativeOriginal)throws IOException {
         require(appliedBridges.size()<=1,"covered staging applied ancestry count");
         require(appliedEnd!=null && replayFiles!=null,"application storage owner required");checkOwner();otherApplicationTransactionsIdle();
         require(selection!=null && !inactive.pending() && !pendingAccept.pending(),"covered staging requires completed original authorities");
@@ -1535,19 +1579,21 @@ final class MembershipGrantJournal implements AutoCloseable {
             authority.put("appliedAncestry",hash(extra));
         }
         retireApplication(configuration,storage,observations,vote,originals,old,originalSource(),authority,
-                selected.longest().capsule,ancestry);
+                selected.longest().capsule,ancestry,nativeOriginal);
     }
     private <K,T> void retireApplication(io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Set<Owned> observations,
             MembershipPendingAccept.Vote vote,Map<String,byte[]> originals,MembershipFloor.Copy old,MembershipSelection.Source local,
-            Map<String,Object> extraAuthority,MembershipCapsule covering,byte[] coveringAncestry)throws IOException {
+            Map<String,Object> extraAuthority,MembershipCapsule covering,byte[] coveringAncestry,boolean nativeOriginal)throws IOException {
         require(observations.size()<=12,"application phased observation count");var owned=Set.copyOf(observations);
         var packet=MembershipPendingAccept.packet(old.capsule.packet,vote);var images=new TreeMap<String,byte[]>();
         for(String h:old.capsule.packet.images().keySet())images.put(h,originals.get(h+".image"));
         var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
-        var verified=Objects.requireNonNull(capsuleVerifier.verify(rootRecord,packet,images));
-        require(Arrays.equals(verified.packet.bytes(),packet.bytes()),"staged retirement verifier substituted original packet");
-        verified.context.certificate(vote.certificate(),owned);
+        if(!nativeOriginal) {
+            var verified=Objects.requireNonNull(capsuleVerifier.verify(rootRecord,packet,images));
+            require(Arrays.equals(verified.packet.bytes(),packet.bytes()),"staged retirement verifier substituted original packet");
+            verified.context.certificate(vote.certificate(),owned);
+        }
         byte[] ancestry=originals.getOrDefault("ancestry.gsr",new byte[0]);
         var parents=applicationParents(old.capsule,originals.get(MembershipSelectedSources.FILE),originals.get(MembershipSelectionCoverage.FILE),ancestry,vote.promise(),vote.selected());
         var authority=new TreeMap<String,Object>(extraAuthority);authority.put("pending",hash(vote.bytes()));authority.put("oldGeneration",old.generation.digest());
@@ -1571,9 +1617,16 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(!appliedEnd.present() && !replayFiles.present())return;
         reserveApplicationCompletion();
         try {
+            var proof=nativeOriginal?new CertifiedRetirement(this,vote,old,packet,guard):null;
+            if(proof!=null) {
+                proof.check(old.capsule,packet);pendingAccept.sealActive(guard,cut);
+                cut.at("NATIVE_RETIREMENT_CERTIFICATE_RETAINED");proof.check(old.capsule,packet);
+            }
             cut.at("STAGED_RETIREMENT_AUTHORITY_VALIDATED");guard.check();
-            var plan=replayFiles.executeRetained(vote.selector(),vote.certificate(),identity,work->MembershipCheckpointPlan.replay(configuration,storage,
-                    old.capsule,packet,vote.certificate(),images,owned,work),guard,cut).renewAncestors(parents,ancestry);
+            var plan=replayFiles.executeRetained(vote.selector(),vote.certificate(),identity,work->nativeOriginal?
+                    MembershipCheckpointPlan.replayRetirement(configuration,storage,old.capsule,packet,images,proof,work):
+                    MembershipCheckpointPlan.replay(configuration,storage,old.capsule,packet,vote.certificate(),images,owned,work),guard,cut).renewAncestors(parents,ancestry);
+            if(proof!=null)proof.check(old.capsule,packet);
             if(covering!=null) {
                 var statement=plan.statement.value();covering.verifyAncestry(coveringAncestry,List.of(new MembershipCapsule.Anchor(
                         object(statement.get("end")),(String)statement.get("catalogAfter"),(String)statement.get("applicationAfter"))));

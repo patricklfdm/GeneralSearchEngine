@@ -8,6 +8,11 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Native old-staging retirement](PHASE_3_NATIVE_RETIREMENT.md) is locally qualified
+against original durable certificates without caller historical observations. It
+preserves pending votes and published cuts; unresolved future proof ownership and
+the complete selected transfer remain required before automatic integration.
+
 The [local future-retention transaction](PHASE_3_FUTURE_RETENTION.md) now persists
 the exact target proof with peer intentions and recovers publication-time ledger
 promotion before clearing that proof. Its native process matrix and exact capacity

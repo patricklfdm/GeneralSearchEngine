@@ -114,6 +114,16 @@ final class MembershipCheckpointPlan {
         var result=replayApplication(captured,storage,retained,certified,retained.context,entry,images,scratch);
         return projectVerified(retained,certified,certificate,entry,Set.of(),result,retained.context);
     }
+    /** Reconstruct an already owned old application solely to validate removal
+     * of its derived staging. This capability cannot force an application ACK. */
+    static <K,T> MembershipCheckpointPlan replayRetirement(SearchEngineConfiguration<K,T> captured,DurableStorageConfig<K,T> storage,
+            MembershipCapsule before,MembershipSourcePacket certified,Map<String,byte[]> images,
+            MembershipGrantJournal.CertifiedRetirement original,Path scratch)throws IOException {
+        var retained=before.retainingRetirementCertificate(certified,images,original);var certificate=original.certificate();
+        var entry=retained.publicationCertificate(certificate,before.context.cut);
+        var result=replayApplication(captured,storage,retained,certified,retained.context,entry,images,scratch);
+        return projectVerified(retained,certified,certificate,entry,Set.of(),result,retained.context);
+    }
 
     private static <K,T> MembershipApplicationReplay.Result replayApplication(SearchEngineConfiguration<K,T> captured,DurableStorageConfig<K,T> storage,
             MembershipCapsule before,MembershipSourcePacket certified,MembershipContext context,Decoded entry,Map<String,byte[]> images,Path scratch)throws IOException {

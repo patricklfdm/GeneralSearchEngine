@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native old-staging retirement](PHASE_3_NATIVE_RETIREMENT.md) now removes derived
+application work after native reopen using the actual old certificate and exact
+new selection, without caller historical voting observations. Twelve process
+cuts and independent replay qualify this prerequisite; original votes and the
+published cut remain unchanged. Future proof transfer, actual dispatch and full
+Phase 3 remain open.
+
 [Immutable future-source capture](PHASE_3_FUTURE_SOURCE.md) now preserves the exact
 unresolved target proof in a new original PROMISE/BASIS. Native process recovery
 and independent replay qualify the source boundary. Selected installation still

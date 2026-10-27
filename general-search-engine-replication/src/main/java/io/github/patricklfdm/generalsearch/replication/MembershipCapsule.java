@@ -76,12 +76,22 @@ final class MembershipCapsule {
     MembershipCapsule retainingCurrentCertificate(MembershipSourcePacket packet,Map<String,byte[]> images,
             MembershipGrantJournal.CertifiedCurrent original)throws java.io.IOException {
         Objects.requireNonNull(original).check(this,packet);
-        var retained=materialization(packet,images,List.of());var certificate=original.certificate();
+        var result=retainingNativeCertificate(packet,images,original.certificate());
+        original.check(this,packet);return result;
+    }
+    /** A fenced original may authorize exact derived cleanup, never a new ACK. */
+    MembershipCapsule retainingRetirementCertificate(MembershipSourcePacket packet,Map<String,byte[]> images,
+            MembershipGrantJournal.CertifiedRetirement original)throws java.io.IOException {
+        Objects.requireNonNull(original).check(this,packet);
+        var result=retainingNativeCertificate(packet,images,original.certificate());
+        original.check(this,packet);return result;
+    }
+    private MembershipCapsule retainingNativeCertificate(MembershipSourcePacket packet,Map<String,byte[]> images,Decoded certificate) {
+        var retained=materialization(packet,images,List.of());
         var entry=retained.context.certificateStructure(certificate,context.cut);
         retained.context.control((String)entry.value().get("kind"),command((String)entry.value().get("kind"),packet.objectBytes((String)entry.value().get("payload"))));
         var proofs=new HashSet<>(retained.history);proofs.add(certificate(certificate,context.cut));
-        var result=new MembershipCapsule(retained.context,packet,retained.anchors,retained.states,retained.observations,proofs,retained.highestMembershipCertificate);
-        original.check(this,packet);return result;
+        return new MembershipCapsule(retained.context,packet,retained.anchors,retained.states,retained.observations,proofs,retained.highestMembershipCertificate);
     }
 
     /** Retain one already authenticated original proof through a compacted range.
