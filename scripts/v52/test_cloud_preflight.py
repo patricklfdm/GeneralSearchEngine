@@ -128,6 +128,31 @@ class PreflightTest(unittest.TestCase):
         for number in (float('nan'),float('inf'),-1):
             with self.assertRaises(ValueError):f.quota([dict(metric='CPUS',limit=number,usage=0)],{'CPUS':1})
 
+    def test_negative_ssd_usage_is_observed_with_warning_without_paid_admission(self):
+        row=next(v for v in self.server.rows['region']['quotas'] if v['metric']=='SSD_TOTAL_GB')
+        row.update(limit=1000,usage=-100)
+        result=self.evaluate();detail=result['checks']['provider']['detail']
+        self.assertEqual('PREFLIGHT_OBSERVED_NOT_ADMITTED',result['status'])
+        self.assertTrue(all(result[k] is False for k in f.FLAGS))
+        self.assertFalse(detail['allocationGuaranteed'])
+        self.assertEqual(1000,detail['regionalQuota']['SSD_TOTAL_GB']['available'])
+        self.assertEqual(-100,detail['regionalQuota']['SSD_TOTAL_GB']['reportedUsage'])
+        self.assertTrue(any('NEGATIVE_QUOTA_USAGE_NORMALIZED: regional SSD_TOTAL_GB' in w for w in detail['warnings']))
+        self.assertEqual(-100,row['usage'])
+
+    def test_negative_ssd_usage_does_not_hide_insufficient_limit(self):
+        row=next(v for v in self.server.rows['region']['quotas'] if v['metric']=='SSD_TOTAL_GB')
+        row.update(limit=389,usage=-100)
+        self.blocked('provider')
+
+    def test_negative_quota_and_image_warnings_are_both_preserved(self):
+        row=next(v for v in self.server.rows['region']['quotas'] if v['metric']=='SSD_TOTAL_GB')
+        row.update(limit=1000,usage=-100)
+        self.server.rows['image']['deprecated']=dict(state='DEPRECATED',replacement='https://evil.invalid/other')
+        warnings=self.evaluate()['checks']['provider']['detail']['warnings']
+        self.assertIn(f.images.WARNING,warnings)
+        self.assertTrue(any('NEGATIVE_QUOTA_USAGE_NORMALIZED' in w for w in warnings))
+
     def test_storage_retention_cannot_freeze_control_or_delete_its_history(self):
         for change in (dict(retentionPolicy=dict(retentionPeriod='60')),dict(defaultEventBasedHold=True),
                        dict(iamConfiguration=dict(uniformBucketLevelAccess=dict(enabled=False)))):
