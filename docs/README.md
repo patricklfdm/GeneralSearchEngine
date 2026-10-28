@@ -22,6 +22,15 @@ now has implemented public policies and completed
 [hosted M01–M04 cohort](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) passed; remote adapter
 qualification, protected full CI and cloud acceptance remain pending.
 
+## v5.3 — development-branch controlled membership
+
+Phases 0–2 are locally qualified; Phase 3 remains open. These local results do
+not establish protected CI acceptance, an enabled public runtime or a release.
+
+- [Development scope and progress](v5x/v5.3/README.md)
+- [Phase 3 entry and closure requirements](v5x/v5.3/PHASE_3_ENTRY_PLAN.md)
+- [Interrupted native transition process qualification](v5x/v5.3/PHASE_3_TRANSITION_PROCESS.md)
+
 ## v5.2 — unreleased replica reads
 
 - [Source-reviewed entry and requirements](v5x/v5.2/PHASE_0_ENTRY_PLAN.md)

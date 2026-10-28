@@ -1,5 +1,14 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Interrupted native transitions](PHASE_3_TRANSITION_PROCESS.md) now qualify
+eight same-proposer INTENT/FINAL publication halt/SIGKILL histories. Fresh JVMs
+reopen the original directories and complete the original four-to-three REMOVE
+through a new-stable barrier. Four live-lock refusals, independent physical/ACK
+replay, 144 exact negatives and relocated optimized replay pass; four unchanged
+transition/departure histories add 44 regression negatives. Production Java is
+unchanged. This does not qualify alternate-leader takeover, learners/all seven
+profiles, autonomous elections/adoption, maximum combined headroom or full Phase 3.
+
 [Fresh-process departure fencing](PHASE_3_DEPARTING_RESTART.md) now qualifies
 repeated halt/SIGKILL before completed publication ACK delivery for both the
 removed proposer and selected follower. Two native histories, eight interrupted

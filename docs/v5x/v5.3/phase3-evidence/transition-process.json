@@ -1,0 +1,185 @@
+{
+  "archive": {
+    "allMembershipProfiles": false,
+    "bytes": 51231164,
+    "files": 61109,
+    "fullNetworkQualification": false,
+    "interruptedChildren": 8,
+    "javaCases": 8,
+    "negativeCases": 144,
+    "path": "target/v53-transition-process/qualification.tar.gz",
+    "phase3Complete": false,
+    "publicReady": false,
+    "regressionNegatives": 44,
+    "results": [
+      {
+        "mode": "original",
+        "negativeCases": 18,
+        "profile": "5-PUBLICATION_BEFORE_RETURN-halt",
+        "seconds": 27.54325723502552,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 18,
+        "profile": "5-PUBLICATION_BEFORE_RETURN-halt",
+        "seconds": 29.362430601002416,
+        "status": "PASS"
+      },
+      {
+        "mode": "original",
+        "negativeCases": 18,
+        "profile": "5-PUBLICATION_BEFORE_RETURN-kill",
+        "seconds": 27.828897013008827,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 18,
+        "profile": "5-PUBLICATION_BEFORE_RETURN-kill",
+        "seconds": 28.117913202004274,
+        "status": "PASS"
+      },
+      {
+        "mode": "original",
+        "negativeCases": 18,
+        "profile": "5-PUBLICATION_SELECTOR_FORCED-halt",
+        "seconds": 29.6621445530036,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 18,
+        "profile": "5-PUBLICATION_SELECTOR_FORCED-halt",
+        "seconds": 30.456602816004306,
+        "status": "PASS"
+      },
+      {
+        "mode": "original",
+        "negativeCases": 18,
+        "profile": "5-PUBLICATION_SELECTOR_FORCED-kill",
+        "seconds": 28.1315180399979,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 18,
+        "profile": "5-PUBLICATION_SELECTOR_FORCED-kill",
+        "seconds": 28.551000684004975,
+        "status": "PASS"
+      },
+      {
+        "mode": "original",
+        "negativeCases": 18,
+        "profile": "6-PUBLICATION_BEFORE_RETURN-halt",
+        "seconds": 28.314343197009293,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 18,
+        "profile": "6-PUBLICATION_BEFORE_RETURN-halt",
+        "seconds": 28.057366891996935,
+        "status": "PASS"
+      },
+      {
+        "mode": "original",
+        "negativeCases": 18,
+        "profile": "6-PUBLICATION_BEFORE_RETURN-kill",
+        "seconds": 27.94264762700186,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 18,
+        "profile": "6-PUBLICATION_BEFORE_RETURN-kill",
+        "seconds": 28.01983900499181,
+        "status": "PASS"
+      },
+      {
+        "mode": "original",
+        "negativeCases": 18,
+        "profile": "6-PUBLICATION_SELECTOR_FORCED-halt",
+        "seconds": 27.428840080014197,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 18,
+        "profile": "6-PUBLICATION_SELECTOR_FORCED-halt",
+        "seconds": 27.462599577993387,
+        "status": "PASS"
+      },
+      {
+        "mode": "original",
+        "negativeCases": 18,
+        "profile": "6-PUBLICATION_SELECTOR_FORCED-kill",
+        "seconds": 27.39732206199551,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 18,
+        "profile": "6-PUBLICATION_SELECTOR_FORCED-kill",
+        "seconds": 30.40399288799381,
+        "status": "PASS"
+      }
+    ],
+    "resumedChildren": 8,
+    "scope": "same-proposer-native-transition-process",
+    "sha256": "75c5fcc432f336e9e10d8582ee637a70fb1ced9d7a421520ae4ee982b0fdf121",
+    "status": "PASS",
+    "unchangedRegressionHistories": 4
+  },
+  "interruptedChildren": 8,
+  "javaTests": 8,
+  "liveLockRefusals": 4,
+  "originalAndPortableNegativeExecutions": 288,
+  "paidCloud": false,
+  "parent": "3ef8941dd4207cb0531a2b7a1c148876bfcbe5f7",
+  "phase3Complete": false,
+  "productionJavaChanged": false,
+  "protectedCI": false,
+  "publicReady": false,
+  "pythonTests": 734,
+  "regressionNegativeCases": 44,
+  "remaining": [
+    "alternate-leader takeover and autonomous discovery/election/adoption",
+    "real learners and all seven ADD/REMOVE/REPLACE profiles",
+    "complete distributed transfer/process fault coverage",
+    "maximum combined resource headroom",
+    "complete Phase 3 protocol audit"
+  ],
+  "resumedChildren": 8,
+  "retainedDiagnostic": {
+    "javaTests": 1,
+    "profile": "5-PUBLICATION_SELECTOR_FORCED-halt",
+    "scope": "physical diagnostic only; not an additional matrix profile"
+  },
+  "retainedFailure": {
+    "correction": "derive governing voter-union size plus one; local completion still sequence one",
+    "kind": "independent reader assumed remote PUBLISH sequence one",
+    "runtimeBytesChanged": false
+  },
+  "retainedQualificationFailure": {
+    "correction": "copy both original hash-checked files from immutable runtime source; rerun Python tests only",
+    "kind": "portable Python workspace omitted two frozen Java resource fixtures",
+    "originalFailureLog": "qualification/python.log",
+    "runtimeBytesChanged": false
+  },
+  "runtimeInputsSha256": "b10845fdfaeb488f13ec1534048ae27a96becdc0e26743e416f942f3281d7da4",
+  "runtimeSourceFiles": 1140,
+  "schema": "gse-v53-transition-process-qualification-v1",
+  "scope": "same-proposer native four-to-three REMOVE interruption during INTENT/FINAL publication",
+  "sourceBuild": "transitionprocessmatrix-a86592b7",
+  "sources": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionProcessTest.java": "bd9d63a3ab1dcb1070651a1e95a89bc6b0ca5bd9519d6f4b66c48a8409ebb3fb",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionProcessWorker.java": "23e8268d8de1699f5e24c23748e48f909a098b0abe1a5ff54303f0a0e148e2ef",
+    "scripts/v53/authority_transition_evidence.py": "eede9cc557e5868a2900cbe21af50fa7dfb0e4c1bf0ffcea7f8038efffcd3bf3",
+    "scripts/v53/test_transition_process_evidence.py": "b56166a397a72138c9017e92351d085973e24125f8674dfb09328ba98cb36cbb",
+    "scripts/v53/transition_process_evidence.py": "4b53f8ba7c018af6b1301fc2ae7673a7913f5f4419f61b0acc39640a0041280f"
+  },
+  "status": "PASS",
+  "unchangedRegressionHistories": 4,
+  "uniqueNegativeCases": 144
+}

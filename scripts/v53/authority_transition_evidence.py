@@ -103,50 +103,61 @@ class NativeSlot(x.Walk):
         if label.endswith('-applied'):
             self.applied=copy.deepcopy(group);b.match(self.root,f'applied-{self.slot}',group)
         elif label.endswith('-published'):
-            for node in self.voters:
-                files=group[node];original=self.applied[node];_,local,packet=c.current(original)
-                prefix,members,published=c.current(files);cap=copy.deepcopy(published['capsule']);view=cap['cut']['view']
-                # Checkpoint publication uses the governing end view. FINAL's
-                # certificate still has the original joint ACCEPT/PROOF quorum,
-                # while its new stable checkpoint needs only the new majority.
-                eligible=set(view['old'])|set(view['new'])
-                chosen={node} if node in eligible else set()
-                for peer in sorted(eligible):
-                    if all(len(chosen & set(view[side]))>len(view[side])//2 for side in ('old','new')):break
-                    chosen.add(peer)
-                objects=dict(published['objects']);item=cap['items'][-1];acks=[]
-                for digest in item['endorsements']:
-                    ack=f.decode(objects[digest],'records','CHECKPOINT_ACK')
-                    if ack['voter'] in chosen:acks.append(digest)
-                    else:objects.pop(digest)
-                item['endorsements']=acks;members=dict(members)
-                members['source.gscp']=e.packet_bytes(cap,objects,published['images'])
-                selector,generation=c.generation(members,cap,node,prefix.split('/')[1],None)
-                files.update(generation);files['selector.gsr']=selector
-                ends={k.removeprefix('applied-end/'):v for k,v in original.items() if k.startswith('applied-end/')}
-                # The complete applied snapshot was independently derived above.
-                cert=f.decode(ends['certificate.gsr'],'records','CERTIFICATE')
-                proof=f.encode('records','PROOF',{k:v for k,v in cert.items() if k!='proofs'})
-                accept=f.encode('records','ACCEPT',{k:v for k,v in cert.items() if k not in ('proofs','accepts')})
-                entry=self.entry
-                retained={k:ends[k] for k in ('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','ack.gsr') if k in ends}
-                retained.update({k:local[k] for k in ('promise.gsr','selected.gsr')})
-                retained.update({'entry.gsr':entry,'accept.gsr':accept,'proof.gsr':proof})
-                state=d.s.r.decode(original[d.s.FILE]);plan=copy.deepcopy(state['plan']);upper=c.anchor(c.current(files)[2]['capsule']);peers=[]
-                future=original[d.future.FILE]
-                # This is the independently derived preceding frame, already
-                # matched to the physical snapshot, not a claimed disk counter.
-                prior_revision=json.loads(future[48:48+int.from_bytes(future[44:48],'big')])['revision']
-                for revision,peer in enumerate((n for n in self.voters if n!=self.proposer),1):
-                    identity=d.future.identity(self.group[peer]);row=next(p for p in plan['peers'] if p['identity']==identity)
-                    peers.append(dict(identity=identity,lower=row['possible'][0]))
-                    future=d.future.frame(dict(d.future.initial(original),revision=prior_revision+revision,previous=e.digest(future),parent=c.anchor(packet['capsule']),peers=copy.deepcopy(peers)),retained)
-                    row['possible'].append(upper)
-                files[d.s.FILE]=d.s.r.frame(dict(state,revision=state['revision']+1,previous=e.digest(original[d.s.FILE]),plan=plan))
-                files[d.future.FILE]=d.future.frame(dict(d.future.initial(original),revision=prior_revision+len(self.voters),previous=e.digest(future)),{})
+            self.publication_group(group)
             b.match(self.root,f'published-{self.slot}',group)
         # Intermediate ACCEPT/PROOF phases have no separate captured snapshots.
         # Their exact bytes are included in the independently matched applied end.
+
+    def publication_group(self,group,*,before_local_cleanup=None):
+        """Derive publication files from the independently matched applied end.
+
+        Process replay also uses this result to derive an interrupted prefix;
+        callers still compare their own complete original snapshot inventories.
+        """
+        for node in self.voters:
+            files=group[node];original=self.applied[node];_,local,packet=c.current(original)
+            prefix,members,published=c.current(files);cap=copy.deepcopy(published['capsule']);view=cap['cut']['view']
+            # Checkpoint publication uses the governing end view. FINAL's
+            # certificate still has the original joint ACCEPT/PROOF quorum,
+            # while its new stable checkpoint needs only the new majority.
+            eligible=set(view['old'])|set(view['new'])
+            chosen={node} if node in eligible else set()
+            for peer in sorted(eligible):
+                if all(len(chosen & set(view[side]))>len(view[side])//2 for side in ('old','new')):break
+                chosen.add(peer)
+            objects=dict(published['objects']);item=cap['items'][-1];acks=[]
+            for digest in item['endorsements']:
+                ack=f.decode(objects[digest],'records','CHECKPOINT_ACK')
+                if ack['voter'] in chosen:acks.append(digest)
+                else:objects.pop(digest)
+            item['endorsements']=acks;members=dict(members)
+            members['source.gscp']=e.packet_bytes(cap,objects,published['images'])
+            selector,generation=c.generation(members,cap,node,prefix.split('/')[1],None)
+            files.update(generation);files['selector.gsr']=selector
+            ends={k.removeprefix('applied-end/'):v for k,v in original.items() if k.startswith('applied-end/')}
+            # The complete applied snapshot was independently derived above.
+            cert=f.decode(ends['certificate.gsr'],'records','CERTIFICATE')
+            proof=f.encode('records','PROOF',{k:v for k,v in cert.items() if k!='proofs'})
+            accept=f.encode('records','ACCEPT',{k:v for k,v in cert.items() if k not in ('proofs','accepts')})
+            entry=self.entry
+            retained={k:ends[k] for k in ('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','ack.gsr') if k in ends}
+            retained.update({k:local[k] for k in ('promise.gsr','selected.gsr')})
+            retained.update({'entry.gsr':entry,'accept.gsr':accept,'proof.gsr':proof})
+            state=d.s.r.decode(original[d.s.FILE]);plan=copy.deepcopy(state['plan']);upper=c.anchor(c.current(files)[2]['capsule']);peers=[]
+            future=original[d.future.FILE]
+            # This is the independently derived preceding frame, already
+            # matched to the physical snapshot, not a claimed disk counter.
+            prior_revision=json.loads(future[48:48+int.from_bytes(future[44:48],'big')])['revision']
+            for revision,peer in enumerate((n for n in self.voters if n!=self.proposer),1):
+                identity=d.future.identity(self.group[peer]);row=next(p for p in plan['peers'] if p['identity']==identity)
+                peers.append(dict(identity=identity,lower=row['possible'][0]))
+                future=d.future.frame(dict(d.future.initial(original),revision=prior_revision+revision,previous=e.digest(future),parent=c.anchor(packet['capsule']),peers=copy.deepcopy(peers)),retained)
+                row['possible'].append(upper)
+            if before_local_cleanup is not None:
+                before_local_cleanup[node]={d.s.FILE:original[d.s.FILE],d.future.FILE:future}
+            files[d.s.FILE]=d.s.r.frame(dict(state,revision=state['revision']+1,previous=e.digest(original[d.s.FILE]),plan=plan))
+            files[d.future.FILE]=d.future.frame(dict(d.future.initial(original),revision=prior_revision+len(self.voters),previous=e.digest(future)),{})
+        return group
 
     def settle(self,label,group,nodes):return group
 
