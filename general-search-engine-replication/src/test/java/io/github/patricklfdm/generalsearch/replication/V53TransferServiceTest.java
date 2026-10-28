@@ -70,7 +70,7 @@ class V53TransferServiceTest {
                             var second=CompletableFuture.runAsync(()->{try{var received=recordClient.fetchRecord(promise.digest(),"PROMISE",v->V53RecordExchangeTest.promise(v,original.capsule.context,ballot));Files.write(raw.resolve("record.gsr"),received.bytes());}catch(Exception error){throw new CompletionException(error);}});
                             CompletableFuture.allOf(first,second).get(40,TimeUnit.SECONDS);
                         }
-                        assertFalse(Files.exists(scratch));assertEquals(new MembershipTransferService.Usage(2,2,0,false),service.usage());
+                        assertFalse(Files.exists(scratch));assertEquals(new MembershipTransferService.Usage(2,0,0,false),service.usage());
                         lifetime.put("beforeClose",observed(service.usage()));
                     }
                     assertEquals(new MembershipTransferService.Usage(0,0,0,true),service.usage());
@@ -81,7 +81,7 @@ class V53TransferServiceTest {
                 cases.add(Map.of("size",size,"sourceExchanges",wire.size(),"recordExchanges",recordWire.size()));
             }
         }
-        Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-transfer-service-v1","status","PASS","cases",cases,"publicRuntime",false,"network",true,"scope","runtime-scoped-transfer-dispatch"),65536));
+        Files.write(evidence.resolve("receipt.json"),canonical(Map.of("schema","gse-v53-transfer-service-v2","status","PASS","cases",cases,"publicRuntime",false,"network",true,"scope","runtime-scoped-transfer-dispatch"),65536));
     }
     @Test void exactDuplicatesKeepOneSessionWhileFailedTraceCannotReopen()throws Exception {
         try(var l=new Local()) {
@@ -222,5 +222,73 @@ class V53TransferServiceTest {
             assertTrue(count>=2,"published packet retains actual original entry and proof records");
         }
         assertEquals(0,f.resources.usage().leases());assertEquals(0,receiving.usage().leases());
+    }
+    @Test void completedOriginalRecordsLeaveOneBoundedReplayMarkerPerTrace()throws Exception {
+        try(var l=new Local()) {
+            var promise=l.f.owner.promised().orElseThrow();int baseline=l.f.fixture.resources.usage().counts().getOrDefault(MembershipResources.Unit.CONTROL,0);
+            var committed=new AtomicReference<Decoded>();var reply=new AtomicReference<Decoded>();
+            for(int i=0;i<80;i++) {
+                try(var pull=new MembershipSourcePull(l.f.source.capsule,l.peer(2),l.peer(1),l.ballot,UUID.randomUUID(),l.f.receiving,bound(2),
+                    (peer,request,kind,deadline)->{try{var result=l.service.handle(l.peer(2),request);
+                        if(request.kind().equals("TRANSFER_COMMIT")){committed.set(request);reply.set(result);}return CompletableFuture.completedFuture(result);
+                    }catch(Exception error){return CompletableFuture.failedFuture(error);}},()->{},l.f.clock::get,0,BUDGET)) {
+                    assertArrayEquals(promise.bytes(),pull.fetchRecord(promise.digest(),"PROMISE",v->V53RecordExchangeTest.promise(v,l.f.source.capsule.context,l.ballot)).bytes());
+                }
+                var before=l.f.fixture.resources.usage();assertArrayEquals(reply.get().bytes(),l.service.handle(l.peer(2),committed.get()).bytes());assertEquals(before,l.f.fixture.resources.usage());
+            }
+            assertEquals(80,l.service.usage().traces());assertEquals(0,l.service.usage().live());
+            assertEquals(baseline+80,l.f.fixture.resources.usage().counts().getOrDefault(MembershipResources.Unit.CONTROL,0));
+            assertEquals(0,l.f.receiving.usage().leases());
+        }
+    }
+    @Test void completedReplayCannotBeReboundOrRevivedAfterFencing()throws Exception {
+        for(String mode:List.of("changed","expired","fenced","closed"))try(var l=new Local()) {
+            var promise=l.f.owner.promised().orElseThrow();var commit=new AtomicReference<Decoded>();
+            try(var pull=new MembershipSourcePull(l.f.source.capsule,l.peer(2),l.peer(1),l.ballot,UUID.randomUUID(),l.f.receiving,bound(2),
+                (peer,request,kind,deadline)->{try{var result=l.service.handle(l.peer(2),request);if(request.kind().equals("TRANSFER_COMMIT"))commit.set(request);
+                    return CompletableFuture.completedFuture(result);}catch(Exception error){return CompletableFuture.failedFuture(error);}},()->{},l.f.clock::get,0,BUDGET)) {
+                pull.fetchRecord(promise.digest(),"PROMISE",v->V53RecordExchangeTest.promise(v,l.f.source.capsule.context,l.ballot));
+            }
+            assertEquals(0,l.service.usage().live());
+            if(mode.equals("changed")) {
+                var fields=new TreeMap<>(commit.get().value());fields.put("payload",Map.of("id",UUID.randomUUID().toString(),"digest",promise.digest()));
+                assertThrows(IllegalArgumentException.class,()->l.service.handle(l.peer(2),change(commit.get(),fields)));
+                assertEquals(1,l.service.usage().traces());
+            }else if(mode.equals("expired"))l.f.clock.set(BUDGET);
+            else if(mode.equals("fenced"))l.fenced.set(true);else l.service.close();
+            assertThrows(Exception.class,()->l.service.handle(l.peer(2),commit.get()));
+            l.f.clock.set(0);l.fenced.set(false);assertThrows(Exception.class,()->l.service.handle(l.peer(2),commit.get()));
+        }
+    }
+    @Test void partialMultiContentCommitStillAllowsTheNextOriginalContent()throws Exception {
+        try(var l=new Local()) {
+            var last=new AtomicReference<Decoded>();var basis=l.f.source.basis;
+            try(var pull=new MembershipSourcePull(l.f.source.capsule,l.peer(2),l.peer(1),l.ballot,UUID.randomUUID(),l.f.receiving,bound(2),
+                (peer,request,kind,deadline)->{try{var result=l.service.handle(l.peer(2),request);last.set(request);return CompletableFuture.completedFuture(result);}
+                    catch(Exception error){return CompletableFuture.failedFuture(error);}},()->{},l.f.clock::get,0,BUDGET)) {
+                assertArrayEquals(basis.bytes(),pull.fetchRecord(basis.digest(),"BASIS",v->assertEquals(basis.digest(),v.digest())).bytes());
+            }
+            assertEquals(1,l.service.usage().live());
+            var fields=new TreeMap<>(last.get().value());fields.put("sequence",number(fields.get("sequence"))+1);
+            fields.put("payload",Map.of("id",UUID.randomUUID().toString(),"action","REQUEST","offset",0L,"digest",l.f.owner.promised().orElseThrow().digest(),"bytes",""));
+            var request=decode(encode("wire","CHUNK",fields),"wire","CHUNK");
+            assertEquals("SOURCE_OFFER",l.service.handle(l.peer(2),request).kind());assertEquals(1,l.service.usage().live());
+        }
+    }
+    @Test void lostFinalReplyReplaysTheCompletedCacheWithoutNewExport()throws Exception {
+        try(var l=new Local()) {
+            var promise=l.f.owner.promised().orElseThrow();var commits=new ArrayList<String>();var drop=new AtomicBoolean();
+            int baseline=l.f.fixture.resources.usage().counts().getOrDefault(MembershipResources.Unit.CONTROL,0);
+            try(var pull=new MembershipSourcePull(l.f.source.capsule,l.peer(2),l.peer(1),l.ballot,UUID.randomUUID(),l.f.receiving,bound(2),
+                (peer,request,kind,deadline)->{try{var result=l.service.handle(l.peer(2),request);
+                    if(request.kind().equals("TRANSFER_COMMIT")){commits.add(request.digest());
+                        assertEquals(0,l.service.usage().live());
+                        assertEquals(baseline+1,l.f.fixture.resources.usage().counts().getOrDefault(MembershipResources.Unit.CONTROL,0));
+                        if(drop.compareAndSet(false,true))return CompletableFuture.failedFuture(lost());}
+                    return CompletableFuture.completedFuture(result);}catch(Exception error){return CompletableFuture.failedFuture(error);}},()->{},l.f.clock::get,0,BUDGET)) {
+                assertArrayEquals(promise.bytes(),pull.fetchRecord(promise.digest(),"PROMISE",v->V53RecordExchangeTest.promise(v,l.f.source.capsule.context,l.ballot)).bytes());
+            }
+            assertEquals(2,commits.size());assertEquals(1,new HashSet<>(commits).size());assertEquals(1,l.service.usage().traces());
+        }
     }
 }

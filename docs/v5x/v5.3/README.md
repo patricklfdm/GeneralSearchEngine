@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Completed transfer reclamation](PHASE_3_TRANSFER_COMPLETION.md) now releases
+finished immutable exports while preserving one bounded exact-final-reply marker.
+An isolated correction passes forty Java tests and independent v1/v2 portable
+replay with thirty exact negatives. Continuous automatic transitions and departing
+selected-owner completion remain under development; full Phase 3 stays open.
+
 [Continuous native REMOVE](PHASE_3_CONTINUOUS_TRANSITION.md) now crosses old,
 joint and new-stable authority on the same four live stores. Pre-grant governing
 maintenance retires obsolete sources under durable proof without enlarging the

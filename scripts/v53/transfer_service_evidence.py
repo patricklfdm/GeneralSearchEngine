@@ -17,7 +17,7 @@ c=transfer.c
 load=transfer.x.load
 
 
-def case(root,size):
+def case(root,size,live=2):
     source=transfer.case(root,size,additional=('record-wire.json','record.gsr','lifetime.json'))
     files=c.inventory(root/'captured/node-1');_,_,packet=c.current(files);r=packet['capsule']['root']
     promise,basis=c.journal(files['grants.gsr'],r,'node-1')[-2:];raw=promise[1];digest=e.digest(raw)
@@ -50,7 +50,7 @@ def case(root,size):
     request,response=exchange('TRANSFER_COMMIT','TRANSFER_COMMIT')
     e.need(request==response==dict(id=tid,digest=digest),'transfer service exact record commit')
     e.need(position==len(rows),'transfer service complete record transcript')
-    wanted=dict(beforeClose=dict(traces=2,live=2,calls=0,closed=False),afterClose=dict(traces=0,live=0,calls=0,closed=True))
+    wanted=dict(beforeClose=dict(traces=2,live=live,calls=0,closed=False),afterClose=dict(traces=0,live=0,calls=0,closed=True))
     e.need(e.f.canonical(load(root/'lifetime.json'))==e.f.canonical(wanted),'transfer service observed lifetime')
     return dict(size=size,sourceExchanges=source['exchanges'],recordExchanges=position)
 
@@ -58,8 +58,10 @@ def case(root,size):
 def validate(directory):
     root=Path(directory);e.need(root.is_dir() and not root.is_symlink(),'transfer service evidence directory')
     e.need({p.name for p in root.iterdir()}=={'receipt.json','stable-3','stable-4','stable-5'},'transfer service complete inventory')
-    cases=[case(root/f'stable-{size}',size) for size in (3,4,5)]
-    wanted=dict(schema='gse-v53-transfer-service-v1',status='PASS',cases=cases,publicRuntime=False,network=True,scope='runtime-scoped-transfer-dispatch')
+    receipt=load(root/'receipt.json');e.need(type(receipt) is dict,'transfer service scope/receipt');schema=receipt.get('schema')
+    e.need(schema in ('gse-v53-transfer-service-v1','gse-v53-transfer-service-v2'),'transfer service receipt schema')
+    cases=[case(root/f'stable-{size}',size,2 if schema.endswith('-v1') else 0) for size in (3,4,5)]
+    wanted=dict(schema=schema,status='PASS',cases=cases,publicRuntime=False,network=True,scope='runtime-scoped-transfer-dispatch')
     e.need(e.f.canonical(load(root/'receipt.json'))==e.f.canonical(wanted),'transfer service scope/receipt');return wanted
 
 

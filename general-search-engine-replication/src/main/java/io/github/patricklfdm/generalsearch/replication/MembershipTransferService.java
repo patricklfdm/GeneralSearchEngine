@@ -71,12 +71,18 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         final Key key;
         final MembershipResources.Lease marker;
         volatile MembershipSourceSession session;
+        String completedRequest;
+        Decoded completedReply;
         volatile boolean dead,released;
         Entry(Key key) {this.key=key;marker=resources.reserve(MembershipResources.Unit.CONTROL,"transfer-trace-"+UUID.randomUUID(),1024);}
         synchronized Decoded handle(Decoded request)throws IOException {
             require(!dead && !released,"transfer trace already ended");
             try {
                 time();
+                if(completedReply!=null) {
+                    require(request.digest().equals(completedRequest),"completed transfer exact retry only");
+                    return completedReply;
+                }
                 if(session==null) {
                     var payload=object(request.value().get("payload"));
                     // A competing next request cannot initialize an unconstructed trace.
@@ -92,11 +98,21 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                         session=new MembershipSourceSession(export,key.reader,key.trace,resources,chunkLimit,frameLimit,clock,started,budget);
                     }catch(IOException|RuntimeException|Error error){export.close();throw error;}
                 }
-                var reply=session.handle(key.reader,request);time();return reply;
+                var reply=session.handle(key.reader,request);time();
+                if(session.exhausted()) {
+                    require(request.kind().equals("TRANSFER_COMMIT"),"completed transfer requires final commit");
+                    // Account the retained decoded reply before dropping the
+                    // export/session buffers. Keep the trace so a changed retry
+                    // cannot resample another source under the same identity.
+                    marker.reserveControl(32768L+reply.size());
+                    completedRequest=request.digest();completedReply=reply;
+                    session.close();session=null;
+                }
+                return reply;
             }catch(IOException|RuntimeException|Error error){abort();throw error;}
         }
         boolean liveSession(){return session!=null && !dead && !released;}
-        synchronized void abort(){dead=true;if(session!=null){session.close();session=null;}}
+        synchronized void abort(){dead=true;completedRequest=null;completedReply=null;if(session!=null){session.close();session=null;}}
         synchronized void close(){abort();if(!released){released=true;marker.close();}}
     }
     private static void initial(Decoded request) {

@@ -62,6 +62,11 @@ final class MembershipSourceSession implements MembershipTransport.Handler,AutoC
         // Small, schema-bounded control fields; the persistent session reservation covers construction.
         var result=response(request,kind,payload);reserveResponse(result.size());return result;
     }
+    /** All distinct contents of this immutable export have been committed. The
+     * registry may now retain only the last exact reply, not reopen the export. */
+    synchronized boolean exhausted() {
+        return !closed && committed && references.values().stream().allMatch(v->offered.contains(v.digest()));
+    }
     @Override public synchronized Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         try {
             check();require(sender.equals(reader),"source session foreign reader");

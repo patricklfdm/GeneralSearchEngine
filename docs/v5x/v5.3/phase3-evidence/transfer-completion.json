@@ -1,0 +1,173 @@
+{
+  "causalEvidence": [
+    {
+      "bytes": 6837,
+      "path": "target/v53-transition-round/cacheoriginal-maven.log",
+      "sha256": "2f2d145494c3d45f4bad5cf1ad5c5331ae51e6c085098983d07b001073cdb3e0"
+    },
+    {
+      "bytes": 7832,
+      "path": "target/v53-transition-round/pressureoriginal-maven.log",
+      "sha256": "bcf931e0fff54997f0acede43862dc52459eefa9bb1186a04eaca2d29de2cf1d"
+    },
+    {
+      "bytes": 499484,
+      "path": "target/v53-transition-round/pressureoriginal-inputs.json",
+      "sha256": "adbea947d7782c9906e387309c12b83292985a0d4a7222b653cf7e31d4f8d945"
+    },
+    {
+      "bytes": 6625,
+      "path": "target/v53-transition-round/streamed-diagnosis.json",
+      "sha256": "04b9202e589771fa2b744344387fee516cffe3e3d082556722824f13900315ea"
+    }
+  ],
+  "caveats": [
+    "Historical v1 retains its original two live sessions; v2 requires zero after both immutable exports finish. Old evidence is unchanged.",
+    "Resource counts are checked by source-bound Java assertions; physical/wire readers derive actual retained bytes independently.",
+    "The pressure regression fails against the original transfer classes; the repeated native CHUNK failure separately measured CONTROL at256/256.",
+    "This isolated build excludes the pending round-driver and ancestry changes. It qualifies transfer completion only, not complete membership operation or Phase3.",
+    "Partially consumed multi-content sources remain live. Completed traces still consume one bounded marker until original scope expiry/close; limits and retry counts are unchanged.",
+    "The initial archive omitted empty evidence directories and correctly failed portable replay; the complete archive preserves both directory and file inventories. Original failure and archive remain retained.",
+    "Departing proposer/follower FINAL completion, all learner profiles and full protocol qualification remain open."
+  ],
+  "date": "2026-10-28",
+  "evidence": [
+    {
+      "bytes": 506985,
+      "path": "target/v53-transfer-completion/source-inputs.json",
+      "sha256": "236b29325370c1af0976b74e76a2c536f23698e72f2b85ed57df5049cef5662a"
+    },
+    {
+      "bytes": 275259,
+      "path": "target/v53-transfer-completion/compiled-inputs.json",
+      "sha256": "3dea3d65cb9076c3846fb28c955fef73802f465aec3f3ed33899dadecf3c0678"
+    },
+    {
+      "bytes": 258,
+      "path": "target/v53-transfer-completion/java-reports.json",
+      "sha256": "9b0e683fdc1da4bfd32f0ddd1ae991e3b91d735ea57cd862a53c89da0c60adef"
+    },
+    {
+      "bytes": 5671,
+      "path": "target/v53-transfer-completion/java.log",
+      "sha256": "a4abbbfa4bf383dcc68f980bac197f9ca8789a24e896b030da937ae4cc3a2148"
+    },
+    {
+      "bytes": 103,
+      "path": "target/v53-transfer-completion/normal-python.log",
+      "sha256": "2d014bb427120fb1a5014d7499096989061fd0fdf40acb471c2e2667de60e71e"
+    },
+    {
+      "bytes": 103,
+      "path": "target/v53-transfer-completion/optimized-python.log",
+      "sha256": "2d014bb427120fb1a5014d7499096989061fd0fdf40acb471c2e2667de60e71e"
+    },
+    {
+      "bytes": 322762,
+      "path": "target/v53-transfer-completion/portable-inputs.json",
+      "sha256": "8f6e73d1521ac9f82f91f1d19bdec9cc7855de4394c47b6822647b27b95dc07f"
+    },
+    {
+      "bytes": 346069,
+      "path": "target/v53-transfer-completion/portable-complete-inputs.json",
+      "sha256": "ab56642c73a2bd130f61401b0c8034f43edfe94ee759532d45e8f3c0a7cbb5a4"
+    },
+    {
+      "bytes": 4581792,
+      "path": "target/v53-transfer-completion/portable-evidence-complete.tar.gz",
+      "sha256": "5e9dea1f28c84454bd276cbf46680ef7d3459f1b40e1d63117184d7d05e6b547"
+    },
+    {
+      "bytes": 684,
+      "path": "target/v53-transfer-completion/qualification.log",
+      "sha256": "487319b857f0acd6a77bca20b1a967ba10cfa7f0ce5021d1cf7d4c9d1526d994"
+    },
+    {
+      "bytes": 53,
+      "path": "target/v53-transfer-completion/qualification-complete.log",
+      "sha256": "6fe87892028600f5183ed880f89641dd1af0be35bac15b8b529fdad7cce36423"
+    },
+    {
+      "bytes": 3305,
+      "path": "target/v53-transfer-completion/complete-portable.py",
+      "sha256": "80b0e7c59ec45f2a497b323e31bceae57f9fac5af9cb329eb92c40bbd5337620"
+    },
+    {
+      "bytes": 1190,
+      "path": "target/v53-transfer-completion/validation-summary.json",
+      "sha256": "81936dc1d35727376c434f00952c60ab7b5cb8a7237466c83d773b060ccd0686"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-completion/v1-normal.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-completion/v1-optimized.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-completion/v1-portable-complete.json",
+      "sha256": "b4d9cd9d1b30a1cd5d0bc649148240f4e4a7f37aa31308bd34ba9250fe8c8a6f"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-completion/v2-normal.json",
+      "sha256": "250aa3c5f9253ae5691be7638592d973756a45be8f1a79453a08ce52c3144e19"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-completion/v2-optimized.json",
+      "sha256": "250aa3c5f9253ae5691be7638592d973756a45be8f1a79453a08ce52c3144e19"
+    },
+    {
+      "bytes": 1838,
+      "path": "target/v53-transfer-completion/v2-portable-complete.json",
+      "sha256": "250aa3c5f9253ae5691be7638592d973756a45be8f1a79453a08ce52c3144e19"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "isolatedSource": "exact sourceParent plus the five declared Java/test/reader changes",
+    "realAdmittedSizes": [
+      3,
+      4,
+      5
+    ],
+    "repeatedRecordTransfers": 80,
+    "skipped": 0,
+    "tests": 40
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "python": {
+    "modes": [
+      "normal",
+      "optimized"
+    ],
+    "testsPerMode": 5
+  },
+  "replay": {
+    "exactResultEquality": true,
+    "modes": [
+      "normal",
+      "optimized",
+      "portable-optimized"
+    ],
+    "negativeCasesPerVersion": 15,
+    "originalsValidatedBeforeMutation": true,
+    "versions": [
+      "v1",
+      "v2"
+    ]
+  },
+  "schema": "gse-v53-phase3-transfer-completion-local-v1",
+  "scope": "completed immutable exports release source/session ownership while retaining one bounded identical-final-reply marker",
+  "sourceParent": "30fd2d648b178023cfc68636830dbdf9267d6997",
+  "status": "PASS"
+}

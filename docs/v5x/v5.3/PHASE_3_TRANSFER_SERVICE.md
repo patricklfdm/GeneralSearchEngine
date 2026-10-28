@@ -29,8 +29,20 @@ resource reservations. Per-peer simultaneous calls obey the caller's in-flight
 bound. Independent peers progress without holding a global monitor during source
 I/O. A failed trace retains a bounded tombstone until this runtime scope closes;
 it cannot reopen against a newer source. A refused capacity admission allocates no
-trace. Successful sessions retain the last reply/export until scope closure or
-expiry, permitting an exact retry after a lost final reply.
+trace. Initially, successful sessions retained the last reply/export until scope
+closure or expiry. The current transition-owner correction releases a session's
+export after every distinct original content has committed, keeping one accounted
+terminal reply marker until scope closure/expiry. Only the identical final commit
+can replay that marker; another request poisons the trace instead of reopening a
+source. A partially transferred multi-content source remains live. Every replay
+still checks the original runtime fence, identity, context and deadline, and
+returns no new observation or voting authority. This correction is locally
+qualified in [the completed-transfer batch](PHASE_3_TRANSFER_COMPLETION.md).
+
+The `v1` transfer-service evidence retains its original two-live-session lifetime.
+The new `v2` receipt requires zero live exports after both complete transfers.
+The independent reader validates these distinct source-bound observations; old
+evidence is not rewritten to claim the new reclamation behavior.
 
 All traces inherit the original start and deadline. Requests and replies check
 time and the runtime fencing guard; delayed work cannot extend the budget. The
