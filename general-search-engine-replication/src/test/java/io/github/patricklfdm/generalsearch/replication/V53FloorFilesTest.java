@@ -9,6 +9,48 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 
 class V53FloorFilesTest {
     @TempDir Path temp;
+    @Test void sequentialHandoffForcesEachReplacementBeforeReleasingItsReceivingSlot()throws Exception {
+        var fixture=new V53CurrentGenerationFixture(4,0,false);var helper=new V53FloorTest();Path path=temp.resolve("handoff");
+        var copies=new ArrayList<MembershipFloor.Copy>();
+        for(int node=1;node<=3;node++)copies.add(helper.copy(node==1?path:temp.resolve("handoff-peer-"+node),4,0,node));
+        var budget=resources();var old=new ArrayList<MembershipResources.Lease>();var receiving=new HashMap<String,MembershipResources.Lease>();
+        for(int i=0;i<2;i++)old.add(budget.reserve(MembershipResources.Unit.SOURCE,"old-"+i,1));
+        for(var copy:copies.subList(1,3))receiving.put(copy.generation.digest(),budget.reserve(MembershipResources.Unit.SOURCE,"receive-"+copy.owner.nodeId().value(),1));
+        var handed=new ArrayList<String>();var events=new ArrayList<String>();
+        try(var store=MembershipGrantJournal.openFloors(path,fixture.root(),V53DeclarationsTest.node(1),budget,fixture::verify,event->{
+            events.add(event);assertTrue(budget.usage().counts().getOrDefault(MembershipResources.Unit.SOURCE,0)<=6);
+        })) {
+            store.establishFloor(copies,copy->{
+                assertEquals("FLOOR_COPY_DIRECTORY_FORCED",events.getLast());
+                Path replacement=path.resolve("floor-copies").resolve(copy.generation.digest());
+                for(String name:copy.fileNames())assertArrayEquals(copy.fileBytes(name),Files.readAllBytes(replacement.resolve(name)));
+                assertFalse(Files.exists(path.resolve("floor-copies/floor.gsr")));
+                var lease=receiving.remove(copy.generation.digest());if(lease!=null)lease.close();handed.add(copy.owner.nodeId().value());
+            });
+            assertEquals(3,handed.size());assertEquals("node-1",handed.getLast());assertTrue(receiving.isEmpty());
+            assertTrue(store.governingFloor().isPresent());assertEquals(5,budget.usage().counts().get(MembershipResources.Unit.SOURCE));
+        }finally{receiving.values().forEach(MembershipResources.Lease::close);old.forEach(MembershipResources.Lease::close);}
+        assertEquals(0,budget.usage().leases());
+    }
+    @Test void interruptedHandoffRetainsExactPartialCopiesAndResumesWithoutInventingAuthority()throws Exception {
+        for(String point:List.of("FLOOR_MANIFEST_WRITTEN","FLOOR_MEMBER_WRITTEN","FLOOR_COPY_HANDED_OFF")) {
+            Path path=temp.resolve("handoff-"+point);var a=copy(path,6,1);var b=copy(temp.resolve("handoff-peer-"+point),6,2);var budget=resources();
+            try(var store=open(path,6,budget,event->{if(event.equals(point))throw new java.io.IOException(point);})) {
+                assertThrows(java.io.IOException.class,()->store.establishFloor(List.of(a,b),copy->{}));
+            }
+            assertEquals(0,budget.usage().leases());assertFalse(Files.exists(path.resolve("floor-copies/floor.gsr")));
+            if(!point.equals("FLOOR_COPY_HANDED_OFF")) {
+                String name=point.equals("FLOOR_MANIFEST_WRITTEN")?"generation.gsr":"promise.gsr";
+                Path member=path.resolve("floor-copies").resolve(b.generation.digest()).resolve(name);
+                byte[] bytes=Files.readAllBytes(member);Files.write(member,Arrays.copyOf(bytes,bytes.length/2));
+            }
+            try(var store=open(path,6,budget,event->{})) {
+                assertTrue(store.governingFloor().isEmpty());store.establishFloor(List.of(a,b),copy->{});
+                assertTrue(store.governingFloor().isPresent());
+            }
+            assertEquals(0,budget.usage().leases());
+        }
+    }
     static final List<String> CUTS=List.of("FLOOR_RESERVED","FLOOR_DIRECTORY_CREATED","FLOOR_PROPOSAL_WRITTEN","FLOOR_PROPOSAL_FORCED",
             "FLOOR_COPY_CREATED","FLOOR_MANIFEST_WRITTEN","FLOOR_MANIFEST_FORCED","FLOOR_IMAGE_WRITTEN","FLOOR_IMAGE_FORCED",
             "FLOOR_MEMBER_WRITTEN","FLOOR_MEMBER_FORCED","FLOOR_COPY_DIRECTORY_FORCED","FLOOR_COPIES_FORCED",

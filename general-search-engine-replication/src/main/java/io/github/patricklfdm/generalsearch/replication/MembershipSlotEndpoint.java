@@ -56,6 +56,13 @@ final class MembershipSlotEndpoint implements MembershipTransport.Handler,AutoCl
             publishedScope=next;publication=endpoint;return endpoint;
         }
     }
+    Decoded completedCheckpoint(MembershipIdentity sender,Decoded request)throws IOException {
+        time();MembershipPublicationEndpoint active;var scope=publishedScope;
+        require(scope!=null && scope.published(),"completed checkpoint requires published slot");
+        synchronized(registry){active=publication;}require(active!=null,"completed checkpoint publication unavailable");
+        require(request.kind().equals("CHUNK") || request.kind().equals("TRANSFER_COMMIT"),"completed checkpoint transfer only");
+        var reply=active.handle(sender,request);time();return reply;
+    }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         time();require(request.size()<=Math.min(FRAME,bounds.maxFrameBytes()),"slot endpoint frame capacity");
         String kind=request.kind();

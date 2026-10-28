@@ -1,0 +1,368 @@
+{
+  "archive": {
+    "bytes": 21306889,
+    "path": "target/v53-authority-transition/evidence.tar.gz",
+    "sha256": "b76eaf6d3740841c07d3449df16f7a03f290d5b302f9ceb3b1be35fc96fcc067"
+  },
+  "authorityHistories": 2,
+  "authorityNegatives": 28,
+  "authorityNetworkMatrixQualified": false,
+  "authorityReplay": {
+    "bytes": 995258,
+    "path": "target/v53-authority-transition/authority-replay/results.json",
+    "sha256": "f47d212c32bcf19b79edb0ff425f41666cf20fba75064a4cdde2225750927754"
+  },
+  "baseCommit": "e0b3a04c91d92d2aa3db66d0f774e482bf6ec620",
+  "collectorFailure": {
+    "bytes": 251,
+    "path": "target/v53-authority-transition/handoff-process/receipt.json",
+    "sha256": "0a3e5bbf9c3dec43d6cf5741080e6a9f88fd18d58e280a8ffaeffab39bf47aee"
+  },
+  "continuousMembershipQualified": false,
+  "formatsChanged": false,
+  "java": {
+    "inputs": {
+      "bytes": 497749,
+      "path": "target/v53-authority-transition/reconciled-inputs.json",
+      "sha256": "fd079ffe47423e0e7c5ef6e0fb5abf6bc815d4a964a706be6d0020c7e6e017b9"
+    },
+    "log": {
+      "bytes": 12418,
+      "path": "target/v53-authority-transition/reconciled-maven.log",
+      "sha256": "3388822cf009b7df7231f14984edd060e5e4ec9b61b463008905fc21976e81bf"
+    },
+    "reports": [
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53AuthorityTransitionTest",
+        "report": {
+          "bytes": 9465,
+          "path": "target/v53-authority-transition/builds/reconciled-855de498/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53AuthorityTransitionTest.xml",
+          "sha256": "552d71d4f324ca8a7b5a3e6c354383cec9060fcce2ec1430d3d9b4b7ffd3b507"
+        },
+        "seconds": 468.174,
+        "tests": 2
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "report": {
+          "bytes": 9131,
+          "path": "target/v53-authority-transition/builds/reconciled-855de498/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest.xml",
+          "sha256": "ca05a0f416256f3e638f8a4243e9051fd3e1bbef990dde82ff3bfdc8dd32d81c"
+        },
+        "seconds": 17.057,
+        "tests": 11
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionFilesTest",
+        "report": {
+          "bytes": 10815,
+          "path": "target/v53-authority-transition/builds/reconciled-855de498/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PeerRetentionFilesTest.xml",
+          "sha256": "890bf8ff00cff9832552caf155d4f03db0b74ff762207e8b26872592eaaaf9de"
+        },
+        "seconds": 157.491,
+        "tests": 6
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionSourceTest",
+        "report": {
+          "bytes": 10444,
+          "path": "target/v53-authority-transition/builds/reconciled-855de498/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53PeerRetentionSourceTest.xml",
+          "sha256": "2b6f37cbae84a703d95df7673d3a7e81697c80c7aab2b9835040ee9cedcf39f6"
+        },
+        "seconds": 157.205,
+        "tests": 5
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53RecordExchangeTest",
+        "report": {
+          "bytes": 9268,
+          "path": "target/v53-authority-transition/builds/reconciled-855de498/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RecordExchangeTest.xml",
+          "sha256": "9998cff799b44c11ae8bedb76f4576877999c0e4ec1d469774669a693204c384"
+        },
+        "seconds": 63.521,
+        "tests": 10
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest",
+        "report": {
+          "bytes": 8698,
+          "path": "target/v53-authority-transition/builds/reconciled-855de498/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest.xml",
+          "sha256": "218cf9a06b57483cc62a903e0c4902e44f1a1d991eac70519ee49f73f06f1f6f"
+        },
+        "seconds": 0.105,
+        "tests": 8
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "report": {
+          "bytes": 9672,
+          "path": "target/v53-authority-transition/builds/reconciled-855de498/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest.xml",
+          "sha256": "0eb99daed7cd96d2c938f203bf460fedd84d86bb171fbfb2b1d9fa1b14cea5cf"
+        },
+        "seconds": 56.739,
+        "tests": 12
+      }
+    ],
+    "tests": 54
+  },
+  "originals": [
+    {
+      "attempt": "original",
+      "inputs": {
+        "bytes": 497633,
+        "path": "target/v53-authority-transition/original-inputs.json",
+        "sha256": "ea9df769353fd663be600f6a2f32697fe10a140833c55c7006747f494592235d"
+      },
+      "log": {
+        "bytes": 8235,
+        "path": "target/v53-authority-transition/original-maven.log",
+        "sha256": "d7db142e8cb110d225dcfbff968069efc962230fa263847304684774dfdd3c41"
+      }
+    },
+    {
+      "attempt": "handoff",
+      "inputs": {
+        "bytes": 497633,
+        "path": "target/v53-authority-transition/handoff-inputs.json",
+        "sha256": "76fa4555e9c177c4d09031e6b6d6a944584058d4f931c536fc73c283dc765766"
+      },
+      "log": {
+        "bytes": 7881,
+        "path": "target/v53-authority-transition/handoff-maven.log",
+        "sha256": "ed760c0d738bef3d30560b19add7252f10de295a3eaa717d7febe9c52adf6eeb"
+      }
+    },
+    {
+      "attempt": "coordinated",
+      "inputs": {
+        "bytes": 497633,
+        "path": "target/v53-authority-transition/coordinated-inputs.json",
+        "sha256": "18e3be5785da55a4b822cb73fd5a0cd3c72e03cdec0c518190b27edf9d546fef"
+      },
+      "log": {
+        "bytes": 8120,
+        "path": "target/v53-authority-transition/coordinated-maven.log",
+        "sha256": "c5344755e60de4e7e5df7cec410d055e56dadce2722f603dd0ccb68d7adfc297"
+      }
+    },
+    {
+      "attempt": "checkpoint",
+      "inputs": {
+        "bytes": 497633,
+        "path": "target/v53-authority-transition/checkpoint-inputs.json",
+        "sha256": "c7e9ee5a2e9e0be0e675930a91650a301140d990f5106ca55afb0234c096c93c"
+      },
+      "log": {
+        "bytes": 9942,
+        "path": "target/v53-authority-transition/checkpoint-maven.log",
+        "sha256": "9b2a504e2473f6705973805e43d0f44ced2a5bc4e02263c3f1889835856ddc9a"
+      }
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portable": {
+    "bytes": 258,
+    "path": "target/v53-authority-transition/portable-replay.json",
+    "sha256": "b131a5531f958e58368688cf5e58dba693111458384d28de2bf3d22b0a0770d2"
+  },
+  "processCases": 14,
+  "processNegatives": 17,
+  "processNetworkReceivingQualified": false,
+  "processReceipt": {
+    "bytes": 409316,
+    "path": "target/v53-authority-transition/handoff-explicit/receipt.json",
+    "sha256": "c2e316a0b27b3d1533aa3265688e564a3458996d6c34f8e1a1899eb13fdf2bef"
+  },
+  "processValidation": {
+    "bytes": 4273,
+    "path": "target/v53-authority-transition/handoff-explicit/validation.json",
+    "sha256": "2ef8bae71d92a4a40fee1e79c56c57c7bfd1594e07c3ced3068bb3cdd5058198"
+  },
+  "protectedCI": false,
+  "publicReady": false,
+  "python": {
+    "log": {
+      "bytes": 789,
+      "path": "target/v53-authority-transition/python-final.log",
+      "sha256": "b36b4786d81e6580ad5d31406064bab0b4906ccea99320584e269b7509b0c7a0"
+    },
+    "seconds": 90.262,
+    "tests": 688
+  },
+  "regression": {
+    "inputs": {
+      "bytes": 497988,
+      "path": "target/v53-authority-transition/regression-inputs.json",
+      "sha256": "ffed081d463b0f3ca980f21b9a8a929de0f7a83159d7431a5f8b8010e470aea6"
+    },
+    "log": {
+      "bytes": 5744,
+      "path": "target/v53-authority-transition/regression-maven.log",
+      "sha256": "f5f91de7053f4bb421346d70f8c9a9a190f82fb5ca38909be6e6afcbf4a23731"
+    },
+    "reports": [
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest",
+        "report": {
+          "bytes": 8220,
+          "path": "target/v53-authority-transition/builds/regression-12f4d8d1/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest.xml",
+          "sha256": "436bad492f3b2d42c3847dfc2d786202c445c2da42a4b5ff61d172806a84a749"
+        },
+        "seconds": 205.132,
+        "tests": 2
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest",
+        "report": {
+          "bytes": 8271,
+          "path": "target/v53-authority-transition/builds/regression-12f4d8d1/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest.xml",
+          "sha256": "20c29f0376d7bc43723b79621d17ee2f590c0febc1fc62a07dd1114437760863"
+        },
+        "seconds": 59.759,
+        "tests": 2
+      }
+    ],
+    "tests": 4
+  },
+  "regressionHistories": 2,
+  "regressionNegatives": 50,
+  "regressionReplay": {
+    "bytes": 9216,
+    "path": "target/v53-authority-transition/regression-replay.json",
+    "sha256": "a00e887c3dcaa45d5860599722c84daf2bf289a9fc83e67162644979ce70a19b"
+  },
+  "remaining": [
+    "continuous INTENT -> joint activation -> FINAL -> fresh stable barrier",
+    "all-seven-profile ADD/REPLACE learners and joint completion",
+    "autonomous election/discovery/adoption and restart lifecycle",
+    "maximum combined resource lifetime and full Phase 3 requirement mapping"
+  ],
+  "requestTimeoutMillis": 30000,
+  "resourceLimitsChanged": false,
+  "roundBudgetSeconds": 180,
+  "schema": "gse-v53-native-authority-transitions-v1",
+  "sources": [
+    {
+      "bytes": 133360,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "3e6fb7a671986a1b984df5a550cff59ce9cbd9e68a71234e2384222f7926a0a9"
+    },
+    {
+      "bytes": 5652,
+      "path": "docs/v5x/v5.3/PHASE_3_AUTHORITY_TRANSITIONS.md",
+      "sha256": "9b564034728a9dc46ce103c7b82323ffe8c1b97491db92449ba2743b6a472c12"
+    },
+    {
+      "bytes": 25085,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "9fb9db1572bf4220c417ec8861f71ab5727630a04eefe88a31beac6a5956d71d"
+    },
+    {
+      "bytes": 40104,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "dfe8d2bdc4da495c21b73fd2220766887d9731bf806662ef88599cda164c2fc6"
+    },
+    {
+      "bytes": 30248,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "sha256": "442cfb19a87f88f0f859bce5a9a2738d1450b3f98e5f00ebf289d195291c488f"
+    },
+    {
+      "bytes": 28962,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java",
+      "sha256": "c8297db50fd3653e66696b58729a522769ce927fc0698da307c8268fa838dd46"
+    },
+    {
+      "bytes": 7552,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "sha256": "e39e877c17bd837ef62ef67d6ed518ad6d28fc25296a51e2e35d40c92d8fdc59"
+    },
+    {
+      "bytes": 278249,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "7aef136654f11e02ac76bd766e96c94207f6a3aaa0e9aeaa44deb378e010e841"
+    },
+    {
+      "bytes": 12931,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationEndpoint.java",
+      "sha256": "afd272066273a6b2dd950b217b00de6622ecb74fcf4de23e8485493bde70744b"
+    },
+    {
+      "bytes": 3632,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRecordExport.java",
+      "sha256": "1ebc3aec476e586a698eed707124df924f100c6d871e4c6601a377ec83e19bd6"
+    },
+    {
+      "bytes": 6733,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java",
+      "sha256": "b83f2b1b10a5603836b4ba19f4911635dced1613a50e5b5c214448d39dde1132"
+    },
+    {
+      "bytes": 17485,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDriver.java",
+      "sha256": "b80bf326aa4e6b920d49bcb5745b1ce9df5c948a8fdca9a236799eb6b2f967ef"
+    },
+    {
+      "bytes": 7906,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotEndpoint.java",
+      "sha256": "9bb1ac832596a3663af19fc1efe63291ad7b28285ce91f522524dbddd4a65bb0"
+    },
+    {
+      "bytes": 10845,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java",
+      "sha256": "891306001fdc3d83b956cf5baf74a0be5423512fa897448bacd9918e2fe3b0ac"
+    },
+    {
+      "bytes": 7885,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AuthorityTransitionTest.java",
+      "sha256": "7e1c444aa385c2e13bd4be33150d9fab573414f875e76dff2629b388714e9fbe"
+    },
+    {
+      "bytes": 15004,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FloorFilesTest.java",
+      "sha256": "7e52a7e5e6855242263a26c0948bc7aec7ac763679362f2fd8a19b5bb97f3a6d"
+    },
+    {
+      "bytes": 4680,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FloorWorker.java",
+      "sha256": "acfc9ac69f416505dd9b1eb9960a5a7db1f890c8ebc9fa4959d69af83ebfd230"
+    },
+    {
+      "bytes": 11177,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ResourceTransferTest.java",
+      "sha256": "77d509f4979567810f9180ddab104525ceabad10b4d2cd943c187778d342427d"
+    },
+    {
+      "bytes": 26722,
+      "path": "scripts/v53/admitted_cross_view_evidence.py",
+      "sha256": "5420637bdc1a731e4197f3c275e8e3a2c9a42766a55c0516e4efcf007e93254c"
+    },
+    {
+      "bytes": 17326,
+      "path": "scripts/v53/authority_transition_evidence.py",
+      "sha256": "9dbabd7a1522029c6615b3afdd76604e8defc385eb01fb4960f63f94a393b31b"
+    },
+    {
+      "bytes": 8945,
+      "path": "scripts/v53/floor_evidence.py",
+      "sha256": "e4be2a05f3097e3e8b0ec9e630c553f9aadc87843f2f2be4b9ac7601bfe6eab2"
+    },
+    {
+      "bytes": 4880,
+      "path": "scripts/v53/floor_handoff_qualification.py",
+      "sha256": "12a7cd243769d9957feef0e1f21aa67f6c469cf44815c8d329b5f9f7d3b9a60e"
+    },
+    {
+      "bytes": 5253,
+      "path": "scripts/v53/floor_qualification.py",
+      "sha256": "4543240d7ce8486cb19aac729e93a63613dddaff49a5e139492afdb14bb649cb"
+    },
+    {
+      "bytes": 1895,
+      "path": "scripts/v53/test_floor_handoff_qualification.py",
+      "sha256": "d140d1ae7611c5da35e9baa6f3fc8fe306a21650eeacf60d54fa2f72307c08fa"
+    }
+  ],
+  "status": "PASS"
+}

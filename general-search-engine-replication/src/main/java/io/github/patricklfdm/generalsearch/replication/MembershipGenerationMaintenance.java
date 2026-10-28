@@ -57,6 +57,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         synchronized(this){require(!used && !closed,"native maintenance single use/closed");used=true;}
         check();if(!owner.nativeGenerationMaintenanceRequired())return;
         var own=owner.floorCopyCurrent();var copies=new ArrayList<MembershipFloor.Copy>();copies.add(own);
+        var receiving=new HashMap<String,List<MembershipSourcePull>>();
         var voters=new TreeSet<String>();voters.add(own.owner.nodeId().value());
         // The complete copies at this floor share the exact current application.
         // Borrow its live physical bytes instead of creating one receiving image
@@ -72,20 +73,26 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
                 source=prefix(hint);source.fetchPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);
                 generation=prefix(hint);var copy=generation.fetchGeneration(source);check();
                 require(copy.owner.equals(hint.peer()) && copy.capsule.terminal().equals(own.capsule.terminal()),"native maintenance exact original copy");
-                copies.add(copy);voters.add(node);retain=true;
+                copies.add(copy);voters.add(node);receiving.put(copy.generation.digest(),List.of(generation,source));retain=true;
             }catch(MembershipTransport.Failure error) {
                 if(error.reason!=MembershipTransport.Reason.IO && error.reason!=MembershipTransport.Reason.DEADLINE
                         && error.reason!=MembershipTransport.Reason.CAPACITY)throw error;check();
             }finally{if(!retain){try{release(generation);}finally{release(source);}}}
         }
         check();require(quorum(voters),"native generation maintenance quorum unavailable");
-        owner.establishFloor(copies);check();
+        owner.establishFloor(copies,copy->{
+            // Only this exact complete replacement has been forced, including
+            // directory parents. Delete its receiving scratch before reserving
+            // another copy; never release an original source or image here.
+            for(var work:receiving.getOrDefault(copy.generation.digest(),List.of()))release(work);
+        });check();
         // Only these complete original copies can rule out an earlier remote
         // possibility. A publication ACK or STATUS hint cannot narrow the ledger.
         for(var copy:copies){owner.retainPeerObservation(copy);check();}
         // The forced floor now owns every exact copy, and the peer observations
-        // are durable. Delete receiving scratch before reserving retirement's
-        // saved original; otherwise a three-copy floor exceeds six SOURCE slots.
+        // are durable. The sequential handoff has already removed matching
+        // receiving scratch; defensively drain anything still registered before
+        // retirement reserves its saved original.
         List<MembershipSourcePull> received;
         synchronized(this){received=List.copyOf(pulls);}
         for(var work:received){release(work);check();}

@@ -11,6 +11,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipRecordExport implements MembershipTransferExport {
     static final Set<String> KINDS=Set.of("PROMISE","BASIS","SELECTED","ENTRY","ACCEPT","PROOF","CERTIFICATE","CHECKPOINT","CHECKPOINT_ACK");
     private final MembershipGrantJournal owner;
+    final MembershipGrantJournal.Publication publication;
     private final MembershipContext context;
     private final MembershipIdentity identity;
     private final Map<String,Object> ballot;
@@ -23,7 +24,12 @@ final class MembershipRecordExport implements MembershipTransferExport {
 
     MembershipRecordExport(MembershipGrantJournal owner,MembershipContext context,MembershipIdentity identity,
             Map<String,Object> ballot,Decoded record,MembershipResources resources,LongSupplier clock,long started,long budget) {
-        this.owner=owner;this.context=context;this.identity=identity;this.ballot=Map.copyOf(ballot);
+        this(owner,context,identity,ballot,record,resources,clock,started,budget,null);
+    }
+    MembershipRecordExport(MembershipGrantJournal owner,MembershipContext context,MembershipIdentity identity,
+            Map<String,Object> ballot,Decoded record,MembershipResources resources,LongSupplier clock,long started,long budget,
+            MembershipGrantJournal.Publication publication) {
+        this.publication=publication;this.owner=owner;this.context=context;this.identity=identity;this.ballot=Map.copyOf(ballot);
         kind=record.kind();digest=record.digest();this.clock=clock;this.started=started;this.budget=budget;
         lease=resources.reserve(MembershipResources.Unit.CONTROL,"record-export-"+UUID.randomUUID(),record.size());
         try{bytes=record.bytes();}catch(RuntimeException|Error error){lease.close();throw error;}

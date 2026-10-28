@@ -1,5 +1,13 @@
 # V5.3 — controlled cluster operations
 
+[Native authority-changing publication](PHASE_3_AUTHORITY_TRANSITIONS.md) now
+connects explicitly driven INTENT and FINAL to original acknowledgements across
+the changed view. Sequential durable floor replacement preserves the six-source
+bound; completed publication exports only its original checkpoint evidence.
+Targeted Java, physical and process checks, unchanged stable/carried regression
+and independent archived optimized replay pass. Continuous joint/new-stable activation, learners,
+automatic lifecycle and full Phase 3 remain open.
+
 [Concrete stable control admission](PHASE_3_ROUND_CONTROLS.md) corrects the
 round owner's conceptual `CONTROL` input to the six frozen concrete command
 names. An actual RESERVE/CANCEL TCP regression passes and preserves the permanent

@@ -37,7 +37,7 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
         this.link=Objects.requireNonNull(link);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;this.events=Objects.requireNonNull(events);
         owner.checkRetentionResources(resources);publication=owner.publication(applied);
-        transfers=new MembershipTransferService(owner,publication.ballot,resources,bounds,this::check,clock,started,budget);
+        transfers=MembershipTransferService.publication(owner,publication,resources,bounds,this::check,clock,started,budget);
     }
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"publication endpoint original deadline/closed");

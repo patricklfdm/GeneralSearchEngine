@@ -1,5 +1,24 @@
 # V5.3 development status
 
+## 2026-10-28 — Native authority-changing publication
+
+The [authority transition batch](PHASE_3_AUTHORITY_TRANSITIONS.md) fixes four
+retained development failures: peak floor/receive SOURCE ownership, early view
+change before all future-retention quorums, completed-publication checkpoint
+retrieval under the original view, and the next grant's retained peer configuration.
+It preserves limits, formats and the original joint voting certificate. Actual
+INTENT and FINAL are separately driven histories; neither establishes a complete
+autonomous membership operation or public service.
+
+The corrected Java snapshot passes 54 tests. Independent replay passes both
+original histories and 28 exact negatives; the stable/joint sequential floor
+process matrix passes fourteen cases and seventeen negatives. Four unchanged stable/carried, cancellation and
+higher-ballot regressions and fifty exact evidence mutations pass on identical
+Java. All 688 Python tests and archived optimized replay pass. The
+[source-bound receipt](phase3-evidence/authority-transitions.json) retains all
+failed attempts and explicit qualification limits. No workflow, paid cloud or
+V5.2 checkout is changed.
+
 ## 2026-10-27 — Concrete stable control admission
 
 [Concrete stable control admission](PHASE_3_ROUND_CONTROLS.md) corrects the

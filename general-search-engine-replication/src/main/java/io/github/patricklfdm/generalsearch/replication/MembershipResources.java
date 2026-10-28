@@ -81,6 +81,22 @@ final class MembershipResources {
                 staging+=additional;bytes=Unit.APPLICATION.bytes;
             }
         }
+        /** Grow one already-owned floor copy before completing its partial files.
+         * This neither shares a reservation nor changes the physical copy count. */
+        void reserveStorage(long total) {
+            synchronized(MembershipResources.this) {
+                require(!released && leases.get(key)==this && (key.unit==Unit.SOURCE || key.unit==Unit.APPLICATION),"storage reservation owner");
+                require(total>=bytes && total<=key.unit.bytes,"storage reservation extent");
+                long additional=total-bytes;
+                if(key.unit.metadata) {
+                    require(additional<=metadataLimit-metadata,"metadata capacity");
+                    require(HEADROOM-protectedUsed<=metadataLimit-metadata-additional,"completion headroom");
+                }
+                require(additional<=stagingLimit-staging,"shared staging capacity");
+                if(key.unit.metadata)metadata+=additional;
+                staging+=additional;bytes=total;
+            }
+        }
         @Override public void close() {
             synchronized(MembershipResources.this) {
                 if(released)return;

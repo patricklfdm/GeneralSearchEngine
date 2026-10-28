@@ -53,19 +53,22 @@ def plan(directory,case):
     return initial,manifest,peers,copies,floor
 
 
-def transaction(copies,floor):
+def transaction(copies,floor,*,handoff=False):
     events=[];writes={};directories={};files={}
     def event(name):events.append(dict(event=name,node='node-1'))
     def write(name,raw,prefix):
         writes[name]=len(events);files[name]=raw;event(prefix+'_WRITTEN');event(prefix+'_FORCED')
     event('FLOOR_RESERVED');directories['floor-copies']=len(events);event('FLOOR_DIRECTORY_CREATED')
     write('floor-copies/proposal.gsr',floor,'FLOOR_PROPOSAL')
-    for identity,members in sorted(copies.items()):
+    owner = g.f.decode(floor,'records','FLOOR')['node'] if handoff else None
+    ordered = sorted(copies.items(), key=lambda pair: (g.f.decode(pair[1]['generation.gsr'],'records','GENERATION')['node']==owner, pair[0])) if handoff else sorted(copies.items())
+    for identity,members in ordered:
         prefix='floor-copies/'+identity+'/';directories[prefix[:-1]]=len(events);event('FLOOR_COPY_CREATED')
         write(prefix+'generation.gsr',members['generation.gsr'],'FLOOR_MANIFEST')
         for name,raw in sorted(members.items()):
             if name!='generation.gsr':write(prefix+name,raw,'FLOOR_IMAGE' if name.endswith('.image') else 'FLOOR_MEMBER')
         event('FLOOR_COPY_DIRECTORY_FORCED')
+        if handoff:event('FLOOR_COPY_HANDED_OFF')
     event('FLOOR_COPIES_FORCED');write('floor-copies/floor.gsr',floor,'FLOOR_AUTHORITY')
     event('FLOOR_PARENT_FORCED');event('FLOOR_BEFORE_RETURN')
     return events,files,writes,directories
@@ -94,24 +97,26 @@ def result(rows,manifest,floor):
     need(row['floor']==c.sha(floor) and row['cut']==manifest['cut'] and row['networkAck'] is False and row['deletion'] is False,'floor returned binding')
 
 
-def validate_case(directory,case):
+def validate_case(directory,case,*,handoff=False):
     directory=Path(directory);record=g.a.load(directory/'case.json');need(record['case']==case,'floor case identity')
     need(record['execution']=='private-governing-floor' and record['runtimeEnabled'] is False and record['networkAck'] is False
          and record['deletion'] is False and record['historicalOwnershipVerified'] is False,'floor scope')
-    initial,manifest,peers,copies,floor=plan(directory,case);events,files,writes,dirs=transaction(copies,floor)
+    initial,manifest,peers,copies,floor=plan(directory,case);events,files,writes,dirs=transaction(copies,floor,handoff=handoff)
+    need(record.get('handoff',False)==handoff,'floor handoff mode')
+    command='handoff' if handoff else 'floor'
     order=opened(peers)+events;clean=case['mode']=='clean'
     d.process(directory,record,'init','init',0)
     def state(name,position=len(events)):return snapshot(directory/name,initial,files,writes,dirs,position)
     name='original' if clean else 'resumed';state(name)
     if clean:
-        rows=d.process(directory,record,'first','floor',0);need(rows[:-1]==order,'floor force order');result(rows,manifest,floor)
-        rows=d.process(directory,record,'duplicate','floor',0);need(rows[:-1]==order,'floor duplicate force order');result(rows,manifest,floor);state('duplicate')
+        rows=d.process(directory,record,'first',command,0);need(rows[:-1]==order,'floor force order');result(rows,manifest,floor)
+        rows=d.process(directory,record,'duplicate',command,0);need(rows[:-1]==order,'floor duplicate force order');result(rows,manifest,floor);state('duplicate')
     else:
-        rows=d.process(directory,record,'fault','floor',73 if case['mode']=='halt' else -9)
+        rows=d.process(directory,record,'fault',command,73 if case['mode']=='halt' else -9)
         position=next(i for i,row in enumerate(events) if row['event']==case['cut']);expected=opened(peers)+events[:position+1]
         if case['mode']=='kill':expected.append(dict(event='AWAITING_KILL',cut=case['cut']))
         need(rows==expected,'floor crash cut');state('crash',position)
-        rows=d.process(directory,record,'resume','floor',0);need(rows[:-1]==order,'floor recovery force order');result(rows,manifest,floor)
+        rows=d.process(directory,record,'resume',command,0);need(rows[:-1]==order,'floor recovery force order');result(rows,manifest,floor)
     rows=d.process(directory,record,'inspect','inspect',0);need(rows[:-1]==opened(peers,inspect=True),'floor reopen force order');result(rows,manifest,floor)
     state('final');state('authority')
     processes={'init','first','duplicate','inspect'} if clean else {'init','fault','resume','inspect'}

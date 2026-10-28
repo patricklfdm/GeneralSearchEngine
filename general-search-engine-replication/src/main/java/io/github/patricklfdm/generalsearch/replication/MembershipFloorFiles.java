@@ -20,6 +20,8 @@ final class MembershipFloorFiles implements AutoCloseable {
     private final MembershipGrantJournal.HistoryRead historyOwner;
     private final boolean releaseEnabled;
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
+    private final Map<String,MembershipResources.Lease> copyLeases=new HashMap<>();
+    @FunctionalInterface interface Handoff {void forced(MembershipFloor.Copy copy)throws IOException;}
     private final Map<String,FileIdentity> files=new TreeMap<>();
     private final Map<String,Object> directories=new TreeMap<>();
     private Object pathKey;
@@ -92,21 +94,25 @@ final class MembershipFloorFiles implements AutoCloseable {
         close();if(!exists && plan==null)return;
         try {
             Set<String> ids=new TreeSet<>();if(plan==null)ids.addAll(directories.keySet());else for(String name:plan.keySet())if(name.contains("/"))ids.add(name.substring(0,name.indexOf('/')));
-            for(String id:ids) {
-                long metadata=0;var images=new TreeMap<String,Long>();String prefix=id+"/";
-                if(plan==null)for(var file:files.entrySet())if(file.getKey().startsWith(prefix)) {
-                    if(file.getKey().endsWith(".image"))images.put(file.getKey(),file.getValue().bytes());else metadata=Math.addExact(metadata,file.getValue().bytes());
-                }
-                if(plan!=null)for(var file:plan.entrySet())if(file.getKey().startsWith(prefix)) {
-                    if(file.getKey().endsWith(".image"))images.put(file.getKey(),(long)file.getValue().length);else metadata=Math.addExact(metadata,file.getValue().length);
-                }
-                leases.add(resources.reserve(MembershipResources.Unit.SOURCE,"floor:"+id,Math.max(1,metadata)));
-                // The digest identifies the copy as well as the image; duplicates on disk
-                // still consume separate reservations. Never alias original BASIS leases.
-                int ordinal=0;for(var image:images.entrySet())leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"floor:"+id+":"+(ordinal++),Math.max(1,image.getValue())));
-            }
+            for(String id:ids)reserveCopy(plan,id);
             reserved=plan==null?null:hash(plan.get(PROPOSAL));
         }catch(RuntimeException | Error error){close();throw error;}
+    }
+    private void reservePart(String key,MembershipResources.Unit unit,String owner,long bytes) {
+        var lease=copyLeases.get(key);
+        if(lease==null){lease=resources.reserve(unit,owner,Math.max(1,bytes));leases.add(lease);copyLeases.put(key,lease);}
+        else lease.reserveStorage(Math.max(1,bytes));
+    }
+    private void reserveCopy(SortedMap<String,byte[]> plan,String id) {
+        long metadata=0;var images=new TreeMap<String,Long>();String prefix=id+"/";
+        if(plan==null)for(var file:files.entrySet())if(file.getKey().startsWith(prefix)) {
+            if(file.getKey().endsWith(".image"))images.put(file.getKey(),file.getValue().bytes());else metadata=Math.addExact(metadata,file.getValue().bytes());
+        }
+        if(plan!=null)for(var file:plan.entrySet())if(file.getKey().startsWith(prefix)) {
+            if(file.getKey().endsWith(".image"))images.put(file.getKey(),(long)file.getValue().length);else metadata=Math.addExact(metadata,file.getValue().length);
+        }
+        reservePart(id,MembershipResources.Unit.SOURCE,"floor:"+id,metadata);
+        int ordinal=0;for(var image:images.entrySet())reservePart(image.getKey(),MembershipResources.Unit.APPLICATION,"floor:"+id+":"+(ordinal++),image.getValue());
     }
     private boolean complete() throws IOException {
         if(!files.containsKey(FLOOR))return false;
@@ -173,21 +179,43 @@ final class MembershipFloorFiles implements AutoCloseable {
     }
     Decoded establish(MembershipFloor.Copy current,List<MembershipFloor.Copy> offered,
             MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut) throws IOException {
+        return establish(current,offered,owner,cut,null);
+    }
+    /** Receiving scratch may leave only after its exact complete replacement is
+     * forced. The FLOOR authority is still written last, after every copy. */
+    Decoded establish(MembershipFloor.Copy current,List<MembershipFloor.Copy> offered,
+            MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut,Handoff handoff)throws IOException {
         require(!releasing(),"pending floor release must finish before new floor");var floor=MembershipFloor.create(root,current,offered);require(current.owner.equals(local),"floor publication owner");
         var plan=new TreeMap<String,byte[]>();plan.put(PROPOSAL,floor.bytes());plan.put(FLOOR,floor.bytes());
         for(var copy:offered)for(String name:copy.fileNames())plan.put(copy.generation.digest()+"/"+name,copy.fileBytes(name));
         check();owner.check();require(plan.keySet().containsAll(files.keySet()),"unrelated retained floor files");
         for(var file:files.entrySet())require(prefix(AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(limit(file.getKey()))),plan.get(file.getKey())),"floor requires exact original proposal");
         var ids=new TreeSet<String>();for(var copy:offered)ids.add(copy.generation.digest());require(ids.containsAll(directories.keySet()),"unrelated retained floor directory");
-        if(!floor.digest().equals(reserved))reserve(plan);cut.at("FLOOR_RESERVED");check();owner.check();
+        var ordered=new ArrayList<>(ids);
+        if(handoff==null) {if(!floor.digest().equals(reserved))reserve(plan);}
+        else {
+            // All existing physical copies stay charged, including partial files
+            // reopened after interruption. Receive replacements before the local
+            // duplicate so each completed replacement releases one scratch slot.
+            for(String id:directories.keySet())reserveCopy(plan,id);
+            ordered.sort(Comparator.comparing((String id)->id.equals(current.generation.digest())).thenComparing(id->id));
+            reserveCopy(plan,ordered.getFirst());reserved=floor.digest();
+        }
+        cut.at("FLOOR_RESERVED");check();owner.check();
         if(!exists){Files.createDirectory(path);capture();}cut.at("FLOOR_DIRECTORY_CREATED");check();owner.check();
         completeFile(PROPOSAL,plan.get(PROPOSAL),owner,cut,"FLOOR_PROPOSAL");
-        for(String id:ids) {
+        for(String id:ordered) {
+            if(handoff!=null)reserveCopy(plan,id);
             if(!directories.containsKey(id)){Files.createDirectory(path.resolve(id));capture();}cut.at("FLOOR_COPY_CREATED");check();owner.check();
             completeFile(id+"/generation.gsr",plan.get(id+"/generation.gsr"),owner,cut,"FLOOR_MANIFEST");
             for(var file:plan.entrySet())if(file.getKey().startsWith(id+"/") && !file.getKey().endsWith("/generation.gsr"))
                 completeFile(file.getKey(),file.getValue(),owner,cut,file.getKey().endsWith(".image")?"FLOOR_IMAGE":"FLOOR_MEMBER");
             AdmissionPaths.forceDirectory(path.resolve(id));cut.at("FLOOR_COPY_DIRECTORY_FORCED");check();owner.check();
+            if(handoff!=null) {
+                AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(parent);check();owner.check();
+                handoff.forced(offered.stream().filter(copy->copy.generation.digest().equals(id)).findFirst().orElseThrow());
+                cut.at("FLOOR_COPY_HANDED_OFF");check();owner.check();
+            }
         }
         AdmissionPaths.forceDirectory(path);cut.at("FLOOR_COPIES_FORCED");check();owner.check();
         completeFile(FLOOR,plan.get(FLOOR),owner,cut,"FLOOR_AUTHORITY");
@@ -303,5 +331,5 @@ final class MembershipFloorFiles implements AutoCloseable {
         AdmissionPaths.exact(file,bytes);capture();
     }
     private static boolean prefix(byte[] actual,byte[] expected){return actual.length<=expected.length && Arrays.equals(actual,Arrays.copyOf(expected,actual.length));}
-    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();reserved=null;}
+    @Override public void close(){leases.forEach(MembershipResources.Lease::close);leases.clear();copyLeases.clear();reserved=null;}
 }

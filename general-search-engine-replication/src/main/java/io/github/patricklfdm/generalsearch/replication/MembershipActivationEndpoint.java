@@ -108,6 +108,17 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             owner.checkActivationBallot(capsule.context.authority(),ballot);
             require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");
         }
+        void completed(MembershipIdentity sender,Decoded request,Decoded response)throws IOException {
+            if(!request.kind().equals("PUBLISH") || !response.kind().equals("PUBLISH_ACK")){check();return;}
+            // A forced INTENT/FINAL changes the current view. Only the exact
+            // completed publication may finish under its original authority;
+            // ordinary controls still use check() and cannot revive that view.
+            require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");scratchOwner.check();
+            require(nativeHistory && request.value().get("ballot").equals(ballot)
+                    && request.value().get("view").equals(capsule.context.authority()),"completed activation publication original authority");
+            require(Arrays.equals(response.bytes(),owner.acknowledgePublished(sender,request).bytes()),"completed activation publication exact acknowledgement");
+            require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");
+        }
         CompletableFuture<Decoded> exchange(MembershipIdentity peer,Decoded request,String kind,long deadline) {
             try {
                 check();require(deadline==started+limit,"activation endpoint changed deadline");
@@ -127,8 +138,18 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             check();
         }
         Decoded transfer(MembershipIdentity sender,Decoded request)throws IOException {
-            check();MembershipTransferService active;synchronized(this){active=service;}
-            require(active!=null,"activation endpoint grant not available");return active.handle(sender,request);
+            require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");scratchOwner.check();
+            MembershipTransferService active;synchronized(this){active=service;}
+            if(!owner.activationContext().authority().equals(capsule.context.authority())
+                    && (active==null || !active.contains(sender,request))) {
+                // Fresh checkpoint reads can finish peers' publication after a
+                // view change. Existing grant traces never migrate registries.
+                MembershipSlotEndpoint published;synchronized(slotRegistry){published=slot;}
+                require(published!=null,"completed checkpoint slot unavailable");
+                var reply=published.completedCheckpoint(sender,request);
+                require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");return reply;
+            }
+            check();require(active!=null,"activation endpoint grant not available");return active.handle(sender,request);
         }
         void maintain()throws IOException {
             check();if(!owner.nativeGenerationMaintenanceRequired())return;
@@ -170,7 +191,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                     require(installed.record("ACCEPT").isPresent(),"carried maintenance requires actual new ACCEPT");
                     maintain();check();
                 }
-                var reply=chosen.handle(sender,request);check();return reply;
+                var reply=chosen.handle(sender,request);completed(sender,request,reply);return reply;
             }
             finally{synchronized(slotRegistry){slotCalls--;slotRegistry.notifyAll();}}
         }
@@ -287,7 +308,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                             new MembershipSelectedPull(owner,sender,request,resources,bounds,active::exchange,verifier,ancestry,retained,
                                     destination,active::check,clock,active.started,active.limit)) {response=incoming.install();}
                 }else response=active.nativeControl(sender,request);
-                active.check();lease.reserveControl(request.size()+(long)response.size());active.check();
+                active.completed(sender,request,response);lease.reserveControl(request.size()+(long)response.size());active.completed(sender,request,response);
                 synchronized(registry){finished=true;result.complete(response);}
             }catch(Throwable error){
                 // SourcePull has already checked exact sender/recipient/root/view,
@@ -338,8 +359,8 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             active.capsule.context.wire(request,sender,owner.activationIdentity(),active.ballot,
                     UUID.fromString((String)request.value().get("trace")),number(request.value().get("sequence")));
         }
-        active.check();
         if(kind.equals("CHUNK") || kind.equals("TRANSFER_COMMIT"))return active.transfer(sender,request);
+        active.check();
         require(kind.equals("PREPARE") || kind.equals("SELECTED") || nativeSlot,"activation endpoint control kind");
         MembershipActivation.incoming(owner,sender,request,kind);Control task;
         synchronized(registry) {
@@ -356,7 +377,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         }
         try {
             long left=active.limit-(clock.getAsLong()-active.started);require(left>0,"original activation endpoint deadline");
-            var response=task.result.get(left,TimeUnit.NANOSECONDS);active.check();return response;
+            var response=task.result.get(left,TimeUnit.NANOSECONDS);active.completed(sender,request,response);return response;
         }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation endpoint interrupted",error);}
         catch(TimeoutException error){active.close();throw new IOException("activation endpoint deadline",error);}
         catch(ExecutionException error){if(error.getCause() instanceof IOException io)throw io;if(error.getCause() instanceof RuntimeException r)throw r;throw new IOException("activation endpoint control failed",error.getCause());}

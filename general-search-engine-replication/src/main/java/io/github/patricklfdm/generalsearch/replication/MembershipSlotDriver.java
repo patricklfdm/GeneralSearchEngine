@@ -42,7 +42,7 @@ final class MembershipSlotDriver implements AutoCloseable {
     private final Set<MembershipResources.Lease> taskLeases=new HashSet<>();
     private final Set<MembershipSourcePull> pulls=new HashSet<>();
     private final CountDownLatch finished=new CountDownLatch(1);
-    private MembershipFutureRetentionQuorum future;
+    private final Set<MembershipFutureRetentionQuorum> recordings=new HashSet<>();
     private Thread runner;
     private volatile boolean closed;
     private boolean used;
@@ -139,13 +139,18 @@ final class MembershipSlotDriver implements AutoCloseable {
         values=new TreeMap<>(proof.value());values.put("proofs",witnesses(proof,proofs));var certificate=decode(encode("records","CERTIFICATE",values),"records","CERTIFICATE");
         var original=new HashSet<>(accepts);original.addAll(proofs);check();owner.certifyCurrent(certificate,original);check();
         var applied=application.apply();check();deliver("APPLY",certificate);events.at("APPLIED",certificate,selected);check();
+        // Every intended receiver is retained by an original governing quorum
+        // before any publication can change a receiver's voting view. Keeping
+        // these bounded capabilities alive preserves their original fence and
+        // deadline through each actual socket write.
+        var ready=new ArrayList<MembershipFutureRetentionQuorum.Recorded>();
         for(var peer:peers) {
             check();var recording=new MembershipFutureRetentionQuorum(owner,peer,voting.ballot,owner.pendingPublication(applied),resources,
                     transport::exchange,clock,started,budget);
-            synchronized(this){if(closed){recording.close();throw new IOException("slot future quorum closed");}future=recording;}
-            try(recording){var recorded=recording.record();check();events.at("FUTURE_QUORUM_COMPLETE",certificate,recorded.voters());check();recorded.dispatch(transport);check();}
-            finally{synchronized(this){if(future==recording)future=null;}}
+            synchronized(this){if(closed){recording.close();throw new IOException("slot future quorum closed");}recordings.add(recording);}
+            var recorded=recording.record();check();events.at("FUTURE_QUORUM_COMPLETE",certificate,recorded.voters());check();ready.add(recorded);
         }
+        for(var recorded:ready){check();recorded.dispatch(transport);check();}
         check();var publish=request(owner.activationIdentity(),"PUBLISH",Map.of("certificate",certificate.digest()));
         var response=endpoint.handle(owner.activationIdentity(),publish);time();
         require(response.kind().equals("PUBLISH_ACK"),"slot local publication acknowledgement");
@@ -179,10 +184,11 @@ final class MembershipSlotDriver implements AutoCloseable {
     }
     synchronized Optional<Decoded> published(){return Optional.ofNullable(published);}
     private void stop()throws IOException {
-        List<MembershipSourcePull> closing;MembershipFutureRetentionQuorum recording;
-        synchronized(this){for(var task:pending)task.cancel(true);closing=List.copyOf(pulls);recording=future;}
+        List<MembershipSourcePull> closing;List<MembershipFutureRetentionQuorum> retained;
+        synchronized(this){for(var task:pending)task.cancel(true);closing=List.copyOf(pulls);retained=List.copyOf(recordings);}
         IOException problem=null;
-        try{if(recording!=null)recording.close();}catch(RuntimeException error){problem=new IOException("slot recording close failed",error);}
+        for(var recording:retained)try{recording.close();}catch(RuntimeException error){var failure=new IOException("slot recording close failed",error);
+            if(problem==null)problem=failure;else problem.addSuppressed(failure);}
         for(var pull:closing)try{pull.close();}catch(IOException|RuntimeException error){var failure=error instanceof IOException io?io:new IOException("slot receipt close failed",error);
             if(problem==null)problem=failure;else problem.addSuppressed(failure);}
         workers.shutdownNow();if(problem!=null)throw problem;

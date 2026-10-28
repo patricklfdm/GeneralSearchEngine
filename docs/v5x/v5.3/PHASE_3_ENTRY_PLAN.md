@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native authority-changing publication](PHASE_3_AUTHORITY_TRANSITIONS.md) now
+connects explicitly driven INTENT and FINAL to original acknowledgements across
+the changed view. Sequential durable floor replacement preserves the six-source
+bound; completed publication exports only its original checkpoint evidence.
+Targeted Java, physical and process checks, unchanged stable/carried regression
+and independent archived optimized replay pass. Continuous joint/new-stable activation, learners,
+automatic lifecycle and full Phase 3 remain open.
+
 Status: **OPEN**, entered on 2026-10-25 after local Phase 2 closure at `f0d4dca`.
 The operator authorized pushing that branch and starting the first Phase 3 batch.
 The Phase 2 audit remains a historical, source-bound storage qualification.

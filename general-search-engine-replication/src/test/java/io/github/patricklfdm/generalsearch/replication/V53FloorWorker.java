@@ -20,7 +20,7 @@ public final class V53FloorWorker {
         String command=args[0];Path path=Path.of(args[1]);int size=Integer.parseInt(args[2]),through=Integer.parseInt(args[3]);
         String point=args.length>4?args[4]:"none",mode=args.length>5?args[5]:"none";var f=new V53CurrentGenerationFixture(size,through,false);
         try {
-            if(!Set.of("init","floor","inspect").contains(command))throw new IllegalArgumentException("unknown floor command");
+            if(!Set.of("init","floor","handoff","inspect").contains(command))throw new IllegalArgumentException("unknown floor command");
             Path inputs=path.getParent().resolve("inputs");
             if(command.equals("init")) {
                 provision(path,size,through,1);Files.createDirectory(inputs);
@@ -50,7 +50,7 @@ public final class V53FloorWorker {
                         }
                         if(peerResources.usage().leases()!=0)throw new IllegalStateException("peer floor lease leaked");
                     }
-                    floor=store.establishFloor(copies);
+                    floor=command.equals("handoff")?store.establishFloor(copies,copy->{}):store.establishFloor(copies);
                 }
                 print(map("command",command,"status","PASS","floor",floor.digest(),"cut",floor.value().get("cut"),"networkAck",false,"deletion",false));
             }

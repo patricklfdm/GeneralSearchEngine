@@ -628,6 +628,17 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized MembershipPeerRetentionFiles.State reconcilePeerRetention(List<MembershipFloor.Copy> joining)throws IOException {
         var plan=peerRetentionState().plan();return retainPeerPlan(plan.reconcile(current.capsule,current.ancestry(),joining));
     }
+    /** A native grant captures the current governing view, not the preceding
+     * publication's view. Preserve every remaining peer endpoint and force the
+     * existing reconciliation transaction before freezing that new source.
+     * A newly added voter still requires its actual complete joining copy;
+     * this path cannot infer learner readiness from a configuration alone. */
+    private void reconcileKnownPeerConfiguration()throws IOException {
+        if(peerRetention==null)return;
+        var previous=peerRetentionState().plan();
+        var next=previous.reconcile(current.capsule,current.ancestry(),List.of());
+        if(!Arrays.equals(previous.bytes(),next.bytes()))retainPeerPlan(next);
+    }
     synchronized void checkRetentionResources(MembershipResources budget)throws IOException {
         require(resources==budget,"retention requires actual storage resource owner");peerRetentionState();
     }
@@ -1670,6 +1681,7 @@ final class MembershipGrantJournal implements AutoCloseable {
      * pending-only capability, this permits idempotent acknowledgement after the
      * selector changes, but never after another certificate/selection takes over. */
     final class Publication {
+        private final MembershipGrantJournal owningJournal=MembershipGrantJournal.this;
         final Applied applied;
         final MembershipCapsule before;
         final MembershipCapsule.Anchor target;
@@ -2094,9 +2106,12 @@ final class MembershipGrantJournal implements AutoCloseable {
         return inactive.exists() || floors.exists();
     }
     synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered) throws IOException {
+        return establishFloor(offered,null);
+    }
+    synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered,MembershipFloorFiles.Handoff handoff) throws IOException {
         require(floors!=null,"floor storage owner required");checkOwner();applicationReferencesIdle();rotationIdle();
         if(retirement!=null)require(!retirement.pending(),"pending retirement must finish before authority changes");var own=floorCopyCurrent();
-        return establishFloor(own,offered);
+        return establishFloor(own,offered,handoff);
     }
     synchronized MembershipFloor.Copy contextFloorCopy()throws IOException {
         contextMaintenanceIdle();require(!floors.pending() && !retirement.pending(),"context floor copy requires idle maintenance");
@@ -2107,6 +2122,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         return establishFloor(floorCopyChecked(),offered);
     }
     private Decoded establishFloor(MembershipFloor.Copy own,List<MembershipFloor.Copy> offered)throws IOException {
+        return establishFloor(own,offered,null);
+    }
+    private Decoded establishFloor(MembershipFloor.Copy own,List<MembershipFloor.Copy> offered,MembershipFloorFiles.Handoff handoff)throws IOException {
         // Validate and reserve before any persistent change; an interrupted transaction
         // may only resume with the same original full copies.
         try{
@@ -2116,7 +2134,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(replayFiles!=null && pendingAccept.active()!=null) {
                 replayFiles.releaseCompletion();appliedEnd.releaseEmptyCompletion();
             }
-            return floors.establish(own,offered,this::checkWithoutFloor,cut);
+            return floors.establish(own,offered,this::checkWithoutFloor,cut,handoff);
         }
         catch(IOException | RuntimeException | Error error){failed=true;throw error;}
     }
@@ -2460,6 +2478,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && !inactive.incompleteOrSelected(selection==null?null:selection.digest(),number(current.capsule.context.cut.get("index"))),"pending generation installation must finish before another grant");
         require(promise==null || promise.value().get("basisId")!=null || current.manifest.value().get("promise").equals(promise.digest()),
                 "uninstalled adoption fence; prefix recovery required");
+        current.capsule.context.ballot(incoming,true);reconcileKnownPeerConfiguration();
         return prepareBound(voteCapsule(),incoming,voteAccepted(),current.images());
     }
     private Decoded prepareContextCurrent(Map<String,Object> incoming)throws IOException {
@@ -2844,12 +2863,37 @@ final class MembershipGrantJournal implements AutoCloseable {
         catch(IOException|RuntimeException error){releaseVoteExport(export);throw error;}
     }
     synchronized void releaseVoteExport(MembershipVoteExport export){voteExports.remove(export);export.revoke();}
+    /** Only this owner's retained checkpoint from its exact completed publication
+     * may cross the changed view. No old grant, vote receipt or payload export. */
+    private Decoded publishedCheckpoint(Publication publication,String digest)throws IOException {
+        require(publication.owningJournal==this && publication.published(),"checkpoint export requires own completed publication");
+        var record=retainedRecord(digest,null);
+        require(record.kind().equals("CHECKPOINT") || record.kind().equals("CHECKPOINT_ACK"),"completed publication checkpoint only");
+        var value=record.value();
+        if(record.kind().equals("CHECKPOINT_ACK"))require(value.get("voter").equals(identity.nodeId().value())
+                && value.get("incarnation").equals(identity.storageId().toString())
+                && value.get("cut").equals(publication.target.cut()),"completed publication original local checkpoint");
+        else require(value.get("end").equals(publication.target.cut()),"completed publication original checkpoint end");
+        return record;
+    }
+    synchronized MembershipRecordExport exportPublishedCheckpoint(Publication publication,String digest,
+            LongSupplier clock,long started,long budget)throws IOException {
+        require(budget>0 && budget<Long.MAX_VALUE/2,"record export time budget");Objects.requireNonNull(clock);
+        var record=publishedCheckpoint(publication,digest);expireRecordExports();
+        var export=new MembershipRecordExport(this,publication.before.context,identity,publication.ballot,record,resources,clock,started,budget,publication);
+        recordExports.add(export);
+        try{checkRecordExport(export);return export;}
+        catch(IOException|RuntimeException|Error error){releaseRecordExport(export);throw error;}
+    }
     private void expireRecordExports(){for(var export:List.copyOf(recordExports))if(export.expired())releaseRecordExport(export);}
     synchronized void checkRecordExport(MembershipRecordExport export)throws IOException {
         expireRecordExports();require(recordExports.contains(export),"record export closed/expired");
         try {
-            checkOwner();require(current.capsule.context.authority().equals(export.context().authority()),"record export view changed");
-            retainedRecord(export.digest(),export.kind());
+            checkOwner();
+            if(export.publication==null) {
+                require(current.capsule.context.authority().equals(export.context().authority()),"record export view changed");
+                retainedRecord(export.digest(),export.kind());
+            } else require(publishedCheckpoint(export.publication,export.digest()).kind().equals(export.kind()),"completed checkpoint export kind changed");
             expireRecordExports();require(recordExports.contains(export),"record export closed/expired");
         }catch(IOException|RuntimeException error){releaseRecordExport(export);throw error;}
     }

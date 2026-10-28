@@ -8,6 +8,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class V53ResourceTransferTest {
+    @Test void partialStorageGrowthKeepsItsCountAndCannotSpendCompletionHeadroom() {
+        var budget=new MembershipResources(HEADROOM+100,200,100);
+        try(var source=budget.reserve(Unit.SOURCE,"partial",20);var image=budget.reserve(Unit.APPLICATION,"image",10)) {
+            source.reserveStorage(100);image.reserveStorage(100);
+            assertEquals(2,budget.usage().leases());assertEquals(100,budget.usage().metadata());assertEquals(200,budget.usage().staging());
+            assertThrows(IllegalArgumentException.class,()->source.reserveStorage(101));
+            assertThrows(IllegalArgumentException.class,()->image.reserveStorage(101));
+            assertThrows(IllegalArgumentException.class,()->source.reserveStorage(99));
+            assertEquals(200,budget.usage().staging());
+        }
+        assertEquals(0,budget.usage().leases());
+        var closed=budget.reserve(Unit.SOURCE,"closed",1);closed.close();
+        assertThrows(IllegalArgumentException.class,()->closed.reserveStorage(2));
+        try(var queue=budget.reserve(Unit.CONTROL,"queue",1)){assertThrows(IllegalArgumentException.class,()->queue.reserveStorage(2));}
+    }
     static MembershipTransfer.Binding binding(byte[] bytes) {
         return new MembershipTransfer.Binding("01".repeat(32),new UUID(1,1),new UUID(2,2),V53DeclarationsTest.node(1),
                 new UUID(3,3),"02".repeat(32),"03".repeat(32),MembershipFormat.hash(bytes),bytes.length,MembershipTransfer.Kind.RECORD);

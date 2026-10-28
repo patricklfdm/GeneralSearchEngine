@@ -18,6 +18,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
     private final MembershipIdentity identity;
     private final Map<String,Object> ballot;
     private final boolean prefix;
+    private final MembershipGrantJournal.Publication publication;
     private final MembershipResources resources;
     private final ReplicationBounds bounds;
     private final MembershipSourcePull.Guard guard;
@@ -36,19 +37,23 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
     }
     MembershipTransferService(MembershipGrantJournal owner,Map<String,Object> ballot,MembershipResources resources,
             ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipTransport.Events events)throws IOException {
-        this(owner,ballot,resources,bounds,guard,clock,started,budget,events,false);
+        this(owner,ballot,resources,bounds,guard,clock,started,budget,events,false,null);
     }
     static MembershipTransferService prefix(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget)throws IOException {
-        return new MembershipTransferService(owner,Map.of(),resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,true);
+        return new MembershipTransferService(owner,Map.of(),resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,true,null);
+    }
+    static MembershipTransferService publication(MembershipGrantJournal owner,MembershipGrantJournal.Publication publication,
+            MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget)throws IOException {
+        return new MembershipTransferService(owner,publication.ballot,resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,false,publication);
     }
     private MembershipTransferService(MembershipGrantJournal owner,Map<String,Object> ballot,MembershipResources resources,
-            ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipTransport.Events events,boolean prefix)throws IOException {
-        require(budget>0 && budget<Long.MAX_VALUE/2,"transfer service time budget");this.prefix=prefix;
+            ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipTransport.Events events,boolean prefix,MembershipGrantJournal.Publication publication)throws IOException {
+        require(budget>0 && budget<Long.MAX_VALUE/2,"transfer service time budget");this.prefix=prefix;this.publication=publication;
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
         this.guard=Objects.requireNonNull(guard);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
         this.events=Objects.requireNonNull(events);
-        context=owner.activationContext();identity=owner.activationIdentity();if(!prefix)context.ballot(ballot,true);this.ballot=Map.copyOf(ballot);
+        context=publication==null?owner.activationContext():publication.before.context;identity=owner.activationIdentity();if(!prefix)context.ballot(ballot,true);this.ballot=Map.copyOf(ballot);
         frameLimit=Math.min(FRAME,bounds.maxFrameBytes());chunkLimit=Math.min(4*1024*1024,bounds.snapshotChunkBytes());
         require(frameLimit>=4096,"transfer service frame limit");guard.check();time();
         metadata=resources.reserve(MembershipResources.Unit.CONTROL,"transfer-service-"+UUID.randomUUID(),32768);
@@ -78,6 +83,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     initial(request);
                     var export=prefix?owner.exportPrefix((String)payload.get("digest"),object(request.value().get("ballot")),
                             (String)request.value().get("view"),resources,clock,started,budget):
+                            publication!=null && publication.published()?owner.exportPublishedCheckpoint(publication,(String)payload.get("digest"),clock,started,budget):
                             owner.exportTransfer((String)payload.get("digest"),context.authority(),ballot,clock,started,budget);
                     try {
                         require(export.identity().equals(identity) && export.context().root.equals(context.root)

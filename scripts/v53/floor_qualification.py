@@ -14,9 +14,11 @@ from .foundation import ROOT,JARS,binding,jar,need,save
 
 
 class Probe(base.Probe):
+    handoff=False
     def command(self,command,*args):
         # Concurrent PID namespaces can share /tmp/hsperfdata but reuse a PID.
         # These short crash probes need no JVM monitoring file; keep stdout exact JSON.
+        if self.handoff and command=='floor':command='handoff'
         return ['java','-XX:-UsePerfData','-cp',self.cp,'io.github.patricklfdm.generalsearch.replication.V53FloorWorker',
                 command,str(self.directory/'authority'),str(self.case['size']),str(self.case['through']),*map(str,args)]
 
@@ -37,8 +39,9 @@ class Probe(base.Probe):
             self.call('inspect','inspect');self.snapshot('final')
         finally:
             save(self.directory/'case.json',dict(case=self.case,execution='private-governing-floor',runtimeEnabled=False,
-                                                historicalOwnershipVerified=False,networkAck=False,deletion=False,processes=self.processes))
-        return e.validate_case(self.directory,self.case)
+                                                historicalOwnershipVerified=False,networkAck=False,deletion=False,processes=self.processes,
+                                                **({'handoff':True} if self.handoff else {})))
+        return e.validate_case(self.directory,self.case,handoff=self.handoff)
 
 
 def run(output):
