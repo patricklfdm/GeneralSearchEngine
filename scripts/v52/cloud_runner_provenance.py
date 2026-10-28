@@ -124,11 +124,17 @@ def contents(path, record, sha):
         return strict(archive.read(row))
 
 
-def validate(value, cfg, source, request, chosen, archive, workflow, now):
+def validate(value, cfg, source, request, chosen, archive, workflow, now, *, continuation=None):
     a.fields(value, 'schema source configurationSha256 selected startedAt completedAt masterBefore masterAfter '
              'run runAfter jobs jobsAfter artifact artifactAfter artifactsBefore artifactsAfter workflowContent', 'Runner observation')
     original(chosen)
-    need(value['schema'] == SCHEMA and value['source'] == value['masterBefore'] == value['masterAfter'] == source['source'] and
+    master_source = source['source']
+    if continuation is not None:
+        member = continuation.validate_request(request)
+        need(source == continuation.member_source(member), 'V5.2 continuation provenance source')
+        master_source = continuation.source['source']
+    need(value['schema'] == SCHEMA and value['source'] == source['source'] and
+         value['masterBefore'] == value['masterAfter'] == master_source and
          value['configurationSha256'] == preflight.configuration(cfg) and value['selected'] == chosen,
          'V5.2 Runner source/configuration/selection changed')
     a.integer(value['startedAt'], max(1, now-OBSERVATION_SECONDS), now)
@@ -154,9 +160,12 @@ def validate(value, cfg, source, request, chosen, archive, workflow, now):
         fullRemoteQualification=False, paidCloud=False)
 
 
-def collect(directory, cfg, source, request, chosen, workflow, client, wall):
+def collect(directory, cfg, source, request, chosen, workflow, client, wall, *, continuation=None):
     original(chosen); directory = Path(directory); started = int(wall())
-    master = client.get('branches/master')['commit']['sha']; need(master == source['source'], 'V5.2 Runner current master moved')
+    expected_master = source['source']
+    if continuation is not None:
+        continuation.validate_request(request); expected_master = continuation.source['source']
+    master = client.get('branches/master')['commit']['sha']; need(master == expected_master, 'V5.2 Runner current master moved')
     path = f"actions/runs/{chosen['runId']}/attempts/{chosen['runAttempt']}"
     run = run_identity(client.get(path), source['source'], chosen)
     jobs = ci.jobs(client.get, run); _, times = job(jobs, run, int(wall()))
@@ -171,7 +180,7 @@ def collect(directory, cfg, source, request, chosen, workflow, client, wall):
         artifactsAfter=ci.pages(client.get, listing, 'artifacts'), jobsAfter=ci.jobs(client.get, run), runAfter=client.get(path),
         masterAfter=client.get('branches/master')['commit']['sha'], completedAt=int(wall()))
     artifacts.save(directory/'observation.json', value)
-    return validate(value, cfg, source, request, chosen, directory/'runner.zip', workflow, int(wall()))
+    return validate(value, cfg, source, request, chosen, directory/'runner.zip', workflow, int(wall()), continuation=continuation)
 
 
 class Network(artifacts.Network):
@@ -186,14 +195,19 @@ class Network(artifacts.Network):
         a.integer(size, 1, MAX_ZIP); return super().download(identity, output, size)
 
 
-def collect_native(source, request, chosen, output):
+def collect_native(source, request, chosen, output, *, continuation=None):
     output = Path(output)
     need(not any(p.is_symlink() for p in (output, *output.parents)), 'V5.2 Runner provenance output link')
     output.mkdir(parents=True, exist_ok=False)
     try:
         cfg = reads.source_configuration(source); bound = artifacts.inputs.checkout(ci.ROOT, source); workflow = contract()
         a.validate_request(request, domain='native')
-        value = collect(output, cfg, bound, request, chosen, workflow, Network(output/'requests'), time.time)
+        original_bound = bound
+        if continuation is not None:
+            continuation.guard(bound, cfg)
+            original_bound = continuation.member_source(continuation.validate_request(request))
+        # The one-batch source guard proves this workflow has unchanged bytes.
+        value = collect(output, cfg, original_bound, request, chosen, workflow, Network(output/'requests'), time.time, continuation=continuation)
         need(reads.source_configuration(source) == cfg and artifacts.inputs.checkout(ci.ROOT, source) == bound and contract() == workflow,
              'V5.2 Runner provenance source changed')
         artifacts.save(output/'receipt.json', value); return value

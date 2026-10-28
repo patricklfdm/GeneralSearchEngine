@@ -90,8 +90,9 @@ class _NativeObjects(_Objects):
         except BaseException:tokens.close();raise
 
 
-def restore(reader,chosen,output,*,progress=lambda stage,**kw:None):
+def restore(reader,chosen,output,*,progress=lambda stage,**kw:None,continuation=None):
     """Select hashes from one original ledger, then restore their complete bytes."""
+    if continuation is not None: continuation.guard(reader.source, reader.cfg)
     reader.guard();need(type(chosen) is dict and set(chosen)==set(suite.MEMBERS),'V5.2 evidence selected fifteen-execution map')
     need(len(set(chosen.values()))==len(suite.MEMBERS),'V5.2 evidence repeated original request')
     for sha in chosen.values():a.hex_value(sha)
@@ -103,11 +104,14 @@ def restore(reader,chosen,output,*,progress=lambda stage,**kw:None):
         for name,sha in chosen.items():
             entry=view['attempts'].get(sha);need(entry is not None and entry['status']=='PASS','V5.2 evidence original attempt not successful')
             req=entry['request'];bound=req['selection']['binding']
-            need(req['selection']['member']['name']==name and bound['source']==reader.source['source'] and
-                 bound['checkoutSha256']==reader.source['checkoutSha256'] and req['configurationSha256']==p.config(reader.cfg['provider']),
-                 'V5.2 evidence selected request source/configuration')
+            if continuation is None:
+                need(req['selection']['member']['name']==name and bound['source']==reader.source['source'] and
+                     bound['checkoutSha256']==reader.source['checkoutSha256'] and req['configurationSha256']==p.config(reader.cfg['provider']),
+                     'V5.2 evidence selected request source/configuration')
+            else: need(continuation.validate_request(req)==name, 'V5.2 continuation selected name changed')
             requests[name]=req
-        suite.complete_selection([v['selection'] for v in requests.values()])
+        if continuation is None: suite.complete_selection([v['selection'] for v in requests.values()])
+        else: continuation.selections(list(requests.values()))
         for name,req in requests.items():
             progress('restore-member',name=name,completed=len(rows));root=output/name;root.mkdir()
             prefix=control.attempt_key(req);reader.allow(prefix+'completion.json');reader.allow(p.context_key(req))
@@ -146,14 +150,15 @@ def restore(reader,chosen,output,*,progress=lambda stage,**kw:None):
         artifacts.save(output/'receipt.json',receipt)
 
 
-def restore_native(source,chosen,output,*,progress=lambda stage,**kw:None):
+def restore_native(source,chosen,output,*,progress=lambda stage,**kw:None,continuation=None):
     """Internal GET-only factory; no externally supplied credentials or provider."""
     cfg=preflight.source_configuration(source);binding=inputs.checkout(preflight.ROOT,source);output=Path(output)
     need(not any(p.is_symlink() for p in (output,*output.parents)),'V5.2 evidence native output link')
     output.mkdir(parents=True,exist_ok=False);reader=None
     receipt=dict(status='FAIL',fullRemoteQualification=False,paidCloud=False);failure=None
     try:
-        reader=_NativeObjects(cfg,binding,output/'reads');value=restore(reader,chosen,output/'originals',progress=progress)
+        if continuation is not None: continuation.guard(binding, cfg)
+        reader=_NativeObjects(cfg,binding,output/'reads');value=restore(reader,chosen,output/'originals',progress=progress,continuation=continuation)
         need(preflight.source_configuration(source)==cfg and inputs.checkout(preflight.ROOT,source)==binding,
              'V5.2 evidence source changed during restoration')
         reader.api.tokens.recheck(time.monotonic()+30)

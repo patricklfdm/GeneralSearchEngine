@@ -27,7 +27,7 @@ def environment(env):
     elif operation == 'run':
         a.fields(value, 'preparedRun preparedAttempt confirmation', 'run request')
         a.integer(value['preparedRun'], 1); a.integer(value['preparedAttempt'], 1); a.hex_value(value['confirmation'])
-    else: acceptance.selection(value)
+    else: acceptance.request(value)
     return operation, value
 
 
@@ -238,6 +238,7 @@ def report_data(operation, source, result, output):
     else:
         row.update(totals=result['totals'], selected=result['selected'], selectedReservedCostMicrousd=result['selectedReservedCostMicrousd'],
                    ledgerReservedCostMicrousd=result['ledgerReservedCostMicrousd'])
+        if 'continuation' in result: row['continuation'] = result['continuation']
     if 'member' in row:
         chosen=preparation.suite.member(row['member'])
         row.update(logicalMember=preparation.suite.logical_member(row['member']),
