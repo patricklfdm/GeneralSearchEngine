@@ -1,5 +1,14 @@
 # V5.3 — controlled cluster operations
 
+[Reservation-scoped learner first contact](PHASE_3_LEARNER_ROOT.md) now retrieves
+the original ROOT from real native peers without a fabricated voter, listener or
+learner store. Forty-one Java tests pass across the unchanged production inputs;
+original and portable physical/wire replay reject nine exact negative variants.
+Actual cancellation revokes the shared bounded export. This is ROOT discovery,
+not full certified learner admission, image readiness or joint voting. All seven
+profiles, autonomous election/adoption, combined maximum headroom and complete
+Phase 3 remain open.
+
 [Interrupted native transitions](PHASE_3_TRANSITION_PROCESS.md) now qualify
 eight same-proposer INTENT/FINAL publication halt/SIGKILL histories. Fresh JVMs
 reopen the original directories and complete the original four-to-three REMOVE

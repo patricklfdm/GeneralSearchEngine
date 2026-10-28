@@ -54,5 +54,25 @@ class ContextEvidenceTest(unittest.TestCase):
         self.assertEqual([state['results'][1]], after['results'])
         self.assertEqual(0, state['retiredThrough'])
 
+    def test_cancel_preserves_reserved_identity_and_revision_details(self):
+        for phase in ('RESERVED', 'PREPARING', 'READY'):
+            row=dict(request=dict(number=1),phase=phase,revision=2,prepared={'original':'image'},receipt=None,binding=None,terminalIndex=None)
+            state=dict(active=1,cut=dict(index=4,entry='a'*64,view=dict(generation=0,old=['a','b','c'],new=['a','b','c'],operation=None)),
+                       identities=[{'node':'reserved-joining'}],nextOperation=2,retiredThrough=0,results=[row])
+            after=e.reduce_catalog(state,'c'*64,'CANCEL',dict(number=1),'b'*64,'d'*64)
+            self.assertEqual(dict(row,phase='CANCELLED',terminalIndex=5),after['results'][0])
+            self.assertEqual(state['identities'],after['identities']);self.assertEqual(2,after['nextOperation'])
+            self.assertIsNone(after['active']);self.assertEqual(phase,state['results'][0]['phase'])
+            for changed in (dict(number=2),dict(number=True),dict(number=1,force=True)):
+                with self.assertRaisesRegex(ValueError,'^cancel exact reversible operation$'):
+                    e.reduce_catalog(state,'c'*64,'CANCEL',changed,'b'*64,'d'*64)
+            for blocked in ('SEALED','JOINT','COMPLETED','CANCELLED'):
+                bad=copy.deepcopy(state);bad['results'][0]['phase']=blocked
+                with self.assertRaisesRegex(ValueError,'^cancel exact reversible operation$'):
+                    e.reduce_catalog(bad,'c'*64,'CANCEL',dict(number=1),'b'*64,'d'*64)
+            bad=copy.deepcopy(state);bad['active']=None
+            with self.assertRaisesRegex(ValueError,'^cancel exact reversible operation$'):
+                e.reduce_catalog(bad,'c'*64,'CANCEL',dict(number=1),'b'*64,'d'*64)
+
 
 if __name__ == '__main__': unittest.main()

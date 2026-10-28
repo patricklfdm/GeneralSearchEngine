@@ -316,3 +316,52 @@ is claimed.
 Before release, rollback restores the original non-null APPLY_ACK schema together
 with the journal, sender, publication and generation changes; do not reinterpret
 a retained null acknowledgement as a vote.
+
+## A12 — reservation-scoped first-contact ROOT discovery
+
+Unpublished 1.3 now gives the existing ROOT-discovery permission a concrete
+first-contact representation. A new node has only the operator-supplied root,
+complete change request and permanent identity. It must not fabricate a local
+voter generation to contact the group. The contact transport has no listener and
+cannot adopt a voter catalog or send voting/service controls.
+
+An initial CHUNK REQUEST uses the SHA-256 of canonical
+`{schema:"gse-v53-learner-root-reference/1.3", root, learner, request}` as a lookup
+alias. `learner` is the exact node/storage/host/port identity; `request` is the
+complete existing root/number/expected/kind/target command object. This alias is
+not an authority record, ROOT record hash, admission token or receipt. SOURCE_OFFER
+returns the complete original ROOT frame hash and extent; subsequent CHUNK and
+TRANSFER_COMMIT use the existing sequence, whole-file and chunk digest rules.
+ROOT is bounded to its existing 16 KiB record maximum. No record/wire kind, schema
+layout, frozen resource ceiling or HELLO.rootRecord meaning changes.
+
+The serving exclusive native owner must have the matching current certified
+pre-joint ADD/REPLACE reservation in RESERVED/PREPARING/READY/SEALED. The joining
+identity must equal its permanently registered target and be outside the current
+voters. Request view is the original expected configuration; the ballot-shaped
+correlation is exactly counter 1, joining node and its storage UUID. This read path
+never observes, allocates, promises, votes, installs or applies that correlation.
+Unknown senders may only cause a lookup in the owner's independently verified
+current catalog; received identity fields are never inserted into the directory.
+
+ROOT borrowing shares the native owner's existing six-prefix-export registry,
+small CONTROL accounting, original deadline and generation-replacement revocation.
+It does not pin a new image or create an unbounded alternate export registry.
+Every chunk checks the original live owner and generation. Session completion
+keeps only the existing bounded exact-final-reply marker. Cancellation or changed
+reservation cannot reopen the old export under the same trace. Client transport
+retries are identical, limited to three or the stricter configured count, and
+retain the original deadline. Protocol/capacity/closed failures do not retry.
+
+The receiving node verifies full ROOT bytes, embedded root checksum, group and
+history identities and resource contract. That result alone is not certified
+learner admission. Complete live reservation/capsule, original generation and
+ancestry acquisition, exact forced admission before directory creation, image
+and readiness receipt, matching local INTENT before voting, all five ADD/REPLACE
+profiles and full Phase 3 remain required. Public learner factories stay disabled.
+
+The first-contact byte/link tests, actual native TCP, owner revocation and shared
+export headroom have passed their local gates. The [qualification record](PHASE_3_LEARNER_ROOT.md)
+separates those results from complete learner admission and joint voting.
+Before release, rollback removes this alias route, contact-only constructor and
+root client/export together. Existing ordinary peer transfer bytes are unchanged.

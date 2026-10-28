@@ -87,7 +87,9 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     var payload=object(request.value().get("payload"));
                     // A competing next request cannot initialize an unconstructed trace.
                     initial(request);
-                    var export=prefix?owner.exportPrefix((String)payload.get("digest"),object(request.value().get("ballot")),
+                    var export=prefix && MembershipLearnerDiscovery.rootReference(context,key.reader,(String)payload.get("digest"))?
+                            new MembershipLearnerRootExport(owner,key.reader,request,resources,clock,started,budget):
+                            prefix?owner.exportPrefix((String)payload.get("digest"),object(request.value().get("ballot")),
                             (String)request.value().get("view"),resources,clock,started,budget):
                             publication!=null && publication.published()?owner.exportPublishedCheckpoint(publication,(String)payload.get("digest"),clock,started,budget):
                             owner.exportTransfer((String)payload.get("digest"),context.authority(),ballot,clock,started,budget);

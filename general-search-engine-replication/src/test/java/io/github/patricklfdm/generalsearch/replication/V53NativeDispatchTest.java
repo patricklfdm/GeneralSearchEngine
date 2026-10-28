@@ -57,6 +57,9 @@ class V53NativeDispatchTest {
             this(size,bounds,BUDGET,preparation);
         }
         Network(int size,ReplicationBounds bounds,long endpointBudget,Preparation preparation)throws Exception {
+            this(size,bounds,endpointBudget,preparation,false);
+        }
+        Network(int size,ReplicationBounds bounds,long endpointBudget,Preparation preparation,boolean liveDirectory)throws Exception {
             this.bounds=bounds;
             Path raw=Files.createDirectories(Path.of("target/v53-native-dispatch/run-"+UUID.randomUUID()));
             System.out.println("v53NativeDispatchEvidence="+raw.toAbsolutePath());
@@ -86,12 +89,12 @@ class V53NativeDispatchTest {
                         },List.of(),List.of(),
                         temp.resolve("incoming-"+UUID.randomUUID()),()->System.nanoTime()+offset.get(),endpointBudget,
                         builder().configuration(),f.request.targets().get(i).materialization());endpoints.add(endpoint);
-                var transport=new MembershipTransport(owner.activationCapsule(),owner.activationIdentity(),bounds,resources.get(i),(sender,request)->{
+                MembershipTransport.Handler handler=(sender,request)->{
                             try{return response.get().apply(request,endpoint.handle(sender,request));}catch(IOException|RuntimeException error){
                                 diagnostic(owner.activationIdentity().nodeId().value(),"HANDLER_FAILED",request,error);
                                 failures.add(Map.of("node",owner.activationIdentity().nodeId().value(),"kind",request.kind(),"request",request.digest(),"failure",error.toString()));throw error;}
-                        },
-                        (event,request,response)->{
+                        };
+                MembershipTransport.Events transportEvents=(event,request,response)->{
                             diagnostic(owner.activationIdentity().nodeId().value(),event,request,null);
                             if(event.equals("BEFORE_REQUEST_WRITE"))beforeSend.get().accept(request);
                             if(event.equals("BEFORE_REQUEST_WRITE") && request.kind().equals("PUBLISH"))events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","PUBLICATION_SEND_BOUNDARY","request",request.digest()));
@@ -102,7 +105,10 @@ class V53NativeDispatchTest {
                                 events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","WIRE_RESPONSE","request",request.digest(),"response",response.digest()));
                                 if(lost)throw new IOException("lost native dispatch reply");
                             }
-                        });transports.add(transport);links.get(i).set(transport);
+                        };
+                var transport=liveDirectory?new MembershipTransport(owner,bounds,resources.get(i),handler,transportEvents):
+                        new MembershipTransport(owner.activationCapsule(),owner.activationIdentity(),bounds,resources.get(i),handler,transportEvents);
+                transports.add(transport);links.get(i).set(transport);
             }
         }
         void activate()throws Exception {

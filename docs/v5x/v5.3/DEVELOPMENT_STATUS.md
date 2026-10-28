@@ -1,5 +1,16 @@
 # V5.3 development status
 
+## 2026-10-28 — Learner first contact
+
+[Reservation-scoped learner first contact](PHASE_3_LEARNER_ROOT.md) now retrieves
+the original ROOT from real native peers without a fabricated voter, listener or
+learner store. Forty-one Java tests pass across the unchanged production inputs;
+original and portable physical/wire replay reject nine exact negative variants.
+Actual cancellation revokes the shared bounded export. This is ROOT discovery,
+not full certified learner admission, image readiness or joint voting. All seven
+profiles, autonomous election/adoption, combined maximum headroom and complete
+Phase 3 remain open.
+
 ## 2026-10-28 — Interrupted native transition recovery
 
 [Interrupted native transitions](PHASE_3_TRANSITION_PROCESS.md) now qualify

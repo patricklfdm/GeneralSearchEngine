@@ -136,6 +136,11 @@ def reduce_catalog(before, catalog_hash, kind, payload, entry_hash, root):
         need(row is not None and row['phase'] == 'JOINT' and payload == dict(binding=view['operation']), 'final binding')
         row.update(phase='COMPLETED', terminalIndex=index); state['active'] = None
         view.update(old=view['new'], generation=view['generation']+1, operation=None)
+    elif kind == 'CANCEL':
+        need(row is not None and row['phase'] in ('RESERVED', 'PREPARING', 'READY')
+             and view['operation'] is None and type(payload) is dict and set(payload) == {'number'}
+             and type(payload['number']) is int and payload['number'] == state['active'], 'cancel exact reversible operation')
+        row.update(phase='CANCELLED', terminalIndex=index); state['active'] = None
     elif kind == 'RETIRE':
         through = payload['through']
         need(state['retiredThrough'] < through < state['nextOperation'] and all(r['phase'] in ('COMPLETED', 'CANCELLED')

@@ -1,0 +1,119 @@
+{
+  "archive": {
+    "bytes": 9736596,
+    "files": 5243,
+    "fullPhase3": false,
+    "javaPassingTests": 41,
+    "learnerAdmission": false,
+    "negativeCases": 9,
+    "negativeExecutions": 18,
+    "path": "target/v53-learner-entry/qualification.tar.gz",
+    "productionInputs": 249,
+    "result": {
+      "negatives": [
+        {
+          "case": "extra-file",
+          "reason": "context selection learner root inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-original-reservation",
+          "reason": "admitted exact before-learner-discovery: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-during-read",
+          "reason": "admitted exact after-learner-discovery: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-public-ready",
+          "reason": "learner root result scope",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-client-receipt",
+          "reason": "learner root exact received replies",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-loss",
+          "reason": "learner root one actual lost reply",
+          "status": "REJECTED"
+        },
+        {
+          "case": "different-retry",
+          "reason": "learner root identical bounded retry",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-original-chunk",
+          "reason": "learner root exact original bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "foreign-peer",
+          "reason": "learner root exact reply correlation",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "fullNetworkQualification": false,
+        "learnerAdmissionQualified": false,
+        "lostReplies": 2,
+        "peers": [
+          "node-1",
+          "node-2"
+        ],
+        "phase3Complete": false,
+        "physicalQualification": true,
+        "receivedExchanges": 6,
+        "scope": "native-reservation-root-discovery",
+        "status": "PASS"
+      }
+    },
+    "retainedJavaFailures": 1,
+    "runtimeInputs": 1227,
+    "sha256": "1b933f400221a3a9c3edcd8d3cc927f602b8ad5e8b7f73bf724f0e1037461a35",
+    "status": "PASS"
+  },
+  "fullNetworkQualification": false,
+  "javaBuilds": [
+    "rootfinal-50122928: forty non-native regressions pass; native resource observation fails",
+    "rootaccounting-67142c2c: corrected one-case native TCP test passes; identical production"
+  ],
+  "javaPassingTests": 41,
+  "learnerAdmissionQualified": false,
+  "originalAndPortableNegatives": 18,
+  "paidCloud": false,
+  "parent": "b7c70ef094959b4fcfdceb3b45ff98e3d7ea9999",
+  "phase3Complete": false,
+  "productionInputs": 475,
+  "productionInputsSha256": "931e2f7ef4ebcd0f7d94dace0a18a972e1c4f8f7708e28ed3d649727b51e5b66",
+  "protectedCI": false,
+  "publicReady": false,
+  "pythonTests": 740,
+  "retainedFailures": [
+    "native test compared leases across first export retirement; corrected observation drains I/O and primes retirement before exact accounting",
+    "independent catalog reducer lacked reversible CANCEL; regression fails on original reader, corrected reader preserves identity/preparation"
+  ],
+  "runtimeInputs": 1227,
+  "runtimeInputsSha256": "a15f5ab2b7df50be94c4edef621dc8b0d834ca88a65327f36c2c9b58d9a011a8",
+  "schema": "gse-v53-learner-root-qualification-v1",
+  "sources": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "440a5c3d268ca44c64475728936d22457e0cca59e0d114b3a734c5e6075f1a05",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDiscovery.java": "3877a1805e90a41b86880d91066a567e4a87001952c9d91e7a7b93cadc8d6dd6",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerRootExport.java": "44f49ee0178448ebf0bb09460635e6f860b6432793eeffe2df78c9d4eb1d34a8",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java": "dbeace7e96c8e53bf1a5dc8dd35de3150899049dbeb93f62b8f03b2e83cb5ab9",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java": "89689aa948430cb68e550fc2011f2b4af953d048463549ddda086a7c438fca7b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerDiscoveryTest.java": "f300e16f62a73bd8dd7ebdc0d115bab0fd81f5933f1709afa1f9dafa67530ee0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerRootNetworkTest.java": "1cbc260746569dd6abddbeb953762a5f4a9434401c03fd0402f222ce9921d160",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "ad55c0cc3d2c900399699708eeed0ac5375b58b6867b9559d5bb35af1a890dbf",
+    "scripts/v53/context_evidence.py": "a9997a85db20773ffc4d50f45726602a940e6a18aad09630c6b099d5a7275fed",
+    "scripts/v53/learner_root_evidence.py": "4f730aaa0b2b3a937a6819a441d8f1bf247023742111c21050c6c568b5eb8f0f",
+    "scripts/v53/test_context_evidence.py": "198fd50277a0946ad90acfff733a1d44fe681ebaef6e54ec6b6a4a77fcff03e8",
+    "scripts/v53/test_learner_root_evidence.py": "965d4156267a24a33b2565f0d71b0f6717500216f62e02223ce85789c10dd24f"
+  },
+  "status": "PASS",
+  "uniqueNegatives": 9
+}

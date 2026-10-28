@@ -33,6 +33,9 @@ final class MembershipTransport implements AutoCloseable {
         @Override public void close(){lease.close();}
     }
     record Usage(int outgoing,int incoming,int sockets,boolean closed) {}
+    @FunctionalInterface interface Directory {MembershipCapsule current()throws IOException;}
+    private final Directory directory;
+    private final MembershipLearnerRequest learnerContact;
     private final String root;
     private final MembershipIdentity local;
     private final ReplicationBounds bounds;
@@ -52,7 +55,23 @@ final class MembershipTransport implements AutoCloseable {
 
     MembershipTransport(MembershipCapsule verified,MembershipIdentity local,ReplicationBounds bounds,
             MembershipResources resources,Handler handler,Events events)throws IOException {
-        this.root=Objects.requireNonNull(verified).context.root;this.local=Objects.requireNonNull(local);
+        this(verified,local,bounds,resources,handler,events,null,null);
+    }
+    /** Resolve new permanent reservations only from this exclusive owner's verified catalog. */
+    MembershipTransport(MembershipGrantJournal owner,ReplicationBounds bounds,MembershipResources resources,
+            Handler handler,Events events)throws IOException {
+        this(owner.activationCapsule(),owner.activationIdentity(),bounds,resources,handler,events,owner::activationCapsule,null);
+    }
+    /** Contact-only client. No listener or locally fabricated voter/catalog is created. */
+    static MembershipTransport learner(MembershipLearnerRequest request,ReplicationBounds bounds,
+            MembershipResources resources,Events events)throws IOException {
+        return new MembershipTransport(null,request.identity(),bounds,resources,(p,r)->{throw new IOException("learner contact has no server");},
+                events,null,request);
+    }
+    private MembershipTransport(MembershipCapsule verified,MembershipIdentity local,ReplicationBounds bounds,
+            MembershipResources resources,Handler handler,Events events,Directory directory,MembershipLearnerRequest learnerContact)throws IOException {
+        this.learnerContact=learnerContact;this.directory=directory;
+        this.root=learnerContact==null?Objects.requireNonNull(verified).context.root:learnerContact.root().manifestDigest();this.local=Objects.requireNonNull(local);
         this.bounds=Objects.requireNonNull(bounds);this.resources=Objects.requireNonNull(resources);
         this.handler=Objects.requireNonNull(handler);this.events=Objects.requireNonNull(events);
         maximum=Math.min(FRAME,bounds.maxFrameBytes());require(maximum>=HEADER,"transport frame bound");
@@ -60,16 +79,26 @@ final class MembershipTransport implements AutoCloseable {
         workers=Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("gse-membership-io-"+local.nodeId().value()+"-",0).factory());
         ServerSocketChannel opening=null;
         try {
-            learn(verified);opening=ServerSocketChannel.open();opening.configureBlocking(false);
-            opening.bind(peers.get(local.nodeId().value()).endpoint());server=opening;
-            acceptor=Thread.ofPlatform().daemon().name("gse-membership-listen-"+local.nodeId().value()).start(this::accept);
+            if(learnerContact==null) {
+                learn(verified);opening=ServerSocketChannel.open();opening.configureBlocking(false);
+                opening.bind(peers.get(local.nodeId().value()).endpoint());server=opening;
+                acceptor=Thread.ofPlatform().daemon().name("gse-membership-listen-"+local.nodeId().value()).start(this::accept);
+            }else {
+                var routes=new TreeMap<String,MembershipIdentity>();
+                for(var identity:learnerContact.change().target())routes.put(identity.nodeId().value(),identity);
+                installDirectory(routes);server=null;acceptor=null;
+            }
         }catch(IOException|RuntimeException error){if(opening!=null)opening.close();workers.shutdownNow();throw error;}
     }
     /** Only a verified same-root complete catalog can extend the immutable identity directory.
      * Historical peers remain discoverable; directory membership is never a vote. */
     synchronized void learn(MembershipCapsule verified)throws IOException {
+        require(learnerContact==null,"learner contact cannot become a voter transport");
         require(!closed && verified.context.root.equals(root),"transport directory root/closed");
-        var registry=verified.context.identities;require(local.equals(registry.get(local.nodeId().value())),"transport local identity absent");
+        installDirectory(verified.context.identities);
+    }
+    private void installDirectory(Map<String,MembershipIdentity> registry)throws IOException {
+        require(local.equals(registry.get(local.nodeId().value())),"transport local identity absent");
         for(var old:peers.values())require(old.identity.equals(registry.get(old.identity.nodeId().value())),"transport identity reservation lost/changed");
         var next=new TreeMap<String,Peer>();var endpoints=new HashSet<InetSocketAddress>();
         for(var identity:registry.values()) {
@@ -86,8 +115,23 @@ final class MembershipTransport implements AutoCloseable {
         peers=Map.copyOf(next);
     }
     Usage usage(){return new Usage(outboundCount.get(),inboundCount.get(),channels.size(),closed);}
-    private Peer peer(MembershipIdentity identity) {
-        var peer=peers.get(identity.nodeId().value());require(peer!=null && peer.identity.equals(identity),"unknown permanent transport identity");return peer;
+    private Peer peer(MembershipIdentity identity)throws IOException {
+        var peer=peers.get(identity.nodeId().value());
+        if(peer==null && directory!=null) {
+            // A received sender is only a lookup key. It is never inserted itself.
+            learn(directory.current());peer=peers.get(identity.nodeId().value());
+        }
+        require(peer!=null && peer.identity.equals(identity),"unknown permanent transport identity");return peer;
+    }
+    private void contactRequest(Decoded request,String kind) {
+        if(learnerContact==null)return;
+        require(Set.of("CHUNK","TRANSFER_COMMIT").contains(request.kind())
+                && Set.of("SOURCE_OFFER","CHUNK","TRANSFER_COMMIT").contains(kind)
+                && request.value().get("view").equals(learnerContact.change().expectedConfigurationDigest())
+                && request.value().get("ballot").equals(MembershipLearnerDiscovery.correlation(local)),"learner contact read-only correlation");
+        if(request.kind().equals("CHUNK") && number(request.value().get("sequence"))==1)
+            require(object(request.value().get("payload")).get("digest").equals(MembershipLearnerDiscovery.reference(learnerContact)),
+                    "learner contact reservation reference");
     }
     private MembershipResources.Lease reserve(long size)throws Failure {
         try{return resources.reserve(MembershipResources.Unit.CONTROL,UUID.randomUUID().toString(),size);}
@@ -104,7 +148,7 @@ final class MembershipTransport implements AutoCloseable {
     CompletableFuture<Decoded> exchange(MembershipIdentity recipient,Decoded request,String responseKind,long originalDeadline,
             MembershipSourcePull.Guard beforeWrite) {
         Objects.requireNonNull(beforeWrite);
-        var result=new CompletableFuture<Decoded>();Peer peer;MembershipResources.Lease lease=null;boolean acquired=false;
+        var result=new CompletableFuture<Decoded>();Peer peer=null;MembershipResources.Lease lease=null;boolean acquired=false;
         try {
             if(closed)throw new Failure(Reason.CLOSED,"membership transport closed",null);
             // The caller's deadline can only be shortened by the per-request bound, never renewed in a queue.
@@ -112,17 +156,17 @@ final class MembershipTransport implements AutoCloseable {
             if(left<=0)throw new Failure(Reason.DEADLINE,"original membership exchange deadline",null);
             long deadline=now+Math.min(left,TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis()));
             peer=peer(recipient);require(!recipient.equals(local),"self transport exchange");
-            MembershipWire.envelope(request,root,local,recipient);
+            MembershipWire.envelope(request,root,local,recipient);contactRequest(request,responseKind);
             require(object(CATALOG.get("wire")).containsKey(responseKind) && request.size()<=maximum,"transport request kind/size");
             if(!peer.outgoing.tryAcquire())throw new Failure(Reason.CAPACITY,"membership peer in-flight capacity",null);
             acquired=true;lease=reserve(request.size());byte[] bytes=request.bytes(); // reserve before the copied send buffer
-            var owned=lease;outboundCount.incrementAndGet();
+            var owned=lease;var target=peer;outboundCount.incrementAndGet();
             try {
                 execute(()->{
                     Decoded reply=null;Throwable failure=null;
-                    try{reply=send(peer,request,bytes,responseKind,deadline,result::isCancelled,beforeWrite);}
+                    try{reply=send(target,request,bytes,responseKind,deadline,result::isCancelled,beforeWrite);}
                     catch(Throwable error){failure=classify(error);}
-                    finally{owned.close();peer.outgoing.release();outboundCount.decrementAndGet();}
+                    finally{owned.close();target.outgoing.release();outboundCount.decrementAndGet();}
                     // Continuations may immediately submit another request; release first.
                     if(failure==null)result.complete(reply);else result.completeExceptionally(failure);
                 });
@@ -130,7 +174,7 @@ final class MembershipTransport implements AutoCloseable {
             return result;
         }catch(Throwable error){
             if(lease!=null)lease.close();
-            if(acquired)peer(recipient).outgoing.release();
+            if(acquired)peer.outgoing.release();
             result.completeExceptionally(classify(error));return result;
         }
     }
@@ -223,15 +267,15 @@ final class MembershipTransport implements AutoCloseable {
         selector.select(Math.max(1,Math.min(100,TimeUnit.NANOSECONDS.toMillis(deadline-System.nanoTime()))));selector.selectedKeys().clear();
     }
     private void stop() {
-        closed=true;try{server.close();}catch(IOException ignored){}
+        closed=true;try{if(server!=null)server.close();}catch(IOException ignored){}
         for(var channel:channels)try{channel.close();}catch(IOException ignored){}
         workers.shutdownNow();
     }
     @Override public void close() {
         stop();if(workerThreads.contains(Thread.currentThread()))return; // a completion callback may initiate close
         try {
-            acceptor.join(bounds.requestTimeoutMillis());
-            require(!acceptor.isAlive() && workers.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"membership transport close timeout");
+            if(acceptor!=null)acceptor.join(bounds.requestTimeoutMillis());
+            require((acceptor==null || !acceptor.isAlive()) && workers.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"membership transport close timeout");
         }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException("membership transport close interrupted",error);}
     }
 }
