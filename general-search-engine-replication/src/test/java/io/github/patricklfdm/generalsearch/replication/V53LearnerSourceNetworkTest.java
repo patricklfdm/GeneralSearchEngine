@@ -13,6 +13,10 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 class V53LearnerSourceNetworkTest {
     @TempDir Path temp;
     @Test void fullOriginalReservationAndGenerationArriveWithoutALocalVoter()throws Exception {
+        exercise((source,request,raw)->{});
+    }
+    @FunctionalInterface interface Observer {void acquired(MembershipLearnerSource source,MembershipLearnerRequest request,Path raw)throws Exception;}
+    void exercise(Observer observer)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;
         var nativeHelper=new V53NativeDispatchTest();nativeHelper.temp=temp;
         try(var n=nativeHelper.new Network(3,helper.controlBounds(),V53NativeDispatchTest.BUDGET,f->{},true)) {
@@ -42,6 +46,7 @@ class V53LearnerSourceNetworkTest {
                         assertEquals(1,resources.usage().counts().get(MembershipResources.Unit.LEARNER));
                         assertFalse(copy.capsule.context.voters().contains(joining.nodeId().value()));
                         assertFalse(Files.exists(learner.replicaDirectory()));assertFalse(Files.exists(learner.operationDirectory()));
+                        observer.acquired(source,learner,n.f.raw);
                     }
                     assertEquals(before,V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory()));
                 }

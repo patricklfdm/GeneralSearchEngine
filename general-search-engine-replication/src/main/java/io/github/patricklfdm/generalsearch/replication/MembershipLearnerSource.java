@@ -42,6 +42,7 @@ final class MembershipLearnerSource implements AutoCloseable {
         check();discovery=new MembershipLearnerDiscovery(request,peer,resources,bounds,transport::exchange,this::check,clock,started,budget);return discovery;
     }
     MembershipFloor.Copy fetch(Path scratch)throws IOException {
+        AdmissionPaths.disjoint(List.of(scratch,request.replicaDirectory(),request.operationDirectory()));
         synchronized(this){require(!used && !closed,"learner source single use");used=true;}
         try {
             synchronized(this){check();transport=MembershipTransport.learner(request,bounds,resources,events);}
@@ -60,6 +61,14 @@ final class MembershipLearnerSource implements AutoCloseable {
     }
     MembershipFloor.Copy source()throws IOException {
         check();require(result!=null,"learner source incomplete");prefix.verifiedPrefix();generation.ancestryManifest();result.check();check();return result;
+    }
+    /** Persist the exact reviewed plan before any learner authority directory.
+     * It grants no readiness or votes; later apply must install these originals. */
+    MembershipLearnerPlan plan(MembershipBallotAllocator.Cut cut)throws IOException {
+        var plan=MembershipLearnerAdmissionPlan.create(request,source());
+        try(var files=MembershipLearnerAdmissionFiles.create(plan,resources,cut,()->plan.checkOriginal(source()))) {
+            return files.summary();
+        }
     }
     @Override public void close()throws IOException {
         MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t;

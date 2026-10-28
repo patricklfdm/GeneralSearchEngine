@@ -400,3 +400,46 @@ plan before directory creation. Typed materialization/readiness revision and
 full matching INTENT-before-vote remain required. Rollback removes the scoped
 export, read-only learner pull/transport/coordinator and reader together; ordinary
 voter transfer encoding and storage remain unchanged.
+
+## A14 — forced original learner admission plan
+
+This unpublished additive companion format is `GSLP 1.3`, kind `1`, flags `0`,
+with a 48-byte header and a complete maximum of 65,536 bytes. The header contains
+magic/version/kind/flags/body length followed by SHA-256 of the first 16 header
+bytes and canonical JSON body. It does not change any GSER/GSRP kind, old release
+format, transport bound or public API declaration.
+
+The exact `gse-v53-learner-plan/1.3` body has `schema`, original `root` frame,
+`learner`, complete `request`, original `source` identity, `cut`, original
+`generation` frame, complete ordered `files` inventory and two filesystem `paths`
+bindings (operation, replica). Each file row has `path`, `size`, `sha256`; the
+inventory includes the original generation frame itself. Embedded frames use
+canonical Base64. Paths bind the existing real parent, file store and parent inode;
+replica and operation paths are absent, normalized and disjoint at planning.
+Receiving scratch must also be disjoint from both destinations.
+
+The production planner requires the exact live source acquired under A13, checks
+its certified pre-joint reservation and original inventory, and rechecks that
+source throughout plan force. The operation directory owns `operation.lock`,
+`learner.next.gslp` and eventually `learner.gslp`. Force the complete candidate,
+force its directory, atomically rename, and force the active file and directory
+before returning the reviewed summary. One bounded MISC lease accounts the plan;
+no second LEARNER or application image copy is created by planning.
+
+Resume takes the original reviewed summary and reads the original retained plan.
+A complete candidate can be re-forced and renamed. Missing/partial original plan
+bytes, foreign inventory, nonmatching redundant candidates, changed parent/inode,
+links or an occupied replica path are preserved and refused. A valid candidate
+cannot repair a corrupt active plan. Exact redundant candidate cleanup occurs only
+after the active original has been re-forced. Closing releases the exclusive owner
+and reservation; it never deletes the operation directory.
+
+Decoding/resealing this plan establishes only original plan persistence. It is not
+a fresh proof observation or a retained-source capability. The source's immutable
+inventory is bound, but source bytes are not duplicated into this metadata plan;
+subsequent learner admission must retain and validate the full original source
+and typed image before publishing any readiness receipt. A later CANCEL or new
+PREPARE revision must still be checked during preparation/joint eligibility.
+No replica authority directory, allocator, local promise, voting record, readiness
+receipt, public read or joint vote is created here. Complete nonvoting store,
+revision/image/receipt and matching locally forced INTENT remain required.

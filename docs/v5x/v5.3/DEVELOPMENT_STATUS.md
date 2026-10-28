@@ -1,5 +1,17 @@
 # V5.3 development status
 
+## 2026-10-28 — Forced original learner plans
+
+[Forced original learner plans](PHASE_3_LEARNER_PLAN.md) now bind the live native
+source, full request, joining identity, original generation and filesystem paths
+before replica authority can be created. Nineteen distinct Java tests pass on
+identical production inputs. Twenty-six halt/SIGKILL cases yield eighteen exact
+resumes and eight preserved incomplete refusals; twelve live-lock probes refuse.
+Independent original/portable replay rejects twelve exact mutations and all 750
+Python tests pass. This is plan persistence only: nonvoting store installation,
+typed preparation/receipt, matching INTENT, all seven transitions, autonomous
+continuation and the complete Phase 3 audit remain OPEN.
+
 ## 2026-10-28 — Complete learner source acquisition
 
 [Complete learner source acquisition](PHASE_3_LEARNER_SOURCE.md) now obtains

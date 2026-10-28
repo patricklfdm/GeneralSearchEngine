@@ -1,0 +1,171 @@
+{
+  "archive": {
+    "bytes": 9926274,
+    "currentSourceJavaTests": 19,
+    "files": 4937,
+    "fullPhase3": false,
+    "javaBuilds": {
+      "planreview": {
+        "binaries": {},
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerAdmissionPlanTest": 10
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "planreview",
+          "seconds": 29.537694724014727,
+          "skipped": 0,
+          "tests": 10
+        },
+        "productionDifferencesFromCurrent": []
+      },
+      "planthird": {
+        "binaries": {},
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerAdmissionPlanTest": 8,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerPlanNetworkTest": 1,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "planthird",
+          "seconds": 188.98588953798753,
+          "skipped": 0,
+          "tests": 17
+        },
+        "productionDifferencesFromCurrent": []
+      }
+    },
+    "javaDistinctPassingTests": 19,
+    "learnerAdmission": false,
+    "negativeCases": 12,
+    "negativeExecutions": 24,
+    "path": "target/v53-learner-plan/qualification.tar.gz",
+    "productionInputs": 480,
+    "pythonTests": 750,
+    "result": {
+      "negatives": [
+        {
+          "case": "extra-file",
+          "reason": "learner plan case inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-case",
+          "reason": "learner plan case inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-root",
+          "reason": "learner plan exact native originals",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-source-inventory",
+          "reason": "learner plan exact native originals",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-parent",
+          "reason": "learner plan canonical original path",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-interruption",
+          "reason": "learner plan exact interrupted bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "repaired-torn-plan",
+          "reason": "learner plan exact recovered bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-forced-plan",
+          "reason": "learner plan exact recovered bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-process-success",
+          "reason": "learner plan process result",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-process",
+          "reason": "learner plan distinct processes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-force",
+          "reason": "learner plan original reseal trace",
+          "status": "REJECTED"
+        },
+        {
+          "case": "invented-voter",
+          "reason": "learner plan nonvoting inventory",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "completedResumes": 18,
+        "learnerStoreQualified": false,
+        "liveLockRefusals": 12,
+        "phase3Complete": false,
+        "processCases": 26,
+        "processes": 52,
+        "retainedIncompletePlans": 8,
+        "scope": "native-source-forced-plan",
+        "source": {
+          "exchanges": 31,
+          "fullNetworkQualification": false,
+          "learnerAdmissionQualified": false,
+          "originalFiles": 9,
+          "peer": "node-1",
+          "phase3Complete": false,
+          "physicalQualification": true,
+          "scope": "native-reservation-complete-source",
+          "status": "PASS"
+        },
+        "status": "PASS"
+      }
+    },
+    "runtimeInputs": 1236,
+    "sha256": "e5cd286c7fbe0795d467e8593d2bfa4eaa108bddadfb1728f4940ea053eddef1",
+    "status": "PASS"
+  },
+  "childProcesses": 52,
+  "completedResumes": 18,
+  "javaBuilds": "planthird: seventeen tests including native acquisition and 26 process cases; planreview: ten focused tests including two review additions. All production inputs identical; nineteen distinct Java tests pass.",
+  "learnerReadinessQualified": false,
+  "learnerStoreQualified": false,
+  "liveLockRefusals": 12,
+  "negativeCases": 12,
+  "originalAndPortableNegativeExecutions": 24,
+  "paidCloud": false,
+  "parent": "806be6aa11e8a4b0c5c04a066442071c4828dabc",
+  "phase3Complete": false,
+  "processCases": 26,
+  "protectedCI": false,
+  "publicReady": false,
+  "qualification": "forced original learner plan metadata only",
+  "retainedFailures": [
+    "planfirst: decoder overload shadowed static format decoder; compile failed",
+    "plansecond: negative fixture attempted to mutate immutable decoded map; seven tests passed, one fixture error; deep mutable copy corrects the fixture"
+  ],
+  "retainedIncompletePlans": 8,
+  "schema": "gse-v53-learner-plan-qualification-v1",
+  "sources": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerAdmissionFiles.java": "0a4440f7a28a80a020b869219e4b2340c7689b77ff7261c8909e717d04c0cb87",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerAdmissionPlan.java": "0f6c8aeb2a0b73c93ae99c5c797f6634e03296b24015bdc3809288ae10e11b4f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSource.java": "4e9d4959cdd753da70f799b1c8f58100e881b608b706473f916a1a7074aad656",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerAdmissionPlanTest.java": "ab3085e9b06f99498c3d5e299df41b6ebbc0f2e937f34b248d45dbde35e60e2c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerPlanNetworkTest.java": "a8467e5d151f56d34e2bbf38496f0068ed9549aa2c6c16ccc290f244b469689d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerPlanWorker.java": "a9012268ab085330d9ebf989a0cbb9deed72c96bb39f297d393b5f535a271ccc",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerSourceNetworkTest.java": "1c66796c5dd136ff8857b887d85429f83846c4429ae6e9a0ea292613bd8dfb83",
+    "scripts/v53/learner_plan_evidence.py": "41450566104fa435d05b163936125037275c68a356936bd2dd200571c0ac3bf5",
+    "scripts/v53/test_learner_plan_evidence.py": "15e9091114dc73c5e30e857679604aa17c8d33a58ba44b4e0e80dbbe2eeab631"
+  },
+  "status": "PASS"
+}
