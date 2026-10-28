@@ -25,8 +25,18 @@ def selection(chosen):
     return deepcopy(chosen)
 
 
+def request(value):
+    if type(value) is dict and 'continuation' in value:
+        from . import cloud_quota_continuation as continuation
+        continuation.request(value)
+        return deepcopy(value)
+    return selection(value)
+
+
 def verify_native(source, chosen, output):
-    chosen = selection(chosen); output = Path(output)
+    chosen = request(chosen); scoped = 'continuation' in chosen
+    if scoped: chosen = chosen['selected']
+    output = Path(output)
     need(not any(p.is_symlink() for p in (output, *output.parents)), 'V5.2 acceptance output link')
     output.mkdir(parents=True, mode=0o700, exist_ok=False)
     progress = member.Progress('complete-original-set'); progress.thread.start()
@@ -35,9 +45,13 @@ def verify_native(source, chosen, output):
         progress.update(stage, name=values.get('name'), completed=values.get('completed'))
     try:
         cfg = reads.source_configuration(source); bound = inputs.checkout(reads.ROOT, source); workflow = runners.contract()
+        scope = None; options = {}
+        if scoped:
+            from .cloud_quota_continuation import Scope
+            scope = Scope(cfg, bound, chosen); options = dict(continuation=scope)
         phase = 'original-objects'; update(phase)
         restored = objects.restore_native(source, {name: row['requestSha256'] for name, row in chosen.items()},
-                                          output/'objects', progress=update)
+                                          output/'objects', progress=update, **options)
         need(restored['receipt']['status'] == 'ORIGINALS_RESTORED_NOT_QUALIFIED' and
              restored['receipt']['execution'] == 'native-v52-evidence-reads', 'V5.2 original native restoration required')
         ledger = artifacts.read(output/'objects/originals/ledger-after.json')
@@ -47,25 +61,31 @@ def verify_native(source, chosen, output):
         for value in restored['inputs']:
             name = value['request']['selection']['member']['name']; update(phase, name=name, completed=len(expected))
             original = {key: chosen[name][key] for key in ('runId', 'runAttempt')}
-            record = runners.collect_native(source, value['request'], original, output/'runners'/name)
-            expected[name] = seal.match(record['seal'], cfg, bound, value, ledger, now=int(time.time()))
+            record = runners.collect_native(source, value['request'], original, output/'runners'/name, **options)
+            if scope is not None: scope.original(name, record)
+            member_source = bound if scope is None else scope.member_source(name)
+            expected[name] = seal.match(record['seal'], cfg, member_source, value, ledger, now=int(time.time()))
             need(expected[name] == dict(run=str(original['runId']), attempt=original['runAttempt']),
                  'V5.2 selected original invocation changed')
             provenance[name] = digest(encoded(record))
         phase = 'complete-replay'; update(phase)
         replayed = evidence.replay(restored['inputs'], bound, cfg, restored['ledger'], output/'replay',
-                                   progress=update, expected_invocations=expected)
+                                   progress=update, expected_invocations=expected, **options)
         need(replayed['status'] == 'COMPLETE_SET_REPLAYED_NOT_QUALIFIED' and
              set(replayed['completedMembers']) == set(suite.MEMBERS), 'V5.2 incomplete original set replay')
         phase = 'final-source'; update(phase)
         need(reads.source_configuration(source) == cfg and inputs.checkout(reads.ROOT, source) == bound and runners.contract() == workflow,
              'V5.2 acceptance source changed')
+        extra = {}
+        if scope is not None:
+            scope.guard(bound, cfg)
+            extra = dict(continuation=scope.report(), originalBindings=replayed['originalBindings'])
         receipt = dict(schema='gse-v52-protected-cloud-set-v1', status='PASS', execution='native-v52-complete-set-replay',
             fullRemoteQualification=True, paidCloud=False, source=bound, configurationSha256=reads.f.configuration(cfg),
             selected=chosen, originalInvocations=expected, runnerReceiptHashes=provenance,
             restorationSha256=digest(encoded(restored['receipt'])), replaySha256=digest(encoded(replayed)),
             totals=replayed['totals'], m01=replayed['m01'], selectedReservedCostMicrousd=replayed['selectedReservedCostMicrousd'],
-            ledgerReservedCostMicrousd=replayed['ledgerReservedCostMicrousd'])
+            ledgerReservedCostMicrousd=replayed['ledgerReservedCostMicrousd'], **extra)
         return receipt
     except BaseException as error:
         receipt['failure'] = dict(phase=phase, code='V52_SET_'+phase.upper().replace('-', '_')+'_REJECTED', errorType=type(error).__name__)

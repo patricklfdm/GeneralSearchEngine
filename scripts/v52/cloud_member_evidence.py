@@ -104,7 +104,7 @@ def bound_history(value,name,source,admitted):
     return binding
 
 
-def replay(root,request,manifest,completed,clean,ledger,source,cfg,output,*,progress=lambda stage,**kw:None):
+def replay(root,request,manifest,completed,clean,ledger,source,cfg,output,*,progress=lambda stage,**kw:None,artifact_pins=None):
     """Internal local replay; caller must authenticate selected original objects."""
     root=inventory(root,request,manifest);output=Path(output)
     need(not any(p.is_symlink() for p in (output,*output.parents)) and root.resolve() not in output.resolve().parents and
@@ -112,6 +112,9 @@ def replay(root,request,manifest,completed,clean,ledger,source,cfg,output,*,prog
     output.mkdir(parents=True,exist_ok=False);result=dict(status='FAIL',fullRemoteQualification=False,paidCloud=False)
     try:
         progress('authority');value=artifacts.read(root/'authority.json');admitted=authority.replay(root,value,request,source,cfg)
+        if artifact_pins is not None:
+            from .cloud_quota_continuation import artifacts_match
+            artifacts_match(admitted['files'], artifact_pins)
         accounting=completion(request,manifest,completed,clean,ledger,value['claim'],value['plan'])
         selected=request['selection'];receipt=artifacts.read(root/'member.json')
         a.fields(receipt,'schema status selection source resourceClaimSha256 histories fullRemoteQualification paidCloud elapsedSeconds',

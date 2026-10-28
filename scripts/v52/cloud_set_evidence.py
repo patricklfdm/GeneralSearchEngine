@@ -10,18 +10,21 @@ from . import measurement_m01_set as m01
 from .evidence import need,encoded,digest
 
 
-def inputs(values,source,cfg,ledger):
+def inputs(values,source,cfg,ledger,*,continuation=None):
     need(type(values) is list and len(values)==len(suite.MEMBERS),'V5.2 fifteen original member inputs required')
+    if continuation is not None: continuation.guard(source, cfg)
     requests=[];paths=[]
     for value in values:
         a.fields(value,'root request manifest completed cleanup','retained set input')
         req=value['request'];a.validate_request(req,domain='native');requests.append(req)
-        need(req['selection']['binding']['source']==source['source'] and
-             req['selection']['binding']['checkoutSha256']==source['checkoutSha256'] and
-             req['configurationSha256']==authority.preflight.p.config(cfg['provider']),
-             'V5.2 set external source/configuration mismatch')
+        if continuation is None:
+            need(req['selection']['binding']['source']==source['source'] and
+                 req['selection']['binding']['checkoutSha256']==source['checkoutSha256'] and
+                 req['configurationSha256']==authority.preflight.p.config(cfg['provider']),
+                 'V5.2 set external source/configuration mismatch')
+        else: continuation.validate_request(req)
         paths.append(Path(value['root']).resolve())
-    selected=suite.complete_selection([v['selection'] for v in requests])
+    selected=(suite.complete_selection([v['selection'] for v in requests]) if continuation is None else continuation.selections(requests))
     need(len(set(paths))==len(suite.MEMBERS) and not any(x in y.parents for x in paths for y in paths if x!=y),
          'V5.2 set overlapping original member roots')
     view=a.inspect_ledger(ledger,domain='native')
@@ -30,17 +33,22 @@ def inputs(values,source,cfg,ledger):
     return selected,view,paths
 
 
-def results(values,selected,source,cfg,ledger):
+def results(values,selected,source,cfg,ledger,*,continuation=None):
     """Reduce only results returned by complete member replay, not loaded receipts."""
     need(set(values)==set(suite.MEMBERS),'V5.2 incomplete replayed cloud set')
+    if continuation is not None: continuation.guard(source, cfg)
     configuration=authority.preflight.configuration(cfg)
     groups=set();histories=set();manifests=set();resources=set();boots=set();runs=set()
     expected={};m01_members={};invocations={};read_count=update_count=cost=negative_count=0
     for name in suite.MEMBERS:
         value=values[name];selection=value['selection'];chosen=suite.member(name)
-        need(value['status']=='MEMBER_REPLAYED_NOT_QUALIFIED' and value['source']==source and
+        member_source = source if continuation is None else continuation.member_source(name)
+        member_binding = selected['binding'] if continuation is None else selected['originalBindings'][name]
+        if continuation is not None:
+            need(value['requestSha256']==continuation.chosen[name]['requestSha256'], 'V5.2 continuation replayed request changed')
+        need(value['status']=='MEMBER_REPLAYED_NOT_QUALIFIED' and value['source']==member_source and
              value['configurationSha256']==configuration and value['fullRemoteQualification'] is False and value['paidCloud'] is False and
-             selection['binding']==selected['binding'] and selection['member']==chosen and
+             selection['binding']==member_binding and selection['member']==chosen and
              set(value['histories'])==set(value['bindings'])==set(chosen['histories']),
              'V5.2 original replayed member scope')
         invocation=value['invocation'];run=(invocation['run'],invocation['attempt'])
@@ -78,9 +86,9 @@ def results(values,selected,source,cfg,ledger):
         ledgerReservedCostMicrousd=a.inspect_ledger(ledger,domain='native')['reservedCostMicrousd'],ledgerSha256=digest(encoded(ledger)))
 
 
-def replay(values,source,cfg,ledger,output,*,progress=lambda stage,**kw:None,expected_invocations=None):
+def replay(values,source,cfg,ledger,output,*,progress=lambda stage,**kw:None,expected_invocations=None,continuation=None):
     """All members share one separately selected ledger; no fragments or retries."""
-    selected,_,paths=inputs(values,source,cfg,ledger);output=Path(output)
+    selected,_,paths=inputs(values,source,cfg,ledger,continuation=continuation);output=Path(output)
     if expected_invocations is not None:
         need(type(expected_invocations) is dict and set(expected_invocations)==set(suite.MEMBERS),
              'V5.2 protected original invocation inventory')
@@ -92,11 +100,15 @@ def replay(values,source,cfg,ledger,output,*,progress=lambda stage,**kw:None,exp
     try:
         for value in values:
             name=value['request']['selection']['member']['name'];progress('member-replay',name=name,completed=len(replayed))
+            member_source = source if continuation is None else continuation.member_source(name)
+            options = {} if continuation is None else dict(artifact_pins=continuation.policy['artifactPins'])
             replayed[name]=member.replay(value['root'],value['request'],value['manifest'],value['completed'],value['cleanup'],
-                ledger,source,cfg,output/name,progress=progress)
+                ledger,member_source,cfg,output/name,progress=progress,**options)
             if expected_invocations is not None:
                 need(replayed[name]['invocation']==expected_invocations[name],'V5.2 replayed member not original protected invocation')
-        receipt=results(replayed,selected,source,cfg,ledger)
+        receipt=results(replayed,selected,source,cfg,ledger,continuation=continuation)
+        if continuation is not None:
+            receipt['continuation']=continuation.report(); receipt['originalBindings']=selected['originalBindings']
         receipt['memberReceiptHashes']={name:digest((output/name/'receipt.json').read_bytes()) for name in replayed}
         return receipt
     except BaseException as error:
