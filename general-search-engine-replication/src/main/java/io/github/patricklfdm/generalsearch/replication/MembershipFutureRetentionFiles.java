@@ -17,6 +17,7 @@ final class MembershipFutureRetentionFiles implements AutoCloseable {
     static final int MAGIC=0x47534654,HEADER=44,MAXIMUM=3*1024*1024,METADATA=131072;
     static final List<String> RECORDS=List.of("selector.gsr","promise.gsr","selected.gsr","entry.gsr","accept.gsr",
             "proof.gsr","certificate.gsr","catalog.gsr","statement.gsr","ack.gsr");
+    static final List<String> DEPARTURE_RECORDS=RECORDS.subList(0,RECORDS.size()-1);
     private static final List<String> KINDS=List.of("SELECTOR","PROMISE","SELECTED","ENTRY","ACCEPT","PROOF","CERTIFICATE","CATALOG","CHECKPOINT","CHECKPOINT_ACK");
     private static final int[] LIMITS={4096,8192,65536,16384,8192,16384,16384,2*1024*1024,16384,2048};
     record Peer(MembershipIdentity identity,MembershipCapsule.Anchor lower) {}
@@ -29,6 +30,7 @@ final class MembershipFutureRetentionFiles implements AutoCloseable {
             this.peers=List.copyOf(peers);this.records=Map.copyOf(records);this.digest=digest;
         }
         boolean pending(){return parent!=null;}
+        boolean endorsed(){return records.containsKey("ack.gsr");}
         Decoded record(String name){return Objects.requireNonNull(records.get(name),"future original record missing");}
         MembershipCapsule.Anchor target() {
             var catalog=record("catalog.gsr");return new MembershipCapsule.Anchor(object(catalog.value().get("cut")),catalog.digest(),(String)catalog.value().get("application"));
@@ -86,8 +88,9 @@ final class MembershipFutureRetentionFiles implements AutoCloseable {
         metadata.put("revision",revision);metadata.put("previous",previous);metadata.put("parent",parent==null?null:MembershipRetentionIntent.anchor(parent));
         metadata.put("peers",peers.stream().map(p->Map.of("identity",MembershipPeerRetentionPlan.identity(p.identity),"lower",MembershipRetentionIntent.anchor(p.lower))).toList());
         var body=new ByteArrayOutputStream();part(body,canonical(metadata,METADATA),METADATA);body.writeBytes(ByteBuffer.allocate(4).putInt(records.size()).array());
-        require(records.isEmpty() || records.keySet().equals(Set.copyOf(RECORDS)),"future retention exact original inventory");
-        if(!records.isEmpty())for(int i=0;i<RECORDS.size();i++)part(body,records.get(RECORDS.get(i)),LIMITS[i]);
+        require(records.isEmpty() || records.keySet().equals(Set.copyOf(RECORDS))
+                || records.keySet().equals(Set.copyOf(DEPARTURE_RECORDS)),"future retention exact original inventory");
+        if(!records.isEmpty())for(int i=0;i<records.size();i++)part(body,records.get(RECORDS.get(i)),LIMITS[i]);
         byte[] content=body.toByteArray();require(HEADER+content.length<=MAXIMUM,"future retention total capacity");
         return ByteBuffer.allocate(HEADER+content.length).putInt(MAGIC).putShort((short)1).putShort((short)3).putInt(HEADER+content.length).put(sha(content)).put(content).array();
     }
@@ -106,7 +109,8 @@ final class MembershipFutureRetentionFiles implements AutoCloseable {
             prior=identity.nodeId().value();peers.add(new Peer(identity,anchor(p.get("lower"))));
         }
         require(body.remaining()>=4,"future retention record count");int count=body.getInt();var originals=new TreeMap<String,Decoded>();
-        require(parent==null?count==0 && peers.isEmpty():count==RECORDS.size() && !peers.isEmpty() && peers.size()<=6,"future retention empty/pending shape");
+        require(parent==null?count==0 && peers.isEmpty():(count==RECORDS.size() || count==DEPARTURE_RECORDS.size())
+                && !peers.isEmpty() && peers.size()<=6,"future retention empty/pending shape");
         require(parent==null || revision<MembershipBallotAllocator.MAX,"future retention completion revision exhausted");
         for(int i=0;i<count;i++)originals.put(RECORDS.get(i),decode(part(body,LIMITS[i]),"records",KINDS.get(i)));
         require(!body.hasRemaining(),"future retention trailing bytes");var state=new State(root,owner,revision,previous,parent,peers,originals,hash(bytes));
@@ -115,15 +119,22 @@ final class MembershipFutureRetentionFiles implements AutoCloseable {
     }
     private static void verifyRecords(State s) {
         for(var frame:s.records.values())require(s.root.equals(frame.value().get("root")),"future retention original root");
-        var entry=s.record("entry.gsr");var target=s.target();var statement=s.record("statement.gsr");var ack=s.record("ack.gsr").value();
+        var entry=s.record("entry.gsr");var target=s.target();var statement=s.record("statement.gsr");
         require(s.record("selector.gsr").value().get("node").equals(s.owner.nodeId().value()),"future retention original selector owner");
         require(number(target.cut().get("index"))==Math.addExact(number(s.parent.cut().get("index")),1)
                 && target.cut().get("entry").equals(entry.digest()) && entry.value().get("index").equals(target.cut().get("index"))
                 && entry.value().get("previous").equals(s.parent.cut().get("entry")),"future retention immediate original target");
         require(statement.value().get("end").equals(target.cut()) && statement.value().get("catalogAfter").equals(target.catalog())
                 && statement.value().get("applicationAfter").equals(target.application()),"future retention checkpoint target");
-        require(ack.get("voter").equals(s.owner.nodeId().value()) && ack.get("incarnation").equals(s.owner.storageId().toString())
-                && ack.get("statement").equals(statement.digest()) && ack.get("cut").equals(target.cut()),"future retention original application acknowledgement");
+        var view=object(target.cut().get("view"));
+        boolean eligible=MembershipContext.nodes(view,"old").contains(s.owner.nodeId().value())
+                || MembershipContext.nodes(view,"new").contains(s.owner.nodeId().value());
+        require(eligible==s.endorsed(),"future retention owner eligibility/completion kind");
+        if(s.endorsed()) {
+            var ack=s.record("ack.gsr").value();
+            require(ack.get("voter").equals(s.owner.nodeId().value()) && ack.get("incarnation").equals(s.owner.storageId().toString())
+                    && ack.get("statement").equals(statement.digest()) && ack.get("cut").equals(target.cut()),"future retention original application acknowledgement");
+        }else MembershipAppliedEndFiles.departing(s.record("catalog.gsr"),statement,s.parent,s.record("certificate.gsr"),entry,s.owner);
         var accept=s.record("accept.gsr").value();var proof=s.record("proof.gsr").value();var certificate=s.record("certificate.gsr").value();
         var proofAccept=new TreeMap<>(proof);proofAccept.remove("accepts");var certificateProof=new TreeMap<>(certificate);certificateProof.remove("proofs");
         require(accept.get("entry").equals(entry.digest()) && accept.get("index").equals(entry.value().get("index"))

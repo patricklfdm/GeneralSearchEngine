@@ -249,3 +249,33 @@ published generation/reopen and runtime removal fencing must be integrated and
 qualified separately before the full path is enabled. A component pass does not
 close Phase 3. Before release, rollback removes this typed completion path and
 its reader together; legacy formats and existing endorsed histories are unchanged.
+
+## A10 — exact nonvoting future proof
+
+The unpublished private GSFT 1.3 frame now discriminates three inventories:
+empty (zero records), endorsed (the original ten records), and departing FINAL
+(the same first nine records without ack.gsr). The existing framing, record
+order, checksum, metadata, revision chaining and three-MiB maximum are unchanged.
+The original empty and endorsed encodings remain byte-identical.
+
+Nine records are accepted only for the exact A09 old-only FINAL owner, with its
+permanent catalog identity, immediate joint-to-stable parent, original phases,
+certificate, entry, statement and image identity. An eligible owner without its
+ACK and a departing owner with an ACK both reject. This structural check never
+creates a voting observation; native owners must still authenticate their own
+original certificate and complete end before recording or dispatching a target.
+The applied-end reader requires matching completion kind and an exact nonvoting
+inventory when reopening that target. Unexpected ancestor ACKs remain forbidden.
+
+Inherited GSFS references retain the original GSFT owner's identity, bytes and
+digest; the capturing owner does not become the voter or original completer.
+This batch qualifies the representation, inheritance and real applied-end
+reopening under conditional historical authority. Native application/wire,
+publication and removal fencing still require their own complete integration.
+The unchanged stable native future/source/selected-proof regressions are listed
+in the source-bound receipt. No successor checkpoint quorum or Phase 3 closure
+is inferred from these component results.
+
+Before release, rollback removes the nine-record reader/writer variant and its
+independent reader together; it must not synthesize a tenth record for a retained
+nonvoting proof. Previously produced nonvoting test evidence stays historical.

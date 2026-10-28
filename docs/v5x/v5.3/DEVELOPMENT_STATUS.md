@@ -1,5 +1,14 @@
 # V5.3 development status
 
+## 2026-10-28 — Nonvoting future retention
+
+[Nonvoting future retention](PHASE_3_DEPARTING_FUTURE.md) now represents an exact
+departing FINAL without a successor ACK, retains its original owner through
+inheritance, and binds it to the complete local applied end. Five configuration
+profiles and unchanged endorsed regressions qualify this storage representation;
+native application/publication and removal-service fencing remain open. Full
+Phase 3 remains open.
+
 ## 2026-10-28 — Nonvoting FINAL storage completion
 
 [Departing FINAL completion](PHASE_3_DEPARTING_END.md) now has a distinct

@@ -27,8 +27,14 @@ PUBLISH_POINTS = ('PUBLICATION_SELECTOR_FORCED', 'RETENTION_PREFIX_WRITTEN', 'RE
 
 def frame(metadata, records):
     body = s.part(f.canonical(metadata))+struct.pack('>I', len(records))
-    need(not records or set(records) == set(RECORDS), 'future exact original record inventory')
-    for name in RECORDS if records else ():
+    if records and set(records) == set(RECORDS[:-1]):
+        from .departing_future_evidence import originals
+        originals(metadata, records)
+        names = RECORDS[:-1]
+    else:
+        need(not records or set(records) == set(RECORDS), 'future exact original record inventory')
+        names = RECORDS if records else ()
+    for name in names:
         body += s.part(records[name])
     need(len(body)+44 <= 3*e.MIB, 'future private record capacity')
     return struct.pack('>IHHI', 0x47534654, 1, 3, 44+len(body))+bytes.fromhex(e.digest(body))+body

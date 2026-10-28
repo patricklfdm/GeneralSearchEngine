@@ -1,0 +1,38 @@
+{
+  "archive": {
+    "bytes": 3112026,
+    "path": "target/v53-departing-future/evidence.tar.gz",
+    "sha256": "dd63b9d0d0b7ce846afcc3ccf49641b0cf298a571bb1e1017938d7efa5d76bb5"
+  },
+  "authority": "conditional-fixture",
+  "javaTests": 21,
+  "limitations": [
+    "Five departure profiles qualify GSFT/inherited representation and real end-file reopening, not distributed publication.",
+    "Existing endorsed raw qualifies unchanged Python replay only; the 21 Java tests separately cover current component sources.",
+    "Protected CI and paid-cloud qualification remain pending."
+  ],
+  "nativeDeparturePublication": false,
+  "negativeCases": 16,
+  "newJavaTests": 5,
+  "newPythonTests": 5,
+  "parent": "bc24e45afe17dd004fc8c18b6d08efb2f92d7d3e",
+  "phase3Complete": false,
+  "portableReplay": "PASS",
+  "profiles": 5,
+  "retainedFailures": [
+    "Initial Maven command selected the root non-reactor POM; no tests ran. Repeated with reactor/pom.xml.",
+    "Initial independent reader used the applied-end file allowlist for the larger original-record directory; corrected exact nine-record inventory, raw bytes unchanged.",
+    "First summary script called the existing endorsed reader without --qualify, then failed on absent negatives. Completed all three qualified replays from unchanged retained raw and frozen readers."
+  ],
+  "schema": "gse-v53-departing-future-qualification-v1",
+  "sources": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": "1e66376b437335b1e05925a18bc12a5f350827863055d897ecb24d0f454bdd74",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFutureRetentionFiles.java": "30923d4d74664edbd7b192024f775f23822bb19b5e93d9afe114783a4215897f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DepartingFutureTest.java": "91182105dab9dc6111c339de9f0115afedf5d00a3c09b04273dd2c2eab34dfed",
+    "scripts/v53/departing_future_evidence.py": "3bfd1548fec057f184a7bb88f40f4344e6f9f19ebe312b7e26c04db307d1d7ea",
+    "scripts/v53/future_retention_evidence.py": "244645d1276aef3e5fbc1b581cdfb808bae4956858c0edf297a215a31fae0508",
+    "scripts/v53/test_departing_future_evidence.py": "7e9f835da0eadeee65f1c017c580eceffbdc4a31b1c08a58ad47c6eec1f3a323"
+  },
+  "status": "PASS",
+  "summarySha256": "80f7ae78ba6cd7ce1de2e38ee35d82865ceafa6102b5c032f5aaa89778ff841f"
+}

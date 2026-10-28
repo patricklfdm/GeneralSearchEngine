@@ -92,7 +92,12 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
      * transaction. This neither replays an application nor creates a new ACK. */
     void retainedTarget(MembershipFutureRetentionFiles.State target)throws IOException {
         check();require(exists && !retirementPending(),"future retention requires complete local applied end");
-        for(String name:List.of("selector.gsr","certificate.gsr","catalog.gsr","statement.gsr",ACK)) {
+        require(target.pending() && files.containsKey(ACK)==target.endorsed(),"future retention completion kind changed");
+        var originals=new ArrayList<>(List.of("selector.gsr","certificate.gsr","catalog.gsr","statement.gsr"));
+        if(target.endorsed())originals.add(ACK);
+        else require(files.keySet().equals(Set.of(PLAN,IMAGE,"selector.gsr","certificate.gsr","catalog.gsr","statement.gsr")),
+                "future retention departing exact inventory");
+        for(String name:originals) {
             var bytes=target.record(name).bytes();var file=files.get(name);
             require(file!=null && file.bytes()==bytes.length && file.digest().equals(hash(bytes)),"future retention differs from original applied end");
         }
@@ -150,10 +155,12 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
     /** This is an exact certified joint-to-stable removal, never generic permission
      * for a nonvoter to complete a stable slot. The caller still owns certificate
      * authentication and semantic replay; serialized shape alone is not authority. */
-    private static void departing(Decoded catalog,Decoded statement,MembershipCapsule.Anchor parent,
+    static void departing(Decoded catalog,Decoded statement,MembershipCapsule.Anchor parent,
             Decoded certificate,Decoded entry,MembershipIdentity identity) {
         var old=object(parent.cut().get("view"));var end=object(catalog.value().get("cut"));var next=object(end.get("view"));
         String node=identity.nodeId().value(),root=(String)catalog.value().get("root");
+        require(list(catalog.value().get("identities")).stream().map(MembershipFormat::object).map(MembershipContext::identity)
+                .anyMatch(identity::equals),"applied-end permanent identity");
         require(entry.kind().equals("ENTRY") && entry.value().get("kind").equals("FINAL") && old.get("operation")!=null
                 && nodes(old,"old").contains(node) && !nodes(old,"new").contains(node),"applied-end exact departing FINAL owner");
         require(next.get("operation")==null && next.get("old").equals(old.get("new")) && next.get("new").equals(old.get("new"))
@@ -167,6 +174,7 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
                 && entry.digest().equals(end.get("entry")) && entry.value().get("previous").equals(parent.cut().get("entry"))
                 && entry.value().get("index").equals(end.get("index")) && certificate.value().get("index").equals(end.get("index"))
                 && number(end.get("index"))==Math.addExact(number(parent.cut().get("index")),1)
+                && entry.value().get("authority").equals(viewDigest(root,old))
                 && certificate.value().get("authority").equals(viewDigest(root,old)),"applied-end departing original certificate");
     }
     private static Decoded acknowledgement(Decoded statement,MembershipIdentity identity) {

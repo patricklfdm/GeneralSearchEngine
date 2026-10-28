@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Nonvoting future retention](PHASE_3_DEPARTING_FUTURE.md) now represents an exact
+departing FINAL without a successor ACK, retains its original owner through
+inheritance, and binds it to the complete local applied end. Five configuration
+profiles and unchanged endorsed regressions qualify this storage representation;
+native application/publication and removal-service fencing remain open. Full
+Phase 3 remains open.
+
 [Departing FINAL completion](PHASE_3_DEPARTING_END.md) now has a distinct
 nonvoting storage result, with no successor checkpoint acknowledgement. Thirty
 Java tests, 212 process cases and portable replay with nineteen exact negatives
