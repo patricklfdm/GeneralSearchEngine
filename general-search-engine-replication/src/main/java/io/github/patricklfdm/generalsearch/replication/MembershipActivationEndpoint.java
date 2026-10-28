@@ -152,8 +152,12 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             check();require(active!=null,"activation endpoint grant not available");return active.handle(sender,request);
         }
         void maintain()throws IOException {
-            check();if(!owner.nativeGenerationMaintenanceRequired())return;
-            var work=new MembershipGenerationMaintenance(owner,resources,bounds,this::exchange,this::check,scratch,clock,started,limit);
+            maintain(false);
+        }
+        void maintain(boolean beforeGrant)throws IOException {
+            check();if(!(beforeGrant?owner.publishedMaintenanceRequired():owner.nativeGenerationMaintenanceRequired()))return;
+            var work=beforeGrant?MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,this::exchange,this::check,scratch,clock,started,limit):
+                    new MembershipGenerationMaintenance(owner,resources,bounds,this::exchange,this::check,scratch,clock,started,limit);
             synchronized(this){if(ended || closed){work.close();throw new IOException("native maintenance scope ended");}
                 require(maintenance==null,"native maintenance already active");maintenance=work;}
             try(work){work.run();}finally{synchronized(this){if(maintenance==work)maintenance=null;}}
@@ -298,6 +302,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                             require(value.value().get("view").equals(active.capsule.context.authority())
                                     && value.value().get("ballot").equals(active.ballot) && value.value().get("basisId")!=null,"activation endpoint original promise");
                         });
+                        active.check();if(nativeHistory)active.maintain(true);
                         active.check();response=MembershipActivation.prepare(owner,sender,request,promise).response();active.granted();
                     }
                 } else if(request.kind().equals("SELECTED")) {

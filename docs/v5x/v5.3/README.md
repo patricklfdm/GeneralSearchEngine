@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Continuous native REMOVE](PHASE_3_CONTINUOUS_TRANSITION.md) now crosses old,
+joint and new-stable authority on the same four live stores. Pre-grant governing
+maintenance retires obsolete sources under durable proof without enlarging the
+six-source/seven-image bounds. Three campaigns and INTENT/FINAL/BARRIER pass
+independent original physical replay and exact negatives. Automatic operation
+ownership, learner ADD/REPLACE, all seven profiles and full Phase 3 remain open.
+
 [Native authority-changing publication](PHASE_3_AUTHORITY_TRANSITIONS.md) now
 connects explicitly driven INTENT and FINAL to original acknowledgements across
 the changed view. Sequential durable floor replacement preserves the six-source

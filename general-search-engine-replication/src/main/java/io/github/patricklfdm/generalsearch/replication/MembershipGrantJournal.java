@@ -2105,6 +2105,59 @@ final class MembershipGrantJournal implements AutoCloseable {
         checkOwner();require(!inactive.pending() && !retirement.pending() && !floors.pending(),"native maintenance requires recovered storage");
         return inactive.exists() || floors.exists();
     }
+    /** A completed publication can require retirement before another grant adds
+     * a source or installs a generation. Pending votes/applications retain their
+     * existing carried-entry path; they cannot borrow this permission. */
+    synchronized boolean publishedMaintenanceRequired()throws IOException {
+        if(!nativeGenerationMaintenanceRequired())return false;
+        return (pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null)
+                && (pendingContext==null || !pendingContext.pending() && pendingContext.active().isEmpty())
+                && (appliedEnd==null || !appliedEnd.present() && !replayFiles.present());
+    }
+    final class PublishedMaintenance {
+        private final MembershipGrantJournal owningJournal=MembershipGrantJournal.this;
+        private final MembershipCurrentGeneration generation=current;
+        private final String originalPromise=promise==null?null:promise.digest(),originalSelection=selection==null?null:selection.digest();
+        final MembershipContext context=current.capsule.context;
+        final Map<String,Object> ballot=Map.copyOf(observed.get());
+        private PublishedMaintenance() { }
+        void check()throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                checkOwner();applicationReferencesIdle();contextTransactionIdle();
+                require(current==generation && Objects.equals(originalPromise,promise==null?null:promise.digest())
+                        && Objects.equals(originalSelection,selection==null?null:selection.digest()),
+                        "published maintenance authority changed");
+                require(pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null,
+                        "published maintenance cannot retire pending vote");
+                fence(ballot);
+            }
+        }
+    }
+    synchronized PublishedMaintenance publishedMaintenance(MembershipResources budget)throws IOException {
+        require(resources==budget && publishedMaintenanceRequired(),"published maintenance requires clean owned generation");
+        rotationIdle();applicationReferencesIdle();reconcileKnownPeerConfiguration();
+        var permit=new PublishedMaintenance();permit.check();return permit;
+    }
+    /** Candidates are only older durable promises that neither the current
+     * generation nor its governing floor references. The existing retirement
+     * planner must still prove exact ancestry/tail preservation for each one. */
+    synchronized List<String> supersededPublishedSources(PublishedMaintenance permit)throws IOException {
+        require(permit.owningJournal==this,"published maintenance foreign owner");
+        permit.check();require(!inactive.exists() && !inactive.pending(),"published sources require retired inactive generation");
+        var floor=floors.retained().orElseThrow(()->new IllegalArgumentException("published sources require governing floor"));
+        var local=floor.copies().stream().filter(c->c.owner.equals(identity)).findFirst().orElseThrow();
+        var result=new ArrayList<String>();
+        for(String id:new TreeSet<>(sources.retainedIdentities())) {
+            var original=promises.get(id);require(original!=null,"published source original promise missing");
+            var originalBasis=bases.get(id);
+            if(compareBallot(object(promise.value().get("ballot")),object(original.value().get("ballot")))<=0)continue;
+            if(original.digest().equals(current.manifest.value().get("promise")) || original.digest().equals(local.generation.value().get("promise")))continue;
+            if(originalBasis!=null && (originalBasis.digest().equals(current.manifest.value().get("basis"))
+                    || originalBasis.digest().equals(local.generation.value().get("basis"))))continue;
+            planSourceRetirement(id);result.add(id);
+        }
+        permit.check();return List.copyOf(result);
+    }
     synchronized Decoded establishFloor(List<MembershipFloor.Copy> offered) throws IOException {
         return establishFloor(offered,null);
     }

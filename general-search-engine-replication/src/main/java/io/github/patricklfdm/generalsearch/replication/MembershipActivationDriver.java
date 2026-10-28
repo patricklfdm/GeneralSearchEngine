@@ -34,6 +34,7 @@ final class MembershipActivationDriver implements AutoCloseable {
     private final AtomicReference<Throwable> fatal=new AtomicReference<>();
     private volatile boolean closed;
     private volatile Round active;
+    private volatile MembershipGenerationMaintenance maintenance;
     private Thread runner;
     private boolean used;
     private long started;
@@ -89,6 +90,11 @@ final class MembershipActivationDriver implements AutoCloseable {
         synchronized(lifecycle){require(!used && !closed,"activation driver single use/closed");used=true;runner=Thread.currentThread();started=originalStarted;}
         String deferred=null;PeerUnavailable lastUnavailable=null;
         try {
+            if(nativeHistory && owner.publishedMaintenanceRequired()) {
+                remaining();var work=MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,link,()->remaining(),scratch,clock,started,budget);
+                synchronized(lifecycle){if(closed){work.close();throw new IOException("activation driver closed before maintenance");}maintenance=work;}
+                try(work){work.run();remaining();}finally{maintenance=null;}
+            }
             while(campaigns<maximumCampaigns) {
                 remaining();Round round=new Round();active=round;campaigns++;
                 try {
@@ -317,6 +323,7 @@ final class MembershipActivationDriver implements AutoCloseable {
         boolean running;
         synchronized(lifecycle){closed=true;running=used && finished.getCount()!=0;}
         var round=active;if(round!=null)round.stop();
+        var cleaning=maintenance;if(cleaning!=null)cleaning.close();
         if(running && Thread.currentThread()!=runner) {
             try{require(finished.await(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"activation driver close timeout");}
             catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation driver close interrupted",error);}

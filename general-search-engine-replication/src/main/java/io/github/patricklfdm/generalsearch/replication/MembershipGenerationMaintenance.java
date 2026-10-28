@@ -13,6 +13,9 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipGenerationMaintenance implements AutoCloseable {
     private final MembershipGrantJournal owner;
     private final MembershipGrantJournal.Voting original;
+    private final MembershipGrantJournal.PublishedMaintenance published;
+    private final MembershipContext context;
+    private final Map<String,Object> ballot;
     private final MembershipResources resources;
     private final ReplicationBounds bounds;
     private final MembershipSourcePull.Link link;
@@ -26,18 +29,28 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     private boolean used;
     MembershipGenerationMaintenance(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,LongSupplier clock,long started,long budget)throws IOException {
+        this(owner,resources,bounds,link,guard,scratch,clock,started,budget,false);
+    }
+    static MembershipGenerationMaintenance beforeGrant(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,LongSupplier clock,long started,long budget)throws IOException {
+        return new MembershipGenerationMaintenance(owner,resources,bounds,link,guard,scratch,clock,started,budget,true);
+    }
+    private MembershipGenerationMaintenance(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,LongSupplier clock,long started,long budget,boolean beforeGrant)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"native maintenance budget");this.owner=Objects.requireNonNull(owner);
         this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);this.link=Objects.requireNonNull(link);
         this.guard=Objects.requireNonNull(guard);this.scratch=Objects.requireNonNull(scratch);this.clock=Objects.requireNonNull(clock);
-        this.started=started;this.budget=budget;original=owner.voting(resources);check();
+        this.started=started;this.budget=budget;original=beforeGrant?null:owner.voting(resources);
+        published=beforeGrant?owner.publishedMaintenance(resources):null;
+        context=beforeGrant?published.context:original.before.context;ballot=beforeGrant?published.ballot:original.ballot;check();
     }
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"native maintenance closed/original deadline");
-        guard.check();original.check();elapsed=clock.getAsLong()-started;
+        guard.check();if(published==null)original.check();else published.check();elapsed=clock.getAsLong()-started;
         require(!closed && elapsed>=0 && elapsed<budget,"native maintenance closed/original deadline");
     }
     private boolean quorum(Collection<String> voters) {
-        for(String side:List.of("old","new")) {var members=MembershipContext.nodes(original.before.context.view,side);
+        for(String side:List.of("old","new")) {var members=MembershipContext.nodes(context.view,side);
             if(voters.stream().filter(members::contains).count()<=members.size()/2)return false;}return true;
     }
     private MembershipDiscovery.Hint discover(MembershipIdentity peer)throws IOException {
@@ -62,14 +75,14 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         // The complete copies at this floor share the exact current application.
         // Borrow its live physical bytes instead of creating one receiving image
         // per remote copy in addition to the separately accounted floor images.
-        try(var images=owner.exportPrefix(MembershipContext.cutDigest(original.before.context.cut),original.ballot,
-                original.before.context.authority(),resources,clock,started,budget)) {
-        for(String node:new TreeSet<>(original.before.context.voters())) {
+        try(var images=owner.exportPrefix(MembershipContext.cutDigest(context.cut),ballot,
+                context.authority(),resources,clock,started,budget)) {
+        for(String node:new TreeSet<>(context.voters())) {
             if(quorum(voters))break;if(voters.contains(node))continue;check();
             MembershipSourcePull source=null,generation=null;boolean retain=false;
             try {
-                var hint=discover(original.before.context.identities.get(node));check();
-                if(!hint.cut().equals(original.before.context.cut))continue;
+                var hint=discover(context.identities.get(node));check();
+                if(!hint.cut().equals(context.cut))continue;
                 source=prefix(hint);source.fetchPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);
                 generation=prefix(hint);var copy=generation.fetchGeneration(source);check();
                 require(copy.owner.equals(hint.peer()) && copy.capsule.terminal().equals(own.capsule.terminal()),"native maintenance exact original copy");
@@ -96,7 +109,14 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         List<MembershipSourcePull> received;
         synchronized(this){received=List.copyOf(pulls);}
         for(var work:received){release(work);check();}
-        owner.retireInactive();check();owner.releaseFloor();check();
+        owner.retireInactive();check();
+        if(published!=null)for(String source:owner.supersededPublishedSources(published)) {
+            // The old physical source stays owned until its original retirement
+            // decision and journal replacement are forced. A new campaign must
+            // not accumulate another full image on top of obsolete sources.
+            check();owner.retireSource(source);check();
+        }
+        owner.releaseFloor();check();
         }
     }
     @Override public void close()throws IOException {

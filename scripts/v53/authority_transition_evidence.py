@@ -71,12 +71,12 @@ def install(root,group):
     return combined
 
 
-def maintenance(group):
+def maintenance(group,voters=VOTERS):
     result=copy.deepcopy(group)
-    for node in VOTERS:
+    for node in voters:
         files=result[node];current=c.current(files)[0]
         files={k:v for k,v in files.items() if not k.startswith('generations/') or k==current[:-1] or k.startswith(current)}
-        for peer in (node,*[n for n in VOTERS if n!=node]):
+        for peer in (node,*[n for n in voters if n!=node]):
             previous=d.s.r.decode(files[d.s.FILE]);plan=copy.deepcopy(previous['plan'])
             identity=d.future.identity(group[peer]);anchor=c.anchor(c.current(group[peer])[2]['capsule'])
             next(row for row in plan['peers'] if row['identity']==identity)['possible']=[anchor]
@@ -86,6 +86,8 @@ def maintenance(group):
 
 
 class NativeSlot(x.Walk):
+    voters=VOTERS
+
     def requested(self,slot,entry,payload):
         certificate=f.decode((self.root/f'applied-{slot}/node-1/applied-end/certificate.gsr').read_bytes(),'records','CERTIFICATE')
         need(certificate['entry']==e.digest(entry),'transition exact native command');self.entry=entry
@@ -97,14 +99,14 @@ class NativeSlot(x.Walk):
         if label.endswith('-applied'):
             self.applied=copy.deepcopy(group);b.match(self.root,f'applied-{self.slot}',group)
         elif label.endswith('-published'):
-            for node in VOTERS:
+            for node in self.voters:
                 files=group[node];original=self.applied[node];_,local,packet=c.current(original)
                 prefix,members,published=c.current(files);cap=copy.deepcopy(published['capsule']);view=cap['cut']['view']
                 # Checkpoint publication uses the governing end view. FINAL's
                 # certificate still has the original joint ACCEPT/PROOF quorum,
                 # while its new stable checkpoint needs only the new majority.
                 chosen={node}
-                for peer in VOTERS:
+                for peer in self.voters:
                     if all(len(chosen & set(view[side]))>len(view[side])//2 for side in ('old','new')):break
                     chosen.add(peer)
                 objects=dict(published['objects']);item=cap['items'][-1];acks=[]
@@ -127,13 +129,16 @@ class NativeSlot(x.Walk):
                 retained.update({'entry.gsr':entry,'accept.gsr':accept,'proof.gsr':proof})
                 state=d.s.r.decode(original[d.s.FILE]);plan=copy.deepcopy(state['plan']);upper=c.anchor(c.current(files)[2]['capsule']);peers=[]
                 future=original[d.future.FILE]
-                for revision,peer in enumerate(VOTERS[1:],1):
+                # This is the independently derived preceding frame, already
+                # matched to the physical snapshot, not a claimed disk counter.
+                prior_revision=json.loads(future[48:48+int.from_bytes(future[44:48],'big')])['revision']
+                for revision,peer in enumerate(self.voters[1:],1):
                     identity=d.future.identity(self.group[peer]);row=next(p for p in plan['peers'] if p['identity']==identity)
                     peers.append(dict(identity=identity,lower=row['possible'][0]))
-                    future=d.future.frame(dict(d.future.initial(original),revision=revision,previous=e.digest(future),parent=c.anchor(packet['capsule']),peers=copy.deepcopy(peers)),retained)
+                    future=d.future.frame(dict(d.future.initial(original),revision=prior_revision+revision,previous=e.digest(future),parent=c.anchor(packet['capsule']),peers=copy.deepcopy(peers)),retained)
                     row['possible'].append(upper)
                 files[d.s.FILE]=d.s.r.frame(dict(state,revision=state['revision']+1,previous=e.digest(original[d.s.FILE]),plan=plan))
-                files[d.future.FILE]=d.future.frame(dict(d.future.initial(original),revision=3,previous=e.digest(future)),{})
+                files[d.future.FILE]=d.future.frame(dict(d.future.initial(original),revision=prior_revision+len(self.voters),previous=e.digest(future)),{})
             b.match(self.root,f'published-{self.slot}',group)
         # Intermediate ACCEPT/PROOF phases have no separate captured snapshots.
         # Their exact bytes are included in the independently matched applied end.

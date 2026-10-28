@@ -1,0 +1,292 @@
+{
+  "additionalGuards": {
+    "inputs": {
+      "bytes": 498803,
+      "path": "target/v53-continuous-transition/fenced-inputs.json",
+      "sha256": "53650d548d5486c8f27954a2ccf85b953307c15a7a12ef3666d6df4142645acd"
+    },
+    "log": {
+      "bytes": 5555,
+      "path": "target/v53-continuous-transition/fenced-maven.log",
+      "sha256": "37558ef318688730aaad5ba0e1379c219f0de95d4dc61e040c8893d3ef1fe18e"
+    },
+    "reports": [
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "report": {
+          "bytes": 8219,
+          "path": "target/v53-continuous-transition/builds/fenced-ead79feb/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest.xml",
+          "sha256": "2c9c5dc30067043097843dc8d519b7e06116a95dee97aa951a650a93af0f5b68"
+        },
+        "seconds": 22.065,
+        "tests": 2
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53FloorReleaseTest",
+        "report": {
+          "bytes": 9093,
+          "path": "target/v53-continuous-transition/builds/fenced-ead79feb/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53FloorReleaseTest.xml",
+          "sha256": "400983d5917850af6d106e43fe0e2b86ace0fa005fce1386754dd36e157185b6"
+        },
+        "seconds": 23.168,
+        "tests": 11
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "report": {
+          "bytes": 9177,
+          "path": "target/v53-continuous-transition/builds/fenced-ead79feb/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest.xml",
+          "sha256": "be6e5ae6dd1b60959e2b2e879088c25b1a080a051a98b9938108fe2e816700df"
+        },
+        "seconds": 9.608,
+        "tests": 11
+      }
+    ],
+    "tests": 24
+  },
+  "archive": {
+    "bytes": 17754986,
+    "path": "target/v53-continuous-transition/evidence.tar.gz",
+    "sha256": "673227880763cd81d2f497c778a18363e0ce5411dec2df787230098a85d9c0a7"
+  },
+  "baseCommit": "b4d29359e895137d3faba741f2d5ca3e0dafbc5c",
+  "campaignAndSlotBudgetSeconds": 180,
+  "continuousLifetimeOwned": false,
+  "continuousReplay": {
+    "bytes": 3111,
+    "path": "target/v53-continuous-transition/continuous-replay.json",
+    "sha256": "87dacebfd7bbe8fe36dd28702df70a0b650656bc8e91829b97e8adffc5e7041e"
+  },
+  "failedOriginals": [
+    {
+      "attempt": "original",
+      "diagnosis": {
+        "bytes": 1305,
+        "path": "target/v53-continuous-transition/original-diagnosis.json",
+        "sha256": "af15080bcb2cc5c8b1715072a5f60a27d36fdf826f40ed47b106a58a00397461"
+      },
+      "inputs": {
+        "bytes": 498440,
+        "path": "target/v53-continuous-transition/original-inputs.json",
+        "sha256": "6c3a702d289bc414c72f4877c769ac309fd6f0b14772c411843407e53d1280fe"
+      },
+      "log": {
+        "bytes": 9021,
+        "path": "target/v53-continuous-transition/original-maven.log",
+        "sha256": "f7b23dd69c6cb67d49e5894778ca8864815b3e1719878f86bbe19836a81783eb"
+      }
+    },
+    {
+      "attempt": "pregrant",
+      "diagnosis": {
+        "bytes": 638,
+        "path": "target/v53-continuous-transition/pregrant-diagnosis.json",
+        "sha256": "d12ccaf09d2342fe0f1b0b2c910ab5e9e65e5fd098e4e6fd24c3bc2226e05cca"
+      },
+      "inputs": {
+        "bytes": 498440,
+        "path": "target/v53-continuous-transition/pregrant-inputs.json",
+        "sha256": "e65f9ea3a197bf4693de8b88727c0c909e2f322809a40ea9ade8fd8822d5cad1"
+      },
+      "log": {
+        "bytes": 9199,
+        "path": "target/v53-continuous-transition/pregrant-maven.log",
+        "sha256": "5ca033c94cfc8789d5709238f246593b8546897db432601b5543945ed552e02f"
+      }
+    }
+  ],
+  "firstCorrectedExecution": {
+    "inputs": {
+      "bytes": 498440,
+      "path": "target/v53-continuous-transition/reclaimed-inputs.json",
+      "sha256": "84ffa3d2e585c074b5efe23f5cac04bd9f6105b20d6e9b1fe7a7ea56da62bfda"
+    },
+    "log": {
+      "bytes": 6594,
+      "path": "target/v53-continuous-transition/reclaimed-maven.log",
+      "sha256": "dbdae5689cc92afbe68c448ccd80e72b64ec7788d0f9c921dde259bece3b8b05"
+    },
+    "replay": {
+      "bytes": 2020,
+      "path": "target/v53-continuous-transition/reclaimed-qualified.json",
+      "sha256": "a1dc1a784ede342243b8a7fd0d9af3474101a3233f57b3f9783f9aea7caa04d9"
+    }
+  },
+  "formatsChanged": false,
+  "freshProcessQualified": false,
+  "fullNetworkMatrixQualified": false,
+  "guardInjectionFailure": {
+    "diagnosis": {
+      "bytes": 395,
+      "path": "target/v53-continuous-transition/guards-diagnosis.json",
+      "sha256": "818d0e99d994573cd0a67fca92fa26975e392600ef6b6552ff515a3574a02758"
+    },
+    "inputs": {
+      "bytes": 498559,
+      "path": "target/v53-continuous-transition/guards-inputs.json",
+      "sha256": "791166f8fed403e8ba2b6ab6e4b8f7edd240555ad633eb2814b2621b5c40f892"
+    },
+    "log": {
+      "bytes": 8150,
+      "path": "target/v53-continuous-transition/guards-maven.log",
+      "sha256": "340569e228d9fdc80113530a7656c7e59e689857cbd00dacfad8ca50bfa44e8e"
+    }
+  },
+  "java": {
+    "inputs": {
+      "bytes": 498440,
+      "path": "target/v53-continuous-transition/qualified-inputs.json",
+      "sha256": "06038653cf42af00a83f1bfeeb39bc1110a0b2fc30df3286bfd7fdbc914f5df4"
+    },
+    "log": {
+      "bytes": 9871,
+      "path": "target/v53-continuous-transition/qualified-maven.log",
+      "sha256": "cace185ff3b2bc918d94e31035eee25e33decff2fdd2c4984ed401ab49186ba0"
+    },
+    "reports": [
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest",
+        "report": {
+          "bytes": 10868,
+          "path": "target/v53-continuous-transition/builds/qualified-0789088e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest.xml",
+          "sha256": "60f5ef53840dc7b22660fd74d9b1f6e35907982713f7b3f6862c3e87afd4da59"
+        },
+        "seconds": 97.592,
+        "tests": 20
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest",
+        "report": {
+          "bytes": 9779,
+          "path": "target/v53-continuous-transition/builds/qualified-0789088e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest.xml",
+          "sha256": "53d5c1973bd4fd01550de6e2165ee76636001c39f3f290794ed2937952b68327"
+        },
+        "seconds": 83.973,
+        "tests": 13
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "report": {
+          "bytes": 9448,
+          "path": "target/v53-continuous-transition/builds/qualified-0789088e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest.xml",
+          "sha256": "3ddc7bf99f665bd955e5e61112bf2a7ed693b5a67d532526a930f1d189a2e025"
+        },
+        "seconds": 401.15,
+        "tests": 3
+      },
+      {
+        "name": "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest",
+        "report": {
+          "bytes": 12133,
+          "path": "target/v53-continuous-transition/builds/qualified-0789088e/general-search-engine-replication/target/surefire-reports/TEST-io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest.xml",
+          "sha256": "2ce9c508da4b03aea9bb35a9ab1e64319c7a111249e48cfcacb7bf62f66cb626"
+        },
+        "seconds": 582.447,
+        "tests": 11
+      }
+    ],
+    "tests": 47
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalQualified": true,
+  "portable": {
+    "bytes": 212,
+    "path": "target/v53-continuous-transition/portable-replay.json",
+    "sha256": "33a8f50ed3776951829bd8a4163f35c06bb3d6c62d232022ceffb1982b68ba66"
+  },
+  "protectedCI": false,
+  "publicReady": false,
+  "publicationBoundaryQualified": true,
+  "python": {
+    "log": {
+      "bytes": 793,
+      "path": "target/v53-continuous-transition/python.log",
+      "sha256": "762dfed47c348a370b59ce0178b2009293ad7fe0dd7d88f41a36c8980477f4a6"
+    },
+    "seconds": 92.92,
+    "tests": 692
+  },
+  "readerRegression": {
+    "bytes": 995258,
+    "path": "target/v53-continuous-transition/authority-regression/results.json",
+    "sha256": "f47d212c32bcf19b79edb0ff425f41666cf20fba75064a4cdde2225750927754"
+  },
+  "remaining": [
+    "one automatic owner/lifetime through sealed, carried and joint completion",
+    "learner ADD/REPLACE and all seven profiles",
+    "autonomous election/discovery/adoption and restart lifecycle",
+    "maximum combined headroom and complete Phase 3 audit"
+  ],
+  "requestTimeoutMillis": 30000,
+  "resourceLimitsChanged": false,
+  "roundReplay": {
+    "bytes": 8987,
+    "path": "target/v53-continuous-transition/rounds-replay.json",
+    "sha256": "1f2f974cd0b0b88dbe2b731a236de29c0c7e4c49427941c754cd5a5509390673"
+  },
+  "schema": "gse-v53-continuous-native-transition-v1",
+  "sources": [
+    {
+      "bytes": 134922,
+      "path": "docs/v5x/v5.3/DEVELOPMENT_STATUS.md",
+      "sha256": "4c8b3e550eb0def7caedce1a5e150492088d313b20ecebbb781ee8af84e50e97"
+    },
+    {
+      "bytes": 4404,
+      "path": "docs/v5x/v5.3/PHASE_3_CONTINUOUS_TRANSITION.md",
+      "sha256": "420aae125390af420556189a1a1c20f722d82886b7137dd326276cc3e49fae47"
+    },
+    {
+      "bytes": 25560,
+      "path": "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+      "sha256": "86d2f8205c9a79f7233848c38519d6d9401136d8f8b98d30f2544b6ec9622a37"
+    },
+    {
+      "bytes": 40579,
+      "path": "docs/v5x/v5.3/README.md",
+      "sha256": "00eb5bc2dab5e7a99d826862d7d5c6efd0174b5cff1051468fd0607bfbd3d9c6"
+    },
+    {
+      "bytes": 25087,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java",
+      "sha256": "685e55744f49273469e8ddd2923b4951ba512ed215adfe0221cb1088b858e690"
+    },
+    {
+      "bytes": 30636,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "sha256": "16fe30f28867647612eee5d6b5142f42f8a2a5cfa2303db153a4be4517f749ee"
+    },
+    {
+      "bytes": 9085,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "sha256": "46ee2a358c20641e59d1b58ab80b86eabd19af0a48f49f31c8db25e4ce4ee9bd"
+    },
+    {
+      "bytes": 282219,
+      "path": "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "sha256": "8bf89769a6d3fc81dd3f8f4c4a06bf2b9679e44dd22d34a9d05241422224c9bc"
+    },
+    {
+      "bytes": 10700,
+      "path": "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContinuousTransitionTest.java",
+      "sha256": "0d13a4598b7f26526f3ebb0a1f2ceb07f9ae5a49eae024c8eb79f0d7cc660ce8"
+    },
+    {
+      "bytes": 17681,
+      "path": "scripts/v53/authority_transition_evidence.py",
+      "sha256": "f2eb70db9246e5a171b3a2958228ad18714673a8f0f6a27143a5007405a727a8"
+    },
+    {
+      "bytes": 14712,
+      "path": "scripts/v53/continuous_transition_evidence.py",
+      "sha256": "3ad2e0e562a22d9bb8a3cc0afb060b028e709883b4c28343d5198e5b2c8afc3c"
+    },
+    {
+      "bytes": 2999,
+      "path": "scripts/v53/test_continuous_transition_evidence.py",
+      "sha256": "486289a4dcff20509c1095732c59b48d6f86bccffc6174735ce0c2fd5398de2b"
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,5 +1,29 @@
 # V5.3 development status
 
+## 2026-10-28 — Continuous native authority transition
+
+[Continuous native REMOVE](PHASE_3_CONTINUOUS_TRANSITION.md) now crosses old,
+joint and new-stable authority on the same four live stores. Pre-grant governing
+maintenance retires obsolete sources under durable proof without enlarging the
+six-source/seven-image bounds. Three campaigns and INTENT/FINAL/BARRIER pass
+independent original physical replay and exact negatives. Automatic operation
+ownership, learner ADD/REPLACE, all seven profiles and full Phase 3 remain open.
+
+The original continuous test first stopped at joint SELECTED because inactive
+generation cleanup had no current-view permission, then reached joint activation
+but exhausted the seventh application-image slot at FINAL maintenance. Both failed
+attempts remain retained. The correction uses a journal-bound clean published
+capability and the existing durable floor/source-retirement transactions.
+
+Forty-seven corrected-source integration/activation/round tests and twenty-four
+additional cancellation/fencing/source-retirement/floor tests pass. All 692 Python
+tests pass. The continuous original history and two stable/carried regressions
+pass archived optimized replay with 68 exact negatives. Earlier single-transition
+INTENT/FINAL readers also reproduce 28 negatives after their shared revision-chain
+correction. The [receipt](phase3-evidence/continuous-transition.json) binds both
+immutable builds, earlier failures and the archive. No public READY, new end-to-end
+process matrix, protected CI or cloud acceptance is claimed.
+
 ## 2026-10-28 — Native authority-changing publication
 
 The [authority transition batch](PHASE_3_AUTHORITY_TRANSITIONS.md) fixes four
