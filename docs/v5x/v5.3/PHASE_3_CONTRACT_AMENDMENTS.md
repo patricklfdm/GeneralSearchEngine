@@ -495,3 +495,43 @@ current eligibility. Typed application materialization, exact PREPARE revision,
 readiness receipt and full matching locally forced INTENT must still precede any
 joint vote. Public learner factories remain disabled. Rollback must refuse the
 new retained companion rather than reinterpret it as a voter or delete it.
+
+## A16 — typed learner backup and forced readiness record
+
+The original nonvoting store may own one typed preparation sidecar at
+`operationDirectory.resolveSibling(".gse-v53-learner-" + planDigest)`.
+The exact parent/path binding and directory inode are retained. The sidecar is
+disjoint from the operation, replica and live materialization directories and is
+exclusively locked through an empty `preparation.lock`.
+
+`preparation.json` and candidate `preparation.next.json` are canonical ASCII JSON,
+each bounded to 256 KiB. Their exact fields are `schema` =
+`gse-v53-learner-typed/1.3`, `plan` (original admission digest), `source` (original
+packet digest), `receipt` (canonical base64 of the exact GSER LEARNER bytes),
+`configuration` (`application` and `core` descriptors), `path`, `materialization`
+(the existing five-field path bindings), and `directoryKey`. This is local private
+metadata; no new GSER/GSRP family or public format is introduced.
+
+Reserve one APPLICATION slot at the unchanged 64 MiB ceiling before writes, from
+the parent store's existing resource owner. Force the plan candidate and parent,
+atomically seal it and force the active plan and parent. `backup/` contains only
+the three exact original core backup members. Force members and directories,
+perform the actual typed semantic read and verify history, then force
+`learner.gsr` and its parent last. Only the complete live owner exposes readiness
+bytes; these bytes alone never grant local voting rights.
+
+Resume requires the original directory, bindings and complete original plan or
+candidate. Partial backup/receipt bytes are repairable only as exact prefixes of
+that plan's originals, with semantic decoding repeated before receipt access.
+Missing/partial plans, incompatible configuration and foreign/linked bytes are
+preserved and refused. Closing the child releases its lock but retains the
+parent's image reservation. Parent reopen conservatively reserves that image
+before writes whenever the deterministic sidecar exists. Parent close closes the
+child before releasing original sources and reservations; it preserves disk bytes.
+
+The original MISC reservation remains 2 MiB. Its bounded metadata sum is 1,444 KiB,
+as detailed in [typed learner preparation](PHASE_3_LEARNER_TYPED.md). Source/image
+limits and frozen timing budgets are unchanged. This does not settle successor
+PREPARE/revision replacement, cancellation retirement, locally forced matching
+INTENT or joint activation. Rollback must refuse retained typed metadata rather
+than reinterpret it as a voter or silently erase it.

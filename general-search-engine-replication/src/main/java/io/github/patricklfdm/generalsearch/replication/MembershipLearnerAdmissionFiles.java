@@ -18,14 +18,15 @@ final class MembershipLearnerAdmissionFiles implements AutoCloseable {
     private final Object directoryKey,lockKey;
     private final MembershipOwnership owner;
     private final MembershipResources.Lease lease;
+    private final MembershipResources resources;
     private final MembershipBallotAllocator.Cut cut;
     private final MembershipGenerationFiles.Guard source;
     private final Map<String,FileIdentity> files=new TreeMap<>();
     private boolean closed,failed,replicaAllowed;
     private MembershipLearnerRetention retention;
-    private MembershipLearnerAdmissionFiles(MembershipLearnerAdmissionPlan plan,MembershipOwnership owner,MembershipResources.Lease lease,
+    private MembershipLearnerAdmissionFiles(MembershipLearnerAdmissionPlan plan,MembershipOwnership owner,MembershipResources resources,MembershipResources.Lease lease,
             MembershipBallotAllocator.Cut cut,MembershipGenerationFiles.Guard source)throws IOException {
-        this.plan=plan;directory=plan.request.operationDirectory();this.owner=owner;this.lease=lease;this.cut=cut;this.source=source;
+        this.plan=plan;directory=plan.request.operationDirectory();this.owner=owner;this.resources=resources;this.lease=lease;this.cut=cut;this.source=source;
         directoryKey=key(directory);lockKey=key(directory.resolve(LOCK));
     }
     static MembershipLearnerAdmissionFiles create(MembershipLearnerAdmissionPlan plan,MembershipResources resources,
@@ -35,7 +36,7 @@ final class MembershipLearnerAdmissionFiles implements AutoCloseable {
         try {
             Files.createDirectory(directory);Object created=key(directory);AdmissionPaths.forceDirectory(directory.getParent());cut.at("LEARNER_OPERATION_CREATED");
             source.check();plan.recheckPaths();require(created.equals(key(directory)),"learner new operation replaced");
-            owner=MembershipOwnership.own(directory.resolve(LOCK),true);result=new MembershipLearnerAdmissionFiles(plan,owner,lease,cut,source);
+            owner=MembershipOwnership.own(directory.resolve(LOCK),true);result=new MembershipLearnerAdmissionFiles(plan,owner,resources,lease,cut,source);
             result.point("LEARNER_OPERATION_LOCKED");result.write();result.seal();return result;
         }catch(IOException|RuntimeException|Error error){if(result!=null)result.failed=true;
             try{if(owner!=null)owner.close();}catch(IOException close){error.addSuppressed(close);}finally{lease.close();}throw error;}
@@ -66,7 +67,7 @@ final class MembershipLearnerAdmissionFiles implements AutoCloseable {
             }
             plan.recheckPaths(!names.contains(RETAIN));require(originalKey.equals(key(directory)),"learner operation replaced during open");
             if(retained!=null)MembershipLearnerStore.preflight(plan,retained);
-            lease=resources.reserve(MembershipResources.Unit.MISC,"learner-plan",bytes.length);result=new MembershipLearnerAdmissionFiles(plan,owner,lease,cut,()->{});
+            lease=resources.reserve(MembershipResources.Unit.MISC,"learner-plan",bytes.length);result=new MembershipLearnerAdmissionFiles(plan,owner,resources,lease,cut,()->{});
             result.replicaAllowed=names.contains(RETAIN);result.retention=retained;
             if(hasRetention)lease.reserveMisc(MembershipResources.Unit.MISC.bytes);
             for(String name:names)if(!name.equals(LOCK))result.remember(name,(name.equals(RETAIN)||name.equals(RETAIN_NEXT))?retentionBytes:bytes);
@@ -116,6 +117,10 @@ final class MembershipLearnerAdmissionFiles implements AutoCloseable {
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     void reserveAdmission()throws IOException {check();lease.reserveMisc(MembershipResources.Unit.MISC.bytes);}
+    MembershipResources.Lease reserveTypedImage(long bytes)throws IOException {
+        check();require(replicaAllowed && retention!=null,"typed learner requires retained admission");reserveAdmission();
+        return resources.reserve(MembershipResources.Unit.APPLICATION,"learner-typed-backup",bytes);
+    }
     void requireFreshRetention()throws IOException {check();require(retention==null && !replicaAllowed,"retained learner source requires explicit resume");}
     void retainSource(MembershipLearnerRetention decision)throws IOException {
         check();require(decision.plan.summary().equals(plan.summary()),"learner retention foreign plan");reserveAdmission();

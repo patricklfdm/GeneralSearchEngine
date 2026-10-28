@@ -54,14 +54,27 @@ final class MembershipApplicationImage {
             DurableStorageConfig<K,T> storage, byte[] bytes, Path scratch) throws IOException {
         var members = unpack(bytes);
         require(Arrays.equals(members.get(1), manifest(members.get(1))), "noncanonical application manifest administration");
-        var active = configuration(captured, members.get(2));
+        configuration(captured, members.get(2)); // Validate before creating any scratch files.
         AdmissionPaths.disjoint(List.of(storage.directory(), scratch));
         AdmissionPaths.absent(scratch);
         var parent = AdmissionPaths.binding(scratch);
         Files.createDirectory(scratch);
         for (int i = 0; i < MEMBERS.size(); i++) AdmissionPaths.write(scratch.resolve(MEMBERS.get(i)), members.get(i));
         AdmissionPaths.recheck(parent);
+        return readExisting(captured,storage,bytes,scratch);
+    }
+
+    /** Verify an owner's already forced exact backup members without rewriting
+     * them. Reopening typed learner preparation must repeat semantic validation. */
+    static <K,T> DurableApplicationState<T> readExisting(SearchEngineConfiguration<K,T> captured,
+            DurableStorageConfig<K,T> storage, byte[] bytes, Path scratch) throws IOException {
+        var members=unpack(bytes);
+        require(Arrays.equals(members.get(1),manifest(members.get(1))),"noncanonical application manifest administration");
+        var active=configuration(captured,members.get(2));
+        AdmissionPaths.disjoint(List.of(storage.directory(),scratch));
         var before = inventory(scratch);
+        for(int i=0;i<MEMBERS.size();i++)require(before.get(i).size()==members.get(i).length
+                && before.get(i).digest().equals(MembershipFormat.hash(members.get(i))),"application original scratch bytes");
         var state = active.newBuilder().readDurableBackup(scratch, verification(storage), MAXIMUM - OVERHEAD);
         require(before.equals(inventory(scratch)), "application scratch changed");
         for (int i = 0; i < MEMBERS.size(); i++)

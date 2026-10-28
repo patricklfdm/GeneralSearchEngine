@@ -26,7 +26,10 @@ class V53LearnerSourceTest {
         final AtomicLong clock=new AtomicLong();
         final List<Decoded> sent=new ArrayList<>();
         Fixture(int size,String kind,int cut)throws Exception {
-            var f=new V53CapsuleFixture(size,kind,cut);fixture=new V53CurrentGenerationFixture(size,f);
+            this(size,kind,new V53CapsuleFixture(size,kind,cut));
+        }
+        Fixture(int size,String kind,V53CapsuleFixture f)throws Exception {
+            fixture=new V53CurrentGenerationFixture(size,f);
             path=temp.resolve("source-"+UUID.randomUUID());fixture.provision(path);
             owner=MembershipGrantJournal.openGenerations(path,fixture.root(),V53DeclarationsTest.node(1),server,fixture::verify,e->{});
             service=MembershipTransferService.prefix(owner,server,bounds(),()->{},clock::get,0,BUDGET);

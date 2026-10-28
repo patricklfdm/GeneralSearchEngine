@@ -1,7 +1,8 @@
 # Phase 3 — original nonvoting learner storage
 
 Status: implementation and focused component checks complete. Complete Phase 3,
-typed readiness and joint eligibility remain **OPEN**. Long final-source matrices
+joint eligibility remains **OPEN**. Typed preparation is now implemented separately in
+[the typed learner owner](PHASE_3_LEARNER_TYPED.md). Long final-source matrices
 are tracked in the [deferred acceptance queue](PHASE_3_DEFERRED_ACCEPTANCE.md).
 
 ## Durable admission
@@ -40,9 +41,9 @@ closed/replaced owner invalidates already obtained preparation objects.
 The captured builder, root schema/codec/startup-index descriptor and local
 root/identity/replica paths are checked before future typed writes. This input
 binding does not semantically decode an application, force LEARNER or imply that
-a remote peer has not advanced or cancelled the operation. The later typed owner
-must decode the exact image, persist its readiness and obtain a matching current
-certified suffix. In particular it must not replace the prepared image with a
+a remote peer has not advanced or cancelled the operation. The [typed owner](PHASE_3_LEARNER_TYPED.md) now decodes the exact image and
+persists its readiness. Obtaining a matching current certified suffix remains
+required lifecycle work. In particular it must not replace the prepared image with a
 later DATA application's image merely because that is the terminal catalog value.
 
 ## Qualification boundaries
@@ -96,7 +97,8 @@ python3 -O -m scripts.v53.learner_store_review_evidence ../raw-finalnative --qua
 
 Transfer the retained nonvoting source into a bounded prepared-generation owner;
 reacquire certified successor preparations without accumulating an extra learner
-slot; perform typed materialization and force the original LEARNER receipt. Bind
+slot. Typed materialization and the forced original LEARNER receipt are now
+implemented in the separate owner. Bind
 READY delivery, metadata catch-up and locally forced matching INTENT before joint
 votes. Complete all seven transitions, alternative-leader takeover, automatic
 continuation and combined maximum headroom. Public factories remain disabled.

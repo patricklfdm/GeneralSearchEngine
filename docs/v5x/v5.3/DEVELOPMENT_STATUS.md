@@ -1,5 +1,13 @@
 # V5.3 development status
 
+[Typed learner preparation](PHASE_3_LEARNER_TYPED.md) now uses the actual core
+semantic reader and forces a source/revision-bound LEARNER receipt under exclusive
+nonvoting ownership. The retained backup remains accounted across child close,
+failure and parent reopen. Focused qualification and preserved failures are tracked
+in `phase3-evidence/learner-typed.json`. Successor refresh, matching INTENT,
+autonomous READY and the complete Phase 3 audit remain open; earlier entries below
+retain their original source-bound scope.
+
 ## 2026-10-28 — Nonvoting learner storage and deferred hosted acceptance
 
 [Original nonvoting learner storage](PHASE_3_LEARNER_STORE.md) now transfers the

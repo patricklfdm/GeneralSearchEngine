@@ -38,16 +38,19 @@ final class V53ContextFixture {
         this(size,change,"fixture-application-sequence-0".getBytes(java.nio.charset.StandardCharsets.US_ASCII),new UUID(3,4),0);
     }
     V53ContextFixture(int size,String change,byte[] application,UUID history,long sequence) {
+        this(size,change,application,history,sequence,H,H,"fixture",1L);
+    }
+    V53ContextFixture(int size,String change,byte[] application,UUID history,long sequence,String schema,String indexes,String codec,long version) {
         oldMembers=members(size);var next=new ArrayList<>(oldMembers);
         if(change.equals("REMOVE") || change.equals("REPLACE"))next.removeLast();
         if(change.equals("ADD") || change.equals("REPLACE"))next.add(member(6));
         target=List.copyOf(next);
         String app=hash(application);images.put(app,application);
         var genesis=record("GENESIS",map("application",app,"baseSequence",sequence,"groupId",new UUID(1,2).toString(),"historyId",history.toString(),
-                "schema",H,"indexes",H,"source","EMPTY","sourceDigest",null));
-        root=record("ROOT",map("baseSequence",sequence,"codecId","fixture","codecVersion",1L,"configurationId","fixture","genesis",genesis.digest(),
-                "groupId",new UUID(1,2).toString(),"historyId",history.toString(),"indexes",H,"initial",oldMembers,
-                "limits",hash(canonical(CATALOG.get("resources"),16384)),"schema",H));rootHash=root.rootDigest();
+                "schema",schema,"indexes",indexes,"source","EMPTY","sourceDigest",null));
+        root=record("ROOT",map("baseSequence",sequence,"codecId",codec,"codecVersion",version,"configurationId","fixture","genesis",genesis.digest(),
+                "groupId",new UUID(1,2).toString(),"historyId",history.toString(),"indexes",indexes,"initial",oldMembers,
+                "limits",hash(canonical(CATALOG.get("resources"),16384)),"schema",schema));rootHash=root.rootDigest();
         var view=map("generation",0L,"old",names(oldMembers),"new",names(oldMembers),"operation",null);
         state=map("active",null,"application",app,"applicationSequence",sequence,"cut",map("entry",genesis.digest(),"index",0L,"view",view),
                 "identities",oldMembers,"lastDataIndex",0L,"nextOperation",1L,"results",new ArrayList<>(),"retiredThrough",0L,"root",rootHash);

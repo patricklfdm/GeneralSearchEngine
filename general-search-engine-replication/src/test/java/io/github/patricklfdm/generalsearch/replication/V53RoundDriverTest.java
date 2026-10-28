@@ -28,8 +28,11 @@ class V53RoundDriverTest {
                 b.maxRetryAttempts(),30_000,b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
     }
     MembershipRoundDriver<?,?> driver(V53NativeDispatchTest.Network n,MembershipRoundDriver.Events callback)throws Exception {
+        return driver(n,callback,V53NativeDispatchTest.BUDGET);
+    }
+    MembershipRoundDriver<?,?> driver(V53NativeDispatchTest.Network n,MembershipRoundDriver.Events callback,long budget)throws Exception {
         return new MembershipRoundDriver<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,n.transports.getFirst(),
-                temp.resolve("round-"+UUID.randomUUID()),()->System.nanoTime()+n.offset.get(),V53NativeDispatchTest.BUDGET,2,
+                temp.resolve("round-"+UUID.randomUUID()),()->System.nanoTime()+n.offset.get(),budget,2,
                 builder().configuration(),n.f.request.targets().getFirst().materialization(),(event,record)->{
                     n.events.add(Map.of("node","node-1","event","ROUND_"+event,"record",record.digest(),
                             "bytes",Base64.getEncoder().encodeToString(record.bytes())));

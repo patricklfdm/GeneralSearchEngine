@@ -21,6 +21,8 @@ final class MembershipLearnerStore implements AutoCloseable {
     private final Map<String,FileIdentity> metadata=new TreeMap<>();
     private final Map<String,MembershipReceiveFile.Retained> received=new TreeMap<>();
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
+    private MembershipLearnerMaterialization<?> typed;
+    private MembershipResources.Lease typedImage;
     private MembershipOwnership owner;
     private Object directoryKey,lockKey;
     private boolean closed,failed,complete;
@@ -129,6 +131,10 @@ final class MembershipLearnerStore implements AutoCloseable {
     private void finish()throws IOException {
         try {
             require(Arrays.equals(operation.retention().bytes(),decision.bytes()),"learner admission decision changed");
+            // A retained typed sidecar is a real extra backup even before its
+            // codec is reopened. Reserve its worst-case image before any writes.
+            if(Files.exists(AdmissionPaths.safe(MembershipLearnerMaterialization.directory(plan.summary())),LinkOption.NOFOLLOW_LINKS))
+                reserveTypedImage(MembershipApplicationImage.MAXIMUM);
             openReplica();write("root.gsr","LEARNER_ROOT");write("node.gsr","LEARNER_NODE");
             if(decision.locate().equals(decision.staging)) {
                 check();AdmissionPaths.absent(decision.destination);Files.move(decision.staging,decision.destination,StandardCopyOption.ATOMIC_MOVE);
@@ -176,8 +182,15 @@ final class MembershipLearnerStore implements AutoCloseable {
         byte[] bytes=AdmissionPaths.read(decision.destination.resolve(digest+".image"),Math.toIntExact(size));
         require(bytes.length==size && hash(bytes).equals(digest),"learner original image bytes");check();return bytes;
     }
+    void reserveTypedImage(long bytes)throws IOException {
+        check();require(bytes>0 && bytes<=MembershipApplicationImage.MAXIMUM,"learner typed image capacity");
+        if(typedImage==null){typedImage=operation.reserveTypedImage(MembershipApplicationImage.MAXIMUM);leases.add(typedImage);}
+    }
+    void attachTyped(MembershipLearnerMaterialization<?> next)throws IOException {
+        check();require(typed==null || typed.closed(),"learner typed preparation already owned");typed=Objects.requireNonNull(next);
+    }
     @Override public void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.addAll(received.values());children.addAll(leases);
+        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(typed);children.addAll(received.values());children.addAll(leases);
         children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }

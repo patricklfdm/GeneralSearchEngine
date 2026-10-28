@@ -51,6 +51,17 @@ final class MembershipLearnerPreparation {
     byte[] image()throws IOException {
         check();byte[] bytes=owner.originalImage(application,size);check();return bytes;
     }
+    MembershipLearnerPlan summary()throws IOException {check();return owner.summary();}
+    String packet()throws IOException {check();return packet;}
+    void reserveTypedImage()throws IOException {check();owner.reserveTypedImage(size);}
+    void attach(MembershipLearnerMaterialization<?> typed)throws IOException {check();owner.attachTyped(typed);}
+    Decoded receiptBytes()throws IOException {
+        check();var value=Map.<String,Object>of("root",request.root().manifestDigest(),"number",request.change().id().number(),
+                "request",hash(canonical(MembershipLearnerDiscovery.request(request.change()),8192)),"identity",MembershipBootstrapSeed.identity(request.identity()),
+                "image",application,"prepared",prepared());
+        // Internal bytes only. Only a typed, forced owner may expose the record.
+        return decode(encode("records","LEARNER",Map.of("root",request.root().manifestDigest(),"receipt",value)),"records","LEARNER");
+    }
     /** Check the captured builder/root identity before any typed scratch writes.
      * The core semantic reader must additionally validate the original image,
      * storage descriptor and codec before a later owner can force readiness. */

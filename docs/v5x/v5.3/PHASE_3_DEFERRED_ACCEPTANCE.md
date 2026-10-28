@@ -14,6 +14,8 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 | `V53LearnerStoreRevalidationTest` | One actual TCP history | Normal original installation, disconnect, reopen and unchanged-byte refusal; independent original-first review reader |
 | `V53LearnerStoreNetworkTest` | Twelve independent whole histories: six cuts × halt/SIGKILL | Original native source, interrupted process, normal resume, locks, forces and exact physical bytes; all twelve required |
 | Store negative qualification | Complete unchanged matrix first | Every declared mutation rejected for its exact reason, including portable optimized replay |
+| `V53LearnerMaterializationTest` and native smoke | Focused typed backup and READY receipt | Exact original PREPARE image, actual core semantic decode, forced receipt, reopen and independent original-first replay |
+| Typed learner process-death qualification | Independent complete native histories | Halt/SIGKILL at typed plan, backup and receipt cuts, fresh-process semantic reopen and unchanged refusals; not replaced by synchronous exception cuts |
 | Final Phase 3 protocol audit | Complete prescribed scenarios | Learner ADD/REPLACE, all seven transitions, alternative-leader continuation and maximum combined resource bounds; component results cannot substitute |
 
 The process test supports one exact whole case through the Maven system property

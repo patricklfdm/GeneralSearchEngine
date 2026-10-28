@@ -1,0 +1,256 @@
+{
+  "archive": {
+    "autonomousReady": false,
+    "builds": {
+      "initial": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest": {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "tests": 8
+          },
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationTest": {
+            "errors": 0,
+            "failures": 1,
+            "skipped": 0,
+            "tests": 6
+          },
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "tests": 5
+          },
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerStoreTest": {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "tests": 14
+          }
+        },
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest": 8,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationTest": 6,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": 5,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerStoreTest": 14
+          },
+          "exit": 1,
+          "failures": 1,
+          "label": "initial",
+          "seconds": 168.8342342870019,
+          "skipped": 0,
+          "tests": 33
+        },
+        "productionDifferencesFromFinal": [
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipApplicationImage.java"
+        ]
+      },
+      "native": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationNetworkTest": {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "tests": 1
+          }
+        },
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationNetworkTest": 1
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "native",
+          "seconds": 290.98314424199634,
+          "skipped": 0,
+          "tests": 1
+        },
+        "productionDifferencesFromFinal": []
+      },
+      "reviewed": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest": {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "tests": 8
+          },
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationNetworkTest": {
+            "errors": 1,
+            "failures": 0,
+            "skipped": 0,
+            "tests": 1
+          },
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationTest": {
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0,
+            "tests": 6
+          }
+        },
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53ApplicationImageTest": 8,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationNetworkTest": 1,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationTest": 6
+          },
+          "exit": 1,
+          "failures": 1,
+          "label": "reviewed",
+          "seconds": 256.25586356801796,
+          "skipped": 0,
+          "tests": 15
+        },
+        "productionDifferencesFromFinal": []
+      }
+    },
+    "bytes": 15148205,
+    "files": 8551,
+    "fullPhase3": false,
+    "jointEligibility": false,
+    "nativeReplay": {
+      "negatives": [
+        {
+          "case": "receipt",
+          "reason": "learner typed exact receipt",
+          "status": "REJECTED"
+        },
+        {
+          "case": "ready",
+          "reason": "learner typed ready uses original receipt",
+          "status": "REJECTED"
+        },
+        {
+          "case": "prepared-selector",
+          "reason": "admitted exact before-learner-source: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reopened",
+          "reason": "learner typed exact reopen bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "backup",
+          "reason": "learner typed original backup and receipt",
+          "status": "REJECTED"
+        },
+        {
+          "case": "descriptor",
+          "reason": "learner typed plan originals",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-force",
+          "reason": "learner typed exact force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-receipt",
+          "reason": "learner typed exact force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-ready",
+          "reason": "learner typed result scope",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "autonomous": false,
+        "network": {
+          "exchanges": 31,
+          "originalFiles": 9,
+          "peer": "node-1"
+        },
+        "phase3Complete": false,
+        "physicalQualification": true,
+        "processDeathQualified": false,
+        "scope": "native-typed-learner",
+        "semanticReader": "Java core",
+        "status": "PASS"
+      }
+    },
+    "path": "target/v53-learner-typed/qualification.tar.gz",
+    "processDeath": "DEFERRED_HOSTED",
+    "sha256": "73f794a247297f8b7f2702e10492fbc19c04adf13c8ded2ad46de2f2a587a25b",
+    "status": "COMPONENTS_PASSED",
+    "typedPreparation": true
+  },
+  "finalRuntimeJava": {
+    "allPassed": true,
+    "componentMethods": 14,
+    "nativeHistories": 1
+  },
+  "phase3Complete": false,
+  "processDeath": "DEFERRED_HOSTED",
+  "pythonTests": 17,
+  "replay": {
+    "negatives": [
+      {
+        "case": "receipt",
+        "reason": "learner typed exact receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ready",
+        "reason": "learner typed ready uses original receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "prepared-selector",
+        "reason": "admitted exact before-learner-source: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopened",
+        "reason": "learner typed exact reopen bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "backup",
+        "reason": "learner typed original backup and receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "descriptor",
+        "reason": "learner typed plan originals",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-force",
+        "reason": "learner typed exact force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-receipt",
+        "reason": "learner typed exact force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "false-ready",
+        "reason": "learner typed result scope",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "autonomous": false,
+      "network": {
+        "exchanges": 31,
+        "originalFiles": 9,
+        "peer": "node-1"
+      },
+      "phase3Complete": false,
+      "physicalQualification": true,
+      "processDeathQualified": false,
+      "scope": "native-typed-learner",
+      "semanticReader": "Java core",
+      "status": "PASS"
+    }
+  },
+  "schema": "gse-v53-learner-typed-qualification-v1",
+  "sourceBase": "b495031752c0d7384e5fa4a3dff71f49df1b0401",
+  "status": "COMPONENTS_PASSED"
+}
