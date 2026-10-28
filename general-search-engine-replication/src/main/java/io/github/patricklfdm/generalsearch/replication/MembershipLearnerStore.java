@@ -25,6 +25,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     private MembershipResources.Lease typedImage;
     private MembershipResources.Lease resumedMetadata;
     private boolean preparedGeneration;
+    private MembershipLearnerSuccessor successor;
     private MembershipOwnership owner;
     private Object directoryKey,lockKey;
     private boolean closed,failed,complete;
@@ -57,7 +58,7 @@ final class MembershipLearnerStore implements AutoCloseable {
             MembershipFloor.Copy original,MembershipBallotAllocator.Cut cut)throws IOException {
         MembershipLearnerStore result=null;
         try {
-            var plan=operation.retained();operation.requireFreshRetention();plan.checkOriginal(original);operation.reserveAdmission();
+            var plan=operation.retained();operation.requireFreshRetention();source.requireResources(operation.resources());plan.checkOriginal(original);operation.reserveAdmission();
             Path staging=source.completeLearnerDirectory(original);var decision=MembershipLearnerRetention.create(plan,staging);
             result=new MembershipLearnerStore(operation,decision,cut);
             result.received.putAll(source.detachLearner(original));
@@ -149,7 +150,8 @@ final class MembershipLearnerStore implements AutoCloseable {
             }else require(metadata.containsKey(ADMISSION) && metadata.get(ADMISSION).digest().equals(hash(expected.get(ADMISSION))),
                     "incomplete learner source move lost original staging parent");
             AdmissionPaths.forceDirectory(path);point("LEARNER_SOURCE_MOVE_PARENTS_FORCED");
-            write(ADMISSION,"LEARNER_ADMISSION");check();complete=true;capsule();point("LEARNER_STORE_BEFORE_RETURN");
+            write(ADMISSION,"LEARNER_ADMISSION");check();complete=true;capsule();
+            successor=MembershipLearnerSuccessor.restore(this,cut);point("LEARNER_STORE_BEFORE_RETURN");
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     MembershipCapsule capsule()throws IOException {
@@ -205,8 +207,15 @@ final class MembershipLearnerStore implements AutoCloseable {
     }
     boolean preparedGeneration()throws IOException{check();return preparedGeneration;}
     MembershipResources resources()throws IOException{check();return operation.resources();}
+    Decoded root()throws IOException{check();return plan.root;}
+    void requireNewSuccessor()throws IOException {check();require(successor==null,"learner successor requires original resume or retirement");}
+    void attachSuccessor(MembershipLearnerSuccessor child)throws IOException{requireNewSuccessor();successor=Objects.requireNonNull(child);}
+    boolean ownsSuccessor(MembershipLearnerSuccessor child){return successor==child;}
+    MembershipLearnerSuccessor.View successor(MembershipLearnerMaterialization.PreparedGeneration prepared)throws IOException {
+        check();require(successor!=null,"learner successor missing");return successor.open(prepared);
+    }
     @Override public void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(typed);children.addAll(received.values());children.addAll(leases);
+        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
         children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }

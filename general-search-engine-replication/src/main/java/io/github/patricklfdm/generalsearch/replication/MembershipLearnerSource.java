@@ -49,13 +49,15 @@ final class MembershipLearnerSource implements AutoCloseable {
     }
     static void successor(MembershipCapsule previous,MembershipFloor.Copy next) {
         next.check();
-        var original=previous.terminal();var current=next.capsule;
+        byte[] ancestry=next.fileNames().contains("ancestry.gsr")?next.fileBytes("ancestry.gsr"):new byte[0];
+        successor(previous,next.capsule,ancestry);next.check();
+    }
+    static void successor(MembershipCapsule previous,MembershipCapsule current,byte[] ancestry) {
+        var original=previous.terminal();
         require(previous.context.root.equals(current.context.root)
                 && MembershipFormat.number(current.context.cut.get("index"))>=MembershipFormat.number(original.cut().get("index")),
                 "learner refresh regressed or foreign history");
-        byte[] ancestry=next.fileNames().contains("ancestry.gsr")?next.fileBytes("ancestry.gsr"):new byte[0];
         current.verifyAncestry(ancestry,List.of(original));
-        next.check();
     }
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;
@@ -67,6 +69,7 @@ final class MembershipLearnerSource implements AutoCloseable {
     }
     MembershipFloor.Copy fetch(Path scratch)throws IOException {
         AdmissionPaths.disjoint(List.of(scratch,request.replicaDirectory(),request.operationDirectory()));
+        if(predecessor!=null)predecessor.requireDisjoint(scratch);
         synchronized(this){require(!used && !closed,"learner source single use");used=true;}
         try {
             synchronized(this){check();transport=MembershipTransport.learner(request,bounds,resources,events);}
@@ -102,6 +105,11 @@ final class MembershipLearnerSource implements AutoCloseable {
         var received=prefix.completeLearnerSource(copy,cut);check();
         var operation=MembershipLearnerAdmissionFiles.openAdmission(summary,resources,cut);
         return MembershipLearnerStore.install(operation,received,copy,cut);
+    }
+    MembershipLearnerSuccessor.View installSuccessor(MembershipBallotAllocator.Cut cut)throws IOException {
+        require(predecessor!=null,"learner successor requires prepared predecessor");var copy=source();
+        var receiver=prefix.completeLearnerSource(copy,cut);check();
+        return MembershipLearnerSuccessor.install(predecessor,receiver,copy,cut).open(predecessor);
     }
     @Override public void close()throws IOException {
         MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t;

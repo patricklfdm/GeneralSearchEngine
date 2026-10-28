@@ -184,6 +184,13 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         MembershipCapsule source()throws IOException {check();return owner.input.source();}
         Decoded receipt()throws IOException {check();return owner.receipt();}
         MembershipResources resources()throws IOException {check();return owner.input.resources();}
+        MembershipLearnerStore store()throws IOException {check();return owner.input.store();}
+        MembershipLearnerSuccessor.View successor()throws IOException {check();return store().successor(this);}
+        void requireDisjoint(Path... paths)throws IOException {
+            check();var all=new ArrayList<Path>(List.of(paths));all.add(owner.directory);
+            all.add(Path.of((String)owner.materialization.get("path")));all.add(request().operationDirectory());all.add(request().replicaDirectory());
+            AdmissionPaths.disjoint(all);
+        }
     }
     boolean closed(){return closed;}
     @Override public void close()throws IOException {

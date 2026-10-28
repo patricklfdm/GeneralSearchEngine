@@ -222,6 +222,9 @@ final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorr
         for(String name:expected)AdmissionPaths.exact(directory.resolve(name),original.fileBytes(name));recheck();
     }
     synchronized Path completeLearnerDirectory(MembershipFloor.Copy original)throws IOException {checkOriginal(original,true);return directory;}
+    synchronized void requireResources(MembershipResources expected)throws IOException {
+        recheck();require(resources==expected,"learner retained foreign resource owner");
+    }
     /** Admission takes these owners before writing its retention decision, so a
      * failed or torn decision preserves the originals instead of scratch cleanup.
      * No filesystem mutation occurs while moving these owners out of scratch. */

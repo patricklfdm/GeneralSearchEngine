@@ -18,6 +18,8 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 | Typed learner process-death qualification | Independent complete native histories | Halt/SIGKILL at typed plan, backup and receipt cuts, fresh-process semantic reopen and unchanged refusals; not replaced by synchronous exception cuts |
 | Prepared learner selection and refresh | Focused components and complete native two-revision history | Original selection forces, same-pool coexistence and authenticated successor, full original-first wire/physical replay |
 | Prepared selection process-death qualification | Independent whole halt/SIGKILL histories | Partial marker recovery, conservative reopen, live owner revocation and unchanged original source; no component exception substitution |
+| Installed successor components and native smoke | Original complete source, installation, close/reopen | Same-pool reservations, exact source identity, complete original plan, both move parents forced, selected successor with no voting rights |
+| Installed successor process-death matrix | Independent complete halt/SIGKILL histories | Original candidate plan and source move/selection cuts, fresh-process resume or exact incomplete refusal; preserve failed attempts |
 | Successor lifecycle | One continuous original learner history | Install, select and retire bounded originals across revisions, cancellation and locally forced matching INTENT before votes |
 | Final Phase 3 protocol audit | Complete prescribed scenarios | Learner ADD/REPLACE, all seven transitions, alternative-leader continuation and maximum combined resource bounds; component results cannot substitute |
 

@@ -576,3 +576,56 @@ The MISC maximum becomes 1,460 KiB (A16's 1,444 plus this 16 KiB marker), within
 unchanged 2 MiB lease. GENERATION, LEARNER, APPLICATION, aggregate byte bounds and
 production timing limits stay unchanged. Rollback must refuse unknown selection
 metadata, never reinterpret it as authority or delete the retained originals.
+
+## A18 — installed original learner successor
+
+One original received successor may be retained beside the original learner at
+`operationDirectory.resolveSibling(".gse-v53-learner-successor-" + planDigest)`.
+This private directory is disjoint from replica/operation directories, the typed
+sidecar, receiving scratch and the configured live core. It contains an empty,
+exclusively owned `successor.lock`, `install.json` and its optional exact candidate
+`install.next.json`, one original `source/` directory, and `selected.json`.
+
+The canonical ASCII install plan is bounded to 256 KiB. Its exact fields are
+`schema` = `gse-v53-learner-successor/1.3`, `plan` (original admission digest),
+`previous` (`source`, `cut`, `catalog`, `application` from the predecessor),
+`receipt` (predecessor's LEARNER frame digest), `path`, `directoryKey`, `staging`,
+`sourceKey`, `source` (actual supplying voter identity), `generation` (canonical
+base64 of that voter's original GENERATION), and `files` (sorted original
+`path`, `size`, `sha256`, `key` entries). Both path fields use the existing five
+field original path binding. The plan never changes a remote voter's identity
+into the learner's identity or manufactures a remote durable-copy observation.
+
+Require the receiver to use the parent's exact resource pool, then transfer its
+existing complete file/lease owners to the parent and
+force the original candidate and directory. Reserve the second generation count
+before sealing/installing, force the active plan and move the exact original
+source directory atomically. Force both original move parents and the source
+directory. Revalidate the certified source and original ancestor, then force the
+canonical selection and parent before committing the LEARNER-to-GENERATION lease
+conversion. `selected.json` is bounded to 16 KiB, with exact fields `schema` =
+`gse-v53-learner-successor-selected/1.3`, `plan` (install-plan digest), `root`,
+`identity` (learner), `generation` (original source manifest digest) and `location`
+(the retained `source` path). No new GSER/GSRP kind or local voter journal exists.
+
+A complete original candidate may be sealed on recovery. Missing/partial install
+plans are preserved and refused, never reconstructed from a new peer or caller.
+Only an exact partial selection may be completed. Existing active and redundant
+candidate plans must both be complete and byte-identical. Every source directory
+and file retains its original inode and bytes. Parent reopen reserves the retained
+candidate as a local GENERATION plus its APPLICATION slots, even before the typed
+predecessor is reopened; it exposes no selected-state capability at this point.
+The original source is still conservatively LEARNER until A17 revalidation and
+selection. A matching live typed predecessor then revalidates and forces the new
+selection. Parent close closes this owner and releases its process reservations;
+closing a typed handle alone does not release retained successor bytes.
+
+The maximum MISC metadata sum is 1,988 KiB: A17's 1,460 KiB plus two 256 KiB plans
+and one 16 KiB selection. Original and successor together consume at most the
+existing two GENERATION slots. There is no repeated-install bypass; another
+successor requires explicit bounded retirement/replacement. Old-source retirement,
+new-revision typed receipt, cancellation cleanup and matching forced INTENT remain
+required follow-up work. A selected capsule is not a floor-copy acknowledgement,
+public readiness, joint vote or complete Phase 3 acceptance. Older private readers
+are not a recovery route for this new sidecar; preserve it and use its original
+plan under the new owner. Public APIs remain disabled.

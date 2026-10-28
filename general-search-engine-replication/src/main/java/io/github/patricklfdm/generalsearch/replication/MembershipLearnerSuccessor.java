@@ -1,0 +1,231 @@
+package io.github.patricklfdm.generalsearch.replication;
+
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.file.*;
+import java.util.*;
+import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
+import static io.github.patricklfdm.generalsearch.replication.MembershipBasisSources.*;
+import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
+
+/** Retains an original received successor under the parent learner owner. A
+ * selected successor is certified nonvoting state, not a typed READY or INTENT.
+ * Originals remain owned until the parent closes; retirement is separate. */
+final class MembershipLearnerSuccessor implements AutoCloseable {
+    static final String LOCK="successor.lock",PLAN="install.json",NEXT="install.next.json",SELECTED="selected.json",SOURCE="source";
+    static final int MAXIMUM=256*1024;
+    private final MembershipLearnerStore parent;
+    private final MembershipBallotAllocator.Cut cut;
+    private final Path directory,staging,destination;
+    private final Map<String,Object> pathBinding,stagingBinding,value;
+    private final byte[] plan,selector;
+    private final Object directoryKey;
+    private final Decoded generation;
+    private final MembershipIdentity peer;
+    private final Map<String,MembershipReceiveFile.Retained> received=new TreeMap<>();
+    private final List<MembershipResources.Lease> leases=new ArrayList<>();
+    private final Map<String,FileIdentity> metadata=new TreeMap<>();
+    private MembershipOwnership lock;
+    private boolean closed,failed,selected;
+    static Path directory(MembershipLearnerPlan summary) {
+        return summary.request().operationDirectory().resolveSibling(".gse-v53-learner-successor-"+summary.planDigest());
+    }
+    private MembershipLearnerSuccessor(MembershipLearnerStore parent,byte[] bytes,MembershipBallotAllocator.Cut cut)throws IOException {
+        this.parent=parent;this.cut=cut;plan=bytes.clone();value=object(parse(plan,MAXIMUM));
+        require(Arrays.equals(plan,canonical(value,MAXIMUM)) && value.keySet().equals(Set.of("schema","plan","previous","receipt","path","directoryKey",
+                "staging","sourceKey","source","generation","files")) && value.get("schema").equals("gse-v53-learner-successor/1.3")
+                && value.get("plan").equals(parent.summary().planDigest()),"learner successor original plan");
+        directory=directory(parent.summary());pathBinding=MembershipLearnerAdmissionPlan.binding(object(value.get("path")));
+        require(directory.equals(MembershipLearnerAdmissionPlan.path(pathBinding)),"learner successor exact path");
+        stagingBinding=MembershipLearnerAdmissionPlan.binding(object(value.get("staging")));staging=MembershipLearnerAdmissionPlan.path(stagingBinding);
+        destination=directory.resolve(SOURCE);AdmissionPaths.disjoint(List.of(directory,staging,parent.summary().request().replicaDirectory(),parent.summary().request().operationDirectory()));
+        directoryKey=key(directory);require(directoryKey.toString().equals(text(value.get("directoryKey"))),"learner successor original directory");
+        text(value.get("sourceKey"));require(value.get("receipt") instanceof String && ((String)value.get("receipt")).matches("[0-9a-f]{64}"),"learner successor receipt digest");
+        peer=MembershipContext.identity(object(value.get("source")));require(value.get("source").equals(MembershipBootstrapSeed.identity(peer)),"learner successor source identity");
+        generation=decode(MembershipBootstrapPlanData.unbase(value.get("generation"),65536),"records","GENERATION");
+        var expected=new TreeMap<String,Map<String,Object>>();expected.put("generation.gsr",row("generation.gsr",generation.bytes()));long total=generation.size();
+        for(Object raw:list(generation.value().get("files"))) {
+            var item=object(raw);String name=(String)item.get("path");long size=number(item.get("size"));
+            require(size>0 && size<=MembershipGenerationFiles.limit(name) && expected.putIfAbsent(name,item)==null,"learner successor original member");
+            if(!name.endsWith(".image")){total=Math.addExact(total,size);require(total<=MembershipResources.Unit.GENERATION.bytes,"learner successor metadata capacity");}
+        }
+        var files=list(value.get("files"));require(files.size()==expected.size() && files.size()<=32,"learner successor file count");String previous=null;
+        for(Object raw:files) {
+            var item=object(raw);String name=(String)item.get("path");
+            require(item.keySet().equals(Set.of("path","size","sha256","key")) && (previous==null || previous.compareTo(name)<0)
+                    && Objects.equals(expected.get(name),Map.of("path",name,"size",item.get("size"),"sha256",item.get("sha256"))),"learner successor original inventory");
+            text(item.get("key"));previous=name;
+        }
+        selector=canonical(Map.of("schema","gse-v53-learner-successor-selected/1.3","plan",hash(plan),"root",parent.summary().request().root().manifestDigest(),
+                "identity",MembershipBootstrapSeed.identity(parent.summary().request().identity()),"generation",generation.digest(),"location",destination.toString()),16384);
+        predecessor();
+    }
+    private static String text(Object value) {
+        require(value instanceof String && !((String)value).isBlank() && ((String)value).getBytes(java.nio.charset.StandardCharsets.UTF_8).length<=4096,
+                "learner successor inode text");return (String)value;
+    }
+    private static Map<String,Object> row(String name,byte[] bytes){return Map.of("path",name,"size",(long)bytes.length,"sha256",hash(bytes));}
+    private static Map<String,Object> anchor(MembershipCapsule capsule) {
+        var a=capsule.terminal();return Map.of("source",hash(capsule.packet.bytes()),"cut",a.cut(),"catalog",a.catalog(),"application",a.application());
+    }
+    private void predecessor()throws IOException {
+        require(value.get("previous").equals(anchor(parent.capsule())),"learner successor predecessor changed");
+    }
+    static MembershipLearnerSuccessor install(MembershipLearnerMaterialization.PreparedGeneration prepared,MembershipSourceReceive receiver,
+            MembershipFloor.Copy copy,MembershipBallotAllocator.Cut cut)throws IOException {
+        prepared.check();var parent=prepared.store();parent.requireNewSuccessor();receiver.requireResources(parent.resources());copy.check();
+        MembershipLearnerSource.successor(prepared.source(),copy);
+        MembershipLearnerPrefixExport.originalReservation(copy.capsule.context,prepared.request(),copy.owner);
+        Path staging=receiver.completeLearnerDirectory(copy),directory=directory(parent.summary());AdmissionPaths.absent(directory);
+        prepared.requireDisjoint(directory,staging);
+        AdmissionPaths.disjoint(List.of(directory,staging,parent.summary().request().replicaDirectory(),parent.summary().request().operationDirectory()));
+        var files=new ArrayList<Map<String,Object>>();
+        for(String name:new TreeSet<>(copy.fileNames())) {
+            var file=new TreeMap<>(row(name,copy.fileBytes(name)));file.put("key",key(staging.resolve(name)).toString());files.add(file);
+        }
+        var value=new TreeMap<String,Object>();value.put("schema","gse-v53-learner-successor/1.3");value.put("plan",parent.summary().planDigest());
+        value.put("previous",anchor(prepared.source()));value.put("receipt",prepared.receipt().digest());value.put("path",AdmissionPaths.binding(directory));
+        value.put("staging",AdmissionPaths.binding(staging));value.put("sourceKey",key(staging).toString());value.put("source",MembershipBootstrapSeed.identity(copy.owner));
+        value.put("generation",MembershipBootstrapPlanData.base(copy.generation.bytes()));value.put("files",files);
+        // Bound metadata before creating a new path or detaching received bytes.
+        value.put("directoryKey","x".repeat(4096));canonical(value,MAXIMUM);
+        MembershipLearnerSuccessor result=null;
+        try {
+            Files.createDirectory(directory);value.put("directoryKey",key(directory).toString());
+            result=new MembershipLearnerSuccessor(parent,canonical(value,MAXIMUM),cut);
+            result.lock=MembershipOwnership.own(directory.resolve(LOCK),true);
+            result.received.putAll(receiver.detachLearner(copy));parent.attachSuccessor(result);
+            result.capture();result.check();AdmissionPaths.forceDirectory(directory.getParent());result.point("LEARNER_SUCCESSOR_DIRECTORY_FORCED");
+            result.write(NEXT,result.plan,"LEARNER_SUCCESSOR_PLAN");result.finish(prepared);return result;
+        }catch(IOException|RuntimeException|Error error) {
+            if(result!=null){result.failed=true;if(!parent.ownsSuccessor(result))try{result.close();}catch(IOException cleanup){error.addSuppressed(cleanup);}}
+            throw error;
+        }
+    }
+    /** Parent reopen accounts even an unselected retained candidate before it
+     * returns. It grants no capability until typed predecessor validation. */
+    static MembershipLearnerSuccessor restore(MembershipLearnerStore parent,MembershipBallotAllocator.Cut cut)throws IOException {
+        Path directory=directory(parent.summary());if(!Files.exists(AdmissionPaths.safe(directory),LinkOption.NOFOLLOW_LINKS))return null;
+        var names=children(directory,5);require(names.contains(LOCK) && (names.contains(PLAN)||names.contains(NEXT))
+                && Set.of(LOCK,PLAN,NEXT,SELECTED,SOURCE).containsAll(names),"learner successor incomplete original inventory");
+        var lock=MembershipOwnership.own(directory.resolve(LOCK),false);MembershipLearnerSuccessor result=null;
+        try {
+            byte[] bytes=AdmissionPaths.read(directory.resolve(names.contains(PLAN)?PLAN:NEXT),MAXIMUM);
+            result=new MembershipLearnerSuccessor(parent,bytes,cut);result.lock=lock;result.capture();result.check();
+            long metadata=0;var resources=parent.resources();
+            for(var raw:list(result.value.get("files"))){var f=object(raw);if(!((String)f.get("path")).endsWith(".image"))metadata+=number(f.get("size"));}
+            result.leases.add(resources.reserve(MembershipResources.Unit.GENERATION,"learner-successor",metadata));
+            for(var raw:list(result.value.get("files"))){var f=object(raw);if(((String)f.get("path")).endsWith(".image"))
+                result.leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"learner-successor:"+f.get("path"),number(f.get("size"))));}
+            result.capsule();return result;
+        }catch(IOException|RuntimeException|Error error){try{if(result!=null)result.close();else lock.close();}catch(IOException cleanup){error.addSuppressed(cleanup);}throw error;}
+    }
+    private Path locate()throws IOException {
+        boolean before=Files.exists(staging,LinkOption.NOFOLLOW_LINKS),after=Files.exists(destination,LinkOption.NOFOLLOW_LINKS);
+        require(before!=after,"learner successor requires original source location");Path location=before?staging:destination;
+        if(before)AdmissionPaths.recheck(stagingBinding);
+        require(text(value.get("sourceKey")).equals(key(location).toString()),"learner successor source directory replaced");
+        var names=new TreeSet<String>();
+        for(var raw:list(value.get("files"))) {
+            var f=object(raw);String name=(String)f.get("path");names.add(name);
+            require(f.get("key").equals(inspect(location.resolve(name),number(f.get("size")),(String)f.get("sha256")).key().toString()),"learner successor original source changed");
+            if(received.containsKey(name))received.get(name).check(location.resolve(name));
+        }
+        require(children(location,32).equals(names),"learner successor source inventory");return location;
+    }
+    private void capture()throws IOException {
+        var names=children(directory,5);require(names.contains(LOCK) && Set.of(LOCK,PLAN,NEXT,SELECTED,SOURCE).containsAll(names),"learner successor inventory");
+        for(String name:List.of(LOCK,PLAN,NEXT,SELECTED))if(names.contains(name)) {
+            byte[] expected=name.equals(LOCK)?new byte[0]:name.equals(SELECTED)?selector:plan;
+            byte[] bytes=AdmissionPaths.read(directory.resolve(name),expected.length);
+            require(Arrays.equals(bytes,Arrays.copyOf(expected,bytes.length)) && (!(name.equals(PLAN) || name.equals(NEXT) && names.contains(PLAN)) || bytes.length==expected.length),"learner successor original metadata changed");
+            metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
+        }
+        require(!names.contains(SELECTED) || names.contains(PLAN) && names.contains(SOURCE),"learner successor selector without complete plan/source");
+    }
+    private void check()throws IOException {
+        require(!closed && !failed && lock!=null && lock.lock().isValid(),"learner successor owner closed or failed");predecessor();
+        AdmissionPaths.recheck(pathBinding);require(directoryKey.equals(key(directory)),"learner successor directory replaced");Path source=locate();
+        var names=new TreeSet<>(metadata.keySet());if(source.equals(destination))names.add(SOURCE);
+        require(children(directory,5).equals(names),"learner successor live inventory changed");
+        for(var f:metadata.entrySet())require(f.getValue().equals(inspect(directory.resolve(f.getKey()),f.getValue().bytes(),f.getValue().digest())),"learner successor metadata replaced");
+    }
+    private void point(String event)throws IOException{check();cut.at(event);check();}
+    private void remember(String name)throws IOException {
+        byte[] bytes=AdmissionPaths.read(directory.resolve(name),name.equals(SELECTED)?16384:MAXIMUM);
+        byte[] expected=name.equals(SELECTED)?selector:plan;require(Arrays.equals(bytes,Arrays.copyOf(expected,bytes.length)),"learner successor writer changed originals");
+        var before=metadata.get(name);var after=inspect(directory.resolve(name),bytes.length,hash(bytes));
+        require(before==null || before.key().equals(after.key()),"learner successor writer inode changed");metadata.put(name,after);
+    }
+    private void write(String name,byte[] bytes,String event)throws IOException {
+        check();boolean exists=metadata.containsKey(name);
+        try(var channel=FileChannel.open(directory.resolve(name),exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
+                Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
+            if(!exists){remember(name);point(event+"_CREATED");}
+            int offset=Math.toIntExact(metadata.get(name).bytes());channel.position(offset);
+            if(offset<bytes.length){int middle=offset+(bytes.length-offset)/2;
+                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,offset,middle));remember(name);point(event+"_PREFIX_WRITTEN");
+                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,middle,bytes.length));remember(name);point(event+"_WRITTEN");}
+            channel.force(true);point(event+"_FORCED");AdmissionPaths.forceDirectory(directory);point(event+"_PARENT_FORCED");
+        }
+    }
+    private void finish(MembershipLearnerMaterialization.PreparedGeneration prepared)throws IOException {
+        prepared.check();require(prepared.store()==parent && value.get("receipt").equals(prepared.receipt().digest()),"learner successor original typed predecessor");
+        prepared.requireDisjoint(directory,staging);
+        try {
+            MembershipResources.GenerationClaim claim=received.isEmpty()?null:received.get("source.gscp").prepareGeneration(locate().resolve("source.gscp"),"learner-successor");
+            try(claim) {
+                check();require(metadata.containsKey(PLAN) || metadata.containsKey(NEXT) && metadata.get(NEXT).bytes()==plan.length,"learner successor partial original plan");
+                if(!metadata.containsKey(PLAN)) {
+                    write(NEXT,plan,"LEARNER_SUCCESSOR_CANDIDATE");Files.move(directory.resolve(NEXT),directory.resolve(PLAN),StandardCopyOption.ATOMIC_MOVE);
+                    metadata.put(PLAN,metadata.remove(NEXT));point("LEARNER_SUCCESSOR_PLAN_RENAMED");
+                }
+                write(PLAN,plan,"LEARNER_SUCCESSOR_ACTIVE");
+                if(metadata.containsKey(NEXT)){check();Files.delete(directory.resolve(NEXT));metadata.remove(NEXT);AdmissionPaths.forceDirectory(directory);point("LEARNER_SUCCESSOR_REDUNDANT_FORCED");}
+                if(locate().equals(staging)){check();Files.move(staging,destination,StandardCopyOption.ATOMIC_MOVE);point("LEARNER_SUCCESSOR_SOURCE_MOVED");}
+                AdmissionPaths.forceDirectory(destination);
+                if(Files.exists(staging.getParent(),LinkOption.NOFOLLOW_LINKS)){AdmissionPaths.recheck(stagingBinding);AdmissionPaths.forceDirectory(staging.getParent());}
+                else require(metadata.containsKey(SELECTED) && metadata.get(SELECTED).bytes()==selector.length,"learner successor incomplete move lost original parent");
+                AdmissionPaths.forceDirectory(directory);point("LEARNER_SUCCESSOR_SOURCE_PARENTS_FORCED");
+                capsule();prepared.check();
+                write(SELECTED,selector,"LEARNER_SUCCESSOR_SELECT");
+                if(claim!=null){received.get("source.gscp").requireGenerationClaim(destination.resolve("source.gscp"),claim);claim.commit();}
+                selected=true;point("LEARNER_SUCCESSOR_BEFORE_RETURN");
+            }
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    View open(MembershipLearnerMaterialization.PreparedGeneration prepared)throws IOException {
+        prepared.requireDisjoint(directory,staging);
+        if(!selected)finish(prepared);else {check();prepared.check();require(prepared.store()==parent,"learner successor foreign owner");}
+        return new View(this,prepared);
+    }
+    static final class View {
+        private final MembershipLearnerSuccessor owner;
+        private final MembershipLearnerMaterialization.PreparedGeneration predecessor;
+        private View(MembershipLearnerSuccessor owner,MembershipLearnerMaterialization.PreparedGeneration predecessor){this.owner=owner;this.predecessor=predecessor;}
+        MembershipCapsule source()throws IOException {predecessor.check();owner.check();require(owner.selected,"learner successor not selected");return owner.capsule();}
+    }
+    private MembershipCapsule capsule()throws IOException {
+        check();Path location=locate();var files=new TreeMap<String,byte[]>();
+        for(Object raw:list(value.get("files"))){var file=object(raw);files.put((String)file.get("path"),AdmissionPaths.read(location.resolve((String)file.get("path")),Math.toIntExact(number(file.get("size")))));}
+        var packet=MembershipSourcePacket.decode(files.get("source.gscp"));var images=new TreeMap<String,byte[]>();for(String hash:packet.images().keySet())images.put(hash,files.get(hash+".image"));
+        var token=new Stored(this,files);MembershipCapsule capsule;
+        try{capsule=MembershipCapsule.verifyStored(parent.root(),packet,images,token);}finally{token.active=false;}
+        MembershipFloor.Copy.validateMaterialization(generation,capsule,peer,files);
+        MembershipLearnerPrefixExport.originalReservation(capsule.context,parent.summary().request(),peer);MembershipLearnerSource.successor(parent.capsule(),capsule,files.getOrDefault("ancestry.gsr",new byte[0]));check();return capsule;
+    }
+    static final class Stored implements MembershipCapsule.StoredCopy {
+        private final MembershipLearnerSuccessor owner;private final Map<String,byte[]> files;private boolean active=true;
+        private Stored(MembershipLearnerSuccessor owner,Map<String,byte[]> files){this.owner=owner;this.files=files;}
+        @Override public void check(Decoded root,MembershipSourcePacket packet)throws IOException {
+            owner.check();require(active && Arrays.equals(root.bytes(),owner.parent.root().bytes()) && Arrays.equals(packet.bytes(),files.get("source.gscp")),"learner successor stored original");
+        }
+        @Override public byte[] ancestry(){return files.getOrDefault("ancestry.gsr",new byte[0]).clone();}
+        @Override public Optional<byte[]> coverage(){return Optional.ofNullable(files.get(MembershipSelectionCoverage.FILE)).map(byte[]::clone);}
+        @Override public Decoded record(String name,String kind){return decode(Objects.requireNonNull(files.get(name)),"records",kind);}
+    }
+    @Override public void close()throws IOException {
+        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.addAll(received.values());children.addAll(leases);children.add(lock);
+        MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
+    }
+}

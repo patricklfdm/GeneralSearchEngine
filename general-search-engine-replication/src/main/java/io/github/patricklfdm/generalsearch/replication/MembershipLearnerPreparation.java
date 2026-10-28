@@ -62,6 +62,7 @@ final class MembershipLearnerPreparation {
     boolean preparedGeneration()throws IOException {check();return owner.preparedGeneration();}
     MembershipCapsule source()throws IOException{return check();}
     MembershipResources resources()throws IOException{check();return owner.resources();}
+    MembershipLearnerStore store()throws IOException{check();return owner;}
     Decoded receiptBytes()throws IOException {
         check();var value=Map.<String,Object>of("root",request.root().manifestDigest(),"number",request.change().id().number(),
                 "request",hash(canonical(MembershipLearnerDiscovery.request(request.change()),8192)),"identity",MembershipBootstrapSeed.identity(request.identity()),

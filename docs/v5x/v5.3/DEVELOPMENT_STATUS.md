@@ -1,5 +1,12 @@
 # V5.3 development status
 
+[Installed learner successors](PHASE_3_LEARNER_SUCCESSOR.md) now retain the exact
+received generation under a forced original plan and local selection. Parent
+reopen accounts the retained candidate and requires a live matching typed
+predecessor before exposing its certified capsule. Old-generation retirement,
+repeated revision refresh, updated typed receipts and matching INTENT remain
+OPEN; focused results are tracked in `phase3-evidence/learner-successor.json`.
+
 [Prepared learner generations](PHASE_3_LEARNER_PREPARED.md) now force original
 selection before atomically freeing the receiving slot. Refreshed certified
 sources share the live parent's resource budget and must preserve its exact
