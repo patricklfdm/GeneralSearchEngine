@@ -1,5 +1,20 @@
 # V5.3 development status
 
+## 2026-10-28 — Nonvoting learner storage and deferred hosted acceptance
+
+[Original nonvoting learner storage](PHASE_3_LEARNER_STORE.md) now transfers the
+existing source/image owners into a forced, exclusively owned store and restores
+it after interruption without minting voting authority. Exact PREPARING input
+binding is implemented; typed materialization/receipts and successor refresh
+remain open. Nineteen final-source component tests pass. A preceding review passes
+59 Java and 756 Python tests; twelve current reader tests pass. Twelve native
+halt/SIGKILL histories and an additional corrected-storage smoke retain their
+separate source identities, with original/portable independent replay. The
+[receipt](phase3-evidence/learner-store.json) explicitly records their production
+differences and preserved failures. The final-source complete matrix is deferred
+to [hosted acceptance](PHASE_3_DEFERRED_ACCEPTANCE.md); single-case execution reports
+PARTIAL. This scheduling change does not close Phase 3 or waive any remaining gate.
+
 ## 2026-10-28 — Forced original learner plans
 
 [Forced original learner plans](PHASE_3_LEARNER_PLAN.md) now bind the live native

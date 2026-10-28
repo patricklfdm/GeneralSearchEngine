@@ -1,5 +1,18 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original nonvoting learner storage](PHASE_3_LEARNER_STORE.md) now transfers the
+existing source/image owners into a forced, exclusively owned store and restores
+it after interruption without minting voting authority. Exact PREPARING input
+binding is implemented; typed materialization/receipts and successor refresh
+remain open. Nineteen final-source component tests pass. A preceding review passes
+59 Java and 756 Python tests; twelve current reader tests pass. Twelve native
+halt/SIGKILL histories and an additional corrected-storage smoke retain their
+separate source identities, with original/portable independent replay. The
+[receipt](phase3-evidence/learner-store.json) explicitly records their production
+differences and preserved failures. The final-source complete matrix is deferred
+to [hosted acceptance](PHASE_3_DEFERRED_ACCEPTANCE.md); single-case execution reports
+PARTIAL. This scheduling change does not close Phase 3 or waive any remaining gate.
+
 [Forced original learner plans](PHASE_3_LEARNER_PLAN.md) now bind the live native
 source, full request, joining identity, original generation and filesystem paths
 before replica authority can be created. Nineteen distinct Java tests pass on

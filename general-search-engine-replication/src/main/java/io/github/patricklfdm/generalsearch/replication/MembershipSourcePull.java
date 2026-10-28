@@ -445,6 +445,11 @@ final class MembershipSourcePull implements AutoCloseable {
         if(learner!=null)MembershipLearnerPrefixExport.originalReservation(result.context,learner,source);
         check();return result;
     }
+    MembershipSourceReceive completeLearnerSource(MembershipFloor.Copy original,MembershipBallotAllocator.Cut cut)throws IOException {
+        check();require(learner!=null && completeSource && received!=null,"learner source is not completely received");
+        var prefix=verifiedPrefix();require(Arrays.equals(prefix.packet.bytes(),original.capsule.packet.bytes()),"learner retained source prefix");
+        received.completeLearnerGeneration(original,cut);check();return received;
+    }
     /** Caller supplies real historical provenance. Hashes/downloads alone cannot verify it. */
     MembershipCapsule verifiedPrefix(MembershipCurrentGeneration.Verifier verifier)throws IOException {
         check();require(prefixCut!=null && completeSource && received!=null,"complete read-only prefix required");

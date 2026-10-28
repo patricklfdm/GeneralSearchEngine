@@ -27,6 +27,8 @@ final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorr
     private final int chunkLimit;
     private final Map<String,MembershipReceiveFile> files=new TreeMap<>();
     private final Map<String,MembershipTransfer.Binding> bindings=new TreeMap<>();
+    private final Map<String,MembershipBasisSources.FileIdentity> metadata=new TreeMap<>();
+    private final MembershipResources.Unit unit;
     private final MembershipImageBorrow localImages;
     private final Map<String,Long> borrowedImages=new TreeMap<>();
     private MembershipSourcePacket packet;
@@ -84,7 +86,7 @@ final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorr
                 && promise.value().get("basisId")!=null,"receive source root/identity");
         }
         require(offer.kind()==MembershipTransfer.Kind.CAPSULE && chunkLimit>0 && budget>0 && budget<Long.MAX_VALUE/2,"receive packet/limits");
-        this.root=root;this.source=source;this.promise=promise;this.basis=basis;this.session=session;this.resources=resources;
+        this.root=root;this.source=source;this.promise=promise;this.basis=basis;this.session=session;this.resources=resources;this.unit=unit;
         this.localImages=localImages;
         require(localImages==null || localImages.imageRoot().equals(root),"receive borrowed image root");
         this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;this.chunkLimit=chunkLimit;
@@ -103,7 +105,8 @@ final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorr
         AdmissionPaths.recheck(parent);AdmissionPaths.safe(directory);
         require(directoryKey.equals(MembershipBasisSources.key(directory)),"receive directory replaced");
         var present=new HashSet<String>();for(var item:files.entrySet())if(item.getValue().present())present.add(item.getKey());
-        require(MembershipBasisSources.children(directory,8).equals(present),"receive directory inventory");
+        present.addAll(metadata.keySet());require(MembershipBasisSources.children(directory,32).equals(present),"receive directory inventory");
+        for(var row:metadata.entrySet())require(row.getValue().equals(MembershipBasisSources.inspect(directory.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),"received generation metadata changed");
     }
     private void check()throws IOException {
         require(!closed && !failed,"source receive closed/failed");
@@ -177,11 +180,63 @@ final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorr
         packet();for(var file:files.values())file.checkVerified();
         for(var image:borrowedImages.entrySet())localImages.image(image.getKey(),image.getValue());check();
     }
+    /** Materialize the missing ORIGINAL source members under this same learner
+     * lease. These are the source voter's records, never fresh local votes. */
+    synchronized void completeLearnerGeneration(MembershipFloor.Copy original,MembershipBallotAllocator.Cut cut)throws IOException {
+        recheck();require(unit==MembershipResources.Unit.LEARNER && borrowedImages.isEmpty(),"complete learner requires its own source");
+        checkOriginal(original,false);long total=0;
+        for(String name:original.fileNames())if(!name.endsWith(".image"))total=Math.addExact(total,original.fileBytes(name).length);
+        files.get("source.gscp").retainMetadata(total);check();cut.at("LEARNER_SOURCE_METADATA_RESERVED");check();
+        var names=new TreeSet<>(original.fileNames());names.removeAll(files.keySet());names.remove("generation.gsr");
+        var ordered=new ArrayList<>(names);ordered.add("generation.gsr");
+        for(String name:ordered) {
+            byte[] bytes=original.fileBytes(name);require(bytes.length<=MembershipGenerationFiles.limit(name),"learner original member capacity");
+            Path path=directory.resolve(name);
+            if(metadata.containsKey(name)) {
+                AdmissionPaths.exact(path,bytes);
+                // A previous call may have stopped after the complete write but
+                // before force. Byte equality alone is not a durable member.
+                try(var channel=java.nio.channels.FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+                point("LEARNER_SOURCE_MEMBER_FORCED",cut);continue;
+            }
+            AdmissionPaths.absent(path);
+            try(var channel=java.nio.channels.FileChannel.open(path,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+                rememberMetadata(name,new byte[0]);point("LEARNER_SOURCE_MEMBER_CREATED",cut);
+                int half=bytes.length/2;AdmissionPaths.write(channel,Arrays.copyOf(bytes,half));rememberMetadata(name,Arrays.copyOf(bytes,half));point("LEARNER_SOURCE_MEMBER_PREFIX_WRITTEN",cut);
+                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,half,bytes.length));rememberMetadata(name,bytes);point("LEARNER_SOURCE_MEMBER_WRITTEN",cut);
+                channel.force(true);point("LEARNER_SOURCE_MEMBER_FORCED",cut);
+            }
+        }
+        AdmissionPaths.forceDirectory(directory);point("LEARNER_SOURCE_DIRECTORY_FORCED",cut);checkOriginal(original,true);
+    }
+    private void rememberMetadata(String name,byte[] bytes)throws IOException {
+        var next=MembershipBasisSources.inspect(directory.resolve(name),bytes.length,hash(bytes));var previous=metadata.get(name);
+        require(previous==null || previous.key().equals(next.key()),"learner staged metadata inode changed");metadata.put(name,next);
+    }
+    private void point(String event,MembershipBallotAllocator.Cut cut)throws IOException {check();cut.at(event);check();}
+    private void checkOriginal(MembershipFloor.Copy original,boolean complete)throws IOException {
+        recheck();original.check();require(original.owner.equals(source) && original.capsule.context.cut.equals(expectedCut)
+                && Arrays.equals(original.capsule.packet.bytes(),packet.bytes()),"learner retained original source");
+        var expected=new HashSet<>(files.keySet());expected.addAll(metadata.keySet());
+        require(complete?expected.equals(original.fileNames()):original.fileNames().containsAll(expected),"learner retained exact inventory");
+        for(String name:expected)AdmissionPaths.exact(directory.resolve(name),original.fileBytes(name));recheck();
+    }
+    synchronized Path completeLearnerDirectory(MembershipFloor.Copy original)throws IOException {checkOriginal(original,true);return directory;}
+    /** Admission takes these owners before writing its retention decision, so a
+     * failed or torn decision preserves the originals instead of scratch cleanup.
+     * No filesystem mutation occurs while moving these owners out of scratch. */
+    synchronized Map<String,MembershipReceiveFile.Retained> detachLearner(MembershipFloor.Copy original)throws IOException {
+        checkOriginal(original,true);require(unit==MembershipResources.Unit.LEARNER,"only learner sources can detach");
+        var result=new TreeMap<String,MembershipReceiveFile.Retained>();
+        for(var file:files.entrySet())result.put(file.getKey(),file.getValue().detachChecked());
+        closed=true;records.close();return Collections.unmodifiableMap(result);
+    }
     /** Cleanup can be retried after an I/O failure; reservations for remaining files stay live. */
     @Override public synchronized void close()throws IOException {
         if(closed)return;
         if(!removed) {
             directory();
+            for(String name:List.copyOf(metadata.keySet())){directory();Files.delete(directory.resolve(name));metadata.remove(name);}
             for(String name:List.copyOf(files.keySet())){files.get(name).close();files.remove(name);bindings.remove(name);}
             directory();Files.delete(directory);removed=true;
         }

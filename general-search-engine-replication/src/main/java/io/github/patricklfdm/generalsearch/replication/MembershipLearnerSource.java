@@ -70,6 +70,12 @@ final class MembershipLearnerSource implements AutoCloseable {
             return files.summary();
         }
     }
+    MembershipLearnerStore admit(MembershipLearnerPlan summary,MembershipBallotAllocator.Cut cut)throws IOException {
+        require(summary.request().equals(request),"learner admission foreign request");var copy=source();
+        var received=prefix.completeLearnerSource(copy,cut);check();
+        var operation=MembershipLearnerAdmissionFiles.openAdmission(summary,resources,cut);
+        return MembershipLearnerStore.install(operation,received,copy,cut);
+    }
     @Override public void close()throws IOException {
         MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t;
         synchronized(this){closed=true;result=null;d=discovery;p=prefix;g=generation;t=transport;}

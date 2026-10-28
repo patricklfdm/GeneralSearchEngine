@@ -109,6 +109,31 @@ final class MembershipReceiveFile implements AutoCloseable {
     synchronized boolean verified(){return !closed && !failed && transfer.state()==MembershipTransfer.State.VERIFIED;}
     synchronized boolean present(){return !removed;}
     synchronized long received(){return transfer.received();}
+    synchronized void retainMetadata(long bytes)throws IOException {checkVerified();transfer.retainMetadata(bytes);}
+    /** Private physical capability retains the original inode lock and resource
+     * lease. Its close preserves the file for the owning admission transaction. */
+    static final class Retained implements AutoCloseable {
+        private final Object key;
+        private final long bytes;
+        private final String digest;
+        private final AdmissionPaths.Owner owner;
+        private final MembershipResources.Lease lease;
+        private boolean closed;
+        private Retained(Object key,MembershipTransfer.Binding binding,AdmissionPaths.Owner owner,MembershipResources.Lease lease) {
+            this.key=key;bytes=binding.bytes();digest=binding.digest();this.owner=owner;this.lease=lease;
+        }
+        void check(Path path)throws IOException {
+            require(!closed && owner.lock().isValid(),"retained receive owner closed");
+            require(key.equals(MembershipBasisSources.inspect(path,bytes,digest).key()),"retained receive original inode changed");
+        }
+        @Override public void close()throws IOException {if(!closed){closed=true;try{owner.close();}finally{lease.close();}}}
+    }
+    /** Parent preflights every file before detaching any. No I/O is performed in
+     * this final in-memory transfer, so an ordinary I/O failure cannot split it. */
+    synchronized Retained detachChecked() {
+        require(!closed && !failed && transfer.state()==MembershipTransfer.State.VERIFIED,"retained file was not preflighted");
+        var retained=new Retained(fileKey,binding,file,transfer.detachVerified());closed=true;return retained;
+    }
     /** Deletes only this exclusive scratch inode, never another path or any parent content.
      * On cleanup failure the owner and reservation remain held; close can be retried. */
     @Override public synchronized void close()throws IOException {

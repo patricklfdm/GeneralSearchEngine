@@ -85,7 +85,7 @@ final class MembershipResources {
          * This neither shares a reservation nor changes the physical copy count. */
         void reserveStorage(long total) {
             synchronized(MembershipResources.this) {
-                require(!released && leases.get(key)==this && (key.unit==Unit.SOURCE || key.unit==Unit.APPLICATION),"storage reservation owner");
+                require(!released && leases.get(key)==this && (key.unit==Unit.SOURCE || key.unit==Unit.LEARNER || key.unit==Unit.APPLICATION),"storage reservation owner");
                 require(total>=bytes && total<=key.unit.bytes,"storage reservation extent");
                 long additional=total-bytes;
                 if(key.unit.metadata) {
@@ -95,6 +95,17 @@ final class MembershipResources {
                 require(additional<=stagingLimit-staging,"shared staging capacity");
                 if(key.unit.metadata)metadata+=additional;
                 staging+=additional;bytes=total;
+            }
+        }
+        /** One admission owner expands its existing protected metadata slot;
+         * completion headroom and the original per-unit ceiling remain fixed. */
+        void reserveMisc(long total) {
+            synchronized(MembershipResources.this) {
+                require(!released && leases.get(key)==this && key.unit==Unit.MISC,"misc reservation owner");
+                require(total>=bytes && total<=Unit.MISC.bytes,"misc reservation extent");
+                long additional=total-bytes;require(additional<=metadataLimit-metadata,"metadata capacity");
+                require(HEADROOM-protectedUsed-additional<=metadataLimit-metadata-additional,"completion headroom");
+                metadata+=additional;protectedUsed+=additional;bytes=total;
             }
         }
         @Override public void close() {

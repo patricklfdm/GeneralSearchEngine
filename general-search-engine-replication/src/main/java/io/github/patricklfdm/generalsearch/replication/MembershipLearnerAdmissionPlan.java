@@ -73,14 +73,14 @@ final class MembershipLearnerAdmissionPlan {
         var result=decode(encode(value));result.checkOriginal(original);return result;
     }
     private static Map<String,Object> row(String name,byte[] bytes){return Map.of("path",name,"size",(long)bytes.length,"sha256",hash(bytes));}
-    private static Map<String,Object> binding(Map<String,Object> binding) {
+    static Map<String,Object> binding(Map<String,Object> binding) {
         require(binding.keySet().equals(Set.of("path","parentRealPath","fileStoreName","fileStoreType","parentFileKey")),"learner plan path binding fields");
         for(Object field:binding.values())require(field instanceof String && !((String)field).isBlank()
                 && ((String)field).getBytes(java.nio.charset.StandardCharsets.UTF_8).length<=4096,"learner plan path binding text");
         Path path=path(binding),parent=Path.of((String)binding.get("parentRealPath"));
         require(path.getParent()!=null && path.getParent().equals(parent),"learner plan exact parent path");return Map.copyOf(binding);
     }
-    private static Path path(Map<String,Object> binding) {
+    static Path path(Map<String,Object> binding) {
         String text=(String)binding.get("path");Path path=Path.of(text);
         require(path.isAbsolute() && path.normalize().equals(path) && path.toString().equals(text),"learner plan absolute normalized path");return path;
     }
@@ -96,7 +96,9 @@ final class MembershipLearnerAdmissionPlan {
                 && value.get("files").equals(new TreeSet<>(original.fileNames()).stream().map(n->row(n,original.fileBytes(n))).toList()),
                 "learner plan source differs from original");
     }
-    void recheckPaths()throws IOException {for(var bound:paths)AdmissionPaths.recheck(bound);AdmissionPaths.absent(request.replicaDirectory());}
+    void recheckPaths()throws IOException {recheckPaths(true);}
+    void recheckPaths(boolean absent)throws IOException {for(var bound:paths)AdmissionPaths.recheck(bound);if(absent)AdmissionPaths.absent(request.replicaDirectory());}
+    List<Map<String,Object>> inventory(){return list(value.get("files")).stream().map(MembershipFormat::object).toList();}
     byte[] bytes(){return bytes.clone();}
     MembershipLearnerPlan summary(){return new MembershipLearnerPlan(hash(bytes),request);}
 }

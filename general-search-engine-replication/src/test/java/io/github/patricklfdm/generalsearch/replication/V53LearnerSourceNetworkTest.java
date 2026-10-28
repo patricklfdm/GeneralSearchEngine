@@ -17,6 +17,9 @@ class V53LearnerSourceNetworkTest {
     }
     @FunctionalInterface interface Observer {void acquired(MembershipLearnerSource source,MembershipLearnerRequest request,Path raw)throws Exception;}
     void exercise(Observer observer)throws Exception {
+        exercise(observer,false);
+    }
+    void exercise(Observer observer,boolean retainedScratch)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;
         var nativeHelper=new V53NativeDispatchTest();nativeHelper.temp=temp;
         try(var n=nativeHelper.new Network(3,helper.controlBounds(),V53NativeDispatchTest.BUDGET,f->{},true)) {
@@ -50,7 +53,12 @@ class V53LearnerSourceNetworkTest {
                     }
                     assertEquals(before,V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory()));
                 }
-                assertFalse(Files.exists(scratch));assertEquals(0,resources.usage().leases());
+                if(retainedScratch) {
+                    assertTrue(Files.isDirectory(scratch));
+                    assertEquals(V53ReplayFilesTest.files(copied),V53ReplayFilesTest.files(scratch));
+                    assertTrue(Files.isRegularFile(learner.operationDirectory().resolve(MembershipLearnerAdmissionFiles.RETAIN_NEXT)));
+                }else assertFalse(Files.exists(scratch));
+                assertEquals(0,resources.usage().leases());
                 n.f.snapshot("after-learner-source");round.submit("CANCEL",canonical(Map.of("number",1L),8192));
                 try(var cancelled=new MembershipLearnerSource(learner,target.getFirst(),resources,n.bounds,MembershipTransport.Events.NONE,()->{},
                         System::nanoTime,System.nanoTime(),TimeUnit.SECONDS.toNanos(60))) {

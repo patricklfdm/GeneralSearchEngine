@@ -1,0 +1,301 @@
+{
+  "archive": {
+    "builds": {
+      "completion": {
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": 5,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerStoreTest": 14
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "completion",
+          "seconds": 74.85289799500606,
+          "skipped": 0,
+          "tests": 19
+        },
+        "productionDifferencesFromFinal": []
+      },
+      "finalnative": {
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerStoreRevalidationTest": 1
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "finalnative",
+          "seconds": 159.50466958599281,
+          "skipped": 0,
+          "tests": 1
+        },
+        "productionDifferencesFromFinal": [
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPreparation.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java"
+        ]
+      },
+      "first": {
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerAdmissionPlanTest": 10,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerStoreTest": 8
+          },
+          "exit": 1,
+          "failures": 1,
+          "label": "first",
+          "seconds": 68.18573019900941,
+          "skipped": 0,
+          "tests": 26
+        },
+        "productionDifferencesFromFinal": [
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerAdmissionFiles.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPreparation.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceReceive.java"
+        ]
+      },
+      "nativefirst": {
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerStoreNetworkTest": 1
+          },
+          "exit": 1,
+          "failures": 1,
+          "label": "nativefirst",
+          "seconds": 183.0363344649959,
+          "skipped": 0,
+          "tests": 1
+        },
+        "productionDifferencesFromFinal": [
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerAdmissionFiles.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPreparation.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceReceive.java"
+        ]
+      },
+      "nativesecond": {
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerStoreNetworkTest": 1
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "nativesecond",
+          "seconds": 1890.6489482810139,
+          "skipped": 0,
+          "tests": 1
+        },
+        "productionDifferencesFromFinal": [
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerAdmissionFiles.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPreparation.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceReceive.java"
+        ]
+      },
+      "review": {
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerAdmissionPlanTest": 10,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerStoreTest": 13,
+            "io.github.patricklfdm.generalsearch.replication.V53ReceivedImageBorrowTest": 5,
+            "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": 8,
+            "io.github.patricklfdm.generalsearch.replication.V53SourceReceiveTest": 15
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "review",
+          "seconds": 141.6187028370041,
+          "skipped": 0,
+          "tests": 59
+        },
+        "productionDifferencesFromFinal": [
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPreparation.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java"
+        ]
+      },
+      "second": {
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerAdmissionPlanTest": 10,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerStoreTest": 8
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "second",
+          "seconds": 63.573757895996096,
+          "skipped": 0,
+          "tests": 26
+        },
+        "productionDifferencesFromFinal": [
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerAdmissionFiles.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPreparation.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java",
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceReceive.java"
+        ]
+      }
+    },
+    "bytes": 31459645,
+    "currentNativeReview": {
+      "negatives": [
+        {
+          "case": "missing-source",
+          "reason": "learner source exact original generation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-received-image",
+          "reason": "learner store exact source bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-local-identity",
+          "reason": "learner store exact nonvoting replica bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-admission-force",
+          "reason": "learner store review exact admission force trace",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-resume-force",
+          "reason": "learner store review exact resume force trace",
+          "status": "REJECTED"
+        },
+        {
+          "case": "removed-redundant-decision",
+          "reason": "learner store review preserved operation originals",
+          "status": "REJECTED"
+        },
+        {
+          "case": "removed-foreign-member",
+          "reason": "learner store review preserved replica originals",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-refusal",
+          "reason": "learner store review exact refusal",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "exactPreservedRefusals": 2,
+        "jointEligibilityQualified": false,
+        "nativeHistories": 1,
+        "phase3Complete": false,
+        "scope": "current-native-nonvoting-store",
+        "status": "PASS",
+        "typedPreparationQualified": false
+      }
+    },
+    "files": 24910,
+    "finalSourceProcessMatrix": "DEFERRED_HOSTED",
+    "fullPhase3": false,
+    "jointEligibility": false,
+    "path": "target/v53-learner-store/qualification.tar.gz",
+    "processMatrix": {
+      "negatives": [
+        {
+          "case": "missing-case",
+          "reason": "learner store complete case inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-plan",
+          "reason": "learner retention original plan",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-source",
+          "reason": "learner store exact source bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-inode",
+          "reason": "learner store original inode/location",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-move",
+          "reason": "learner store original inode/location",
+          "status": "REJECTED"
+        },
+        {
+          "case": "invented-promise",
+          "reason": "learner store exact nonvoting replica bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "repaired-foreign-root",
+          "reason": "learner store exact nonvoting replica bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-force",
+          "reason": "learner store original completion trace",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-source-force",
+          "reason": "learner store original preparation force trace",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-process-success",
+          "reason": "learner store original process result",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-process",
+          "reason": "learner store distinct processes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-source-byte",
+          "reason": "learner source exact original generation",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "jointEligibilityQualified": false,
+        "liveLockRefusals": 6,
+        "nativeHistories": 12,
+        "phase3Complete": false,
+        "processCases": 12,
+        "processes": 24,
+        "scope": "native-source-nonvoting-store",
+        "status": "PASS",
+        "typedPreparationQualified": false
+      }
+    },
+    "sha256": "f52e9d6701ad4b9cce13dad660f5617230aff5909af64950df5be3c08d35f73f",
+    "status": "COMPONENTS_PASSED",
+    "typedPreparation": false
+  },
+  "deferred": [
+    "final-source-complete-process-matrix",
+    "source-build-bound-hosted-aggregate",
+    "typed-materialization-and-forced-learner-receipt",
+    "certified-successor-refresh",
+    "matching-intent-and-all-seven-transitions",
+    "autonomous-continuation-and-combined-headroom",
+    "full-phase3-audit"
+  ],
+  "limitations": [
+    "The 12-history process matrix predates the guarded-reseal/re-force corrections and preparation input binding; exact production differences are retained.",
+    "The additional native smoke includes those storage corrections but predates the read-only preparation accessor; its exact source is retained.",
+    "Conditional component histories do not constitute native quorum qualification. No public readiness or joint voting is enabled."
+  ],
+  "schema": "gse-v53-learner-store-components-v1",
+  "status": "COMPONENTS_PASSED",
+  "validation": {
+    "currentReaderUnitTests": 12,
+    "finalSourceJavaTests": 19,
+    "originalAndPortableMatrixNegatives": 12,
+    "portableNativeReviewNegatives": 8,
+    "precedingReviewJavaTests": 59,
+    "precedingReviewPythonTests": 756
+  }
+}

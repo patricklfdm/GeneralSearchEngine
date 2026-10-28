@@ -45,6 +45,15 @@ final class MembershipTransfer implements AutoCloseable {
     }
     State state() { return state; }
     long received() { return received; }
+    /** Grow this same physical source reservation; no second learner or image. */
+    void retainMetadata(long bytes) {
+        require(state==State.VERIFIED && binding.kind()==Kind.CAPSULE,"retained metadata requires complete source");lease.reserveStorage(bytes);
+    }
+    /** Explicit ownership transfer after semantic/physical verification. The new
+     * owner must eventually release this lease; ordinary transfer close cannot. */
+    MembershipResources.Lease detachVerified() {
+        require(state==State.VERIFIED,"only a verified transfer can be retained");state=State.CLOSED;return lease;
+    }
     void chunk(Binding incoming,long offset,byte[] bytes,String chunkDigest) throws IOException {
         require(state==State.RECEIVING,"transfer not receiving");
         require(binding.equals(incoming),"transfer basis/cut/session binding");

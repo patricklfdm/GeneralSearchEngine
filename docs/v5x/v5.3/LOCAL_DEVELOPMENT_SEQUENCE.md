@@ -27,6 +27,24 @@ outside this instruction.
 
 ## Work rules
 
+### Deferred hosted acceptance, 2026-10-28
+
+The operator authorized continuing implementation while moving expensive complete
+qualification to a later parallel GitHub Actions campaign, following the V5.2
+hosted-measurements pattern. Keep focused compilation, component regressions and
+short smoke checks with each local batch. Record each deferred gate against its
+requirements and source; implementation complete and qualification complete are
+distinct states. This changes when/where the long gates run, not their assertions
+or the Phase 3 closure requirements. Preserve already-running experiments and
+their original results; do not restart them merely to obtain a newer snapshot.
+
+Shard independent complete histories. A learner transfer, joint transition or
+crash/restart history keeps its original owner/source/files through every step;
+never splice partial histories from independent runs. The aggregate must require
+the entire declared case set, matching source/build and independent original-first
+evidence replay. No implicit push, dispatch, paid experiment or merge is authorized
+by this acceptance scheduling change.
+
 ### Continuous Phase 3 authorization, 2026-10-25
 
 After batch 3A, the operator set the active goal to advance **all of Phase 3 to

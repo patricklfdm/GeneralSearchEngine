@@ -443,3 +443,55 @@ PREPARE revision must still be checked during preparation/joint eligibility.
 No replica authority directory, allocator, local promise, voting record, readiness
 receipt, public read or joint vote is created here. Complete nonvoting store,
 revision/image/receipt and matching locally forced INTENT remain required.
+
+## A15 — original nonvoting learner source retention
+
+The unpublished additive `GSLP 1.3` companion adds kind `2`, flags `0`, maximum
+262,144 bytes, using A14's 48-byte header/checksum. The exact canonical body has
+`schema: gse-v53-learner-retention/1.3`, `plan` (the original A14 frame digest),
+`staging` (the original five-field parent binding), `directoryKey` and ordered
+`files`. Each row repeats the plan's exact `path`, `size`, `sha256` and adds the
+original physical inode `key`. This changes no public API, GSER/GSRP encoding or
+resource ceiling. It is an implementation contract, not a qualification claim.
+
+While the original source owner is live, complete its received directory with
+every original generation member. Grow the existing single LEARNER lease before
+writing metadata, force every member and the directory, and verify the complete
+original inventory. The source voter's PROMISE/SELECTED records remain that
+source's historical records; they never become fresh learner votes. Existing
+application-image reservations and inode handles transfer to the admission owner
+without a second learner/image reservation or release/reacquire race.
+
+The operation owner expands its existing MISC lease within the unchanged 2 MiB
+ceiling to cover plan/candidate/retention/local admission metadata. Before writing
+the retention candidate, detach receiver cleanup so an interrupted decision never
+deletes its original source. Force `learner-source.next.gslp`, force its parent,
+atomically rename to `learner-source.gslp`, and force the active decision and parent
+before creating the nonvoting replica directory. An absent or incomplete decision
+is preserved and refused; it cannot be recreated from caller parameters.
+
+The replica owns `replica.lock`, original `root.gsr`, its joining `node.gsr`,
+`learner/` and `learner-admission.gslp` (the exact retention decision). Move the
+complete original staging directory atomically into `learner/`; force that
+directory and both parents before forcing the admission marker last. There is
+no cross-filesystem copy fallback. Original source inodes and hashes are pinned;
+exact partial local root/node/admission metadata can be completed only from the
+persisted original plan/decision. No allocator, local promise or voting journal
+is created. The complete exclusive owner alone can authenticate the sealed
+StoredCopy capability; the capability supplies no fresh vote observations.
+
+Resume validates the original reviewed plan, decision, complete source and any
+partial local metadata before resealing/removing redundant decision files. Exactly
+one original source location must exist: staging or retained. Missing, duplicate,
+linked, replaced or foreign originals are refused and preserved. While a move is
+incomplete, its original staging parent must remain available for the directory
+force. A completed original admission marker permits later removal of that parent;
+if it still exists it must retain its original binding. Exclusive owners and
+resource reservations are reacquired before completion; close preserves all data.
+
+This is durable nonvoting storage only. The complete original reservation may
+later be cancelled or superseded, and retained historical bytes do not establish
+current eligibility. Typed application materialization, exact PREPARE revision,
+readiness receipt and full matching locally forced INTENT must still precede any
+joint vote. Public learner factories remain disabled. Rollback must refuse the
+new retained companion rather than reinterpret it as a voter or delete it.
