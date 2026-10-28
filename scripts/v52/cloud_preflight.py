@@ -176,10 +176,17 @@ def quota(rows, expected):
     by_name = {v['metric']:v for v in rows}; need(len(by_name) == len(rows), 'V5.2 duplicate quota metric')
     result = {}
     for metric, amount in expected.items():
-        row = by_name[metric]; numbers = [row['limit'], row['usage']]
-        need(all(type(v) in (int,float) and math.isfinite(v) and v >= 0 for v in numbers), 'V5.2 quota numbers')
-        available = row['limit']-row['usage']; need(available >= amount, 'V5.2 quota headroom: '+metric)
+        row = by_name[metric]; limit, reported_usage = row['limit'], row['usage']
+        need(all(type(v) in (int,float) and math.isfinite(v) for v in (limit,reported_usage)) and limit >= 0,
+             'V5.2 quota numbers')
+        # A negative provider counter must not invent headroom above the limit.
+        # Normalization permits a best-effort attempt; it does not prove capacity.
+        effective_usage = max(0,reported_usage)
+        available = limit-effective_usage; need(available >= amount, 'V5.2 quota headroom: '+metric)
         result[metric] = dict(required=amount, available=available)
+        if reported_usage < 0:
+            result[metric].update(limit=limit,reportedUsage=reported_usage,effectiveUsage=effective_usage,
+                                  warning='NEGATIVE_QUOTA_USAGE_NORMALIZED')
     return result
 
 
@@ -231,8 +238,14 @@ def facts(cfg, rows):
     disk_gib=3*sum(cfg['layout'].values())
     regional=quota(rows['region']['quotas'], {metrics[family]:3*cpus,'SSD_TOTAL_GB':disk_gib,'INSTANCES':3})
     global_=quota(rows['project']['quotas'], {'CPUS_ALL_REGIONS':3*cpus,'FIREWALLS':4})
+    warnings=images.warnings(image)
+    for scope,values in (('regional',regional),('global',global_)):
+        for metric,value in values.items():
+            if value.get('warning') == 'NEGATIVE_QUOTA_USAGE_NORMALIZED':
+                warnings.append(f"{value['warning']}: {scope} {metric} reportedUsage={value['reportedUsage']} "
+                                'effectiveUsage=0; actual headroom is unknown and allocation is not guaranteed.')
     return dict(resources=identities, machine=dict(voters=3,cpusPerVoter=cpus,memoryMiBPerVoter=memory,diskGiB=disk_gib),
-                regionalQuota=regional,globalQuota=global_,allocationGuaranteed=False,warnings=images.warnings(image))
+                regionalQuota=regional,globalQuota=global_,allocationGuaranteed=False,warnings=warnings)
 
 
 def credential_receipt(token, selected, source, execution):
