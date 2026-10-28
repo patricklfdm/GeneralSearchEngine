@@ -51,10 +51,30 @@ final class MembershipCapsule {
         byte[] ancestry=checkedAncestry(bridges);
         return verifyExtension(candidate,images,Set.of()).retainingCompleteAncestry(ancestry);
     }
+    /** An unchanged prefix may retain its own bounded historical keys when
+     * adding native pending vote records. The extra inventory grants no proof;
+     * publication/compaction still uses explicit ancestry materialization. */
+    MembershipCapsule originalMaterialization(MembershipSourcePacket candidate,Map<String,byte[]> images) {
+        var checked=materialization(candidate,images,List.of());
+        return new MembershipCapsule(checked.context,candidate,checked.anchors,checked.states,checked.observations,history,checked.highestMembershipCertificate);
+    }
     /** Preserve the exact independently authenticated bridges when a caller later
      * validates their serialized form. Bare statements never acquire authority. */
     MembershipCapsule retainingVerifiedAncestry(List<MembershipSelection.Bridge> bridges) {
         return retainingCompleteAncestry(checkedAncestry(bridges));
+    }
+    /** Transfer exact historical proof from another authenticated local prefix.
+     * Its original endpoint must still be an exact anchor of this prefix. This
+     * does not turn old endorsements into fresh observations or renew a RANGE. */
+    MembershipCapsule inheritingAncestry(MembershipCapsule original,List<MembershipSelection.Bridge> bridges) {
+        byte[] bytes=original.checkedAncestry(bridges);var retained=new HashSet<>(history);
+        for(var bridge:bridges) {
+            var value=bridge.statement.value();
+            bridge.verifyEndpoints(this,new Anchor(object(value.get("start")),(String)value.get("catalogBefore"),(String)value.get("applicationBefore")));
+            retained.add(checkpoint(bridge.statement,bridge.acknowledgements.stream().map(Decoded::digest).toList()));
+        }
+        var result=new MembershipCapsule(context,packet,anchors,states,observations,retained,highestMembershipCertificate);
+        result.verifiedAncestry(bytes);return result;
     }
     private byte[] checkedAncestry(List<MembershipSelection.Bridge> bridges) {
         byte[] bytes=MembershipGenerationPlan.ancestry(bridges);
@@ -87,7 +107,7 @@ final class MembershipCapsule {
         original.check(this,packet);return result;
     }
     private MembershipCapsule retainingNativeCertificate(MembershipSourcePacket packet,Map<String,byte[]> images,Decoded certificate) {
-        var retained=materialization(packet,images,List.of());
+        var retained=originalMaterialization(packet,images);
         var entry=retained.context.certificateStructure(certificate,context.cut);
         retained.context.control((String)entry.value().get("kind"),command((String)entry.value().get("kind"),packet.objectBytes((String)entry.value().get("payload"))));
         var proofs=new HashSet<>(retained.history);proofs.add(certificate(certificate,context.cut));

@@ -1,0 +1,78 @@
+{
+  "caveats": [
+    "The isolated source contains only five production classes and two new test classes on the declared parent. The supporting native run additionally contains the uncommitted round-owner driver/test changes and is not the same source.",
+    "Original failed network executions and the mistaken future-observation test fixture remain retained; they are not relabelled as passes.",
+    "The submitted-SEAL raw history differs from the sealed-start physical reducer. Full original-first physical/lifecycle replay of this profile remains pending; this receipt reports Java qualification only.",
+    "No resource, wire, persistent format, timeout, quorum or retry limit was relaxed.",
+    "Departing selected owners still need explicit nonvoting FINAL completion. Learner ADD/REPLACE, all seven profiles, automatic discovery/election/adoption and the full Phase3 fault audit remain open."
+  ],
+  "date": "2026-10-28",
+  "evidence": [
+    {
+      "bytes": 508076,
+      "path": "target/v53-publication-ancestry/source-inputs.json",
+      "sha256": "5d1de156275a04a088254cef051efc5c16369290acede7fbcbaea718fe503f17"
+    },
+    {
+      "bytes": 275890,
+      "path": "target/v53-publication-ancestry/compiled-inputs.json",
+      "sha256": "965a7ecb0ef34191d48a014ad548484fd9eee35eb858b4a82a5d7ce8bd486b94"
+    },
+    {
+      "bytes": 6759,
+      "path": "target/v53-publication-ancestry/java.log",
+      "sha256": "4c3d4d2341642cc6beb4771e6dfb85c67f241d9bf0f88f7f2938235ed5c2fc7b"
+    },
+    {
+      "bytes": 3349,
+      "path": "target/v53-publication-ancestry/java-reports.json",
+      "sha256": "299d1d4f5497309b9b2e4de5bda628dc28e902b37ac8754461a00e9db3a9ec6b"
+    },
+    {
+      "bytes": 562832,
+      "path": "target/v53-publication-ancestry/supporting-native-inventory.json",
+      "sha256": "e38e22ec4716e213a1a30660589513d1a3fcd200f2529ead671c77a384320677"
+    },
+    {
+      "bytes": 4229536,
+      "path": "target/v53-publication-ancestry/evidence.tar.gz",
+      "sha256": "e9162e0e40a67cd535a0fac76660af8905c2212493d82fd3b6d2186bca4b3160"
+    }
+  ],
+  "fullPhase3Qualification": false,
+  "java": {
+    "errors": 0,
+    "failures": 0,
+    "isolatedSource": true,
+    "newRegressions": 10,
+    "skipped": 0,
+    "tests": 49
+  },
+  "paidCloud": false,
+  "protectedCI": false,
+  "publicRuntime": false,
+  "schema": "gse-v53-phase3-publication-ancestry-local-v1",
+  "scope": "preserve authenticated original ancestry across membership publication, selected installation and native pending-certificate projection",
+  "sourceParent": "c7ba71d04c6ec69d7abf4e131e1292de2e63fa82",
+  "status": "PASS",
+  "supportingIntegration": {
+    "activations": 3,
+    "additionalPendingRoundDriver": true,
+    "independentPhysicalReplay": "PENDING",
+    "publishedIndices": [
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "seconds": 597.0,
+    "sourceInputs": {
+      "bytes": 499887,
+      "path": "target/v53-transition-round/originalproof-inputs.json",
+      "sha256": "13ad8ad13c8fe7e4514f7ab23ceae5681563de560fb16c4ca891ba6b3f40aa57"
+    },
+    "status": "PASS",
+    "test": "submittingSealRevokesOldReadinessUntilTheNewStableBarrier"
+  }
+}

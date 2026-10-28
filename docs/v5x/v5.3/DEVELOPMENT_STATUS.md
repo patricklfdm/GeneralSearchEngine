@@ -1,5 +1,14 @@
 # V5.3 development status
 
+## 2026-10-28 — Original publication ancestry
+
+[Original publication ancestry](PHASE_3_PUBLICATION_ANCESTRY.md) now preserves
+required historical bridges across native publication, selected installation and
+pending-certificate projection. An isolated 49-test Java qualification passes.
+A separate pending round build also completes submitted SEAL through new-stable
+BARRIER; independent replay of that profile and departing-owner completion remain
+open. This does not close Phase 3.
+
 ## 2026-10-28 — Completed transfer resource reclamation
 
 [Completed transfer reclamation](PHASE_3_TRANSFER_COMPLETION.md) now releases

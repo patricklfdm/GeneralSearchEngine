@@ -114,7 +114,8 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
         check();if(publication.published())return;
         var applied=publication.applied;var end=applied.endorsement();
         var original=collect(applied.plan().statement,end.acknowledgement(),end.owned());
-        var bridges=new ArrayList<MembershipSelection.Bridge>();var parents=new ArrayList<>(end.ancestors());end.parent().ifPresent(parents::add);
+        var bridges=new ArrayList<>(publication.retainedBridges());
+        var parents=new ArrayList<>(end.ancestors());end.parent().ifPresent(parents::add);
         for(var parent:parents)bridges.add(collect(parent.statement(),parent.acknowledgement(),parent.owned()));
         check();owner.publishCurrent(applied,original.acknowledgements,original.owned,bridges);check();
     }

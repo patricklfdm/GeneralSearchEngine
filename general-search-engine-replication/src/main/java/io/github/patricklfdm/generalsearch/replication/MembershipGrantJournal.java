@@ -1720,6 +1720,13 @@ final class MembershipGrantJournal implements AutoCloseable {
             }
         }
         void check()throws IOException {published();}
+        List<MembershipSelection.Bridge> retainedBridges()throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                require(!published() && applied!=null,"retained publication ancestry requires pending original");
+                var result=applied.plan().retainedBridges(current.ancestry());
+                check();return result;
+            }
+        }
         void request(MembershipIdentity sender,Decoded request)throws IOException {
             synchronized(MembershipGrantJournal.this) {
                 check();require(request.kind().equals("PUBLISH"),"publication request kind");var value=request.value();
@@ -3100,7 +3107,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         for(var original:bases.values()) {
             var value=sources.original(original).packet().capsule().value();ancestors.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)value.get("catalog"),(String)value.get("application")));
         }
-        var complete=MembershipGenerationPlan.installationBridges(selected,bridges,retainedBridges,ancestors);
+        var installation=MembershipGenerationPlan.installation(selected,bridges,retainedBridges,ancestors,current.capsule,current.ancestry());
+        selected=installation.decision();var complete=installation.bridges();
         var retained=new TreeMap<String,byte[]>();
         if(installed) {
             // An exact retry can follow explicit floor/source maintenance. Keep

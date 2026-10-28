@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original publication ancestry](PHASE_3_PUBLICATION_ANCESTRY.md) now preserves
+required historical bridges across native publication, selected installation and
+pending-certificate projection. An isolated 49-test Java qualification passes.
+A separate pending round build also completes submitted SEAL through new-stable
+BARRIER; independent replay of that profile and departing-owner completion remain
+open. This does not close Phase 3.
+
 [Completed transfer reclamation](PHASE_3_TRANSFER_COMPLETION.md) now releases
 finished immutable exports while preserving one bounded exact-final-reply marker.
 An isolated correction passes forty Java tests and independent v1/v2 portable

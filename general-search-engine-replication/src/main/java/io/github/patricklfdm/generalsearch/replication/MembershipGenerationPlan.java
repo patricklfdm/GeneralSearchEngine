@@ -66,6 +66,31 @@ final class MembershipGenerationPlan {
         for(var bridge:bridges){bytes.writeBytes(bridge.statement.bytes());for(var ack:bridge.acknowledgements)bytes.writeBytes(ack.bytes());}
         require(bytes.size()<=96*1024,"generation ancestry bytes");return bytes.toByteArray();
     }
+    record Installation(MembershipSelection.Decision decision,List<MembershipSelection.Bridge> bridges) {}
+    /** Selected-source ancestry decides the vote; existing local ancestry only
+     * preserves independently retained parents while installing that exact vote.
+     * Never require the proposer to have observed this receiver's older grants. */
+    static Installation installation(MembershipSelection.Decision decision,List<MembershipSelection.Bridge> selection,
+            List<MembershipSelection.Bridge> retained,Collection<MembershipCapsule.Anchor> parents,
+            MembershipCapsule local,byte[] localAncestry) {
+        var starts=new HashSet<Map<String,Object>>();
+        selection.forEach(b->starts.add(MembershipFormat.object(b.statement.value().get("start"))));
+        retained.forEach(b->starts.add(MembershipFormat.object(b.statement.value().get("start"))));
+        var needed=new HashSet<Map<String,Object>>();
+        for(var parent:parents)if(decision.longest().capsule.anchor(MembershipFormat.number(parent.cut().get("index")))==null
+                && !starts.contains(parent.cut()))needed.add(parent.cut());
+        var inherited=local.verifiedAncestry(localAncestry).stream()
+                .filter(b->needed.contains(MembershipFormat.object(b.statement.value().get("start")))).toList();
+        var longest=decision.longest();
+        if(!inherited.isEmpty()) {
+            longest=longest.withVerifiedHistory(longest.capsule.inheritingAncestry(local,inherited));
+            var old=decision.longest();var attached=longest;
+            var sources=decision.sources().stream().map(s->s==old?attached:s).toList();
+            decision=new MembershipSelection.Decision(decision.selected(),longest,decision.carried()==old?longest:decision.carried(),sources);
+        }
+        var complete=new ArrayList<>(retained);complete.addAll(inherited);
+        return new Installation(decision,installationBridges(decision,selection,complete,parents));
+    }
     /** Require exactly the missing endpoints of original selected and local retained sources.
      * Supplemental materialization proofs never participate in choosing a selected set or tail. */
     static List<MembershipSelection.Bridge> installationBridges(MembershipSelection.Decision decision,

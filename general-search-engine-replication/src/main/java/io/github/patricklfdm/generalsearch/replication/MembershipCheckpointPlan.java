@@ -23,6 +23,18 @@ final class MembershipCheckpointPlan {
     Decoded originalCertificate(){return certificate;}
     MembershipCapsule.Anchor originalParent(){return before.terminal();}
     List<MembershipCapsule.Anchor> additionalParents(){return additionalParents;}
+    /** Preserve required, already authenticated bridges outside the range being
+     * extended. Membership edges do not renew these original stable-era ACKs. */
+    List<MembershipSelection.Bridge> retainedBridges(byte[] ancestry) {
+        before.verifyAncestry(ancestry,requiredParents);
+        var required=new HashSet<Map<String,Object>>();
+        for(var parent:requiredParents)required.add(parent.cut());
+        long start=number(rangeStart(before,(String)entry.value().get("kind")).get("index"));
+        return before.verifiedAncestry(ancestry).stream().filter(bridge->{
+            var cut=object(bridge.statement.value().get("start"));
+            return required.contains(cut) && number(cut.get("index"))<=start;
+        }).toList();
+    }
     /** Renew only authenticated original endpoints hidden inside the newly enlarged RANGE. */
     MembershipCheckpointPlan renewAncestors(Collection<MembershipCapsule.Anchor> required,byte[] originalAncestry) {
         var parents=renewalParents(before,(String)entry.value().get("kind"),required,originalAncestry);
