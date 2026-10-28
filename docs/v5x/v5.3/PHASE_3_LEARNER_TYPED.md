@@ -39,7 +39,8 @@ it does not erase retained originals. No capacity or timing limit is increased.
 
 The 2 MiB MISC reservation covers both 64 KiB admission-plan files, three 256 KiB
 retention/admission copies, ROOT (16 KiB), NODE (4 KiB), two 256 KiB typed plans
-and LEARNER (16 KiB): at most 1,444 KiB. Backup bytes use the separate APPLICATION
+and LEARNER (16 KiB): at most 1,444 KiB before A17. The optional prepared
+selection adds 16 KiB, for a total of 1,460 KiB. Backup bytes use the separate APPLICATION
 slot. Combined maximum headroom and eventual source/sidecar retirement remain
 required lifecycle work, not an assertion of unbounded repeated preparations.
 
@@ -66,8 +67,9 @@ never restarted within either history. This is not a latency/SLA qualification.
 Long process-death matrices and final-source acceptance stay in the
 [deferred queue](PHASE_3_DEFERRED_ACCEPTANCE.md). Current results and source/build
 identities are recorded in [the retained receipt](phase3-evidence/learner-typed.json).
-Next: prepared-generation ownership, bounded refreshed-source acquisition,
-revision/cancellation handling, matching INTENT, all seven transitions and the
+Prepared-generation ownership and bounded refreshed-source reception are now
+implemented in [the next layer](PHASE_3_LEARNER_PREPARED.md). Next: successor
+installation/retirement, revision/cancellation handling, matching INTENT, all seven transitions and the
 complete Phase 3 audit. Public factories remain disabled.
 
 ## Retained focused results

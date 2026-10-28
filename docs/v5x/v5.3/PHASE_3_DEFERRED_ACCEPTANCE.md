@@ -16,6 +16,9 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 | Store negative qualification | Complete unchanged matrix first | Every declared mutation rejected for its exact reason, including portable optimized replay |
 | `V53LearnerMaterializationTest` and native smoke | Focused typed backup and READY receipt | Exact original PREPARE image, actual core semantic decode, forced receipt, reopen and independent original-first replay |
 | Typed learner process-death qualification | Independent complete native histories | Halt/SIGKILL at typed plan, backup and receipt cuts, fresh-process semantic reopen and unchanged refusals; not replaced by synchronous exception cuts |
+| Prepared learner selection and refresh | Focused components and complete native two-revision history | Original selection forces, same-pool coexistence and authenticated successor, full original-first wire/physical replay |
+| Prepared selection process-death qualification | Independent whole halt/SIGKILL histories | Partial marker recovery, conservative reopen, live owner revocation and unchanged original source; no component exception substitution |
+| Successor lifecycle | One continuous original learner history | Install, select and retire bounded originals across revisions, cancellation and locally forced matching INTENT before votes |
 | Final Phase 3 protocol audit | Complete prescribed scenarios | Learner ADD/REPLACE, all seven transitions, alternative-leader continuation and maximum combined resource bounds; component results cannot substitute |
 
 The process test supports one exact whole case through the Maven system property

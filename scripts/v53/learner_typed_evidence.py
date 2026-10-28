@@ -80,6 +80,33 @@ def binding(value):
     return path
 
 
+def sidecar(root,typed,plan,original,request,receipt,raw,*,selected=False):
+    prepared_receipt=f.decode(receipt,'records','LEARNER')['receipt']
+    image=original[prepared_receipt['image']+'.image'];backup=images.image_members(image)
+    need(set(typed)==({'preparation.lock','preparation.json','learner.gsr','backup'}|({'prepared.json'} if selected else set()))|{'backup/'+n for n in backup},'learner typed sidecar inventory')
+    need(typed['backup'] is None and typed['preparation.lock']==b'' and typed['learner.gsr']==receipt and
+         all(typed['backup/'+n]==data for n,data in backup.items()),'learner typed original backup and receipt')
+    metadata=typed['preparation.json'];need(len(metadata)<=256*1024,'learner typed plan capacity')
+    value=e.parse(metadata);descriptor=e.parse((root/'original-plan.gsbp').read_bytes()[48:])['descriptor']
+    need(f.canonical(value)==metadata and set(value)=={'schema','plan','source','receipt','configuration','path','materialization','directoryKey'},
+         'learner typed plan shape')
+    need(value['schema']=='gse-v53-learner-typed/1.3' and value['plan']==e.digest(raw) and value['source']==e.digest(original['source.gscp'])
+         and value['receipt']==base64.b64encode(receipt).decode() and value['configuration']=={k:descriptor[k] for k in ('application','core')},
+         'learner typed plan originals')
+    path=binding(value['path']);core=binding(value['materialization']);paths=[binding(v) for v in plan['paths']]
+    operation_path=next(p for p in paths if p.name=='learner-operation')
+    need(path==operation_path.parent/('.gse-v53-learner-'+e.digest(raw)),'learner typed deterministic sidecar')
+    paths += [path,core]
+    need(all(p!=q and p not in q.parents and q not in p.parents for i,p in enumerate(paths) for q in paths[i+1:]),'learner typed disjoint paths')
+    need(type(value['directoryKey']) is str and value['directoryKey'].strip(),'learner typed original directory identity')
+    if selected:
+        replica_path=next(p for p in paths if p.name=='learner-replica')
+        marker=dict(schema='gse-v53-learner-prepared/1.3',root=request['root'],identity=prepared_receipt['identity'],
+                    plan=e.digest(raw),typedPlan=e.digest(metadata),source=e.digest(original['source.gscp']),
+                    receipt=e.digest(receipt),location=str(replica_path/'learner'))
+        need(typed['prepared.json']==f.canonical(marker) and len(typed['prepared.json'])<=16384,'learner prepared original selection')
+
+
 def validate(root):
     root=Path(root);need(root.is_dir() and not root.is_symlink(),'learner typed evidence directory');total=0
     for count,p in enumerate(root.rglob('*'),1):
@@ -102,24 +129,7 @@ def validate(root):
     replica={'replica.lock':b'','root.gsr':root_bytes,'node.gsr':f.encode('records','NODE',dict(root=request['root'],identity=learner)),s.ADMISSION:retained}
     s.state(root/'admitted',operation,replica,original,decision,'retained')
     typed=c.inventory(root/'typed');need(typed==c.inventory(root/'typed-resumed'),'learner typed exact reopen bytes')
-    prepared_receipt=f.decode(receipt,'records','LEARNER')['receipt']
-    image=original[prepared_receipt['image']+'.image'];backup=images.image_members(image)
-    need(set(typed)=={'preparation.lock','preparation.json','learner.gsr','backup'}|{'backup/'+n for n in backup},'learner typed sidecar inventory')
-    need(typed['backup'] is None and typed['preparation.lock']==b'' and typed['learner.gsr']==receipt and
-         all(typed['backup/'+n]==data for n,data in backup.items()),'learner typed original backup and receipt')
-    metadata=typed['preparation.json'];need(len(metadata)<=256*1024,'learner typed plan capacity')
-    value=e.parse(metadata);descriptor=e.parse((root/'original-plan.gsbp').read_bytes()[48:])['descriptor']
-    need(f.canonical(value)==metadata and set(value)=={'schema','plan','source','receipt','configuration','path','materialization','directoryKey'},
-         'learner typed plan shape')
-    need(value['schema']=='gse-v53-learner-typed/1.3' and value['plan']==e.digest(raw) and value['source']==e.digest(original['source.gscp'])
-         and value['receipt']==base64.b64encode(receipt).decode() and value['configuration']=={k:descriptor[k] for k in ('application','core')},
-         'learner typed plan originals')
-    path=binding(value['path']);core=binding(value['materialization']);paths=[binding(v) for v in plan['paths']]
-    operation_path=next(p for p in paths if p.name=='learner-operation')
-    need(path==operation_path.parent/('.gse-v53-learner-'+e.digest(raw)),'learner typed deterministic sidecar')
-    paths += [path,core]
-    need(all(p!=q and p not in q.parents and q not in p.parents for i,p in enumerate(paths) for q in paths[i+1:]),'learner typed disjoint paths')
-    need(type(value['directoryKey']) is str and value['directoryKey'].strip(),'learner typed original directory identity')
+    sidecar(root,typed,plan,original,request,receipt,raw)
     check_trace(d.read(root/'learner-typed-events.json'),False);check_trace(d.read(root/'learner-resume-events.json'),True)
     need(d.read(root/'learner-typed-result.json')==dict(status='PASS',scope='native-typed-learner',voter=False,liveCore=False,publicReady=False,phase3Complete=False,testBudgetSeconds=600),
          'learner typed result scope')

@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Prepared learner generations](PHASE_3_LEARNER_PREPARED.md) now force original
+selection before atomically freeing the receiving slot. Refreshed certified
+sources share the live parent's resource budget and must preserve its exact
+certified ancestor. Successor installation/retirement, matching INTENT,
+autonomous continuation and complete Phase 3 acceptance remain OPEN; focused
+qualification is tracked in `phase3-evidence/learner-prepared.json`.
+
 [Typed learner preparation](PHASE_3_LEARNER_TYPED.md) now uses the actual core
 semantic reader and forces a source/revision-bound LEARNER receipt under exclusive
 nonvoting ownership. The retained backup remains accounted across child close,

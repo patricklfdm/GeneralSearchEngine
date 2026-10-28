@@ -23,6 +23,8 @@ final class MembershipLearnerStore implements AutoCloseable {
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
     private MembershipLearnerMaterialization<?> typed;
     private MembershipResources.Lease typedImage;
+    private MembershipResources.Lease resumedMetadata;
+    private boolean preparedGeneration;
     private MembershipOwnership owner;
     private Object directoryKey,lockKey;
     private boolean closed,failed,complete;
@@ -75,7 +77,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     private void reserve(MembershipResources resources)throws IOException {
         operation.checkOwner();decision.locate();long metadata=0;
         for(var row:plan.inventory())if(!((String)row.get("path")).endsWith(".image"))metadata=Math.addExact(metadata,number(row.get("size")));
-        leases.add(resources.reserve(MembershipResources.Unit.LEARNER,"learner-store",metadata));
+        resumedMetadata=resources.reserve(MembershipResources.Unit.LEARNER,"learner-store",metadata);leases.add(resumedMetadata);
         for(var row:plan.inventory())if(((String)row.get("path")).endsWith(".image"))
             leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"learner-store:"+row.get("path"),number(row.get("size"))));
     }
@@ -189,6 +191,20 @@ final class MembershipLearnerStore implements AutoCloseable {
     void attachTyped(MembershipLearnerMaterialization<?> next)throws IOException {
         check();require(typed==null || typed.closed(),"learner typed preparation already owned");typed=Objects.requireNonNull(next);
     }
+    MembershipResources.GenerationClaim prepareGeneration()throws IOException {
+        check();require(complete && !preparedGeneration,"learner generation already selected/incomplete");
+        String name="learner-prepared:"+plan.summary().planDigest();
+        return resumedMetadata==null?received.get("source.gscp").prepareGeneration(decision.destination.resolve("source.gscp"),name):
+                resumedMetadata.prepareGeneration(name);
+    }
+    void selectedGeneration(MembershipLearnerMaterialization<?> selected,MembershipResources.GenerationClaim claim)throws IOException {
+        check();require(typed==selected,"learner generation foreign typed owner");selected.checkPreparedSelection();
+        if(resumedMetadata!=null)claim.requireSource(resumedMetadata);
+        else received.get("source.gscp").requireGenerationClaim(decision.destination.resolve("source.gscp"),claim);
+        claim.commit();preparedGeneration=true;
+    }
+    boolean preparedGeneration()throws IOException{check();return preparedGeneration;}
+    MembershipResources resources()throws IOException{check();return operation.resources();}
     @Override public void close()throws IOException {
         if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(typed);children.addAll(received.values());children.addAll(leases);
         children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));

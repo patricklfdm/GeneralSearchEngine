@@ -126,6 +126,12 @@ final class MembershipReceiveFile implements AutoCloseable {
             require(!closed && owner.lock().isValid(),"retained receive owner closed");
             require(key.equals(MembershipBasisSources.inspect(path,bytes,digest).key()),"retained receive original inode changed");
         }
+        MembershipResources.GenerationClaim prepareGeneration(Path path,String name)throws IOException {
+            check(path);return lease.prepareGeneration(name);
+        }
+        void requireGenerationClaim(Path path,MembershipResources.GenerationClaim claim)throws IOException {
+            check(path);claim.requireSource(lease);
+        }
         @Override public void close()throws IOException {if(!closed){closed=true;try{owner.close();}finally{lease.close();}}}
     }
     /** Parent preflights every file before detaching any. No I/O is performed in

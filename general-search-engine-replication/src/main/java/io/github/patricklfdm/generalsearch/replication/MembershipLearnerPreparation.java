@@ -55,6 +55,13 @@ final class MembershipLearnerPreparation {
     String packet()throws IOException {check();return packet;}
     void reserveTypedImage()throws IOException {check();owner.reserveTypedImage(size);}
     void attach(MembershipLearnerMaterialization<?> typed)throws IOException {check();owner.attachTyped(typed);}
+    MembershipResources.GenerationClaim prepareGeneration()throws IOException {check();return owner.prepareGeneration();}
+    void selectedGeneration(MembershipLearnerMaterialization<?> selected,MembershipResources.GenerationClaim claim)throws IOException {
+        check();owner.selectedGeneration(selected,claim);
+    }
+    boolean preparedGeneration()throws IOException {check();return owner.preparedGeneration();}
+    MembershipCapsule source()throws IOException{return check();}
+    MembershipResources resources()throws IOException{check();return owner.resources();}
     Decoded receiptBytes()throws IOException {
         check();var value=Map.<String,Object>of("root",request.root().manifestDigest(),"number",request.change().id().number(),
                 "request",hash(canonical(MembershipLearnerDiscovery.request(request.change()),8192)),"identity",MembershipBootstrapSeed.identity(request.identity()),

@@ -17,6 +17,7 @@ final class MembershipLearnerSource implements AutoCloseable {
     private final MembershipSourcePull.Guard guard;
     private final LongSupplier clock;
     private final long started,budget;
+    private final MembershipLearnerMaterialization.PreparedGeneration predecessor;
     private volatile boolean closed;
     private boolean used;
     private MembershipTransport transport;
@@ -27,11 +28,34 @@ final class MembershipLearnerSource implements AutoCloseable {
     MembershipLearnerSource(MembershipLearnerRequest request,MembershipIdentity peer,MembershipResources resources,
             ReplicationBounds bounds,MembershipTransport.Events events,MembershipSourcePull.Guard guard,
             LongSupplier clock,long started,long budget) {
+        this(request,peer,resources,bounds,events,guard,clock,started,budget,null);
+    }
+    private MembershipLearnerSource(MembershipLearnerRequest request,MembershipIdentity peer,MembershipResources resources,
+            ReplicationBounds bounds,MembershipTransport.Events events,MembershipSourcePull.Guard guard,
+            LongSupplier clock,long started,long budget,MembershipLearnerMaterialization.PreparedGeneration predecessor) {
         require(budget>0 && budget<Long.MAX_VALUE/2,"learner source original budget");
         this.request=Objects.requireNonNull(request);this.peer=Objects.requireNonNull(peer);
         require(!peer.equals(request.identity()) && request.change().target().contains(peer),"learner source contact route");
         this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);this.events=Objects.requireNonNull(events);
         this.guard=Objects.requireNonNull(guard);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
+        this.predecessor=predecessor;
+    }
+    /** A prepared generation frees the receiving slot, but the new acquisition
+     * must use its SAME pool and keep the original owner live throughout. */
+    static MembershipLearnerSource refresh(MembershipLearnerMaterialization.PreparedGeneration prepared,MembershipIdentity peer,
+            ReplicationBounds bounds,MembershipTransport.Events events,LongSupplier clock,long started,long budget)throws IOException {
+        prepared.check();return new MembershipLearnerSource(prepared.request(),peer,prepared.resources(),bounds,events,
+                prepared::check,clock,started,budget,prepared);
+    }
+    static void successor(MembershipCapsule previous,MembershipFloor.Copy next) {
+        next.check();
+        var original=previous.terminal();var current=next.capsule;
+        require(previous.context.root.equals(current.context.root)
+                && MembershipFormat.number(current.context.cut.get("index"))>=MembershipFormat.number(original.cut().get("index")),
+                "learner refresh regressed or foreign history");
+        byte[] ancestry=next.fileNames().contains("ancestry.gsr")?next.fileBytes("ancestry.gsr"):new byte[0];
+        current.verifyAncestry(ancestry,List.of(original));
+        next.check();
     }
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;
@@ -56,6 +80,7 @@ final class MembershipLearnerSource implements AutoCloseable {
             }
             prefix.fetchPrefix(scratch);prefix.verifiedPrefix();var copy=generation.fetchGeneration(prefix);check();
             MembershipLearnerPrefixExport.originalReservation(copy.capsule.context,request,peer);
+            if(predecessor!=null){predecessor.check();successor(predecessor.source(),copy);predecessor.check();}
             synchronized(this){check();result=copy;return copy;}
         }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
@@ -65,12 +90,14 @@ final class MembershipLearnerSource implements AutoCloseable {
     /** Persist the exact reviewed plan before any learner authority directory.
      * It grants no readiness or votes; later apply must install these originals. */
     MembershipLearnerPlan plan(MembershipBallotAllocator.Cut cut)throws IOException {
+        require(predecessor==null,"refreshed source requires prepared-generation installation");
         var plan=MembershipLearnerAdmissionPlan.create(request,source());
         try(var files=MembershipLearnerAdmissionFiles.create(plan,resources,cut,()->plan.checkOriginal(source()))) {
             return files.summary();
         }
     }
     MembershipLearnerStore admit(MembershipLearnerPlan summary,MembershipBallotAllocator.Cut cut)throws IOException {
+        require(predecessor==null,"refreshed source requires prepared-generation installation");
         require(summary.request().equals(request),"learner admission foreign request");var copy=source();
         var received=prefix.completeLearnerSource(copy,cut);check();
         var operation=MembershipLearnerAdmissionFiles.openAdmission(summary,resources,cut);

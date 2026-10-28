@@ -14,7 +14,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * only a bounded nonvoting preparation sidecar, never a live engine or journal.
  * Reopen repeats semantic validation before exposing any original receipt. */
 final class MembershipLearnerMaterialization<T> implements AutoCloseable {
-    static final String LOCK="preparation.lock",PLAN="preparation.json",NEXT="preparation.next.json",BACKUP="backup",RECEIPT="learner.gsr";
+    static final String LOCK="preparation.lock",PLAN="preparation.json",NEXT="preparation.next.json",BACKUP="backup",RECEIPT="learner.gsr",PREPARED="prepared.json";
     static final int MAXIMUM_PLAN=256*1024;
     private record Member(Object key,long bytes,String digest,boolean directory) {}
     private final MembershipLearnerPreparation input;
@@ -23,6 +23,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     private final Map<String,Object> binding,materialization;
     private final Object directoryKey;
     private final byte[] plan;
+    private final byte[] prepared;
     private final Decoded receipt;
     private final Map<String,byte[]> payloads;
     private final MembershipGenerationFiles.Guard configuration;
@@ -30,6 +31,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     private Map<String,Member> members;
     private DurableApplicationState<T> state;
     private boolean closed,failed,complete;
+    private boolean selectionForced;
 
     static Path directory(MembershipLearnerPlan plan) {
         return plan.request().operationDirectory().resolveSibling(".gse-v53-learner-"+plan.planDigest());
@@ -59,7 +61,11 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
             plan=canonical(Map.of("schema","gse-v53-learner-typed/1.3","plan",summary.planDigest(),"source",input.packet(),
                     "receipt",MembershipBootstrapPlanData.base(receipt.bytes()),"configuration",descriptor,
                     "path",binding,"materialization",materialization,"directoryKey",directoryKey.toString()),MAXIMUM_PLAN);
-            var names=children(directory,5);
+            prepared=canonical(Map.of("schema","gse-v53-learner-prepared/1.3","root",summary.request().root().manifestDigest(),
+                    "identity",MembershipBootstrapSeed.identity(summary.request().identity()),"plan",summary.planDigest(),
+                    "typedPlan",hash(plan),"source",input.packet(),"receipt",receipt.digest(),
+                    "location",summary.request().replicaDirectory().resolve("learner").toString()),16384);
+            var names=children(directory,6);
             if(exists)require(names.contains(LOCK) && (names.contains(PLAN)||names.contains(NEXT)),"learner typed original plan missing");
             else require(names.isEmpty(),"learner typed new directory changed");
             lock=MembershipOwnership.own(directory.resolve(LOCK),!exists);
@@ -78,7 +84,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     private Map<String,Member> scan()throws IOException {
         AdmissionPaths.recheck(binding);AdmissionPaths.recheck(materialization);
         require(directoryKey.equals(key(directory)),"learner typed directory replaced");
-        var names=children(directory,5);require(Set.of(LOCK,PLAN,NEXT,BACKUP,RECEIPT).containsAll(names) && names.contains(LOCK),"learner typed inventory");
+        var names=children(directory,6);require(Set.of(LOCK,PLAN,NEXT,BACKUP,RECEIPT,PREPARED).containsAll(names) && names.contains(LOCK),"learner typed inventory");
         var result=new TreeMap<String,Member>();file(result,LOCK,new byte[0],false);
         boolean active=names.contains(PLAN),candidate=names.contains(NEXT);
         if(active)file(result,PLAN,plan,false);
@@ -94,6 +100,10 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
             for(var row:payloads.entrySet())require(result.containsKey(row.getKey()) && result.get(row.getKey()).bytes()==row.getValue().length,
                     "learner typed receipt without complete image");
             file(result,RECEIPT,receipt.bytes(),true);
+        }
+        if(names.contains(PREPARED)) {
+            require(result.containsKey(RECEIPT) && result.get(RECEIPT).bytes()==receipt.size(),"learner prepared without complete receipt");
+            file(result,PREPARED,prepared,true);
         }
         return result;
     }
@@ -146,6 +156,35 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     }
     Decoded receipt()throws IOException {check();require(complete,"learner typed receipt not forced");return receipt;}
     DurableApplicationState<T> state()throws IOException {receipt();return state;}
+    /** Select these exact immutable originals as a nonvoting local generation.
+     * Reserve its slot before forcing the marker, and only then release the
+     * receiving category through an atomic reservation transfer. */
+    PreparedGeneration retainGeneration()throws IOException {
+        receipt();
+        try {
+            if(!input.preparedGeneration())try(var claim=input.prepareGeneration()) {
+                write(PREPARED,prepared,"LEARNER_PREPARED");selectionForced=true;point("LEARNER_PREPARED_BEFORE_SELECT");
+                input.selectedGeneration(this,claim);
+            }else {
+                require(members.containsKey(PREPARED) && members.get(PREPARED).bytes()==prepared.length,"learner selected marker missing");
+                write(PREPARED,prepared,"LEARNER_PREPARED");selectionForced=true;
+            }
+            point("LEARNER_PREPARED_BEFORE_RETURN");return new PreparedGeneration(this);
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    void checkPreparedSelection()throws IOException {
+        receipt();require(selectionForced && members.containsKey(PREPARED) && members.get(PREPARED).bytes()==prepared.length,
+                "learner generation selection not forced");
+    }
+    static final class PreparedGeneration {
+        private final MembershipLearnerMaterialization<?> owner;
+        private PreparedGeneration(MembershipLearnerMaterialization<?> owner){this.owner=owner;}
+        void check()throws IOException {owner.checkPreparedSelection();require(owner.input.preparedGeneration(),"learner generation not selected");}
+        MembershipLearnerRequest request()throws IOException {check();return owner.input.summary().request();}
+        MembershipCapsule source()throws IOException {check();return owner.input.source();}
+        Decoded receipt()throws IOException {check();return owner.receipt();}
+        MembershipResources resources()throws IOException {check();return owner.input.resources();}
+    }
     boolean closed(){return closed;}
     @Override public void close()throws IOException {
         if(closed)return;closed=true;if(lock!=null)lock.close();

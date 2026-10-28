@@ -28,8 +28,8 @@ def transcripts(rows):
     return [g.attempts(rows) for _,rows in sessions]
 
 
-def network(root,reserved,request,learner):
-    rows=d.read(root/'learner-source-wire.json');sessions=transcripts(rows)
+def network(root,reserved,request,learner,*,trace_name='learner-source-wire.json',copy_name='learner-source-copy',preceding=(),following=()):
+    rows=d.read(root/trace_name);sessions=transcripts(rows)
     server=d.read(root/'wire.json');observed=[]
     need(type(server) is list and len(server)<=32768,'learner source bounded server trace')
     for row in server:
@@ -37,7 +37,7 @@ def network(root,reserved,request,learner):
         if frame['sender']['node']==learner['node']:
             need(set(row)=={'request','response','withheld'} and row['withheld'] is False,'learner source original server trace')
             observed.append({k:row[k] for k in ('request','response')})
-    need(observed==rows,'learner source exact received trace')
+    need(observed==list(preceding)+rows+list(following),'learner source exact received trace')
     peer='node-1';identity=d.future.identity(reserved[peer]);prefix,members,packet=c.current(reserved[peer]);cap=packet['capsule']
     # current() exposes manifest members separately from their already-derived
     # generation frame. The received complete copy must include that frame too.
@@ -59,7 +59,7 @@ def network(root,reserved,request,learner):
     if 'ancestry.gsr' in members:expected.append((e.digest(members['ancestry.gsr']),members['ancestry.gsr'],'RECORD'))
     expected.extend((e.digest(data),data,'RECORD') for name,data in sorted(members.items()) if name not in ('generation.gsr','source.gscp','ancestry.gsr') and not name.endswith('.image'))
     t.transcript(sessions[3],expected,request['root'],request['expected'],ballot,learner,identity,'learner source generation',chunk_bytes=4*e.MIB)
-    need(c.inventory(root/'learner-source-copy')==members,'learner source exact original generation')
+    need(c.inventory(root/copy_name)==members,'learner source exact original generation')
     return dict(peer=peer,exchanges=len(rows),originalFiles=len(members))
 
 

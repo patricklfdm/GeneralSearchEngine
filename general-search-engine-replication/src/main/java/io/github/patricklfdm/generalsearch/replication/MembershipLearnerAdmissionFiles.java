@@ -121,6 +121,7 @@ final class MembershipLearnerAdmissionFiles implements AutoCloseable {
         check();require(replicaAllowed && retention!=null,"typed learner requires retained admission");reserveAdmission();
         return resources.reserve(MembershipResources.Unit.APPLICATION,"learner-typed-backup",bytes);
     }
+    MembershipResources resources()throws IOException {check();return resources;}
     void requireFreshRetention()throws IOException {check();require(retention==null && !replicaAllowed,"retained learner source requires explicit resume");}
     void retainSource(MembershipLearnerRetention decision)throws IOException {
         check();require(decision.plan.summary().equals(plan.summary()),"learner retention foreign plan");reserveAdmission();

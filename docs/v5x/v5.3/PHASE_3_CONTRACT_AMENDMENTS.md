@@ -535,3 +535,44 @@ limits and frozen timing budgets are unchanged. This does not settle successor
 PREPARE/revision replacement, cancellation retirement, locally forced matching
 INTENT or joint activation. Rollback must refuse retained typed metadata rather
 than reinterpret it as a voter or silently erase it.
+
+## A17 — prepared learner generation selection and bounded refresh
+
+After the A16 semantic decode and forced receipt, the live typed owner may select
+its exact retained source as an immutable **nonvoting** local generation. Before
+writing, reserve one of the existing two GENERATION slots while retaining the
+original LEARNER byte/staging reservation. Pending claims count toward the limit;
+they do not reserve duplicate bytes or release the receiving owner. Cancellation
+or source close revokes an uncommitted claim.
+
+Force canonical ASCII `prepared.json` (at most 16 KiB) in the existing typed
+sidecar. Its exact fields are `schema` = `gse-v53-learner-prepared/1.3`, `root`,
+`identity` (joining identity), `plan` (original admission digest), `typedPlan`
+(digest of `preparation.json`), `source` (original packet digest), `receipt`
+(digest of the GSER LEARNER frame), and `location` (original replica directory's
+`learner` child). No source file moves or original inode changes. Only after file
+and directory force may the original metadata lease atomically change from
+LEARNER to GENERATION. Metadata bytes stay charged, while receiving staging and
+the unique LEARNER count become available. There is no release/reacquire gap.
+
+The marker requires a complete original typed receipt. A partial marker may be
+completed only as the exact prefix of those original derived bytes. An altered
+marker is refused unchanged. Reopening the parent conservatively accounts the
+source as LEARNER until the typed owner repeats semantic verification and forces
+selection again; a marker alone is not an in-memory capability. Closing either
+the typed or parent owner revokes refresh access. Reopen can therefore refuse for
+capacity before any selection, even when the preceding process had selected it.
+
+The private refresh capability uses the parent's **same** resource pool and
+checks live ownership around receiving. The complete successor must match the
+root, original reservation, request and contacting voter, and retain the exact
+original certified terminal anchor (or an authenticated checkpoint endpoint).
+A higher index alone is insufficient. Receiving a new copy neither replaces the
+original admission plan nor reuses initial admission to install a second store.
+That installation, bounded old-source retirement, cancellation, matching locally
+forced INTENT and joint eligibility remain subsequent lifecycle requirements.
+
+The MISC maximum becomes 1,460 KiB (A16's 1,444 plus this 16 KiB marker), within the
+unchanged 2 MiB lease. GENERATION, LEARNER, APPLICATION, aggregate byte bounds and
+production timing limits stay unchanged. Rollback must refuse unknown selection
+metadata, never reinterpret it as authority or delete the retained originals.
