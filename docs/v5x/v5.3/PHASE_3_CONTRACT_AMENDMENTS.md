@@ -629,3 +629,46 @@ required follow-up work. A selected capsule is not a floor-copy acknowledgement,
 public readiness, joint vote or complete Phase 3 acceptance. Older private readers
 are not a recovery route for this new sidecar; preserve it and use its original
 plan under the new owner. Public APIs remain disabled.
+
+
+## A19 — typed receipt for an installed learner successor
+
+An A18 selected original successor may supply an exact PREPARING revision to the
+existing typed semantic reader. Both the original prepared owner and selected
+successor remain live. The source packet, active request, joining identity,
+current revision and original application image must match; an earlier revision
+cannot supply the later receipt. This creates a nonvoting readiness record only.
+
+Use the deterministic private sibling
+`operationDirectory.resolveSibling(".gse-v53-learner-ready-" + planDigest)`.
+Require the same reserved live-core path as the predecessor and disjoint source,
+operation, replica, old typed and new typed paths. Reuse A16's exclusive lock,
+original candidate/active plan, three exact backup members, semantic decode and
+receipt force order. Reopening requires the original complete plan (or complete
+candidate), repeats semantic decoding and only completes exact original prefixes.
+No `prepared.json` is accepted in this second sidecar, and `retainGeneration()`
+refuses before writing: its source already occupies the second generation slot.
+
+The new canonical ASCII plan/candidate are each at most 16 KiB. Their fields are
+`schema` = `gse-v53-successor-typed/1.3`, `plan` (initial admission digest), `source`
+(selected successor packet digest), `receipt` (exact GSER LEARNER frame digest),
+`configuration` (digest of the canonical `application`/`core` descriptor), `path`,
+`materialization` (original five-field bindings) and `directoryKey`. Configuration
+and receipt bytes are independently re-derived from the live input and actual
+core configuration before comparison; hashes never replace semantic validation.
+Bound a plan with a 4,096-byte directory identity placeholder, and bound the
+LEARNER frame to 16 KiB before reserving an image or creating any new directory.
+
+Reserve a separate APPLICATION slot at the unchanged 64 MiB bound in the same
+parent resource pool. Child close/failure does not release the retained backup.
+Parent reopen conservatively reserves it whenever the deterministic new sidecar
+exists, even before a typed handle opens it. Parent close closes the new typed
+child before its successor's resources. Closing either predecessor or parent
+revokes access to the new receipt. Original source, predecessor backup and new
+backup remain retained; no unforced retirement or reservation sharing is allowed.
+
+MISC's worst-case sum is 2,036 KiB (A18's 1,988 plus two 16 KiB plans and one
+16 KiB LEARNER frame), within the existing 2 MiB lease. No resource count, timing
+limit or format family is increased. This supports one installed successor's
+typed receipt, not repeated revision installation or voting. Bounded retirement,
+matching locally forced INTENT, autonomous READY and complete Phase 3 remain due.

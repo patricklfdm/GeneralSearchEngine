@@ -11,22 +11,27 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * A prepared image may differ from the current application after ordinary DATA. */
 final class MembershipLearnerPreparation {
     private final MembershipLearnerStore owner;
+    private final MembershipLearnerSuccessor.View successor;
     private final MembershipLearnerRequest request;
     private final byte[] prepared;
     private final String packet,application;
     private final long size,revision;
 
-    private MembershipLearnerPreparation(MembershipLearnerStore owner,long revision)throws IOException {
-        this.owner=Objects.requireNonNull(owner);this.revision=revision;
-        request=owner.summary().request();var capsule=owner.capsule();var operation=operation(capsule,request,revision);
+    private MembershipLearnerPreparation(MembershipLearnerStore owner,MembershipLearnerSuccessor.View successor,long revision)throws IOException {
+        this.owner=Objects.requireNonNull(owner);this.successor=successor;this.revision=revision;
+        request=owner.summary().request();var capsule=original();var operation=operation(capsule,request,revision);
         prepared=canonical(operation.get("prepared"),8192);application=(String)object(operation.get("prepared")).get("application");
         packet=hash(capsule.packet.bytes());Long bytes=capsule.packet.images().get(application);
         require(bytes!=null && bytes>0 && bytes<=MembershipApplicationImage.MAXIMUM,"learner prepared original image missing");size=bytes;
         check();
     }
     static MembershipLearnerPreparation from(MembershipLearnerStore owner,long revision)throws IOException {
-        return new MembershipLearnerPreparation(owner,revision);
+        return new MembershipLearnerPreparation(owner,null,revision);
     }
+    static MembershipLearnerPreparation from(MembershipLearnerSuccessor.View source,long revision)throws IOException {
+        return new MembershipLearnerPreparation(source.store(),source,revision);
+    }
+    private MembershipCapsule original()throws IOException {return successor==null?owner.capsule():successor.source();}
     private static Map<String,Object> operation(MembershipCapsule capsule,MembershipLearnerRequest request,long revision) {
         var context=capsule.context;
         require(revision>0 && revision<=64 && Objects.equals(context.catalog.get("active"),request.change().id().number())
@@ -43,18 +48,23 @@ final class MembershipLearnerPreparation {
         return row;
     }
     private MembershipCapsule check()throws IOException {
-        var capsule=owner.capsule();var operation=operation(capsule,request,revision);
+        var capsule=original();var operation=operation(capsule,request,revision);
         require(packet.equals(hash(capsule.packet.bytes())) && Arrays.equals(prepared,canonical(operation.get("prepared"),8192)),
                 "learner preparation original source changed");return capsule;
     }
     Map<String,Object> prepared()throws IOException {check();return object(parse(prepared,8192));}
     byte[] image()throws IOException {
-        check();byte[] bytes=owner.originalImage(application,size);check();return bytes;
+        check();byte[] bytes=successor==null?owner.originalImage(application,size):successor.originalImage(application,size);check();return bytes;
     }
     MembershipLearnerPlan summary()throws IOException {check();return owner.summary();}
     String packet()throws IOException {check();return packet;}
-    void reserveTypedImage()throws IOException {check();owner.reserveTypedImage(size);}
-    void attach(MembershipLearnerMaterialization<?> typed)throws IOException {check();owner.attachTyped(typed);}
+    void reserveTypedImage()throws IOException {check();if(successor==null)owner.reserveTypedImage(size);else successor.reserveTypedImage();}
+    void attach(MembershipLearnerMaterialization<?> typed)throws IOException {check();if(successor==null)owner.attachTyped(typed);else successor.attachTyped(typed);}
+    boolean successor(){return successor!=null;}
+    java.nio.file.Path directory()throws IOException {
+        check();return successor==null?MembershipLearnerMaterialization.directory(owner.summary()):MembershipLearnerSuccessor.typedDirectory(owner.summary());
+    }
+    void requireInitialGeneration()throws IOException {check();require(successor==null,"learner successor generation already installed; retirement required");}
     MembershipResources.GenerationClaim prepareGeneration()throws IOException {check();return owner.prepareGeneration();}
     void selectedGeneration(MembershipLearnerMaterialization<?> selected,MembershipResources.GenerationClaim claim)throws IOException {
         check();owner.selectedGeneration(selected,claim);
@@ -78,6 +88,7 @@ final class MembershipLearnerPreparation {
         require(config.root().equals(request.root()) && config.localIdentity().equals(request.identity())
                 && config.replicaDirectory().equals(request.replicaDirectory()),"learner preparation local configuration binding");
         AdmissionPaths.disjoint(List.of(config.materialization().directory(),request.replicaDirectory(),request.operationDirectory()));
+        if(successor!=null)successor.requireTypedPaths(config.materialization().directory(),directory());
         var root=decode(capsule.packet.objectBytes(capsule.context.recordRootDigest()),"records","ROOT");
         configuration(root,captured,config.materialization());check();
     }

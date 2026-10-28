@@ -20,6 +20,8 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 | Prepared selection process-death qualification | Independent whole halt/SIGKILL histories | Partial marker recovery, conservative reopen, live owner revocation and unchanged original source; no component exception substitution |
 | Installed successor components and native smoke | Original complete source, installation, close/reopen | Same-pool reservations, exact source identity, complete original plan, both move parents forced, selected successor with no voting rights |
 | Installed successor process-death matrix | Independent complete halt/SIGKILL histories | Original candidate plan and source move/selection cuts, fresh-process resume or exact incomplete refusal; preserve failed attempts |
+| Installed successor typed receipt | `V53SuccessorTypedTest` methods as separate independent units; one whole `V53SuccessorTypedNetworkTest` history | Current receipt/source binding, separate retained backup, original force trace and portable negative replay; focused TCP smoke does not replace process-death cases |
+| Successor typed process-death qualification | Independent complete native histories | Halt/SIGKILL during compact plan, backup and receipt writes; original-only resume, preserved refusals and same-pool accounting |
 | Successor lifecycle | One continuous original learner history | Install, select and retire bounded originals across revisions, cancellation and locally forced matching INTENT before votes |
 | Final Phase 3 protocol audit | Complete prescribed scenarios | Learner ADD/REPLACE, all seven transitions, alternative-leader continuation and maximum combined resource bounds; component results cannot substitute |
 

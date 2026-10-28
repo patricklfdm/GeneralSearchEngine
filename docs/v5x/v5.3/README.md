@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Typed successor receipts](PHASE_3_SUCCESSOR_TYPED.md) now validate the installed
+source's exact PREPARING revision through the actual core decoder and force a
+separate nonvoting LEARNER record. Both backups remain accounted under the same
+parent; reopen revalidates original plans and semantics. Bounded retirement,
+repeated refresh, matching INTENT and full Phase 3 acceptance remain OPEN.
+Focused qualification is recorded in `phase3-evidence/successor-typed.json`.
+
 [Installed learner successors](PHASE_3_LEARNER_SUCCESSOR.md) now retain the exact
 received generation under a forced original plan and local selection. Parent
 reopen accounts the retained candidate and requires a live matching typed

@@ -1,0 +1,144 @@
+{
+  "archive": {
+    "bytes": 9855265,
+    "files": 5339,
+    "path": "target/v53-successor-typed/qualification.tar.gz",
+    "sha256": "e3625bad8e79fd48a0cbac902317cd5729cd987d9bd7bc013559546c326a6356"
+  },
+  "autonomousReady": false,
+  "baseSource": "7d54a1cb0953492b46c1c31450926ac695c55ae4",
+  "builds": {
+    "component": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationTest": {
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 6
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparedTest": {
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 6
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53SuccessorTypedNetworkTest": {
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 1
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53SuccessorTypedTest": {
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 6
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationTest": 6,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparedTest": 6,
+          "io.github.patricklfdm.generalsearch.replication.V53SuccessorTypedNetworkTest": 1,
+          "io.github.patricklfdm.generalsearch.replication.V53SuccessorTypedTest": 6
+        },
+        "exit": 0,
+        "failures": 0,
+        "label": "component",
+        "seconds": 1381.9282973090012,
+        "skipped": 0,
+        "tests": 19
+      },
+      "productionDifferencesFromFinal": []
+    }
+  },
+  "fullPhase3": false,
+  "jointEligibility": false,
+  "nativeReplay": {
+    "negatives": [
+      {
+        "case": "stale-receipt",
+        "reason": "successor typed exact current receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopened",
+        "reason": "successor typed exact reopened bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "backup",
+        "reason": "successor typed original backup and receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "descriptor",
+        "reason": "successor typed compact plan originals",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source",
+        "reason": "successor typed compact plan originals",
+        "status": "REJECTED"
+      },
+      {
+        "case": "prepared",
+        "reason": "successor typed inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-force",
+        "reason": "successor typed exact force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-receipt",
+        "reason": "successor typed exact force order",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "jointEligible": false,
+      "oldGenerationRetired": false,
+      "original": {
+        "acquisition": {
+          "exchanges": 31,
+          "originalFiles": 9,
+          "peer": "node-1"
+        },
+        "jointEligible": false,
+        "oldGenerationRetired": false,
+        "phase3Complete": false,
+        "physicalQualification": true,
+        "processDeathQualified": false,
+        "refresh": {
+          "exchanges": 31,
+          "originalFiles": 9,
+          "peer": "node-1"
+        },
+        "scope": "native-installed-learner-successor",
+        "status": "PASS",
+        "successorInstalled": true
+      },
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "native-typed-successor",
+      "semanticReader": "Java core",
+      "status": "PASS",
+      "typed": {
+        "receipt": "3577d61d894f5a4bf2d4fefb55116feafe9dcd493f5395e414be40e319e85940",
+        "revision": 2,
+        "source": "5e8b9ddf6ce718a9539949d7d34050624a3164e39e7dab61abf264df6c3b4656"
+      }
+    }
+  },
+  "oldGenerationRetired": false,
+  "preparedGeneration": true,
+  "processDeath": "DEFERRED_HOSTED",
+  "pythonTests": 13,
+  "schema": "gse-v53-successor-typed-qualification-v1",
+  "status": "COMPONENTS_PASSED",
+  "successorInstalled": true,
+  "successorReceived": true,
+  "successorTyped": true
+}

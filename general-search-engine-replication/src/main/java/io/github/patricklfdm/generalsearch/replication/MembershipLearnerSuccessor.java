@@ -26,9 +26,14 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
     private final Map<String,FileIdentity> metadata=new TreeMap<>();
     private MembershipOwnership lock;
+    private MembershipLearnerMaterialization<?> typed;
+    private MembershipResources.Lease typedImage;
     private boolean closed,failed,selected;
     static Path directory(MembershipLearnerPlan summary) {
         return summary.request().operationDirectory().resolveSibling(".gse-v53-learner-successor-"+summary.planDigest());
+    }
+    static Path typedDirectory(MembershipLearnerPlan summary) {
+        return summary.request().operationDirectory().resolveSibling(".gse-v53-learner-ready-"+summary.planDigest());
     }
     private MembershipLearnerSuccessor(MembershipLearnerStore parent,byte[] bytes,MembershipBallotAllocator.Cut cut)throws IOException {
         this.parent=parent;this.cut=cut;plan=bytes.clone();value=object(parse(plan,MAXIMUM));
@@ -117,7 +122,9 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
             result.leases.add(resources.reserve(MembershipResources.Unit.GENERATION,"learner-successor",metadata));
             for(var raw:list(result.value.get("files"))){var f=object(raw);if(((String)f.get("path")).endsWith(".image"))
                 result.leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"learner-successor:"+f.get("path"),number(f.get("size"))));}
-            result.capsule();return result;
+            result.capsule();
+            if(Files.exists(AdmissionPaths.safe(typedDirectory(parent.summary())),LinkOption.NOFOLLOW_LINKS))result.reserveTypedImage();
+            return result;
         }catch(IOException|RuntimeException|Error error){try{if(result!=null)result.close();else lock.close();}catch(IOException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
     private Path locate()throws IOException {
@@ -204,6 +211,23 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         private final MembershipLearnerMaterialization.PreparedGeneration predecessor;
         private View(MembershipLearnerSuccessor owner,MembershipLearnerMaterialization.PreparedGeneration predecessor){this.owner=owner;this.predecessor=predecessor;}
         MembershipCapsule source()throws IOException {predecessor.check();owner.check();require(owner.selected,"learner successor not selected");return owner.capsule();}
+        MembershipLearnerStore store()throws IOException{source();return owner.parent;}
+        byte[] originalImage(String digest,long size)throws IOException {
+            var capsule=source();require(Objects.equals(capsule.packet.images().get(digest),size),"learner successor original image binding");
+            byte[] bytes=AdmissionPaths.read(owner.destination.resolve(digest+".image"),Math.toIntExact(size));
+            require(bytes.length==size && hash(bytes).equals(digest),"learner successor original image bytes");source();return bytes;
+        }
+        void requireTypedPaths(Path core,Path typed)throws IOException {
+            source();predecessor.requireCorePath(core);predecessor.requireDisjoint(typed,owner.directory,owner.staging);
+            require(typed.equals(typedDirectory(owner.parent.summary())),"learner successor typed path");
+        }
+        void reserveTypedImage()throws IOException{source();owner.reserveTypedImage();}
+        void attachTyped(MembershipLearnerMaterialization<?> next)throws IOException {
+            source();require(owner.typed==null || owner.typed.closed(),"learner successor typed preparation already owned");owner.typed=Objects.requireNonNull(next);
+        }
+    }
+    private void reserveTypedImage()throws IOException {
+        check();if(typedImage==null){typedImage=parent.resources().reserve(MembershipResources.Unit.APPLICATION,"learner-successor-typed",MembershipApplicationImage.MAXIMUM);leases.add(typedImage);}
     }
     private MembershipCapsule capsule()throws IOException {
         check();Path location=locate();var files=new TreeMap<String,byte[]>();
@@ -225,7 +249,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         @Override public Decoded record(String name,String kind){return decode(Objects.requireNonNull(files.get(name)),"records",kind);}
     }
     @Override public void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.addAll(received.values());children.addAll(leases);children.add(lock);
+        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(typed);children.addAll(received.values());children.addAll(leases);children.add(lock);
         MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }

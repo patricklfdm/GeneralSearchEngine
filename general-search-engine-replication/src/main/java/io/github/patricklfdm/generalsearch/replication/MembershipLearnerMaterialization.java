@@ -16,6 +16,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     static final String LOCK="preparation.lock",PLAN="preparation.json",NEXT="preparation.next.json",BACKUP="backup",RECEIPT="learner.gsr",PREPARED="prepared.json";
     static final int MAXIMUM_PLAN=256*1024;
+    static final int SUCCESSOR_PLAN=16*1024;
     private record Member(Object key,long bytes,String digest,boolean directory) {}
     private final MembershipLearnerPreparation input;
     private final MembershipBallotAllocator.Cut cut;
@@ -43,7 +44,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     private <K> MembershipLearnerMaterialization(MembershipLearnerPreparation input,
             SearchEngineConfiguration<K,T> captured,MembershipReplicaConfig<K,T> config,MembershipBallotAllocator.Cut cut)throws IOException {
         this.input=Objects.requireNonNull(input);this.cut=Objects.requireNonNull(cut);input.configuration(captured,config);
-        var summary=input.summary();directory=directory(summary);
+        var summary=input.summary();directory=input.directory();
         AdmissionPaths.disjoint(List.of(directory,summary.request().operationDirectory(),summary.request().replicaDirectory(),config.materialization().directory()));
         binding=AdmissionPaths.binding(directory);materialization=AdmissionPaths.binding(config.materialization().directory());
         var descriptor=Map.of("application",AdmissionConfiguration.application(captured),"core",MembershipBootstrapSeed.core(config.materialization()));
@@ -52,16 +53,24 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         byte[] original=input.image();receipt=input.receiptBytes();var parts=MembershipApplicationImage.unpack(original);var values=new TreeMap<String,byte[]>();
         for(int i=0;i<parts.size();i++)values.put(BACKUP+"/"+MembershipApplicationImage.MEMBERS.get(i),parts.get(i));payloads=Map.copyOf(values);
         boolean exists=Files.exists(directory,LinkOption.NOFOLLOW_LINKS);
+        // The second typed sidecar fits the remaining original MISC budget by
+        // retaining descriptor/receipt digests, not duplicate large descriptors.
+        // Check its worst-case directory identity before reserving or writing.
+        if(input.successor()) {
+            require(receipt.size()<=16384,"learner successor receipt capacity");
+            successorPlan(input,summary,receipt,descriptor,binding,materialization,"x".repeat(4096));
+        }
         // Reserve from the admission owner's original budget, never a caller's
         // separate resource pool. Even a complete existing backup consumes space.
         try {
             input.reserveTypedImage();
             if(!exists){AdmissionPaths.absent(directory);Files.createDirectory(directory);}
             directoryKey=key(directory);
-            plan=canonical(Map.of("schema","gse-v53-learner-typed/1.3","plan",summary.planDigest(),"source",input.packet(),
+            plan=input.successor()?successorPlan(input,summary,receipt,descriptor,binding,materialization,directoryKey.toString()):
+                    canonical(Map.of("schema","gse-v53-learner-typed/1.3","plan",summary.planDigest(),"source",input.packet(),
                     "receipt",MembershipBootstrapPlanData.base(receipt.bytes()),"configuration",descriptor,
                     "path",binding,"materialization",materialization,"directoryKey",directoryKey.toString()),MAXIMUM_PLAN);
-            prepared=canonical(Map.of("schema","gse-v53-learner-prepared/1.3","root",summary.request().root().manifestDigest(),
+            prepared=input.successor()?null:canonical(Map.of("schema","gse-v53-learner-prepared/1.3","root",summary.request().root().manifestDigest(),
                     "identity",MembershipBootstrapSeed.identity(summary.request().identity()),"plan",summary.planDigest(),
                     "typedPlan",hash(plan),"source",input.packet(),"receipt",receipt.digest(),
                     "location",summary.request().replicaDirectory().resolve("learner").toString()),16384);
@@ -81,10 +90,17 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
             write(RECEIPT,receipt.bytes(),"LEARNER_TYPED_RECEIPT");complete=true;point("LEARNER_TYPED_BEFORE_RETURN");
         }catch(IOException|RuntimeException|Error error){failed=true;try{close();}catch(IOException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
+    private static byte[] successorPlan(MembershipLearnerPreparation input,MembershipLearnerPlan summary,Decoded receipt,
+            Map<String,?> descriptor,Map<String,Object> binding,Map<String,Object> materialization,String key)throws IOException {
+        return canonical(Map.of("schema","gse-v53-successor-typed/1.3","plan",summary.planDigest(),"source",input.packet(),
+                "receipt",receipt.digest(),"configuration",hash(canonical(descriptor,MAXIMUM_PLAN)),"path",binding,
+                "materialization",materialization,"directoryKey",key),SUCCESSOR_PLAN);
+    }
     private Map<String,Member> scan()throws IOException {
         AdmissionPaths.recheck(binding);AdmissionPaths.recheck(materialization);
         require(directoryKey.equals(key(directory)),"learner typed directory replaced");
-        var names=children(directory,6);require(Set.of(LOCK,PLAN,NEXT,BACKUP,RECEIPT,PREPARED).containsAll(names) && names.contains(LOCK),"learner typed inventory");
+        var names=children(directory,6);require(Set.of(LOCK,PLAN,NEXT,BACKUP,RECEIPT,PREPARED).containsAll(names) && names.contains(LOCK)
+                && (prepared!=null || !names.contains(PREPARED)),"learner typed inventory");
         var result=new TreeMap<String,Member>();file(result,LOCK,new byte[0],false);
         boolean active=names.contains(PLAN),candidate=names.contains(NEXT);
         if(active)file(result,PLAN,plan,false);
@@ -160,7 +176,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
      * Reserve its slot before forcing the marker, and only then release the
      * receiving category through an atomic reservation transfer. */
     PreparedGeneration retainGeneration()throws IOException {
-        receipt();
+        receipt();input.requireInitialGeneration();
         try {
             if(!input.preparedGeneration())try(var claim=input.prepareGeneration()) {
                 write(PREPARED,prepared,"LEARNER_PREPARED");selectionForced=true;point("LEARNER_PREPARED_BEFORE_SELECT");
@@ -186,6 +202,9 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         MembershipResources resources()throws IOException {check();return owner.input.resources();}
         MembershipLearnerStore store()throws IOException {check();return owner.input.store();}
         MembershipLearnerSuccessor.View successor()throws IOException {check();return store().successor(this);}
+        void requireCorePath(Path core)throws IOException {
+            check();require(core.equals(Path.of((String)owner.materialization.get("path"))),"learner successor changed reserved core path");
+        }
         void requireDisjoint(Path... paths)throws IOException {
             check();var all=new ArrayList<Path>(List.of(paths));all.add(owner.directory);
             all.add(Path.of((String)owner.materialization.get("path")));all.add(request().operationDirectory());all.add(request().replicaDirectory());
