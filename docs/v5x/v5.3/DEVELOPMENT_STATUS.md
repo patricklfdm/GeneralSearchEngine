@@ -1,5 +1,17 @@
 # V5.3 development status
 
+## 2026-10-28 — Fresh-process departure fencing
+
+[Fresh-process departure fencing](PHASE_3_DEPARTING_RESTART.md) now qualifies
+repeated halt/SIGKILL before completed publication ACK delivery for both the
+removed proposer and selected follower. Two native histories, eight interrupted
+children and two normal resumes preserve original store bytes, reject new voting
+and service, and pass independent original-first/portable replay with twenty-eight
+exact negatives. This is completed-departure recovery, not interruption during
+INTENT/FINAL installation or restarted TCP delivery. Learners/all seven profiles,
+autonomous elections/adoption, maximum combined headroom and full Phase 3 stay open.
+
+
 ## 2026-10-28 — Native departure and serialized transition
 
 [Native departure and serialized transition](PHASE_3_DEPARTING_PUBLICATION.md)

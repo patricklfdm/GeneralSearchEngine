@@ -1,5 +1,15 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Fresh-process departure fencing](PHASE_3_DEPARTING_RESTART.md) now qualifies
+repeated halt/SIGKILL before completed publication ACK delivery for both the
+removed proposer and selected follower. Two native histories, eight interrupted
+children and two normal resumes preserve original store bytes, reject new voting
+and service, and pass independent original-first/portable replay with twenty-eight
+exact negatives. This is completed-departure recovery, not interruption during
+INTENT/FINAL installation or restarted TCP delivery. Learners/all seven profiles,
+autonomous elections/adoption, maximum combined headroom and full Phase 3 stay open.
+
+
 [Native departure and serialized transition](PHASE_3_DEPARTING_PUBLICATION.md)
 now complete an original four-to-three FINAL on an old-only proposer or selected
 follower without creating a successor vote. The [round owner](PHASE_3_TRANSITION_ROUND.md)

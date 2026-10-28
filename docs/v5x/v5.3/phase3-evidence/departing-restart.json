@@ -1,0 +1,84 @@
+{
+  "archive": {
+    "bytes": 18808819,
+    "files": 21472,
+    "histories": 2,
+    "interruptedChildren": 8,
+    "javaTests": 2,
+    "liveLockRefusals": 4,
+    "negativeCases": 28,
+    "path": "target/v53-native-departure/restart-qualification.tar.gz",
+    "phase3Complete": false,
+    "pythonTests": 5,
+    "restartedTcpQualified": false,
+    "results": [
+      {
+        "mode": "original",
+        "negativeCases": 14,
+        "original": "target/v53-transition-round/builds/departureparents-9c8fc688/general-search-engine-replication/target/v53-departure-restart/run-56d06d6d-6fb2-43bc-af95-3ced6ef3bbb7",
+        "profile": "follower",
+        "seconds": 41.56184556399239,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 14,
+        "original": "target/v53-transition-round/builds/departureparents-9c8fc688/general-search-engine-replication/target/v53-departure-restart/run-56d06d6d-6fb2-43bc-af95-3ced6ef3bbb7",
+        "profile": "follower",
+        "seconds": 42.61401172398473,
+        "status": "PASS"
+      },
+      {
+        "mode": "original",
+        "negativeCases": 14,
+        "original": "target/v53-transition-round/builds/departureparents-9c8fc688/general-search-engine-replication/target/v53-departure-restart/run-4ee82c00-dfb2-4dff-9b5f-a7c9917ffc5f",
+        "profile": "proposer",
+        "seconds": 26.635123665997526,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "negativeCases": 14,
+        "original": "target/v53-transition-round/builds/departureparents-9c8fc688/general-search-engine-replication/target/v53-departure-restart/run-4ee82c00-dfb2-4dff-9b5f-a7c9917ffc5f",
+        "profile": "proposer",
+        "seconds": 26.94930983701488,
+        "status": "PASS"
+      }
+    ],
+    "resumedChildren": 2,
+    "sha256": "6fdbd25cdf1fd5bc6229835a41ad28a06e6adee627f6a79dbf5c07deeaaa7f4f",
+    "sourceBuild": "departureparents-9c8fc688",
+    "status": "PASS",
+    "wholeOperationFaultQualified": false
+  },
+  "paidCloud": false,
+  "parent": "bf94cb22483793233be479220a428ff21af77598",
+  "phase3Complete": false,
+  "protectedCI": false,
+  "publicReady": false,
+  "readerInputsSha256": "581f02e5f3c778b59acd6d9c1b1e2f9ff5188637fbd09a5779bbcd22c6cae492",
+  "remaining": [
+    "native INTENT/FINAL installation interruptions",
+    "all seven configuration profiles and actual ADD/REPLACE learners",
+    "autonomous discovery/elections/adoption",
+    "maximum combined resource headroom",
+    "complete Phase 3 audit"
+  ],
+  "retainedFailure": {
+    "evidence": "retained-setup-failure within archive",
+    "kind": "test-private scratch parent absent",
+    "productionChanged": false
+  },
+  "runtimeInputsSha256": "54e313e5f3e2cb6dab83481edcfe6ad28944e4ac798a9403bb923120658b886c",
+  "runtimeSourceFiles": 1138,
+  "schema": "gse-v53-departing-restart-qualification-v1",
+  "scope": "completed native four-to-three departure, original ACK delivery interruption and nonvoting reopen",
+  "sourceBuild": "departureparents-9c8fc688",
+  "sources": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DepartingRestartProcessTest.java": "fe5411a7c4ec0f8edcb7ef9090278fc56a22b96b86da7ca0ad669b3f09fbed7e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DepartingRestartWorker.java": "e1602f29f1032cd8bef3bb70c679cedf0d1407fc4c86595243e47b30e219e27c",
+    "scripts/v53/departing_restart_evidence.py": "23a47758bee5b9310b55aae371485a07a169b72cabbfca7dad2baf8f4e31799b",
+    "scripts/v53/test_departing_restart_evidence.py": "387fae18a0a97dd960d486d4b3ef8777f0375f0b0f123c70f00be36b5a25a532"
+  },
+  "status": "PASS"
+}
