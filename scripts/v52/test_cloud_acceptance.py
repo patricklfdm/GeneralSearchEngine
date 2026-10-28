@@ -15,6 +15,11 @@ from .test_cloud_set_evidence import fixture as whole_set
 
 class AcceptanceTest(unittest.TestCase):
     def setUp(self):
+        # Validate immutable plan bytes once before modeling many ledger/replay
+        # orders. Production load() remains strict on every call; the dedicated
+        # suite tests separately reject changed files and derived-profile drift.
+        plan=c.suite.load()
+        self.enterContext(patch.object(c.suite,'load',return_value=plan))
         temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); self.root = Path(temp.name)
         _, self.replayed, _, _, _ = whole_set(); self.selected = {}; self.records = {}; self.values = []
         ledger = None
@@ -51,15 +56,15 @@ class AcceptanceTest(unittest.TestCase):
         result = self.execute(); self.assertEqual('PASS', result['status']); self.assertTrue(result['fullRemoteQualification'])
         self.assertEqual(27428, result['totals']['reads']); self.assertEqual(2760, result['totals']['updates'])
         self.assertEqual(439, result['totals']['formalNegativesPerLocation'])
-        self.assertEqual(11, len(self.calls)); self.assertFalse(result['paidCloud'])
-        self.assertEqual(20_000_000, result['ledgerReservedCostMicrousd'])
+        self.assertEqual(1+2*len(c.suite.MEMBERS), len(self.calls)); self.assertFalse(result['paidCloud'])
+        self.assertEqual(len(c.suite.MEMBERS)*4_000_000, result['ledgerReservedCostMicrousd'])
     def test_any_whole_member_order_is_permitted(self):
-        for first in range(5):
+        for first in range(len(c.suite.MEMBERS)):
             self.values = self.values[1:]+self.values[:1]; self.calls = []
             result = self.execute(); self.assertEqual('PASS', result['status'])
-            self.assertEqual('replay:'+self.values[0]['request']['selection']['member']['name'], self.calls[6])
+            self.assertEqual('replay:'+self.values[0]['request']['selection']['member']['name'], self.calls[len(c.suite.MEMBERS)+1])
     def test_missing_or_duplicate_selection_rejects_before_native_reads(self):
-        for change in (lambda v:v.pop('experiment'), lambda v:v.update(experiment=v['canonical-1']),
+        for change in (lambda v:v.pop('experiment'), lambda v:v.update(experiment=v['canonical-1-legacy']),
                        lambda v:v['experiment'].update(runAttempt=True)):
             chosen = deepcopy(self.selected); change(chosen)
             with patch.object(c.objects, 'restore_native') as restore, self.assertRaises(ValueError):

@@ -1,8 +1,13 @@
 from contextlib import ExitStack
 from copy import deepcopy
 from pathlib import Path
+import contextlib
+import io
+import runpy
+import sys
 import tempfile
 import unittest
+import warnings
 from unittest.mock import patch
 from urllib.parse import urlsplit, urlunsplit
 from . import cloud_native_cleanup as n, cloud_preflight as f, cloud_preflight_read as r
@@ -58,8 +63,8 @@ class NativeCleanupTest(unittest.TestCase):
     def get(self,key):
         row=self.server.objects.get(key);return strict(row[1]) if row else None
 
-    def prepared(self,*,active=False,resources=True):
-        self.req=fixture(domain='native');self.req['configurationSha256']=p.config(self.original)
+    def prepared(self,*,active=False,resources=True,member='experiment'):
+        self.req=fixture(member,domain='native');self.req['configurationSha256']=p.config(self.original)
         # The old workload source differs from this cleanup workflow source.
         self.req['selection']['binding']['source']='b'*40
         plan=p.Plan(self.original,self.req);lease=a.lease(self.req,self.clock.wall()-(0 if active else 90));lease['phase']='ACTIVE'
@@ -77,6 +82,53 @@ class NativeCleanupTest(unittest.TestCase):
 
     def mutations(self):return [r for r in self.calls if r['method']!='GET' and not r['url'].endswith(':testIamPermissions') and 'iamcredentials.googleapis.com' not in r['url'] and 'sts.googleapis.com' not in r['url']]
 
+    def cli(self):
+        self.count+=1;self.output=self.root/f'cli-{self.count}';stdout=io.StringIO()
+        # Match the workflow's python -m entry: execute under __main__, while
+        # the strict provider guard imports the module by its canonical name.
+        with patch.object(sys,'argv',['cloud_native_cleanup','--source',SOURCE,'--role',self.role,'--output',str(self.output)]), \
+             contextlib.redirect_stdout(stdout),warnings.catch_warnings():
+            warnings.filterwarnings('ignore',message=".*scripts.v52.cloud_native_cleanup.*found in sys.modules.*",category=RuntimeWarning)
+            with self.assertRaises(SystemExit) as stopped:runpy.run_module('scripts.v52.cloud_native_cleanup',run_name='__main__')
+        return stopped.exception.code,stdout.getvalue()
+
+    def test_module_cli_expired_lease_reaches_exact_id_cleanup(self):
+        self.prepared();code,output=self.cli()
+        self.assertEqual(0,code,output)
+        result=strict((self.output/'receipt.json').read_bytes())
+        self.assertEqual('PASS',result['status']);self.assertEqual(13,result['resourceDeletesSubmitted'])
+        self.assertTrue(result['leaseReleased']);self.assertIsNone(self.get(a.LEASE))
+        self.assertEqual({},self.server.resources);self.assertFalse(result['fullRemoteQualification'])
+
+    def test_module_cli_cleaning_failure_preserves_original_terminal_ledger(self):
+        lease=self.prepared();lease['phase']='CLEANING';self.put(a.LEASE,lease)
+        first=next(row for row in lease['resources'] if row['spec']['kind']=='instance')
+        name=first['spec']['name'];first['id']=None;self.put(a.LEASE,lease)
+        op=next(v for v in self.server.operations.values() if v['targetLink'].endswith('/'+name))
+        op['error']=dict(errors=[dict(code='ZONE_RESOURCE_POOL_EXHAUSTED')])
+        self.server.resources.clear()
+        sha=a.validate_request(self.req,domain='native');key=c.attempt_key(self.req)+'completion.json'
+        completion=dict(schema='gse-v52-owned-completion-v1',execution=self.req['execution'],
+            requestSha256=sha,status='FAIL',evidenceSha256=None,cleanupSha256='c'*64)
+        self.put(key,completion);self.put(a.LEDGER,a.finish(self.get(a.LEDGER),self.req,completion))
+        ledger=deepcopy(self.server.objects[a.LEDGER]);original=deepcopy(self.server.objects[key])
+        code,output=self.cli();self.assertEqual(0,code,output)
+        result=strict((self.output/'receipt.json').read_bytes())
+        self.assertEqual('PASS',result['status']);self.assertIsNone(self.get(a.LEASE))
+        self.assertEqual(0,result['resourceDeletesSubmitted'])
+        self.assertEqual(ledger,self.server.objects[a.LEDGER]);self.assertEqual(original,self.server.objects[key])
+
+    def test_module_cli_active_lease_waits_without_mutations(self):
+        self.prepared(active=True);code,output=self.cli()
+        self.assertEqual(0,code,output);self.assertEqual('WAITING',strict((self.output/'receipt.json').read_bytes())['status'])
+        self.assertEqual([],self.mutations());self.assertEqual(13,len(self.server.resources))
+
+    def test_module_cli_missing_original_context_rejects_without_mutations(self):
+        self.prepared();self.server.objects.pop(p.context_key(self.req));code,output=self.cli()
+        self.assertEqual(2,code,output);self.assertIn('V52_CLEANUP_REJECTED',output)
+        self.assertFalse((self.output/'receipt.json').exists());self.assertIsNotNone(self.get(a.LEASE))
+        self.assertEqual([],self.mutations());self.assertEqual(13,len(self.server.resources))
+
     def test_expired_native_resources_use_original_ids_and_finish_original_failed_charge(self):
         lease=self.prepared();result=self.execute()
         self.assertEqual('PASS',result['status']);self.assertEqual(13,result['resourceDeletesSubmitted'])
@@ -92,6 +144,57 @@ class NativeCleanupTest(unittest.TestCase):
         self.assertEqual({row['id'] for row in lease['resources']},set(deletes))
         self.assertTrue(self.captured[-1].closed);self.assertTrue(self.captured[-1].reader.closed)
         self.assertTrue(self.captured[-1].tokens.closed);self.assertIsNone(self.captured[-1].token)
+
+    def test_original_v1_lease_cleans_all_thirteen_ids_after_shard_migration(self):
+        suite=a.suite;old=suite.read(suite.LEGACY_PLAN)
+        with patch.object(suite,'PLAN_SHA',suite.LEGACY_SHA),patch.object(suite,'load',return_value=old):
+            lease=self.prepared()
+        result=self.execute()
+        self.assertEqual('PASS',result['status']);self.assertEqual(13,result['resourceDeletesSubmitted'])
+        self.assertIsNone(self.get(a.LEASE));self.assertEqual({},self.server.resources)
+        view=a.inspect_ledger(self.get(a.LEDGER),domain='native')
+        self.assertEqual(1,view['reservedCostMicrousd'])
+        self.assertEqual('FAIL',view['attempts'][a.validate_request(self.req,domain='native')]['status'])
+        deletes=[row['url'].split('?')[0].rsplit('/',1)[1] for row in self.calls
+                 if row['method']=='DELETE' and 'compute.googleapis.com' in row['url']]
+        self.assertEqual({row['id'] for row in lease['resources']},set(deletes))
+
+    def test_failed_original_insert_with_target_id_releases_stranded_lease_preserving_failure(self):
+        lease=self.prepared();lease['phase']='CLEANING'
+        instances=[row for row in lease['resources'] if row['spec']['kind']=='instance']
+        instances[0]['id']=None
+        for row in instances[1:]:row.update(attempted=False,id=None)
+        name=instances[0]['spec']['name']
+        op=next(v for v in self.server.operations.values() if v['targetLink'].endswith('/'+name))
+        op['error']=dict(errors=[dict(code='ZONE_RESOURCE_POOL_EXHAUSTED',message='never-public')])
+        self.server.resources.clear();self.put(a.LEASE,lease)
+        sha=a.validate_request(self.req,domain='native');key=c.attempt_key(self.req)+'completion.json'
+        completion=dict(schema='gse-v52-owned-completion-v1',execution=self.req['execution'],
+            requestSha256=sha,status='FAIL',evidenceSha256=None,cleanupSha256='c'*64)
+        self.put(key,completion);self.put(a.LEDGER,a.finish(self.get(a.LEDGER),self.req,completion))
+        original_ledger=deepcopy(self.server.objects[a.LEDGER]);original_completion=deepcopy(self.server.objects[key])
+        result=self.execute()
+        self.assertEqual('PASS',result['status']);self.assertEqual(0,result['resourceDeletesSubmitted'])
+        self.assertIsNone(self.get(a.LEASE));self.assertEqual({},self.server.resources)
+        self.assertEqual(original_ledger,self.server.objects[a.LEDGER])
+        self.assertEqual(original_completion,self.server.objects[key])
+        self.assertEqual('FAIL',a.inspect_ledger(self.get(a.LEDGER),domain='native')['attempts'][sha]['status'])
+        self.assertFalse(result['fullRemoteQualification'])
+
+    def test_original_v2_lease_cleans_all_thirteen_ids_after_canonical_migration(self):
+        suite=a.suite;old=suite.read(suite.LEGACY_V2_PLAN)
+        with patch.object(suite,'PLAN_SHA',suite.LEGACY_V2_SHA),patch.object(suite,'load',return_value=old), \
+             patch.object(suite,'MEMBERS',tuple(old['members'])):
+            lease=self.prepared(member='canonical-1')
+        result=self.execute()
+        self.assertEqual('PASS',result['status']);self.assertEqual(13,result['resourceDeletesSubmitted'])
+        self.assertIsNone(self.get(a.LEASE));self.assertEqual({},self.server.resources)
+        view=a.inspect_ledger(self.get(a.LEDGER),domain='native')
+        self.assertEqual(1,view['reservedCostMicrousd'])
+        self.assertEqual('FAIL',view['attempts'][a.validate_request(self.req,domain='native')]['status'])
+        deletes=[row['url'].split('?')[0].rsplit('/',1)[1] for row in self.calls
+                 if row['method']=='DELETE' and 'compute.googleapis.com' in row['url']]
+        self.assertEqual({row['id'] for row in lease['resources']},set(deletes))
 
     def test_empty_control_pass_is_observation_only_and_does_not_certify_delete_path(self):
         result=self.execute();self.assertEqual('PASS',result['status'])

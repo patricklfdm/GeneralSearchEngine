@@ -25,6 +25,31 @@ class CredentialTest(unittest.TestCase):
         return c.OfflineCredentials(self.cfg,self.project,self.env,self.value,self.invocation,self.issuer,
             role=role,source=self.source,checkout_sha=self.source)
 
+    def test_stalled_oidc_socket_leaves_room_for_same_chain_retry(self):
+        original=self.issuer.send;calls=[]
+        def send(method,url,headers,body,timeout,maximum):
+            calls.append(timeout)
+            if len(calls)==1:
+                self.clock.sleep(timeout);raise TimeoutError('secret-exception')
+            return original(method,url,headers,body,timeout,maximum)
+        began=self.clock.seconds()
+        with patch.object(self.issuer,'send',side_effect=send),patch.object(c.cloud_read_retry.time,'sleep',self.clock.sleep):
+            value=self.tokens()(30)
+        self.assertIs(type(value),http.AccessToken)
+        self.assertEqual(4,len(calls));self.assertTrue(all(0<t<=10 for t in calls))
+        self.assertLess(self.clock.seconds()-began,30)
+
+    def test_repeated_slow_credential_sockets_stop_within_original_chain_grant(self):
+        calls=[]
+        def send(method,url,headers,body,timeout,maximum):
+            calls.append(timeout);self.clock.sleep(timeout);raise TimeoutError('secret-exception')
+        began=self.clock.seconds()
+        with patch.object(self.issuer,'send',side_effect=send),patch.object(c.cloud_read_retry.time,'sleep',self.clock.sleep):
+            with self.assertRaises(exchange.CredentialError) as caught:self.tokens()(30)
+        self.assertEqual(3,len(calls));self.assertLessEqual(self.clock.seconds()-began,30)
+        report=c.failure(caught.exception);self.assertEqual('attempt-limit',report['readRetry']['stop'])
+        self.assert_sanitized(str(report))
+
     def identity(self,**kwargs):
         return c.identity(self.cfg,self.project,self.env,role=kwargs.get('role','runner'),
             source=kwargs.get('source',self.source),checkout=kwargs.get('checkout',self.source))
@@ -237,7 +262,7 @@ class CredentialTest(unittest.TestCase):
         def delayed(number,value):self.clock.sleep(2);return value
         self.invocation.change=delayed;self.issuer.delay=2
         tokens=self.tokens();tokens(20)
-        self.assertEqual([14,12,10],[x['timeout'] for x in self.issuer.calls])
+        self.assertEqual([10,10,10],[x['timeout'] for x in self.issuer.calls])
         self.issuer.calls.clear();self.issuer.delay=8
         with self.assertRaisesRegex(exchange.CredentialError,'STS_EXCHANGE_FAILED'):tokens(20)
         self.assertEqual(['oidc','sts'],[x['stage'] for x in self.issuer.calls])

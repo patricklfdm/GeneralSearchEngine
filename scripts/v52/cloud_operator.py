@@ -13,6 +13,7 @@ from . import cloud_runner_workflow as workflow, cloud_runner_provenance as orig
 from . import cloud_credentials as credentials, cloud_artifacts as artifacts, cloud_preflight_read as reads
 from . import cloud_authority as a, cloud_inputs as inputs, cloud_native_runner as native
 from . import cloud_member as member, cloud_sdk_runtime as sdk_runtime, cloud_read_retry
+from . import cloud_runner_host as execution_host, cloud_provider as provider, history_diagnostics
 from .evidence import need, encoded, digest, strict
 
 OPERATIONS = ('prepare', 'run', 'verify-set')
@@ -75,6 +76,8 @@ def execute_native(source, output):
             files = output/'prepared/files'; plan = artifacts.read(files/'plan.json'); phase = 'approval'
             sha = prepared.validate(plan, int(time.time()))
             need(sha == request['confirmation'], 'V5.2 selected prepared plan confirmation changed')
+            phase='host-selection'
+            execution_host.require_member(plan['request']['selection']['member']['name'],dict(os.environ))
             approval = prepared.approval_template(plan); approval['confirmed'] = True
             artifacts.save(output/'approval.json', approval)
             phase = 'run-key'; progress.update(phase)
@@ -106,21 +109,28 @@ def execute_native(source, output):
         failure.update(credentials.failure(error))
         failure.update(sdk_runtime.failure(error))
         failure.update(cloud_read_retry.failure(error))
+        failure.update(provider.operation_failure(error))
         for relative in ('prepare/failure.json', 'prepared/failure.json', 'run/failure.json', 'run/native/failure.json',
                          'run/member/failure.json'):
             path = output/relative
             if path.is_file():
                 try:
-                    inner = artifacts.read(path)
+                    inner = strict(inputs.regular(path,65536))
                     failure.update(credentials.public_failure(inner))
                     failure.update(sdk_runtime.public_failure(inner))
                     failure.update(cloud_read_retry.public_failure(inner))
+                    failure.update(provider.public_operation_failure(inner))
                     code = inner.get('code')
                     if type(code) is str and re.fullmatch('V52_[A-Z0-9_]{1,128}', code): failure['causeCode'] = code
                     status = inner.get('httpStatus')
                     if type(status) is int and 100 <= status <= 599: failure['httpStatus'] = status
                     if relative=='run/member/failure.json' and inner.get('phase') in member.FAILURE_PHASES:
                         failure['memberPhase']=inner['phase']
+                        name=inner.get('history');completed=inner.get('completedHistories')
+                        if name in preparation.suite.load()['histories'] and type(completed) is int and 0<=completed<=33:
+                            failure.update(history=name,completedHistories=completed)
+                            detail=history_diagnostics.project(inner.get('historyDiagnostic'))
+                            if detail is not None and detail['history']==name:failure['historyDiagnostic']=detail
                 except Exception: pass  # A broken diagnostic cannot mask the original operation failure.
         if phase == 'prepare':
             try:
@@ -228,6 +238,11 @@ def report_data(operation, source, result, output):
     else:
         row.update(totals=result['totals'], selected=result['selected'], selectedReservedCostMicrousd=result['selectedReservedCostMicrousd'],
                    ledgerReservedCostMicrousd=result['ledgerReservedCostMicrousd'])
+    if 'member' in row:
+        chosen=preparation.suite.member(row['member'])
+        row.update(logicalMember=preparation.suite.logical_member(row['member']),
+            histories=chosen['histories'],historyCount=len(chosen['histories']),
+            recommendedRunHost='github-hosted' if row['member'] in preparation.suite.HOSTED_MEMBERS else 'self-hosted')
     return row
 
 
@@ -239,12 +254,18 @@ def summary(output):
     def cell(v): return html.escape(str(v)).replace('|', '&#124;').replace('\n', ' ')
     print('| Item | Result |\n| --- | --- |')
     for key, item in value.items():
-        if key not in ('runRequest', 'selected', 'totals'): print('| '+cell(key)+' | '+cell(item)+' |')
+        if key not in ('runRequest', 'selected', 'totals', 'historyDiagnostic'): print('| '+cell(key)+' | '+cell(item)+' |')
+    detail=history_diagnostics.project(value.get('historyDiagnostic'))
+    if detail is not None:
+        print('\n### Failed original history (diagnostic only)\n\n| Item | Result |\n| --- | --- |')
+        for key in ('history','stage','failure','observations','closure','cleanupFailure'):
+            if key in detail:print('| '+cell(key)+' | '+cell(detail[key])+' |')
     if 'totals' in value:
         print('\n### Complete original set\n\n| Metric | Value |\n| --- | --- |')
         for key, item in value['totals'].items(): print('| '+cell(key)+' | '+cell(item)+' |')
     if 'runRequest' in value:
         print('\n### Exact run request\n\nReview the member, source and reservation before choosing **run**.\n')
+        print('Set **execution_host** to `'+cell(value.get('recommendedRunHost','self-hosted'))+'`.\n')
         print('```json\n'+encoded(value['runRequest']).decode()+'\n```')
     if 'selected' in value:
         print('\n### Original invocations\n\n| Member | Run / attempt | Request |\n| --- | --- | --- |')

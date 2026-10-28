@@ -14,7 +14,7 @@ class OwnedHistoryTest(unittest.TestCase):
         for changed in (dict(expected,source='f'*40),dict(expected,checkoutSha256='f'*64)):
             with self.assertRaisesRegex(ValueError,'source drift'):h.validate_local_owner(bound,changed)
         with self.assertRaisesRegex(ValueError,'coordinator'):h.validate_local_owner(dict(bound,node='node-2'),expected)
-        bound=owner('canonical-1');expected={k:bound['selection']['binding'][k] for k in ('source','checkoutSha256')}
+        bound=owner('canonical-1-legacy');expected={k:bound['selection']['binding'][k] for k in ('source','checkoutSha256')}
         self.assertEqual('M01',h.validate_local_owner(bound,expected)['family'])
 
     def test_source_failure_is_retained_and_stable_slot_cannot_repeat_work(self):

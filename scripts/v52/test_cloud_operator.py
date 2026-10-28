@@ -18,7 +18,7 @@ class OperatorTest(unittest.TestCase):
     def setUp(self):
         self.cfg, self.source, self.files = fixture(); self.plan = o.strict(self.files['plan.json'])
         _, self.env, _, _, _ = auth.fixture(self.cfg['provider'], 'runner', 'a'*40)
-        self.env['GITHUB_RUN_ID'] = '654321'; self.env['V52_SSH_KEY'] = 'never-retain-secret'
+        self.env['V52_EXECUTION_HOST']='self-hosted'; self.env['GITHUB_RUN_ID'] = '654321'; self.env['V52_SSH_KEY'] = 'never-retain-secret'
         temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); self.root = Path(temp.name)
         self.env['GITHUB_OUTPUT'] = str(self.root/'actions-output'); (self.root/'actions-output').touch()
         self.prepare = Mock(side_effect=self.preparing); self.download = Mock(side_effect=self.downloading)
@@ -57,6 +57,29 @@ class OperatorTest(unittest.TestCase):
              patch.object(o.time,'time',return_value=1200),patch.object(o.member.Progress,'report'):
             return o.execute_native('a'*40,output)
     def request(self):return dict(preparedRun=123456,preparedAttempt=2,confirmation=o.prepared.validate(self.plan,1200))
+    def test_hosted_full_member_rejects_before_private_key_and_execution(self):
+        self.env['V52_EXECUTION_HOST']='github-hosted'
+        with self.assertRaisesRegex(ValueError,'complete declared shard'):
+            self.execute('run',self.request())
+        self.run.assert_not_called();self.assertEqual(0,self.key_calls)
+        self.assertEqual('host-selection',o.artifacts.read(self.output/'diagnostics/failure.json')['phase'])
+
+    def test_hosted_canonical_run_uses_exact_downloaded_plan_once(self):
+        from .test_cloud_prepared import arguments
+        name='canonical-3-minimum'
+        self.plan=o.prepared.prepare(**arguments(member=name))
+        self.files['plan.json']=o.encoded(self.plan)
+        self.seal=o.execution.seal.create(**sealed_fixture(member=name))
+        self.seal['credentialContext'].update(runId=654321)
+        self.env['V52_EXECUTION_HOST']='github-hosted'
+        result=self.execute('run',self.request())
+        self.download.assert_called_once();self.run.assert_called_once();self.prepare.assert_not_called()
+        self.assertEqual(1,self.key_calls);self.assertEqual(name,result['member'])
+        self.assertEqual('canonical-3',result['logicalMember'])
+        self.assertEqual(['candidate-minimum-r3'],result['histories'])
+        self.assertEqual('github-hosted',result['recommendedRunHost'])
+        self.assertFalse(result['fullRemoteQualification'])
+
     def test_prepare_exports_only_exact_public_files_and_reviewable_unconfirmed_request(self):
         value=dict(member='experiment',sequence='c'*32,estimate=self.plan['estimate'])
         result=self.execute('prepare',value); self.prepare.assert_called_once(); self.run.assert_not_called()
@@ -65,6 +88,17 @@ class OperatorTest(unittest.TestCase):
         self.assertEqual(dict(preparedRun=654321,preparedAttempt=2,confirmation=result['planSha256']),result['runRequest'])
         self.assertIn('artifactName=v52-prepared-654321-2',(self.root/'actions-output').read_text())
         self.assertNotIn('never-retain',str(result)); self.assertFalse(o.artifacts.read(self.output/'result/approval.json')['confirmed'])
+    def test_canonical_prepare_reports_logical_repetition_and_hosted_route(self):
+        from .test_cloud_prepared import arguments
+        for name in o.preparation.suite.CANONICAL_SHARDS:
+            self.plan=o.prepared.prepare(**arguments(member=name))
+            self.files['plan.json']=o.encoded(self.plan)
+            result=self.execute('prepare',dict(member=name,sequence='c'*32,estimate=self.plan['estimate']))
+            self.assertEqual(o.preparation.suite.logical_member(name),result['logicalMember'])
+            self.assertEqual('github-hosted',result['recommendedRunHost'])
+            self.assertEqual(self.plan['request']['selection']['member']['histories'],result['histories'])
+        self.run.assert_not_called()
+
     def test_original_build_failure_projects_nested_phase_status_attempts_and_check_site(self):
         def fail(source,request,public,output):
             (output/'build').mkdir(parents=True)
@@ -183,6 +217,41 @@ class OperatorTest(unittest.TestCase):
         self.download.side_effect=ValueError('synthetic original failed')
         with self.assertRaisesRegex(ValueError,'original failed'):self.execute('run',self.request())
         self.run.assert_not_called();self.assertFalse((self.output/'result').exists())
+    def test_failed_history_diagnostics_reach_uploaded_json_and_summary_after_close_failure(self):
+        from . import remote_history as history,cloud_member as member
+        from .test_history_diagnostics import NAME,SECRET,evidence,observation_error
+        def fail(source,plan,approval,confirmation,package,key,path):
+            root=path/'member';root.mkdir(parents=True)
+            owner=history.Receivers(root/NAME,NAME,{})
+            evidence(owner);finish=owner.finish
+            def close(failure):
+                finish(failure);raise OSError(SECRET)
+            progress=member.Progress('canonical-1-legacy',emit=lambda row:None)
+            progress.update('original-workload',name=NAME,completed=1)
+            try:
+                with patch.object(history,'source',return_value={}),patch.object(owner,'prepare'), \
+                     patch.object(owner,'observe',side_effect=observation_error),patch.object(owner,'finish',side_effect=close):
+                    history.run(owner.root,NAME,{},receiver_factory=lambda *args:owner)
+            except BaseException as error:
+                member.failure_record(root,'history',error,progress)
+                raise
+        self.run.side_effect=fail
+        with self.assertRaisesRegex(ValueError,'original responses missing'):
+            self.execute('run',self.request())
+        self.run.assert_called_once();self.assertFalse((self.output/'result').exists())
+        report=o.artifacts.read(self.output/'diagnostics/failure.json')
+        self.assertEqual('V52_MEMBER_HISTORY_REJECTED',report['causeCode'])
+        self.assertEqual(1,report['completedHistories']);self.assertEqual(NAME,report['history'])
+        detail=report['historyDiagnostic']
+        self.assertEqual('ORIGINAL_RESPONSES_MISSING',detail['failure']['reasonCode'])
+        self.assertEqual('original-workload',detail['stage']);self.assertEqual('IO_FAILED',detail['cleanupFailure']['reasonCode'])
+        self.assertEqual({'OBSERVED':1,'UNOBSERVED':1},detail['observations']['offers']['completion'])
+        self.assertNotIn(SECRET,str(report));self.assertFalse(report['fullRemoteQualification'])
+        out=io.StringIO()
+        with redirect_stdout(out):o.summary(self.output)
+        self.assertIn(NAME,out.getvalue());self.assertIn('ORIGINAL_RESPONSES_MISSING',out.getvalue())
+        self.assertIn('measurement_load',out.getvalue());self.assertNotIn(SECRET,out.getvalue())
+
     def test_failed_original_run_exports_only_safe_diagnostic_code_and_never_retries(self):
         def fail(*args):
             path=args[-1];(path/'native').mkdir(parents=True)
@@ -215,6 +284,19 @@ class OperatorTest(unittest.TestCase):
         report=o.artifacts.read(self.output/'diagnostics/failure.json')
         self.assertEqual('IMPERSONATION_EXCHANGE_FAILED',report['credentialCode'])
         self.assertEqual('http',report['credentialFailureKind']);self.assertEqual(403,report['credentialHttpStatus'])
+        self.assertNotIn('never-public',str(report));self.run.assert_called_once()
+
+    def test_provider_failure_reaches_public_diagnostics_without_raw_messages(self):
+        def fail(*args):
+            path=args[-1];(path/'native').mkdir(parents=True)
+            o.artifacts.save(path/'native/failure.json',dict(code='V52_RUNNER_RESOURCES_REJECTED',
+                providerCode='V52_PROVIDER_CAPACITY_UNAVAILABLE',providerMessage='never-public'))
+            raise ValueError('never-public')
+        self.run.side_effect=fail
+        with self.assertRaises(ValueError):self.execute('run',self.request())
+        report=o.artifacts.read(self.output/'diagnostics/failure.json')
+        self.assertEqual('V52_PROVIDER_CAPACITY_UNAVAILABLE',report['providerCode'])
+        self.assertEqual('V52_RUNNER_RESOURCES_REJECTED',report['causeCode'])
         self.assertNotIn('never-public',str(report));self.run.assert_called_once()
 
     def test_unknown_credential_diagnostics_are_not_projected(self):
@@ -287,7 +369,7 @@ class OperatorTest(unittest.TestCase):
         self.assertNotIn('<script>',out.getvalue());self.assertIn('&#124;',out.getvalue());self.assertNotIn('Exact run request',out.getvalue())
     def test_draft_uses_explicit_cost_and_claims_no_live_price_verification(self):
         with patch.object(o.reads,'source_configuration',return_value=self.cfg),patch.object(o.time,'time',return_value=1000):
-            result=o.prepare_request('a'*40,'canonical-3','c'*32,12_000_000,21600,14400,self.root/'draft')
+            result=o.prepare_request('a'*40,'canonical-3-legacy','c'*32,12_000_000,21600,14400,self.root/'draft')
         self.assertEqual(12_000_000,result['estimate']['costMicrousd']);self.assertEqual(15400,result['estimate']['expiresAt'])
         self.assertFalse(o.artifacts.read(self.root/'draft/receipt.json')['livePricesVerified'])
 

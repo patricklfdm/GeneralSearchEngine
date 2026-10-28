@@ -20,6 +20,13 @@ separate trusted code paths; they are not a security sandbox against Python code
 execution. Offline adapters, subclasses/lookalikes and native records passed to
 an OfflineOwner remain rejected.
 
+The `python -m` entry delegates to the canonical imported module's `main()`.
+This keeps the factory's adapter class identical to the exact type accepted by
+the provider guard; a second class defined under `__main__` cannot accidentally
+block reconciliation. CLI regressions exercise expired and already-CLEANING
+leases, ACTIVE/WAITING and missing-context rejection through the module entry,
+not only direct calls to the imported reconciliation function.
+
 Cleanup requires exact current master source, its dedicated workflow/run/attempt,
 fresh diagnostic permission/bucket observations and named control reads. It does
 not require Java, a build artifact, full CI, current image availability or a new
@@ -56,6 +63,14 @@ deletes instances before disks and firewalls, then checks final name absence.
 It never creates resources or deletes by name. The scoped wire gate rechecks
 ownership after any credential refresh, including the lease generation and phase
 before a cleanup CAS. A concurrent renewal/replacement blocks that original write.
+
+A DONE insertion error with a target ID also resolves the original operation.
+It never proves that creation succeeded: reconciliation still checks ownership,
+the exact target ID and final absence. This permits current cleanup code to finish
+an older CLEANING lease stranded by such a response, using the retained original
+source/configuration and operation. The original FAIL completion and finished
+ledger charge remain unchanged; only successful cleanup releases the lease. A
+cleanup PASS cannot promote that failed experiment to qualified evidence.
 
 Every provider/control mutation is sent once. Lost CAS replies may only observe
 the original value; an uncertain DELETE is not automatically repeated. A later

@@ -51,7 +51,7 @@ class _Objects:
              'V5.2 evidence object key')
         self.keys.add(key);self.allowed.add(self.endpoint(key))
     def get(self,key):
-        self.guard();need(key in self.keys and len(self.receipts)<5*(parts.MAX_PARTS+8)+2,'V5.2 evidence original object count/scope')
+        self.guard();need(key in self.keys and len(self.receipts)<len(suite.MEMBERS)*(parts.MAX_PARTS+8)+2,'V5.2 evidence original object count/scope')
         endpoint=self.endpoint(key);end=self.api.clock()+30
         metadata=self.api.call('GET',endpoint,deadline=end,maximum=65536)
         need(type(metadata) is dict and metadata.get('bucket')==self.cfg['provider']['bucket'] and metadata.get('name')==key,
@@ -92,8 +92,8 @@ class _NativeObjects(_Objects):
 
 def restore(reader,chosen,output,*,progress=lambda stage,**kw:None):
     """Select hashes from one original ledger, then restore their complete bytes."""
-    reader.guard();need(type(chosen) is dict and set(chosen)==set(suite.MEMBERS),'V5.2 evidence selected five-member map')
-    need(len(set(chosen.values()))==5,'V5.2 evidence repeated original request')
+    reader.guard();need(type(chosen) is dict and set(chosen)==set(suite.MEMBERS),'V5.2 evidence selected fifteen-execution map')
+    need(len(set(chosen.values()))==len(suite.MEMBERS),'V5.2 evidence repeated original request')
     for sha in chosen.values():a.hex_value(sha)
     output=Path(output);need(not any(p.is_symlink() for p in (output,*output.parents)),'V5.2 evidence restore output link')
     output.mkdir(parents=True,exist_ok=False);rows=[];receipt=dict(status='FAIL',fullRemoteQualification=False,paidCloud=False)

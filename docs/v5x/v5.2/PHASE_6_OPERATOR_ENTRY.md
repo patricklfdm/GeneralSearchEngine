@@ -46,10 +46,12 @@ Scheduled cleanup is optional and cannot substitute for missing original data.
 | --- | --- | --- | --- |
 | `prepare` | `member`, `sequence`, dated `estimate` | Original CI/build, package, controls, cleanup and provider/control observations; no resource/ledger/lease mutation | `v52-prepared-<run>-<attempt>` |
 | `run` | `preparedRun`, `preparedAttempt`, `confirmation` | Execute that exact approved whole member once, retain evidence, close resources, then seal | `v52-runner-<run>-<attempt>` |
-| `verify-set` | All five member names mapped to `requestSha256`, `runId`, `runAttempt` | Independently restore originals, authenticate their invocations and replay complete histories | `v52-cloud-set-<run>-<attempt>` |
+| `verify-set` | All fifteen execution names mapped to `requestSha256`, `runId`, `runAttempt` | Independently restore originals, authenticate their invocations and replay complete histories | `v52-cloud-set-<run>-<attempt>` |
 
-The five members are `experiment`, `failure-drill`, `canonical-1`, `canonical-2`
-and `canonical-3`. Any can be first. All five must share the same source,
+The five logical results use fifteen executions: `experiment`, five fixed
+`failure-drill-*` shards, and nine `canonical-<1|2|3>-<legacy|explicit-stale|minimum>` shards.
+See [drill shards](PHASE_6_HOSTED_DRILL.md) and [canonical shards](PHASE_6_HOSTED_CANONICAL.md). Any execution
+can be first. All fifteen must share the same source,
 configuration, sequence, build and controls. Original failures and their charged
 reservations remain in the ledger; a member already passed in that sequence is
 not executed again. A source/build change requires a new sequence even when all
@@ -57,14 +59,26 @@ previous attempts in the old sequence failed: the ledger binds sequence identity
 at its first reservation. A new sequence does not reset prior reserved costs.
 A rerun is never used as a substitute for a selected original.
 
+Resource-admission diagnostics project the provider's closed `providerCode` along
+with the existing phase/cause and cleanup result. Zone-capacity rejection is
+reported as `V52_PROVIDER_CAPACITY_UNAVAILABLE`, distinct from an unknown insert
+failure (`V52_PROVIDER_INSERT_REJECTED`). Both stop the original submission and
+run fenced cleanup; neither retries a mutation nor changes the frozen topology.
+After a source fix, earlier successful shards remain retained evidence for their
+original source, but cannot be joined to a new-source sequence by this workflow.
+
 Time and accumulated cost budgets remain soft warnings. Each operation prints
 progress at least every minute, including during prepared-artifact download.
-The workflow routes all three operations to the dedicated D-backed Linux
-self-hosted Runner (`gse-v52-cloud-d-wsl`) with a 1,380-minute job ceiling. That
-administrative ceiling is not a new per-stage timeout. Request/parser/storage bounds, approval expiry,
-credential freshness and lease/grace checks remain hard. Cancellation/interruption
-still requires the original lease's safe cleanup path; active leases are not
-force-deleted.
+The `execution_host` input defaults to `github-hosted`: prepare, the five drill shards
+and the nine canonical shards use `ubuntu-24.04`. Select `self-hosted` for
+experiment and verify-set; their existing dedicated D-backed WSL
+route remains available. The same exact workflow/job/environment/IAM identity
+is used for both hosts. Hosted jobs have GitHub's hard 360-minute platform ceiling;
+self-hosted retains 1,380 minutes. Stage/cost budgets remain soft. The hosted
+controller reports progress/free disk every minute and warns after four hours.
+It checks at least 4 GiB free before admission; this is an admission floor, not a
+claim that every worst-case evidence bundle fits. Retention size/time must be
+observed on the first hosted shard. A platform kill still requires expired cleanup.
 
 Before native resource admission, the Runner checks Python and local SDK startup
 using IAP's isolated environment. This does not authenticate or call a cloud API.
@@ -89,7 +103,7 @@ After the readiness review and merge, from the exact clean master checkout:
 V52_SEQUENCE=$(python3 -c 'import uuid; print(uuid.uuid4().hex)')
 python3 -m scripts.v52.cloud_operator prepare-request \
   --source "$(git rev-parse HEAD)" \
-  --member canonical-3 --sequence "$V52_SEQUENCE" \
+  --member canonical-3-minimum --sequence "$V52_SEQUENCE" \
   --cost-microusd "$V52_ESTIMATE_MICROUSD" \
   --coverage-seconds "$V52_COVERAGE_SECONDS" \
   --output target/v52-request-1
@@ -156,21 +170,31 @@ There is no automatic execution after `prepare`, and no automatic business retry
 after a failed `run`. Preserve the original diagnostic and cost record, inspect
 the failure and reconcile the expired lease before preparing a new attempt.
 
-## Verify the five original members
+## Verify the fifteen original executions
 
 Retain each successful run summary's member name, request digest and original
-run/attempt. The selected map contains all five names, for example these keys
+run/attempt. The selected map contains all fifteen names, for example these keys
 (replace each value with its original recorded values):
 
 ```text
 experiment       -> {requestSha256, runId, runAttempt}
-failure-drill    -> {requestSha256, runId, runAttempt}
-canonical-1      -> {requestSha256, runId, runAttempt}
-canonical-2      -> {requestSha256, runId, runAttempt}
-canonical-3      -> {requestSha256, runId, runAttempt}
+failure-drill-m02-below -> {requestSha256, runId, runAttempt}
+failure-drill-m02-equal -> {requestSha256, runId, runAttempt}
+failure-drill-m02-above -> {requestSha256, runId, runAttempt}
+failure-drill-m03 -> {requestSha256, runId, runAttempt}
+failure-drill-m04 -> {requestSha256, runId, runAttempt}
+canonical-1-legacy -> {requestSha256, runId, runAttempt}
+canonical-1-explicit-stale -> {requestSha256, runId, runAttempt}
+canonical-1-minimum -> {requestSha256, runId, runAttempt}
+canonical-2-legacy -> {requestSha256, runId, runAttempt}
+canonical-2-explicit-stale -> {requestSha256, runId, runAttempt}
+canonical-2-minimum -> {requestSha256, runId, runAttempt}
+canonical-3-legacy -> {requestSha256, runId, runAttempt}
+canonical-3-explicit-stale -> {requestSha256, runId, runAttempt}
+canonical-3-minimum -> {requestSha256, runId, runAttempt}
 ```
 
-Choose `verify-set` with that JSON map. It uses the
+Choose `verify-set` with that JSON map and `execution_host=self-hosted`. It uses the
 [original Runner/set join](PHASE_6_PROTECTED_RUNNER.md), not uploaded success
 summaries as proof. Only complete original object/provenance/physical/history
 replay can produce a qualified set PASS. The selected reservations and the full
@@ -546,3 +570,47 @@ only read operations within one 300-second check window. Identity/mount drift an
 unknown `REMOTE_EXIT` remain terminal. Initialization and measured histories are
 never resubmitted by this mechanism. See the
 [native storage timing and diagnostic contract](PHASE_6_NATIVE_STORAGE.md#slow-read-checks-and-closed-receiver-diagnostics).
+
+
+### Failed history diagnostics on hosted runners
+
+Runner `40248542476/1` (source `ff15db5a044f60b8abbd61036f9e27a672d8d957`)
+completed `published-v51-legacy-strong-r1`, then failed during the original
+`candidate-legacy-strong-r1` workload before its physical replay. Its original
+620-byte diagnostic artifact retained only `V52_MEMBER_HISTORY_REJECTED` and
+`ValueError`; the provider completion had `evidenceSha256: null`. Cleanup was
+PASS and the lease was released. The original workload exception cannot be
+recovered from those retained records; this correction does not establish its
+root cause or claim that the workload now passes.
+
+`remote_history` now records a bounded `failure-diagnostic.json` beside the
+history's evidence, first before receiver cleanup and again after it. The
+original workload exception remains primary if collection or a delivery endpoint
+also raises during close. Preparation, original workload, receiver close and
+physical replay are distinguished. Diagnostic write failures cannot bypass
+cleanup, replace the original exception, continue later histories or grant PASS.
+
+The member captures the failed history and completed-history count before guest
+closure. The operator revalidates and copies only the closed projection into
+`target/v52-runner/diagnostics/failure.json`. The existing always-run diagnostic
+upload retains it for 90 days, and Summary displays a failed-history table.
+It includes known reason codes, exception categories, repository module/line,
+controller stage, bounded offered/completed-call histograms, stopped-process
+exit codes and separate close failures. Unknown error text becomes a generic
+code plus the owned check location; it is never silently treated as success.
+Missing, malformed, oversized or linked optional inputs are omitted, so absent
+telemetry must not be interpreted as zero errors.
+
+No raw exception text, local variables, SSH keys, credentials, command lines,
+provider logs, document/query bodies or private workspace trees are uploaded.
+The history projection is capped at 32 KiB; offered counters inspect at most
+4,096 entries and call counters inspect at most 16,384 entries with an explicit
+truncation flag. Partial diagnostics are not a retained evidence bundle and
+cannot replace a successful member seal or complete-set replay. No operation,
+history or measurement is retried, and measurement parameters, soft time/cost
+budgets, workflow provenance and resource cleanup authority remain unchanged.
+
+Local fault-injection tests cover the original-response observation failure,
+late collection failure, preparation and replay rejection, failed diagnostic
+writes, unsafe input rejection and the complete history-to-operator upload and
+Summary path. These are diagnostic regressions, not a new cloud qualification.

@@ -159,7 +159,7 @@ def reconcile_native(source, output, *, role='manual'):
         if reader is not None: reader.close()
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', required=True); parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--role', choices=('manual','schedule'), default='manual'); args = parser.parse_args()
@@ -169,3 +169,11 @@ if __name__ == '__main__':
         print('{"status":"FAIL","code":"V52_CLEANUP_REJECTED"}'); raise SystemExit(2)
     print(encoded({k:result[k] for k in ('status','role','resourceDeletesSubmitted','deletionPathExercised','fullRemoteQualification')}).decode())
     raise SystemExit(0 if result['status'] in ('PASS','WAITING') else 2)
+
+
+if __name__ == '__main__':
+    # python -m creates a separate __main__ class identity. Provider admission
+    # intentionally accepts only the canonical NativeCleanupApi type; construct
+    # it in that module instead of weakening the adapter check for CLI objects.
+    from scripts.v52.cloud_native_cleanup import main as canonical_main
+    canonical_main()

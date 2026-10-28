@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
-from . import cloud_runner_workflow as w, cloud_credentials_offline as auth
+from . import cloud_runner_host as host, cloud_runner_workflow as w, cloud_credentials_offline as auth
 from .test_cloud_preflight import configuration
 from .test_cloud_prepared import arguments
 from .evidence import encoded
@@ -14,10 +14,10 @@ from .evidence import encoded
 class WorkflowTest(unittest.TestCase):
     def test_actual_source_is_manual_master_only_and_uses_exact_required_job_steps(self):
         source=w.contract();self.assertEqual(w.render(),source)
-        self.assertIn('timeout-minutes: 1380',source);self.assertNotIn('timeout --signal',source)
-        self.assertIn('runs-on: [self-hosted, Linux, X64, gse-v52-cloud-d-wsl]',source)
-        self.assertIn('python -u -m scripts.v52.cloud_self_hosted execute',source)
-        self.assertLess(source.index('name: Verify dedicated self-hosted Runner'),source.index('name: '+w.origin.IDENTITY))
+        self.assertIn('timeout-minutes: '+host.TIMEOUT,source);self.assertNotIn('timeout --signal',source)
+        self.assertIn('runs-on: '+host.RUNS_ON,source)
+        self.assertIn('python -u -m scripts.v52.cloud_runner_host execute',source)
+        self.assertLess(source.index('name: Verify selected Runner host'),source.index('name: '+w.origin.IDENTITY))
         self.assertIn('cancel-in-progress: false',source);self.assertEqual(2,source.count('retention-days: 90'))
         self.assertIn('path: target/v52-runner/result',source);self.assertIn('path: target/v52-runner/diagnostics',source)
         self.assertNotIn('path: target/v52-runner\n',source)

@@ -71,6 +71,18 @@ def _remaining(deadline):
 def _retry_admission(error, *, attempt_deadline=None):
     # Before SDK spawn only. Unknown errors, denied credentials and changed
     # ownership are terminal even when they happen near a deadline.
+    if type(error) is runner.credentials.exchange.CredentialError:
+        phases={'OIDC_EXCHANGE_FAILED':'oidc','STS_EXCHANGE_FAILED':'sts',
+                'IMPERSONATION_EXCHANGE_FAILED':'impersonation'}
+        phase=phases.get(error.reason_code)
+        detail=runner.credentials.failure(error).get('readRetry',{})
+        transient=error.failure_kind in ('timeout','transport') or (
+            error.failure_kind=='http' and error.http_status in cloud_read_retry.STATUSES)
+        # Only a typed transient credential-chain deadline before SDK spawn.
+        # Count exhaustion, malformed claims, permission failures and unknown
+        # errors cannot acquire another attempt through this outer layer.
+        return bool(phase and transient and detail.get('scope')=='credential-'+phase and
+                    detail.get('stop')=='deadline')
     if type(error) is cloud_read_retry.ReadError:
         # Only exhaustion of THIS admission attempt's clock may use the next
         # predeclared attempt. Earlier/nested deadlines and exhausted GET counts

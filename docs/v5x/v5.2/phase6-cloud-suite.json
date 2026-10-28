@@ -1,5 +1,5 @@
 {
-  "schema": "gse-v52-cloud-suite-v1",
+  "schema": "gse-v52-cloud-suite-v3",
   "status": "LOGICAL_PLAN_NOT_ADMISSION",
   "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
   "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
@@ -16,61 +16,131 @@
       "updates": 15,
       "nominalM01Seconds": 0
     },
-    "failure-drill": {
+    "failure-drill-m02-below": {
       "histories": [
         "m02-below-0",
         "m02-below-1000",
-        "m02-below-5000",
+        "m02-below-5000"
+      ],
+      "reads": 93,
+      "updates": 9,
+      "nominalM01Seconds": 0
+    },
+    "failure-drill-m02-equal": {
+      "histories": [
         "m02-equal-0",
         "m02-equal-1000",
-        "m02-equal-5000",
+        "m02-equal-5000"
+      ],
+      "reads": 93,
+      "updates": 9,
+      "nominalM01Seconds": 0
+    },
+    "failure-drill-m02-above": {
+      "histories": [
         "m02-above-0",
         "m02-above-1000",
-        "m02-above-5000",
+        "m02-above-5000"
+      ],
+      "reads": 93,
+      "updates": 11,
+      "nominalM01Seconds": 0
+    },
+    "failure-drill-m03": {
+      "histories": [
         "m03-p4",
-        "m03-p65",
+        "m03-p65"
+      ],
+      "reads": 71,
+      "updates": 8,
+      "nominalM01Seconds": 0
+    },
+    "failure-drill-m04": {
+      "histories": [
         "leader-sigkill-retained-restart",
         "follower-snapshot-carried-token"
       ],
-      "reads": 358,
-      "updates": 45,
+      "reads": 8,
+      "updates": 8,
       "nominalM01Seconds": 0
     },
-    "canonical-1": {
+    "canonical-1-legacy": {
       "histories": [
         "published-v51-legacy-strong-r1",
-        "candidate-legacy-strong-r1",
+        "candidate-legacy-strong-r1"
+      ],
+      "reads": 3602,
+      "updates": 360,
+      "nominalM01Seconds": 360
+    },
+    "canonical-1-explicit-stale": {
+      "histories": [
         "candidate-explicit-strong-r1",
-        "candidate-stale-r1",
+        "candidate-stale-r1"
+      ],
+      "reads": 3602,
+      "updates": 360,
+      "nominalM01Seconds": 360
+    },
+    "canonical-1-minimum": {
+      "histories": [
         "candidate-minimum-r1"
       ],
-      "reads": 9005,
-      "updates": 900,
-      "nominalM01Seconds": 900
+      "reads": 1801,
+      "updates": 180,
+      "nominalM01Seconds": 180
     },
-    "canonical-2": {
+    "canonical-2-legacy": {
       "histories": [
         "published-v51-legacy-strong-r2",
-        "candidate-legacy-strong-r2",
+        "candidate-legacy-strong-r2"
+      ],
+      "reads": 3602,
+      "updates": 360,
+      "nominalM01Seconds": 360
+    },
+    "canonical-2-explicit-stale": {
+      "histories": [
         "candidate-explicit-strong-r2",
-        "candidate-stale-r2",
+        "candidate-stale-r2"
+      ],
+      "reads": 3602,
+      "updates": 360,
+      "nominalM01Seconds": 360
+    },
+    "canonical-2-minimum": {
+      "histories": [
         "candidate-minimum-r2"
       ],
-      "reads": 9005,
-      "updates": 900,
-      "nominalM01Seconds": 900
+      "reads": 1801,
+      "updates": 180,
+      "nominalM01Seconds": 180
     },
-    "canonical-3": {
+    "canonical-3-legacy": {
       "histories": [
         "published-v51-legacy-strong-r3",
-        "candidate-legacy-strong-r3",
+        "candidate-legacy-strong-r3"
+      ],
+      "reads": 3602,
+      "updates": 360,
+      "nominalM01Seconds": 360
+    },
+    "canonical-3-explicit-stale": {
+      "histories": [
         "candidate-explicit-strong-r3",
-        "candidate-stale-r3",
+        "candidate-stale-r3"
+      ],
+      "reads": 3602,
+      "updates": 360,
+      "nominalM01Seconds": 360
+    },
+    "canonical-3-minimum": {
+      "histories": [
         "candidate-minimum-r3"
       ],
-      "reads": 9005,
-      "updates": 900,
-      "nominalM01Seconds": 900
+      "reads": 1801,
+      "updates": 180,
+      "nominalM01Seconds": 180
     }
   },
   "histories": {
@@ -965,6 +1035,33 @@
       "initialization": "read-write-targets-confirmed-updates-v1",
       "measurement": false
     }
+  },
+  "logicalMembers": {
+    "experiment": [
+      "experiment"
+    ],
+    "failure-drill": [
+      "failure-drill-m02-below",
+      "failure-drill-m02-equal",
+      "failure-drill-m02-above",
+      "failure-drill-m03",
+      "failure-drill-m04"
+    ],
+    "canonical-1": [
+      "canonical-1-legacy",
+      "canonical-1-explicit-stale",
+      "canonical-1-minimum"
+    ],
+    "canonical-2": [
+      "canonical-2-legacy",
+      "canonical-2-explicit-stale",
+      "canonical-2-minimum"
+    ],
+    "canonical-3": [
+      "canonical-3-legacy",
+      "canonical-3-explicit-stale",
+      "canonical-3-minimum"
+    ]
   },
   "formalNegativeRules": {
     "published-v51-legacy-strong-r1": [
@@ -3220,7 +3317,8 @@
     ]
   },
   "totals": {
-    "members": 5,
+    "members": 15,
+    "logicalMembers": 5,
     "histories": 33,
     "formalHistories": 28,
     "reads": 27428,
@@ -3249,10 +3347,20 @@
   "qualification": {
     "requiredMembers": [
       "experiment",
-      "failure-drill",
-      "canonical-1",
-      "canonical-2",
-      "canonical-3"
+      "failure-drill-m02-below",
+      "failure-drill-m02-equal",
+      "failure-drill-m02-above",
+      "failure-drill-m03",
+      "failure-drill-m04",
+      "canonical-1-legacy",
+      "canonical-1-explicit-stale",
+      "canonical-1-minimum",
+      "canonical-2-legacy",
+      "canonical-2-explicit-stale",
+      "canonical-2-minimum",
+      "canonical-3-legacy",
+      "canonical-3-explicit-stale",
+      "canonical-3-minimum"
     ],
     "source": "one exact source and sequence",
     "crossSourceContinuation": false,
@@ -3266,5 +3374,5 @@
     "apiReadDeadlines": "unchanged finite semantic outcomes",
     "authorityAndDecoderLimits": "finite enforced bounds"
   },
-  "liveAdmission": "separate exact-master full CI, provider facts, permissions, cleanup, lease and operator authorization"
+  "liveAdmission": "exact-source Cloud Build or full CI, provider facts, permissions, cleanup, lease and operator authorization"
 }

@@ -134,24 +134,27 @@ replace exact-ID cleanup with broad project deletion.
 Local implementation now includes original input provenance, fixed provider
 preflight, safe manual cleanup, whole native members, renewable ownership,
 private guest/storage/Java preparation, immutable retention, original Runner
-provenance and independent five-member replay. Workflow/configuration/setup
+provenance and independent complete-set replay. Workflow/configuration/setup
 artifacts are present. Existing hosted measurement acceptance remains attached
 to its [historical exact source](PHASE_6_HOSTED_ACCEPTANCE.md).
 
 Before the first paid member, the operator still must:
 
-1. Push the local commits, merge reviewed changes and obtain full protected CI
-   on that exact master source. A prior source's green CI cannot substitute.
+1. Merge reviewed changes and obtain the exact-master **V5.2 Cloud Build**
+   or full protected CI. A prior source's green build cannot substitute.
 2. Inspect live infrastructure and identity collisions, apply/compare disabled
    staging, set the private secret and activate the two identities in the order
    above. Preserve raw administrative observations separately from public artifacts.
 3. Confirm a recent successful manual cleanup on the same source. WAITING is
    not empty-state readiness; investigate and let lease/grace rules reconcile it.
 4. Prepare one selected member with an explicit priced estimate, approve its
-   exact request hash, and manually trigger `run` after merge. All five members
-   may run in any order, but use one sequence/source and whole original histories.
-5. After all five original successes, use `verify-set`. Preparation, cleanup or
-   an individual successful job is not five-member cloud acceptance.
+   exact request hash, and manually trigger `run` after merge. All fifteen execution
+   units may run in any order on one sequence/source with whole original histories.
+   The [five drill shards](PHASE_6_HOSTED_DRILL.md) and
+   [nine canonical shards](PHASE_6_HOSTED_CANONICAL.md) use hosted jobs; experiment
+   and complete-set replay still select `execution_host=self-hosted`.
+5. After all fifteen original successes, use `verify-set`. Preparation, cleanup or
+   an individual successful job is not complete cloud acceptance.
 
 Those external actions have not run. The local development goal stops before
 push/deployment/dispatch; paid acceptance and publication remain open.

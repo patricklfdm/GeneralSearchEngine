@@ -6,7 +6,7 @@ import shutil
 import socket
 import uuid
 from scripts.v51 import public_qualification_harness as q
-from . import cloud_suite as suite,remote_topology as topology
+from . import cloud_suite as suite,remote_topology as topology,history_diagnostics as diagnostics
 from . import measurement_runtime as runtime,measurement_bundle as bundle
 from . import measurement_options as options,measurement_m01 as m01,measurement_minimum as minimum
 from . import measurement_recovery as recovery,measurement_cohort as cohort
@@ -209,28 +209,47 @@ def source():
 
 
 def run(root,name,expected,*,progress=lambda stage:None,receiver_factory=None):
-    owner=(receiver_factory or Receivers)(root,name,expected);failure=None
+    owner=None;failure=None;primary=None;retained=None;stage='receiver-create';primary_stage=None
     try:
-        progress('preparation');owner.prepare()
-        need(source()==expected,'remote source changed before execution')
-        progress('original-workload');owner.observe()
-    except BaseException as error:failure=dict(type=type(error).__name__,message=str(error));raise
-    finally:owner.finish(failure)
-    need(source()==expected,'remote source changed during history')
-    collected=owner.collected;binding=owner.binding
-    need(runtime.evidence.reads.read(collected/'binding.json')==binding,'remote binding changed during original execution')
-    runtime.save(collected/bundle.INDEX,bundle.members(collected));progress('physical-replay')
-    if owner.spec['family']=='UNTIMED':
-        original=runtime.evidence.replay(collected,binding,owner.root/'original-validation',package=bundle)
-        archive=owner.root/'history.tar.gz';bundle.pack(collected,archive);relocated=bundle.unpack(archive,owner.root/'relocated')
-        portable=runtime.evidence.replay(relocated,binding,owner.root/'relocated-validation',package=bundle)
-        need(original==portable,'remote receiver relocated replay drift');sha=bundle.sha_file(archive)
-    else:
-        portable=cohort.replay_member(collected,binding,owner.spec,owner.root/'portable')
-        original=portable['result'];sha=portable['archiveSha256']
-        need(original['negatives']==suite.load()['formalNegativeRules'][name],'remote incomplete formal negatives')
-    need(source()==expected,'remote source changed during replay');progress('complete')
-    reads,updates=original_counts(original,owner.spec)
-    return dict(status='PASS',history=name,family=owner.spec['family'],mode=owner.spec['mode'],binding=binding,
-                result=original,archiveSha256=sha,originalReads=reads,originalUpdates=updates,
-                qualifiedMeasurement=False,fullRemoteQualification=False,paidCloud=False)
+        owner=(receiver_factory or Receivers)(root,name,expected)
+        try:
+            stage='preparation';progress(stage);owner.prepare()
+            need(source()==expected,'remote source changed before execution')
+            stage='original-workload';progress(stage);owner.observe()
+        except BaseException as error:
+            primary=error;primary_stage=stage;failure=dict(type=type(error).__name__,message=str(error))
+            retained=diagnostics.retain(root,name,stage,error,owner)
+            raise
+        finally:
+            try:
+                stage='receiver-close'
+                owner.finish(failure)
+            except BaseException as close_error:
+                if primary is None:raise
+                retained=diagnostics.retain(root,name,primary_stage,primary,owner,previous=retained,cleanup_error=close_error)
+                # Keep the first execution exception even if collection or a
+                # delivery endpoint also fails while closing the original owner.
+            else:
+                if primary is not None:retained=diagnostics.retain(root,name,primary_stage,primary,owner,previous=retained)
+        stage='physical-replay'
+        need(source()==expected,'remote source changed during history')
+        collected=owner.collected;binding=owner.binding
+        need(runtime.evidence.reads.read(collected/'binding.json')==binding,'remote binding changed during original execution')
+        runtime.save(collected/bundle.INDEX,bundle.members(collected));progress('physical-replay')
+        if owner.spec['family']=='UNTIMED':
+            original=runtime.evidence.replay(collected,binding,owner.root/'original-validation',package=bundle)
+            archive=owner.root/'history.tar.gz';bundle.pack(collected,archive);relocated=bundle.unpack(archive,owner.root/'relocated')
+            portable=runtime.evidence.replay(relocated,binding,owner.root/'relocated-validation',package=bundle)
+            need(original==portable,'remote receiver relocated replay drift');sha=bundle.sha_file(archive)
+        else:
+            portable=cohort.replay_member(collected,binding,owner.spec,owner.root/'portable')
+            original=portable['result'];sha=portable['archiveSha256']
+            need(original['negatives']==suite.load()['formalNegativeRules'][name],'remote incomplete formal negatives')
+        need(source()==expected,'remote source changed during replay');progress('complete')
+        reads,updates=original_counts(original,owner.spec)
+        return dict(status='PASS',history=name,family=owner.spec['family'],mode=owner.spec['mode'],binding=binding,
+                    result=original,archiveSha256=sha,originalReads=reads,originalUpdates=updates,
+                    qualifiedMeasurement=False,fullRemoteQualification=False,paidCloud=False)
+    except BaseException as error:
+        if retained is None:diagnostics.retain(root,name,stage,error,owner)
+        raise

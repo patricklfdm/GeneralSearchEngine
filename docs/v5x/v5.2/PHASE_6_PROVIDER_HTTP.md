@@ -70,6 +70,22 @@ error flag. This preserves the original result after provider operation retentio
 expires; it does not turn a pending or unknown operation into DONE. Failed receipt
 retention keeps ownership unresolved and prevents successful finalization.
 
+A terminal insertion error may include a numeric `targetId`, even when no VM
+survives (for example, `ZONE_RESOURCE_POOL_EXHAUSTED`). DONE resolves the original
+operation; it does not prove successful creation. The decoder retains that ID
+and the existing sanitized error flag. Creation rejects the failed result before
+admitting any resource or workload. Cleanup observes the original target: absence
+can complete reconciliation; a remaining resource requires matching ownership and
+the exact ID before deletion. A replacement ID, unknown/pending operation or failed
+deletion still retains the lease. Errors without an ID require actual absence.
+No insertion is replayed and no zone or machine type is substituted.
+
+Live insertion failures expose only closed `providerCode` diagnostics:
+`V52_PROVIDER_CAPACITY_UNAVAILABLE` for the recognized zone-capacity errors, or
+`V52_PROVIDER_INSERT_REJECTED` otherwise. Stored boolean error flags replay as
+generic failures, preserving the existing immutable operation format without raw
+provider messages. Classification cannot authorize retries or successful admission.
+
 Owner-finally, manual and scheduled reconciliation use the existing shared cleanup
 algorithm. The HTTP adapter also requires a retained CLEANING lease with the exact
 request and resource ID before deletion; an in-memory cleanup flag is insufficient.
