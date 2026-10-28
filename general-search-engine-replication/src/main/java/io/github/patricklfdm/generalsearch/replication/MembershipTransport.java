@@ -36,6 +36,7 @@ final class MembershipTransport implements AutoCloseable {
     @FunctionalInterface interface Directory {MembershipCapsule current()throws IOException;}
     private final Directory directory;
     private final MembershipLearnerRequest learnerContact;
+    private final MembershipDiscovery.Hint learnerPrefix;
     private final String root;
     private final MembershipIdentity local;
     private final ReplicationBounds bounds;
@@ -55,22 +56,28 @@ final class MembershipTransport implements AutoCloseable {
 
     MembershipTransport(MembershipCapsule verified,MembershipIdentity local,ReplicationBounds bounds,
             MembershipResources resources,Handler handler,Events events)throws IOException {
-        this(verified,local,bounds,resources,handler,events,null,null);
+        this(verified,local,bounds,resources,handler,events,null,null,null);
     }
     /** Resolve new permanent reservations only from this exclusive owner's verified catalog. */
     MembershipTransport(MembershipGrantJournal owner,ReplicationBounds bounds,MembershipResources resources,
             Handler handler,Events events)throws IOException {
-        this(owner.activationCapsule(),owner.activationIdentity(),bounds,resources,handler,events,owner::activationCapsule,null);
+        this(owner.activationCapsule(),owner.activationIdentity(),bounds,resources,handler,events,owner::activationCapsule,null,null);
     }
     /** Contact-only client. No listener or locally fabricated voter/catalog is created. */
     static MembershipTransport learner(MembershipLearnerRequest request,ReplicationBounds bounds,
             MembershipResources resources,Events events)throws IOException {
         return new MembershipTransport(null,request.identity(),bounds,resources,(p,r)->{throw new IOException("learner contact has no server");},
-                events,null,request);
+                events,null,request,null);
+    }
+    static MembershipTransport learnerPrefix(MembershipLearnerRequest request,MembershipDiscovery.Hint hint,ReplicationBounds bounds,
+            MembershipResources resources,Events events)throws IOException {
+        require(!hint.peer().equals(request.identity()) && request.change().target().contains(hint.peer()),"learner prefix contact route");
+        return new MembershipTransport(null,request.identity(),bounds,resources,(p,r)->{throw new IOException("learner contact has no server");},
+                events,null,request,hint);
     }
     private MembershipTransport(MembershipCapsule verified,MembershipIdentity local,ReplicationBounds bounds,
-            MembershipResources resources,Handler handler,Events events,Directory directory,MembershipLearnerRequest learnerContact)throws IOException {
-        this.learnerContact=learnerContact;this.directory=directory;
+            MembershipResources resources,Handler handler,Events events,Directory directory,MembershipLearnerRequest learnerContact,MembershipDiscovery.Hint learnerPrefix)throws IOException {
+        this.learnerContact=learnerContact;this.directory=directory;this.learnerPrefix=learnerPrefix;
         this.root=learnerContact==null?Objects.requireNonNull(verified).context.root:learnerContact.root().manifestDigest();this.local=Objects.requireNonNull(local);
         this.bounds=Objects.requireNonNull(bounds);this.resources=Objects.requireNonNull(resources);
         this.handler=Objects.requireNonNull(handler);this.events=Objects.requireNonNull(events);
@@ -125,13 +132,17 @@ final class MembershipTransport implements AutoCloseable {
     }
     private void contactRequest(Decoded request,String kind) {
         if(learnerContact==null)return;
-        require(Set.of("CHUNK","TRANSFER_COMMIT").contains(request.kind())
-                && Set.of("SOURCE_OFFER","CHUNK","TRANSFER_COMMIT").contains(kind)
+        require(Set.of("CHUNK","TRANSFER_COMMIT","STATUS_PROBE").contains(request.kind())
+                && Set.of("SOURCE_OFFER","CHUNK","TRANSFER_COMMIT","STATUS").contains(kind)
                 && request.value().get("view").equals(learnerContact.change().expectedConfigurationDigest())
                 && request.value().get("ballot").equals(MembershipLearnerDiscovery.correlation(local)),"learner contact read-only correlation");
-        if(request.kind().equals("CHUNK") && number(request.value().get("sequence"))==1)
-            require(object(request.value().get("payload")).get("digest").equals(MembershipLearnerDiscovery.reference(learnerContact)),
-                    "learner contact reservation reference");
+        if(learnerPrefix!=null)require(request.value().get("recipient").equals(MembershipBootstrapSeed.identity(learnerPrefix.peer())),"learner prefix exact contact");
+        if(request.kind().equals("CHUNK") && number(request.value().get("sequence"))==1) {
+            String reference=(String)object(request.value().get("payload")).get("digest");
+            boolean allowed=learnerPrefix==null?reference.equals(MembershipLearnerDiscovery.reference(learnerContact)):
+                    MembershipLearnerPrefixExport.SCOPES.stream().anyMatch(scope->reference.equals(MembershipLearnerPrefixExport.reference(learnerContact,learnerPrefix.cut(),scope)));
+            require(allowed,"learner contact reservation reference");
+        }
     }
     private MembershipResources.Lease reserve(long size)throws Failure {
         try{return resources.reserve(MembershipResources.Unit.CONTROL,UUID.randomUUID().toString(),size);}

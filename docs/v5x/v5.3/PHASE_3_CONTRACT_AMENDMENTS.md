@@ -365,3 +365,38 @@ export headroom have passed their local gates. The [qualification record](PHASE_
 separates those results from complete learner admission and joint voting.
 Before release, rollback removes this alias route, contact-only constructor and
 root client/export together. Existing ordinary peer transfer bytes are unchanged.
+
+## A13 — complete reservation-scoped learner source acquisition
+
+The unmaterialized learner may obtain a read-only STATUS hint using its existing
+exact root/expected-view/identity correlation. This hint is only a location; it
+cannot establish a certified reservation, new voter, promise or public readiness.
+
+Complete source aliases use SHA-256 of canonical
+`{schema:"gse-v53-learner-source-reference/1.3", root, learner, request, cut, scope}`,
+where scope is prefix, ancestry or generation. Every field binds the original
+request/identity and hinted cut. The serving native owner requires the exact
+current pre-joint ADD/REPLACE reservation. The wrapper borrows the existing native
+prefix exporter, six-export registry and original deadline; generation replacement
+and cancellation invalidate unfinished exports. This adds no record/wire kind.
+
+The source receiver begins with verified ROOT bytes and operator contact routes,
+without a fabricated MembershipCapsule or voter owner. Its incoming source packet
+uses the one-LEARNER slot, and application images retain their existing seven-image
+budget. An identical lost exchange is retried at most three times under the same
+original deadline; permanent failures stop immediately. Closing cancels pending
+work and closes transport even when owned scratch cleanup refuses foreign bytes.
+
+Only a completed original download can issue the existing private RetainedCopy
+and GenerationCopy provenance. The full verified catalog must authenticate the
+exact still-active request, joining identity, original expected configuration and
+contacted current voter. Original manifest, all members, ancestry and coverage
+are verified against the same source/cut/root/request/deadline. No historical
+witness becomes a fresh ACCEPT/PROOF observation. No admission or voter directory,
+readiness receipt, service read, or voting message is created by acquisition.
+
+A subsequent separately qualified admission transaction must force the original
+plan before directory creation. Typed materialization/readiness revision and
+full matching INTENT-before-vote remain required. Rollback removes the scoped
+export, read-only learner pull/transport/coordinator and reader together; ordinary
+voter transfer encoding and storage remain unchanged.

@@ -62,7 +62,7 @@ final class MembershipLearnerDiscovery implements AutoCloseable {
     }
     /** Receiver-side predicate on its verified current catalog, never caller arguments.
      * Known removed/initial identities and completed/cancelled operations cannot enroll. */
-    static void reservation(MembershipContext context,MembershipIdentity learner,Decoded frame) {
+    static Map<String,Object> reservation(MembershipContext context,MembershipIdentity learner) {
         var operation=list(context.catalog.get("results")).stream().map(MembershipFormat::object)
                 .filter(row->object(row.get("request")).get("number").equals(context.catalog.get("active"))).findFirst().orElse(null);
         require(operation!=null && context.view.get("operation")==null
@@ -73,6 +73,10 @@ final class MembershipLearnerDiscovery implements AutoCloseable {
                 && learner.equals(context.identities.get(learner.nodeId().value()))
                 && list(original.get("target")).stream().map(MembershipFormat::object).map(MembershipContext::identity).anyMatch(learner::equals),
                 "learner discovery exact joining identity");
+        return original;
+    }
+    static void reservation(MembershipContext context,MembershipIdentity learner,Decoded frame) {
+        var original=reservation(context,learner);
         require(frame.kind().equals("CHUNK") && frame.value().get("root").equals(context.root)
                 && frame.value().get("sender").equals(MembershipBootstrapSeed.identity(learner))
                 && frame.value().get("view").equals(original.get("expected"))
@@ -158,6 +162,18 @@ final class MembershipLearnerDiscovery implements AutoCloseable {
                 require(object(exchange(frame("TRANSFER_COMMIT",commit),"TRANSFER_COMMIT").value().get("payload")).equals(commit),
                         "learner discovery exact ROOT completion");check();return root;
             }
+        }finally{close();}
+    }
+    /** An untrusted location hint only, never a reservation proof or readiness. */
+    MembershipDiscovery.Hint hint()throws IOException {
+        synchronized(this){require(!used && !closed,"learner discovery single use");used=true;}
+        try {
+            String nonce=UUID.randomUUID().toString();
+            var reply=exchange(frame("STATUS_PROBE",Map.of("nonce",nonce)),"STATUS");
+            var payload=object(reply.value().get("payload"));
+            require(nonce.equals(payload.get("nonce")) && Boolean.FALSE.equals(payload.get("ready")),"learner discovery hint correlation");
+            var cut=object(payload.get("cut"));checkView(object(cut.get("view")));MembershipValidation.position(number(cut.get("index")));
+            check();return new MembershipDiscovery.Hint(peer,cut,false);
         }finally{close();}
     }
     @Override public synchronized void close(){closed=true;if(pending!=null)pending.cancel(true);}

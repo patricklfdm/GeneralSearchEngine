@@ -21,6 +21,8 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     private final MembershipContext context;
     private final Decoded originalRoot;
+    private final String requestRoot,requestView;
+    private final MembershipLearnerRequest learner;
     private final MembershipIdentity local,source;
     private final Map<String,Object> ballot;
     private final UUID session;
@@ -59,11 +61,36 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     private MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,
             MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget,Map<String,Object> prefixCut) {
-        require(budget>0 && budget<Long.MAX_VALUE/2,"source pull time budget");context=Objects.requireNonNull(verified).context;
+        this(verified,local,source,ballot,session,resources,bounds,link,guard,clock,started,budget,prefixCut,null,null);
+    }
+    /** No local owner/catalog exists yet. The hint and routes remain untrusted until
+     * the complete received original source authenticates the exact reservation. */
+    static MembershipSourcePull learner(MembershipLearnerRequest learner,Decoded root,MembershipDiscovery.Hint hint,
+            MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget) {
+        return new MembershipSourcePull(null,learner.identity(),hint.peer(),MembershipLearnerDiscovery.correlation(learner.identity()),
+                UUID.randomUUID(),resources,bounds,link,guard,clock,started,budget,hint.cut(),root,learner);
+    }
+    private MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,
+            MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget,
+            Map<String,Object> prefixCut,Decoded root,MembershipLearnerRequest learner) {
+        require(budget>0 && budget<Long.MAX_VALUE/2,"source pull time budget");this.learner=learner;
         this.prefixCut=prefixCut==null?null:Map.copyOf(prefixCut);
-        originalRoot=decode(verified.packet.objectBytes(context.recordRootDigest()),"records","ROOT");
-        require(local.equals(context.identities.get(local.nodeId().value())) && source.equals(context.identities.get(source.nodeId().value()))
-                && !local.equals(source),"source pull permanent identities");context.ballot(ballot,prefixCut==null);
+        if(learner==null) {
+            context=Objects.requireNonNull(verified).context;
+            originalRoot=decode(verified.packet.objectBytes(context.recordRootDigest()),"records","ROOT");
+            require(local.equals(context.identities.get(local.nodeId().value())) && source.equals(context.identities.get(source.nodeId().value()))
+                    && !local.equals(source),"source pull permanent identities");context.ballot(ballot,prefixCut==null);
+            requestRoot=context.root;requestView=context.authority();
+        }else {
+            context=null;originalRoot=Objects.requireNonNull(root);requestRoot=learner.root().manifestDigest();requestView=learner.change().expectedConfigurationDigest();
+            require(verified==null && prefixCut!=null && root.family().equals("records") && root.kind().equals("ROOT")
+                    && root.rootDigest().equals(requestRoot) && root.value().get("groupId").equals(learner.root().groupId().value().toString())
+                    && root.value().get("historyId").equals(learner.root().historyId().toString())
+                    && root.value().get("limits").equals(hash(canonical(CATALOG.get("resources"),16384))),"learner source original ROOT");
+            require(local.equals(learner.identity()) && !local.equals(source) && learner.change().target().contains(source)
+                    && ballot.equals(MembershipLearnerDiscovery.correlation(local)),"learner source contact route");
+            checkView(object(prefixCut.get("view")));MembershipValidation.position(number(prefixCut.get("index")));
+        }
         this.local=local;this.source=source;this.ballot=Map.copyOf(ballot);MembershipValidation.uuid(session);this.session=session;
         this.resources=Objects.requireNonNull(resources);this.link=Objects.requireNonNull(link);this.guard=Objects.requireNonNull(guard);
         this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;frameLimit=Math.min(FRAME,bounds.maxFrameBytes());
@@ -77,7 +104,7 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     private Decoded request(String kind,Map<String,Object> payload)throws IOException {
         check();require(sequence<MembershipValidation.MAX,"source sequence exhausted");
-        return decode(encode("wire",kind,Map.of("root",context.root,"view",context.authority(),"sender",MembershipBootstrapSeed.identity(local),
+        return decode(encode("wire",kind,Map.of("root",requestRoot,"view",requestView,"sender",MembershipBootstrapSeed.identity(local),
                 "recipient",MembershipBootstrapSeed.identity(source),"ballot",ballot,"trace",session.toString(),"sequence",++sequence,"payload",payload)),"wire",kind);
     }
     private Decoded exchange(Decoded request,String kind)throws IOException {
@@ -85,13 +112,13 @@ final class MembershipSourcePull implements AutoCloseable {
         try(var held=resources.reserve(MembershipResources.Unit.CONTROL,"source-request-"+UUID.randomUUID(),request.size())) {
             for(;;) {
                 check();retry.attempt(request.digest(),clock.getAsLong());CompletableFuture<Decoded> future;
-                synchronized(this){check();future=Objects.requireNonNull(link.exchange(source,request,kind,started+budget));pending=future;}
+                synchronized(this){check();future=Objects.requireNonNull(link.exchange(source,request,kind,started+budget));pending=future;if(closed)future.cancel(true);}
                 try {
                     long left=budget-(clock.getAsLong()-started);require(left>0,"original source pull deadline");
                     Decoded result=future.get(left,TimeUnit.NANOSECONDS);check();require(result.size()<=frameLimit,"source pull response frame limit");
                     MembershipWire.correlated(request,result,kind);
                     if(prefixCut==null)context.wire(result,source,local,ballot,session,number(request.value().get("sequence")));
-                    else MembershipWire.envelope(result,context.root,source,local);
+                    else MembershipWire.envelope(result,requestRoot,source,local);
                     // Return the real rejection to the runtime; never turn it into a source or retry it.
                     if(result.kind().equals("REJECT"))throw new Rejected(result);
                     retry.complete(request.digest(),clock.getAsLong());return result;
@@ -188,6 +215,7 @@ final class MembershipSourcePull implements AutoCloseable {
     /** A checkpoint observation requires contacting the ACK's permanent owner.
      * Statement/ACK bytes from a source packet alone do not establish this receipt. */
     CheckpointReceipt fetchCheckpointAcknowledgement(Decoded statement,Decoded expected)throws IOException {
+        require(prefixCut==null,"read-only prefix cannot observe checkpoint votes");
         checkpointAcknowledgement(context,source,statement,expected);
         var actual=fetchRecord(expected.digest(),"CHECKPOINT_ACK",value->{
             require(Arrays.equals(value.bytes(),expected.bytes()),"checkpoint original ACK bytes");
@@ -244,11 +272,15 @@ final class MembershipSourcePull implements AutoCloseable {
     MembershipSourceReceive fetchPrefix(Path scratch,MembershipImageBorrow originalImages)throws IOException {
         synchronized(this){require(prefixCut!=null && !used && !closed,"read-only prefix single use");used=true;}
         try {
-            var packet=offer(UUID.randomUUID(),cutDigest(prefixCut),MembershipTransfer.Kind.CAPSULE,null,null);
+            String reference=learner==null?cutDigest(prefixCut):MembershipLearnerPrefixExport.reference(learner,prefixCut,"prefix");
+            var packet=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.CAPSULE,null,null);
             MembershipSourceReceive staging;
             synchronized(this) {
-                check();received=new MembershipSourceReceive(scratch,context.root,source,prefixCut,session,packet.id,packet.content,
-                        resources,chunkLimit,clock,started,budget,originalImages);staging=received;
+                check();require(learner==null || originalImages==null,"learner must receive its original image");
+                received=learner==null?new MembershipSourceReceive(scratch,requestRoot,source,prefixCut,session,packet.id,packet.content,
+                        resources,chunkLimit,clock,started,budget,originalImages):
+                        MembershipSourceReceive.learner(scratch,requestRoot,source,prefixCut,session,packet.id,packet.content,resources,chunkLimit,clock,started,budget);
+                staging=received;
             }
             receiveFile(staging,staging.packetBinding(),packet);
             for(var binding:staging.imageBindings()) {
@@ -263,10 +295,11 @@ final class MembershipSourcePull implements AutoCloseable {
     private MembershipCapsule fetchAncestry(MembershipCapsule higher,boolean completeGeneration)throws IOException {
         synchronized(this){require(prefixCut!=null && !used && !closed,"ancestry pull single use");used=true;}
         try {
-            check();require(higher.context.root.equals(context.root) && higher.context.cut.equals(prefixCut)
+            check();require(higher.context.root.equals(requestRoot) && higher.context.cut.equals(prefixCut)
                     && Arrays.equals(higher.packet.objectBytes(higher.context.recordRootDigest()),originalRoot.bytes()),"ancestry expected prefix");
             ancestryPrefix=higher;
-            var reference=completeGeneration?MembershipPrefixExport.generationReference(higher.context):MembershipPrefixExport.ancestryReference(higher.context);
+            var reference=learner!=null?MembershipLearnerPrefixExport.reference(learner,prefixCut,completeGeneration?"generation":"ancestry"):
+                    completeGeneration?MembershipPrefixExport.generationReference(higher.context):MembershipPrefixExport.ancestryReference(higher.context);
             var manifestOffer=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.RECORD,null,null);
             ancestryManifest=decode(metadataBlob(manifestOffer,65536),"records","GENERATION");
             var fields=ancestryManifest.value();var cap=higher.packet.capsule();
@@ -301,7 +334,7 @@ final class MembershipSourcePull implements AutoCloseable {
             check();prefix.check();
             require(prefix.prefixCut!=null && prefix.completeSource && prefix.received!=null
                     && prefix.prefixCut.equals(prefixCut) && prefix.source.equals(source) && prefix.local.equals(local)
-                    && prefix.context.root.equals(context.root) && prefix.context.authority().equals(context.authority())
+                    && prefix.requestRoot.equals(requestRoot) && prefix.requestView.equals(requestView) && Objects.equals(prefix.learner,learner)
                     && prefix.ballot.equals(ballot) && prefix.resources==resources && prefix.started==started && prefix.budget==budget,
                     "generation original prefix owner/deadline");
             var complete=fetchAncestry(prefix.verifiedPrefix(),true);prefix.received.recheck();
@@ -347,7 +380,7 @@ final class MembershipSourcePull implements AutoCloseable {
         void check(MembershipCapsule capsule)throws IOException {
             pull.check();prefix.check();prefix.received.recheck();
             require(pull.completeAncestry && pull.ancestryManifest!=null && prefix.completeSource
-                    && capsule.context.cut.equals(pull.prefixCut) && capsule.context.root.equals(pull.context.root)
+                    && capsule.context.cut.equals(pull.prefixCut) && capsule.context.root.equals(pull.requestRoot)
                     && Arrays.equals(capsule.packet.bytes(),prefix.received.packet().bytes())
                     && Arrays.equals(files.get("source.gscp"),capsule.packet.bytes())
                     && Arrays.equals(files.get("generation.gsr"),pull.ancestryManifest.bytes()),"generation original copy binding");
@@ -408,14 +441,17 @@ final class MembershipSourcePull implements AutoCloseable {
     /** Authenticate a complete historical copy from the exact current-generation
      * endpoint. Does not manufacture Owned observations for former voters. */
     MembershipCapsule verifiedPrefix()throws IOException {
-        require(prefixCut!=null,"read-only prefix required");return retainedCapsule();
+        require(prefixCut!=null,"read-only prefix required");var result=retainedCapsule();
+        if(learner!=null)MembershipLearnerPrefixExport.originalReservation(result.context,learner,source);
+        check();return result;
     }
     /** Caller supplies real historical provenance. Hashes/downloads alone cannot verify it. */
     MembershipCapsule verifiedPrefix(MembershipCurrentGeneration.Verifier verifier)throws IOException {
         check();require(prefixCut!=null && completeSource && received!=null,"complete read-only prefix required");
         var packet=received.packet();var capsule=Objects.requireNonNull(verifier.verify(originalRoot,packet,received.images()));
-        require(capsule.context.root.equals(context.root) && capsule.context.cut.equals(prefixCut)
+        require(capsule.context.root.equals(requestRoot) && capsule.context.cut.equals(prefixCut)
                 && Arrays.equals(capsule.packet.bytes(),packet.bytes()),"prefix verifier substituted bytes/cut");
+        if(learner!=null)MembershipLearnerPrefixExport.originalReservation(capsule.context,learner,source);
         received.recheck();check();return capsule;
     }
     /** Observe only this contacted owner's original frozen grant after every source

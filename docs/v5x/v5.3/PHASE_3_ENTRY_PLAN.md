@@ -1,5 +1,15 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Complete learner source acquisition](PHASE_3_LEARNER_SOURCE.md) now obtains
+original ROOT, certified prefix, application images and complete generation from
+native peers without creating a voter or learner authority directory. The current
+nine-test Java gate and 745 Python tests pass; original and portable independent
+replay reject twelve exact negatives. Fifty-one distinct Java tests pass across
+three explicitly compared builds; the final build also qualifies cleanup-error
+draining. Source acquisition is not durable learner admission, image readiness
+or joint eligibility. Full learner lifecycle, all seven transitions, autonomous
+election/adoption, combined maximum headroom and complete Phase 3 remain OPEN.
+
 [Reservation-scoped learner first contact](PHASE_3_LEARNER_ROOT.md) now retrieves
 the original ROOT from real native peers without a fabricated voter, listener or
 learner store. Forty-one Java tests pass across the unchanged production inputs;

@@ -61,6 +61,18 @@ final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorr
     private MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Decoded promise,Decoded basis,
             Map<String,Object> expectedCut,UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,
             int chunkLimit,LongSupplier clock,long started,long budget,MembershipImageBorrow localImages)throws IOException {
+        this(directory,root,source,promise,basis,expectedCut,session,packetTransfer,offer,resources,chunkLimit,clock,started,budget,localImages,MembershipResources.Unit.SOURCE);
+    }
+    static MembershipSourceReceive learner(Path directory,String root,MembershipIdentity source,Map<String,Object> expectedCut,
+            UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,int chunkLimit,
+            LongSupplier clock,long started,long budget)throws IOException {
+        return new MembershipSourceReceive(directory,root,source,null,null,expectedCut,session,packetTransfer,offer,resources,chunkLimit,
+                clock,started,budget,null,MembershipResources.Unit.LEARNER);
+    }
+    private MembershipSourceReceive(Path directory,String root,MembershipIdentity source,Decoded promise,Decoded basis,
+            Map<String,Object> expectedCut,UUID session,UUID packetTransfer,MembershipSourceExport.Content offer,MembershipResources resources,
+            int chunkLimit,LongSupplier clock,long started,long budget,MembershipImageBorrow localImages,MembershipResources.Unit unit)throws IOException {
+        require(unit==MembershipResources.Unit.SOURCE || (unit==MembershipResources.Unit.LEARNER && basis==null && localImages==null),"receive staging category");
         MembershipValidation.digest(root);MembershipValidation.uuid(session);
         MembershipValidation.uuid(packetTransfer);require((promise==null)==(basis==null),"receive optional grant pair");
         this.expectedCut=Map.copyOf(expectedCut);
@@ -83,7 +95,7 @@ final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorr
         try{Files.createDirectory(this.directory);key=MembershipBasisSources.key(this.directory);}
         catch(IOException|RuntimeException|Error error){records.close();throw error;}
         directoryKey=key;
-        try{create(offer,"source.gscp",MembershipResources.Unit.SOURCE,packetTransfer);check();}
+        try{create(offer,"source.gscp",unit,packetTransfer);check();}
         catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
     private void time(){long elapsed=clock.getAsLong()-started;if(elapsed<0 || elapsed>=budget){failed=true;throw new IllegalArgumentException("original source receive deadline");}}

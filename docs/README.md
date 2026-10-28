@@ -29,6 +29,7 @@ not establish protected CI acceptance, an enabled public runtime or a release.
 
 - [Development scope and progress](v5x/v5.3/README.md)
 - [Phase 3 entry and closure requirements](v5x/v5.3/PHASE_3_ENTRY_PLAN.md)
+- [Complete original learner source acquisition](v5x/v5.3/PHASE_3_LEARNER_SOURCE.md)
 - [Reservation-scoped learner first contact](v5x/v5.3/PHASE_3_LEARNER_ROOT.md)
 - [Interrupted native transition process qualification](v5x/v5.3/PHASE_3_TRANSITION_PROCESS.md)
 

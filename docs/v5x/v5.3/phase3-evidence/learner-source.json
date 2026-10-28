@@ -1,0 +1,178 @@
+{
+  "archive": {
+    "bytes": 10240406,
+    "currentSourceJavaTests": 9,
+    "files": 5631,
+    "fullPhase3": false,
+    "javaBuilds": {
+      "sourcecleanup": {
+        "binaries": {},
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceNetworkTest": 1,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "sourcecleanup",
+          "seconds": 171.2794423289888,
+          "skipped": 0,
+          "tests": 9
+        },
+        "productionDifferencesFromCurrent": []
+      },
+      "sourceconditional": {
+        "binaries": {},
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest": 2,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerDiscoveryTest": 11,
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 7
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "sourceconditional",
+          "seconds": 93.74598541500745,
+          "skipped": 0,
+          "tests": 20
+        },
+        "productionDifferencesFromCurrent": [
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSource.java"
+        ]
+      },
+      "sourcenative": {
+        "binaries": {},
+        "execution": {
+          "classes": {
+            "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceNetworkTest": 1,
+            "io.github.patricklfdm.generalsearch.replication.V53MembershipTransportTest": 13,
+            "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest": 16
+          },
+          "exit": 0,
+          "failures": 0,
+          "label": "sourcenative",
+          "seconds": 316.8537749480165,
+          "skipped": 0,
+          "tests": 30
+        },
+        "productionDifferencesFromCurrent": [
+          "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSource.java"
+        ]
+      }
+    },
+    "javaDistinctPassingTests": 51,
+    "learnerAdmission": false,
+    "negativeCases": 12,
+    "negativeExecutions": 24,
+    "path": "target/v53-learner-source/qualification.tar.gz",
+    "productionInputs": 478,
+    "pythonTests": 745,
+    "result": {
+      "negatives": [
+        {
+          "case": "extra-file",
+          "reason": "context selection learner source inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-before-read",
+          "reason": "admitted exact before-learner-source: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-during-read",
+          "reason": "admitted exact after-learner-source: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "false-public-ready",
+          "reason": "learner source result scope",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-original-copy",
+          "reason": "learner source exact original generation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-original-copy",
+          "reason": "learner source exact original generation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-client-receipt",
+          "reason": "learner source exact received trace",
+          "status": "REJECTED"
+        },
+        {
+          "case": "substituted-request",
+          "reason": "learner source prefix original offer",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-hint",
+          "reason": "learner source exact hint",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-generation-data",
+          "reason": "learner source generation exact data",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-generation-commit",
+          "reason": "learner source generation exact commit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "foreign-generation-source",
+          "reason": "learner source generation correlation",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "exchanges": 31,
+        "fullNetworkQualification": false,
+        "learnerAdmissionQualified": false,
+        "originalFiles": 9,
+        "peer": "node-1",
+        "phase3Complete": false,
+        "physicalQualification": true,
+        "scope": "native-reservation-complete-source",
+        "status": "PASS"
+      }
+    },
+    "runtimeInputs": 1231,
+    "sha256": "1bf765d41cc8ce27a41bde5a1d06f0a10f4b3d18d86a45f25d0a5ed5f1913a02",
+    "status": "PASS"
+  },
+  "fullNetworkQualification": false,
+  "learnerAdmissionQualified": false,
+  "paidCloud": false,
+  "parent": "33365304ef7493ac776733a1f4d8c04fdbc7c5d2",
+  "phase3Complete": false,
+  "protectedCI": false,
+  "publicReady": false,
+  "qualification": "complete original source acquisition only",
+  "retainedFailures": [
+    "first independent replay omitted separately derived generation.gsr from the manifest member map; original raw unchanged"
+  ],
+  "schema": "gse-v53-learner-source-qualification-v1",
+  "sourceDifference": "Earlier 20/30-test builds precede the isolated closeChildren exception-drain correction; current 9-test build qualifies corrected coordinator and actual TCP acquisition. All other production inputs match; 51 distinct Java methods pass across the three builds.",
+  "sources": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "4db8d7f369269871ff129ae606aef974c49876cfadc1c9159085ee37958befbb",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDiscovery.java": "684c6024f966c88be6d74c7e51867fb62d386332fc058dd6f9116df60276440f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPrefixExport.java": "0bc5ad438d1bd9f84cdfb0166868f371ade27ac90da5a1fc3ac0dbc9959dc2ce",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSource.java": "05aeab154c35a342a8286a88d7231501b36bc01d48a3e4fd7e2f0dcaa3ebda50",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java": "cac330e2f894ca0623ab7c6513ad1e28c44e10bcd86d9eeb0f48a47e6c9b9810",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceReceive.java": "13461713f1a14530989cf31742292bf1f3b8e1fffd8333e107ee991eba425ce8",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java": "16cca531ef5a8e119e363c5afdb66bfe1b4ada2e851ccfd722916d88e67fc660",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java": "5fe5342dcad2cb27c943ee86cbf8f7e4bbe7da2f0f1fbed2c3be37fa0a4373f2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerSourceNetworkTest.java": "1574dbb2cf45e07534ca3f65ea0f343b784c92a3b7d965d1da631d53cede249a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerSourceTest.java": "fd20e3a73fb3450e2b93e84e43a4c1cdae64b681ecb34a5fc1cd39079e3f42e4",
+    "scripts/v53/learner_root_evidence.py": "e45fb2695f0906c974efbcf962084b7edfaa33b4786f1c26f28f8bf5bcb1c0a6",
+    "scripts/v53/learner_source_evidence.py": "3ced9d480b7bcfc41bac8cb9173de629d3e201f4e62c115aaf4877bbb8b1e0e4",
+    "scripts/v53/test_learner_source_evidence.py": "cd7e8f799086dbf395d69334112826d057ccd54f9ef5e61ed8d7f59783d88973"
+  },
+  "status": "PASS"
+}

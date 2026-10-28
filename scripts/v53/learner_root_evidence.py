@@ -13,7 +13,7 @@ b,c,d,e,f,need=a.b,a.c,a.d,a.e,a.f,a.need
 VOTERS=('node-1','node-2')
 
 
-def physical(root):
+def physical(root,*,before='before-learner-discovery',after='after-learner-discovery'):
     group=d.s.initialize(b.original(root,3,False))
     group={n:dict(v,**{d.future.FILE:d.future.frame(d.future.initial(v),{})}) for n,v in group.items()}
     b.match(root,'before-network',group)
@@ -28,8 +28,8 @@ def physical(root):
     for kind,command in [('BARRIER',None),('RESERVE',supplied),('CANCEL',dict(number=1))]:
         model.group=a.maintenance(model.group,VOTERS);model.publish(kind,command)
         if kind=='RESERVE':
-            b.match(root,'before-learner-discovery',model.group)
-            b.match(root,'after-learner-discovery',model.group)
+            b.match(root,before,model.group)
+            b.match(root,after,model.group)
             reserved=copy.deepcopy(model.group)
     b.match(root,'after-close',model.group)
     _,_,packet=c.current(reserved['node-1']);catalog=f.decode(packet['objects'][packet['capsule']['catalog']],'records','CATALOG')
