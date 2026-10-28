@@ -25,4 +25,20 @@ class NativeApplicationIngressEvidenceTest(unittest.TestCase):
                 with self.subTest(kind=name,field=field),self.assertRaises(ValueError):a.f.encode('wire',name,changed)
 
 
+    def test_nonvoting_application_reply_is_explicit_nullable_syntax_not_an_omitted_field(self):
+        catalog=a.f.catalog();spec=catalog['wire']['APPLY_ACK']
+        self.assertEqual({'nullable':'hash'},spec['schema']['object']['payload']['object']['acknowledgement'])
+        value=a.f.sample(spec['schema'],catalog['types'])
+        for acknowledgement in (None,'ab'*32):
+            value['payload']['acknowledgement']=acknowledgement
+            self.assertEqual(value,a.f.decode(a.f.encode('wire','APPLY_ACK',value),'wire','APPLY_ACK'))
+        value['payload'].pop('acknowledgement')
+        with self.assertRaises(ValueError):a.f.encode('wire','APPLY_ACK',value)
+
+    def test_production_schema_and_java_fixture_copy_match_the_independent_catalog(self):
+        root=a.f.ROOT
+        self.assertEqual(a.f.canonical(a.f.catalog()),(root/'general-search-engine-replication/src/main/resources/replication/membership-format-v13.json').read_bytes())
+        self.assertEqual((root/'docs/v5x/v5.3/byte-fixtures.json').read_bytes(),(root/'general-search-engine-replication/src/test/resources/replication/v53/byte-fixtures.json').read_bytes())
+
+
 if __name__=='__main__':unittest.main()

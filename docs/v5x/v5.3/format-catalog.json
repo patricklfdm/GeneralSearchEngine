@@ -1340,7 +1340,9 @@
               "certificate": "hash",
               "selection": "hash",
               "statement": "hash",
-              "acknowledgement": "hash"
+              "acknowledgement": {
+                "nullable": "hash"
+              }
             }
           },
           "recipient": "identity",

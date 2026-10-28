@@ -1,5 +1,20 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native departure and serialized transition](PHASE_3_DEPARTING_PUBLICATION.md)
+now complete an original four-to-three FINAL on an old-only proposer or selected
+follower without creating a successor vote. The [round owner](PHASE_3_TRANSITION_ROUND.md)
+finishes SEALED/JOINT and submitted-SEAL transitions through fresh activation and
+a new-stable barrier, preserving one original lifetime and fencing at each handoff.
+Three immutable builds share all 474 production/resource/POM inputs. The final
+1,136-file inventory also binds test fixtures, with an explicit stable-test caller
+profile adjustment and the original default-timeout failure retained. Forty-seven
+Java tests and 723 Python tests pass. Four transition/departure histories cover
+44 exact negative variants; two stable/carried regression histories add 50. All
+six current-source histories pass original-first and relocated optimized replay. The
+[receipt](phase3-evidence/native-departure-round.json) separates earlier histories
+and failures. Native process interruptions, learners/all profiles, autonomous
+elections/adoption, combined maximum headroom and full Phase 3 remain OPEN.
+
 [Nonvoting future retention](PHASE_3_DEPARTING_FUTURE.md) now represents an exact
 departing FINAL without a successor ACK, retains its original owner through
 inheritance, and binds it to the complete local applied end. Five configuration

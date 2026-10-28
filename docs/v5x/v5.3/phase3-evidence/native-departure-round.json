@@ -1,0 +1,166 @@
+{
+  "archive": {
+    "bytes": 20665132,
+    "currentHistories": 4,
+    "files": 21988,
+    "javaTests": 47,
+    "path": "target/v53-native-departure/final-qualification.tar.gz",
+    "phase3Complete": false,
+    "pythonTests": 723,
+    "readerInputsSha256": "753ca99cdd7d2d7fec578a565931dbfc5e7928ec383acacfe9d4381fd239c29c",
+    "runtimeInputsSha256": "b6b2de7b1da62d2d04556d4504e0b96638fc3587df5c7b3ffcf408e12db668fd",
+    "sha256": "aade25bf9ac3caf968ff549c816ddbc94853a176e1aa386bd0b4d4af1133190f",
+    "status": "PASS",
+    "summarySha256": "affb962f8dadd1d866598874599521c1bd12c122e294d5104dfe7fb65c55dac0",
+    "uniqueNegativeCases": 44
+  },
+  "historicalReplayArchive": {
+    "bytes": 22899516,
+    "files": 24626,
+    "originalHistories": 5,
+    "path": "target/v53-native-departure/qualified-originals-and-readers.tar.gz",
+    "phase3Complete": false,
+    "sha256": "5f0c9951a535ee79258c0663181a1844cab577ebb0c720d3f34a5f76038483bd",
+    "status": "PASS",
+    "uniqueNegativeCases": 62
+  },
+  "javaTests": 47,
+  "negativeCases": 44,
+  "originalCurrentHistories": [
+    {
+      "files": 4177,
+      "module": "departing_publication_evidence",
+      "name": "proposer",
+      "negativeCases": 11,
+      "original": "target/v53-transition-round/builds/departingobserved-ed6892b5/general-search-engine-replication/target/v53-native-dispatch/run-55b1d000-0df0-4121-8811-68fd700721f9",
+      "sourceBuild": "departingobserved-ed6892b5"
+    },
+    {
+      "files": 4537,
+      "module": "departing_publication_evidence",
+      "name": "follower",
+      "negativeCases": 11,
+      "original": "target/v53-transition-round/builds/departingobserved-ed6892b5/general-search-engine-replication/target/v53-native-dispatch/run-8d09ffa3-5d5f-4fee-a22b-d81385719ac8",
+      "sourceBuild": "departingobserved-ed6892b5"
+    },
+    {
+      "files": 4256,
+      "module": "transition_round_evidence",
+      "name": "controlled",
+      "negativeCases": 10,
+      "original": "target/v53-transition-round/builds/departureguards-86be472e/general-search-engine-replication/target/v53-native-dispatch/run-15b1501a-dc8d-40ee-ab28-fb2ce6dfe0f8",
+      "sourceBuild": "departureguards-86be472e"
+    },
+    {
+      "files": 4151,
+      "module": "submitted_transition_evidence",
+      "name": "submitted",
+      "negativeCases": 12,
+      "original": "target/v53-transition-round/builds/departureguards-86be472e/general-search-engine-replication/target/v53-native-dispatch/run-80f3bc88-5454-4417-a88e-a6ce03e71001",
+      "sourceBuild": "departureguards-86be472e"
+    }
+  ],
+  "paidCloud": false,
+  "parent": "9bf55be8bf84f1c5da0c36ad75dbe967ec8702cb",
+  "phase3Complete": false,
+  "portableOptimizedReplay": "PASS",
+  "productionSourceFiles": 474,
+  "protectedCI": false,
+  "publicReady": false,
+  "pythonTests": 723,
+  "remaining": [
+    "native whole-operation process interruption/reopen",
+    "all seven configuration profiles and real ADD/REPLACE learners",
+    "autonomous discovery/election/adoption",
+    "maximum combined resource headroom",
+    "complete Phase 3 protocol audit"
+  ],
+  "retainedFailures": [
+    "The first actual departure histories failed because repeated future retention required an absent successor ACK.",
+    "The intermediate removed proposer completed FINAL but attempted next-view maintenance; activation now refuses before new durable authority.",
+    "Earlier transfer-capacity and original-ancestry failures remain retained with their source-bound prerequisite corrections.",
+    "Reader corrections for actual maintenance peer choice and retained hidden ancestry preserve every original runtime byte.",
+    "The original stable carried-ordering test exhausted three default 5-second PUBLISH waits; the receiver finished after sender shutdown and no readiness was granted. The corrected semantic profile uses a declared 30-second caller timeout without changing the original 180-second lifetime, production defaults or finite retry count. Default-profile latency cause remains unestablished."
+  ],
+  "runtimeSourceFiles": 1136,
+  "schema": "gse-v53-native-departure-round-qualification-v1",
+  "scope": "internal native four-to-three REMOVE, completed departure and serialized transition owner",
+  "sources": {
+    "docs/v5x/v5.3/byte-fixtures.json": "37179e433da225adc89ae28ac0d8e18f93e5f8deb52db95e0685b5a79ee7cf7e",
+    "docs/v5x/v5.3/format-catalog.json": "06563b5aff6ff57fa3520536a231b445cdd3523d8b160c7ee3048193c79d8b9b",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java": "a2a05882d82ff7dd1ab6f65a06edf73e5167a5bd84d8141d24f56622d9139867",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFutureRetentionFiles.java": "e77a9fc1ca8a49ae9b17dcb26363d0e70febb51b6dbe39b26931d55dab65c1fc",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java": "c7e267c2c9e7698e7a93827becc7290a86c6394b2e195000fff919540fa08133",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "2f16e110b27ac6a4c26c0ae787a70d1904cd8d08d942b031c8c1eb364a7a6538",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPublicationEndpoint.java": "43739b8429f83b99f7cf275c3eb5b51d0a72ea9af77f3eaea75c54e4e227f8c5",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java": "0b0619c0498bc0d19a0ded0b6b71b8beff03d74dcf37b5449325b9883a72488e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectionCoverage.java": "52a133b188697504a0d0821f9ed6537206fc0b2322e474072bb214ace57c0d31",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDelivery.java": "262d7ed91b4aa3aac310ec0a63396a17790dbbe09a41df7c3bffb5f462637376",
+    "general-search-engine-replication/src/main/resources/replication/membership-format-v13.json": "481e1501cb0cf18f8d1c5f2b1b82468da7a79436deae149067f13d78140a61ad",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DepartingFutureTest.java": "d0b050c55ae6205a94aec44011528ef55b84e72a91c9f4d81412a843897a4c6c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DepartingPublicationTest.java": "b9cbc7a25e73af13833c363f0afab278a8f19e8c028f5ac9d36f3ed66725b028",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "5b285a60d1d872db8346cfbd9756cc94535d9f216e92e6902f6b198a52626e9b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundDriverTest.java": "44a96a10dbee618b61bda42fe40f9ef8a8652849ca0d3499fcc179b41e0c63c0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionRoundDriverTest.java": "c4c324176a8339c08c72f53bd3279f2943ff824fcd8f20d9abff8efcce7fc6fa",
+    "general-search-engine-replication/src/test/resources/replication/v53/byte-fixtures.json": "37179e433da225adc89ae28ac0d8e18f93e5f8deb52db95e0685b5a79ee7cf7e",
+    "scripts/v53/admitted_cross_view_evidence.py": "025b19cc1fe7ff06779774e7dfb0af6530d1df4ff6c2da0bf2b55173dbe30b78",
+    "scripts/v53/authority_transition_evidence.py": "61592bb651986b6933af6d34f7f69e21d116c7f9795238d4b383f9e90d693cce",
+    "scripts/v53/continuous_transition_evidence.py": "dc900554ecfee68dd0fe1a4d8c155715e86deee24c6488b636ca7b703559ed3e",
+    "scripts/v53/departing_publication_evidence.py": "f06496add6255aa8d7d7ecea82372c65cce7696fbbd5f503865e03acb9f649f6",
+    "scripts/v53/selected_retention_evidence.py": "1ad9ab8fbb86d52d81608c2c320240fdd6724b6146383d93db470af959bd683c",
+    "scripts/v53/submitted_transition_evidence.py": "c406cfb635cb2734636c744e174e274c3a1c0b56e77e40f06dfe63b14c366844",
+    "scripts/v53/test_continuous_transition_evidence.py": "c50aac9e12f6201f77d989a0100e678e11250ccf0e20e9306c19bf4132ff2e28",
+    "scripts/v53/test_departing_publication_evidence.py": "73aab51ced5828fa32ca93183d3f67d5a01d484f8b750897b66f459c55ed0e3f",
+    "scripts/v53/test_native_application_ingress_evidence.py": "2776783b4ee6a5b266d970b5ac1ccfbd7d9673f30f025c7aeafec8ada3258332",
+    "scripts/v53/test_submitted_transition_evidence.py": "328fab9b3aeb2ab67e0a787a1bec3c08be64556b787fbedf3d28a3b25e6ca10a",
+    "scripts/v53/test_transition_round_evidence.py": "bdeaba50edf37f21316aa69ed291c1adda83f8b30f33c673d5433afc528d7ea0",
+    "scripts/v53/transition_round_evidence.py": "2cc56082ee6530496e0066e0084b6abd062f25948fe8ce257c7c4b361093c3be"
+  },
+  "stableAndCarriedRegression": {
+    "bytes": 7154647,
+    "histories": 2,
+    "path": "target/v53-native-departure/stable-round-replay.tar.gz",
+    "phase3Complete": false,
+    "results": [
+      {
+        "mode": "original",
+        "name": "carried-applied",
+        "negatives": 17,
+        "original": "target/v53-transition-round/builds/finalstablefixed-3f63493f/general-search-engine-replication/target/v53-native-dispatch/run-fe186ac9-25af-4ea6-9992-6f1ccb8edd4d",
+        "seconds": 11.596442932001082,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "name": "carried-applied",
+        "negatives": 17,
+        "original": "target/v53-transition-round/builds/finalstablefixed-3f63493f/general-search-engine-replication/target/v53-native-dispatch/run-fe186ac9-25af-4ea6-9992-6f1ccb8edd4d",
+        "seconds": 12.578076945006615,
+        "status": "PASS"
+      },
+      {
+        "mode": "original",
+        "name": "stable",
+        "negatives": 33,
+        "original": "target/v53-transition-round/builds/finalstablefixed-3f63493f/general-search-engine-replication/target/v53-native-dispatch/run-214e07bb-250b-4929-9d33-c7e807ed4f16",
+        "seconds": 14.193068010994466,
+        "status": "PASS"
+      },
+      {
+        "mode": "portable-optimized",
+        "name": "stable",
+        "negatives": 33,
+        "original": "target/v53-transition-round/builds/finalstablefixed-3f63493f/general-search-engine-replication/target/v53-native-dispatch/run-214e07bb-250b-4929-9d33-c7e807ed4f16",
+        "seconds": 13.853763577004429,
+        "status": "PASS"
+      }
+    ],
+    "sha256": "aab7b8c5bcf99b5198a3eeb6545a5d180f4bdfc9a7bc06cfe5117816cece15aa",
+    "sourceBuild": "finalstablefixed-3f63493f",
+    "status": "PASS",
+    "uniqueNegativeCases": 50
+  },
+  "status": "PASS",
+  "totalCurrentHistories": 6,
+  "totalNegativeCases": 94
+}

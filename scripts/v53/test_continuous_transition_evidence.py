@@ -7,6 +7,12 @@ from . import continuous_transition_evidence as e
 
 
 class ContinuousTransitionEvidenceTest(unittest.TestCase):
+    def test_original_link_cannot_be_followed_during_replay_or_copy(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'events.json').symlink_to('/missing')
+            with self.assertRaisesRegex(ValueError,'^continuous regular original inventory$'):
+                e.history(root,'continuous-result.json')
+
     def test_broken_original_is_not_a_successful_negative(self):
         with patch.object(e,'validate',side_effect=ValueError('broken original')) as validate,patch.object(e.shutil,'copytree') as copied:
             with self.assertRaisesRegex(ValueError,'^broken original$'):e.qualify(Path('/original'))

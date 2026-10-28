@@ -70,6 +70,9 @@ class Walk:
 
     def phase(self,label,nodes):self.phases[label]=list(nodes)
 
+    def required_anchors(self):
+        return [self.first['end']] if self.first else []
+
     def settle(self,label,group,nodes):
         result=dict(group);result.update(b.settled({n:group[n] for n in nodes}));self.snapshot(label,result);return result
 
@@ -108,21 +111,31 @@ class Walk:
         else:
             e.need(image==members[cap['application']+'.image'],'cross-view control image changed')
             after=context.reduce_catalog(before,cap['catalog'],kind,command,e.digest(entry),r)
-        context.majority(after['cut']['view'],nodes);catalog=e.f.encode('records','CATALOG',after)
+        eligible=set(after['cut']['view']['old'])|set(after['cut']['view']['new'])
+        context.majority(after['cut']['view'],[n for n in nodes if n in eligible]);catalog=e.f.encode('records','CATALOG',after)
         membership=kind in ('INTENT','FINAL');retained=list(cap['items']);start=dict(root=r,scope='MEMBERSHIP' if membership else 'RANGE',start=cap['cut'],catalogBefore=cap['catalog'],applicationBefore=cap['application'])
         if not membership and retained and retained[-1]['kind']=='RANGE':start=e.f.decode(packet['objects'][retained.pop()['statement']],'records','CHECKPOINT')
         statement=dict(start,end=after['cut'],catalogAfter=e.digest(catalog),applicationAfter=after['application']);raw_statement=e.f.encode('records','CHECKPOINT',statement)
         lowers=[]
-        if self.first and start['start']['index']<self.first['end']['cut']['index']<cap['cut']['index']:lowers.append(('ancestor-0',self.first['end']))
+        for lower in self.required_anchors():
+            if start['start']['index']<lower['cut']['index']<cap['cut']['index']:
+                lowers.append(('ancestor-'+str(len(lowers)),lower))
         if start['start']!=cap['cut']:lowers.append(('parent',c.anchor(cap)))
         applied=dict(phases);acks=[];groups={label:[] for label,_ in lowers};bridge_rows=[]
         for n in nodes:
             def ack(raw):return e.f.encode('records','CHECKPOINT_ACK',dict(root=r,voter=n,incarnation=ids[n],cut=after['cut'],statement=e.digest(raw)))
-            end=dict(zip(('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','application.image','ack.gsr'),(phases[n]['selector.gsr'],cert,catalog,raw_statement,image,ack(raw_statement))))
-            acks.append(end['ack.gsr']);self.observed_add(n,end['ack.gsr'],after['cut'])
-            for label,lower in lowers:
-                raw=e.f.encode('records','CHECKPOINT',dict(statement,start=lower['cut'],catalogBefore=lower['catalog'],applicationBefore=lower['application']))
-                end[label+'-statement.gsr']=raw;end[label+'-ack.gsr']=ack(raw);groups[label].append(ack(raw));self.observed_add(n,ack(raw),after['cut'])
+            end=dict(zip(('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','application.image'),(phases[n]['selector.gsr'],cert,catalog,raw_statement,image)))
+            eligible=set(after['cut']['view']['old'])|set(after['cut']['view']['new'])
+            if n in eligible:
+                end['ack.gsr']=ack(raw_statement);acks.append(end['ack.gsr']);self.observed_add(n,end['ack.gsr'],after['cut'])
+                for label,lower in lowers:
+                    raw=e.f.encode('records','CHECKPOINT',dict(statement,start=lower['cut'],catalogBefore=lower['catalog'],applicationBefore=lower['application']))
+                    end[label+'-statement.gsr']=raw;end[label+'-ack.gsr']=ack(raw);groups[label].append(ack(raw));self.observed_add(n,ack(raw),after['cut'])
+            else:
+                old,new=cap['cut']['view'],after['cut']['view']
+                e.need(kind=='FINAL' and old['operation'] is not None and n in old['old'] and n not in old['new']
+                       and new['operation'] is None and new['old']==new['new']==old['new']
+                       and new['generation']==old['generation']+1 and not lowers,'cross-view exact departing FINAL')
             end['plan.json']=e.f.canonical(dict(schema='gse-v53-applied-end/1.3',root=r,node=n,files=[dict(path=k,**e.info(v)) for k,v in sorted(end.items())]))
             applied[n]=dict(phases[n],**{'applied-end':None},**{'applied-end/'+k:v for k,v in end.items()})
         self.snapshot(f'slot-{slot}-applied',applied)
@@ -136,19 +149,23 @@ class Walk:
         for label,lower in lowers:
             raw=e.f.encode('records','CHECKPOINT',dict(statement,start=lower['cut'],catalogBefore=lower['catalog'],applicationBefore=lower['application']))
             bridge_rows.append(raw+b''.join(groups[label]));objects.update({e.digest(v):v for v in (raw,*groups[label])})
-        if kind=='INTENT' and self.first:
-            lower=self.first['end'];first_index=lower['cut']['index']
-            # Keep the original hidden endpoint ending at the old RANGE; it is not
-            # replaced by an endorsement spanning the membership transition.
-            if first_index!=cap['cut']['index']:
-                ancestry=members.get('ancestry.gsr',b'');offset=0
-                while offset<len(ancestry):
-                    size=48+int.from_bytes(ancestry[offset+12:offset+16],'big');raw=ancestry[offset:offset+size];offset+=size
-                    value=e.f.decode(raw,'records','CHECKPOINT');raws=[raw]
-                    while offset<len(ancestry) and int.from_bytes(ancestry[offset+8:offset+10],'big')!=e.f.catalog()['records']['CHECKPOINT']['id']:
-                        size=48+int.from_bytes(ancestry[offset+12:offset+16],'big');raws.append(ancestry[offset:offset+size]);offset+=size
-                    if value['start']==lower['cut']:bridge_rows.append(b''.join(raws));objects.update({e.digest(v):v for v in raws})
-                e.need(bool(bridge_rows),'cross-view original hidden endpoint absent')
+        if membership:
+            direct=[cap['cut']]
+            for prior in cap['items']:
+                value=e.f.decode(packet['objects'][prior['statement']],'records','CHECKPOINT')
+                direct.extend((value['start'],value['end']))
+            # A membership edge preserves original hidden endpoints; it cannot
+            # renew their ACKs across the authority change.
+            for lower in self.required_anchors():
+                if lower['cut'] in direct:continue
+                ancestry=members.get('ancestry.gsr',b'');groups_of_frames=[]
+                for raw in ancestry_frames(ancestry):
+                    if int.from_bytes(raw[8:10],'big')==e.f.catalog()['records']['CHECKPOINT']['id']:groups_of_frames.append([raw])
+                    else:
+                        e.need(bool(groups_of_frames),'cross-view ancestry without statement');groups_of_frames[-1].append(raw)
+                matches=[rows for rows in groups_of_frames if e.f.decode(rows[0],'records','CHECKPOINT')['start']==lower['cut']]
+                e.need(len(matches)==1,'cross-view original hidden endpoint absent')
+                bridge_rows.append(b''.join(matches[0]));objects.update({e.digest(v):v for v in matches[0]})
         coverage=dict(schema='gse-v53-selected-coverage/1.3' if self.first is None else 'gse-v53-round-coverage/1.3',selection=e.digest(members['selected.gsr']),parent=c.anchor(cap),certificate=e.digest(cert))
         if self.first:
             coverage['first']={k:self.first[k] for k in ('parent','end','certificate')};objects.update(self.first['proof'])

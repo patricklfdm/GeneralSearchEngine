@@ -38,7 +38,7 @@ final class MembershipGenerationPlan {
     }
     private void verifyCapsule(MembershipCapsule capsule,MembershipIdentity local,Collection<MembershipCapsule.Anchor> ancestors) {
         var packet=capsule.packet;
-        require(local.equals(capsule.context.identities.get(local.nodeId().value())) && capsule.context.voters().contains(local.nodeId().value()),"installed local eligible identity");
+        require(local.equals(capsule.context.identities.get(local.nodeId().value())),"installed local permanent identity");
         capsule.verifyAncestry(files.getOrDefault("ancestry.gsr",new byte[0]),ancestors);
         if(files.containsKey("selected.gsr"))MembershipSelectedRetention.find(capsule,decode(files.get("selected.gsr"),"records","SELECTED"),local)
                 .ifPresent(retention->{
@@ -54,8 +54,11 @@ final class MembershipGenerationPlan {
             });
             MembershipSelectionCoverage.verify(files.get(MembershipSelectionCoverage.FILE),capsule,
                     decode(files.get("promise.gsr"),"records","PROMISE"),decode(files.get("selected.gsr"),"records","SELECTED"),
-                    files.getOrDefault("ancestry.gsr",new byte[0]));return;
+                    files.getOrDefault("ancestry.gsr",new byte[0]));
+            if(!capsule.context.voters().contains(local.nodeId().value()))MembershipSelectionCoverage.departingOwner(capsule,selected,local);
+            return;
         }
+        require(capsule.context.voters().contains(local.nodeId().value()),"installed local eligible identity");
         var promise=decode(files.get("promise.gsr"),"records","PROMISE");var body=new TreeMap<>(promise.value());
         body.put("voter",local.nodeId().value());body.put("cut",capsule.context.cut);body.put("capsule",packet.capsule().digest());
         body.put("inventory",packet.inventoryDigest());body.put("accepted",manifest.value().get("ownedTail"));
@@ -133,8 +136,9 @@ final class MembershipGenerationPlan {
         require(list(selected.value().get("sources")).stream().map(MembershipFormat::object).anyMatch(s->s.get("voter").equals(local.nodeId().value())
                 && s.get("basisId").equals(basis.value().get("basisId")) && s.get("basisDigest").equals(basis.digest())),"publication missing original selected local source");
         var capsule=checkpoint.publication(acknowledgements,observations,bridges);
-        require(capsule.context.root.equals(root.manifestDigest()) && local.equals(capsule.context.identities.get(local.nodeId().value()))
-                && capsule.context.voters().contains(local.nodeId().value()),"publication local eligible identity");
+        require(capsule.context.root.equals(root.manifestDigest()) && local.equals(capsule.context.identities.get(local.nodeId().value())),"publication local permanent identity");
+        if(!capsule.context.voters().contains(local.nodeId().value()))
+            MembershipAppliedEndFiles.departing(checkpoint.catalog,checkpoint.statement,checkpoint.originalParent(),checkpoint.originalCertificate(),checkpoint.originalEntry(),local);
         byte[] ancestry=ancestry(bridges),coverage;
         if(selected.value().get("cut").equals(checkpoint.originalParent().cut()))
             coverage=MembershipSelectionCoverage.encodeCoverage(selected,checkpoint.originalParent(),checkpoint.originalCertificate(),checkpoint.additionalParents());

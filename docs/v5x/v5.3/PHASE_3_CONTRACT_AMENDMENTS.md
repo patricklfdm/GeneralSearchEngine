@@ -279,3 +279,40 @@ is inferred from these component results.
 Before release, rollback removes the nine-record reader/writer variant and its
 independent reader together; it must not synthesize a tenth record for a retained
 nonvoting proof. Previously produced nonvoting test evidence stays historical.
+
+## A11 — nonvoting native application reply and FINAL publication
+
+The internal APPLY_ACK payload keeps its exact certificate, selection and
+statement fields. Its acknowledgement field is now a nullable hash in unpublished
+1.3: eligible successor voters must return their actual forced CHECKPOINT_ACK;
+only an exact A09 departing original owner returns null. The field is never
+omitted, replaced with a sentinel digest or treated as a successor vote. The
+native owner binds the reply to its actual typed completion. The sender derives
+the expected recipient-specific result from the authenticated plan and permanent
+identity, then compares the entire correlated payload; its expectation itself
+is not an observed ACK. All 51 other record/wire fixtures, commands and read-token
+bytes remain unchanged; the total stays 24 records and 28 wire kinds.
+
+The native journal carries the typed completion into pending retention and
+publication. An old-only FINAL owner exports its exact checkpoint statement but
+no successor ACK. Publication on that node collects actual ACKs exclusively from
+the new eligible set. All future-target recordings still require both original
+joint majorities before the first publication send; the removed node's null
+application reply cannot relax this requirement.
+
+A published generation may retain the removed local owner only after its full
+original selection coverage verifies and the terminal membership certificate
+proves that owner's exact FINAL. Initial installation, unrelated nonvoters,
+changed incarnations, later stable slots and a selection excluding the local
+owner do not receive this exception. Reopening the exact final generation retains
+known removal; it creates no next-round eligibility or readiness.
+
+The [native qualification](phase3-evidence/native-departure-round.json) now covers
+actual removed-proposer/follower TCP histories, independent physical replay and
+the serialized transition regression on the same source. Fresh-process native
+interruption and all-seven-profile closure remain open. Conditional generation
+reopen tests do not substitute for those obligations. No full Phase 3 acceptance
+is claimed.
+Before release, rollback restores the original non-null APPLY_ACK schema together
+with the journal, sender, publication and generation changes; do not reinterpret
+a retained null acknowledgement as a vote.

@@ -71,10 +71,11 @@ def initialize(group):
             for (n, files), identity in zip(sorted(group.items()), identities)}
 
 
-def campaign(root, group, counter, observed, *, selected_prefix=None):
+def campaign(root, group, counter, observed, *, selected_prefix=None, proposer='node-1'):
     """Only fresh UUIDs are observed. Every other byte is independently derived."""
-    names = sorted(group); local = f.decode(group['node-1']['node.gsr'], 'records', 'NODE')['identity']
-    ballot = dict(counter=counter, proposer='node-1', incarnation=local['storage'])
+    need(proposer in group, 'selected retention original proposer absent')
+    names = sorted(group); local = f.decode(group[proposer]['node.gsr'], 'records', 'NODE')['identity']
+    ballot = dict(counter=counter, proposer=proposer, incarnation=local['storage'])
     prepared, sources, grants = {}, {}, {}; identifiers = set()
     for node, files in group.items():
         _, members, packet = b.c.current(files); cap = packet['capsule']
@@ -96,10 +97,10 @@ def campaign(root, group, counter, observed, *, selected_prefix=None):
         changed = dict(files, **{'grants.gsr': files['grants.gsr']+promise+basis, source: None, source+'/source.gscp': raw})
         for h in packet['images']:
             changed[source+'/'+h+'.image'] = members[h+'.image']
-        if node == 'node-1':
+        if node == proposer:
             changed['allocator.gsr'] = f.encode('records', 'ALLOCATOR', dict(root=cap['root'], node=node, counter=counter))
         prepared[node], sources[node], grants[node] = changed, (basis, frozen, wrapper), (promise, basis)
-    cap = b.c.current(group['node-1'])[2]['capsule']
+    cap = b.c.current(group[proposer])[2]['capsule']
     selected = f.encode('records', 'SELECTED', dict(root=cap['root'], view=b.e.authority(cap['root'], cap['cut']['view']),
         ballot=ballot, cut=cap['cut'], nextEntry=None, sources=[dict(voter=n,
             basisId=f.decode(grants[n][1], 'records', 'BASIS')['basisId'], basisDigest=sha(grants[n][1])) for n in names]))
@@ -108,7 +109,7 @@ def campaign(root, group, counter, observed, *, selected_prefix=None):
     for node, files in chosen.items():
         # All native cuts here are equal. The original proposer's frozen source
         # wins that tie, independently of which receiver installs the decision.
-        prefix, old, _ = b.c.current(group[node]); packet = sources['node-1'][1]
+        prefix, old, _ = b.c.current(group[node]); packet = sources[proposer][1]
         owner = f.decode(files['node.gsr'], 'records', 'NODE')['identity']
         record = intent(owner, selected, files[FILE], [sources[n] for n in names])
         objects = dict(packet['objects']) if selected_prefix is None else selected_prefix(packet, files['root.gsr'])

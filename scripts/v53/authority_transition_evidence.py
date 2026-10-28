@@ -20,6 +20,7 @@ VOTERS=('node-1','node-2','node-3')
 
 
 def prelude(root,kind):
+    need(kind in ('READY','INTENT','FINAL'),'transition preparation profile')
     group=d.s.initialize(b.original(root,4,False))
     group={n:dict(v,**{d.future.FILE:d.future.frame(d.future.initial(v),{})}) for n,v in group.items()}
     prepared,selected,installed=d.s.campaign(root,group,2,'round-1-prepared',selected_prefix=d.slot.prefix)
@@ -31,8 +32,10 @@ def prelude(root,kind):
     walk.history=f.decode(group['node-1']['root.gsr'],'records','ROOT')['historyId']
     _,_,cap,cat=walk.state()
     request=dict(root=cap['root'],expected=e.authority(cap['root'],cap['cut']['view']),number=1,kind='REMOVE',target=cat['identities'][:3])
-    for control,payload in [('RESERVE',dict(request=request)),('PREPARE',dict(number=1,revision=1)),
-                            ('READY',dict(number=1,receipt=None)),('SEAL',dict(number=1))]:walk.publish(control,payload)
+    controls=[('RESERVE',dict(request=request)),('PREPARE',dict(number=1,revision=1)),
+              ('READY',dict(number=1,receipt=None))]
+    if kind!='READY':controls.append(('SEAL',dict(number=1)))
+    for control,payload in controls:walk.publish(control,payload)
     if kind=='FINAL':
         operation=walk.state()[3]['results'][-1]
         walk.publish('INTENT',dict(sealed={k:operation[k] for k in ('request','prepared','receipt')}))
@@ -87,6 +90,7 @@ def maintenance(group,voters=VOTERS):
 
 class NativeSlot(x.Walk):
     voters=VOTERS
+    proposer='node-1'
 
     def requested(self,slot,entry,payload):
         certificate=f.decode((self.root/f'applied-{slot}/node-1/applied-end/certificate.gsr').read_bytes(),'records','CERTIFICATE')
@@ -105,8 +109,9 @@ class NativeSlot(x.Walk):
                 # Checkpoint publication uses the governing end view. FINAL's
                 # certificate still has the original joint ACCEPT/PROOF quorum,
                 # while its new stable checkpoint needs only the new majority.
-                chosen={node}
-                for peer in self.voters:
+                eligible=set(view['old'])|set(view['new'])
+                chosen={node} if node in eligible else set()
+                for peer in sorted(eligible):
                     if all(len(chosen & set(view[side]))>len(view[side])//2 for side in ('old','new')):break
                     chosen.add(peer)
                 objects=dict(published['objects']);item=cap['items'][-1];acks=[]
@@ -124,7 +129,7 @@ class NativeSlot(x.Walk):
                 proof=f.encode('records','PROOF',{k:v for k,v in cert.items() if k!='proofs'})
                 accept=f.encode('records','ACCEPT',{k:v for k,v in cert.items() if k not in ('proofs','accepts')})
                 entry=self.entry
-                retained={k:ends[k] for k in ('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','ack.gsr')}
+                retained={k:ends[k] for k in ('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','ack.gsr') if k in ends}
                 retained.update({k:local[k] for k in ('promise.gsr','selected.gsr')})
                 retained.update({'entry.gsr':entry,'accept.gsr':accept,'proof.gsr':proof})
                 state=d.s.r.decode(original[d.s.FILE]);plan=copy.deepcopy(state['plan']);upper=c.anchor(c.current(files)[2]['capsule']);peers=[]
@@ -132,7 +137,7 @@ class NativeSlot(x.Walk):
                 # This is the independently derived preceding frame, already
                 # matched to the physical snapshot, not a claimed disk counter.
                 prior_revision=json.loads(future[48:48+int.from_bytes(future[44:48],'big')])['revision']
-                for revision,peer in enumerate(self.voters[1:],1):
+                for revision,peer in enumerate((n for n in self.voters if n!=self.proposer),1):
                     identity=d.future.identity(self.group[peer]);row=next(p for p in plan['peers'] if p['identity']==identity)
                     peers.append(dict(identity=identity,lower=row['possible'][0]))
                     future=d.future.frame(dict(d.future.initial(original),revision=prior_revision+revision,previous=e.digest(future),parent=c.anchor(packet['capsule']),peers=copy.deepcopy(peers)),retained)

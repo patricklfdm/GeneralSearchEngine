@@ -498,7 +498,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var peers=new TreeMap<String,MembershipFutureRetentionFiles.Peer>();
         if(state.pending()) {
             require(state.parent.equals(target.parent()) && state.target().equals(target.target()),"future retention different unresolved target");
-            for(String name:MembershipFutureRetentionFiles.RECORDS)require(Arrays.equals(state.record(name).bytes(),originals.get(name)),"future retention changed original target proof");
+            state.matchesOriginals(originals);
             state.peers.forEach(p->peers.put(p.identity().nodeId().value(),p));
         }
         if(peers.containsKey(peer.nodeId().value())) {
@@ -1466,8 +1466,10 @@ final class MembershipGrantJournal implements AutoCloseable {
             String certificate=(String)object(request.value().get("payload")).get("certificate");
             require(actual.plan().originalCertificate().digest().equals(certificate),"native application acknowledgement certificate");
             var response=new TreeMap<>(request.value());response.put("sender",request.value().get("recipient"));response.put("recipient",request.value().get("sender"));
-            response.put("payload",Map.of("certificate",certificate,"selection",selected,"statement",actual.plan().statement.digest(),
-                    "acknowledgement",actual.endorsement().acknowledgement().digest()));
+            var payload=new TreeMap<String,Object>();payload.put("certificate",certificate);payload.put("selection",selected);
+            payload.put("statement",actual.plan().statement.digest());
+            payload.put("acknowledgement",actual.votingEnd().map(end->end.acknowledgement().digest()).orElse(null));
+            response.put("payload",payload);
             var ack=decode(encode("wire","APPLY_ACK",response),"wire","APPLY_ACK");
             cut.at("APPLICATION_ACK_BEFORE_RETURN");check();pendingPublication(actual).check();return Optional.of(ack);
         }
@@ -1619,7 +1621,15 @@ final class MembershipGrantJournal implements AutoCloseable {
                     "next publication packet/envelope/generation capacity; retain original authority",null);
     }
 
-    record Applied(MembershipCheckpointPlan plan,MembershipAppliedEndFiles.Endorsement endorsement) {}
+    record Applied(MembershipCheckpointPlan plan,MembershipAppliedEndFiles.Completion completion) {
+        MembershipAppliedEndFiles.Endorsement endorsement() {
+            require(completion instanceof MembershipAppliedEndFiles.Endorsement,"nonvoting application has no endorsement");
+            return (MembershipAppliedEndFiles.Endorsement)completion;
+        }
+        Optional<MembershipAppliedEndFiles.Endorsement> votingEnd() {
+            return completion instanceof MembershipAppliedEndFiles.Endorsement end?Optional.of(end):Optional.empty();
+        }
+    }
     /** An exact native applied end, still distinct from a published generation.
      * The capability is local to this live owner. Its original records are inputs
      * for future durable retention, not a voting/installation receipt or dispatch
@@ -1644,7 +1654,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             require(vote.certificate()!=null && Arrays.equals(vote.certificate().bytes(),applied.plan().originalCertificate().bytes())
                     && before.terminal().equals(applied.plan().originalParent()),"pending publication original application changed");
             require(owner.appliedEnd!=null && owner.replayFiles!=null && !owner.replayFiles.present(),"pending publication incomplete replay");
-            owner.appliedEnd.completed(applied.plan(),vote.selector(),owner.identity,applied.endorsement());
+            owner.appliedEnd.completed(applied.plan(),vote.selector(),owner.identity,applied.completion());
         }
         MembershipCapsule.Anchor target()throws IOException {
             synchronized(owner) {
@@ -1663,7 +1673,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 records.put("selector.gsr",vote.selector().bytes());records.put("promise.gsr",vote.promise().bytes());
                 records.put("selected.gsr",vote.selected().bytes());records.put("certificate.gsr",vote.certificate().bytes());
                 records.put("catalog.gsr",applied.plan().catalog.bytes());records.put("statement.gsr",applied.plan().statement.bytes());
-                records.put("ack.gsr",applied.endorsement().acknowledgement().bytes());return Collections.unmodifiableMap(records);
+                applied.votingEnd().ifPresent(end->records.put("ack.gsr",end.acknowledgement().bytes()));return Collections.unmodifiableMap(records);
             }
         }
     }
@@ -1989,7 +1999,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                     MembershipCheckpointPlan.replay(configuration,storage,current.capsule,packet,vote.certificate(),current.images(),owned,work),guard,cut);
             if(proof!=null)proof.check(current.capsule,packet);
             plan=plan.renewAncestors(parents,ancestry);
-            guard.check();var endorsement=appliedEnd.force(plan,vote.selector(),identity,guard,cut);
+            guard.check();var endorsement=appliedEnd.forceCompletion(plan,vote.selector(),identity,guard,cut);
             guard.check();var applied=new Applied(plan,endorsement);if(nativeOriginal)nativeApplied=applied;return applied;
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
@@ -2009,7 +2019,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             require(promise!=null && basis!=null && selection!=null && Arrays.equals(promise.bytes(),vote.promise().bytes())
                     && Arrays.equals(selection.bytes(),vote.selected().bytes()) && Arrays.equals(current.selector.bytes(),vote.selector().bytes()),"publication original authority changed");
             originalPromise=promise;originalBasis=basis;originalSelection=selection;
-            appliedEnd.completed(applied.plan(),vote.selector(),identity,applied.endorsement());require(!replayFiles.present(),"publication replay scratch must be removed");
+            appliedEnd.completed(applied.plan(),vote.selector(),identity,applied.completion());require(!replayFiles.present(),"publication replay scratch must be removed");
         }
         var bound=object(originalPromise.value().get("ballot"));fence(bound);
         var plan=MembershipGenerationPlan.published(root,identity,installed?current.generation:inactive.slot(),originalPromise,originalBasis,originalSelection,
@@ -2871,9 +2881,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         // repeats this lookup, so fencing/replacement revokes pending records.
         if(nativeApplied!=null && (kind==null || kind.equals("CHECKPOINT") || kind.equals("CHECKPOINT_ACK"))) {
             var candidates=new ArrayList<Decoded>();
-            candidates.add(nativeApplied.plan().statement);candidates.add(nativeApplied.endorsement().acknowledgement());
-            var renewed=new ArrayList<>(nativeApplied.endorsement().ancestors());nativeApplied.endorsement().parent().ifPresent(renewed::add);
-            for(var parent:renewed){candidates.add(parent.statement());candidates.add(parent.acknowledgement());}
+            candidates.add(nativeApplied.plan().statement);
+            nativeApplied.votingEnd().ifPresent(end->{
+                candidates.add(end.acknowledgement());var renewed=new ArrayList<>(end.ancestors());end.parent().ifPresent(renewed::add);
+                for(var parent:renewed){candidates.add(parent.statement());candidates.add(parent.acknowledgement());}
+            });
             for(var candidate:candidates)if(candidate.digest().equals(digest) && (kind==null || candidate.kind().equals(kind))) {
                 pendingPublication(nativeApplied).check();return candidate;
             }

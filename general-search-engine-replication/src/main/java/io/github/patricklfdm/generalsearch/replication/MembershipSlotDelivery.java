@@ -11,6 +11,19 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * A correlated ACK is not an original-owner observation or a publication proof. */
 final class MembershipSlotDelivery {
     private MembershipSlotDelivery() {}
+    /** Expected reply shape is not a received ACK or original-owner observation. */
+    static Map<String,Object> applicationPayload(MembershipCheckpointPlan plan,MembershipIdentity peer,String selection) {
+        var view=object(object(plan.catalog.value().get("cut")).get("view"));String node=peer.nodeId().value();
+        require(list(plan.catalog.value().get("identities")).stream().map(MembershipFormat::object).map(MembershipContext::identity)
+                .anyMatch(peer::equals),"application reply permanent recipient");
+        boolean eligible=MembershipContext.nodes(view,"old").contains(node) || MembershipContext.nodes(view,"new").contains(node);
+        String acknowledgement=null;
+        if(eligible)acknowledgement=hash(encode("records","CHECKPOINT_ACK",Map.of("root",plan.statement.value().get("root"),
+                "cut",plan.statement.value().get("end"),"statement",plan.statement.digest(),"voter",node,"incarnation",peer.storageId().toString())));
+        else MembershipAppliedEndFiles.departing(plan.catalog,plan.statement,plan.originalParent(),plan.originalCertificate(),plan.originalEntry(),peer);
+        var payload=new TreeMap<String,Object>();payload.put("certificate",plan.originalCertificate().digest());payload.put("selection",selection);
+        payload.put("statement",plan.statement.digest());payload.put("acknowledgement",acknowledgement);return Collections.unmodifiableMap(payload);
+    }
     static Decoded deliver(MembershipGrantJournal owner,MembershipIdentity peer,Decoded request,MembershipResources resources,
             MembershipTransport transport,LongSupplier clock,long started,long budget)throws IOException {
         return deliver(owner,peer,request,resources,transport,clock,started,budget,()->{});
@@ -29,9 +42,7 @@ final class MembershipSlotDelivery {
             var applied=original.application().orElseThrow(()->new IllegalArgumentException("slot delivery actual application required"));
             var certificate=applied.plan().originalCertificate();String selection=owner.originalSelection().orElseThrow().digest();
             require(object(request.value().get("payload")).equals(Map.of("certificate",certificate.digest(),"selection",selection)),"slot delivery original application request");
-            var ack=new TreeMap<>(applied.endorsement().acknowledgement().value());ack.put("voter",peer.nodeId().value());ack.put("incarnation",peer.storageId().toString());
-            expected=Map.of("certificate",certificate.digest(),"selection",selection,"statement",applied.plan().statement.digest(),
-                    "acknowledgement",hash(encode("records","CHECKPOINT_ACK",ack)));
+            expected=applicationPayload(applied.plan(),peer,selection);
         }else {
             var record=original.record(kind).orElseThrow(()->new IllegalArgumentException("slot delivery original vote required"));
             require(object(request.value().get("payload")).equals(Map.of(kind.equals("ACCEPT")?"acceptance":"proof",record.digest())),"slot delivery original vote request");

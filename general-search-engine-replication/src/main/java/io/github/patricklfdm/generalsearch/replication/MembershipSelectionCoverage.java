@@ -73,5 +73,19 @@ final class MembershipSelectionCoverage {
         require(s.get("nextEntry")==null?entry.value().get("origin").equals(s.get("ballot"))
                 :s.get("nextEntry").equals(entry.digest()),"publication changed selected carried entry/origin");
     }
+    /** Called only after the complete original selection coverage has verified.
+     * This grants retained FINAL ownership, never eligibility for a new round. */
+    static void departingOwner(MembershipCapsule capsule,Decoded selected,MembershipIdentity local) {
+        require(list(selected.value().get("sources")).stream().map(MembershipFormat::object)
+                .anyMatch(v->v.get("voter").equals(local.nodeId().value())),"departing publication original selected owner");
+        var cap=capsule.packet.capsule().value();var last=object(list(cap.get("items")).getLast());
+        require(last.get("kind").equals("MEMBERSHIP"),"departing publication must end at FINAL");
+        var statement=capsule.context.record((String)last.get("statement"),"CHECKPOINT");
+        var parent=new MembershipCapsule.Anchor(object(statement.value().get("start")),(String)statement.value().get("catalogBefore"),
+                (String)statement.value().get("applicationBefore"));
+        var certificate=capsule.context.record((String)last.get("certificate"),"CERTIFICATE");
+        var entry=capsule.publicationCertificate(certificate,parent.cut());
+        MembershipAppliedEndFiles.departing(capsule.context.record((String)cap.get("catalog"),"CATALOG"),statement,parent,certificate,entry,local);
+    }
     private MembershipSelectionCoverage() {}
 }

@@ -69,6 +69,24 @@ class V53DepartingFutureTest {
         fake.put("ack.gsr",V53CheckpointPlanTest.endorsements(departed.plan(),List.of("node-5")).acks().getFirst().bytes());
         assertEquals("future retention owner eligibility/completion kind",assertThrows(IllegalArgumentException.class,()->departed.decode(fake)).getMessage());
     }
+    @Test void repeatedRetentionComparesTheExactEndorsedOrDepartingInventory() {
+        for(int owner:List.of(1,4)) {
+            var f=fixture("4-REMOVE",owner,6);var state=f.decode(f.records());
+            assertDoesNotThrow(()->state.matchesOriginals(f.records()));
+            assertDoesNotThrow(()->state.matchesOriginals(state.originals()));
+            for(String name:f.records().keySet()) {
+                var missing=new TreeMap<>(f.records());missing.remove(name);
+                assertEquals("future retention changed original record inventory",assertThrows(IllegalArgumentException.class,
+                        ()->state.matchesOriginals(missing)).getMessage());
+                var changed=new TreeMap<>(f.records());byte[] bytes=changed.get(name).clone();bytes[bytes.length-1]^=1;changed.put(name,bytes);
+                assertEquals("future retention changed original target proof",assertThrows(IllegalArgumentException.class,
+                        ()->state.matchesOriginals(changed)).getMessage());
+            }
+            var extra=new TreeMap<>(f.records());extra.put(owner==4?"ack.gsr":"extra.gsr",new byte[]{1});
+            assertEquals("future retention changed original record inventory",assertThrows(IllegalArgumentException.class,
+                    ()->state.matchesOriginals(extra)).getMessage());
+        }
+    }
     @Test void nonvotingShapeCannotAuthorizeLearnersLaterStableSlotsOrAnotherIdentity() {
         for(var f:List.of(fixture("3-ADD",6,2),fixture("5-REPLACE",5,7)))
             assertEquals("applied-end exact departing FINAL owner",assertThrows(IllegalArgumentException.class,()->f.decode(f.records())).getMessage());

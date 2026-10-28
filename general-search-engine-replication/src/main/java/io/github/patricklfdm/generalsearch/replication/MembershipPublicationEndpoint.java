@@ -77,9 +77,11 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
         }
     }
     private MembershipSelection.Bridge collect(Decoded statement,Decoded own,MembershipContext.Owned observed)throws IOException {
-        var acks=new ArrayList<Decoded>();acks.add(own);var observations=new HashSet<MembershipContext.Owned>();observations.add(observed);
-        var received=new TreeSet<String>();received.add(owner.activationIdentity().nodeId().value());
+        var acks=new ArrayList<Decoded>();var observations=new HashSet<MembershipContext.Owned>();var received=new TreeSet<String>();
         var view=object(object(statement.value().get("end")).get("view"));var eligible=new TreeSet<>(MembershipContext.nodes(view,"old"));eligible.addAll(MembershipContext.nodes(view,"new"));
+        String local=owner.activationIdentity().nodeId().value();
+        require((own!=null)==eligible.contains(local) && (own!=null)==(observed!=null),"publication own completion eligibility");
+        if(own!=null){acks.add(own);observations.add(observed);received.add(local);}
         eligible.removeAll(received);
         // Launch only the next possible old/new quorum, never the whole identity
         // directory. Each original owner's transfer has its own bounded lease,
@@ -112,10 +114,12 @@ final class MembershipPublicationEndpoint implements MembershipTransport.Handler
     }
     private void publish()throws IOException {
         check();if(publication.published())return;
-        var applied=publication.applied;var end=applied.endorsement();
-        var original=collect(applied.plan().statement,end.acknowledgement(),end.owned());
+        var applied=publication.applied;var end=applied.votingEnd();
+        var original=collect(applied.plan().statement,end.map(MembershipAppliedEndFiles.Endorsement::acknowledgement).orElse(null),
+                end.map(MembershipAppliedEndFiles.Endorsement::owned).orElse(null));
         var bridges=new ArrayList<>(publication.retainedBridges());
-        var parents=new ArrayList<>(end.ancestors());end.parent().ifPresent(parents::add);
+        var parents=new ArrayList<MembershipAppliedEndFiles.ParentEndorsement>();
+        end.ifPresent(owned->{parents.addAll(owned.ancestors());owned.parent().ifPresent(parents::add);});
         for(var parent:parents)bridges.add(collect(parent.statement(),parent.acknowledgement(),parent.owned()));
         check();owner.publishCurrent(applied,original.acknowledgements,original.owned,bridges);check();
     }

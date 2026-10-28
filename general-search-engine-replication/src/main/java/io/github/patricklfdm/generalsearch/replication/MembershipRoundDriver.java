@@ -13,7 +13,8 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 /** Serialized, bounded native round lifetime. Activation, carried recovery and
  * the fresh barrier are one invocation; subsequent slots retain its deadline.
  * READY is an internal guarded state, not a public read lease or an election
- * timer. A changed authority requires a new round, never a reused old grant. */
+ * timer. A changed authority requires fresh activation within the original
+ * lifetime, never a reused old grant or a restarted deadline. */
 final class MembershipRoundDriver<K,T> implements AutoCloseable {
     enum State { NEW, ACTIVATING, RECOVERING, READY, FAILED, CLOSED }
     interface Events {
@@ -43,6 +44,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     private Decoded selection,barrier;
     private Map<String,Object> ballot,expectedCut;
     private String authority;
+    private boolean carriedPending;
 
     MembershipRoundDriver(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,MembershipResources resources,
             ReplicationBounds bounds,MembershipTransport transport,Path scratch,LongSupplier clock,long budget,int maximumCampaigns,
@@ -96,41 +98,99 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
             // Derive the new cut from the owned journal, then recheck the ballot.
             var context=owner.activationContext();require(context.cut.get("entry").equals(entry.digest())
                     && context.cut.get("index").equals(entry.value().get("index")),"native round published exact entry");
-            expectedCut=context.cut;current();events.at("SLOT_COMPLETE",done);current();return done;
+            expectedCut=context.cut;
+            if(!context.authority().equals(authority)) {
+                require(Set.of("INTENT","FINAL").contains(entry.value().get("kind")),"native round unexpected authority change");
+                synchronized(this){barrier=null;}
+                transition(State.ACTIVATING);completedFence();events.at("SLOT_COMPLETE",done);completedFence();
+            } else {current();events.at("SLOT_COMPLETE",done);current();}
+            return done;
         }finally{
             child.close(); // A failed drain retains the child and parent ownership.
             synchronized(this){if(registered && slot==child)slot=null;}
         }
     }
-    Decoded start()throws IOException {
-        enter(State.NEW);
+    /** Fence only work the child has already durably completed. This does not
+     * revive the old endpoint scope or grant service under the new authority. */
+    private void completedFence()throws IOException {
+        time();var context=owner.activationContext();
+        require(context.cut.equals(expectedCut) && owner.originalSelection().orElseThrow().digest().equals(selection.digest()),
+                "native round completed publication changed");
+        owner.checkActivationBallot(context.authority(),ballot);time();
+    }
+    private void activate()throws IOException {
+        time();transition(State.ACTIVATING);
+        MembershipActivationDriver previous;
+        synchronized(this){barrier=null;previous=activation;}
+        if(previous!=null)previous.close();
+        synchronized(this){if(activation==previous)activation=null;}
+        require(owner.activationContext().voters().contains(owner.activationIdentity().nodeId().value()),
+                "native round local member not eligible for activation");
+        time();var child=new MembershipActivationDriver(owner,endpoint,resources,bounds,transport::exchange,List.of(),List.of(),
+                scratch,clock,budget,maximumCampaigns);
+        boolean registered=false;
         try {
-            time();var context=owner.activationContext();
-            require(context.view.get("operation")==null,"native stable round requires stable authority");
-            var child=new MembershipActivationDriver(owner,endpoint,resources,bounds,transport::exchange,List.of(),List.of(),
-                    scratch,clock,budget,maximumCampaigns);
-            boolean registered=false;
-            try {
-                synchronized(this){require(!closed,"native round closed before activation");activation=child;registered=true;}
-                selection=child.run(started);
-            }finally{if(!registered)child.close();}
-            ballot=Map.copyOf(object(selection.value().get("ballot")));context=owner.activationContext();
-            authority=context.authority();expectedCut=context.cut;current();events.at("INSTALLED",selection);current();
-            transition(State.RECOVERING);
-            if(selection.value().get("nextEntry") instanceof String next) {
-                var packet=owner.activationCapsule().packet;
+            synchronized(this){require(!closed,"native round closed before activation");activation=child;registered=true;}
+            selection=child.run(started);
+        }finally{if(!registered)child.close();}
+        ballot=Map.copyOf(object(selection.value().get("ballot")));var context=owner.activationContext();
+        authority=context.authority();expectedCut=context.cut;carriedPending=selection.value().get("nextEntry")!=null;
+        current();events.at("INSTALLED",selection);current();
+    }
+    private Map<String,Object> activeOperation()throws IOException {
+        var catalog=owner.activationContext().catalog;Object active=catalog.get("active");
+        if(active==null)return null;
+        for(Object row:list(catalog.get("results"))) {
+            var operation=object(row);
+            if(object(operation.get("request")).get("number").equals(active))return operation;
+        }
+        throw new IllegalArgumentException("native round active operation absent");
+    }
+    private Decoded recoverAndReady()throws IOException {
+        // A serialized operation has at most old -> joint -> new authority.
+        // Each activation retains its existing bounded attempt count, and all
+        // handoffs share the parent's original start and budget.
+        int handoffs=0;
+        for(;;) {
+            transition(State.RECOVERING);current();
+            if(carriedPending) {
+                String next=(String)selection.value().get("nextEntry");var packet=owner.activationCapsule().packet;
                 try(var entryLease=resources.reserve(MembershipResources.Unit.CONTROL,"round-carried-entry",packet.objectSize(next))) {
                     var carried=decode(packet.objectBytes(next),"records","ENTRY");String digest=(String)carried.value().get("payload");
                     try(var payloadLease=resources.reserve(MembershipResources.Unit.CONTROL,"round-carried-payload",Math.max(1,packet.objectSize(digest)))) {
-                        publish(carried,packet.objectBytes(digest));
+                        publish(carried,packet.objectBytes(digest));carriedPending=false;
                     }
                 }
             }
+            if(!owner.activationContext().authority().equals(authority)) {
+                require(++handoffs<=2,"native round authority handoff bound");activate();continue;
+            }
+            current();var operation=activeOperation();String phase=operation==null?null:(String)operation.get("phase");
+            if("SEALED".equals(phase) || "JOINT".equals(phase)) {
+                String kind="SEALED".equals(phase)?"INTENT":"FINAL";Map<String,Object> command;
+                if(kind.equals("INTENT")) {
+                    var sealed=new TreeMap<String,Object>();for(String key:List.of("request","prepared","receipt"))sealed.put(key,operation.get(key));
+                    command=Map.of("sealed",sealed);
+                } else command=Map.of("binding",operation.get("binding"));
+                try(var held=resources.reserve(MembershipResources.Unit.CONTROL,"round-transition-input",8192)) {
+                    byte[] payload=canonical(command,8192);
+                    publish(entry(kind,payload),payload);
+                }
+                require(!owner.activationContext().authority().equals(authority),"native round transition did not change authority");
+                require(++handoffs<=2,"native round authority handoff bound");activate();continue;
+            }
+            require(owner.activationContext().view.get("operation")==null,"native round readiness requires stable authority");
             var fresh=entry("BARRIER",new byte[0]);var done=publish(fresh,new byte[0]);current();
             require(fresh.value().get("origin").equals(ballot),"native round fresh barrier ballot");
             events.at("BEFORE_READY",done);current();
             synchronized(this){require(!closed,"native round closed before readiness");barrier=done;state=State.READY;}
             return done;
+        }
+    }
+    Decoded start()throws IOException {
+        enter(State.NEW);
+        try {
+            activate();return recoverAndReady();
         }catch(IOException|RuntimeException|Error error){fail(error);throw error;}
         finally{leave();}
     }
@@ -142,7 +202,11 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         if(kind.equals("BARRIER"))require(bytes.length==0,"native barrier empty payload");
         enter(State.READY);
         try(var payloadLease=resources.reserve(MembershipResources.Unit.CONTROL,"round-input",Math.max(1,bytes.length))) {
-            current();byte[] payload=bytes.clone();return publish(entry(kind,payload),payload);
+            current();byte[] payload=bytes.clone();
+            if(kind.equals("SEAL")){transition(State.RECOVERING);synchronized(this){barrier=null;}}
+            var done=publish(entry(kind,payload),payload);
+            if(kind.equals("SEAL"))recoverAndReady();
+            return done;
         }catch(IOException|RuntimeException|Error error){fail(error);throw error;}
         finally{leave();}
     }
@@ -163,7 +227,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         // Do not release the activation/parent reservation before child drain.
         if(activeSlot!=null)activeSlot.close();
         if(activeActivation!=null)activeActivation.close();
-        synchronized(this){selection=null;barrier=null;ballot=null;expectedCut=null;authority=null;}
+        synchronized(this){selection=null;barrier=null;ballot=null;expectedCut=null;authority=null;carriedPending=false;}
         ownership.close();
     }
     @Override public void close()throws IOException {

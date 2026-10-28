@@ -22,6 +22,11 @@ class V53RoundDriverTest {
         var helper=new V53NativeDispatchTest();helper.temp=temp;
         return helper.new Network(3,bounds,f->{if(old!=null)V53CarriedSlotDriverTest.prepare(f,old);});
     }
+    ReplicationBounds controlBounds() {
+        var b=ReplicationBounds.defaults();
+        return new ReplicationBounds(b.maxFrameBytes(),b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
+                b.maxRetryAttempts(),30_000,b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
+    }
     MembershipRoundDriver<?,?> driver(V53NativeDispatchTest.Network n,MembershipRoundDriver.Events callback)throws Exception {
         return new MembershipRoundDriver<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,n.transports.getFirst(),
                 temp.resolve("round-"+UUID.randomUUID()),()->System.nanoTime()+n.offset.get(),V53NativeDispatchTest.BUDGET,2,
@@ -65,7 +70,10 @@ class V53RoundDriverTest {
         }
     }
     @Test void retainedAppliedEntryCompletesBeforeFreshReadyBarrier()throws Exception {
-        try(var n=network("APPLIED");var round=driver(n,MembershipRoundDriver.Events.NONE)) {
+        // This tests carried completion ordering, not a five-second RPC SLA.
+        // Keep the original 180-second round and finite retry count. The failed
+        // default-profile publication trace remains retained separately.
+        try(var n=network("APPLIED",controlBounds());var round=driver(n,MembershipRoundDriver.Events.NONE)) {
             assertEquals("PUBLISH_ACK",round.start().kind());assertEquals(MembershipRoundDriver.State.READY,round.state());round.readiness();
             for(int i:n.voters)assertEquals(2L,n.owners.get(i).activationContext().cut.get("index"));
             Files.write(n.f.raw.resolve("carried-result.json"),canonical(Map.of("status","PASS","carried",n.selected.value().get("nextEntry"),"slots",2,"publicReady",false),4096));
@@ -76,10 +84,7 @@ class V53RoundDriverTest {
         // Qualify control semantics with the supported caller timeout. The
         // original default-timeout failure is retained separately; this profile
         // does not establish a five-second response SLA or extend the round.
-        var b=ReplicationBounds.defaults();
-        var bounds=new ReplicationBounds(b.maxFrameBytes(),b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
-                b.maxRetryAttempts(),30_000,b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
-        try(var n=network(null,bounds);var round=driver(n,MembershipRoundDriver.Events.NONE)) {
+        try(var n=network(null,controlBounds());var round=driver(n,MembershipRoundDriver.Events.NONE)) {
             var sends=new ConcurrentHashMap<String,Long>();
             var durations=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
             n.beforeSend.set(request->sends.putIfAbsent(request.digest(),System.nanoTime()));
@@ -111,7 +116,7 @@ class V53RoundDriverTest {
             assertEquals(MembershipRoundDriver.State.READY,round.state());
             Files.write(n.f.raw.resolve("round-control-result.json"),canonical(Map.of("status","PASS","slots",3,"controls",List.of("RESERVE","CANCEL"),"publicReady",false),4096));
             }finally {
-                Files.write(n.f.raw.resolve("round-control-timing.json"),canonical(Map.of("requestTimeoutMillis",bounds.requestTimeoutMillis(),
+                Files.write(n.f.raw.resolve("round-control-timing.json"),canonical(Map.of("requestTimeoutMillis",n.bounds.requestTimeoutMillis(),
                         "roundBudgetNanos",V53NativeDispatchTest.BUDGET,"elapsedNanos",System.nanoTime()-began,"exchanges",durations),1024*1024));
             }
         }

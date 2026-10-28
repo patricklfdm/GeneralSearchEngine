@@ -118,7 +118,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
                 finally {copy.active=false;}
             }
             require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"current verifier substituted source");
-            require(identity.equals(capsule.context.identities.get(identity.nodeId().value())) && (adopted || capsule.context.voters().contains(identity.nodeId().value())),"current local eligible identity");
+            require(identity.equals(capsule.context.identities.get(identity.nodeId().value())) && (adopted || published || capsule.context.voters().contains(identity.nodeId().value())),"current local eligible identity");
             if(adopted) {
                 var certificate=capsule.membershipCertificateFence().orElseThrow(()->new IllegalArgumentException("adopted certificate missing from capsule"));
                 require(Arrays.equals(certificate.bytes(),AdmissionPaths.read(path.resolve(MembershipGenerationPlan.ADOPTION),16384)),"adopted certificate binding");
@@ -138,8 +138,11 @@ final class MembershipCurrentGeneration implements AutoCloseable {
                 if(inventory.containsKey(MembershipSelectedSources.FILE))MembershipSelectedSources.parents(
                         AdmissionPaths.read(path.resolve(MembershipSelectedSources.FILE),MembershipSelectedSources.MAXIMUM),installed,capsule,
                         inventory.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0]);
-                if(published)MembershipSelectionCoverage.verify(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM),
-                        capsule,promise,installed,inventory.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0]);
+                if(published) {
+                    MembershipSelectionCoverage.verify(AdmissionPaths.read(path.resolve(MembershipSelectionCoverage.FILE),MembershipSelectionCoverage.MAXIMUM),
+                            capsule,promise,installed,inventory.containsKey("ancestry.gsr")?AdmissionPaths.read(path.resolve("ancestry.gsr"),96*1024):new byte[0]);
+                    if(!capsule.context.voters().contains(identity.nodeId().value()))MembershipSelectionCoverage.departingOwner(capsule,installed,identity);
+                }
             }
             if(adopted || installed!=null) {
                 var ancestors=new ArrayList<MembershipCapsule.Anchor>();

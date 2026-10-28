@@ -36,6 +36,11 @@ final class MembershipFutureRetentionFiles implements AutoCloseable {
             var catalog=record("catalog.gsr");return new MembershipCapsule.Anchor(object(catalog.value().get("cut")),catalog.digest(),(String)catalog.value().get("application"));
         }
         Map<String,byte[]> originals(){var result=new TreeMap<String,byte[]>();records.forEach((k,v)->result.put(k,v.bytes()));return result;}
+        void matchesOriginals(Map<String,byte[]> originals) {
+            require(records.keySet().equals(originals.keySet()),"future retention changed original record inventory");
+            for(var record:records.entrySet())require(Arrays.equals(record.getValue().bytes(),originals.get(record.getKey())),
+                    "future retention changed original target proof");
+        }
         void matches(MembershipPendingAccept.Vote vote) {
             require(vote!=null && vote.certificate()!=null,"future retention lost original certified vote");
             var wanted=List.of(vote.selector(),vote.promise(),vote.selected(),vote.entry(),vote.accept(),vote.proof(),vote.certificate());

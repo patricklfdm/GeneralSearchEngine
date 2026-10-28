@@ -108,11 +108,22 @@ def publication(root,slot,ordinal):
     need(received==set(voters[1:]),'continuous all publication acknowledgements')
 
 
-def validate(root):
-    root=Path(root);result=d.read(root/'continuous-result.json')
-    need(result==dict(status='PASS',kind='REMOVE',activations=3,publicReady=False,automaticLifecycle=False),'continuous scope')
+def history(root, result_file):
+    """Shared original-byte reduction; callers separately enforce their scope.
+
+    Only the declared result filename varies. Sources, traces, images, quorums
+    and exact inventories are still reduced from the same unmodified directory.
+    """
+    root=Path(root)
+    need(result_file in ('continuous-result.json','transition-round-result.json'),'continuous result filename')
+    need(root.is_dir() and not root.is_symlink(),'continuous regular original inventory')
+    total=0
+    for count,path in enumerate(root.rglob('*'),1):
+        need(not path.is_symlink() and (path.is_dir() or path.is_file()),'continuous regular original inventory')
+        if path.is_file():total+=path.stat().st_size
+        need(count<=65536 and total<=512*e.MIB,'continuous bounded original inventory')
     expected={'initial','original-plan.gsbp','original-application.image','before-network','after-close',
-              'calls.json','events.json','wire.json','failures.json','continuous-result.json'}
+              'calls.json','events.json','wire.json','failures.json',result_file}
     expected|={'round-1-'+stage for stage in ('prepared','selected','installed','settled')}
     expected|={f'slot-{slot}-{stage}' for slot in range(1,5) for stage in ('accepted','proved','certified','applied','published','settled')}
     expected|={f'{name}-{slot}.{suffix}' for slot in range(1,5) for name,suffix in (('entry','gsr'),('payload','bin'))}
@@ -134,7 +145,13 @@ def validate(root):
         native.publish(kind,command);publication(root,native,ordinal)
     b.match(root,'after-close',native.group)
     return dict(status='PASS',kind='REMOVE',activations=3,publishedSlots=[5,6,7],physicalQualified=True,
-                publicationBoundaryQualified=True,automaticLifecycle=False,publicReady=False,phase3Complete=False)
+                publicationBoundaryQualified=True,publicReady=False,phase3Complete=False)
+
+
+def validate(root):
+    root=Path(root);result=d.read(root/'continuous-result.json')
+    need(result==dict(status='PASS',kind='REMOVE',activations=3,publicReady=False,automaticLifecycle=False),'continuous scope')
+    return dict(history(root,'continuous-result.json'),automaticLifecycle=False)
 
 
 NEGATIVES=('scope','extra-file','preparation','old-source','joint-journal','joint-selection','joint-vote',

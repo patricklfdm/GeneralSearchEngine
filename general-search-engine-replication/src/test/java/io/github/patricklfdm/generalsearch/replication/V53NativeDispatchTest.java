@@ -25,6 +25,18 @@ class V53NativeDispatchTest {
         final List<AtomicReference<MembershipTransport>> links=new ArrayList<>();
         final List<Map<String,Object>> wire=Collections.synchronizedList(new ArrayList<>()),events=Collections.synchronizedList(new ArrayList<>());
         final List<Map<String,Object>> failures=Collections.synchronizedList(new ArrayList<>());
+        final boolean diagnose=Boolean.getBoolean("v53.transport.diagnostics");
+        final List<Map<String,Object>> diagnostics=Collections.synchronizedList(new ArrayList<>());
+        void diagnostic(String node,String event,Decoded request,Throwable error) {
+            if(!diagnose)return;
+            var row=new TreeMap<String,Object>();row.put("node",node);row.put("event",event);row.put("nanoTime",System.nanoTime());
+            row.put("request",request.digest());row.put("kind",request.kind());
+            var counts=new ArrayList<Map<String,Object>>();
+            for(int i=0;i<resources.size();i++){var use=resources.get(i).usage();counts.add(Map.of("node","node-"+(i+1),"control",use.counts().getOrDefault(MembershipResources.Unit.CONTROL,0),"queued",use.queued()));}
+            row.put("resources",counts);
+            if(error!=null){var out=new StringWriter();error.printStackTrace(new PrintWriter(out));row.put("failure",out.toString());}
+            diagnostics.add(row);
+        }
         final AtomicLong offset=new AtomicLong();
         final AtomicReference<String> drop=new AtomicReference<>("");
         final AtomicReference<java.util.function.BiFunction<Decoded,Decoded,Decoded>> response=new AtomicReference<>((request,reply)->reply);
@@ -42,6 +54,9 @@ class V53NativeDispatchTest {
         Network(int size)throws Exception {this(size,ReplicationBounds.defaults());}
         Network(int size,ReplicationBounds bounds)throws Exception {this(size,bounds,f->{});}
         Network(int size,ReplicationBounds bounds,Preparation preparation)throws Exception {
+            this(size,bounds,BUDGET,preparation);
+        }
+        Network(int size,ReplicationBounds bounds,long endpointBudget,Preparation preparation)throws Exception {
             this.bounds=bounds;
             Path raw=Files.createDirectories(Path.of("target/v53-native-dispatch/run-"+UUID.randomUUID()));
             System.out.println("v53NativeDispatchEvidence="+raw.toAbsolutePath());
@@ -63,15 +78,21 @@ class V53NativeDispatchTest {
                             if(index==1 && request.kind().equals("STATUS_PROBE") && holdNextQuery.compareAndSet(true,false)) {
                                 queryEntered.countDown();return heldQuery;
                             }
-                            return links.get(index).get().exchange(peer,request,kind,deadline);
+                            var pending=links.get(index).get().exchange(peer,request,kind,deadline);
+                            if(diagnose)pending.whenComplete((reply,error)->{
+                                if(error!=null)diagnostic(owner.activationIdentity().nodeId().value(),"EXCHANGE_FAILED",request,error);
+                            });
+                            return pending;
                         },List.of(),List.of(),
-                        temp.resolve("incoming-"+UUID.randomUUID()),()->System.nanoTime()+offset.get(),BUDGET,
+                        temp.resolve("incoming-"+UUID.randomUUID()),()->System.nanoTime()+offset.get(),endpointBudget,
                         builder().configuration(),f.request.targets().get(i).materialization());endpoints.add(endpoint);
                 var transport=new MembershipTransport(owner.activationCapsule(),owner.activationIdentity(),bounds,resources.get(i),(sender,request)->{
                             try{return response.get().apply(request,endpoint.handle(sender,request));}catch(IOException|RuntimeException error){
+                                diagnostic(owner.activationIdentity().nodeId().value(),"HANDLER_FAILED",request,error);
                                 failures.add(Map.of("node",owner.activationIdentity().nodeId().value(),"kind",request.kind(),"request",request.digest(),"failure",error.toString()));throw error;}
                         },
                         (event,request,response)->{
+                            diagnostic(owner.activationIdentity().nodeId().value(),event,request,null);
                             if(event.equals("BEFORE_REQUEST_WRITE"))beforeSend.get().accept(request);
                             if(event.equals("BEFORE_REQUEST_WRITE") && request.kind().equals("PUBLISH"))events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","PUBLICATION_SEND_BOUNDARY","request",request.digest()));
                             if(event.equals("AFTER_RESPONSE_READ"))events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","NETWORK_RECEIVED","kind",response.kind(),"response",response.digest()));
@@ -149,6 +170,9 @@ class V53NativeDispatchTest {
             Files.write(f.raw.resolve("wire.json"),canonical(wire,16*1024*1024));Files.write(f.raw.resolve("events.json"),canonical(events,8*1024*1024));
             Files.write(f.raw.resolve("failures.json"),canonical(failures,1024*1024));
             f.snapshot("after-close");V53NativeApplicationTest.save(f);
+            if(diagnose)try(var writer=Files.newBufferedWriter(Files.createDirectories(Path.of("target/v53-native-dispatch-diagnostics")).resolve(f.raw.getFileName()+".jsonl"))) {
+                for(var row:diagnostics){writer.write(new String(canonical(row,65536),java.nio.charset.StandardCharsets.UTF_8));writer.newLine();}
+            }
         }
     }
     @Test void nativeActivationReceivesAndPublishesTwoStableSlotsOnOneListener()throws Exception {
