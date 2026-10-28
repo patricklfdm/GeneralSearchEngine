@@ -21,6 +21,7 @@ final class MembershipCheckpointPlan {
     private final String descriptor;
     private final List<MembershipCapsule.Anchor> additionalParents,requiredParents;
     Decoded originalCertificate(){return certificate;}
+    Decoded originalEntry(){return entry;}
     MembershipCapsule.Anchor originalParent(){return before.terminal();}
     List<MembershipCapsule.Anchor> additionalParents(){return additionalParents;}
     /** Preserve required, already authenticated bridges outside the range being

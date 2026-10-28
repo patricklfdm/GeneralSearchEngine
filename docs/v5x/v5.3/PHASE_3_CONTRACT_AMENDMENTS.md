@@ -213,3 +213,39 @@ cannot answer a new slot's request. No complete Phase 3 gate closes here.
 
 Rollback before publication removes these two internal message kinds and their
 typed ingress together; no existing ACK is reinterpreted as an application ACK.
+
+## A09 — nonvoting completion of an original FINAL
+
+An original joint voter that is absent from the FINAL successor still owes an
+exact local application result. It must not issue a successor CHECKPOINT_ACK.
+The unpublished applied-end inventory now has two explicitly typed completions:
+its existing endorsed form and a departing form containing only plan.json,
+selector.gsr, certificate.gsr, catalog.gsr, statement.gsr and application.image.
+The canonical plan binds every other file by ordered name, length and digest.
+No new storage/wire record kind, acknowledgement sentinel or resource allowance
+is introduced. Existing endorsed bytes and force ordering remain unchanged.
+
+The departing form requires exact permanent identity registration, an original
+FINAL from a joint parent that includes this node only on its old side, and the
+immediate stable successor consisting of that parent's new set. Original entry,
+certificate, statement, parent cut/catalog/application and successor hashes must
+agree. The original owner must still authenticate the certificate and semantically
+replay the application; this inventory's shape cannot establish that authority.
+A learner, unrelated nonvoter, changed incarnation or already-removed stable node
+cannot use the departing form. Eligible successor voters retain mandatory ACKs.
+
+Every metadata/image file is forced, then the end and parent directories are
+forced before a nonvoting completion returns. It creates no CHECKPOINT_ACK,
+ancestor acknowledgement, observation or service readiness. Reopen validates exact
+original prefixes and re-forces the same end; changed plans, unexpected ACKs,
+missing/corrupt complete state, revoked ownership and changed inodes reject.
+Derived staging retirement still requires exact covering authority and preserves
+its original vote. The existing acknowledgement-only API continues to refuse a
+departing identity before writes; the native journal has not switched APIs yet.
+
+This is the storage prerequisite for the original departing-proposer/follower
+failure. GSFT representation, native APPLY responses, successor checkpoint quorum,
+published generation/reopen and runtime removal fencing must be integrated and
+qualified separately before the full path is enabled. A component pass does not
+close Phase 3. Before release, rollback removes this typed completion path and
+its reader together; legacy formats and existing endorsed histories are unchanged.

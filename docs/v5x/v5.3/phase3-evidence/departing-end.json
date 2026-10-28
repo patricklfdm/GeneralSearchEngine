@@ -1,0 +1,82 @@
+{
+  "caveats": [
+    "Native journal, GSFT and APPLY/publication consumers remain to be integrated; the actual departing-proposer failure is not yet fixed end to end.",
+    "Component certificate and external owner/retirement guards are conditional. Java files/process force evidence is not a complete distributed voting history.",
+    "The existing endorsement-only API remains mandatory for current native consumers. This new completion cannot return a checkpoint observation.",
+    "Initial reader profile/negative-construction errors are retained separately. Original process evidence is unchanged.",
+    "No resource/deadline/retry/quorum limit was increased. Full learner/all-seven-profile/network/process Phase3 qualification remains open."
+  ],
+  "checkpointVotesFromDeparture": 0,
+  "date": "2026-10-28",
+  "departingCases": 170,
+  "evidence": [
+    {
+      "bytes": 507987,
+      "path": "target/v53-departing-end/source-inputs.json",
+      "sha256": "7c865d3b95c1bcfd253c5b65e0bf67b8d3e46461bdd09f0b509701fc9ead0467"
+    },
+    {
+      "bytes": 508653,
+      "path": "target/v53-departing-end/process-inputs.json",
+      "sha256": "47040fa29092b6fb6e26ab538457dd9cf4cbfdeb0a35e6d6b62eb06a6cbc08fd"
+    },
+    {
+      "bytes": 89300,
+      "path": "target/v53-departing-end/reader-inputs.json",
+      "sha256": "b98700cf8a607d10d419ef567d0f4e5e0d8ab8c5f5b26e12160327f569f809e2"
+    },
+    {
+      "bytes": 276927,
+      "path": "target/v53-departing-end/compiled-inputs.json",
+      "sha256": "9d027a1caf1e1e0db206b5e6051b116476f12ee0e8a21974da95b5451d523694"
+    },
+    {
+      "bytes": 2633,
+      "path": "target/v53-departing-end/java-reports.json",
+      "sha256": "e11f1b99aed606175491fdefed638990284b0d4418c450c14c1f9ea9a5437eec"
+    },
+    {
+      "bytes": 3682,
+      "path": "target/v53-departing-end/validation-summary.json",
+      "sha256": "0ee030abce2e6d8e621491f22ecd5893c4ee61dcd1ac9c092b94ed006fe99cc3"
+    },
+    {
+      "bytes": 2879859,
+      "path": "target/v53-departing-end/evidence.tar.gz",
+      "sha256": "99ed37df3af7c25449b01601e2036caede15d4db69f3f3cfed4c1061a792234a"
+    },
+    {
+      "bytes": 805,
+      "path": "target/v53-departing-end/python.log",
+      "sha256": "b849155a6f14a65fd92e9b479fd3133e82a73f18dcb665d0a2291c99ae9e2837"
+    },
+    {
+      "bytes": 103,
+      "path": "target/v53-departing-end/python-optimized.log",
+      "sha256": "d03ce458f2a6cd2b4f27522f3aacad03ce1872c028853507c3ad02ca621bdcad"
+    }
+  ],
+  "existingEndorsedCases": 42,
+  "freshJvms": 636,
+  "fullPhase3Qualification": false,
+  "javaTests": 30,
+  "nativePublication": false,
+  "negativeCases": 19,
+  "newFocusedTests": 7,
+  "paidCloud": false,
+  "portableReplay": "PASS",
+  "powerLoss": false,
+  "processCases": 212,
+  "protectedCI": false,
+  "protocolAuthority": "conditional-fixture",
+  "publicRuntime": false,
+  "python": {
+    "allWorktreeTests": 704,
+    "includesPendingTransitionReader": true,
+    "optimizedReaderTests": 5
+  },
+  "schema": "gse-v53-phase3-departing-end-local-v1",
+  "scope": "typed nonvoting FINAL applied-end completion, exact persistence/recovery and guarded derived staging retirement",
+  "sourceParent": "9780882438d88f533af756573c29afe5ce97207c",
+  "status": "PASS"
+}

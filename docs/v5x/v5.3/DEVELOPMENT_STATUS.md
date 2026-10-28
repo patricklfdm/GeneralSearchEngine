@@ -1,5 +1,14 @@
 # V5.3 development status
 
+## 2026-10-28 — Nonvoting FINAL storage completion
+
+[Departing FINAL completion](PHASE_3_DEPARTING_END.md) now has a distinct
+nonvoting storage result, with no successor checkpoint acknowledgement. Thirty
+Java tests, 212 process cases and portable replay with nineteen exact negatives
+qualify the storage boundary. Native GSFT/application/publication integration and
+removal-service fencing remain open; the actual departing-proposer failure is not
+yet resolved end to end. Full Phase 3 remains open.
+
 ## 2026-10-28 — Original publication ancestry
 
 [Original publication ancestry](PHASE_3_PUBLICATION_ANCESTRY.md) now preserves
