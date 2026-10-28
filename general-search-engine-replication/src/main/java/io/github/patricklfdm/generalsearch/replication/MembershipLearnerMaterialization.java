@@ -172,6 +172,11 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     }
     Decoded receipt()throws IOException {check();require(complete,"learner typed receipt not forced");return receipt;}
     DurableApplicationState<T> state()throws IOException {receipt();return state;}
+    /** Force the original ownership handoff before closing both typed handles.
+     * No original files or storage reservations are retired by this operation. */
+    MembershipLearnerSuccessor.View promoteSuccessor()throws IOException {
+        receipt();return input.promote(this);
+    }
     /** Select these exact immutable originals as a nonvoting local generation.
      * Reserve its slot before forcing the marker, and only then release the
      * receiving category through an atomic reservation transfer. */
@@ -202,6 +207,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         MembershipResources resources()throws IOException {check();return owner.input.resources();}
         MembershipLearnerStore store()throws IOException {check();return owner.input.store();}
         MembershipLearnerSuccessor.View successor()throws IOException {check();return store().successor(this);}
+        void closePredecessor()throws IOException {owner.close();}
         void requireCorePath(Path core)throws IOException {
             check();require(core.equals(Path.of((String)owner.materialization.get("path"))),"learner successor changed reserved core path");
         }

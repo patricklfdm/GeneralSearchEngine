@@ -65,6 +65,9 @@ final class MembershipLearnerPreparation {
         check();return successor==null?MembershipLearnerMaterialization.directory(owner.summary()):MembershipLearnerSuccessor.typedDirectory(owner.summary());
     }
     void requireInitialGeneration()throws IOException {check();require(successor==null,"learner successor generation already installed; retirement required");}
+    MembershipLearnerSuccessor.View promote(MembershipLearnerMaterialization<?> typed)throws IOException {
+        check();require(successor!=null,"learner handoff requires installed successor");return successor.promote(typed);
+    }
     MembershipResources.GenerationClaim prepareGeneration()throws IOException {check();return owner.prepareGeneration();}
     void selectedGeneration(MembershipLearnerMaterialization<?> selected,MembershipResources.GenerationClaim claim)throws IOException {
         check();owner.selectedGeneration(selected,claim);
@@ -74,9 +77,14 @@ final class MembershipLearnerPreparation {
     MembershipResources resources()throws IOException{check();return owner.resources();}
     MembershipLearnerStore store()throws IOException{check();return owner;}
     Decoded receiptBytes()throws IOException {
-        check();var value=Map.<String,Object>of("root",request.root().manifestDigest(),"number",request.change().id().number(),
+        var capsule=check();var receipt=receiptBytes(capsule,request,revision);check();return receipt;
+    }
+    static Decoded receiptBytes(MembershipCapsule capsule,MembershipLearnerRequest request,long revision) {
+        var prepared=object(operation(capsule,request,revision).get("prepared"));String application=(String)prepared.get("application");
+        require(capsule.packet.images().containsKey(application),"learner prepared original image missing");
+        var value=Map.<String,Object>of("root",request.root().manifestDigest(),"number",request.change().id().number(),
                 "request",hash(canonical(MembershipLearnerDiscovery.request(request.change()),8192)),"identity",MembershipBootstrapSeed.identity(request.identity()),
-                "image",application,"prepared",prepared());
+                "image",application,"prepared",prepared);
         // Internal bytes only. Only a typed, forced owner may expose the record.
         return decode(encode("records","LEARNER",Map.of("root",request.root().manifestDigest(),"receipt",value)),"records","LEARNER");
     }

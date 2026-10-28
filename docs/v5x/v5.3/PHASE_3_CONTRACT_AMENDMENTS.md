@@ -672,3 +672,53 @@ MISC's worst-case sum is 2,036 KiB (A18's 1,988 plus two 16 KiB plans and one
 limit or format family is increased. This supports one installed successor's
 typed receipt, not repeated revision installation or voting. Bounded retirement,
 matching locally forced INTENT, autonomous READY and complete Phase 3 remain due.
+
+
+## A20 — forced learner ownership handoff before physical retirement
+
+An A19 typed successor may force a bounded original ownership handoff while both
+its predecessor and current typed owners remain live. This is a source capability
+handoff, not deletion, a new vote, or an automatic READY submission. Capturing the
+record and all candidate/active force cuts recheck both typed owners; close or
+mutation before commit fails and preserves the original files.
+
+The A18 successor directory additionally permits `head.next.json` and `head.json`,
+canonical ASCII JSON of at most 4 KiB each. The exact fields are `schema` =
+`gse-v53-learner-head/1.3`, `plan` (initial admission digest), `installed` (original
+successor install-plan digest), `source` (successor packet digest), `generation`
+(original GENERATION frame digest), `receipt` (current LEARNER frame digest),
+`previousFiles` and `currentFiles`. Each files field is a sorted list of exact
+`path`/`sha256` rows. Paths include `.` and `backup`, plus every required original
+member. A directory fingerprint hashes canonical `{key, directory:true}`; a file
+fingerprint hashes canonical `{key, bytes, sha256}`. Here `key` is the original
+filesystem identity text, `bytes` is its length, and the inner `sha256` hashes its
+bytes. Relative paths are values, never JSON object keys. No unknown members or
+redundant typed candidate files are accepted at capture or revalidation.
+
+Bind the current receipt to the independently verified source's exact PREPARING
+revision, and the compact typed plan to that source and receipt. Force the
+candidate and its directory, atomically rename it to the active head, then force
+the active file and directory. Only afterwards close both old typed handles and
+return a separate source view. Those closed handles remain revoked; the new view
+uses the parent lock and original head instead of reviving an old handle. Parent
+close still revokes the new view and releases process reservations.
+
+Parent reopen validates the exact original head, source and typed-member
+fingerprints. A committed original head can be re-forced to expose only the
+certified source; exposing a typed receipt still requires actual semantic
+materialization/reopen. A complete candidate alone grants no head capability: it
+needs explicit matching predecessor/current typed preparation before sealing.
+Partial/missing/mismatched originals are refused without reconstruction. When
+active and redundant candidates coexist, both must be complete and identical.
+
+All original files and reservations remain retained in this step. Reopen still
+conservatively accounts the original source as LEARNER until its existing
+selection path runs; this handoff does not free the receiving or generation slot.
+Physical retirement must subsequently validate and force every removal before
+releasing its reservation, and update recovery to permit only those authorized
+missing originals. Bounded repeatable refresh therefore remains open.
+
+Worst-case private MISC is 2,044 KiB (A19's 2,036 plus two 4 KiB head files), under
+the unchanged 2 MiB limit. No resource count, wire/GSER kind or production timing
+limit changes. Prior private readers are not a recovery path for head-bearing
+stores; preserve the original metadata and use the matching reader.

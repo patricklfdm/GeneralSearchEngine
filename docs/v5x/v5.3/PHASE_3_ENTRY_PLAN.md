@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original learner handoff](PHASE_3_LEARNER_HANDOFF.md) now forces a bounded
+source/receipt/file-identity decision before revoking old typed handles. The new
+source view remains bound to the live parent; typed receipt access still requires
+semantic reopen. Both generations and backups remain retained. Physical
+retirement, repeated refresh, matching INTENT and full Phase 3 remain OPEN.
+
 [Typed successor receipts](PHASE_3_SUCCESSOR_TYPED.md) now validate the installed
 source's exact PREPARING revision through the actual core decoder and force a
 separate nonvoting LEARNER record. Both backups remain accounted under the same

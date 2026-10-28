@@ -14,6 +14,9 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipLearnerSuccessor implements AutoCloseable {
     static final String LOCK="successor.lock",PLAN="install.json",NEXT="install.next.json",SELECTED="selected.json",SOURCE="source";
     static final int MAXIMUM=256*1024;
+    static final String HEAD="head.json",HEAD_NEXT="head.next.json";
+    static final int HEAD_MAXIMUM=4096;
+    private static final Set<String> MEMBERS=Set.of(LOCK,PLAN,NEXT,SELECTED,SOURCE,HEAD,HEAD_NEXT);
     private final MembershipLearnerStore parent;
     private final MembershipBallotAllocator.Cut cut;
     private final Path directory,staging,destination;
@@ -28,6 +31,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
     private MembershipOwnership lock;
     private MembershipLearnerMaterialization<?> typed;
     private MembershipResources.Lease typedImage;
+    private Handoff handoff;
     private boolean closed,failed,selected;
     static Path directory(MembershipLearnerPlan summary) {
         return summary.request().operationDirectory().resolveSibling(".gse-v53-learner-successor-"+summary.planDigest());
@@ -111,8 +115,8 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
      * returns. It grants no capability until typed predecessor validation. */
     static MembershipLearnerSuccessor restore(MembershipLearnerStore parent,MembershipBallotAllocator.Cut cut)throws IOException {
         Path directory=directory(parent.summary());if(!Files.exists(AdmissionPaths.safe(directory),LinkOption.NOFOLLOW_LINKS))return null;
-        var names=children(directory,5);require(names.contains(LOCK) && (names.contains(PLAN)||names.contains(NEXT))
-                && Set.of(LOCK,PLAN,NEXT,SELECTED,SOURCE).containsAll(names),"learner successor incomplete original inventory");
+        var names=children(directory,7);require(names.contains(LOCK) && (names.contains(PLAN)||names.contains(NEXT))
+                && MEMBERS.containsAll(names),"learner successor incomplete original inventory");
         var lock=MembershipOwnership.own(directory.resolve(LOCK),false);MembershipLearnerSuccessor result=null;
         try {
             byte[] bytes=AdmissionPaths.read(directory.resolve(names.contains(PLAN)?PLAN:NEXT),MAXIMUM);
@@ -124,6 +128,12 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
                 result.leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"learner-successor:"+f.get("path"),number(f.get("size"))));}
             result.capsule();
             if(Files.exists(AdmissionPaths.safe(typedDirectory(parent.summary())),LinkOption.NOFOLLOW_LINKS))result.reserveTypedImage();
+            if(names.contains(HEAD)||names.contains(HEAD_NEXT)) {
+                require(names.contains(SELECTED) && result.metadata.get(SELECTED).bytes()==result.selector.length,"learner handoff requires complete source selection");
+                var headBytes=AdmissionPaths.read(directory.resolve(names.contains(HEAD)?HEAD:HEAD_NEXT),HEAD_MAXIMUM);
+                if(names.contains(HEAD)&&names.contains(HEAD_NEXT))AdmissionPaths.exact(directory.resolve(HEAD_NEXT),headBytes);
+                result.handoff=result.new Handoff(headBytes);result.handoff.check();
+            }
             return result;
         }catch(IOException|RuntimeException|Error error){try{if(result!=null)result.close();else lock.close();}catch(IOException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
@@ -141,7 +151,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         require(children(location,32).equals(names),"learner successor source inventory");return location;
     }
     private void capture()throws IOException {
-        var names=children(directory,5);require(names.contains(LOCK) && Set.of(LOCK,PLAN,NEXT,SELECTED,SOURCE).containsAll(names),"learner successor inventory");
+        var names=children(directory,7);require(names.contains(LOCK) && MEMBERS.containsAll(names),"learner successor inventory");
         for(String name:List.of(LOCK,PLAN,NEXT,SELECTED))if(names.contains(name)) {
             byte[] expected=name.equals(LOCK)?new byte[0]:name.equals(SELECTED)?selector:plan;
             byte[] bytes=AdmissionPaths.read(directory.resolve(name),expected.length);
@@ -149,18 +159,21 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
             metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
         }
         require(!names.contains(SELECTED) || names.contains(PLAN) && names.contains(SOURCE),"learner successor selector without complete plan/source");
+        for(String name:List.of(HEAD,HEAD_NEXT))if(names.contains(name)) {
+            byte[] bytes=AdmissionPaths.read(directory.resolve(name),HEAD_MAXIMUM);metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
+        }
     }
     private void check()throws IOException {
         require(!closed && !failed && lock!=null && lock.lock().isValid(),"learner successor owner closed or failed");predecessor();
         AdmissionPaths.recheck(pathBinding);require(directoryKey.equals(key(directory)),"learner successor directory replaced");Path source=locate();
         var names=new TreeSet<>(metadata.keySet());if(source.equals(destination))names.add(SOURCE);
-        require(children(directory,5).equals(names),"learner successor live inventory changed");
+        require(children(directory,7).equals(names),"learner successor live inventory changed");
         for(var f:metadata.entrySet())require(f.getValue().equals(inspect(directory.resolve(f.getKey()),f.getValue().bytes(),f.getValue().digest())),"learner successor metadata replaced");
     }
-    private void point(String event)throws IOException{check();cut.at(event);check();}
-    private void remember(String name)throws IOException {
-        byte[] bytes=AdmissionPaths.read(directory.resolve(name),name.equals(SELECTED)?16384:MAXIMUM);
-        byte[] expected=name.equals(SELECTED)?selector:plan;require(Arrays.equals(bytes,Arrays.copyOf(expected,bytes.length)),"learner successor writer changed originals");
+    private void point(String event)throws IOException{check();if(handoff!=null)handoff.checkFiles();cut.at(event);check();if(handoff!=null)handoff.checkFiles();}
+    private void remember(String name,byte[] expected)throws IOException {
+        byte[] bytes=AdmissionPaths.read(directory.resolve(name),expected.length);
+        require(Arrays.equals(bytes,Arrays.copyOf(expected,bytes.length)),"learner successor writer changed originals");
         var before=metadata.get(name);var after=inspect(directory.resolve(name),bytes.length,hash(bytes));
         require(before==null || before.key().equals(after.key()),"learner successor writer inode changed");metadata.put(name,after);
     }
@@ -168,11 +181,11 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         check();boolean exists=metadata.containsKey(name);
         try(var channel=FileChannel.open(directory.resolve(name),exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
                 Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
-            if(!exists){remember(name);point(event+"_CREATED");}
+            if(!exists){remember(name,bytes);point(event+"_CREATED");}
             int offset=Math.toIntExact(metadata.get(name).bytes());channel.position(offset);
             if(offset<bytes.length){int middle=offset+(bytes.length-offset)/2;
-                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,offset,middle));remember(name);point(event+"_PREFIX_WRITTEN");
-                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,middle,bytes.length));remember(name);point(event+"_WRITTEN");}
+                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,offset,middle));remember(name,bytes);point(event+"_PREFIX_WRITTEN");
+                AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,middle,bytes.length));remember(name,bytes);point(event+"_WRITTEN");}
             channel.force(true);point(event+"_FORCED");AdmissionPaths.forceDirectory(directory);point(event+"_PARENT_FORCED");
         }
     }
@@ -202,15 +215,111 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     View open(MembershipLearnerMaterialization.PreparedGeneration prepared)throws IOException {
+        require(handoff==null || !metadata.containsKey(HEAD),"learner predecessor superseded by original handoff");
         prepared.requireDisjoint(directory,staging);
         if(!selected)finish(prepared);else {check();prepared.check();require(prepared.store()==parent,"learner successor foreign owner");}
         return new View(this,prepared);
+    }
+    /** A separate durable capability replaces dependence on the old typed HANDLE,
+     * while original files stay retained and fully accounted for later retirement. */
+    View promoted()throws IOException {
+        check();require(handoff!=null && metadata.containsKey(HEAD),"learner original handoff not committed");
+        try {handoff.seal(false);selected=true;return new View(this,null);}
+        catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    private View promote(MembershipLearnerMaterialization<?> current,MembershipLearnerMaterialization.PreparedGeneration previous)throws IOException {
+        check();previous.check();require(current==typed && selected,"learner handoff foreign typed owner");
+        current.receipt();var summary=parent.summary();
+        var expected=canonical(Map.of("schema","gse-v53-learner-head/1.3","plan",summary.planDigest(),"installed",hash(plan),
+                "source",hash(capsule().packet.bytes()),"generation",generation.digest(),"receipt",current.receipt().digest(),
+                "previousFiles",fingerprints(MembershipLearnerMaterialization.directory(summary),true),
+                "currentFiles",fingerprints(typedDirectory(summary),false)),HEAD_MAXIMUM);
+        previous.check();current.receipt();
+        try {
+            if(handoff==null)handoff=new Handoff(expected);
+            else require(Arrays.equals(expected,handoff.bytes),"learner handoff original decision changed");
+            handoff.live=()->{previous.check();current.receipt();};
+            handoff.check();handoff.seal(true);handoff.live=null;current.close();previous.closePredecessor();
+            point("LEARNER_HEAD_BEFORE_RETURN");return new View(this,null);
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+        finally{if(handoff!=null)handoff.live=null;}
+    }
+    private static List<Map<String,String>> fingerprints(Path directory,boolean previous)throws IOException {
+        var names=new TreeSet<>(List.of("preparation.lock","preparation.json","learner.gsr","backup"));
+        if(previous)names.add("prepared.json");require(children(directory,6).equals(names),"learner handoff exact typed inventory");
+        require(children(directory.resolve("backup"),3).equals(new HashSet<>(MembershipApplicationImage.MEMBERS)),"learner handoff complete typed backup");
+        var all=new TreeSet<>(names);all.add(".");for(String name:MembershipApplicationImage.MEMBERS)all.add("backup/"+name);
+        var result=new ArrayList<Map<String,String>>();
+        for(String name:all) {
+            Path path=name.equals(".")?directory:directory.resolve(name);Object value;
+            if(name.equals(".") || name.equals("backup")) {
+                require(Files.isDirectory(AdmissionPaths.safe(path),LinkOption.NOFOLLOW_LINKS),"learner handoff typed directory");
+                value=Map.of("key",key(path).toString(),"directory",true);
+            }else {
+                int limit=name.startsWith("backup/")?MembershipApplicationImage.MAXIMUM:name.equals("preparation.json")?
+                        (previous?MembershipLearnerMaterialization.MAXIMUM_PLAN:MembershipLearnerMaterialization.SUCCESSOR_PLAN):16384;
+                byte[] bytes=AdmissionPaths.read(path,limit);value=Map.of("key",key(path).toString(),"bytes",(long)bytes.length,"sha256",hash(bytes));
+            }
+            result.add(Map.of("path",name,"sha256",hash(canonical(value,16384))));
+        }
+        return result;
+    }
+    private final class Handoff {
+        private final byte[] bytes;
+        private final Map<String,Object> record;
+        private boolean active;
+        private MembershipGenerationFiles.Guard live;
+        Handoff(byte[] bytes) {
+            this.bytes=bytes.clone();record=object(parse(bytes,HEAD_MAXIMUM));
+            require(Arrays.equals(bytes,canonical(record,HEAD_MAXIMUM)) && record.keySet().equals(Set.of("schema","plan","installed","source","generation","receipt","previousFiles","currentFiles"))
+                    && record.get("schema").equals("gse-v53-learner-head/1.3"),"learner original handoff shape");
+        }
+        void checkFiles()throws IOException {
+            if(live!=null)live.check();
+            var summary=parent.summary();
+            require(record.get("previousFiles").equals(fingerprints(MembershipLearnerMaterialization.directory(summary),true))
+                    && record.get("currentFiles").equals(fingerprints(typedDirectory(summary),false)),"learner handoff original typed members changed");
+            if(live!=null)live.check();
+        }
+        void check()throws IOException {
+            MembershipLearnerSuccessor.this.check();checkFiles();var summary=parent.summary();var source=capsule();
+            require(record.get("plan").equals(summary.planDigest()) && record.get("installed").equals(hash(plan))
+                    && record.get("source").equals(hash(source.packet.bytes())) && record.get("generation").equals(generation.digest()),"learner handoff original source binding");
+            Path path=typedDirectory(summary);byte[] receipt=AdmissionPaths.read(path.resolve("learner.gsr"),16384);
+            var decoded=decode(receipt,"records","LEARNER");long revision=number(object(object(decoded.value().get("receipt")).get("prepared")).get("revision"));
+            require(record.get("receipt").equals(hash(receipt)) && Arrays.equals(receipt,MembershipLearnerPreparation.receiptBytes(source,summary.request(),revision).bytes()),
+                    "learner handoff current receipt binding");
+            var typedPlan=object(parse(AdmissionPaths.read(path.resolve("preparation.json"),MembershipLearnerMaterialization.SUCCESSOR_PLAN),MembershipLearnerMaterialization.SUCCESSOR_PLAN));
+            require(typedPlan.get("schema").equals("gse-v53-successor-typed/1.3") && typedPlan.get("source").equals(record.get("source"))
+                    && typedPlan.get("receipt").equals(record.get("receipt")) && typedPlan.get("plan").equals(summary.planDigest()),"learner handoff current typed plan");
+            require(metadata.containsKey(SELECTED) && metadata.get(SELECTED).bytes()==selector.length,"learner handoff source not selected");
+        }
+        void seal(boolean candidate)throws IOException {
+            check();
+            if(!metadata.containsKey(HEAD)) {
+                require(candidate,"learner original handoff not committed");
+                write(HEAD_NEXT,bytes,"LEARNER_HEAD_CANDIDATE");
+                Files.move(directory.resolve(HEAD_NEXT),directory.resolve(HEAD),StandardCopyOption.ATOMIC_MOVE);
+                metadata.put(HEAD,metadata.remove(HEAD_NEXT));point("LEARNER_HEAD_RENAMED");
+            }
+            require(metadata.get(HEAD).bytes()==bytes.length && metadata.get(HEAD).digest().equals(hash(bytes)),"learner handoff active bytes differ");
+            write(HEAD,bytes,"LEARNER_HEAD_ACTIVE");
+            if(metadata.containsKey(HEAD_NEXT)) {
+                require(metadata.get(HEAD_NEXT).bytes()==bytes.length && metadata.get(HEAD_NEXT).digest().equals(hash(bytes)),"learner handoff redundant bytes differ");
+                Files.delete(directory.resolve(HEAD_NEXT));metadata.remove(HEAD_NEXT);AdmissionPaths.forceDirectory(directory);point("LEARNER_HEAD_REDUNDANT_FORCED");
+            }
+            check();active=true;
+        }
     }
     static final class View {
         private final MembershipLearnerSuccessor owner;
         private final MembershipLearnerMaterialization.PreparedGeneration predecessor;
         private View(MembershipLearnerSuccessor owner,MembershipLearnerMaterialization.PreparedGeneration predecessor){this.owner=owner;this.predecessor=predecessor;}
-        MembershipCapsule source()throws IOException {predecessor.check();owner.check();require(owner.selected,"learner successor not selected");return owner.capsule();}
+        MembershipCapsule source()throws IOException {
+            if(predecessor!=null)predecessor.check();
+            else {require(owner.handoff!=null && owner.handoff.active,"learner handoff capability not forced");owner.handoff.check();}
+            owner.check();require(owner.selected,"learner successor not selected");return owner.capsule();
+        }
         MembershipLearnerStore store()throws IOException{source();return owner.parent;}
         byte[] originalImage(String digest,long size)throws IOException {
             var capsule=source();require(Objects.equals(capsule.packet.images().get(digest),size),"learner successor original image binding");
@@ -218,8 +327,18 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
             require(bytes.length==size && hash(bytes).equals(digest),"learner successor original image bytes");source();return bytes;
         }
         void requireTypedPaths(Path core,Path typed)throws IOException {
-            source();predecessor.requireCorePath(core);predecessor.requireDisjoint(typed,owner.directory,owner.staging);
+            source();
+            if(predecessor!=null){predecessor.requireCorePath(core);predecessor.requireDisjoint(typed,owner.directory,owner.staging);}
+            else {
+                var value=object(parse(AdmissionPaths.read(typed.resolve("preparation.json"),MembershipLearnerMaterialization.SUCCESSOR_PLAN),MembershipLearnerMaterialization.SUCCESSOR_PLAN));
+                var bound=MembershipLearnerAdmissionPlan.binding(object(value.get("materialization")));AdmissionPaths.recheck(bound);
+                require(core.equals(MembershipLearnerAdmissionPlan.path(bound)),"learner successor changed reserved core path");
+                var summary=owner.parent.summary();AdmissionPaths.disjoint(List.of(core,typed,owner.directory,owner.staging,MembershipLearnerMaterialization.directory(summary),summary.request().operationDirectory(),summary.request().replicaDirectory()));
+            }
             require(typed.equals(typedDirectory(owner.parent.summary())),"learner successor typed path");
+        }
+        View promote(MembershipLearnerMaterialization<?> typed)throws IOException {
+            source();require(predecessor!=null,"learner successor already promoted");return owner.promote(typed,predecessor);
         }
         void reserveTypedImage()throws IOException{source();owner.reserveTypedImage();}
         void attachTyped(MembershipLearnerMaterialization<?> next)throws IOException {

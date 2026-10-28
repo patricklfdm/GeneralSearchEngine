@@ -214,6 +214,9 @@ final class MembershipLearnerStore implements AutoCloseable {
     MembershipLearnerSuccessor.View successor(MembershipLearnerMaterialization.PreparedGeneration prepared)throws IOException {
         check();require(successor!=null,"learner successor missing");return successor.open(prepared);
     }
+    MembershipLearnerSuccessor.View promotedSuccessor()throws IOException {
+        check();require(successor!=null,"learner successor missing");return successor.promoted();
+    }
     @Override public void close()throws IOException {
         if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
         children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));

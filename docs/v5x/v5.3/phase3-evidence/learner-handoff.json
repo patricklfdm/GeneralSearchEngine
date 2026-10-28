@@ -1,0 +1,205 @@
+{
+  "archive": {
+    "bytes": 11331255,
+    "files": 5096,
+    "path": "target/v53-learner-handoff/qualification.tar.gz",
+    "sha256": "6a4d2dffae05ba0558bc64d2a0aa29ea6df17946c4adbe1db055cb87c19d795f"
+  },
+  "autonomousReady": false,
+  "baseSource": "550aa693e8101d41dccb3c94733e5baa83463186",
+  "builds": {
+    "corrected": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerHandoffTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "completeCandidateNeedsMatchingTypedOwnersBeforeExplicitResume",
+              "seconds": 81.088
+            },
+            {
+              "failed": false,
+              "name": "closingThePredecessorDuringHandoffPreventsItsActiveCommit",
+              "seconds": 49.026
+            },
+            {
+              "failed": false,
+              "name": "forcedHeadClosesOldHandlesAndReopensWithoutDependingOnThem",
+              "seconds": 80.069
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 3
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "actualBootstrapRootRequiresItsCapturedSchemaCodecAndStartupIndexes",
+              "seconds": 0.342
+            },
+            {
+              "failed": false,
+              "name": "allFiveJoiningShapesRequireTheExactCertifiedPreparation",
+              "seconds": 3.941
+            },
+            {
+              "failed": false,
+              "name": "reserveReadyAndSealedSourcesCannotCreateANewPreparation",
+              "seconds": 1.551
+            },
+            {
+              "failed": false,
+              "name": "closedOrReplacedSourceInvalidatesPreviouslyCapturedPreparation",
+              "seconds": 0.625
+            },
+            {
+              "failed": false,
+              "name": "localIdentityPathsAndOperationOverlapRefuseBeforeAnyMaterialization",
+              "seconds": 0.56
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 5
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "successorRejectsForeignReceiverBeforePathsOrLeasesChangeAndAcceptsItsOwn",
+              "seconds": 3.768
+            },
+            {
+              "failed": false,
+              "name": "firstAdmissionAlsoRejectsAReceivingBudgetDifferentFromItsOperationOwner",
+              "seconds": 0.342
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerHandoffTest": 3,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": 5,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": 2
+        },
+        "exit": 0,
+        "failures": 0,
+        "label": "corrected",
+        "seconds": 235.0503515159944,
+        "skipped": 0,
+        "tests": 10
+      },
+      "productionDifferencesFromFinal": []
+    },
+    "reviewed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerHandoffTest": {
+          "cases": [
+            {
+              "failed": true,
+              "name": "completeCandidateNeedsMatchingTypedOwnersBeforeExplicitResume",
+              "seconds": 42.185
+            },
+            {
+              "failed": true,
+              "name": "forcedHeadClosesOldHandlesAndReopensWithoutDependingOnThem",
+              "seconds": 42.484
+            }
+          ],
+          "errors": 1,
+          "failures": 1,
+          "skipped": 0,
+          "tests": 2
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "actualBootstrapRootRequiresItsCapturedSchemaCodecAndStartupIndexes",
+              "seconds": 0.345
+            },
+            {
+              "failed": false,
+              "name": "allFiveJoiningShapesRequireTheExactCertifiedPreparation",
+              "seconds": 3.791
+            },
+            {
+              "failed": false,
+              "name": "reserveReadyAndSealedSourcesCannotCreateANewPreparation",
+              "seconds": 1.538
+            },
+            {
+              "failed": false,
+              "name": "closedOrReplacedSourceInvalidatesPreviouslyCapturedPreparation",
+              "seconds": 0.613
+            },
+            {
+              "failed": false,
+              "name": "localIdentityPathsAndOperationOverlapRefuseBeforeAnyMaterialization",
+              "seconds": 0.519
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 5
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "successorRejectsForeignReceiverBeforePathsOrLeasesChangeAndAcceptsItsOwn",
+              "seconds": 3.893
+            },
+            {
+              "failed": false,
+              "name": "firstAdmissionAlsoRejectsAReceivingBudgetDifferentFromItsOperationOwner",
+              "seconds": 0.333
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerHandoffTest": 2,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": 5,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": 2
+        },
+        "exit": 1,
+        "failures": 2,
+        "label": "reviewed",
+        "seconds": 110.79440112301381,
+        "skipped": 0,
+        "tests": 9
+      },
+      "productionDifferencesFromFinal": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSuccessor.java"
+      ]
+    }
+  },
+  "conditionalSourceHistories": true,
+  "fullPhase3": false,
+  "jointEligibility": false,
+  "logicalHandoff": true,
+  "nativeHandoff": false,
+  "physicalRetirement": false,
+  "processDeathQualified": false,
+  "productionInputs": 485,
+  "schema": "gse-v53-learner-handoff-qualification-v1",
+  "slotsReused": false,
+  "status": "COMPONENTS_PASSED",
+  "synchronousCutMatrix": "COMPILED_NOT_RUN"
+}
