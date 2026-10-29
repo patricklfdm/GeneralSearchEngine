@@ -23,6 +23,7 @@ final class MembershipSourcePull implements AutoCloseable {
     private final Decoded originalRoot;
     private final String requestRoot,requestView;
     private final MembershipLearnerRequest learner;
+    private final boolean learnerProgress;
     private final MembershipIdentity local,source;
     private final Map<String,Object> ballot;
     private final UUID session;
@@ -61,19 +62,25 @@ final class MembershipSourcePull implements AutoCloseable {
     }
     private MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,
             MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget,Map<String,Object> prefixCut) {
-        this(verified,local,source,ballot,session,resources,bounds,link,guard,clock,started,budget,prefixCut,null,null);
+        this(verified,local,source,ballot,session,resources,bounds,link,guard,clock,started,budget,prefixCut,null,null,false);
     }
     /** No local owner/catalog exists yet. The hint and routes remain untrusted until
      * the complete received original source authenticates the exact reservation. */
     static MembershipSourcePull learner(MembershipLearnerRequest learner,Decoded root,MembershipDiscovery.Hint hint,
             MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget) {
         return new MembershipSourcePull(null,learner.identity(),hint.peer(),MembershipLearnerDiscovery.correlation(learner.identity()),
-                UUID.randomUUID(),resources,bounds,link,guard,clock,started,budget,hint.cut(),root,learner);
+                UUID.randomUUID(),resources,bounds,link,guard,clock,started,budget,hint.cut(),root,learner,false);
+    }
+    /** Read complete retained progress, including CANCEL/INTENT, without enabling installation. */
+    static MembershipSourcePull learnerProgress(MembershipLearnerRequest learner,Decoded root,MembershipDiscovery.Hint hint,
+            MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget) {
+        return new MembershipSourcePull(null,learner.identity(),hint.peer(),MembershipLearnerDiscovery.correlation(learner.identity()),
+                UUID.randomUUID(),resources,bounds,link,guard,clock,started,budget,hint.cut(),root,learner,true);
     }
     private MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,
             MembershipResources resources,ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget,
-            Map<String,Object> prefixCut,Decoded root,MembershipLearnerRequest learner) {
-        require(budget>0 && budget<Long.MAX_VALUE/2,"source pull time budget");this.learner=learner;
+            Map<String,Object> prefixCut,Decoded root,MembershipLearnerRequest learner,boolean learnerProgress) {
+        require(budget>0 && budget<Long.MAX_VALUE/2,"source pull time budget");this.learner=learner;this.learnerProgress=learnerProgress;
         this.prefixCut=prefixCut==null?null:Map.copyOf(prefixCut);
         if(learner==null) {
             context=Objects.requireNonNull(verified).context;
@@ -96,6 +103,13 @@ final class MembershipSourcePull implements AutoCloseable {
         this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;frameLimit=Math.min(FRAME,bounds.maxFrameBytes());
         require(frameLimit>=4096,"source pull frame limit");chunkLimit=Math.min(4*1024*1024,bounds.snapshotChunkBytes());
         maximumAttempts=Math.min(3,bounds.maxRetryAttempts());
+    }
+    private String learnerReference(String scope) {
+        return learnerProgress?MembershipLearnerProgressAccess.reference(learner,prefixCut,scope):MembershipLearnerPrefixExport.reference(learner,prefixCut,scope);
+    }
+    private void checkLearner(MembershipContext current) {
+        if(learnerProgress)MembershipLearnerProgressAccess.original(current,learner,source);
+        else if(learner!=null)MembershipLearnerPrefixExport.originalReservation(current,learner,source);
     }
     private void check()throws IOException {
         require(!closed,"source pull closed");long elapsed=clock.getAsLong()-started;
@@ -272,7 +286,7 @@ final class MembershipSourcePull implements AutoCloseable {
     MembershipSourceReceive fetchPrefix(Path scratch,MembershipImageBorrow originalImages)throws IOException {
         synchronized(this){require(prefixCut!=null && !used && !closed,"read-only prefix single use");used=true;}
         try {
-            String reference=learner==null?cutDigest(prefixCut):MembershipLearnerPrefixExport.reference(learner,prefixCut,"prefix");
+            String reference=learner==null?cutDigest(prefixCut):learnerReference("prefix");
             var packet=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.CAPSULE,null,null);
             MembershipSourceReceive staging;
             synchronized(this) {
@@ -298,7 +312,7 @@ final class MembershipSourcePull implements AutoCloseable {
             check();require(higher.context.root.equals(requestRoot) && higher.context.cut.equals(prefixCut)
                     && Arrays.equals(higher.packet.objectBytes(higher.context.recordRootDigest()),originalRoot.bytes()),"ancestry expected prefix");
             ancestryPrefix=higher;
-            var reference=learner!=null?MembershipLearnerPrefixExport.reference(learner,prefixCut,completeGeneration?"generation":"ancestry"):
+            var reference=learner!=null?learnerReference(completeGeneration?"generation":"ancestry"):
                     completeGeneration?MembershipPrefixExport.generationReference(higher.context):MembershipPrefixExport.ancestryReference(higher.context);
             var manifestOffer=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.RECORD,null,null);
             ancestryManifest=decode(metadataBlob(manifestOffer,65536),"records","GENERATION");
@@ -334,7 +348,7 @@ final class MembershipSourcePull implements AutoCloseable {
             check();prefix.check();
             require(prefix.prefixCut!=null && prefix.completeSource && prefix.received!=null
                     && prefix.prefixCut.equals(prefixCut) && prefix.source.equals(source) && prefix.local.equals(local)
-                    && prefix.requestRoot.equals(requestRoot) && prefix.requestView.equals(requestView) && Objects.equals(prefix.learner,learner)
+                    && prefix.requestRoot.equals(requestRoot) && prefix.requestView.equals(requestView) && Objects.equals(prefix.learner,learner) && prefix.learnerProgress==learnerProgress
                     && prefix.ballot.equals(ballot) && prefix.resources==resources && prefix.started==started && prefix.budget==budget,
                     "generation original prefix owner/deadline");
             var complete=fetchAncestry(prefix.verifiedPrefix(),true);prefix.received.recheck();
@@ -442,11 +456,11 @@ final class MembershipSourcePull implements AutoCloseable {
      * endpoint. Does not manufacture Owned observations for former voters. */
     MembershipCapsule verifiedPrefix()throws IOException {
         require(prefixCut!=null,"read-only prefix required");var result=retainedCapsule();
-        if(learner!=null)MembershipLearnerPrefixExport.originalReservation(result.context,learner,source);
+        checkLearner(result.context);
         check();return result;
     }
     MembershipSourceReceive completeLearnerSource(MembershipFloor.Copy original,MembershipBallotAllocator.Cut cut)throws IOException {
-        check();require(learner!=null && completeSource && received!=null,"learner source is not completely received");
+        check();require(learner!=null && !learnerProgress && completeSource && received!=null,"learner source is not an admission transfer");
         var prefix=verifiedPrefix();require(Arrays.equals(prefix.packet.bytes(),original.capsule.packet.bytes()),"learner retained source prefix");
         received.completeLearnerGeneration(original,cut);check();return received;
     }
@@ -456,7 +470,7 @@ final class MembershipSourcePull implements AutoCloseable {
         var packet=received.packet();var capsule=Objects.requireNonNull(verifier.verify(originalRoot,packet,received.images()));
         require(capsule.context.root.equals(requestRoot) && capsule.context.cut.equals(prefixCut)
                 && Arrays.equals(capsule.packet.bytes(),packet.bytes()),"prefix verifier substituted bytes/cut");
-        if(learner!=null)MembershipLearnerPrefixExport.originalReservation(capsule.context,learner,source);
+        checkLearner(capsule.context);
         received.recheck();check();return capsule;
     }
     /** Observe only this contacted owner's original frozen grant after every source

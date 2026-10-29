@@ -9,6 +9,7 @@ import static io.github.patricklfdm.generalsearch.replication.V53ContextFixture.
 final class V53SelectionFixture {
     final V53CapsuleFixture capsule;
     V53SelectionFixture(int size,String change,int through) {capsule=new V53CapsuleFixture(size,change,through);}
+    V53SelectionFixture(V53CapsuleFixture capsule){this.capsule=capsule;}
     MembershipSelection.Source source(String voter) {return source(voter,20,null,0);}
     MembershipSelection.Source source(String voter,long campaign,String data,long acceptedBallot) {return source(voter,campaign,data,acceptedBallot,"node-1");}
     MembershipSelection.Source source(String voter,long campaign,String data,long acceptedBallot,String proposer) {

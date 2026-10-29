@@ -1,0 +1,196 @@
+{
+  "allJoiningProfilesQualified": false,
+  "archive": {
+    "baseSource": "cf899eef9d6182550ff511910d93748032a47ce5",
+    "bytes": 13750772,
+    "compiledProductionFiles": 878,
+    "files": 9251,
+    "finalSourceMatchesWorkspace": true,
+    "path": "target/v53-learner-progress/qualification.tar.gz",
+    "productionIdenticalAcrossAttempts": true,
+    "productionInputs": 479,
+    "sha256": "c8e15deafca6ad43371a4096d87fbc03830d9b7d9f4536cf4fe125e97cc4c44f"
+  },
+  "attemptReasons": {
+    "ancestry": "fixture attached ancestry to a bare unselected generation, correctly refused by original materialization validation",
+    "component": "14 initial component/enrollment regressions passed",
+    "network": "4 new-test failures: fixture split one stable era into adjacent RANGE items; all existing classes passed",
+    "qualified": "final 57 focused regressions passed; original live progress accessor refuses after close; typed/authority bytes unchanged",
+    "retained": "fixture expected immutable Copy.check to be a live-owner check; pure historical byte validation correctly remained valid",
+    "selected": "fixture passed unused ancestry to selection; constructor failure leaked its owner and caused two cascading test lock errors"
+  },
+  "attempts": {
+    "ancestry": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": 6
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "ancestry",
+      "requestedTests": [
+        "V53LearnerProgressNetworkTest",
+        "V53LearnerProgressTest"
+      ],
+      "seconds": 33.9800044299991,
+      "skipped": 0,
+      "tests": 8
+    },
+    "component": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "component",
+      "requestedTests": [
+        "V53LearnerProgressTest",
+        "V53LearnerSourceTest"
+      ],
+      "seconds": 32.18818782699964,
+      "skipped": 0,
+      "tests": 14
+    },
+    "network": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerDiscoveryTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipTransportTest": 13,
+        "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest": 16
+      },
+      "exit": 1,
+      "failures": 4,
+      "label": "network",
+      "requestedTests": [
+        "V53LearnerProgressTest",
+        "V53LearnerProgressNetworkTest",
+        "V53LearnerSourceTest",
+        "V53LearnerDiscoveryTest",
+        "V53TransferServiceTest",
+        "V53MembershipTransportTest"
+      ],
+      "seconds": 150.43617655799972,
+      "skipped": 0,
+      "tests": 56
+    },
+    "qualified": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerDiscoveryTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipTransportTest": 13,
+        "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest": 16
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "qualified",
+      "requestedTests": [
+        "V53LearnerProgressNetworkTest",
+        "V53LearnerProgressTest",
+        "V53LearnerSourceTest",
+        "V53LearnerDiscoveryTest",
+        "V53TransferServiceTest",
+        "V53MembershipTransportTest"
+      ],
+      "seconds": 187.38027215699913,
+      "skipped": 0,
+      "tests": 57
+    },
+    "retained": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": 6
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "retained",
+      "requestedTests": [
+        "V53LearnerProgressNetworkTest",
+        "V53LearnerProgressTest"
+      ],
+      "seconds": 39.949262094000005,
+      "skipped": 0,
+      "tests": 9
+    },
+    "selected": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": 6
+      },
+      "exit": 1,
+      "failures": 3,
+      "label": "selected",
+      "requestedTests": [
+        "V53LearnerProgressNetworkTest",
+        "V53LearnerProgressTest"
+      ],
+      "seconds": 31.87816724300137,
+      "skipped": 0,
+      "tests": 9
+    }
+  },
+  "baseSource": "cf899eef9d6182550ff511910d93748032a47ce5",
+  "componentCoverage": {
+    "actualTcp": true,
+    "actualTypedBackup": true,
+    "completeOriginalGenerationsCompared": 40,
+    "conditionalHistoricalVoterObservations": true,
+    "enrollmentUnchanged": true,
+    "existingJavaTests": 48,
+    "historicalBytesAreNotLiveCapabilities": true,
+    "joiningProfiles": 5,
+    "mixedPullModesRefused": true,
+    "newJavaTests": 9,
+    "originalDeadlinePreserved": true,
+    "permanentErrorsRetry": false,
+    "progressAdmissionRefused": true,
+    "progressCloseRevokesAccessor": true,
+    "sameFrameRetryBound": 3,
+    "sourceStatesPerProfile": 8,
+    "tcpProgressPhases": [
+      "CANCELLED",
+      "JOINT",
+      "COMPLETED"
+    ]
+  },
+  "contract": {
+    "byteFixtures": 52,
+    "commandFixtures": 9,
+    "localLinks": 1295,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "contractUnitTests": 1,
+  "durableCancellationQualified": false,
+  "hostedRun": false,
+  "joiningVotesQualified": false,
+  "localIntentInstalled": false,
+  "maximumResourcesQualified": false,
+  "nativeProgressQualified": false,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "schema": "gse-v53-learner-progress-component-v1",
+  "scope": "conditional-source-component-and-local-tcp-only",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "06bd59e19ef097574943d47f4a7d1e686c110b17639e93d291e67947f5ce02a0",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPrefixExport.java": "af31065f5906934ff1a96d25422d81ca7ad7d8c9a92639ec230e26fc2d03fd33",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerProgress.java": "0c5b93db1d4e41e53dd51655d57f7ebcf10bc0393943f7198e8cf25fba0ab632",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerProgressAccess.java": "a6e2e9cb24547a8dbc10acd4e3a523c81fb7c8af8d09c182a4acd4fc8c606476",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java": "96aee855d2bebcd1055096c989683d4cde18e32e76d76898fb2473d305014eb8",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java": "b952e0e6b01640485a10d3c581ac6b23bfb17e8a2540ae7c5bdea15c24120b47",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java": "24e8f7fb038dc0f008fd5d6b1988087824e926f45be9b6489a2dd1f77fb20a11",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CapsuleFixture.java": "d07cbb82c05184c44aee82a87906478c94528f98215986b5462f91c4cfa84610",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerProgressNetworkTest.java": "ff868d00e8abf2b6acc077ddfd8d29c3271e9e0f65e31004ecdf63f07b96579f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerProgressTest.java": "4afdc205c749ef450e943ea08ac4c23596101c00ce5eeeb534ebe78fa6d512de",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SelectionFixture.java": "157ab6314aea8aa1f33b56e2af4bded48b9b64fe5691d2a6ab67f68f0361a886"
+  },
+  "status": "PASS"
+}

@@ -16,8 +16,15 @@ final class V53CapsuleFixture {
         this(new V53ContextFixture(size,change),change,through);
     }
     V53CapsuleFixture(V53ContextFixture initial,String change,int through) {
+        this(initial,change,through,false);
+    }
+    static V53CapsuleFixture fromHistory(V53ContextFixture history,int through) {
+        return new V53CapsuleFixture(history,null,through,true);
+    }
+    private V53CapsuleFixture(V53ContextFixture initial,String change,int through,boolean completed) {
         if(through<0 || through>9)throw new IllegalArgumentException("fixture cut");
-        this.through=through;source=initial;source.transition(change);owned.addAll(source.owned);
+        this.through=through;source=initial;if(!completed)source.transition(change);
+        if(through>source.steps.size())throw new IllegalArgumentException("fixture missing original history");owned.addAll(source.owned);
         source.images.forEach((h,b)->images.put(h,(long)b.length));add(source.root.digest());add((String)source.root.value().get("genesis"));
         String terminal=catalog(through);add(terminal);var endState=state(through);var items=new ArrayList<Map<String,Object>>();
         for(int start=0;start<through;) {

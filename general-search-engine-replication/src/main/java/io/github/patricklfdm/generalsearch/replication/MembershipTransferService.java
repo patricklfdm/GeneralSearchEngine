@@ -91,6 +91,8 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                             new MembershipLearnerRootExport(owner,key.reader,request,resources,clock,started,budget):
                             prefix && MembershipLearnerPrefixExport.scope(context,key.reader,(String)payload.get("digest"))!=null?
                             new MembershipLearnerPrefixExport(owner,key.reader,request,resources,clock,started,budget):
+                            prefix && MembershipLearnerProgressAccess.scope(context,key.reader,(String)payload.get("digest"))!=null?
+                            new MembershipLearnerPrefixExport(owner,key.reader,request,resources,clock,started,budget,true):
                             prefix?owner.exportPrefix((String)payload.get("digest"),object(request.value().get("ballot")),
                             (String)request.value().get("view"),resources,clock,started,budget):
                             publication!=null && publication.published()?owner.exportPublishedCheckpoint(publication,(String)payload.get("digest"),clock,started,budget):

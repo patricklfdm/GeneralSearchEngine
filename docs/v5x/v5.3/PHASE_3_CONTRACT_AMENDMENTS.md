@@ -1117,3 +1117,39 @@ envelope remains 1852 KiB within 2 MiB MISC, with two GENERATION and seven
 APPLICATION units unchanged. This generalizes implementation; finite conditional
 component histories do not close native, process-death, maximum-resource,
 all-profile, cancellation, matching-INTENT or autonomous Phase 3 qualification.
+
+## A29 — read-only progress for prepared learners
+
+Keep the original learner ROOT and source aliases restricted to active pre-joint
+reservations. Add `gse-v53-learner-progress-reference/1.3` as a separate derived
+lookup alias, not a persisted record, grant or enrollment token. Bind ROOT,
+complete joining identity, complete original request, current cut and one of
+`prefix`, `ancestry`, `generation`. The verified source catalog must still retain
+the exact prepared operation. Its prepared stable view proves that the reader
+was the joining identity, rather than an old voter. Missing, retired, unprepared,
+foreign or changed operations refuse. Terminal results never permit re-enrollment.
+
+The contact client uses its live prepared/current typed owner and original ROOT;
+STATUS is only a hint. Download and authenticate the complete original generation,
+including its ancestry, under that owner's same resource pool and one original
+deadline. Verify the exact prepared-owner terminal anchor before exposing progress.
+The source must be an exact current voter identity. Publishing a different cut,
+closing either owner or exhausting the original budget revokes the exchange.
+Only transient transport IO/deadline failures retry identical frames, within the
+existing attempt and deadline bounds. Protocol, integrity and capacity errors do
+not renew the budget or become a new experiment.
+
+A progress client remains outbound-only and rejects voting requests even when
+its joining identity appears in the remote joint/new view. Progress and enrollment
+pulls cannot share a mixed prefix/generation pair. The admission completion API
+refuses progress pulls. No source is moved into the learner authority, no local
+INTENT is forced, no receipt is replaced, and no existing learner data is deleted
+by this route. Live source access expires with the complete transfer owner. Already checked
+historical bytes remain pure data, not a live installation/cleanup capability. Reading a
+certified CANCEL or remote INTENT is a prerequisite for the later durable
+cancellation/eligibility transaction, not that transaction itself.
+
+No persisted schema, resource bound, public API or normative phase exit is changed.
+The native full-history, process-death, all-profile and original-first evidence
+gates remain required, as do locally forced matching INTENT, durable cancellation
+recovery and autonomous continuation.

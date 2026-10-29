@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Prepared learner progress](PHASE_3_LEARNER_PROGRESS.md) adds a separate read-only
+route for exact retained operation history after CANCEL, INTENT and FINAL.
+The original enrollment route remains pre-joint only. Complete source bytes and
+ancestry must match the live prepared owner; progress downloads cannot install an
+admission or create votes. Durable cancellation recovery, matching local INTENT,
+autonomous integration and complete Phase 3 qualification remain OPEN.
+
 The [continuous learner replay](PHASE_3_LEARNER_CYCLE_REPLAY.md) now derives six
 native sources/receipts, checks 25 original snapshots and implements full bounded
 acquisition/force replay. Local qualification remains **PARTIAL**: all six learner

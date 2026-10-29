@@ -37,6 +37,7 @@ final class MembershipTransport implements AutoCloseable {
     private final Directory directory;
     private final MembershipLearnerRequest learnerContact;
     private final MembershipDiscovery.Hint learnerPrefix;
+    private final boolean learnerProgress;
     private final String root;
     private final MembershipIdentity local;
     private final ReplicationBounds bounds;
@@ -56,28 +57,34 @@ final class MembershipTransport implements AutoCloseable {
 
     MembershipTransport(MembershipCapsule verified,MembershipIdentity local,ReplicationBounds bounds,
             MembershipResources resources,Handler handler,Events events)throws IOException {
-        this(verified,local,bounds,resources,handler,events,null,null,null);
+        this(verified,local,bounds,resources,handler,events,null,null,null,false);
     }
     /** Resolve new permanent reservations only from this exclusive owner's verified catalog. */
     MembershipTransport(MembershipGrantJournal owner,ReplicationBounds bounds,MembershipResources resources,
             Handler handler,Events events)throws IOException {
-        this(owner.activationCapsule(),owner.activationIdentity(),bounds,resources,handler,events,owner::activationCapsule,null,null);
+        this(owner.activationCapsule(),owner.activationIdentity(),bounds,resources,handler,events,owner::activationCapsule,null,null,false);
     }
     /** Contact-only client. No listener or locally fabricated voter/catalog is created. */
     static MembershipTransport learner(MembershipLearnerRequest request,ReplicationBounds bounds,
             MembershipResources resources,Events events)throws IOException {
         return new MembershipTransport(null,request.identity(),bounds,resources,(p,r)->{throw new IOException("learner contact has no server");},
-                events,null,request,null);
+                events,null,request,null,false);
     }
     static MembershipTransport learnerPrefix(MembershipLearnerRequest request,MembershipDiscovery.Hint hint,ReplicationBounds bounds,
             MembershipResources resources,Events events)throws IOException {
         require(!hint.peer().equals(request.identity()) && request.change().target().contains(hint.peer()),"learner prefix contact route");
         return new MembershipTransport(null,request.identity(),bounds,resources,(p,r)->{throw new IOException("learner contact has no server");},
-                events,null,request,hint);
+                events,null,request,hint,false);
+    }
+    static MembershipTransport learnerProgress(MembershipLearnerRequest request,MembershipDiscovery.Hint hint,ReplicationBounds bounds,
+            MembershipResources resources,Events events)throws IOException {
+        require(!hint.peer().equals(request.identity()) && request.change().target().contains(hint.peer()),"learner progress contact route");
+        return new MembershipTransport(null,request.identity(),bounds,resources,(p,r)->{throw new IOException("learner progress has no server");},
+                events,null,request,hint,true);
     }
     private MembershipTransport(MembershipCapsule verified,MembershipIdentity local,ReplicationBounds bounds,
-            MembershipResources resources,Handler handler,Events events,Directory directory,MembershipLearnerRequest learnerContact,MembershipDiscovery.Hint learnerPrefix)throws IOException {
-        this.learnerContact=learnerContact;this.directory=directory;this.learnerPrefix=learnerPrefix;
+            MembershipResources resources,Handler handler,Events events,Directory directory,MembershipLearnerRequest learnerContact,MembershipDiscovery.Hint learnerPrefix,boolean learnerProgress)throws IOException {
+        this.learnerContact=learnerContact;this.learnerProgress=learnerProgress;this.directory=directory;this.learnerPrefix=learnerPrefix;
         this.root=learnerContact==null?Objects.requireNonNull(verified).context.root:learnerContact.root().manifestDigest();this.local=Objects.requireNonNull(local);
         this.bounds=Objects.requireNonNull(bounds);this.resources=Objects.requireNonNull(resources);
         this.handler=Objects.requireNonNull(handler);this.events=Objects.requireNonNull(events);
@@ -140,7 +147,8 @@ final class MembershipTransport implements AutoCloseable {
         if(request.kind().equals("CHUNK") && number(request.value().get("sequence"))==1) {
             String reference=(String)object(request.value().get("payload")).get("digest");
             boolean allowed=learnerPrefix==null?reference.equals(MembershipLearnerDiscovery.reference(learnerContact)):
-                    MembershipLearnerPrefixExport.SCOPES.stream().anyMatch(scope->reference.equals(MembershipLearnerPrefixExport.reference(learnerContact,learnerPrefix.cut(),scope)));
+                    MembershipLearnerPrefixExport.SCOPES.stream().anyMatch(scope->reference.equals(learnerProgress?MembershipLearnerProgressAccess.reference(learnerContact,learnerPrefix.cut(),scope):
+                            MembershipLearnerPrefixExport.reference(learnerContact,learnerPrefix.cut(),scope)));
             require(allowed,"learner contact reservation reference");
         }
     }
