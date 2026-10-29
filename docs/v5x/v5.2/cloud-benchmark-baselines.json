@@ -1,0 +1,88 @@
+{
+  "baselines": [
+    {
+      "accounting": {
+        "actualProviderBill": false,
+        "ledgerReservedCostMicrousd": 1780000000,
+        "selectedReservedCostMicrousd": 375000000
+      },
+      "configurationSha256": "9228862f623b4fa8a0491ab51df2e5ac531a76eda43acfb787db1ecbefbee2c6",
+      "exceptions": [
+        {
+          "id": "negative-quota-20261028",
+          "scope": "ten frozen originals plus five same-payload continuations"
+        },
+        {
+          "id": "experiment-retention-40809895634",
+          "originalCompletionStatus": "FAIL",
+          "originalJobConclusion": "failure",
+          "originalLedgerRewritten": false,
+          "policySha256": "7769464fd60dfeae4a06a881c51541c8dc83edefb208078e243f36513e973108",
+          "recoveredParts": [
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54
+          ],
+          "requirements": "complete manifest hashes, original authority, exact-ID cleanup, every history/negative replay",
+          "scope": "operator-authorized single failed retention; original FAIL records preserved",
+          "waivedOriginal": {
+            "requestSha256": "994a402f4b8f255cfa8fa76118dee08c37f63937f9130049e7499f109ed7b7b6",
+            "runAttempt": 1,
+            "runId": 40809895634
+          }
+        }
+      ],
+      "fullRemoteQualification": true,
+      "measuredSequences": [
+        "87900804eccc4769a000f0a7dd1e53ff",
+        "c3843899543949178ab16475342368cf"
+      ],
+      "measuredSources": [
+        "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27",
+        "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      ],
+      "name": "v5.2-explicit-replica-reads-cloud",
+      "provenanceSha256": "bc9d6fa7bcf3d7c8654433af3808b8ce6b652bc90eeaabde53196c2e4b412dd6",
+      "releaseCandidateQualified": false,
+      "reviewSha256": "01f9e744ecc311dd4777de768de7a44dc30078c72858e1ad8638ce8b63168c1f",
+      "scope": "operator-authorized quota continuation and single retention recovery",
+      "totals": {
+        "formalHistories": 28,
+        "formalNegativesPerLocation": 439,
+        "histories": 33,
+        "logicalMembers": 5,
+        "members": 15,
+        "nominalM01Seconds": 2700,
+        "reads": 27428,
+        "updates": 2760
+      },
+      "verification": {
+        "artifactId": 12895590148,
+        "artifactSha256": "88aa534d729a4f147e5ee65019c649a8c59260e429750bf4f922ae3ba074dbcf",
+        "runAttempt": 1,
+        "runId": 40841038976,
+        "source": "8b9aa60ab0cc9253046b162f28c40d47ae2acc82",
+        "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/40841038976"
+      }
+    }
+  ],
+  "schema": "gse-v52-cloud-baseline-registry-v1"
+}

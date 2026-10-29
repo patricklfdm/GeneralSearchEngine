@@ -1,0 +1,955 @@
+{
+  "acceptanceArtifacts": {
+    "artifacts": [
+      {
+        "archive_download_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/artifacts/12895590148/zip",
+        "created_at": "2026-10-29T11:53:58Z",
+        "digest": "sha256:88aa534d729a4f147e5ee65019c649a8c59260e429750bf4f922ae3ba074dbcf",
+        "expired": false,
+        "expires_at": "2027-01-27T08:17:09Z",
+        "id": 12895590148,
+        "name": "v52-cloud-set-40841038976-1",
+        "node_id": "MDg6QXJ0aWZhY3QxMjg5NTU5MDE0OA==",
+        "size_in_bytes": 3789,
+        "updated_at": "2026-10-29T11:53:58Z",
+        "url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/artifacts/12895590148",
+        "workflow_run": {
+          "head_branch": "master",
+          "head_repository_id": 1341513206,
+          "head_sha": "8b9aa60ab0cc9253046b162f28c40d47ae2acc82",
+          "id": 40841038976,
+          "repository_id": 1341513206
+        }
+      },
+      {
+        "archive_download_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/artifacts/12894268838/zip",
+        "created_at": "2026-10-29T11:54:00Z",
+        "digest": "sha256:40a6abfeffe34e1fff67424413d97ef28782d72a16a237b2a06b9993ac3509b1",
+        "expired": false,
+        "expires_at": "2027-01-27T08:17:09Z",
+        "id": 12894268838,
+        "name": "v52-runner-diagnostics-40841038976-1",
+        "node_id": "MDg6QXJ0aWZhY3QxMjg5NDI2ODgzOA==",
+        "size_in_bytes": 1563,
+        "updated_at": "2026-10-29T11:54:00Z",
+        "url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/artifacts/12894268838",
+        "workflow_run": {
+          "head_branch": "master",
+          "head_repository_id": 1341513206,
+          "head_sha": "8b9aa60ab0cc9253046b162f28c40d47ae2acc82",
+          "id": 40841038976,
+          "repository_id": 1341513206
+        }
+      }
+    ],
+    "total_count": 2
+  },
+  "acceptanceJobs": {
+    "jobs": [
+      {
+        "check_run_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/check-runs/123337204377",
+        "completed_at": "2026-10-29T11:54:06Z",
+        "conclusion": "success",
+        "created_at": "2026-10-29T08:17:10Z",
+        "head_branch": "master",
+        "head_sha": "8b9aa60ab0cc9253046b162f28c40d47ae2acc82",
+        "html_url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/40841038976/job/123337204377",
+        "id": 123337204377,
+        "labels": [
+          "self-hosted",
+          "Linux",
+          "X64",
+          "gse-v52-cloud-d-wsl"
+        ],
+        "name": "V5.2 replication runner",
+        "node_id": "CR_kwDOT_Xd9s8AAAAct3himQ",
+        "run_attempt": 1,
+        "run_id": 40841038976,
+        "run_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/runs/40841038976",
+        "runner_group_id": 1,
+        "runner_group_name": "Default",
+        "runner_id": 21,
+        "runner_name": "gse-v52-cloud-d-wsl",
+        "started_at": "2026-10-29T08:17:18Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completed_at": "2026-10-29T08:17:24Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "started_at": "2026-10-29T08:17:18Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T08:17:24Z",
+            "conclusion": "success",
+            "name": "Set up runner",
+            "number": 2,
+            "started_at": "2026-10-29T08:17:24Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T08:17:29Z",
+            "conclusion": "success",
+            "name": "Checkout exact Runner source",
+            "number": 3,
+            "started_at": "2026-10-29T08:17:24Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T08:17:29Z",
+            "conclusion": "success",
+            "name": "Set up Runner Python",
+            "number": 4,
+            "started_at": "2026-10-29T08:17:29Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T08:17:29Z",
+            "conclusion": "success",
+            "name": "Set up pinned Runner Java",
+            "number": 5,
+            "started_at": "2026-10-29T08:17:29Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T08:17:29Z",
+            "conclusion": "success",
+            "name": "Verify selected Runner host",
+            "number": 6,
+            "started_at": "2026-10-29T08:17:29Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T08:17:31Z",
+            "conclusion": "success",
+            "name": "Bind V5.2 Runner identity",
+            "number": 7,
+            "started_at": "2026-10-29T08:17:29Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T08:17:32Z",
+            "conclusion": "success",
+            "name": "Authenticate V5.2 Runner identity",
+            "number": 8,
+            "started_at": "2026-10-29T08:17:31Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T08:18:10Z",
+            "conclusion": "success",
+            "name": "Set up Runner Google Cloud SDK",
+            "number": 9,
+            "started_at": "2026-10-29T08:17:32Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:53:56Z",
+            "conclusion": "success",
+            "name": "Execute selected V5.2 operation",
+            "number": 10,
+            "started_at": "2026-10-29T08:18:10Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:53:58Z",
+            "conclusion": "success",
+            "name": "Retain V5.2 Runner result",
+            "number": 11,
+            "started_at": "2026-10-29T11:53:56Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:53:58Z",
+            "conclusion": "success",
+            "name": "Report V5.2 Runner result",
+            "number": 12,
+            "started_at": "2026-10-29T11:53:58Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:53:59Z",
+            "conclusion": "success",
+            "name": "Retain safe V5.2 Runner diagnostics",
+            "number": 13,
+            "started_at": "2026-10-29T11:53:58Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:53:59Z",
+            "conclusion": "success",
+            "name": "Post Authenticate V5.2 Runner identity",
+            "number": 22,
+            "started_at": "2026-10-29T11:53:59Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:53:59Z",
+            "conclusion": "success",
+            "name": "Post Set up pinned Runner Java",
+            "number": 23,
+            "started_at": "2026-10-29T11:53:59Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:53:59Z",
+            "conclusion": "success",
+            "name": "Post Set up Runner Python",
+            "number": 24,
+            "started_at": "2026-10-29T11:53:59Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:54:00Z",
+            "conclusion": "success",
+            "name": "Post Checkout exact Runner source",
+            "number": 25,
+            "started_at": "2026-10-29T11:53:59Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:54:00Z",
+            "conclusion": "success",
+            "name": "Complete runner",
+            "number": 26,
+            "started_at": "2026-10-29T11:54:00Z",
+            "status": "completed"
+          },
+          {
+            "completed_at": "2026-10-29T11:54:00Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 27,
+            "started_at": "2026-10-29T11:54:00Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/jobs/123337204377",
+        "workflow_name": "V5.2 Replication Runner"
+      }
+    ],
+    "total_count": 1
+  },
+  "acceptanceRun": {
+    "actor": {
+      "avatar_url": "https://avatars.githubusercontent.com/u/147357093?v=4",
+      "events_url": "https://api.github.com/users/patricklfdm/events{/privacy}",
+      "followers_url": "https://api.github.com/users/patricklfdm/followers",
+      "following_url": "https://api.github.com/users/patricklfdm/following{/other_user}",
+      "gists_url": "https://api.github.com/users/patricklfdm/gists{/gist_id}",
+      "gravatar_id": "",
+      "html_url": "https://github.com/patricklfdm",
+      "id": 147357093,
+      "login": "patricklfdm",
+      "node_id": "U_kgDOCMh9pQ",
+      "organizations_url": "https://api.github.com/users/patricklfdm/orgs",
+      "received_events_url": "https://api.github.com/users/patricklfdm/received_events",
+      "repos_url": "https://api.github.com/users/patricklfdm/repos",
+      "site_admin": false,
+      "starred_url": "https://api.github.com/users/patricklfdm/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/patricklfdm/subscriptions",
+      "type": "User",
+      "url": "https://api.github.com/users/patricklfdm",
+      "user_view_type": "public"
+    },
+    "artifacts_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/runs/40841038976/artifacts",
+    "cancel_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/runs/40841038976/cancel",
+    "check_suite_id": 110703261469,
+    "check_suite_node_id": "CS_kwDOT_Xd9s8AAAAZxm23HQ",
+    "check_suite_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/check-suites/110703261469",
+    "conclusion": "success",
+    "created_at": "2026-10-29T08:17:08Z",
+    "display_title": "V5.2 Replication Runner",
+    "event": "workflow_dispatch",
+    "head_branch": "master",
+    "head_commit": {
+      "author": {
+        "email": "147357093+patricklfdm@users.noreply.github.com",
+        "name": "Patrick Li"
+      },
+      "committer": {
+        "email": "noreply@github.com",
+        "name": "GitHub"
+      },
+      "id": "8b9aa60ab0cc9253046b162f28c40d47ae2acc82",
+      "message": "fix: recover one V5.2 experiment retention failure [skip ci] (#363)",
+      "timestamp": "2026-10-29T08:16:35Z",
+      "tree_id": "7b38aca7d131adb4da705468f078c6084e36e0fb"
+    },
+    "head_repository": {
+      "archive_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/{archive_format}{/ref}",
+      "assignees_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/assignees{/user}",
+      "blobs_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/blobs{/sha}",
+      "branches_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/branches{/branch}",
+      "collaborators_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/collaborators{/collaborator}",
+      "comments_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/comments{/number}",
+      "commits_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/commits{/sha}",
+      "compare_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/compare/{base}...{head}",
+      "contents_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/contents/{+path}",
+      "contributors_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/contributors",
+      "deployments_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/deployments",
+      "description": null,
+      "downloads_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/downloads",
+      "events_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/events",
+      "fork": false,
+      "forks_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/forks",
+      "full_name": "patricklfdm/GeneralSearchEngine",
+      "git_commits_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/commits{/sha}",
+      "git_refs_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/refs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/tags{/sha}",
+      "hooks_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/hooks",
+      "html_url": "https://github.com/patricklfdm/GeneralSearchEngine",
+      "id": 1341513206,
+      "issue_comment_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/issues/comments{/number}",
+      "issue_events_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/issues/events{/number}",
+      "issues_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/issues{/number}",
+      "keys_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/keys{/key_id}",
+      "labels_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/labels{/name}",
+      "languages_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/languages",
+      "merges_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/merges",
+      "milestones_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/milestones{/number}",
+      "name": "GeneralSearchEngine",
+      "node_id": "R_kgDOT_Xd9g",
+      "notifications_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/notifications{?since,all,participating}",
+      "owner": {
+        "avatar_url": "https://avatars.githubusercontent.com/u/147357093?v=4",
+        "events_url": "https://api.github.com/users/patricklfdm/events{/privacy}",
+        "followers_url": "https://api.github.com/users/patricklfdm/followers",
+        "following_url": "https://api.github.com/users/patricklfdm/following{/other_user}",
+        "gists_url": "https://api.github.com/users/patricklfdm/gists{/gist_id}",
+        "gravatar_id": "",
+        "html_url": "https://github.com/patricklfdm",
+        "id": 147357093,
+        "login": "patricklfdm",
+        "node_id": "U_kgDOCMh9pQ",
+        "organizations_url": "https://api.github.com/users/patricklfdm/orgs",
+        "received_events_url": "https://api.github.com/users/patricklfdm/received_events",
+        "repos_url": "https://api.github.com/users/patricklfdm/repos",
+        "site_admin": false,
+        "starred_url": "https://api.github.com/users/patricklfdm/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/patricklfdm/subscriptions",
+        "type": "User",
+        "url": "https://api.github.com/users/patricklfdm",
+        "user_view_type": "public"
+      },
+      "private": false,
+      "pulls_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/pulls{/number}",
+      "releases_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/releases{/id}",
+      "stargazers_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/stargazers",
+      "statuses_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/statuses/{sha}",
+      "subscribers_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/subscribers",
+      "subscription_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/subscription",
+      "tags_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/tags",
+      "teams_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/teams",
+      "trees_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/trees{/sha}",
+      "url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine"
+    },
+    "head_sha": "8b9aa60ab0cc9253046b162f28c40d47ae2acc82",
+    "html_url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/40841038976",
+    "id": 40841038976,
+    "jobs_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/runs/40841038976/attempts/1/jobs",
+    "logs_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/runs/40841038976/attempts/1/logs",
+    "name": "V5.2 Replication Runner",
+    "node_id": "WFR_kwLOT_Xd9s8AAAAJglDMgA",
+    "path": ".github/workflows/v52-replication-evidence.yml",
+    "previous_attempt_url": null,
+    "pull_requests": [],
+    "referenced_workflows": [],
+    "repository": {
+      "archive_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/{archive_format}{/ref}",
+      "assignees_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/assignees{/user}",
+      "blobs_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/blobs{/sha}",
+      "branches_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/branches{/branch}",
+      "collaborators_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/collaborators{/collaborator}",
+      "comments_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/comments{/number}",
+      "commits_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/commits{/sha}",
+      "compare_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/compare/{base}...{head}",
+      "contents_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/contents/{+path}",
+      "contributors_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/contributors",
+      "deployments_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/deployments",
+      "description": null,
+      "downloads_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/downloads",
+      "events_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/events",
+      "fork": false,
+      "forks_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/forks",
+      "full_name": "patricklfdm/GeneralSearchEngine",
+      "git_commits_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/commits{/sha}",
+      "git_refs_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/refs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/tags{/sha}",
+      "hooks_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/hooks",
+      "html_url": "https://github.com/patricklfdm/GeneralSearchEngine",
+      "id": 1341513206,
+      "issue_comment_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/issues/comments{/number}",
+      "issue_events_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/issues/events{/number}",
+      "issues_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/issues{/number}",
+      "keys_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/keys{/key_id}",
+      "labels_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/labels{/name}",
+      "languages_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/languages",
+      "merges_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/merges",
+      "milestones_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/milestones{/number}",
+      "name": "GeneralSearchEngine",
+      "node_id": "R_kgDOT_Xd9g",
+      "notifications_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/notifications{?since,all,participating}",
+      "owner": {
+        "avatar_url": "https://avatars.githubusercontent.com/u/147357093?v=4",
+        "events_url": "https://api.github.com/users/patricklfdm/events{/privacy}",
+        "followers_url": "https://api.github.com/users/patricklfdm/followers",
+        "following_url": "https://api.github.com/users/patricklfdm/following{/other_user}",
+        "gists_url": "https://api.github.com/users/patricklfdm/gists{/gist_id}",
+        "gravatar_id": "",
+        "html_url": "https://github.com/patricklfdm",
+        "id": 147357093,
+        "login": "patricklfdm",
+        "node_id": "U_kgDOCMh9pQ",
+        "organizations_url": "https://api.github.com/users/patricklfdm/orgs",
+        "received_events_url": "https://api.github.com/users/patricklfdm/received_events",
+        "repos_url": "https://api.github.com/users/patricklfdm/repos",
+        "site_admin": false,
+        "starred_url": "https://api.github.com/users/patricklfdm/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/patricklfdm/subscriptions",
+        "type": "User",
+        "url": "https://api.github.com/users/patricklfdm",
+        "user_view_type": "public"
+      },
+      "private": false,
+      "pulls_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/pulls{/number}",
+      "releases_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/releases{/id}",
+      "stargazers_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/stargazers",
+      "statuses_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/statuses/{sha}",
+      "subscribers_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/subscribers",
+      "subscription_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/subscription",
+      "tags_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/tags",
+      "teams_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/teams",
+      "trees_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/git/trees{/sha}",
+      "url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine"
+    },
+    "rerun_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/runs/40841038976/rerun",
+    "run_attempt": 1,
+    "run_number": 109,
+    "run_started_at": "2026-10-29T08:17:08Z",
+    "status": "completed",
+    "triggering_actor": {
+      "avatar_url": "https://avatars.githubusercontent.com/u/147357093?v=4",
+      "events_url": "https://api.github.com/users/patricklfdm/events{/privacy}",
+      "followers_url": "https://api.github.com/users/patricklfdm/followers",
+      "following_url": "https://api.github.com/users/patricklfdm/following{/other_user}",
+      "gists_url": "https://api.github.com/users/patricklfdm/gists{/gist_id}",
+      "gravatar_id": "",
+      "html_url": "https://github.com/patricklfdm",
+      "id": 147357093,
+      "login": "patricklfdm",
+      "node_id": "U_kgDOCMh9pQ",
+      "organizations_url": "https://api.github.com/users/patricklfdm/orgs",
+      "received_events_url": "https://api.github.com/users/patricklfdm/received_events",
+      "repos_url": "https://api.github.com/users/patricklfdm/repos",
+      "site_admin": false,
+      "starred_url": "https://api.github.com/users/patricklfdm/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/patricklfdm/subscriptions",
+      "type": "User",
+      "url": "https://api.github.com/users/patricklfdm",
+      "user_view_type": "public"
+    },
+    "updated_at": "2026-10-29T11:54:07Z",
+    "url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/runs/40841038976",
+    "workflow_id": 389074445,
+    "workflow_url": "https://api.github.com/repos/patricklfdm/GeneralSearchEngine/actions/workflows/389074445"
+  },
+  "artifactPins": {
+    "artifacts/general-search-engine-4.4.0.jar": {
+      "bytes": 848612,
+      "sha256": "0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5"
+    },
+    "artifacts/general-search-engine-5.1.0.jar": {
+      "bytes": 860560,
+      "sha256": "fb97c837092776f3f2b4558c7ed0250b5be3841e2e81644f0e71fddd3cae62fc"
+    },
+    "artifacts/general-search-engine-5.2.0-SNAPSHOT.jar": {
+      "bytes": 860591,
+      "sha256": "de616058e56b5c8534257a71a048ebb4a8b671b086e920e1020d8b908c6803c0"
+    },
+    "artifacts/general-search-engine-replication-5.1.0.jar": {
+      "bytes": 569612,
+      "sha256": "162b0ff926a85db348f4bd08d853a39528763998d28bfd02fe4f5068032dfd12"
+    },
+    "artifacts/general-search-engine-replication-5.2.0-SNAPSHOT.jar": {
+      "bytes": 611559,
+      "sha256": "6d7150e5d604fe7d321ddbb0c61ffedd2a46abde112e72efb279b8d469796b47"
+    }
+  },
+  "evidenceObjects": {
+    "bucket": "gse-benchmark-evidence-266952534277",
+    "keyRule": "<requestSha256>/evidence/manifest.json; part objects declared by that manifest",
+    "prefix": "v5.2-bounded-follower-reads/control/attempts/"
+  },
+  "originalLocalArchive": "GSE-Runner:/home/gse-runner/evidence-archives/40841038976-1/evidence",
+  "originalReceipt": {
+    "bytes": 18081,
+    "fileSha256": "01f9e744ecc311dd4777de768de7a44dc30078c72858e1ad8638ce8b63168c1f",
+    "path": "phase6-cloud-review.json"
+  },
+  "originals": {
+    "canonical-1-explicit-stale": {
+      "artifactId": 12651503768,
+      "artifactSha256": "e2f390af67c76a8ad5812af1f12d27e396181606ec675bd46c0fbd30056cbb0d",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "911db5c4e5c80dbae4424d4c62f21636c8d01159853b966443ddf4a4a3a26323",
+      "completionSha256": "f0bfc27abeb5f4950c5df7c6902abb6c509a1b7396e39341ba4eeff8977e0763",
+      "manifestSha256": "9275a242be69b2de608680dcb7e978e6ce545b879d9d1b27463bfce095b88544",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "dfe34ec465310bb4acbf7ffc5662e5859f560ab06dc5993556009d476f3af4dc",
+      "runAttempt": 1,
+      "runId": 40300349030,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "canonical-1-legacy": {
+      "artifactId": 12630021683,
+      "artifactSha256": "d817e3b035998275f9b2879e789bfe80123756433b49a50dd4ee774ce16f8a58",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "172be8f1916d2991175607b4c072c9374b57e619abc94bb983f7c37dbdfab5f8",
+      "completionSha256": "f94289627fa593223047721adf015b9a3a18316b37ddad9d5f86b813752a5834",
+      "manifestSha256": "0c2633e01f69b9b764505d9b053efd9928f6941cd5663dc61046610e9f8414c5",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "f0b68f141e5e9ee3a89226efebe53e2c7d71eca881cffd2adedc4a83ac02afc0",
+      "runAttempt": 1,
+      "runId": 40264837271,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "canonical-1-minimum": {
+      "artifactId": 12690549435,
+      "artifactSha256": "60412678e09da6e7215858282bc0be1591a73368afb93637e3529e2ea7c44406",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "14a146f76098221b352ddf83c20b0bc0d7fcec5b40fcbd2b5cd6ace4fd8e414f",
+      "completionSha256": "226e9fb68925858740d19328938d4e563c31e02f6ad673c681c481ab8667af12",
+      "manifestSha256": "a730cf1bb9c75ad01d2fff4d32dd60b36fd3ec05e220b450c35a4d1bb88c706f",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "1dd31c0d03aed741b953eda85766ba70696dab78dc39da62be3507f78e264ac1",
+      "runAttempt": 1,
+      "runId": 40393177611,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "canonical-2-explicit-stale": {
+      "artifactId": 12710149742,
+      "artifactSha256": "67f85f2755410c98a646a415002f589caf19f5ee6e0b4ef6eda512e95a6d0efb",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "9a17709deecedf6e7511e886048906d84666c7bea43b4f3633dcc1b16a99805d",
+      "completionSha256": "82c7d0cab2195121b7fc745dbec1e964c693bb87f44b1aad0910b7c5a71b83f4",
+      "manifestSha256": "5feb89309bdc743d155acbad8ca41164298859791cc2e68bebbb045830501825",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "2fc6d52a1471e4f9b6038dd36f58ad9236c90216cbf3667f8722eb5d2da68632",
+      "runAttempt": 1,
+      "runId": 40432675674,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "canonical-2-legacy": {
+      "artifactId": 12701074458,
+      "artifactSha256": "240ebba302ba0a2b4f37b1761dc9d600b4b013113a4dba5c5e7b30f6fe95c9ee",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "b3edc5c9835aa5f8c6326ad089650093957f977f170cb05435f44395f17c131a",
+      "completionSha256": "8e91ade89070bef18da87fc2a0f9be26fbda43307f79d444b8efe5786109f51e",
+      "manifestSha256": "991e8acb8c3ff5aeeb5c933be6e446829cd5de1f2a0feba2de95cfff737c1bf8",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "058a46bd1cd59088bc7cc579029f66fea1aa526d77f4e5f87fc35e26bf77df9d",
+      "runAttempt": 1,
+      "runId": 40412651432,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "canonical-2-minimum": {
+      "artifactId": 12718060110,
+      "artifactSha256": "7f6758e94174d69a844a32c656c728abb102754044f6bfc494de610e6ebb31d7",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "01204ccd4d3ce345962bc4299acde09c40e04ffa8b611e927404492b98d77905",
+      "completionSha256": "b12875b1a0d518f4850c14fe8a45eca93c42f4ac15c83242c7c06a878d6df2fe",
+      "manifestSha256": "68c820a7175eff1b072b824563138dc7021694be743e46f1c4e7793565232b7e",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "5e781c3aaf2bfe4e522e6d5bbcb30005fb5737efb4fe711c9c0fd31d2b3b2c90",
+      "runAttempt": 1,
+      "runId": 40457372190,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "canonical-3-explicit-stale": {
+      "artifactId": 12766406393,
+      "artifactSha256": "f615d9831823b1fb389080ab41e2944157f00792cac3e462a26bb2b52e188c49",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "61f3e5fb9f78915782a675bd73b45fff6280f0f4bec48e37e0c987196b7e1e1b",
+      "completionSha256": "8ca040a5fb3416aecb2b942573e87ac6285ac725a2757785646116aacaada02e",
+      "manifestSha256": "d02f5b5832379034c373d12294be8c8132519410c6d52760c1abb31340e28196",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "15c36e92f475e9fc439ae946519edc7ba8d806d94e21df960b31bf2798764f13",
+      "runAttempt": 1,
+      "runId": 40539710816,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "canonical-3-legacy": {
+      "artifactId": 12737105301,
+      "artifactSha256": "c96eae3de095ec89aea1b87aed7f9223036a9960001151feea8b5f49f20aebd8",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "99b3c9cba58bbff5a6ff8e0af1c449242ffb280f62707e1969dcb74404baa79b",
+      "completionSha256": "fa1a220677ed9e1ce415c2451ade51d977057ff9ae3464503921e7af1ff683a1",
+      "manifestSha256": "b3260b572695a316c2b7940dc5a204829b5aed1d609caf8950bce5dfff3e5fbc",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "da0027be2e35df72dc77b2382ce4462ae488cfc84d4dbc32c0d18d1c61ec4d32",
+      "runAttempt": 1,
+      "runId": 40484706990,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "canonical-3-minimum": {
+      "artifactId": 12783733673,
+      "artifactSha256": "abcc1c1fcefb80e732a682aedcd3a6257d635ff999a26b75e9650a5b70f8d957",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "a5b9d0640352612a065e6b27ba5ff391aac6cd02de8cc1a890a71bf28af6e515",
+      "completionSha256": "aeceec865bb2e2f9a3a3399694defe82b5d05448aa934b6257d250049f69070c",
+      "manifestSha256": "8f6da423fc25e2b7c3510d2b6d1f98a5deb96b3c5ea98dbb39124a18524f18c1",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "b5bd10e501d09fd22ce72e83e0acd3c4a3f5f87e86c5ff96d92e6e137493d70a",
+      "runAttempt": 1,
+      "runId": 40594546865,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "experiment": {
+      "artifactId": 12879784817,
+      "artifactSha256": "4ddcae09021c6e044692dfa09f83a00b9a92d779bc88ac9fd21b28f36376d2b3",
+      "binding": {
+        "buildManifestSha256": "557e60e004b34954d9e4993eae74f22dd27b64f7140b13fe64dacf23912f4cc3",
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "d7c12b8695c8cd2a1e1e25db74e90a16de4075f89a380091aa7b21464d46510d",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "87900804eccc4769a000f0a7dd1e53ff",
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "3ae36a05f171645225f35e9a29e308390b4aefcc22a03f47fdbde73f7cd80f41",
+      "completionSha256": "3eeb08795c9edc03aa475b589c16bf19238e7a26aa343a6d5f924b2336cbe264",
+      "manifestSha256": "894f601fa42c2b67abccf1bbe784de75e614bf26f187a0f8a47b58cd404b6309",
+      "originalCompletionStatus": "FAIL",
+      "requestSha256": "994a402f4b8f255cfa8fa76118dee08c37f63937f9130049e7499f109ed7b7b6",
+      "runAttempt": 1,
+      "runId": 40809895634,
+      "source": {
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27"
+      }
+    },
+    "failure-drill-m02-above": {
+      "artifactId": 12840828938,
+      "artifactSha256": "d1b4af7fafd5a2a1af38e90256b83e25ba2ecd1bee40e6fbf43b09e704b876d8",
+      "binding": {
+        "buildManifestSha256": "557e60e004b34954d9e4993eae74f22dd27b64f7140b13fe64dacf23912f4cc3",
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "d7c12b8695c8cd2a1e1e25db74e90a16de4075f89a380091aa7b21464d46510d",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "87900804eccc4769a000f0a7dd1e53ff",
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "60be7aec9edf8a3b3480c075cbedba0f68c5641713ec112ac2851ead570adbf8",
+      "completionSha256": "15a8017f0ba2a586b9f95ae94e46f9e5dfb7789007fcb9f1301f81c14c833d46",
+      "manifestSha256": "8da45c3c5023cd819fb95c1342da51ab7b66ff7c0cba51f4da6ea86640515c95",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "8ddbd54dcb0b48cbd021f2d704ef9cca83b396c14166c5db26c664d5438d5987",
+      "runAttempt": 1,
+      "runId": 40726281735,
+      "source": {
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27"
+      }
+    },
+    "failure-drill-m02-below": {
+      "artifactId": 12791396543,
+      "artifactSha256": "12073bd24c90c57fb239c1f8eb67d530798abbf0a7709b598d9276d7b8fd20e4",
+      "binding": {
+        "buildManifestSha256": "c21808c1f2ee991933412e82484abdc3190e06c26f218fa304b824690bd223e8",
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "b6327a61ffb62a5d6ed1e33c4c6c46153b2f3bd19a4079784fa3462d96d771d2",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "c3843899543949178ab16475342368cf",
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "ad85ce53e2641f3e106d45815371ef6b14ecb1de3e638930b7809ea917601a87",
+      "completionSha256": "a95e9c778c8bc1cc02e75e1dbf8f30a7fff1310482c1be21d5672623513001f1",
+      "manifestSha256": "0c3301bf58119a23ad8acfa29625121c0fe9057cff83939a63e41362adef1878",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "a197fbc8a5ef58aea50da75c7dd8f009c484fb984faeae38c43d1a5209e4cab3",
+      "runAttempt": 1,
+      "runId": 40614296775,
+      "source": {
+        "checkoutSha256": "5ef229ea5e38bc66eec8e5a8a8312fee2dedca1c9a46a1eaf98307eef970331e",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "f6d7aad945b59e2c69989d4da7fd4b814080b7bf"
+      }
+    },
+    "failure-drill-m02-equal": {
+      "artifactId": 12808759508,
+      "artifactSha256": "5a454d63820096d7ecf42dc328d956517c6f354cb23d1043018874f137a44f8d",
+      "binding": {
+        "buildManifestSha256": "557e60e004b34954d9e4993eae74f22dd27b64f7140b13fe64dacf23912f4cc3",
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "d7c12b8695c8cd2a1e1e25db74e90a16de4075f89a380091aa7b21464d46510d",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "87900804eccc4769a000f0a7dd1e53ff",
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "f823c9e1802c60f630a1a586933e578b78d8dc8566360b4ef5154e0318c04939",
+      "completionSha256": "518b5a67aa110ce3e21fb31231deb79a3961e2dd43968a10b24e2a22a706b0ba",
+      "manifestSha256": "d3780e29a9356c05979fa12da451288a71c19c7aa581f5d14535a0700b52424c",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "31a133c8e14345254adb7171abbc73005825c0e7408ebf7f6a679fedc2390295",
+      "runAttempt": 1,
+      "runId": 40650622986,
+      "source": {
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27"
+      }
+    },
+    "failure-drill-m03": {
+      "artifactId": 12855908366,
+      "artifactSha256": "041b86b95600f08b5a646b384bac7b6bf2f74e1e3bfb2f12a49948f96f7db467",
+      "binding": {
+        "buildManifestSha256": "557e60e004b34954d9e4993eae74f22dd27b64f7140b13fe64dacf23912f4cc3",
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "d7c12b8695c8cd2a1e1e25db74e90a16de4075f89a380091aa7b21464d46510d",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "87900804eccc4769a000f0a7dd1e53ff",
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "3c8df385c6abefcb597dbd66633b2cb659cb7185d5b355cc2b3f6f8989eb31d1",
+      "completionSha256": "5cd93b65e403a47fe17fd87e6c16a75c7336d08c61108cd4453a28dbfa0c14f5",
+      "manifestSha256": "51a7c381780e2c9f8393edc8bcb68e4c6469d20be2d2f95b972851053209e9d8",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "9ead8b254d9eb5f128a35ad6bd97865aa04804fcad81285829a5b8ccd58f9a56",
+      "runAttempt": 1,
+      "runId": 40754752865,
+      "source": {
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27"
+      }
+    },
+    "failure-drill-m04": {
+      "artifactId": 12865700156,
+      "artifactSha256": "c019e97e1efb90757535833bcb10dc9a1200c930ccfb15de371a8501de767984",
+      "binding": {
+        "buildManifestSha256": "557e60e004b34954d9e4993eae74f22dd27b64f7140b13fe64dacf23912f4cc3",
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "controlsManifestSha256": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+        "packageSha256": "d7c12b8695c8cd2a1e1e25db74e90a16de4075f89a380091aa7b21464d46510d",
+        "programSha256": "da2c68dc014595e176e1842a85181ea2d6fbd8ef9d8fef5c712993a0aa9126be",
+        "sequence": "87900804eccc4769a000f0a7dd1e53ff",
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27",
+        "suiteSha256": "9ab196e645bc3171dd795a5f044c0c93495987840b0006377490d6f56bb96e2e"
+      },
+      "cleanupSha256": "5e7bd30a19a185098919f09494110c5e64cfd0263df93a0b101515cf523c5dae",
+      "completionSha256": "aa7e966df6cb4b3208c854139d757bfd3b03ef012845eb54c6898fd08a50adea",
+      "manifestSha256": "2bb2c665c56fd282e2f8345b8dc0f4c4d6a5040e58e1db74c4a0925ba98d72de",
+      "originalCompletionStatus": "PASS",
+      "requestSha256": "77d7a208c2b597ed433c94cce1d2b6c330e85d7273af9cf26bf958d5da472215",
+      "runAttempt": 1,
+      "runId": 40782369257,
+      "source": {
+        "checkoutSha256": "a5520cc1b31db07c3d30cb367aa422dc812f5eb4967b7a3f79550181301db6db",
+        "java": {
+          "java.runtime.version": "21.0.12+8-LTS",
+          "java.vendor": "Eclipse Adoptium"
+        },
+        "source": "0cbcfbcb3bec76f4f751e9cf720e0df2adfcce27"
+      }
+    }
+  },
+  "policies": {
+    "experiment-retention-recovery.json": {
+      "canonicalSha256": "7769464fd60dfeae4a06a881c51541c8dc83edefb208078e243f36513e973108",
+      "fileSha256": "067082b2fadef2101bc34587e34d80298f9b35326caa9d5223ffe5af4c59b027",
+      "path": "docs/v5x/v5.2/experiment-retention-recovery.json",
+      "verifierSource": "8b9aa60ab0cc9253046b162f28c40d47ae2acc82"
+    },
+    "quota-continuation.json": {
+      "canonicalSha256": "3f29d1a9a6bd8ac496982cd7788abd07839b5677e2cc0039d8b95ceade288521",
+      "fileSha256": "42beafb7c7b90ece5a6413196c17f4032abc0dd67490090f33192344a426d0ad",
+      "path": "docs/v5x/v5.2/quota-continuation.json",
+      "verifierSource": "8b9aa60ab0cc9253046b162f28c40d47ae2acc82"
+    }
+  },
+  "preservation": {
+    "ledgerRewritten": false,
+    "measurementsRerun": false,
+    "originalsRewritten": false
+  },
+  "schema": "gse-v52-cloud-baseline-provenance-v1",
+  "scope": "record of authenticated protected acceptance, not a new replay",
+  "validationScope": {
+    "protectedReplayCompleted": true,
+    "registrationPerformsAnotherRawReplay": false,
+    "releaseCandidateQualified": false
+  }
+}

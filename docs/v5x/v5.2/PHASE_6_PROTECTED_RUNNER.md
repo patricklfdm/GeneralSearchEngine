@@ -1,5 +1,9 @@
 # V5.2 original Runner provenance and complete-set join
 
+**Current result:** [protected full-set acceptance](PHASE_6_CLOUD_ACCEPTANCE.md)
+passed on 2026-10-29. The implementation notes and pending boundaries below are
+historical snapshots; the acceptance record retains the explicit batch exceptions.
+
 Phase 6BI connects original native closure, protected GitHub provenance and
 independent provider restoration to the existing whole-member/set replay.
 This is locally qualified internal implementation. No V5.2 cloud experiment or

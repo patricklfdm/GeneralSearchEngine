@@ -11,8 +11,12 @@ Semantic Versioning once the first stable artifact is published.
 - Enable explicit strong, stale-allowed and history-bound minimum reads on the
   automatic handle, with callback-scoped views, bounded progress waiting and
   verified follower application publication. Local correctness qualification is
-  complete, including combined partition/restart and bounded-pressure hardening;
-  measurement and hosted acceptance remain pending.
+  complete, including combined partition/restart and bounded-pressure hardening.
+- Complete protected V5.2 cloud-set acceptance: all five rounds, fifteen execution
+  units, 33 histories and 439 formal negative cases independently replayed. The
+  [registered evidence](docs/v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md) retains both
+  measured sources/sequences and the operator-authorized one-run retention waiver.
+  Final release-candidate validation and publication remain pending.
 - Add independent bounded read-model/token/evidence checks, a seventh external
   consumer and a required no-GCP foundation suite. Published V5.1 formats and
   historical release identities remain unchanged.

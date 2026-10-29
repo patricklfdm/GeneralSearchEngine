@@ -168,7 +168,7 @@
     "scripts/v52/cloud_runner_provenance.py": "4ef30e763d6b23272cc90c2adb042ab990ae8aeae475c481e48a815210859fa4",
     "scripts/v52/cloud_set_evidence.py": "d7a7d6e4ad0163de014bbbbf79e2f14539a06cbdd68c6bad0eeb744919424152",
     "scripts/v52/test_cloud_preflight.py": "b9b49996967e070cb971d853e5a9d44f55e6a4e4cba0fc8cddd994d4ac1caeb0",
-    "scripts/v52/test_cloud_quota_continuation.py": "48b9449140d1de124c1c681f7b54f5d014c622279017c8ae4606272740638e69",
+    "scripts/v52/test_cloud_quota_continuation.py": "fd21c1d2f3e95e4290c07629f6fc7b1ed9e089735e5f593d87db583587fc4bb8",
     "scripts/v52/test_cloud_quota_normalization.py": "921c6ac78481626aca036c09975ca0e3ead0c51eb2af741af0ced9e82a0fc5c4",
     "scripts/v52/test_cloud_retention_recovery.py": "64a20688edd8f247c5ceaceb1e80c379a7cc19c675af3cadf0a50b75edd3545b"
   }

@@ -1,10 +1,13 @@
 # Next-development documentation handoff
 
-Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
-V5.2 Phases 1–5 are locally verified and the complete hosted M01–M04 cohort passed;
-local pre-cloud integration is implemented; exact-master protected CI, deployment
-and the complete paid cloud cohort remain pending.
-Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
+Current milestone: V5.2 [complete protected cloud acceptance](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md)
+passed in `40841038976/1` at verifier source `8b9aa60a`. The fifteen execution units
+represent all five rounds; the explicit source continuation and one-run retention
+waiver remain visible. Phase 6 registration/closeout is prepared for operator merge;
+[Phase 7 preparation](v5.2/PHASE_7_CHECKLIST.md) is next. Stable remains published 5.1.0.
+
+Historical V5.1 publication context: Phase 6 closed through PR #320,
+master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
 PR #321 at `9c03356ab343fc5aafcefbbfcc0e33382d19eef0` with the operator's one-time
 PR/master CI skip; that source has local validation, not hosted CI acceptance.
@@ -19,7 +22,26 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 <a id="current-batch-v52-phase-1"></a>
 
-## Current batch: V5.2 Phase 6 remote integration
+## Current batch: V5.2 Phase 6 closeout and Phase 7 entry
+
+Read the [acceptance record](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md),
+[checklist](v5.2/PHASE_6_CHECKLIST.md), original receipt/provenance/registry linked
+there, and [Phase 7 plan](v5.2/PHASE_7_CHECKLIST.md). After registration merges,
+record its PR and implement 7A packaged compatibility/API/migration checks at
+5.2.0-SNAPSHOT. The existing `v52-style-consumer` is already the seventh consumer;
+extend it rather than recreating it. 7B must explicitly add 5.2.0 canonical-byte
+and remote-consumer routing to CI/release tooling, whose current dedicated routes
+stop at 5.1.0. Final release validation and signed publication remain open.
+
+Work from the V5.2 master lineage in an isolated worktree; the main local worktree
+is concurrently developing V5.3. No new paid experiment is required for this
+review scope. Preserve the successful protected receipt and its original source;
+the frozen recovery verifier intentionally rejects later changed trees.
+
+## Historical pre-cloud integration handoff
+
+The following entries describe earlier implementation snapshots and their then-open
+boundaries. Current cloud status is established by the acceptance record above.
 
 Latest local stage: [Phase 6BK setup review](v5.2/PHASE_6_CLOUD_SETUP.md)
 adds the fixed provider configuration and offline, byte-checked deployment
