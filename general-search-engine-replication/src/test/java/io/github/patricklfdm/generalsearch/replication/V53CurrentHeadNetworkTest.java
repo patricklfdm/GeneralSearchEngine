@@ -21,11 +21,15 @@ class V53CurrentHeadNetworkTest {
         run(installInactive,false);
     }
     void run(boolean installInactive,boolean selectInactive)throws Exception {
+        run(installInactive,selectInactive,false);
+    }
+    void run(boolean installInactive,boolean selectInactive,boolean alternate)throws Exception {
         assertTrue(installInactive || !selectInactive,"selection requires original inactive installation");
+        assertTrue(!alternate || selectInactive,"alternation requires the selected original third revision");
         var driver=new V53RoundDriverTest();driver.temp=temp;var helper=new V53NativeDispatchTest();helper.temp=temp;
         try(var n=helper.new Network(3,driver.controlBounds(),BUDGET,f->{},true);
                 var round=driver.driver(n,MembershipRoundDriver.Events.NONE,BUDGET)) {
-            Path raw=n.f.raw;System.out.println((selectInactive?"v53LearnerSlotHeadEvidence=":installInactive?"v53LearnerSlotEvidence=":"v53CurrentHeadEvidence=")+raw.toAbsolutePath());round.start();int port;
+            Path raw=n.f.raw;System.out.println((alternate?"v53LearnerAlternationEvidence=":selectInactive?"v53LearnerSlotHeadEvidence=":installInactive?"v53LearnerSlotEvidence=":"v53CurrentHeadEvidence=")+raw.toAbsolutePath());round.start();int port;
             try(var socket=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){port=socket.getLocalPort();}
             var joining=new MembershipIdentity(new ReplicationNodeId("node-4"),UUID.randomUUID(),new ReplicationEndpoint("127.0.0.1",port));
             var targets=new ArrayList<MembershipIdentity>();n.f.request.targets().forEach(t->targets.add(t.identity()));targets.add(joining);
@@ -134,11 +138,61 @@ class V53CurrentHeadNetworkTest {
                 }
                 assertEquals(0,resources.usage().leases());
             }
-            n.f.snapshot("after-third-acquisition");round.submit("CANCEL",canonical(Map.of("number",1L),8192));
+            n.f.snapshot("after-third-acquisition");var cycles=new ArrayList<Map<String,Object>>();
+            if(alternate)try(var noListener=new ServerSocket(port,1,InetAddress.getByName("127.0.0.1"))) {
+                // One reservation, native group, round deadline and learner
+                // resource pool. Each whole history is an indivisible hosted unit.
+                for(long revision=4;revision<=6;revision++) {
+                    String stage="cycle-"+revision;int firstExchange=wire.size();byte[] receipt;
+                    System.out.println("v53LearnerNativeRevision="+revision);
+                    n.f.snapshot(stage+"-before-prepare");round.submit("PREPARE",canonical(Map.of("number",1L,"revision",revision),8192));n.f.snapshot(stage+"-after-prepare");
+                    try(var store=MembershipLearnerStore.resume(summary,resources,events::add);
+                            var current=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.currentSource(),revision-1),builder().configuration(),config,events::add)) {
+                        var previous=current.currentHead();MembershipLearnerSlot.View pending;
+                        snapshotLearner(raw.resolve(stage+"-before-transfer"),summary,resources);
+                        try(var refresh=MembershipLearnerSource.refresh(previous,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),BUDGET)) {
+                            var received=refresh.fetch(temp.resolve(stage+"-receiving"));
+                            assertEquals(revision+2,number(received.capsule.context.cut.get("index")));
+                            assertEquals(revision,number(object(list(received.capsule.context.catalog.get("results")).getFirst()).get("revision")));
+                            assertFalse(received.capsule.context.voters().contains(joining.nodeId().value()));copy(received,raw.resolve(stage+"-received"));
+                            pending=refresh.installSlot(events::add);
+                        }
+                        snapshotLearner(raw.resolve(stage+"-installed"),summary,resources);
+                        try(var next=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(pending,revision),builder().configuration(),config,events::add)) {
+                            receipt=next.receipt().bytes();Files.write(raw.resolve(stage+"-receipt.gsr"),receipt);
+                            snapshotLearner(raw.resolve(stage+"-before-selection"),summary,resources);
+                            var selected=next.promoteSlot(previous);assertThrows(IllegalArgumentException.class,previous::check);
+                            assertThrows(IllegalArgumentException.class,pending::source);assertEquals(2,resources.usage().counts().get(Unit.GENERATION));
+                            snapshotLearner(raw.resolve(stage+"-selected"),summary,resources);selected.retirePredecessor();
+                            assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
+                            snapshotLearner(raw.resolve(stage+"-retired"),summary,resources);
+                        }
+                        assertFalse(Files.exists(config.materialization().directory()));
+                    }
+                    assertEquals(0,resources.usage().leases());
+                    try(var store=MembershipLearnerStore.resume(summary,resources,events::add);
+                            var current=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.currentSource(),revision),builder().configuration(),config,events::add)) {
+                        var head=current.currentHead();head.check();assertArrayEquals(receipt,current.receipt().bytes());
+                        assertEquals(request.root().historyId(),current.state().history());assertTrue(current.state().documents().isEmpty());
+                        assertFalse(head.source().context.voters().contains(joining.nodeId().value()));
+                        assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
+                        snapshotLearner(raw.resolve(stage+"-reopened"),summary,resources);
+                        var before=V53ReplayFilesTest.files(raw.resolve(stage+"-retired"));var after=V53ReplayFilesTest.files(raw.resolve(stage+"-reopened"));
+                        before.remove("resources.json");after.remove("resources.json");assertEquals(before,after);
+                        var selector=object(parse(Files.readAllBytes(MembershipLearnerSlot.directory(summary).resolve(MembershipLearnerSlot.HEAD)),MembershipLearnerSlot.HEAD_MAXIMUM));
+                        assertEquals(revision-2,number(selector.get("sequence")));assertEquals(revision%2==0?"a":"b",selector.get("slot"));
+                        cycles.add(Map.of("revision",revision,"sequence",revision-2,"slot",selector.get("slot"),"source",selector.get("source"),
+                                "generation",selector.get("generation"),"receipt",hash(receipt),"wireStart",(long)firstExchange,"wireEnd",(long)wire.size()));
+                    }
+                    assertEquals(0,resources.usage().leases());
+                }
+            }
+            round.submit("CANCEL",canonical(Map.of("number",1L),8192));
             Files.write(raw.resolve("current-head-events.json"),canonical(events,65536));Files.write(raw.resolve("current-head-wire.json"),canonical(wire,8*1024*1024));
-            var result=new TreeMap<String,Object>(Map.of("status","PASS","scope",selectInactive?"native-selected-slot-head":installInactive?"native-inactive-slot":"native-current-head-acquisition",
+            var result=new TreeMap<String,Object>(Map.of("status","PASS","scope",alternate?"native-alternating-learner-slots":selectInactive?"native-selected-slot-head":installInactive?"native-inactive-slot":"native-current-head-acquisition",
                     "installedThirdRevision",installInactive,"voter",false,"publicReady",false,"phase3Complete",false,"testBudgetSeconds",900L));
             if(selectInactive){result.put("selectedThirdRevision",true);result.put("seedRetired",true);}
+            if(alternate){result.put("cycles",cycles);result.put("lastRevision",6L);result.put("independentReplayQualified",false);}
             Files.write(raw.resolve("current-head-result.json"),canonical(result,4096));
         }
     }

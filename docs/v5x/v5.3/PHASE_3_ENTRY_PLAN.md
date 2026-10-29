@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+The [native six-revision learner entry](PHASE_3_LEARNER_NATIVE_CYCLES.md) now
+keeps PREPARE 1–6 and B1→A2→B3→A4 in one continuous original history, with per-cycle
+physical/identity/resource snapshots and bounded exchange intervals. This entry
+is **compiled, not run**. Its final native execution, independent replay and the
+complete Phase 3 gates remain OPEN.
+
 [Alternating learner slots](PHASE_3_LEARNER_ALTERNATION.md) now replace covered
 inactive plans and reuse the same A/B source and typed paths from sequence 3
 onward. Cold recovery distinguishes previous retirement from next installation;

@@ -1,0 +1,46 @@
+{
+  "allJoiningProfilesQualified": false,
+  "archive": {
+    "bytes": 1628299,
+    "files": 457,
+    "path": "target/v53-native-learner-cycles/qualification.tar.gz",
+    "sha256": "d2d8c20ec73f60c12fb57cdb4c816cf3839c938b00c36eef202ca09faadf5f83"
+  },
+  "baseSource": "1796685fb2075f978747031c6238caf123d2f1f3",
+  "compiledProductionFiles": 876,
+  "compiledTestEntries": {
+    "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53CurrentHeadNetworkTest.class": "fdf28bc6d9fc496a2d3c96bca22da747bef87bb3bb2349b7a5c1669959398188",
+    "general-search-engine-replication/target/test-classes/io/github/patricklfdm/generalsearch/replication/V53LearnerAlternationNetworkTest.class": "f81b56d8df6bd864fb2d88863e61aaca340c2ab8570c3a8ce49561790b8e87b8"
+  },
+  "execution": {
+    "command": [
+      "/opt/maven/bin/mvn",
+      "-o",
+      "-B",
+      "-ntp",
+      "-f",
+      "reactor/pom.xml",
+      "-pl",
+      "../general-search-engine-replication",
+      "-am",
+      "-DskipTests",
+      "test-compile"
+    ],
+    "elapsedSeconds": 13.850831636998919,
+    "exit": 0,
+    "nativeHistoryExecuted": false,
+    "testsExecuted": false
+  },
+  "fullNativeHistoryExecuted": false,
+  "independentReplayQualified": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "productionIdenticalToA28": true,
+  "productionInputs": 491,
+  "schema": "gse-v53-learner-native-cycles-compile-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CurrentHeadNetworkTest.java": "5f88f48df48cb33ac99bb96db483b7507a77183e10ee4236eb521552e0a0bee0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerAlternationNetworkTest.java": "b62a313698feb2fe49a456bab2913ea77b749c172360f204cdf2ce58dd43ae5d"
+  },
+  "status": "COMPILED_NOT_RUN"
+}
