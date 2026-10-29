@@ -115,12 +115,15 @@ def prefix(p, r):
     return '/'.join((p['evidencePrefix'], r['source'], r['runId'] + '-' + r['attempt'] + '-' + r['nonce']))
 
 
-def inventory(root):
+def inventory(root, *, maximum_files=2000):
+    require(type(maximum_files) is int and maximum_files > 0, 'inventory file bound')
     result = {}; total = 0
     for path in sorted(Path(root).rglob('*')):
         require(not path.is_symlink(), 'evidence symlink')
         if not path.is_file(): continue
         size = path.stat().st_size; total += size
-        require(size <= 32 << 20 and total <= LIMIT and len(result) < 2000, 'evidence size/count')
+        require(size <= 32 << 20 and total <= LIMIT and len(result) < maximum_files,
+                f'evidence size/count: path={path.relative_to(root)} bytes={size} total={total} '
+                f'files={len(result)+1} maximumFiles={maximum_files}')
         result[str(path.relative_to(root))] = dict(bytes=size, sha256=sha(path.read_bytes()))
     return result

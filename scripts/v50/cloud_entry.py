@@ -7,8 +7,8 @@ import signal
 import subprocess
 import tempfile
 import time
-from .cloud_common import ROOT, canonical, inventory, plan, read, request, require, resources, save, sha
-from .cloud_bundle import build, extract
+from .cloud_common import ROOT, canonical, plan, read, request, require, resources, save, sha
+from .cloud_bundle import build, extract, bundle_inventory
 from .cloud_fake import Fake, FakeProbe
 from .cloud_gcp import Api, Gcp
 from .cloud_preflight import admission, collect
@@ -78,7 +78,7 @@ def execute(prepared, output, approval_path, confirmation):
         manifest = read(content / 'bundle.json', 16 << 20)
         require((manifest['schema']=='gse-v50-remote-workload-bundle-v1' and manifest.get('execution')=='remote-workload-adapter-only') if full else
                 (manifest['schema'] == 'gse-v50-cloud-bundle-v1' and 'execution' not in manifest), 'paid execution requires the exact profile bundle schema')
-        actual = inventory(content); actual.pop('bundle.json')
+        actual = bundle_inventory(content); actual.pop('bundle.json')
         require(actual == manifest['files'], 'bundle inventory')
         inputs = source_inputs(); inputs['docs/v5x/v5.0/phase6-runner-plan.json'] = sha((ROOT / 'docs/v5x/v5.0/phase6-runner-plan.json').read_bytes())
         if full:

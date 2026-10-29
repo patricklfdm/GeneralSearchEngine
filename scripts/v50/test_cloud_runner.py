@@ -2,6 +2,7 @@
 from copy import deepcopy
 import io
 import json
+import os
 from pathlib import Path
 import shlex
 import shutil
@@ -20,6 +21,7 @@ from .cloud_preflight import (CONTROL_OBJECTS, PROJECT_PERMISSIONS, STORAGE_PERM
     check_observations, claims, collect, collect_control_permissions, condition_allows_only)
 from .cloud_runner import BUDGET, LEASE, Runner, reconcile, reserve_budget
 from . import cloud_cleanup
+from . import cloud_bundle, cloud_common, cloud_guest, cloud_entry
 
 
 def observations(p):
@@ -392,6 +394,110 @@ class CloudRunnerTest(unittest.TestCase):
         adapter = Gcp(self.plan, self.req, self.root, api=Corrupt())
         with self.assertRaisesRegex(ValueError, 'read-back'): adapter.put_object('owned/receipt.json', b'original', '6')
         self.assertIn('ifGenerationMatch=6', calls[0][1]); self.assertIn('generation=7', calls[-1][1])
+
+
+class BundleBoundsTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+
+    def pack(self, source, archive):
+        with tarfile.open(archive, 'w:gz') as stream:
+            for path in sorted(source.iterdir()): stream.add(path, arcname=path.name, recursive=False)
+
+    def install(self, archive, destination, remote=False):
+        with patch.object(cloud_guest, 'BASE', destination), patch.object(cloud_guest, 'ROOT', destination.with_name(destination.name+'-volume')), \
+             patch.dict(os.environ, SUDO_UID=str(os.getuid()), SUDO_GID=str(os.getgid())), \
+             patch.object(cloud_guest.os, 'chown'):
+            return cloud_guest.install(archive, cloud_guest.digest(archive), remote_workload=remote)
+
+    def test_bundle_count_boundary_roundtrips_host_and_standalone_guest(self):
+        source = self.root/'source'; source.mkdir()
+        for i in range(cloud_bundle.MAX_BUNDLE_FILES-1): (source/f'input-{i:04}').write_bytes(b'x')
+        files = cloud_bundle.bundle_inventory(source, reserve_manifest=True)
+        # Filling the last slot before writing bundle.json must be rejected.
+        extra = source/'extra'; extra.write_bytes(b'x')
+        with self.assertRaisesRegex(ValueError, 'size/count'):
+            cloud_bundle.bundle_inventory(source, reserve_manifest=True)
+        extra.unlink()
+        for remote in (False, True):
+            manifest = dict(schema='gse-v50-cloud-bundle-v1', files=files)
+            if remote: manifest.update(schema='gse-v50-remote-workload-bundle-v1', execution='remote-workload-adapter-only')
+            cloud_common.save(source/'bundle.json', manifest)
+            self.assertEqual(cloud_bundle.MAX_BUNDLE_FILES, len(cloud_bundle.bundle_inventory(source)))
+            archive = self.root/f'valid-{remote}.tar.gz'; self.pack(source, archive)
+            restored = self.root/f'host-{remote}'; extract(archive, restored)
+            self.assertEqual(cloud_bundle.bundle_inventory(source), cloud_bundle.bundle_inventory(restored))
+            result = self.install(archive, self.root/f'guest-{remote}', remote)
+            self.assertEqual(manifest, result['manifest']); self.assertTrue(result['installed'])
+            extra.write_bytes(b'x'); overflow = self.root/f'overflow-{remote}.tar.gz'; self.pack(source, overflow)
+            with self.assertRaisesRegex(ValueError, 'size/count'): cloud_bundle.bundle_inventory(source)
+            for target, install in ((self.root/f'bad-host-{remote}', lambda p: extract(overflow, p)),
+                                    (self.root/f'bad-guest-{remote}', lambda p: self.install(overflow, p, remote))):
+                with self.assertRaises(ValueError): install(target)
+                self.assertFalse(target.exists())
+            extra.unlink()
+
+    def test_execution_entry_accepts_large_bundle_before_next_admission_check(self):
+        source = self.root/'source'; source.mkdir()
+        for i in range(2001): (source/f'input-{i:04}').write_bytes(b'x')
+        input_name = 'docs/v5x/v5.0/phase6-runner-plan.json'
+        manifest = dict(schema='gse-v50-cloud-bundle-v1', source='a'*40, dirty=False,
+                        files=cloud_bundle.bundle_inventory(source, reserve_manifest=True),
+                        inputs={input_name: sha((cloud_common.ROOT/input_name).read_bytes())},
+                        planSha256=sha(canonical(plan())))
+        cloud_common.save(source/'bundle.json', manifest)
+        prepared = self.root/'prepared'; (prepared/'artifacts').mkdir(parents=True)
+        archive = prepared/'artifacts/bundle.tar.gz'; self.pack(source, archive)
+        req = request('a'*40, 1, 1, sha(archive.read_bytes()))
+        for name, value in (('request', req), ('preflight', {}), ('approval', {})):
+            cloud_common.save(prepared/(name+'.json'), value)
+        with patch.object(cloud_entry, 'exact_checkout'), patch.object(cloud_entry, 'admission'), \
+             patch.object(cloud_entry, 'source_inputs', return_value={}), \
+             patch.object(cloud_entry.subprocess, 'check_output', side_effect=RuntimeError('next admission check')), \
+             patch.object(cloud_entry, 'Gcp') as provider:
+            with self.assertRaisesRegex(RuntimeError, 'next admission check'):
+                cloud_entry.execute(prepared, self.root/'output', prepared/'approval.json', sha(canonical(req)))
+            provider.assert_not_called()
+
+    def test_ordinary_evidence_count_and_bundle_byte_limits_remain_enforced(self):
+        source = self.root/'source'; source.mkdir()
+        for i in range(2001): (source/f'input-{i:04}').write_bytes(b'x')
+        with self.assertRaisesRegex(ValueError, 'maximumFiles=2000'): cloud_common.inventory(source)
+        self.assertEqual(2001, len(cloud_bundle.bundle_inventory(source)))
+        with patch.object(cloud_common, 'LIMIT', 2000), self.assertRaisesRegex(ValueError, 'size/count'):
+            cloud_bundle.bundle_inventory(source)
+        oversized = source/'000-oversized'
+        with oversized.open('wb') as stream: stream.truncate((32 << 20)+1)
+        with self.assertRaisesRegex(ValueError, '000-oversized'): cloud_bundle.bundle_inventory(source)
+
+    def test_host_and_guest_still_reject_unsafe_archive_members_before_writing(self):
+        for kind in ('duplicate', 'escape', 'absolute', 'symlink', 'hardlink'):
+            archive = self.root/f'{kind}.tar.gz'
+            with tarfile.open(archive, 'w:gz') as stream:
+                for _ in range(2 if kind == 'duplicate' else 1):
+                    name = '../outside' if kind == 'escape' else '/outside' if kind == 'absolute' else 'item'
+                    member = tarfile.TarInfo(name)
+                    if kind in ('symlink', 'hardlink'):
+                        member.type = tarfile.SYMTYPE if kind == 'symlink' else tarfile.LNKTYPE
+                        member.linkname = 'outside'; stream.addfile(member)
+                    else:
+                        member.size = 1; stream.addfile(member, io.BytesIO(b'x'))
+            for target, install in ((self.root/f'host-{kind}', lambda p: extract(archive, p)),
+                                    (self.root/f'guest-{kind}', lambda p: self.install(archive, p))):
+                with self.subTest(kind=kind, target=target), self.assertRaises(ValueError): install(target)
+                self.assertFalse(target.exists())
+
+    def test_host_and_guest_keep_original_expanded_byte_bound(self):
+        archive = self.root/'oversized.tar.gz'; archive.write_bytes(b'not expanded')
+        member = tarfile.TarInfo('large'); member.size = (128 << 20)+1
+        with patch.object(tarfile, 'open') as stream:
+            stream.return_value.__enter__.return_value.getmembers.return_value = [member]
+            for target, install in ((self.root/'host-large', lambda p: extract(archive, p)),
+                                    (self.root/'guest-large', lambda p: self.install(archive, p))):
+                with self.assertRaises(ValueError): install(target)
+                self.assertFalse(target.exists())
+            stream.return_value.__enter__.return_value.extractall.assert_not_called()
 
 
 if __name__ == '__main__': unittest.main()

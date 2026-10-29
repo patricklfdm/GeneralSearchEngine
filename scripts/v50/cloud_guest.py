@@ -12,6 +12,9 @@ import time
 BASE = Path('/opt/gse-v50')
 ROOT = Path('/mnt/gse-v50')
 PACKAGE = 'io.github.patricklfdm.generalsearch.'
+# Bundles retain the growing repository input set; collected run evidence keeps
+# its separate 2000-file bound. This helper must also run before sources install.
+MAX_BUNDLE_FILES = 4096
 
 
 def check(ok, message):
@@ -36,7 +39,7 @@ def install(archive, expected, remote_workload=False):
     check(not BASE.exists() and digest(archive) == expected, 'bundle digest/freshness')
     with tarfile.open(archive, 'r:gz') as stream:
         members = stream.getmembers(); names = [m.name for m in members]
-        check(len(names) <= 2000 and len(set(names)) == len(names) and sum(m.size for m in members) <= 128 << 20, 'bundle expansion bound')
+        check(len(names) <= MAX_BUNDLE_FILES and len(set(names)) == len(names) and sum(m.size for m in members) <= 128 << 20, 'bundle expansion bound')
         check(all(m.isfile() and not Path(m.name).is_absolute() and '..' not in Path(m.name).parts for m in members), 'unsafe bundle path')
         BASE.mkdir(); stream.extractall(BASE, members=members, filter='data')
     manifest = json.loads((BASE / 'bundle.json').read_bytes())
