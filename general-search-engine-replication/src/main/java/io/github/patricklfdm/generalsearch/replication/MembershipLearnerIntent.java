@@ -26,7 +26,14 @@ final class MembershipLearnerIntent implements AutoCloseable {
         head.check();var request=head.request();var original=head.source();var receipt=head.receipt();
         MembershipLearnerProgressAccess.original(source.context,request,peer);
         MembershipLearnerSource.successor(original,source,ancestry);
+        var result=matchReceipt(request,receipt,source);head.check();return result;
+    }
+    /** Shared semantic binding for the actual retained owner and its later
+     * placement custody. This method does not issue ownership or a vote. */
+    static Map<String,Object> matchReceipt(MembershipLearnerRequest request,Decoded receipt,MembershipCapsule source) {
+        require(source.context.root.equals(request.root().manifestDigest()),"learner INTENT root changed");
         var row=MembershipLearnerProgressAccess.operation(source.context,request.identity());
+        require(row.get("request").equals(MembershipLearnerDiscovery.request(request.change())),"learner INTENT request changed");
         require(Set.of("JOINT","COMPLETED").contains(row.get("phase")),"learner requires certified matching INTENT");
         var actual=object(receipt.value().get("receipt"));
         require(receipt.kind().equals("LEARNER") && receipt.value().get("root").equals(request.root().manifestDigest())
@@ -54,7 +61,7 @@ final class MembershipLearnerIntent implements AutoCloseable {
                     && statement.value().get("applicationAfter").equals(actual.get("image")),"learner INTENT original edge/image");
             found=certificate;
         }
-        require(found!=null,"learner INTENT original certificate missing");head.check();return row;
+        require(found!=null,"learner INTENT original certificate missing");return row;
     }
     static MembershipLearnerIntent install(MembershipLearnerHead head,MembershipSourceReceive receiver,MembershipFloor.Copy copy,
             MembershipBallotAllocator.Cut cut)throws IOException {

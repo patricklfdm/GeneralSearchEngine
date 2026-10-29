@@ -1,5 +1,26 @@
 # V5.3 Phase 3 contract amendments
 
+## A41 — original joined admission under installed learner custody
+
+The [joined-admission component](PHASE_3_JOINED_ADMISSION.md) forces an original
+64 KiB `joined.json` beside the placement decision and completion marker. It
+binds the actual typed receipt/configuration, matching old-authority INTENT,
+installed generation, certificate fence, allocator, local paths and original
+custody/placement fingerprints. Its own inode is bound before completion. Only
+the exact live placement owner can write it, and only a fully forced record
+returns the private joining capability.
+
+Reserve this companion before staging, raising fixed private companions from
+512 to 576 KiB within the existing staged GENERATION allowance. No public
+resource ceiling, byte record, wire frame or API changes. Existing initial-member
+bootstrap remains distinct. Cold continuation reopens actual semantic originals
+and validates the record prefix before any force; it cannot repair missing
+proofs or reinterpret physical inspection as admission.
+
+Covered predecessor retirement, descriptor/resource adoption into the native
+journal, joined retention, minimum-quorum INTENT, FINAL/barrier and native
+independent/process qualification remain required before Phase 3 closure.
+
 ## A40 — explicit cold recovery of original learner placement
 
 A39's [placement recovery](PHASE_3_LEARNER_PLACEMENT.md) reopens the actual

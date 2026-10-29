@@ -48,7 +48,8 @@ under freshly reopened typed/INTENT/stage owners.
 The decision is at most 256 KiB, reserved in the existing staged GENERATION
 metadata allowance before creating it. Together with the two 64 KiB stage
 companions this originally reserved 384 KiB. A39 adds two placement companions,
-bringing the current fixed allowance to 512 KiB, plus actual dormant metadata.
+bringing that allowance to 512 KiB. A41 adds the 64 KiB joined admission, so the
+current fixed allowance is 576 KiB, plus actual dormant metadata.
 The public GENERATION count/size, seven-image bound, MISC/completion headroom and
 all other resource ceilings are unchanged. The decision creates no third GEN.
 

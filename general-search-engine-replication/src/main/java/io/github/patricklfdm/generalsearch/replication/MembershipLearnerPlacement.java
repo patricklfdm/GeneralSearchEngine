@@ -64,7 +64,9 @@ final class MembershipLearnerPlacement implements AutoCloseable {
                 require(Arrays.equals(head.receipt().bytes(),receipt.bytes()),"learner placement original typed receipt changed");
                 try(var intent=MembershipLearnerIntent.resume(head,e->{});
                         var stage=MembershipLearnerVoterStage.reopenPlacement(intent.forced(),recovery)) {
-                    stage.readyCapability().check();recovery.check();cut.at("LEARNER_PLACEMENT_RECOVERY_VERIFIED");recovery.check();
+                    stage.readyCapability().check();recovery.check();
+                    recovery.checkJoined(intent.forced().source(),head.receipt(),captured,config);
+                    cut.at("LEARNER_PLACEMENT_RECOVERY_VERIFIED");recovery.check();
                     var custody=MembershipLearnerCustody.recoverPlacement(stage.readyCapability(),recovery,cut);
                     try{return resume(custody,cut);}catch(IOException|RuntimeException|Error error){
                         try{custody.close();}catch(Exception close){error.addSuppressed(close);}throw error;
@@ -94,7 +96,7 @@ final class MembershipLearnerPlacement implements AutoCloseable {
             inspectOriginal(summary);
             original=new Original(summary,AdmissionPaths.read(MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE),MembershipLearnerCustody.MAXIMUM));
             Path directory=directory(summary);directoryKey=key(directory);plan=original.plan(AdmissionPaths.binding(directory),directoryKey.toString());
-            for(String name:children(directory,2)) {
+            for(String name:children(directory,3)) {
                 byte[] bytes=AdmissionPaths.read(directory.resolve(name),MAXIMUM);records.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
             }
             moved=original.project();check();
@@ -107,7 +109,7 @@ final class MembershipLearnerPlacement implements AutoCloseable {
             readGuard();original.checkDecision();
             require(original.project()==moved,"learner placement moved during read-only recovery");
             Path directory=directory(original.summary);
-            require(directoryKey.equals(key(directory)) && children(directory,2).equals(records.keySet()),"learner placement recovery directory changed");
+            require(directoryKey.equals(key(directory)) && children(directory,3).equals(records.keySet()),"learner placement recovery directory changed");
             AdmissionPaths.exact(directory.resolve(PLAN),plan);
             for(var row:records.entrySet())require(row.getValue().equals(inspect(directory.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),
                     "learner placement original recovery record changed");
@@ -140,6 +142,14 @@ final class MembershipLearnerPlacement implements AutoCloseable {
                 }
             }
             require(result!=null,"learner placement original typed receipt missing");check();return result;
+        }
+        private <K,T> void checkJoined(MembershipCapsule source,Decoded receipt,
+                io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> captured,MembershipReplicaConfig<K,T> config)throws IOException {
+            check();if(!records.containsKey(MembershipLearnerJoinedAdmission.FILE))return;
+            byte[] expected=MembershipLearnerJoinedAdmission.original(original.summary,receipt,source);
+            MembershipLearnerJoinedAdmission.configuration(original.summary,expected,captured,config);
+            MembershipLearnerJoinedAdmission.prefix(directory(original.summary).resolve(MembershipLearnerJoinedAdmission.FILE),expected);
+            check();
         }
         @Override public void close(){closed=true;}
     }
@@ -210,13 +220,29 @@ final class MembershipLearnerPlacement implements AutoCloseable {
         original.checkDecision();int moved=original.project();
         require(planForced || moved==0,"learner payload moved before forced decision");AdmissionPaths.recheck(binding);
         if(directoryKey==null){AdmissionPaths.absent(directory);return;}
-        require(directoryKey.equals(key(directory)) && children(directory,2).equals(records.keySet()),"learner placement directory changed");
+        require(directoryKey.equals(key(directory)) && children(directory,3).equals(records.keySet()),"learner placement directory changed");
         for(var row:records.entrySet())require(row.getValue().equals(inspect(directory.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),
                 "learner placement original record changed");
         require(!complete || moved==MOVES.size() && records.containsKey(READY),"learner placement incomplete payload");
     }
     void check()throws IOException {custody.check();require(complete,"learner placement not complete");}
     Path replica()throws IOException {check();return original.replica;}
+    MembershipLearnerCustody custody()throws IOException {check();return custody;}
+    void forceJoined(MembershipLearnerJoinedAdmission admission,MembershipBallotAllocator.Cut cut)throws IOException {
+        check();Objects.requireNonNull(admission).checkPlacement(this);String name=MembershipLearnerJoinedAdmission.FILE;
+        if(!records.containsKey(name)) {
+            Path file=directory.resolve(name);
+            try(var channel=MembershipFileAccess.open(file,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+                remember(name,new byte[0],key(file));point(cut,"LEARNER_PLACEMENT_CREATED:"+name);
+            }
+        }
+        byte[] bytes=admission.forPlacement(this);require(bytes.length<=MembershipLearnerJoinedAdmission.MAXIMUM,"learner joined admission capacity");
+        write(name,bytes,cut);point(cut,"LEARNER_JOINED_ADMISSION_FORCED");
+    }
+    void checkJoined(byte[] expected)throws IOException {
+        check();var file=records.get(MembershipLearnerJoinedAdmission.FILE);
+        require(file!=null && file.bytes()==expected.length && file.digest().equals(hash(expected)),"learner joined admission original record changed");
+    }
     @Override public void close()throws IOException {custody.close();}
 
     /** Physical inspection only: no lock/lease ownership, proof admission, file
@@ -224,12 +250,16 @@ final class MembershipLearnerPlacement implements AutoCloseable {
     record Inspection(String status,int moved,String source,String receipt) {}
     static Inspection inspectOriginal(MembershipLearnerPlan summary)throws IOException {
         var original=new Original(summary,AdmissionPaths.read(MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE),MembershipLearnerCustody.MAXIMUM));
-        Path directory=directory(summary);var names=children(directory,2);require(names.contains(PLAN) && Set.of(PLAN,READY).containsAll(names),"learner placement original plan missing");
+        Path directory=directory(summary);var names=children(directory,3);require(names.contains(PLAN) && Set.of(PLAN,READY,MembershipLearnerJoinedAdmission.FILE).containsAll(names),"learner placement original plan missing");
         byte[] plan=original.plan(AdmissionPaths.binding(directory),key(directory).toString());AdmissionPaths.exact(directory.resolve(PLAN),plan);
         var identity=inspect(directory.resolve(PLAN),plan.length,hash(plan));int moved=original.project();boolean complete=false;
         if(names.contains(READY)) {
             byte[] ready=original.ready(plan,identity.key()),actual=AdmissionPaths.read(directory.resolve(READY),MAXIMUM);
             require(moved==MOVES.size() && actual.length<=ready.length && Arrays.equals(actual,Arrays.copyOf(ready,actual.length)),"learner placement invalid completion prefix");complete=Arrays.equals(actual,ready);
+        }
+        if(names.contains(MembershipLearnerJoinedAdmission.FILE)) {
+            require(complete,"learner joined admission before complete placement");
+            AdmissionPaths.read(directory.resolve(MembershipLearnerJoinedAdmission.FILE),MembershipLearnerJoinedAdmission.MAXIMUM);
         }
         original.checkDecision();require(identity.equals(inspect(directory.resolve(PLAN),plan.length,hash(plan))),"learner placement decision changed during inspection");
         return new Inspection(complete?"PLACED":"PARTIAL",moved,(String)original.value.get("source"),(String)original.value.get("receipt"));

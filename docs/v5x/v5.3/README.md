@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Original joined admission](PHASE_3_JOINED_ADMISSION.md) now forces the exact
+joining receipt, INTENT and installation/configuration binding under the live
+placement owner, with original-prefix cold continuation. It supplies the next
+retirement/journal handoff; native voting, covered predecessor retirement,
+minimum-quorum INTENT and complete Phase 3 acceptance remain **OPEN**.
+
 [Original learner placement](PHASE_3_LEARNER_PLACEMENT.md) now includes explicit
 cold recovery: reopen the real admission, selected source, typed backup, matching
 INTENT and original stage before transferring locks and continuing the fixed

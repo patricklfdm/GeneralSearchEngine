@@ -10,13 +10,16 @@ or retire any predecessor.
 
 ## Original transaction and fixed moves
 
-The private sibling `.gse-v53-learner-placement-<plan digest>` holds at most two
-64 KiB files, `placement.json` and `placed.json`. The canonical original plan
+The private sibling `.gse-v53-learner-placement-<plan digest>` holds the two
+64 KiB placement files, `placement.json` and `placed.json`. A41 also permits the
+separate 64 KiB [joined admission](PHASE_3_JOINED_ADMISSION.md) record after
+complete placement. The canonical original plan
 binds the reviewed learner plan, actual custody decision inode/size/hash, its
 own directory binding and the fixed move order. The completion marker binds the
 plan bytes and inode, custody digest and that same order. These companions are
 reserved before staging writes: stage companions 128 KiB + custody 256 KiB +
-placement companions 128 KiB = 512 KiB, plus actual staged metadata, within the
+placement companions 128 KiB + joined admission 64 KiB = 576 KiB, plus actual
+staged metadata, within the
 existing GENERATION limit. No public resource or format limit changes.
 
 Check the original custody inventory and byte equality of the preserved replica
