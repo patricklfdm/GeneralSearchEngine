@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Original joined-history validation](PHASE_3_JOINED_ORIGINAL.md) now checks the
+surviving installed generation under real root exclusion before joining
+admission returns. Cold inspection remains read-only; native retirement and
+journal takeover are still open.
+
 [Original joined admission](PHASE_3_JOINED_ADMISSION.md) now forces the exact
 joining receipt, INTENT and installation/configuration binding under the live
 placement owner, with original-prefix cold continuation. It supplies the next

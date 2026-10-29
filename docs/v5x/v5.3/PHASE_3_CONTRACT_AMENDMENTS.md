@@ -1,5 +1,22 @@
 # V5.3 Phase 3 contract amendments
 
+## A42 — independent original installed-history validation
+
+The [joined original reader](PHASE_3_JOINED_ORIGINAL.md) reconstructs the complete
+installed inventory from the original custody/placement decisions and validates
+the joined receipt, INTENT, generation, certificate fence and allocator under
+real root exclusion. The joining writer must pass this check before returning.
+The small original typed plan/receipt remain required to bind configuration;
+the old replica learner payload is outside the installed native inventory.
+Cold inspection does not require predecessor payloads, but returns diagnostics
+only and cannot authorize missing predecessors, their deletion, a mutable
+journal, fresh votes or public readiness. Its private storage token exists only
+inside that complete original read; no caller observation set is accepted.
+
+No format, resource or timing ceiling changes. Complete native retirement,
+ownership/accounting adoption and minimum-quorum joining remain open. A valid
+surviving installed history is necessary, not sufficient, for retirement.
+
 ## A41 — original joined admission under installed learner custody
 
 The [joined-admission component](PHASE_3_JOINED_ADMISSION.md) forces an original

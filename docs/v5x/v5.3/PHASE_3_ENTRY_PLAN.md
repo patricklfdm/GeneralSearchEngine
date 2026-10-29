@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Independent original joining-history validation](PHASE_3_JOINED_ORIGINAL.md)
+now checks the installed generation and joined proof without relying on old
+learner payloads. The cold entry returns diagnostics only; covered retirement,
+native journal/accounting adoption and complete Phase 3 remain **OPEN**.
+
 [Original joined admission](PHASE_3_JOINED_ADMISSION.md) now forces the exact
 joining receipt, INTENT and installation/configuration binding under the live
 placement owner, with original-prefix cold continuation. It supplies the next

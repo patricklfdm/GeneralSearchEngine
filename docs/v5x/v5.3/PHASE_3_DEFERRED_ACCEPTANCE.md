@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Independent original joining-history validation](PHASE_3_JOINED_ORIGINAL.md) now
+checks the complete installed source under live custody or a cold root lock.
+Cold output is diagnostic only. Native retirement and full process/history
+qualification remain required.
+
 [Original joined admission](PHASE_3_JOINED_ADMISSION.md) now forces the exact
 joining receipt, INTENT and installation/configuration binding under the live
 placement owner, with original-prefix cold continuation. It supplies the next
@@ -117,6 +122,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 | Gate | Unit of execution | Required final evidence |
 | --- | --- | --- |
 | Original joined admission | Each whole native learner-to-voter history | Original typed receipt/INTENT/generation/configuration binding; actual lock and reservation takeover; all record/retirement halt/SIGKILL cuts, native journal open and independent replay; a component forced record alone does not qualify voting |
+| Original installed joining history | Same continuous learner-to-voter history | Preserve original typed plan/receipt while retiring covered payloads; retain joined/custody/placement decisions; independent cold validation and exact native ownership/accounting takeover; inspection alone cannot authorize deletion |
 | Original payload placement | One continuous typed learner/INTENT/stage/custody history per head/profile | Exact original moves, preserved root locks, every move/force/marker halt/SIGKILL cut and cold recovery, independent physical/history/wire replay; live exception cuts, component cold reopen and read-only inspection do not authorize voting or replace process-death qualification |
 | Descriptor custody through takeover | Each complete native takeover history; the two learner inspection component histories may run independently | Independent-process lock attempts around reads, fingerprints, forces, rename and stale close; preserve original failure evidence; helper tests do not replace joined-member process cuts |
 | Learner current-endpoint quorum | Independent whole native ADD/REPLACE histories | All five joining profiles and process cuts, exact forced ACKs and wire replay, source-exposure binding and authentic head confirmation; the focused three-voter ADD test does not close the full gate |

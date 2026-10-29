@@ -2,6 +2,7 @@
 
 Phase 3 remains **OPEN**. `MembershipLearnerJoinedAdmission` now forces the
 joining proof under the actual completed [placement owner](PHASE_3_LEARNER_PLACEMENT.md).
+Before returning, it also performs [independent installed-history validation](PHASE_3_JOINED_ORIGINAL.md).
 It is the original admission input for the remaining covered-retirement and
 journal takeover. No journal is opened, no predecessor is deleted and no vote
 or public readiness is returned by this component.

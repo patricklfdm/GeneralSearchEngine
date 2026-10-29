@@ -29,7 +29,7 @@ final class MembershipLearnerJoinedAdmission {
         guard.check();owner.check();
         var result=new MembershipLearnerJoinedAdmission(owner,bytes,guard);
         owner.forceJoined(result,event->{guard.check();cut.at(event);guard.check();});
-        result.forced=true;result.check();return result;
+        result.forced=true;result.check();MembershipLearnerJoinedOriginal.verify(result,captured,config);result.check();return result;
     }
     void check()throws IOException {require(forced,"learner joined admission not forced");configuration.check();owner.checkJoined(bytes);}
     void checkPlacement(MembershipLearnerPlacement expected)throws IOException {

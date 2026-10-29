@@ -1,0 +1,642 @@
+{
+  "absentPredecessorsRecreated": false,
+  "archive": {
+    "bytes": 15789065,
+    "path": "target/v53-joined-original/component-validation.tar.gz",
+    "sha256": "ecc0a622bc2d7b48106ac4ff67e3641980a41c9adf48edbe3d2c2c121c39f286"
+  },
+  "baseCommit": "cddfb407bbaa8e3eb0963d059687c4e7bbaf381c",
+  "callerObservationsAccepted": false,
+  "codeAndBuildInputsChecked": 1715,
+  "coldInspectionCreatesFiles": false,
+  "coldInspectionForcesFiles": false,
+  "coldInspectionRepairsFiles": false,
+  "coldInspectionReturnsDiagnosticsOnly": true,
+  "completeNativeInventoryChecked": true,
+  "completedReplacementSeparatesFinalFenceFromIntent": true,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1436,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourcePassingCases": 20,
+  "currentSourceSnapshot": "joinedbounded",
+  "developmentFailures": {
+    "joinedoriginal": "test compilation: independent-JVM probe throws Exception but cut callback declares IOException; wrapped in assertDoesNotThrow; no tests executed"
+  },
+  "freshVotesIssued": false,
+  "fullMembershipProcessDeathQualified": false,
+  "independentJvmRootLockProbes": true,
+  "joinedWriterUsesOriginalHistoryValidation": true,
+  "minimumQuorumIntentImplemented": false,
+  "mutableJoinedJournalImplemented": false,
+  "nativePathsAndExtentsBoundedBeforeHashing": true,
+  "nativeVotingQualified": false,
+  "ordinaryRecoveryStillRefusesMissingPredecessors": true,
+  "originalCustodyPlacementJoinedInodesRequired": true,
+  "originalTypedPlanAndReceiptRequired": true,
+  "pending": [
+    "forced original retirement inventory and exact authorized absent-prefix recovery",
+    "adoption of actual root descriptor and complete remaining reservations into allocator/journal",
+    "joined retention and old-majority INTENT before joint checkpointing",
+    "joint FINAL and fresh barrier",
+    "all-profile native physical-history and halt/SIGKILL qualification"
+  ],
+  "phase3Complete": false,
+  "predecessorRetirementImplemented": false,
+  "preparationSourceAndConfigurationBoundToOriginalTypedPlan": true,
+  "privateScopedStoredCopy": true,
+  "publicFormatsChanged": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "qualificationScheduling": "serial snapshots; previous shared-port process confirmed terminal before next execution",
+  "readOnlyColdInspection": true,
+  "reports": {
+    "joinedbounded": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedAdmissionTest": {
+        "cases": [
+          {
+            "name": "actualInstalledOwnerForcesExactJoiningProofWithoutReleasingLocksOrChargingAgain",
+            "seconds": 29.961,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignConfigurationCopiedRecordAndLastBoundaryCorruptionCannotAcquireAdmission",
+            "seconds": 49.208,
+            "status": "PASS"
+          },
+          {
+            "name": "originalAdmissionPrefixRecoversAcrossEveryWriteAndForceBoundary",
+            "seconds": 73.266,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "25dffaab5d0db5bb550d63b21e7fe38d57dea7623d1a45e8c7b6e65b5d6a014b"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": {
+        "cases": [
+          {
+            "name": "missingTornCopiedAndSemanticallyAlteredProofsRefuseWithoutRepair",
+            "seconds": 28.624,
+            "status": "PASS"
+          },
+          {
+            "name": "completedReplacementPreservesFinalFenceAndOriginalIntentAsDifferentProofs",
+            "seconds": 29.539,
+            "status": "PASS"
+          },
+          {
+            "name": "completeOriginalInstallationVerifiesWithoutPredecessorPayloadsButGrantsNoRetirement",
+            "seconds": 29.079,
+            "status": "PASS"
+          },
+          {
+            "name": "installedInodeReplacementAndLastReadMutationNeverEscapeAValidatedResult",
+            "seconds": 27.381,
+            "status": "PASS"
+          },
+          {
+            "name": "declaredNativeExtentsAndPathsAreBoundedBeforeFileReads",
+            "seconds": 0.003,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "0f7b41e0f558872468cfdaf8164caac54162059adf7d3dc5758dc562a517c939"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.127,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.184,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.032,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.032,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.034,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.059,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.029,
+            "status": "PASS"
+          },
+          {
+            "name": "evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles",
+            "seconds": 0.312,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.065,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.027,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "6ef69b1606ecae5c35b35ab32dee025b26a68fe8c4c0ff0d8c3bbc079c428550"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedRecoveryTest": {
+        "cases": [
+          {
+            "name": "completeCopyCapabilitiesCannotBeMintedFromCallerRecords",
+            "seconds": 0.01,
+            "status": "PASS"
+          },
+          {
+            "name": "nativeFloorAndInactiveRecoveryRejectAlteredOriginalsBeforeRetiringAnything",
+            "seconds": 50.125,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "de81e29651fb3107f7d237b24cb6cc34198afa5f6e381eee3b2129706ce297f0"
+      }
+    },
+    "joinedindependent": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedAdmissionTest": {
+        "cases": [
+          {
+            "name": "actualInstalledOwnerForcesExactJoiningProofWithoutReleasingLocksOrChargingAgain",
+            "seconds": 29.636,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignConfigurationCopiedRecordAndLastBoundaryCorruptionCannotAcquireAdmission",
+            "seconds": 45.49,
+            "status": "PASS"
+          },
+          {
+            "name": "originalAdmissionPrefixRecoversAcrossEveryWriteAndForceBoundary",
+            "seconds": 72.219,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "8afc0931ed6c1f340b5821486c040d644cef20e4fb06aac6306f6a4573a14fa6"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": {
+        "cases": [
+          {
+            "name": "missingTornCopiedAndSemanticallyAlteredProofsRefuseWithoutRepair",
+            "seconds": 28.995,
+            "status": "PASS"
+          },
+          {
+            "name": "completedReplacementPreservesFinalFenceAndOriginalIntentAsDifferentProofs",
+            "seconds": 30.128,
+            "status": "PASS"
+          },
+          {
+            "name": "completeOriginalInstallationVerifiesWithoutPredecessorPayloadsButGrantsNoRetirement",
+            "seconds": 35.108,
+            "status": "PASS"
+          },
+          {
+            "name": "installedInodeReplacementAndLastReadMutationNeverEscapeAValidatedResult",
+            "seconds": 29.445,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "87d6b8b4b746440b5ec28e00eeb45d1c756c1f7d09b8d5217a9144654ac55ef9"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.123,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.179,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.032,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.032,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.057,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.027,
+            "status": "PASS"
+          },
+          {
+            "name": "evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles",
+            "seconds": 0.307,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.062,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.028,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "93d5e6ed295528c483eaf80eaee123ce7856d4050d5a0bb1a06bf4b3f53d764b"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedRecoveryTest": {
+        "cases": [
+          {
+            "name": "completeCopyCapabilitiesCannotBeMintedFromCallerRecords",
+            "seconds": 0.008,
+            "status": "PASS"
+          },
+          {
+            "name": "nativeFloorAndInactiveRecoveryRejectAlteredOriginalsBeforeRetiringAnything",
+            "seconds": 52.841,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "753a0d34a3511f0ba0a65cd9126d85aa43fc4f383b75fd8d614a2844f352aeac"
+      }
+    },
+    "joinedoriginal": {},
+    "joinedoriginalfinal": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedAdmissionTest": {
+        "cases": [
+          {
+            "name": "actualInstalledOwnerForcesExactJoiningProofWithoutReleasingLocksOrChargingAgain",
+            "seconds": 30.198,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignConfigurationCopiedRecordAndLastBoundaryCorruptionCannotAcquireAdmission",
+            "seconds": 46.439,
+            "status": "PASS"
+          },
+          {
+            "name": "originalAdmissionPrefixRecoversAcrossEveryWriteAndForceBoundary",
+            "seconds": 74.527,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "1736dd8d608c9b4124a9ae19a35192be98c58f978ee75f6c4a95d7584e0af226"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": {
+        "cases": [
+          {
+            "name": "missingTornCopiedAndSemanticallyAlteredProofsRefuseWithoutRepair",
+            "seconds": 28.444,
+            "status": "PASS"
+          },
+          {
+            "name": "completedReplacementPreservesFinalFenceAndOriginalIntentAsDifferentProofs",
+            "seconds": 29.303,
+            "status": "PASS"
+          },
+          {
+            "name": "completeOriginalInstallationVerifiesWithoutPredecessorPayloadsButGrantsNoRetirement",
+            "seconds": 26.926,
+            "status": "PASS"
+          },
+          {
+            "name": "installedInodeReplacementAndLastReadMutationNeverEscapeAValidatedResult",
+            "seconds": 28.281,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "96f3412343af697e22a8d969196809addcc6d9cbe5f0cf2c4c011e78e33cded2"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.121,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.165,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.032,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.036,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.061,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.027,
+            "status": "PASS"
+          },
+          {
+            "name": "evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles",
+            "seconds": 0.296,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.055,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.028,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "683760726d140bbc942e8c53622eec8c07799259324c2186f3341dcf05138be0"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedRecoveryTest": {
+        "cases": [
+          {
+            "name": "completeCopyCapabilitiesCannotBeMintedFromCallerRecords",
+            "seconds": 0.006,
+            "status": "PASS"
+          },
+          {
+            "name": "nativeFloorAndInactiveRecoveryRejectAlteredOriginalsBeforeRetiringAnything",
+            "seconds": 52.826,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "6d8cc50c1b0ceb538175756bab8f155ef77e1992a338649cf6aef49f128cc3dc"
+      }
+    },
+    "joinedoriginalfocused": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedAdmissionTest": {
+        "cases": [
+          {
+            "name": "actualInstalledOwnerForcesExactJoiningProofWithoutReleasingLocksOrChargingAgain",
+            "seconds": 30.266,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignConfigurationCopiedRecordAndLastBoundaryCorruptionCannotAcquireAdmission",
+            "seconds": 46.811,
+            "status": "PASS"
+          },
+          {
+            "name": "originalAdmissionPrefixRecoversAcrossEveryWriteAndForceBoundary",
+            "seconds": 76.264,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "90a69e97feee2c4685252ae4ea7a0037a0982750e9fda67963c25bd2509fa920"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": {
+        "cases": [
+          {
+            "name": "missingTornCopiedAndSemanticallyAlteredProofsRefuseWithoutRepair",
+            "seconds": 28.878,
+            "status": "PASS"
+          },
+          {
+            "name": "completeOriginalInstallationVerifiesWithoutPredecessorPayloadsButGrantsNoRetirement",
+            "seconds": 29.374,
+            "status": "PASS"
+          },
+          {
+            "name": "installedInodeReplacementAndLastReadMutationNeverEscapeAValidatedResult",
+            "seconds": 28.45,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "0fb011fffca11ba0b4ee716594fae6d46582729cdbea061811a891f72de913a4"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.131,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.179,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.032,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.057,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.028,
+            "status": "PASS"
+          },
+          {
+            "name": "evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles",
+            "seconds": 0.306,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.056,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.031,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "4ef324370c1883c5c04433829cea571acd116a890f92fa468d38d53b920f1b38"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedRecoveryTest": {
+        "cases": [
+          {
+            "name": "completeCopyCapabilitiesCannotBeMintedFromCallerRecords",
+            "seconds": 0.009,
+            "status": "PASS"
+          },
+          {
+            "name": "nativeFloorAndInactiveRecoveryRejectAlteredOriginalsBeforeRetiringAnything",
+            "seconds": 50.588,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "40fed98c98f32923e8712dcd96deadfe637e47b96de50faef8ccb219ba6879fa"
+      }
+    }
+  },
+  "runs": {
+    "joinedbounded": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedAdmissionTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedRecoveryTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joinedbounded",
+      "requestedTests": [
+        "V53LearnerJoinedOriginalTest",
+        "V53LearnerJoinedAdmissionTest",
+        "V53OwnedRecoveryTest#nativeFloorAndInactiveRecoveryRejectAlteredOriginalsBeforeRetiringAnything+completeCopyCapabilitiesCannotBeMintedFromCallerRecords",
+        "V53OwnedFileInspectionTest"
+      ],
+      "seconds": 312.1433952350053,
+      "skipped": 0,
+      "tests": 20
+    },
+    "joinedindependent": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedAdmissionTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedRecoveryTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joinedindependent",
+      "requestedTests": [
+        "V53LearnerJoinedOriginalTest",
+        "V53LearnerJoinedAdmissionTest",
+        "V53OwnedRecoveryTest#nativeFloorAndInactiveRecoveryRejectAlteredOriginalsBeforeRetiringAnything+completeCopyCapabilitiesCannotBeMintedFromCallerRecords",
+        "V53OwnedFileInspectionTest"
+      ],
+      "seconds": 319.60950701999536,
+      "skipped": 0,
+      "tests": 19
+    },
+    "joinedoriginal": {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "joinedoriginal",
+      "requestedTests": [
+        "V53LearnerJoinedOriginalTest",
+        "V53LearnerJoinedAdmissionTest",
+        "V53OwnedRecoveryTest",
+        "V53OwnedFileInspectionTest"
+      ],
+      "seconds": 16.90426136700262,
+      "skipped": 0,
+      "tests": 0
+    },
+    "joinedoriginalfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedAdmissionTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedRecoveryTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joinedoriginalfinal",
+      "requestedTests": [
+        "V53LearnerJoinedOriginalTest",
+        "V53LearnerJoinedAdmissionTest",
+        "V53OwnedRecoveryTest#nativeFloorAndInactiveRecoveryRejectAlteredOriginalsBeforeRetiringAnything+completeCopyCapabilitiesCannotBeMintedFromCallerRecords",
+        "V53OwnedFileInspectionTest"
+      ],
+      "seconds": 312.1903412719985,
+      "skipped": 0,
+      "tests": 19
+    },
+    "joinedoriginalfocused": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedAdmissionTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedRecoveryTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joinedoriginalfocused",
+      "requestedTests": [
+        "V53LearnerJoinedOriginalTest",
+        "V53LearnerJoinedAdmissionTest",
+        "V53OwnedRecoveryTest#nativeFloorAndInactiveRecoveryRejectAlteredOriginalsBeforeRetiringAnything+completeCopyCapabilitiesCannotBeMintedFromCallerRecords",
+        "V53OwnedFileInspectionTest"
+      ],
+      "seconds": 286.15803762699943,
+      "skipped": 0,
+      "tests": 18
+    }
+  },
+  "schema": "gse-v53-joined-original-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java": "316b4edad907cf5be1851e9972562c8af304f29b8168670671cf76ac85e72832",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerJoinedAdmission.java": "6dc72c8f0029abd43654269ae279a30b539e3d46cdb75b731c481db3a85d5204",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerJoinedOriginal.java": "8416cd70b56b0383e3c61f34e98ea83d9b700b94dbbb14c2a26765de58191790",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPlacement.java": "55547a01209420a5bb876e2b26c17932315dcdf33bc03099267651b408930d0a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerJoinedOriginalTest.java": "2292e5f7b42a56f99b17bb211eb1767848b52c640688a0142e11c4fa57ffa4ec"
+  },
+  "status": "PASS_ORIGINAL_JOINING_HISTORY_COMPONENTS",
+  "supersededPassingSnapshots": {
+    "joinedindependent": "19 tests passed before the explicit pre-hash native extent and path bounds; final snapshot reruns these cases plus the bound negatives",
+    "joinedoriginalfinal": "19 tests passed before excluding replica learner payload from native inspection; does not prove independence from that payload",
+    "joinedoriginalfocused": "18 tests passed before requiring original typed plan/receipt and before adding completed-replacement coverage; does not qualify final proof binding"
+  },
+  "unavailablePredecessorsAreTestMutationsNotProductionRetirement": true
+}

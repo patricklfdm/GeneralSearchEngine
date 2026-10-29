@@ -248,6 +248,44 @@ final class MembershipLearnerPlacement implements AutoCloseable {
     /** Physical inspection only: no lock/lease ownership, proof admission, file
      * mutation or restart permission is returned from a cold filesystem read. */
     record Inspection(String status,int moved,String source,String receipt) {}
+    /** Original installed inventory derived only from the complete custody and
+     * placement decisions. Does not tolerate missing installed files, inspect
+     * predecessor deletion or return an ownership/deletion capability. */
+    static Map<String,Object> installedOriginal(MembershipLearnerPlan summary)throws IOException {
+        var original=new Original(summary,AdmissionPaths.read(MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE),MembershipLearnerCustody.MAXIMUM));
+        Path directory=directory(summary);
+        require(children(directory,3).equals(Set.of(PLAN,READY,MembershipLearnerJoinedAdmission.FILE)),"joined original placement inventory");
+        byte[] plan=original.plan(AdmissionPaths.binding(directory),key(directory).toString());AdmissionPaths.exact(directory.resolve(PLAN),plan);
+        AdmissionPaths.exact(directory.resolve(READY),original.ready(plan,key(directory.resolve(PLAN))));
+        var installed=Original.files(Original.root(original.inventory,"replica"));
+        for(var row:Original.files(Original.root(original.inventory,"voterStage")).entrySet()) {
+            String name=row.getKey();if(MOVES.stream().anyMatch(move->name.equals(move)||name.startsWith(move+"/")))
+                require(installed.putIfAbsent(name,row.getValue())==null,"joined installed duplicate original");
+        }
+        original.checkDecision();return Collections.unmodifiableMap(installed);
+    }
+    /** The small original typed plan/receipt remain admission proof after its
+     * backup and receiving images retire. Never infer configuration from only
+     * the joined record's self-reported digest. */
+    static Path typedOriginal(MembershipLearnerPlan summary,Decoded receipt)throws IOException {
+        var original=new Original(summary,AdmissionPaths.read(MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE),MembershipLearnerCustody.MAXIMUM));
+        Path selected=null;
+        for(String name:List.of("initialTyped","successorTyped","slotTyped")) {
+            var row=original.inventory.stream().map(MembershipFormat::object).filter(v->v.get("name").equals(name)).findFirst().orElseThrow();
+            if(!Boolean.TRUE.equals(row.get("present")))continue;var files=Original.files(row);var expected=files.get(MembershipLearnerMaterialization.RECEIPT);
+            if(expected==null || !object(expected).get("sha256").equals(receipt.digest()))continue;
+            require(selected==null,"joined original ambiguous typed proof");selected=original.roots.get(name);
+            require(key(selected).toString().equals(object(files.get(".")).get("key")),"joined original typed directory changed");
+            for(String file:List.of(MembershipLearnerMaterialization.PLAN,MembershipLearnerMaterialization.RECEIPT)) {
+                var identity=object(Objects.requireNonNull(files.get(file)));long size=number(identity.get("size"));
+                require(size>0 && size<=(file.equals(MembershipLearnerMaterialization.PLAN)?MembershipLearnerMaterialization.MAXIMUM_PLAN:16384),"joined original typed proof capacity");
+                var actual=inspect(selected.resolve(file),size,(String)identity.get("sha256"));
+                require(actual.key().toString().equals(identity.get("key")),"joined original typed proof replaced");
+            }
+            AdmissionPaths.exact(selected.resolve(MembershipLearnerMaterialization.RECEIPT),receipt.bytes());
+        }
+        require(selected!=null,"joined original typed proof missing");original.checkDecision();return selected;
+    }
     static Inspection inspectOriginal(MembershipLearnerPlan summary)throws IOException {
         var original=new Original(summary,AdmissionPaths.read(MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE),MembershipLearnerCustody.MAXIMUM));
         Path directory=directory(summary);var names=children(directory,3);require(names.contains(PLAN) && Set.of(PLAN,READY,MembershipLearnerJoinedAdmission.FILE).containsAll(names),"learner placement original plan missing");
