@@ -1,9 +1,16 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original joined retirement](PHASE_3_JOINED_RETIREMENT.md) now deletes the
+covered original predecessor payloads under a forced bounded plan, with real-lock
+cold continuation and conservative full reservation restoration. Native
+journal/allocator takeover, minimum-quorum joining, full process qualification
+and complete Phase 3 remain **OPEN**.
+
 [Independent original joining-history validation](PHASE_3_JOINED_ORIGINAL.md)
 now checks the installed generation and joined proof without relying on old
-learner payloads. The cold entry returns diagnostics only; covered retirement,
-native journal/accounting adoption and complete Phase 3 remain **OPEN**.
+learner payloads. The cold inspection entry returns diagnostics only; the
+separate retirement transaction above supplies deletion authority. Native
+journal/accounting adoption and complete Phase 3 remain **OPEN**.
 
 [Original joined admission](PHASE_3_JOINED_ADMISSION.md) now forces the exact
 joining receipt, INTENT and installation/configuration binding under the live

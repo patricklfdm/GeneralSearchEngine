@@ -219,11 +219,15 @@ final class MembershipLearnerPlacement implements AutoCloseable {
     void checkOriginals()throws IOException {
         original.checkDecision();int moved=original.project();
         require(planForced || moved==0,"learner payload moved before forced decision");AdmissionPaths.recheck(binding);
+        checkRecords();
+        require(!complete || moved==MOVES.size() && records.containsKey(READY),"learner placement incomplete payload");
+    }
+    void checkRecords()throws IOException {
+        original.checkDecision();AdmissionPaths.recheck(binding);
         if(directoryKey==null){AdmissionPaths.absent(directory);return;}
         require(directoryKey.equals(key(directory)) && children(directory,3).equals(records.keySet()),"learner placement directory changed");
         for(var row:records.entrySet())require(row.getValue().equals(inspect(directory.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),
                 "learner placement original record changed");
-        require(!complete || moved==MOVES.size() && records.containsKey(READY),"learner placement incomplete payload");
     }
     void check()throws IOException {custody.check();require(complete,"learner placement not complete");}
     Path replica()throws IOException {check();return original.replica;}
@@ -252,6 +256,9 @@ final class MembershipLearnerPlacement implements AutoCloseable {
      * placement decisions. Does not tolerate missing installed files, inspect
      * predecessor deletion or return an ownership/deletion capability. */
     static Map<String,Object> installedOriginal(MembershipLearnerPlan summary)throws IOException {
+        return Collections.unmodifiableMap(Original.files(Original.root(placedOriginalInventory(summary),"replica")));
+    }
+    static List<?> placedOriginalInventory(MembershipLearnerPlan summary)throws IOException {
         var original=new Original(summary,AdmissionPaths.read(MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE),MembershipLearnerCustody.MAXIMUM));
         Path directory=directory(summary);
         require(children(directory,3).equals(Set.of(PLAN,READY,MembershipLearnerJoinedAdmission.FILE)),"joined original placement inventory");
@@ -262,7 +269,16 @@ final class MembershipLearnerPlacement implements AutoCloseable {
             String name=row.getKey();if(MOVES.stream().anyMatch(move->name.equals(move)||name.startsWith(move+"/")))
                 require(installed.putIfAbsent(name,row.getValue())==null,"joined installed duplicate original");
         }
-        original.checkDecision();return Collections.unmodifiableMap(installed);
+        var staged=Original.files(Original.root(original.inventory,"voterStage"));
+        staged.keySet().removeIf(name->MOVES.stream().anyMatch(move->name.equals(move)||name.startsWith(move+"/")));
+        var projected=new ArrayList<Object>();
+        for(Object raw:original.inventory) {
+            var row=new TreeMap<>(object(raw));
+            if(row.get("name").equals("replica"))row.put("files",Original.rows(installed));
+            if(row.get("name").equals("voterStage"))row.put("files",Original.rows(staged));
+            projected.add(Collections.unmodifiableMap(row));
+        }
+        original.checkDecision();return List.copyOf(projected);
     }
     /** The small original typed plan/receipt remain admission proof after its
      * backup and receiving images retire. Never infer configuration from only

@@ -108,7 +108,8 @@ final class MembershipLearnerVoterStage implements AutoCloseable {
         long metadata=files.entrySet().stream().filter(e->!e.getKey().endsWith(".image")).mapToLong(e->e.getValue().length).sum();
         // Charge dormant metadata, stage/custody/placement companions.
         // The learner's already reserved MISC area is not borrowed implicitly.
-        metadata=Math.addExact(metadata,2L*MAXIMUM+MembershipLearnerCustody.MAXIMUM+2L*MembershipLearnerPlacement.MAXIMUM+MembershipLearnerJoinedAdmission.MAXIMUM);var resources=intent.head().resources();
+        metadata=Math.addExact(metadata,2L*MAXIMUM+MembershipLearnerCustody.MAXIMUM+2L*MembershipLearnerPlacement.MAXIMUM+MembershipLearnerJoinedAdmission.MAXIMUM
+                +MembershipLearnerJoinedRetirement.MAXIMUM+MembershipLearnerJoinedRetirement.DONE_MAXIMUM);var resources=intent.head().resources();
         leases.add(resources.reserve(MembershipResources.Unit.GENERATION,"learner-voter-stage",metadata));
         for(var file:files.entrySet())if(file.getKey().endsWith(".image"))
             leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"voter:"+file.getKey(),file.getValue().length));

@@ -5,8 +5,10 @@ live Ready capability. The stage also reserves its 256 KiB ownership decision
 within the same GENERATION charge. [Original placement](PHASE_3_LEARNER_PLACEMENT.md)
 adds two 64 KiB companions to that charge before staging begins, then performs
 the actual payload moves under custody. The [joined admission](PHASE_3_JOINED_ADMISSION.md)
-adds one 64 KiB companion, for 576 KiB of fixed private companions in total. The
-public count/size limits stay unchanged; native journal takeover remains separate.
+adds one 64 KiB companion. [Original retirement](PHASE_3_JOINED_RETIREMENT.md)
+adds 256 KiB for its decision and 64 KiB for completion, for 896 KiB of fixed
+private companions in total. Public count/size limits stay unchanged; native
+journal takeover remains separate.
 
 Phase 3 remains **OPEN**. `MembershipLearnerVoterStage` adds durable installation
 bytes for the next ownership-handoff step. It does not open a voting journal,

@@ -71,6 +71,12 @@ final class MembershipResources {
     synchronized Map<Lease,Lease> transferCompleteStorage(Map<Lease,String> requested) {
         requireCompleteStorage(requested.keySet());return transferStorage(requested);
     }
+    synchronized List<Map<String,Object>> describeCompleteStorage(Set<Lease> expected) {
+        requireCompleteStorage(expected);var rows=new ArrayList<Map<String,Object>>();
+        for(var lease:expected)rows.add(Map.of("unit",lease.key.unit.name(),"bytes",lease.bytes));
+        rows.sort(Comparator.<Map<String,Object>,String>comparing(v->(String)v.get("unit")).thenComparingLong(v->(Long)v.get("bytes")));
+        return List.copyOf(rows);
+    }
     /** Transfer a quiesced owner's exact storage reservations without an
      * uncharged interval or a duplicate physical-copy allowance. The caller
      * must retain the matching files and move their ownership separately.

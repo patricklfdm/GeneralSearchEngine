@@ -34,6 +34,7 @@ final class MembershipLearnerCustody implements AutoCloseable {
     private final Set<MembershipResources.Lease> leases=new LinkedHashSet<>();
     private FileIdentity decision;
     private MembershipLearnerPlacement placement;
+    private MembershipLearnerJoinedRetirement retirement;
     private final MembershipLearnerPlacement.Recovery recovery;
     private boolean closed,transferred,failed;
 
@@ -185,7 +186,8 @@ final class MembershipLearnerCustody implements AutoCloseable {
             }
             AdmissionPaths.recheck(binding);require(directoryKey.equals(key(directory)) && children(directory,1).equals(Set.of(FILE)),"learner installation decision changed");
             require(decision.equals(inspect(directory.resolve(FILE),plan.length,hash(plan))),"learner installation decision changed");
-            if(placement==null)require(originals.equals(capture(roots,null)),"learner installation originals changed");
+            if(retirement!=null)retirement.checkOriginals();
+            else if(placement==null)require(originals.equals(capture(roots,null)),"learner installation originals changed");
             else placement.checkOriginals();
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
@@ -199,6 +201,11 @@ final class MembershipLearnerCustody implements AutoCloseable {
         check();require(placement==null,"learner placement already started; original resume required");placement=Objects.requireNonNull(next);
     }
     synchronized MembershipLearnerPlacement placement()throws IOException {check();return placement;}
+    synchronized List<Map<String,Object>> reservations()throws IOException {check();return resources.describeCompleteStorage(leases);}
+    synchronized MembershipLearnerJoinedRetirement retirement()throws IOException {check();return retirement;}
+    synchronized void attachRetirement(MembershipLearnerJoinedRetirement next)throws IOException {
+        check();require(retirement==null && placement!=null,"joined retirement already attached");retirement=Objects.requireNonNull(next);
+    }
     @Override public synchronized void close()throws IOException {
         if(closed)return;var reversed=new ArrayList<>(owners);Collections.reverse(reversed);
         MembershipLearnerSource.closeChildren(reversed.toArray(AutoCloseable[]::new));

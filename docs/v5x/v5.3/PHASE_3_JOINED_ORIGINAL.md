@@ -61,9 +61,9 @@ The persisted joined proof records the prior successful typed preparation;
 this original-history inspection does not reopen a typed engine or rerun the
 application codec. Native runtime materialization must still perform its own
 typed checks before service. Physical proof inspection does not establish
-whether a predecessor's absence was authorized. Only the remaining forced
-retirement inventory can authorize and recover those deletions, including their
-resource accounting and directory-force boundaries.
+whether a predecessor's absence was authorized. The separate [original retirement transaction](PHASE_3_JOINED_RETIREMENT.md)
+now authorizes and recovers those deletions with its forced derived inventory,
+conservative resource accounting and directory-force boundaries.
 
 ## Executed and pending qualification
 

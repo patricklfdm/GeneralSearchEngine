@@ -1,5 +1,23 @@
 # V5.3 Phase 3 contract amendments
 
+## A43 — original joined predecessor retirement
+
+The [joined retirement transaction](PHASE_3_JOINED_RETIREMENT.md) derives its
+bounded deletion order from original custody and completed placement, after
+independent installed-history validation. Force the original decision before
+deleting any member. Preserve native installation, selected typed proof, all
+original root directories and empty locks; accept only the derived absent
+prefix on recovery. Cold continuation takes real locks, restores the complete
+original reservation group and revalidates the original source before mutation.
+Missing/torn decisions, copied complete records and nonprefix absence refuse.
+
+Reserve 256 KiB for the decision and 64 KiB for completion before staging:
+fixed private companions become 896 KiB within the same GENERATION allowance.
+Keep all original charges through retirement; native descriptor/reservation
+adoption is separate. Public formats/ceilings remain unchanged. These private
+records do not grant voting, mutable-journal or public readiness authority.
+Complete joining and Phase 3 qualification remain open.
+
 ## A42 — independent original installed-history validation
 
 The [joined original reader](PHASE_3_JOINED_ORIGINAL.md) reconstructs the complete

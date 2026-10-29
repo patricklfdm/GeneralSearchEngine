@@ -1,0 +1,333 @@
+{
+  "actualPredecessorDeletion": true,
+  "archive": {
+    "bytes": 9505069,
+    "path": "target/v53-joined-retirement/component-validation.tar.gz",
+    "sha256": "247b8ec47edfddf2c30e36af8d7ab069aaee39b6912b3818234d3b89b107291b"
+  },
+  "baseCommit": "e53fddff3e34bd18b3572613d64c59cd3d47ad3a",
+  "codeAndBuildInputsChecked": 1718,
+  "coldAccountingValidatesOriginalPhysicalLowerBounds": true,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1445,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourcePassingCases": 29,
+  "currentSourceSnapshots": [
+    "joinedretirementfixed",
+    "joinedretirementguards"
+  ],
+  "developmentFailures": {
+    "joinedretirement": "five cases failed before deletion: projected installation attempted to mutate an immutable parsed inventory; fixed by independent row copies. Suppressed fixture close assertion on one failed test was corrected with scoped placement cleanup."
+  },
+  "fixedPrivateCompanionBytes": 917504,
+  "forcedDecisionBeforeDeletion": true,
+  "fullMembershipProcessDeathQualified": false,
+  "fullOriginalReservationsRetained": true,
+  "independentInstalledHistoryBeforeColdMutation": true,
+  "independentJvmRootLockProbes": true,
+  "missingOrTornColdDecisionRefused": true,
+  "mutableJoinedJournalImplemented": false,
+  "mutationOfCallerDeleteListAccepted": false,
+  "nativeVotingQualified": false,
+  "originalAbsentPrefixOnly": true,
+  "originalDerivedDeleteSequence": true,
+  "originalLockFilesAndRootDirectoriesPreserved": true,
+  "pending": [
+    "adoption of actual root descriptor and complete remaining reservations into allocator/journal",
+    "joined retention and old-majority INTENT before joint checkpointing",
+    "joint FINAL and fresh barrier",
+    "all-profile native physical-history and halt/SIGKILL qualification"
+  ],
+  "phase3Complete": false,
+  "predecessorsRecreated": false,
+  "promotedCompletedReplacementTested": true,
+  "publicFormatsChanged": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "qualificationScheduling": "serial snapshots; original process reached terminal result before each subsequent execution",
+  "reports": {
+    "joinedretirement": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": {
+        "cases": [
+          {
+            "name": "deletesOnlyDerivedPredecessorsKeepsLocksProofsAndFullChargesAcrossColdOpen",
+            "seconds": 30.225,
+            "status": "FAIL"
+          },
+          {
+            "name": "changedOriginalAtLastPredeleteBoundaryStopsWithoutDeletingIt",
+            "seconds": 28.424,
+            "status": "FAIL"
+          },
+          {
+            "name": "missingTornCopiedDecisionAndNonprefixDeletionRefuseBeforeAnyMutation",
+            "seconds": 29.223,
+            "status": "FAIL"
+          },
+          {
+            "name": "coldOriginalReservationUnderchargeAndCopiedCompletionAreRejected",
+            "seconds": 29.38,
+            "status": "FAIL"
+          },
+          {
+            "name": "interruptedOriginalDecisionResumesLiveAndDeletionResumesColdWithoutRecreatingFiles",
+            "seconds": 27.376,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "2d54cd8b6d3b93f957834d112fa374f1bf3f22778671e600c3bfc6deb69022a7"
+      }
+    },
+    "joinedretirementfixed": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": {
+        "cases": [
+          {
+            "name": "deletesOnlyDerivedPredecessorsKeepsLocksProofsAndFullChargesAcrossColdOpen",
+            "seconds": 33.418,
+            "status": "PASS"
+          },
+          {
+            "name": "promotedCompletedReplacementRetiresItsOldPayloadsAndKeepsSelectedTypedProof",
+            "seconds": 281.013,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "9eaac329e412e42cd5aeade19994e6ffbc85dd9789b1af53a55ac2d8874b3bb6"
+      }
+    },
+    "joinedretirementguards": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": {
+        "cases": [
+          {
+            "name": "missingTornCopiedAndSemanticallyAlteredProofsRefuseWithoutRepair",
+            "seconds": 27.36,
+            "status": "PASS"
+          },
+          {
+            "name": "completedReplacementPreservesFinalFenceAndOriginalIntentAsDifferentProofs",
+            "seconds": 28.04,
+            "status": "PASS"
+          },
+          {
+            "name": "completeOriginalInstallationVerifiesWithoutPredecessorPayloadsButGrantsNoRetirement",
+            "seconds": 27.289,
+            "status": "PASS"
+          },
+          {
+            "name": "installedInodeReplacementAndLastReadMutationNeverEscapeAValidatedResult",
+            "seconds": 27.428,
+            "status": "PASS"
+          },
+          {
+            "name": "declaredNativeExtentsAndPathsAreBoundedBeforeFileReads",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "b98e439c2d2c3a265fdc5a9af8dc5f1bb47b519c3d7dad1805eb2eb02a36532c"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": {
+        "cases": [
+          {
+            "name": "changedOriginalAtLastPredeleteBoundaryStopsWithoutDeletingIt",
+            "seconds": 28.087,
+            "status": "PASS"
+          },
+          {
+            "name": "missingTornCopiedDecisionAndNonprefixDeletionRefuseBeforeAnyMutation",
+            "seconds": 29.505,
+            "status": "PASS"
+          },
+          {
+            "name": "coldOriginalReservationUnderchargeAndCopiedCompletionAreRejected",
+            "seconds": 30.413,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedOriginalDecisionResumesLiveAndDeletionResumesColdWithoutRecreatingFiles",
+            "seconds": 31.589,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "0895d6aa99d57e69c8c7e19cf545c0c1ca70a752f0a99891e2ace21828dbe3f7"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": {
+        "cases": [
+          {
+            "name": "capacityAndRevokedIntentFailBeforeCreatingStage",
+            "seconds": 18.565,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "611a056db9b236fdc3656941be3e94bc2485e95bcdfe75091876df903f6257db"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.049,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.171,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.032,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.062,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles",
+            "seconds": 0.339,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.067,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.028,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "f3ea56d924adff38282219b1b81571249c294be73e4d78a31d0604e5fc7e2a5d"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRefusesUncommittedGenerationClaimEvenWithEveryLease",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRechecksNewWorkAndExtraStorageAtTransferWithoutRevokingOldHandles",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.007,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.001,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "b8ef536c86f639fc5c1c9189c5aa96f7fab9e3ff861e025964400b30485922a4"
+      }
+    }
+  },
+  "runs": {
+    "joinedretirement": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": 5
+      },
+      "exit": 1,
+      "failures": 5,
+      "label": "joinedretirement",
+      "requestedTests": [
+        "V53LearnerJoinedRetirementTest"
+      ],
+      "seconds": 153.96560279699042,
+      "skipped": 0,
+      "tests": 5
+    },
+    "joinedretirementfixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joinedretirementfixed",
+      "requestedTests": [
+        "V53LearnerJoinedRetirementTest#deletesOnlyDerivedPredecessorsKeepsLocksProofsAndFullChargesAcrossColdOpen+promotedCompletedReplacementRetiresItsOldPayloadsAndKeepsSelectedTypedProof"
+      ],
+      "seconds": 323.7087052979914,
+      "skipped": 0,
+      "tests": 2
+    },
+    "joinedretirementguards": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joinedretirementguards",
+      "requestedTests": [
+        "V53LearnerJoinedRetirementTest#interruptedOriginalDecisionResumesLiveAndDeletionResumesColdWithoutRecreatingFiles+missingTornCopiedDecisionAndNonprefixDeletionRefuseBeforeAnyMutation+coldOriginalReservationUnderchargeAndCopiedCompletionAreRejected+changedOriginalAtLastPredeleteBoundaryStopsWithoutDeletingIt",
+        "V53LearnerJoinedOriginalTest",
+        "V53LearnerVoterStageTest#capacityAndRevokedIntentFailBeforeCreatingStage",
+        "V53StorageOwnershipTransferTest",
+        "V53OwnedFileInspectionTest"
+      ],
+      "seconds": 263.32202638700255,
+      "skipped": 0,
+      "tests": 27
+    }
+  },
+  "schema": "gse-v53-joined-retirement-component-v1",
+  "selectedTypedProofPreserved": true,
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCustody.java": "b8d13eeed8113c6c07537b38d9766d36e169fdf2f7bd1a1407312cddfc803759",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerJoinedOriginal.java": "576725bacec061483c6a51db967736c4abd82dbf796886e19af9234a75c53171",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerJoinedRetirement.java": "a7ea2693394699a1e438fe6b2afa7e859a341e77b06a077e6afa8a75ab447da7",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerJoinedRetirementPlan.java": "771a395bc8d881ee47c9e854e3e16b4d88bd730f0bd593f6a94b938c52df3b40",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPlacement.java": "5de2554741b905dd3423793349e847d86458564ee019a8948ea1a452307aacb8",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerVoterStage.java": "00375a5bfcc08775fcfac859b01087b42f420f60f79264c69d2d36b47e26a25a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "df4ddc49f950f1b4fb703dc2834c1581cb47dbb0550e63ec3533265847674a4b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerJoinedRetirementTest.java": "7d165fdfb55b28a4aa8dbc52233dad33e5a8002092cc05e4634f6624c3f1c6bd"
+  },
+  "status": "PASS_ORIGINAL_RETIREMENT_COMPONENTS"
+}

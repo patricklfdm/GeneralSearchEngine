@@ -42,7 +42,7 @@ final class MembershipLearnerJoinedOriginal {
 
     static <K,T> Inspection verify(MembershipLearnerJoinedAdmission admission,SearchEngineConfiguration<K,T> captured,
             MembershipReplicaConfig<K,T> config)throws IOException {
-        admission.check();var scope=new Scope(admission.placement().custody().summary(),admission,null,captured,config);
+        admission.check();var scope=new Scope(admission.placement().custody().summary(),admission,null,null,captured,config);
         try{return scope.read(e->{});}finally{scope.closed=true;}
     }
     /** No new files, force, repair, remote source, caller observations or
@@ -51,15 +51,21 @@ final class MembershipLearnerJoinedOriginal {
             MembershipReplicaConfig<K,T> config,MembershipBallotAllocator.Cut cut)throws IOException {
         Objects.requireNonNull(cut);
         try(var owner=MembershipOwnership.own(summary.request().replicaDirectory().resolve("replica.lock"),false)) {
-            var scope=new Scope(summary,null,owner,captured,config);
+            var scope=new Scope(summary,null,owner,null,captured,config);
             try{return scope.read(cut);}finally{scope.closed=true;}
         }
     }
 
+    static <K,T> Inspection verifyRetirement(MembershipLearnerJoinedRetirement retirement,SearchEngineConfiguration<K,T> captured,
+            MembershipReplicaConfig<K,T> config)throws IOException {
+        retirement.checkOwner();var scope=new Scope(retirement.summary(),null,null,retirement,captured,config);
+        try{return scope.read(e->{});}finally{scope.closed=true;}
+    }
     private static final class Scope {
         private final MembershipLearnerPlan summary;
         private final MembershipLearnerJoinedAdmission admission;
         private final MembershipOwnership owner;
+        private final MembershipLearnerJoinedRetirement retirement;
         private final Map<String,Object> originals,installed,value;
         private final Set<String> predecessors;
         private final Map<Path,FileIdentity> proofs=new LinkedHashMap<>();
@@ -68,9 +74,9 @@ final class MembershipLearnerJoinedOriginal {
         private final Path replica,generation;
         private final byte[] joined;
         private boolean closed;
-        private <K,T> Scope(MembershipLearnerPlan summary,MembershipLearnerJoinedAdmission admission,MembershipOwnership owner,
+        private <K,T> Scope(MembershipLearnerPlan summary,MembershipLearnerJoinedAdmission admission,MembershipOwnership owner,MembershipLearnerJoinedRetirement retirement,
                 SearchEngineConfiguration<K,T> captured,MembershipReplicaConfig<K,T> config)throws IOException {
-            this.summary=summary;this.admission=admission;this.owner=owner;replica=summary.request().replicaDirectory();generation=replica.resolve("generations/a");
+            this.summary=summary;this.admission=admission;this.owner=owner;this.retirement=retirement;replica=summary.request().replicaDirectory();generation=replica.resolve("generations/a");
             originals=MembershipLearnerPlacement.installedOriginal(summary);var nativeFiles=new TreeMap<String,Object>();var oldNames=new HashSet<String>();
             for(var row:originals.entrySet()) {
                 String name=row.getKey(),first=name.split("/",2)[0];
@@ -115,7 +121,7 @@ final class MembershipLearnerJoinedOriginal {
         }
         private void check()throws IOException {
             require(!closed,"joined original read scope expired");
-            if(admission!=null)admission.check();else require(owner.lock().isValid(),"joined original root owner unavailable");
+            if(admission!=null)admission.check();else if(retirement!=null)retirement.checkOwner();else require(owner.lock().isValid(),"joined original root owner unavailable");
             configuration.check();
             for(var directory:directories.entrySet())require(directory.getValue().equals(key(directory.getKey())),"joined original decision directory changed");
             for(var proof:proofs.entrySet()){var f=proof.getValue();require(f.equals(MembershipBasisSources.inspect(proof.getKey(),f.bytes(),f.digest())),"joined original proof changed");}

@@ -1,9 +1,15 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Original joined retirement](PHASE_3_JOINED_RETIREMENT.md) now deletes the
+covered original predecessor payloads under a forced bounded plan, with real-lock
+cold continuation and conservative full reservation restoration. Native
+journal/allocator takeover, minimum-quorum joining, full process qualification
+and complete Phase 3 remain **OPEN**.
+
 [Independent original joining-history validation](PHASE_3_JOINED_ORIGINAL.md) now
 checks the complete installed source under live custody or a cold root lock.
-Cold output is diagnostic only. Native retirement and full process/history
-qualification remain required.
+Cold output is diagnostic only. Full native process/history qualification,
+including retirement and journal takeover, remains required.
 
 [Original joined admission](PHASE_3_JOINED_ADMISSION.md) now forces the exact
 joining receipt, INTENT and installation/configuration binding under the live
@@ -121,6 +127,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 
 | Gate | Unit of execution | Required final evidence |
 | --- | --- | --- |
+| Original joined retirement | Same continuous learner-to-voter history | Derived original deletion prefix, unchanged survivor inodes, actual locks, complete reservations, all delete/force/completion halt/SIGKILL cuts, cold recovery and independent replay; component exception cuts do not close this gate |
 | Original joined admission | Each whole native learner-to-voter history | Original typed receipt/INTENT/generation/configuration binding; actual lock and reservation takeover; all record/retirement halt/SIGKILL cuts, native journal open and independent replay; a component forced record alone does not qualify voting |
 | Original installed joining history | Same continuous learner-to-voter history | Preserve original typed plan/receipt while retiring covered payloads; retain joined/custody/placement decisions; independent cold validation and exact native ownership/accounting takeover; inspection alone cannot authorize deletion |
 | Original payload placement | One continuous typed learner/INTENT/stage/custody history per head/profile | Exact original moves, preserved root locks, every move/force/marker halt/SIGKILL cut and cold recovery, independent physical/history/wire replay; live exception cuts, component cold reopen and read-only inspection do not authorize voting or replace process-death qualification |

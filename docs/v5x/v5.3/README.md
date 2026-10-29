@@ -1,9 +1,15 @@
 # V5.3 — controlled cluster operations
 
+[Original joined retirement](PHASE_3_JOINED_RETIREMENT.md) now deletes the
+covered original predecessor payloads under a forced bounded plan, with real-lock
+cold continuation and conservative full reservation restoration. Native
+journal/allocator takeover, minimum-quorum joining, full process qualification
+and complete Phase 3 remain **OPEN**.
+
 [Original joined-history validation](PHASE_3_JOINED_ORIGINAL.md) now checks the
 surviving installed generation under real root exclusion before joining
-admission returns. Cold inspection remains read-only; native retirement and
-journal takeover are still open.
+admission returns. Cold inspection remains read-only; the separate transaction
+above now performs retirement. Native journal takeover is still open.
 
 [Original joined admission](PHASE_3_JOINED_ADMISSION.md) now forces the exact
 joining receipt, INTENT and installation/configuration binding under the live
