@@ -133,7 +133,7 @@ class RunnerResourcesTest(unittest.TestCase):
             clock.sleep(api.admission_deadline-clock.seconds()+1)
             return 'offline-token'
         api.tokens=refresh
-        with self.assertRaisesRegex(ValueError,'deadline'):api.upload()
+        with self.assertRaisesRegex(TimeoutError,'deadline'):api.upload()
         self.assertLess(clock.seconds(),api.deadline)
         self.assertEqual([],self.mutations())
 

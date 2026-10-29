@@ -30,7 +30,7 @@ class HttpTest(unittest.TestCase):
         self.assertFalse(self.calls); self.assertFalse(self.tokens)
     def test_original_deadline_and_response_size(self):
         api = self.api([(200, b'1234')])
-        with self.assertRaisesRegex(ValueError, 'deadline'): api.call('GET', 'https://compute.googleapis.com/a', deadline=1)
+        with self.assertRaisesRegex(TimeoutError, 'deadline'): api.call('GET', 'https://compute.googleapis.com/a', deadline=1)
         with self.assertRaisesRegex(ValueError, 'size'): api.call('GET', 'https://compute.googleapis.com/a', deadline=10, maximum=3)
     def test_redirect_forbidden(self):
         with self.assertRaisesRegex(ValueError, 'redirect'): NoRedirect().redirect_request(None, None, None, None, None, None)
@@ -74,7 +74,7 @@ class ProviderTest(unittest.TestCase):
             self.assertEqual({'value':1},self.store.get(a.LEDGER,deadline=until)[1])
         self.assertEqual([until,until],deadlines)
         self.clock.sleep(5);before=len(self.http.requests)
-        with self.assertRaises(ValueError):self.store.get(a.LEDGER,deadline=until)
+        with self.assertRaisesRegex(TimeoutError, 'deadline'):self.store.get(a.LEDGER,deadline=until)
         self.assertEqual(before,len(self.http.requests))
     def test_namespace_and_configuration_closed(self):
         for key in ('v5.0/active.json', a.PREFIX+'../a', a.PREFIX+'x//a'):
@@ -163,7 +163,7 @@ class ProviderTest(unittest.TestCase):
                 return self.http.reply(self.delete_operation(spec, made['id'], status='RUNNING'))
             return response
         self.http.send = send; started = self.clock.seconds()
-        with self.assertRaisesRegex(ValueError, 'deadline'):
+        with self.assertRaisesRegex(TimeoutError, 'deadline'):
             self.provider.delete(spec, made['id'])
         self.assertEqual(1, len(replies)); self.assertEqual(600, self.clock.seconds()-started)
     def test_private_fixed_topology_and_image_identity(self):
@@ -263,7 +263,7 @@ class ProviderTest(unittest.TestCase):
         _, made = self.create(spec)
         self.provider.api.deadline = self.clock.seconds()+45
         f.delay_instance_deletes(self.http, self.clock, {1:85})
-        with self.assertRaisesRegex(ValueError, 'deadline'):
+        with self.assertRaisesRegex(TimeoutError, 'deadline'):
             self.provider.delete(spec, made['id'])
         self.assertEqual(self.provider.api.deadline, self.clock.seconds())
         deletes = [r for r in self.http.requests if r['method']=='DELETE']
