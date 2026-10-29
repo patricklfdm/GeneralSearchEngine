@@ -1022,3 +1022,51 @@ B's active plan/receipt and A's plan/candidate/receipt. This remains within the
 unchanged 2 MiB MISC lease. Two GENERATION/seven APPLICATION limits and existing
 source deadlines remain unchanged. Complete alternating selection/retirement,
 all-profile/max-resource and process-death qualification still gate Phase 3.
+
+## A27 — replace the selected learner head and retire B
+
+Use the same `head.next.json` / `head.json` names and 16 KiB bound for the first
+replacement selection (A, sequence 2). The canonical
+`gse-v53-learner-rolling-head/1.3` record has the ten original head fields plus
+`slot`, `sequence`, `previousAnchor`, `previousPlan`, `priorVacancy`.
+`previousAnchor` is B's original head/receipt/core and native terminal binding;
+`priorVacancy` is the exact four-field vacancy binding in A's original plan.
+`previousPlan` fingerprints the slots root inode and original `b.json` and
+`b.installed.json` bytes/inodes. Source/typed fingerprints cover only B's known
+members, while `currentFiles` covers the exact A typed members. The new record
+binds its own exclusively created candidate inode. No previous head or vacancy
+is embedded recursively.
+
+Unlike first selection, old active HEAD and new candidate HEAD_NEXT may coexist.
+The actual B typed current owner and exact pending A typed owner must agree before
+candidate force. After complete candidate force, atomically replace HEAD with
+that same inode and force active file/parent before returning selected A. Old B
+handles become unusable at replacement; an incomplete force path exposes neither
+an alternate old head nor an unforced new current capability. Partial candidate
+bytes are preserved/refused. A complete retained candidate can only resume under
+both actual typed owners. Cold recovery never treats it as an automatic selection.
+
+Cold selected-A entry binds A's original plan to the new head's previous anchor,
+verifies its native source and exact current typed records, and binds B's retained
+plan/installed metadata to `previousPlan`. Reject an extra B plan candidate: the
+retirement decision does not authorize a later installation. Validate covered
+old inventories and the original prior vacancy before recovery force. Only the
+selected original head permits covered B source/typed members to be absent.
+B's plan and installed marker remain until the next reuse protocol covers their
+replacement. They also provide the conservative resource manifest after partial
+deletion. No source or typed paths may be taken from arbitrary record strings.
+
+After covered B deletion and parent forces, create the next original A25-shaped
+clear record for this new head. Its candidate may coexist with the exact prior
+active vacancy bound by this selector. Force the new candidate, atomically replace
+the old clear name with its inode, and force the active clear and parent before
+releasing B leases. An already-original new clear is re-forced before waiving old
+charges on cold recovery. The old vacancy never waives B charges or authorizes a
+new acquisition by itself. Preserve every original partial/copy/foreign decision
+and refuse before recovery writes. Current A remains independently verified.
+
+This record fits the existing head-pair allowance; the conservative MISC bound
+stays 1852 KiB of 2 MiB. Two GENERATION and seven APPLICATION limits are unchanged.
+Subsequent inactive-plan replacement, repeated cycles, cancellation/matching
+INTENT, all-profile/max-resource and original native/process-death qualification
+still gate Phase 3 closure.

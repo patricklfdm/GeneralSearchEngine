@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Replacement learner heads](PHASE_3_LEARNER_ROTATION.md) now select reused A,
+revoke B handles and reclaim only covered B source/typed files. Cold recovery
+retains original candidate/selected distinctions and preserves old plan metadata.
+The next B installation and full alternating/native/Phase 3 qualification remain
+OPEN; earlier entries describe their own source-bound component scope.
+
 [Reuse of the cleared learner slot](PHASE_3_LEARNER_REUSE.md) now permits the
 selected B typed owner to install one pending A in the retired fixed paths, under
 the same lock and resource pool. Original head/vacancy/plan identities bind cold

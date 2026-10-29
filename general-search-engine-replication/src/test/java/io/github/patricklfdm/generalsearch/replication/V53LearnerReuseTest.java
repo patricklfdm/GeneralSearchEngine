@@ -43,7 +43,6 @@ class V53LearnerReuseTest {
                 try(var typed=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(retained,1),f.captured,f.config,e->{})) {
                     assertEquals(f.original,typed.state());receipt=typed.receipt().bytes();
                     assertThrows(IllegalArgumentException.class,typed::currentHead);
-                    assertThrows(IllegalArgumentException.class,()->typed.promoteSlot(active.currentHead()));
                 }
                 assertEquals(4,f.source.client.usage().counts().get(Unit.APPLICATION));
                 ((MembershipLearnerSlot.View)f.store.currentSource()).retirePredecessor();
@@ -77,7 +76,7 @@ class V53LearnerReuseTest {
                     var binding=new TreeMap<>(MembershipFormat.object(value.get(changedField)));binding.put("head","0".repeat(64));value.put(changedField,binding);
                 }
                 Files.write(plan,MembershipFormat.canonical(value,MembershipLearnerSlot.MAXIMUM));changed=V53ReplayFilesTest.files(f.base);
-                String reason=changedField.equals("vacancy")?"learner reuse original vacancy changed":
+                String reason=changedField.equals("vacancy")?"learner reuse vacancy head binding":
                         changedField.equals("anchor")?"learner slot original current head changed":"learner slot original plan";
                 assertEquals(reason,assertThrows(IllegalArgumentException.class,()->
                         MembershipLearnerStore.resume(f.summary,f.source.client,this::readOnly)).getMessage());

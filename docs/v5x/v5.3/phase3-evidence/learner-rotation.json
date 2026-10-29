@@ -1,0 +1,115 @@
+{
+  "archive": {
+    "bytes": 11467559,
+    "files": 5244,
+    "path": "target/v53-learner-rotation/qualification.tar.gz",
+    "sha256": "c901647292f8ce7e1f1d5bc15d95505b9e20189f0ff3d5a9812fdeda3bb21270"
+  },
+  "autonomousReady": false,
+  "baseSource": "ced34b00656d5f228ee5626e6a91768d9fa940f5",
+  "builds": {
+    "final": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage",
+              "seconds": 182.774,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 1
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "completeRollingCandidateAndRenamedHeadRecoverTheirDistinctOriginalStates",
+              "seconds": 306.036,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "partialRollingCandidateRefusesWithoutRecoveryWritesOrDiscardingEitherImage",
+              "seconds": 137.704,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "selectingReusedARevokesBAndReclaimsOnlyCoveredBFilesBeforeColdTypedReopen",
+              "seconds": 144.981,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 3
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": 1,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest": 3
+        },
+        "exit": 0,
+        "failures": 0,
+        "label": "final",
+        "requestedTests": [
+          "V53LearnerRotationTest",
+          "V53LearnerReuseTest#originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage"
+        ],
+        "seconds": 766.5558320680029,
+        "skipped": 0,
+        "tests": 4
+      },
+      "productionDifferencesFromFinal": []
+    },
+    "focused": {
+      "classes": {},
+      "execution": {
+        "classes": {},
+        "exit": 143,
+        "failures": 0,
+        "label": "focused",
+        "requestedTests": [
+          "V53LearnerRotationTest"
+        ],
+        "seconds": 401.56092114799685,
+        "skipped": 0,
+        "tests": 0
+      },
+      "productionDifferencesFromFinal": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSlot.java"
+      ]
+    }
+  },
+  "compiledProductionIdenticalWithinQualifiedBuilds": true,
+  "conditionalHistoryTcp": true,
+  "conditionalSourceHistories": true,
+  "coveredBRetired": true,
+  "fullAlternatingCycles": false,
+  "fullPhase3": false,
+  "independentNativeReplay": false,
+  "nativeHistoryQualified": false,
+  "oldMetadataRetained": true,
+  "originalRollingCandidateResumed": true,
+  "passedMethods": {
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest#originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest#completeRollingCandidateAndRenamedHeadRecoverTheirDistinctOriginalStates": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest#partialRollingCandidateRefusesWithoutRecoveryWritesOrDiscardingEitherImage": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest#selectingReusedARevokesBAndReclaimsOnlyCoveredBFilesBeforeColdTypedReopen": "final"
+  },
+  "processDeathQualified": false,
+  "productionInputs": 491,
+  "qualifiedBuilds": [
+    "final"
+  ],
+  "schema": "gse-v53-learner-rotation-qualification-v1",
+  "selectedAColdResume": true,
+  "status": "COMPONENTS_PASSED"
+}

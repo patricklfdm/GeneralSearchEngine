@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+A27 adds original replacement-head recovery and covered B retirement. The complete
+native history must also exercise old-clear/new-clear coexistence, cuts during
+new vacancy replacement, subsequent B plan/marker replacement and further cycles.
+The local conditional exception cuts do not replace any halt/SIGKILL or physical
+history replay requirement.
+
 A26 adds pending A reuse under the same lock. Keep the eventual B→A→B→A history
 continuous: include current/pending ownership, unchanged fixed paths, replacement
 selectors, vacancy replacement, cold/process cuts and copied/stale decision

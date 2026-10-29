@@ -1,5 +1,9 @@
 # Phase 3 — reuse the retired learner slot
 
+This records A26's installation boundary. [A27](PHASE_3_LEARNER_ROTATION.md)
+subsequently implements the first reused-A selection and covered B retirement;
+the historical A26 refusal below describes that earlier source.
+
 The slot manager now owns one selected image and at most one pending image under
 its existing exclusive lock. Source files, typed handles, retained leases and
 stored-copy verification bind the individual image. This avoids adding a new
