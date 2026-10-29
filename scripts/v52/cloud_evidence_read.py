@@ -13,6 +13,7 @@ from . import cloud_authority as a,cloud_control as control,cloud_provider as p,
 from . import cloud_credentials as credentials,cloud_preflight_read as preflight,cloud_inputs as inputs
 from . import cloud_artifacts as artifacts,cloud_evidence_parts as parts,cloud_retention as retention
 from . import cloud_read_retry
+from . import cloud_retention_recovery as recovery
 from .evidence import need,encoded,digest,strict
 
 
@@ -102,7 +103,9 @@ def restore(reader,chosen,output,*,progress=lambda stage,**kw:None,continuation=
         original=reader.get(a.LEDGER);artifacts.save(output/'ledger-before.json',original)
         view=a.inspect_ledger(original['value'],domain='native');requests={}
         for name,sha in chosen.items():
-            entry=view['attempts'].get(sha);need(entry is not None and entry['status']=='PASS','V5.2 evidence original attempt not successful')
+            entry=view['attempts'].get(sha)
+            need(entry is not None and entry['status']==recovery.terminal_status(continuation,entry['request']),
+                 'V5.2 evidence original attempt not successful')
             req=entry['request'];bound=req['selection']['binding']
             if continuation is None:
                 need(req['selection']['member']['name']==name and bound['source']==reader.source['source'] and
@@ -119,13 +122,19 @@ def restore(reader,chosen,output,*,progress=lambda stage,**kw:None,continuation=
             need(context['value']==p.context(reader.cfg['provider'],req,domain='native'),'V5.2 evidence original provider context')
             completed=reader.get(prefix+'completion.json');a.validate_completion(completed['value'],req)
             sha=chosen[name];terminal=next(v for v in original['value']['entries'] if v['kind']=='FINISHED' and v['requestSha256']==sha)
-            need(completed['value']['status']=='PASS' and terminal['completionSha256']==digest(encoded(completed['value'])),
+            exceptional=recovery.applies(continuation,req)
+            need(completed['value']['status']==recovery.terminal_status(continuation,req) and terminal['completionSha256']==digest(encoded(completed['value'])),
                  'V5.2 evidence original terminal hash')
             key=control.cleanup_key(req,completed['value']['cleanupSha256']);reader.allow(key);clean=reader.get(key)
             need(digest(encoded(clean['value']))==completed['value']['cleanupSha256'],'V5.2 evidence original cleanup hash')
             key=retention.prefix(req)+'manifest.json';reader.allow(key);manifest=reader.get(key)
             parts.validate(manifest['value'],req)
-            need(digest(encoded(manifest['value']))==completed['value']['evidenceSha256'],'V5.2 evidence original manifest hash')
+            if exceptional:
+                continuation.objects(req,manifest['value'],completed['value'],clean['value'])
+                for label,observed in (('manifest',manifest),('completion',completed),('cleanup',clean)):
+                    continuation.generation(label,observed)
+            else:
+                need(digest(encoded(manifest['value']))==completed['value']['evidenceSha256'],'V5.2 evidence original manifest hash')
             for label,value in (('context',context),('completion',completed),('cleanup',clean),('manifest',manifest)):
                 artifacts.save(root/(label+'.json'),value)
             def chunk(ordinal):

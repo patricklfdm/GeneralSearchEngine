@@ -26,6 +26,10 @@ def selection(chosen):
 
 
 def request(value):
+    if type(value) is dict and 'recovery' in value:
+        from . import cloud_retention_recovery as recovery
+        recovery.request(value)
+        return deepcopy(value)
     if type(value) is dict and 'continuation' in value:
         from . import cloud_quota_continuation as continuation
         continuation.request(value)
@@ -34,7 +38,7 @@ def request(value):
 
 
 def verify_native(source, chosen, output):
-    chosen = request(chosen); scoped = 'continuation' in chosen
+    chosen = request(chosen); recovering = 'recovery' in chosen; scoped = 'continuation' in chosen or recovering
     if scoped: chosen = chosen['selected']
     output = Path(output)
     need(not any(p.is_symlink() for p in (output, *output.parents)), 'V5.2 acceptance output link')
@@ -47,7 +51,10 @@ def verify_native(source, chosen, output):
         cfg = reads.source_configuration(source); bound = inputs.checkout(reads.ROOT, source); workflow = runners.contract()
         scope = None; options = {}
         if scoped:
-            from .cloud_quota_continuation import Scope
+            if recovering:
+                from .cloud_retention_recovery import Scope
+            else:
+                from .cloud_quota_continuation import Scope
             scope = Scope(cfg, bound, chosen); options = dict(continuation=scope)
         phase = 'original-objects'; update(phase)
         restored = objects.restore_native(source, {name: row['requestSha256'] for name, row in chosen.items()},
@@ -61,6 +68,12 @@ def verify_native(source, chosen, output):
         for value in restored['inputs']:
             name = value['request']['selection']['member']['name']; update(phase, name=name, completed=len(expected))
             original = {key: chosen[name][key] for key in ('runId', 'runAttempt')}
+            if recovering and name == 'experiment':
+                record = scope.collect(value['request'], output/'runners'/name,
+                                       runners.Network(output/'runner-recovery-requests'))
+                expected[name] = dict(run=str(original['runId']), attempt=original['runAttempt'])
+                provenance[name] = digest(encoded(record))
+                continue
             record = runners.collect_native(source, value['request'], original, output/'runners'/name, **options)
             if scope is not None: scope.original(name, record)
             member_source = bound if scope is None else scope.member_source(name)
