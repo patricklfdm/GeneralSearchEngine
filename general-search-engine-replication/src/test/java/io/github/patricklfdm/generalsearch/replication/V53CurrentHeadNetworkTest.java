@@ -16,11 +16,12 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 class V53CurrentHeadNetworkTest {
     @TempDir Path temp;
     static final long BUDGET=TimeUnit.SECONDS.toNanos(900);
-    @Test void retiredTypedSecondRevisionAcquiresThirdRevisionAcrossParentReopen()throws Exception {
+    @Test void retiredTypedSecondRevisionAcquiresThirdRevisionAcrossParentReopen()throws Exception {run(false);}
+    void run(boolean installInactive)throws Exception {
         var driver=new V53RoundDriverTest();driver.temp=temp;var helper=new V53NativeDispatchTest();helper.temp=temp;
         try(var n=helper.new Network(3,driver.controlBounds(),BUDGET,f->{},true);
                 var round=driver.driver(n,MembershipRoundDriver.Events.NONE,BUDGET)) {
-            Path raw=n.f.raw;System.out.println("v53CurrentHeadEvidence="+raw.toAbsolutePath());round.start();int port;
+            Path raw=n.f.raw;System.out.println((installInactive?"v53LearnerSlotEvidence=":"v53CurrentHeadEvidence=")+raw.toAbsolutePath());round.start();int port;
             try(var socket=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){port=socket.getLocalPort();}
             var joining=new MembershipIdentity(new ReplicationNodeId("node-4"),UUID.randomUUID(),new ReplicationEndpoint("127.0.0.1",port));
             var targets=new ArrayList<MembershipIdentity>();n.f.request.targets().forEach(t->targets.add(t.identity()));targets.add(joining);
@@ -63,14 +64,40 @@ class V53CurrentHeadNetworkTest {
                     assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(1,resources.usage().counts().get(Unit.LEARNER));
                     assertFalse(received.capsule.context.voters().contains(joining.nodeId().value()));copy(received,raw.resolve("revision-three"));
                     assertArrayEquals(Files.readAllBytes(raw.resolve("current-receipt.gsr")),typed.receipt().bytes());
+                    if(installInactive) {
+                        var slot=refresh.installSlot(events::add);
+                        try(var third=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(slot,3),builder().configuration(),config,events::add)) {
+                            Files.write(raw.resolve("third-receipt.gsr"),third.receipt().bytes());
+                            assertEquals("learner inactive slot is not the current head",assertThrows(IllegalArgumentException.class,third::currentHead).getMessage());
+                        }
+                        assertEquals(2,resources.usage().counts().get(Unit.GENERATION));assertFalse(resources.usage().counts().containsKey(Unit.LEARNER));
+                        V53JournalApplicationTest.copy(MembershipLearnerSlot.directory(summary),raw.resolve("installed-slot"));
+                        V53JournalApplicationTest.copy(MembershipLearnerSlot.typedDirectory(summary),raw.resolve("installed-slot-typed"));
+                    }
                 }
-                assertEquals(baseline,resources.usage());assertArrayEquals(original,head.source().packet.bytes());
+                if(!installInactive)assertEquals(baseline,resources.usage());
+                else assertEquals(2,resources.usage().counts().get(Unit.GENERATION));
+                assertArrayEquals(original,head.source().packet.bytes());
                 assertFalse(Files.exists(config.materialization().directory()));
             }
-            assertEquals(0,resources.usage().leases());n.f.snapshot("after-third-acquisition");round.submit("CANCEL",canonical(Map.of("number",1L),8192));
+            assertEquals(0,resources.usage().leases());
+            if(installInactive) {
+                try(var store=MembershipLearnerStore.resume(summary,resources,events::add);
+                        var second=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.promotedSuccessor(),2),builder().configuration(),config,events::add)) {
+                    var slot=store.resumeSlot(second.currentHead());
+                    try(var third=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(slot,3),builder().configuration(),config,events::add)) {
+                        assertArrayEquals(Files.readAllBytes(raw.resolve("third-receipt.gsr")),third.receipt().bytes());
+                        assertArrayEquals(Files.readAllBytes(raw.resolve("current-receipt.gsr")),second.receipt().bytes());
+                    }
+                    V53JournalApplicationTest.copy(MembershipLearnerSlot.directory(summary),raw.resolve("reopened-slot"));
+                    V53JournalApplicationTest.copy(MembershipLearnerSlot.typedDirectory(summary),raw.resolve("reopened-slot-typed"));
+                }
+                assertEquals(0,resources.usage().leases());
+            }
+            n.f.snapshot("after-third-acquisition");round.submit("CANCEL",canonical(Map.of("number",1L),8192));
             Files.write(raw.resolve("current-head-events.json"),canonical(events,65536));Files.write(raw.resolve("current-head-wire.json"),canonical(wire,8*1024*1024));
-            Files.write(raw.resolve("current-head-result.json"),canonical(Map.of("status","PASS","scope","native-current-head-acquisition",
-                    "installedThirdRevision",false,"voter",false,"publicReady",false,"phase3Complete",false,"testBudgetSeconds",900L),4096));
+            Files.write(raw.resolve("current-head-result.json"),canonical(Map.of("status","PASS","scope",installInactive?"native-inactive-slot":"native-current-head-acquisition",
+                    "installedThirdRevision",installInactive,"voter",false,"publicReady",false,"phase3Complete",false,"testBudgetSeconds",900L),4096));
         }
     }
     private static void copy(MembershipFloor.Copy copy,Path destination)throws Exception {

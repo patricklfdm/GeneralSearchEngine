@@ -44,7 +44,8 @@ final class MembershipLearnerSource implements AutoCloseable {
      * must use its SAME pool and keep the original owner live throughout. */
     static MembershipLearnerSource refresh(MembershipLearnerHead prepared,MembershipIdentity peer,
             ReplicationBounds bounds,MembershipTransport.Events events,LongSupplier clock,long started,long budget)throws IOException {
-        prepared.check();return new MembershipLearnerSource(prepared.request(),peer,prepared.resources(),bounds,events,
+        prepared.check();if(prepared instanceof MembershipLearnerMaterialization.CurrentHead current)current.requireAvailable();
+        return new MembershipLearnerSource(prepared.request(),peer,prepared.resources(),bounds,events,
                 prepared::check,clock,started,budget,prepared);
     }
     static void successor(MembershipCapsule previous,MembershipFloor.Copy next) {
@@ -111,6 +112,12 @@ final class MembershipLearnerSource implements AutoCloseable {
         var prepared=(MembershipLearnerMaterialization.PreparedGeneration)predecessor;var copy=source();
         var receiver=prefix.completeLearnerSource(copy,cut);check();
         return MembershipLearnerSuccessor.install(prepared,receiver,copy,cut).open(prepared);
+    }
+    MembershipLearnerSlot.View installSlot(MembershipBallotAllocator.Cut cut)throws IOException {
+        require(predecessor instanceof MembershipLearnerMaterialization.CurrentHead,"learner slot requires current typed head");
+        var current=(MembershipLearnerMaterialization.CurrentHead)predecessor;var copy=source();
+        var receiver=prefix.completeLearnerSource(copy,cut);check();
+        return MembershipLearnerSlot.install(current,receiver,copy,event->{check();cut.at(event);check();});
     }
     @Override public void close()throws IOException {
         MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t;

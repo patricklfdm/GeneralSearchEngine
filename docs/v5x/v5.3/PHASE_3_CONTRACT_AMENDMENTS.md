@@ -803,3 +803,68 @@ No new persistent member, reservation category, byte limit, wire kind or public
 API is introduced. The typed current head is nonvoting and its receipt remains
 bound to its retained revision while a later revision is fetched. Native repeated
 installation, matching forced INTENT and full Phase 3 remain open.
+
+
+## A23 — bounded inactive learner slot
+
+Only an A22 live current typed head after complete A21 retirement can install the
+first inactive rolling slot. The first pair uses the retained A18/A19 source and
+backup as slot A and the fixed sibling paths
+`operationDirectory.resolveSibling(".gse-v53-learner-slots-" + planDigest)` and
+`operationDirectory.resolveSibling(".gse-v53-learner-slot-b-" + planDigest)` for
+slot B's owner/source and typed backup. Never allocate per-revision directories.
+This amendment enables only pending installation; active-head replacement,
+alternation and old-slot deletion require the subsequent selection contract.
+
+The slot root permits exactly empty exclusively owned `slots.lock`, `b.json`,
+optional identical `b.next.json`, `b.installed.json` and `source-b/`. Each canonical
+ASCII plan is bounded to 256 KiB, with exact fields `schema` =
+`gse-v53-learner-slot/1.3`, `plan` (initial admission digest), `slot` = `b`,
+`sequence` = `1`, `anchor`, `path`, `directoryKey`, `staging`, `sourceKey`, `source`,
+`generation` and `files`. The original anchor contains the active A20 `head` digest,
+its current `receipt` digest, the terminal `previous` (`source`, `cut`, `catalog`,
+`application`) and the original `core` path binding. Path bindings, source voter
+identity, canonical original GENERATION and sorted path/size/hash/inode inventory
+follow A18's exact validation. Neither a receipt nor this plan is a Floor.Copy.
+
+Validate same-pool ownership, current ancestry, original reservation, all disjoint
+paths and bounded metadata before creating a new path or detaching received files.
+Keep the current source/backup live. Force the complete original slot plan, reserve
+the second GENERATION count, seal the plan, move only the received original source
+and force source and both move parents. Independently verify its capsule and
+ancestry before forcing `b.installed.json` and its parent and committing the
+LEARNER-to-GENERATION lease conversion. This marker is at most 16 KiB with exact
+fields `schema` = `gse-v53-learner-slot-installed/1.3`, `plan` (slot-plan digest),
+`generation` (original manifest digest) and `location`. It grants no current-head
+selection or deletion authority.
+
+Missing or partial plans fail unchanged, and unknown/replaced source or metadata
+members fail before recovery force. Complete original candidates may be sealed;
+only an exact original partial installed marker may be completed. Cold open
+reserves the retained source as the second GENERATION plus its image leases, and
+any pending typed backup at its full APPLICATION bound. A live matching current
+typed owner is then required to finish installation. No new receiving transfer or
+caller reconstruction repairs a retained decision. Parent close revokes both
+sources and closes children; child close alone retains physical ownership charges.
+
+Reuse A19's compact typed plan/candidate, actual original-image semantic decoder,
+exclusive lock and exact receipt force order at B's fixed typed path. The supplied
+revision must match the installed certified PREPARING revision. This typed owner
+cannot become a current head, perform the old initial handoff or select an initial
+generation. A pending slot blocks another acquisition before transport creation.
+
+Completed A21 retirement leaves at most 908 KiB of original active metadata.
+B adds two 256 KiB plan names, one 16 KiB installed marker and three 16 KiB typed
+records (plan/candidate/receipt): **1,484 KiB** total, within the original 2 MiB
+MISC lease. Redundant A18/A20 plans and old typed members must be absent before
+entry. Two GENERATION slots and seven APPLICATION slots remain unchanged; capacity
+refusal preserves an owned pending candidate for explicit recovery. Do not charge
+absent initial images alongside both actual slots: read-only pending validation
+comes first, then original retirement re-forcing and release of conservative old
+charges, then pending reservation before exposing a view. Never share/discount
+retained images merely because their bytes match. Maximum combined-resource qualification
+is still required; this amendment does not claim that every larger image set fits.
+
+No public API, GSER/GSRP family, root identity, quorum, retry count or time budget
+changes. Native multi-revision execution, all five joining shapes, halt/SIGKILL,
+independent replay, cancellation and matching INTENT remain closure requirements.

@@ -32,6 +32,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
     private MembershipLearnerMaterialization<?> typed;
     private MembershipResources.Lease typedImage;
     private Handoff handoff;
+    private byte[] slotAnchorBytes;
     private boolean closed,failed,selected;
     static Path directory(MembershipLearnerPlan summary) {
         return summary.request().operationDirectory().resolveSibling(".gse-v53-learner-successor-"+summary.planDigest());
@@ -360,22 +361,40 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
             check();active=true;
         }
     }
-    static final class View {
+    /** Original committed head binding, also usable by cold slot validation
+     * before any recovery force. It is not a typed acquisition capability. */
+    Map<String,Object> slotAnchor()throws IOException {
+        check();require(handoff!=null && metadata.containsKey(HEAD) && !metadata.containsKey(HEAD_NEXT)
+                && !metadata.containsKey(NEXT),"learner slot requires complete active head");
+        if(slotAnchorBytes==null) {
+            handoff.check();var summary=parent.summary();Path typed=typedDirectory(summary);
+            var value=object(parse(AdmissionPaths.read(typed.resolve("preparation.json"),MembershipLearnerMaterialization.SUCCESSOR_PLAN),MembershipLearnerMaterialization.SUCCESSOR_PLAN));
+            slotAnchorBytes=canonical(Map.of("head",hash(handoff.bytes),"previous",anchor(capsule()),"receipt",handoff.record.get("receipt"),
+                    "core",MembershipLearnerAdmissionPlan.binding(object(value.get("materialization")))),MembershipLearnerMaterialization.SUCCESSOR_PLAN);
+        }
+        // All source/metadata inodes and bytes, plus every current typed member,
+        // remain checked on each call. Their verified immutable terminal binding
+        // need not re-decode the same history at every inactive-slot write cut.
+        // Parse a fresh value so a caller cannot change the retained binding.
+        handoff.checkFiles();check();return object(parse(slotAnchorBytes,MembershipLearnerMaterialization.SUCCESSOR_PLAN));
+    }
+    static final class View implements MembershipLearnerImageSource {
         private final MembershipLearnerSuccessor owner;
         private final MembershipLearnerMaterialization.PreparedGeneration predecessor;
         private View(MembershipLearnerSuccessor owner,MembershipLearnerMaterialization.PreparedGeneration predecessor){this.owner=owner;this.predecessor=predecessor;}
-        MembershipCapsule source()throws IOException {
+        @Override public MembershipCapsule source()throws IOException {
             if(predecessor!=null)predecessor.check();
             else {require(owner.handoff!=null && owner.handoff.active,"learner handoff capability not forced");owner.handoff.check();}
             owner.check();require(owner.selected,"learner successor not selected");return owner.capsule();
         }
-        MembershipLearnerStore store()throws IOException{source();return owner.parent;}
-        byte[] originalImage(String digest,long size)throws IOException {
+        @Override public MembershipLearnerStore store()throws IOException{source();return owner.parent;}
+        @Override public byte[] originalImage(String digest,long size)throws IOException {
             var capsule=source();require(Objects.equals(capsule.packet.images().get(digest),size),"learner successor original image binding");
             byte[] bytes=AdmissionPaths.read(owner.destination.resolve(digest+".image"),Math.toIntExact(size));
             require(bytes.length==size && hash(bytes).equals(digest),"learner successor original image bytes");source();return bytes;
         }
-        void requireTypedPaths(Path core,Path typed)throws IOException {
+        @Override public Path typedDirectory()throws IOException {source();return MembershipLearnerSuccessor.typedDirectory(owner.parent.summary());}
+        @Override public void requireTypedPaths(Path core,Path typed)throws IOException {
             source();
             if(predecessor!=null){predecessor.requireCorePath(core);predecessor.requireDisjoint(typed,owner.directory,owner.staging);}
             else {
@@ -384,7 +403,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
                 require(core.equals(MembershipLearnerAdmissionPlan.path(bound)),"learner successor changed reserved core path");
                 var summary=owner.parent.summary();AdmissionPaths.disjoint(List.of(core,typed,owner.directory,owner.staging,MembershipLearnerMaterialization.directory(summary),summary.request().operationDirectory(),summary.request().replicaDirectory()));
             }
-            require(typed.equals(typedDirectory(owner.parent.summary())),"learner successor typed path");
+            require(typed.equals(MembershipLearnerSuccessor.typedDirectory(owner.parent.summary())),"learner successor typed path");
         }
         View promote(MembershipLearnerMaterialization<?> typed)throws IOException {
             source();require(predecessor!=null,"learner successor already promoted");return owner.promote(typed,predecessor);
@@ -392,19 +411,19 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         void retirePredecessor()throws IOException {
             source();require(predecessor==null,"learner retirement requires promoted head");owner.retirePredecessor();
         }
-        void requireCurrentTyped(MembershipLearnerMaterialization<?> typed)throws IOException {
+        @Override public void requireCurrentTyped(MembershipLearnerMaterialization<?> typed)throws IOException {
             source();require(predecessor==null && owner.typed==typed,"learner refresh requires current typed head");
             owner.parent.requireRetiredPredecessor();
         }
-        void requireRefreshPaths(Path... paths)throws IOException {
+        @Override public void requireRefreshPaths(Path... paths)throws IOException {
             source();var summary=owner.parent.summary();var all=new ArrayList<>(List.of(paths));
-            all.add(owner.directory);all.add(owner.staging);all.add(typedDirectory(summary));
+            all.add(owner.directory);all.add(owner.staging);all.add(MembershipLearnerSuccessor.typedDirectory(summary));
             all.add(MembershipLearnerMaterialization.directory(summary));
             all.add(summary.request().operationDirectory());all.add(summary.request().replicaDirectory());
             AdmissionPaths.disjoint(all);
         }
-        void reserveTypedImage()throws IOException{source();owner.reserveTypedImage();}
-        void attachTyped(MembershipLearnerMaterialization<?> next)throws IOException {
+        @Override public void reserveTypedImage()throws IOException{source();owner.reserveTypedImage();}
+        @Override public void attachTyped(MembershipLearnerMaterialization<?> next)throws IOException {
             source();require(owner.typed==null || owner.typed.closed(),"learner successor typed preparation already owned");owner.typed=Objects.requireNonNull(next);
         }
     }

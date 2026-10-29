@@ -11,13 +11,13 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * A prepared image may differ from the current application after ordinary DATA. */
 final class MembershipLearnerPreparation {
     private final MembershipLearnerStore owner;
-    private final MembershipLearnerSuccessor.View successor;
+    private final MembershipLearnerImageSource successor;
     private final MembershipLearnerRequest request;
     private final byte[] prepared;
     private final String packet,application;
     private final long size,revision;
 
-    private MembershipLearnerPreparation(MembershipLearnerStore owner,MembershipLearnerSuccessor.View successor,long revision)throws IOException {
+    private MembershipLearnerPreparation(MembershipLearnerStore owner,MembershipLearnerImageSource successor,long revision)throws IOException {
         this.owner=Objects.requireNonNull(owner);this.successor=successor;this.revision=revision;
         request=owner.summary().request();var capsule=original();var operation=operation(capsule,request,revision);
         prepared=canonical(operation.get("prepared"),8192);application=(String)object(operation.get("prepared")).get("application");
@@ -28,7 +28,7 @@ final class MembershipLearnerPreparation {
     static MembershipLearnerPreparation from(MembershipLearnerStore owner,long revision)throws IOException {
         return new MembershipLearnerPreparation(owner,null,revision);
     }
-    static MembershipLearnerPreparation from(MembershipLearnerSuccessor.View source,long revision)throws IOException {
+    static MembershipLearnerPreparation from(MembershipLearnerImageSource source,long revision)throws IOException {
         return new MembershipLearnerPreparation(source.store(),source,revision);
     }
     private MembershipCapsule original()throws IOException {return successor==null?owner.capsule():successor.source();}
@@ -62,11 +62,11 @@ final class MembershipLearnerPreparation {
     void attach(MembershipLearnerMaterialization<?> typed)throws IOException {check();if(successor==null)owner.attachTyped(typed);else successor.attachTyped(typed);}
     boolean successor(){return successor!=null;}
     java.nio.file.Path directory()throws IOException {
-        check();return successor==null?MembershipLearnerMaterialization.directory(owner.summary()):MembershipLearnerSuccessor.typedDirectory(owner.summary());
+        check();return successor==null?MembershipLearnerMaterialization.directory(owner.summary()):successor.typedDirectory();
     }
     void requireInitialGeneration()throws IOException {check();require(successor==null,"learner successor generation already installed; retirement required");}
     MembershipLearnerSuccessor.View promote(MembershipLearnerMaterialization<?> typed)throws IOException {
-        check();require(successor!=null,"learner handoff requires installed successor");return successor.promote(typed);
+        check();require(successor instanceof MembershipLearnerSuccessor.View,"learner initial handoff requires original successor");return ((MembershipLearnerSuccessor.View)successor).promote(typed);
     }
     void requireCurrentTyped(MembershipLearnerMaterialization<?> typed)throws IOException {
         check();require(successor!=null,"learner refresh requires promoted typed source");successor.requireCurrentTyped(typed);

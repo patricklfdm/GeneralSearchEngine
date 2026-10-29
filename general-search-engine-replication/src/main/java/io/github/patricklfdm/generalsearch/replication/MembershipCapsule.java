@@ -144,7 +144,7 @@ final class MembershipCapsule {
         var result=verify(root,packet,images,Set.of(),Set.of(),true);copy.check(root,packet);return result;
     }
     /** Only complete original storage readers can issue this short-lived local-copy capability. */
-    sealed interface StoredCopy permits MembershipCurrentGeneration.RetainedCopy,MembershipBasisSources.RetainedCopy,MembershipFloorFiles.RetainedCopy,MembershipGenerationFiles.RetainedCopy,MembershipRetirementFiles.RetainedCopy,MembershipPendingContextFiles.RetainedCopy,MembershipLearnerStore.RetainedCopy,MembershipLearnerSuccessor.Stored {
+    sealed interface StoredCopy permits MembershipCurrentGeneration.RetainedCopy,MembershipBasisSources.RetainedCopy,MembershipFloorFiles.RetainedCopy,MembershipGenerationFiles.RetainedCopy,MembershipRetirementFiles.RetainedCopy,MembershipPendingContextFiles.RetainedCopy,MembershipLearnerStore.RetainedCopy,MembershipLearnerSuccessor.Stored,MembershipLearnerSlot.Stored {
         void check(Decoded root,MembershipSourcePacket packet)throws java.io.IOException;
         byte[] ancestry();
         Optional<byte[]> coverage()throws java.io.IOException;

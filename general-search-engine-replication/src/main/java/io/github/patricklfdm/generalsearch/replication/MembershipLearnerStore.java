@@ -26,6 +26,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     private MembershipResources.Lease resumedMetadata;
     private boolean preparedGeneration;
     private MembershipLearnerSuccessor successor;
+    private MembershipLearnerSlot slot;
     private MembershipLearnerRetirement retirement;
     private boolean predecessorReleased;
     private MembershipOwnership owner;
@@ -159,7 +160,11 @@ final class MembershipLearnerStore implements AutoCloseable {
                 // Authenticate the independent current source before resuming removal.
                 preflight(plan,decision);openReplica();complete=true;
                 successor=MembershipLearnerSuccessor.restore(this,cut);
-                require(successor!=null,"learner retirement current source missing");successor.finishRetirement();
+                require(successor!=null,"learner retirement current source missing");
+                // Validate a retained inactive source before any reseal/deletion.
+                // A slot can exist only after original retirement was complete.
+                slot=MembershipLearnerSlot.restore(this,cut);successor.finishRetirement();
+                if(slot!=null)slot.reserve();
                 point("LEARNER_STORE_BEFORE_RETURN");return;
             }
             openReplica();write("root.gsr","LEARNER_ROOT");write("node.gsr","LEARNER_NODE");
@@ -269,8 +274,23 @@ final class MembershipLearnerStore implements AutoCloseable {
     MembershipLearnerSuccessor.View promotedSuccessor()throws IOException {
         check();require(successor!=null,"learner successor missing");return successor.promoted();
     }
+    void requireNewSlot()throws IOException {
+        requireRetiredPredecessor();require(slot==null,"learner inactive slot requires original resume or selection");
+        AdmissionPaths.absent(MembershipLearnerSlot.directory(summary()));
+        AdmissionPaths.absent(MembershipLearnerSlot.typedDirectory(summary()));
+    }
+    Map<String,Object> slotAnchor()throws IOException {
+        check();require(retirement!=null && successor!=null,"learner slot requires original retirement");
+        AdmissionPaths.absent(decision.destination);AdmissionPaths.absent(MembershipLearnerMaterialization.directory(plan.summary()));
+        return successor.slotAnchor();
+    }
+    void attachSlot(MembershipLearnerSlot value)throws IOException {check();require(slot==null,"learner inactive slot already owned");slot=Objects.requireNonNull(value);}
+    boolean ownsSlot(MembershipLearnerSlot value){return slot==value;}
+    MembershipLearnerSlot.View resumeSlot(MembershipLearnerMaterialization.CurrentHead current)throws IOException {
+        check();require(slot!=null,"learner inactive slot missing");return slot.open(current);
+    }
     @Override public void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
+        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
         children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }

@@ -206,6 +206,8 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         private final MembershipLearnerMaterialization<?> owner;
         private CurrentHead(MembershipLearnerMaterialization<?> owner){this.owner=owner;}
         @Override public void check()throws IOException {owner.receipt();owner.input.requireCurrentTyped(owner);}
+        MembershipLearnerStore store()throws IOException {check();return owner.input.store();}
+        void requireAvailable()throws IOException {check();store().requireNewSlot();}
         @Override public MembershipLearnerRequest request()throws IOException {check();return owner.input.summary().request();}
         @Override public MembershipCapsule source()throws IOException {check();return owner.input.source();}
         @Override public MembershipResources resources()throws IOException {check();return owner.input.resources();}

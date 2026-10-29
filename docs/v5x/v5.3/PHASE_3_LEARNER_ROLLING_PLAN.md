@@ -1,8 +1,11 @@
 # Next implementation — bounded rolling learner lifecycle
 
-Status: design for implementation, **not implemented or qualified**. A21 reclaims
-the initial source/backup, and A22 enables current-head acquisition. The first
-successor installer still deliberately refuses a second installation.
+Status: **partially implemented; complete rolling lifecycle OPEN**. A21 reclaims
+the initial source/backup, A22 enables current-head acquisition, and
+[A23 inactive installation](PHASE_3_LEARNER_SLOT.md) implements the bounded slot-B
+plan, source move, semantic backup and cold resume. B is still pending: migration,
+new-head selection, covered slot-A retirement and alternate reuse remain required.
+The first-successor installer continues to protect its immutable old plan.
 
 ## Reuse boundary
 
@@ -54,7 +57,7 @@ operation/replica locks and the rolling owner protect the whole history. Keep
 the old source's leases across interrupted deletion; release only after force.
 Failure before a durable handoff cannot delete the still-current source.
 
-## Metadata accounting to finish before enabling writes
+## Metadata accounting for the remaining selection states
 
 A21's 2,048 KiB sum is a simultaneous worst-case envelope, not the amount remaining
 after completed retirement. At that boundary the old typed plan/candidate/receipt/
@@ -63,8 +66,9 @@ candidates; the first-successor plan and head are active-only, and its typed pla
 has no redundant candidate. Their remaining bounded metadata sum is 908 KiB:
 596 KiB admission/replica plus 312 KiB successor selection/typed/head/retirement.
 
-This leaves room inside the original 2 MiB lease for fixed rolling plans and head
-records. Verify the exact simultaneous maxima of migration, candidate selection,
+A23's pending B adds 576 KiB, for a 1,484 KiB bound. This leaves room inside the
+original 2 MiB lease for the remaining rolling selection metadata. Verify the exact
+simultaneous maxima of migration, candidate selection,
 partial cleanup and slot reuse against actual permitted inventories before freezing
 their sizes. Do not count freed bytes until the associated original deletion and
 parent forcing are complete, or count the same backup as both borrowed and owned.

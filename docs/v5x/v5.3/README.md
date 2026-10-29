@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Inactive learner slots](PHASE_3_LEARNER_SLOT.md) now retain a subsequent original
+source and typed backup beside the current head, with bounded same-pool resources
+and original-only cold resume. Pending installation never selects the new head.
+Alternating selection/retirement, native/process-death qualification and full
+Phase 3 remain OPEN; focused results are source-bound component evidence.
+
 [Current typed learner heads](PHASE_3_CURRENT_LEARNER_HEAD.md) now authorize
 subsequent acquisition only after original retirement and actual semantic reopen.
 The client keeps the same resource pool, deadline, one receiving slot and current
