@@ -68,5 +68,24 @@ final class MembershipLearnerRetention {
         boolean before=Files.exists(staging,LinkOption.NOFOLLOW_LINKS),after=Files.exists(destination,LinkOption.NOFOLLOW_LINKS);
         require(before!=after,"learner retention requires exactly one original location");Path path=before?staging:destination;check(path);return path;
     }
+    /** Only an independently checked retirement decision may call this path.
+     * No absent or changed member is inferred to be an ordinary retained source. */
+    void checkRemaining()throws IOException {
+        plan.recheckPaths(false);AdmissionPaths.absent(staging);AdmissionPaths.safe(destination);
+        if(!Files.exists(destination,LinkOption.NOFOLLOW_LINKS))return;
+        require(directoryKey.equals(key(destination).toString()),"learner retiring source directory changed");
+        var remaining=children(destination,32);var expected=new HashSet<String>();
+        for(var file:files) {
+            String name=(String)file.get("path");expected.add(name);
+            if(remaining.contains(name))require(file.get("key").equals(inspect(destination.resolve(name),number(file.get("size")),(String)file.get("sha256")).key().toString()),
+                    "learner retiring source original changed");
+        }
+        require(expected.containsAll(remaining),"learner retiring source unknown member");
+    }
+    List<Path> remainingRemovalOrder()throws IOException {
+        checkRemaining();var result=new ArrayList<Path>();
+        for(var file:files)result.add(destination.resolve((String)file.get("path")));
+        result.add(destination);return List.copyOf(result);
+    }
     byte[] bytes(){return bytes.clone();}
 }

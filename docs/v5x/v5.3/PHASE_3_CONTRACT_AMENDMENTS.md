@@ -722,3 +722,54 @@ Worst-case private MISC is 2,044 KiB (A19's 2,036 plus two 4 KiB head files), un
 the unchanged 2 MiB limit. No resource count, wire/GSER kind or production timing
 limit changes. Prior private readers are not a recovery path for head-bearing
 stores; preserve the original metadata and use the matching reader.
+
+## A21 — original predecessor retirement after forced handoff
+
+After A20, the promoted head may retire the initial source and initial typed
+backup. Add one canonical ASCII `retire.json`, at most 4 KiB, inside the original
+successor directory. Exact fields are `schema` =
+`gse-v53-learner-retirement/1.3`, `plan` (initial admission digest), `retention`
+(original source-retention decision digest), `head` (active head bytes digest)
+and `headKey` (active head's original filesystem identity). The active head must
+be complete with no redundant candidate. Both typed handles closed by A20 remain
+closed; an independently reopened predecessor handle prevents retirement.
+
+Force the complete retirement file and successor directory before any deletion.
+A partial original decision is preserved and refused. A complete decision found
+after restart must match the original admission, retention and head. It permits
+only missing members of the exact covered old inventories; it is not proof of a
+current source or of prior successful deletion. The original source's staging
+location must remain absent. Every remaining old member must have its original
+inode, bytes and name, and every remaining directory its original identity. Extra
+members, symlinks, replacements and altered bytes refuse without further removal.
+
+Reopen requires complete original replica ROOT/NODE/admission files and active
+operation decisions. It does not reseal or repair them in retirement mode. Under
+the exclusive operation, replica and successor locks, independently validate the
+retained current capsule, exact initial terminal ancestry, selected GENERATION,
+current LEARNER receipt and both original typed inventories (allowing only covered
+missing predecessor members). Re-force the active head and retirement decision
+before resuming removal. Never reconstruct an absent capsule or mint a Floor.Copy
+from a plan, receipt or path.
+
+The immutable initial admission's GENERATION and exact source-packet digest supply
+the old terminal anchor when old physical files are gone. This is only an ancestry
+constraint for the independently verified current source. Summary/path ownership
+checks need not repeatedly decode that old capsule; they still validate original
+bytes and filesystem identities. Old-source access is revoked in retirement mode.
+
+Delete covered old source files and old typed files, then their empty directories,
+in bounded bottom-up order. Recheck current-source ownership and both remaining
+inventories around every deletion cut. Force each surviving deletion parent, and
+finally the replica directory and old typed directory's parent. Only then release
+old source/image and old typed-backup reservations. Before that point, failures
+retain conservative leases; fresh-process recovery reserves the original source
+leases and any remaining typed backup before removal.
+Parent close releases process leases but is not evidence that files were deleted.
+Repeated completed retirement rechecks and re-forces the same decision.
+
+MISC's worst-case sum is exactly 2,048 KiB (A20's 2,044 plus one 4 KiB marker).
+No resource, timing or wire/GSER limit changes. The current source, current typed
+backup, admission and successor metadata remain intact. This recovers one old
+slot; alternating repeated refresh, cancellation cleanup, matching forced INTENT,
+native/process-death retirement qualification and complete Phase 3 remain due.

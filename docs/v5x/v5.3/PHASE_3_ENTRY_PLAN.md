@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original predecessor retirement](PHASE_3_LEARNER_RETIREMENT.md) now records and
+forces the exact removal decision before deleting old source/backup members.
+Recovery authenticates the retained current source first; covered missing files
+are accepted only under that original decision. Old leases release after deletion
+and parent forces. Alternating refresh, matching INTENT, native/process-death
+retirement qualification and full Phase 3 remain OPEN.
+
 [Original learner handoff](PHASE_3_LEARNER_HANDOFF.md) now forces a bounded
 source/receipt/file-identity decision before revoking old typed handles. The new
 source view remains bound to the live parent; typed receipt access still requires

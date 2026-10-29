@@ -1,0 +1,157 @@
+{
+  "archive": {
+    "bytes": 8872160,
+    "files": 3834,
+    "path": "target/v53-learner-retirement/qualification.tar.gz",
+    "sha256": "0d3991820d2bd8de082f8c4d0224f85ab42831ee6c9ff2e62b5cebabadfa4f71"
+  },
+  "autonomousReady": false,
+  "baseSource": "11fd9db06a15b5575a894c6e43a020168fb77218",
+  "builds": {
+    "initial": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerHandoffTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "completeCandidateNeedsMatchingTypedOwnersBeforeExplicitResume",
+              "seconds": 63.917
+            },
+            {
+              "failed": false,
+              "name": "closingThePredecessorDuringHandoffPreventsItsActiveCommit",
+              "seconds": 38.539
+            },
+            {
+              "failed": false,
+              "name": "forcedHeadClosesOldHandlesAndReopensWithoutDependingOnThem",
+              "seconds": 56.292
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 3
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "actualBootstrapRootRequiresItsCapturedSchemaCodecAndStartupIndexes",
+              "seconds": 0.721
+            },
+            {
+              "failed": false,
+              "name": "allFiveJoiningShapesRequireTheExactCertifiedPreparation",
+              "seconds": 6.802
+            },
+            {
+              "failed": false,
+              "name": "reserveReadyAndSealedSourcesCannotCreateANewPreparation",
+              "seconds": 4.51
+            },
+            {
+              "failed": false,
+              "name": "closedOrReplacedSourceInvalidatesPreviouslyCapturedPreparation",
+              "seconds": 1.289
+            },
+            {
+              "failed": false,
+              "name": "localIdentityPathsAndOperationOverlapRefuseBeforeAnyMaterialization",
+              "seconds": 1.292
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 5
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "successorRejectsForeignReceiverBeforePathsOrLeasesChangeAndAcceptsItsOwn",
+              "seconds": 4.851
+            },
+            {
+              "failed": false,
+              "name": "firstAdmissionAlsoRejectsAReceivingBudgetDifferentFromItsOperationOwner",
+              "seconds": 0.497
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerRetirementTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "missingDecisionCannotAuthorizeMissingOldSource",
+              "seconds": 47.678
+            },
+            {
+              "failed": false,
+              "name": "removesOnlyCoveredOriginalsThenReleasesAndReopensTypedSuccessor",
+              "seconds": 54.561
+            },
+            {
+              "failed": false,
+              "name": "unknownOrReplacedRemainingMembersRefuseBeforeAnyFurtherRemoval",
+              "seconds": 235.06
+            },
+            {
+              "failed": false,
+              "name": "incompleteRetirementIsPreservedWithoutDeletingAnything",
+              "seconds": 93.631
+            },
+            {
+              "failed": false,
+              "name": "deletionCutRechecksCurrentSourceAndPreservesOldReservations",
+              "seconds": 46.533
+            },
+            {
+              "failed": false,
+              "name": "completeDecisionRecoversAfterInterruptedDeletionWithoutEarlyRelease",
+              "seconds": 143.298
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 6
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerHandoffTest": 3,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": 5,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": 2,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerRetirementTest": 6
+        },
+        "exit": 0,
+        "failures": 0,
+        "label": "initial",
+        "seconds": 814.7577900880133,
+        "skipped": 0,
+        "tests": 16
+      },
+      "productionDifferencesFromFinal": []
+    }
+  },
+  "conditionalRetirementHistories": 13,
+  "conditionalSourceHistories": true,
+  "fullPhase3": false,
+  "jointEligibility": false,
+  "logicalHandoff": true,
+  "metadataWorstCaseKiB": 2048,
+  "nativeRetirement": false,
+  "physicalRetirement": true,
+  "processDeathQualified": false,
+  "productionInputs": 486,
+  "retirementMethods": 6,
+  "schema": "gse-v53-learner-retirement-qualification-v1",
+  "slotsReused": false,
+  "status": "COMPONENTS_PASSED"
+}

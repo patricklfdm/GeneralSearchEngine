@@ -71,7 +71,15 @@ final class MembershipLearnerAdmissionFiles implements AutoCloseable {
             result.replicaAllowed=names.contains(RETAIN);result.retention=retained;
             if(hasRetention)lease.reserveMisc(MembershipResources.Unit.MISC.bytes);
             for(String name:names)if(!name.equals(LOCK))result.remember(name,(name.equals(RETAIN)||name.equals(RETAIN_NEXT))?retentionBytes:bytes);
-            result.check();result.seal();if(hasRetention)result.sealRetention();return result;
+            result.check();
+            if(retained!=null && MembershipLearnerRetirement.load(plan,retained)!=null) {
+                require(names.contains(FILE) && names.contains(RETAIN) && !names.contains(NEXT) && !names.contains(RETAIN_NEXT),
+                        "learner retirement incomplete original admission");
+                // Recovery must validate the independently retained successor
+                // before any writes; the original decisions are already active.
+                return result;
+            }
+            result.seal();if(hasRetention)result.sealRetention();return result;
         }catch(IOException|RuntimeException|Error error){if(result!=null)result.failed=true;
             try{owner.close();}catch(IOException close){error.addSuppressed(close);}finally{if(lease!=null)lease.close();}throw error;}
     }

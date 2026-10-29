@@ -16,7 +16,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
     static final int MAXIMUM=256*1024;
     static final String HEAD="head.json",HEAD_NEXT="head.next.json";
     static final int HEAD_MAXIMUM=4096;
-    private static final Set<String> MEMBERS=Set.of(LOCK,PLAN,NEXT,SELECTED,SOURCE,HEAD,HEAD_NEXT);
+    private static final Set<String> MEMBERS=Set.of(LOCK,PLAN,NEXT,SELECTED,SOURCE,HEAD,HEAD_NEXT,MembershipLearnerRetirement.FILE);
     private final MembershipLearnerStore parent;
     private final MembershipBallotAllocator.Cut cut;
     private final Path directory,staging,destination;
@@ -78,7 +78,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         var a=capsule.terminal();return Map.of("source",hash(capsule.packet.bytes()),"cut",a.cut(),"catalog",a.catalog(),"application",a.application());
     }
     private void predecessor()throws IOException {
-        require(value.get("previous").equals(anchor(parent.capsule())),"learner successor predecessor changed");
+        require(value.get("previous").equals(parent.originalAnchor()),"learner successor predecessor changed");
     }
     static MembershipLearnerSuccessor install(MembershipLearnerMaterialization.PreparedGeneration prepared,MembershipSourceReceive receiver,
             MembershipFloor.Copy copy,MembershipBallotAllocator.Cut cut)throws IOException {
@@ -115,7 +115,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
      * returns. It grants no capability until typed predecessor validation. */
     static MembershipLearnerSuccessor restore(MembershipLearnerStore parent,MembershipBallotAllocator.Cut cut)throws IOException {
         Path directory=directory(parent.summary());if(!Files.exists(AdmissionPaths.safe(directory),LinkOption.NOFOLLOW_LINKS))return null;
-        var names=children(directory,7);require(names.contains(LOCK) && (names.contains(PLAN)||names.contains(NEXT))
+        var names=children(directory,8);require(names.contains(LOCK) && (names.contains(PLAN)||names.contains(NEXT))
                 && MEMBERS.containsAll(names),"learner successor incomplete original inventory");
         var lock=MembershipOwnership.own(directory.resolve(LOCK),false);MembershipLearnerSuccessor result=null;
         try {
@@ -151,7 +151,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         require(children(location,32).equals(names),"learner successor source inventory");return location;
     }
     private void capture()throws IOException {
-        var names=children(directory,7);require(names.contains(LOCK) && MEMBERS.containsAll(names),"learner successor inventory");
+        var names=children(directory,8);require(names.contains(LOCK) && MEMBERS.containsAll(names),"learner successor inventory");
         for(String name:List.of(LOCK,PLAN,NEXT,SELECTED))if(names.contains(name)) {
             byte[] expected=name.equals(LOCK)?new byte[0]:name.equals(SELECTED)?selector:plan;
             byte[] bytes=AdmissionPaths.read(directory.resolve(name),expected.length);
@@ -159,7 +159,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
             metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
         }
         require(!names.contains(SELECTED) || names.contains(PLAN) && names.contains(SOURCE),"learner successor selector without complete plan/source");
-        for(String name:List.of(HEAD,HEAD_NEXT))if(names.contains(name)) {
+        for(String name:List.of(HEAD,HEAD_NEXT,MembershipLearnerRetirement.FILE))if(names.contains(name)) {
             byte[] bytes=AdmissionPaths.read(directory.resolve(name),HEAD_MAXIMUM);metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
         }
     }
@@ -167,7 +167,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         require(!closed && !failed && lock!=null && lock.lock().isValid(),"learner successor owner closed or failed");predecessor();
         AdmissionPaths.recheck(pathBinding);require(directoryKey.equals(key(directory)),"learner successor directory replaced");Path source=locate();
         var names=new TreeSet<>(metadata.keySet());if(source.equals(destination))names.add(SOURCE);
-        require(children(directory,7).equals(names),"learner successor live inventory changed");
+        require(children(directory,8).equals(names),"learner successor live inventory changed");
         for(var f:metadata.entrySet())require(f.getValue().equals(inspect(directory.resolve(f.getKey()),f.getValue().bytes(),f.getValue().digest())),"learner successor metadata replaced");
     }
     private void point(String event)throws IOException{check();if(handoff!=null)handoff.checkFiles();cut.at(event);check();if(handoff!=null)handoff.checkFiles();}
@@ -227,6 +227,38 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         try {handoff.seal(false);selected=true;return new View(this,null);}
         catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
+    private void retirePredecessor()throws IOException {
+        try {
+            check();require(handoff!=null && handoff.active && selected,"learner retirement requires forced head");
+            handoff.check();parent.requirePredecessorClosed();
+            if(!parent.retiring()) {
+                require(!metadata.containsKey(HEAD_NEXT),"learner retirement redundant handoff");
+                write(MembershipLearnerRetirement.FILE,parent.retirementBytes(),"LEARNER_RETIRE_DECISION");
+                parent.beginRetirement();
+            }
+            finishRetirement();
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    /** Reopened complete decisions are re-forced after current-source validation.
+     * Missing old members alone never reach this method. */
+    void finishRetirement()throws IOException {
+        try {
+            check();require(parent.retiring() && handoff!=null && metadata.containsKey(HEAD),"learner retirement original head missing");
+            handoff.check();handoff.seal(false);selected=true;
+            write(MembershipLearnerRetirement.FILE,parent.retirementBytes(),"LEARNER_RETIRE_DECISION");
+            var remove=new ArrayList<>(parent.predecessorRemovalOrder());Path typed=MembershipLearnerMaterialization.directory(parent.summary());
+            var paths=new ArrayList<>(typedPaths(true));paths.sort(Comparator.<String>comparingInt(n->n.equals(".")?0:n.split("/").length).reversed().thenComparing(n->n));
+            for(String name:paths)remove.add(name.equals(".")?typed:typed.resolve(name));
+            for(Path file:remove) {
+                point("LEARNER_RETIRE_BEFORE_DELETE");
+                if(Files.exists(file,LinkOption.NOFOLLOW_LINKS)){Files.delete(file);point("LEARNER_RETIRE_MEMBER_DELETED");}
+                if(Files.exists(file.getParent(),LinkOption.NOFOLLOW_LINKS))AdmissionPaths.forceDirectory(file.getParent());
+                point("LEARNER_RETIRE_MEMBER_PARENT_FORCED");
+            }
+            AdmissionPaths.forceDirectory(parent.summary().request().replicaDirectory());AdmissionPaths.forceDirectory(typed.getParent());
+            point("LEARNER_RETIRE_PARENTS_FORCED");parent.releasePredecessor(this);point("LEARNER_RETIRE_RELEASED");
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
     private View promote(MembershipLearnerMaterialization<?> current,MembershipLearnerMaterialization.PreparedGeneration previous)throws IOException {
         check();previous.check();require(current==typed && selected,"learner handoff foreign typed owner");
         current.receipt();var summary=parent.summary();
@@ -245,13 +277,25 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         finally{if(handoff!=null)handoff.live=null;}
     }
     private static List<Map<String,String>> fingerprints(Path directory,boolean previous)throws IOException {
-        var names=new TreeSet<>(List.of("preparation.lock","preparation.json","learner.gsr","backup"));
-        if(previous)names.add("prepared.json");require(children(directory,6).equals(names),"learner handoff exact typed inventory");
-        require(children(directory.resolve("backup"),3).equals(new HashSet<>(MembershipApplicationImage.MEMBERS)),"learner handoff complete typed backup");
-        var all=new TreeSet<>(names);all.add(".");for(String name:MembershipApplicationImage.MEMBERS)all.add("backup/"+name);
+        return fingerprints(directory,previous,false);
+    }
+    private static SortedSet<String> typedPaths(boolean previous) {
+        var paths=new TreeSet<>(List.of(".","preparation.lock","preparation.json","learner.gsr","backup"));
+        if(previous)paths.add("prepared.json");for(String name:MembershipApplicationImage.MEMBERS)paths.add("backup/"+name);return paths;
+    }
+    private static List<Map<String,String>> fingerprints(Path directory,boolean previous,boolean remaining)throws IOException {
+        AdmissionPaths.safe(directory);if(remaining && !Files.exists(directory,LinkOption.NOFOLLOW_LINKS))return List.of();
+        var all=typedPaths(previous);var names=new TreeSet<>(all);names.removeIf(n->n.equals(".")||n.contains("/"));
+        var actual=children(directory,6);
+        require(remaining?names.containsAll(actual):actual.equals(names),"learner handoff exact typed inventory");
+        if(actual.contains("backup")) {
+            var backup=children(directory.resolve("backup"),3);
+            require(remaining?new HashSet<>(MembershipApplicationImage.MEMBERS).containsAll(backup):backup.equals(new HashSet<>(MembershipApplicationImage.MEMBERS)),"learner handoff complete typed backup");
+        }
         var result=new ArrayList<Map<String,String>>();
         for(String name:all) {
             Path path=name.equals(".")?directory:directory.resolve(name);Object value;
+            if(remaining && !Files.exists(path,LinkOption.NOFOLLOW_LINKS))continue;
             if(name.equals(".") || name.equals("backup")) {
                 require(Files.isDirectory(AdmissionPaths.safe(path),LinkOption.NOFOLLOW_LINKS),"learner handoff typed directory");
                 value=Map.of("key",key(path).toString(),"directory",true);
@@ -277,7 +321,12 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         void checkFiles()throws IOException {
             if(live!=null)live.check();
             var summary=parent.summary();
-            require(record.get("previousFiles").equals(fingerprints(MembershipLearnerMaterialization.directory(summary),true))
+            var original=list(record.get("previousFiles")).stream().map(MembershipFormat::object).toList();
+            require(original.stream().allMatch(r->r.keySet().equals(Set.of("path","sha256")) && r.get("sha256") instanceof String
+                    && ((String)r.get("sha256")).matches("[0-9a-f]{64}")),"learner handoff predecessor fingerprint fields");
+            require(original.stream().map(r->(String)r.get("path")).toList().equals(List.copyOf(typedPaths(true))),"learner handoff predecessor fingerprint paths");
+            var remaining=fingerprints(MembershipLearnerMaterialization.directory(summary),true,parent.retiring());
+            require((parent.retiring()?original.containsAll(remaining):original.equals(remaining))
                     && record.get("currentFiles").equals(fingerprints(typedDirectory(summary),false)),"learner handoff original typed members changed");
             if(live!=null)live.check();
         }
@@ -340,6 +389,9 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         View promote(MembershipLearnerMaterialization<?> typed)throws IOException {
             source();require(predecessor!=null,"learner successor already promoted");return owner.promote(typed,predecessor);
         }
+        void retirePredecessor()throws IOException {
+            source();require(predecessor==null,"learner retirement requires promoted head");owner.retirePredecessor();
+        }
         void reserveTypedImage()throws IOException{source();owner.reserveTypedImage();}
         void attachTyped(MembershipLearnerMaterialization<?> next)throws IOException {
             source();require(owner.typed==null || owner.typed.closed(),"learner successor typed preparation already owned");owner.typed=Objects.requireNonNull(next);
@@ -355,7 +407,10 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         var token=new Stored(this,files);MembershipCapsule capsule;
         try{capsule=MembershipCapsule.verifyStored(parent.root(),packet,images,token);}finally{token.active=false;}
         MembershipFloor.Copy.validateMaterialization(generation,capsule,peer,files);
-        MembershipLearnerPrefixExport.originalReservation(capsule.context,parent.summary().request(),peer);MembershipLearnerSource.successor(parent.capsule(),capsule,files.getOrDefault("ancestry.gsr",new byte[0]));check();return capsule;
+        MembershipLearnerPrefixExport.originalReservation(capsule.context,parent.summary().request(),peer);
+        var original=parent.originalAnchor();var prior=new MembershipCapsule.Anchor(object(original.get("cut")),(String)original.get("catalog"),(String)original.get("application"));
+        require(number(capsule.context.cut.get("index"))>=number(prior.cut().get("index")),"learner refresh regressed or foreign history");
+        capsule.verifyAncestry(files.getOrDefault("ancestry.gsr",new byte[0]),List.of(prior));check();return capsule;
     }
     static final class Stored implements MembershipCapsule.StoredCopy {
         private final MembershipLearnerSuccessor owner;private final Map<String,byte[]> files;private boolean active=true;

@@ -26,12 +26,13 @@ final class MembershipLearnerStore implements AutoCloseable {
     private MembershipResources.Lease resumedMetadata;
     private boolean preparedGeneration;
     private MembershipLearnerSuccessor successor;
+    private MembershipLearnerRetirement retirement;
     private MembershipOwnership owner;
     private Object directoryKey,lockKey;
     private boolean closed,failed,complete;
     private MembershipLearnerStore(MembershipLearnerAdmissionFiles operation,MembershipLearnerRetention decision,MembershipBallotAllocator.Cut cut)throws IOException {
         this.operation=operation;this.plan=operation.retained();this.decision=decision;this.cut=cut;path=plan.request.replicaDirectory();
-        expected=expected(plan,decision);
+        expected=expected(plan,decision);retirement=MembershipLearnerRetirement.load(plan,decision);
     }
     private static Map<String,byte[]> expected(MembershipLearnerAdmissionPlan plan,MembershipLearnerRetention decision) {
         return Map.of("root.gsr",plan.root.bytes(),"node.gsr",encode("records","NODE",Map.of("root",plan.request.root().manifestDigest(),
@@ -40,7 +41,17 @@ final class MembershipLearnerStore implements AutoCloseable {
     /** Validate retained source and any partial local metadata before resealing or
      * removing redundant decision files. Invalid originals remain fully intact. */
     static void preflight(MembershipLearnerAdmissionPlan plan,MembershipLearnerRetention decision)throws IOException {
-        Path location=decision.locate(),replica=plan.request.replicaDirectory();
+        var retirement=MembershipLearnerRetirement.load(plan,decision);
+        Path replica=plan.request.replicaDirectory();
+        if(retirement!=null) {
+            retirement.check();decision.checkRemaining();var names=children(replica,5);
+            var required=Set.of(LOCK,"root.gsr","node.gsr",ADMISSION);
+            require(names.containsAll(required) && Set.of(LOCK,"root.gsr","node.gsr",ADMISSION,"learner").containsAll(names),"learner retirement replica inventory");
+            AdmissionPaths.exact(replica.resolve(LOCK),new byte[0]);
+            for(var file:expected(plan,decision).entrySet())AdmissionPaths.exact(replica.resolve(file.getKey()),file.getValue());
+            return;
+        }
+        Path location=decision.locate();
         if(location.equals(decision.destination)) {
             if(Files.exists(decision.staging.getParent(),LinkOption.NOFOLLOW_LINKS))AdmissionPaths.recheck(decision.stagingBinding);
             else AdmissionPaths.exact(replica.resolve(ADMISSION),decision.bytes());
@@ -76,7 +87,7 @@ final class MembershipLearnerStore implements AutoCloseable {
         }
     }
     private void reserve(MembershipResources resources)throws IOException {
-        operation.checkOwner();decision.locate();long metadata=0;
+        operation.checkOwner();checkSource();long metadata=0;
         for(var row:plan.inventory())if(!((String)row.get("path")).endsWith(".image"))metadata=Math.addExact(metadata,number(row.get("size")));
         resumedMetadata=resources.reserve(MembershipResources.Unit.LEARNER,"learner-store",metadata);leases.add(resumedMetadata);
         for(var row:plan.inventory())if(((String)row.get("path")).endsWith(".image"))
@@ -84,18 +95,22 @@ final class MembershipLearnerStore implements AutoCloseable {
     }
     private void check()throws IOException {
         require(!closed && !failed,"learner store owner closed or failed");operation.checkOwner();plan.recheckPaths(false);
-        Path source=decision.locate();for(var file:received.entrySet())file.getValue().check(source.resolve(file.getKey()));
+        checkSource();Path source=retirement==null?decision.locate():decision.destination;
+        for(var file:received.entrySet())if(retirement==null || Files.exists(source.resolve(file.getKey()),LinkOption.NOFOLLOW_LINKS))file.getValue().check(source.resolve(file.getKey()));
         if(directoryKey!=null) {
             require(directoryKey.equals(key(path)),"learner replica directory replaced");
-            var names=new TreeSet<>(metadata.keySet());if(owner!=null)names.add(LOCK);if(source.equals(decision.destination))names.add("learner");
+            var names=new TreeSet<>(metadata.keySet());if(owner!=null)names.add(LOCK);if(source.equals(decision.destination) && Files.exists(source,LinkOption.NOFOLLOW_LINKS))names.add("learner");
             require(children(path,5).equals(names),"learner replica inventory changed");
             if(owner!=null){AdmissionPaths.regular(path.resolve(LOCK));require(owner.lock().isValid() && lockKey.equals(key(path.resolve(LOCK))) && Files.size(path.resolve(LOCK))==0,"learner replica lock changed");}
             for(var row:metadata.entrySet())require(row.getValue().equals(inspect(path.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),"learner replica original member changed");
         }
     }
+    private void checkSource()throws IOException {
+        if(retirement==null)decision.locate();else {retirement.check();decision.checkRemaining();}
+    }
     private void point(String event)throws IOException {check();cut.at(event);check();}
     private void openReplica()throws IOException {
-        operation.checkOwner();decision.locate();
+        operation.checkOwner();checkSource();
         if(!Files.exists(path,LinkOption.NOFOLLOW_LINKS)) {
             Files.createDirectory(path);directoryKey=key(path);AdmissionPaths.forceDirectory(path.getParent());point("LEARNER_REPLICA_CREATED");
         }else {
@@ -138,6 +153,14 @@ final class MembershipLearnerStore implements AutoCloseable {
             // codec is reopened. Reserve its worst-case image before any writes.
             if(Files.exists(AdmissionPaths.safe(MembershipLearnerMaterialization.directory(plan.summary())),LinkOption.NOFOLLOW_LINKS))
                 reserveTypedImage(MembershipApplicationImage.MAXIMUM);
+            if(retirement!=null) {
+                // No old-source move or metadata repair is legal in this state.
+                // Authenticate the independent current source before resuming removal.
+                preflight(plan,decision);openReplica();complete=true;
+                successor=MembershipLearnerSuccessor.restore(this,cut);
+                require(successor!=null,"learner retirement current source missing");successor.finishRetirement();
+                point("LEARNER_STORE_BEFORE_RETURN");return;
+            }
             openReplica();write("root.gsr","LEARNER_ROOT");write("node.gsr","LEARNER_NODE");
             if(decision.locate().equals(decision.staging)) {
                 check();AdmissionPaths.absent(decision.destination);Files.move(decision.staging,decision.destination,StandardCopyOption.ATOMIC_MOVE);
@@ -155,7 +178,7 @@ final class MembershipLearnerStore implements AutoCloseable {
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     MembershipCapsule capsule()throws IOException {
-        check();require(complete,"learner source store incomplete");var files=new TreeMap<String,byte[]>();
+        check();require(complete && retirement==null,"learner source store incomplete or retired");var files=new TreeMap<String,byte[]>();
         for(var row:plan.inventory())files.put((String)row.get("path"),AdmissionPaths.read(decision.destination.resolve((String)row.get("path")),Math.toIntExact(number(row.get("size")))));
         var packet=MembershipSourcePacket.decode(files.get("source.gscp"));var images=new TreeMap<String,byte[]>();
         for(String digest:packet.images().keySet())images.put(digest,files.get(digest+".image"));
@@ -178,7 +201,30 @@ final class MembershipLearnerStore implements AutoCloseable {
         @Override public Optional<byte[]> coverage(){return Optional.ofNullable(files.get(MembershipSelectionCoverage.FILE)).map(byte[]::clone);}
         @Override public Decoded record(String name,String kind){return decode(Objects.requireNonNull(files.get(name)),"records",kind);}
     }
-    MembershipLearnerPlan summary()throws IOException {capsule();return plan.summary();}
+    MembershipLearnerPlan summary()throws IOException {check();require(complete,"learner source store incomplete");return plan.summary();}
+    /** Immutable original terminal, never a replacement source capability. */
+    Map<String,Object> originalAnchor()throws IOException {
+        check();var value=plan.generation.value();String source=(String)plan.inventory().stream().filter(f->f.get("path").equals("source.gscp")).findFirst().orElseThrow().get("sha256");
+        return Map.of("source",source,"cut",value.get("cut"),"catalog",value.get("catalog"),"application",value.get("application"));
+    }
+    boolean retiring()throws IOException {check();return retirement!=null;}
+    byte[] retirementBytes()throws IOException {check();return MembershipLearnerRetirement.bytes(plan,decision);}
+    void requirePredecessorClosed()throws IOException {check();require(typed==null || typed.closed(),"learner predecessor typed owner still live");}
+    void beginRetirement()throws IOException {
+        requirePredecessorClosed();
+        retirement=MembershipLearnerRetirement.load(plan,decision);require(retirement!=null,"learner retirement decision missing");check();
+    }
+    List<Path> predecessorRemovalOrder()throws IOException {
+        check();require(retirement!=null,"learner retirement decision missing");return decision.remainingRemovalOrder();
+    }
+    void releasePredecessor(MembershipLearnerSuccessor child)throws IOException {
+        check();require(retirement!=null && successor==child,"learner retirement foreign owner");
+        AdmissionPaths.absent(decision.destination);AdmissionPaths.absent(MembershipLearnerMaterialization.directory(plan.summary()));
+        // The caller has already forced every removal and both surviving parents.
+        var originals=new ArrayList<AutoCloseable>();originals.addAll(received.values());originals.addAll(leases);
+        MembershipLearnerSource.closeChildren(originals.toArray(AutoCloseable[]::new));
+        received.clear();leases.clear();typedImage=null;resumedMetadata=null;preparedGeneration=false;
+    }
     /** Read only an already-retained original image under this exclusive owner.
      * No independent reservation or materialized application is manufactured. */
     byte[] originalImage(String digest,long size)throws IOException {
