@@ -1,5 +1,26 @@
 # V5.3 Phase 3 contract amendments
 
+## A36 — retain matching INTENT under the original typed learner owner
+
+Permit an explicit progress-transfer transaction to retain the complete original
+INTENT source when its certified descriptor matches the live locally forced
+typed receipt, preparation revision/image and original request. Validate the
+original INTENT edge and exact JOINT/COMPLETED target view. Retained bytes and
+a verified source capsule alone do not create voting eligibility.
+
+The shared CANCEL/INTENT storage transaction keeps CANCEL bytes and paths
+unchanged. INTENT has its own bounded private plan/path and receipt digest;
+public formats and resource ceilings are unchanged. Force plan, original source
+and parents before returning a live owner-bound capability. Both dispositions
+block stale preparation/refresh handles, are mutually exclusive and recover
+only from original files. Missing typed preparation must never be reconstructed
+to admit a terminal proof. Rollback must preserve and recognize these retained
+files rather than restoring preparation on top of them.
+
+This component does not close joining-voter installation, native minimum-quorum
+INTENT delivery, joint votes, FINAL/barrier service, process cuts or independent
+acceptance. See [the retained INTENT boundary](PHASE_3_LEARNER_INTENT.md).
+
 ## A35 — persist exact head confirmation through selected source retention
 
 The private learner plan may include `confirmation: {query, ack}` containing the

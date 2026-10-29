@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Matching INTENT retention](PHASE_3_LEARNER_INTENT.md) now binds a complete
+certified source to the actual forced typed receipt and preparation revision,
+then forces the original files before returning a live capability. CANCEL and
+INTENT share recovery machinery while preserving the existing CANCEL format.
+Voter installation, native minimum-quorum joining, independent replay and full
+Phase 3 remain **OPEN**.
+
 [Durable head confirmation](PHASE_3_LEARNER_CONFIRMATION.md) now retains the
 original QUERY/ACK through the source ledger and selected-source merge, keeping
 newer uncertain offers while discharging proved older ones. Pending physical

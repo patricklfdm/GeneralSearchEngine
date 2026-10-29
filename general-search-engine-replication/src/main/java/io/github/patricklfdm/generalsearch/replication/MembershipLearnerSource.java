@@ -18,7 +18,7 @@ final class MembershipLearnerSource implements AutoCloseable {
     private final LongSupplier clock;
     private final long started,budget;
     private final MembershipLearnerHead predecessor;
-    private final Path cancellationDirectory;
+    private final MembershipLearnerPlan terminalPlan;
     private volatile boolean closed;
     private boolean used;
     private MembershipTransport transport;
@@ -33,13 +33,13 @@ final class MembershipLearnerSource implements AutoCloseable {
     }
     private MembershipLearnerSource(MembershipLearnerRequest request,MembershipIdentity peer,MembershipResources resources,
             ReplicationBounds bounds,MembershipTransport.Events events,MembershipSourcePull.Guard guard,
-            LongSupplier clock,long started,long budget,MembershipLearnerHead predecessor,Path cancellationDirectory) {
+            LongSupplier clock,long started,long budget,MembershipLearnerHead predecessor,MembershipLearnerPlan terminalPlan) {
         require(budget>0 && budget<Long.MAX_VALUE/2,"learner source original budget");
         this.request=Objects.requireNonNull(request);this.peer=Objects.requireNonNull(peer);
         require(!peer.equals(request.identity()) && request.change().target().contains(peer),"learner source contact route");
         this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);this.events=Objects.requireNonNull(events);
         this.guard=Objects.requireNonNull(guard);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
-        this.predecessor=predecessor;this.cancellationDirectory=cancellationDirectory;
+        this.predecessor=predecessor;this.terminalPlan=terminalPlan;
     }
     /** A prepared generation frees the receiving slot, but the new acquisition
      * must use its SAME pool and keep the original owner live throughout. */
@@ -47,7 +47,7 @@ final class MembershipLearnerSource implements AutoCloseable {
             ReplicationBounds bounds,MembershipTransport.Events events,LongSupplier clock,long started,long budget)throws IOException {
         prepared.check();MembershipLearnerCancellation.requireActive(prepared);if(prepared instanceof MembershipLearnerMaterialization.CurrentHead current)current.requireAvailable();
         return new MembershipLearnerSource(prepared.request(),peer,prepared.resources(),bounds,events,
-                prepared::check,clock,started,budget,prepared,MembershipLearnerCancellation.directory(MembershipLearnerCancellation.store(prepared).summary()));
+                prepared::check,clock,started,budget,prepared,MembershipLearnerCancellation.store(prepared).summary());
     }
     static void successor(MembershipCapsule previous,MembershipFloor.Copy next) {
         next.check();
@@ -64,7 +64,7 @@ final class MembershipLearnerSource implements AutoCloseable {
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;
         require(!closed && elapsed>=0 && elapsed<budget,"learner source closed/original deadline");guard.check();
-        if(cancellationDirectory!=null)MembershipLearnerCancellation.requireActive(cancellationDirectory);
+        if(terminalPlan!=null)MembershipLearnerCancellation.requireActive(terminalPlan);
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"learner source closed/original deadline");
     }
     private synchronized MembershipLearnerDiscovery query()throws IOException {

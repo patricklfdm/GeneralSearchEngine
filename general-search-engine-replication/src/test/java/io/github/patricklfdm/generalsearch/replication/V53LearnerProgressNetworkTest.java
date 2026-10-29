@@ -31,7 +31,11 @@ class V53LearnerProgressNetworkTest {
                     // CHECKPOINT_ACK observation is claimed by this TCP test.
                     opened.prepareCurrent(history.source.ballot(20));var offers=new ArrayList<MembershipSelection.Source>();offers.add(opened.originalSource());
                     var selection=new V53SelectionFixture(history);
-                    for(String voter:List.of("node-2","node-3"))offers.add(selection.source(voter,20,null,0));
+                    // A completed REPLACE no longer admits the departed voter;
+                    // larger target views also need their actual quorum. These
+                    // remain explicitly conditional historical source fixtures.
+                    for(String voter:new TreeSet<>(history.verify().context.voters()))if(!voter.equals("node-1"))
+                        offers.add(selection.source(voter,20,null,0));
                     opened.selectCurrent(offers,List.of());var manifest=opened.installCurrent(offers,List.of(),history.source.images);opened.close();
                     Path generation=path.resolve("generations").resolve((String)manifest.value().get("generation"));
                     byte[] bytes=MembershipGenerationPlan.ancestry(bridges);AdmissionPaths.write(generation.resolve("ancestry.gsr"),bytes);

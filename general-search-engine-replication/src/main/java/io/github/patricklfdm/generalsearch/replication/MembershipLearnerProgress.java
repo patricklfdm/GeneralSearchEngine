@@ -9,12 +9,12 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** Live prepared-owner progress acquisition. Complete original bytes and ancestry
  * are verified before returning. This owner has no voter install, vote or delete API;
- * only an explicit certified-CANCEL transaction may retain these originals.
- * INTENT installation is a separate protocol boundary. */
+ * explicit certified CANCEL or matching INTENT transactions may retain these
+ * originals. Subsequent voter installation is a separate protocol boundary. */
 final class MembershipLearnerProgress implements AutoCloseable {
     private final MembershipLearnerHead head;
     private final MembershipLearnerRequest request;
-    private final Path cancellationDirectory;
+    private final MembershipLearnerPlan terminalPlan;
     private final MembershipIdentity peer;
     private final MembershipResources resources;
     private final ReplicationBounds bounds;
@@ -33,7 +33,7 @@ final class MembershipLearnerProgress implements AutoCloseable {
         require(budget>0 && budget<Long.MAX_VALUE/2,"learner progress original budget");
         this.head=Objects.requireNonNull(head);head.check();MembershipLearnerCancellation.requireActive(head);
         if(head instanceof MembershipLearnerMaterialization.CurrentHead current)current.requireAvailable();
-        cancellationDirectory=MembershipLearnerCancellation.directory(MembershipLearnerCancellation.store(head).summary());
+        terminalPlan=MembershipLearnerCancellation.store(head).summary();
         request=head.request();resources=head.resources();this.peer=Objects.requireNonNull(peer);
         require(!peer.equals(request.identity()) && request.change().target().contains(peer),"learner progress contact route");
         this.bounds=Objects.requireNonNull(bounds);this.events=Objects.requireNonNull(events);this.clock=Objects.requireNonNull(clock);
@@ -41,7 +41,7 @@ final class MembershipLearnerProgress implements AutoCloseable {
     }
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;
-        require(!closed && elapsed>=0 && elapsed<budget,"learner progress closed/original deadline");head.check();MembershipLearnerCancellation.requireActive(cancellationDirectory);
+        require(!closed && elapsed>=0 && elapsed<budget,"learner progress closed/original deadline");head.check();MembershipLearnerCancellation.requireActive(terminalPlan);
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"learner progress closed/original deadline");
     }
     MembershipFloor.Copy fetch(Path scratch)throws IOException {
@@ -75,6 +75,11 @@ final class MembershipLearnerProgress implements AutoCloseable {
         var copy=source();MembershipLearnerCancellation.cancellation(head,copy);
         var receiver=prefix.completeLearnerCancellationSource(copy,cut);check();
         return MembershipLearnerCancellation.install(head,receiver,copy,cut);
+    }
+    MembershipLearnerIntent retainIntent(MembershipBallotAllocator.Cut cut)throws IOException {
+        var copy=source();MembershipLearnerIntent.match(head,copy);
+        var receiver=prefix.completeLearnerIntentSource(head,copy,cut);check();
+        return MembershipLearnerIntent.install(head,receiver,copy,cut);
     }
     @Override public void close()throws IOException {
         MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t;

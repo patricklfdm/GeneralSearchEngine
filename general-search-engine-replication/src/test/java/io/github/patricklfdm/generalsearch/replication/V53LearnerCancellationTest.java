@@ -5,6 +5,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
@@ -21,6 +22,10 @@ class V53LearnerCancellationTest {
         final V53LearnerMaterializationTest.Fixture local;
         final V53LearnerProgressNetworkTest.Peer peer;
         final MembershipTransport server;
+        // This fixture qualifies storage transitions, not a wall-clock SLA.
+        // A controlled receive clock permits deterministic expiry injection;
+        // real transport/exchange deadlines and production budgets are unchanged.
+        final AtomicLong progressClock=new AtomicLong();
         MembershipLearnerMaterialization<?> typed;
         MembershipLearnerHead head;
         Fixture(String phase)throws Exception {this(phase,3,"ADD");}
@@ -46,8 +51,9 @@ class V53LearnerCancellationTest {
                             peer.service.handle(sender,request),MembershipTransport.Events.NONE);
         }
         MembershipLearnerProgress progress()throws IOException {
+            long started=System.nanoTime();progressClock.set(started);
             return new MembershipLearnerProgress(head,peer.owner.activationIdentity(),local.config.bounds(),MembershipTransport.Events.NONE,
-                    System::nanoTime,System.nanoTime(),TimeUnit.SECONDS.toNanos(60));
+                    progressClock::get,started,TimeUnit.SECONDS.toNanos(60));
         }
         Path directory(){return MembershipLearnerCancellation.directory(local.summary);}
         MembershipLearnerCancellation retain(MembershipBallotAllocator.Cut cut)throws IOException {

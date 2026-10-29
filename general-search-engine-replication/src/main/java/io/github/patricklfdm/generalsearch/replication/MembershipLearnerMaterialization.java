@@ -53,7 +53,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         byte[] original=input.image();receipt=input.receiptBytes();var parts=MembershipApplicationImage.unpack(original);var values=new TreeMap<String,byte[]>();
         for(int i=0;i<parts.size();i++)values.put(BACKUP+"/"+MembershipApplicationImage.MEMBERS.get(i),parts.get(i));payloads=Map.copyOf(values);
         boolean exists=Files.exists(directory,LinkOption.NOFOLLOW_LINKS);
-        // A cancelled learner may reopen its exact historical typed owner for
+        // A terminal learner may reopen its exact historical typed owner for
         // proof recovery, but cannot create a new preparation sidecar.
         if(!exists)input.store().requireActive();
         // The second typed sidecar fits the remaining original MISC budget by
@@ -82,10 +82,10 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
             else require(names.isEmpty(),"learner typed new directory changed");
             lock=MembershipOwnership.own(directory.resolve(LOCK),!exists);
             members=scan();
-            if(MembershipLearnerCancellation.present(summary)) {
-                // Cancellation was admitted only after this exact prepared
+            if(MembershipLearnerDisposition.present(summary)) {
+                // CANCEL/INTENT was admitted only after this exact prepared
                 // owner was forced. Missing/torn historical preparation cannot
-                // be reconstructed merely to reopen the cancellation proof.
+                // be reconstructed merely to reopen the retained proof.
                 require(names.equals(input.successor()?Set.of(LOCK,PLAN,BACKUP,RECEIPT):Set.of(LOCK,PLAN,BACKUP,RECEIPT,PREPARED)),
                         "cancelled learner missing original typed inventory");
                 AdmissionPaths.exact(directory.resolve(PLAN),plan);AdmissionPaths.exact(directory.resolve(RECEIPT),receipt.bytes());
@@ -229,6 +229,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         void requireAvailable()throws IOException {check();store().requireNewSlot();}
         @Override public MembershipLearnerRequest request()throws IOException {check();return owner.input.summary().request();}
         @Override public MembershipCapsule source()throws IOException {check();return owner.input.source();}
+        @Override public Decoded receipt()throws IOException {check();return owner.receipt();}
         @Override public MembershipResources resources()throws IOException {check();return owner.input.resources();}
         @Override public void requireDisjoint(Path... paths)throws IOException {
             check();var protectedPaths=new ArrayList<>(List.of(paths));protectedPaths.add(Path.of((String)owner.materialization.get("path")));
@@ -241,7 +242,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         @Override public void check()throws IOException {owner.checkPreparedSelection();require(owner.input.preparedGeneration(),"learner generation not selected");}
         @Override public MembershipLearnerRequest request()throws IOException {check();return owner.input.summary().request();}
         @Override public MembershipCapsule source()throws IOException {check();return owner.input.source();}
-        Decoded receipt()throws IOException {check();return owner.receipt();}
+        @Override public Decoded receipt()throws IOException {check();return owner.receipt();}
         @Override public MembershipResources resources()throws IOException {check();return owner.input.resources();}
         MembershipLearnerStore store()throws IOException {check();return owner.input.store();}
         MembershipLearnerSuccessor.View successor()throws IOException {check();return store().successor(this);}

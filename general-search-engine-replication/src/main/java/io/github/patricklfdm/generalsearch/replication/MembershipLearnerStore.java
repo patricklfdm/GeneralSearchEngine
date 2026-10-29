@@ -27,7 +27,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     private boolean preparedGeneration;
     private MembershipLearnerSuccessor successor;
     private MembershipLearnerSlot slot;
-    private MembershipLearnerCancellation cancellation;
+    private MembershipLearnerDisposition cancellation,intent;
     private MembershipLearnerRetirement retirement;
     private boolean predecessorReleased;
     private MembershipOwnership owner;
@@ -321,11 +321,18 @@ final class MembershipLearnerStore implements AutoCloseable {
         check();require(slot!=null,"learner inactive slot missing");return slot.open(current);
     }
     void requireActive()throws IOException {check();MembershipLearnerCancellation.requireActive(plan.summary());}
-    void attachCancellation(MembershipLearnerCancellation value)throws IOException {
-        check();require(cancellation==null || cancellation.closed(),"learner cancellation already owned");cancellation=Objects.requireNonNull(value);
+    void attachDisposition(MembershipLearnerDisposition value)throws IOException {
+        check();Objects.requireNonNull(value);
+        if(value.kind==MembershipLearnerDisposition.Kind.CANCEL) {
+            require(cancellation==null || cancellation.closed(),"learner cancellation already owned");
+            MembershipLearnerDisposition.requireAbsent(MembershipLearnerIntent.directory(plan.summary()),MembershipLearnerDisposition.Kind.INTENT);cancellation=value;
+        }else {
+            require(intent==null || intent.closed(),"learner INTENT already owned");
+            MembershipLearnerDisposition.requireAbsent(MembershipLearnerCancellation.directory(plan.summary()),MembershipLearnerDisposition.Kind.CANCEL);intent=value;
+        }
     }
     @Override public void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(cancellation);children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
+        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(intent);children.add(cancellation);children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
         children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }

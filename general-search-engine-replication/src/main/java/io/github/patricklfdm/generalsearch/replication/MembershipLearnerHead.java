@@ -10,6 +10,7 @@ sealed interface MembershipLearnerHead permits MembershipLearnerMaterialization.
     void check()throws IOException;
     MembershipLearnerRequest request()throws IOException;
     MembershipCapsule source()throws IOException;
+    MembershipFormat.Decoded receipt()throws IOException;
     MembershipResources resources()throws IOException;
     void requireDisjoint(Path... paths)throws IOException;
 }

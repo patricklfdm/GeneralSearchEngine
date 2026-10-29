@@ -1,0 +1,416 @@
+{
+  "allSevenProfilesQualified": false,
+  "archive": {
+    "bytes": 12454173,
+    "path": "target/v53-learner-intent/component-validation.tar.gz",
+    "sha256": "baff6e173944cba57b6a6e639d9c6991747fb9af61ddf8f4096d12e068ac67ef"
+  },
+  "baseCommit": "a9d9acb818d9ed58defeca67220fc60aea33a2ff",
+  "clockFixtureCorrection": "Receive clock anchored to System.nanoTime because real TCP transport consumes absolute monotonic deadlines; its initial zero origin was rejected before exchange.",
+  "codeAndBuildInputsChecked": 1699,
+  "completeSourceRetentionImplemented": true,
+  "componentAxes": {
+    "exceptionCuts": 13,
+    "extraVotingGenerations": 0,
+    "joiningShapes": 5,
+    "operationStates": [
+      "JOINT",
+      "COMPLETED"
+    ]
+  },
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1380,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourceSnapshot": "learnerintentmutation",
+  "finalProductionPassingCases": 21,
+  "firstAttempt": {
+    "causes": [
+      "promoted CANCEL real receive clock expired during local validation",
+      "conditional completed-REPLACE source fixture included departed voter"
+    ],
+    "status": "FAIL"
+  },
+  "identicalProductionFiles": 905,
+  "independentFullHistoryQualified": false,
+  "learnerVotingEnabled": false,
+  "nativeJointHistoryQualified": false,
+  "negativeFixtureCorrection": "Copy the decoded immutable plan into a mutable test map before corrupting its receipt; no production changes.",
+  "pending": [
+    "actual voter ownership handoff and cold recovery",
+    "native old-majority INTENT delivery before joint checkpointing",
+    "joint FINAL and fresh-barrier service",
+    "independent original-first physical/history replay",
+    "halt/SIGKILL cuts",
+    "all-profile final-source hosted acceptance"
+  ],
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "pythonTests": 14,
+  "reports": {
+    "learnerintentclocked": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": {
+        "cases": [
+          {
+            "name": "promotedCurrentHeadAlsoRetainsAndReopensCancellationWithoutAnotherGeneration",
+            "seconds": 173.948,
+            "status": "PASS"
+          },
+          {
+            "name": "cancellationDoesNotRepairMissingOriginalPreparedMarkerOrTypedReceipt",
+            "seconds": 16.701,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "2e53b947ed75cf6b2eabd08e543a1bb5f7ef711fc9fa23c61641147d0d2604ac"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "name": "retainedIntentCannotRepairItsMissingTypedReceiptOrPreparedMarker",
+            "seconds": 18.391,
+            "status": "PASS"
+          },
+          {
+            "name": "promotedHeadReopensTheSameIntentAndCloseRevokesItsCapability",
+            "seconds": 196.443,
+            "status": "PASS"
+          },
+          {
+            "name": "receivingBudgetStillAppliesOnColdRecoveryAndNoExtraVotingGenerationIsReserved",
+            "seconds": 19.522,
+            "status": "PASS"
+          },
+          {
+            "name": "preparationSealAndCancellationAreNotIntentAuthority",
+            "seconds": 53.799,
+            "status": "PASS"
+          },
+          {
+            "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+            "seconds": 24.206,
+            "status": "PASS"
+          },
+          {
+            "name": "everyTransactionCutPreservesIncompleteBytesOrResealsTheExactOriginal",
+            "seconds": 209.927,
+            "status": "PASS"
+          },
+          {
+            "name": "allJoiningShapesRequireTheirActualTypedReceiptAtJointAndFinal",
+            "seconds": 148.633,
+            "status": "PASS"
+          },
+          {
+            "name": "originalInventoryReceiptAndInodeChangesRefuseBeforeRecoveryWrites",
+            "seconds": 17.096,
+            "status": "FAIL"
+          },
+          {
+            "name": "aCertifiedLaterRevisionCannotAdmitTheOldTypedReceipt",
+            "seconds": 2.448,
+            "status": "PASS"
+          },
+          {
+            "name": "expiryBeforeOrDuringForceNeverGrantsIntentAndReleasesReceivingReservations",
+            "seconds": 18.287,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "d245931ada27f3d01e4490bd5e17aca371d3a5d74a80131cfc021daf4c0ebda4"
+      }
+    },
+    "learnerintentfinal": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": {
+        "cases": [
+          {
+            "name": "promotedCurrentHeadAlsoRetainsAndReopensCancellationWithoutAnotherGeneration",
+            "seconds": 69.585,
+            "status": "FAIL"
+          },
+          {
+            "name": "cancellationDoesNotRepairMissingOriginalPreparedMarkerOrTypedReceipt",
+            "seconds": 3.374,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "26b814aa0db41dd49782ec74f7fa1ad44ab0f9286f7b0fcd6ebefb129176e5bc"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "name": "retainedIntentCannotRepairItsMissingTypedReceiptOrPreparedMarker",
+            "seconds": 3.507,
+            "status": "FAIL"
+          },
+          {
+            "name": "promotedHeadReopensTheSameIntentAndCloseRevokesItsCapability",
+            "seconds": 69.089,
+            "status": "FAIL"
+          },
+          {
+            "name": "receivingBudgetStillAppliesOnColdRecoveryAndNoExtraVotingGenerationIsReserved",
+            "seconds": 3.464,
+            "status": "FAIL"
+          },
+          {
+            "name": "preparationSealAndCancellationAreNotIntentAuthority",
+            "seconds": 3.093,
+            "status": "FAIL"
+          },
+          {
+            "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+            "seconds": 3.827,
+            "status": "FAIL"
+          },
+          {
+            "name": "everyTransactionCutPreservesIncompleteBytesOrResealsTheExactOriginal",
+            "seconds": 3.362,
+            "status": "FAIL"
+          },
+          {
+            "name": "allJoiningShapesRequireTheirActualTypedReceiptAtJointAndFinal",
+            "seconds": 3.336,
+            "status": "FAIL"
+          },
+          {
+            "name": "originalInventoryReceiptAndInodeChangesRefuseBeforeRecoveryWrites",
+            "seconds": 3.44,
+            "status": "FAIL"
+          },
+          {
+            "name": "aCertifiedLaterRevisionCannotAdmitTheOldTypedReceipt",
+            "seconds": 2.569,
+            "status": "PASS"
+          },
+          {
+            "name": "expiryBeforeOrDuringForceNeverGrantsIntentAndReleasesReceivingReservations",
+            "seconds": 3.342,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "41d3ca040a4359833792c26f3a3c8e3b3a1a6d4fa4e840139d982494ce743cec"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": {
+        "cases": [
+          {
+            "name": "progressTransportStillRejectsVotingAndEnrollmentReferencesInTheJointView",
+            "seconds": 0.339,
+            "status": "PASS"
+          },
+          {
+            "name": "preparedOwnerReadsCancellationAndJointProgressWithoutChangingItsReceiptOrGrantingAVote",
+            "seconds": 28.603,
+            "status": "PASS"
+          },
+          {
+            "name": "missingParentAncestryAndClosedTypedOwnersRefuseWithoutChangingLocalAuthority",
+            "seconds": 11.775,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "fe1a298dddc85b8016c89634f8b397442771e3b22a994aad97da40b427b0aac0"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": {
+        "cases": [
+          {
+            "name": "originalDeadlineAndCallerCloseRevokeIncompleteProgress",
+            "seconds": 0.179,
+            "status": "PASS"
+          },
+          {
+            "name": "lostRepliesRetryTheSameFrameAndPermanentErrorsDoNotRetry",
+            "seconds": 0.711,
+            "status": "PASS"
+          },
+          {
+            "name": "allFiveJoiningProfilesReadPreparedJointFinalAndCancelledWithoutChangingTheOwner",
+            "seconds": 16.817,
+            "status": "PASS"
+          },
+          {
+            "name": "missingRetiredUnpreparedAndChangedRequestsCannotUseTheProgressRoute",
+            "seconds": 1.077,
+            "status": "PASS"
+          },
+          {
+            "name": "ordinaryEnrollmentRemainsUnavailableAfterIntentOrCancellation",
+            "seconds": 0.792,
+            "status": "PASS"
+          },
+          {
+            "name": "progressAndEnrollmentCannotMixPrefixOwnership",
+            "seconds": 0.678,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "90b5a539b15e7186ad64407ffbe023f77d9e31f25991bf55773094def3dcdeab"
+      }
+    },
+    "learnerintentfirst": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": {
+        "cases": [
+          {
+            "name": "promotedCurrentHeadAlsoRetainsAndReopensCancellationWithoutAnotherGeneration",
+            "seconds": 125.662,
+            "status": "FAIL"
+          },
+          {
+            "name": "damagedOriginalsAndForeignMembersFailBeforeRecoveryWritesAndReleaseAllReservations",
+            "seconds": 22.009,
+            "status": "PASS"
+          },
+          {
+            "name": "everyOriginalTransactionCutEitherResealsExactProofOrPreservesIncompleteOriginals",
+            "seconds": 190.871,
+            "status": "PASS"
+          },
+          {
+            "name": "cancellationDoesNotRepairMissingOriginalPreparedMarkerOrTypedReceipt",
+            "seconds": 17.083,
+            "status": "PASS"
+          },
+          {
+            "name": "receivingCapacityAndHistoricalDataAreNotCancellationCapabilities",
+            "seconds": 14.586,
+            "status": "PASS"
+          },
+          {
+            "name": "otherCertifiedPhasesCannotBeRetainedAsCancellation",
+            "seconds": 36.97,
+            "status": "PASS"
+          },
+          {
+            "name": "allFiveJoiningShapesRetainTheSameOriginalCancellation",
+            "seconds": 63.479,
+            "status": "PASS"
+          },
+          {
+            "name": "forcedCancellationSurvivesOwnerRestartAndStopsOldPreparationWithoutVotingOrDeleting",
+            "seconds": 18.571,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "42628626b7599e9deaa8d42cfbe4dbbc6c93aad64ce52ef80a5c7eb4210d505f"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "name": "allJoiningShapesRequireTheirActualTypedReceiptAtJointAndFinal",
+            "seconds": 96.907,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "0cfb0beed1b9a067bdded586e0bd9d3447ad23fd1f8c859561f044b2e51d932b"
+      }
+    },
+    "learnerintentmutation": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "name": "originalInventoryReceiptAndInodeChangesRefuseBeforeRecoveryWrites",
+            "seconds": 23.6,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "d35866daa5503699fc07bbd19debf817cd28e2acea361ceb00436e4d57c06c28"
+      }
+    }
+  },
+  "runs": {
+    "learnerintentclocked": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 10
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "learnerintentclocked",
+      "requestedTests": [
+        "V53LearnerIntentTest",
+        "V53LearnerCancellationTest#promotedCurrentHeadAlsoRetainsAndReopensCancellationWithoutAnotherGeneration+cancellationDoesNotRepairMissingOriginalPreparedMarkerOrTypedReceipt"
+      ],
+      "seconds": 886.9057074790035,
+      "skipped": 0,
+      "tests": 12
+    },
+    "learnerintentfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": 6
+      },
+      "exit": 1,
+      "failures": 11,
+      "label": "learnerintentfinal",
+      "requestedTests": [
+        "V53LearnerIntentTest",
+        "V53LearnerCancellationTest#promotedCurrentHeadAlsoRetainsAndReopensCancellationWithoutAnotherGeneration+cancellationDoesNotRepairMissingOriginalPreparedMarkerOrTypedReceipt",
+        "V53LearnerProgressTest",
+        "V53LearnerProgressNetworkTest"
+      ],
+      "seconds": 242.97942200899706,
+      "skipped": 0,
+      "tests": 21
+    },
+    "learnerintentfirst": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 1
+      },
+      "exit": 1,
+      "failures": 2,
+      "label": "learnerintentfirst",
+      "requestedTests": [
+        "V53LearnerIntentTest",
+        "V53LearnerCancellationTest"
+      ],
+      "seconds": 583.701732882997,
+      "skipped": 0,
+      "tests": 9
+    },
+    "learnerintentmutation": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "learnerintentmutation",
+      "requestedTests": [
+        "V53LearnerIntentTest#originalInventoryReceiptAndInodeChangesRefuseBeforeRecoveryWrites"
+      ],
+      "seconds": 36.93225525199523,
+      "skipped": 0,
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-learner-intent-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java": "318e1d2cc130989b60fe1642a2421582b8386210e5e2b3e1001d40e3eb0d17a0",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCancellation.java": "42484332064d74f0516d025ec8f114dc2715f0b232ce01341d37d6b90cfc50a1",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "ae8fab4d5e2aa6c25fed5f059d9b44fbd51fe0f8dc415eac0bf802220b548f38",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerHead.java": "98a2f5ee77f829d111b8fd56081721f0b48a79fdff314be46eab153efc0c0758",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerIntent.java": "5d42b8db77c358567f70d2fe751da541db050d56cbb085396ae71ef5f3cb7dcf",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerMaterialization.java": "915f3546ccf8ba13340561242446a4de1feec19051ee3b2115b244a599e665a2",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerProgress.java": "9da428ee7fcff1ee3b76f16abe1fa3839ecbd3f4fdd7ca062121e7a60c675152",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSource.java": "4241d40cf21813ea3561f59f2b48ee783448b1083f4767352794177b8657945c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java": "575dc4fd69bad131a98a4e8b21d7413fe3f911f27aaff2465805e86db50486a0",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java": "10b73dd2b8c71b6d071547ca11f6399d0cfc256f380d6de89efde050e8fa76fc",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCancellationTest.java": "ad56152eef4410783fcd84cda60ccede6a79ee522afb2d0e3d847a5a3f22cebb",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerIntentTest.java": "d6abb432335306c4a3ec0cac4119964c35e62486a8f7b3cbb6de5b5593396f11",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerProgressNetworkTest.java": "be19e1f33a34b5daeb26c79db21a555d088557e0462dd558707dd4b70a03c0e9"
+  },
+  "status": "PASS_MATCHING_INTENT_RETENTION_COMPONENT",
+  "typedReceiptRequired": true,
+  "unexecutedSnapshots": [
+    "learnerintentchecked"
+  ]
+}
