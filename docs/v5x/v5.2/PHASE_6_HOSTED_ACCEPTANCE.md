@@ -1,6 +1,10 @@
 # V5.2 hosted M01–M04 acceptance — 2026-10-16
 
-**Status:** the complete fresh hosted measurement cohort passed. The final
+**Current follow-up:** [protected cloud-set acceptance](PHASE_6_CLOUD_ACCEPTANCE.md)
+subsequently passed on 2026-10-29 with its own source identities and recorded
+exceptions. The status and next-boundary statements below describe 2026-10-16.
+
+**Historical status:** the complete fresh hosted measurement cohort passed. The final
 protected PR/master CI, cross-host remote qualification and paid cloud acceptance
 remain open. See the [machine-readable record](hosted-measurement-acceptance.json).
 

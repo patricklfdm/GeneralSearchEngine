@@ -27,7 +27,10 @@ and new-group transfer requirements. The unreleased V5.2 automatic handle enable
 explicit strong, stale-allowed and minimum-progress reads. Its
 [local correctness qualification](docs/v5x/v5.2/PHASE_4_QUALIFICATION.md) is complete;
 [combined hardening](docs/v5x/v5.2/PHASE_5_HARDENING.md) is also locally verified.
-Measurements and protected hosted acceptance remain pending.
+The [complete protected cloud set](docs/v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md) now
+passes all five rounds under the recorded batch exceptions. Phase 6 registration
+is prepared for review; [Phase 7 release preparation](docs/v5x/v5.2/PHASE_7_CHECKLIST.md)
+remains open. V5.2 is not yet a published release.
 
 V5.0 adds an optional replication artifact with exactly three fixed voters, a
 configured leader, durable quorum commit proof, explicit activation, catch-up and

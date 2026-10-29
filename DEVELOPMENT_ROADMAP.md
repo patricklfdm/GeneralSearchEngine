@@ -1,6 +1,6 @@
 # GeneralSearchEngine development roadmap
 
-## Current milestone: V5.1 published; V5.2 local read qualification complete
+## Current milestone: V5.1 published; V5.2 complete cloud set accepted
 
 **Latest milestone:** V5.1 [Phases 7 and 8](docs/v5x/v5.1/RELEASE_CHECKLIST.md)
 are complete. PR #322 and exact-master CI `38482900297` accepted source
@@ -18,9 +18,14 @@ The capture/waiter kernel and three explicit policies are implemented at
 correctness and compatibility qualification, with an explicit
 [schedule-to-evidence map](docs/v5x/v5.2/PHASE_4_SCHEDULE_RESULTS.md).
 [Phase 5 combined hardening](docs/v5x/v5.2/PHASE_5_HARDENING.md) is locally verified.
-The authorized local sequence continues through measurement freeze and pre-cloud
-preparation. Protected full CI and manual cloud admission remain
-required before paid execution. Earlier milestones follow below.
+[Protected cloud acceptance](docs/v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md) passed in
+run `40841038976/1` at verifier source `8b9aa60a`: fifteen execution units across
+all five rounds, with the original quota continuation and single retention waiver
+preserved. Phase 6 registration/closeout is prepared for operator merge;
+[Phase 7](docs/v5x/v5.2/PHASE_7_CHECKLIST.md) covers packaged consumers, API/Javadocs,
+final coordinates and canonical artifacts next. Cloud admission used the accepted
+Cloud Build/full-CI policy; final release-candidate validation remains separate.
+Earlier milestones follow below.
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI

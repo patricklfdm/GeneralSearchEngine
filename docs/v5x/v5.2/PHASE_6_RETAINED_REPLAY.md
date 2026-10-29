@@ -1,5 +1,9 @@
 # V5.2 original retained member and set replay
 
+**Current result:** [protected full-set acceptance](PHASE_6_CLOUD_ACCEPTANCE.md)
+passed on 2026-10-29. The implementation notes and pending boundaries below are
+historical snapshots; the acceptance record retains the explicit batch exceptions.
+
 Phase 6BG connects the [native retention format](PHASE_6_NATIVE_RETENTION.md) to
 independent authority, complete-history and complete-set replay. It also supplies a
 fixed GET-only restoration factory. These internal entries do not dispatch an

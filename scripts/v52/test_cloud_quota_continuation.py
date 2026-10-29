@@ -212,20 +212,37 @@ class FrozenPolicyTest(unittest.TestCase):
 
     def test_source_guard_checks_whole_tree_with_no_historical_objects_required(self):
         policy=q.load();source='e'*40
-        raw=subprocess.check_output(['git','ls-tree','-r','-z','HEAD'],cwd=q.ci.ROOT)
-        tree={row.split(b'\t')[1].decode():row.split(b'\t')[0].decode() for row in raw.split(b'\0') if row}
+        # A later documentation/release HEAD is intentionally not the accepted
+        # frozen tree. Use independent synthetic Git objects to test the guard;
+        # never widen the production fingerprint to accommodate a new HEAD.
+        baseline={'pom.xml':'100644 blob '+'1'*40,
+                  'src/main/java/Engine.java':'100644 blob '+'2'*40,
+                  'README.md':'100644 blob '+'3'*40}
+        baseline.update({name:entry for name,entry in q.ORIGINAL_ENTRIES.items() if entry is not None})
+        tree=deepcopy(baseline)
         files={name:(q.ci.ROOT/name).read_bytes() for name in (*policy['approvedSourceChanges'],q.POLICY)}
         for name in files:tree[name]='100644 blob '+'e'*40
         def git(root,*args):
             if args==('ls-tree','-r','-z',source):return b'\0'.join((v+'\t'+k).encode() for k,v in tree.items())+b'\0'
             if args[0]=='show' and args[1].startswith(source+':'):return files[args[1].split(':',1)[1]]
             raise AssertionError('unexpected history/network access: '+str(args))
-        with patch.object(q.inputs.build,'git',side_effect=git):
+        with patch.object(q.inputs.build,'git',side_effect=git), \
+             patch.object(q,'ORIGINAL_TREE_SHA256',q.digest(q.encoded(baseline))):
             q.source_compatible(source,policy)
+            tree['docs/later-closeout.md']='100644 blob '+'4'*40
+            with self.assertRaisesRegex(ValueError,'unapproved source'):q.source_compatible(source,policy)
+            tree.pop('docs/later-closeout.md')
+            files['scripts/v52/cloud_acceptance.py']+=b'\n# changed support bytes\n'
+            with self.assertRaisesRegex(ValueError,'approved source bytes'):q.source_compatible(source,policy)
+            files['scripts/v52/cloud_acceptance.py']=(q.ci.ROOT/'scripts/v52/cloud_acceptance.py').read_bytes()
             tree['pom.xml']='100644 blob '+'0'*40
             with self.assertRaisesRegex(ValueError,'unapproved source'):q.source_compatible(source,policy)
             tree.pop('pom.xml')
             with self.assertRaises(ValueError):q.source_compatible(source,policy)
+
+    def test_source_guard_fixture_never_reads_the_moving_head(self):
+        with patch.object(subprocess,'check_output',side_effect=AssertionError('fixture must not read current HEAD')):
+            self.test_source_guard_checks_whole_tree_with_no_historical_objects_required()
 
     def test_member_replay_rejects_changed_jar_before_any_history(self):
         member=c.evidence.member

@@ -20,10 +20,19 @@ now has implemented public policies and completed
 [local Phase 4 qualification](v5x/v5.2/PHASE_4_QUALIFICATION.md), followed by
 [combined Phase 5 hardening](v5x/v5.2/PHASE_5_HARDENING.md). The complete
 [hosted M01–M04 cohort](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) passed; remote adapter
-qualification, protected full CI and cloud acceptance remain pending.
+qualification was subsequently connected to the
+[complete protected cloud acceptance](v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md).
+Phase 6 registration/closeout is prepared for operator merge; the
+[Phase 7 release plan](v5x/v5.2/PHASE_7_CHECKLIST.md) remains open.
 
 ## v5.2 — unreleased replica reads
 
+- [Phase 6 protected cloud acceptance and original-run inventory](v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md)
+- [Phase 6 closeout checklist](v5x/v5.2/PHASE_6_CHECKLIST.md)
+- [Original protected cloud-set receipt](v5x/v5.2/phase6-cloud-review.json)
+- [Cloud evidence provenance](v5x/v5.2/phase6-cloud-provenance.json)
+- [Cloud baseline registry](v5x/v5.2/cloud-benchmark-baselines.json)
+- [Phase 7 release preparation plan](v5x/v5.2/PHASE_7_CHECKLIST.md)
 - [Source-reviewed entry and requirements](v5x/v5.2/PHASE_0_ENTRY_PLAN.md)
 - [Phase 0 contract and decisions](v5x/v5.2/PHASE_0_CONTRACT.md)
 - [Read authority, lifecycle and resource bounds](v5x/v5.2/READ_AUTHORITY_AND_LIFECYCLE.md)
