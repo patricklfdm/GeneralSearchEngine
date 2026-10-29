@@ -77,6 +77,53 @@ final class MembershipResources {
         rows.sort(Comparator.<Map<String,Object>,String>comparing(v->(String)v.get("unit")).thenComparingLong(v->(Long)v.get("bytes")));
         return List.copyOf(rows);
     }
+    record StorageReservation(Unit unit,String owner,long bytes) {}
+    /** Preflight a complete quiescent group replacement without changing charges.
+     * The commit repeats the exact-handle/extent check under this monitor. */
+    synchronized StorageReplacement prepareCompleteReplacement(Set<Lease> expected,List<StorageReservation> requested) {
+        requireCompleteStorage(expected);var originals=new LinkedHashMap<Lease,StorageReservation>();
+        for(var lease:expected)originals.put(lease,new StorageReservation(lease.key.unit,lease.key.owner,lease.bytes));
+        validateReplacement(requested);return new StorageReplacement(originals,List.copyOf(requested));
+    }
+    private MembershipResources validateReplacement(List<StorageReservation> requested) {
+        require(!requested.isEmpty() && requested.size()<=32,"storage replacement count");
+        var trial=new MembershipResources(metadataLimit,stagingLimit,queueLimit);
+        for(var row:requested) {
+            require(row.unit!=Unit.CONTROL && row.unit!=Unit.WAITER,"storage replacement work category");
+            trial.reserve(row.unit,row.owner,row.bytes);
+        }
+        return trial;
+    }
+    final class StorageReplacement {
+        private final Map<Lease,StorageReservation> originals;
+        private final List<StorageReservation> requested;
+        private boolean committed;
+        private StorageReplacement(Map<Lease,StorageReservation> originals,List<StorageReservation> requested){this.originals=originals;this.requested=requested;}
+        StorageBatch commit() {
+            synchronized(MembershipResources.this) {
+                require(!committed,"storage replacement already committed");requireCompleteStorage(originals.keySet());
+                for(var row:originals.entrySet()){var lease=row.getKey();var old=row.getValue();
+                    require(!lease.released && leases.get(lease.key)==lease && old.equals(new StorageReservation(lease.key.unit,lease.key.owner,lease.bytes)),"storage replacement original changed");}
+                var trial=validateReplacement(requested);var next=new HashMap<Key,Lease>();var issued=new LinkedHashMap<StorageReservation,Lease>();
+                for(var row:requested){var key=new Key(row.unit,row.owner);var lease=new Lease(key,row.bytes);next.put(key,lease);issued.put(row,lease);}
+                var result=new StorageBatch(issued);
+                leases=next;metadata=trial.metadata;staging=trial.staging;queued=trial.queued;protectedUsed=trial.protectedUsed;
+                for(var lease:originals.keySet())lease.released=true;committed=true;return result;
+            }
+        }
+    }
+    final class StorageBatch implements AutoCloseable {
+        private final Map<StorageReservation,Lease> issued;
+        private final Set<StorageReservation> claimed=new HashSet<>();
+        private boolean closed;
+        private StorageBatch(Map<StorageReservation,Lease> issued){this.issued=Map.copyOf(issued);}
+        Lease claim(Unit unit,String owner,long bytes) {
+            synchronized(MembershipResources.this){var row=new StorageReservation(unit,owner,bytes);var lease=issued.get(row);
+                require(!closed && lease!=null && !lease.released && leases.get(lease.key)==lease && claimed.add(row),"storage replacement claim differs or repeated");return lease;}
+        }
+        void complete(){synchronized(MembershipResources.this){require(!closed && claimed.equals(issued.keySet()),"storage replacement unclaimed member");}}
+        @Override public void close(){synchronized(MembershipResources.this){if(!closed){issued.values().forEach(Lease::close);closed=true;}}}
+    }
     /** Transfer a quiesced owner's exact storage reservations without an
      * uncharged interval or a duplicate physical-copy allowance. The caller
      * must retain the matching files and move their ownership separately.

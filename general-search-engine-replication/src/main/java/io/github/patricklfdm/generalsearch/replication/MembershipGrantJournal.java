@@ -33,6 +33,8 @@ final class MembershipGrantJournal implements AutoCloseable {
     private volatile MembershipCurrentGeneration current;
     private MembershipCurrentGeneration.Verifier capsuleVerifier;
     private boolean ownedHistory;
+    private MembershipJoinedOwner joinedOwner;
+    private boolean joinedGenerationClaimed;
     private MembershipGenerationFiles inactive;
     private MembershipFloorFiles floors;
     private MembershipRetirementFiles retirement;
@@ -113,6 +115,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         private HistoryRead(MembershipGrantJournal owner){this(owner,null);}
         private HistoryRead(MembershipGrantJournal owner,MembershipBasisSources.Originals originals){this.owner=owner;this.originals=originals;}
         void check()throws IOException{owner.checkBaseOwner();}
+        void joining(MembershipCapsule source)throws IOException{if(owner.joinedOwner!=null)owner.joinedOwner.history(source);}
         Path directory(){return owner.directory;}
         MembershipRoot root(){return owner.root;}
         MembershipIdentity identity(){return owner.identity;}
@@ -320,11 +323,35 @@ final class MembershipGrantJournal implements AutoCloseable {
             MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
             boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,
             boolean withCapture,boolean withVotes,boolean withApplication,boolean withContext,Path materialization,boolean ownedHistory)throws IOException {
+        return openGenerations(requested,root,identity,resources,verifier,cut,withFloors,withRetirement,withRotation,withFloorRelease,maximum,
+                withSourceRetirement,withCapture,withVotes,withApplication,withContext,materialization,ownedHistory,null);
+    }
+    static <K,T> MembershipGrantJournal openJoined(MembershipLearnerJoinedRetirement retired,
+            io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> captured,MembershipReplicaConfig<K,T> config,
+            MembershipBallotAllocator.Cut cut)throws IOException {
+        return openJoined(MembershipJoinedOwner.take(retired,captured,config,cut),config.materialization().directory(),cut);
+    }
+    static <K,T> MembershipGrantJournal reopenJoined(MembershipLearnerPlan summary,MembershipResources resources,
+            io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> captured,MembershipReplicaConfig<K,T> config,
+            MembershipBallotAllocator.Cut cut)throws IOException {
+        return openJoined(MembershipJoinedOwner.reopen(summary,resources,captured,config),config.materialization().directory(),cut);
+    }
+    private static MembershipGrantJournal openJoined(MembershipJoinedOwner joined,Path materialization,MembershipBallotAllocator.Cut cut)throws IOException {
+        var request=joined.summary().request();
+        try{return openGenerations(request.replicaDirectory(),request.root(),request.identity(),joined.resources(),
+                (r,p,i)->MembershipCapsule.verify(r,p,i,Set.of()),cut,true,true,true,true,MAXIMUM,true,true,true,true,true,materialization,true,joined);}
+        catch(IOException|RuntimeException|Error error){try{joined.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
+    }
+    private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,MembershipCurrentGeneration.Verifier verifier,MembershipBallotAllocator.Cut cut,
+            boolean withFloors,boolean withRetirement,boolean withRotation,boolean withFloorRelease,int maximum,boolean withSourceRetirement,
+            boolean withCapture,boolean withVotes,boolean withApplication,boolean withContext,Path materialization,boolean ownedHistory,
+            MembershipJoinedOwner joined)throws IOException {
         require(maximum>=RESERVATION && maximum<=MAXIMUM,"grant journal capacity");
         Objects.requireNonNull(resources);Objects.requireNonNull(verifier);Objects.requireNonNull(cut);Path path=AdmissionPaths.safe(requested);
-        var owner=materialization!=null?MembershipBallotAllocator.openBootstrapped(path,materialization,root,identity,cut):withContext?MembershipBallotAllocator.openWithPendingContext(path,root,identity,cut):withApplication?MembershipBallotAllocator.openWithAppliedEnd(path,root,identity,cut):withVotes?MembershipBallotAllocator.openWithPendingAccept(path,root,identity,cut):withCapture?MembershipBallotAllocator.openWithCaptureRecovery(path,root,identity,cut):withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
+        var owner=joined!=null?MembershipBallotAllocator.adoptJoined(joined,materialization,cut):materialization!=null?MembershipBallotAllocator.openBootstrapped(path,materialization,root,identity,cut):withContext?MembershipBallotAllocator.openWithPendingContext(path,root,identity,cut):withApplication?MembershipBallotAllocator.openWithAppliedEnd(path,root,identity,cut):withVotes?MembershipBallotAllocator.openWithPendingAccept(path,root,identity,cut):withCapture?MembershipBallotAllocator.openWithCaptureRecovery(path,root,identity,cut):withSourceRetirement?MembershipBallotAllocator.openWithSourceRetirement(path,root,identity,cut):withRotation?MembershipBallotAllocator.openWithJournalRotation(path,root,identity,cut):withRetirement?MembershipBallotAllocator.openWithRetirement(path,root,identity,cut):withFloors?MembershipBallotAllocator.openWithFloorCopies(path,root,identity,cut):MembershipBallotAllocator.openWithGenerationInstall(path,root,identity,cut);MembershipGrantJournal journal=null;
         try {
-            journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut,withCapture);journal.resources=resources;journal.ownedHistory=ownedHistory;journal.capsuleVerifier=ownedHistory?journal::verifyKnownHistory:verifier;journal.floorReleaseEnabled=withFloorRelease;
+            journal=new MembershipGrantJournal(path,root,identity,owner,maximum,cut,withCapture);journal.resources=resources;journal.joinedOwner=joined;journal.ownedHistory=ownedHistory;journal.capsuleVerifier=ownedHistory?journal::verifyKnownHistory:verifier;journal.floorReleaseEnabled=withFloorRelease;
             journal.applicationMetadata=withApplication?MembershipAppliedEndFiles.METADATA+MembershipReplayFiles.METADATA:0;
             if(withRotation)journal.rotation=new MembershipJournalRotationFiles(path);
             if(withSourceRetirement)journal.sourceRetirement=new MembershipSourceRetirementFiles(path);
@@ -361,6 +388,9 @@ final class MembershipGrantJournal implements AutoCloseable {
                     plan[0]=ownerJournal.contextCapturePlan(ownerJournal.promise,originals);
                     ownerJournal.checkBasis(plan[0].basis(),ownerJournal.promise);ownerJournal.capture.bind(plan[0]);return plan[0];
                 });pending=plan[0];
+            }else if(joined!=null && joined.storage()!=null) {
+                require(pending==null && (!withSourceRetirement || journal.sourceRetirement.decision().isEmpty()),"initial joined source recovery conflicts");
+                journal.sources=MembershipBasisSources.joined(path,resources,cut,journal.promises,journal.bases,joined.storage());
             }else journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases,
                     withSourceRetirement?journal.sourceRetirement.decision().orElse(null):null,pending);
             if(withContext && journal.pendingContext==null)journal.pendingContext=new MembershipPendingContextFiles(path,root,identity,resources,
@@ -411,12 +441,14 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(decision.isPresent())journal.retireSource(decision.get().id());
                 else require(!journal.rotation.pending(),"partial source retirement cannot own a journal rotation");
             }
-            if(withFloorRelease && journal.floors.releasing())journal.releaseFloor();if(withRotation && journal.rotation.pending())journal.rotateJournal();return journal;
+            if(withFloorRelease && journal.floors.releasing())journal.releaseFloor();if(withRotation && journal.rotation.pending())journal.rotateJournal();if(joined!=null)joined.claimed();return journal;
         }catch(IOException | RuntimeException | Error error){try{if(journal==null)owner.close();else journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     private void reloadGenerations() throws IOException {
         if(current!=null)current.close();if(inactive!=null)inactive.close();
-        current=ownedHistory?MembershipCurrentGeneration.readOwned(new HistoryRead(this),resources,cut):
+        if(joinedOwner!=null && joinedOwner.storage()!=null && !joinedGenerationClaimed) {
+            current=MembershipCurrentGeneration.readJoined(new HistoryRead(this),resources,cut,joinedOwner.storage());joinedGenerationClaimed=true;
+        }else current=ownedHistory?MembershipCurrentGeneration.readOwned(new HistoryRead(this),resources,cut):
                 new MembershipCurrentGeneration(directory,root,identity,resources,promises.values(),bases.values(),selections.values(),capsuleVerifier,cut,true);
         inactive=new MembershipGenerationFiles(directory,current.generation,resources);
     }
@@ -2947,6 +2979,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(incoming.context.root.equals(root.manifestDigest())
                 && Arrays.equals(localRoot,incoming.packet.objectBytes(incoming.context.recordRootDigest())),"adoption historical root differs");
         incoming.packet.verifyImages(images);
+        if(joinedOwner!=null)joinedOwner.history(incoming);
     }
     /** Observation of this owner's forced original grant, not an assertion of remote force. */
     synchronized MembershipSelection.Source originalSource() throws IOException {

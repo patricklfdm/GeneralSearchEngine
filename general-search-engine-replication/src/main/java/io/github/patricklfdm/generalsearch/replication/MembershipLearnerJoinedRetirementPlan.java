@@ -82,7 +82,7 @@ final class MembershipLearnerJoinedRetirementPlan {
                 && counts.get(MembershipResources.Unit.GENERATION)==2 && counts.get(MembershipResources.Unit.LEARNER)==1 && counts.get(MembershipResources.Unit.MISC)==1
                 && images.size()<=MembershipResources.Unit.APPLICATION.count,"joined retirement reservation categories");
         long required=MembershipLearnerCustody.MAXIMUM+2L*MembershipLearnerPlacement.MAXIMUM+MembershipLearnerJoinedAdmission.MAXIMUM
-                +MembershipLearnerJoinedRetirement.MAXIMUM+MembershipLearnerJoinedRetirement.DONE_MAXIMUM;
+                +MembershipLearnerJoinedRetirement.MAXIMUM+MembershipLearnerJoinedRetirement.DONE_MAXIMUM+MembershipJoinedOwner.MAXIMUM;
         var imageSizes=new ArrayList<Long>();
         for(Object raw:inventory) {
             var row=object(raw);if(!Boolean.TRUE.equals(row.get("present")))continue;var files=files(row);long backup=0;int backupMembers=0;

@@ -1,0 +1,389 @@
+{
+  "actualCounterAndPromiseBasis": true,
+  "actualRootAndSidecarDescriptorsTransferred": true,
+  "additionalFinalTestSource": [
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoinedNativeColdTest.java"
+  ],
+  "archive": {
+    "bytes": 12945492,
+    "path": "target/v53-joined-native/component-validation.tar.gz",
+    "sha256": "37b498df7dac3c5645cab9023d4575d2c4e29116fe8d4dbfbd1fa2dba14600ed"
+  },
+  "atomicCompleteStorageReplacement": true,
+  "autonomousJointVotingQualified": false,
+  "baseCommit": "401d955c7b5a8d83c1e8ef5ce0963e9850da580b",
+  "bootstrapAdmissionRegression": true,
+  "codeAndBuildInputsChecked": 1722,
+  "coldNativeGrantReplay": true,
+  "coldRetirementHandoff": true,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1454,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourcePassingCases": 29,
+  "currentSourceSnapshots": [
+    "joinednativeboundary",
+    "joinednativeguards"
+  ],
+  "developmentFailures": {
+    "joinednative": "Compilation stopped before tests: StorageBatch parameter shadowed the existing adopted boolean. Renamed incomingStorage; original failed build retained."
+  },
+  "exactOriginalEnrollmentRequired": true,
+  "fixedPrivateCompanionBytes": 983040,
+  "fullMembershipProcessDeathQualified": false,
+  "historicalQuorumFixturesConditional": true,
+  "incompleteHandoffRecoveryImplemented": false,
+  "independentJvmRootLockProbes": true,
+  "missingTornCopiedColdDecisionRefused": true,
+  "oldCloseCannotReleaseSuccessor": true,
+  "pending": [
+    "native later-view adoption and joint retention integration",
+    "minimum old-quorum INTENT delivery",
+    "joint FINAL and fresh barrier",
+    "typed public runtime materialization and service",
+    "all-profile native physical-history and halt/SIGKILL qualification"
+  ],
+  "phase3Complete": false,
+  "publicFormatsChanged": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "qualificationScheduling": "serial immutable snapshots; each preceding JVM suite reached its terminal result before the next execution",
+  "reports": {
+    "joinednative": {},
+    "joinednativeboundary": {
+      "io.github.patricklfdm.generalsearch.replication.V53BootstrapStoreAdmissionTest": {
+        "cases": [
+          {
+            "name": "activeOwnerRejectsImmutableBytesOrInodeReplacementBeforeAnotherWrite",
+            "seconds": 16.127,
+            "status": "PASS"
+          },
+          {
+            "name": "exclusiveOwnershipAndFailedReservationReleaseEveryLease",
+            "seconds": 2.655,
+            "status": "PASS"
+          },
+          {
+            "name": "everyAdmittedInitialVoterPreservesItsOriginalReceiptAcrossActualGrantAndReopen",
+            "seconds": 31.929,
+            "status": "PASS"
+          },
+          {
+            "name": "secondInterruptedCounterRecoveryKeepsAdmissionAndNeverReusesTheReservation",
+            "seconds": 8.22,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "a73ae01e6b7019861034310830088420a0144692b5224f8a82b60c3a89165661"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53JoinedNativeOwnerTest": {
+        "cases": [
+          {
+            "name": "actualDescriptorAndChargesReachNativeCounterAndGrantAcrossColdOpen",
+            "seconds": 33.452,
+            "status": "PASS"
+          },
+          {
+            "name": "forcedHandoffCutCanReopenButMissingCopiedAndChangedProofsCannot",
+            "seconds": 31.34,
+            "status": "PASS"
+          },
+          {
+            "name": "completedReplacementRecoversAfterTransferAndRejectsLiveProofMutationBeforeWriting",
+            "seconds": 32.461,
+            "status": "PASS"
+          },
+          {
+            "name": "originalJoinedGrantSurvivesInterruptedCounterRecoveryWithoutBootstrapAuthority",
+            "seconds": 31.352,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "c883da50edc04010767aa25d7bb4e9357bf3ffb7e98e7a9403fe2b067828b220"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageReplacementTest": {
+        "cases": [
+          {
+            "name": "preflightRejectsCapacityDuplicateAndRequestCategoriesWithoutRevocation",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "replacementIsAtomicAndOldCloseCannotUnchargeNativeClaims",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "commitRejectsChangedExtentAndInterveningWorkOrGenerationClaims",
+            "seconds": 0.001,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "18427e6a3acbe919fc6acf2cdbb513c524ac051a8a729491c1759aa2c40c66ba"
+      }
+    },
+    "joinednativefixed": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoinedNativeOwnerTest": {
+        "cases": [
+          {
+            "name": "actualDescriptorAndChargesReachNativeCounterAndGrantAcrossColdOpen",
+            "seconds": 33.19,
+            "status": "PASS"
+          },
+          {
+            "name": "forcedHandoffCutCanReopenButMissingCopiedAndChangedProofsCannot",
+            "seconds": 30.846,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "00720defee73d18ffc722b79d0bd7a5cbaaad8368025899e3801106f3f7e400c"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageReplacementTest": {
+        "cases": [
+          {
+            "name": "preflightRejectsCapacityDuplicateAndRequestCategoriesWithoutRevocation",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "replacementIsAtomicAndOldCloseCannotUnchargeNativeClaims",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "commitRejectsChangedExtentAndInterveningWorkOrGenerationClaims",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "bd7fcf50cc7fea8e3886ae640c48026d3ae6c25fdeb665257b7b869150688e8f"
+      }
+    },
+    "joinednativeguards": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoinedNativeColdTest": {
+        "cases": [
+          {
+            "name": "originalColdRetirementTransfersItsRealLockGroupAndRestoredReservations",
+            "seconds": 33.77,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "980aebda6e3110f79dfed4bda60a77589c6eca600907af30ebbe6d475992ba04"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": {
+        "cases": [
+          {
+            "name": "missingTornCopiedAndSemanticallyAlteredProofsRefuseWithoutRepair",
+            "seconds": 30.758,
+            "status": "PASS"
+          },
+          {
+            "name": "completedReplacementPreservesFinalFenceAndOriginalIntentAsDifferentProofs",
+            "seconds": 29.17,
+            "status": "PASS"
+          },
+          {
+            "name": "completeOriginalInstallationVerifiesWithoutPredecessorPayloadsButGrantsNoRetirement",
+            "seconds": 28.563,
+            "status": "PASS"
+          },
+          {
+            "name": "installedInodeReplacementAndLastReadMutationNeverEscapeAValidatedResult",
+            "seconds": 28.139,
+            "status": "PASS"
+          },
+          {
+            "name": "declaredNativeExtentsAndPathsAreBoundedBeforeFileReads",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e778ddc326cc4a78ea7181fd1a1b03018ee39dac697a25495e21dfc4ad902f9a"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": {
+        "cases": [
+          {
+            "name": "coldOriginalReservationUnderchargeAndCopiedCompletionAreRejected",
+            "seconds": 35.253,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedOriginalDecisionResumesLiveAndDeletionResumesColdWithoutRecreatingFiles",
+            "seconds": 34.049,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "3648441933af53cc37d453e8381b51d7f12f2027582f26c4a454ecb29f4c2750"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": {
+        "cases": [
+          {
+            "name": "capacityAndRevokedIntentFailBeforeCreatingStage",
+            "seconds": 19.013,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "521516b4e9b2b4dfeba535f0093dbf00ce193761d08b63a24fdc137274a4154d"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.041,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.033,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "5e222f969b3fa5a75a5c9490ead3b9849217a3b8be022f53f1550d67cfcdf901"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRefusesUncommittedGenerationClaimEvenWithEveryLease",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRechecksNewWorkAndExtraStorageAtTransferWithoutRevokingOldHandles",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.009,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.001,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "6d133c298590ab170578ec716a92ccb06e055a779a0132b5e9034778b49f6faa"
+      }
+    }
+  },
+  "runs": {
+    "joinednative": {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "joinednative",
+      "requestedTests": [
+        "V53StorageReplacementTest",
+        "V53JoinedNativeOwnerTest"
+      ],
+      "seconds": 9.038225672993576,
+      "skipped": 0,
+      "tests": 0
+    },
+    "joinednativeboundary": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53BootstrapStoreAdmissionTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoinedNativeOwnerTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageReplacementTest": 3
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joinednativeboundary",
+      "requestedTests": [
+        "V53JoinedNativeOwnerTest",
+        "V53StorageReplacementTest",
+        "V53BootstrapStoreAdmissionTest#everyAdmittedInitialVoterPreservesItsOriginalReceiptAcrossActualGrantAndReopen+secondInterruptedCounterRecoveryKeepsAdmissionAndNeverReusesTheReservation+activeOwnerRejectsImmutableBytesOrInodeReplacementBeforeAnotherWrite+exclusiveOwnershipAndFailedReservationReleaseEveryLease"
+      ],
+      "seconds": 202.12517192600353,
+      "skipped": 0,
+      "tests": 11
+    },
+    "joinednativefixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoinedNativeOwnerTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageReplacementTest": 3
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joinednativefixed",
+      "requestedTests": [
+        "V53StorageReplacementTest",
+        "V53JoinedNativeOwnerTest"
+      ],
+      "seconds": 78.37054448899289,
+      "skipped": 0,
+      "tests": 5
+    },
+    "joinednativeguards": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoinedNativeColdTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedOriginalTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joinednativeguards",
+      "requestedTests": [
+        "V53JoinedNativeColdTest",
+        "V53LearnerJoinedOriginalTest",
+        "V53LearnerJoinedRetirementTest#coldOriginalReservationUnderchargeAndCopiedCompletionAreRejected+interruptedOriginalDecisionResumesLiveAndDeletionResumesColdWithoutRecreatingFiles",
+        "V53LearnerVoterStageTest#capacityAndRevokedIntentFailBeforeCreatingStage",
+        "V53StorageOwnershipTransferTest",
+        "V53OwnedFileInspectionTest#nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor+custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor"
+      ],
+      "seconds": 253.047949661006,
+      "skipped": 0,
+      "tests": 18
+    }
+  },
+  "schema": "gse-v53-joined-native-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "5ae808948a4df19b93dca0ac2c52f8d6d21e6ab1aa1aa578960d38ac7a7b9f43",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources.java": "321ca83b7c8ea4903cb49da23dfd7926ebb9772465d625d2fa4ee81cf33e2f49",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java": "eacea4d8a25a8ad81a40d9e9dbba4e30eb5faa63c73c5947aa0099c7ee016c14",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "e48bd59ab157c1bae0912674551f4b4f4118e9b1f0047236e53cf1edc32a82cb",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoinedOwner.java": "c2669dd9f3b615abf919b232528c9c413ceb71b9b2239d3ae226c45d3df55b46",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCustody.java": "9fd4347a67c62a1e45f09239e7a82bd5384f4e10cced2c3bce94941928ac2f85",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerIntent.java": "f168abfa7e05d0ec74362466f3914744669944a2a1daca1da464d8ca3daaf474",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerJoinedOriginal.java": "5448d1bca365886597f874d2fbc2c2ef8aaa14b5fd98bcca993f0b1a5408d791",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerJoinedRetirement.java": "f079a2202acf5378321eb8987b050ce0bcdb5624b352f15f98270730c50c9330",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerJoinedRetirementPlan.java": "0973061388e478bb2c2d0095c318985290bd8ee889c8a418807368fc95db463a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerVoterStage.java": "d409a1a3262d212b35a334df7c03b0f5d65a6eed200b5303018530cbaf982d35",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipOwnership.java": "4b6f80e801ba3fd499a1910f7c0ad0da9389b3a7c1b230821cac6b5656aad292",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "27ca396babe2c8809b61a013f239540c76be6cdc86b1eb239f35a067a39ae235",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoinedNativeColdTest.java": "d8f3c7a837cd23540e779fa928214e63589abfc400c6cc353d114135687c63f4",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoinedNativeOwnerTest.java": "2f272884eb49d6516e3aab082849715a6152b716d56a313e3d206b9a0b2fdbc8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53StorageReplacementTest.java": "871098264a73a0ee209d72a35830af87d5db0ac181b1068e33b1533eeeece296"
+  },
+  "status": "PASS_JOINED_NATIVE_COMPONENTS",
+  "supersededPassingAttempts": {
+    "joinednativefixed": "Five focused tests passed before strengthening cold conservative companion accounting, incoming-history provenance precheck and the additional interruption/bootstrap/cold-transfer regressions."
+  },
+  "typedPublicRuntimeReady": false,
+  "unreturnedCounterNeverReused": true
+}

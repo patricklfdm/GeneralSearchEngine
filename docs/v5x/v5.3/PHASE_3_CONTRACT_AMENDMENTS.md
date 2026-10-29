@@ -1,5 +1,25 @@
 # V5.3 Phase 3 contract amendments
 
+## A44 — original native joined ownership
+
+The [native joining owner](PHASE_3_JOINED_NATIVE.md) consumes completed original
+retirement, revalidates the installed history and preflights complete storage
+replacement. Force an inode/path-bound 64 KiB handoff before transferring the
+actual lock descriptors. Reclassify the entire quiescent reservation group
+atomically under unchanged public limits; revoke old leases/owners and consume
+new leases directly in the native generation and journal readers. No lock is
+released/reacquired during live transfer and no temporary second storage group
+is charged. Fixed private companions are now 960 KiB, reserved before staging.
+
+Cold native recovery requires that exact original handoff and retained joining,
+placement, retirement and typed proofs, then uses ordinary native mutable-file
+recovery under actual root and sidecar locks. Missing/torn/copied handoffs fail
+closed. Original enrollment provenance remains required when the current view
+advances; immediate target-view equality remains mandatory for initial joining.
+No bootstrap receipt, caller observation set or new public format is introduced.
+Native counter/PROMISE/BASIS components are qualified separately from autonomous
+joint-quorum operation, typed public service and full Phase 3 acceptance.
+
 ## A43 — original joined predecessor retirement
 
 The [joined retirement transaction](PHASE_3_JOINED_RETIREMENT.md) derives its

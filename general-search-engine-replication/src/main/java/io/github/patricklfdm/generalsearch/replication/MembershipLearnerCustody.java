@@ -201,6 +201,23 @@ final class MembershipLearnerCustody implements AutoCloseable {
         check();require(placement==null,"learner placement already started; original resume required");placement=Objects.requireNonNull(next);
     }
     synchronized MembershipLearnerPlacement placement()throws IOException {check();return placement;}
+    synchronized MembershipResources resources()throws IOException {check();return resources;}
+    synchronized MembershipResources.StorageReplacement replacement(List<MembershipResources.StorageReservation> requested)throws IOException {
+        check();return resources.prepareCompleteReplacement(leases,requested);
+    }
+    synchronized List<AutoCloseable> transferOwners(MembershipLearnerJoinedRetirement expected)throws IOException {
+        require(retirement==expected && expected.transferring(),"native custody transfer requires original forced handoff");
+        // Called only after the consumer has committed complete replacement
+        // accounting. Old handles must remain revocable without a re-open.
+        var moved=new ArrayList<AutoCloseable>();
+        try {
+            for(var owner:owners)moved.add(owner instanceof MembershipOwnership lock?lock.transfer():((MembershipFileAccess.Owned)owner).transfer());
+            transferred=false;return List.copyOf(moved);
+        }catch(IOException|RuntimeException|Error error){
+            try{MembershipLearnerSource.closeChildren(moved.toArray(AutoCloseable[]::new));}catch(Exception close){error.addSuppressed(close);}
+            try{close();}catch(Exception close){error.addSuppressed(close);}throw error;
+        }
+    }
     synchronized List<Map<String,Object>> reservations()throws IOException {check();return resources.describeCompleteStorage(leases);}
     synchronized MembershipLearnerJoinedRetirement retirement()throws IOException {check();return retirement;}
     synchronized void attachRetirement(MembershipLearnerJoinedRetirement next)throws IOException {

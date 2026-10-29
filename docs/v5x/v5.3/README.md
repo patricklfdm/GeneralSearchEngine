@@ -1,10 +1,18 @@
 # V5.3 — controlled cluster operations
 
-[Original joined retirement](PHASE_3_JOINED_RETIREMENT.md) now deletes the
-covered original predecessor payloads under a forced bounded plan, with real-lock
-cold continuation and conservative full reservation restoration. Native
-journal/allocator takeover, minimum-quorum joining, full process qualification
-and complete Phase 3 remain **OPEN**.
+[Native joined ownership](PHASE_3_JOINED_NATIVE.md) now transfers actual root
+and sidecar descriptors plus the complete surviving storage group into the
+native allocator/journal. Genuine local counter and PROMISE/BASIS operations
+survive cold reopen without bootstrap authority. Minimum-quorum joining,
+later-view integration, typed runtime service and full native process/history
+qualification remain **OPEN**; this is not Phase 3 closure.
+
+[Original joined retirement](PHASE_3_JOINED_RETIREMENT.md) deletes covered
+predecessor payloads under a forced bounded plan, retaining the original locks
+and conservative charges until the native handoff above.
+
+The following earlier component notes preserve their qualification boundaries
+at the time of each increment; the current native handoff is described above.
 
 [Original joined-history validation](PHASE_3_JOINED_ORIGINAL.md) now checks the
 surviving installed generation under real root exclusion before joining

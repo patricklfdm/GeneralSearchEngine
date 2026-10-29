@@ -42,7 +42,7 @@ final class MembershipLearnerJoinedOriginal {
 
     static <K,T> Inspection verify(MembershipLearnerJoinedAdmission admission,SearchEngineConfiguration<K,T> captured,
             MembershipReplicaConfig<K,T> config)throws IOException {
-        admission.check();var scope=new Scope(admission.placement().custody().summary(),admission,null,null,captured,config);
+        admission.check();var scope=new Scope(admission.placement().custody().summary(),admission,null,null,captured,config,false);
         try{return scope.read(e->{});}finally{scope.closed=true;}
     }
     /** No new files, force, repair, remote source, caller observations or
@@ -51,15 +51,27 @@ final class MembershipLearnerJoinedOriginal {
             MembershipReplicaConfig<K,T> config,MembershipBallotAllocator.Cut cut)throws IOException {
         Objects.requireNonNull(cut);
         try(var owner=MembershipOwnership.own(summary.request().replicaDirectory().resolve("replica.lock"),false)) {
-            var scope=new Scope(summary,null,owner,null,captured,config);
+            var scope=new Scope(summary,null,owner,null,captured,config,false);
             try{return scope.read(cut);}finally{scope.closed=true;}
         }
     }
 
     static <K,T> Inspection verifyRetirement(MembershipLearnerJoinedRetirement retirement,SearchEngineConfiguration<K,T> captured,
             MembershipReplicaConfig<K,T> config)throws IOException {
-        retirement.checkOwner();var scope=new Scope(retirement.summary(),null,null,retirement,captured,config);
+        retirement.checkOwner();var scope=new Scope(retirement.summary(),null,null,retirement,captured,config,false);
         try{return scope.read(e->{});}finally{scope.closed=true;}
+    }
+    /** Immutable proof bindings only. This reader issues no history/ownership
+     * capability and performs no installed-generation validation. */
+    static <K,T> Proof proof(MembershipLearnerPlan summary,SearchEngineConfiguration<K,T> captured,MembershipReplicaConfig<K,T> config)throws IOException {
+        return new Proof(new Scope(summary,null,null,null,captured,config,true));
+    }
+    static final class Proof {
+        private final Scope scope;
+        private Proof(Scope scope){this.scope=scope;}
+        void check()throws IOException{scope.checkProofs();}
+        Map<String,Object> value(){return scope.value;}
+        Map<String,Object> installed(){return scope.installed;}
     }
     private static final class Scope {
         private final MembershipLearnerPlan summary;
@@ -75,7 +87,7 @@ final class MembershipLearnerJoinedOriginal {
         private final byte[] joined;
         private boolean closed;
         private <K,T> Scope(MembershipLearnerPlan summary,MembershipLearnerJoinedAdmission admission,MembershipOwnership owner,MembershipLearnerJoinedRetirement retirement,
-                SearchEngineConfiguration<K,T> captured,MembershipReplicaConfig<K,T> config)throws IOException {
+                SearchEngineConfiguration<K,T> captured,MembershipReplicaConfig<K,T> config,boolean proofOnly)throws IOException {
             this.summary=summary;this.admission=admission;this.owner=owner;this.retirement=retirement;replica=summary.request().replicaDirectory();generation=replica.resolve("generations/a");
             originals=MembershipLearnerPlacement.installedOriginal(summary);var nativeFiles=new TreeMap<String,Object>();var oldNames=new HashSet<String>();
             for(var row:originals.entrySet()) {
@@ -114,7 +126,7 @@ final class MembershipLearnerJoinedOriginal {
             String descriptor=plan.get("configuration") instanceof String text?text:hash(canonical(plan.get("configuration"),MembershipLearnerMaterialization.MAXIMUM_PLAN));
             require(plan.get("plan").equals(summary.planDigest()) && plan.get("materialization").equals(value.get("materialization"))
                     && plan.get("source").equals(value.get("preparationSource")) && descriptor.equals(value.get("configuration")),"joined original typed configuration binding");
-            configuration=()->MembershipLearnerJoinedAdmission.configuration(summary,joined,captured,config);check();
+            configuration=()->MembershipLearnerJoinedAdmission.configuration(summary,joined,captured,config);if(proofOnly)checkProofs();else check();
         }
         private static Map<String,Object> fingerprint(FileIdentity file) {
             return Map.of("key",file.key().toString(),"size",file.bytes(),"sha256",file.digest());
@@ -122,10 +134,7 @@ final class MembershipLearnerJoinedOriginal {
         private void check()throws IOException {
             require(!closed,"joined original read scope expired");
             if(admission!=null)admission.check();else if(retirement!=null)retirement.checkOwner();else require(owner.lock().isValid(),"joined original root owner unavailable");
-            configuration.check();
-            for(var directory:directories.entrySet())require(directory.getValue().equals(key(directory.getKey())),"joined original decision directory changed");
-            for(var proof:proofs.entrySet()){var f=proof.getValue();require(f.equals(MembershipBasisSources.inspect(proof.getKey(),f.bytes(),f.digest())),"joined original proof changed");}
-            require(originals.equals(MembershipLearnerPlacement.installedOriginal(summary)),"joined original installation decision changed");
+            checkProofs();
             for(var row:installed.entrySet()) {
                 String name=row.getKey();Path path=AdmissionPaths.safe(name.equals(".")?replica:replica.resolve(name));var expected=object(row.getValue());
                 if(Boolean.TRUE.equals(expected.get("directory"))) {
@@ -141,6 +150,12 @@ final class MembershipLearnerJoinedOriginal {
                     require(actual.key().toString().equals(expected.get("key")),"joined original installed file replaced");
                 }
             }
+        }
+        private void checkProofs()throws IOException {
+            configuration.check();
+            for(var directory:directories.entrySet())require(directory.getValue().equals(key(directory.getKey())),"joined original decision directory changed");
+            for(var proof:proofs.entrySet()){var f=proof.getValue();require(f.equals(MembershipBasisSources.inspect(proof.getKey(),f.bytes(),f.digest())),"joined original proof changed");}
+            require(originals.equals(MembershipLearnerPlacement.installedOriginal(summary)),"joined original installation decision changed");
         }
         private void point(MembershipBallotAllocator.Cut cut,String event)throws IOException {check();cut.at(event);check();}
         private Inspection read(MembershipBallotAllocator.Cut cut)throws IOException {

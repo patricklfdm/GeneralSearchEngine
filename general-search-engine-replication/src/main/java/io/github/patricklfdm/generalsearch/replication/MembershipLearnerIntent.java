@@ -31,6 +31,17 @@ final class MembershipLearnerIntent implements AutoCloseable {
     /** Shared semantic binding for the actual retained owner and its later
      * placement custody. This method does not issue ownership or a vote. */
     static Map<String,Object> matchReceipt(MembershipLearnerRequest request,Decoded receipt,MembershipCapsule source) {
+        var row=matchJoinedReceipt(request,receipt,source);
+        var target=request.change().target().stream().map(i->i.nodeId().value()).toList();var view=source.context.view;
+        var old=object(object(object(row.get("prepared")).get("cut")).get("view"));String binding=(String)row.get("binding");
+        if(row.get("phase").equals("JOINT"))require(binding.equals(view.get("operation")) && view.get("old").equals(old.get("old"))
+                && view.get("new").equals(target) && view.get("generation").equals(old.get("generation")),"learner INTENT current joint view");
+        else require(view.get("operation")==null && view.get("old").equals(target) && view.get("new").equals(target)
+                && number(view.get("generation"))==number(old.get("generation"))+1,"learner INTENT completed target view");
+        return row;
+    }
+    /** Original enrollment provenance may outlive its immediate target view. */
+    static Map<String,Object> matchJoinedReceipt(MembershipLearnerRequest request,Decoded receipt,MembershipCapsule source) {
         require(source.context.root.equals(request.root().manifestDigest()),"learner INTENT root changed");
         var row=MembershipLearnerProgressAccess.operation(source.context,request.identity());
         require(row.get("request").equals(MembershipLearnerDiscovery.request(request.change())),"learner INTENT request changed");
@@ -41,14 +52,10 @@ final class MembershipLearnerIntent implements AutoCloseable {
                 && actual.get("identity").equals(MembershipPeerRetentionPlan.identity(request.identity())),"learner INTENT differs from forced typed receipt");
         var descriptor=new TreeMap<String,Object>();for(String field:List.of("request","prepared","receipt"))descriptor.put(field,row.get(field));
         String binding=hash(canonical(descriptor,8192));require(binding.equals(row.get("binding")),"learner INTENT sealed binding");
-        var target=request.change().target().stream().map(i->i.nodeId().value()).toList();var view=source.context.view;
+        var target=request.change().target().stream().map(i->i.nodeId().value()).toList();
         var old=object(object(object(row.get("prepared")).get("cut")).get("view"));String node=request.identity().nodeId().value();
         require(!MembershipContext.nodes(old,"old").contains(node) && target.contains(node)
                 && source.context.identities.get(node).equals(request.identity()),"learner INTENT joining identity");
-        if(row.get("phase").equals("JOINT"))require(binding.equals(view.get("operation")) && view.get("old").equals(old.get("old"))
-                && view.get("new").equals(target) && view.get("generation").equals(old.get("generation")),"learner INTENT current joint view");
-        else require(view.get("operation")==null && view.get("old").equals(target) && view.get("new").equals(target)
-                && number(view.get("generation"))==number(old.get("generation"))+1,"learner INTENT completed target view");
         Decoded found=null;
         for(Object item:list(source.packet.capsule().value().get("items"))) {
             var edge=object(item);if(!edge.get("kind").equals("MEMBERSHIP") || !binding.equals(edge.get("descriptor")))continue;

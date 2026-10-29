@@ -66,7 +66,9 @@ extents cover the original physical inventory plus the private companions.
 Already-deleted payloads do not lower that cold reservation requirement.
 
 No lease is released merely because a file disappears. Exact reclassification
-and transfer into the actual native journal/allocator remain the next step.
+and transfer into the actual native journal/allocator are now implemented by
+the separate [native handoff](PHASE_3_JOINED_NATIVE.md). That handoff adds 64 KiB
+to upfront companions (960 KiB total); cold conservative accounting includes it.
 Closing this transaction releases its owners and charges; retaining it does not
 make a voter runnable. The installed immutable history must still receive typed
 materialization and native runtime checks before service.
@@ -83,7 +85,7 @@ corruption, and a promoted completed replacement's selected typed proof.
 
 These historical source fixtures retain conditional quorum observations. This
 batch is not native full-history, all-profile or halt/SIGKILL qualification.
-[Deferred acceptance](PHASE_3_DEFERRED_ACCEPTANCE.md) still requires actual
-root-descriptor/reservation handoff to the native journal, minimum-quorum INTENT,
-joined retention, joint FINAL/fresh-barrier integration and full original-first
-physical/history replay before Phase 3 can close.
+The separate native handoff now consumes the actual descriptors/reservations.
+[Deferred acceptance](PHASE_3_DEFERRED_ACCEPTANCE.md) still requires minimum-quorum
+INTENT, joined retention, joint FINAL/fresh-barrier integration and full
+original-first physical/history replay before Phase 3 can close.

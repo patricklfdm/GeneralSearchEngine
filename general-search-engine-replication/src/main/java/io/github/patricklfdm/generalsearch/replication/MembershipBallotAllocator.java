@@ -18,6 +18,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
     private final MembershipRoot root;
     private final MembershipIdentity identity;
     private final MembershipOwnership owner;
+    private final MembershipJoinedOwner joined;
     private final Map<String,Object> pathBinding,materializationBinding;
     private final Object directoryKey, lockKey;
     private final Map<String,byte[]> immutable;
@@ -31,6 +32,11 @@ final class MembershipBallotAllocator implements AutoCloseable {
 
     private MembershipBallotAllocator(Path directory, MembershipRoot root, MembershipIdentity identity,
             MembershipOwnership owner, Cut cut, Set<String> additional,Path materialization) throws IOException {
+        this(directory,root,identity,owner,cut,additional,materialization,null);
+    }
+    private MembershipBallotAllocator(Path directory,MembershipRoot root,MembershipIdentity identity,MembershipOwnership owner,
+            Cut cut,Set<String> additional,Path materialization,MembershipJoinedOwner joined)throws IOException {
+        this.joined=joined;
         this.directory=directory; this.root=root; this.identity=identity; this.owner=owner; this.cut=cut;
         this.additional=additional;this.materialization=materialization;
         pathBinding=AdmissionPaths.binding(directory); directoryKey=key(directory); lockKey=key(directory.resolve("replica.lock"));
@@ -54,7 +60,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
         var node=decode(records.get("node.gsr"),"records","NODE").value();
         require(node.get("root").equals(root.manifestDigest()) && MembershipContext.identity(object(node.get("identity"))).equals(identity),"allocator node identity");
         var keys=new TreeMap<String,Object>();
-        if(materialization!=null) {
+        if(materialization!=null && joined==null) {
             for(String name:List.of(MembershipBootstrapCommitData.PREPARED,MembershipBootstrapCommitData.SEAL,MembershipBootstrapAdmissionData.FILE))
                 {keys.put(name,key(directory.resolve(name)));records.put(name,AdmissionPaths.read(directory.resolve(name),65536));}
             new MembershipBootstrapAdmissionData(records.get(MembershipBootstrapAdmissionData.FILE),records.get("root.gsr"),records.get("genesis.gsr"),
@@ -137,16 +143,25 @@ final class MembershipBallotAllocator implements AutoCloseable {
     private static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,boolean applying,boolean context) throws IOException {
         return openWithPendingAccept(requested,root,identity,cut,applying,context,null);
     }
-    private static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,boolean applying,boolean context,Path materialization)throws IOException {
+    private static Set<String> nativeFiles(boolean applying,boolean context,boolean admitted,boolean bootstrap) {
         var names=new HashSet<>(Set.of("grants.gsr",MembershipBasisSources.DIRECTORY,
                 MembershipCurrentGeneration.DIRECTORY,MembershipCurrentGeneration.SELECTOR,MembershipGenerationFiles.PENDING,
                 MembershipFloorFiles.DIRECTORY,MembershipRetirementFiles.DIRECTORY,MembershipJournalRotation.PENDING,
                 MembershipSourceRetirementFiles.FILE,MembershipCaptureFiles.FILE,MembershipPendingAccept.FILE,MembershipPendingAccept.NEXT));
         if(applying){names.add(MembershipAppliedEndFiles.DIRECTORY);names.add(MembershipReplayFiles.DIRECTORY);}
         if(context){names.add(MembershipPendingContextFiles.FILE);names.add(MembershipPendingContextFiles.NEXT);}
-        if(materialization!=null)names.addAll(Set.of(MembershipBootstrapCommitData.PREPARED,MembershipBootstrapCommitData.SEAL,MembershipBootstrapAdmissionData.FILE,
+        if(admitted)names.addAll(Set.of(
                 MembershipPeerRetentionFiles.FILE,MembershipPeerRetentionFiles.NEXT,MembershipLearnerRetentionFiles.FILE,MembershipLearnerRetentionFiles.NEXT,MembershipFutureRetentionFiles.FILE,MembershipFutureRetentionFiles.NEXT));
-        return open(requested,root,identity,cut,names,materialization);
+        if(bootstrap)names.addAll(Set.of(MembershipBootstrapCommitData.PREPARED,MembershipBootstrapCommitData.SEAL,MembershipBootstrapAdmissionData.FILE));
+        return Set.copyOf(names);
+    }
+    private static MembershipBallotAllocator openWithPendingAccept(Path requested,MembershipRoot root,MembershipIdentity identity,Cut cut,boolean applying,boolean context,Path materialization)throws IOException {
+        return open(requested,root,identity,cut,nativeFiles(applying,context,materialization!=null,materialization!=null),materialization);
+    }
+    static MembershipBallotAllocator adoptJoined(MembershipJoinedOwner joined,Path materialization,Cut cut)throws IOException {
+        joined.check();var summary=joined.summary();Path path=summary.request().replicaDirectory();var additional=nativeFiles(true,true,true,false);
+        inventory(path,additional);var allocator=new MembershipBallotAllocator(path,summary.request().root(),summary.request().identity(),joined.root(),cut,additional,materialization,joined);
+        try{allocator.recover();return allocator;}catch(IOException|RuntimeException|Error error){try{joined.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
 
     private static MembershipBallotAllocator open(Path requested, MembershipRoot root, MembershipIdentity identity, Cut cut, Set<String> additional) throws IOException {
@@ -205,6 +220,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
 
     synchronized void checkOwner() throws IOException {
         require(!closed && !failed && owner.lock().isValid(),"allocator closed or failed");
+        if(joined!=null)joined.check();
         AdmissionPaths.recheck(pathBinding);
         if(materializationBinding!=null){AdmissionPaths.recheck(materializationBinding);
             require(!Files.exists(materialization,LinkOption.NOFOLLOW_LINKS) || Files.isDirectory(materialization,LinkOption.NOFOLLOW_LINKS),"bootstrap materialization is not a directory");}
@@ -266,6 +282,6 @@ final class MembershipBallotAllocator implements AutoCloseable {
     }
 
     @Override public synchronized void close() throws IOException {
-        if(!closed) { closed=true; owner.close(); }
+        if(!closed) { closed=true;if(joined!=null)joined.close();else owner.close(); }
     }
 }

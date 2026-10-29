@@ -29,7 +29,7 @@ final class MembershipLearnerJoinedRetirement implements AutoCloseable {
     private final Set<MembershipResources.Lease> leases=new LinkedHashSet<>();
     private Object directoryKey;
     private byte[] plan;
-    private boolean closed,planForced,complete;
+    private boolean closed,planForced,complete,transferred,transferring;
 
     static Path directory(MembershipLearnerPlan summary) {
         return summary.request().operationDirectory().resolveSibling(".gse-v53-learner-retired-"+summary.planDigest());
@@ -92,6 +92,32 @@ final class MembershipLearnerJoinedRetirement implements AutoCloseable {
             result.point(cut,"JOINED_RETIREMENT_RECOVERY_VERIFIED");result.finish(cut);return result;
         }catch(IOException|RuntimeException|Error error){try{result.close();}catch(Exception close){error.addSuppressed(close);}throw error;}
     }
+    static Map<Path,byte[]> completedRecords(MembershipLearnerPlan summary)throws IOException {
+        Path dir=directory(summary);byte[] bytes=AdmissionPaths.read(dir.resolve(PLAN),MAXIMUM);var value=object(parse(bytes,MAXIMUM));
+        var reader=new MembershipLearnerJoinedRetirement(summary,null,null,null,list(value.get("reservations")));
+        reader.directoryKey=key(dir);reader.plan=reader.decision(reader.directoryKey.toString(),key(dir.resolve(PLAN)).toString());
+        AdmissionPaths.exact(dir.resolve(PLAN),reader.plan);require(children(dir,2).equals(Set.of(PLAN,DONE)),"joined native retirement must be complete");
+        reader.records.put(PLAN,inspect(dir.resolve(PLAN),reader.plan.length,hash(reader.plan)));
+        byte[] completion=reader.completion(key(dir.resolve(DONE)));AdmissionPaths.exact(dir.resolve(DONE),completion);
+        return Map.of(dir.resolve(PLAN),reader.plan,dir.resolve(DONE),completion);
+    }
+    MembershipResources resources()throws IOException {check();return custody==null?resources:custody.resources();}
+    MembershipResources.StorageReplacement replacement(List<MembershipResources.StorageReservation> requested)throws IOException {
+        check();return custody==null?resources.prepareCompleteReplacement(leases,requested):custody.replacement(requested);
+    }
+    boolean transferring(){return transferring;}
+    List<AutoCloseable> transferOwners(MembershipJoinedOwner next)throws IOException {
+        check();next.checkHandoff(this);transferring=true;var moved=new ArrayList<AutoCloseable>();
+        try {
+            // Replacement validation happens before any descriptor revocation.
+            next.commitStorage();
+            if(custody!=null)moved.addAll(custody.transferOwners(this));else for(var lock:locks)moved.add(lock.transfer());
+            transferred=true;return List.copyOf(moved);
+        }catch(IOException|RuntimeException|Error error){
+            try{MembershipLearnerSource.closeChildren(moved.toArray(AutoCloseable[]::new));}catch(Exception close){error.addSuppressed(close);}
+            try{close();}catch(Exception close){error.addSuppressed(close);}throw error;
+        }finally{transferring=false;}
+    }
     MembershipLearnerPlan summary(){return summary;}
     private static Map<String,Object> fingerprint(FileIdentity f){return Map.of("key",f.key().toString(),"size",f.bytes(),"sha256",f.digest());}
     private byte[] decision(String directoryKey,String recordKey) {
@@ -107,7 +133,7 @@ final class MembershipLearnerJoinedRetirement implements AutoCloseable {
     }
     /** Called from custody's actual lock/accounting guard. No recursion into it. */
     void checkOriginals()throws IOException {
-        require(!closed,"joined retirement owner closed");if(placement!=null)placement.checkRecords();
+        require(!closed && !transferred,"joined retirement owner closed or transferred");if(placement!=null)placement.checkRecords();
         for(var dir:proofDirectories.entrySet())require(key(dir.getKey()).equals(dir.getValue()),"joined retirement original proof directory changed");
         for(var proof:proofs.entrySet()){var f=proof.getValue();require(f.equals(inspect(proof.getKey(),f.bytes(),f.digest())),"joined retirement original proof changed");}
         require(original.inventory.equals(MembershipLearnerPlacement.placedOriginalInventory(summary)),"joined retirement original inventory decision changed");
@@ -127,7 +153,7 @@ final class MembershipLearnerJoinedRetirement implements AutoCloseable {
         require(!complete || records.containsKey(DONE) && records.get(DONE).bytes()==completion(records.get(DONE).key()).length,"joined retirement completion missing");
     }
     void checkOwner()throws IOException {
-        require(!closed,"joined retirement owner closed");
+        require(!closed && !transferred,"joined retirement owner closed or transferred");
         if(custody!=null)custody.check();else {
             require(locks.size()==original.locks.size(),"joined retirement incomplete original locks");
             for(var lock:locks)require(lock.lock().isValid(),"joined retirement original lock unavailable");

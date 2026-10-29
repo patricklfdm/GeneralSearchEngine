@@ -45,6 +45,11 @@ final class MembershipBasisSources implements AutoCloseable {
     MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
             Map<String,Decoded> promises,Map<String,Decoded> bases,MembershipSourceRetirementFiles.Decision retiring,
             Decoded capturePromise,CaptureResolver resolver)throws IOException {
+        this(parent,resources,cut,promises,bases,retiring,capturePromise,resolver,null);
+    }
+    private MembershipBasisSources(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
+            Map<String,Decoded> promises,Map<String,Decoded> bases,MembershipSourceRetirementFiles.Decision retiring,
+            Decoded capturePromise,CaptureResolver resolver,MembershipResources.StorageBatch adopted)throws IOException {
         directory=parent.resolve(DIRECTORY);this.resources=resources;this.cut=cut;
         root=AdmissionPaths.read(parent.resolve("root.gsr"),16384);directoryKey=key(directory);
         try {
@@ -52,7 +57,8 @@ final class MembershipBasisSources implements AutoCloseable {
             String pendingId=capturePromise==null?null:(String)capturePromise.value().get("basisId");
             if(resolver!=null)require(retiring==null && pendingId!=null && promises.containsKey(pendingId)
                     && Arrays.equals(capturePromise.bytes(),promises.get(pendingId).bytes()),"capture resolver original promise");
-            leases.add(resources.reserve(MembershipResources.Unit.JOURNAL,"membership-grants",MembershipGrantJournal.MAXIMUM));
+            leases.add(adopted==null?resources.reserve(MembershipResources.Unit.JOURNAL,"membership-grants",MembershipGrantJournal.MAXIMUM):
+                    adopted.claim(MembershipResources.Unit.JOURNAL,"membership-grants",MembershipGrantJournal.MAXIMUM));
             Set<String> ids=children(directory,6);
             var allowed=new HashSet<>(promises.keySet());if(retiring!=null)allowed.add(retiring.id());
             require(allowed.containsAll(ids) && ids.containsAll(bases.keySet())
@@ -102,6 +108,11 @@ final class MembershipBasisSources implements AutoCloseable {
             }
             AdmissionPaths.forceDirectory(directory);
         } catch(IOException | RuntimeException | Error error) {close();throw error;}
+    }
+    static MembershipBasisSources joined(Path parent,MembershipResources resources,MembershipBallotAllocator.Cut cut,
+            Map<String,Decoded> promises,Map<String,Decoded> bases,MembershipResources.StorageBatch adopted)throws IOException {
+        require(adopted!=null && children(parent.resolve(DIRECTORY),6).isEmpty() && bases.isEmpty(),"initial native joining source inventory");
+        return new MembershipBasisSources(parent,resources,cut,promises,bases,null,null,null,adopted);
     }
     static Object key(Path path) throws IOException {
         AdmissionPaths.safe(path);Object value=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).fileKey();

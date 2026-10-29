@@ -50,6 +50,15 @@ final class MembershipCurrentGeneration implements AutoCloseable {
     private MembershipCurrentGeneration(Path parent,MembershipRoot root,MembershipIdentity identity,MembershipResources resources,
             Collection<Decoded> promises,Collection<Decoded> bases,Collection<Decoded> selections,Verifier verifier,
             MembershipBallotAllocator.Cut cut,boolean installations,MembershipGrantJournal.HistoryRead historyOwner)throws IOException {
+        this(parent,root,identity,resources,promises,bases,selections,verifier,cut,installations,historyOwner,null);
+    }
+    static MembershipCurrentGeneration readJoined(MembershipGrantJournal.HistoryRead owner,MembershipResources resources,
+            MembershipBallotAllocator.Cut cut,MembershipResources.StorageBatch incomingStorage)throws IOException {
+        owner.check();return new MembershipCurrentGeneration(owner.directory(),owner.root(),owner.identity(),resources,owner.promises(),owner.bases(),owner.selections(),null,cut,true,owner,incomingStorage);
+    }
+    private MembershipCurrentGeneration(Path parent,MembershipRoot root,MembershipIdentity identity,MembershipResources resources,
+            Collection<Decoded> promises,Collection<Decoded> bases,Collection<Decoded> selections,Verifier verifier,
+            MembershipBallotAllocator.Cut cut,boolean installations,MembershipGrantJournal.HistoryRead historyOwner,MembershipResources.StorageBatch incomingStorage)throws IOException {
         this.parent=parent;this.root=root;this.identity=identity;this.historyOwner=historyOwner;this.installations=installations;
         if(historyOwner!=null)historyOwner.check();
         directory=parent.resolve(DIRECTORY);directoryKey=key(directory);
@@ -82,11 +91,11 @@ final class MembershipCurrentGeneration implements AutoCloseable {
         var expected=new TreeSet<>(inventory.keySet());expected.add(MANIFEST);
         require(children(path,32).equals(expected) && inventory.containsKey(PACKET) && inventory.containsKey("promise.gsr"),"current file inventory");
         try {
-            leases.add(resources.reserve(MembershipResources.Unit.MISC,"current-authority",MembershipResources.Unit.MISC.bytes));
-            leases.add(resources.reserve(MembershipResources.Unit.GENERATION,generation,metadata));
+            leases.add(incomingStorage==null?resources.reserve(MembershipResources.Unit.MISC,"current-authority",MembershipResources.Unit.MISC.bytes):incomingStorage.claim(MembershipResources.Unit.MISC,"current-authority",MembershipResources.Unit.MISC.bytes));
+            leases.add(incomingStorage==null?resources.reserve(MembershipResources.Unit.GENERATION,generation,metadata):incomingStorage.claim(MembershipResources.Unit.GENERATION,generation,metadata));
             for(var file:inventory.values()) {
                 String name=(String)file.get("path");long size=number(file.get("size"));
-                if(name.endsWith(".image"))leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"generation-"+generation+":"+name,size));
+                if(name.endsWith(".image"))leases.add(incomingStorage==null?resources.reserve(MembershipResources.Unit.APPLICATION,"generation-"+generation+":"+name,size):incomingStorage.claim(MembershipResources.Unit.APPLICATION,"generation-"+generation+":"+name,size));
                 files.put(name,inspect(path.resolve(name),size,(String)file.get("sha256")));
             }
             var packet=MembershipSourcePacket.decode(AdmissionPaths.read(path.resolve(PACKET),MembershipSourcePacket.MAXIMUM));
@@ -164,6 +173,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
                 if(installed!=null)require(entry.digest().equals(installed.value().get("nextEntry")),"installed tail differs from selected choice");
             }
             if(installed!=null && accepted==null && !published)require(installed.value().get("nextEntry")==null,"installed selected tail missing");
+            if(historyOwner!=null)historyOwner.joining(capsule);
             check();cut.at("CURRENT_VALIDATED");
             for(String name:files.keySet())force(path.resolve(name));cut.at("CURRENT_FILES_FORCED");
             force(path.resolve(MANIFEST));AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(directory);cut.at("CURRENT_GENERATION_FORCED");

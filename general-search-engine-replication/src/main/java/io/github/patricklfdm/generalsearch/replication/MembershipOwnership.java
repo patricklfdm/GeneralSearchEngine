@@ -33,6 +33,7 @@ final class MembershipOwnership implements AutoCloseable {
         MembershipValidation.require(!closed && owner.channel().isOpen() && owner.lock().isValid()
                 && PATHS.contains(path) && INODES.contains(inode),"membership ownership closed or transferred");
     }
+    Path path(){synchronized(MembershipOwnership.class){active();return path;}}
     FileChannel channel(){synchronized(MembershipOwnership.class){active();return owner.channel();}}
     FileLock lock(){synchronized(MembershipOwnership.class){active();return owner.lock();}}
     void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
