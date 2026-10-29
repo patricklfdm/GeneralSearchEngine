@@ -1,5 +1,39 @@
 # V5.3 Phase 3 contract amendments
 
+## A37 — dormant local voter staging from forced matching INTENT
+
+A live A36 owner may create one bounded sibling installation at
+`.gse-v53-learner-voter-<plan digest>`. Its private canonical plan binds the
+original typed receipt, prepared plan, source, permanent identity, destination,
+parent/directory identity and complete expected payload. Its private completion
+seal also binds all created file and child-directory identities. Both companions
+are at most 64 KiB; no public record or wire format changes.
+
+Derive an adoption PROMISE from the authenticated membership certificate floor,
+with no BASIS, and a local allocator at that counter. Build the local generation
+with the existing adopted-generation format. This is historical fencing, not a
+new ballot allocation or a copied source grant. A future allocator must reserve
+above the observed floor before campaigning.
+
+Reserve one additional GENERATION for all dormant metadata and both companions,
+and separate APPLICATION leases for its physical image copies before writing.
+The original learner generation, receiving source and typed image remain charged
+and intact. The frozen two-generation/seven-image/shared-byte ceilings still
+apply; no hidden extra slot or implicitly borrowed MISC allocation is allowed.
+
+Only an exact complete original plan allows explicit prefix recovery. Validate
+all existing files before any recovery writes; preserve missing/torn plans,
+foreign bytes and changed completed inode seals. Force every member and parent
+before the completion seal. The capability is scoped to the original live
+INTENT owner; closing either owner revokes it and releases staging reservations.
+The sibling is not a live replica and cannot enter existing runtime open paths.
+
+Ownership takeover, cold joined-voter admission, predecessor retirement,
+minimum-quorum native INTENT delivery, joint FINAL/barrier and independent
+physical/history/process qualification remain open. Rollback must preserve this
+directory and original INTENT; never reopen preparation by deleting evidence.
+See [the staging contract](PHASE_3_LEARNER_VOTER_STAGE.md).
+
 ## A36 — retain matching INTENT under the original typed learner owner
 
 Permit an explicit progress-transfer transaction to retain the complete original

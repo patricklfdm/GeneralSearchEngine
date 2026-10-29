@@ -1,0 +1,187 @@
+{
+  "archive": {
+    "bytes": 9351854,
+    "path": "target/v53-learner-voter-stage/component-validation.tar.gz",
+    "sha256": "0f12ffed88f772cfb576ada24248480119da1f6ef8ae4d8cbcc85a90e26feb54"
+  },
+  "baseCommit": "e5a1c15ee0a28cb0f860622ffc27f335c8cc7510",
+  "codeAndBuildInputsChecked": 1701,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1386,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourceSnapshot": "voterstageguarded",
+  "dormantStagingImplemented": true,
+  "firstAttempt": "Test compilation failed: incorrect allocator method name; no test executed.",
+  "independentFullHistoryQualified": false,
+  "learnerVotingEnabled": false,
+  "nativeJointHistoryQualified": false,
+  "pending": [
+    "native joined-voter ownership takeover and cold recovery",
+    "minimum-quorum INTENT certificate/prefix delivery",
+    "covered learner predecessor retirement",
+    "joint FINAL and fresh-barrier service",
+    "independent original-first replay",
+    "halt/SIGKILL and maximum-resource qualification",
+    "all-profile final-source hosted acceptance"
+  ],
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "pythonTests": 14,
+  "reports": {
+    "voterstagechecked": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": {
+        "cases": [
+          {
+            "name": "missingOrTornPlanIsPreservedWithoutRecoveryWrites",
+            "seconds": 39.893,
+            "status": "PASS"
+          },
+          {
+            "name": "corruptedOrReplacedMembersCannotBeResealed",
+            "seconds": 40.747,
+            "status": "PASS"
+          },
+          {
+            "name": "completeStageReopensFromOriginalIntentAndOwnerCloseRevokesReady",
+            "seconds": 29.137,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedMembersAndSealResumeOnlyTheExactOriginalPlan",
+            "seconds": 151.787,
+            "status": "PASS"
+          },
+          {
+            "name": "stagesOwnFenceAtJointAndCompletedWithoutPublishingOrVoting",
+            "seconds": 50.225,
+            "status": "PASS"
+          },
+          {
+            "name": "capacityAndRevokedIntentFailBeforeCreatingStage",
+            "seconds": 15.603,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "992e48fa7a3682010666be765ad1707b3a10ab01490df778f1b0369313a26866"
+      }
+    },
+    "voterstagefirst": {},
+    "voterstageguarded": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+            "seconds": 22.943,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "4251ce53f143e0d3bce579ee3ff87cfd726b1b57c6fcef65d7cabbf6fbd21dbd"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": {
+        "cases": [
+          {
+            "name": "missingOrTornPlanIsPreservedWithoutRecoveryWrites",
+            "seconds": 36.047,
+            "status": "PASS"
+          },
+          {
+            "name": "corruptedOrReplacedMembersCannotBeResealed",
+            "seconds": 40.263,
+            "status": "PASS"
+          },
+          {
+            "name": "completeStageReopensFromOriginalIntentAndOwnerCloseRevokesReady",
+            "seconds": 31.344,
+            "status": "PASS"
+          },
+          {
+            "name": "losingIntentDuringWriteRevokesStageAndPreservesPartialBytes",
+            "seconds": 27.898,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedMembersAndSealResumeOnlyTheExactOriginalPlan",
+            "seconds": 154.825,
+            "status": "PASS"
+          },
+          {
+            "name": "stagesOwnFenceAtJointAndCompletedWithoutPublishingOrVoting",
+            "seconds": 52.795,
+            "status": "PASS"
+          },
+          {
+            "name": "capacityAndRevokedIntentFailBeforeCreatingStage",
+            "seconds": 17.897,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "9f3c0bd958177b47757019be2996550a1090a42bbe9cab50352b5a9b60292372"
+      }
+    }
+  },
+  "runs": {
+    "voterstagechecked": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": 6
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "voterstagechecked",
+      "requestedTests": [
+        "V53LearnerVoterStageTest"
+      ],
+      "seconds": 328.169338907006,
+      "skipped": 0,
+      "tests": 6
+    },
+    "voterstagefirst": {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "voterstagefirst",
+      "requestedTests": [
+        "V53LearnerVoterStageTest"
+      ],
+      "seconds": 14.041843966995657,
+      "skipped": 0,
+      "tests": 0
+    },
+    "voterstageguarded": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "voterstageguarded",
+      "requestedTests": [
+        "V53LearnerVoterStageTest",
+        "V53LearnerIntentTest#forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter"
+      ],
+      "seconds": 382.96044601700123,
+      "skipped": 0,
+      "tests": 8
+    }
+  },
+  "schema": "gse-v53-learner-voter-stage-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "559f77a52fcbebfe79a62f1d0e542d196c5cf2fda6a4bed78c981a8828221100",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerIntent.java": "21556336c99cf90a348b0ffe8e0488d42f29bd3d8026640481e4443ca24f1901",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerVoterStage.java": "f6e07767fa038bfcc854c29306864263906dda231da32ac3ab04a311f76a6c19",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerVoterStageTest.java": "81452b5de90673daeb078c398e89610c649454c0f5c677430422d661c865b852"
+  },
+  "status": "PASS_DORMANT_VOTER_STAGING_COMPONENT",
+  "typedReceiptRequired": true,
+  "unexecutedSnapshots": [
+    "voterstagefinal"
+  ],
+  "voterOwnershipTakeoverImplemented": false
+}

@@ -67,6 +67,12 @@ final class MembershipLearnerIntent implements AutoCloseable {
         private Forced() {}
         MembershipCapsule source()throws IOException{return retained.forcedIntent();}
         void check()throws IOException{retained.forcedIntent();}
+        void guard()throws IOException{retained.guardIntent();}
+        MembershipLearnerHead head()throws IOException{return retained.intentHead();}
+        MembershipLearnerPlan plan()throws IOException{return retained.intentPlan();}
+        byte[] member(String name)throws IOException{return retained.intentMember(name);}
+        byte[] ancestry()throws IOException{return retained.intentAncestry();}
+        void attach(MembershipLearnerVoterStage stage)throws IOException{retained.attachVoterStage(stage);}
     }
     Forced forced()throws IOException {retained.forcedIntent();return new Forced();}
     Map<String,Object> result()throws IOException{return retained.result();}

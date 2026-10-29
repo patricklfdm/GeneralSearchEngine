@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining-voter staging](PHASE_3_LEARNER_VOTER_STAGE.md) now prepares and forces
+an exact dormant installation from the live matching-INTENT owner. It derives a
+local certificate fence, allocator and generation without copying the peer's
+BASIS/SELECTED authority. Explicit recovery checks original prefixes and the
+completed inode seal. Native voter ownership takeover, minimum-quorum INTENT
+delivery and complete Phase 3 acceptance remain **OPEN**.
+
 [Matching INTENT retention](PHASE_3_LEARNER_INTENT.md) now binds a complete
 certified source to the actual forced typed receipt and preparation revision,
 then forces the original files before returning a live capability. CANCEL and
@@ -83,6 +90,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 | --- | --- | --- |
 | Learner current-endpoint quorum | Independent whole native ADD/REPLACE histories | All five joining profiles and process cuts, exact forced ACKs and wire replay, source-exposure binding and authentic head confirmation; the focused three-voter ADD test does not close the full gate |
 | Frozen learner retention and selected merge | One native continuous history plus independent whole halt/SIGKILL cases | Exact source-bound ledgers, selection/installation completion, all process cuts and original-first physical/force replay; five Java component cases are executed, not complete process or quorum qualification |
+| `V53LearnerVoterStageTest` and joined-voter takeover | One original typed learner/INTENT/staged generation through takeover and restart | Native old-majority INTENT before joint checkpoint, exact ownership transfer, interrupted install, predecessor coverage/retirement, joint FINAL/barrier, independent original-first replay and maximum resources; staging does not enable voting |
 | `V53LearnerCancellationTest` and native cancellation | One original prepared learner history through certified CANCEL and local retention/restart | All five joining profiles, initial/promoted/alternating heads, original forces and source ancestry, bounded resources, halt/SIGKILL, precise evidence negatives and automatic integration; component exception cuts do not replace these gates |
 | `V53LearnerStoreTest` and preparation tests | Focused component suite | All assertions on the final source; explicitly conditional historical fixtures do not become native distributed evidence |
 | `V53LearnerStoreRevalidationTest` | One actual TCP history | Normal original installation, disconnect, reopen and unchanged-byte refusal; independent original-first review reader |

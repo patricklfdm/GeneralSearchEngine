@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Joining-voter staging](PHASE_3_LEARNER_VOTER_STAGE.md) now prepares and forces
+an exact dormant installation from the live matching-INTENT owner. It derives a
+local certificate fence, allocator and generation without copying the peer's
+BASIS/SELECTED authority. Explicit recovery checks original prefixes and the
+completed inode seal. Native voter ownership takeover, minimum-quorum INTENT
+delivery and complete Phase 3 acceptance remain **OPEN**.
+
 [Matching INTENT retention](PHASE_3_LEARNER_INTENT.md) now binds a complete
 certified source to the actual forced typed receipt and preparation revision,
 then forces the original files before returning a live capability. CANCEL and

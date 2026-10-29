@@ -32,6 +32,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     private boolean closed,failed,complete;
     private Map<String,Object> terminal;
     private MembershipCapsule verified;
+    private MembershipLearnerVoterStage voterStage;
     private static String schema(Kind kind){return kind==Kind.CANCEL?"gse-v53-learner-cancellation/1.3":"gse-v53-learner-intent/1.3";}
 
     static Path directory(MembershipLearnerPlan plan,Kind kind) {
@@ -230,9 +231,24 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     MembershipCapsule forcedIntent()throws IOException {
         require(kind==Kind.INTENT && complete,"learner INTENT not forced");validate();return verified;
     }
+    synchronized void guardIntent()throws IOException {require(kind==Kind.INTENT && complete,"learner INTENT not forced");check();}
+    MembershipLearnerHead intentHead()throws IOException {guardIntent();return head;}
+    MembershipLearnerPlan intentPlan()throws IOException {guardIntent();return summary;}
+    byte[] intentMember(String name)throws IOException {
+        guardIntent();var row=list(value.get("files")).stream().map(MembershipFormat::object)
+                .filter(v->name.equals(v.get("path"))).findFirst().orElseThrow();
+        byte[] bytes=AdmissionPaths.read(destination.resolve(name),Math.toIntExact(number(row.get("size"))));guardIntent();return bytes;
+    }
+    byte[] intentAncestry()throws IOException {
+        guardIntent();return list(value.get("files")).stream().map(MembershipFormat::object).anyMatch(v->v.get("path").equals("ancestry.gsr"))?
+                intentMember("ancestry.gsr"):new byte[0];
+    }
+    synchronized void attachVoterStage(MembershipLearnerVoterStage stage)throws IOException {
+        guardIntent();require(voterStage==null || voterStage.closed(),"learner voter stage already owned");voterStage=stage;
+    }
     boolean closed(){return closed;}
-    @Override public void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.addAll(retained.values());children.addAll(leases);
+    @Override public synchronized void close()throws IOException {
+        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();if(voterStage!=null)children.add(voterStage);children.addAll(retained.values());children.addAll(leases);
         MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }
