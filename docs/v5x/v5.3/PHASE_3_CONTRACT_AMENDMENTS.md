@@ -1070,3 +1070,50 @@ stays 1852 KiB of 2 MiB. Two GENERATION and seven APPLICATION limits are unchang
 Subsequent inactive-plan replacement, repeated cycles, cancellation/matching
 INTENT, all-profile/max-resource and original native/process-death qualification
 still gate Phase 3 closure.
+
+## A28 — bounded alternating learner plans
+
+After the selected head's original vacancy is forced and its previous leases
+released, allow the next sequence at the opposite fixed slot: odd B, even A.
+Sequence 1 and sequence 2 retain their original schemas. Sequence 3 onward uses
+`gse-v53-learner-slot-rolling/1.3`, adding only `replaces` to the fifteen A26 fields.
+That exact fingerprint list covers the slots root and the inactive slot's old
+plan and installed marker; it must equal the current head's `previousPlan`.
+The next sequence is exactly current + 1, with overflow refused before creating
+any candidate or detaching a transfer. No history chain, new directory, third
+generation or additional image allowance is introduced.
+
+Create the inactive candidate exclusively, bind its own inode, and force its
+complete original bytes before atomically replacing the covered old plan with
+that same candidate inode. The old installed marker may coexist only while its
+exact fingerprint matches `replaces`. Force the active plan and parent, delete
+only that covered marker, and force the directory before placing the new source.
+Recovery also forces that parent when interrupted after deletion. Never append
+new installation bytes to an old marker. New installed bytes retain the existing
+original-prefix completion rule, exact new plan digest and fixed destination.
+
+Before plan replacement, both covered old metadata files must still exist and
+the new source must still be at its original staging location. Afterwards, the
+old marker, absent marker, or original new marker prefix are distinct states;
+an old marker cannot coexist with an already-moved new source. Partial candidate
+plans, copied inodes, missing pre-replacement metadata and foreign replacement
+fingerprints refuse before recovery forces and are preserved unchanged.
+
+Cold recovery selects the current image from the original head's validated slot
+and sequence. The other image is either the exactly previous sequence (retiring)
+or exactly next sequence (pending), never both. A retiring plan's original
+fingerprint in the current head authorizes reading its historical anchor. A
+pending replacement's complete original active vacancy and exact `replaces`
+authorize the already-retired metadata to be replaced. No old source/typed deletion
+runs in this latter state; its newly owned files remain charged and untouched.
+Selected native ancestry, current typed receipt, prior inventories and all root
+identities are still validated before any recovery force.
+
+The A27 replacement-head and A25 vacancy protocols apply at every sequence with
+the same bounded names. Each selection still needs both actual typed owners;
+old views revoke on atomic head replacement, and new current acquisition waits
+for covered removal, parent forces and the new original vacancy. The metadata
+envelope remains 1852 KiB within 2 MiB MISC, with two GENERATION and seven
+APPLICATION units unchanged. This generalizes implementation; finite conditional
+component histories do not close native, process-death, maximum-resource,
+all-profile, cancellation, matching-INTENT or autonomous Phase 3 qualification.

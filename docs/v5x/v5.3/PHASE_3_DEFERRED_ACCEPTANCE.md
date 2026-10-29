@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+A28 implements alternating inactive-plan replacement and general slot/sequence
+routing. Continuous component histories now cover both fixed paths and new-clear
+replacement cuts. Complete native/process histories must still include every
+old-plan/new-plan/old-marker/new-marker state, source placement, selection and
+retirement. Do not split one alternating history across runners or treat these
+conditional exception cuts as native acceptance.
+
 A27 adds original replacement-head recovery and covered B retirement. The complete
 native history must also exercise old-clear/new-clear coexistence, cuts during
 new vacancy replacement, subsequent B plan/marker replacement and further cycles.

@@ -1,0 +1,210 @@
+{
+  "archive": {
+    "bytes": 16486326,
+    "files": 7915,
+    "path": "target/v53-learner-alternation/qualification.tar.gz",
+    "sha256": "c250ca6a05e141a95fd398ea68950247c6f0243e6005468c09de739baddc9451"
+  },
+  "autonomousReady": false,
+  "baseSource": "ef08b84f6af7e486b40c89e3fb3d16ac19f1cbee",
+  "builds": {
+    "cycle": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "sameTwoPathsAlternateThroughSequenceFourWithColdOwnershipAndNoExtraGeneration",
+              "seconds": 204.169,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 1
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest": 1
+        },
+        "exit": 0,
+        "failures": 0,
+        "label": "cycle",
+        "requestedTests": [
+          "V53LearnerAlternationTest#sameTwoPathsAlternateThroughSequenceFourWithColdOwnershipAndNoExtraGeneration"
+        ],
+        "seconds": 211.72692741599894,
+        "skipped": 0,
+        "tests": 1
+      },
+      "productionDifferencesFromFinal": []
+    },
+    "final": {
+      "classes": {},
+      "execution": {
+        "classes": {},
+        "exit": 1,
+        "failures": 0,
+        "label": "final",
+        "requestedTests": [
+          "V53LearnerAlternationTest#replacementPlanAndDeletedOldMarkerRecoverWithoutRetransferOrEarlySelection+originalClearCandidateAndRenamedClearRecoverAcrossOppositeSlots",
+          "V53LearnerRotationTest",
+          "V53LearnerReuseTest#originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage"
+        ],
+        "seconds": 13.594848565000575,
+        "skipped": 0,
+        "tests": 0
+      },
+      "productionDifferencesFromFinal": []
+    },
+    "initial": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "sequenceExhaustionFailsWithoutWrapping",
+              "seconds": 0.045,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 1
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest": 1
+        },
+        "exit": 0,
+        "failures": 0,
+        "label": "initial",
+        "requestedTests": [
+          "V53LearnerAlternationTest#sequenceExhaustionFailsWithoutWrapping"
+        ],
+        "seconds": 13.945024872999056,
+        "skipped": 0,
+        "tests": 1
+      },
+      "productionDifferencesFromFinal": []
+    },
+    "qualified": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "replacementPlanAndDeletedOldMarkerRecoverWithoutRetransferOrEarlySelection",
+              "seconds": 196.868,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "originalClearCandidateAndRenamedClearRecoverAcrossOppositeSlots",
+              "seconds": 198.199,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage",
+              "seconds": 187.835,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 1
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "completeRollingCandidateAndRenamedHeadRecoverTheirDistinctOriginalStates",
+              "seconds": 310.358,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "partialRollingCandidateRefusesWithoutRecoveryWritesOrDiscardingEitherImage",
+              "seconds": 143.383,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "selectingReusedARevokesBAndReclaimsOnlyCoveredBFilesBeforeColdTypedReopen",
+              "seconds": 165.246,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 3
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest": 2,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": 1,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest": 3
+        },
+        "exit": 0,
+        "failures": 0,
+        "label": "qualified",
+        "requestedTests": [
+          "V53LearnerAlternationTest#replacementPlanAndDeletedOldMarkerRecoverWithoutRetransferOrEarlySelection+originalClearCandidateAndRenamedClearRecoverAcrossOppositeSlots",
+          "V53LearnerRotationTest",
+          "V53LearnerReuseTest#originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage"
+        ],
+        "seconds": 1170.22623887,
+        "skipped": 0,
+        "tests": 6
+      },
+      "productionDifferencesFromFinal": []
+    }
+  },
+  "compiledProductionIdenticalWithinQualifiedBuilds": true,
+  "conditionalHistoryTcp": true,
+  "conditionalSequenceOneThroughFour": true,
+  "conditionalSourceHistories": true,
+  "coveredInactiveMetadataReplaced": true,
+  "fullNativeAlternatingCycles": false,
+  "fullPhase3": false,
+  "independentNativeReplay": false,
+  "nativeHistoryQualified": false,
+  "originalClearReplacementResumed": true,
+  "originalRollingCandidateResumed": true,
+  "passedMethods": {
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest#originalClearCandidateAndRenamedClearRecoverAcrossOppositeSlots": "qualified",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest#replacementPlanAndDeletedOldMarkerRecoverWithoutRetransferOrEarlySelection": "qualified",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest#sameTwoPathsAlternateThroughSequenceFourWithColdOwnershipAndNoExtraGeneration": "cycle",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationTest#sequenceExhaustionFailsWithoutWrapping": "initial",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest#originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage": "qualified",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest#completeRollingCandidateAndRenamedHeadRecoverTheirDistinctOriginalStates": "qualified",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest#partialRollingCandidateRefusesWithoutRecoveryWritesOrDiscardingEitherImage": "qualified",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerRotationTest#selectingReusedARevokesBAndReclaimsOnlyCoveredBFilesBeforeColdTypedReopen": "qualified"
+  },
+  "processDeathQualified": false,
+  "productionInputs": 491,
+  "qualifiedBuilds": [
+    "cycle",
+    "initial",
+    "qualified"
+  ],
+  "schema": "gse-v53-learner-alternation-qualification-v1",
+  "selectedABColdResume": true,
+  "status": "COMPONENTS_PASSED"
+}

@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Alternating learner slots](PHASE_3_LEARNER_ALTERNATION.md) now replace covered
+inactive plans and reuse the same A/B source and typed paths from sequence 3
+onward. Cold recovery distinguishes previous retirement from next installation;
+no third generation or growing metadata chain is added. Full native/process,
+all-profile and Phase 3 qualification remain OPEN. The entries below record
+earlier source-bound component milestones and their then-pending work.
+
 [Replacement learner heads](PHASE_3_LEARNER_ROTATION.md) now select reused A,
 revoke B handles and reclaim only covered B source/typed files. Cold recovery
 retains original candidate/selected distinctions and preserves old plan metadata.

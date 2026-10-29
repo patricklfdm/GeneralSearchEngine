@@ -16,10 +16,10 @@ final class MembershipLearnerSlot implements AutoCloseable {
     static final int MAXIMUM=256*1024,RECORD_MAXIMUM=16*1024,HEAD_MAXIMUM=16*1024;
     static final String HEAD="head.json",HEAD_NEXT="head.next.json";
     static final String CLEARED="cleared.json",CLEARED_NEXT="cleared.next.json";
-    // Conservative retained metadata: immutable admission/seed; current B plan,
-    // pending A plan/candidate and both installed markers; current typed records,
+    // Conservative retained metadata: immutable admission/seed; current plan,
+    // inactive plan/candidate and both installed markers; current typed records,
     // pending typed plan/candidate/receipt; head and vacancy pairs. 1852 KiB. The
-    // selected B head forbids B.next, so the third plan allowance covers A.next.
+    // selected head forbids its own candidate; the third plan is the inactive candidate.
     static final long METADATA_MAXIMUM=908L*1024+2L*MAXIMUM+RECORD_MAXIMUM+3L*MembershipLearnerMaterialization.SUCCESSOR_PLAN+4L*HEAD_MAXIMUM+MAXIMUM+RECORD_MAXIMUM+2L*MembershipLearnerMaterialization.SUCCESSOR_PLAN;
     private static final Set<String> MEMBERS=Set.of(LOCK,PLAN,NEXT,INSTALLED,SOURCE,HEAD,HEAD_NEXT,CLEARED,CLEARED_NEXT,"a.json","a.next.json","a.installed.json");
     private final MembershipLearnerStore parent;
@@ -109,10 +109,17 @@ final class MembershipLearnerSlot implements AutoCloseable {
     void requireReusable()throws IOException {
         check();require(committed() && head!=null && head.active && cleared!=null && cleared.active
                 && seed.retired() && pending==null,"learner inactive slot requires original resume or selection");
-        require(!head.rolling,"learner next rolling installation requires replacement-plan support");
-        head.check();cleared.check();seed.requireVacant();
-        for(String name:List.of("a.json","a.next.json","a.installed.json"))AdmissionPaths.absent(directory.resolve(name));
+        nextSequence(image.sequence());head.check();cleared.check();
+        if(head.rolling) {
+            require(retiring!=null && retiring.released,"learner inactive resources not released");
+            retiring.requireVacant();retiring.checkPlan(head.record.get("previousPlan"));AdmissionPaths.absent(directory.resolve(retiring.nextName));
+        }else {
+            seed.requireVacant();
+            for(String name:List.of("a.json","a.next.json","a.installed.json"))AdmissionPaths.absent(directory.resolve(name));
+        }
     }
+    static long nextSequence(long sequence){require(sequence>0 && sequence<Long.MAX_VALUE,"learner slot sequence exhausted");return sequence+1;}
+    private static String slot(long sequence){require(sequence>0,"learner slot sequence");return sequence%2==0?"a":"b";}
     private Map<String,Object> currentAnchor() {
         require(head!=null,"learner reuse current head missing");
         var generation=image.generation.value();
@@ -137,8 +144,10 @@ final class MembershipLearnerSlot implements AutoCloseable {
         for(String name:new TreeSet<>(copy.fileNames())) {
             var file=new TreeMap<>(row(name,copy.fileBytes(name)));file.put("key",key(staging.resolve(name)).toString());files.add(file);
         }
-        var value=new TreeMap<String,Object>();value.put("schema","gse-v53-learner-slot-reuse/1.3");value.put("plan",parent.summary().planDigest());
-        value.put("slot","a");value.put("sequence",2L);value.put("anchor",currentAnchor());value.put("vacancy",reuseVacancy());
+        long sequence=nextSequence(image.sequence());String next=slot(sequence)+".next.json";
+        var value=new TreeMap<String,Object>();value.put("schema",sequence==2?"gse-v53-learner-slot-reuse/1.3":"gse-v53-learner-slot-rolling/1.3");value.put("plan",parent.summary().planDigest());
+        value.put("slot",slot(sequence));value.put("sequence",sequence);value.put("anchor",currentAnchor());value.put("vacancy",reuseVacancy());
+        if(sequence>2)value.put("replaces",head.record.get("previousPlan"));
         value.put("path",pathBinding);value.put("directoryKey",directoryKey.toString());value.put("staging",AdmissionPaths.binding(staging));
         value.put("sourceKey",key(staging).toString());value.put("source",MembershipBootstrapSeed.identity(copy.owner));
         value.put("generation",MembershipBootstrapPlanData.base(copy.generation.bytes()));value.put("files",files);
@@ -146,9 +155,9 @@ final class MembershipLearnerSlot implements AutoCloseable {
         cut=events;acquisition=guard;
         try {
             // Bind the original candidate inode before writing any of its plan.
-            try(var candidate=FileChannel.open(directory.resolve("a.next.json"),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
-                remember("a.next.json",new byte[0]);value.put("planKey",metadata.get("a.next.json").key().toString());
-                pending=new Image(canonical(value,MAXIMUM));pending.received.putAll(receiver.detachLearner(copy));pending.accounted=true;
+            try(var candidate=FileChannel.open(directory.resolve(next),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+                remember(next,new byte[0]);value.put("planKey",metadata.get(next).key().toString());
+                pending=new Image(canonical(value,MAXIMUM));pending.received.putAll(receiver.detachLearner(copy));pending.accounted=true;retiring=null;
                 point("LEARNER_SLOT_REUSE_PLAN_CREATED");
             }
             write(pending.nextName,pending.plan,"LEARNER_SLOT_REUSE_PLAN");finish(pending);return new View(this,pending,false);
@@ -170,11 +179,10 @@ final class MembershipLearnerSlot implements AutoCloseable {
             }
             boolean rotated=selected!=null && rolling(selected);
             require(!rotated || names.contains(HEAD),"learner rolling candidate without original selected head");
-            String selectedPlan=rotated?"a.json":names.contains(PLAN)?PLAN:NEXT;
+            String selectedPlan=rotated?selected.get("slot")+".json":names.contains(PLAN)?PLAN:NEXT;
             result=new MembershipLearnerSlot(parent,AdmissionPaths.read(directory.resolve(selectedPlan),MAXIMUM),cut,seed,
                     rotated?object(selected.get("previousAnchor")):null);
             result.lock=lock;
-            if(rotated)result.retiring=result.new Image(AdmissionPaths.read(directory.resolve(PLAN),MAXIMUM));
             result.capture();if(headBytes!=null)result.head=result.new Head(headBytes);
             if(names.contains(CLEARED)||names.contains(CLEARED_NEXT)) {
                 require(names.contains(HEAD),"learner slot original vacancy location");
@@ -182,13 +190,24 @@ final class MembershipLearnerSlot implements AutoCloseable {
                 if(!rotated || object(parse(clear,HEAD_MAXIMUM)).get("head").equals(hash(headBytes)))result.cleared=result.new Cleared(clear);
                 else require(!names.contains(CLEARED_NEXT),"learner rolling foreign vacancy candidate");
             }
-            if(!rotated && (names.contains("a.json") || names.contains("a.next.json"))) {
-                require(names.contains(HEAD) && names.contains(CLEARED) && !names.contains(CLEARED_NEXT),"learner reuse without active original vacancy");
-                result.pending=result.new Image(AdmissionPaths.read(directory.resolve(names.contains("a.json")?"a.json":"a.next.json"),MAXIMUM));
-                result.captureImage(result.pending);
+            String inactive=result.image.slot.equals("a")?"b":"a",candidate=inactive+".next.json",plan=inactive+".json";
+            if(names.contains(candidate) || names.contains(plan)) {
+                byte[] bytes=AdmissionPaths.read(directory.resolve(names.contains(candidate)?candidate:plan),MAXIMUM);
+                var value=object(parse(bytes,MAXIMUM));long sequence=number(value.get("sequence"));
+                if(sequence==result.image.sequence()-1) {
+                    require(rotated && !names.contains(candidate),"learner retired plan has unbound candidate");
+                    // The selected head binds this exact older plan. Its former
+                    // anchor is historical; it is never a current capability.
+                    result.retiring=result.new Image(bytes,sequence>1?object(value.get("anchor")):null);
+                    result.captureImage(result.retiring);
+                }else {
+                    require(sequence==nextSequence(result.image.sequence()),"learner slot original plan");
+                    require(names.contains(HEAD) && result.cleared!=null && names.contains(CLEARED) && !names.contains(CLEARED_NEXT),"learner reuse without active original vacancy");
+                    result.pending=result.new Image(bytes);result.captureImage(result.pending);
+                }
             }
             if(names.contains(HEAD) && names.contains(HEAD_NEXT)) {
-                require(!rotated && result.pending!=null,"learner rolling candidate without pending original");
+                require(result.pending!=null,"learner rolling candidate without pending original");
                 result.candidateHead=result.new Head(AdmissionPaths.read(directory.resolve(HEAD_NEXT),HEAD_MAXIMUM));
                 require(result.candidateHead.rolling,"learner slot multiple original heads");
             }
@@ -222,13 +241,15 @@ final class MembershipLearnerSlot implements AutoCloseable {
     private void captureImage(Image target)throws IOException {
         for(String name:List.of(target.planName,target.nextName,target.installedName))if(Files.exists(directory.resolve(name),LinkOption.NOFOLLOW_LINKS)) {
             byte[] expected=name.equals(target.installedName)?target.installed:target.plan;
-            byte[] bytes=AdmissionPaths.read(directory.resolve(name),expected.length);
-            require(Arrays.equals(bytes,Arrays.copyOf(expected,bytes.length))
+            byte[] bytes=AdmissionPaths.read(directory.resolve(name),target.replacing?MAXIMUM:expected.length);
+            var identity=inspect(directory.resolve(name),bytes.length,hash(bytes));
+            boolean covered=target==pending && target.covered(name,identity);
+            require(covered || bytes.length<=expected.length && Arrays.equals(bytes,Arrays.copyOf(expected,bytes.length))
                     && (!name.equals(target.planName) && !(name.equals(target.nextName)&&Files.exists(directory.resolve(target.planName))) || bytes.length==expected.length),
                     "learner slot original metadata changed");
-            metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
+            metadata.put(name,identity);
         }
-        require(!metadata.containsKey(target.installedName) || metadata.containsKey(target.planName)
+        require(!metadata.containsKey(target.installedName) || target==pending && target.covered(target.installedName,metadata.get(target.installedName)) || metadata.containsKey(target.planName)
                 && (target==retiring || Files.exists(target.destination,LinkOption.NOFOLLOW_LINKS)),"learner slot installation without original source");
     }
     private void check()throws IOException {
@@ -245,7 +266,9 @@ final class MembershipLearnerSlot implements AutoCloseable {
         if(pending!=null)pending.checkReuse();
         if(image.reused)require(metadata.get(image.planName)!=null && metadata.get(image.planName).key().toString().equals(image.value.get("planKey")),"learner selected plan inode changed");
         var names=new TreeSet<>(metadata.keySet());
-        if(image.slot.equals("b") && source.equals(image.destination) || retiring!=null && Files.exists(retiring.destination,LinkOption.NOFOLLOW_LINKS))names.add(SOURCE);
+        if(image.slot.equals("b") && source.equals(image.destination)
+                || pending!=null && pending.slot.equals("b") && Files.exists(pending.destination,LinkOption.NOFOLLOW_LINKS)
+                || retiring!=null && retiring.slot.equals("b") && Files.exists(retiring.destination,LinkOption.NOFOLLOW_LINKS))names.add(SOURCE);
         require(children(directory,MEMBERS.size()).equals(names),"learner slot live inventory changed");
         for(var f:metadata.entrySet())require(f.getValue().equals(inspect(directory.resolve(f.getKey()),f.getValue().bytes(),f.getValue().digest())),"learner slot metadata replaced");
     }
@@ -278,13 +301,22 @@ final class MembershipLearnerSlot implements AutoCloseable {
             require(image.accounted,"learner slot retained resources not accounted");
             MembershipResources.GenerationClaim claim=image.received.isEmpty()?null:image.received.get("source.gscp").prepareGeneration(image.locate().resolve("source.gscp"),"learner-slot-"+image.slot);
             try(claim) {
-                check();require(metadata.containsKey(PLAN)||metadata.containsKey(NEXT)&&metadata.get(NEXT).bytes()==image.plan.length,"learner slot partial original plan");
-                if(!metadata.containsKey(PLAN)) {
-                    write(NEXT,image.plan,"LEARNER_SLOT_CANDIDATE");Files.move(directory.resolve(NEXT),directory.resolve(PLAN),StandardCopyOption.ATOMIC_MOVE);
+                check();require(image.planActive()||metadata.containsKey(NEXT)&&metadata.get(NEXT).bytes()==image.plan.length,"learner slot partial original plan");
+                if(!image.planActive()) {
+                    write(NEXT,image.plan,"LEARNER_SLOT_CANDIDATE");
+                    Files.move(directory.resolve(NEXT),directory.resolve(PLAN),StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);
                     metadata.put(PLAN,metadata.remove(NEXT));point("LEARNER_SLOT_PLAN_RENAMED");
                 }
                 write(PLAN,image.plan,"LEARNER_SLOT_ACTIVE");
                 if(metadata.containsKey(NEXT)){check();Files.delete(directory.resolve(NEXT));metadata.remove(NEXT);AdmissionPaths.forceDirectory(directory);point("LEARNER_SLOT_REDUNDANT_FORCED");}
+                if(image.replacing) {
+                    if(image.covered(INSTALLED,metadata.get(INSTALLED))) {
+                        check();Files.delete(directory.resolve(INSTALLED));metadata.remove(INSTALLED);point("LEARNER_SLOT_OLD_INSTALL_DELETED");
+                    }
+                    // Also re-force the parent after recovery from a deletion
+                    // before its force. Never append new bytes to an old marker.
+                    AdmissionPaths.forceDirectory(directory);point("LEARNER_SLOT_OLD_INSTALL_PARENT_FORCED");
+                }
                 if(image.locate().equals(image.staging)){check();Files.move(image.staging,image.destination,StandardCopyOption.ATOMIC_MOVE);point("LEARNER_SLOT_SOURCE_MOVED");}
                 AdmissionPaths.forceDirectory(image.destination);
                 if(Files.exists(image.staging.getParent(),LinkOption.NOFOLLOW_LINKS)){AdmissionPaths.recheck(image.stagingBinding);AdmissionPaths.forceDirectory(image.staging.getParent());}
@@ -346,7 +378,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         }finally{if(head!=null)head.live=null;}
     }
     private View promoteRolling(MembershipLearnerMaterialization<?> current,MembershipLearnerMaterialization.CurrentHead previous)throws IOException {
-        check();require(head!=null && head.active && !head.rolling && retiring==null && pending!=null && pending.complete
+        check();require(head!=null && head.active && cleared!=null && cleared.active && retiring==null && pending!=null && pending.complete
                 && pending.accounted && current==pending.typed,"learner rolling handoff requires exact typed pair");
         previous.check();require(previous.store()==parent,"learner rolling foreign current owner");current.receipt();
         var decision=new TreeMap<String,Object>(Map.of("schema","gse-v53-learner-rolling-head/1.3","slot",pending.slot,"sequence",pending.value.get("sequence"),
@@ -418,7 +450,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         cleared.seal();
     }
     private void previousVacant()throws IOException {if(retiring==null)seed.requireVacant();else retiring.requireVacant();}
-    private void previousParents()throws IOException {if(retiring==null)seed.forceParents();else retiring.forceParents();}
+    private void previousParents()throws IOException {if(pending!=null)pending.forceParents();else if(retiring==null)seed.forceParents();else retiring.forceParents();}
     private Map<String,Object> vacancy(String key) {
         require(head!=null,"learner vacancy selected head missing");
         return Map.of("schema","gse-v53-learner-slot-cleared/1.3","plan",hash(image.plan),"head",hash(head.bytes),
@@ -468,7 +500,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         if(rolling(record))fields.addAll(Set.of("slot","sequence","previousAnchor","previousPlan","priorVacancy"));
         require(Arrays.equals(bytes,canonical(record,HEAD_MAXIMUM)) && record.keySet().equals(fields)
                 && (rolling(record) || record.get("schema").equals("gse-v53-learner-slot-head/1.3")),"learner slot original head shape");
-        if(rolling(record))require(record.get("slot").equals("a") && number(record.get("sequence"))==2,"learner rolling head sequence");
+        if(rolling(record))require(number(record.get("sequence"))>=2 && record.get("slot").equals(slot(number(record.get("sequence")))),"learner rolling head sequence");
         for(String name:List.of("plan","source","generation","receipt"))MembershipValidation.digest((String)record.get(name));text(record.get("headKey"));
         return record;
     }
@@ -499,15 +531,30 @@ final class MembershipLearnerSlot implements AutoCloseable {
             require(seed!=null && record.get("seedFiles").equals(seed.metadata()),"learner slot seed metadata changed");
             Image selected=selected();
             if(rolling) {
-                Image old=previous();require(old!=null && selected!=null,"learner rolling original pair missing");
+                Image old=previous();require(selected!=null,"learner rolling original pair missing");
                 require(selected.anchor.equals(record.get("previousAnchor")) && selected.value.get("sequence").equals(record.get("sequence"))
                         && selected.slot.equals(record.get("slot")),"learner rolling source anchor changed");
-                var anchor=object(record.get("previousAnchor"));var terminal=object(anchor.get("previous"));var generation=old.generation.value();
-                var packet=list(old.value.get("files")).stream().map(MembershipFormat::object).filter(f->f.get("path").equals("source.gscp")).findFirst().orElseThrow();
-                require(terminal.equals(Map.of("source",packet.get("sha256"),"cut",generation.get("cut"),"catalog",generation.get("catalog"),"application",generation.get("application"))),"learner rolling previous terminal changed");
-                require(!metadata.containsKey(old.nextName),"learner retired plan has unbound candidate");
-                old.checkPlan(record.get("previousPlan"));
-                old.checkRemaining(record.get("previousFiles"),record.get("previousTyped"),this!=candidateHead);
+                var anchor=object(record.get("previousAnchor"));
+                if(this==head && pending!=null) {
+                    require(pending.replacing && cleared!=null && pending.value.get("replaces").equals(record.get("previousPlan")),"learner replacement lacks covered previous plan");
+                    // The original forced vacancy permits these old bytes to
+                    // be gone. Validate the closed inventories, never interpret
+                    // arbitrary record paths as deletion commands.
+                    var names=new TreeSet<String>();
+                    for(Object raw:list(record.get("previousFiles"))) {
+                        String path=(String)object(raw).get("path");if(!path.equals("."))MembershipGenerationFiles.limit(path);names.add(path);
+                    }
+                    require(names.size()<=33 && names.containsAll(Set.of(".","generation.gsr","source.gscp")),"learner cleared source inventory");
+                    MembershipLearnerFingerprints.shape(record.get("previousFiles"),names);
+                    MembershipLearnerFingerprints.shape(record.get("previousTyped"),MembershipLearnerFingerprints.typed());pending.checkReuse();
+                }else {
+                    require(old!=null && old.sequence()==selected.sequence()-1,"learner rolling original pair missing");
+                    var terminal=object(anchor.get("previous"));var generation=old.generation.value();
+                    var packet=list(old.value.get("files")).stream().map(MembershipFormat::object).filter(f->f.get("path").equals("source.gscp")).findFirst().orElseThrow();
+                    require(terminal.equals(Map.of("source",packet.get("sha256"),"cut",generation.get("cut"),"catalog",generation.get("catalog"),"application",generation.get("application"))),"learner rolling previous terminal changed");
+                    require(!metadata.containsKey(old.nextName),"learner retired plan has unbound candidate");
+                    old.checkPlan(record.get("previousPlan"));old.checkRemaining(record.get("previousFiles"),record.get("previousTyped"),this!=candidateHead);
+                }
                 if(this==candidateHead)require(anchor.equals(currentAnchor()),"learner rolling candidate previous head changed");
                 priorVacancy();
             }else {
@@ -524,7 +571,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
             require(record.get("plan").equals(hash(image.plan)) && record.get("source").equals(hash(source.packet.bytes()))
                     && record.get("generation").equals(image.generation.digest()),"learner slot head source binding");
             require(metadata.containsKey(image.planName) && !metadata.containsKey(image.nextName) && metadata.containsKey(image.installedName)
-                    && metadata.get(image.installedName).bytes()==image.installed.length,"learner slot head requires complete installation");
+                    && image.installedComplete(),"learner slot head requires complete installation");
             Path typed=image.typedDirectory;byte[] receipt=AdmissionPaths.read(typed.resolve("learner.gsr"),MembershipLearnerMaterialization.SUCCESSOR_PLAN);
             var decoded=decode(receipt,"records","LEARNER");long revision=number(object(object(decoded.value().get("receipt")).get("prepared")).get("revision"));
             require(record.get("receipt").equals(hash(receipt)) && Arrays.equals(receipt,MembershipLearnerPreparation.receiptBytes(source,parent.summary().request(),revision).bytes()),"learner slot head current receipt binding");
@@ -552,7 +599,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         private final Map<String,Object> value,stagingBinding,anchor;
         private final Path staging,destination,typedDirectory;
         private final String slot,planName,nextName,installedName;
-        private final boolean reused;
+        private final boolean reused,replacing;
         private final Decoded generation;
         private final MembershipIdentity peer;
         private final Map<String,MembershipReceiveFile.Retained> received=new TreeMap<>();
@@ -564,14 +611,17 @@ final class MembershipLearnerSlot implements AutoCloseable {
         Image(byte[] bytes,Map<String,Object> expectedAnchor)throws IOException {
             plan=bytes.clone();value=object(parse(plan,MAXIMUM));
             require(METADATA_MAXIMUM<=MembershipResources.Unit.MISC.bytes,"learner slot metadata capacity");
-            reused="gse-v53-learner-slot-reuse/1.3".equals(value.get("schema"));slot=reused?"a":"b";
+            replacing="gse-v53-learner-slot-rolling/1.3".equals(value.get("schema"));
+            reused=replacing || "gse-v53-learner-slot-reuse/1.3".equals(value.get("schema"));slot=slot(sequence());
             planName=slot+".json";nextName=slot+".next.json";installedName=slot+".installed.json";
             var fields=new HashSet<>(Set.of("schema","plan","slot","sequence","anchor","path","directoryKey","staging","sourceKey","source","generation","files"));
             if(reused)fields.addAll(Set.of("vacancy","planKey"));
+            if(replacing)fields.add("replaces");
             require(Arrays.equals(plan,canonical(value,MAXIMUM)) && value.keySet().equals(fields)
-                    && value.get("schema").equals(reused?"gse-v53-learner-slot-reuse/1.3":"gse-v53-learner-slot/1.3")
+                    && value.get("schema").equals(replacing?"gse-v53-learner-slot-rolling/1.3":reused?"gse-v53-learner-slot-reuse/1.3":"gse-v53-learner-slot/1.3")
                     && value.get("plan").equals(parent.summary().planDigest()) && value.get("slot").equals(slot)
-                    && number(value.get("sequence"))==(reused?2:1),"learner slot original plan");
+                    && (replacing?sequence()>=3:sequence()==(reused?2:1)),"learner slot original plan");
+            if(replacing)MembershipLearnerFingerprints.shape(value.get("replaces"),planNames());
             anchor=object(value.get("anchor"));
             require(anchor.equals(expectedAnchor!=null?expectedAnchor:reused?currentAnchor():seed==null?parent.slotAnchor():seed.anchor(anchor.get("core"))),"learner slot original current head changed");
             if(reused) {
@@ -581,8 +631,8 @@ final class MembershipLearnerSlot implements AutoCloseable {
                 text(vacancy.get("headKey"));text(vacancy.get("clearKey"));
             }
             if(reused && expectedAnchor==null)require(value.get("vacancy").equals(reuseVacancy()),"learner reuse original vacancy changed");
-            destination=reused?MembershipLearnerSuccessor.directory(parent.summary()).resolve(MembershipLearnerSuccessor.SOURCE):directory.resolve(SOURCE);
-            typedDirectory=reused?MembershipLearnerSuccessor.typedDirectory(parent.summary()):MembershipLearnerSlot.typedDirectory(parent.summary());
+            destination=slot.equals("a")?MembershipLearnerSuccessor.directory(parent.summary()).resolve(MembershipLearnerSuccessor.SOURCE):directory.resolve(SOURCE);
+            typedDirectory=slot.equals("a")?MembershipLearnerSuccessor.typedDirectory(parent.summary()):MembershipLearnerSlot.typedDirectory(parent.summary());
             var originalPath=MembershipLearnerAdmissionPlan.binding(object(value.get("path")));
             stagingBinding=MembershipLearnerAdmissionPlan.binding(object(value.get("staging")));staging=MembershipLearnerAdmissionPlan.path(stagingBinding);
             require(directory.equals(MembershipLearnerAdmissionPlan.path(originalPath)),"learner slot exact path");
@@ -638,14 +688,33 @@ final class MembershipLearnerSlot implements AutoCloseable {
             reserveTypedImage();accounted=true;
         }
         void release()throws IOException {requireVacant();close();received.clear();leases.clear();typed=null;typedImage=null;released=true;}
+        long sequence(){return number(value.get("sequence"));}
+        boolean planActive(){var file=metadata.get(planName);return file!=null && file.bytes()==plan.length && file.digest().equals(hash(plan)) && (!reused || file.key().toString().equals(value.get("planKey")));}
+        boolean installedComplete(){var file=metadata.get(installedName);return file!=null && file.bytes()==installed.length && file.digest().equals(hash(installed));}
+        boolean covered(String name,FileIdentity file) {
+            if(!replacing || file==null || !(name.equals(planName)||name.equals(installedName)))return false;
+            String fingerprint=hash(canonical(Map.of("key",file.key().toString(),"bytes",file.bytes(),"sha256",file.digest()),16384));
+            return list(value.get("replaces")).contains(Map.of("path",name,"sha256",fingerprint));
+        }
         void checkReuse()throws IOException {
-            require(reused && anchor.equals(currentAnchor()) && value.get("vacancy").equals(reuseVacancy()),"learner reuse original vacancy changed");
-            String name=metadata.containsKey(planName)?planName:nextName;
+            require(reused && sequence()==nextSequence(image.sequence()) && anchor.equals(currentAnchor()) && value.get("vacancy").equals(reuseVacancy()),"learner reuse original vacancy changed");
+            String name=metadata.containsKey(nextName)?nextName:planName;
             require(metadata.containsKey(name) && text(value.get("planKey")).equals(metadata.get(name).key().toString()),"learner reuse original plan inode changed");
             if(metadata.containsKey(nextName))require(text(value.get("planKey")).equals(metadata.get(nextName).key().toString()),"learner reuse candidate inode changed");
+            if(replacing) {
+                require(head.rolling && value.get("replaces").equals(head.record.get("previousPlan")),"learner replacement lacks covered previous plan");
+                require(list(value.get("replaces")).contains(Map.of("path",".","sha256",hash(canonical(Map.of("key",directoryKey.toString(),"directory",true),16384)))),"learner replacement directory binding");
+                if(!planActive()) {
+                    require(metadata.containsKey(nextName) && covered(planName,metadata.get(planName)) && covered(installedName,metadata.get(installedName)),"learner replacement original metadata changed");
+                    require(Files.exists(staging,LinkOption.NOFOLLOW_LINKS),"learner replacement source moved before plan");
+                }else {
+                    require(!metadata.containsKey(nextName),"learner replacement duplicate candidate");
+                    if(covered(installedName,metadata.get(installedName)))require(Files.exists(staging,LinkOption.NOFOLLOW_LINKS),"learner replacement old marker after source move");
+                }
+            }
             locate();
             // No old materialized application may survive into a new installation.
-            if(!metadata.containsKey(installedName) || metadata.get(installedName).bytes()!=installed.length)AdmissionPaths.absent(typedDirectory);
+            if(!installedComplete())AdmissionPaths.absent(typedDirectory);
         }
         private Path locate()throws IOException {
             boolean before=Files.exists(staging,LinkOption.NOFOLLOW_LINKS),after=Files.exists(destination,LinkOption.NOFOLLOW_LINKS);
