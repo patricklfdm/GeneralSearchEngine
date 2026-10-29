@@ -14,7 +14,7 @@ from . import generation_copy_evidence as g
 b,c,d,e,f,need=r.b,r.c,r.d,r.e,r.f,r.need
 
 
-def transcripts(rows):
+def transcripts(rows, *, progress=False):
     need(type(rows) is list and 0<len(rows)<=32768,'learner source bounded transcript')
     sessions=[]
     for row in rows:
@@ -24,7 +24,7 @@ def transcripts(rows):
             need(all(trace!=old for old,_ in sessions),'learner source reused session')
             sessions.append((trace,[]))
         sessions[-1][1].append(row)
-    need(len(sessions)==4,'learner source complete sessions')
+    need(len(sessions)==(3 if progress else 4),'learner source complete sessions')
     return [g.attempts(rows) for _,rows in sessions]
 
 
@@ -33,11 +33,11 @@ def network(root,reserved,request,learner,*,trace_name='learner-source-wire.json
                         c.inventory(root/copy_name),preceding=preceding,following=following)
 
 
-def network_rows(rows,server,reserved,request,learner,files,*,preceding=(),following=()):
+def network_rows(rows,server,reserved,request,learner,files,*,preceding=(),following=(),progress=False):
     """Replay one complete acquisition within a larger original server history.
     Inputs are copied bytes / independently derived voter states, never paths
     taken from a recorded plan. The file-based entry retains the same checks."""
-    sessions=transcripts(rows);observed=[]
+    sessions=transcripts(rows,progress=progress);observed=[]
     need(type(server) is list and len(server)<=32768,'learner source bounded server trace')
     for row in server:
         _,frame=t.t.wire(row['request'])
@@ -50,22 +50,25 @@ def network_rows(rows,server,reserved,request,learner,files,*,preceding=(),follo
     # generation frame. The received complete copy must include that frame too.
     members=dict(members,**{'generation.gsr':reserved[peer][prefix+'generation.gsr']})
     original=reserved[peer]['root.gsr'];ballot=dict(counter=1,proposer=learner['node'],incarnation=learner['storage'])
-    alias=e.digest(f.canonical(dict(schema='gse-v53-learner-root-reference/1.3',root=request['root'],learner=learner,request=request)))
-    t.transcript(sessions[0],[(alias,original,'RECORD')],request['root'],request['expected'],ballot,learner,identity,'learner source ROOT',chunk_bytes=4*e.MIB)
-    need(len(sessions[1])==1,'learner source single hint')
-    row=sessions[1][0];kind,probe=t.t.wire(row['request']);answer,status=t.t.wire(row['response']);nonce=probe['payload']['nonce']
+    offset=0 if progress else 1
+    if not progress:
+        alias=e.digest(f.canonical(dict(schema='gse-v53-learner-root-reference/1.3',root=request['root'],learner=learner,request=request)))
+        t.transcript(sessions[0],[(alias,original,'RECORD')],request['root'],request['expected'],ballot,learner,identity,'learner source ROOT',chunk_bytes=4*e.MIB)
+    need(len(sessions[offset])==1,'learner source single hint')
+    row=sessions[offset][0];kind,probe=t.t.wire(row['request']);answer,status=t.t.wire(row['response']);nonce=probe['payload']['nonce']
     fields=dict(root=request['root'],view=request['expected'],ballot=ballot,trace=probe['trace'],sequence=1)
     need(kind=='STATUS_PROBE' and answer=='STATUS' and probe==dict(fields,sender=learner,recipient=identity,payload=dict(nonce=nonce))
          and status==dict(fields,sender=identity,recipient=learner,payload=dict(nonce=nonce,cut=cap['cut'],ready=False)),
          'learner source exact hint')
-    def reference(scope):return e.digest(f.canonical(dict(schema='gse-v53-learner-source-reference/1.3',root=request['root'],learner=learner,request=request,cut=cap['cut'],scope=scope)))
+    schema='gse-v53-learner-progress-reference/1.3' if progress else 'gse-v53-learner-source-reference/1.3'
+    def reference(scope):return e.digest(f.canonical(dict(schema=schema,root=request['root'],learner=learner,request=request,cut=cap['cut'],scope=scope)))
     expected=[(reference('prefix'),members['source.gscp'],'CAPSULE')]
     expected.extend((digest,members[digest+'.image'],'APPLICATION') for digest in sorted(packet['images']))
-    t.transcript(sessions[2],expected,request['root'],request['expected'],ballot,learner,identity,'learner source prefix',chunk_bytes=4*e.MIB)
+    t.transcript(sessions[offset+1],expected,request['root'],request['expected'],ballot,learner,identity,'learner source prefix',chunk_bytes=4*e.MIB)
     expected=[(reference('generation'),members['generation.gsr'],'RECORD')]
     if 'ancestry.gsr' in members:expected.append((e.digest(members['ancestry.gsr']),members['ancestry.gsr'],'RECORD'))
     expected.extend((e.digest(data),data,'RECORD') for name,data in sorted(members.items()) if name not in ('generation.gsr','source.gscp','ancestry.gsr') and not name.endswith('.image'))
-    t.transcript(sessions[3],expected,request['root'],request['expected'],ballot,learner,identity,'learner source generation',chunk_bytes=4*e.MIB)
+    t.transcript(sessions[offset+2],expected,request['root'],request['expected'],ballot,learner,identity,'learner source generation',chunk_bytes=4*e.MIB)
     need(files==members,'learner source exact original generation')
     return dict(peer=peer,exchanges=len(rows),originalFiles=len(members))
 

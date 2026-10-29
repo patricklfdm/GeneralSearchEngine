@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Native cancellation replay](PHASE_3_LEARNER_CANCELLATION_NATIVE.md) exposed a
+source-side retention gap: actual READY/CANCEL publication pruned the learner's
+original PREPARE endpoint. Five native slots and 59 exchanges replay exactly;
+the learner correctly refuses the missing ancestry. Durable bounded nonvoting
+source obligations must be implemented before this gate can pass. Cancellation
+retention/reopen, process and full Phase 3 qualification remain **OPEN**.
+
 [Durable learner cancellation](PHASE_3_LEARNER_CANCELLATION.md) now retains a
 complete certified CANCEL under the same prepared owner and receiving slot, then
 stops further preparation. Explicit cold recovery revalidates original proofs;

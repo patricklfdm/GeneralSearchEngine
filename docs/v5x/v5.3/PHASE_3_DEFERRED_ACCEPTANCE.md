@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Native cancellation replay](PHASE_3_LEARNER_CANCELLATION_NATIVE.md) exposed a
+source-side retention gap: actual READY/CANCEL publication pruned the learner's
+original PREPARE endpoint. Five native slots and 59 exchanges replay exactly;
+the learner correctly refuses the missing ancestry. Durable bounded nonvoting
+source obligations must be implemented before this gate can pass. Cancellation
+retention/reopen, process and full Phase 3 qualification remain **OPEN**.
+
 A30 adds explicit original-proof cancellation retention and cold recovery. Its
 conditional source fixtures and 13 injected exception cuts must be followed by
 continuous native cancellation histories, actual halt/SIGKILL and independent

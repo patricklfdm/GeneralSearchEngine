@@ -37,7 +37,7 @@ def check_trace(rows,resume):
     need([v for v in rows if v.startswith('LEARNER_TYPED_')]==trace(resume),'learner typed exact force order')
 
 
-def physical(root):
+def physical_history(root):
     group=d.s.initialize(b.original(root,3,False))
     group={n:dict(v,**{d.future.FILE:d.future.frame(d.future.initial(v),{})}) for n,v in group.items()}
     b.match(root,'before-network',group)
@@ -68,6 +68,11 @@ def physical(root):
     for kind,command in [('READY',ready),('CANCEL',dict(number=1))]:
         model.group=a.maintenance(model.group,VOTERS);model.publish(kind,command)
     b.match(root,'after-close',model.group)
+    return prepared,model.group,request,learner,raw
+
+
+def physical(root):
+    prepared,_,request,learner,raw=physical_history(root)
     return prepared,request,learner,raw
 
 

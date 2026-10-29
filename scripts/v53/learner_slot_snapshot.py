@@ -76,20 +76,23 @@ class Snapshot:
     def fingerprints(self, root, names):
         """Rebuild the decision fingerprint from verified copied bytes and the
         recorded original identity, not this archive copy's new inode."""
-        need(root in ROOTS and len(names) == len(set(names)), 'learner snapshot fingerprint roots/paths')
+        need(root in self.identities and len(names) == len(set(names)), 'learner snapshot fingerprint roots/paths')
         members = self.identities[root]['members']
         need(set(names) <= set(members), 'learner snapshot fingerprint roots/paths')
         return [dict(path=name, sha256=digest(f.canonical(members[name]))) for name in sorted(names)]
 
 
-def read(root):
+def read(root, *, roots=ROOTS, required=frozenset(('operation','replica','seed'))):
     root = Path(root)
     need(root.is_dir() and not root.is_symlink(), 'learner snapshot directory')
+    need(type(roots) in (set, frozenset) and roots and all(type(v) is str and re.fullmatch('[a-z][a-z-]*', v) for v in roots),
+         'learner snapshot declared roots')
+    need(type(required) in (set, frozenset) and required <= roots, 'learner snapshot declared required roots')
     identities = e.parse(regular(root / 'original-identities.json', e.MIB))
-    need(type(identities) is dict and set(identities) == ROOTS, 'learner snapshot original roots')
+    need(type(identities) is dict and set(identities) == roots, 'learner snapshot original roots')
     resources = resource_usage(e.parse(regular(root / 'resources.json', 4096)))
     present = set(); paths = []; keys = set(); files = {}; count = total = 0
-    for name in sorted(ROOTS):
+    for name in sorted(roots):
         row = identities[name]
         need(type(row) is dict and set(row) == {'path', 'present', 'members'}
              and type(row['present']) is bool and type(row['members']) is dict,
@@ -136,7 +139,7 @@ def read(root):
                 need(len(raw) == identity['bytes'] and digest(raw) == identity['sha256'], 'learner snapshot original bytes')
                 data[relative] = raw
         files[name] = data
-    need({'operation', 'replica', 'seed'} <= present, 'learner snapshot required roots')
+    need(required <= present, 'learner snapshot required roots')
     need({p.name for p in root.iterdir()} == present | {'original-identities.json', 'resources.json'},
          'learner snapshot exact layout')
     return Snapshot(identities, files, resources)

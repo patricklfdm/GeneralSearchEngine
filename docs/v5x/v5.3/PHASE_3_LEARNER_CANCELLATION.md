@@ -78,3 +78,11 @@ native multi-revision cancellation, original-first physical/force/network replay
 halt/SIGKILL, maximum resources and all original full Phase 3 gates. Matching
 locally forced INTENT and autonomous learner continuation remain implementation
 work. **Phase 3 remains OPEN.**
+
+## Native follow-up
+
+The first [complete native cancellation entry](PHASE_3_LEARNER_CANCELLATION_NATIVE.md)
+failed before retention: the index-5 CANCEL generation no longer contained the
+learner's original index-3 PREPARE endpoint. Independent replay confirms all five
+native commands and 59 transfers. The earlier conditional component PASS is not
+native cancellation acceptance; source-side durable retention remains required.

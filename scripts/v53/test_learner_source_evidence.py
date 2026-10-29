@@ -6,6 +6,18 @@ from . import learner_source_evidence as e
 
 
 class LearnerSourceEvidenceTest(unittest.TestCase):
+    def test_progress_requires_three_sessions_and_default_still_requires_four(self):
+        rows=[dict(request=str(i),response=str(i)) for i in range(4)]
+        with patch.object(e.t.t,'wire',side_effect=lambda raw:('unused',dict(trace=raw))), \
+             patch.object(e.g,'attempts',side_effect=lambda rows:rows):
+            self.assertEqual([[row] for row in rows],e.transcripts(rows))
+            self.assertEqual([[row] for row in rows[:3]],e.transcripts(rows[:3],progress=True))
+            for current,progress in ((rows[:3],False),(rows,True),(rows[:2],True)):
+                with self.subTest(progress=progress,length=len(current)),self.assertRaisesRegex(ValueError,'^learner source complete sessions$'):
+                    e.transcripts(current,progress=progress)
+            with self.assertRaisesRegex(ValueError,'^learner source reused session$'):
+                e.transcripts(rows[:2]+rows[:1],progress=True)
+
     def test_invalid_original_is_not_counted_as_negative_success(self):
         with patch.object(e,'validate',side_effect=ValueError('invalid original')),patch.object(e.shutil,'copytree') as copied:
             with self.assertRaisesRegex(ValueError,'^invalid original$'):e.qualify('/absent')

@@ -94,5 +94,21 @@ class LearnerSlotSnapshotTest(unittest.TestCase):
         self.ids['slots']['members']['.'] = False; self.save()
         with self.assertRaisesRegex(ValueError, '^learner snapshot original root directory$'): s.read(self.root)
 
+    def test_explicit_alternate_roots_do_not_relax_the_default_inventory(self):
+        # Cancellation has four explicitly declared roots; a caller cannot use
+        # that profile to silently accept an arbitrary partial seven-root copy.
+        selected={'operation','replica','initial-typed','cancellation'}
+        for name in set(self.ids)-selected:
+            if (self.root/name).exists():shutil.rmtree(self.root/name)
+            del self.ids[name]
+        self.ids['cancellation']=dict(path='/unavailable-original-learner/cancellation',present=False,members={})
+        self.save()
+        with self.assertRaisesRegex(ValueError,'^learner snapshot original roots$'):s.read(self.root)
+        self.assertEqual(selected,set(s.read(self.root,roots=selected,required={'operation','replica'}).files))
+        self.assertEqual([],s.read(self.root,roots=selected,required={'operation','replica'}).fingerprints('cancellation',[]))
+        for invalid in (set(),{'../foreign'},{'a/b'},['operation']):
+            with self.subTest(invalid=invalid),self.assertRaisesRegex(ValueError,'^learner snapshot declared roots$'):
+                s.read(self.root,roots=invalid)
+
 
 if __name__ == '__main__': unittest.main()

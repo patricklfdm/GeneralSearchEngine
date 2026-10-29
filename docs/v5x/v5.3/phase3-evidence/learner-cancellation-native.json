@@ -1,0 +1,142 @@
+{
+  "archive": {
+    "bytes": 4520773,
+    "path": "target/v53-native-cancellation/original-failure-and-reader-final.tar.gz",
+    "sha256": "3d41e6a873b566d356c7ed89d44a057288433222811724dedcef56c7da9dcd45"
+  },
+  "autonomousIntegrationQualified": false,
+  "baseSource": "d1a7e4b4c33bfad099f21f0f8365a6d5ab5d6cbd",
+  "compile": {
+    "command": [
+      "/opt/maven/bin/mvn",
+      "-o",
+      "-B",
+      "-ntp",
+      "-f",
+      "reactor/pom.xml",
+      "-pl",
+      "../general-search-engine-replication",
+      "-am",
+      "test-compile"
+    ],
+    "exit": 0,
+    "scope": "compile-only",
+    "seconds": 12.269635143995401
+  },
+  "compiledProductionFiles": 878,
+  "contract": {
+    "byteFixtures": 52,
+    "commandFixtures": 9,
+    "localLinks": 1309,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "contractUnitTests": 1,
+  "diagnosis": {
+    "availableAnchorIndices": [
+      0,
+      1,
+      4,
+      5
+    ],
+    "cancellationQualified": false,
+    "exchanges": 59,
+    "missingPreparedAncestor": true,
+    "nativeSlots": 5,
+    "phase3Complete": false,
+    "physicalQualification": true,
+    "preparedIndex": 3,
+    "processDeathQualified": false,
+    "scope": "failed-native-cancellation-diagnosis",
+    "status": "PARTIAL",
+    "terminalIndex": 5,
+    "unselectedRefusals": 15
+  },
+  "diagnosticNegatives": [
+    {
+      "case": "extra-file",
+      "reason": "context selection learner cancellation inventory",
+      "status": "REJECTED"
+    },
+    {
+      "case": "receipt",
+      "reason": "learner typed exact receipt",
+      "status": "REJECTED"
+    },
+    {
+      "case": "native-terminal",
+      "reason": "admitted exact after-cancel: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-exchange",
+      "reason": "learner source exact received trace",
+      "status": "REJECTED"
+    },
+    {
+      "case": "changed-export",
+      "reason": "learner source exact original generation",
+      "status": "REJECTED"
+    },
+    {
+      "case": "false-success",
+      "reason": "learner cancellation diagnostic original failure",
+      "status": "REJECTED"
+    },
+    {
+      "case": "invented-write",
+      "reason": "learner cancellation diagnostic unexpected writes",
+      "status": "REJECTED"
+    }
+  ],
+  "fullNegativeQualification": false,
+  "fullReaderStatus": "Implemented, unqualified: original failure stops before cancellation transaction and cold reopen",
+  "hostedRun": false,
+  "nativeCancellationQualified": false,
+  "nativeExecution": {
+    "classes": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationNetworkTest": 1
+    },
+    "exit": 1,
+    "failures": 1,
+    "label": "original",
+    "requestedTests": [
+      "V53LearnerCancellationNetworkTest"
+    ],
+    "seconds": 276.23136024500127,
+    "skipped": 0,
+    "tests": 1
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portableOptimizedDiagnosis": true,
+  "processDeathQualified": false,
+  "productionInputs": 477,
+  "productionUnchanged": true,
+  "pythonTests": 80,
+  "schema": "gse-v53-native-cancellation-diagnosis-v1",
+  "sourceChanges": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "1e8c6654e073d62312d4992d2d66033b9d498dde2567e430505841dc76e7f6eb",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "5c457938485c3847885290f0aa1e83be3502c98e38a99af95e530393c464018a",
+    "docs/v5x/v5.3/PHASE_3_LEARNER_CANCELLATION.md": "c3b60f7906056c86073d12e989301d604b206188ed5a9c112671a56d1ca828a9",
+    "docs/v5x/v5.3/PHASE_3_LEARNER_CANCELLATION_NATIVE.md": "46719eadc1834baf42b2a37a06ff2832aa4c96698b7c1fb589ddace7e35a115e",
+    "docs/v5x/v5.3/README.md": "b9bb00073ab1ee844af4688ee95b635bdf154938352c0b88fdcab46daad59952",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCancellationQualification.java": "7cfc3a73f249b3ad22dc62a39d46c4ceae88eb1047c7aa7aa9802de6e3739234",
+    "scripts/v53/learner_cancellation_evidence.py": "177726f03f4d38d0d44c86a8878a6f12c92c07a657a721437387853f98963a9f",
+    "scripts/v53/learner_slot_snapshot.py": "eea5059aecacfb10772d6e382f7cc2d1bf06b88e852c34048d2cc1bba33e7c8d",
+    "scripts/v53/learner_source_evidence.py": "551699e4982bc57f76bc5bc64c197bb8f8a66bdbce069e70b2b09eb2f97f7748",
+    "scripts/v53/learner_typed_evidence.py": "023a31037920f9836b7dbc6fe5eb36422cb23da64992fd0f74f40620d2d97dd4",
+    "scripts/v53/test_learner_cancellation_evidence.py": "3652286d7c6dbc57ffadd4952d100612dbe660ccd6a342d2c579f3ef6d945d90",
+    "scripts/v53/test_learner_slot_snapshot.py": "87a1a7e87469a7fceea0eb89355cfa1218a3fc286b7eedd77269a6349543233c",
+    "scripts/v53/test_learner_source_evidence.py": "4414e1821619ae2c2a7f93197596ac791930e3760608b713f1a0d411ccca08dd"
+  },
+  "sourceRetentionCorrectionImplemented": false,
+  "status": "PARTIAL",
+  "unexecutedSnapshots": [
+    "native",
+    "reader (compile only)"
+  ]
+}
