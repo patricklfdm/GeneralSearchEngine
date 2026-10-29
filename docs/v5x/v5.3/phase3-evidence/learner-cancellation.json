@@ -1,0 +1,134 @@
+{
+  "allSevenProfilesQualified": false,
+  "archive": {
+    "baseSource": "15acde7a0306a2413982e71452c234bf1298e42b",
+    "bytes": 6638079,
+    "compiledProductionFiles": 880,
+    "files": 3652,
+    "finalSourceMatchesWorkspace": true,
+    "path": "target/v53-learner-cancellation/qualification.tar.gz",
+    "productionIdenticalAcrossAttempts": false,
+    "productionInputs": 480,
+    "sha256": "d79d81712d9745ef62fbb12e004436fc0e77c97ee318a04ff99603785d762f54"
+  },
+  "attemptReasons": {
+    "focused": "five initial local cancellation groups passed, including all 13 injected IOException cuts",
+    "guarded": "final 20 targeted checks pass after cached fixed cancellation-path lookup; promoted setup precedes source export, production limits unchanged; preexisting idle handles use a frozen clock so expiry cannot masquerade as cancellation refusal",
+    "qualified": "37 of 38 broader tests passed; promoted-head test reported EOF after 75.456 seconds with its 60-second source export started before unrelated local promotion setup"
+  },
+  "attempts": {
+    "focused": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "focused",
+      "requestedTests": [
+        "V53LearnerCancellationTest"
+      ],
+      "seconds": 403.05954551600007,
+      "skipped": 0,
+      "tests": 5
+    },
+    "guarded": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerSlotTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "guarded",
+      "requestedTests": [
+        "V53LearnerCancellationTest#forcedCancellationSurvivesOwnerRestartAndStopsOldPreparationWithoutVotingOrDeleting+promotedCurrentHeadAlsoRetainsAndReopensCancellationWithoutAnotherGeneration",
+        "V53LearnerProgressTest",
+        "V53LearnerProgressNetworkTest",
+        "V53LearnerSourceTest",
+        "V53LearnerSlotTest#tcpInstallationAndColdTypedReopenKeepTwoOriginalGenerationsWithoutSelectingTheCandidate"
+      ],
+      "seconds": 418.00372379700275,
+      "skipped": 0,
+      "tests": 20
+    },
+    "qualified": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerHandoffTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerMaterializationTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerSlotTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceTest": 8
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "qualified",
+      "requestedTests": [
+        "V53LearnerCancellationTest",
+        "V53LearnerProgressTest",
+        "V53LearnerProgressNetworkTest",
+        "V53LearnerSourceTest",
+        "V53LearnerMaterializationTest",
+        "V53LearnerHandoffTest",
+        "V53LearnerSlotTest"
+      ],
+      "seconds": 1366.6596666820005,
+      "skipped": 0,
+      "tests": 38
+    }
+  },
+  "autonomousIntegrationQualified": false,
+  "cancellationRetentionImplemented": true,
+  "componentAxes": {
+    "additionalGenerations": 0,
+    "joiningProfiles": 5,
+    "learnerSlots": 1,
+    "maximumMiscKiB": 1980,
+    "transactionExceptionCuts": 13
+  },
+  "contract": {
+    "byteFixtures": 52,
+    "commandFixtures": 9,
+    "localLinks": 1302,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "contractUnitTests": 1,
+  "explicitCancellationRecoveryImplemented": true,
+  "finalSourceCoverage": "All main/test sources compiled. Twenty final-source tests replay changed guard paths and the corrected promoted fixture. Broader 38-test observations remain bound to their earlier snapshot, with their one error preserved.",
+  "hostedRun": false,
+  "limitations": [
+    "Conditional source histories do not establish native distributed cancellation.",
+    "Injected IOException is not halt/SIGKILL evidence.",
+    "No complete Phase 3 or hosted gate was rerun.",
+    "Cancellation retains its source and typed historical data; no retirement/deletion capability is granted."
+  ],
+  "localIntentInstalled": false,
+  "maximumResourcesQualified": false,
+  "nativeCancellationQualified": false,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "schema": "gse-v53-learner-cancellation-component-v1",
+  "scope": "conditional-source-durable-local-transaction-and-tcp-only",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCapsule.java": "a7ac010a2ad39864d2feea0f7979b966f4dbfa8d701f1ec077ef0becb0f6eb24",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCancellation.java": "77fc0c30e8f377636b1167007153d173c509955cb49d142a03aa55866ea24da0",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerMaterialization.java": "35beb74ec29c46719450f277e6364cbbec9166ddb4a1531d6097682bd4a091dc",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerProgress.java": "727076b8f401ffa512e53fc8f3ea83ef770537dc1d206b8913f9770412b76bb4",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSource.java": "644d2b52d26f3762f7ac48e055905dbea514842c8301a42f03024584fb55c2cd",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java": "5d65f5ed9c91c29fb1ee2a681fcf522cee2308ba6aad279d7d2d2681aa92b2fe",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java": "c6f56d30c57766e49c29d9d70b7366e41a2ca07bf8c014467f67d8a0879ff93b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCancellationTest.java": "dc107bf6399c5aff1cca4a4618b907d0a7c235c49fac010eca861dbc4ff88fbe"
+  },
+  "status": "PASS",
+  "unexecutedSnapshots": [
+    "verified"
+  ]
+}

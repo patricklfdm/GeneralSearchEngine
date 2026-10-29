@@ -1,5 +1,10 @@
 # Phase 3 — prepared learner progress
 
+This entry records A29's read-only acquisition boundary. The later
+[durable cancellation transaction](PHASE_3_LEARNER_CANCELLATION.md) now explicitly
+retains certified CANCEL under the same prepared owner. Reading progress by itself
+still grants no local INTENT, voting eligibility or cleanup authority.
+
 The original learner discovery/enrollment route ends when the source applies
 CANCEL or INTENT. Reusing that route would either prevent recovery or silently
 weaken enrollment checks. This batch adds a separate bounded read-only route,

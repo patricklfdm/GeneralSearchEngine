@@ -27,6 +27,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     private boolean preparedGeneration;
     private MembershipLearnerSuccessor successor;
     private MembershipLearnerSlot slot;
+    private MembershipLearnerCancellation cancellation;
     private MembershipLearnerRetirement retirement;
     private boolean predecessorReleased;
     private MembershipOwnership owner;
@@ -273,7 +274,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     boolean preparedGeneration()throws IOException{check();return preparedGeneration;}
     MembershipResources resources()throws IOException{check();return operation.resources();}
     Decoded root()throws IOException{check();return plan.root;}
-    void requireNewSuccessor()throws IOException {check();require(successor==null,"learner successor requires original resume or retirement");}
+    void requireNewSuccessor()throws IOException {requireActive();require(successor==null,"learner successor requires original resume or retirement");}
     void attachSuccessor(MembershipLearnerSuccessor child)throws IOException{requireNewSuccessor();successor=Objects.requireNonNull(child);}
     boolean ownsSuccessor(MembershipLearnerSuccessor child){return successor==child;}
     MembershipLearnerSuccessor.View successor(MembershipLearnerMaterialization.PreparedGeneration prepared)throws IOException {
@@ -304,7 +305,7 @@ final class MembershipLearnerStore implements AutoCloseable {
         point("LEARNER_SLOT_INITIAL_RETIREMENT_FORCED");releaseOriginalLeases();
     }
     void requireNewSlot()throws IOException {
-        requireRetiredPredecessor();if(slot!=null){slot.requireReusable();return;}
+        requireActive();requireRetiredPredecessor();if(slot!=null){slot.requireReusable();return;}
         AdmissionPaths.absent(MembershipLearnerSlot.directory(summary()));
         AdmissionPaths.absent(MembershipLearnerSlot.typedDirectory(summary()));
     }
@@ -319,8 +320,12 @@ final class MembershipLearnerStore implements AutoCloseable {
     MembershipLearnerSlot.View resumeSlot(MembershipLearnerMaterialization.CurrentHead current)throws IOException {
         check();require(slot!=null,"learner inactive slot missing");return slot.open(current);
     }
+    void requireActive()throws IOException {check();MembershipLearnerCancellation.requireActive(plan.summary());}
+    void attachCancellation(MembershipLearnerCancellation value)throws IOException {
+        check();require(cancellation==null || cancellation.closed(),"learner cancellation already owned");cancellation=Objects.requireNonNull(value);
+    }
     @Override public void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
+        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(cancellation);children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
         children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }

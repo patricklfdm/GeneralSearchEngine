@@ -1153,3 +1153,43 @@ No persisted schema, resource bound, public API or normative phase exit is chang
 The native full-history, process-death, all-profile and original-first evidence
 gates remain required, as do locally forced matching INTENT, durable cancellation
 recovery and autonomous continuation.
+
+## A30 — original-proof-bound learner cancellation retention
+
+Extend A29 with an explicit terminal retention transaction, separate from ordinary
+admission and read-only progress. Only a complete authenticated source whose exact
+retained operation is CANCELLED may enter it. Require the same live prepared or
+current typed owner, complete request/identity, shared resource pool and proven
+ancestor. The progress completion method refuses non-CANCEL states. Neither a
+remote result digest nor a timeout authorizes this transaction.
+
+Persist `gse-v53-learner-cancellation/1.3` as bounded canonical local JSON, in one
+fixed sibling of the operation directory. Bind the original admission plan digest,
+request, joining identity, prepared source/cut/catalog/application, current source
+voter, exact original source inventory/inodes and both path bindings. Detach the
+existing received-file leases before writing. Force the original plan before the
+source move; force all original source members, source directory and both move
+parents before exposing CANCELLED. The transaction creates no voting generation,
+new readiness receipt, local INTENT, journal vote or retirement/deletion grant.
+
+Any retained cancellation directory stops further acquisition/install/promotion,
+including an incomplete original transaction. Reopen only the exact historical
+store/typed owner for explicit cancellation recovery. Missing/torn typed originals
+are refused rather than completed from arguments. Before cancellation recovery
+writes, reserve the original receiving/image categories and independently recheck
+the full retained materialization and terminal ancestry. Complete original plans
+can be resealed; torn or missing plans and changed/copied/missing originals are
+preserved and refused. Close revokes the handle and releases reservations without
+removing evidence or reopening preparation.
+
+Use the existing one LEARNER slot and separately charged application images.
+Two at-most-64-KiB decision files add 128 KiB to A28's conservative 1852 KiB MISC
+envelope: 1980 KiB remains below the frozen 2 MiB. No third generation, eighth
+image, new wire record, public API or relaxed resource/time bound is introduced.
+The original remote acquisition deadline and same-frame retry rules still apply;
+local explicit recovery does not start a new transfer or fabricate original bytes.
+
+This component transaction does not close native cancellation or Phase 3. Full
+native histories, process death, maximum-resource qualification, original-first
+independent evidence and autonomous integration remain required. INTENT eligibility
+still requires its own matching image/receipt and locally forced INTENT protocol.

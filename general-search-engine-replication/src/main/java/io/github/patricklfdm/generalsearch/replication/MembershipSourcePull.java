@@ -459,6 +459,13 @@ final class MembershipSourcePull implements AutoCloseable {
         checkLearner(result.context);
         check();return result;
     }
+    /** Terminal retention stays separate from original enrollment admission. */
+    MembershipSourceReceive completeLearnerCancellationSource(MembershipFloor.Copy original,MembershipBallotAllocator.Cut cut)throws IOException {
+        check();require(learner!=null && learnerProgress && completeSource && received!=null,"learner source is not a progress transfer");
+        MembershipLearnerProgressAccess.original(original.capsule.context,learner,source);
+        require(MembershipLearnerProgressAccess.operation(original.capsule.context,learner.identity()).get("phase").equals("CANCELLED"),"learner progress completion requires CANCEL");
+        received.completeLearnerGeneration(original,cut);check();return received;
+    }
     MembershipSourceReceive completeLearnerSource(MembershipFloor.Copy original,MembershipBallotAllocator.Cut cut)throws IOException {
         check();require(learner!=null && !learnerProgress && completeSource && received!=null,"learner source is not an admission transfer");
         var prefix=verifiedPrefix();require(Arrays.equals(prefix.packet.bytes(),original.capsule.packet.bytes()),"learner retained source prefix");

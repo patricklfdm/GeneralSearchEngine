@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+A30 adds explicit original-proof cancellation retention and cold recovery. Its
+conditional source fixtures and 13 injected exception cuts must be followed by
+continuous native cancellation histories, actual halt/SIGKILL and independent
+original-first physical/force/network validation. Include initial and alternating
+prepared heads, pending/selected sources and restart without old-receipt reuse.
+No new source or experiment retry may replace incomplete original evidence.
+
 A28 implements alternating inactive-plan replacement and general slot/sequence
 routing. Continuous component histories now cover both fixed paths and new-clear
 replacement cuts. Complete native/process histories must still include every
@@ -29,6 +36,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 
 | Gate | Unit of execution | Required final evidence |
 | --- | --- | --- |
+| `V53LearnerCancellationTest` and native cancellation | One original prepared learner history through certified CANCEL and local retention/restart | All five joining profiles, initial/promoted/alternating heads, original forces and source ancestry, bounded resources, halt/SIGKILL, precise evidence negatives and automatic integration; component exception cuts do not replace these gates |
 | `V53LearnerStoreTest` and preparation tests | Focused component suite | All assertions on the final source; explicitly conditional historical fixtures do not become native distributed evidence |
 | `V53LearnerStoreRevalidationTest` | One actual TCP history | Normal original installation, disconnect, reopen and unchanged-byte refusal; independent original-first review reader |
 | `V53LearnerStoreNetworkTest` | Twelve independent whole histories: six cuts × halt/SIGKILL | Original native source, interrupted process, normal resume, locks, forces and exact physical bytes; all twelve required |

@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Durable learner cancellation](PHASE_3_LEARNER_CANCELLATION.md) now retains a
+complete certified CANCEL under the same prepared owner and receiving slot, then
+stops further preparation. Explicit cold recovery revalidates original proofs;
+missing/torn originals remain refused. Native cancellation/process qualification,
+locally forced matching INTENT, autonomous integration and full Phase 3 remain
+**OPEN**. Earlier entries below retain their original source-bound scope.
+
 [Prepared learner progress](PHASE_3_LEARNER_PROGRESS.md) adds a separate read-only
 route for exact retained operation history after CANCEL, INTENT and FINAL.
 The original enrollment route remains pre-joint only. Complete source bytes and

@@ -53,6 +53,9 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         byte[] original=input.image();receipt=input.receiptBytes();var parts=MembershipApplicationImage.unpack(original);var values=new TreeMap<String,byte[]>();
         for(int i=0;i<parts.size();i++)values.put(BACKUP+"/"+MembershipApplicationImage.MEMBERS.get(i),parts.get(i));payloads=Map.copyOf(values);
         boolean exists=Files.exists(directory,LinkOption.NOFOLLOW_LINKS);
+        // A cancelled learner may reopen its exact historical typed owner for
+        // proof recovery, but cannot create a new preparation sidecar.
+        if(!exists)input.store().requireActive();
         // The second typed sidecar fits the remaining original MISC budget by
         // retaining descriptor/receipt digests, not duplicate large descriptors.
         // Check its worst-case directory identity before reserving or writing.
@@ -78,7 +81,20 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
             if(exists)require(names.contains(LOCK) && (names.contains(PLAN)||names.contains(NEXT)),"learner typed original plan missing");
             else require(names.isEmpty(),"learner typed new directory changed");
             lock=MembershipOwnership.own(directory.resolve(LOCK),!exists);
-            members=scan();input.attach(this);check();
+            members=scan();
+            if(MembershipLearnerCancellation.present(summary)) {
+                // Cancellation was admitted only after this exact prepared
+                // owner was forced. Missing/torn historical preparation cannot
+                // be reconstructed merely to reopen the cancellation proof.
+                require(names.equals(input.successor()?Set.of(LOCK,PLAN,BACKUP,RECEIPT):Set.of(LOCK,PLAN,BACKUP,RECEIPT,PREPARED)),
+                        "cancelled learner missing original typed inventory");
+                AdmissionPaths.exact(directory.resolve(PLAN),plan);AdmissionPaths.exact(directory.resolve(RECEIPT),receipt.bytes());
+                if(prepared!=null)AdmissionPaths.exact(directory.resolve(PREPARED),prepared);
+                require(children(directory.resolve(BACKUP),MembershipApplicationImage.MEMBERS.size()).equals(new TreeSet<>(MembershipApplicationImage.MEMBERS)),
+                        "cancelled learner missing original backup");
+                for(var member:payloads.entrySet())AdmissionPaths.exact(directory.resolve(member.getKey()),member.getValue());
+            }
+            input.attach(this);check();
             if(!exists){AdmissionPaths.forceDirectory(directory.getParent());point("LEARNER_TYPED_DIRECTORY_FORCED");write(NEXT,plan,"LEARNER_TYPED_PLAN");}
             seal();
             if(!members.containsKey(BACKUP)){check();Files.createDirectory(directory.resolve(BACKUP));update(BACKUP);point("LEARNER_TYPED_BACKUP_CREATED");}
@@ -175,10 +191,10 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     /** Force the original ownership handoff before closing both typed handles.
      * No original files or storage reservations are retired by this operation. */
     MembershipLearnerSuccessor.View promoteSuccessor()throws IOException {
-        receipt();return input.promote(this);
+        receipt();input.store().requireActive();return input.promote(this);
     }
     MembershipLearnerSlot.View promoteSlot(CurrentHead previous)throws IOException {
-        receipt();return input.promoteSlot(this,previous);
+        receipt();input.store().requireActive();return input.promoteSlot(this,previous);
     }
     /** Select these exact immutable originals as a nonvoting local generation.
      * Reserve its slot before forcing the marker, and only then release the
