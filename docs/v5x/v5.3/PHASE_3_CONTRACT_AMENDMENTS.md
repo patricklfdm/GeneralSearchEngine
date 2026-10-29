@@ -773,3 +773,33 @@ No resource, timing or wire/GSER limit changes. The current source, current type
 backup, admission and successor metadata remain intact. This recovers one old
 slot; alternating repeated refresh, cancellation cleanup, matching forced INTENT,
 native/process-death retirement qualification and complete Phase 3 remain due.
+
+## A22 — live current typed head for subsequent acquisition
+
+After A21 has removed and forced the initial predecessor and released its leases,
+the promoted source may be semantically reopened through the actual typed reader.
+That live typed owner can issue an internal current-head acquisition capability.
+An installed but unpromoted successor, an unreclaimed handoff, a plain capsule or
+receipt value, and an old/closed typed handle cannot issue it. Cold reopen must
+finish original retirement recovery and directory forcing before issuing it.
+
+Use a sealed internal head interface implemented only by the existing selected
+initial typed owner and the new current typed owner. Both authorize acquisition
+through the same native learner client, original resource pool, single LEARNER
+receiving slot, original deadline and exact-parent ancestry check. No caller can
+supply a replacement budget or make a capability from historical record bytes.
+Closing the typed owner or parent, changing original source/receipt bytes, or
+invalidating the forced retirement revokes the acquisition. Receiver cleanup must
+release only receiving resources while preserving the retained current head.
+
+Reject scratch paths overlapping the operation, replica, live-core reservation,
+current source sidecar, original source staging path, current typed sidecar or
+retired predecessor typed path before creating scratch. Current-head refresh is
+not initial admission: `plan`, `admit` and the first-successor installer refuse it.
+Installing its verified received copy requires the separate reusable-slot owner;
+this interface does not create that owner or authorize overwriting old plans.
+
+No new persistent member, reservation category, byte limit, wire kind or public
+API is introduced. The typed current head is nonvoting and its receipt remains
+bound to its retained revision while a later revision is fetched. Native repeated
+installation, matching forced INTENT and full Phase 3 remain open.

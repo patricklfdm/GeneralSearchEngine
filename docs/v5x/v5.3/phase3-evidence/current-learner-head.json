@@ -1,0 +1,198 @@
+{
+  "archive": {
+    "bytes": 11356398,
+    "files": 5110,
+    "path": "target/v53-current-learner-head/qualification.tar.gz",
+    "sha256": "e7176a898926679b0c2dc81c5699ac488906837b1bd1cad2d2944770ff8f02d0"
+  },
+  "autonomousReady": false,
+  "baseSource": "b51ecaf1fb32393a42d06d15fea776bb5ade0d7a",
+  "builds": {
+    "corrected": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCurrentHeadTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "coldTypedHeadDrivesTcpRefreshWithoutAnotherGenerationOrAdmission",
+              "seconds": 93.568
+            },
+            {
+              "failed": false,
+              "name": "onlyCurrentRetiredTypedHeadCanAcquireAndAllReservedPathsStayProtected",
+              "seconds": 69.854
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "actualBootstrapRootRequiresItsCapturedSchemaCodecAndStartupIndexes",
+              "seconds": 0.358
+            },
+            {
+              "failed": false,
+              "name": "allFiveJoiningShapesRequireTheExactCertifiedPreparation",
+              "seconds": 3.904
+            },
+            {
+              "failed": false,
+              "name": "reserveReadyAndSealedSourcesCannotCreateANewPreparation",
+              "seconds": 1.575
+            },
+            {
+              "failed": false,
+              "name": "closedOrReplacedSourceInvalidatesPreviouslyCapturedPreparation",
+              "seconds": 0.644
+            },
+            {
+              "failed": false,
+              "name": "localIdentityPathsAndOperationOverlapRefuseBeforeAnyMaterialization",
+              "seconds": 0.56
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 5
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "successorRejectsForeignReceiverBeforePathsOrLeasesChangeAndAcceptsItsOwn",
+              "seconds": 3.998
+            },
+            {
+              "failed": false,
+              "name": "firstAdmissionAlsoRejectsAReceivingBudgetDifferentFromItsOperationOwner",
+              "seconds": 0.331
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerCurrentHeadTest": 2,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": 5,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": 2
+        },
+        "exit": 0,
+        "failures": 0,
+        "label": "corrected",
+        "seconds": 189.190409643983,
+        "skipped": 0,
+        "tests": 9
+      },
+      "productionDifferencesFromFinal": []
+    },
+    "initial": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCurrentHeadTest": {
+          "cases": [
+            {
+              "failed": true,
+              "name": "coldTypedHeadDrivesTcpRefreshWithoutAnotherGenerationOrAdmission",
+              "seconds": 63.899
+            },
+            {
+              "failed": false,
+              "name": "onlyCurrentRetiredTypedHeadCanAcquireAndAllReservedPathsStayProtected",
+              "seconds": 70.826
+            }
+          ],
+          "errors": 1,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "actualBootstrapRootRequiresItsCapturedSchemaCodecAndStartupIndexes",
+              "seconds": 0.338
+            },
+            {
+              "failed": false,
+              "name": "allFiveJoiningShapesRequireTheExactCertifiedPreparation",
+              "seconds": 3.897
+            },
+            {
+              "failed": false,
+              "name": "reserveReadyAndSealedSourcesCannotCreateANewPreparation",
+              "seconds": 1.546
+            },
+            {
+              "failed": false,
+              "name": "closedOrReplacedSourceInvalidatesPreviouslyCapturedPreparation",
+              "seconds": 0.695
+            },
+            {
+              "failed": false,
+              "name": "localIdentityPathsAndOperationOverlapRefuseBeforeAnyMaterialization",
+              "seconds": 0.545
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 5
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "successorRejectsForeignReceiverBeforePathsOrLeasesChangeAndAcceptsItsOwn",
+              "seconds": 4.165
+            },
+            {
+              "failed": false,
+              "name": "firstAdmissionAlsoRejectsAReceivingBudgetDifferentFromItsOperationOwner",
+              "seconds": 0.765
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerCurrentHeadTest": 2,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerPreparationTest": 5,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": 2
+        },
+        "exit": 1,
+        "failures": 1,
+        "label": "initial",
+        "seconds": 161.0198858170188,
+        "skipped": 0,
+        "tests": 9
+      },
+      "productionDifferencesFromFinal": []
+    }
+  },
+  "conditionalHistoryTcp": true,
+  "conditionalSourceHistories": true,
+  "currentTypedHead": true,
+  "fullPhase3": false,
+  "independentNativeReplay": false,
+  "jointEligibility": false,
+  "nativeThreeRevision": "COMPILED_NOT_RUN",
+  "processDeathQualified": false,
+  "productionInputs": 487,
+  "rollingInstallation": false,
+  "schema": "gse-v53-current-learner-head-qualification-v1",
+  "status": "COMPONENTS_PASSED"
+}

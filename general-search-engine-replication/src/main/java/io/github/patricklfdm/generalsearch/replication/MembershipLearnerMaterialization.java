@@ -197,21 +197,38 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         receipt();require(selectionForced && members.containsKey(PREPARED) && members.get(PREPARED).bytes()==prepared.length,
                 "learner generation selection not forced");
     }
-    static final class PreparedGeneration {
+    /** Reopening the promoted typed image does not allocate or select another
+     * generation. Its original current source must already own the slot. */
+    CurrentHead currentHead()throws IOException {
+        receipt();input.requireCurrentTyped(this);return new CurrentHead(this);
+    }
+    static final class CurrentHead implements MembershipLearnerHead {
+        private final MembershipLearnerMaterialization<?> owner;
+        private CurrentHead(MembershipLearnerMaterialization<?> owner){this.owner=owner;}
+        @Override public void check()throws IOException {owner.receipt();owner.input.requireCurrentTyped(owner);}
+        @Override public MembershipLearnerRequest request()throws IOException {check();return owner.input.summary().request();}
+        @Override public MembershipCapsule source()throws IOException {check();return owner.input.source();}
+        @Override public MembershipResources resources()throws IOException {check();return owner.input.resources();}
+        @Override public void requireDisjoint(Path... paths)throws IOException {
+            check();var protectedPaths=new ArrayList<>(List.of(paths));protectedPaths.add(Path.of((String)owner.materialization.get("path")));
+            owner.input.requireRefreshPaths(protectedPaths.toArray(Path[]::new));
+        }
+    }
+    static final class PreparedGeneration implements MembershipLearnerHead {
         private final MembershipLearnerMaterialization<?> owner;
         private PreparedGeneration(MembershipLearnerMaterialization<?> owner){this.owner=owner;}
-        void check()throws IOException {owner.checkPreparedSelection();require(owner.input.preparedGeneration(),"learner generation not selected");}
-        MembershipLearnerRequest request()throws IOException {check();return owner.input.summary().request();}
-        MembershipCapsule source()throws IOException {check();return owner.input.source();}
+        @Override public void check()throws IOException {owner.checkPreparedSelection();require(owner.input.preparedGeneration(),"learner generation not selected");}
+        @Override public MembershipLearnerRequest request()throws IOException {check();return owner.input.summary().request();}
+        @Override public MembershipCapsule source()throws IOException {check();return owner.input.source();}
         Decoded receipt()throws IOException {check();return owner.receipt();}
-        MembershipResources resources()throws IOException {check();return owner.input.resources();}
+        @Override public MembershipResources resources()throws IOException {check();return owner.input.resources();}
         MembershipLearnerStore store()throws IOException {check();return owner.input.store();}
         MembershipLearnerSuccessor.View successor()throws IOException {check();return store().successor(this);}
         void closePredecessor()throws IOException {owner.close();}
         void requireCorePath(Path core)throws IOException {
             check();require(core.equals(Path.of((String)owner.materialization.get("path"))),"learner successor changed reserved core path");
         }
-        void requireDisjoint(Path... paths)throws IOException {
+        @Override public void requireDisjoint(Path... paths)throws IOException {
             check();var all=new ArrayList<Path>(List.of(paths));all.add(owner.directory);
             all.add(Path.of((String)owner.materialization.get("path")));all.add(request().operationDirectory());all.add(request().replicaDirectory());
             AdmissionPaths.disjoint(all);

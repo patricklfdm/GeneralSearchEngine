@@ -68,6 +68,12 @@ final class MembershipLearnerPreparation {
     MembershipLearnerSuccessor.View promote(MembershipLearnerMaterialization<?> typed)throws IOException {
         check();require(successor!=null,"learner handoff requires installed successor");return successor.promote(typed);
     }
+    void requireCurrentTyped(MembershipLearnerMaterialization<?> typed)throws IOException {
+        check();require(successor!=null,"learner refresh requires promoted typed source");successor.requireCurrentTyped(typed);
+    }
+    void requireRefreshPaths(java.nio.file.Path... paths)throws IOException {
+        check();require(successor!=null,"learner refresh requires promoted typed source");successor.requireRefreshPaths(paths);
+    }
     MembershipResources.GenerationClaim prepareGeneration()throws IOException {check();return owner.prepareGeneration();}
     void selectedGeneration(MembershipLearnerMaterialization<?> selected,MembershipResources.GenerationClaim claim)throws IOException {
         check();owner.selectedGeneration(selected,claim);

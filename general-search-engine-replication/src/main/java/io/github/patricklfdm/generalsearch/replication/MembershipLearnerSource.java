@@ -17,7 +17,7 @@ final class MembershipLearnerSource implements AutoCloseable {
     private final MembershipSourcePull.Guard guard;
     private final LongSupplier clock;
     private final long started,budget;
-    private final MembershipLearnerMaterialization.PreparedGeneration predecessor;
+    private final MembershipLearnerHead predecessor;
     private volatile boolean closed;
     private boolean used;
     private MembershipTransport transport;
@@ -32,7 +32,7 @@ final class MembershipLearnerSource implements AutoCloseable {
     }
     private MembershipLearnerSource(MembershipLearnerRequest request,MembershipIdentity peer,MembershipResources resources,
             ReplicationBounds bounds,MembershipTransport.Events events,MembershipSourcePull.Guard guard,
-            LongSupplier clock,long started,long budget,MembershipLearnerMaterialization.PreparedGeneration predecessor) {
+            LongSupplier clock,long started,long budget,MembershipLearnerHead predecessor) {
         require(budget>0 && budget<Long.MAX_VALUE/2,"learner source original budget");
         this.request=Objects.requireNonNull(request);this.peer=Objects.requireNonNull(peer);
         require(!peer.equals(request.identity()) && request.change().target().contains(peer),"learner source contact route");
@@ -42,7 +42,7 @@ final class MembershipLearnerSource implements AutoCloseable {
     }
     /** A prepared generation frees the receiving slot, but the new acquisition
      * must use its SAME pool and keep the original owner live throughout. */
-    static MembershipLearnerSource refresh(MembershipLearnerMaterialization.PreparedGeneration prepared,MembershipIdentity peer,
+    static MembershipLearnerSource refresh(MembershipLearnerHead prepared,MembershipIdentity peer,
             ReplicationBounds bounds,MembershipTransport.Events events,LongSupplier clock,long started,long budget)throws IOException {
         prepared.check();return new MembershipLearnerSource(prepared.request(),peer,prepared.resources(),bounds,events,
                 prepared::check,clock,started,budget,prepared);
@@ -107,9 +107,10 @@ final class MembershipLearnerSource implements AutoCloseable {
         return MembershipLearnerStore.install(operation,received,copy,cut);
     }
     MembershipLearnerSuccessor.View installSuccessor(MembershipBallotAllocator.Cut cut)throws IOException {
-        require(predecessor!=null,"learner successor requires prepared predecessor");var copy=source();
+        require(predecessor instanceof MembershipLearnerMaterialization.PreparedGeneration,"learner successor requires initial prepared predecessor; current head needs reusable-slot installation");
+        var prepared=(MembershipLearnerMaterialization.PreparedGeneration)predecessor;var copy=source();
         var receiver=prefix.completeLearnerSource(copy,cut);check();
-        return MembershipLearnerSuccessor.install(predecessor,receiver,copy,cut).open(predecessor);
+        return MembershipLearnerSuccessor.install(prepared,receiver,copy,cut).open(prepared);
     }
     @Override public void close()throws IOException {
         MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t;

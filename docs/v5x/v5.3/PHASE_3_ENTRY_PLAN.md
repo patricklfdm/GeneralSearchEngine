@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Current typed learner heads](PHASE_3_CURRENT_LEARNER_HEAD.md) now authorize
+subsequent acquisition only after original retirement and actual semantic reopen.
+The client keeps the same resource pool, deadline, one receiving slot and current
+terminal ancestry. Reusable-slot installation and the full native/process-death
+lifecycle remain OPEN; the separate rolling plan is not an implemented gate.
+
 [Original predecessor retirement](PHASE_3_LEARNER_RETIREMENT.md) now records and
 forces the exact removal decision before deleting old source/backup members.
 Recovery authenticates the retained current source first; covered missing files

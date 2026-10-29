@@ -27,6 +27,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     private boolean preparedGeneration;
     private MembershipLearnerSuccessor successor;
     private MembershipLearnerRetirement retirement;
+    private boolean predecessorReleased;
     private MembershipOwnership owner;
     private Object directoryKey,lockKey;
     private boolean closed,failed,complete;
@@ -208,6 +209,10 @@ final class MembershipLearnerStore implements AutoCloseable {
         return Map.of("source",source,"cut",value.get("cut"),"catalog",value.get("catalog"),"application",value.get("application"));
     }
     boolean retiring()throws IOException {check();return retirement!=null;}
+    void requireRetiredPredecessor()throws IOException {
+        check();require(retirement!=null && predecessorReleased,"learner refresh requires forced predecessor retirement");
+        AdmissionPaths.absent(decision.destination);AdmissionPaths.absent(MembershipLearnerMaterialization.directory(plan.summary()));
+    }
     byte[] retirementBytes()throws IOException {check();return MembershipLearnerRetirement.bytes(plan,decision);}
     void requirePredecessorClosed()throws IOException {check();require(typed==null || typed.closed(),"learner predecessor typed owner still live");}
     void beginRetirement()throws IOException {
@@ -224,6 +229,7 @@ final class MembershipLearnerStore implements AutoCloseable {
         var originals=new ArrayList<AutoCloseable>();originals.addAll(received.values());originals.addAll(leases);
         MembershipLearnerSource.closeChildren(originals.toArray(AutoCloseable[]::new));
         received.clear();leases.clear();typedImage=null;resumedMetadata=null;preparedGeneration=false;
+        predecessorReleased=true;
     }
     /** Read only an already-retained original image under this exclusive owner.
      * No independent reservation or materialized application is manufactured. */

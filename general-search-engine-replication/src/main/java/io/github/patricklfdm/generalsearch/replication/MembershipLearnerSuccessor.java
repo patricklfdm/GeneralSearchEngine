@@ -392,6 +392,17 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         void retirePredecessor()throws IOException {
             source();require(predecessor==null,"learner retirement requires promoted head");owner.retirePredecessor();
         }
+        void requireCurrentTyped(MembershipLearnerMaterialization<?> typed)throws IOException {
+            source();require(predecessor==null && owner.typed==typed,"learner refresh requires current typed head");
+            owner.parent.requireRetiredPredecessor();
+        }
+        void requireRefreshPaths(Path... paths)throws IOException {
+            source();var summary=owner.parent.summary();var all=new ArrayList<>(List.of(paths));
+            all.add(owner.directory);all.add(owner.staging);all.add(typedDirectory(summary));
+            all.add(MembershipLearnerMaterialization.directory(summary));
+            all.add(summary.request().operationDirectory());all.add(summary.request().replicaDirectory());
+            AdmissionPaths.disjoint(all);
+        }
         void reserveTypedImage()throws IOException{source();owner.reserveTypedImage();}
         void attachTyped(MembershipLearnerMaterialization<?> next)throws IOException {
             source();require(owner.typed==null || owner.typed.closed(),"learner successor typed preparation already owned");owner.typed=Objects.requireNonNull(next);
