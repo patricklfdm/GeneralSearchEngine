@@ -29,8 +29,9 @@ explicit strong, stale-allowed and minimum-progress reads. Its
 [combined hardening](docs/v5x/v5.2/PHASE_5_HARDENING.md) is also locally verified.
 The [complete protected cloud set](docs/v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md) now
 passes all five rounds under the recorded batch exceptions. Phase 6 registration
-is prepared for review; [Phase 7 release preparation](docs/v5x/v5.2/PHASE_7_CHECKLIST.md)
-remains open. V5.2 is not yet a published release.
+merged through PR #364. [Phase 7A snapshot preparation](docs/v5x/v5.2/RELEASE_CHECKLIST.md)
+adds packaged compatibility checks and [migration guidance](docs/v5x/v5.2/MIGRATION_GUIDE.md);
+final artifact freeze and release qualification remain open. V5.2 is not yet a published release.
 
 V5.0 adds an optional replication artifact with exactly three fixed voters, a
 configured leader, durable quorum commit proof, explicit activation, catch-up and

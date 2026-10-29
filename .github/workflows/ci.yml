@@ -2688,6 +2688,20 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.2 snapshot release preparation and published API compatibility
+        run: |
+          python3 -m unittest scripts.v52.test_release_preparation
+          python3 -m scripts.v52.release_preparation --output target/v52-release-preparation
+
+      - name: Retain V5.2 release preparation receipt
+        if: ${{ always() && hashFiles('target/v52-release-preparation/**') != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-release-preparation-${{ github.sha }}
+          path: target/v52-release-preparation
+          if-no-files-found: warn
+          retention-days: 90
+
       - name: Match the V4.4 release build to the frozen candidate bytes
         run: |
           if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then

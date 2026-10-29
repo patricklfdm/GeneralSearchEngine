@@ -3,8 +3,8 @@
 Current milestone: V5.2 [complete protected cloud acceptance](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md)
 passed in `40841038976/1` at verifier source `8b9aa60a`. The fifteen execution units
 represent all five rounds; the explicit source continuation and one-run retention
-waiver remain visible. Phase 6 registration/closeout is prepared for operator merge;
-[Phase 7 preparation](v5.2/PHASE_7_CHECKLIST.md) is next. Stable remains published 5.1.0.
+waiver remain visible. Phase 6 registration/closeout merged through PR #364;
+[Phase 7A preparation](v5.2/RELEASE_CHECKLIST.md) is implemented pending acceptance. Stable remains published 5.1.0.
 
 Historical V5.1 publication context: Phase 6 closed through PR #320,
 master `5c88a2b908347fa3e411e2018876657a21fa0912`,
@@ -22,21 +22,20 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 <a id="current-batch-v52-phase-1"></a>
 
-## Current batch: V5.2 Phase 6 closeout and Phase 7 entry
+## Current batch: V5.2 Phase 7A snapshot release preparation
 
-Read the [acceptance record](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md),
-[checklist](v5.2/PHASE_6_CHECKLIST.md), original receipt/provenance/registry linked
-there, and [Phase 7 plan](v5.2/PHASE_7_CHECKLIST.md). After registration merges,
-record its PR and implement 7A packaged compatibility/API/migration checks at
-5.2.0-SNAPSHOT. The existing `v52-style-consumer` is already the seventh consumer;
-extend it rather than recreating it. 7B must explicitly add 5.2.0 canonical-byte
-and remote-consumer routing to CI/release tooling, whose current dedicated routes
-stop at 5.1.0. Final release validation and signed publication remain open.
+Phase 6 closeout merged through PR #364 at `a8125ebe`. Its verifier and measured
+sources remain distinct; see the [acceptance](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md).
+The [release checklist](v5.2/RELEASE_CHECKLIST.md) records compact baseline and
+328-file runtime/build-source checks, nine JAR/three POM packaging, published 5.1
+API/binary/default-method probes, three token vectors, seven consumers and
+90-day release-preparation evidence. The full cloud workload is not repeated.
 
-Work from the V5.2 master lineage in an isolated worktree; the main local worktree
-is concurrently developing V5.3. No new paid experiment is required for this
-review scope. Preserve the successful protected receipt and its original source;
-the frozen recovery verifier intentionally rejects later changed trees.
+Keep `5.2.0-SNAPSHOT` in this batch. Next is Phase 7B: explicit final 5.2.0
+canonical build/publication routes, exact-source full CI and frozen artifacts.
+Published tags, cloud byte pins and concurrent V5.3 development remain outside
+this work. See the [migration guide](v5.2/MIGRATION_GUIDE.md) and
+[draft notes](v5.2/RELEASE_NOTES.md). No tag or publication is authorized here.
 
 ## Historical pre-cloud integration handoff
 

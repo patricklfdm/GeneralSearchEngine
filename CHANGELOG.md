@@ -5,6 +5,11 @@ Semantic Versioning once the first stable artifact is published.
 
 ## Unreleased — 5.2.0-SNAPSHOT
 
+- Add snapshot release preparation: accepted cloud-source binding, nine JAR/three
+  POM integrity, published 5.1 API/binary and default-read compatibility, packaged
+  token fixtures and independent consumer coverage. Retain receipts for 90 days;
+  final 5.2.0 freeze and publication remain pending.
+
 - Add explicit replica-read API declarations, fixed 112-byte history-bound tokens
   and an additive default method that rejects unsupported reads without invoking
   callbacks on implementations retaining that default.

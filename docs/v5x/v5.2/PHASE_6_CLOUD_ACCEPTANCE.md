@@ -1,7 +1,7 @@
 # V5.2 protected cloud set acceptance — 2026-10-29
 
-**Status:** protected complete-set acceptance passed; this registration and the
-[Phase 6 checklist](PHASE_6_CHECKLIST.md) are ready for operator merge.
+**Status:** protected complete-set acceptance passed; registration and the
+[Phase 6 checklist](PHASE_6_CHECKLIST.md) merged through PR #364 at `a8125ebe`.
 The [Phase 7 release work](PHASE_7_CHECKLIST.md) remains open. Stable stays 5.1.0;
 the measured candidate is 5.2.0-SNAPSHOT.
 

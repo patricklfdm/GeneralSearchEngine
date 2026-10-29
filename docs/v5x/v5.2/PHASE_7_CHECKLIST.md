@@ -1,8 +1,9 @@
 # V5.2 Phase 7 release preparation plan
 
-**Status:** entry plan only; implementation and final-candidate acceptance remain
-open. The preceding [Phase 6 closeout](PHASE_6_CHECKLIST.md) is ready for operator
-merge. Keep `5.2.0-SNAPSHOT` until 7B. Stable remains published 5.1.0.
+**Status:** 7A snapshot preparation implemented; validation and operator acceptance
+are tracked in the [release checklist](RELEASE_CHECKLIST.md). Phase 6 closeout
+merged through PR #364 at `a8125ebe`. Keep `5.2.0-SNAPSHOT` until 7B. Final
+candidate freeze and publication remain open; stable remains published 5.1.0.
 
 ## Entry and preserved evidence
 
@@ -10,14 +11,14 @@ merge. Keep `5.2.0-SNAPSHOT` until 7B. Stable remains published 5.1.0.
   `8b9aa60ab0cc9253046b162f28c40d47ae2acc82`, independently accepted all five rounds.
 - [x] The compact registry retains both true measured sources/sequences, the
   byte-compatible quota continuation and the single experiment retention waiver.
-- [ ] Merge Phase 6 registration; record its exact PR/commit without replacing
-  the verifier or measured source fields.
-- [ ] Review release changes against the accepted runtime and published controls.
+- [x] Phase 6 registration merged through PR #364,
+  `a8125ebe2e02e1f6de1edead58e865e5b38729e1`; original identities are unchanged.
+- [x] Review release changes against the accepted runtime and published controls.
   A source/behavior change needs explicit evidence-impact assessment. A later
   release commit is not itself the measured cloud source.
 
 The current source already contains `compatibility/v52-style-consumer`, its
-aggregator entry and version-alignment entry. Its two tests cover stopped-handle
+aggregator entry and version-alignment entry. Its existing tests cover stopped-handle
 policy rejection without I/O/callbacks and standalone options/token behavior.
 The public runtime/fault gates and cloud measurements already test real reads.
 Reuse that work; do not create an eighth duplicate consumer or rerun cloud
@@ -34,11 +35,11 @@ experiments merely to update release documentation.
 | Migration and release notes | Add `MIGRATION_GUIDE.md`, `RELEASE_NOTES.md` and `RELEASE_CHECKLIST.md` in this directory; describe explicit read policies, callback lifetime, minimum-token semantics, indeterminate outcomes and unsupported mixed-version/member-change operations |
 | Required CI integration | Connect V5.2 checks to existing release/compatibility lanes and retain their receipts; preserve the existing tiering, full-CI inventory and older-version checks |
 
-- [ ] Complete 7A implementation and focused negative fixtures for malformed or
+- [x] Complete 7A implementation and focused negative fixtures for malformed or
   substituted baseline/artifacts, missing classifiers, wrong versions and source drift.
-- [ ] Run clean isolated release-profile packaging, all seven consumers, API/binary
+- [x] Run fresh isolated release-profile packaging, all seven consumers, API/binary
   audit and Javadocs. Keep the full original cloud archive outside any Maven clean.
-- [ ] Record local vs hosted validation separately; snapshot reproducibility is
+- [x] Record local vs hosted validation separately; snapshot reproducibility is
   diagnostic and cannot substitute for the final frozen 7B build.
 - [ ] Operator review/merge of 7A; preserve any CI exception as an explicit record.
 

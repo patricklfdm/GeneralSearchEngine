@@ -1,7 +1,7 @@
 # V5.2 Phase 6 closeout
 
 **Status:** protected cloud acceptance PASS at `8b9aa60a`; baseline registration
-and documentation closeout are prepared for operator merge. This checklist does
+and documentation closeout merged in PR #364 (`a8125ebe`). This checklist does
 not mark Phase 7 or publication complete.
 
 - [x] Frozen [M01–M04 hosted cohort](PHASE_6_HOSTED_ACCEPTANCE.md) completed on
@@ -24,7 +24,7 @@ not mark Phase 7 or publication complete.
   [provenance](phase6-cloud-provenance.json),
   [baseline registry](cloud-benchmark-baselines.json) and
   [acceptance/retention record](PHASE_6_CLOUD_ACCEPTANCE.md) prepared together.
-- [ ] Operator merges this registration/closeout; record its PR in Phase 7 entry.
+- [x] Operator merged registration/closeout through PR #364; recorded in Phase 7 entry.
 - [ ] Phase 7 packaged-consumer/API review, final canonical artifacts and
   protected release-candidate validation, under the [entry plan](PHASE_7_CHECKLIST.md).
 

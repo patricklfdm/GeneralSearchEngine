@@ -1,8 +1,8 @@
 # GeneralSearchEngine V5.x roadmap
 
 Current milestone: [V5.2 complete protected cloud set accepted](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md);
-Phase 6 registration is prepared for review and [Phase 7](v5.2/PHASE_7_CHECKLIST.md)
-is next. Stable remains [published V5.1](v5.1/RELEASE_CHECKLIST.md).
+Phase 6 registration merged through PR #364 and [Phase 7A](v5.2/RELEASE_CHECKLIST.md)
+is implemented pending acceptance. Stable remains [published V5.1](v5.1/RELEASE_CHECKLIST.md).
 
 Historical V5.1 closeout:
 Phase 6 closed through PR #320 at `5c88a2b908347fa3e411e2018876657a21fa0912`,
@@ -18,7 +18,7 @@ Release `38488481320` published that source. All twelve remote artifact hashes,
 signatures/checksums and clean V1–V5.1 consumers pass independent verification.
 Phase 8 is complete; stable is **5.1.0**.
 
-- **Status:** V5.0 and V5.1 published; V5.2 protected cloud set accepted, registration under review and release preparation pending; V5.3–V5.4 planned
+- **Status:** V5.0 and V5.1 published; V5.2 protected cloud set accepted, registration merged and Phase 7A release preparation implemented; V5.3–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **V5.2 replication reference:** published `5.1.0`
@@ -36,15 +36,16 @@ Phase 8 is complete; stable is **5.1.0**.
 
 ## Next entry and proposal status
 
-**Current batch:** [Phase 6 cloud registration and closeout](v5.2/PHASE_6_CHECKLIST.md).
+**Current batch:** [Phase 7A snapshot release preparation](v5.2/RELEASE_CHECKLIST.md).
 Protected `verify-set` run `40841038976/1` accepted all fifteen original execution
 units, representing three canonical rounds, five drill shards and experiment.
 The receipt preserves both measured sources/sequences and the narrowly authorized
 experiment retention exception. Its verifier source is `8b9aa60a`; the registration
 source is not a measured source. See the [acceptance record](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md).
 
-Next implement [Phase 7A](v5.2/PHASE_7_CHECKLIST.md), reusing the existing seventh
-consumer and public runtime evidence, then freeze final 5.2.0 artifacts in 7B.
+Phase 7A reuses the existing seventh consumer and public runtime evidence.
+Complete its [release checklist](v5.2/RELEASE_CHECKLIST.md), then freeze final
+5.2.0 artifacts in 7B.
 Earlier cloud-support CI skips do not replace final-candidate full validation.
 The [handoff](NEXT_DEVELOPMENT_HANDOFF.md) separates current work from historical
 pre-cloud implementation notes. Concurrent V5.3 development remains outside the

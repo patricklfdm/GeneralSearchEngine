@@ -1,0 +1,32 @@
+{
+  "schema": "gse-v52-release-preparation-policy-v1",
+  "version": "5.2.0-SNAPSHOT",
+  "acceptedVerifierSource": "8b9aa60ab0cc9253046b162f28c40d47ae2acc82",
+  "cloudFiles": {
+    "phase6-cloud-review.json": "01f9e744ecc311dd4777de768de7a44dc30078c72858e1ad8638ce8b63168c1f",
+    "phase6-cloud-provenance.json": "bc9d6fa7bcf3d7c8654433af3808b8ce6b652bc90eeaabde53196c2e4b412dd6",
+    "cloud-benchmark-baselines.json": "25503e3b0dd54d34aa89e382c27e7ac6ebc93077f38d71eb389c3af23ab5b580",
+    "experiment-retention-recovery.json": "067082b2fadef2101bc34587e34d80298f9b35326caa9d5223ffe5af4c59b027",
+    "published-controls.json": "e89b818f2f9a877ddabaef7ccb1f84c75e4393fe9544928bae17f2b07e91c471",
+    "fixtures/read-tokens-v1.json": "e988a382862941252e02e69e1213e9345e5c6ca88cee7d54bc4e89b7d8a86042"
+  },
+  "runtimeSource": {
+    "directories": [
+      "src/main",
+      "general-search-engine-replication/src/main",
+      "general-search-engine-processor/src/main",
+      ".mvn"
+    ],
+    "files": [
+      "pom.xml",
+      "reactor/pom.xml",
+      "general-search-engine-replication/pom.xml",
+      "general-search-engine-processor/pom.xml",
+      "mvnw",
+      "mvnw.cmd"
+    ],
+    "filesCount": 328,
+    "inventorySha256": "dc7a68125c2ac7609a0209564442c9f160a268c2147824e25b15a08627f70190"
+  },
+  "scope": "snapshot source-equivalence and packaged compatibility; not a new cloud replay or final candidate freeze"
+}
