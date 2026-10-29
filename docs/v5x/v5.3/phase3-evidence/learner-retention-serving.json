@@ -1,0 +1,100 @@
+{
+  "actualNetwork": {
+    "endpoint": 3,
+    "lostAck": true,
+    "nativeTcp": true,
+    "phase3Complete": false,
+    "retentionAttempts": 2,
+    "status": "PASS"
+  },
+  "archive": {
+    "bytes": 7317018,
+    "path": "target/v53-learner-retention-serving/originals-and-validation.tar.gz",
+    "sha256": "059b624a77f945e2ea4b26331fdbd9e381d1fe08989e05ac4b1b2caf9e33cb54"
+  },
+  "base": "5fb09ea29f6524246e929a2d16f553d8cad04295",
+  "codeAndBuildInputsChecked": 1683,
+  "compatibilitySnapshot": "learnerservingfinal",
+  "compatibilityTests": 17,
+  "currentSourceSnapshot": "learnerservingguard",
+  "currentSourceTests": 3,
+  "independentFullPhysicalQualification": false,
+  "learnerVotingEnabled": false,
+  "nativeCancellation": {
+    "ancestry": [
+      0,
+      1,
+      3,
+      4,
+      5
+    ],
+    "currentSourceExact": false,
+    "note": "Precedes only the final start-of-recording source-cut guard; exact source copy retained.",
+    "seconds": 377.372,
+    "sourceSnapshot": "learnerservingfinal",
+    "status": "PASS_JAVA_COMPONENT",
+    "testBudgetSeconds": 600
+  },
+  "pending": [
+    "original-first ledger/wrapper/selected-intent/force/wire replay and real evidence negatives",
+    "forced learner-head confirmation/narrowing",
+    "matching locally forced INTENT",
+    "all five joining profiles",
+    "fresh-process halt/SIGKILL",
+    "maximum combined resources and autonomous Phase 3 closure"
+  ],
+  "phase3Complete": false,
+  "replicatedExportEnabled": true,
+  "reports": {
+    "learnerserving": {
+      "V53LearnerRetentionServingTest": {
+        "seconds": 252.693,
+        "sha256": "8485c9d1c6a6bdce244b54328aa17f77b162608a2e184a97f3c2cbb2c7a1c04e",
+        "tests": 3
+      }
+    },
+    "learnerservingfinal": {
+      "V53LearnerCancellationQualification": {
+        "seconds": 377.372,
+        "sha256": "790ab9ca17256bc0a694b1af9046874efaf0b60e2592f3304bb242ebd608ad89",
+        "tests": 1
+      },
+      "V53LearnerRetentionServingTest": {
+        "seconds": 84.492,
+        "sha256": "3a12e4053423f2969824ad3e84ed9f35634cccaa8ed0ea587881e02dbc020d2f",
+        "tests": 1
+      },
+      "V53LearnerSourceNetworkTest": {
+        "seconds": 152.223,
+        "sha256": "4bcfe21b5826798f4b622bf59b1a9378d1474a8f6e9c84debde34ddb29288a97",
+        "tests": 1
+      },
+      "V53TransferServiceTest": {
+        "seconds": 79.696,
+        "sha256": "e9d6ab05c160a6aa99c48dc3fdf08d6cd16e2473ae03e0fefce3e20159d83e9c",
+        "tests": 16
+      }
+    },
+    "learnerservingguard": {
+      "V53LearnerRetentionServingTest": {
+        "seconds": 254.522,
+        "sha256": "9565fdc46fe45cfbcf2f427d421dd2d7a4dfc20146211f18dbec55bc60f36387",
+        "tests": 3
+      }
+    }
+  },
+  "schema": "gse-v53-learner-retention-serving-v1",
+  "sourceChanges": {
+    "learnerserving->learnerservingfinal": [
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCancellationQualification.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerRetentionServingTest.java"
+    ],
+    "learnerservingfinal->learnerservingguard": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerRetentionServing.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerRetentionServingTest.java"
+    ]
+  },
+  "status": "PASS_FOCUSED_COMPONENT",
+  "totalJavaExecutions": 25
+}

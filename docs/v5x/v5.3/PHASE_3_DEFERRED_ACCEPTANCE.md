@@ -8,10 +8,11 @@ now preserve exact learner endpoints through local publication and reopen.
 [Frozen-source capture and selected merge](PHASE_3_LEARNER_RETENTION_SELECTION.md)
 now preserve their union across installation, interrupted completion and later
 CANCEL. [Native quorum recording](PHASE_3_LEARNER_RETENTION_QUORUM.md) now adds
-explicit forced ACKs for the original stable endpoint. Binding that recording to
-source exposure and confirming/narrowing the learner head remain unimplemented;
-export in the new mode stays disabled. Native learner cancellation/reopen,
-process/independent replay and full Phase 3 qualification remain **OPEN**.
+explicit forced ACKs for the original stable endpoint. [Protected source serving](PHASE_3_LEARNER_RETENTION_SERVING.md)
+now consumes that exact live recording before exposing prefix/generation bytes,
+including cached completion replies. Forced learner-head confirmation/narrowing,
+independent native cancellation/reopen qualification, process replay and full Phase 3
+qualification remain **OPEN**.
 
 A30 adds explicit original-proof cancellation retention and cold recovery. Its
 conditional source fixtures and 13 injected exception cuts must be followed by

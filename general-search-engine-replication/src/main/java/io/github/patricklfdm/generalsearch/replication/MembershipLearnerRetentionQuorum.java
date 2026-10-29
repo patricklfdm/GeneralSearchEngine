@@ -8,13 +8,17 @@ import java.util.function.LongSupplier;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** Original-round recording for a nonvoting learner endpoint. Recording does not
- * expose a source, confirm a learner head or create voting eligibility. */
+/** Original-round recording for a nonvoting learner endpoint. A live recording
+ * authorizes only its exact owner's export, never a learner head or vote. */
 final class MembershipLearnerRetentionQuorum implements AutoCloseable {
     final class Recording {
         private Recording() {}
         void check()throws IOException {
             synchronized(owner){MembershipLearnerRetentionQuorum.this.check();require(complete,"learner retention quorum incomplete");}
+        }
+        void checkExport(MembershipGrantJournal source,MembershipIdentity reader,MembershipResources pool)throws IOException {
+            require(source==owner && pool==resources && reader.equals(intent.learner),"learner recording foreign export owner/reader/resources");
+            check();
         }
         Set<String> voters(){return Set.copyOf(acknowledged);}
         String intent(){return intent.digest;}

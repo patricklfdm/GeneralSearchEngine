@@ -1,5 +1,41 @@
 # V5.3 Phase 3 contract amendments
 
+## A32 — consume live learner recording before source export
+
+An enabled learner-retention owner now serves reserved prefix, ancestry and
+complete-generation requests only after its actual installed proposer obtains
+A31's forced recording from a current majority. The first source request starts
+one bounded recording inside the prefix service's original deadline. All traces
+for that permanent learner share the result, including a failed result; new
+traces cannot restart an exhausted quorum. The registry retains one accounted
+64 KiB control entry and uses the existing shared request/queue limits.
+
+The original root/request/reader/alias/correlation is checked before recording.
+The capability binds the exact journal owner, storage resource pool, learner,
+selected endpoint and ballot. Export creation, reads and references check it
+under that same journal lock. The service also checks before returning a reply,
+including the final exact retry after the export/session has closed. A changed
+ballot, endpoint, expired original budget or close refuses further responses.
+A frame already returned before fencing is not recalled; its endpoint was already
+quorum-retained before exposure.
+
+Close cancels the shared quorum before draining entry monitors. Concurrent
+requests waiting for the same result are woken, late exchanges are cancelled,
+and metadata stays accounted until the active recording task exits. Network
+waits never hold the journal or registry monitor. Nonvoting readers cannot bypass
+the recording by using ordinary prefix aliases; original ROOT discovery remains
+read-only metadata. Legacy fixture owners retain their prior explicit mode.
+
+This connects the existing activation endpoint automatically for enabled owners;
+it does not enable a public automatic learner runtime. Serving is restricted to
+the original stable installed proposer. There is no follower forwarding, forced
+head acknowledgement/narrowing, matching local INTENT or new voting eligibility.
+Wire/storage formats, frozen resource limits and workload profiles do not change.
+Full native cancellation, all-profile/process and independent physical replay
+remain separate gates. See [focused export validation](PHASE_3_LEARNER_RETENTION_SERVING.md).
+Rollback removes the serving connection and restores refusal for retained-mode
+exports; durable A31 obligations must remain intact.
+
 ## A31 — original-round nonvoting learner retention acknowledgements
 
 Add internal `LEARNER_RETENTION_INTENT` (29) and `LEARNER_RETENTION_ACK` (30),

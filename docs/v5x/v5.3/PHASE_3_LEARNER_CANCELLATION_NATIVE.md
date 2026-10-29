@@ -5,6 +5,26 @@ obligation. This is an **implementation gap**, not a timing failure. The earlier
 [cancellation component](PHASE_3_LEARNER_CANCELLATION.md) still qualifies its
 conditional source and local transaction only. Phase 3 remains **OPEN**.
 
+## Subsequent protected-serving observation
+
+The [A32 serving batch](PHASE_3_LEARNER_RETENTION_SERVING.md) enables actual
+learner-retention owners before the initial campaign, then repeats the same
+BARRIER/RESERVE/PREPARE/READY/CANCEL sequence without extending its 600-second
+budget. That execution completed in 377.4 seconds: the learner retained the
+original CANCEL and cold-reopened without voting or creating a live core.
+The terminal ancestry now contains exact endpoints 0, 1, **3**, 4 and 5.
+The original failed history and its receipt remain unchanged.
+
+This native execution precedes the batch's additional start-of-recording cut
+check; both source inventories are retained separately. Current-source focused
+serving tests cover that guard. The independent whole-history reducer still
+expects the earlier owner inventory and rejects the new `learner-retention.gslr`
+at `admitted exact before-network: node-1`. Do not ignore that file or count its
+rejection as an evidence-negative pass. Deriving the original ledger, frozen
+wrappers, selected intent and later retention updates is the next reader task.
+Full physical/process qualification remains OPEN despite this successful native
+Java execution.
+
 ## Original observation
 
 The unchanged `d1a7e4b4` production runtime completed actual BARRIER, RESERVE,
@@ -67,7 +87,8 @@ The subsequent [local retention component](PHASE_3_LEARNER_RETENTION_LOCAL.md)
 implements bounded local storage and publication renewal. The subsequent
 [frozen-source/selected merge component](PHASE_3_LEARNER_RETENTION_SELECTION.md)
 preserves these obligations across selected installation and interrupted completion.
-Quorum replication and confirmed narrowing remain required before export authority.
+Quorum recording and guarded export are now connected in A31/A32. Confirmed
+narrowing and independent whole-history qualification remain required.
 The original A30 failure and its source-bound
 receipt remain unchanged; no new frozen public format is introduced.
 

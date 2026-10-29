@@ -47,8 +47,8 @@ learner obligation is unresolved; refusal precedes ACCEPT and reports
 
 ## Deliberate integration boundary
 
-A local force is not an old-view quorum. This mode still refuses learner prefix
-export. The subsequent [frozen-source/selected merge component](PHASE_3_LEARNER_RETENTION_SELECTION.md)
+A local force is not an old-view quorum. Unguarded learner prefix export still
+refuses in this mode. The subsequent [frozen-source/selected merge component](PHASE_3_LEARNER_RETENTION_SELECTION.md)
 now permits PREPARE and selected installation with exact captured obligations;
 missing snapshots and mixed legacy/new owners are refused before selection.
 Existing legacy learner fixtures do not opt into this mode, and the original
@@ -56,8 +56,8 @@ failed native cancellation entry remains unmodified. No test-only local ledger
 is presented as a repaired end-to-end run.
 
 The subsequent [native quorum recording](PHASE_3_LEARNER_RETENTION_QUORUM.md)
-provides dedicated forced ACKs. Remaining implementation must consume that exact
-live recording before source exposure. It must also
+provides dedicated forced ACKs. [Protected source serving](PHASE_3_LEARNER_RETENTION_SERVING.md)
+now consumes that exact live recording before source exposure. Remaining work must
 bind narrowing to an actual forced learner head, retain both possibilities after
 lost ACKs, and preserve the obligation through PREPARE replacement, READY,
 CANCEL and matching locally forced INTENT. These steps precede automatic/public

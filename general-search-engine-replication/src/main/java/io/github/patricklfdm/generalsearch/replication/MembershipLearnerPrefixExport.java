@@ -38,6 +38,8 @@ final class MembershipLearnerPrefixExport implements MembershipTransferExport {
     private final MembershipCapsule original;
     private final MembershipIdentity reader;
     private final boolean progress;
+    private final MembershipLearnerRetentionQuorum.Recording recording;
+    private final MembershipResources resources;
     private final MembershipPrefixExport borrow;
     private final Map<String,MembershipSourceExport.Content> references;
     private boolean closed;
@@ -47,19 +49,18 @@ final class MembershipLearnerPrefixExport implements MembershipTransferExport {
     }
     MembershipLearnerPrefixExport(MembershipGrantJournal owner,MembershipIdentity reader,Decoded request,
             MembershipResources resources,LongSupplier clock,long started,long budget,boolean progress)throws IOException {
+        this(owner,reader,request,resources,clock,started,budget,progress,null);
+    }
+    MembershipLearnerPrefixExport(MembershipGrantJournal owner,MembershipIdentity reader,Decoded request,
+            MembershipResources resources,LongSupplier clock,long started,long budget,boolean progress,
+            MembershipLearnerRetentionQuorum.Recording recording)throws IOException {
         this.owner=Objects.requireNonNull(owner);this.reader=Objects.requireNonNull(reader);this.progress=progress;
+        this.recording=recording;this.resources=resources;
         synchronized(owner) {
-            owner.checkLearnerRetentionExport();original=owner.activationCapsule();
+            retention();original=owner.activationCapsule();
             require(owner.discoveryState(resources).context()==original.context,"learner prefix shared exclusive owner");
-            MembershipWire.envelope(request,original.context.root,reader,owner.activationIdentity());
-            var reservation=progress?object(MembershipLearnerProgressAccess.operation(original.context,reader).get("request")):
-                    MembershipLearnerDiscovery.reservation(original.context,reader);
-            var payload=object(request.value().get("payload"));String alias=(String)payload.get("digest"),scope=progress?MembershipLearnerProgressAccess.scope(original.context,reader,alias):scope(original.context,reader,alias);
-            require(scope!=null && request.kind().equals("CHUNK") && number(request.value().get("sequence"))==1
-                    && request.value().get("view").equals(reservation.get("expected"))
-                    && request.value().get("ballot").equals(MembershipLearnerDiscovery.correlation(reader))
-                    && payload.get("action").equals("REQUEST") && number(payload.get("offset"))==0 && payload.get("bytes").equals(""),
-                    "learner prefix original request");
+            String scope=checkRequest(original.context,reader,owner.activationIdentity(),request,progress);
+            String alias=(String)object(request.value().get("payload")).get("digest");
             String reference=switch(scope) {
                 case "prefix"->cutDigest(original.context.cut);
                 case "ancestry"->MembershipPrefixExport.ancestryReference(original.context);
@@ -72,8 +73,25 @@ final class MembershipLearnerPrefixExport implements MembershipTransferExport {
             }catch(IOException|RuntimeException|Error error){borrow.close();throw error;}
         }
     }
+    static String checkRequest(MembershipContext context,MembershipIdentity reader,MembershipIdentity source,Decoded request,boolean progress) {
+        MembershipWire.envelope(request,context.root,reader,source);
+        var reservation=progress?object(MembershipLearnerProgressAccess.operation(context,reader).get("request")):
+                MembershipLearnerDiscovery.reservation(context,reader);
+        var payload=object(request.value().get("payload"));String alias=(String)payload.get("digest");
+        String scope=progress?MembershipLearnerProgressAccess.scope(context,reader,alias):scope(context,reader,alias);
+        require(scope!=null && request.kind().equals("CHUNK") && number(request.value().get("sequence"))==1
+                && request.value().get("view").equals(reservation.get("expected"))
+                && request.value().get("ballot").equals(MembershipLearnerDiscovery.correlation(reader))
+                && payload.get("action").equals("REQUEST") && number(payload.get("offset"))==0 && payload.get("bytes").equals(""),
+                "learner prefix original request");
+        return scope;
+    }
+    private void retention()throws IOException {
+        if(recording==null)owner.checkLearnerRetentionExport();else recording.checkExport(owner,reader,resources);
+    }
     private void check()throws IOException {
         require(!closed && owner.activationCapsule()==original,"learner prefix original generation replaced/closed");
+        retention();
         if(progress)MembershipLearnerProgressAccess.operation(original.context,reader);
         else MembershipLearnerDiscovery.reservation(original.context,reader);
         borrow.references();

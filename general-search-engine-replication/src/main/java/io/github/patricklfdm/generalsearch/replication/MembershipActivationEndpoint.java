@@ -277,7 +277,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             if(active==null || !active.poll() || !active.sameCut(current.cut)) {
                 if(active!=null)active.close();
                 prefixService=active=MembershipTransferService.prefix(owner,resources,bounds,
-                        ()->{require(!closed,"prefix endpoint closed");scratchOwner.check();},clock,received,budget);
+                        ()->{require(!closed,"prefix endpoint closed");scratchOwner.check();},clock,received,budget,link);
             }
         }
         return active.handle(sender,request);

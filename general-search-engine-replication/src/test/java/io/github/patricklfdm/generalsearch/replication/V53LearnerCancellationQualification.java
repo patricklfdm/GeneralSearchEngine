@@ -12,14 +12,16 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 
 /** One actual BARRIER/RESERVE/PREPARE/READY/CANCEL history, with the same learner
  * and original proof across close/reopen. No conditional voter/ancestry fixture.
- * Explicit deferred qualification entry: currently exposes missing source-side
- * learner ancestor retention. It must pass before Phase 3 closure. */
+ * Explicit deferred qualification entry with actual quorum-retained learner
+ * endpoints. It must pass independent replay before Phase 3 closure. */
 class V53LearnerCancellationQualification {
     @TempDir Path temp;
     static final long BUDGET=TimeUnit.SECONDS.toNanos(600);
     @Test void nativeReadyCancellationRetainsItsPreparedAncestorAndColdReopensWithoutVoting()throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
-        try(var n=network.new Network(3,helper.controlBounds(),BUDGET,f->{},true)) {
+        try(var n=network.new Network(3,helper.controlBounds(),BUDGET,f->{
+            for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learner-retention")){owner.initializeLearnerRetention();}
+        },true)) {
             Path raw=n.f.raw;System.out.println("v53LearnerCancellationEvidence="+raw.toAbsolutePath());
             var sourceWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
             var progressWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());

@@ -481,11 +481,11 @@ final class MembershipGrantJournal implements AutoCloseable {
         try{return learnerRetention.install(plan,maximum-storedJournal().length-pendingBytes(),cut);}
         catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
-    /** Quorum replication/frozen-source propagation must be connected before
-     * enabling source exposure in this mode. Local files cannot stand in for it. */
+    /** Legacy export only. Retained learners require a live quorum capability. */
     synchronized void checkLearnerRetentionExport()throws IOException {
         checkOwner();require(learnerRetention==null,"learner source export requires replicated retention permit");
     }
+    synchronized boolean learnerRetentionRequired()throws IOException {checkOwner();return learnerRetention!=null;}
 
     synchronized void checkLearnerRetentionResources(MembershipResources budget)throws IOException {
         require(resources==budget,"learner retention requires actual storage resource owner");learnerRetentionState();

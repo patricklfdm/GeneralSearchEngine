@@ -3,8 +3,9 @@
 [A31](PHASE_3_CONTRACT_AMENDMENTS.md) adds dedicated intent/ACK messages for the
 nonvoting source obligation. This follows
 [frozen capture and selected merge](PHASE_3_LEARNER_RETENTION_SELECTION.md).
-Phase 3 remains **OPEN**. A returned recording is not yet consumed by the source
-export path; export in the new mode stays disabled.
+Phase 3 remains **OPEN**. This historical recording batch kept source export
+disabled. The subsequent [protected serving batch](PHASE_3_LEARNER_RETENTION_SERVING.md)
+consumes the live recording; its qualification is recorded separately.
 
 ## Recording boundary
 
