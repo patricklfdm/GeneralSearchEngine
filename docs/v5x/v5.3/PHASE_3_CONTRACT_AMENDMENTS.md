@@ -1,5 +1,39 @@
 # V5.3 Phase 3 contract amendments
 
+## A34 — bounded read-only queries of a forced learner head
+
+Append `LEARNER_HEAD_QUERY` (31) and `LEARNER_HEAD_ACK` (32), both at most
+32 KiB, to the unpublished 1.3 catalog. The existing 54 frames, nine command
+payloads, read token and all resource ceilings are unchanged. No storage format
+changes in this amendment.
+
+The learner listener can be constructed only from a live sealed prepared/current
+head. It checks the actual forced selection/handoff and cancellation state before
+answering and again before writing. Only exact original voter identities from
+that head's verified source may query. The envelope binds root, original view,
+permanent identities, learner correlation ballot, fresh trace and sequence 1.
+The payload binds the complete original membership request; the reply binds its
+hash and the exact cut/catalog/application endpoint. The correlation ballot is
+not observed or allocated as a vote. Transport identity checks retain the
+existing trusted-private-network assumption; there is no new TLS claim.
+
+A source probe derives its request from its actual native retained ledger and
+checks the same storage resource owner. It never records another offer merely
+to ask about progress. One query reserves 128 KiB CONTROL for bounded request,
+reply and binding metadata; transient IO/deadline failures may retry the exact
+frame at most `min(3, maxRetryAttempts)` times under the original deadline.
+Malformed/cross-bound/permanent replies are refused without retry. The source
+independently authenticates the endpoint through its current original ancestry.
+Close cancels a pending exchange and retains accounting until active submission
+exits. Results cannot be used after close, deadline, original-owner failure or
+terminal publication invalidates the reservation.
+
+This is a read-only distributed component. An ACK does not narrow a durable
+ledger, modify a vote, create matching INTENT, or authorize source export. Durable
+discharge authority through frozen/selected sources remains a separate required
+boundary; singleton ledgers still cannot erase stale-source obligations. See
+[the head-query protocol](PHASE_3_LEARNER_HEAD_PROTOCOL.md). Full Phase 3 is OPEN.
+
 ## A33 — process-local forced learner-head observation
 
 Only a live sealed prepared/current typed head can construct an observation of

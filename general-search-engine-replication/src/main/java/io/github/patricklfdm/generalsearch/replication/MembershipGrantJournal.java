@@ -505,6 +505,25 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized void checkLearnerRetentionResources(MembershipResources budget)throws IOException {
         require(resources==budget,"learner retention requires actual storage resource owner");learnerRetentionState();
     }
+    /** Read-only probe binding from the actual retained reservation. In
+     * particular, do not offer the current endpoint merely to query a head:
+     * the query must remain possible when two uncertain points are retained. */
+    synchronized Map<String,Object> learnerHeadRequest(MembershipIdentity joining,MembershipResources budget)throws IOException {
+        checkLearnerRetentionResources(budget);
+        var retained=object(parse(learnerRetention.state().plan().bytes(),MembershipLearnerRetentionPlan.MAXIMUM));
+        var context=current.capsule.context;
+        require(retained.get("request")!=null && MembershipPeerRetentionPlan.identity(joining).equals(retained.get("learner"))
+                && context.voters().contains(identity.nodeId().value()),"learner head probe retained voter binding");
+        var request=object(retained.get("request"));
+        require(request.equals(MembershipLearnerDiscovery.reservation(context,joining))
+                && request.get("expected").equals(context.authority()),"learner head probe original reservation");
+        return request;
+    }
+    synchronized void checkLearnerHeadEndpoint(MembershipIdentity joining,MembershipResources budget,Map<String,Object> request,
+            MembershipCapsule.Anchor endpoint)throws IOException {
+        require(request.equals(learnerHeadRequest(joining,budget)),"learner head endpoint changed original");
+        current.capsule.verifyAncestry(current.ancestry(),List.of(endpoint));
+    }
     /** Build from the original native reservation (or the already retained one),
      * never from a caller-supplied learner receipt or inferred newer cut. */
     synchronized MembershipLearnerRetentionIntent learnerRetentionIntent(MembershipIdentity joining,Map<String,Object> ballot)throws IOException {

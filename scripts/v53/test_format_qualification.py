@@ -8,7 +8,7 @@ class JavaByteQualificationTest(unittest.TestCase):
     def test_exact_inventory_and_bytes_cannot_be_relabelled(self):
         rows=[{k:r[k] for k in ('family','name','hex','sha256')} for r in generate()['fixtures']]
         original=dict(schema='gse-v53-java-format-output-v1',fixtures=rows)
-        self.assertEqual(54,validate_java(original)['syntaxFixtures'])
+        self.assertEqual(56,validate_java(original)['syntaxFixtures'])
         for mutation in (lambda r:r['fixtures'].pop(),lambda r:r['fixtures'].append(r['fixtures'][0]),
                          lambda r:r['fixtures'][0].update(hex='00'),lambda r:r['fixtures'][0].update(sha256='0'*64),
                          lambda r:r['fixtures'][0].update(name='FAKE'),lambda r:r['fixtures'][0].update(extra=True)):

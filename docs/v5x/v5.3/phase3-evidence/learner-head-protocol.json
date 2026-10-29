@@ -1,0 +1,312 @@
+{
+  "allProfilesQualified": false,
+  "archive": {
+    "bytes": 13786075,
+    "path": "target/v53-learner-head-protocol/originals-and-validation.tar.gz",
+    "sha256": "aa5fb83b17dd9c1fad09ae107a5ca6b9a242e0db81754bd64e35c7a5bf733d3a"
+  },
+  "baseCommit": "fe50a3e140cd754cc648968dfa88be50d77869eb",
+  "codeAndBuildInputsChecked": 1692,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1366,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourceSnapshot": "headprotocolcomplete",
+  "currentSourceTests": 7,
+  "durableDischargeEnabled": false,
+  "identicalProductionFiles": 899,
+  "independentFullHistoryQualified": false,
+  "independentSyntax": {
+    "authorityEvidence": false,
+    "runtimeEnabled": false,
+    "status": "PASS",
+    "syntaxFixtures": 56
+  },
+  "learnerVotingEnabled": false,
+  "native": {
+    "headprotocolcomplete": {
+      "diagnosticOnly": true,
+      "exactFirstRetry": true,
+      "learnerOriginalInventory": {
+        "learner-source.gslp": "07c87a537f38148c47fa0faef607d3b7e5eaad503fdcfbba057d2812a18cf964",
+        "learner.gslp": "d8c9b1f93683304afdc0386abdd8913c160d69d40b99a6d6d4ec794b11f4afdb",
+        "operation.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "path": "target/v53-native-cancellation/builds/headprotocolcomplete-8aace26b/general-search-engine-replication/target/v53-native-dispatch/run-f8632815-4dd9-4a2d-8dea-cb2a07d3631e",
+      "serverAckRows": 8,
+      "states": {
+        "node-1": {
+          "indices": [
+            2,
+            3
+          ],
+          "revision": 2,
+          "sha256": "180e11c758aa70876391acfd719bbbf528fb88392c4ee2e397bf3623ae8c7993"
+        },
+        "node-2": {
+          "indices": [
+            2,
+            3
+          ],
+          "revision": 2,
+          "sha256": "65514be2818a3e71a9587757d74cd28775febdb2eab6ed2f18c5921adeea9815"
+        }
+      },
+      "wireSha256": "97c2bac2afb7209ac41bb14142cb4e33228a8bec7344b6b53835a92ea69e806b"
+    },
+    "headprotocolnative": {
+      "diagnosticOnly": true,
+      "exactFirstRetry": true,
+      "path": "target/v53-native-cancellation/builds/headprotocolnative-394abdde/general-search-engine-replication/target/v53-native-dispatch/run-133b2519-82d0-4251-a21c-1adcd8ca2331",
+      "serverAckRows": 8,
+      "states": {
+        "node-1": {
+          "indices": [
+            2,
+            3
+          ],
+          "revision": 2,
+          "sha256": "5bef23bdb77a6e94ef147a4815db3478c0d84d9ff300c32fd3baf2e13a94dd52"
+        },
+        "node-2": {
+          "indices": [
+            2,
+            3
+          ],
+          "revision": 2,
+          "sha256": "c3586f4ede1690983006097ebf6e41096d94b96bc423017b1912e5519d23e685"
+        }
+      },
+      "wireSha256": "30ecfeb3544660d52f818097ccd755e6c31822a433fe702ecb2d2751b662eb37"
+    }
+  },
+  "pending": [
+    "selection-safe persisted discharge authority",
+    "repeated refresh and matching local INTENT",
+    "autonomous/all-profile/process/independent full acceptance"
+  ],
+  "phase3Complete": false,
+  "preservedFrameFixtures": 54,
+  "processDeathQualified": false,
+  "pythonTests": 827,
+  "reports": {
+    "headprotocolchecked": {
+      "io.github.patricklfdm.generalsearch.replication.V53FormatTest": {
+        "cases": [
+          {
+            "name": "commandAndReadTokenEncodingRemainExact",
+            "seconds": 0.041,
+            "status": "FAIL"
+          },
+          {
+            "name": "parserCountsObjectKeysAndCapsNestingBeforeRecursiveDecoding",
+            "seconds": 0.014,
+            "status": "FAIL"
+          },
+          {
+            "name": "everyKindMatchesIndependentGoldenBytesAndDefensiveDecodedValues",
+            "seconds": 0.006,
+            "status": "FAIL"
+          },
+          {
+            "name": "malformedAndOlderHeadersFailBeforeReadingABody",
+            "seconds": 0.003,
+            "status": "FAIL"
+          },
+          {
+            "name": "canonicalDuplicateUnknownFloatAndShapeViolationsReject",
+            "seconds": 0.003,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "a8d6ba296d4394bf3cdf53a3f3abafd6693ea2ce5fe302e52137d16c42fffb10"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadProtocolTest": {
+        "cases": [
+          {
+            "name": "nativeProbeRetriesOnlyExactTransientQueriesAndNeverDischargesTheLedger",
+            "seconds": 0.073,
+            "status": "FAIL"
+          },
+          {
+            "name": "endpointRequiresForcedHeadExactVoterAndRequestWithoutWritingOrVoting",
+            "seconds": 0.11,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "f27c267ec08574b84b8ff8c68155a47442ed3028295620d9ecdad0fbecb8f717"
+      }
+    },
+    "headprotocolcomplete": {
+      "io.github.patricklfdm.generalsearch.replication.V53FormatTest": {
+        "cases": [
+          {
+            "name": "commandAndReadTokenEncodingRemainExact",
+            "seconds": 0.068,
+            "status": "PASS"
+          },
+          {
+            "name": "parserCountsObjectKeysAndCapsNestingBeforeRecursiveDecoding",
+            "seconds": 0.013,
+            "status": "PASS"
+          },
+          {
+            "name": "everyKindMatchesIndependentGoldenBytesAndDefensiveDecodedValues",
+            "seconds": 0.057,
+            "status": "PASS"
+          },
+          {
+            "name": "malformedAndOlderHeadersFailBeforeReadingABody",
+            "seconds": 0.006,
+            "status": "PASS"
+          },
+          {
+            "name": "canonicalDuplicateUnknownFloatAndShapeViolationsReject",
+            "seconds": 0.004,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "747e932d2d2081c966454e16da2991a4ac584a40427ba6e02ad1516f62fc1f15"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadProtocolTest": {
+        "cases": [
+          {
+            "name": "nativeProbeRetriesOnlyExactTransientQueriesAndNeverDischargesTheLedger",
+            "seconds": 302.107,
+            "status": "PASS"
+          },
+          {
+            "name": "endpointRequiresForcedHeadExactVoterAndRequestWithoutWritingOrVoting",
+            "seconds": 5.34,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "6634bd8107e6d244fadae5d94531028451aa5052ad7ffcf3214ea248b7c7e97b"
+      }
+    },
+    "headprotocolfirst": {},
+    "headprotocolnative": {
+      "io.github.patricklfdm.generalsearch.replication.V53FormatTest": {
+        "cases": [
+          {
+            "name": "commandAndReadTokenEncodingRemainExact",
+            "seconds": 0.075,
+            "status": "PASS"
+          },
+          {
+            "name": "parserCountsObjectKeysAndCapsNestingBeforeRecursiveDecoding",
+            "seconds": 0.014,
+            "status": "PASS"
+          },
+          {
+            "name": "everyKindMatchesIndependentGoldenBytesAndDefensiveDecodedValues",
+            "seconds": 0.067,
+            "status": "PASS"
+          },
+          {
+            "name": "malformedAndOlderHeadersFailBeforeReadingABody",
+            "seconds": 0.005,
+            "status": "PASS"
+          },
+          {
+            "name": "canonicalDuplicateUnknownFloatAndShapeViolationsReject",
+            "seconds": 0.005,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "625b45002363e1f18192234f3007ad30f02996ba1f0a7e39c15229841abc3baa"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadProtocolTest": {
+        "cases": [
+          {
+            "name": "nativeProbeRetriesOnlyExactTransientQueriesAndNeverDischargesTheLedger",
+            "seconds": 320.719,
+            "status": "PASS"
+          },
+          {
+            "name": "endpointRequiresForcedHeadExactVoterAndRequestWithoutWritingOrVoting",
+            "seconds": 5.488,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "67066e12922bf374f30c7cd55b41d0073fac742b1c643e0bdf5b8c91ea2a369f"
+      }
+    }
+  },
+  "runs": {
+    "headprotocolchecked": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53FormatTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadProtocolTest": 2
+      },
+      "exit": 1,
+      "failures": 7,
+      "label": "headprotocolchecked",
+      "requestedTests": [
+        "V53LearnerHeadProtocolTest",
+        "V53FormatTest"
+      ],
+      "seconds": 15.0512242650002,
+      "skipped": 0,
+      "tests": 7
+    },
+    "headprotocolcomplete": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53FormatTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadProtocolTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "headprotocolcomplete",
+      "requestedTests": [
+        "V53LearnerHeadProtocolTest",
+        "V53FormatTest"
+      ],
+      "seconds": 318.15284966799663,
+      "skipped": 0,
+      "tests": 7
+    },
+    "headprotocolfirst": {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "headprotocolfirst",
+      "requestedTests": [
+        "V53LearnerHeadProtocolTest",
+        "V53FormatTest"
+      ],
+      "seconds": 14.896817343003931,
+      "skipped": 0,
+      "tests": 0
+    },
+    "headprotocolnative": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53FormatTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadProtocolTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "headprotocolnative",
+      "requestedTests": [
+        "V53LearnerHeadProtocolTest",
+        "V53FormatTest"
+      ],
+      "seconds": 335.7775741840014,
+      "skipped": 0,
+      "tests": 7
+    }
+  },
+  "schema": "gse-v53-learner-head-protocol-v1",
+  "status": "PASS_READ_ONLY_COMPONENT",
+  "storageFormatChanged": false,
+  "wireKindsAdded": [
+    "LEARNER_HEAD_QUERY",
+    "LEARNER_HEAD_ACK"
+  ]
+}

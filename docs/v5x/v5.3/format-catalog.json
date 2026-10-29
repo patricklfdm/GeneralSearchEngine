@@ -1022,6 +1022,47 @@
         }
       }
     },
+    "LEARNER_HEAD_ACK": {
+      "id": 32,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "endpoint": "retentionAnchor",
+              "request": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "LEARNER_HEAD_QUERY": {
+      "id": 31,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "request": "request"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
     "LEARNER_READY": {
       "id": 17,
       "maximum": 8388608,

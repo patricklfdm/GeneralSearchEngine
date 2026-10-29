@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Head queries](PHASE_3_LEARNER_HEAD_PROTOCOL.md) now connect a real forced
+learner head to a native source through bounded, correlated TCP exchanges.
+Replies are checked against the source's original ancestry; late/malformed
+replies and revoked owners are refused. This read-only path leaves the durable
+ledger unchanged. Selection-safe persisted discharge, repeated refresh,
+matching local INTENT and full Phase 3 acceptance remain **OPEN**.
+
 [Forced-head observation](PHASE_3_LEARNER_HEAD_OBSERVATION.md) now binds local
 retention narrowing to a real selected typed learner head, preserves newer
 uncertain offers and rejects revoked owners. This is a local capability, not a

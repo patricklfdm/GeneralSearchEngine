@@ -49,7 +49,7 @@ final class MembershipFormat {
             byte[] bytes = stream.readNBytes(262145);
             require(bytes.length <= 262144, "schema size");
             var result = object(freeze(ReplicaJson.decode(bytes, 262144)));
-            require(object(result.get("records")).size() == 24 && object(result.get("wire")).size() == 30, "schema inventory");
+            require(object(result.get("records")).size() == 24 && object(result.get("wire")).size() == 32, "schema inventory");
             return result;
         } catch (IOException error) { throw new ExceptionInInitializerError(error); }
     }
