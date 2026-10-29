@@ -5,8 +5,8 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
 /** Private nonvoting source obligations. Projection/decoding does not establish
- * durability, a quorum, learner progress or permission to export. In particular,
- * this version has no narrowing API: an uncertain old endpoint stays required. */
+ * durability, a quorum, learner progress or permission to export. Narrowing
+ * requires an actual live forced head, never a decoded endpoint or receipt. */
 final class MembershipLearnerRetentionPlan {
     static final int MAXIMUM=16384;
     private final String root;
@@ -86,6 +86,24 @@ final class MembershipLearnerRetentionPlan {
         var previous=points.putIfAbsent(index(current.terminal()),current.terminal());
         require(previous==null || previous.equals(current.terminal()),"learner retention conflicting endpoint");
         return new MembershipLearnerRetentionPlan(root,original,joining,List.copyOf(points.values()));
+    }
+    /** A real local forced head may discharge older uncertainty. Preserve any
+     * later offered point: observing the old head does not disprove its receipt.
+     * A late old observation cannot reintroduce an already discharged point. */
+    MembershipLearnerRetentionPlan observe(MembershipCapsule current,byte[] ancestry,
+            MembershipLearnerHeadObservation observed)throws java.io.IOException {
+        Objects.requireNonNull(observed);observed.check();required(current,ancestry);
+        require(!empty() && learner.equals(observed.learner) && request.equals(observed.request),"learner observation original binding");
+        current.verifyAncestry(ancestry,List.of(observed.endpoint));
+        long at=index(observed.endpoint);
+        if(at<index(possible.getFirst()))return this;
+        // Another source owner may have recorded and served this head. The
+        // actual forced observation plus original ancestry, not membership in
+        // this local offer list, establishes its endpoint.
+        for(var point:possible)if(index(point)==at)require(point.equals(observed.endpoint),"learner observation conflicting endpoint");
+        var remaining=new ArrayList<MembershipCapsule.Anchor>();remaining.add(observed.endpoint);
+        possible.stream().filter(a->index(a)>at).forEach(remaining::add);observed.check();
+        return new MembershipLearnerRetentionPlan(root,request,learner,remaining);
     }
     /** Conservative source reconciliation only. No decoded claim can erase an
      * obligation, change its operation or turn same-index bytes into ancestry. */

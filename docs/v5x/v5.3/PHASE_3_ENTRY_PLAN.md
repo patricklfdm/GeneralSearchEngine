@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Forced-head observation](PHASE_3_LEARNER_HEAD_OBSERVATION.md) now binds local
+retention narrowing to a real selected typed learner head, preserves newer
+uncertain offers and rejects revoked owners. This is a local capability, not a
+remote acknowledgement. Authenticated distributed confirmation and preservation
+of discharge authority through frozen-source selection remain OPEN.
+
 [Native cancellation replay](PHASE_3_LEARNER_CANCELLATION_NATIVE.md) exposed a
 source-side retention gap: actual READY/CANCEL publication pruned the learner's
 original PREPARE endpoint. Five native slots and 59 exchanges replay exactly;

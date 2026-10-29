@@ -18,8 +18,10 @@ Conservative merge retains both old/new possibilities even when another source
 claims only the newer point or no obligation. Conflicting requests/identities,
 same-index different bytes and a third unresolved point are refused. Decoding
 or merging metadata is not authority: the actual capsule must independently
-prove every endpoint. There is deliberately no narrowing/clearing API yet;
-only a future exact forced learner-head confirmation may authorize that step.
+prove every endpoint. The later [forced-head observation boundary](PHASE_3_LEARNER_HEAD_OBSERVATION.md)
+adds local narrowing only from a real live typed head. Decoded endpoints and
+receipts still cannot narrow or clear the plan; distributed confirmation and
+selection-safe discharge remain separate work.
 
 ## Storage and publication
 
@@ -57,8 +59,9 @@ is presented as a repaired end-to-end run.
 
 The subsequent [native quorum recording](PHASE_3_LEARNER_RETENTION_QUORUM.md)
 provides dedicated forced ACKs. [Protected source serving](PHASE_3_LEARNER_RETENTION_SERVING.md)
-now consumes that exact live recording before source exposure. Remaining work must
-bind narrowing to an actual forced learner head, retain both possibilities after
+now consumes that exact live recording before source exposure. Local narrowing
+now requires the actual forced head. Remaining distributed work must authenticate
+that observation remotely, preserve discharge authority through selection, retain both possibilities after
 lost ACKs, and preserve the obligation through PREPARE replacement, READY,
 CANCEL and matching locally forced INTENT. These steps precede automatic/public
 runtime activation.

@@ -1,5 +1,29 @@
 # V5.3 Phase 3 contract amendments
 
+## A33 — process-local forced learner-head observation
+
+Only a live sealed prepared/current typed head can construct an observation of
+its exact request, permanent learner and source endpoint. Its original selection
+or handoff must already be forced, and all original checks remain live. Capture
+reserves 32 KiB of the actual learner CONTROL pool. Close, supersession, changed
+original bytes or cancellation prevents further use; this is not a transferable
+remote acknowledgement or a new voter capability.
+
+The native source owner may narrow its local plan after checking that exact
+observation and its original ancestry. Keep the observed endpoint and all later
+uncertain offers; do not regress on late old observations. The head may have
+been served by another source owner, so a local offer-list entry is not the
+authority. Identical plans are idempotent. Persist using the existing journal
+candidate/replace/parent-force transaction and recheck before return; pending
+slot and uninstalled-selection boundaries are unchanged.
+
+No wire or disk format changes. Conservative selected-source merging remains
+unchanged: distributed confirmation must still preserve discharge authority
+across stale frozen sources and bound the two-endpoint union. It cannot infer
+confirmation from a singleton ledger. Full remote/all-profile/process and
+independent replay gates remain open. See
+[the local boundary and qualification](PHASE_3_LEARNER_HEAD_OBSERVATION.md).
+
 ## A32 — consume live learner recording before source export
 
 An enabled learner-retention owner now serves reserved prefix, ancestry and

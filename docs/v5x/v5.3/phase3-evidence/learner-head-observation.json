@@ -1,0 +1,288 @@
+{
+  "allProfilesQualified": false,
+  "archive": {
+    "bytes": 7996256,
+    "path": "target/v53-learner-head-observation/originals-and-validation.tar.gz",
+    "sha256": "b5fc24c9c0b23569cdb0b87bef93ffae6a283f815202fd2bd1de1264c53763a3"
+  },
+  "baseCommit": "fc1229a1f5a0896f37bdb05a8108601f3294d52d",
+  "codeAndBuildInputsChecked": 1283,
+  "contract": {
+    "byteFixtures": 54,
+    "commandFixtures": 9,
+    "localLinks": 1359,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourceSnapshot": "headobservationcomplete",
+  "currentSourceTests": 3,
+  "firstAttempt": {
+    "environmentBlocked": 1,
+    "passed": 9,
+    "reason": "loopback socket creation denied before native scenario startup",
+    "tests": 10
+  },
+  "independentFullHistoryQualified": false,
+  "learnerVotingEnabled": false,
+  "native": {
+    "headobservationcomplete": {
+      "candidateSha256": "0be6e053419110fec611a7de0b9fc18aef601ecff4fbe661a05ed81caae914ec",
+      "note": "Decoded voter-state diagnostic, not an independent complete learner/history oracle. Cold reopen is asserted by the Java test.",
+      "path": "target/v53-native-cancellation/builds/headobservationcomplete-81b969be/general-search-engine-replication/target/v53-native-dispatch/run-bd42f743-1476-42a2-a314-94f8437cd26e",
+      "states": {
+        "after-head-observation": {
+          "node-1": {
+            "indices": [
+              3
+            ],
+            "revision": 3,
+            "sha256": "4ed6d78d4d9c27f912d2cb119a63aa39b5bce83ff8dc5dc549d191a1fa042f70"
+          },
+          "node-2": {
+            "indices": [
+              2,
+              3
+            ],
+            "revision": 2,
+            "sha256": "58eefae0ed9174e6255c7379909e9874e56e3ca747aaa2368b4190e3b6925dee"
+          }
+        },
+        "before-head-observation": {
+          "node-1": {
+            "indices": [
+              2,
+              3
+            ],
+            "revision": 2,
+            "sha256": "a4936d0041e05f1d9e495400482ceb48fa43a21e1434422a8b32dee268ea0c02"
+          },
+          "node-2": {
+            "indices": [
+              2,
+              3
+            ],
+            "revision": 2,
+            "sha256": "58eefae0ed9174e6255c7379909e9874e56e3ca747aaa2368b4190e3b6925dee"
+          }
+        }
+      }
+    },
+    "headobservationfinal": {
+      "candidateSha256": "cbc8ec96dc977c06b618d301c44aee84ceaa070cb1b1efebffed32c65a19b14d",
+      "note": "Decoded voter-state diagnostic, not an independent complete learner/history oracle. Cold reopen is asserted by the Java test.",
+      "path": "target/v53-native-cancellation/builds/headobservationfinal-e8b5a85c/general-search-engine-replication/target/v53-native-dispatch/run-71a4eeea-f7c0-4577-8a9d-950a03599a81",
+      "states": {
+        "after-head-observation": {
+          "node-1": {
+            "indices": [
+              3
+            ],
+            "revision": 3,
+            "sha256": "109b6ca32d15df22c989543176d8da1fbc8bd0388beeeb0278bd4dca4093ef41"
+          },
+          "node-2": {
+            "indices": [
+              2,
+              3
+            ],
+            "revision": 2,
+            "sha256": "0a330b12e6673bbdd63ffdd88fb3f52a586b8c5462ebbaafe8fa12c8d0158b7b"
+          }
+        },
+        "before-head-observation": {
+          "node-1": {
+            "indices": [
+              2,
+              3
+            ],
+            "revision": 2,
+            "sha256": "464ddf8f1912dbce79d935d36028af1fea77587cbd1f11169c7b43185d589a69"
+          },
+          "node-2": {
+            "indices": [
+              2,
+              3
+            ],
+            "revision": 2,
+            "sha256": "0a330b12e6673bbdd63ffdd88fb3f52a586b8c5462ebbaafe8fa12c8d0158b7b"
+          }
+        }
+      }
+    }
+  },
+  "observationControlBytes": 32768,
+  "pending": [
+    "authenticated distributed forced-head acknowledgement",
+    "selection-safe discharge authority and bounded stale frozen-source unions",
+    "matching local INTENT and autonomous lifecycle",
+    "all profiles, process cuts and independent original-first replay"
+  ],
+  "persistedFormatChanged": false,
+  "phase3Complete": false,
+  "priorPassingTests": 10,
+  "processDeathQualified": false,
+  "remoteHeadAcknowledgement": false,
+  "reports": {
+    "headobservation": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadObservationTest": {
+        "cases": [
+          {
+            "name": "currentPromotedHeadObservationUsesExistingBudgetAndDoesNotSelectAnotherGeneration",
+            "seconds": 77.291,
+            "status": "PASS"
+          },
+          {
+            "name": "nativeTwoEndpointLedgerNarrowsOnlyAfterRealTypedSelectionAndResumesInterruptedUpdate",
+            "seconds": 0.017,
+            "status": "ENVIRONMENT_BLOCKED"
+          },
+          {
+            "name": "actualPreparedSelectionBindsObservationAndCloseRevokesIt",
+            "seconds": 4.597,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "637f73ef4bff9db4c85a220dadb327c66b2cd992f884e1573a5ca4b188f4ac95"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerRetentionPlanTest": {
+        "cases": [
+          {
+            "name": "decodingRefusesNoncanonicalOrIncompleteBindings",
+            "seconds": 0.245,
+            "status": "PASS"
+          },
+          {
+            "name": "cannotEnrollCurrentVoterChangedStorageOrJointAndTerminalOperation",
+            "seconds": 0.237,
+            "status": "PASS"
+          },
+          {
+            "name": "retirementCannotEraseStillUnconfirmedOriginalOperation",
+            "seconds": 0.06,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignOperationAndSameIndexDifferentAuthorityCannotMerge",
+            "seconds": 0.056,
+            "status": "PASS"
+          },
+          {
+            "name": "allFiveJoiningProfilesBindExactSourceAndCanonicalImmutableRequest",
+            "seconds": 0.2,
+            "status": "PASS"
+          },
+          {
+            "name": "newerTipSameImageAndReceiptCannotReplaceOriginalAncestor",
+            "seconds": 0.047,
+            "status": "PASS"
+          },
+          {
+            "name": "mergesKeepBothPossibilitiesWithoutTrustingEmptyOrNewerClaims",
+            "seconds": 0.113,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "8b47b031b8c271db0b132838072f64efd2a74de90280101b341528865de838ba"
+      }
+    },
+    "headobservationcomplete": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadObservationTest": {
+        "cases": [
+          {
+            "name": "currentPromotedHeadObservationUsesExistingBudgetAndDoesNotSelectAnotherGeneration",
+            "seconds": 68.456,
+            "status": "PASS"
+          },
+          {
+            "name": "nativeTwoEndpointLedgerNarrowsOnlyAfterRealTypedSelectionAndResumesInterruptedUpdate",
+            "seconds": 202.947,
+            "status": "PASS"
+          },
+          {
+            "name": "actualPreparedSelectionBindsObservationAndCloseRevokesIt",
+            "seconds": 4.677,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "c88997dacc37dc998206daeeab4c498d68f963868bed28a558c7735897a9dffc"
+      }
+    },
+    "headobservationfinal": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadObservationTest": {
+        "cases": [
+          {
+            "name": "currentPromotedHeadObservationUsesExistingBudgetAndDoesNotSelectAnotherGeneration",
+            "seconds": 68.755,
+            "status": "PASS"
+          },
+          {
+            "name": "nativeTwoEndpointLedgerNarrowsOnlyAfterRealTypedSelectionAndResumesInterruptedUpdate",
+            "seconds": 208.183,
+            "status": "PASS"
+          },
+          {
+            "name": "actualPreparedSelectionBindsObservationAndCloseRevokesIt",
+            "seconds": 4.528,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "7a165d69511f286880c6b3012fc773f03ae562e5dd6a0aa55f775bbad662737f"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerRetentionPlanTest": {
+        "cases": [
+          {
+            "name": "decodingRefusesNoncanonicalOrIncompleteBindings",
+            "seconds": 0.245,
+            "status": "PASS"
+          },
+          {
+            "name": "cannotEnrollCurrentVoterChangedStorageOrJointAndTerminalOperation",
+            "seconds": 0.237,
+            "status": "PASS"
+          },
+          {
+            "name": "retirementCannotEraseStillUnconfirmedOriginalOperation",
+            "seconds": 0.069,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignOperationAndSameIndexDifferentAuthorityCannotMerge",
+            "seconds": 0.056,
+            "status": "PASS"
+          },
+          {
+            "name": "allFiveJoiningProfilesBindExactSourceAndCanonicalImmutableRequest",
+            "seconds": 0.209,
+            "status": "PASS"
+          },
+          {
+            "name": "newerTipSameImageAndReceiptCannotReplaceOriginalAncestor",
+            "seconds": 0.057,
+            "status": "PASS"
+          },
+          {
+            "name": "mergesKeepBothPossibilitiesWithoutTrustingEmptyOrNewerClaims",
+            "seconds": 0.087,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "5fff070f5c10bbae0a5891be1510d4d51d9ef1acd9ef044e5745e86f6fb5d60d"
+      }
+    }
+  },
+  "schema": "gse-v53-learner-head-observation-v1",
+  "sourceChanges": {
+    "headobservation->headobservationfinal": [
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerHeadObservationTest.java"
+    ],
+    "headobservationfinal->headobservationcomplete": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerRetentionPlan.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerHeadObservationTest.java"
+    ]
+  },
+  "status": "PASS_LOCAL_COMPONENT",
+  "wireChanged": false
+}

@@ -481,6 +481,21 @@ final class MembershipGrantJournal implements AutoCloseable {
         try{return learnerRetention.install(plan,maximum-storedJournal().length-pendingBytes(),cut);}
         catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
+    /** Local observation only: callers on another process cannot replace this
+     * live forced-head capability with an ACK payload or a decoded ledger. */
+    synchronized MembershipLearnerRetentionFiles.State retainLearnerObservation(MembershipLearnerHeadObservation observed)throws IOException {
+        var before=learnerRetentionState();floorIdle();applicationReferencesIdle();
+        require(pendingAccept.active()==null,"learner observation cannot change a pending slot");
+        require(selection==null || selection.digest().equals(current.manifest.value().get("selection")),"learner observation uninstalled selection");
+        var plan=before.plan().observe(current.capsule,current.ancestry(),observed);
+        if(Arrays.equals(plan.bytes(),before.plan().bytes()))return before;
+        require(promise==null || basis!=null || current.manifest.value().get("promise").equals(promise.digest()),
+                "learner observation cannot change an incomplete grant");
+        try {
+            var state=learnerRetention.install(plan,maximum-storedJournal().length-pendingBytes(),cut);
+            observed.check();cut.at("LEARNER_RETENTION_OBSERVATION_BEFORE_RETURN");observed.check();return state;
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
     /** Legacy export only. Retained learners require a live quorum capability. */
     synchronized void checkLearnerRetentionExport()throws IOException {
         checkOwner();require(learnerRetention==null,"learner source export requires replicated retention permit");
