@@ -17,13 +17,14 @@ The original failed history and its receipt remain unchanged.
 
 This native execution precedes the batch's additional start-of-recording cut
 check; both source inventories are retained separately. Current-source focused
-serving tests cover that guard. The independent whole-history reducer still
-expects the earlier owner inventory and rejects the new `learner-retention.gslr`
-at `admitted exact before-network: node-1`. Do not ignore that file or count its
-rejection as an evidence-negative pass. Deriving the original ledger, frozen
-wrappers, selected intent and later retention updates is the next reader task.
-Full physical/process qualification remains OPEN despite this successful native
-Java execution.
+serving tests cover that guard. The old reducer initially rejected the new
+`learner-retention.gslr` at `admitted exact before-network: node-1`.
+The subsequent [independent replay](PHASE_3_LEARNER_RETENTION_REPLAY.md) now derives
+that ledger, frozen wrappers, selected intent, publication ancestry and both
+forced retention rounds. The unchanged native original passes all physical,
+force, wire and cold-reopen checks before 31 exact negative cases are attempted.
+Current-source/all-profile, process-death and full Phase 3 qualification remain
+OPEN. The old failure and all prior source-bound receipts remain intact.
 
 ## Original observation
 
@@ -88,7 +89,8 @@ implements bounded local storage and publication renewal. The subsequent
 [frozen-source/selected merge component](PHASE_3_LEARNER_RETENTION_SELECTION.md)
 preserves these obligations across selected installation and interrupted completion.
 Quorum recording and guarded export are now connected in A31/A32. Confirmed
-narrowing and independent whole-history qualification remain required.
+narrowing, current-source/all-profile and process-death qualification remain
+required. The retained native cancellation history now has independent replay.
 The original A30 failure and its source-bound
 receipt remain unchanged; no new frozen public format is introduced.
 

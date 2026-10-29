@@ -1,0 +1,102 @@
+{
+  "archive": {
+    "bytes": 5892959,
+    "path": "target/v53-learner-retention-replay/originals-and-reader.tar.gz",
+    "sha256": "36cbe82f8a05881a5aadf33c07f17fa19ba6b5aa237812b2c8fda2a0974e6941"
+  },
+  "autonomous": false,
+  "baseCommit": "c8363a5bc3bed1130b62c4bb9a5bef22c3d95eae",
+  "legacyFailedNative": {
+    "availableAnchorIndices": [
+      0,
+      1,
+      4,
+      5
+    ],
+    "cancellationQualified": false,
+    "exchanges": 59,
+    "missingPreparedAncestor": true,
+    "nativeSlots": 5,
+    "phase3Complete": false,
+    "physicalQualification": true,
+    "preparedIndex": 3,
+    "processDeathQualified": false,
+    "scope": "failed-native-cancellation-diagnosis",
+    "status": "PARTIAL",
+    "terminalIndex": 5,
+    "unselectedRefusals": 15
+  },
+  "legacySelected": {
+    "cases": 16,
+    "negatives": 12,
+    "unchanged": true
+  },
+  "negativeCases": 31,
+  "original": {
+    "acquisition": {
+      "exchanges": 31,
+      "originalFiles": 9,
+      "peer": "node-1"
+    },
+    "autonomous": false,
+    "coldReopenQualified": true,
+    "forceOrderQualified": true,
+    "learnerRetention": {
+      "failedAttempts": 5,
+      "forcedUpdates": 4,
+      "quorums": 2,
+      "sourceExposures": 2,
+      "wireACKs": 2
+    },
+    "phase3Complete": false,
+    "physicalQualification": true,
+    "processDeathQualified": false,
+    "progress": {
+      "exchanges": 28,
+      "originalFiles": 9,
+      "peer": "node-1"
+    },
+    "scope": "native-learner-cancellation",
+    "status": "PASS"
+  },
+  "pending": [
+    "forced learner-head confirmation/narrowing",
+    "matching locally forced INTENT",
+    "current-source and all five joining profiles",
+    "actual process cuts",
+    "combined resource maxima and autonomous integration"
+  ],
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "pythonTests": 827,
+  "rawInventories": {
+    "path": "target/v53-learner-retention-replay/raw-inventories.json",
+    "sha256": "57daf552fc7f97da4ccecd86653fabffbde99c3ee02f1e3cfcbcb4daf2297afe"
+  },
+  "readerInputs": {
+    "path": "target/v53-learner-retention-replay/reader-inputs.json",
+    "sha256": "ec3d0e69e0eaf6842ada259236616b60ea9963b97fd6cebe606f04301b11f389"
+  },
+  "relocatedOptimizedReplay": true,
+  "runtime": {
+    "currentSourceExact": false,
+    "differencesFromCurrent": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerRetentionServing.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerRetentionServingTest.java"
+    ],
+    "inputFilesChecked": 1281,
+    "priorArchive": {
+      "bytes": 7317018,
+      "path": "target/v53-learner-retention-serving/originals-and-validation.tar.gz",
+      "sha256": "059b624a77f945e2ea4b26331fdbd9e381d1fe08989e05ac4b1b2caf9e33cb54"
+    },
+    "priorReceipt": "docs/v5x/v5.3/phase3-evidence/learner-retention-serving.json",
+    "rerun": false,
+    "seconds": 377.372,
+    "snapshot": "learnerservingfinal",
+    "testBudgetSeconds": 600
+  },
+  "schema": "gse-v53-learner-retention-replay-v1",
+  "status": "PASS_RETAINED_NATIVE_HISTORY"
+}

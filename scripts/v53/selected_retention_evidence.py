@@ -74,6 +74,10 @@ def initialize(group):
 def campaign(root, group, counter, observed, *, selected_prefix=None, proposer='node-1'):
     """Only fresh UUIDs are observed. Every other byte is independently derived."""
     need(proposer in group, 'selected retention original proposer absent')
+    from . import learner_retention_evidence as learner
+    learner_mode=any(learner.FILE in files for files in group.values())
+    need(not learner_mode or all(learner.FILE in files for files in group.values()),'selected mixed learner retention owners')
+    learner_sources={}
     names = sorted(group); local = f.decode(group[proposer]['node.gsr'], 'records', 'NODE')['identity']
     ballot = dict(counter=counter, proposer=proposer, incarnation=local['storage'])
     prepared, sources, grants = {}, {}, {}; identifiers = set()
@@ -90,6 +94,8 @@ def campaign(root, group, counter, observed, *, selected_prefix=None, proposer='
         value = dict(root=cap['root'], view=b.e.authority(cap['root'], cap['cut']['view']), ballot=ballot, basisId=identifier)
         promise = f.encode('records', 'PROMISE', value); wrapper = s.wrap(promise, files[FILE])
         objects = dict(packet['objects'], **{sha(wrapper): wrapper})
+        if learner_mode:
+            learner_wrapper=learner.wrap(promise,files[learner.FILE]);objects[sha(learner_wrapper)]=learner_wrapper
         raw = b.c.packet_bytes(cap, objects, packet['images']); frozen = p.decode(raw)
         basis = f.encode('records', 'BASIS', dict(value, voter=node, cut=cap['cut'],
                         capsule=sha(frozen['capsuleBytes']), inventory=sha(frozen['indexBytes']), accepted=None))
@@ -100,6 +106,7 @@ def campaign(root, group, counter, observed, *, selected_prefix=None, proposer='
         if node == proposer:
             changed['allocator.gsr'] = f.encode('records', 'ALLOCATOR', dict(root=cap['root'], node=node, counter=counter))
         prepared[node], sources[node], grants[node] = changed, (basis, frozen, wrapper), (promise, basis)
+        if learner_mode:learner_sources[node]=(basis,frozen,learner_wrapper)
     cap = b.c.current(group[proposer])[2]['capsule']
     selected = f.encode('records', 'SELECTED', dict(root=cap['root'], view=b.e.authority(cap['root'], cap['cut']['view']),
         ballot=ballot, cut=cap['cut'], nextEntry=None, sources=[dict(voter=n,
@@ -113,13 +120,18 @@ def campaign(root, group, counter, observed, *, selected_prefix=None, proposer='
         owner = f.decode(files['node.gsr'], 'records', 'NODE')['identity']
         record = intent(owner, selected, files[FILE], [sources[n] for n in names])
         objects = dict(packet['objects']) if selected_prefix is None else selected_prefix(packet, files['root.gsr'])
-        raw = b.c.packet_bytes(packet['capsule'], dict(objects, **{sha(record): record}), packet['images'])
+        objects=dict(objects,**{sha(record):record})
+        if learner_mode:
+            retained=learner.intent(owner,selected,files[learner.FILE],[learner_sources[n] for n in names])
+            objects[sha(retained)]=retained
+        raw = b.c.packet_bytes(packet['capsule'], objects, packet['images'])
         members = dict(zip(('promise.gsr', 'basis.gsr'), grants[node]), **{'selected.gsr': selected,
             'selected-sources.gsr': b''.join(grants[n][1] for n in names), 'source.gscp': raw})
         members.update({h+'.image': old[h+'.image'] for h in packet['images']})
         selector, generation = b.c.generation(members, p.decode(raw)['capsule'], node, 'b' if prefix == 'generations/a/' else 'a', None)
         installed[node] = dict(files, **generation, **{'selector.gsr': selector,
                               FILE: merged(files[FILE], [group[n][FILE] for n in names])})
+        if learner_mode:installed[node][learner.FILE]=learner.merged(files[learner.FILE],[group[n][learner.FILE] for n in names])
     return prepared, chosen, installed
 
 

@@ -55,8 +55,13 @@ cut guard. Its separate source snapshot and diagnostic retain exact endpoints
 a qualified evidence negative. Current-source focused tests exercise the final
 guard separately. No historical receipt is rewritten to claim newer coverage.
 
-Remaining work: authentic forced-head confirmation and narrowing, independent
-whole-history READY/CANCEL/reopen qualification, locally forced matching INTENT,
+The subsequent [independent replay batch](PHASE_3_LEARNER_RETENTION_REPLAY.md)
+now derives those original bytes and validates the retained READY/CANCEL/reopen
+history and 31 exact evidence negatives. The previous receipt and reader-gap
+observation remain unchanged; this is a new source-bound reader qualification.
+
+Remaining work: authentic forced-head confirmation and narrowing, current-source
+and all-profile READY/CANCEL/reopen qualification, locally forced matching INTENT,
 all five joining profiles, original-first independent replay and evidence
 negatives, halt/SIGKILL, maximum combined resources and autonomous scheduling.
 The immutable full histories belong in the [deferred hosted matrix](PHASE_3_DEFERRED_ACCEPTANCE.md).

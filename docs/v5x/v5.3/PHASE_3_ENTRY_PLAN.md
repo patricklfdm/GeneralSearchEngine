@@ -10,9 +10,13 @@ now preserve their union across installation, interrupted completion and later
 CANCEL. [Native quorum recording](PHASE_3_LEARNER_RETENTION_QUORUM.md) now adds
 explicit forced ACKs for the original stable endpoint. [Protected source serving](PHASE_3_LEARNER_RETENTION_SERVING.md)
 now consumes that exact live recording before exposing prefix/generation bytes,
-including cached completion replies. Forced learner-head confirmation/narrowing,
-independent native cancellation/reopen qualification, process replay and full Phase 3
-qualification remain **OPEN**.
+including cached completion replies. [Independent retained-history replay](PHASE_3_LEARNER_RETENTION_REPLAY.md)
+now qualifies that native READY/CANCEL/cold-reopen history, including original
+ledger/selection/publication bytes, forces, 59 learner exchanges and 31 exact
+negative cases. The runtime snapshot precedes the final serving cut guard;
+current-source/all-profile acceptance is still separate. Forced learner-head
+confirmation/narrowing, matching INTENT, process replay and full Phase 3 remain
+**OPEN**.
 
 [Durable learner cancellation](PHASE_3_LEARNER_CANCELLATION.md) now retains a
 complete certified CANCEL under the same prepared owner and receiving slot, then

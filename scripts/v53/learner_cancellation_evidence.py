@@ -43,15 +43,18 @@ def inventory(root,*,diagnostic=False):
     b.selection.layout(root,names,'learner cancellation')
 
 
-def native_failures(root):
+def native_failures(root,*,retained_learners=False):
     # The unselected original third voter refuses the campaign's future intent.
     # Match the existing native-dispatch fixture contract, at most three tries
     # per each of five slots. Do not silently ignore arbitrary server failures.
     rows=d.read(root/'failures.json')
-    need(type(rows) is list and len(rows)<=15 and all(type(v) is dict and set(v)=={'node','kind','request','failure'}
-         and v['node']=='node-3' and v['kind']=='FUTURE_RETENTION_INTENT'
+    need(type(rows) is list and len(rows)<=(21 if retained_learners else 15) and all(type(v) is dict and set(v)=={'node','kind','request','failure'}
+         and v['node']=='node-3' and v['kind'] in ({'FUTURE_RETENTION_INTENT','LEARNER_RETENTION_INTENT'} if retained_learners else {'FUTURE_RETENTION_INTENT'})
          and v['failure']=='java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required'
          and type(v['request']) is str and len(v['request'])==64 and all(c in '0123456789abcdef' for c in v['request']) for v in rows),
+         'learner cancellation unexpected native failure')
+    need(sum(v['kind']=='FUTURE_RETENTION_INTENT' for v in rows)<=15
+         and sum(v['kind']=='LEARNER_RETENTION_INTENT' for v in rows)<=(6 if retained_learners else 0),
          'learner cancellation unexpected native failure')
     return len(rows)
 
@@ -189,24 +192,30 @@ def traces(root,original,terminal):
         need(d.read(root/('learner-'+name+'-events.json'))==expected,'learner cancellation exact '+name+' force order')
 
 
-def validate(root):
+def validate(root,*,retained_learners=False):
     root=Path(root);inventory(root)
-    prepared,cancelled,request,learner,receipt=t.physical_history(root)
-    b.match(root,'after-cancel',cancelled)
-    native_failures(root)
+    prepared,cancelled,request,learner,receipt=t.physical_history(root,retained_learners=True) if retained_learners else t.physical_history(root)
+    if not retained_learners:b.match(root,'after-cancel',cancelled)
+    native_failures(root,retained_learners=retained_learners)
     original=c.inventory(root/'learner-source-copy');terminal=c.inventory(root/'learner-progress-copy')
     need(c.inventory(root/'cancelled-original')==terminal,'learner cancellation original export')
     first=d.read(root/'learner-source-wire.json');second=d.read(root/'learner-progress-wire.json');server=d.read(root/'wire.json')
     acquisition=t.source.network_rows(first,server,prepared,request,learner,original,following=second)
     progress=t.source.network_rows(second,server,cancelled,request,learner,terminal,preceding=first,progress=True)
+    retention=None
+    if retained_learners:
+        from . import learner_retention_evidence
+        retention=learner_retention_evidence.controls(root,prepared,cancelled,request,learner)
     need(ancestry(original,terminal)[0],'learner cancellation missing original ancestor')
     snapshots(root,prepared,original,terminal,request,learner,receipt);traces(root,original,terminal)
     need(d.read(root/'learner-cancellation-result.json')==dict(status='PASS',scope='native-learner-cancellation',voter=False,
          liveCore=False,publicReady=False,phase3Complete=False,independentReplayQualified=False,testBudgetSeconds=600),
          'learner cancellation result scope')
-    return dict(status='PASS',scope='native-learner-cancellation',acquisition=acquisition,progress=progress,
+    result=dict(status='PASS',scope='native-learner-cancellation',acquisition=acquisition,progress=progress,
                 physicalQualification=True,forceOrderQualified=True,coldReopenQualified=True,
                 processDeathQualified=False,autonomous=False,phase3Complete=False)
+    if retention is not None:result['learnerRetention']=retention
+    return result
 
 
 NEGATIVES={
@@ -243,12 +252,18 @@ def mutate(root,name):
     else:raise ValueError('unknown learner cancellation negative: '+name)
 
 
-def qualify(root):
-    root=Path(root);original=validate(root);results=[]
-    for name,reason in NEGATIVES.items():
+def qualify(root,*,retained_learners=False):
+    root=Path(root);validate_original=(lambda p:validate(p,retained_learners=True)) if retained_learners else validate
+    original=validate_original(root);results=[];cases=dict(NEGATIVES)
+    if retained_learners:
+        from . import learner_retention_evidence as retention
+        cases.update(retention.NEGATIVES)
+    for name,reason in cases.items():
         with tempfile.TemporaryDirectory(prefix='v53-learner-cancellation-negative-') as temp:
-            target=Path(temp)/'raw';shutil.copytree(root,target);mutate(target,name)
-            try:validate(target)
+            target=Path(temp)/'raw';shutil.copytree(root,target)
+            if retained_learners and name in retention.NEGATIVES:retention.mutate(target,name)
+            else:mutate(target,name)
+            try:validate_original(target)
             except ValueError as error:need(str(error)==reason,'learner cancellation unrelated negative: '+name+': '+str(error))
             else:raise ValueError('learner cancellation accepted negative: '+name)
         results.append(dict(case=name,status='REJECTED',reason=reason))
@@ -257,5 +272,9 @@ def qualify(root):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('root');mode=parser.add_mutually_exclusive_group()
-    mode.add_argument('--qualify',action='store_true');mode.add_argument('--diagnose',action='store_true');args=parser.parse_args()
-    print(json.dumps((diagnose if args.diagnose else qualify if args.qualify else validate)(args.root)))
+    mode.add_argument('--qualify',action='store_true');mode.add_argument('--diagnose',action='store_true')
+    parser.add_argument('--retained-learners',action='store_true');args=parser.parse_args()
+    if args.diagnose:
+        need(not args.retained_learners,'legacy diagnosis cannot qualify retained learners');result=diagnose(args.root)
+    else:result=(qualify if args.qualify else validate)(args.root,retained_learners=args.retained_learners)
+    print(json.dumps(result,sort_keys=True))

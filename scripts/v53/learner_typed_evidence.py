@@ -37,14 +37,18 @@ def check_trace(rows,resume):
     need([v for v in rows if v.startswith('LEARNER_TYPED_')]==trace(resume),'learner typed exact force order')
 
 
-def physical_history(root):
+def physical_history(root,*,retained_learners=False):
     group=d.s.initialize(b.original(root,3,False))
     group={n:dict(v,**{d.future.FILE:d.future.frame(d.future.initial(v),{})}) for n,v in group.items()}
+    if retained_learners:
+        from . import learner_retention_evidence as retention
+        group=retention.initialize(group)
     b.match(root,'before-network',group)
     _,_,installed=d.s.campaign(root,{n:group[n] for n in VOTERS},2,'installed',selected_prefix=d.slot.prefix)
     group=dict(group,**installed);b.match(root,'installed',group)
     need((root/'selected.gsr').read_bytes()==c.current(group['node-1'])[1]['selected.gsr'],'learner typed original selection')
     model=a.NativeSlot.__new__(a.NativeSlot)
+    model.learner_retention=retained_learners
     model.root=root;model.group=group;model.active=list(VOTERS);model.voters=VOTERS
     model.required=set();model.slot=0;model.counter=2;model.first=None;model.observed=set();model.phases={};model.documents=[]
     model.history=f.decode(group['node-1']['root.gsr'],'records','ROOT')['historyId']
@@ -54,7 +58,10 @@ def physical_history(root):
     learner=next(v for v in request['target'] if v['node']=='node-4')
     for kind,command in [('BARRIER',None),('RESERVE',supplied),('PREPARE',dict(number=1,revision=1))]:
         model.group=a.maintenance(model.group,VOTERS);model.publish(kind,command)
-    b.match(root,'before-learner-source',model.group);b.match(root,'after-learner-source',model.group)
+    b.match(root,'before-learner-source',model.group)
+    if retained_learners:
+        model.group=dict(model.group,**{n:retention.offer(model.group[n],request,learner) for n in VOTERS})
+    b.match(root,'after-learner-source',model.group)
     prepared=copy.deepcopy(model.group);packet=c.current(prepared['node-1'])[2]
     catalog=f.decode(packet['objects'][packet['capsule']['catalog']],'records','CATALOG');operation=catalog['results'][0]
     need(catalog['active']==1 and operation['phase']=='PREPARING' and operation['revision']==1 and operation['request']==request,
@@ -67,6 +74,9 @@ def physical_history(root):
     need((root/'learner-ready-payload.bin').read_bytes()==f.canonical(ready),'learner typed ready uses original receipt')
     for kind,command in [('READY',ready),('CANCEL',dict(number=1))]:
         model.group=a.maintenance(model.group,VOTERS);model.publish(kind,command)
+    if retained_learners:
+        b.match(root,'after-cancel',model.group)
+        model.group=dict(model.group,**{n:retention.offer(model.group[n],request,learner) for n in VOTERS})
     b.match(root,'after-close',model.group)
     return prepared,model.group,request,learner,raw
 

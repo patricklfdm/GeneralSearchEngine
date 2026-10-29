@@ -92,6 +92,15 @@ class NativeSlot(x.Walk):
     voters=VOTERS
     proposer='node-1'
 
+    def required_anchors(self):
+        anchors=super().required_anchors()
+        if getattr(self,'learner_retention',False):
+            from . import learner_retention_evidence as retention
+            for node in self.voters:
+                for anchor in retention.decode(self.group[node][retention.FILE])['plan']['possible']:
+                    if anchor not in anchors:anchors.append(anchor)
+        return sorted(anchors,key=lambda v:v['cut']['index'])
+
     def requested(self,slot,entry,payload):
         certificate=f.decode((self.root/f'applied-{slot}/node-1/applied-end/certificate.gsr').read_bytes(),'records','CERTIFICATE')
         need(certificate['entry']==e.digest(entry),'transition exact native command');self.entry=entry
