@@ -45,9 +45,10 @@ as executing this native test or its independent physical replay.
 
 ## Remaining lifecycle
 
-The [rolling plan](PHASE_3_LEARNER_ROLLING_PLAN.md) still requires a new original
-selector, migration of seed-slot ownership, exact covered retirement and alternate
-slot reuse. Those operations must precede any capability that treats B as current.
+[A24 selection and retirement](PHASE_3_LEARNER_SLOT_HEAD.md) subsequently adds
+the original selecting head, seed ownership and covered old-file removal. A23
+installation alone still cannot treat B as current. The
+[rolling plan](PHASE_3_LEARNER_ROLLING_PLAN.md) still requires alternate slot reuse.
 Cancellation cleanup, matching forced INTENT, autonomous readiness, all five
 joining profiles, maximal combined resource cases and native/process-death
 qualification remain required. Phase 3 remains OPEN.

@@ -868,3 +868,67 @@ is still required; this amendment does not claim that every larger image set fit
 No public API, GSER/GSRP family, root identity, quorum, retry count or time budget
 changes. Native multi-revision execution, all five joining shapes, halt/SIGKILL,
 independent replay, cancellation and matching INTENT remain closure requirements.
+
+
+## A24 — first rolling head selection and covered seed retirement
+
+A23's installed B remains pending until its actual typed owner and the live A22
+current owner force a separate original handoff. The slots root additionally
+allows `head.next.json` or `head.json`, each at most 16 KiB. Exactly one is allowed:
+a complete candidate alone is not selected, and unexpected coexistence fails.
+The canonical ASCII record has exact fields `schema` =
+`gse-v53-learner-slot-head/1.3`, `plan` (B plan hash), `source`, `generation`,
+`receipt`, `headKey`, `seedFiles`, `previousFiles`, `previousTyped`, `currentFiles`.
+`headKey` is the original candidate inode identity, captured after exclusive file
+creation and preserved by rename. Replacing that file with identical bytes does
+not create a valid cold selection or deletion authority.
+
+Every inventory is sorted and bounded by format-derived paths; each row contains
+only `path` and `sha256`. The fingerprint covers file inode, length and digest or
+directory inode/type. Seed metadata includes its original root, lock, install plan,
+installed marker, A20 head and A21 retirement. Old source paths come from the
+validated A18 plan; typed paths are the exact A19 plan/lock/receipt and three-member
+backup. Decisions never supply arbitrary deletion paths. Bind B's original plan,
+source and GENERATION, exact revision-bound typed receipt and original typed
+members, while checking the old source and both live typed owners at write cuts.
+
+The acquisition deadline guards installation through its last return cut. Clear
+that acquisition-only guard when installation exits; a retained durable owner
+must not depend on a subsequently closed download connection. Its ordinary cut
+callback, current-head validation and original-member checks remain in force.
+
+Bound the prospective record before creating its candidate. Force complete
+candidate bytes, atomically rename the same original to the active name, then
+force that file and its parent before exposing B as current or releasing old
+handles. A failure after rename conservatively revokes old capabilities; no new
+live current capability is returned until forcing completes. A complete retained
+candidate can resume only with the same current A and pending B typed owners.
+Empty, partial, changed, copied or mismatched originals fail without repair.
+
+After selection the seed metadata owner retains A's original lock and leases,
+while its typed/source capabilities are revoked. Independent B capsule/ancestry
+verification no longer requires A's deleted source bytes. The active head covers
+only exact original old source/typed members. Cleanup accepts covered missing
+members to resume an interrupted deletion, rejects unknown or replaced members,
+and never removes B or the immutable seed metadata. Keep both generations and
+backups charged until every old member is gone and surviving parents are forced.
+Only then release A's GENERATION/APPLICATION charges, keeping its metadata lock.
+
+Cold selected recovery validates B, its original selecting inode, complete typed
+receipt/member identities and seed metadata before any recovery force/deletion.
+Do not call legacy source recovery against a partly deleted A. Re-force the active
+head, re-force initial retirement parents and release their conservative absent
+charges, reserve B and conservative A ownership under the original pool, then
+finish covered A retirement. Capacity refusal exposes no current capability and
+preserves files. Semantic reopening of B through the real core decoder remains
+necessary before it can issue a typed current-head capability. All children and
+borrowed/cold locks remain bound to the original admission owner.
+
+Two 16 KiB head names increase the conservative metadata bound from 1,484 to
+**1,516 KiB**, within the unchanged 2 MiB MISC lease; actual active/candidate names
+are exclusive in this first-selection contract. Two GENERATION and seven
+APPLICATION limits remain unchanged. This first B selection does not permit
+another acquisition or alternating overwrite: reusable A/B plans, replacement
+selectors, cancellation, locally forced matching INTENT and complete native and
+process-death qualification remain subsequent work. No voting rights, public API,
+wire family, quorum, timing limit or retry policy changes.

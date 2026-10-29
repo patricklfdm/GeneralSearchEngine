@@ -159,6 +159,11 @@ final class MembershipLearnerStore implements AutoCloseable {
                 // No old-source move or metadata repair is legal in this state.
                 // Authenticate the independent current source before resuming removal.
                 preflight(plan,decision);openReplica();complete=true;
+                if(MembershipLearnerSlot.hasCommittedHead(plan.summary())) {
+                    slot=MembershipLearnerSlot.restore(this,cut);slot.resealHead();
+                    finishOriginalForSlot();slot.reserve();slot.retireSeed();
+                    point("LEARNER_STORE_BEFORE_RETURN");return;
+                }
                 successor=MembershipLearnerSuccessor.restore(this,cut);
                 require(successor!=null,"learner retirement current source missing");
                 // Validate a retained inactive source before any reseal/deletion.
@@ -231,6 +236,9 @@ final class MembershipLearnerStore implements AutoCloseable {
         check();require(retirement!=null && successor==child,"learner retirement foreign owner");
         AdmissionPaths.absent(decision.destination);AdmissionPaths.absent(MembershipLearnerMaterialization.directory(plan.summary()));
         // The caller has already forced every removal and both surviving parents.
+        releaseOriginalLeases();
+    }
+    private void releaseOriginalLeases()throws IOException {
         var originals=new ArrayList<AutoCloseable>();originals.addAll(received.values());originals.addAll(leases);
         MembershipLearnerSource.closeChildren(originals.toArray(AutoCloseable[]::new));
         received.clear();leases.clear();typedImage=null;resumedMetadata=null;preparedGeneration=false;
@@ -272,7 +280,28 @@ final class MembershipLearnerStore implements AutoCloseable {
         check();require(successor!=null,"learner successor missing");return successor.open(prepared);
     }
     MembershipLearnerSuccessor.View promotedSuccessor()throws IOException {
-        check();require(successor!=null,"learner successor missing");return successor.promoted();
+        check();require(slot==null || !slot.committed(),"learner seed superseded by selected slot");
+        require(successor!=null,"learner successor missing");return successor.promoted();
+    }
+    MembershipLearnerImageSource currentSource()throws IOException {
+        check();return slot!=null && slot.committed()?slot.promoted():promotedSuccessor();
+    }
+    MembershipLearnerSuccessor seedOwner()throws IOException {
+        requireOriginalRetiredFilesAbsent();require(successor!=null,"learner original seed owner missing");successor.slotAnchor();return successor;
+    }
+    void requireOriginalRetiredFilesAbsent()throws IOException {
+        check();require(retirement!=null,"learner original retirement missing");
+        AdmissionPaths.absent(decision.destination);AdmissionPaths.absent(MembershipLearnerMaterialization.directory(plan.summary()));
+    }
+    private void finishOriginalForSlot()throws IOException {
+        requireOriginalRetiredFilesAbsent();require(slot!=null && slot.committed(),"learner original retirement requires selected slot");
+        Path seed=MembershipLearnerSuccessor.directory(plan.summary());
+        for(String name:List.of(MembershipLearnerSuccessor.HEAD,MembershipLearnerRetirement.FILE)) {
+            try(var file=FileChannel.open(seed.resolve(name),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){file.force(true);}
+        }
+        AdmissionPaths.forceDirectory(seed);AdmissionPaths.forceDirectory(path);
+        AdmissionPaths.forceDirectory(MembershipLearnerMaterialization.directory(plan.summary()).getParent());
+        point("LEARNER_SLOT_INITIAL_RETIREMENT_FORCED");releaseOriginalLeases();
     }
     void requireNewSlot()throws IOException {
         requireRetiredPredecessor();require(slot==null,"learner inactive slot requires original resume or selection");

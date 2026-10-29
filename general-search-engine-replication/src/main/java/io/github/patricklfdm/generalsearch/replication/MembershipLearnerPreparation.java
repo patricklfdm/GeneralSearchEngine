@@ -68,6 +68,10 @@ final class MembershipLearnerPreparation {
     MembershipLearnerSuccessor.View promote(MembershipLearnerMaterialization<?> typed)throws IOException {
         check();require(successor instanceof MembershipLearnerSuccessor.View,"learner initial handoff requires original successor");return ((MembershipLearnerSuccessor.View)successor).promote(typed);
     }
+    MembershipLearnerSlot.View promoteSlot(MembershipLearnerMaterialization<?> typed,MembershipLearnerMaterialization.CurrentHead previous)throws IOException {
+        check();require(successor instanceof MembershipLearnerSlot.View,"learner slot handoff requires installed slot");
+        return ((MembershipLearnerSlot.View)successor).promote(typed,previous);
+    }
     void requireCurrentTyped(MembershipLearnerMaterialization<?> typed)throws IOException {
         check();require(successor!=null,"learner refresh requires promoted typed source");successor.requireCurrentTyped(typed);
     }

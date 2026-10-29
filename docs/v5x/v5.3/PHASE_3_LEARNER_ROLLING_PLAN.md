@@ -3,8 +3,10 @@
 Status: **partially implemented; complete rolling lifecycle OPEN**. A21 reclaims
 the initial source/backup, A22 enables current-head acquisition, and
 [A23 inactive installation](PHASE_3_LEARNER_SLOT.md) implements the bounded slot-B
-plan, source move, semantic backup and cold resume. B is still pending: migration,
-new-head selection, covered slot-A retirement and alternate reuse remain required.
+plan, source move, semantic backup and cold resume.
+[A24 selection](PHASE_3_LEARNER_SLOT_HEAD.md) now selects B through an original
+forced head and retires covered A source/typed members, including cold recovery
+after interrupted removal. Repeated alternate slot reuse remains required.
 The first-successor installer continues to protect its immutable old plan.
 
 ## Reuse boundary
@@ -67,7 +69,9 @@ has no redundant candidate. Their remaining bounded metadata sum is 908 KiB:
 596 KiB admission/replica plus 312 KiB successor selection/typed/head/retirement.
 
 A23's pending B adds 576 KiB, for a 1,484 KiB bound. This leaves room inside the
-original 2 MiB lease for the remaining rolling selection metadata. Verify the exact
+original 2 MiB lease for rolling selection metadata. A24 reserves another 32 KiB
+for the two head names, reaching 1,516 KiB while keeping immutable seed roots.
+Verify the exact
 simultaneous maxima of migration, candidate selection,
 partial cleanup and slot reuse against actual permitted inventories before freezing
 their sizes. Do not count freed bytes until the associated original deletion and

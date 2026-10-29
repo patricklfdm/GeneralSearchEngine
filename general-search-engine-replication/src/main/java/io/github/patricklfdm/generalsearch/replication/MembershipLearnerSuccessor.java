@@ -33,7 +33,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
     private MembershipResources.Lease typedImage;
     private Handoff handoff;
     private byte[] slotAnchorBytes;
-    private boolean closed,failed,selected;
+    private boolean closed,failed,selected,superseded;
     static Path directory(MembershipLearnerPlan summary) {
         return summary.request().operationDirectory().resolveSibling(".gse-v53-learner-successor-"+summary.planDigest());
     }
@@ -165,7 +165,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         }
     }
     private void check()throws IOException {
-        require(!closed && !failed && lock!=null && lock.lock().isValid(),"learner successor owner closed or failed");predecessor();
+        require(!closed && !failed && !superseded && lock!=null && lock.lock().isValid(),"learner successor owner closed, failed or superseded");predecessor();
         AdmissionPaths.recheck(pathBinding);require(directoryKey.equals(key(directory)),"learner successor directory replaced");Path source=locate();
         var names=new TreeSet<>(metadata.keySet());if(source.equals(destination))names.add(SOURCE);
         require(children(directory,8).equals(names),"learner successor live inventory changed");
@@ -280,7 +280,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
     private static List<Map<String,String>> fingerprints(Path directory,boolean previous)throws IOException {
         return fingerprints(directory,previous,false);
     }
-    private static SortedSet<String> typedPaths(boolean previous) {
+    static SortedSet<String> typedPaths(boolean previous) {
         var paths=new TreeSet<>(List.of(".","preparation.lock","preparation.json","learner.gsr","backup"));
         if(previous)paths.add("prepared.json");for(String name:MembershipApplicationImage.MEMBERS)paths.add("backup/"+name);return paths;
     }
@@ -360,6 +360,24 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
             }
             check();active=true;
         }
+    }
+    record SeedData(Map<String,Object> value,Map<String,Object> path,Map<String,Object> staging,Decoded generation,byte[] selector) {
+        SeedData {selector=selector.clone();}
+        @Override public byte[] selector(){return selector.clone();}
+    }
+    static SeedData seedData(MembershipLearnerStore parent,byte[] plan)throws IOException {
+        var original=new MembershipLearnerSuccessor(parent,plan,e->{});
+        return new SeedData(original.value,original.pathBinding,original.stagingBinding,original.generation,original.selector);
+    }
+    void seedLock()throws IOException {
+        require(!closed && lock!=null && lock.lock().isValid(),"learner seed owner closed");
+        require(directoryKey.equals(key(directory)) && metadata.get(LOCK).equals(inspect(directory.resolve(LOCK),0,hash(new byte[0]))),"learner seed lock changed");
+    }
+    void supersede()throws IOException {seedLock();if(typed!=null)typed.close();superseded=true;}
+    void retireSeedResources()throws IOException {
+        seedLock();require(superseded,"learner seed not superseded");
+        var children=new ArrayList<AutoCloseable>();children.add(typed);children.addAll(received.values());children.addAll(leases);
+        MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));received.clear();leases.clear();typed=null;typedImage=null;
     }
     /** Original committed head binding, also usable by cold slot validation
      * before any recovery force. It is not a typed acquisition capability. */

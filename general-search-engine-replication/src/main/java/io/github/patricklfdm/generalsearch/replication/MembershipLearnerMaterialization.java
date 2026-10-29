@@ -177,6 +177,9 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     MembershipLearnerSuccessor.View promoteSuccessor()throws IOException {
         receipt();return input.promote(this);
     }
+    MembershipLearnerSlot.View promoteSlot(CurrentHead previous)throws IOException {
+        receipt();return input.promoteSlot(this,previous);
+    }
     /** Select these exact immutable originals as a nonvoting local generation.
      * Reserve its slot before forcing the marker, and only then release the
      * receiving category through an atomic reservation transfer. */

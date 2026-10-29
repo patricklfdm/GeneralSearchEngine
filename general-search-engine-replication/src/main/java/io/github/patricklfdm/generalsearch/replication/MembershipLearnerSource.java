@@ -117,7 +117,9 @@ final class MembershipLearnerSource implements AutoCloseable {
         require(predecessor instanceof MembershipLearnerMaterialization.CurrentHead,"learner slot requires current typed head");
         var current=(MembershipLearnerMaterialization.CurrentHead)predecessor;var copy=source();
         var receiver=prefix.completeLearnerSource(copy,cut);check();
-        return MembershipLearnerSlot.install(current,receiver,copy,event->{check();cut.at(event);check();});
+        // The download deadline guards installation, not the durable owner's
+        // later head selection/retirement after this source has been closed.
+        return MembershipLearnerSlot.install(current,receiver,copy,cut,this::check);
     }
     @Override public void close()throws IOException {
         MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t;

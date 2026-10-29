@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Selected learner slots](PHASE_3_LEARNER_SLOT_HEAD.md) now force an original
+B head before revoking A handles, retire only covered old members, and recover
+the independent current source after interrupted deletion. The selecting inode
+and original typed/source identities bind that authority; resource charges release
+after parent forces. Alternate slot reuse, native/process-death qualification
+and complete Phase 3 remain OPEN. Earlier entries retain their source-bound scope.
+
 [Inactive learner slots](PHASE_3_LEARNER_SLOT.md) now retain a subsequent original
 source and typed backup beside the current head, with bounded same-pool resources
 and original-only cold resume. Pending installation never selects the new head.
