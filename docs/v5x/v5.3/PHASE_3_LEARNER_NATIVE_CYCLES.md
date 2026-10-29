@@ -24,11 +24,14 @@ selection entries retain their modes and output shapes.
 
 ## Execution and acceptance boundary
 
-The [compile receipt](phase3-evidence/learner-native-cycles.json) records
+The original [compile receipt](phase3-evidence/learner-native-cycles.json) records
 **COMPILED_NOT_RUN**. Compilation includes the complete core/replication test
 sources and confirms unchanged production sources/binaries relative to A28.
-It does not execute the native history, establish process-death behavior, or
-satisfy an acceptance gate. No hosted workflow has been dispatched for it.
+That historical receipt does not execute the native history, establish process-death behavior, or
+satisfy an acceptance gate. No hosted workflow has been dispatched for it. The later
+[replay batch](PHASE_3_LEARNER_CYCLE_REPLAY.md) records the serializer correction,
+a local six-revision execution that timed out at final CANCEL, partial byte
+replay and final failure-retention correction. Its complete hosted gate remains OPEN.
 
 Run the whole history as one isolated hosted unit on the final source:
 

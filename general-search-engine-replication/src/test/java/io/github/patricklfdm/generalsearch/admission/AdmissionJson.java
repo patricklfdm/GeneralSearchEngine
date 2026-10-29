@@ -19,7 +19,7 @@ public final class AdmissionJson {
         return value;
     }
 
-    static String canonical(Object value) {
+    public static String canonical(Object value) {
         if (value == null) return "null";
         if (value instanceof String s) {
             var result = new StringBuilder("\"");

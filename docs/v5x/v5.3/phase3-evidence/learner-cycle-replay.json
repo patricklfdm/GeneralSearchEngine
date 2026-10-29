@@ -1,0 +1,122 @@
+{
+  "allJoiningProfilesQualified": false,
+  "archive": {
+    "bytes": 4506198,
+    "files": 4984,
+    "path": "target/v53-learner-cycle-replay/qualification.tar.gz",
+    "sha256": "c816ab782c8274851c7b9a3a16b0ea9c2afb92b7282e7f6a28d69e5e5e8332ce"
+  },
+  "attemptReasons": {
+    "corrected": "new serializer regression fixture compilation error; no tests executed",
+    "native": "original evidence serializer rejected filesystem inventory keys",
+    "qualified": "all six learner revisions completed; final CANCEL refused at original native round deadline",
+    "retention": "final failure-observation retention and serializer regressions passed; complete test sources compiled; native history not rerun"
+  },
+  "attempts": {
+    "corrected": {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "corrected",
+      "requestedTests": [
+        "V53LearnerEvidenceJsonTest",
+        "V53LearnerAlternationNetworkTest"
+      ],
+      "seconds": 9.535325980999914,
+      "skipped": 0,
+      "tests": 0
+    },
+    "native": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationNetworkTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "native",
+      "requestedTests": [
+        "V53LearnerAlternationNetworkTest"
+      ],
+      "seconds": 271.7232387849981,
+      "skipped": 0,
+      "tests": 1
+    },
+    "qualified": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerAlternationNetworkTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerEvidenceJsonTest": 2
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "qualified",
+      "requestedTests": [
+        "V53LearnerEvidenceJsonTest",
+        "V53LearnerAlternationNetworkTest"
+      ],
+      "seconds": 994.839700640001,
+      "skipped": 0,
+      "tests": 3
+    },
+    "retention": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerEvidenceJsonTest": 3
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "retention",
+      "requestedTests": [
+        "V53LearnerEvidenceJsonTest"
+      ],
+      "seconds": 14.196658962999209,
+      "skipped": 0,
+      "tests": 3
+    }
+  },
+  "baseSource": "9b9a7dfbabcd95ff21e857a427e50b26dbe83e0f",
+  "compiledProductionFiles": 876,
+  "completeNativeHistoryQualified": false,
+  "declaredEvidenceNegatives": 12,
+  "executedCompleteHistoryNegatives": 0,
+  "finalTestHelperNativeHistoryExecuted": false,
+  "independentFullReplayQualified": false,
+  "optimizedSyntheticTests": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 14
+  },
+  "partialReplay": {
+    "completeNativeHistoryQualified": false,
+    "execution": "original-local-history-diagnostic",
+    "forceOrderQualified": false,
+    "fullWireReplayQualified": false,
+    "lastRevision": 6,
+    "nativeCancelCompleted": false,
+    "nativeSlots": 8,
+    "phase3Complete": false,
+    "snapshots": 25,
+    "status": "PARTIAL"
+  },
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "productionChanged": false,
+  "productionIdenticalToA28": true,
+  "productionInputs": 491,
+  "pythonTests": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 74
+  },
+  "schema": "gse-v53-learner-cycle-replay-development-v1",
+  "sourceInputs": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission/AdmissionJson.java": "16eea9627f63170042b4ccad263cb77068812e4f054a2aee4506d91a6c421878",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CurrentHeadNetworkTest.java": "5e76597cbdfe623fbe71aecd62d968e935f61251f8306397fc725d95009a2f08",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerEvidenceJsonTest.java": "ea2f46b6603040705a4b4aefb13b63635df4b9012f6d5a34307c8aed8c6f28f0",
+    "scripts/v53/learner_cycle_bytes.py": "4af2c035f03878b12e7d4f1fb32baeda28e3c570277e55f22a297e511c12203e",
+    "scripts/v53/learner_cycle_forces.py": "f6e6d551bb31823d6a07660ef9850b41ffd90e59ba82ad74c04918518c1e94d1",
+    "scripts/v53/learner_cycles_evidence.py": "e219be10b142b155b7d5b1756d790332cf3bdf3a48b25fdd8ee48c6a54c501e8",
+    "scripts/v53/learner_source_evidence.py": "119520f15f57c5479080902db17db97a03c683591e158d41b5960d17d74f7ead",
+    "scripts/v53/test_learner_cycles_evidence.py": "786dd2d73180408c79a0ab0066eaa01640cc81171113de66d6a78b2d1d4b3556"
+  },
+  "status": "PARTIAL"
+}

@@ -29,8 +29,15 @@ def transcripts(rows):
 
 
 def network(root,reserved,request,learner,*,trace_name='learner-source-wire.json',copy_name='learner-source-copy',preceding=(),following=()):
-    rows=d.read(root/trace_name);sessions=transcripts(rows)
-    server=d.read(root/'wire.json');observed=[]
+    return network_rows(d.read(root/trace_name),d.read(root/'wire.json'),reserved,request,learner,
+                        c.inventory(root/copy_name),preceding=preceding,following=following)
+
+
+def network_rows(rows,server,reserved,request,learner,files,*,preceding=(),following=()):
+    """Replay one complete acquisition within a larger original server history.
+    Inputs are copied bytes / independently derived voter states, never paths
+    taken from a recorded plan. The file-based entry retains the same checks."""
+    sessions=transcripts(rows);observed=[]
     need(type(server) is list and len(server)<=32768,'learner source bounded server trace')
     for row in server:
         _,frame=t.t.wire(row['request'])
@@ -59,7 +66,7 @@ def network(root,reserved,request,learner,*,trace_name='learner-source-wire.json
     if 'ancestry.gsr' in members:expected.append((e.digest(members['ancestry.gsr']),members['ancestry.gsr'],'RECORD'))
     expected.extend((e.digest(data),data,'RECORD') for name,data in sorted(members.items()) if name not in ('generation.gsr','source.gscp','ancestry.gsr') and not name.endswith('.image'))
     t.transcript(sessions[3],expected,request['root'],request['expected'],ballot,learner,identity,'learner source generation',chunk_bytes=4*e.MIB)
-    need(c.inventory(root/copy_name)==members,'learner source exact original generation')
+    need(files==members,'learner source exact original generation')
     return dict(peer=peer,exchanges=len(rows),originalFiles=len(members))
 
 

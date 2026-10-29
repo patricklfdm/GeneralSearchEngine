@@ -1,10 +1,17 @@
 # V5.3 — controlled cluster operations
 
-The [native six-revision learner entry](PHASE_3_LEARNER_NATIVE_CYCLES.md) now
-keeps PREPARE 1–6 and B1→A2→B3→A4 in one continuous original history, with per-cycle
-physical/identity/resource snapshots and bounded exchange intervals. This entry
-is **compiled, not run**. Its final native execution, independent replay and the
-complete Phase 3 gates remain OPEN.
+The [continuous learner replay](PHASE_3_LEARNER_CYCLE_REPLAY.md) now derives six
+native sources/receipts, checks 25 original snapshots and implements full bounded
+acquisition/force replay. Local qualification remains **PARTIAL**: all six learner
+revisions completed, but final CANCEL exceeded the original round deadline.
+A diagnostic matched all 25 snapshots; complete hosted execution, original-first
+wire/force replay and real-evidence negatives remain required. The test helper
+also fixes inventory JSON serialization and preserves observations on failure.
+
+The [native six-revision entry](PHASE_3_LEARNER_NATIVE_CYCLES.md) keeps
+PREPARE 1–6 and B1→A2→B3→A4 in one original history. Its earlier compile-only receipt
+remains unchanged; the newer execution status is recorded in the replay batch.
+All complete Phase 3 gates remain OPEN.
 
 [Alternating learner slots](PHASE_3_LEARNER_ALTERNATION.md) now replace covered
 inactive plans and reuse the same A/B source and typed paths from sequence 3

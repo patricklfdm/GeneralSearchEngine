@@ -36,8 +36,10 @@ class V53CurrentHeadNetworkTest {
             var change=new MembershipChangeRequest(new MembershipOperationId(n.f.result.root(),1),n.owners.getFirst().activationContext().authority(),MembershipChangeKind.ADD,targets);
             var request=new MembershipLearnerRequest(n.f.result.root(),joining,change,temp.resolve("learner-replica"),temp.resolve("learner-operation"));
             var config=new MembershipReplicaConfig<>(request.root(),joining,List.of(),request.replicaDirectory(),storage(temp.resolve("learner-core"),2),n.bounds,AutomaticLeadershipPolicy.forBounds(n.bounds));
-            var resources=new MembershipResources(512*MIB);var events=new ArrayList<String>();var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+            var resources=new MembershipResources(512*MIB);var events=new ArrayList<String>();var observations=new LinkedHashMap<String,Object>();var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
             MembershipTransport.Events capture=(event,q,a)->{if(event.equals("AFTER_RESPONSE_READ"))wire.add(V53SelectedPullTest.wire(q,a));};
+            Throwable failure=null;
+            try {
             byte[] reserve=canonical(Map.of("request",MembershipLearnerDiscovery.request(change)),8192);Files.write(raw.resolve("learner-reserve-payload.bin"),reserve);
             round.submit("RESERVE",reserve);round.submit("PREPARE",canonical(Map.of("number",1L,"revision",1L),8192));n.f.snapshot("before-current-head");
             MembershipLearnerPlan summary;
@@ -52,11 +54,11 @@ class V53CurrentHeadNetworkTest {
                         var installed=refresh.installSuccessor(events::add);
                         try(var second=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(installed,2),builder().configuration(),config,events::add)) {
                             Files.write(raw.resolve("current-receipt.gsr"),second.receipt().bytes());
-                            if(selectInactive)snapshotLearner(raw.resolve("before-seed-handoff"),summary,resources);
+                            if(selectInactive)observe(raw.resolve("before-seed-handoff"),summary,resources,events,wire,observations);
                             var head=second.promoteSuccessor();
-                            if(selectInactive)snapshotLearner(raw.resolve("selected-seed-head"),summary,resources);
+                            if(selectInactive)observe(raw.resolve("selected-seed-head"),summary,resources,events,wire,observations);
                             head.retirePredecessor();
-                            if(selectInactive)snapshotLearner(raw.resolve("retired-seed-predecessor"),summary,resources);
+                            if(selectInactive)observe(raw.resolve("retired-seed-predecessor"),summary,resources,events,wire,observations);
                             assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
                             assertFalse(Files.exists(request.replicaDirectory().resolve("learner")));assertFalse(Files.exists(MembershipLearnerMaterialization.directory(summary)));
                             V53SuccessorTypedNetworkTest.snapshotSuccessor(raw.resolve("retired-successor"),summary);
@@ -91,17 +93,17 @@ class V53CurrentHeadNetworkTest {
                 if(selectInactive) {
                     // The source transport is already closed. Selection and
                     // retirement must use only the retained durable owner.
-                    snapshotLearner(raw.resolve("before-slot-selection"),summary,resources);
+                    observe(raw.resolve("before-slot-selection"),summary,resources,events,wire,observations);
                     try(var third=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(pending,3),builder().configuration(),config,events::add)) {
                         assertArrayEquals(Files.readAllBytes(raw.resolve("third-receipt.gsr")),third.receipt().bytes());
                         var selected=third.promoteSlot(head);assertThrows(IllegalArgumentException.class,head::check);
                         assertEquals(2,resources.usage().counts().get(Unit.GENERATION));
-                        snapshotLearner(raw.resolve("selected-slot-head"),summary,resources);
+                        observe(raw.resolve("selected-slot-head"),summary,resources,events,wire,observations);
                         selected.retirePredecessor();assertEquals(1,resources.usage().counts().get(Unit.GENERATION));
                         assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
                         assertFalse(Files.exists(MembershipLearnerSuccessor.directory(summary).resolve(MembershipLearnerSuccessor.SOURCE)));
                         assertFalse(Files.exists(MembershipLearnerSuccessor.typedDirectory(summary)));
-                        snapshotLearner(raw.resolve("retired-slot-seed"),summary,resources);
+                        observe(raw.resolve("retired-slot-seed"),summary,resources,events,wire,observations);
                     }
                 }else {
                     if(!installInactive)assertEquals(baseline,resources.usage());
@@ -118,7 +120,7 @@ class V53CurrentHeadNetworkTest {
                     assertEquals(request.root().historyId(),third.state().history());assertTrue(third.state().documents().isEmpty());
                     assertFalse(third.currentHead().source().context.voters().contains(joining.nodeId().value()));
                     assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
-                    snapshotLearner(raw.resolve("reopened-slot-head"),summary,resources);
+                    observe(raw.resolve("reopened-slot-head"),summary,resources,events,wire,observations);
                     var before=V53ReplayFilesTest.files(raw.resolve("retired-slot-seed"));var after=V53ReplayFilesTest.files(raw.resolve("reopened-slot-head"));
                     // Cold charges may conservatively differ in extent; exact
                     // authority bytes/inodes must not change during reopen.
@@ -149,7 +151,7 @@ class V53CurrentHeadNetworkTest {
                     try(var store=MembershipLearnerStore.resume(summary,resources,events::add);
                             var current=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.currentSource(),revision-1),builder().configuration(),config,events::add)) {
                         var previous=current.currentHead();MembershipLearnerSlot.View pending;
-                        snapshotLearner(raw.resolve(stage+"-before-transfer"),summary,resources);
+                        observe(raw.resolve(stage+"-before-transfer"),summary,resources,events,wire,observations);
                         try(var refresh=MembershipLearnerSource.refresh(previous,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),BUDGET)) {
                             var received=refresh.fetch(temp.resolve(stage+"-receiving"));
                             assertEquals(revision+2,number(received.capsule.context.cut.get("index")));
@@ -157,15 +159,15 @@ class V53CurrentHeadNetworkTest {
                             assertFalse(received.capsule.context.voters().contains(joining.nodeId().value()));copy(received,raw.resolve(stage+"-received"));
                             pending=refresh.installSlot(events::add);
                         }
-                        snapshotLearner(raw.resolve(stage+"-installed"),summary,resources);
+                        observe(raw.resolve(stage+"-installed"),summary,resources,events,wire,observations);
                         try(var next=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(pending,revision),builder().configuration(),config,events::add)) {
                             receipt=next.receipt().bytes();Files.write(raw.resolve(stage+"-receipt.gsr"),receipt);
-                            snapshotLearner(raw.resolve(stage+"-before-selection"),summary,resources);
+                            observe(raw.resolve(stage+"-before-selection"),summary,resources,events,wire,observations);
                             var selected=next.promoteSlot(previous);assertThrows(IllegalArgumentException.class,previous::check);
                             assertThrows(IllegalArgumentException.class,pending::source);assertEquals(2,resources.usage().counts().get(Unit.GENERATION));
-                            snapshotLearner(raw.resolve(stage+"-selected"),summary,resources);selected.retirePredecessor();
+                            observe(raw.resolve(stage+"-selected"),summary,resources,events,wire,observations);selected.retirePredecessor();
                             assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
-                            snapshotLearner(raw.resolve(stage+"-retired"),summary,resources);
+                            observe(raw.resolve(stage+"-retired"),summary,resources,events,wire,observations);
                         }
                         assertFalse(Files.exists(config.materialization().directory()));
                     }
@@ -176,7 +178,7 @@ class V53CurrentHeadNetworkTest {
                         assertEquals(request.root().historyId(),current.state().history());assertTrue(current.state().documents().isEmpty());
                         assertFalse(head.source().context.voters().contains(joining.nodeId().value()));
                         assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
-                        snapshotLearner(raw.resolve(stage+"-reopened"),summary,resources);
+                        observe(raw.resolve(stage+"-reopened"),summary,resources,events,wire,observations);
                         var before=V53ReplayFilesTest.files(raw.resolve(stage+"-retired"));var after=V53ReplayFilesTest.files(raw.resolve(stage+"-reopened"));
                         before.remove("resources.json");after.remove("resources.json");assertEquals(before,after);
                         var selector=object(parse(Files.readAllBytes(MembershipLearnerSlot.directory(summary).resolve(MembershipLearnerSlot.HEAD)),MembershipLearnerSlot.HEAD_MAXIMUM));
@@ -188,13 +190,30 @@ class V53CurrentHeadNetworkTest {
                 }
             }
             round.submit("CANCEL",canonical(Map.of("number",1L),8192));
-            Files.write(raw.resolve("current-head-events.json"),canonical(events,65536));Files.write(raw.resolve("current-head-wire.json"),canonical(wire,8*1024*1024));
             var result=new TreeMap<String,Object>(Map.of("status","PASS","scope",alternate?"native-alternating-learner-slots":selectInactive?"native-selected-slot-head":installInactive?"native-inactive-slot":"native-current-head-acquisition",
                     "installedThirdRevision",installInactive,"voter",false,"publicReady",false,"phase3Complete",false,"testBudgetSeconds",900L));
             if(selectInactive){result.put("selectedThirdRevision",true);result.put("seedRetired",true);}
             if(alternate){result.put("cycles",cycles);result.put("lastRevision",6L);result.put("independentReplayQualified",false);}
             Files.write(raw.resolve("current-head-result.json"),canonical(result,4096));
+            }catch(Exception|Error error){failure=error;throw error;}
+            finally {
+                try{writeObservations(raw,events,wire,alternate?observations:null);}
+                catch(Exception|Error error){if(failure!=null)failure.addSuppressed(error);else throw error;}
+            }
         }
+    }
+    /** Preserve partial observations without synthesizing a successful result.
+     * A failure to retain evidence must not hide the original history failure. */
+    static void writeObservations(Path root,List<String> events,List<Map<String,Object>> wire,Map<String,Object> observations)throws Exception {
+        Files.write(root.resolve("current-head-events.json"),canonical(events,65536));
+        Files.write(root.resolve("current-head-wire.json"),canonical(wire,8*1024*1024));
+        if(observations!=null)Files.write(root.resolve("current-head-stages.json"),evidenceJson(observations,16384));
+    }
+    private static void observe(Path target,MembershipLearnerPlan summary,MembershipResources resources,
+            List<String> events,List<Map<String,Object>> wire,Map<String,Object> observations)throws Exception {
+        int before=events.size(),exchanges=wire.size();snapshotLearner(target,summary,resources);
+        assertEquals(before,events.size());assertEquals(exchanges,wire.size());
+        assertNull(observations.put(target.getFileName().toString(),Map.of("events",(long)before,"exchanges",(long)exchanges)));
     }
     /** Copy original bytes with their original identity observations, including
      * absent retired roots. A copied tree's new inodes are not voting evidence. */
@@ -226,8 +245,14 @@ class V53CurrentHeadNetworkTest {
             identities.put(entry.getKey(),Map.of("path",root.toString(),"present",present,"members",members));
         }
         var usage=resources.usage();var counts=new TreeMap<String,Object>();usage.counts().forEach((unit,value)->counts.put(unit.name(),value.longValue()));
-        Files.write(target.resolve("original-identities.json"),canonical(identities,1024*1024));
+        Files.write(target.resolve("original-identities.json"),evidenceJson(identities,1024*1024));
         Files.write(target.resolve("resources.json"),canonical(Map.of("counts",counts,"leases",(long)usage.leases(),"metadata",usage.metadata(),"staging",usage.staging(),"queued",usage.queued()),4096));
+    }
+    /** Evidence member paths are not protocol field names. Keep the production
+     * codec's field restrictions intact and bound this test-only serializer. */
+    static byte[] evidenceJson(Object value,int maximum) {
+        byte[] bytes=io.github.patricklfdm.generalsearch.admission.AdmissionJson.canonical(value).getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        assertTrue(bytes.length<=maximum,"learner evidence JSON capacity");return bytes;
     }
     private static void copy(MembershipFloor.Copy copy,Path destination)throws Exception {
         copy.check();Files.createDirectory(destination);for(String name:copy.fileNames())Files.write(destination.resolve(name),copy.fileBytes(name));copy.check();
