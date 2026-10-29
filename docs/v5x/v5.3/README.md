@@ -4,10 +4,12 @@
 source-side retention gap: actual READY/CANCEL publication pruned the learner's
 original PREPARE endpoint. Five native slots and 59 exchanges replay exactly;
 the learner correctly refuses the missing ancestry. [Bounded local obligations](PHASE_3_LEARNER_RETENTION_LOCAL.md)
-now preserve exact learner endpoints through local publication and reopen, but
-quorum replication, frozen-source propagation and confirmed narrowing remain
-unimplemented. Export in the new mode stays disabled. Cancellation retention/
-reopen, process and full Phase 3 qualification remain **OPEN**.
+now preserve exact learner endpoints through local publication and reopen.
+[Frozen-source capture and selected merge](PHASE_3_LEARNER_RETENTION_SELECTION.md)
+now preserve their union across installation, interrupted completion and later
+CANCEL. Real quorum recording and confirmed narrowing remain unimplemented;
+export in the new mode stays disabled. Native learner cancellation/reopen,
+process/independent replay and full Phase 3 qualification remain **OPEN**.
 
 [Durable learner cancellation](PHASE_3_LEARNER_CANCELLATION.md) now retains a
 complete certified CANCEL under the same prepared owner and receiving slot, then

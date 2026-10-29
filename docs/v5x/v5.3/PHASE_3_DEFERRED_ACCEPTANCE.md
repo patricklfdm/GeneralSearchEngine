@@ -4,10 +4,12 @@
 source-side retention gap: actual READY/CANCEL publication pruned the learner's
 original PREPARE endpoint. Five native slots and 59 exchanges replay exactly;
 the learner correctly refuses the missing ancestry. [Bounded local obligations](PHASE_3_LEARNER_RETENTION_LOCAL.md)
-now preserve exact learner endpoints through local publication and reopen, but
-quorum replication, frozen-source propagation and confirmed narrowing remain
-unimplemented. Export in the new mode stays disabled. Cancellation retention/
-reopen, process and full Phase 3 qualification remain **OPEN**.
+now preserve exact learner endpoints through local publication and reopen.
+[Frozen-source capture and selected merge](PHASE_3_LEARNER_RETENTION_SELECTION.md)
+now preserve their union across installation, interrupted completion and later
+CANCEL. Real quorum recording and confirmed narrowing remain unimplemented;
+export in the new mode stays disabled. Native learner cancellation/reopen,
+process/independent replay and full Phase 3 qualification remain **OPEN**.
 
 A30 adds explicit original-proof cancellation retention and cold recovery. Its
 conditional source fixtures and 13 injected exception cuts must be followed by
@@ -45,6 +47,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 
 | Gate | Unit of execution | Required final evidence |
 | --- | --- | --- |
+| Frozen learner retention and selected merge | One native continuous history plus independent whole halt/SIGKILL cases | Exact source-bound ledgers, selection/installation completion, all process cuts and original-first physical/force replay; five Java component cases are executed, not complete process or quorum qualification |
 | `V53LearnerCancellationTest` and native cancellation | One original prepared learner history through certified CANCEL and local retention/restart | All five joining profiles, initial/promoted/alternating heads, original forces and source ancestry, bounded resources, halt/SIGKILL, precise evidence negatives and automatic integration; component exception cuts do not replace these gates |
 | `V53LearnerStoreTest` and preparation tests | Focused component suite | All assertions on the final source; explicitly conditional historical fixtures do not become native distributed evidence |
 | `V53LearnerStoreRevalidationTest` | One actual TCP history | Normal original installation, disconnect, reopen and unchanged-byte refusal; independent original-first review reader |

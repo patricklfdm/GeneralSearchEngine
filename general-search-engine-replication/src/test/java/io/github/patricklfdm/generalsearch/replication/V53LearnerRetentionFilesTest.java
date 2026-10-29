@@ -55,7 +55,6 @@ class V53LearnerRetentionFilesTest {
                 var before=V53ReplayFilesTest.files(target.replicaDirectory());
                 assertTrue(assertThrows(IllegalArgumentException.class,()->owner.retainLearnerOffer(joining)).getMessage().contains("endpoint capacity"));
                 var ballot=new TreeMap<>(f.ballot);ballot.put("counter",number(ballot.get("counter"))+1);
-                assertTrue(assertThrows(IllegalArgumentException.class,()->owner.prepareCurrent(ballot)).getMessage().contains("frozen-source propagation"));
                 byte[] payload=canonical(Map.of("through",1L),8192);var context=current.capsule.context;
                 var entry=decode(encode("records","ENTRY",Map.of("root",context.root,"authority",context.authority(),"index",6L,
                         "previous",context.cut.get("entry"),"origin",f.ballot,"kind","RETIRE","payload",hash(payload))),"records","ENTRY");
@@ -63,6 +62,9 @@ class V53LearnerRetentionFilesTest {
                 assertEquals(MembershipOperationException.Reason.CAPACITY_EXCEEDED,rejected.reason());
                 assertEquals(AutomaticReplicationException.Outcome.NOT_SUBMITTED,rejected.outcome());
                 assertEquals(before,V53ReplayFilesTest.files(target.replicaDirectory()));assertEquals(2,owner.learnerRetentionState().revision());
+                owner.prepareCurrent(ballot);var frozen=MembershipLearnerRetentionSource.read(owner.originalSource());
+                assertArrayEquals(owner.learnerRetentionState().plan().bytes(),frozen.state().plan().bytes());
+                assertEquals(2,frozen.state().revision());
             }
             assertEquals(0,f.resources.usage().leases());
         }

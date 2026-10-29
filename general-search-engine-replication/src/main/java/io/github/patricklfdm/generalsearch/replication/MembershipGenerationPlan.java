@@ -45,6 +45,8 @@ final class MembershipGenerationPlan {
                     byte[] ancestry=files.getOrDefault("ancestry.gsr",new byte[0]);
                     retention.plan.required(capsule,ancestry);capsule.verifyAncestry(ancestry,retention.requiredParents());
                 });
+        if(files.containsKey("selected.gsr"))MembershipSelectedLearnerRetention.find(capsule,decode(files.get("selected.gsr"),"records","SELECTED"),local)
+                .ifPresent(retention->retention.plan.required(capsule,files.getOrDefault("ancestry.gsr",new byte[0])));
         if(files.containsKey(MembershipSelectedSources.FILE))MembershipSelectedSources.parents(files.get(MembershipSelectedSources.FILE),
                 decode(files.get("selected.gsr"),"records","SELECTED"),capsule,files.getOrDefault("ancestry.gsr",new byte[0]));
         if(files.containsKey(MembershipSelectionCoverage.FILE)) {
@@ -224,6 +226,11 @@ final class MembershipGenerationPlan {
     static MembershipGenerationPlan selected(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
             MembershipSelection.Decision decision,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images,Map<String,byte[]> retained,
             MembershipSelectedRetention retention) {
+        return selected(root,local,slot,promise,basis,decision,bridges,images,retained,retention,null);
+    }
+    static MembershipGenerationPlan selected(MembershipRoot root,MembershipIdentity local,String slot,Decoded promise,Decoded basis,
+            MembershipSelection.Decision decision,List<MembershipSelection.Bridge> bridges,Map<String,byte[]> images,Map<String,byte[]> retained,
+            MembershipSelectedRetention retention,MembershipSelectedLearnerRetention learner) {
         require(Set.of("a","b").contains(slot) && bridges.size()<=6,"generation slot/ancestry limit");
         var original=decision.longest().capsule.packet;original.verifyImages(images);
         var objects=MembershipSelectedObjects.prefix(decision.longest().capsule);
@@ -237,6 +244,7 @@ final class MembershipGenerationPlan {
             // Keep each original proof as a separate bounded indexed object.
             objects.putAll(retention.sourceObjects());byte[] bytes=retention.bytes();objects.put(hash(bytes),bytes);
         }
+        if(learner!=null){byte[] bytes=learner.bytes();objects.put(hash(bytes),bytes);}
         String tail=null;
         if(decision.carried()!=null) {
             var carried=decision.carried();tail=carried.accepted.digest();

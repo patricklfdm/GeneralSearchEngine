@@ -1,0 +1,86 @@
+{
+  "acceptedClasses": {
+    "V53LearnerRetentionFilesTest": {
+      "label": "learnerselectionregression",
+      "reportSha256": "19e058ef441234991da25952547f4a71aeac39951957f618c80fc54f323ef7e3",
+      "seconds": 140.608,
+      "tests": 5
+    },
+    "V53LearnerRetentionPlanTest": {
+      "label": "learnerselectionregression",
+      "reportSha256": "434a65c2fdf98633603e91bf61cb2b3cbcd28e7f6db4f91dd3674273ed5fa550",
+      "seconds": 0.967,
+      "tests": 7
+    },
+    "V53LearnerRetentionSourceTest": {
+      "label": "learnerselection",
+      "reportSha256": "fe9a499c307490326a4e948b1a16010dbca4c0c86e98608f65a9dccca8b67fd7",
+      "seconds": 15.025,
+      "tests": 3
+    },
+    "V53PeerRetentionSourceTest": {
+      "label": "learnerselectionregression",
+      "reportSha256": "43c454acdb65855b11638ae149bc4401f4bca305e2681e245f9d8cafa05faab7",
+      "seconds": 161.745,
+      "tests": 5
+    },
+    "V53SelectedLearnerRetentionTest": {
+      "label": "learnerselection",
+      "reportSha256": "34acac5ae94f803a50f0e8569d87b60325d7280fdb545d199bbdacc19ffaf8f3",
+      "seconds": 195.973,
+      "tests": 2
+    },
+    "V53SelectedRetentionTest": {
+      "label": "learnerselectionregression",
+      "reportSha256": "3122e88563dec51073e2637a2e44f178ff96bd381b2e25155854c32b487960ce",
+      "seconds": 97.291,
+      "tests": 4
+    }
+  },
+  "archive": {
+    "bytes": 5940741,
+    "path": "target/v53-learner-retention-selection/originals-and-validation.tar.gz",
+    "sha256": "17770181769a41005ef8792564c77728f35b9a71c8e018acefff1bde326c09ee"
+  },
+  "base": "3d2fb1e7c15799a9ff06e14c649ada3313e51349",
+  "codeAndBuildInputsChecked": 1276,
+  "existingPeerCaptureIndependentNegatives": 9,
+  "existingPeerCaptureProcessCases": 14,
+  "independentLearnerPhysicalQualification": false,
+  "learnerFailureInjection": "synchronous-IOException",
+  "learnerMergeCut": "LEARNER_RETENTION_PREFIX_WRITTEN",
+  "learnerSourceCuts": [
+    "CAPTURE_INTENT_PREFIX_WRITTEN",
+    "SOURCE_PACKET_FORCED",
+    "BASIS_FORCED"
+  ],
+  "nativeLocalHistory": [
+    "BARRIER",
+    "RESERVE",
+    "PREPARE",
+    "BARRIER",
+    "BARRIER",
+    "CANCEL"
+  ],
+  "nativeNetworkCancellationQualified": false,
+  "peerReplaySha256": "73407a76c2fba842bf7aa296b4a38ecbfce50f27ac09654074febcc03ebd4a8a",
+  "pending": [
+    "real quorum ACKs before source exposure",
+    "forced learner-head confirmation/narrowing",
+    "native READY/CANCEL learner recovery",
+    "fresh-process halt/SIGKILL for learner ledger/capture/merge",
+    "independent original-first full evidence qualification",
+    "all profiles and autonomous Phase 3 closure"
+  ],
+  "phase3Complete": false,
+  "productionClassCount": 887,
+  "replicatedExportEnabled": false,
+  "retainedEndpointIndexes": [
+    3,
+    4
+  ],
+  "schema": "gse-v53-learner-retention-selection-v1",
+  "status": "PASS_LOCAL_COMPONENT",
+  "terminalIndex": 6,
+  "uniqueTests": 26
+}

@@ -64,9 +64,11 @@ obligation before exposing the complete original source:
   authority from current API arguments.
 
 The subsequent [local retention component](PHASE_3_LEARNER_RETENTION_LOCAL.md)
-implements bounded local storage and publication renewal. Quorum replication,
-frozen-source propagation and confirmed narrowing are still requirements, not
-implemented export authority. The original A30 failure and its source-bound
+implements bounded local storage and publication renewal. The subsequent
+[frozen-source/selected merge component](PHASE_3_LEARNER_RETENTION_SELECTION.md)
+preserves these obligations across selected installation and interrupted completion.
+Quorum replication and confirmed narrowing remain required before export authority.
+The original A30 failure and its source-bound
 receipt remain unchanged; no new frozen public format is introduced.
 
 ## Deferred complete qualification
