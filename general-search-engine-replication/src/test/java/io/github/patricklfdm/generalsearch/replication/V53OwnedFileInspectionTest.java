@@ -12,6 +12,20 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 
 class V53OwnedFileInspectionTest {
     @TempDir Path temp;
+    @Test void evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles()throws Exception {
+        Path lock=temp.resolve("replica.lock"),data=temp.resolve("payload.bin");byte[] bytes={1,2,3};Files.write(data,bytes);
+        try(var owner=MembershipOwnership.own(lock,true)) {
+            Files.createSymbolicLink(temp.resolve("symbolic-link"),lock);
+            var expected=Map.of("replica.lock",hash(new byte[0]),"symbolic-link",hash(new byte[0]),"payload.bin",hash(bytes));
+            assertEquals(expected,V53ReplayFilesTest.files(temp));new V53MembershipOwnershipTest().probe(lock);
+            Files.createLink(temp.resolve("hard-link"),lock);
+            Files.createLink(temp.resolve("data-link"),data);
+            var linked=new TreeMap<>(expected);linked.put("hard-link",hash(new byte[0]));linked.put("data-link",hash(bytes));
+            assertEquals(linked,V53ReplayFilesTest.files(temp));new V53MembershipOwnershipTest().probe(lock);
+            Files.delete(temp.resolve("hard-link"));Files.delete(temp.resolve("data-link"));
+            assertEquals(expected,V53ReplayFilesTest.files(temp));new V53MembershipOwnershipTest().probe(lock);
+        }
+    }
     @Test void inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock()throws Exception {
         Path path=temp.resolve("replica.lock");var probe=new V53MembershipOwnershipTest();
         try(var owner=MembershipOwnership.own(path,true)) {
@@ -89,6 +103,15 @@ class V53OwnedFileInspectionTest {
             assertThrows(UnsupportedOperationException.class,()->view.map(FileChannel.MapMode.READ_ONLY,0,0));
             assertEquals(0,Files.size(path));new V53MembershipOwnershipTest().probe(path);
         }
+    }
+    @Test void nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor()throws Exception {
+        Path path=temp.resolve("nonempty-transfer");var old=MembershipFileAccess.own(path,true,false,c->{});
+        AdmissionPaths.write(old.channel(),new byte[]{1,2,3});var view=MembershipFileAccess.open(path,StandardOpenOption.READ);
+        try(var next=old.transfer()) {
+            old.close();assertThrows(IllegalArgumentException.class,old::channel);
+            assertThrows(IllegalArgumentException.class,view::size);view.close();
+            assertArrayEquals(new byte[]{1,2,3},AdmissionPaths.read(path,3));new V53MembershipOwnershipTest().probe(path);
+        }finally{view.close();old.close();}
     }
     @Test void custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor()throws Exception {
         Path path=temp.resolve("handoff.lock");var old=MembershipOwnership.own(path,true);

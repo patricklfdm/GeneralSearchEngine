@@ -92,9 +92,9 @@ final class MembershipLearnerVoterStage implements AutoCloseable {
     }
     private void reserve()throws IOException {
         long metadata=files.entrySet().stream().filter(e->!e.getKey().endsWith(".image")).mapToLong(e->e.getValue().length).sum();
-        // Charge the entire dormant metadata copy plus both bounded companions.
+        // Charge dormant metadata, both companions and the custody decision.
         // The learner's already reserved MISC area is not borrowed implicitly.
-        metadata=Math.addExact(metadata,2L*MAXIMUM);var resources=intent.head().resources();
+        metadata=Math.addExact(metadata,2L*MAXIMUM+MembershipLearnerCustody.MAXIMUM);var resources=intent.head().resources();
         leases.add(resources.reserve(MembershipResources.Unit.GENERATION,"learner-voter-stage",metadata));
         for(var file:files.entrySet())if(file.getKey().endsWith(".image"))
             leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"voter:"+file.getKey(),file.getValue().length));
@@ -190,11 +190,15 @@ final class MembershipLearnerVoterStage implements AutoCloseable {
         void check()throws IOException {
             require(complete,"learner voter stage not complete");guard();validatePrefixes();AdmissionPaths.exact(directory.resolve(READY),ready);
         }
+        MembershipLearnerIntent.Forced intent()throws IOException {check();return intent;}
         Path directory()throws IOException {check();return directory;}
         Decoded promise()throws IOException {check();return promise;}
         Decoded allocator()throws IOException {check();return allocator;}
     }
     Ready readyCapability()throws IOException {var result=new Ready();result.check();return result;}
+    void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
+        guard();result.roots.add(directory);result.leases.addAll(leases);
+    }
     boolean closed(){return closed;}
     @Override public synchronized void close(){if(closed)return;closed=true;for(var lease:leases)lease.close();leases.clear();}
 }

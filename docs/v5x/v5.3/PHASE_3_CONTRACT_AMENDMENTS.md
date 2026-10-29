@@ -1,5 +1,20 @@
 # V5.3 Phase 3 contract amendments
 
+## A38 — forced custody of the original prepared learner
+
+[Installation custody](PHASE_3_LEARNER_CUSTODY.md) consumes A37's live stage and
+forces a bounded original path/inode/hash decision before transferring the actual
+locks and storage reservations. Old close operations cannot release the new
+owner's custody. The private decision is at most 256 KiB, charged to the existing
+staged GENERATION together with A37's two 64 KiB companions. Fixed public resource
+ceilings, persistent public records and wire envelopes do not change.
+
+Only complete original decisions can resume under freshly validated typed,
+INTENT and stage owners. Torn decisions and unknown/in-flight resources refuse.
+This does not install the live voter layout, delete predecessors or authorize
+voting. Native minimum-quorum INTENT delivery and complete Phase 3 acceptance
+remain required.
+
 ## A37 — dormant local voter staging from forced matching INTENT
 
 A live A36 owner may create one bounded sibling installation at

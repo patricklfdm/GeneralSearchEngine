@@ -127,7 +127,47 @@ class V53ReplayFilesTest {
         assertEquals(points.size()*2,receipt.size());
     }
     static Map<String,String> files(Path path)throws IOException {
-        var result=new TreeMap<String,String>();try(var stream=Files.walk(path)){for(Path p:stream.filter(Files::isRegularFile).toList())result.put(path.relativize(p).toString(),hash(Files.readAllBytes(p)));}return result;
+        var result=new TreeMap<String,String>();
+        try(var stream=Files.walk(path)) {
+            for(Path p:stream.filter(Files::isRegularFile).toList()) {
+                // This evidence helper keeps its historical content-only link
+                // semantics. Borrow owned descriptors even through aliases:
+                // closing a separate reader can release the process's POSIX lock.
+                Path original=p.toRealPath();
+                if(Files.getFileStore(original).supportsFileAttributeView("unix") && ((Number)Files.getAttribute(original,"unix:nlink")).longValue()>1) {
+                    // Negative fixtures also snapshot forbidden hard links. A
+                    // separate process may inspect them without releasing this
+                    // process's locks or weakening production admission checks.
+                    result.put(path.relativize(p).toString(),linkedHash(original));continue;
+                }
+                try(var channel=MembershipFileAccess.open(original,StandardOpenOption.READ)) {
+                    var digest=java.security.MessageDigest.getInstance("SHA-256");var buffer=java.nio.ByteBuffer.allocate(64*1024);
+                    while(channel.read(buffer)>0){buffer.flip();digest.update(buffer);buffer.clear();}
+                    result.put(path.relativize(p).toString(),HexFormat.of().formatHex(digest.digest()));
+                }catch(java.security.NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}
+            }
+        }
+        return result;
+    }
+    private static String linkedHash(Path path)throws IOException {
+        var child=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData","-cp",
+                System.getProperty("java.class.path"),SnapshotHash.class.getName(),path.toString()).redirectErrorStream(true).start();
+        try {
+            if(!child.waitFor(30,java.util.concurrent.TimeUnit.SECONDS))throw new IOException("linked snapshot reader deadline");
+            String output=new String(child.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
+            if(child.exitValue()!=0 || !output.matches("[0-9a-f]{64}"))throw new IOException("linked snapshot reader: "+output);
+            return output;
+        }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException(error);}
+        finally{if(child.isAlive())child.destroyForcibly();}
+    }
+    public static final class SnapshotHash {
+        public static void main(String[] args)throws Exception {
+            var digest=java.security.MessageDigest.getInstance("SHA-256");
+            try(var input=Files.newInputStream(Path.of(args[0]))) {
+                byte[] buffer=new byte[64*1024];int size;while((size=input.read(buffer))!=-1)digest.update(buffer,0,size);
+            }
+            System.out.print(HexFormat.of().formatHex(digest.digest()));
+        }
     }
     static void snapshot(Path root,String name)throws IOException {
         Path to=root.resolve(name),from=root.resolve("scratch");Files.createDirectory(to);if(!Files.exists(from))return;

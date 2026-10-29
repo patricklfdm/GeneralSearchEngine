@@ -7,6 +7,38 @@ import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipResources.*;
 
 class V53StorageOwnershipTransferTest {
+    @Test void completeCustodyRechecksNewWorkAndExtraStorageAtTransferWithoutRevokingOldHandles() {
+        var resources=new MembershipResources(1024);
+        try(var source=resources.reserve(Unit.SOURCE,"original",10)) {
+            resources.requireCompleteStorage(Set.of(source));
+            for(Unit unit:List.of(Unit.SOURCE,Unit.CONTROL,Unit.WAITER))try(var concurrent=resources.reserve(unit,"new-work",unit==Unit.WAITER?0:1)) {
+                var before=resources.usage();
+                assertThrows(IllegalArgumentException.class,()->resources.transferCompleteStorage(Map.of(source,"successor")));
+                if(unit!=Unit.SOURCE)assertThrows(IllegalArgumentException.class,()->resources.transferCompleteStorage(Map.of(source,"successor",concurrent,"work")));
+                assertEquals(before,resources.usage());
+            }
+            source.reserveStorage(11);var before=resources.usage();
+            var next=resources.transferCompleteStorage(Map.of(source,"successor"));source.close();assertEquals(before,resources.usage());
+            resources.requireCompleteStorage(Set.copyOf(next.values()));next.values().forEach(MembershipResources.Lease::close);
+        }
+        assertEquals(0,resources.usage().leases());
+    }
+    @Test void completeCustodyRefusesUncommittedGenerationClaimEvenWithEveryLease() {
+        var resources=new MembershipResources(1024);
+        try(var learner=resources.reserve(Unit.LEARNER,"original",10)) {
+            resources.requireCompleteStorage(Set.of(learner));
+            try(var pending=learner.prepareGeneration("generation")) {
+                var before=resources.usage();
+                assertThrows(IllegalArgumentException.class,()->resources.requireCompleteStorage(Set.of(learner)));
+                assertThrows(IllegalArgumentException.class,()->resources.transferCompleteStorage(Map.of(learner,"next")));
+                assertEquals(before,resources.usage());pending.commit();
+            }
+            var before=resources.usage();var next=resources.transferCompleteStorage(Map.of(learner,"next"));
+            learner.close();assertEquals(before,resources.usage());assertEquals(1,resources.usage().counts().get(Unit.GENERATION));
+            next.values().forEach(MembershipResources.Lease::close);
+        }
+        assertEquals(0,resources.usage().leases());
+    }
     @Test void everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte() {
         var resources=new MembershipResources(1024*MIB);var requests=new LinkedHashMap<MembershipResources.Lease,String>();
         for(Unit unit:List.of(Unit.GENERATION,Unit.SOURCE,Unit.LEARNER,Unit.JOURNAL,Unit.CATALOG,Unit.MISC,Unit.APPLICATION))

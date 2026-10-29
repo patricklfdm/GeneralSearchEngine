@@ -331,6 +331,15 @@ final class MembershipLearnerStore implements AutoCloseable {
             MembershipLearnerDisposition.requireAbsent(MembershipLearnerCancellation.directory(plan.summary()),MembershipLearnerDisposition.Kind.CANCEL);intent=value;
         }
     }
+    void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
+        check();require(complete && intent!=null && !intent.closed(),"learner custody needs matching INTENT");
+        result.roots.add(path);owner.collectCustody(result);operation.collectCustody(result);
+        result.leases.addAll(leases);for(var value:received.values())value.collectCustody(result);
+        if(typed!=null)typed.collectCustody(result);
+        if(successor!=null)successor.collectCustody(result);
+        if(slot!=null)slot.collectCustody(result);
+        intent.collectCustody(result);
+    }
     @Override public void close()throws IOException {
         if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(intent);children.add(cancellation);children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
         children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));

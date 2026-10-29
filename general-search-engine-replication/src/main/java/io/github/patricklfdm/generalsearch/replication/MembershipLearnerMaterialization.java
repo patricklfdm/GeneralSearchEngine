@@ -256,6 +256,9 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
             AdmissionPaths.disjoint(all);
         }
     }
+    void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
+        result.roots.add(directory);if(!closed && lock!=null)lock.collectCustody(result);
+    }
     boolean closed(){return closed;}
     @Override public void close()throws IOException {
         if(closed)return;closed=true;if(lock!=null)lock.close();

@@ -1,5 +1,10 @@
 # Dormant voter installation for a joining learner
 
+The subsequent [custody transaction](PHASE_3_LEARNER_CUSTODY.md) now consumes the
+live Ready capability. The stage also reserves its 256 KiB ownership decision
+within the same GENERATION charge; the public count/size limits stay unchanged.
+Actual original-path voter installation remains separate.
+
 Phase 3 remains **OPEN**. `MembershipLearnerVoterStage` adds durable installation
 bytes for the next ownership-handoff step. It does not open a voting journal,
 allocate a campaign, acknowledge a vote, change the live replica selector,

@@ -470,6 +470,11 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
         @Override public Optional<byte[]> coverage(){return Optional.ofNullable(files.get(MembershipSelectionCoverage.FILE)).map(byte[]::clone);}
         @Override public Decoded record(String name,String kind){return decode(Objects.requireNonNull(files.get(name)),"records",kind);}
     }
+    void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
+        result.roots.add(directory);if(closed)return;
+        lock.collectCustody(result);result.leases.addAll(leases);for(var value:received.values())value.collectCustody(result);
+        if(typed!=null)typed.collectCustody(result);
+    }
     @Override public void close()throws IOException {
         if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(typed);children.addAll(received.values());children.addAll(leases);children.add(lock);
         MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));

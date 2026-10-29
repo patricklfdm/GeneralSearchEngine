@@ -36,12 +36,19 @@ final class MembershipFileAccess {
         if(OWNED.containsKey(key) || OPEN.containsKey(key))throw new ReplicationException(ReplicationException.Reason.STORAGE_FAILURE,"membership file has an existing owner or open view");
     }
     static final class Owned implements AutoCloseable {
-        private final Object key;private final AdmissionPaths.Owner owner;
+        private final Object key;private final AdmissionPaths.Owner owner;private boolean transferred;
         private Owned(Object key,AdmissionPaths.Owner owner){this.key=key;this.owner=owner;}
-        FileChannel channel(){return owner.channel();}
-        FileLock lock(){return owner.lock();}
+        FileChannel channel(){synchronized(MembershipFileAccess.class){require(!transferred,"file custody transferred");return owner.channel();}}
+        FileLock lock(){synchronized(MembershipFileAccess.class){require(!transferred,"file custody transferred");return owner.lock();}}
+        Owned transfer() {
+            synchronized(MembershipFileAccess.class) {
+                require(!transferred && OWNED.get(key)==this && owner.channel().isOpen() && owner.lock().isValid(),"file custody unavailable");
+                var next=new Owned(key,owner);OWNED.put(key,next);transferred=true;return next;
+            }
+        }
         @Override public void close()throws IOException {
             synchronized(MembershipFileAccess.class) {
+                if(transferred)return;
                 try{owner.close();}finally{if(!owner.channel().isOpen())OWNED.remove(key,this);}
             }
         }

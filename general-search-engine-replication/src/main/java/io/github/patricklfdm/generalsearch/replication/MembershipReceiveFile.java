@@ -125,6 +125,9 @@ final class MembershipReceiveFile implements AutoCloseable {
             require(!closed && owner.lock().isValid(),"retained receive owner closed");
             require(key.equals(MembershipBasisSources.inspect(path,bytes,digest).key()),"retained receive original inode changed");
         }
+        void collectCustody(MembershipLearnerCustody.Collected result) {
+            require(!closed && owner.lock().isValid(),"learner custody receive owner closed");result.files.add(owner);result.leases.add(lease);
+        }
         MembershipResources.GenerationClaim prepareGeneration(Path path,String name)throws IOException {
             check(path);return lease.prepareGeneration(name);
         }

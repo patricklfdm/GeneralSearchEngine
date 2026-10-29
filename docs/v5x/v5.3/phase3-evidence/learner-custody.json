@@ -1,0 +1,1086 @@
+{
+  "actualOwnerGraphTransfer": true,
+  "archive": {
+    "bytes": 28211423,
+    "path": "target/v53-learner-custody/component-validation.tar.gz",
+    "sha256": "3f3a7f6b83cebdb5c05c9afc117951b2bb62447e60affaab92a88bbc2e407975"
+  },
+  "baseCommit": "6b2a36e4e20c9bb853de08ec6f211588041a2443",
+  "codeAndBuildInputsChecked": 1708,
+  "completeResourceGroupChecked": true,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1408,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "correctedAffectedCaseAndInspectionTestsPassed": true,
+  "currentSourceSnapshot": "learnercustodyhelpercomplete",
+  "developmentFailures": {
+    "learnercustodyactual": "five custody cases stopped at invalid JSON keys in path-keyed inventory; use sorted entry values",
+    "learnercustodyhelperred": "one deterministic test reproduced the snapshot helper releasing a held kernel lock",
+    "learnercustodyinspection": "first snapshot correction rejected existing hard-link negative specimens; isolated child reads now preserve content hashing",
+    "learnercustodymatrix": "cold slot test used the content-snapshot helper which opened/closed a second lock descriptor before transfer",
+    "learnercustodyresources": "new test incorrectly requested zero-byte SOURCE/CONTROL; fixture corrected, resource limits unchanged"
+  },
+  "finalProductionDistinctCases": 41,
+  "firstSelectedSlotColdOwnerChecked": true,
+  "fullMatrixRerunAfterTestHelperCorrection": false,
+  "fullMembershipProcessDeathQualified": false,
+  "identicalFinalProductionFiles": 912,
+  "independentJvmLockProbes": true,
+  "initialAndPromotedLearnerChecked": true,
+  "joinedVoterAdmissionImplemented": false,
+  "learnerVotingEnabled": false,
+  "nativeJointHistoryQualified": false,
+  "originalDecisionForcedBeforeRevocation": true,
+  "originalMatrixConclusion": "FAIL",
+  "payloadInstallationImplemented": false,
+  "pending": [
+    "original staged payload moves and cold recovery",
+    "native joined admission and covered predecessor retirement",
+    "native old-majority INTENT before joint checkpointing",
+    "joint FINAL and fresh barrier",
+    "complete all-profile alternating/native physical-history and process-death qualification"
+  ],
+  "phase3Complete": false,
+  "publicFormatsChanged": false,
+  "pythonTests": 1,
+  "reports": {
+    "learnercustodyactual": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCustodyTest": {
+        "cases": [
+          {
+            "name": "originalForcedDecisionRecoversBeforeAndAfterInMemoryTransfer",
+            "seconds": 25.96,
+            "status": "FAIL"
+          },
+          {
+            "name": "tornDecisionAndLastBoundaryCorruptionNeverRevokeOriginalCustody",
+            "seconds": 26.542,
+            "status": "FAIL"
+          },
+          {
+            "name": "foreignStorageOrInflightWorkRefusesBeforeDecisionAndLeavesHeadLive",
+            "seconds": 27.368,
+            "status": "FAIL"
+          },
+          {
+            "name": "initialHeadTransfersEveryRealLockAndLeaseWithoutOldCloseReleasingThem",
+            "seconds": 26.832,
+            "status": "FAIL"
+          },
+          {
+            "name": "promotedHeadTransfersCurrentAndRetainedOwnersWithoutThirdGeneration",
+            "seconds": 270.578,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "e79bddf53a803a86289cbce13122f66900492c1d3bb3abbf7820852da2248ad3"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": {
+        "cases": [
+          {
+            "name": "renamedInodeAndRepeatedRequestsDoNotOpenAnotherChannel",
+            "seconds": 0.095,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicatePlanOpenDoesNotReleaseTheExternalLock",
+            "seconds": 0.462,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicateAllocatorOpenDoesNotReleaseTheExternalLockAndCloseAllowsReopen",
+            "seconds": 0.116,
+            "status": "PASS"
+          },
+          {
+            "name": "failedOpenDoesNotLeaveARegistrationAndDifferentInodesCanBeOwned",
+            "seconds": 0.06,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "fc470ada9bb6c27081f9e31aefe96a5a038971ab594d42122f43bec2c85e99b5"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "replacedOrAliasedPathCannotTransferAndFailedAttemptKeepsTheOriginalLock",
+            "seconds": 0.126,
+            "status": "PASS"
+          },
+          {
+            "name": "transferVersusCloseEitherRevokesTheSourceOrClosesItWithoutAnOrphan",
+            "seconds": 0.15,
+            "status": "PASS"
+          },
+          {
+            "name": "sameDescriptorAndKernelLockSurviveTransferAndAllStaleCloses",
+            "seconds": 0.628,
+            "status": "PASS"
+          },
+          {
+            "name": "concurrentTransfersHaveOneSuccessorAndDoNotReleaseKernelOwnership",
+            "seconds": 0.062,
+            "status": "PASS"
+          },
+          {
+            "name": "killingTransferredOwnerReleasesTheOriginalInodeForColdRecovery",
+            "seconds": 0.14,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyOrReleasedLockCannotTransferAndFailureDoesNotCloseTheChannel",
+            "seconds": 0.107,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e91934f0de0763a0c37b06b593b804ea55ea6a8e91269e82a7905f73e0baf083"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.052,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.174,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.033,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.06,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.028,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.058,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.033,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "497d650309b08d226ce9a75007fdf35aeda4332a77aa71e1dbdf6442c67a7c3c"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": {
+        "cases": [
+          {
+            "name": "retryKeepsOriginalBytesDeadlineAndThreeTotalAttempts",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "partialStorageGrowthKeepsItsCountAndCannotSpendCompletionHeadroom",
+            "seconds": 0.013,
+            "status": "PASS"
+          },
+          {
+            "name": "completeDigestSemanticOrSinkFailureNeverBecomesVerifiedOrSilentlyReleasesOwnedBytes",
+            "seconds": 0.023,
+            "status": "PASS"
+          },
+          {
+            "name": "completeMetadataEnvelopeIncludesEveryCopyAndCompletionHeadroom",
+            "seconds": 0.005,
+            "status": "PASS"
+          },
+          {
+            "name": "stagingCountsMetadataAndApplicationTogetherAndQueueIsGlobal",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "transferIsBoundBeforeAnyWriteAndDuplicateAcknowledgementDoesNotDuplicateBytes",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "lifetimeExhaustionBlocksNewMembershipButNotOrdinaryReservations",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "changedOriginalBasisCutSourceAndCapacityRejectBeforeSinkUse",
+            "seconds": 0.004,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "a96131399dbb96cc187a60feb794e11da3c0542b6281c505a10480ea0599df27"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.007,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.007,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "6f0396f89b95e56fc3eda425f08afa880619e7c418a5519e4b95c8b0da3e7bc0"
+      }
+    },
+    "learnercustodyencoding": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCustodyTest": {
+        "cases": [
+          {
+            "name": "initialHeadTransfersEveryRealLockAndLeaseWithoutOldCloseReleasingThem",
+            "seconds": 27.948,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "6d3510b38bb210fcacc0e0432ade7d12e36f84fe8c26739602a0f4dd1e22acfd"
+      }
+    },
+    "learnercustodyhelpercomplete": {
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.113,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.179,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.035,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.035,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.04,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.091,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.027,
+            "status": "PASS"
+          },
+          {
+            "name": "evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles",
+            "seconds": 0.32,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.058,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.027,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "ed9b564c033f7c4c66fecef87b788594a4ece668380984014671b57350f6d3ca"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.042,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRefusesUncommittedGenerationClaimEvenWithEveryLease",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRechecksNewWorkAndExtraStorageAtTransferWithoutRevokingOldHandles",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.013,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "0176090fa74aa31737f93feac1071c78c8e6b6563d4d0d941dbba66e17a3c04c"
+      }
+    },
+    "learnercustodyhelperfixed": {
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.654,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.179,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.069,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.06,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.051,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 1.575,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.026,
+            "status": "PASS"
+          },
+          {
+            "name": "evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles",
+            "seconds": 0.091,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.067,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.027,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "2d5cd61e0423cc08c8206703e7ac9ad23dc2b14ea01530c0a47ca45297f0a6b6"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.045,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRefusesUncommittedGenerationClaimEvenWithEveryLease",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRechecksNewWorkAndExtraStorageAtTransferWithoutRevokingOldHandles",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.016,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "6b0a852869d8313f0b6a5b463adc59b861cffbd478be6ccedd775d061bb55e19"
+      }
+    },
+    "learnercustodyhelperred": {
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles",
+            "seconds": 0.101,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "3717bd92a119629d4d39e8afd444cb408666da9e933b6dac652d104f2ca480a5"
+      }
+    },
+    "learnercustodyinspection": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCustodyTest": {
+        "cases": [
+          {
+            "name": "selectedSlotColdOwnerTransfersSeedAndTypedLocksWithoutRecreatingRetiredFiles",
+            "seconds": 287.63,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "18cf5858f725620e2130b6921dfe3412045933cd0a9382a8f954cb8e009e312c"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.102,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.167,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.034,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.059,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.029,
+            "status": "PASS"
+          },
+          {
+            "name": "evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles",
+            "seconds": 0.01,
+            "status": "FAIL"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.055,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.03,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "8c51099d56a6ba17a87395ecd958747e13cbe6bb205a5c08024c0533b96b230f"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.037,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRefusesUncommittedGenerationClaimEvenWithEveryLease",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRechecksNewWorkAndExtraStorageAtTransferWithoutRevokingOldHandles",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.012,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.001,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "9b2ab438cd636f79d326607149cdf3b5c55cae1e19fe3d4e8f197538f78c38e7"
+      }
+    },
+    "learnercustodymatrix": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCustodyTest": {
+        "cases": [
+          {
+            "name": "originalForcedDecisionRecoversBeforeAndAfterInMemoryTransfer",
+            "seconds": 41.205,
+            "status": "PASS"
+          },
+          {
+            "name": "tornDecisionAndLastBoundaryCorruptionNeverRevokeOriginalCustody",
+            "seconds": 56.079,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignStorageOrInflightWorkRefusesBeforeDecisionAndLeavesHeadLive",
+            "seconds": 28.202,
+            "status": "PASS"
+          },
+          {
+            "name": "selectedSlotColdOwnerTransfersSeedAndTypedLocksWithoutRecreatingRetiredFiles",
+            "seconds": 280.753,
+            "status": "FAIL"
+          },
+          {
+            "name": "initialHeadTransfersEveryRealLockAndLeaseWithoutOldCloseReleasingThem",
+            "seconds": 26.828,
+            "status": "PASS"
+          },
+          {
+            "name": "promotedHeadTransfersCurrentAndRetainedOwnersWithoutThirdGeneration",
+            "seconds": 270.172,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "c5ce810a845d408c5f3db94c048676135074a37ab2662c2c1aaca6f2f817153f"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": {
+        "cases": [
+          {
+            "name": "renamedInodeAndRepeatedRequestsDoNotOpenAnotherChannel",
+            "seconds": 0.079,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicatePlanOpenDoesNotReleaseTheExternalLock",
+            "seconds": 0.393,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicateAllocatorOpenDoesNotReleaseTheExternalLockAndCloseAllowsReopen",
+            "seconds": 0.102,
+            "status": "PASS"
+          },
+          {
+            "name": "failedOpenDoesNotLeaveARegistrationAndDifferentInodesCanBeOwned",
+            "seconds": 0.053,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "c2fb93d3d0e18baef54a28799db26e8fa98cc067be08033f6f08425477eaa615"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "replacedOrAliasedPathCannotTransferAndFailedAttemptKeepsTheOriginalLock",
+            "seconds": 0.119,
+            "status": "PASS"
+          },
+          {
+            "name": "transferVersusCloseEitherRevokesTheSourceOrClosesItWithoutAnOrphan",
+            "seconds": 0.144,
+            "status": "PASS"
+          },
+          {
+            "name": "sameDescriptorAndKernelLockSurviveTransferAndAllStaleCloses",
+            "seconds": 0.657,
+            "status": "PASS"
+          },
+          {
+            "name": "concurrentTransfersHaveOneSuccessorAndDoNotReleaseKernelOwnership",
+            "seconds": 0.058,
+            "status": "PASS"
+          },
+          {
+            "name": "killingTransferredOwnerReleasesTheOriginalInodeForColdRecovery",
+            "seconds": 0.089,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyOrReleasedLockCannotTransferAndFailureDoesNotCloseTheChannel",
+            "seconds": 0.089,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "4029dc55a7b143fb23edf0702e54f4d7603dedc8a3360a2afbcc1d3862f76fe2"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.054,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.166,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.055,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyDescriptorCustodyRevokesOldViewsAndTheirCloseCannotUnlockSuccessor",
+            "seconds": 0.026,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.054,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.027,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "0ee51fa2c52a2773fbd906f717ffc3153fc100711d4524c64243f7d680013aa5"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": {
+        "cases": [
+          {
+            "name": "retryKeepsOriginalBytesDeadlineAndThreeTotalAttempts",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "partialStorageGrowthKeepsItsCountAndCannotSpendCompletionHeadroom",
+            "seconds": 0.011,
+            "status": "PASS"
+          },
+          {
+            "name": "completeDigestSemanticOrSinkFailureNeverBecomesVerifiedOrSilentlyReleasesOwnedBytes",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "completeMetadataEnvelopeIncludesEveryCopyAndCompletionHeadroom",
+            "seconds": 0.004,
+            "status": "PASS"
+          },
+          {
+            "name": "stagingCountsMetadataAndApplicationTogetherAndQueueIsGlobal",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "transferIsBoundBeforeAnyWriteAndDuplicateAcknowledgementDoesNotDuplicateBytes",
+            "seconds": 0.004,
+            "status": "PASS"
+          },
+          {
+            "name": "lifetimeExhaustionBlocksNewMembershipButNotOrdinaryReservations",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "changedOriginalBasisCutSourceAndCapacityRejectBeforeSinkUse",
+            "seconds": 0.004,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "aafebe64bb0652c9ef0ffcee86424fd355e41b43e3efb99ce4549c6e75f0f1c6"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.004,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.008,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "b25a67e06439fdb0815784ea411c9d5fa7e6bd4ab4156b773b169acc479c2cc2"
+      }
+    },
+    "learnercustodyresources": {
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.041,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRefusesUncommittedGenerationClaimEvenWithEveryLease",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRechecksNewWorkAndExtraStorageAtTransferWithoutRevokingOldHandles",
+            "seconds": 0.005,
+            "status": "FAIL"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.012,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "30e3e6771874a9aca3b6824f9f4285d70882827854d6fd9c375816dfdcc038c3"
+      }
+    },
+    "learnercustodyresourcesfixed": {
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.042,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRefusesUncommittedGenerationClaimEvenWithEveryLease",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "completeCustodyRechecksNewWorkAndExtraStorageAtTransferWithoutRevokingOldHandles",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.012,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.001,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "d3c3d338fac24ab54beac72190af6b4a1cd88d2a786230206465c3572be25a1c"
+      }
+    }
+  },
+  "runs": {
+    "learnercustodyactual": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCustodyTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 5
+      },
+      "exit": 1,
+      "failures": 5,
+      "label": "learnercustodyactual",
+      "requestedTests": [
+        "V53OwnedFileInspectionTest",
+        "V53MembershipOwnershipTest",
+        "V53MembershipOwnershipTransferTest",
+        "V53StorageOwnershipTransferTest",
+        "V53ResourceTransferTest",
+        "V53LearnerCustodyTest"
+      ],
+      "seconds": 382.060860753998,
+      "skipped": 0,
+      "tests": 37
+    },
+    "learnercustodyencoding": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCustodyTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "learnercustodyencoding",
+      "requestedTests": [
+        "V53LearnerCustodyTest#initialHeadTransfersEveryRealLockAndLeaseWithoutOldCloseReleasingThem"
+      ],
+      "seconds": 40.237754442998266,
+      "skipped": 0,
+      "tests": 1
+    },
+    "learnercustodyhelpercomplete": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "learnercustodyhelpercomplete",
+      "requestedTests": [
+        "V53OwnedFileInspectionTest",
+        "V53StorageOwnershipTransferTest"
+      ],
+      "seconds": 14.392539641004987,
+      "skipped": 0,
+      "tests": 17
+    },
+    "learnercustodyhelperfixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "learnercustodyhelperfixed",
+      "requestedTests": [
+        "V53OwnedFileInspectionTest",
+        "V53StorageOwnershipTransferTest"
+      ],
+      "seconds": 14.244575497999904,
+      "skipped": 0,
+      "tests": 17
+    },
+    "learnercustodyhelperred": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "learnercustodyhelperred",
+      "requestedTests": [
+        "V53OwnedFileInspectionTest#evidenceSnapshotsPreserveLocksAndHashAliasedAndOrdinaryFiles"
+      ],
+      "seconds": 14.895486941000854,
+      "skipped": 0,
+      "tests": 1
+    },
+    "learnercustodyinspection": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCustodyTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 7
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "learnercustodyinspection",
+      "requestedTests": [
+        "V53OwnedFileInspectionTest",
+        "V53StorageOwnershipTransferTest",
+        "V53LearnerCustodyTest#selectedSlotColdOwnerTransfersSeedAndTypedLocksWithoutRecreatingRetiredFiles"
+      ],
+      "seconds": 288.91361676300585,
+      "skipped": 0,
+      "tests": 18
+    },
+    "learnercustodymatrix": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCustodyTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 5
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "learnercustodymatrix",
+      "requestedTests": [
+        "V53OwnedFileInspectionTest",
+        "V53MembershipOwnershipTest",
+        "V53MembershipOwnershipTransferTest",
+        "V53StorageOwnershipTransferTest",
+        "V53ResourceTransferTest",
+        "V53LearnerCustodyTest"
+      ],
+      "seconds": 683.6726862559954,
+      "skipped": 0,
+      "tests": 38
+    },
+    "learnercustodyresources": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 7
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "learnercustodyresources",
+      "requestedTests": [
+        "V53StorageOwnershipTransferTest"
+      ],
+      "seconds": 13.341812444996322,
+      "skipped": 0,
+      "tests": 7
+    },
+    "learnercustodyresourcesfixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "learnercustodyresourcesfixed",
+      "requestedTests": [
+        "V53StorageOwnershipTransferTest"
+      ],
+      "seconds": 13.491559986003267,
+      "skipped": 0,
+      "tests": 7
+    }
+  },
+  "sameOriginalColdRecoveryChecked": true,
+  "schema": "gse-v53-learner-custody-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFileAccess.java": "2f85e38d87f5aefb5232b001158151d298922620716569aef41dfadd01b92df0",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerAdmissionFiles.java": "3452e16f4e1f6f9468e53ca6c4e52b61f5fe70f38825882c2de9a46403ecc6ba",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCustody.java": "d109c3bdc23baa38738b641f7033249e20e81fda630af8db6fb66be295655c98",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "b7af9e1a4d6e330706693f6cc1356738d704b56708c7ce6839ff7c0954d60b73",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerMaterialization.java": "0a8c9558f3241bcc07388c3e3bba206187e3360801dd91bfcbbb2c00009ee4bd",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSeed.java": "4cb97c77780ac22b5b819f5700c9748d38a88133bcba9a201053284505f6d04d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSlot.java": "de97cc02da068a2e492898a83f123647008f1c972fe5cc2f02fea91b9ebd9c11",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java": "d671b35c84d800e3691416a7fb3474ee917a1be8d67c6f3d3fd51d61aeea39f8",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSuccessor.java": "bbee2033a761a2f7294d6025648b8328e7c9d1c610e936e1987be4c7361c4fae",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerVoterStage.java": "412ebc3609f928f1996ab66d0b84c1b8f86220819a627b5d5ae09fb27dc348c2",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipOwnership.java": "70be19cb4f47b752ead433024479b0d43d6345e29e9671f63d8ca2b32c1282b6",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReceiveFile.java": "d01797c6595c90826e614c18a36df4c867688a238d3dba454d8e8921527d297d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "d5817a1a97ff4ab7aa0cc77869bef3d54088a972595a6f751627eb206eb241ea",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCustodyTest.java": "b6e4baf8e7abc89514a82a6f7965b4de17ae875c225dde2f28f3f2ff660c319a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedFileInspectionTest.java": "5ba853494bec2bcc24cc01b38b8913d45774e137c6b433eca7170cd23923dde7",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ReplayFilesTest.java": "0abb72b463d182c9d4ffbd5d47170a7bc21c865cc2dc6426a63eccc2bb92b43d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53StorageOwnershipTransferTest.java": "7d685182219588207187b36867eb48c1a259bcbd65b5b56aa008941876f2dae3"
+  },
+  "status": "PASS_LEARNER_CUSTODY_COMPONENTS",
+  "unexecutedDraftSnapshots": [
+    "learnercustodycompile",
+    "learnercustodyfirst",
+    "learnercustodyhelperfidelity"
+  ]
+}

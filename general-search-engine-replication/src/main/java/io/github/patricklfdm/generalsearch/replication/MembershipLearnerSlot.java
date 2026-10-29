@@ -744,6 +744,11 @@ final class MembershipLearnerSlot implements AutoCloseable {
             check();if(typedImage==null){typedImage=parent.resources().reserve(MembershipResources.Unit.APPLICATION,"learner-slot-"+slot+"-typed",MembershipApplicationImage.MAXIMUM);leases.add(typedImage);}
         }
         private MembershipLearnerSlot owner(){return MembershipLearnerSlot.this;}
+        void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
+            result.roots.add(typedDirectory);if(released)return;
+            result.leases.addAll(leases);for(var value:received.values())value.collectCustody(result);
+            if(typed!=null)typed.collectCustody(result);
+        }
         @Override public void close()throws IOException {
             var children=new ArrayList<AutoCloseable>();children.add(typed);children.addAll(received.values());children.addAll(leases);
             MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
@@ -804,6 +809,11 @@ final class MembershipLearnerSlot implements AutoCloseable {
             all.add(MembershipLearnerMaterialization.directory(summary));all.add(summary.request().operationDirectory());all.add(summary.request().replicaDirectory());
             AdmissionPaths.disjoint(all);
         }
+    }
+    void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
+        result.roots.add(directory);if(closed)return;
+        lock.collectCustody(result);if(seed!=null)seed.collectCustody(result);
+        if(image!=null)image.collectCustody(result);if(pending!=null)pending.collectCustody(result);if(retiring!=null)retiring.collectCustody(result);
     }
     @Override public void close()throws IOException {
         if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(pending);children.add(retiring);children.add(image);children.add(seed);children.add(lock);

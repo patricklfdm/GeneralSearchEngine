@@ -63,6 +63,14 @@ final class MembershipResources {
                 && joining>=0 && joining<=1 && joining<=512-identities,"membership lifetime capacity");
         require(HEADROOM-protectedUsed<=metadataLimit-metadata,"completion headroom");
     }
+    synchronized void requireCompleteStorage(Set<Lease> expected) {
+        require(generationClaims.isEmpty() && expected.equals(new HashSet<>(leases.values()))
+                && leases.keySet().stream().noneMatch(k->k.unit==Unit.CONTROL || k.unit==Unit.WAITER),
+                "learner custody requires every original storage lease and no pending work");
+    }
+    synchronized Map<Lease,Lease> transferCompleteStorage(Map<Lease,String> requested) {
+        requireCompleteStorage(requested.keySet());return transferStorage(requested);
+    }
     /** Transfer a quiesced owner's exact storage reservations without an
      * uncharged interval or a duplicate physical-copy allowance. The caller
      * must retain the matching files and move their ownership separately.

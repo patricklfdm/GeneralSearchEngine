@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Forced learner custody](PHASE_3_LEARNER_CUSTODY.md) now transfers the actual
+prepared learner's locks and complete storage group after forcing an original
+handoff decision, then revokes the old object graph. Original payload installation,
+joined admission and native joint voting remain **OPEN**.
+
 [Inspection-safe descriptor custody](PHASE_3_FILE_CUSTODY.md) corrects a reproduced
 POSIX lock loss during hash/read/force operations. V5.3 owned files now reuse the
 original descriptor; separate JVMs check actual exclusion. Earlier passing

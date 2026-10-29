@@ -35,6 +35,9 @@ final class MembershipOwnership implements AutoCloseable {
     }
     FileChannel channel(){synchronized(MembershipOwnership.class){active();return owner.channel();}}
     FileLock lock(){synchronized(MembershipOwnership.class){active();return owner.lock();}}
+    void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
+        synchronized(MembershipOwnership.class){if(!closed){active();result.locks.add(this);}}
+    }
     /** Move exclusive custody without opening/closing a descriptor or releasing
      * the POSIX lock. Old handles, including their later close(), are revoked.
      * This supplies no voting, admission, deletion or path-mutation authority;

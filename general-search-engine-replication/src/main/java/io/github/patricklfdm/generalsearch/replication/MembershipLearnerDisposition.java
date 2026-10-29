@@ -246,6 +246,11 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     synchronized void attachVoterStage(MembershipLearnerVoterStage stage)throws IOException {
         guardIntent();require(voterStage==null || voterStage.closed(),"learner voter stage already owned");voterStage=stage;
     }
+    void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
+        guardIntent();result.roots.add(directory);result.leases.addAll(leases);
+        for(var value:retained.values())value.collectCustody(result);
+        require(voterStage!=null && !voterStage.closed(),"learner custody needs live staged voter");voterStage.collectCustody(result);
+    }
     boolean closed(){return closed;}
     @Override public synchronized void close()throws IOException {
         if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();if(voterStage!=null)children.add(voterStage);children.addAll(retained.values());children.addAll(leases);

@@ -124,6 +124,9 @@ final class MembershipLearnerAdmissionFiles implements AutoCloseable {
             point("LEARNER_PLAN_BEFORE_RETURN");
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
+    void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
+        check();result.roots.add(directory);owner.collectCustody(result);result.leases.add(lease);
+    }
     void reserveAdmission()throws IOException {check();lease.reserveMisc(MembershipResources.Unit.MISC.bytes);}
     MembershipResources.Lease reserveTypedImage(long bytes)throws IOException {
         check();require(replicaAllowed && retention!=null,"typed learner requires retained admission");reserveAdmission();
