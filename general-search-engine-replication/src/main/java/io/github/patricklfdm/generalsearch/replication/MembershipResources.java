@@ -19,7 +19,7 @@ final class MembershipResources {
     }
     record Usage(long metadata,long staging,long queued,int leases,Map<Unit,Integer> counts) {}
     private record Key(Unit unit,String owner) {}
-    private final Map<Key,Lease> leases=new HashMap<>();
+    private Map<Key,Lease> leases=new HashMap<>();
     private final Set<GenerationClaim> generationClaims=new HashSet<>();
     private final long metadataLimit, stagingLimit, queueLimit;
     private long metadata, staging, queued, protectedUsed;
@@ -62,6 +62,32 @@ final class MembershipResources {
         require(changes>=0 && changes<256 && identities>=3 && identities<=512 && results>=0 && results<64
                 && joining>=0 && joining<=1 && joining<=512-identities,"membership lifetime capacity");
         require(HEADROOM-protectedUsed<=metadataLimit-metadata,"completion headroom");
+    }
+    /** Transfer a quiesced owner's exact storage reservations without an
+     * uncharged interval or a duplicate physical-copy allowance. The caller
+     * must retain the matching files and move their ownership separately.
+     * No category, extent, generation selection or deletion authority changes. */
+    synchronized Map<Lease,Lease> transferStorage(Map<Lease,String> requested) {
+        Objects.requireNonNull(requested);require(!requested.isEmpty() && requested.size()<=32,"storage transfer count");
+        var original=new LinkedHashMap<>(requested);var sources=new HashSet<Key>();var targets=new HashSet<Key>();
+        for(var row:original.entrySet()) {
+            var lease=Objects.requireNonNull(row.getKey());String name=row.getValue();
+            require(!lease.released && leases.get(lease.key)==lease && lease.key.unit!=Unit.CONTROL && lease.key.unit!=Unit.WAITER,
+                    "storage transfer requires original storage lease");
+            require(name!=null && !name.isEmpty() && name.length()<=128,"storage transfer owner name");
+            require(sources.add(lease.key) && targets.add(new Key(lease.key.unit,name)),"storage transfer duplicate target");
+            require(generationClaims.stream().noneMatch(c->c.source==lease),"storage transfer has pending generation claim");
+        }
+        for(var target:targets)require((!leases.containsKey(target) || sources.contains(target))
+                && generationClaims.stream().noneMatch(c->c.target.equals(target)),"storage transfer target occupied");
+        // Allocate all successor handles before revoking any predecessor.
+        var result=new LinkedHashMap<Lease,Lease>();
+        original.forEach((lease,name)->result.put(lease,new Lease(new Key(lease.key.unit,name),lease.bytes)));
+        var immutable=Collections.unmodifiableMap(result);
+        var nextLeases=new HashMap<>(leases);for(var lease:original.keySet())nextLeases.remove(lease.key);
+        for(var next:result.values())nextLeases.put(next.key,next);
+        leases=nextLeases;for(var lease:original.keySet())lease.released=true;
+        return immutable;
     }
     final class Lease implements AutoCloseable {
         private Key key; private long bytes; private boolean released;

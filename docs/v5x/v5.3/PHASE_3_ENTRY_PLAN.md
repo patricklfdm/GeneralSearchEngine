@@ -6,6 +6,9 @@ local certificate fence, allocator and generation without copying the peer's
 BASIS/SELECTED authority. Explicit recovery checks original prefixes and the
 completed inode seal. Native voter ownership takeover, minimum-quorum INTENT
 delivery and complete Phase 3 acceptance remain **OPEN**.
+[Atomic ownership prerequisites](PHASE_3_OWNERSHIP_TRANSFER.md) now preserve the
+actual lock descriptor and storage accounting while revoking old handles; the
+full joined-voter transaction still needs to consume them.
 
 [Matching INTENT retention](PHASE_3_LEARNER_INTENT.md) now binds a complete
 certified source to the actual forced typed receipt and preparation revision,

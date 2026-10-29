@@ -29,8 +29,26 @@ final class MembershipOwnership implements AutoCloseable {
         }catch(IOException|RuntimeException|Error error){try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     private static ReplicationException occupied(){return new ReplicationException(ReplicationException.Reason.STORAGE_FAILURE,"membership authority already owned in this process");}
-    FileChannel channel(){return owner.channel();}
-    FileLock lock(){return owner.lock();}
+    private void active() {
+        MembershipValidation.require(!closed && owner.channel().isOpen() && owner.lock().isValid()
+                && PATHS.contains(path) && INODES.contains(inode),"membership ownership closed or transferred");
+    }
+    FileChannel channel(){synchronized(MembershipOwnership.class){active();return owner.channel();}}
+    FileLock lock(){synchronized(MembershipOwnership.class){active();return owner.lock();}}
+    /** Move exclusive custody without opening/closing a descriptor or releasing
+     * the POSIX lock. Old handles, including their later close(), are revoked.
+     * This supplies no voting, admission, deletion or path-mutation authority;
+     * the caller must first force its own protocol handoff decision. */
+    MembershipOwnership transfer()throws IOException {
+        synchronized(MembershipOwnership.class) {
+            active();AdmissionPaths.regular(path);
+            MembershipValidation.require(inode.equals(MembershipBasisSources.key(path))
+                    && owner.channel().size()==0 && java.nio.file.Files.size(path)==0,"membership transfer original lock changed");
+            var successor=new MembershipOwnership(path,inode,owner);
+            // PATHS and INODES deliberately remain registered throughout.
+            closed=true;return successor;
+        }
+    }
     @Override public void close()throws IOException {
         synchronized(MembershipOwnership.class) {
             if(closed)return;

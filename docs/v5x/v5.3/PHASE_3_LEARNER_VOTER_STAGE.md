@@ -67,3 +67,7 @@ pass (eight tests, no skips). Fourteen lightweight Python contract/evidence test
 also pass. Public byte fixtures and the frozen resource/format catalogs are
 unchanged. These finite component runs do not establish native joining readiness,
 process-crash safety, maximum-resource qualification or the complete Phase 3 gate.
+
+[Atomic ownership and reservation transfer](PHASE_3_OWNERSHIP_TRANSFER.md) now
+provides the private handoff prerequisites. The staging producer still does not
+perform replica takeover or open a joined-voter journal.

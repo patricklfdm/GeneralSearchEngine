@@ -1,0 +1,376 @@
+{
+  "archive": {
+    "bytes": 9367857,
+    "path": "target/v53-custody-transfer/component-validation.tar.gz",
+    "sha256": "249e8bf4b655e5db03ff4601c70eb250da8c5d71882ad8c130e36720d5cd9eb8"
+  },
+  "baseCommit": "c30672572995f1215bc0b271039aea9fa9435b63",
+  "codeAndBuildInputsChecked": 1703,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1393,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourceSnapshot": "custodyintegration",
+  "descriptorTransferImplemented": true,
+  "finalProductionDistinctCases": 35,
+  "fullMembershipProcessDeathQualified": false,
+  "identicalFinalProductionFiles": 907,
+  "joinedVoterTakeoverImplemented": false,
+  "learnerVotingEnabled": false,
+  "nativeJointHistoryQualified": false,
+  "osLockChildSigkillChecked": true,
+  "pending": [
+    "durable original learner takeover decision",
+    "quiesced owner/reservation integration",
+    "exact staged file moves and cold joined admission",
+    "covered original learner retirement",
+    "native old-majority INTENT before joint checkpointing",
+    "joint FINAL and fresh barrier",
+    "full independent physical/history/process qualification"
+  ],
+  "phase3Complete": false,
+  "publicFormatsChanged": false,
+  "pythonTests": 1,
+  "reports": {
+    "custodyintegration": {
+      "io.github.patricklfdm.generalsearch.replication.V53BallotAllocatorTest": {
+        "cases": [
+          {
+            "name": "completePendingReservationIsBurnedAndInvalidPendingIsRetained",
+            "seconds": 0.053,
+            "status": "PASS"
+          },
+          {
+            "name": "fullRootAndNodeIdentityArePinnedBeforeAnyWrite",
+            "seconds": 0.025,
+            "status": "PASS"
+          },
+          {
+            "name": "successfulReturnFollowsBothFileAndDirectoryForces",
+            "seconds": 0.035,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRecoveryReleasesOwnerAndNeverReusesCompletePendingCounter",
+            "seconds": 0.125,
+            "status": "PASS"
+          },
+          {
+            "name": "countersSurviveReopenAndJumpBeyondObservedBoundsForAllInitialSizes",
+            "seconds": 0.174,
+            "status": "PASS"
+          },
+          {
+            "name": "failureAtEachPersistenceBoundaryPoisonsHandleAndPreservesRestartDecision",
+            "seconds": 0.282,
+            "status": "PASS"
+          },
+          {
+            "name": "incompleteOrForeignAuthorityNeverCreatesOrRepairsFiles",
+            "seconds": 0.191,
+            "status": "PASS"
+          },
+          {
+            "name": "linkedPathsAndReplacedOwnerInodesFailClosed",
+            "seconds": 0.034,
+            "status": "PASS"
+          },
+          {
+            "name": "exclusiveOwnerAndClosedHandleCannotAllocate",
+            "seconds": 0.043,
+            "status": "PASS"
+          },
+          {
+            "name": "exhaustionAndInvalidObservationLeaveBytesUnchanged",
+            "seconds": 0.038,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "0d7e99c8a286d8cb6698e91e2ecfe7a25953da07af1d6ae9f1033c6b1361f07e"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": {
+        "cases": [
+          {
+            "name": "completeStageReopensFromOriginalIntentAndOwnerCloseRevokesReady",
+            "seconds": 31.865,
+            "status": "PASS"
+          },
+          {
+            "name": "losingIntentDuringWriteRevokesStageAndPreservesPartialBytes",
+            "seconds": 26.963,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "296e6c4fa72618fa2513f5340298678533ab0f4f75ea7bb3f826233cfa41aeaf"
+      }
+    },
+    "custodytransferfinal": {
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": {
+        "cases": [
+          {
+            "name": "renamedInodeAndRepeatedRequestsDoNotOpenAnotherChannel",
+            "seconds": 0.085,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicatePlanOpenDoesNotReleaseTheExternalLock",
+            "seconds": 0.414,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicateAllocatorOpenDoesNotReleaseTheExternalLockAndCloseAllowsReopen",
+            "seconds": 0.109,
+            "status": "PASS"
+          },
+          {
+            "name": "failedOpenDoesNotLeaveARegistrationAndDifferentInodesCanBeOwned",
+            "seconds": 0.057,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "8fe95b2272ccb6f2815e2cbce14531121532dd6f8da78dbc1aaec59dffb30317"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "replacedOrAliasedPathCannotTransferAndFailedAttemptKeepsTheOriginalLock",
+            "seconds": 0.124,
+            "status": "PASS"
+          },
+          {
+            "name": "transferVersusCloseEitherRevokesTheSourceOrClosesItWithoutAnOrphan",
+            "seconds": 0.175,
+            "status": "PASS"
+          },
+          {
+            "name": "sameDescriptorAndKernelLockSurviveTransferAndAllStaleCloses",
+            "seconds": 0.662,
+            "status": "PASS"
+          },
+          {
+            "name": "concurrentTransfersHaveOneSuccessorAndDoNotReleaseKernelOwnership",
+            "seconds": 0.061,
+            "status": "PASS"
+          },
+          {
+            "name": "killingTransferredOwnerReleasesTheOriginalInodeForColdRecovery",
+            "seconds": 0.086,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyOrReleasedLockCannotTransferAndFailureDoesNotCloseTheChannel",
+            "seconds": 0.087,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "07706c9765dcccbfa052826fa4af84723c12e921db19a2b4726b1914f6c33395"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": {
+        "cases": [
+          {
+            "name": "retryKeepsOriginalBytesDeadlineAndThreeTotalAttempts",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "partialStorageGrowthKeepsItsCountAndCannotSpendCompletionHeadroom",
+            "seconds": 0.013,
+            "status": "PASS"
+          },
+          {
+            "name": "completeDigestSemanticOrSinkFailureNeverBecomesVerifiedOrSilentlyReleasesOwnedBytes",
+            "seconds": 0.019,
+            "status": "PASS"
+          },
+          {
+            "name": "completeMetadataEnvelopeIncludesEveryCopyAndCompletionHeadroom",
+            "seconds": 0.005,
+            "status": "PASS"
+          },
+          {
+            "name": "stagingCountsMetadataAndApplicationTogetherAndQueueIsGlobal",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "transferIsBoundBeforeAnyWriteAndDuplicateAcknowledgementDoesNotDuplicateBytes",
+            "seconds": 0.004,
+            "status": "PASS"
+          },
+          {
+            "name": "lifetimeExhaustionBlocksNewMembershipButNotOrdinaryReservations",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "changedOriginalBasisCutSourceAndCapacityRejectBeforeSinkUse",
+            "seconds": 0.004,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "081af34f049d75fa8143e6874d714f0873f94a31644ccf25eaec3342b79fe497"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "everyFullStorageCategoryTransfersWithoutDoubleChargingOrReleasingAnyByte",
+            "seconds": 0.005,
+            "status": "PASS"
+          },
+          {
+            "name": "wholeGroupPreflightRefusesForeignReleasedDuplicateAndOccupiedTargetsAtomically",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "inFlightGenerationClaimsAndRequestResourcesCannotBeTransferred",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "transferAndConcurrentCloseCannotUnchargeTheSuccessfulSuccessor",
+            "seconds": 0.009,
+            "status": "PASS"
+          },
+          {
+            "name": "completionHeadroomAndSharedStagingRemainEnforcedAfterTransfer",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "679f935611fbf0845980ed94d7ac28c7013728fbdbb4026d226327990876b406"
+      }
+    },
+    "ownershiptransferfirst": {
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": {
+        "cases": [
+          {
+            "name": "renamedInodeAndRepeatedRequestsDoNotOpenAnotherChannel",
+            "seconds": 0.09,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicatePlanOpenDoesNotReleaseTheExternalLock",
+            "seconds": 0.453,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicateAllocatorOpenDoesNotReleaseTheExternalLockAndCloseAllowsReopen",
+            "seconds": 0.121,
+            "status": "PASS"
+          },
+          {
+            "name": "failedOpenDoesNotLeaveARegistrationAndDifferentInodesCanBeOwned",
+            "seconds": 0.057,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "19db35bf2ea58f30484d37df299b476dde5d1251424cde3e112f8f8192582963"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "replacedOrAliasedPathCannotTransferAndFailedAttemptKeepsTheOriginalLock",
+            "seconds": 0.125,
+            "status": "PASS"
+          },
+          {
+            "name": "transferVersusCloseEitherRevokesTheSourceOrClosesItWithoutAnOrphan",
+            "seconds": 0.1,
+            "status": "PASS"
+          },
+          {
+            "name": "sameDescriptorAndKernelLockSurviveTransferAndAllStaleCloses",
+            "seconds": 0.632,
+            "status": "PASS"
+          },
+          {
+            "name": "concurrentTransfersHaveOneSuccessorAndDoNotReleaseKernelOwnership",
+            "seconds": 0.056,
+            "status": "PASS"
+          },
+          {
+            "name": "killingTransferredOwnerReleasesTheOriginalInodeForColdRecovery",
+            "seconds": 0.085,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyOrReleasedLockCannotTransferAndFailureDoesNotCloseTheChannel",
+            "seconds": 0.093,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e0dbeac949e99f96265ac1154956bdab09f9d2bc4bdf86b2c41396b1231140d0"
+      }
+    }
+  },
+  "runs": {
+    "custodyintegration": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53BallotAllocatorTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerVoterStageTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "custodyintegration",
+      "requestedTests": [
+        "V53BallotAllocatorTest",
+        "V53LearnerVoterStageTest#completeStageReopensFromOriginalIntentAndOwnerCloseRevokesReady+losingIntentDuringWriteRevokesStageAndPreservesPartialBytes"
+      ],
+      "seconds": 69.88348077300179,
+      "skipped": 0,
+      "tests": 12
+    },
+    "custodytransferfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53StorageOwnershipTransferTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "custodytransferfinal",
+      "requestedTests": [
+        "V53MembershipOwnershipTransferTest",
+        "V53MembershipOwnershipTest",
+        "V53StorageOwnershipTransferTest",
+        "V53ResourceTransferTest"
+      ],
+      "seconds": 14.995683859000565,
+      "skipped": 0,
+      "tests": 23
+    },
+    "ownershiptransferfirst": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": 6
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "ownershiptransferfirst",
+      "requestedTests": [
+        "V53MembershipOwnershipTransferTest",
+        "V53MembershipOwnershipTest"
+      ],
+      "seconds": 16.298567666002782,
+      "skipped": 0,
+      "tests": 10
+    }
+  },
+  "schema": "gse-v53-ownership-transfer-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipOwnership.java": "db9a43dc0599733a206519c015c62104fb4cf0b4a754bb7b42e5fa9098478332",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "5356f8702250aaa42cd58ae9a87435cb13cdc4e0be88ba77eae3053dd26e626f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MembershipOwnershipTransferTest.java": "c11553b7895ade8f934fe5d8a06891e8af002e9cf611aa647c75e0f35d399ee8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53StorageOwnershipTransferTest.java": "f9a7a4122e4deaa2cf0c4eec0868918f130f9c108681d13f9554b34ee27e3d73"
+  },
+  "status": "PASS_CUSTODY_TRANSFER_PREREQUISITES",
+  "storageReservationTransferImplemented": true
+}
