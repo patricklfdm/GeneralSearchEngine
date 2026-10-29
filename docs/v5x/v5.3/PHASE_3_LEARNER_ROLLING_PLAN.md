@@ -6,7 +6,10 @@ the initial source/backup, A22 enables current-head acquisition, and
 plan, source move, semantic backup and cold resume.
 [A24 selection](PHASE_3_LEARNER_SLOT_HEAD.md) now selects B through an original
 forced head and retires covered A source/typed members, including cold recovery
-after interrupted removal. Repeated alternate slot reuse remains required.
+after interrupted removal.
+[A25 vacancy](PHASE_3_LEARNER_VACANCY.md) makes the completed-removal boundary
+durable and avoids phantom cold seed charges only after original resealing.
+Repeated alternate slot reuse remains required.
 The first-successor installer continues to protect its immutable old plan.
 
 ## Reuse boundary
@@ -71,6 +74,8 @@ has no redundant candidate. Their remaining bounded metadata sum is 908 KiB:
 A23's pending B adds 576 KiB, for a 1,484 KiB bound. This leaves room inside the
 original 2 MiB lease for rolling selection metadata. A24 reserves another 32 KiB
 for the two head names, reaching 1,516 KiB while keeping immutable seed roots.
+A25 adds two 16 KiB vacancy names, for a 1,548 KiB envelope. A next inactive plan
+must bind the exact selected head and its forced vacancy, not mere path absence.
 Verify the exact
 simultaneous maxima of migration, candidate selection,
 partial cleanup and slot reuse against actual permitted inventories before freezing

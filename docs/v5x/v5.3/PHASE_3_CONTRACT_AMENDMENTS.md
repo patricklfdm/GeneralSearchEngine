@@ -932,3 +932,47 @@ another acquisition or alternating overwrite: reusable A/B plans, replacement
 selectors, cancellation, locally forced matching INTENT and complete native and
 process-death qualification remain subsequent work. No voting rights, public API,
 wire family, quorum, timing limit or retry policy changes.
+
+
+## A25 — original durable vacancy before alternate-slot reuse
+
+A24's in-memory seed-retired flag is not a persistent reuse boundary. Add the
+exact canonical ASCII `cleared.next.json` / `cleared.json` pair in the same
+exclusively owned slots root, each at most 16 KiB and never coexisting. The record
+has exact fields `schema` = `gse-v53-learner-slot-cleared/1.3`, `plan` (B plan hash),
+`head` (A24 head hash), `headKey`, `clearKey`, `previousFiles`, `previousTyped`,
+`seedFiles`. The last three are hashes of the exact original sorted fingerprint
+arrays in that selecting head. `clearKey` captures the exclusively created
+candidate's own inode and remains unchanged across its atomic rename.
+
+Only an independent valid, forced current head plus complete absence of its
+covered old source and typed roots can write this record. First finish covered
+removal and force both surviving parents. Bound the prospective record before
+creating its candidate; force complete original bytes, atomically rename the
+same inode, and force the active file and parent. Only then release old seed
+GENERATION/APPLICATION leases and issue the corresponding typed current-head
+capability. The marker grants no vote, matching INTENT or public READY.
+
+Cold open validates the full current source, typed originals and selecting head,
+then the vacancy binding and original inode before any recovery force. Empty or
+partial records, copied inodes, different head bindings, two record names at once,
+and recreated old roots fail unchanged. A complete original candidate or active
+record is re-forced only after the current head and both absence parents. This
+forced original state may then waive the conservative old seed reservations;
+missing directories alone may not. A pre-A25 retained head with no vacancy still
+follows A24's conservative accounting and covered cleanup, producing the new
+record only after those forces. No recovery write reconstructs a partial record.
+
+The original fixed old paths remain absent in this batch. A later inactive-plan
+contract must explicitly bind this vacancy before placing a new source or typed
+backup there. New acquisition and alternate installation remain blocked until
+that path is implemented; neither the marker nor a caller map bypasses ownership.
+Across subsequent cycles, an old vacancy must never authorize cleanup for a new
+selected head. Its head and inode binding is part of that boundary, not a global
+boolean or an append-only per-revision log.
+
+Two additional 16 KiB names bring the conservative metadata envelope to
+**1,548 KiB**, within the unchanged 2 MiB MISC lease. Existing two GENERATION and
+seven APPLICATION limits, deadline guards and retry policies remain unchanged.
+Complete multi-cycle, maximum-resource, all-profile, native and halt/SIGKILL
+qualification remains required before Phase 3 closure.

@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Durable learner vacancy](PHASE_3_LEARNER_VACANCY.md) now records exact completed
+seed removal before lease release. Cold recovery re-forces the original decision
+before waiving absent seed charges, and rejects partial/copied decisions or
+recreated old roots. This prepares the reuse boundary; actual alternating
+installation and complete Phase 3 qualification remain OPEN.
+
 [Selected learner slots](PHASE_3_LEARNER_SLOT_HEAD.md) now force an original
 B head before revoking A handles, retire only covered old members, and recover
 the independent current source after interrupted deletion. The selecting inode

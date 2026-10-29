@@ -101,6 +101,7 @@ final class MembershipLearnerSeed implements AutoCloseable {
         MembershipLearnerSource.closeChildren(leases.toArray(AutoCloseable[]::new));leases.clear();retired=true;
     }
     boolean retired(){return retired;}
+    void requireVacant()throws IOException {checkMetadata();AdmissionPaths.absent(source);AdmissionPaths.absent(typed);}
     void forceParents()throws IOException {checkMetadata();AdmissionPaths.forceDirectory(directory);AdmissionPaths.forceDirectory(typed.getParent());}
     @Override public void close()throws IOException {
         if(closed)return;closed=true;var values=new ArrayList<AutoCloseable>(leases);values.add(lock);MembershipLearnerSource.closeChildren(values.toArray(AutoCloseable[]::new));

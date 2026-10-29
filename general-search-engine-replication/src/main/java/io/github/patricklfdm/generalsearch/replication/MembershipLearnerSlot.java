@@ -15,10 +15,11 @@ final class MembershipLearnerSlot implements AutoCloseable {
     static final String LOCK="slots.lock",PLAN="b.json",NEXT="b.next.json",INSTALLED="b.installed.json",SOURCE="source-b";
     static final int MAXIMUM=256*1024,RECORD_MAXIMUM=16*1024,HEAD_MAXIMUM=16*1024;
     static final String HEAD="head.json",HEAD_NEXT="head.next.json";
+    static final String CLEARED="cleared.json",CLEARED_NEXT="cleared.next.json";
     // Original fully retired admission/current metadata plus both slot-plan
     // names, installed marker and compact typed plan/candidate/receipt.
-    static final long METADATA_MAXIMUM=908L*1024+2L*MAXIMUM+RECORD_MAXIMUM+3L*MembershipLearnerMaterialization.SUCCESSOR_PLAN+2L*HEAD_MAXIMUM;
-    private static final Set<String> MEMBERS=Set.of(LOCK,PLAN,NEXT,INSTALLED,SOURCE,HEAD,HEAD_NEXT);
+    static final long METADATA_MAXIMUM=908L*1024+2L*MAXIMUM+RECORD_MAXIMUM+3L*MembershipLearnerMaterialization.SUCCESSOR_PLAN+4L*HEAD_MAXIMUM;
+    private static final Set<String> MEMBERS=Set.of(LOCK,PLAN,NEXT,INSTALLED,SOURCE,HEAD,HEAD_NEXT,CLEARED,CLEARED_NEXT);
     private final MembershipLearnerStore parent;
     private final MembershipBallotAllocator.Cut cut;
     private final byte[] plan,installed;
@@ -37,6 +38,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
     private MembershipGenerationFiles.Guard acquisition;
     private MembershipLearnerSeed seed;
     private Head head;
+    private Cleared cleared;
     private boolean closed,failed,complete,accounted;
 
     static Path directory(MembershipLearnerPlan summary) {
@@ -133,7 +135,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         if(!Files.exists(AdmissionPaths.safe(directory),LinkOption.NOFOLLOW_LINKS)) {
             AdmissionPaths.absent(typed);return null;
         }
-        var names=children(directory,7);require(names.contains(LOCK) && MEMBERS.containsAll(names) && (names.contains(PLAN)||names.contains(NEXT)),"learner slot incomplete original inventory");
+        var names=children(directory,MEMBERS.size());require(names.contains(LOCK) && MEMBERS.containsAll(names) && (names.contains(PLAN)||names.contains(NEXT)),"learner slot incomplete original inventory");
         var lock=MembershipOwnership.own(directory.resolve(LOCK),false);MembershipLearnerSlot result=null;MembershipLearnerSeed seed=null;
         try {
             byte[] headBytes=null;
@@ -145,10 +147,14 @@ final class MembershipLearnerSlot implements AutoCloseable {
             }
             result=new MembershipLearnerSlot(parent,AdmissionPaths.read(directory.resolve(names.contains(PLAN)?PLAN:NEXT),MAXIMUM),cut,seed);
             result.lock=lock;result.capture();if(headBytes!=null)result.head=result.new Head(headBytes);
+            if(names.contains(CLEARED)||names.contains(CLEARED_NEXT)) {
+                require(names.contains(HEAD) && names.contains(CLEARED)!=names.contains(CLEARED_NEXT),"learner slot original vacancy location");
+                result.cleared=result.new Cleared(AdmissionPaths.read(directory.resolve(names.contains(CLEARED)?CLEARED:CLEARED_NEXT),HEAD_MAXIMUM));
+            }
             result.check();
             // Read-only original validation before the old parent's recovery
             // forces. This is not an exposed source or resource capability.
-            result.capsule();if(result.head!=null)result.head.check();
+            result.capsule();if(result.head!=null)result.head.check();if(result.cleared!=null)result.cleared.check();
             if(names.contains(HEAD))result.complete=true;return result;
         }catch(IOException|RuntimeException|Error error){try{if(result!=null)result.close();else MembershipLearnerSource.closeChildren(seed,lock);}catch(IOException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
@@ -165,7 +171,9 @@ final class MembershipLearnerSlot implements AutoCloseable {
                 leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"learner-slot-b:"+f.get("path"),number(f.get("size"))));}
             capsule();
             if(Files.exists(AdmissionPaths.safe(typedDirectory(parent.summary())),LinkOption.NOFOLLOW_LINKS))reserveTypedImage();
-            if(seed!=null)seed.reserve();accounted=true;
+            // Only the same original vacancy after resealing may avoid charging
+            // a retired generation. Absence alone never waives ownership.
+            if(seed!=null && !(cleared!=null && cleared.active))seed.reserve();accounted=true;
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     private Path locate()throws IOException {
@@ -181,7 +189,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         require(children(location,32).equals(names),"learner slot source inventory");return location;
     }
     private void capture()throws IOException {
-        var names=children(directory,7);require(names.contains(LOCK) && MEMBERS.containsAll(names),"learner slot inventory");
+        var names=children(directory,MEMBERS.size());require(names.contains(LOCK) && MEMBERS.containsAll(names),"learner slot inventory");
         for(String name:List.of(LOCK,PLAN,NEXT,INSTALLED))if(names.contains(name)) {
             byte[] expected=name.equals(LOCK)?new byte[0]:name.equals(INSTALLED)?installed:plan;
             byte[] bytes=AdmissionPaths.read(directory.resolve(name),expected.length);
@@ -189,7 +197,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
             metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
         }
         require(!names.contains(INSTALLED) || names.contains(PLAN) && names.contains(SOURCE),"learner slot installation without original source");
-        for(String name:List.of(HEAD,HEAD_NEXT))if(names.contains(name)) {
+        for(String name:List.of(HEAD,HEAD_NEXT,CLEARED,CLEARED_NEXT))if(names.contains(name)) {
             byte[] bytes=AdmissionPaths.read(directory.resolve(name),HEAD_MAXIMUM);metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
         }
     }
@@ -201,10 +209,13 @@ final class MembershipLearnerSlot implements AutoCloseable {
         else require(anchor.equals(parent.slotAnchor()),"learner slot original current head changed");
         AdmissionPaths.recheck(pathBinding);require(directoryKey.equals(key(directory)),"learner slot directory replaced");Path source=locate();
         var names=new TreeSet<>(metadata.keySet());if(source.equals(destination))names.add(SOURCE);
-        require(children(directory,7).equals(names),"learner slot live inventory changed");
+        require(children(directory,MEMBERS.size()).equals(names),"learner slot live inventory changed");
         for(var f:metadata.entrySet())require(f.getValue().equals(inspect(directory.resolve(f.getKey()),f.getValue().bytes(),f.getValue().digest())),"learner slot metadata replaced");
     }
-    private void point(String event)throws IOException {check();if(head!=null)head.checkFiles();cut.at(event);check();if(head!=null)head.checkFiles();}
+    private void point(String event)throws IOException {
+        check();if(head!=null)head.checkFiles();if(cleared!=null)cleared.check();cut.at(event);
+        check();if(head!=null)head.checkFiles();if(cleared!=null)cleared.check();
+    }
     private void remember(String name,byte[] expected)throws IOException {
         byte[] bytes=AdmissionPaths.read(directory.resolve(name),expected.length);
         require(Arrays.equals(bytes,Arrays.copyOf(expected,bytes.length)),"learner slot writer changed originals");
@@ -259,7 +270,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
     }
     void resealHead()throws IOException {
         check();require(committed() && head!=null,"learner original slot head missing");
-        try{head.seal(false);complete=true;seed.supersede();}
+        try{head.seal(false);if(cleared!=null)cleared.seal();complete=true;seed.supersede();}
         catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     private View promote(MembershipLearnerMaterialization<?> current,MembershipLearnerMaterialization.CurrentHead previous)throws IOException {
@@ -301,8 +312,64 @@ final class MembershipLearnerSlot implements AutoCloseable {
                 if(Files.exists(file.getParent(),LinkOption.NOFOLLOW_LINKS))AdmissionPaths.forceDirectory(file.getParent());
                 point("LEARNER_SLOT_RETIRE_MEMBER_PARENT_FORCED");
             }
-            seed.forceParents();point("LEARNER_SLOT_RETIRE_PARENTS_FORCED");seed.release();point("LEARNER_SLOT_RETIRE_RELEASED");
+            seed.forceParents();point("LEARNER_SLOT_RETIRE_PARENTS_FORCED");
+            clearSeed();seed.release();point("LEARNER_SLOT_RETIRE_RELEASED");
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    /** A durable vacancy is the boundary between covered old-file deletion and
+     * later reuse. This batch still requires those fixed old paths to be absent;
+     * a future original inactive plan must explicitly authorize their reuse. */
+    private void clearSeed()throws IOException {
+        check();head.check();seed.requireVacant();
+        if(cleared==null) {
+            var decision=vacancy("x".repeat(4096));canonical(decision,HEAD_MAXIMUM);
+            AdmissionPaths.absent(directory.resolve(CLEARED_NEXT));AdmissionPaths.absent(directory.resolve(CLEARED));
+            try(var candidate=FileChannel.open(directory.resolve(CLEARED_NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+                remember(CLEARED_NEXT,new byte[0]);
+                cleared=new Cleared(canonical(vacancy(metadata.get(CLEARED_NEXT).key().toString()),HEAD_MAXIMUM));
+                point("LEARNER_SLOT_CLEAR_CANDIDATE_CREATED");
+            }
+        }
+        cleared.seal();
+    }
+    private Map<String,Object> vacancy(String key) {
+        require(head!=null,"learner vacancy selected head missing");
+        return Map.of("schema","gse-v53-learner-slot-cleared/1.3","plan",hash(plan),"head",hash(head.bytes),
+                "headKey",head.record.get("headKey"),"clearKey",key,
+                "previousFiles",hash(canonical(head.record.get("previousFiles"),HEAD_MAXIMUM)),
+                "previousTyped",hash(canonical(head.record.get("previousTyped"),HEAD_MAXIMUM)),
+                "seedFiles",hash(canonical(head.record.get("seedFiles"),HEAD_MAXIMUM)));
+    }
+    private final class Cleared {
+        private final byte[] bytes;
+        private final Map<String,Object> record;
+        private boolean active;
+        Cleared(byte[] bytes) {
+            this.bytes=bytes.clone();record=object(parse(bytes,HEAD_MAXIMUM));
+            require(record.keySet().equals(Set.of("schema","plan","head","headKey","clearKey","previousFiles","previousTyped","seedFiles"))
+                    && record.equals(vacancy(text(record.get("clearKey")))) && Arrays.equals(bytes,canonical(record,HEAD_MAXIMUM)),
+                    "learner slot original vacancy binding");
+        }
+        void check()throws IOException {
+            require(committed() && head!=null && metadata.containsKey(CLEARED)!=metadata.containsKey(CLEARED_NEXT),"learner slot original vacancy location");
+            String name=metadata.containsKey(CLEARED)?CLEARED:CLEARED_NEXT;
+            require(record.equals(vacancy(text(record.get("clearKey")))) && metadata.get(name).key().toString().equals(record.get("clearKey")),
+                    "learner slot original vacancy inode changed");
+            seed.requireVacant();
+        }
+        void seal()throws IOException {
+            MembershipLearnerSlot.this.check();head.check();check();
+            require(head.active,"learner vacancy requires forced current head");
+            // Re-force absence before this decision can waive any cold charges.
+            seed.forceParents();point("LEARNER_SLOT_CLEAR_PARENTS_FORCED");
+            if(!metadata.containsKey(CLEARED)) {
+                write(CLEARED_NEXT,bytes,"LEARNER_SLOT_CLEAR_CANDIDATE");
+                Files.move(directory.resolve(CLEARED_NEXT),directory.resolve(CLEARED),StandardCopyOption.ATOMIC_MOVE);
+                metadata.put(CLEARED,metadata.remove(CLEARED_NEXT));point("LEARNER_SLOT_CLEAR_RENAMED");
+            }
+            require(metadata.get(CLEARED).bytes()==bytes.length && metadata.get(CLEARED).digest().equals(hash(bytes)),"learner slot original vacancy bytes changed");
+            write(CLEARED,bytes,"LEARNER_SLOT_CLEAR_ACTIVE");check();active=true;
+        }
     }
     private static Map<String,Object> headRecord(byte[] bytes) {
         var record=object(parse(bytes,HEAD_MAXIMUM));
@@ -324,6 +391,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
             require(metadata.get(name).key().toString().equals(record.get("headKey")),"learner slot original head inode changed");
             require(seed!=null && record.get("seedFiles").equals(seed.metadata()),"learner slot seed metadata changed");
             seed.checkRemaining(record.get("previousFiles"),record.get("previousTyped"),committed());
+            if(cleared!=null)cleared.check();
             MembershipLearnerFingerprints.check(typedDirectory(parent.summary()),MembershipLearnerFingerprints.typed(),Set.of(),record.get("currentFiles"),false,MembershipApplicationImage.MAXIMUM);
             if(live!=null)live.check();
         }
@@ -410,7 +478,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         void retirePredecessor()throws IOException {source();require(current,"learner slot retirement requires selected head");owner.retireSeed();}
         @Override public void requireCurrentTyped(MembershipLearnerMaterialization<?> typed)throws IOException {
             source();require(current && owner.typed==typed,"learner inactive slot is not the current head");
-            require(owner.seed.retired(),"learner current slot requires forced seed retirement");
+            require(owner.seed.retired() && owner.cleared!=null && owner.cleared.active,"learner current slot requires forced seed retirement");
         }
         @Override public void requireRefreshPaths(Path... paths)throws IOException {
             source();require(current,"learner inactive slot cannot acquire another source");
