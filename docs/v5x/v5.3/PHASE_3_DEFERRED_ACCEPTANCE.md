@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+A26 adds pending A reuse under the same lock. Keep the eventual B→A→B→A history
+continuous: include current/pending ownership, unchanged fixed paths, replacement
+selectors, vacancy replacement, cold/process cuts and copied/stale decision
+negatives. `V53LearnerReuseTest` only covers the first reused installation with
+conditional voters; it is not a completed native or repeated-cycle gate.
+
 The operator authorized deferring expensive complete qualification on 2026-10-28.
 Implementation continues on the local branch, with focused checks before each
 commit. Phase 3 remains **OPEN** until the complete

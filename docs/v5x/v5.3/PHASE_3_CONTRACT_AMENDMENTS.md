@@ -976,3 +976,49 @@ Two additional 16 KiB names bring the conservative metadata envelope to
 seven APPLICATION limits, deadline guards and retry policies remain unchanged.
 Complete multi-cycle, maximum-resource, all-profile, native and halt/SIGKILL
 qualification remains required before Phase 3 closure.
+
+## A26 — reuse of the cleared A paths under one slot owner
+
+Retain the single slots lock and immutable admission/seed metadata roots. Split
+current and pending image data/resources inside that owner; a source or typed
+view is bound to the exact image descriptor. Permit one next source only after
+an independently valid forced B head, forced original A25 vacancy, released old
+seed leases and absence of any pending plan. Current acquisition still requires
+the actual owned typed B preparation; a caller receipt/map is insufficient.
+
+The first reused image is A, sequence 2, at the old seed `source/` and typed paths.
+Its metadata names are `a.next.json`, `a.json` (256 KiB each) and
+`a.installed.json` (16 KiB) in the existing slots root. Do not overwrite the legacy
+seed `install.json`. The canonical `gse-v53-learner-slot-reuse/1.3` plan has the
+same thirteen fields as the original B plan plus `vacancy` and `planKey`.
+`vacancy` has exact fields `head`, `headKey`, `cleared`, `clearKey`, binding the
+current head and complete active vacancy's original bytes and inodes. `planKey`
+is the exclusively created candidate's own inode, unchanged across atomic rename.
+`anchor` binds B's head/receipt/core and terminal cut/catalog/application. Original
+source/generation inventories retain native ancestry/reservation verification.
+
+Bound the prospective plan before creating its candidate. Force its complete
+original bytes, rename the same inode, force the active plan and parent, move
+only the exact retained source, and force destination plus both relevant parents
+before installed-marker completion and receiving-to-generation resource transfer.
+No current selector is overwritten. Pending A remains nonvoting and cannot issue
+another acquisition or become current. Further sequences and replacement-head
+selection remain unimplemented, rather than silently wrapping a sequence.
+
+Cold entry reads the current B and pending A originals before any recovery force.
+Only a complete original active vacancy may authorize already-reused paths; a
+vacancy candidate never does. A complete pending plan resumes from its original
+staging or destination, exactly one location with original inodes and bytes.
+Incomplete/copy/foreign plans and unknown names refuse unchanged. A repeated
+old-retirement request validates the original vacancy and pending reuse binding,
+then skips the covered old-file traversal entirely. It must never delete the new
+A image or waive its charges. The legacy seed lock and metadata remain owned.
+
+The conservative metadata maximum is **1852 KiB**: A25's 1548 KiB plus one
+256 KiB plan allowance, one 16 KiB installed marker and two 16 KiB typed records.
+The selected B head forbids `b.next.json`; the old two-plan allowance plus the new
+one covers current B and pending A active/candidate. The typed allowances cover
+B's active plan/receipt and A's plan/candidate/receipt. This remains within the
+unchanged 2 MiB MISC lease. Two GENERATION/seven APPLICATION limits and existing
+source deadlines remain unchanged. Complete alternating selection/retirement,
+all-profile/max-resource and process-death qualification still gate Phase 3.

@@ -1,0 +1,249 @@
+{
+  "archive": {
+    "bytes": 13959670,
+    "files": 6577,
+    "path": "target/v53-learner-images/qualification.tar.gz",
+    "sha256": "d6ffa70cb7d7aae57bab7b78847c8049e0c33fce01c55f52729bc1df9cef0674"
+  },
+  "autonomousReady": false,
+  "baseSource": "ad5bb795b1ab0a21e24575c5a1f282f322486937",
+  "builds": {
+    "final": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "successorRejectsForeignReceiverBeforePathsOrLeasesChangeAndAcceptsItsOwn",
+              "seconds": 4.521,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "firstAdmissionAlsoRejectsAReceivingBudgetDifferentFromItsOperationOwner",
+              "seconds": 0.288,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "originalReusePlanAndMovedImageResumeWithoutRetransfer",
+              "seconds": 301.968,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "partialReusePlanIsPreservedAndCannotWaiveOldPathChecks",
+              "seconds": 131.492,
+              "skipped": false
+            },
+            {
+              "failed": true,
+              "name": "originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage",
+              "seconds": 185.803,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 1,
+          "skipped": 0,
+          "tests": 3
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerVacancyTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "completeCandidateAndUnforcedActiveMarkerResumeTheSameOriginalBeforeWaivingCharges",
+              "seconds": 259.928,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "durableVacancyFollowsParentForcesAndAvoidsPhantomColdGenerationCharges",
+              "seconds": 131.433,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "copiedVacancyAndRecreatedOldRootsAreNeverAcceptedAsOriginalClearedState",
+              "seconds": 123.215,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "partialVacancyRefusesUnchangedBeforeAnyRecoveryForce",
+              "seconds": 124.177,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 4
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": 2,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": 3,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerVacancyTest": 4
+        },
+        "exit": 1,
+        "failures": 1,
+        "label": "final",
+        "requestedTests": [
+          "V53LearnerReuseTest",
+          "V53LearnerVacancyTest",
+          "V53LearnerResourceOwnerTest"
+        ],
+        "seconds": 1242.081473839,
+        "skipped": 0,
+        "tests": 9
+      },
+      "productionDifferencesFromFinal": [],
+      "retainedFailure": "test mutation rebound the A plan but omitted the installed-marker plan hash; corrected test changes no production bytes"
+    },
+    "focused": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "successorRejectsForeignReceiverBeforePathsOrLeasesChangeAndAcceptsItsOwn",
+              "seconds": 3.71,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "firstAdmissionAlsoRejectsAReceivingBudgetDifferentFromItsOperationOwner",
+              "seconds": 0.292,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 2
+        },
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "originalReusePlanAndMovedImageResumeWithoutRetransfer",
+              "seconds": 308.236,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "partialReusePlanIsPreservedAndCannotWaiveOldPathChecks",
+              "seconds": 137.839,
+              "skipped": false
+            },
+            {
+              "failed": false,
+              "name": "originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage",
+              "seconds": 194.649,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 3
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest": 2,
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": 3
+        },
+        "exit": 143,
+        "failures": 0,
+        "label": "focused",
+        "requestedTests": [
+          "V53LearnerReuseTest",
+          "V53LearnerVacancyTest",
+          "V53LearnerResourceOwnerTest"
+        ],
+        "seconds": 645.261464837,
+        "skipped": 0,
+        "tests": 5
+      },
+      "productionDifferencesFromFinal": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSeed.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSlot.java"
+      ]
+    },
+    "repaired": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": {
+          "cases": [
+            {
+              "failed": false,
+              "name": "originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage",
+              "seconds": 195.723,
+              "skipped": false
+            }
+          ],
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "tests": 1
+        }
+      },
+      "execution": {
+        "classes": {
+          "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest": 1
+        },
+        "exit": 0,
+        "failures": 0,
+        "label": "repaired",
+        "requestedTests": [
+          "V53LearnerReuseTest#originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage"
+        ],
+        "seconds": 205.81391500099926,
+        "skipped": 0,
+        "tests": 1
+      },
+      "productionDifferencesFromFinal": []
+    }
+  },
+  "compiledProductionIdenticalWithinQualifiedBuilds": true,
+  "conditionalHistoryTcp": true,
+  "conditionalSourceHistories": true,
+  "fullAlternatingCycles": false,
+  "fullPhase3": false,
+  "independentNativeReplay": false,
+  "nativeHistoryQualified": false,
+  "passedMethods": {
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest#firstAdmissionAlsoRejectsAReceivingBudgetDifferentFromItsOperationOwner": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerResourceOwnerTest#successorRejectsForeignReceiverBeforePathsOrLeasesChangeAndAcceptsItsOwn": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest#originalReusePlanAndMovedImageResumeWithoutRetransfer": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest#originalVacancyAllowsOneTcpReuseAndColdReopenWithoutDeletingTheNewImage": "repaired",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerReuseTest#partialReusePlanIsPreservedAndCannotWaiveOldPathChecks": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerVacancyTest#completeCandidateAndUnforcedActiveMarkerResumeTheSameOriginalBeforeWaivingCharges": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerVacancyTest#copiedVacancyAndRecreatedOldRootsAreNeverAcceptedAsOriginalClearedState": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerVacancyTest#durableVacancyFollowsParentForcesAndAvoidsPhantomColdGenerationCharges": "final",
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerVacancyTest#partialVacancyRefusesUnchangedBeforeAnyRecoveryForce": "final"
+  },
+  "pendingAColdResume": true,
+  "pendingAInstalled": true,
+  "processDeathQualified": false,
+  "productionInputs": 491,
+  "qualifiedBuilds": [
+    "final",
+    "repaired"
+  ],
+  "retainedOriginalSuiteFailure": true,
+  "schema": "gse-v53-learner-reuse-qualification-v1",
+  "selectedBPreserved": true,
+  "status": "COMPONENTS_PASSED",
+  "wholeSuiteGreenOnSingleExecution": false
+}

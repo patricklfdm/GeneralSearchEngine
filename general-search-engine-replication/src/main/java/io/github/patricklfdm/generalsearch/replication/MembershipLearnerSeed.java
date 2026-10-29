@@ -76,6 +76,10 @@ final class MembershipLearnerSeed implements AutoCloseable {
         AdmissionPaths.recheck(binding);AdmissionPaths.absent(MembershipLearnerAdmissionPlan.path(original.staging()));
         MembershipLearnerFingerprints.check(directory,MembershipLearnerFingerprints.seed(),Set.of(MembershipLearnerSuccessor.SOURCE),metadataFiles,false,MembershipLearnerSuccessor.MAXIMUM);
     }
+    void checkInventories(Object sourceFiles,Object typedFiles) {
+        MembershipLearnerFingerprints.shape(sourceFiles,sourceNames);
+        MembershipLearnerFingerprints.shape(typedFiles,MembershipLearnerFingerprints.typed());
+    }
     void checkRemaining(Object sourceFiles,Object typedFiles,boolean remaining)throws IOException {
         checkMetadata();
         MembershipLearnerFingerprints.check(source,sourceNames,Set.of(),sourceFiles,remaining,MembershipApplicationImage.MAXIMUM);
@@ -99,6 +103,11 @@ final class MembershipLearnerSeed implements AutoCloseable {
         checkMetadata();AdmissionPaths.absent(source);AdmissionPaths.absent(typed);
         if(borrowed!=null)borrowed.retireSeedResources();
         MembershipLearnerSource.closeChildren(leases.toArray(AutoCloseable[]::new));leases.clear();retired=true;
+    }
+    /** The slot manager has revalidated and re-forced the original vacancy and
+     * its bound reuse plan. Newly owned files must never enter old cleanup. */
+    void releaseCleared()throws IOException {
+        checkMetadata();require(leases.isEmpty() && (borrowed==null || retired),"learner reused seed still owns old resources");retired=true;
     }
     boolean retired(){return retired;}
     void requireVacant()throws IOException {checkMetadata();AdmissionPaths.absent(source);AdmissionPaths.absent(typed);}

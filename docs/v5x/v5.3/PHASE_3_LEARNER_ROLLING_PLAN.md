@@ -1,5 +1,9 @@
 # Next implementation — bounded rolling learner lifecycle
 
+[A26 pending A reuse](PHASE_3_LEARNER_REUSE.md) implements the next installation
+under one current/pending owner. Replacement selection and subsequent B reuse
+remain required; this component does not establish the complete rolling lifecycle.
+
 Status: **partially implemented; complete rolling lifecycle OPEN**. A21 reclaims
 the initial source/backup, A22 enables current-head acquisition, and
 [A23 inactive installation](PHASE_3_LEARNER_SLOT.md) implements the bounded slot-B

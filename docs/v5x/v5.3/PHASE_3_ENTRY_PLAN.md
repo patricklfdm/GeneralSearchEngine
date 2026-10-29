@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Reuse of the cleared learner slot](PHASE_3_LEARNER_REUSE.md) now permits the
+selected B typed owner to install one pending A in the retired fixed paths, under
+the same lock and resource pool. Original head/vacancy/plan identities bind cold
+recovery and prevent old cleanup from deleting new A. Selecting this reused A and
+complete alternating-cycle/Phase 3 qualification remain OPEN.
+
 [Durable learner vacancy](PHASE_3_LEARNER_VACANCY.md) now records exact completed
 seed removal before lease release. Cold recovery re-forces the original decision
 before waiving absent seed charges, and rejects partial/copied decisions or
