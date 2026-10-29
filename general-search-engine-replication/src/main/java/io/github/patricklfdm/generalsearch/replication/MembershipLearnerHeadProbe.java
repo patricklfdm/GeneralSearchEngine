@@ -7,13 +7,15 @@ import java.util.function.LongSupplier;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** One original, read-only head query. A received ACK is not yet a durable
- * discharge certificate: no ledger mutation accepts this result. */
+/** One original read-only head query. The live result can be installed only by
+ * its exact native owner; receiving an ACK alone changes no durable ledger. */
 final class MembershipLearnerHeadProbe implements AutoCloseable {
     static final int BYTES=128*1024;
     final class Received {
         private final MembershipCapsule.Anchor endpoint;
+        private final Decoded reply;
         private Received(Decoded reply)throws IOException {
+            this.reply=reply;
             var value=object(object(reply.value().get("payload")).get("endpoint"));
             endpoint=new MembershipCapsule.Anchor(object(value.get("cut")),(String)value.get("catalog"),(String)value.get("application"));
             MembershipContext.checkView(object(endpoint.cut().get("view")));
@@ -23,6 +25,11 @@ final class MembershipLearnerHeadProbe implements AutoCloseable {
         void check()throws IOException {
             MembershipLearnerHeadProbe.this.check();require(complete,"learner head probe incomplete");
             owner.checkLearnerHeadEndpoint(learner,resources,original,endpoint);time();
+        }
+        MembershipLearnerConfirmation confirmation(MembershipGrantJournal target,MembershipResources pool)throws IOException {
+            require(target==owner && pool==resources,"learner confirmation foreign original owner/resources");check();
+            var result=MembershipLearnerConfirmation.received(request,reply);result.binding((String)original.get("root"),original,learner);
+            check();return result;
         }
     }
     private final MembershipGrantJournal owner;

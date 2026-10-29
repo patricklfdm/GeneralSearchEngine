@@ -1,17 +1,25 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Durable head confirmation](PHASE_3_LEARNER_CONFIRMATION.md) now retains the
+original QUERY/ACK through the source ledger and selected-source merge, keeping
+newer uncertain offers while discharging proved older ones. Pending physical
+renewals survive local narrowing until selected-source reconciliation. Ordinary
+decoded-plan merging stays conservative. Independent replay of this path, process cuts,
+repeated refresh, matching INTENT and complete Phase 3 remain **OPEN**.
+
 [Head queries](PHASE_3_LEARNER_HEAD_PROTOCOL.md) now connect a real forced
 learner head to a native source through bounded, correlated TCP exchanges.
 Replies are checked against the source's original ancestry; late/malformed
 replies and revoked owners are refused. This read-only path leaves the durable
-ledger unchanged. Selection-safe persisted discharge, repeated refresh,
-matching local INTENT and full Phase 3 acceptance remain **OPEN**.
+ledger unchanged; the durable consumer above is a separate operation. Repeated
+refresh, matching local INTENT and full Phase 3 acceptance remain **OPEN**.
 
 [Forced-head observation](PHASE_3_LEARNER_HEAD_OBSERVATION.md) now binds local
 retention narrowing to a real selected typed learner head, preserves newer
 uncertain offers and rejects revoked owners. This is a local capability, not a
-remote acknowledgement. Authenticated distributed confirmation and preservation
-of discharge authority through frozen-source selection remain OPEN.
+remote acknowledgement. The durable confirmation component above now preserves
+remote evidence through frozen-source selection; complete independent acceptance
+of that new path remains OPEN.
 
 [Native cancellation replay](PHASE_3_LEARNER_CANCELLATION_NATIVE.md) exposed a
 source-side retention gap: actual READY/CANCEL publication pruned the learner's
@@ -27,9 +35,8 @@ including cached completion replies. [Independent retained-history replay](PHASE
 now qualifies that native READY/CANCEL/cold-reopen history, including original
 ledger/selection/publication bytes, forces, 59 learner exchanges and 31 exact
 negative cases. The runtime snapshot precedes the final serving cut guard;
-current-source/all-profile acceptance is still separate. Forced learner-head
-confirmation/narrowing, matching INTENT, process replay and full Phase 3 remain
-**OPEN**.
+current-source/all-profile acceptance is still separate. Matching INTENT,
+process replay and full Phase 3 remain **OPEN**.
 
 [Durable learner cancellation](PHASE_3_LEARNER_CANCELLATION.md) now retains a
 complete certified CANCEL under the same prepared owner and receiving slot, then

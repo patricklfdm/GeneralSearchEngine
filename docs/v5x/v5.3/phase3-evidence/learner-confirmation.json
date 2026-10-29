@@ -1,0 +1,656 @@
+{
+  "allProfilesQualified": false,
+  "archive": {
+    "bytes": 11660277,
+    "path": "target/v53-learner-confirmation/originals-and-validation.tar.gz",
+    "sha256": "923801e82a3c009c270418e75de51f571745d75a0b73455bb9fc5f4ee1dab883"
+  },
+  "baseCommit": "02c32e13ae7f865e1c8316e2c30b4780a2f79e86",
+  "codeAndBuildInputsChecked": 1696,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1374,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourceSnapshot": "confirmationchecked",
+  "identicalProductionFiles": 901,
+  "independentFullHistoryQualified": false,
+  "learnerVotingEnabled": false,
+  "native": {
+    "diagnosticOnly": true,
+    "path": "target/v53-native-cancellation/builds/confirmationrenewal-e43b5247/general-search-engine-replication/target/v53-native-dispatch/run-483ad59b-5c35-42f1-85d6-ddd8af39cd2c",
+    "stages": {
+      "after-confirmed-selection": {
+        "node-1": {
+          "possible": [
+            3,
+            4
+          ],
+          "published": 5,
+          "renewals": [],
+          "revision": 5,
+          "sha256": "2d32d26c00e8272e0e6d29249b7b7c31c8184d4e4cc377f611b4cdba725f196f"
+        },
+        "node-2": {
+          "possible": [
+            3,
+            4
+          ],
+          "published": 5,
+          "renewals": [],
+          "revision": 3,
+          "sha256": "76645b51b45eede3dbb6f93be1cb4e523a6c63f152b704680fe9b75081bf8075"
+        }
+      },
+      "before-confirmation": {
+        "node-1": {
+          "possible": [
+            2,
+            3
+          ],
+          "published": 3,
+          "renewals": [],
+          "revision": 2,
+          "sha256": "960cbdc41c959359d10149848e4a64d66246bbdec21ada9fcd34c09d734c9ffd"
+        },
+        "node-2": {
+          "possible": [
+            2,
+            3
+          ],
+          "published": 3,
+          "renewals": [],
+          "revision": 2,
+          "sha256": "5ac865262962cb91f6537d474bf42becf432c6f5d007bdd5ce8dfeaa9577cee3"
+        }
+      },
+      "before-confirmed-selection": {
+        "node-1": {
+          "possible": [
+            3,
+            4
+          ],
+          "published": 4,
+          "renewals": [
+            2
+          ],
+          "revision": 4,
+          "sha256": "407f27993feff50b91e3435bf0ca2070c18b7615e94958a01325c754a22ccac1"
+        },
+        "node-2": {
+          "possible": [
+            2,
+            3
+          ],
+          "published": 4,
+          "renewals": [],
+          "revision": 2,
+          "sha256": "5ac865262962cb91f6537d474bf42becf432c6f5d007bdd5ce8dfeaa9577cee3"
+        }
+      },
+      "confirmation-reopened": {
+        "node-1": {
+          "possible": [
+            3,
+            4
+          ],
+          "published": 6,
+          "renewals": [],
+          "revision": 5,
+          "sha256": "2d32d26c00e8272e0e6d29249b7b7c31c8184d4e4cc377f611b4cdba725f196f"
+        },
+        "node-2": {
+          "possible": [
+            3,
+            4
+          ],
+          "published": 6,
+          "renewals": [],
+          "revision": 3,
+          "sha256": "76645b51b45eede3dbb6f93be1cb4e523a6c63f152b704680fe9b75081bf8075"
+        }
+      },
+      "confirmed-cancelled": {
+        "node-1": {
+          "possible": [
+            3,
+            4
+          ],
+          "published": 6,
+          "renewals": [],
+          "revision": 5,
+          "sha256": "2d32d26c00e8272e0e6d29249b7b7c31c8184d4e4cc377f611b4cdba725f196f"
+        },
+        "node-2": {
+          "possible": [
+            3,
+            4
+          ],
+          "published": 6,
+          "renewals": [],
+          "revision": 3,
+          "sha256": "76645b51b45eede3dbb6f93be1cb4e523a6c63f152b704680fe9b75081bf8075"
+        }
+      },
+      "confirmed-local": {
+        "node-1": {
+          "possible": [
+            3
+          ],
+          "published": 3,
+          "renewals": [
+            2
+          ],
+          "revision": 3,
+          "sha256": "55251a3902eac86efea9c003a2481a4253867217c776028ba90ac99ac100d1ff"
+        },
+        "node-2": {
+          "possible": [
+            2,
+            3
+          ],
+          "published": 3,
+          "renewals": [],
+          "revision": 2,
+          "sha256": "5ac865262962cb91f6537d474bf42becf432c6f5d007bdd5ce8dfeaa9577cee3"
+        }
+      }
+    },
+    "wireSha256": "c4c82d873b3185337a57c485c0c1e4d1d3218735a857d6d2140be7769a99b3fc"
+  },
+  "originalFailure": {
+    "errors": [
+      {
+        "failure": "java.lang.IllegalArgumentException: original forced record unavailable",
+        "kind": "CHUNK",
+        "node": "node-1",
+        "request": "4e38861e3de2c59e2f4f71fcb5839fed5c23271eb13024684f058464fd530469"
+      },
+      {
+        "failure": "java.lang.IllegalArgumentException: transfer trace already ended",
+        "kind": "CHUNK",
+        "node": "node-1",
+        "request": "4e38861e3de2c59e2f4f71fcb5839fed5c23271eb13024684f058464fd530469"
+      },
+      {
+        "failure": "java.lang.IllegalArgumentException: transfer trace already ended",
+        "kind": "CHUNK",
+        "node": "node-1",
+        "request": "4e38861e3de2c59e2f4f71fcb5839fed5c23271eb13024684f058464fd530469"
+      },
+      {
+        "failure": "java.lang.IllegalArgumentException: publication checkpoint quorum unavailable",
+        "kind": "PUBLISH",
+        "node": "node-2",
+        "request": "88f75b6041857791067fee9b24992157b6fb81388e1ff5de3ef011b81800d47d"
+      },
+      {
+        "failure": "java.lang.IllegalArgumentException: publication checkpoint quorum unavailable",
+        "kind": "PUBLISH",
+        "node": "node-2",
+        "request": "88f75b6041857791067fee9b24992157b6fb81388e1ff5de3ef011b81800d47d"
+      },
+      {
+        "failure": "java.lang.IllegalArgumentException: publication checkpoint quorum unavailable",
+        "kind": "PUBLISH",
+        "node": "node-2",
+        "request": "88f75b6041857791067fee9b24992157b6fb81388e1ff5de3ef011b81800d47d"
+      }
+    ],
+    "observations": [
+      {
+        "checkpoints": {
+          "applied-end/ancestor-0-statement.gsr": [
+            1,
+            4
+          ],
+          "applied-end/parent-statement.gsr": [
+            3,
+            4
+          ],
+          "applied-end/statement.gsr": [
+            0,
+            4
+          ]
+        },
+        "ledger": [
+          {
+            "application": "7b6bf6262fd84990fd1588a582362e362ae53cc443021dc7ee41646a0ac7636b",
+            "catalog": "dad316048c75a00c843a97530c6ee4d80013737f90ce8d28fbd70ae21137ba9b",
+            "cut": {
+              "entry": "4b4cced1f57d3eed93f0d8f55e05a95754587489a161ba229d9ee22e077970ab",
+              "index": 3,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            }
+          }
+        ],
+        "node": "node-1"
+      },
+      {
+        "checkpoints": {
+          "applied-end/ancestor-0-statement.gsr": [
+            1,
+            4
+          ],
+          "applied-end/ancestor-1-statement.gsr": [
+            2,
+            4
+          ],
+          "applied-end/parent-statement.gsr": [
+            3,
+            4
+          ],
+          "applied-end/statement.gsr": [
+            0,
+            4
+          ]
+        },
+        "ledger": [
+          {
+            "application": "7b6bf6262fd84990fd1588a582362e362ae53cc443021dc7ee41646a0ac7636b",
+            "catalog": "bb0a1a1aeb359a4cd2a0023c13c9434d14afbf3f0a0ddf74f8593e4a81f5d4e2",
+            "cut": {
+              "entry": "976f6e02649d5744c93727959ec96265e75b0f10f1e5837d9e426d92b02e8a92",
+              "index": 2,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            }
+          },
+          {
+            "application": "7b6bf6262fd84990fd1588a582362e362ae53cc443021dc7ee41646a0ac7636b",
+            "catalog": "dad316048c75a00c843a97530c6ee4d80013737f90ce8d28fbd70ae21137ba9b",
+            "cut": {
+              "entry": "4b4cced1f57d3eed93f0d8f55e05a95754587489a161ba229d9ee22e077970ab",
+              "index": 3,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            }
+          }
+        ],
+        "node": "node-2"
+      }
+    ],
+    "raw": "target/v53-native-cancellation/builds/confirmationfirst-8b76a388/general-search-engine-replication/target/v53-native-dispatch/run-e9d00dac-96ac-4f37-bd9f-07b9dba16bd8"
+  },
+  "pending": [
+    "independent full original-first confirmation replay",
+    "actual halt/SIGKILL cuts",
+    "repeated refresh and matching local INTENT",
+    "autonomous integration and all-profile final-source hosted qualification"
+  ],
+  "phase3Complete": false,
+  "privateOptionalFields": [
+    "confirmation",
+    "renewals"
+  ],
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "pythonTests": 831,
+  "reports": {
+    "confirmationchecked": {
+      "io.github.patricklfdm.generalsearch.replication.V53FormatTest": {
+        "cases": [
+          {
+            "name": "commandAndReadTokenEncodingRemainExact",
+            "seconds": 0.021,
+            "status": "PASS"
+          },
+          {
+            "name": "parserCountsObjectKeysAndCapsNestingBeforeRecursiveDecoding",
+            "seconds": 0.012,
+            "status": "PASS"
+          },
+          {
+            "name": "everyKindMatchesIndependentGoldenBytesAndDefensiveDecodedValues",
+            "seconds": 0.019,
+            "status": "PASS"
+          },
+          {
+            "name": "malformedAndOlderHeadersFailBeforeReadingABody",
+            "seconds": 0.004,
+            "status": "PASS"
+          },
+          {
+            "name": "canonicalDuplicateUnknownFloatAndShapeViolationsReject",
+            "seconds": 0.002,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "ce03bbd1b925136a9e7df9c5b63293c4015a4d5e92cb43bb0943e4a2db6d9933"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationTest": {
+        "cases": [
+          {
+            "name": "localDischargeKeepsBoundedPhysicalRenewalsUntilSelectedReconciliation",
+            "seconds": 0.069,
+            "status": "PASS"
+          },
+          {
+            "name": "confirmedPointIsExplicitAndConservativeDecodedMergeStillRefusesThreePoints",
+            "seconds": 0.062,
+            "status": "PASS"
+          },
+          {
+            "name": "recomputedWireChecksumsCannotHideCrossBindingOrUnretainedHead",
+            "seconds": 0.04,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "4942f08bb9b6ce9e5b12c138ceb537c36f258b738a22cfde46cc65b11314dc7b"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerRetentionPlanTest": {
+        "cases": [
+          {
+            "name": "decodingRefusesNoncanonicalOrIncompleteBindings",
+            "seconds": 0.231,
+            "status": "PASS"
+          },
+          {
+            "name": "cannotEnrollCurrentVoterChangedStorageOrJointAndTerminalOperation",
+            "seconds": 0.272,
+            "status": "PASS"
+          },
+          {
+            "name": "retirementCannotEraseStillUnconfirmedOriginalOperation",
+            "seconds": 0.065,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignOperationAndSameIndexDifferentAuthorityCannotMerge",
+            "seconds": 0.064,
+            "status": "PASS"
+          },
+          {
+            "name": "allFiveJoiningProfilesBindExactSourceAndCanonicalImmutableRequest",
+            "seconds": 0.224,
+            "status": "PASS"
+          },
+          {
+            "name": "newerTipSameImageAndReceiptCannotReplaceOriginalAncestor",
+            "seconds": 0.062,
+            "status": "PASS"
+          },
+          {
+            "name": "mergesKeepBothPossibilitiesWithoutTrustingEmptyOrNewerClaims",
+            "seconds": 0.102,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "513349aa3f60f9216d52611b59448775f8816fcf1d403b8bd7fd8751f74ad9fc"
+      }
+    },
+    "confirmationfirst": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationNativeTest": {
+        "cases": [
+          {
+            "name": "actualAckForcesDischargeAcrossStaleSelectedSourcePublicationAndColdReopen",
+            "seconds": 263.026,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "0c258b33db480fa4271caaba05bdc14bce4167ad3e576fcf0340b405d4b8db61"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationTest": {
+        "cases": [
+          {
+            "name": "confirmedPointIsExplicitAndConservativeDecodedMergeStillRefusesThreePoints",
+            "seconds": 0.058,
+            "status": "PASS"
+          },
+          {
+            "name": "recomputedWireChecksumsCannotHideCrossBindingOrUnretainedHead",
+            "seconds": 0.033,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "94776c715e21bee74d64039d577b13a61da96cc0e10ab9341f8804bbbf7498c4"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerRetentionPlanTest": {
+        "cases": [
+          {
+            "name": "decodingRefusesNoncanonicalOrIncompleteBindings",
+            "seconds": 0.044,
+            "status": "PASS"
+          },
+          {
+            "name": "cannotEnrollCurrentVoterChangedStorageOrJointAndTerminalOperation",
+            "seconds": 0.102,
+            "status": "PASS"
+          },
+          {
+            "name": "retirementCannotEraseStillUnconfirmedOriginalOperation",
+            "seconds": 0.035,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignOperationAndSameIndexDifferentAuthorityCannotMerge",
+            "seconds": 0.047,
+            "status": "PASS"
+          },
+          {
+            "name": "allFiveJoiningProfilesBindExactSourceAndCanonicalImmutableRequest",
+            "seconds": 0.167,
+            "status": "PASS"
+          },
+          {
+            "name": "newerTipSameImageAndReceiptCannotReplaceOriginalAncestor",
+            "seconds": 0.053,
+            "status": "PASS"
+          },
+          {
+            "name": "mergesKeepBothPossibilitiesWithoutTrustingEmptyOrNewerClaims",
+            "seconds": 0.089,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "c03fe744b7a2891c80925391cb40ef27e7d06e181ec6867a01b77f72cde79584"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53SelectedLearnerRetentionTest": {
+        "cases": [
+          {
+            "name": "includedStateSelectionAndLocalRevisionMustRemainExact",
+            "seconds": 12.48,
+            "status": "PASS"
+          },
+          {
+            "name": "remoteObligationsMergeBeforeAckSurviveInterruptedCompletionAndLaterCancellation",
+            "seconds": 169.265,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "29ba4e9f3b9b970c3e201543262041dec6cb031379fa2a3f37b8cc318f1cae5e"
+      }
+    },
+    "confirmationrenewal": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationNativeTest": {
+        "cases": [
+          {
+            "name": "actualAckForcesDischargeAcrossStaleSelectedSourcePublicationAndColdReopen",
+            "seconds": 479.746,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "96c72a74b6e1a3beec71ffef391eb15822d9c562bc719a850b2a26287ca9bd45"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationTest": {
+        "cases": [
+          {
+            "name": "confirmedPointIsExplicitAndConservativeDecodedMergeStillRefusesThreePoints",
+            "seconds": 0.057,
+            "status": "PASS"
+          },
+          {
+            "name": "recomputedWireChecksumsCannotHideCrossBindingOrUnretainedHead",
+            "seconds": 0.039,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "d0bdc3b5a7aeff5ea125117924e388ab442a3e31d8adc6efb84636064d1ff359"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadObservationTest": {
+        "cases": [
+          {
+            "name": "currentPromotedHeadObservationUsesExistingBudgetAndDoesNotSelectAnotherGeneration",
+            "seconds": 63.832,
+            "status": "PASS"
+          },
+          {
+            "name": "nativeTwoEndpointLedgerNarrowsOnlyAfterRealTypedSelectionAndResumesInterruptedUpdate",
+            "seconds": 197.101,
+            "status": "PASS"
+          },
+          {
+            "name": "actualPreparedSelectionBindsObservationAndCloseRevokesIt",
+            "seconds": 4.644,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "c92b25b35befb6822a0258d1f4a12fdcdd522c9f908aae0768869d633580b0a6"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerRetentionPlanTest": {
+        "cases": [
+          {
+            "name": "decodingRefusesNoncanonicalOrIncompleteBindings",
+            "seconds": 0.033,
+            "status": "PASS"
+          },
+          {
+            "name": "cannotEnrollCurrentVoterChangedStorageOrJointAndTerminalOperation",
+            "seconds": 0.102,
+            "status": "PASS"
+          },
+          {
+            "name": "retirementCannotEraseStillUnconfirmedOriginalOperation",
+            "seconds": 0.037,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignOperationAndSameIndexDifferentAuthorityCannotMerge",
+            "seconds": 0.05,
+            "status": "PASS"
+          },
+          {
+            "name": "allFiveJoiningProfilesBindExactSourceAndCanonicalImmutableRequest",
+            "seconds": 0.172,
+            "status": "PASS"
+          },
+          {
+            "name": "newerTipSameImageAndReceiptCannotReplaceOriginalAncestor",
+            "seconds": 0.056,
+            "status": "PASS"
+          },
+          {
+            "name": "mergesKeepBothPossibilitiesWithoutTrustingEmptyOrNewerClaims",
+            "seconds": 0.079,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "400fe9acc62b6032bc2ffd8fd93796b0fe5097f0d98aabf861d76e9f77294ce3"
+      }
+    }
+  },
+  "runs": {
+    "confirmationchecked": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53FormatTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerRetentionPlanTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "confirmationchecked",
+      "requestedTests": [
+        "V53LearnerConfirmationTest",
+        "V53LearnerRetentionPlanTest",
+        "V53FormatTest"
+      ],
+      "seconds": 14.646770616003778,
+      "skipped": 0,
+      "tests": 15
+    },
+    "confirmationfirst": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationNativeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerRetentionPlanTest": 7,
+        "io.github.patricklfdm.generalsearch.replication.V53SelectedLearnerRetentionTest": 2
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "confirmationfirst",
+      "requestedTests": [
+        "V53LearnerConfirmationTest",
+        "V53LearnerConfirmationNativeTest",
+        "V53LearnerRetentionPlanTest",
+        "V53SelectedLearnerRetentionTest"
+      ],
+      "seconds": 449.3712862300017,
+      "skipped": 0,
+      "tests": 12
+    },
+    "confirmationrenewal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationNativeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerConfirmationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerHeadObservationTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerRetentionPlanTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "confirmationrenewal",
+      "requestedTests": [
+        "V53LearnerConfirmationTest",
+        "V53LearnerConfirmationNativeTest",
+        "V53LearnerRetentionPlanTest",
+        "V53LearnerHeadObservationTest"
+      ],
+      "seconds": 741.8121000989995,
+      "skipped": 0,
+      "tests": 13
+    }
+  },
+  "schema": "gse-v53-learner-confirmation-v1",
+  "status": "PASS_DURABLE_CONFIRMATION_COMPONENT"
+}

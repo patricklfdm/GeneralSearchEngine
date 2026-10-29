@@ -6,9 +6,16 @@ import java.util.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** Selector-bound conservative learner merge. Keeps exact included source
- * snapshots and the original local revision; this never narrows an obligation. */
+/** Selector-bound learner merge. Keeps exact included force-bound source
+ * snapshots and the original local revision before using confirmed progress. */
 final class MembershipSelectedLearnerRetention {
+    static final class Originals {
+        final List<MembershipLearnerRetentionPlan> plans;
+        final MembershipContext authority;
+        private Originals(List<MembershipLearnerRetentionPlan> plans,MembershipContext authority) {
+            this.plans=List.copyOf(plans);this.authority=authority;
+        }
+    }
     static final int MAGIC=0x47534c53;
     static final int MAXIMUM=HEADER+4+4096+4+65536+4+MembershipLearnerRetentionFiles.MAXIMUM+4
             +6*(12+16384+MembershipSourcePacket.ENVELOPE+MembershipLearnerRetentionSource.MAXIMUM);
@@ -67,7 +74,7 @@ final class MembershipSelectedLearnerRetention {
         }
         MembershipSelectedSources.cuts(bases.toByteArray(),selected);
         require(refs.stream().map(MembershipFormat::object).anyMatch(r->r.get("voter").equals(local.nodeId().value())),"selected learner local source missing");
-        return new MembershipSelectedLearnerRetention(bytes,raw,MembershipLearnerRetentionPlan.mergeRecorded(root,plans));
+        return new MembershipSelectedLearnerRetention(bytes,raw,MembershipLearnerRetentionPlan.mergeSelected(root,new Originals(plans,authority.context)));
     }
     private static void part(ByteArrayOutputStream output,byte[] bytes,int maximum) {
         require(bytes.length>0 && bytes.length<=maximum,"selected learner member bound");

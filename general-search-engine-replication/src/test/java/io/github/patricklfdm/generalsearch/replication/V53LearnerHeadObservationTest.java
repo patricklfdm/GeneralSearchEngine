@@ -35,6 +35,10 @@ class V53LearnerHeadObservationTest {
                 var later=V53CapsuleFixture.fromHistory(original.source,4).verify();
                 var forward=V53LearnerProgressNetworkTest.bridge(original,3,4);
                 later=later.retainingVerifiedAncestry(List.of(forward));byte[] laterAncestry=MembershipGenerationPlan.ancestry(List.of(forward));
+                var lostRenewal=later;byte[] missingOld=laterAncestry;
+                assertThrows(IllegalArgumentException.class,()->narrowed.required(lostRenewal,missingOld),"local observation cannot retire another voter's renewal");
+                var oldRenewal=V53LearnerProgressNetworkTest.bridge(original,2,4);
+                later=later.retainingVerifiedAncestry(List.of(oldRenewal,forward));laterAncestry=MembershipGenerationPlan.ancestry(List.of(oldRenewal,forward));
                 var uncertain=narrowed.offer(later,laterAncestry,observed.learner);
                 assertArrayEquals(uncertain.bytes(),uncertain.observe(later,laterAncestry,observed).bytes(),"old observation cannot discharge a newer offered endpoint");
                 var advanced=MembershipLearnerRetentionPlan.genesis(initial).offer(later,laterAncestry,observed.learner);

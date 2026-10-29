@@ -1,5 +1,9 @@
 # Read-only distributed learner-head queries
 
+The later [durable confirmation boundary](PHASE_3_LEARNER_CONFIRMATION.md) now
+consumes the live received result. The qualification below describes this
+read-only component at its original source revision.
+
 This is the next component after [local forced-head observation](PHASE_3_LEARNER_HEAD_OBSERVATION.md).
 Phase 3 remains **OPEN**. Receiving an ACK does not yet discharge any durable
 source obligation or complete automatic learner enrollment.

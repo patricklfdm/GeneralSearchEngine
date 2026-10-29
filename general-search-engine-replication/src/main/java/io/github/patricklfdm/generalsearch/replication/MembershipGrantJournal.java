@@ -524,6 +524,22 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(request.equals(learnerHeadRequest(joining,budget)),"learner head endpoint changed original");
         current.capsule.verifyAncestry(current.ancestry(),List.of(endpoint));
     }
+    /** Force the exact actually received head evidence before any source can
+     * freeze the discharge. Decoded frames/plans are deliberately not inputs. */
+    synchronized MembershipLearnerRetentionFiles.State retainLearnerConfirmation(MembershipLearnerHeadProbe.Received observed)throws IOException {
+        var before=learnerRetentionState();floorIdle();applicationReferencesIdle();
+        require(pendingAccept.active()==null,"learner confirmation cannot change a pending slot");
+        require(selection==null || selection.digest().equals(current.manifest.value().get("selection")),"learner confirmation uninstalled selection");
+        var proof=observed.confirmation(this,resources);
+        var plan=before.plan().confirm(current.capsule,current.ancestry(),proof);
+        if(Arrays.equals(plan.bytes(),before.plan().bytes()))return before;
+        require(promise==null || basis!=null || current.manifest.value().get("promise").equals(promise.digest()),
+                "learner confirmation cannot change an incomplete grant");
+        try {
+            var state=learnerRetention.install(plan,maximum-storedJournal().length-pendingBytes(),cut);
+            observed.check();cut.at("LEARNER_RETENTION_CONFIRMATION_BEFORE_RETURN");observed.check();return state;
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
     /** Build from the original native reservation (or the already retained one),
      * never from a caller-supplied learner receipt or inferred newer cut. */
     synchronized MembershipLearnerRetentionIntent learnerRetentionIntent(MembershipIdentity joining,Map<String,Object> ballot)throws IOException {

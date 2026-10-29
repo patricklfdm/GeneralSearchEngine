@@ -1,5 +1,45 @@
 # V5.3 Phase 3 contract amendments
 
+## A35 — persist exact head confirmation through selected source retention
+
+The private learner plan may include `confirmation: {query, ack}` containing the
+original canonical base64 wire frames. Absence retains the previous exact bytes;
+presence requires a nonempty plan and the confirmed endpoint as its first point.
+The transcript is bounded at 8 KiB, the plan at the existing 16 KiB, and its owner
+file at the existing 32 KiB. Public wire/disk kinds and resource ceilings do not
+change. Maximum legal identity widths, two uncertain points and two pending
+renewals fit the existing limits.
+
+Only a live original `MembershipLearnerHeadProbe.Received` owned by the same
+native journal/resource pool can enter durable confirmation. Checks bind the
+full original request, identities, stable view, trace, sequence, correlation and
+endpoint ancestry. Force candidate/replace/parent before return; check the live
+receipt again afterwards. Same-endpoint fresh traces are idempotent. Late older
+confirmations cannot regress progress and newer uncertain offers remain.
+
+The optional `renewals` field retains up to two older physical checkpoint
+obligations after local narrowing. Local and remote observations both retain
+them until selected reconciliation: a local receipt must not stop producing
+an ACK still required by another source. Empty renewal lists are omitted;
+nonempty lists are ordered, distinct and strictly below the first possibility.
+Admission authenticates their ancestry and counts them under the unchanged
+bridge/journal limits. A third pending renewal refuses before ledger mutation.
+
+The selected-source verifier constructs a private provenance token only after
+checking the original local predecessor and exact selected source inclusions.
+Its merge may use the highest recorded confirmation, after checking all point
+conflicts, to discharge older obligations. Arbitrary decoded-plan merging stays
+conservative, including pending renewals. Keep the actual transcript through PROMISE/BASIS, selected intent,
+completion, cold reopen and publication. A checksum or singleton ledger is never
+standalone proof of receipt, and the existing trusted/private/non-Byzantine
+network assumption is unchanged.
+
+Local-only observation still cannot invent a network transcript. An advancement
+past its stored confirmation loses that proof until the newer head is queried.
+Rollback retains decoding support for already written files. New-path physical
+replay, process cuts, repeated refresh, matching local INTENT, all profiles and
+full Phase 3 remain OPEN. See [the durable boundary](PHASE_3_LEARNER_CONFIRMATION.md).
+
 ## A34 — bounded read-only queries of a forced learner head
 
 Append `LEARNER_HEAD_QUERY` (31) and `LEARNER_HEAD_ACK` (32), both at most

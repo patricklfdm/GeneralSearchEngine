@@ -7,6 +7,7 @@ import copy
 import hashlib
 import json
 import struct
+import base64
 from . import format_fixture as f
 
 FILE='learner-retention.gslr'
@@ -21,8 +22,30 @@ def need(value,message):
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 
 
+def confirmation(value,root,request,learner):
+    """Binding only. Original wire/force provenance is a separate acceptance gate."""
+    need(type(value) is dict and set(value)=={'query','ack'} and len(f.canonical(value))<=8192,'learner confirmation fields/capacity')
+    frames=[]
+    for field,kind in [('query','LEARNER_HEAD_QUERY'),('ack','LEARNER_HEAD_ACK')]:
+        need(type(value[field]) is str,'learner confirmation wire encoding')
+        raw=base64.b64decode(value[field],validate=True)
+        need(base64.b64encode(raw).decode()==value[field],'learner confirmation canonical base64')
+        frames.append(f.decode(raw,'wire',kind))
+    q,a=frames;point=a['payload']['endpoint'];view=point['cut']['view']
+    need(q['root']==a['root']==root and q['recipient']==a['sender']==learner and q['sender']==a['recipient'], 'learner confirmation identities')
+    need(all(q[k]==a[k] for k in ['view','ballot','trace','sequence']) and q['sequence']==1
+         and q['view']==request['expected'] and q['payload']['request']==request
+         and a['payload']['request']==sha(f.canonical(request)),'learner confirmation request/correlation')
+    need(q['ballot']==dict(counter=1,proposer=learner['node'],incarnation=learner['storage'])
+         and view['operation'] is None and view['old']==view['new'] and view['generation']<=256
+         and view['old']==sorted(set(view['old'])) and q['sender']['node'] in view['old'] and learner['node'] not in view['old']
+         and sha(f.canonical(dict(view,root=root)))==request['expected'],'learner confirmation original view')
+    return point
+
+
 def plan(value):
-    need(type(value) is dict and set(value)=={'root','request','learner','possible'},'learner retention plan fields')
+    need(type(value) is dict and {'root','request','learner','possible'}<=set(value)
+         <={'root','request','learner','possible','confirmation','renewals'},'learner retention plan fields')
     types=f.catalog()['types'];f.check_type(value['root'],'hash',types)
     points=value['possible'];need(type(points) is list and len(points)<=2,'learner retention endpoint capacity')
     empty=value['request'] is None
@@ -37,7 +60,20 @@ def plan(value):
         f.check_type(point['cut'],'cut',types)
         for k in ('catalog','application'):f.check_type(point[k],'hash',types)
         need(point['cut']['index']>prior,'learner retention endpoint order');prior=point['cut']['index']
+    if 'renewals' in value:
+        renewals=value['renewals']
+        need(not empty and type(renewals) is list and 1<=len(renewals)<=2,'learner retention pending renewal capacity')
+        prior=-1
+        for point in renewals:
+            need(type(point) is dict and set(point)=={'cut','catalog','application'},'learner renewal anchor fields')
+            f.check_type(point['cut'],'cut',types)
+            for k in ('catalog','application'):f.check_type(point[k],'hash',types)
+            need(prior<point['cut']['index']<points[0]['cut']['index'],'learner retention pending renewal order')
+            prior=point['cut']['index']
     need(len(f.canonical(value))<=16384,'learner retention plan capacity')
+    if 'confirmation' in value:
+        need(not empty and confirmation(value['confirmation'],value['root'],value['request'],value['learner'])==points[0],
+             'learner confirmation retained endpoint')
     return value
 
 
@@ -110,6 +146,7 @@ def merged(before,originals):
     state=decode(before);bound=None;points={}
     for raw in [before,*originals]:
         value=decode(raw);need(value['root']==state['root'],'learner retention merge root');p=value['plan']
+        need(not {'confirmation','renewals'}&set(p),'confirmed discharge requires selected provenance replay')
         if p['request'] is None:continue
         if bound is None:bound=copy.deepcopy(p)
         need((p['request'],p['learner'])==(bound['request'],bound['learner']),'learner retention merge request')
