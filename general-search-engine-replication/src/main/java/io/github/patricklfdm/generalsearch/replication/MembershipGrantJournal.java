@@ -44,6 +44,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipPendingAccept pendingAccept;
     private MembershipPendingContextFiles pendingContext;
     private MembershipPeerRetentionFiles peerRetention;
+    private MembershipLearnerRetentionFiles learnerRetention;
     private MembershipFutureRetentionFiles futureRetention;
     private Applied nativeApplied;
     private String retentionSelector;
@@ -93,8 +94,10 @@ final class MembershipGrantJournal implements AutoCloseable {
             journal.resources=resources;
             journal.sources=new MembershipBasisSources(path,resources,cut,journal.promises,journal.bases);
             journal.loadPeerRetention();
+            journal.loadLearnerRetention();
             selected=MembershipCurrentGeneration.readOwned(new HistoryRead(journal),resources,cut);
             if(journal.peerRetention!=null)journal.peerRetention.state().plan().required(selected.capsule,selected.ancestry());
+            if(journal.learnerRetention!=null)journal.learnerRetention.state().plan().required(selected.capsule,selected.ancestry());
             return new RetainedHistory(journal,selected);
         }catch(IOException|RuntimeException|Error error) {
             if(selected!=null)selected.close();
@@ -362,8 +365,10 @@ final class MembershipGrantJournal implements AutoCloseable {
                     Math.min(MembershipPendingContextFiles.MAXIMUM_METADATA,maximum-journal.storedJournal().length-journal.pendingBytes()));
             if(materialization!=null)journal.loadPeerRetention();
             if(materialization!=null)journal.loadFutureRetention();
+            if(materialization!=null)journal.loadLearnerRetention();
             if(journal.current==null)journal.reloadGenerations();
             if(journal.peerRetention!=null)journal.recoverPeerRetention();
+            if(journal.learnerRetention!=null)journal.recoverLearnerRetention();
             if(withFloors) {
                 journal.floors=ownedHistory?new MembershipFloorFiles(path,root,identity,resources,new HistoryRead(journal),withFloorRelease):
                         new MembershipFloorFiles(path,root,identity,resources,verifier,withFloorRelease);
@@ -414,10 +419,60 @@ final class MembershipGrantJournal implements AutoCloseable {
         inactive=new MembershipGenerationFiles(directory,current.generation,resources);
     }
 
+    private void loadLearnerRetention()throws IOException {
+        if(Files.exists(directory.resolve(MembershipLearnerRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS)
+                || Files.exists(directory.resolve(MembershipLearnerRetentionFiles.NEXT),LinkOption.NOFOLLOW_LINKS))
+            learnerRetention=new MembershipLearnerRetentionFiles(new HistoryRead(this),resources,maximum-storedJournal().length-pendingBytes());
+    }
+    private void recoverLearnerRetention()throws IOException {
+        if(learnerRetention.initialized())learnerRetention.state().plan().required(current.capsule,current.ancestry());
+        else requireRetentionGenesis();
+        learnerRetention.discardUnexposed(cut);
+        if(!learnerRetention.initialized())learnerRetention.install(MembershipLearnerRetentionPlan.genesis(current.capsule),maximum-storedJournal().length-pendingBytes(),cut);
+        else learnerRetention.reseal(cut);
+    }
+    /** Private local component only. Missing obligations cannot be reconstructed
+     * from a later tip; the required open must be used after opting in. */
+    synchronized MembershipLearnerRetentionFiles.State initializeLearnerRetention()throws IOException {
+        require(ownedHistory,"learner retention requires native history owner");checkOwner();
+        if(learnerRetention!=null){require(!learnerRetention.pending(),"learner retention recovery required");return learnerRetention.state();}
+        requireRetentionGenesis();
+        learnerRetention=new MembershipLearnerRetentionFiles(new HistoryRead(this),resources,maximum-storedJournal().length-pendingBytes());
+        try{return learnerRetention.install(MembershipLearnerRetentionPlan.genesis(current.capsule),maximum-storedJournal().length-pendingBytes(),cut);}
+        catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    synchronized MembershipLearnerRetentionFiles.State learnerRetentionState()throws IOException {
+        checkOwner();require(learnerRetention!=null && !learnerRetention.pending(),"learner retention not initialized/recovered");
+        learnerRetention.state().plan().required(current.capsule,current.ancestry());return learnerRetention.state();
+    }
+    /** Exact local obligation only, never an export permit or learner ACK. */
+    synchronized MembershipLearnerRetentionFiles.State retainLearnerOffer(MembershipIdentity joining)throws IOException {
+        var before=learnerRetentionState();floorIdle();applicationReferencesIdle();
+        require(pendingAccept.active()==null,"learner retention cannot change a pending slot");
+        var plan=before.plan().offer(current.capsule,current.ancestry(),joining);
+        if(Arrays.equals(plan.bytes(),before.plan().bytes()))return before;
+        require(promise==null || basis!=null || current.manifest.value().get("promise").equals(promise.digest()),
+                "learner retention cannot change an incomplete grant");
+        try{return learnerRetention.install(plan,maximum-storedJournal().length-pendingBytes(),cut);}
+        catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    /** Quorum replication/frozen-source propagation must be connected before
+     * enabling source exposure in this mode. Local files cannot stand in for it. */
+    synchronized void checkLearnerRetentionExport()throws IOException {
+        checkOwner();require(learnerRetention==null,"learner source export requires replicated retention permit");
+    }
+
     private void loadPeerRetention()throws IOException {
         if(Files.exists(directory.resolve(MembershipPeerRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS)
                 || Files.exists(directory.resolve(MembershipPeerRetentionFiles.NEXT),LinkOption.NOFOLLOW_LINKS))
             peerRetention=new MembershipPeerRetentionFiles(new HistoryRead(this),resources,maximum-storedJournal().length-pendingBytes());
+    }
+    /** Opt-in local learner-retention component. Not yet a public/automatic mode. */
+    static MembershipGrantJournal openRetainingLearners(Path requested,Path materialization,MembershipRoot root,MembershipIdentity identity,
+            MembershipResources resources,int maximum,MembershipBallotAllocator.Cut cut)throws IOException {
+        var owner=openBootstrapped(requested,materialization,root,identity,resources,maximum,cut);
+        try{owner.initializeLearnerRetention();return owner;}
+        catch(IOException|RuntimeException|Error error){try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     private void loadFutureRetention()throws IOException {
         if(Files.exists(directory.resolve(MembershipFutureRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS)
@@ -799,7 +854,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             }catch(IOException failure){throw new java.io.UncheckedIOException(failure);}
         };
     }
-    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes())+(peerRetention==null?0:peerRetention.bytes())+(futureRetention==null?0:futureRetention.bytes())+futureCompletionBytes();}
+    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes())+(peerRetention==null?0:peerRetention.bytes())+(learnerRetention==null?0:learnerRetention.bytes())+(futureRetention==null?0:futureRetention.bytes())+futureCompletionBytes();}
     private boolean importedFuturePending;
     private long futureCompletionBytes() {
         if(!futurePending() && !importedFuturePending)return 0;
@@ -1599,6 +1654,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         parents.add(original.terminal());addFloorParent(parents);
         if(peerRetention!=null)parents.addAll(peerRetention.state().plan().required(original,ancestry));
+        if(learnerRetention!=null)parents.addAll(learnerRetention.state().plan().required(original,ancestry));
         for(var basis:bases.values()) {
             var cap=sources.original(basis).packet().capsule().value();
             parents.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
@@ -1608,6 +1664,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Reserve every still-required endpoint, including the whole original selected set, before a new vote. */
     private void publicationCapacity(MembershipPendingAccept.Vote vote,AutomaticReplicationException.Outcome outcome)throws IOException {
         byte[] ancestry=current.ancestry();var parents=applicationParents(ancestry);String kind=(String)vote.entry().value().get("kind");
+        if(learnerRetention!=null && learnerRetention.state().plan().preventsRetirement(kind,vote.payload()))
+            throw new MembershipOperationException(MembershipOperationException.Reason.CAPACITY_EXCEEDED,outcome,Optional.empty(),
+                    "retained learner obligation prevents operation retirement",null);
         var renewed=MembershipCheckpointPlan.renewalParents(current.capsule,kind,parents,ancestry);
         int groups=MembershipCheckpointPlan.requiredBridges(current.capsule,kind,parents).size();
         int bytes=renewed.size()>5?MembershipSelectionCoverage.MAXIMUM+1:current.coverage().isPresent()
@@ -2082,6 +2141,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(pendingAccept!=null)pendingAccept.check();
         if(pendingContext!=null)pendingContext.check();
         if(peerRetention!=null)peerRetention.check();
+        if(learnerRetention!=null)learnerRetention.check();
         if(futureRetention!=null)futureRetention.check();
         if(appliedEnd!=null)appliedEnd.check();
         if(replayFiles!=null)replayFiles.check();
@@ -2095,6 +2155,8 @@ final class MembershipGrantJournal implements AutoCloseable {
             var intent=selectedRetentionIntent();
             require(intent==null || !intent.needsCompletion(peerRetention.state()),"selected retention completion required");
         }
+        if(current!=null && learnerRetention!=null && learnerRetention.initialized())
+            learnerRetention.state().plan().required(current.capsule,current.ancestry());
         if(current!=null && futureRetention!=null && futureRetention.initialized())verifyFutureRetention();
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
@@ -2536,6 +2598,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** The same writer monitor will own later generation installation; external changes are refused. */
     synchronized Decoded prepareCurrent(Map<String,Object> incoming) throws IOException {
         require(current!=null,"current generation required");checkOwner();
+        require(learnerRetention==null || learnerRetention.state().plan().empty(),"learner retention frozen-source propagation unavailable");
         if(pendingContext!=null && pendingContext.active().isPresent())return prepareContextCurrent(incoming);
         if(carriedVoteUntransferred() && promise!=null && basis!=null && promise.value().get("ballot").equals(incoming)) {
             // Replaying an already forced grant does not begin a new campaign or
@@ -2698,6 +2761,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         checkIncomingHistory(incoming,images);var packet=incoming.packet;
         var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
         if(peerRetention!=null)ancestors.addAll(peerRetention.state().plan().required(current.capsule,current.ancestry()));
+        if(learnerRetention!=null)ancestors.addAll(learnerRetention.state().plan().required(current.capsule,current.ancestry()));
         for(var original:bases.values()) {
             var cap=sources.original(original).packet().capsule().value();
             ancestors.add(new MembershipCapsule.Anchor(object(cap.get("cut")),(String)cap.get("catalog"),(String)cap.get("application")));
@@ -2707,6 +2771,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             futureRetention.state().peers.forEach(peer->ancestors.add(peer.lower()));
         }
         incoming.verifyAncestry(MembershipGenerationPlan.ancestry(bridges),ancestors);
+        if(learnerRetention!=null)learnerRetention.state().plan().required(incoming,MembershipGenerationPlan.ancestry(bridges));
         var certificate=incoming.membershipCertificateFence().orElseThrow(()->new IllegalArgumentException("no authenticated membership certificate fence"));
         if(current.adopted && current.capsule.sameProvenPrefix(packet)) {
             var saved=decode(AdmissionPaths.read(directory.resolve("generations").resolve(current.generation).resolve("promise.gsr"),8192),"records","PROMISE");
@@ -3106,8 +3171,10 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private MembershipGenerationPlan installationPlan(MembershipSelection.Decision selected,List<MembershipSelection.Bridge> bridges,
             List<MembershipSelection.Bridge> retainedBridges,Map<String,byte[]> images,boolean installed)throws IOException {
+        require(learnerRetention==null || learnerRetention.state().plan().empty(),"learner retention selected-source propagation unavailable");
         var ancestors=new ArrayList<MembershipCapsule.Anchor>();ancestors.add(current.capsule.terminal());addFloorParent(ancestors);
         if(peerRetention!=null)ancestors.addAll(peerRetention.state().plan().required(current.capsule,current.ancestry()));
+        if(learnerRetention!=null)ancestors.addAll(learnerRetention.state().plan().required(current.capsule,current.ancestry()));
         MembershipSelectedRetention retention=null;
         if(peerRetention!=null) {
             retention=installed?selectedRetentionIntent():MembershipSelectedRetention.capture(selected,identity,peerRetention.activeBytes());
@@ -3265,6 +3332,6 @@ final class MembershipGrantJournal implements AutoCloseable {
         for(var export:List.copyOf(voteExports))releaseVoteExport(export);
         for(var export:List.copyOf(recordExports))releaseRecordExport(export);
         for(var export:List.copyOf(sourceExports))releaseSourceExport(export);
-        if(!closed){closed=true;try{releasePublicationImage();if(futureRetention!=null)futureRetention.close();if(peerRetention!=null)peerRetention.close();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
+        if(!closed){closed=true;try{releasePublicationImage();if(futureRetention!=null)futureRetention.close();if(peerRetention!=null)peerRetention.close();if(learnerRetention!=null)learnerRetention.close();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }
 }

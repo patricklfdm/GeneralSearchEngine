@@ -1,0 +1,85 @@
+{
+  "acceptedClasses": {
+    "V53LearnerRetentionFilesTest": {
+      "label": "ledgerfinal",
+      "reportSha256": "205e98814ad36f273b49591be1947046ff163f5c41f03b1513615e9eabfacf05",
+      "seconds": 146.77,
+      "tests": 5
+    },
+    "V53LearnerRetentionPlanTest": {
+      "label": "ledgerrepair",
+      "reportSha256": "84b80259b66fb31fb457ead3d951630ca38a369e16068f0f8ebe9a825276aced",
+      "seconds": 0.907,
+      "tests": 7
+    },
+    "V53LearnerSourceTest": {
+      "label": "ledgerfinal",
+      "reportSha256": "d1e63fd0c67c97b740c7b26e332e9c7851d4b552c78ad4892a963700e8b9858e",
+      "seconds": 9.322,
+      "tests": 8
+    },
+    "V53PeerRetentionFilesTest": {
+      "label": "ledgerrepair",
+      "reportSha256": "85bf0613432054d1cee59860f070a5e90121d0baf9b7aea7d92250a83347d697",
+      "seconds": 164.389,
+      "tests": 6
+    },
+    "V53PeerRetentionPlanTest": {
+      "label": "ledgerfinal",
+      "reportSha256": "8cfad1fd274b4060aafb0d05eae5c7e4166d1e73406929d6a30b0b73c904c1ab",
+      "seconds": 40.249,
+      "tests": 6
+    }
+  },
+  "archive": {
+    "bytes": 4465337,
+    "path": "target/v53-learner-retention-local/originals-and-validation.tar.gz",
+    "sha256": "6d14e4e0db85c4c4b39a510697cf74d0ce4f0856f8b61ed055ca4bf048fc21b1"
+  },
+  "base": "4106696677ddd12eef71d66af24e62842f8dd227",
+  "codeAndBuildInputsChecked": 1272,
+  "correctedTestSources": [
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerRetentionPlanTest.java",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerRetentionFilesTest.java"
+  ],
+  "failureNotes": {
+    "ledgerbaseline": "unchanged 41066966 reproduces the existing peer-test assertion; no production change needed for that assertion",
+    "ledgerfinal": "one newly added test used invalid RETIRE through=0; one existing peer test expected missing explicit caller proof to fail despite authentic local inheritance",
+    "ledgerfirst": "new file missing from strict allocator inventory; corrected before successful component runs",
+    "ledgerrepair": "both test fixtures corrected; exact production class bytes match ledgerfinal"
+  },
+  "limits": {
+    "containerBytes": 32768,
+    "journalBytes": 33554432,
+    "planBytes": 16384,
+    "unresolvedEndpoints": 2
+  },
+  "nativeLocalHistory": [
+    "BARRIER",
+    "RESERVE",
+    "PREPARE",
+    "BARRIER",
+    "CANCEL"
+  ],
+  "nativeNetworkCancellationQualified": false,
+  "pending": [
+    "real quorum ACKs",
+    "frozen-source propagation and selected merge",
+    "forced learner-head confirmation/narrowing",
+    "native READY/CANCEL learner recovery",
+    "fresh-process halt/SIGKILL for new ledger",
+    "independent original-first full evidence qualification",
+    "all profiles and autonomous Phase 3 closure"
+  ],
+  "phase3Complete": false,
+  "productionClassCount": 881,
+  "replicatedExportEnabled": false,
+  "retainedEndpointIndexes": [
+    3,
+    4
+  ],
+  "schema": "gse-v53-learner-retention-local-v1",
+  "status": "PASS_LOCAL_COMPONENT",
+  "terminalIndex": 5,
+  "uniqueTests": 32
+}

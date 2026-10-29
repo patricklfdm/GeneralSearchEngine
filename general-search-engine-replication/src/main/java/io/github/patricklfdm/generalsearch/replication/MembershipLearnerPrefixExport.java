@@ -49,7 +49,7 @@ final class MembershipLearnerPrefixExport implements MembershipTransferExport {
             MembershipResources resources,LongSupplier clock,long started,long budget,boolean progress)throws IOException {
         this.owner=Objects.requireNonNull(owner);this.reader=Objects.requireNonNull(reader);this.progress=progress;
         synchronized(owner) {
-            original=owner.activationCapsule();
+            owner.checkLearnerRetentionExport();original=owner.activationCapsule();
             require(owner.discoveryState(resources).context()==original.context,"learner prefix shared exclusive owner");
             MembershipWire.envelope(request,original.context.root,reader,owner.activationIdentity());
             var reservation=progress?object(MembershipLearnerProgressAccess.operation(original.context,reader).get("request")):

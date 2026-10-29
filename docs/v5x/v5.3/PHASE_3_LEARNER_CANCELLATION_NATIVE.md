@@ -63,9 +63,11 @@ obligation before exposing the complete original source:
   INTENT. Missing earlier originals remain a refusal; never recreate their
   authority from current API arguments.
 
-These are requirements for subsequent implementation, **not an implemented
-ledger or a new frozen format**. Ordinary source provenance and the local A30
-cancellation transaction remain unchanged in this batch.
+The subsequent [local retention component](PHASE_3_LEARNER_RETENTION_LOCAL.md)
+implements bounded local storage and publication renewal. Quorum replication,
+frozen-source propagation and confirmed narrowing are still requirements, not
+implemented export authority. The original A30 failure and its source-bound
+receipt remain unchanged; no new frozen public format is introduced.
 
 ## Deferred complete qualification
 

@@ -57,9 +57,18 @@ class V53PeerRetentionFilesTest {
         for(var target:f.request.targets())try(var owner=f.open(target,"select-retained")){owner.selectCurrent(offers,List.of());}
         for(var target:f.request.targets())try(var owner=f.open(target,"install-retained")) {
             var before=V53ReplayFilesTest.files(target.replicaDirectory());
-            assertThrows(IllegalArgumentException.class,()->owner.installCurrent(offers,List.of(),List.of(),images));
+            var local=owner.floorCopyCurrent();
+            var parents=owner.peerRetentionState().plan().required(local.capsule,local.fileBytes("ancestry.gsr"));
+            var decision=new MembershipSelection.Campaign(offers.getFirst()).select(offers,List.of());
+            assertEquals(owner.originalSelection().orElseThrow().digest(),decision.selected().digest());
+            // Since native local-ancestry inheritance was introduced, an empty
+            // caller list is valid when this owner already retains the proof.
+            // Removing both sources of the required proof must still fail.
+            assertThrows(IllegalArgumentException.class,()->MembershipGenerationPlan.installation(
+                    decision,List.of(),List.of(),parents,local.capsule,new byte[0]));
             assertEquals(before,V53ReplayFilesTest.files(target.replicaDirectory()));
-            owner.installCurrent(offers,List.of(),f.bridges,images);
+            var installed=owner.installCurrent(offers,List.of(),List.of(),images);
+            assertArrayEquals(installed.bytes(),owner.installCurrent(offers,List.of(),f.bridges,images).bytes());
             var copy=owner.floorCopyCurrent();assertTrue(copy.capsule.ancestryAnchors(copy.fileBytes("ancestry.gsr")).keySet().stream().anyMatch(c->number(c.get("index"))==1));
         }
         f.maintain("retention-round-settled",obsolete);f.publish(3,false);
