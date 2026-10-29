@@ -22,7 +22,7 @@ now has implemented public policies and completed
 [hosted M01–M04 cohort](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) passed; remote adapter
 qualification was subsequently connected to the
 [complete protected cloud acceptance](v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md).
-Phase 6 registration/closeout is prepared for operator merge; the
+Phase 6 registration/closeout merged through PR #364; the
 [Phase 7 release plan](v5x/v5.2/PHASE_7_CHECKLIST.md) remains open.
 
 ## v5.2 — unreleased replica reads
@@ -33,6 +33,9 @@ Phase 6 registration/closeout is prepared for operator merge; the
 - [Cloud evidence provenance](v5x/v5.2/phase6-cloud-provenance.json)
 - [Cloud baseline registry](v5x/v5.2/cloud-benchmark-baselines.json)
 - [Phase 7 release preparation plan](v5x/v5.2/PHASE_7_CHECKLIST.md)
+- [Snapshot release checklist](v5x/v5.2/RELEASE_CHECKLIST.md)
+- [V5.2 migration guide](v5x/v5.2/MIGRATION_GUIDE.md)
+- [Draft V5.2 release notes](v5x/v5.2/RELEASE_NOTES.md)
 - [Source-reviewed entry and requirements](v5x/v5.2/PHASE_0_ENTRY_PLAN.md)
 - [Phase 0 contract and decisions](v5x/v5.2/PHASE_0_CONTRACT.md)
 - [Read authority, lifecycle and resource bounds](v5x/v5.2/READ_AUTHORITY_AND_LIFECYCLE.md)

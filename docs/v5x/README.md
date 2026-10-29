@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 and V5.1 published and independently verified; V5.2 complete protected cloud set accepted; Phase 6 registration under review and Phase 7 pending
+- **Status:** V5.0 and V5.1 published and independently verified; V5.2 complete protected cloud set accepted; Phase 6 registration merged; Phase 7A snapshot release preparation implemented
 - **Current stable / next replication reference:** GeneralSearchEngine `5.1.0`
 - **Inherited search/storage reference:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
@@ -26,8 +26,9 @@ policies. [Phase 4 qualification](v5.2/PHASE_4_QUALIFICATION.md) and its
 process-fault and consumer evidence. [Combined hardening](v5.2/PHASE_5_HARDENING.md)
 is locally verified. The [complete protected cloud set](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md)
 now passes all five rounds, retaining the explicit batch exceptions and original
-source identities. Phase 6 registration is prepared for review; the
-[Phase 7 release plan](v5.2/PHASE_7_CHECKLIST.md) is next.
+source identities. Phase 6 registration merged through PR #364. The
+[Phase 7A release checklist](v5.2/RELEASE_CHECKLIST.md) tracks packaged compatibility,
+consumer checks and validation before the final artifact freeze in 7B.
 The accepted V5.1 cloud evidence retains its original
 sources/sequences; publication does not alter those measurements.
 

@@ -21,7 +21,7 @@ correctness and compatibility qualification, with an explicit
 [Protected cloud acceptance](docs/v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md) passed in
 run `40841038976/1` at verifier source `8b9aa60a`: fifteen execution units across
 all five rounds, with the original quota continuation and single retention waiver
-preserved. Phase 6 registration/closeout is prepared for operator merge;
+preserved. Phase 6 registration/closeout merged through PR #364;
 [Phase 7](docs/v5x/v5.2/PHASE_7_CHECKLIST.md) covers packaged consumers, API/Javadocs,
 final coordinates and canonical artifacts next. Cloud admission used the accepted
 Cloud Build/full-CI policy; final release-candidate validation remains separate.

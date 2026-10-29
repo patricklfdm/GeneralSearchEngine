@@ -93,7 +93,8 @@ def qualify(output, source):
         if failed:
             phase = (name.removeprefix('lost-') if name in ('lost-lease', 'lost-ledger', 'lost-context', 'lost-plan', 'lost-intent') else
                      'identity' if name.startswith('lost-identity-') else 'insert')
-            error_type = 'ValueError' if name in ('image-drift', 'deadline') else 'ConnectionError'
+            error_type = ('TimeoutError' if name == 'deadline' else
+                          'ValueError' if name == 'image-drift' else 'ConnectionError')
             m.need(prepared['failure'] == dict(phase=phase, type=error_type), 'resource unrelated preparation failure: '+name)
         expected_inserts = (int(name.rsplit('-', 1)[1]) if name.startswith(('lost-insert-', 'lost-identity-')) else
                             0 if name in ('lost-lease', 'lost-ledger', 'lost-context', 'lost-plan', 'lost-intent') else

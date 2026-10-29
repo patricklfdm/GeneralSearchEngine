@@ -8,6 +8,12 @@ import tarfile
 from .cloud_common import ROOT, canonical, inventory, plan, read, require, save, sha
 from .offline_harness import CORE, REPLICATION
 from .performance_harness import source_inputs
+from .cloud_guest import MAX_BUNDLE_FILES
+
+
+def bundle_inventory(root, *, reserve_manifest=False):
+    # The complete archive includes bundle.json; reserve its slot while building.
+    return inventory(root, maximum_files=MAX_BUNDLE_FILES-int(reserve_manifest))
 
 
 def build(target, control, *, workload_qualification=False, remote_workload=False):
@@ -62,7 +68,7 @@ def build(target, control, *, workload_qualification=False, remote_workload=Fals
         dest = content / 'source-inputs' / name; dest.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(ROOT / name, dest)
     manifest = dict(schema='gse-v50-cloud-bundle-v1', source=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                     dirty=bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT)), jars=jars, inputs=inputs,
-                    java=version, planSha256=sha(canonical(p)), files=inventory(content))
+                    java=version, planSha256=sha(canonical(p)), files=bundle_inventory(content, reserve_manifest=True))
     if workload_qualification:
         manifest.update(schema='gse-v50-cloud-workload-bundle-v1', execution='offline-workload-bundle-only',
                         workloadPlanSha256=sha(workload_path.read_bytes()))
@@ -84,7 +90,7 @@ def extract(archive, target, maximum=128 << 20):
     target = Path(target); require(not target.exists(), 'fresh extraction target')
     with tarfile.open(archive, 'r:gz') as stream:
         members = stream.getmembers(); names = [m.name for m in members]
-        require(len(names) <= 2000 and len(set(names)) == len(names) and sum(m.size for m in members) <= maximum, 'archive bounds')
+        require(len(names) <= MAX_BUNDLE_FILES and len(set(names)) == len(names) and sum(m.size for m in members) <= maximum, 'archive bounds')
         for member in members:
             require(member.isfile() and not Path(member.name).is_absolute() and '..' not in Path(member.name).parts, 'unsafe archive member')
         target.mkdir(parents=True)

@@ -109,7 +109,8 @@ def run(root,control, *, volume_layout=False, bundle=None):
         check(sha_file(control)==plan['publishedControl']['sha256'],'published control checksum')
         inputs=source_inputs();inputs[str(PLAN.relative_to(ROOT))]=sha_file(PLAN)
         if bundle:
-            from .cloud_common import inventory as bundle_inventory, read as bundle_read
+            from .cloud_bundle import bundle_inventory
+            from .cloud_common import read as bundle_read
             bundle=Path(bundle).resolve();manifest=bundle_read(bundle/'bundle.json',16<<20)
             actual=bundle_inventory(bundle);actual.pop('bundle.json')
             inputs['docs/v5x/v5.0/phase6-runner-plan.json']=sha_file(ROOT/'docs/v5x/v5.0/phase6-runner-plan.json')
