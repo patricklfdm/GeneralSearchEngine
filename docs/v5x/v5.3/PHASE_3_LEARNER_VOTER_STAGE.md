@@ -2,8 +2,10 @@
 
 The subsequent [custody transaction](PHASE_3_LEARNER_CUSTODY.md) now consumes the
 live Ready capability. The stage also reserves its 256 KiB ownership decision
-within the same GENERATION charge; the public count/size limits stay unchanged.
-Actual original-path voter installation remains separate.
+within the same GENERATION charge. [Original placement](PHASE_3_LEARNER_PLACEMENT.md)
+adds two 64 KiB companions to that charge before staging begins, then performs
+the actual payload moves under custody. The public count/size limits stay
+unchanged; cold joined admission remains separate.
 
 Phase 3 remains **OPEN**. `MembershipLearnerVoterStage` adds durable installation
 bytes for the next ownership-handoff step. It does not open a voting journal,

@@ -1,0 +1,217 @@
+package io.github.patricklfdm.generalsearch.replication;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.*;
+import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
+import static io.github.patricklfdm.generalsearch.replication.MembershipBasisSources.*;
+import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
+
+/** Original-inode placement under transferred learner custody. This transaction
+ * does not admit a voter, delete predecessors or reopen an installation cold.
+ * A read-only cold inspection is deliberately not a recovery capability. */
+final class MembershipLearnerPlacement implements AutoCloseable {
+    static final int MAXIMUM=64*1024;
+    static final String PLAN="placement.json",READY="placed.json";
+    static final List<String> MOVES=List.of("genesis.gsr",MembershipBallotAllocator.CURRENT,"grants.gsr",
+            MembershipPendingAccept.FILE,"sources","generations",MembershipCurrentGeneration.SELECTOR);
+    private final MembershipLearnerCustody custody;
+    private final Original original;
+    private final Path directory;
+    private final Map<String,Object> binding;
+    private final Map<String,FileIdentity> records=new TreeMap<>();
+    private Object directoryKey;
+    private byte[] plan;
+    private boolean planForced,complete;
+
+    static Path directory(MembershipLearnerPlan summary) {
+        return summary.request().operationDirectory().resolveSibling(".gse-v53-learner-placement-"+summary.planDigest());
+    }
+    private MembershipLearnerPlacement(MembershipLearnerCustody custody)throws IOException {
+        this.custody=Objects.requireNonNull(custody);var summary=custody.summary();
+        original=new Original(summary,custody.originalDecision());directory=directory(summary);binding=AdmissionPaths.binding(directory);
+        AdmissionPaths.absent(directory);original.project();
+        require(Files.getFileStore(original.stage).equals(Files.getFileStore(original.replica)),"learner placement requires atomic same-filesystem moves");
+        original.plan(binding,"x".repeat(4096)); // Capacity refusal precedes any directory write.
+    }
+    static MembershipLearnerPlacement install(MembershipLearnerCustody custody,MembershipBallotAllocator.Cut cut)throws IOException {
+        Objects.requireNonNull(cut);
+        require(custody.placement()==null,"learner placement already started; original resume required");
+        var result=new MembershipLearnerPlacement(custody);custody.attachPlacement(result);
+        Files.createDirectory(result.directory);result.directoryKey=key(result.directory);result.plan=result.original.plan(result.binding,result.directoryKey.toString());
+        AdmissionPaths.forceDirectory(result.directory.getParent());result.point(cut,"LEARNER_PLACEMENT_DIRECTORY_FORCED");
+        result.forcePlan(cut,false);result.finish(cut);return result;
+    }
+    /** Continue only under the same live, exclusive installation custody. A
+     * caller cannot replace missing/torn originals with a fresh transaction. */
+    static MembershipLearnerPlacement resume(MembershipLearnerCustody custody,MembershipBallotAllocator.Cut cut)throws IOException {
+        Objects.requireNonNull(cut);
+        var result=custody.placement();require(result!=null,"learner placement has no live original transaction");
+        result.forcePlan(cut,true);result.finish(cut);return result;
+    }
+    private void forcePlan(MembershipBallotAllocator.Cut cut,boolean resume)throws IOException {
+        custody.check();
+        if(resume)require(plan!=null && records.containsKey(PLAN) && records.get(PLAN).bytes()==plan.length,
+                "learner placement incomplete original decision");
+        write(PLAN,plan,cut);AdmissionPaths.forceDirectory(directory);AdmissionPaths.forceDirectory(directory.getParent());
+        planForced=true;point(cut,"LEARNER_PLACEMENT_DECISION_FORCED");
+    }
+    private void finish(MembershipBallotAllocator.Cut cut)throws IOException {
+        custody.check();require(planForced,"learner placement decision not forced");
+        int completed=original.project();
+        for(int index=0;index<completed;index++) {
+            custody.check();String name=MOVES.get(index);forceMoved(original.replica.resolve(name));
+            AdmissionPaths.forceDirectory(original.stage);AdmissionPaths.forceDirectory(original.replica);
+            point(cut,"LEARNER_PLACEMENT_PARENTS_FORCED:"+name);
+        }
+        AdmissionPaths.forceDirectory(original.stage);AdmissionPaths.forceDirectory(original.replica);
+        point(cut,"LEARNER_PLACEMENT_PREFIX_RESEALED");
+        for(int index=completed;index<MOVES.size();index++) {
+            String name=MOVES.get(index);point(cut,"LEARNER_PLACEMENT_BEFORE_MOVE:"+name);
+            Path from=original.stage.resolve(name),to=original.replica.resolve(name);AdmissionPaths.absent(to);
+            Files.move(from,to,StandardCopyOption.ATOMIC_MOVE);point(cut,"LEARNER_PLACEMENT_MOVED:"+name);
+            forceMoved(to);AdmissionPaths.forceDirectory(original.stage);AdmissionPaths.forceDirectory(original.replica);
+            point(cut,"LEARNER_PLACEMENT_PARENTS_FORCED:"+name);
+        }
+        // A move may have completed immediately before an interruption. Always
+        // re-force the complete original payload and both parents on resume.
+        for(String name:MOVES){custody.check();forceMoved(original.replica.resolve(name));}
+        AdmissionPaths.forceDirectory(original.stage);AdmissionPaths.forceDirectory(original.replica);
+        point(cut,"LEARNER_PLACEMENT_PAYLOAD_FORCED");
+        write(READY,original.ready(plan,records.get(PLAN).key()),cut);complete=true;point(cut,"LEARNER_PLACEMENT_COMPLETE");
+    }
+    private static void forceMoved(Path path)throws IOException {
+        if(Files.isDirectory(path,LinkOption.NOFOLLOW_LINKS)) {
+            try(var files=Files.walk(path)) {
+                for(Path member:files.sorted(Comparator.reverseOrder()).toList()) {
+                    if(Files.isDirectory(member,LinkOption.NOFOLLOW_LINKS))AdmissionPaths.forceDirectory(member);
+                    else try(var channel=MembershipFileAccess.open(member,StandardOpenOption.WRITE)){channel.force(true);}
+                }
+            }
+        }else try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE)){channel.force(true);}
+    }
+    private void point(MembershipBallotAllocator.Cut cut,String event)throws IOException {custody.check();cut.at(event);custody.check();}
+    private void remember(String name,byte[] bytes,Object inode)throws IOException {
+        var identity=inspect(directory.resolve(name),bytes.length,hash(bytes));require(identity.key().equals(inode),"learner placement record replaced");records.put(name,identity);
+    }
+    private void write(String name,byte[] wanted,MembershipBallotAllocator.Cut cut)throws IOException {
+        custody.check();Path file=directory.resolve(name);var prior=records.get(name);
+        if(prior!=null)require(Arrays.equals(AdmissionPaths.read(file,MAXIMUM),Arrays.copyOf(wanted,Math.toIntExact(prior.bytes()))),"learner placement record differs from original prefix");
+        try(var channel=MembershipFileAccess.open(file,prior==null?Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
+                Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
+            Object inode=key(file);if(prior==null){remember(name,new byte[0],inode);point(cut,"LEARNER_PLACEMENT_CREATED:"+name);}
+            int offset=Math.toIntExact(records.get(name).bytes());require(offset<=wanted.length,"learner placement record length");channel.position(offset);
+            if(offset<wanted.length) {
+                int half=offset+(wanted.length-offset)/2;AdmissionPaths.write(channel,Arrays.copyOfRange(wanted,offset,half));
+                remember(name,Arrays.copyOf(wanted,half),inode);point(cut,"LEARNER_PLACEMENT_PREFIX_WRITTEN:"+name);
+                AdmissionPaths.write(channel,Arrays.copyOfRange(wanted,half,wanted.length));remember(name,wanted,inode);point(cut,"LEARNER_PLACEMENT_WRITTEN:"+name);
+            }
+            channel.force(true);point(cut,"LEARNER_PLACEMENT_FORCED:"+name);
+        }
+        AdmissionPaths.forceDirectory(directory);point(cut,"LEARNER_PLACEMENT_RECORD_PARENT_FORCED:"+name);
+    }
+    /** Called by custody after validating its actual locks, leases and decision.
+     * Only the original allowed inode relocations may change its inventory. */
+    void checkOriginals()throws IOException {
+        original.checkDecision();int moved=original.project();
+        require(planForced || moved==0,"learner payload moved before forced decision");AdmissionPaths.recheck(binding);
+        if(directoryKey==null){AdmissionPaths.absent(directory);return;}
+        require(directoryKey.equals(key(directory)) && children(directory,2).equals(records.keySet()),"learner placement directory changed");
+        for(var row:records.entrySet())require(row.getValue().equals(inspect(directory.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),
+                "learner placement original record changed");
+        require(!complete || moved==MOVES.size() && records.containsKey(READY),"learner placement incomplete payload");
+    }
+    void check()throws IOException {custody.check();require(complete,"learner placement not complete");}
+    Path replica()throws IOException {check();return original.replica;}
+    @Override public void close()throws IOException {custody.close();}
+
+    /** Physical inspection only: no lock/lease ownership, proof admission, file
+     * mutation or restart permission is returned from a cold filesystem read. */
+    record Inspection(String status,int moved,String source,String receipt) {}
+    static Inspection inspectOriginal(MembershipLearnerPlan summary)throws IOException {
+        var original=new Original(summary,AdmissionPaths.read(MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE),MembershipLearnerCustody.MAXIMUM));
+        Path directory=directory(summary);var names=children(directory,2);require(names.contains(PLAN) && Set.of(PLAN,READY).containsAll(names),"learner placement original plan missing");
+        byte[] plan=original.plan(AdmissionPaths.binding(directory),key(directory).toString());AdmissionPaths.exact(directory.resolve(PLAN),plan);
+        var identity=inspect(directory.resolve(PLAN),plan.length,hash(plan));int moved=original.project();boolean complete=false;
+        if(names.contains(READY)) {
+            byte[] ready=original.ready(plan,identity.key()),actual=AdmissionPaths.read(directory.resolve(READY),MAXIMUM);
+            require(moved==MOVES.size() && actual.length<=ready.length && Arrays.equals(actual,Arrays.copyOf(ready,actual.length)),"learner placement invalid completion prefix");complete=Arrays.equals(actual,ready);
+        }
+        original.checkDecision();require(identity.equals(inspect(directory.resolve(PLAN),plan.length,hash(plan))),"learner placement decision changed during inspection");
+        return new Inspection(complete?"PLACED":"PARTIAL",moved,(String)original.value.get("source"),(String)original.value.get("receipt"));
+    }
+
+    private static final class Original {
+        final MembershipLearnerPlan summary;
+        final byte[] decision;
+        final FileIdentity identity;
+        final Map<String,Object> value;
+        final Map<String,Path> roots;
+        final List<?> inventory;
+        final Path replica,stage;
+        Original(MembershipLearnerPlan summary,byte[] decision)throws IOException {
+            this.summary=summary;this.decision=decision.clone();value=object(parse(decision,MembershipLearnerCustody.MAXIMUM));
+            require(value.keySet().equals(Set.of("schema","plan","path","receipt","source","roots","directoryKey"))
+                    && value.get("schema").equals("gse-v53-learner-custody/1.3") && value.get("plan").equals(summary.planDigest())
+                    && Arrays.equals(decision,canonical(value,MembershipLearnerCustody.MAXIMUM)),"learner placement original custody shape");
+            MembershipValidation.digest((String)value.get("source"));MembershipValidation.digest((String)value.get("receipt"));
+            roots=MembershipLearnerCustody.roots(summary);replica=roots.get("replica");stage=roots.get("voterStage");inventory=list(value.get("roots"));
+            require(inventory.size()==roots.size(),"learner placement original roots");var seen=new HashSet<String>();
+            for(Object raw:inventory) {
+                var row=object(raw);String name=(String)row.get("name");boolean present=Boolean.TRUE.equals(row.get("present"));
+                require(row.keySet().equals(present?Set.of("name","path","present","files"):Set.of("name","path","present"))
+                        && row.get("present") instanceof Boolean && roots.containsKey(name) && seen.add(name)
+                        && row.get("path").equals(AdmissionPaths.binding(roots.get(name))),"learner placement root binding");
+                if(present)files(row); // Reject duplicate or escaping inventory names.
+            }
+            var source=files(root(inventory,"voterStage"));var destination=files(root(inventory,"replica"));
+            require(source.keySet().containsAll(MOVES) && MOVES.stream().noneMatch(destination::containsKey),"learner placement original destinations");
+            for(String preserved:List.of("root.gsr","node.gsr","replica.lock")) {
+                var a=object(source.get(preserved));var b=object(destination.get(preserved));
+                require(a.get("size").equals(b.get("size")) && a.get("sha256").equals(b.get("sha256")),"learner placement immutable replica differs");
+            }
+            Path file=MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE);identity=inspect(file,decision.length,hash(decision));checkDecision();
+        }
+        void checkDecision()throws IOException {
+            Path directory=MembershipLearnerCustody.directory(summary);require(value.get("path").equals(AdmissionPaths.binding(directory))
+                    && value.get("directoryKey").equals(key(directory).toString()) && children(directory,1).equals(Set.of(MembershipLearnerCustody.FILE))
+                    && identity.equals(inspect(directory.resolve(MembershipLearnerCustody.FILE),decision.length,hash(decision))),"learner placement custody decision changed");
+        }
+        byte[] plan(Map<String,Object> path,String directoryKey) {
+            return canonical(Map.of("schema","gse-v53-learner-placement/1.3","plan",summary.planDigest(),"path",path,"directoryKey",directoryKey,
+                    "custody",Map.of("key",identity.key().toString(),"size",identity.bytes(),"sha256",identity.digest()),"moves",MOVES),MAXIMUM);
+        }
+        byte[] ready(byte[] plan,Object planKey) {
+            return canonical(Map.of("schema","gse-v53-learner-placed/1.3","plan",hash(plan),"planKey",planKey.toString(),"custody",hash(decision),"moves",MOVES),MAXIMUM);
+        }
+        int project()throws IOException {
+            var actual=MembershipLearnerCustody.capture(roots,null);var a=root(actual,"voterStage");var b=root(actual,"replica");
+            var source=files(a);var destination=files(b);int moved=0;boolean stayed=false;
+            for(String name:MOVES) {
+                boolean from=source.containsKey(name),to=destination.containsKey(name);require(from!=to,"learner placement needs exactly one original location: "+name);
+                if(from){stayed=true;continue;}require(!stayed,"learner placement nonprefix relocation");moved++;
+                for(String path:new ArrayList<>(destination.keySet()))if(path.equals(name)||path.startsWith(name+"/")) {
+                    require(!source.containsKey(path),"learner placement duplicate descendant");source.put(path,destination.remove(path));
+                }
+            }
+            a.put("files",rows(source));b.put("files",rows(destination));require(actual.equals(inventory),"learner placement originals changed");return moved;
+        }
+        private static Map<String,Object> root(List<?> inventory,String name) {
+            var row=inventory.stream().map(MembershipFormat::object).filter(r->r.get("name").equals(name)).findFirst().orElseThrow();
+            require(Boolean.TRUE.equals(row.get("present")),"learner placement required root absent");return row;
+        }
+        private static TreeMap<String,Object> files(Map<String,Object> root) {
+            var result=new TreeMap<String,Object>();
+            for(Object raw:list(root.get("files"))) {
+                var row=object(raw);String name=(String)row.get("name");
+                require(row.keySet().equals(Set.of("name","identity")) && name!=null && name.length()<=4096 && !name.isEmpty()
+                        && !Path.of(name).isAbsolute() && (name.equals(".") || Path.of(name).normalize().toString().equals(name)) && !name.startsWith("..")
+                        && result.putIfAbsent(name,object(row.get("identity")))==null,"learner placement inventory path");
+            }
+            require(result.containsKey("."),"learner placement inventory root missing");return result;
+        }
+        private static List<Object> rows(Map<String,Object> files) {
+            var rows=new ArrayList<Object>();files.forEach((name,identity)->rows.add(Map.of("name",name,"identity",identity)));return rows;
+        }
+    }
+}

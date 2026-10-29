@@ -1,5 +1,11 @@
 # Forced learner installation custody
 
+The subsequent [original placement](PHASE_3_LEARNER_PLACEMENT.md) now consumes
+this live custody to move a fixed prefix of original staged payloads while
+retaining all locks and charges. Custody validates that exact inventory
+projection. Cold placement recovery and native joined admission remain OPEN;
+the pre-placement custody recovery described below retains its original scope.
+
 Phase 3 remains **OPEN**. `MembershipLearnerCustody` now consumes an actual live
 [dormant voter stage](PHASE_3_LEARNER_VOTER_STAGE.md), forces an original ownership
 decision, transfers the real learner's locks and storage reservations, and
@@ -40,7 +46,8 @@ under freshly reopened typed/INTENT/stage owners.
 
 The decision is at most 256 KiB, reserved in the existing staged GENERATION
 metadata allowance before creating it. Together with the two 64 KiB stage
-companions this reserves 384 KiB, plus the actual dormant payload metadata.
+companions this originally reserved 384 KiB. A39 adds two placement companions,
+bringing the current fixed allowance to 512 KiB, plus actual dormant metadata.
 The public GENERATION count/size, seven-image bound, MISC/completion headroom and
 all other resource ceilings are unchanged. The decision creates no third GEN.
 
@@ -102,8 +109,8 @@ The affected cold-slot case and descriptor/resource tests are rerun on that
 correction; the original failed matrix remains recorded as failed. Its unaffected
 passing cases and the corrected focused run use identical production classes.
 
-Next, consume this installation owner in the original-path staged-payload move
-transaction and its cold recovery. Preserve the original ROOT/NODE/replica.lock
+The original-path staged-payload move transaction is implemented separately;
+its cold recovery remains required. Preserve the original ROOT/NODE/replica.lock
 inodes and all predecessor charges until covered retirement. Native joined
 admission, old-majority INTENT delivery before joint checkpointing, joint FINAL,
 fresh barrier and independent full-history replay remain required. A complete

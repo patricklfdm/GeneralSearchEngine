@@ -1,5 +1,30 @@
 # V5.3 Phase 3 contract amendments
 
+## A39 — original-inode placement under uninterrupted learner custody
+
+[Original placement](PHASE_3_LEARNER_PLACEMENT.md) consumes A38's actual live
+installation owner. Force a bounded original plan before atomically moving the
+seven fixed payload members, selector last, into the same original replica.
+Preserve ROOT/NODE/replica.lock inodes, every kernel lock and all predecessor
+charges. Exact inventory projection permits only an original-inode move prefix;
+no copies, missing originals, foreign members or out-of-order moves are accepted.
+Force each moved member and both parents before advancing. A same-owner resume
+re-forces the existing prefix before any new move.
+
+Private `gse-v53-learner-placement/1.3` and `gse-v53-learner-placed/1.3` JSON
+companions are each at most 64 KiB. Reserve their combined 128 KiB in the staged
+GENERATION, making its fixed companion allowance 512 KiB including A37/A38.
+Public byte records, wire frames, resource counts and size limits are unchanged.
+The source and destination must support same-filesystem atomic rename; no copy
+fallback or extra generation is allowed.
+
+Only the attached live transaction may resume writes. Read-only physical
+inspection grants no cold-recovery, durability or voting authority. Ordinary
+learner reopen still refuses the changed layout. Missing/torn plans are retained
+and refused; no deletion or reversal creates a fresh preparation. Native cold
+installation recovery, joined admission, covered retirement, minimum-quorum
+INTENT delivery, joint FINAL/barrier and full Phase 3 qualification remain OPEN.
+
 ## A38 — forced custody of the original prepared learner
 
 [Installation custody](PHASE_3_LEARNER_CUSTODY.md) consumes A37's live stage and

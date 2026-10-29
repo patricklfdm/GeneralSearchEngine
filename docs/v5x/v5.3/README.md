@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Original learner placement](PHASE_3_LEARNER_PLACEMENT.md) now moves the seven
+fixed dormant payload members into the original replica under continuous lock
+custody, preserving inodes and storage charges. Same-owner resume validates and
+re-forces the original move prefix; cold physical inspection is read-only.
+Cold installation recovery, joined admission, covered retirement, native
+minimum-quorum INTENT and complete Phase 3 acceptance remain **OPEN**.
+
 [Forced learner custody](PHASE_3_LEARNER_CUSTODY.md) now transfers the actual
 prepared learner's locks and complete storage group after forcing an original
 handoff decision, then revokes the old object graph. Original payload installation,

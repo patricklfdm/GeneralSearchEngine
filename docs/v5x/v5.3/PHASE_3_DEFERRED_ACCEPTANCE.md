@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Original learner placement](PHASE_3_LEARNER_PLACEMENT.md) now moves the seven
+fixed dormant payload members into the original replica under continuous lock
+custody, preserving inodes and storage charges. Same-owner resume validates and
+re-forces the original move prefix; cold physical inspection is read-only.
+Cold installation recovery, joined admission, covered retirement, native
+minimum-quorum INTENT and complete Phase 3 acceptance remain **OPEN**.
+
 [Forced learner custody](PHASE_3_LEARNER_CUSTODY.md) now transfers the actual
 prepared learner's locks and complete storage group after forcing an original
 handoff decision, then revokes the old object graph. Original payload installation,
@@ -102,6 +109,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 
 | Gate | Unit of execution | Required final evidence |
 | --- | --- | --- |
+| Original payload placement | One continuous typed learner/INTENT/stage/custody history per head/profile | Exact original moves, preserved root locks, every move/force/marker halt/SIGKILL cut and cold recovery, independent physical/history/wire replay; 25 live exception cuts and read-only inspection do not authorize cold voting |
 | Descriptor custody through takeover | Each complete native takeover history; the two learner inspection component histories may run independently | Independent-process lock attempts around reads, fingerprints, forces, rename and stale close; preserve original failure evidence; helper tests do not replace joined-member process cuts |
 | Learner current-endpoint quorum | Independent whole native ADD/REPLACE histories | All five joining profiles and process cuts, exact forced ACKs and wire replay, source-exposure binding and authentic head confirmation; the focused three-voter ADD test does not close the full gate |
 | Frozen learner retention and selected merge | One native continuous history plus independent whole halt/SIGKILL cases | Exact source-bound ledgers, selection/installation completion, all process cuts and original-first physical/force replay; five Java component cases are executed, not complete process or quorum qualification |

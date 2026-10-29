@@ -33,19 +33,20 @@ final class MembershipLearnerCustody implements AutoCloseable {
     private final List<AutoCloseable> owners=new ArrayList<>();
     private final Set<MembershipResources.Lease> leases=new LinkedHashSet<>();
     private FileIdentity decision;
+    private MembershipLearnerPlacement placement;
     private boolean closed,transferred,failed;
 
     static Path directory(MembershipLearnerPlan summary) {
         return summary.request().operationDirectory().resolveSibling(".gse-v53-learner-custody-"+summary.planDigest());
     }
-    private static Map<String,Path> roots(MembershipLearnerPlan summary) {
+    static Map<String,Path> roots(MembershipLearnerPlan summary) {
         var result=new TreeMap<String,Path>();result.put("replica",summary.request().replicaDirectory());result.put("operation",summary.request().operationDirectory());
         result.put("initialTyped",MembershipLearnerMaterialization.directory(summary));result.put("successor",MembershipLearnerSuccessor.directory(summary));
         result.put("successorTyped",MembershipLearnerSuccessor.typedDirectory(summary));result.put("slots",MembershipLearnerSlot.directory(summary));
         result.put("slotTyped",MembershipLearnerSlot.typedDirectory(summary));result.put("intent",MembershipLearnerIntent.directory(summary));
         result.put("voterStage",MembershipLearnerVoterStage.directory(summary));return Collections.unmodifiableMap(result);
     }
-    private static List<Object> capture(Map<String,Path> roots,Set<Path> managed)throws IOException {
+    static List<Object> capture(Map<String,Path> roots,Set<Path> managed)throws IOException {
         var result=new ArrayList<Object>();int count=0;long bytes=0;
         for(var row:roots.entrySet()) {
             Path root=AdmissionPaths.safe(row.getValue());var value=new TreeMap<String,Object>();value.put("name",row.getKey());value.put("path",AdmissionPaths.binding(root));
@@ -91,7 +92,8 @@ final class MembershipLearnerCustody implements AutoCloseable {
     private MembershipLearnerCustody(MembershipLearnerVoterStage.Ready ready,Collected collected,boolean resume,MembershipBallotAllocator.Cut cut)throws IOException {
         var intent=ready.intent();summary=intent.plan();resources=intent.head().resources();usage=resources.usage();
         resources.requireCompleteStorage(collected.leases);source=intent.source();receipt=intent.head().receipt();
-        roots=roots(summary);originals=capture(roots,collected.roots);directory=directory(summary);intent.head().requireDisjoint(directory);
+        roots=roots(summary);originals=capture(roots,collected.roots);directory=directory(summary);
+        intent.head().requireDisjoint(directory,MembershipLearnerPlacement.directory(summary));
         binding=AdmissionPaths.binding(directory);
         var fields=new TreeMap<String,Object>();fields.put("schema","gse-v53-learner-custody/1.3");fields.put("plan",summary.planDigest());fields.put("path",binding);
         fields.put("receipt",receipt.digest());fields.put("source",hash(source.packet.bytes()));fields.put("roots",originals);
@@ -171,13 +173,21 @@ final class MembershipLearnerCustody implements AutoCloseable {
                 require(valid,"learner installation custody lock revoked");
             }
             AdmissionPaths.recheck(binding);require(directoryKey.equals(key(directory)) && children(directory,1).equals(Set.of(FILE)),"learner installation decision changed");
-            require(decision.equals(inspect(directory.resolve(FILE),plan.length,hash(plan))) && originals.equals(capture(roots,null)),"learner installation originals changed");
+            require(decision.equals(inspect(directory.resolve(FILE),plan.length,hash(plan))),"learner installation decision changed");
+            if(placement==null)require(originals.equals(capture(roots,null)),"learner installation originals changed");
+            else placement.checkOriginals();
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
     MembershipCapsule source()throws IOException {check();return source;}
     Decoded receipt()throws IOException {check();return receipt;}
     Path replica()throws IOException {check();return summary.request().replicaDirectory();}
     MembershipResources.Usage usage()throws IOException {check();return usage;}
+    MembershipLearnerPlan summary()throws IOException {check();return summary;}
+    byte[] originalDecision()throws IOException {check();return plan.clone();}
+    synchronized void attachPlacement(MembershipLearnerPlacement next)throws IOException {
+        check();require(placement==null,"learner placement already started; original resume required");placement=Objects.requireNonNull(next);
+    }
+    synchronized MembershipLearnerPlacement placement()throws IOException {check();return placement;}
     @Override public synchronized void close()throws IOException {
         if(closed)return;var reversed=new ArrayList<>(owners);Collections.reverse(reversed);
         MembershipLearnerSource.closeChildren(reversed.toArray(AutoCloseable[]::new));
