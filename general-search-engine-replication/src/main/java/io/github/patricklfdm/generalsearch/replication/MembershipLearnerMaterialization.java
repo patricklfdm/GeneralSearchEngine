@@ -53,6 +53,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         byte[] original=input.image();receipt=input.receiptBytes();var parts=MembershipApplicationImage.unpack(original);var values=new TreeMap<String,byte[]>();
         for(int i=0;i<parts.size();i++)values.put(BACKUP+"/"+MembershipApplicationImage.MEMBERS.get(i),parts.get(i));payloads=Map.copyOf(values);
         boolean exists=Files.exists(directory,LinkOption.NOFOLLOW_LINKS);
+        require(exists || !input.store().recoveringPlacement(),"learner placement missing original typed owner");
         // A terminal learner may reopen its exact historical typed owner for
         // proof recovery, but cannot create a new preparation sidecar.
         if(!exists)input.store().requireActive();
@@ -95,6 +96,12 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
                 for(var member:payloads.entrySet())AdmissionPaths.exact(directory.resolve(member.getKey()),member.getValue());
             }
             input.attach(this);check();
+            if(input.store().recoveringPlacement()) {
+                require(exists,"learner placement missing original typed owner");
+                state=MembershipApplicationImage.readExisting(captured,config.materialization(),original,directory.resolve(BACKUP));
+                require(state.history().equals(summary.request().root().historyId()),"learner placement typed history");
+                check();complete=true;return;
+            }
             if(!exists){AdmissionPaths.forceDirectory(directory.getParent());point("LEARNER_TYPED_DIRECTORY_FORCED");write(NEXT,plan,"LEARNER_TYPED_PLAN");}
             seal();
             if(!members.containsKey(BACKUP)){check();Files.createDirectory(directory.resolve(BACKUP));update(BACKUP);point("LEARNER_TYPED_BACKUP_CREATED");}
@@ -203,7 +210,9 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         receipt();input.requireInitialGeneration();
         try {
             if(!input.preparedGeneration())try(var claim=input.prepareGeneration()) {
-                write(PREPARED,prepared,"LEARNER_PREPARED");selectionForced=true;point("LEARNER_PREPARED_BEFORE_SELECT");
+                if(input.store().recoveringPlacement())AdmissionPaths.exact(directory.resolve(PREPARED),prepared);
+                else write(PREPARED,prepared,"LEARNER_PREPARED");
+                selectionForced=true;point("LEARNER_PREPARED_BEFORE_SELECT");
                 input.selectedGeneration(this,claim);
             }else {
                 require(members.containsKey(PREPARED) && members.get(PREPARED).bytes()==prepared.length,"learner selected marker missing");

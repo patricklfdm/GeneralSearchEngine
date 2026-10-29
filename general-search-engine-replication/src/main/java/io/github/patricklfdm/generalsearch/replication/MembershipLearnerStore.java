@@ -30,6 +30,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     private MembershipLearnerDisposition cancellation,intent;
     private MembershipLearnerRetirement retirement;
     private boolean predecessorReleased;
+    private MembershipLearnerPlacement.Recovery placementRecovery;
     private MembershipOwnership owner;
     private Object directoryKey,lockKey;
     private boolean closed,failed,complete;
@@ -44,10 +45,13 @@ final class MembershipLearnerStore implements AutoCloseable {
     /** Validate retained source and any partial local metadata before resealing or
      * removing redundant decision files. Invalid originals remain fully intact. */
     static void preflight(MembershipLearnerAdmissionPlan plan,MembershipLearnerRetention decision)throws IOException {
+        preflight(plan,decision,null);
+    }
+    static void preflight(MembershipLearnerAdmissionPlan plan,MembershipLearnerRetention decision,MembershipLearnerPlacement.Recovery recovery)throws IOException {
         var retirement=MembershipLearnerRetirement.load(plan,decision);
         Path replica=plan.request.replicaDirectory();
         if(retirement!=null) {
-            retirement.check();decision.checkRemaining();var names=children(replica,5);
+            retirement.check();decision.checkRemaining();var names=recovery==null?children(replica,5):recovery.replicaNames();
             var required=Set.of(LOCK,"root.gsr","node.gsr",ADMISSION);
             require(names.containsAll(required) && Set.of(LOCK,"root.gsr","node.gsr",ADMISSION,"learner").containsAll(names),"learner retirement replica inventory");
             AdmissionPaths.exact(replica.resolve(LOCK),new byte[0]);
@@ -60,7 +64,7 @@ final class MembershipLearnerStore implements AutoCloseable {
             else AdmissionPaths.exact(replica.resolve(ADMISSION),decision.bytes());
         }
         if(!Files.exists(replica,LinkOption.NOFOLLOW_LINKS))return;
-        var allowed=expected(plan,decision);var names=children(replica,5);
+        var allowed=expected(plan,decision);var names=recovery==null?children(replica,5):recovery.replicaNames();
         require(Set.of(LOCK,"root.gsr","node.gsr",ADMISSION,"learner").containsAll(names),"learner replica unexpected files");
         if(names.contains(LOCK)){AdmissionPaths.regular(replica.resolve(LOCK));require(Files.size(replica.resolve(LOCK))==0,"learner replica nonempty lock");}
         for(var file:allowed.entrySet())if(names.contains(file.getKey()))
@@ -89,6 +93,33 @@ final class MembershipLearnerStore implements AutoCloseable {
             try{if(result!=null)result.close();else operation.close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;
         }
     }
+    static MembershipLearnerStore reopenPlacement(MembershipLearnerPlan summary,MembershipResources resources,
+            MembershipLearnerPlacement.Recovery recovery)throws IOException {
+        var operation=MembershipLearnerAdmissionFiles.openPlacement(summary,resources,recovery);MembershipLearnerStore result=null;
+        try {
+            result=new MembershipLearnerStore(operation,operation.retention(),e->{});result.placementRecovery=recovery;
+            result.reserve(resources);result.openReplica();result.complete=true;
+            if(result.retirement==null) {
+                result.capsule();result.successor=MembershipLearnerSuccessor.restore(result,e->{});
+            }else if(MembershipLearnerSlot.hasCommittedHead(summary)) {
+                result.slot=MembershipLearnerSlot.restore(result,e->{});result.slot.restorePlacementHead();
+                result.requireOriginalRetiredFilesAbsent();result.releaseOriginalLeases();result.slot.reserve();
+            }else {
+                result.successor=MembershipLearnerSuccessor.restore(result,e->{});
+                require(result.successor!=null,"learner placement original successor missing");
+                result.successor.restorePlacementHead();result.requireOriginalRetiredFilesAbsent();result.releaseOriginalLeases();
+                result.slot=MembershipLearnerSlot.restore(result,e->{});if(result.slot!=null)result.slot.reserve();
+            }
+            result.check();return result;
+        }catch(IOException|RuntimeException|Error error) {
+            try{if(result!=null)result.close();else operation.close();}catch(Exception close){error.addSuppressed(close);}throw error;
+        }
+    }
+    boolean recoveringPlacement()throws IOException {check();return placementRecovery!=null;}
+    MembershipLearnerPlacement.Recovery placementRecovery()throws IOException {
+        check();require(placementRecovery!=null,"learner requires original placement recovery");return placementRecovery;
+    }
+    private Set<String> replicaNames()throws IOException {return placementRecovery==null?children(path,5):placementRecovery.replicaNames();}
     private void reserve(MembershipResources resources)throws IOException {
         operation.checkOwner();checkSource();long metadata=0;
         for(var row:plan.inventory())if(!((String)row.get("path")).endsWith(".image"))metadata=Math.addExact(metadata,number(row.get("size")));
@@ -103,7 +134,7 @@ final class MembershipLearnerStore implements AutoCloseable {
         if(directoryKey!=null) {
             require(directoryKey.equals(key(path)),"learner replica directory replaced");
             var names=new TreeSet<>(metadata.keySet());if(owner!=null)names.add(LOCK);if(source.equals(decision.destination) && Files.exists(source,LinkOption.NOFOLLOW_LINKS))names.add("learner");
-            require(children(path,5).equals(names),"learner replica inventory changed");
+            require(replicaNames().equals(names),"learner replica inventory changed");
             if(owner!=null){AdmissionPaths.regular(path.resolve(LOCK));require(owner.lock().isValid() && lockKey.equals(key(path.resolve(LOCK))) && Files.size(path.resolve(LOCK))==0,"learner replica lock changed");}
             for(var row:metadata.entrySet())require(row.getValue().equals(inspect(path.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),"learner replica original member changed");
         }
@@ -115,17 +146,18 @@ final class MembershipLearnerStore implements AutoCloseable {
     private void openReplica()throws IOException {
         operation.checkOwner();checkSource();
         if(!Files.exists(path,LinkOption.NOFOLLOW_LINKS)) {
+            require(placementRecovery==null,"learner placement original replica missing");
             Files.createDirectory(path);directoryKey=key(path);AdmissionPaths.forceDirectory(path.getParent());point("LEARNER_REPLICA_CREATED");
         }else {
-            directoryKey=key(path);var names=children(path,5);
+            directoryKey=key(path);var names=replicaNames();
             require(Set.of(LOCK,"root.gsr","node.gsr",ADMISSION,"learner").containsAll(names),"learner replica unexpected files");
             for(String name:expected.keySet())if(names.contains(name)) {
                 byte[] bytes=AdmissionPaths.read(path.resolve(name),expected.get(name).length);
                 require(prefix(bytes,expected.get(name)),"learner replica differs from original plan");remember(name,bytes);
             }
         }
-        owner=MembershipOwnership.own(path.resolve(LOCK),!Files.exists(path.resolve(LOCK),LinkOption.NOFOLLOW_LINKS));lockKey=key(path.resolve(LOCK));
-        point("LEARNER_REPLICA_LOCKED");
+        owner=MembershipOwnership.own(path.resolve(LOCK),placementRecovery==null && !Files.exists(path.resolve(LOCK),LinkOption.NOFOLLOW_LINKS));lockKey=key(path.resolve(LOCK));
+        if(placementRecovery!=null)check();else point("LEARNER_REPLICA_LOCKED");
     }
     private void remember(String name,byte[] bytes)throws IOException {
         var next=inspect(path.resolve(name),bytes.length,hash(bytes));var previous=metadata.get(name);

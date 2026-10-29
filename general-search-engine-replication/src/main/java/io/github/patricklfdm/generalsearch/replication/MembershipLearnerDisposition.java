@@ -128,7 +128,12 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         try {
             result.directoryKey=key(directory);
             for(String name:List.of(planName,nextName))if(names.contains(name))result.remember(name,bytes);
-            result.reserve();result.validate();result.store.attachDisposition(result);result.finish();return result;
+            result.reserve();result.validate();result.store.attachDisposition(result);
+            if(result.store.recoveringPlacement()) {
+                require(kind==Kind.INTENT && names.equals(Set.of(planName,SOURCE)) && result.location().equals(result.destination),
+                        "learner placement incomplete original INTENT");
+                result.store.placementRecovery().check();result.complete=true;
+            }else result.finish();return result;
         }catch(IOException|RuntimeException|Error error){result.failed=true;try{result.close();}catch(Exception cleanup){error.addSuppressed(cleanup);}throw error;}
     }
     private void reserve()throws IOException {

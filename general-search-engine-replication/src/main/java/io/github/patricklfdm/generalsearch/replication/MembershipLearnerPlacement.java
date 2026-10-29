@@ -8,8 +8,8 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipBasisSou
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
 /** Original-inode placement under transferred learner custody. This transaction
- * does not admit a voter, delete predecessors or reopen an installation cold.
- * A read-only cold inspection is deliberately not a recovery capability. */
+ * does not admit a voter or delete predecessors. Explicit cold recovery must
+ * reopen original semantic owners; physical inspection is not that capability. */
 final class MembershipLearnerPlacement implements AutoCloseable {
     static final int MAXIMUM=64*1024;
     static final String PLAN="placement.json",READY="placed.json";
@@ -48,6 +48,100 @@ final class MembershipLearnerPlacement implements AutoCloseable {
         Objects.requireNonNull(cut);
         var result=custody.placement();require(result!=null,"learner placement has no live original transaction");
         result.forcePlan(cut,true);result.finish(cut);return result;
+    }
+    /** Reopen actual historical owners and validate their typed source and
+     * matching INTENT without writes before transferring custody again. */
+    static <K,T> MembershipLearnerPlacement recover(MembershipLearnerPlan summary,MembershipResources resources,
+            io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> captured,
+            MembershipReplicaConfig<K,T> config,MembershipBallotAllocator.Cut cut)throws IOException {
+        Objects.requireNonNull(cut);resources.requireCompleteStorage(Set.of());
+        try(var recovery=new Recovery(summary);
+                var store=MembershipLearnerStore.reopenPlacement(summary,resources,recovery)) {
+            var receipt=recovery.receipt();long revision=number(object(object(receipt.value().get("receipt")).get("prepared")).get("revision"));
+            var input=store.retiring()?MembershipLearnerPreparation.from(store.currentSource(),revision):MembershipLearnerPreparation.from(store,revision);
+            try(var typed=MembershipLearnerMaterialization.prepare(input,captured,config,e->{})) {
+                MembershipLearnerHead head=store.retiring()?typed.currentHead():typed.retainGeneration();
+                require(Arrays.equals(head.receipt().bytes(),receipt.bytes()),"learner placement original typed receipt changed");
+                try(var intent=MembershipLearnerIntent.resume(head,e->{});
+                        var stage=MembershipLearnerVoterStage.reopenPlacement(intent.forced(),recovery)) {
+                    stage.readyCapability().check();recovery.check();cut.at("LEARNER_PLACEMENT_RECOVERY_VERIFIED");recovery.check();
+                    var custody=MembershipLearnerCustody.recoverPlacement(stage.readyCapability(),recovery,cut);
+                    try{return resume(custody,cut);}catch(IOException|RuntimeException|Error error){
+                        try{custody.close();}catch(Exception close){error.addSuppressed(close);}throw error;
+                    }
+                }
+            }
+        }
+    }
+    private MembershipLearnerPlacement(MembershipLearnerCustody custody,Recovery recovery)throws IOException {
+        recovery.check();this.custody=custody;original=recovery.original;directory=directory(original.summary);
+        binding=AdmissionPaths.binding(directory);directoryKey=recovery.directoryKey;plan=recovery.plan.clone();
+        records.putAll(recovery.records);planForced=true;
+    }
+    static MembershipLearnerPlacement restored(MembershipLearnerCustody custody,Recovery recovery)throws IOException {
+        return new MembershipLearnerPlacement(custody,recovery);
+    }
+    /** Private, original-only read projection. Issued only by recover(), never
+     * from a caller map. It cannot write, force, vote or outlive that reopen. */
+    static final class Recovery implements AutoCloseable {
+        private final Original original;
+        private final byte[] plan;
+        private final Object directoryKey;
+        private final Map<String,FileIdentity> records=new TreeMap<>();
+        private final int moved;
+        private boolean closed;
+        private Recovery(MembershipLearnerPlan summary)throws IOException {
+            inspectOriginal(summary);
+            original=new Original(summary,AdmissionPaths.read(MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE),MembershipLearnerCustody.MAXIMUM));
+            Path directory=directory(summary);directoryKey=key(directory);plan=original.plan(AdmissionPaths.binding(directory),directoryKey.toString());
+            for(String name:children(directory,2)) {
+                byte[] bytes=AdmissionPaths.read(directory.resolve(name),MAXIMUM);records.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));
+            }
+            moved=original.project();check();
+        }
+        // Internal getters run only within recover()'s read-only validation
+        // scope. Full inventory checks bracket that scope and every subsequent
+        // custody force through inventory(); no unverified owner escapes it.
+        void readGuard(){require(!closed,"learner placement recovery projection expired");}
+        void check()throws IOException {
+            readGuard();original.checkDecision();
+            require(original.project()==moved,"learner placement moved during read-only recovery");
+            Path directory=directory(original.summary);
+            require(directoryKey.equals(key(directory)) && children(directory,2).equals(records.keySet()),"learner placement recovery directory changed");
+            AdmissionPaths.exact(directory.resolve(PLAN),plan);
+            for(var row:records.entrySet())require(row.getValue().equals(inspect(directory.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),
+                    "learner placement original recovery record changed");
+        }
+        Set<String> replicaNames()throws IOException {
+            readGuard();var names=new TreeSet<String>();
+            for(String name:Original.files(Original.root(original.inventory,"replica")).keySet())if(!name.equals(".") && !name.contains("/"))names.add(name);
+            return names;
+        }
+        Path stageMember(String name)throws IOException {
+            readGuard();Path relative=Path.of(name);require(!relative.isAbsolute() && relative.normalize().equals(relative)
+                    && !name.startsWith(".."),"learner placement relative stage member");
+            String first=relative.getName(0).toString();int index=MOVES.indexOf(first);
+            return (index>=0 && index<moved?original.replica:original.stage).resolve(relative);
+        }
+        List<Object> inventory(Set<Path> managed)throws IOException {
+            check();for(var row:original.inventory){var value=object(row);
+                require(!Boolean.TRUE.equals(value.get("present")) || managed.contains(original.roots.get((String)value.get("name"))),
+                        "learner placement recovery has unowned originals");}
+            return new ArrayList<>(original.inventory);
+        }
+        Decoded receipt()throws IOException {
+            check();Decoded result=null;
+            for(String name:List.of("initialTyped","successorTyped","slotTyped")) {
+                Path file=original.roots.get(name).resolve(MembershipLearnerMaterialization.RECEIPT);
+                if(!Files.exists(file,LinkOption.NOFOLLOW_LINKS))continue;
+                var decoded=decode(AdmissionPaths.read(file,16384),"records","LEARNER");
+                if(decoded.digest().equals(original.value.get("receipt"))) {
+                    require(result==null,"learner placement ambiguous original typed receipt");result=decoded;
+                }
+            }
+            require(result!=null,"learner placement original typed receipt missing");check();return result;
+        }
+        @Override public void close(){closed=true;}
     }
     private void forcePlan(MembershipBallotAllocator.Cut cut,boolean resume)throws IOException {
         custody.check();

@@ -3,7 +3,8 @@
 The subsequent [original placement](PHASE_3_LEARNER_PLACEMENT.md) now consumes
 this live custody to move a fixed prefix of original staged payloads while
 retaining all locks and charges. Custody validates that exact inventory
-projection. Cold placement recovery and native joined admission remain OPEN;
+projection. Explicit cold placement recovery reopens the original semantic
+owners and transfers them again; native joined admission remains OPEN;
 the pre-placement custody recovery described below retains its original scope.
 
 Phase 3 remains **OPEN**. `MembershipLearnerCustody` now consumes an actual live
@@ -110,7 +111,7 @@ correction; the original failed matrix remains recorded as failed. Its unaffecte
 passing cases and the corrected focused run use identical production classes.
 
 The original-path staged-payload move transaction is implemented separately;
-its cold recovery remains required. Preserve the original ROOT/NODE/replica.lock
+its explicit cold recovery uses these original ownership checks. Preserve the original ROOT/NODE/replica.lock
 inodes and all predecessor charges until covered retirement. Native joined
 admission, old-majority INTENT delivery before joint checkpointing, joint FINAL,
 fresh barrier and independent full-history replay remain required. A complete

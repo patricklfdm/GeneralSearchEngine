@@ -1,5 +1,28 @@
 # V5.3 Phase 3 contract amendments
 
+## A40 — explicit cold recovery of original learner placement
+
+A39's [placement recovery](PHASE_3_LEARNER_PLACEMENT.md) reopens the actual
+original admission/source/typed/INTENT/stage owners under a private read-only
+move projection. Recheck all original physical evidence and rerun the real
+application decoder before any recovery force. Only the original complete
+custody decision and validated semantic chain may transfer the reopened locks
+and reservations into continued placement. No physical inspection result,
+decoded receipt or arbitrary file map can authorize writes.
+
+Initial and promoted/selected heads keep their existing source and retirement
+validators. No ordinary open path accepts the extra voter payloads. Retired
+files remain absent; no backward move, repair from new arguments, fresh source
+fetch or extra generation is allowed. Read-only internal wrappers cannot escape
+the recovery scope; full physical checks bracket validation and every custody
+force. Once actual ownership transfers, use the existing prefix re-force and
+fixed move order.
+
+This adds no persisted/wire format, public API or resource allowance. A39's
+512 KiB fixed companions and existing count/byte limits remain unchanged.
+Joined journal admission, covered learner retirement, minimum-quorum INTENT,
+joint FINAL/barrier and native independent/process acceptance remain OPEN.
+
 ## A39 — original-inode placement under uninterrupted learner custody
 
 [Original placement](PHASE_3_LEARNER_PLACEMENT.md) consumes A38's actual live

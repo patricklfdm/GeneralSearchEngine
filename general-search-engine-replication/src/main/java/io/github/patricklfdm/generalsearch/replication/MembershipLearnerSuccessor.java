@@ -225,8 +225,14 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
      * while original files stay retained and fully accounted for later retirement. */
     View promoted()throws IOException {
         check();require(handoff!=null && metadata.containsKey(HEAD),"learner original handoff not committed");
-        try {handoff.seal(false);selected=true;return new View(this,null);}
+        try {if(parent.recoveringPlacement())restorePlacementHead();else handoff.seal(false);selected=true;return new View(this,null);}
         catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    void restorePlacementHead()throws IOException {
+        parent.placementRecovery().check();check();
+        require(handoff!=null && metadata.containsKey(HEAD) && !metadata.containsKey(HEAD_NEXT)
+                && metadata.containsKey(PLAN) && !metadata.containsKey(NEXT),"learner placement incomplete original successor head");
+        handoff.check();handoff.active=true;selected=true;
     }
     private void retirePredecessor()throws IOException {
         try {

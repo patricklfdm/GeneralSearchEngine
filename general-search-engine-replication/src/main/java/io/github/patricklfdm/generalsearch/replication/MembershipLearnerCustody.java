@@ -34,6 +34,7 @@ final class MembershipLearnerCustody implements AutoCloseable {
     private final Set<MembershipResources.Lease> leases=new LinkedHashSet<>();
     private FileIdentity decision;
     private MembershipLearnerPlacement placement;
+    private final MembershipLearnerPlacement.Recovery recovery;
     private boolean closed,transferred,failed;
 
     static Path directory(MembershipLearnerPlan summary) {
@@ -89,10 +90,10 @@ final class MembershipLearnerCustody implements AutoCloseable {
             return java.util.HexFormat.of().formatHex(digest.digest());
         }catch(java.security.NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}
     }
-    private MembershipLearnerCustody(MembershipLearnerVoterStage.Ready ready,Collected collected,boolean resume,MembershipBallotAllocator.Cut cut)throws IOException {
-        var intent=ready.intent();summary=intent.plan();resources=intent.head().resources();usage=resources.usage();
+    private MembershipLearnerCustody(MembershipLearnerVoterStage.Ready ready,Collected collected,boolean resume,MembershipBallotAllocator.Cut cut,MembershipLearnerPlacement.Recovery recovery)throws IOException {
+        this.recovery=recovery;var intent=ready.intent();summary=intent.plan();resources=intent.head().resources();usage=resources.usage();
         resources.requireCompleteStorage(collected.leases);source=intent.source();receipt=intent.head().receipt();
-        roots=roots(summary);originals=capture(roots,collected.roots);directory=directory(summary);
+        roots=roots(summary);originals=recovery==null?capture(roots,collected.roots):recovery.inventory(collected.roots);directory=directory(summary);
         intent.head().requireDisjoint(directory,MembershipLearnerPlacement.directory(summary));
         binding=AdmissionPaths.binding(directory);
         var fields=new TreeMap<String,Object>();fields.put("schema","gse-v53-learner-custody/1.3");fields.put("plan",summary.planDigest());fields.put("path",binding);
@@ -110,10 +111,18 @@ final class MembershipLearnerCustody implements AutoCloseable {
     static MembershipLearnerCustody take(MembershipLearnerVoterStage.Ready ready,MembershipBallotAllocator.Cut cut)throws IOException {return take(ready,cut,false);}
     static MembershipLearnerCustody resume(MembershipLearnerVoterStage.Ready ready,MembershipBallotAllocator.Cut cut)throws IOException {return take(ready,cut,true);}
     private static MembershipLearnerCustody take(MembershipLearnerVoterStage.Ready ready,MembershipBallotAllocator.Cut cut,boolean resume)throws IOException {
+        return take(ready,cut,resume,null);
+    }
+    static MembershipLearnerCustody recoverPlacement(MembershipLearnerVoterStage.Ready ready,MembershipLearnerPlacement.Recovery recovery,
+            MembershipBallotAllocator.Cut cut)throws IOException {
+        recovery.check();return take(ready,cut,true,recovery);
+    }
+    private static MembershipLearnerCustody take(MembershipLearnerVoterStage.Ready ready,MembershipBallotAllocator.Cut cut,boolean resume,
+            MembershipLearnerPlacement.Recovery recovery)throws IOException {
         Objects.requireNonNull(ready);Objects.requireNonNull(cut);ready.check();var head=ready.intent().head();var store=MembershipLearnerDisposition.store(head);
         var collected=new Collected();store.collectCustody(collected);MembershipLearnerCustody result=null;boolean moving=false;
         try {
-            result=new MembershipLearnerCustody(ready,collected,resume,cut);result.force(ready,collected,resume,cut);
+            result=new MembershipLearnerCustody(ready,collected,resume,cut,recovery);result.force(ready,collected,resume,cut);
             // No user callback or file mutation occurs within the ownership
             // transfer. The original forced decision precedes every revocation.
             result.original(collected);ready.check();moving=true;
@@ -122,7 +131,9 @@ final class MembershipLearnerCustody implements AutoCloseable {
             for(var owner:collected.locks)result.owners.add(owner.transfer());
             for(var owner:collected.files)result.owners.add(owner.transfer());
             store.close(); // All its old lock/lease closes are now harmless.
-            result.transferred=true;result.check();cut.at("LEARNER_CUSTODY_TRANSFERRED");result.check();return result;
+            result.transferred=true;
+            if(recovery!=null)result.placement=MembershipLearnerPlacement.restored(result,recovery);
+            result.check();cut.at("LEARNER_CUSTODY_TRANSFERRED");result.check();return result;
         }catch(IOException|RuntimeException|Error error) {
             if(moving) {
                 // A partial in-memory transfer exposes no voter. Close both
@@ -137,7 +148,7 @@ final class MembershipLearnerCustody implements AutoCloseable {
         resources.requireCompleteStorage(collected.leases);require(resources.usage().equals(usage),"learner custody reservation changed");
         for(var lock:collected.locks)require(lock.lock().isValid(),"learner custody lock revoked");
         for(var file:collected.files)require(file.lock().isValid(),"learner custody receive lock revoked");
-        require(originals.equals(capture(roots,collected.roots)),"learner custody original files changed");
+        require(originals.equals(recovery==null?capture(roots,collected.roots):recovery.inventory(collected.roots)),"learner custody original files changed");
         AdmissionPaths.recheck(binding);require(directoryKey.equals(key(directory)),"learner custody decision directory changed");
         if(decision!=null)require(children(directory,1).equals(Set.of(FILE)) && decision.equals(inspect(directory.resolve(FILE),decision.bytes(),decision.digest())),
                 "learner custody decision changed before transfer");

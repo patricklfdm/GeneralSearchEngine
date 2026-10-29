@@ -27,6 +27,7 @@ final class MembershipLearnerVoterStage implements AutoCloseable {
     private final Decoded promise,allocator;
     private byte[] plan,ready;
     private Object directoryKey;
+    private MembershipLearnerPlacement.Recovery recovery;
     private volatile boolean closed;
     private boolean failed,complete;
 
@@ -71,6 +72,19 @@ final class MembershipLearnerVoterStage implements AutoCloseable {
     static MembershipLearnerVoterStage resume(MembershipLearnerIntent.Forced intent,MembershipBallotAllocator.Cut cut)throws IOException {
         return open(intent,cut,true);
     }
+    static MembershipLearnerVoterStage reopenPlacement(MembershipLearnerIntent.Forced intent,MembershipLearnerPlacement.Recovery recovery)throws IOException {
+        var result=new MembershipLearnerVoterStage(intent,e->{});result.recovery=recovery;
+        try {
+            intent.attach(result);recovery.check();result.directoryKey=key(result.directory);result.plan=result.plan();
+            AdmissionPaths.exact(result.directory.resolve(PLAN),result.plan);result.capture();result.validatePrefixes();
+            require(result.originals.keySet().equals(result.expectedFiles()) && result.directories.keySet().equals(DIRECTORIES),
+                    "learner placement incomplete original voter stage");
+            AdmissionPaths.exact(result.directory.resolve(READY),result.ready());result.ready=result.ready();
+            result.reserve();result.intent.check();result.complete=true;result.readyCapability().check();return result;
+        }catch(IOException|RuntimeException|Error error){result.failed=true;result.close();throw error;}
+    }
+    private Set<String> expectedFiles() {var names=new TreeSet<>(files.keySet());names.add(PLAN);names.add(READY);return names;}
+    private Path member(String name)throws IOException {return recovery==null?directory.resolve(name):recovery.stageMember(name);}
     private static MembershipLearnerVoterStage open(MembershipLearnerIntent.Forced intent,MembershipBallotAllocator.Cut cut,boolean resume)throws IOException {
         var result=new MembershipLearnerVoterStage(intent,cut);
         try {
@@ -105,6 +119,16 @@ final class MembershipLearnerVoterStage implements AutoCloseable {
     private void capture()throws IOException {
         AdmissionPaths.recheck(binding);require(key(directory).equals(directoryKey),"learner voter stage directory replaced");
         var foundFiles=new TreeMap<String,FileIdentity>();var foundDirectories=new TreeMap<String,Object>();
+        if(recovery!=null) {
+            recovery.check();
+            for(String name:expectedNames()) {
+                Path path=member(name);if(!Files.exists(path,LinkOption.NOFOLLOW_LINKS))continue;
+                if(DIRECTORIES.contains(name)) {require(Files.isDirectory(AdmissionPaths.safe(path),LinkOption.NOFOLLOW_LINKS),"learner placement original stage directory");foundDirectories.put(name,key(path));}
+                else {byte[] wanted=files.get(name);int limit=wanted==null?MAXIMUM:wanted.length;
+                    byte[] bytes=AdmissionPaths.read(path,limit);foundFiles.put(name,inspect(path,bytes.length,hash(bytes)));}
+            }
+            originals.clear();originals.putAll(foundFiles);directories.clear();directories.putAll(foundDirectories);return;
+        }
         try(var walk=Files.walk(directory,3)) {
             var iterator=walk.iterator();int count=0;
             while(iterator.hasNext()) {
@@ -141,12 +165,12 @@ final class MembershipLearnerVoterStage implements AutoCloseable {
     private void validatePrefixes()throws IOException {
         for(var file:originals.entrySet()) {
             String name=file.getKey();if(name.equals(READY))continue;
-            byte[] wanted=name.equals(PLAN)?plan:files.get(name),actual=AdmissionPaths.read(directory.resolve(name),wanted.length);
+            byte[] wanted=name.equals(PLAN)?plan:files.get(name),actual=AdmissionPaths.read(member(name),wanted.length);
             require(Arrays.equals(actual,Arrays.copyOf(wanted,actual.length)),"learner voter stage differs from original prefix");
         }
         if(originals.containsKey(READY)) {
             require(originals.keySet().containsAll(files.keySet()) && directories.keySet().equals(DIRECTORIES),"learner voter stage seal missing members");
-            for(var file:files.entrySet())AdmissionPaths.exact(directory.resolve(file.getKey()),file.getValue());
+            for(var file:files.entrySet())AdmissionPaths.exact(member(file.getKey()),file.getValue());
             ready=ready();byte[] actual=AdmissionPaths.read(directory.resolve(READY),MAXIMUM);
             require(Arrays.equals(actual,Arrays.copyOf(ready,actual.length)),"learner voter stage original seal changed");
         }

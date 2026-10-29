@@ -343,6 +343,15 @@ final class MembershipLearnerSlot implements AutoCloseable {
         check();require(committed() && head!=null && head.active && image.accounted && image.complete,"learner slot head not forced/accounted");
         head.check();return new View(this,true);
     }
+    void restorePlacementHead()throws IOException {
+        parent.placementRecovery().check();check();
+        require(committed() && head!=null && !metadata.containsKey(HEAD_NEXT) && cleared!=null
+                && metadata.containsKey(CLEARED) && !metadata.containsKey(CLEARED_NEXT),"learner placement incomplete original slot head");
+        head.check();cleared.check();head.active=true;cleared.active=true;image.complete=true;seed.supersede();
+        // The original custody witnesses completed retirement. Restore only
+        // its validated vacancy flags; no old files are removed or re-forced.
+        if(retiring!=null)retiring.release();seed.releaseCleared();
+    }
     void resealHead()throws IOException {
         check();require(committed() && head!=null,"learner original slot head missing");
         try{head.seal(false);if(cleared!=null)cleared.seal();image.complete=true;seed.supersede();}

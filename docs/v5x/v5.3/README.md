@@ -1,16 +1,17 @@
 # V5.3 — controlled cluster operations
 
-[Original learner placement](PHASE_3_LEARNER_PLACEMENT.md) now moves the seven
-fixed dormant payload members into the original replica under continuous lock
-custody, preserving inodes and storage charges. Same-owner resume validates and
-re-forces the original move prefix; cold physical inspection is read-only.
-Cold installation recovery, joined admission, covered retirement, native
-minimum-quorum INTENT and complete Phase 3 acceptance remain **OPEN**.
+[Original learner placement](PHASE_3_LEARNER_PLACEMENT.md) now includes explicit
+cold recovery: reopen the real admission, selected source, typed backup, matching
+INTENT and original stage before transferring locks and continuing the fixed
+move prefix. Physical inspection alone remains read-only. Native joined
+admission, covered retirement, minimum-quorum INTENT, all-profile/process
+qualification and complete Phase 3 acceptance remain **OPEN**.
 
 [Forced learner custody](PHASE_3_LEARNER_CUSTODY.md) now transfers the actual
 prepared learner's locks and complete storage group after forcing an original
-handoff decision, then revokes the old object graph. Original payload installation,
-joined admission and native joint voting remain **OPEN**.
+handoff decision, then revokes the old object graph. The placement component
+above now consumes this custody; joined admission and native joint voting remain
+**OPEN**.
 
 [Inspection-safe descriptor custody](PHASE_3_FILE_CUSTODY.md) corrects a reproduced
 POSIX lock loss during hash/read/force operations. V5.3 owned files now reuse the

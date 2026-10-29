@@ -47,7 +47,15 @@ final class MembershipLearnerAdmissionFiles implements AutoCloseable {
     static MembershipLearnerAdmissionFiles openAdmission(MembershipLearnerPlan expected,MembershipResources resources,MembershipBallotAllocator.Cut cut)throws IOException {
         return open(expected,resources,cut,true);
     }
+    static MembershipLearnerAdmissionFiles openPlacement(MembershipLearnerPlan expected,MembershipResources resources,
+            MembershipLearnerPlacement.Recovery recovery)throws IOException {
+        recovery.check();return open(expected,resources,e->{},true,recovery);
+    }
     private static MembershipLearnerAdmissionFiles open(MembershipLearnerPlan expected,MembershipResources resources,MembershipBallotAllocator.Cut cut,boolean admission)throws IOException {
+        return open(expected,resources,cut,admission,null);
+    }
+    private static MembershipLearnerAdmissionFiles open(MembershipLearnerPlan expected,MembershipResources resources,MembershipBallotAllocator.Cut cut,
+            boolean admission,MembershipLearnerPlacement.Recovery recovery)throws IOException {
         Objects.requireNonNull(expected);Objects.requireNonNull(cut);Path directory=AdmissionPaths.safe(expected.request().operationDirectory());Object originalKey=key(directory);
         var names=children(directory,5);var allowed=admission?Set.of(LOCK,FILE,NEXT,RETAIN,RETAIN_NEXT):Set.of(LOCK,FILE,NEXT);
         require(names.contains(LOCK) && allowed.containsAll(names) && (names.contains(FILE)||names.contains(NEXT)),"learner original plan incomplete inventory");
@@ -66,12 +74,16 @@ final class MembershipLearnerAdmissionFiles implements AutoCloseable {
                 if(names.contains(RETAIN)&&names.contains(RETAIN_NEXT))AdmissionPaths.exact(directory.resolve(RETAIN_NEXT),retentionBytes);
             }
             plan.recheckPaths(!names.contains(RETAIN));require(originalKey.equals(key(directory)),"learner operation replaced during open");
-            if(retained!=null)MembershipLearnerStore.preflight(plan,retained);
-            lease=resources.reserve(MembershipResources.Unit.MISC,"learner-plan",bytes.length);result=new MembershipLearnerAdmissionFiles(plan,owner,resources,lease,cut,()->{});
+            if(recovery!=null) {
+                recovery.check();require(names.equals(Set.of(LOCK,FILE,RETAIN)),"learner placement requires complete original admission");
+                MembershipLearnerStore.preflight(plan,Objects.requireNonNull(retained),recovery);
+            }else if(retained!=null)MembershipLearnerStore.preflight(plan,retained);
+            lease=resources.reserve(MembershipResources.Unit.MISC,"learner-plan",bytes.length);result=new MembershipLearnerAdmissionFiles(plan,owner,resources,lease,cut,recovery==null?()->{}:recovery::readGuard);
             result.replicaAllowed=names.contains(RETAIN);result.retention=retained;
             if(hasRetention)lease.reserveMisc(MembershipResources.Unit.MISC.bytes);
             for(String name:names)if(!name.equals(LOCK))result.remember(name,(name.equals(RETAIN)||name.equals(RETAIN_NEXT))?retentionBytes:bytes);
             result.check();
+            if(recovery!=null)return result; // Original read-only validation; no seal or repair.
             if(retained!=null && MembershipLearnerRetirement.load(plan,retained)!=null) {
                 require(names.contains(FILE) && names.contains(RETAIN) && !names.contains(NEXT) && !names.contains(RETAIN_NEXT),
                         "learner retirement incomplete original admission");
