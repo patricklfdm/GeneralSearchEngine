@@ -18,10 +18,14 @@ class V53CurrentHeadNetworkTest {
     static final long BUDGET=TimeUnit.SECONDS.toNanos(900);
     @Test void retiredTypedSecondRevisionAcquiresThirdRevisionAcrossParentReopen()throws Exception {run(false);}
     void run(boolean installInactive)throws Exception {
+        run(installInactive,false);
+    }
+    void run(boolean installInactive,boolean selectInactive)throws Exception {
+        assertTrue(installInactive || !selectInactive,"selection requires original inactive installation");
         var driver=new V53RoundDriverTest();driver.temp=temp;var helper=new V53NativeDispatchTest();helper.temp=temp;
         try(var n=helper.new Network(3,driver.controlBounds(),BUDGET,f->{},true);
                 var round=driver.driver(n,MembershipRoundDriver.Events.NONE,BUDGET)) {
-            Path raw=n.f.raw;System.out.println((installInactive?"v53LearnerSlotEvidence=":"v53CurrentHeadEvidence=")+raw.toAbsolutePath());round.start();int port;
+            Path raw=n.f.raw;System.out.println((selectInactive?"v53LearnerSlotHeadEvidence=":installInactive?"v53LearnerSlotEvidence=":"v53CurrentHeadEvidence=")+raw.toAbsolutePath());round.start();int port;
             try(var socket=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){port=socket.getLocalPort();}
             var joining=new MembershipIdentity(new ReplicationNodeId("node-4"),UUID.randomUUID(),new ReplicationEndpoint("127.0.0.1",port));
             var targets=new ArrayList<MembershipIdentity>();n.f.request.targets().forEach(t->targets.add(t.identity()));targets.add(joining);
@@ -44,7 +48,11 @@ class V53CurrentHeadNetworkTest {
                         var installed=refresh.installSuccessor(events::add);
                         try(var second=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(installed,2),builder().configuration(),config,events::add)) {
                             Files.write(raw.resolve("current-receipt.gsr"),second.receipt().bytes());
-                            var head=second.promoteSuccessor();head.retirePredecessor();
+                            if(selectInactive)snapshotLearner(raw.resolve("before-seed-handoff"),summary,resources);
+                            var head=second.promoteSuccessor();
+                            if(selectInactive)snapshotLearner(raw.resolve("selected-seed-head"),summary,resources);
+                            head.retirePredecessor();
+                            if(selectInactive)snapshotLearner(raw.resolve("retired-seed-predecessor"),summary,resources);
                             assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
                             assertFalse(Files.exists(request.replicaDirectory().resolve("learner")));assertFalse(Files.exists(MembershipLearnerMaterialization.directory(summary)));
                             V53SuccessorTypedNetworkTest.snapshotSuccessor(raw.resolve("retired-successor"),summary);
@@ -58,6 +66,7 @@ class V53CurrentHeadNetworkTest {
             try(var store=MembershipLearnerStore.resume(summary,resources,events::add);
                     var typed=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.promotedSuccessor(),2),builder().configuration(),config,events::add)) {
                 var head=typed.currentHead();var baseline=resources.usage();var original=head.source().packet.bytes();
+                MembershipLearnerSlot.View pending=null;
                 try(var refresh=MembershipLearnerSource.refresh(head,targets.getFirst(),n.bounds,capture,System::nanoTime,System.nanoTime(),BUDGET)) {
                     var received=refresh.fetch(temp.resolve("third-receiving"));assertEquals(5L,number(received.capsule.context.cut.get("index")));
                     assertEquals(3L,number(object(list(received.capsule.context.catalog.get("results")).getFirst()).get("revision")));
@@ -65,7 +74,7 @@ class V53CurrentHeadNetworkTest {
                     assertFalse(received.capsule.context.voters().contains(joining.nodeId().value()));copy(received,raw.resolve("revision-three"));
                     assertArrayEquals(Files.readAllBytes(raw.resolve("current-receipt.gsr")),typed.receipt().bytes());
                     if(installInactive) {
-                        var slot=refresh.installSlot(events::add);
+                        var slot=refresh.installSlot(events::add);pending=slot;
                         try(var third=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(slot,3),builder().configuration(),config,events::add)) {
                             Files.write(raw.resolve("third-receipt.gsr"),third.receipt().bytes());
                             assertEquals("learner inactive slot is not the current head",assertThrows(IllegalArgumentException.class,third::currentHead).getMessage());
@@ -75,13 +84,44 @@ class V53CurrentHeadNetworkTest {
                         V53JournalApplicationTest.copy(MembershipLearnerSlot.typedDirectory(summary),raw.resolve("installed-slot-typed"));
                     }
                 }
-                if(!installInactive)assertEquals(baseline,resources.usage());
-                else assertEquals(2,resources.usage().counts().get(Unit.GENERATION));
-                assertArrayEquals(original,head.source().packet.bytes());
+                if(selectInactive) {
+                    // The source transport is already closed. Selection and
+                    // retirement must use only the retained durable owner.
+                    snapshotLearner(raw.resolve("before-slot-selection"),summary,resources);
+                    try(var third=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(pending,3),builder().configuration(),config,events::add)) {
+                        assertArrayEquals(Files.readAllBytes(raw.resolve("third-receipt.gsr")),third.receipt().bytes());
+                        var selected=third.promoteSlot(head);assertThrows(IllegalArgumentException.class,head::check);
+                        assertEquals(2,resources.usage().counts().get(Unit.GENERATION));
+                        snapshotLearner(raw.resolve("selected-slot-head"),summary,resources);
+                        selected.retirePredecessor();assertEquals(1,resources.usage().counts().get(Unit.GENERATION));
+                        assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
+                        assertFalse(Files.exists(MembershipLearnerSuccessor.directory(summary).resolve(MembershipLearnerSuccessor.SOURCE)));
+                        assertFalse(Files.exists(MembershipLearnerSuccessor.typedDirectory(summary)));
+                        snapshotLearner(raw.resolve("retired-slot-seed"),summary,resources);
+                    }
+                }else {
+                    if(!installInactive)assertEquals(baseline,resources.usage());
+                    else assertEquals(2,resources.usage().counts().get(Unit.GENERATION));
+                    assertArrayEquals(original,head.source().packet.bytes());
+                }
                 assertFalse(Files.exists(config.materialization().directory()));
             }
             assertEquals(0,resources.usage().leases());
-            if(installInactive) {
+            if(selectInactive) {
+                try(var store=MembershipLearnerStore.resume(summary,resources,events::add);
+                        var third=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.currentSource(),3),builder().configuration(),config,events::add)) {
+                    assertArrayEquals(Files.readAllBytes(raw.resolve("third-receipt.gsr")),third.receipt().bytes());third.currentHead().check();
+                    assertEquals(request.root().historyId(),third.state().history());assertTrue(third.state().documents().isEmpty());
+                    assertFalse(third.currentHead().source().context.voters().contains(joining.nodeId().value()));
+                    assertEquals(1,resources.usage().counts().get(Unit.GENERATION));assertEquals(2,resources.usage().counts().get(Unit.APPLICATION));
+                    snapshotLearner(raw.resolve("reopened-slot-head"),summary,resources);
+                    var before=V53ReplayFilesTest.files(raw.resolve("retired-slot-seed"));var after=V53ReplayFilesTest.files(raw.resolve("reopened-slot-head"));
+                    // Cold charges may conservatively differ in extent; exact
+                    // authority bytes/inodes must not change during reopen.
+                    before.remove("resources.json");after.remove("resources.json");assertEquals(before,after);
+                }
+                assertEquals(0,resources.usage().leases());
+            }else if(installInactive) {
                 try(var store=MembershipLearnerStore.resume(summary,resources,events::add);
                         var second=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store.promotedSuccessor(),2),builder().configuration(),config,events::add)) {
                     var slot=store.resumeSlot(second.currentHead());
@@ -96,9 +136,44 @@ class V53CurrentHeadNetworkTest {
             }
             n.f.snapshot("after-third-acquisition");round.submit("CANCEL",canonical(Map.of("number",1L),8192));
             Files.write(raw.resolve("current-head-events.json"),canonical(events,65536));Files.write(raw.resolve("current-head-wire.json"),canonical(wire,8*1024*1024));
-            Files.write(raw.resolve("current-head-result.json"),canonical(Map.of("status","PASS","scope",installInactive?"native-inactive-slot":"native-current-head-acquisition",
-                    "installedThirdRevision",installInactive,"voter",false,"publicReady",false,"phase3Complete",false,"testBudgetSeconds",900L),4096));
+            var result=new TreeMap<String,Object>(Map.of("status","PASS","scope",selectInactive?"native-selected-slot-head":installInactive?"native-inactive-slot":"native-current-head-acquisition",
+                    "installedThirdRevision",installInactive,"voter",false,"publicReady",false,"phase3Complete",false,"testBudgetSeconds",900L));
+            if(selectInactive){result.put("selectedThirdRevision",true);result.put("seedRetired",true);}
+            Files.write(raw.resolve("current-head-result.json"),canonical(result,4096));
         }
+    }
+    /** Copy original bytes with their original identity observations, including
+     * absent retired roots. A copied tree's new inodes are not voting evidence. */
+    private static void snapshotLearner(Path target,MembershipLearnerPlan summary,MembershipResources resources)throws Exception {
+        Files.createDirectory(target);var roots=new TreeMap<String,Path>();
+        roots.put("operation",summary.request().operationDirectory());roots.put("replica",summary.request().replicaDirectory());
+        roots.put("initial-typed",MembershipLearnerMaterialization.directory(summary));
+        roots.put("seed",MembershipLearnerSuccessor.directory(summary));roots.put("seed-typed",MembershipLearnerSuccessor.typedDirectory(summary));
+        roots.put("slots",MembershipLearnerSlot.directory(summary));roots.put("slot-typed",MembershipLearnerSlot.typedDirectory(summary));
+        var identities=new TreeMap<String,Object>();int count=0;
+        for(var entry:roots.entrySet()) {
+            Path root=entry.getValue();AdmissionPaths.safe(root);var members=new TreeMap<String,Object>();
+            boolean present=Files.exists(root,LinkOption.NOFOLLOW_LINKS);
+            if(present) {
+                try(var walk=Files.walk(root)) {
+                    for(Path p:walk.sorted().toList()) {
+                        assertTrue(++count<=256,"learner snapshot member bound");AdmissionPaths.safe(p);
+                        String name=p.equals(root)?".":root.relativize(p).toString();
+                        if(Files.isDirectory(p,LinkOption.NOFOLLOW_LINKS))members.put(name,Map.of("key",MembershipBasisSources.key(p).toString(),"directory",true));
+                        else {
+                            byte[] bytes=AdmissionPaths.read(p,MembershipApplicationImage.MAXIMUM);
+                            var original=MembershipBasisSources.inspect(p,bytes.length,hash(bytes));
+                            members.put(name,Map.of("key",original.key().toString(),"bytes",original.bytes(),"sha256",original.digest()));
+                        }
+                    }
+                }
+                V53JournalApplicationTest.copy(root,target.resolve(entry.getKey()));
+            }
+            identities.put(entry.getKey(),Map.of("path",root.toString(),"present",present,"members",members));
+        }
+        var usage=resources.usage();var counts=new TreeMap<String,Object>();usage.counts().forEach((unit,value)->counts.put(unit.name(),value.longValue()));
+        Files.write(target.resolve("original-identities.json"),canonical(identities,1024*1024));
+        Files.write(target.resolve("resources.json"),canonical(Map.of("counts",counts,"leases",(long)usage.leases(),"metadata",usage.metadata(),"staging",usage.staging(),"queued",usage.queued()),4096));
     }
     private static void copy(MembershipFloor.Copy copy,Path destination)throws Exception {
         copy.check();Files.createDirectory(destination);for(String name:copy.fileNames())Files.write(destination.resolve(name),copy.fileBytes(name));copy.check();

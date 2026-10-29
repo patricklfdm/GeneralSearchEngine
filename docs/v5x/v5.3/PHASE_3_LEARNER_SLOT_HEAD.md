@@ -73,3 +73,17 @@ input changes. The receipt compares all production source/resource/POM inputs
 and compiled production bytes before combining passed method coverage, and retains
 the original failure. This is not a claim that the complete final test tree ran
 again, nor a native consensus or complete Phase 3 result.
+
+
+## Deferred native history and portable snapshots
+
+`V53LearnerSlotHeadNetworkTest` now provides one continuous native three-revision
+entry for the first selected B head, covered seed retirement and actual cold typed
+reopening. It also retains the earlier A20/A21 handoff snapshots, so a later reader
+can account for the original identities before those members are deleted. The
+entry is **compiled, not executed**; see the
+[queue and commands](PHASE_3_DEFERRED_ACCEPTANCE.md#selected-slot-native-entry).
+The portable snapshot parser verifies copies against recorded original identity
+observations without reading old absolute paths, and only reports PARTIAL.
+[Its receipt](phase3-evidence/learner-slot-native.json) separates Java compilation,
+resource-owner regression and parser tests from unexecuted native qualification.

@@ -26,7 +26,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 | Original predecessor retirement | `V53LearnerRetirementTest`, independent conditional histories | Exact complete decision, covered deletion and parent forces before lease release; partial decisions and changed remaining/current originals preserved; semantic current backup reopen |
 | Current typed acquisition head | `V53LearnerCurrentHeadTest` and one complete `V53CurrentHeadNetworkTest` | Same-pool acquisition after original retirement and cold semantic reopen, current ancestry and closure revocation; the native three-revision history and its independent replay must actually execute before acceptance |
 | Inactive slot installation | `V53LearnerSlotTest` plus one whole `V53LearnerSlotNetworkTest` | Exact pending plan, source move, real typed decode, original-only cold resume and unchanged current head; all five shapes, maximum combined resources, complete native execution, physical replay and halt/SIGKILL remain required |
-| First rolling head and seed retirement | `V53LearnerSlotHeadTest` conditional original histories, followed by complete native histories | Same-inode selection, actual typed binding, covered removal and force-before-release, cold current recovery, unchanged partial/copied/unknown refusal; original native wire/physical replay and halt/SIGKILL remain required |
+| First rolling head and seed retirement | `V53LearnerSlotHeadTest` conditional histories and one whole `V53LearnerSlotHeadNetworkTest` native history | Native PREPARE 1/2/3, closed-download selection, exact covered removal, original identities and cold semantic recovery. The native entry is compiled, not run; original wire/physical replay and halt/SIGKILL remain required. Snapshot-layer checks alone report PARTIAL |
 | Native handoff and retirement | One continuous multi-revision native history, plus independent halt/SIGKILL histories | Exact physical/transport replay, original candidate and head, explicit covered deletion, resource release and bounded slot reuse; remains outstanding |
 | Successor lifecycle | One continuous original learner history | Install, select and retire bounded originals across revisions, cancellation and locally forced matching INTENT before votes |
 | Final Phase 3 protocol audit | Complete prescribed scenarios | Learner ADD/REPLACE, all seven transitions, alternative-leader continuation and maximum combined resource bounds; component results cannot substitute |
@@ -53,6 +53,42 @@ python3 -m scripts.v53.learner_store_evidence RAW_DIRECTORY \
 The reader independently validates the complete selected history and reports
 `PARTIAL`, never complete matrix acceptance. The ordinary reader without `--case`
 still requires all twelve. `--case` and `--qualify` cannot be combined.
+
+## Selected-slot native entry
+
+`V53LearnerSlotHeadNetworkTest` extends the continuous PREPARE 1/2/3 helper as one
+indivisible history. Existing current-acquisition and pending-install modes keep
+their own entry points and result shapes. The selected mode closes the third
+transfer before selecting B, then checks exact covered A removal and cold typed
+reopen without A's source. Its original 900-second test profile is unchanged.
+Compilation and the accompanying resource-owner tests do not execute that history.
+
+```bash
+mvn -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
+  -Dsurefire.failIfNoSpecifiedTests=false -Dtest=V53LearnerSlotHeadNetworkTest test
+```
+
+The Java history prints `v53LearnerSlotHeadEvidence=...`. Seven snapshots preserve
+admission/replica, initial typed, seed metadata/source/typed and B metadata/source/
+typed roots, including explicit absent roots. They record original paths and
+inodes before copying bytes. Resource usage is retained separately: conservative
+cold accounting may differ in extent, while authority bytes and original
+identities must remain unchanged. The whole-history physical/wire validator and
+its exact negatives still need integration and real execution.
+
+The new snapshot parser can inspect one retained stage, for example:
+
+```bash
+python3 -B -m scripts.v53.learner_slot_snapshot RAW_DIRECTORY/reopened-slot-head
+```
+
+This reads only the copied stage. Recorded original paths are data, never paths to
+open; copy inodes are not original identities. Exact inventories, file hashes,
+identity shapes, disjoint original roots and declared resource limits are checked.
+Output is always **PARTIAL**, with native/history/selected-head/process-death
+qualification false. It cannot authorize deletion or turn a Java result line into
+complete acceptance. Its eleven small parser regressions use synthetic copied
+snapshots, not native protocol evidence.
 
 ## Hosted campaign requirements
 
