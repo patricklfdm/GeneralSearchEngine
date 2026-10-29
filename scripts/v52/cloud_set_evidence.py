@@ -7,6 +7,7 @@ from pathlib import Path
 from . import cloud_authority as a,cloud_suite as suite,cloud_member_evidence as member
 from . import cloud_artifacts as artifacts,cloud_member_authority as authority
 from . import measurement_m01_set as m01
+from . import cloud_retention_recovery as recovery
 from .evidence import need,encoded,digest
 
 
@@ -28,7 +29,7 @@ def inputs(values,source,cfg,ledger,*,continuation=None):
     need(len(set(paths))==len(suite.MEMBERS) and not any(x in y.parents for x in paths for y in paths if x!=y),
          'V5.2 set overlapping original member roots')
     view=a.inspect_ledger(ledger,domain='native')
-    need(all(view['attempts'].get(a.validate_request(req,domain='native'))==dict(request=req,status='PASS') for req in requests),
+    need(all(view['attempts'].get(a.validate_request(req,domain='native'))==dict(request=req,status=recovery.terminal_status(continuation,req)) for req in requests),
          'V5.2 set requires all fifteen original terminal successes')
     return selected,view,paths
 
@@ -46,6 +47,8 @@ def results(values,selected,source,cfg,ledger,*,continuation=None):
         member_binding = selected['binding'] if continuation is None else selected['originalBindings'][name]
         if continuation is not None:
             need(value['requestSha256']==continuation.chosen[name]['requestSha256'], 'V5.2 continuation replayed request changed')
+        if type(continuation) is recovery.Scope and name=='experiment':
+            need(value.get('retentionRecovery')==continuation.report(), 'V5.2 recovery replay waiver missing')
         need(value['status']=='MEMBER_REPLAYED_NOT_QUALIFIED' and value['source']==member_source and
              value['configurationSha256']==configuration and value['fullRemoteQualification'] is False and value['paidCloud'] is False and
              selection['binding']==member_binding and selection['member']==chosen and
@@ -102,6 +105,7 @@ def replay(values,source,cfg,ledger,output,*,progress=lambda stage,**kw:None,exp
             name=value['request']['selection']['member']['name'];progress('member-replay',name=name,completed=len(replayed))
             member_source = source if continuation is None else continuation.member_source(name)
             options = {} if continuation is None else dict(artifact_pins=continuation.policy['artifactPins'])
+            if recovery.applies(continuation,value['request']):options['retention_scope']=continuation
             replayed[name]=member.replay(value['root'],value['request'],value['manifest'],value['completed'],value['cleanup'],
                 ledger,member_source,cfg,output/name,progress=progress,**options)
             if expected_invocations is not None:

@@ -11,6 +11,7 @@ from . import cloud_member_authority as authority,cloud_inputs as inputs,cloud_a
 from . import cloud_suite as suite,remote_history as history,measurement_bundle as bundle
 from . import measurement_runtime_evidence as smoke,measurement_m01_evidence as m01
 from . import measurement_minimum_evidence as minimum,measurement_recovery_evidence as recovery
+from . import cloud_retention_recovery as retention_recovery
 from .evidence import need,encoded,digest
 
 
@@ -35,10 +36,13 @@ def inventory(root,request,manifest):
     return root
 
 
-def completion(request,manifest,completed,clean,ledger,claim,plan):
+def completion(request,manifest,completed,clean,ledger,claim,plan,*,retention_scope=None):
     a.validate_completion(completed,request);a.fields(clean,'status checks errors leftovers','original cleanup')
     sha=a.validate_request(request,domain='native')
-    need(completed['status']=='PASS' and completed['evidenceSha256']==digest(encoded(manifest)) and
+    exceptional=retention_recovery.applies(retention_scope,request)
+    if exceptional:retention_scope.objects(request,manifest,completed,clean)
+    status=retention_recovery.terminal_status(retention_scope,request)
+    need(completed['status']==status and completed['evidenceSha256']==(None if exceptional else digest(encoded(manifest))) and
          completed['cleanupSha256']==digest(encoded(clean)),'V5.2 retained successful completion binding')
     lease=authority.resource_claim(request,claim)
     expected={row['spec']['name']:row['id'] for row in lease['resources']}
@@ -51,12 +55,12 @@ def completion(request,manifest,completed,clean,ledger,claim,plan):
              row['absent'] is True and row['observed'] is None,'V5.2 original exact-ID absence changed')
         seen.add(row['name'])
     view=a.inspect_ledger(ledger,domain='native')
-    need(view['attempts'].get(sha)==dict(request=request,status='PASS'),'V5.2 original successful ledger attempt')
+    need(view['attempts'].get(sha)==dict(request=request,status=status),'V5.2 original successful ledger attempt')
     baseline=plan['baseline']['ledger'] if plan['baseline'] else a.empty_ledger(domain='native')
     start=len(baseline['entries']);cost=plan['reservation']['costMicrousd']
     need(ledger['entries'][:start]==baseline['entries'] and ledger['entries'][start:start+2]==[
         dict(kind='RESERVED',requestSha256=sha,request=request,reservedCostMicrousd=cost),
-        dict(kind='FINISHED',requestSha256=sha,status='PASS',completionSha256=digest(encoded(completed)))],
+        dict(kind='FINISHED',requestSha256=sha,status=status,completionSha256=digest(encoded(completed)))],
         'V5.2 original reservation/terminal history changed')
     return dict(reservedCostMicrousd=cost,totalReservedCostMicrousd=view['reservedCostMicrousd'],
                 completionSha256=digest(encoded(completed)),cleanupSha256=digest(encoded(clean)))
@@ -104,7 +108,7 @@ def bound_history(value,name,source,admitted):
     return binding
 
 
-def replay(root,request,manifest,completed,clean,ledger,source,cfg,output,*,progress=lambda stage,**kw:None,artifact_pins=None):
+def replay(root,request,manifest,completed,clean,ledger,source,cfg,output,*,progress=lambda stage,**kw:None,artifact_pins=None,retention_scope=None):
     """Internal local replay; caller must authenticate selected original objects."""
     root=inventory(root,request,manifest);output=Path(output)
     need(not any(p.is_symlink() for p in (output,*output.parents)) and root.resolve() not in output.resolve().parents and
@@ -115,7 +119,7 @@ def replay(root,request,manifest,completed,clean,ledger,source,cfg,output,*,prog
         if artifact_pins is not None:
             from .cloud_quota_continuation import artifacts_match
             artifacts_match(admitted['files'], artifact_pins)
-        accounting=completion(request,manifest,completed,clean,ledger,value['claim'],value['plan'])
+        accounting=completion(request,manifest,completed,clean,ledger,value['claim'],value['plan'],retention_scope=retention_scope)
         selected=request['selection'];receipt=artifacts.read(root/'member.json')
         a.fields(receipt,'schema status selection source resourceClaimSha256 histories fullRemoteQualification paidCloud elapsedSeconds',
                  'original member execution')
@@ -147,6 +151,7 @@ def replay(root,request,manifest,completed,clean,ledger,source,cfg,output,*,prog
             accounting=accounting,histories=replayed,bindings=bindings,claim=value['claim'],configurationSha256=authority.preflight.configuration(cfg),
             invocation={k:admitted['preflight']['credentialContext'][v] for k,v in (('run','runId'),('attempt','runAttempt'))})
         result['invocation']['run']=str(result['invocation']['run'])
+        if retention_recovery.applies(retention_scope,request):result['retentionRecovery']=retention_scope.report()
         return result
     except BaseException as error:
         result['failure']=dict(type=type(error).__name__);raise

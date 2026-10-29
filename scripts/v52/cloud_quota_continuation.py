@@ -29,6 +29,10 @@ ORIGINAL_ENTRIES = {
     'scripts/v52/cloud_quota_continuation.py': None,
     'scripts/v52/test_cloud_quota_continuation.py': None,
     'docs/v5x/v5.2/PHASE_6_QUOTA_CONTINUATION.md': None,
+    'scripts/v52/cloud_retention_recovery.py': None,
+    'scripts/v52/test_cloud_retention_recovery.py': None,
+    'docs/v5x/v5.2/experiment-retention-recovery.json': None,
+    'docs/v5x/v5.2/PHASE_6_RETENTION_RECOVERY.md': None,
 }
 
 
