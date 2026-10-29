@@ -137,7 +137,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     private void write(String name,String label)throws IOException {
         check();byte[] bytes=expected.get(name);Path file=path.resolve(name);
         boolean exists=metadata.containsKey(name);
-        try(var channel=FileChannel.open(file,exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
+        try(var channel=MembershipFileAccess.open(file,exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
                 Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
             if(!exists){remember(name,new byte[0]);point(label+"_CREATED");}
             int offset=Math.toIntExact(metadata.get(name).bytes());channel.position(offset);
@@ -298,7 +298,7 @@ final class MembershipLearnerStore implements AutoCloseable {
         requireOriginalRetiredFilesAbsent();require(slot!=null && slot.committed(),"learner original retirement requires selected slot");
         Path seed=MembershipLearnerSuccessor.directory(plan.summary());
         for(String name:List.of(MembershipLearnerSuccessor.HEAD,MembershipLearnerRetirement.FILE)) {
-            try(var file=FileChannel.open(seed.resolve(name),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){file.force(true);}
+            try(var file=MembershipFileAccess.open(seed.resolve(name),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){file.force(true);}
         }
         AdmissionPaths.forceDirectory(seed);AdmissionPaths.forceDirectory(path);
         AdmissionPaths.forceDirectory(MembershipLearnerMaterialization.directory(plan.summary()).getParent());

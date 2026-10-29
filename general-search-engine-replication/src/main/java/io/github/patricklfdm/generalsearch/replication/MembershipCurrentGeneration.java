@@ -260,7 +260,7 @@ final class MembershipCurrentGeneration implements AutoCloseable {
     private static byte[] readChunk(Path source,FileIdentity file,long offset,int maximum)throws IOException {
         require(maximum>0 && maximum<=4*1024*1024 && offset>=0 && offset<file.bytes(),"current chunk bounds");
         checkFile(source,file);var buffer=java.nio.ByteBuffer.allocate((int)Math.min(maximum,file.bytes()-offset));
-        try(var channel=java.nio.channels.FileChannel.open(source,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(source,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
             require(channel.size()==file.bytes(),"current content length");channel.position(offset);
             while(buffer.hasRemaining())require(channel.read(buffer)>0,"current incomplete read");
         }

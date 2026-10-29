@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Inspection-safe descriptor custody](PHASE_3_FILE_CUSTODY.md) corrects a reproduced
+POSIX lock loss during hash/read/force operations. V5.3 owned files now reuse the
+original descriptor; separate JVMs check actual exclusion. Earlier passing
+component tests did not cover that boundary. Joined-voter takeover and complete
+Phase 3 remain **OPEN**.
+
 [Joining-voter staging](PHASE_3_LEARNER_VOTER_STAGE.md) now prepares and forces
 an exact dormant installation from the live matching-INTENT owner. It derives a
 local certificate fence, allocator and generation without copying the peer's
@@ -91,6 +97,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 
 | Gate | Unit of execution | Required final evidence |
 | --- | --- | --- |
+| Descriptor custody through takeover | Each complete native takeover history; the two learner inspection component histories may run independently | Independent-process lock attempts around reads, fingerprints, forces, rename and stale close; preserve original failure evidence; helper tests do not replace joined-member process cuts |
 | Learner current-endpoint quorum | Independent whole native ADD/REPLACE histories | All five joining profiles and process cuts, exact forced ACKs and wire replay, source-exposure binding and authentic head confirmation; the focused three-voter ADD test does not close the full gate |
 | Frozen learner retention and selected merge | One native continuous history plus independent whole halt/SIGKILL cases | Exact source-bound ledgers, selection/installation completion, all process cuts and original-first physical/force replay; five Java component cases are executed, not complete process or quorum qualification |
 | `V53LearnerVoterStageTest` and joined-voter takeover | One original typed learner/INTENT/staged generation through takeover and restart | Native old-majority INTENT before joint checkpoint, exact ownership transfer, interrupted install, predecessor coverage/retirement, joint FINAL/barrier, independent original-first replay and maximum resources; staging does not enable voting |

@@ -115,7 +115,7 @@ final class MembershipReplayFiles implements AutoCloseable {
         reserve();event("REPLAY_RESERVED",guard,cut);
         if(!present()){Files.createDirectory(path);members=scan();event("REPLAY_DIRECTORY_CREATED",guard,cut);}
         boolean exists=members.containsKey(CLAIM);var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));if(!exists)options.add(StandardOpenOption.CREATE_NEW);
-        try(var channel=FileChannel.open(path.resolve(CLAIM),options)) {
+        try(var channel=MembershipFileAccess.open(path.resolve(CLAIM),options)) {
             if(!exists){updateClaim(new byte[0]);event("REPLAY_CLAIM_CREATED",guard,cut);}
             int offset=Math.toIntExact(members.get(CLAIM).bytes()),middle=offset+(expected.length-offset)/2;channel.position(offset);
             AdmissionPaths.write(channel,Arrays.copyOfRange(expected,offset,middle));updateClaim(Arrays.copyOf(expected,middle));event("REPLAY_CLAIM_PREFIX_WRITTEN",guard,cut);

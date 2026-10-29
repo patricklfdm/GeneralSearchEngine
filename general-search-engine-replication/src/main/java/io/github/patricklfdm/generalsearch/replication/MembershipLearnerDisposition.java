@@ -193,11 +193,11 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     private void remember(String name,byte[] bytes)throws IOException {metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));}
     private void point(String event)throws IOException {check();cut.at(kind==Kind.CANCEL?event:event.replace("LEARNER_CANCEL_","LEARNER_INTENT_"));check();}
     private void force(Path path)throws IOException {
-        check();try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+        check();try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
     }
     private void writePlan()throws IOException {
         check();AdmissionPaths.absent(directory.resolve(nextName));
-        try(var channel=FileChannel.open(directory.resolve(nextName),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(directory.resolve(nextName),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             remember(nextName,new byte[0]);point("LEARNER_CANCEL_PLAN_CREATED");int half=plan.length/2;
             AdmissionPaths.write(channel,Arrays.copyOf(plan,half));remember(nextName,Arrays.copyOf(plan,half));point("LEARNER_CANCEL_PLAN_PREFIX_WRITTEN");
             AdmissionPaths.write(channel,Arrays.copyOfRange(plan,half,plan.length));remember(nextName,plan);point("LEARNER_CANCEL_PLAN_WRITTEN");

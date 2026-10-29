@@ -221,7 +221,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
 
     private void forceFile(Path path) throws IOException {
         AdmissionPaths.regular(path);
-        try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) { channel.force(true); }
+        try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) { channel.force(true); }
     }
 
     private void recover() throws IOException {
@@ -252,7 +252,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
         byte[] bytes=encode("records","ALLOCATOR",Map.of("root",root.manifestDigest(),"node",identity.nodeId().value(),"counter",next));
         try {
             checkOwner(); Path pending=directory.resolve(PENDING); AdmissionPaths.absent(pending); cut.at("ALLOCATOR_BEFORE_WRITE");
-            try(var channel=FileChannel.open(pending,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+            try(var channel=MembershipFileAccess.open(pending,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                 cut.at("ALLOCATOR_CREATED"); AdmissionPaths.write(channel,bytes); cut.at("ALLOCATOR_WRITTEN");
                 channel.force(true); cut.at("ALLOCATOR_FORCED");
             }

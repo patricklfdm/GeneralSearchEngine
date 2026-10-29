@@ -130,7 +130,7 @@ final class MembershipBasisSources implements AutoCloseable {
         AdmissionPaths.regular(path);require(Files.size(path)==size,"retained source file length");Object before=key(path);
         MessageDigest sha;
         try {sha=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException error){throw new AssertionError(error);}
-        try(var channel=FileChannel.open(path,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(path,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
             var buffer=ByteBuffer.allocate(65536);long count=0;
             while(channel.read(buffer)!=-1) {buffer.flip();count+=buffer.remaining();require(count<=size,"retained source grew");sha.update(buffer);buffer.clear();}
             require(count==size,"retained source file length");
@@ -178,7 +178,7 @@ final class MembershipBasisSources implements AutoCloseable {
             check();owner.check();byte[] bytes=expected.get(name);var old=retained.get(id).get(name);
             var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));if(old==null)options.add(StandardOpenOption.CREATE_NEW);
             String event=name.equals(PACKET)?"SOURCE_PACKET":"SOURCE_IMAGE";
-            try(var channel=FileChannel.open(path.resolve(name),options)) {
+            try(var channel=MembershipFileAccess.open(path.resolve(name),options)) {
                 Object original=old==null?key(path.resolve(name)):old.key();
                 if(old==null){rememberPrefix(id,name,bytes,0,original);cut.at(event+"_CREATED");check();owner.check();}
                 int offset=Math.toIntExact(channel.size());require(offset<=bytes.length,"capture file exceeds original");channel.position(offset);
@@ -326,12 +326,12 @@ final class MembershipBasisSources implements AutoCloseable {
         @Override public void close() {if(!captured)reserved.forEach(MembershipResources.Lease::close);}
     }
     private void write(Path path,byte[] bytes,String event) throws IOException {
-        try(var channel=FileChannel.open(path,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(path,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             AdmissionPaths.write(channel,bytes);cut.at(event+"_WRITTEN");channel.force(true);cut.at(event+"_FORCED");
         }
     }
     static void force(Path path) throws IOException {
-        AdmissionPaths.regular(path);try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+        AdmissionPaths.regular(path);try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
     }
     @Override public void close() {leases.forEach(MembershipResources.Lease::close);leases.clear();sourceLeases.clear();}
 }

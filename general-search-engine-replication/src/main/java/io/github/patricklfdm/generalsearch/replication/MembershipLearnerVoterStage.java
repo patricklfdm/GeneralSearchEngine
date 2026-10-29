@@ -156,7 +156,7 @@ final class MembershipLearnerVoterStage implements AutoCloseable {
         guard();Path path=directory.resolve(name);var old=originals.get(name);
         byte[] before=old==null?new byte[0]:AdmissionPaths.read(path,wanted.length);
         require(Arrays.equals(before,Arrays.copyOf(wanted,before.length)),"learner voter stage write original prefix");
-        try(var channel=FileChannel.open(path,old==null?Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
+        try(var channel=MembershipFileAccess.open(path,old==null?Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
                 Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
             if(old==null){changed(name);point(event+"_CREATED");}
             if(before.length<wanted.length) {

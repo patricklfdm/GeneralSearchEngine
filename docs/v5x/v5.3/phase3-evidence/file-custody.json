@@ -1,0 +1,726 @@
+{
+  "archive": {
+    "bytes": 9393954,
+    "path": "target/v53-file-custody/component-validation.tar.gz",
+    "sha256": "ac4cbfb07a9b364ebbc6667b5ef9ff7ef4a5f8276b46bd889751e6c362aeaaff"
+  },
+  "baseCommit": "99d369f91e027a5b9bbae0c0a10e8f103a1d1fad",
+  "codeAndBuildInputsChecked": 1706,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1400,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourceSnapshot": "ownedinspectionintegration",
+  "finalProductionDistinctCases": 98,
+  "fullMembershipProcessDeathQualified": false,
+  "identicalFinalProductionFiles": 910,
+  "independentJvmLockProbes": true,
+  "initialAndPromotedLearnerChecked": true,
+  "joinedVoterTakeoverImplemented": false,
+  "learnerVotingEnabled": false,
+  "nativeJointHistoryQualified": false,
+  "nonemptyReceiveAndRenameChecked": true,
+  "originalFailure": "second descriptor close releases POSIX lock while Java FileLock remains valid",
+  "originalRedFailures": 2,
+  "pending": [
+    "durable original learner takeover decision",
+    "quiesced owner/reservation integration",
+    "exact staged file moves and cold joined admission",
+    "covered original learner retirement",
+    "native old-majority INTENT before joint checkpointing",
+    "joint FINAL and fresh barrier",
+    "full independent physical/history/process qualification"
+  ],
+  "phase3Complete": false,
+  "publicFormatsChanged": false,
+  "pythonTests": 1,
+  "reports": {
+    "ownedinspectionfirst": {
+      "io.github.patricklfdm.generalsearch.replication.V53BallotAllocatorTest": {
+        "cases": [
+          {
+            "name": "completePendingReservationIsBurnedAndInvalidPendingIsRetained",
+            "seconds": 0.138,
+            "status": "PASS"
+          },
+          {
+            "name": "fullRootAndNodeIdentityArePinnedBeforeAnyWrite",
+            "seconds": 0.087,
+            "status": "PASS"
+          },
+          {
+            "name": "successfulReturnFollowsBothFileAndDirectoryForces",
+            "seconds": 0.11,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRecoveryReleasesOwnerAndNeverReusesCompletePendingCounter",
+            "seconds": 0.51,
+            "status": "PASS"
+          },
+          {
+            "name": "countersSurviveReopenAndJumpBeyondObservedBoundsForAllInitialSizes",
+            "seconds": 0.691,
+            "status": "PASS"
+          },
+          {
+            "name": "failureAtEachPersistenceBoundaryPoisonsHandleAndPreservesRestartDecision",
+            "seconds": 1.177,
+            "status": "PASS"
+          },
+          {
+            "name": "incompleteOrForeignAuthorityNeverCreatesOrRepairsFiles",
+            "seconds": 0.365,
+            "status": "PASS"
+          },
+          {
+            "name": "linkedPathsAndReplacedOwnerInodesFailClosed",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "exclusiveOwnerAndClosedHandleCannotAllocate",
+            "seconds": 0.048,
+            "status": "PASS"
+          },
+          {
+            "name": "exhaustionAndInvalidObservationLeaveBytesUnchanged",
+            "seconds": 0.046,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "09e39ab7e112425a6b1b91a44eb879b6f392cfd7680a9c5682bfbb00e63f4fdc"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": {
+        "cases": [
+          {
+            "name": "renamedInodeAndRepeatedRequestsDoNotOpenAnotherChannel",
+            "seconds": 0.085,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicatePlanOpenDoesNotReleaseTheExternalLock",
+            "seconds": 0.232,
+            "status": "PASS"
+          },
+          {
+            "name": "duplicateAllocatorOpenDoesNotReleaseTheExternalLockAndCloseAllowsReopen",
+            "seconds": 0.099,
+            "status": "PASS"
+          },
+          {
+            "name": "failedOpenDoesNotLeaveARegistrationAndDifferentInodesCanBeOwned",
+            "seconds": 0.087,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "0e978a79b84c7460ce09305aeb77c79e194c1635c3a0c957cae3a8dab24d7412"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": {
+        "cases": [
+          {
+            "name": "replacedOrAliasedPathCannotTransferAndFailedAttemptKeepsTheOriginalLock",
+            "seconds": 0.146,
+            "status": "PASS"
+          },
+          {
+            "name": "transferVersusCloseEitherRevokesTheSourceOrClosesItWithoutAnOrphan",
+            "seconds": 0.397,
+            "status": "PASS"
+          },
+          {
+            "name": "sameDescriptorAndKernelLockSurviveTransferAndAllStaleCloses",
+            "seconds": 0.629,
+            "status": "PASS"
+          },
+          {
+            "name": "concurrentTransfersHaveOneSuccessorAndDoNotReleaseKernelOwnership",
+            "seconds": 0.083,
+            "status": "PASS"
+          },
+          {
+            "name": "killingTransferredOwnerReleasesTheOriginalInodeForColdRecovery",
+            "seconds": 0.089,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyOrReleasedLockCannotTransferAndFailureDoesNotCloseTheChannel",
+            "seconds": 0.141,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "79964ee5dd8b1fe3b11d0db5b1c9dce26eee4e11c66b2c2bb4b5afcf853a3691"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "borrowedReadersAndWriterUseIndependentCursorsWithoutMovingReceiveAppend",
+            "seconds": 0.037,
+            "status": "PASS"
+          },
+          {
+            "name": "nonemptyReceiveInspectionForceAndRetainedRenameKeepKernelOwnership",
+            "seconds": 0.156,
+            "status": "PASS"
+          },
+          {
+            "name": "closingOldViewsCannotUnlockReopenedOwnerAndClosingOwnerRevokesBorrowers",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "unsupportedAndDuplicateOperationsRefuseWithoutUnlockingOrChangingBytes",
+            "seconds": 0.029,
+            "status": "PASS"
+          },
+          {
+            "name": "custodyTransferKeepsBorrowedInspectionOnTheSameDescriptor",
+            "seconds": 0.029,
+            "status": "PASS"
+          },
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.055,
+            "status": "PASS"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.054,
+            "status": "PASS"
+          },
+          {
+            "name": "ownershipCannotBeginWhileAnyEarlierOrdinaryDescriptorRemainsOpen",
+            "seconds": 0.026,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "c38b8fe3f24334a50bd7039883acb1a91523553028de19eae79af54c4332f61b"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53SourceReceiveTest": {
+        "cases": [
+          {
+            "name": "invalidChunksAndIncompleteCommitCannotExposeOrAlterTheFile",
+            "seconds": 0.095,
+            "status": "PASS"
+          },
+          {
+            "name": "semanticHashAndForceFailuresRetainOwnershipUntilExplicitCleanup",
+            "seconds": 0.203,
+            "status": "PASS"
+          },
+          {
+            "name": "verifiedBytesAreRecheckedAfterCommitAndCannotBeSubstituted",
+            "seconds": 0.058,
+            "status": "PASS"
+          },
+          {
+            "name": "extraFilesAndReplacementDirectoriesBlockCleanupUntilOriginalInventoryIsRestored",
+            "seconds": 5.82,
+            "status": "PASS"
+          },
+          {
+            "name": "changedInodesLinksAndParentCannotBeDeletedAsOwnedScratch",
+            "seconds": 0.074,
+            "status": "PASS"
+          },
+          {
+            "name": "capacityAndOccupiedPathsRejectBeforeCreatingOrChangingAnything",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "actualTcpChunksPopulateCompleteBoundedFilesAndDuplicateDeliveryIsIdempotent",
+            "seconds": 5.735,
+            "status": "PASS"
+          },
+          {
+            "name": "validPacketBytesFromAnotherRootCannotBecomeAReceivedSource",
+            "seconds": 8.189,
+            "status": "PASS"
+          },
+          {
+            "name": "sourceDeadlineDoesNotRestartBetweenPacketAndImagesAndLateBytesCannotRevive",
+            "seconds": 3.044,
+            "status": "PASS"
+          },
+          {
+            "name": "exactFileStaysReservedThroughValidationAndDeletesBeforeReleasing",
+            "seconds": 0.012,
+            "status": "PASS"
+          },
+          {
+            "name": "originalDeadlineIncludesChunksSemanticValidationAndForceAndCannotRevive",
+            "seconds": 0.032,
+            "status": "PASS"
+          },
+          {
+            "name": "completedSourceRechecksPacketBeforeImagesAreExposed",
+            "seconds": 3.005,
+            "status": "PASS"
+          },
+          {
+            "name": "completeActualOriginalsStageAtEverySizeWithoutCreatingAnAuthority",
+            "seconds": 15.525,
+            "status": "PASS"
+          },
+          {
+            "name": "sixSourcesShareOneCountEachAndNeverStartAnUnboundedSecondSet",
+            "seconds": 4.839,
+            "status": "PASS"
+          },
+          {
+            "name": "imageCapacityFailureNeverAdmitsAnApplicationChunkAndCloseReclaimsOnlyScratch",
+            "seconds": 6.367,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "0a5342a5a4d40b750e121715f2f4a06e359e34f4f1e6d622c5e323f6f49d0fe6"
+      }
+    },
+    "ownedinspectionintegration": {
+      "io.github.patricklfdm.generalsearch.replication.V50OfflineAuthorityTest": {
+        "cases": [
+          {
+            "name": "replacementDiskDoesNotPermitMaterializationPolicyOrPathChanges",
+            "seconds": 0.253,
+            "status": "PASS"
+          },
+          {
+            "name": "committedResumeNeedsNoSourceAndCleanupNeverDeletesCommittedOutput",
+            "seconds": 0.264,
+            "status": "PASS"
+          },
+          {
+            "name": "replacementUsesOriginalReceiptButIsDurablyNonvotingAndSourcePreserving",
+            "seconds": 0.377,
+            "status": "PASS"
+          },
+          {
+            "name": "deterministicEmptyBootstrapPublishesOneDecisionAndThreeSelfContainedSeals",
+            "seconds": 0.285,
+            "status": "PASS"
+          },
+          {
+            "name": "forgedPlanOccupiedTargetsOverlapsAndLowBoundsRejectBeforeWrites",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "cleanupBindsExactInventoryAndResumesOnlyADeletedPrefix",
+            "seconds": 0.364,
+            "status": "PASS"
+          },
+          {
+            "name": "importsEveryV4FormatWithoutChangingSourceAndRetainsSequenceAndCanonicalOrder",
+            "seconds": 0.722,
+            "status": "PASS"
+          },
+          {
+            "name": "replacementAcceptsNewDiskIdentityButStillBindsThePlannedDisk",
+            "seconds": 0.37,
+            "status": "PASS"
+          },
+          {
+            "name": "everyBootstrapForceBoundaryCanResumeWithoutMintingAnotherDecision",
+            "seconds": 12.816,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "9ce6160e21a66bb085459fd87aa8fe1711381b44f2520d272992c5a055d420b2"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V50OfflineRejectionsTest": {
+        "cases": [
+          {
+            "name": "prematureReceiptCannotBePromotedIntoACommit",
+            "seconds": 0.17,
+            "status": "PASS"
+          },
+          {
+            "name": "liveCleanupOwnerSurvivesDeletionOfOriginalOperationLock",
+            "seconds": 0.311,
+            "status": "PASS"
+          },
+          {
+            "name": "corruptJournalNeverAuthorizesResumeOrCleanup",
+            "seconds": 0.167,
+            "status": "PASS"
+          },
+          {
+            "name": "sourceAtMaximumSequenceHasNoLegalBootstrapContinuation",
+            "seconds": 0.033,
+            "status": "PASS"
+          },
+          {
+            "name": "symlinkParentsAndHardlinkedSourceMembersRejectBeforeCreatingOperation",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "liveTargetOwnerRejectsResumeAndCleanupWithoutChangingBytes",
+            "seconds": 0.171,
+            "status": "PASS"
+          },
+          {
+            "name": "callerCannotChangeCapturedBuilderSettingsOrBindingsAfterPlanning",
+            "seconds": 0.012,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedPendingSealCompletesButAlteredPublishedSealIsNeverOverwritten",
+            "seconds": 0.219,
+            "status": "PASS"
+          },
+          {
+            "name": "changedSourceBeforeCommitRejectsAndLeavesPreparedOutputUntouched",
+            "seconds": 0.204,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "aacc59e0bb4348b0045c51cd20853023a64b3c2d5002f47f3f5e09caba822c91"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V51AutomaticAdmissionTest": {
+        "cases": [
+          {
+            "name": "deferralCannotExtendTheOriginalDeadlineOrPublishALateReply",
+            "seconds": 0.227,
+            "status": "PASS"
+          },
+          {
+            "name": "peerCapacityRejectionStillFailsInsteadOfBecomingLocalBackpressure",
+            "seconds": 0.176,
+            "status": "PASS"
+          },
+          {
+            "name": "genuineFailuresStillExhaustTheirOriginalRetryBudgetAfterLocalDeferrals",
+            "seconds": 0.194,
+            "status": "PASS"
+          },
+          {
+            "name": "repeatedLocalDeferralsKeepOneImmutableMessageAndDoNotExhaustWireAttempts",
+            "seconds": 0.18,
+            "status": "PASS"
+          },
+          {
+            "name": "cancellationFencingAndCloseRetireDeferredWork",
+            "seconds": 0.522,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "729a454ab2c154451dce85b8e1f6288ee66ac4a00648cac90ea807e12657535e"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53BasisSourcesTest": {
+        "cases": [
+          {
+            "name": "incompleteSourceIsNotRepairedAndCompleteUnacknowledgedSourceIsNotResampled",
+            "seconds": 1.12,
+            "status": "PASS"
+          },
+          {
+            "name": "invalidImagesDoNotWritePromiseAndRetainedModeCannotOmitImages",
+            "seconds": 0.066,
+            "status": "PASS"
+          },
+          {
+            "name": "everySourceCutFencesHigherObservationBeforeGrant",
+            "seconds": 0.628,
+            "status": "PASS"
+          },
+          {
+            "name": "exhaustionAndSharedReservationsRefuseBeforePromiseAndSurviveReopen",
+            "seconds": 0.335,
+            "status": "PASS"
+          },
+          {
+            "name": "originalPacketAndImagesSurviveDuplicateProgressAndRestart",
+            "seconds": 0.419,
+            "status": "PASS"
+          },
+          {
+            "name": "corruptMissingExtraLinkedAndReplacedOriginalFilesBlockReturnAndOpen",
+            "seconds": 0.725,
+            "status": "PASS"
+          },
+          {
+            "name": "exclusiveOwnerAndFailedOpenReleaseResourcesWithoutMetadataDowngrade",
+            "seconds": 0.081,
+            "status": "PASS"
+          },
+          {
+            "name": "acceptedTailPayloadAndRootAreRetainedExactly",
+            "seconds": 0.072,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "1ecca685dc4512ff8f1b577b971016270986c4fce3b4c64211fc79aad2d78f43"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53BootstrapTransactionTest": {
+        "cases": [
+          {
+            "name": "fullCompletionBudgetIncludesAllOriginalAndTemporaryMetadata",
+            "seconds": 0.392,
+            "status": "PASS"
+          },
+          {
+            "name": "completedForcesDoNotReleaseTheRealCrossProcessOwnershipLocks",
+            "seconds": 4.004,
+            "status": "PASS"
+          },
+          {
+            "name": "typedRecheckFailureBeforeCommitRetainsPreparedAuthorityAndNoReceipt",
+            "seconds": 3.139,
+            "status": "PASS"
+          },
+          {
+            "name": "preparesEveryVoterBeforeGlobalCommitAndLocalSealsForAllSizesAndBothSources",
+            "seconds": 33.462,
+            "status": "PASS"
+          },
+          {
+            "name": "preparedOrPartiallyPreparedTargetsCannotBeRegeneratedFromThePlan",
+            "seconds": 8.181,
+            "status": "PASS"
+          },
+          {
+            "name": "coordinatorAndReplicaOwnersRemainExclusiveAndIdentityChangesPoisonTheTransaction",
+            "seconds": 5.274,
+            "status": "PASS"
+          },
+          {
+            "name": "allSelectedPrefixDecisionAndPublicationCutsResumeAfterAnotherRecoveryInterruption",
+            "seconds": 270.647,
+            "status": "PASS"
+          },
+          {
+            "name": "corruptedOriginalsUnknownMembersAndOutOfOrderAuthorityStayUnchanged",
+            "seconds": 22.629,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "19cefd4292e033bc2768ea2c9fcc5dbffa27e8fe03c16128b3a33e09546a7969"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerInspectionOwnershipTest": {
+        "cases": [
+          {
+            "name": "promotedHeadRetirementIntentAndDormantStageKeepOriginalLocks",
+            "seconds": 284.736,
+            "status": "PASS"
+          },
+          {
+            "name": "initialHeadIntentAndDormantStageKeepOriginalLocks",
+            "seconds": 28.228,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e1ca121906692cf1666c67001f696589f4b72b71c7efd40b65c2c7c53f4b3736"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53ReceivedImageBorrowTest": {
+        "cases": [
+          {
+            "name": "incompleteOriginalCannotReserveChildOrLendAdvertisedHashes",
+            "seconds": 2.936,
+            "status": "PASS"
+          },
+          {
+            "name": "completeOriginalLendsAtSevenImageCapacityWithoutAllocatingAnotherImage",
+            "seconds": 2.893,
+            "status": "PASS"
+          },
+          {
+            "name": "borrowedOriginalRetainsTheActualExportLifetimeThroughBothReceivers",
+            "seconds": 2.896,
+            "status": "PASS"
+          },
+          {
+            "name": "anotherRootIsRejectedBeforeAllocatingThePrefix",
+            "seconds": 5.64,
+            "status": "PASS"
+          },
+          {
+            "name": "closedExpiredChangedOrReplacedOriginalRevokesItsBorrowAndCleanupStillWorks",
+            "seconds": 16.083,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e5679afee23a3ffe3ccdb07089ee517b7784b8fa6adeb7219fe7f1379366baab"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53SourceExportTest": {
+        "cases": [
+          {
+            "name": "admittedOriginalsExportExactBytesWithoutChangingAnyFileOrStorageReservation",
+            "seconds": 16.062,
+            "status": "PASS"
+          },
+          {
+            "name": "foreignBasisBadOffsetsAndClosedOwnersDoNotGrantARead",
+            "seconds": 2.902,
+            "status": "PASS"
+          },
+          {
+            "name": "expiredBorrowCannotStrandRetirementAndCannotBeRevivedByClockRollback",
+            "seconds": 0.522,
+            "status": "PASS"
+          },
+          {
+            "name": "repeatedReadersAndNewPromisesDoNotChangeOriginalBytesOrRenewTheBorrow",
+            "seconds": 3.018,
+            "status": "PASS"
+          },
+          {
+            "name": "actualTcpReaderKeepsOriginalFilesPinnedUntilReplyAndCanThenRetire",
+            "seconds": 7.379,
+            "status": "PASS"
+          },
+          {
+            "name": "globalControlCapacityRejectsBeforeCreatingABorrowAndReturnsAfterClose",
+            "seconds": 2.92,
+            "status": "PASS"
+          },
+          {
+            "name": "constructorAndReadBudgetsIncludeVerificationAndReleaseOnLateReturn",
+            "seconds": 2.949,
+            "status": "PASS"
+          },
+          {
+            "name": "exportPreventsRetirementBeforeAnyDecisionOrJournalPruningAndCloseRestoresIt",
+            "seconds": 0.515,
+            "status": "PASS"
+          },
+          {
+            "name": "changedOriginalInodeAndBytesAreDetectedBeforeAnotherChunkReturns",
+            "seconds": 10.526,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "c634002f11a8d9868ea41f9e4aed337ad76a8c450c3efa39fe062d1c38f65ed7"
+      }
+    },
+    "ownedinspectionred": {
+      "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": {
+        "cases": [
+          {
+            "name": "learnerFingerprintsDoNotReleaseTheTypedPreparationLock",
+            "seconds": 0.127,
+            "status": "FAIL"
+          },
+          {
+            "name": "inspectingAnOwnedEmptyLockDoesNotReleaseItsKernelLock",
+            "seconds": 0.079,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "a3cd16e420b894fd24743463a5732fb04560d76362245c2b753bec552ec55b78"
+      }
+    }
+  },
+  "runs": {
+    "ownedinspectionfirst": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53BallotAllocatorTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTransferTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceReceiveTest": 15
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "ownedinspectionfirst",
+      "requestedTests": [
+        "V53OwnedFileInspectionTest",
+        "V53MembershipOwnershipTest",
+        "V53MembershipOwnershipTransferTest",
+        "V53SourceReceiveTest",
+        "V53BallotAllocatorTest"
+      ],
+      "seconds": 70.10052736399666,
+      "skipped": 0,
+      "tests": 43
+    },
+    "ownedinspectionintegration": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V50OfflineAuthorityTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V50OfflineRejectionsTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V51AutomaticAdmissionTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53BasisSourcesTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53BootstrapTransactionTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerInspectionOwnershipTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53ReceivedImageBorrowTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceExportTest": 9
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "ownedinspectionintegration",
+      "requestedTests": [
+        "V53LearnerInspectionOwnershipTest",
+        "V53ReceivedImageBorrowTest",
+        "V53SourceExportTest",
+        "V53BootstrapTransactionTest",
+        "V53BasisSourcesTest",
+        "V50OfflineAuthorityTest",
+        "V50OfflineRejectionsTest",
+        "V51AutomaticAdmissionTest"
+      ],
+      "seconds": 734.2974219750031,
+      "skipped": 0,
+      "tests": 55
+    },
+    "ownedinspectionred": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53OwnedFileInspectionTest": 2
+      },
+      "exit": 1,
+      "failures": 2,
+      "label": "ownedinspectionred",
+      "requestedTests": [
+        "V53OwnedFileInspectionTest"
+      ],
+      "seconds": 13.04179927399673,
+      "skipped": 0,
+      "tests": 2
+    }
+  },
+  "schema": "gse-v53-file-custody-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/AdmissionPaths.java": "9eb6f22b6aa0655674294626d51d07772b88c0ebb903769dd5bf7368b374c263",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipAppliedEndFiles.java": "0b1740370b4d3743edad1ac4affd28e33b7d45ecf6d193d8a8757a1985e5167f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBallotAllocator.java": "a6d694cdd37dd94310cbc13301d3d4e7aff93b1978943ccebba95809490b8033",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBasisSources.java": "01dccaac9f1e6933bbeb3ca13f7f38b8a9fff214256b1d1c47c24cda438ed7e3",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapPlanFiles.java": "f6fac9543db52cec53dbffe283959607f0ae6f45b8edc2e43db4620f9d187981",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipBootstrapTransaction.java": "99b6d5aae65230cbc54a30df44582f65d31b62f7357ca91bfbbb4d9a29d03241",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCaptureFiles.java": "5105138da73a475cf69e7803bb0066857374cd03a9d5f11b2fd6cbd9e15abbc9",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCurrentGeneration.java": "7c9bc1a6e309bbca68aa8fa2bad1021484f58813bf874bbe1ca37bd6ca10291c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFileAccess.java": "318a73bb9173e6c0afa0a226608070ac98530142f3f89de4244e3302aa5695fa",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloorFiles.java": "93406606cbfb0f6bb755ef9d4689477ae986c680a7edbfd13e5725aeed5c06bd",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFutureRetentionFiles.java": "65cb2aaefa10823f440a9b6cb14dcf6db0ece0909f9b99006119cdc5e25e7576",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationFiles.java": "4942ea4929e9c17ff628704df23f08b54951562415c9a4cea0b71b7d8eee949c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "8201f9e03d6259d2c6a3bf33cb5fd25e5822d2822eca247865f088a84d67c4a5",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJournalRotationFiles.java": "eb2b62caf593f98fd906ae2e4f5cd1a5427f976e20e9347270008b7a45d14200",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerAdmissionFiles.java": "14f63e1810e2e3da17f2172a9b8de037062c4022a4cb861b0e9bea8ad2e4af56",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "03428f3efe7710df77cfb6f61ef089319fd0a08f70a1e247a6ffaf45a07905ab",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerMaterialization.java": "6c0f39cfd0f9ff58b1c4eea5f3525cc511c508b4771e41ab10aa101f93b8c7d2",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerRetentionFiles.java": "f77cc8674448b698f1f5fe97dd8c144b398b9e298b2fecce030a362a0ddb826a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSlot.java": "3da7922ab6e963e5123d51717eb596e2b7d9bcdf9289bc46b7ae14968ca05656",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java": "5d3083f5c5e281d3e0b8e14cd8cd7ff9fb785aaa88b9cd6ba67612d14823bcba",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerSuccessor.java": "41c4daa8d5db0532f3bd113d42d59cc1d8c7cc98500eb36a8e9400f998f41eb6",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerVoterStage.java": "4143429d432b7e06105a8548bf2c2eb4f8730815d22bfd0a3864a4ab5f22b28e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipOwnership.java": "be314260490dc10e73812b74c94df3cc28d1c23e73e7c476667ee64a4989669d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionFiles.java": "067db3c5d24c654536e899edd117019de0d36e129bb2d13aa6c003317c1ea41e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingAccept.java": "61b067ffa8478e96ca6ee0d567c497963ce43d3fe8414744ef94755b52e0a456",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPendingContextFiles.java": "b3f77bcfcbc25af661c401d95a5ebdc6a93f701e36a4a55de92cbe1402f728c9",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReceiveFile.java": "eb3bb19aea00e4a735d3052ab54c8d4a4f6bf7adf4dbcd150dd3a45e3f1e7330",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReplayFiles.java": "39a86eae25312da1063671555980b90260ff354738b64cef24a7f89f2789259e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRetirementFiles.java": "1a380cc470c0d313665c216cafa080c5ac022a97ac5c0cdcc6904bd89eb74871",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipScratch.java": "3b4b4e5ba21056a7195dd48ee6ea31a47d821d05eef8818c073df9185ea425e7",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceExport.java": "b7254b7dfe88738cc27c1319015ca19602b99523d2dacc9934b31c1699b2952c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceReceive.java": "61e9da0217e3da3ad1819b918fd0391fc03424cc71d5a67e39bb5cac84582620",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourceRetirementFiles.java": "2b42151110cc73f7df37c27669b4f8e151f44a57869c5cc584733db520e4bf52",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerInspectionOwnershipTest.java": "e482d7ec4e88145bd2bb06d557ed70caf77bf911f472c6d5b986d483327894d2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53OwnedFileInspectionTest.java": "e22be5ba73419699326835f6af01f2f7924f5571ae164a3090ba680acacddbd7"
+  },
+  "status": "PASS_FILE_CUSTODY_COMPONENTS"
+}

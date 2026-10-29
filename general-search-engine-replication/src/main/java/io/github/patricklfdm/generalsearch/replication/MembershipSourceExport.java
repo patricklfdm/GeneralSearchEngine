@@ -104,7 +104,7 @@ final class MembershipSourceExport implements MembershipTransferExport,Membershi
         else {
             AdmissionPaths.regular(member.path);require(member.fileKey.equals(MembershipBasisSources.key(member.path)),"source export inode changed");
             var buffer=ByteBuffer.allocate(count);
-            try(var channel=FileChannel.open(member.path,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
+            try(var channel=MembershipFileAccess.open(member.path,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
                 require(channel.size()==member.content.bytes,"source export file length");channel.position(offset);
                 while(buffer.hasRemaining())require(channel.read(buffer)>0,"source export incomplete read");
                 require(channel.size()==member.content.bytes,"source export file length");

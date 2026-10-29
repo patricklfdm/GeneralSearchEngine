@@ -323,7 +323,7 @@ final class MembershipFloorFiles implements AutoCloseable {
         check();owner.check();Path file=path.resolve(name);
         if(Files.exists(file,LinkOption.NOFOLLOW_LINKS))require(prefix(AdmissionPaths.read(file,bytes.length),bytes),"floor member changed from exact prefix");
         boolean creating=name.equals(RELEASE) && !Files.exists(file,LinkOption.NOFOLLOW_LINKS);
-        try(var channel=FileChannel.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             if(creating){capture();cut.at("FLOOR_RELEASE_AUTHORITY_CREATED");check();owner.check();}
             channel.position(channel.size());AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,Math.toIntExact(channel.size()),bytes.length));capture();
             cut.at(event+"_WRITTEN");check();owner.check();channel.force(true);cut.at(event+"_FORCED");check();owner.check();

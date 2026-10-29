@@ -107,7 +107,7 @@ final class MembershipSourceRetirementFiles {
     void publish(Decision decision,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         check();owner.check();byte[] expected=decision.bytes();require(bytes.length<=expected.length && Arrays.equals(bytes,Arrays.copyOf(expected,bytes.length)),"source retirement requires exact original prefix");
         var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));if(!pending())options.add(StandardOpenOption.CREATE_NEW);
-        try(var channel=FileChannel.open(path,options)) {
+        try(var channel=MembershipFileAccess.open(path,options)) {
             if(!pending()){capture();cut.at("SOURCE_RETIREMENT_CREATED");check();owner.check();}
             channel.position(channel.size());AdmissionPaths.write(channel,Arrays.copyOfRange(expected,Math.toIntExact(channel.size()),expected.length));capture();
             cut.at("SOURCE_RETIREMENT_WRITTEN");check();owner.check();AdmissionPaths.exact(path,expected);channel.force(true);cut.at("SOURCE_RETIREMENT_FORCED");check();owner.check();

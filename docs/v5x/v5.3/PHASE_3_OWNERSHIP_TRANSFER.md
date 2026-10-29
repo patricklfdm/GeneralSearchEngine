@@ -1,5 +1,10 @@
 # Exclusive custody transfer prerequisites
 
+Subsequent [file-custody qualification](PHASE_3_FILE_CUSTODY.md) reproduced a
+separate lock-loss bug in inspection/force paths and corrects it by borrowing
+the registered descriptor. The results below qualify transfer itself, not all
+reads performed by earlier learner paths.
+
 Phase 3 remains **OPEN**. These private primitives support the next learner-to-
 voter ownership transaction. They do not implement that transaction, produce a
 joined-voter admission, move the staged generation into the live replica, or

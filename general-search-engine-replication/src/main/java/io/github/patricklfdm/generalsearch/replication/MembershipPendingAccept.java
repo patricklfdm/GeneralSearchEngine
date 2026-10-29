@@ -183,7 +183,7 @@ final class MembershipPendingAccept {
     }
     private void replace(Vote vote,byte[] expected,String phase,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));if(!pending())options.add(StandardOpenOption.CREATE_NEW);
-        try(var channel=FileChannel.open(parent.resolve(NEXT),options)) {
+        try(var channel=MembershipFileAccess.open(parent.resolve(NEXT),options)) {
             if(!pending()){snapshotNext(new byte[0]);cut.at(phase+"_CANDIDATE_CREATED");check();owner.check();}
             Object key=nextIdentity.key();int offset=nextBytes.length;channel.position(offset);int middle=offset+(expected.length-offset)/2;
             AdmissionPaths.write(channel,Arrays.copyOfRange(expected,offset,middle));snapshotNext(Arrays.copyOf(expected,middle));require(key.equals(nextIdentity.key()),"pending candidate inode changed");
@@ -203,7 +203,7 @@ final class MembershipPendingAccept {
     }
     void sealActive(MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         String phase=active==null?"ACCEPT":active.phase();
-        check();owner.check();try(var channel=FileChannel.open(parent.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+        check();owner.check();try(var channel=MembershipFileAccess.open(parent.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
         cut.at(phase+"_ACTIVE_FORCED");check();owner.check();AdmissionPaths.forceDirectory(parent);
         cut.at(phase+"_ACTIVE_PARENT_FORCED");check();owner.check();
     }

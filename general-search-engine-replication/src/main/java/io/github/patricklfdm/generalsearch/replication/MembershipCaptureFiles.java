@@ -57,7 +57,7 @@ final class MembershipCaptureFiles {
     void write(Plan plan,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut)throws IOException {
         check();owner.check();if(pending!=null)bind(plan);byte[] expected=plan.bytes();
         var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));if(pending==null)options.add(StandardOpenOption.CREATE_NEW);
-        try(var channel=FileChannel.open(path,options)) {
+        try(var channel=MembershipFileAccess.open(path,options)) {
             if(pending==null){snapshot();cut.at("CAPTURE_INTENT_CREATED");check();owner.check();}
             Object original=pending.key();int offset=Math.toIntExact(channel.size());channel.position(offset);
             int middle=offset+(expected.length-offset)/2;

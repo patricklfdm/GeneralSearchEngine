@@ -22,7 +22,7 @@ final class MembershipReceiveFile implements AutoCloseable {
     private final LongSupplier clock;
     private final long started,budget;
     private final Events events;
-    private AdmissionPaths.Owner file;
+    private MembershipFileAccess.Owned file;
     private Object fileKey;
     private boolean removed,closed,failed;
 
@@ -38,20 +38,19 @@ final class MembershipReceiveFile implements AutoCloseable {
                 require(offset==0 && length==bytes.length,"receive sink complete chunk");AdmissionPaths.write(file.channel(),bytes);
             }
         },chunkLimit); // Capacity is acquired before creating even the empty file.
-        FileChannel opening=null;
+        FileChannel[] opening={null};
         try {
             // Unlike authority files, empty scratch does not need forcing. Capture its
             // exclusive owner before any fallible force so cleanup can still retain it.
-            opening=FileChannel.open(this.path,StandardOpenOption.CREATE_NEW,StandardOpenOption.READ,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS);
-            fileKey=MembershipBasisSources.key(this.path);var lock=opening.tryLock();
-            require(lock!=null,"receive scratch already owned");file=new AdmissionPaths.Owner(opening,lock);
+            file=MembershipFileAccess.own(this.path,true,false,c->opening[0]=c);
+            fileKey=MembershipBasisSources.key(this.path);
             events.at("CREATED");time();
         }catch(IOException|RuntimeException|Error error){
-            if(opening==null)transfer.close(); // CREATE_NEW did not create a file.
+            if(opening[0]==null)transfer.close(); // CREATE_NEW did not create a file.
             else if(file==null) {
                 // Could not establish exclusive inode ownership. Keep capacity charged;
                 // never delete a potentially foreign file or pretend initialization succeeded.
-                try{opening.close();}catch(IOException cleanup){error.addSuppressed(cleanup);}
+                try{opening[0].close();}catch(IOException cleanup){error.addSuppressed(cleanup);}
             }
             else try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}
             throw error;
@@ -116,10 +115,10 @@ final class MembershipReceiveFile implements AutoCloseable {
         private final Object key;
         private final long bytes;
         private final String digest;
-        private final AdmissionPaths.Owner owner;
+        private final MembershipFileAccess.Owned owner;
         private final MembershipResources.Lease lease;
         private boolean closed;
-        private Retained(Object key,MembershipTransfer.Binding binding,AdmissionPaths.Owner owner,MembershipResources.Lease lease) {
+        private Retained(Object key,MembershipTransfer.Binding binding,MembershipFileAccess.Owned owner,MembershipResources.Lease lease) {
             this.key=key;bytes=binding.bytes();digest=binding.digest();this.owner=owner;this.lease=lease;
         }
         void check(Path path)throws IOException {

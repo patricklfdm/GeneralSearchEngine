@@ -196,11 +196,11 @@ final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorr
                 AdmissionPaths.exact(path,bytes);
                 // A previous call may have stopped after the complete write but
                 // before force. Byte equality alone is not a durable member.
-                try(var channel=java.nio.channels.FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+                try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
                 point("LEARNER_SOURCE_MEMBER_FORCED",cut);continue;
             }
             AdmissionPaths.absent(path);
-            try(var channel=java.nio.channels.FileChannel.open(path,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+            try(var channel=MembershipFileAccess.open(path,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                 rememberMetadata(name,new byte[0]);point("LEARNER_SOURCE_MEMBER_CREATED",cut);
                 int half=bytes.length/2;AdmissionPaths.write(channel,Arrays.copyOf(bytes,half));rememberMetadata(name,Arrays.copyOf(bytes,half));point("LEARNER_SOURCE_MEMBER_PREFIX_WRITTEN",cut);
                 AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,half,bytes.length));rememberMetadata(name,bytes);point("LEARNER_SOURCE_MEMBER_WRITTEN",cut);

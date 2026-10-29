@@ -155,7 +155,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         cut=events;acquisition=guard;
         try {
             // Bind the original candidate inode before writing any of its plan.
-            try(var candidate=FileChannel.open(directory.resolve(next),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+            try(var candidate=MembershipFileAccess.open(directory.resolve(next),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                 remember(next,new byte[0]);value.put("planKey",metadata.get(next).key().toString());
                 pending=new Image(canonical(value,MAXIMUM));pending.received.putAll(receiver.detachLearner(copy));pending.accounted=true;retiring=null;
                 point("LEARNER_SLOT_REUSE_PLAN_CREATED");
@@ -284,7 +284,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
     }
     private void write(String name,byte[] bytes,String event)throws IOException {
         check();boolean exists=metadata.containsKey(name);
-        try(var channel=FileChannel.open(directory.resolve(name),exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
+        try(var channel=MembershipFileAccess.open(directory.resolve(name),exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
                 Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
             if(!exists){remember(name,bytes);point(event+"_CREATED");}
             int offset=Math.toIntExact(metadata.get(name).bytes());channel.position(offset);
@@ -360,7 +360,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         try {
             if(head==null) {
                 check();AdmissionPaths.absent(directory.resolve(HEAD_NEXT));
-                try(var candidate=FileChannel.open(directory.resolve(HEAD_NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+                try(var candidate=MembershipFileAccess.open(directory.resolve(HEAD_NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                     remember(HEAD_NEXT,new byte[0]);decision.put("headKey",metadata.get(HEAD_NEXT).key().toString());
                     head=new Head(canonical(decision,HEAD_MAXIMUM));head.live=()->{previous.check();current.receipt();};
                     point("LEARNER_SLOT_HEAD_CANDIDATE_CREATED");
@@ -389,7 +389,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         try {
             if(candidateHead==null) {
                 AdmissionPaths.absent(directory.resolve(HEAD_NEXT));
-                try(var file=FileChannel.open(directory.resolve(HEAD_NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+                try(var file=MembershipFileAccess.open(directory.resolve(HEAD_NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                     remember(HEAD_NEXT,new byte[0]);decision.put("headKey",metadata.get(HEAD_NEXT).key().toString());
                     candidateHead=new Head(canonical(decision,HEAD_MAXIMUM));point("LEARNER_SLOT_ROLLING_HEAD_CREATED");
                 }
@@ -441,7 +441,7 @@ final class MembershipLearnerSlot implements AutoCloseable {
         if(cleared==null) {
             var decision=vacancy("x".repeat(4096));canonical(decision,HEAD_MAXIMUM);
             AdmissionPaths.absent(directory.resolve(CLEARED_NEXT));if(!head.rolling)AdmissionPaths.absent(directory.resolve(CLEARED));
-            try(var candidate=FileChannel.open(directory.resolve(CLEARED_NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+            try(var candidate=MembershipFileAccess.open(directory.resolve(CLEARED_NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                 remember(CLEARED_NEXT,new byte[0]);
                 cleared=new Cleared(canonical(vacancy(metadata.get(CLEARED_NEXT).key().toString()),HEAD_MAXIMUM));
                 point("LEARNER_SLOT_CLEAR_CANDIDATE_CREATED");

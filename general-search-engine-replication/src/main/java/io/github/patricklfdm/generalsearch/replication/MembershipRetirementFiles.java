@@ -213,7 +213,7 @@ final class MembershipRetirementFiles implements AutoCloseable {
     private void complete(String name,byte[] bytes,MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut,String event)throws IOException {
         check();owner.check();Path file=path.resolve(name);
         if(Files.exists(file,LinkOption.NOFOLLOW_LINKS))require(prefix(AdmissionPaths.read(file,bytes.length),bytes),"retirement member changed from exact prefix");
-        try(var channel=FileChannel.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             channel.position(channel.size());
             if(name.equals(MembershipRetirementImages.FILE)) {
                 int offset=Math.toIntExact(channel.size()),middle=offset+(bytes.length-offset)/2;

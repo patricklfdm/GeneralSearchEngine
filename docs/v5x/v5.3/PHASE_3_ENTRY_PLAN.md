@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Inspection-safe descriptor custody](PHASE_3_FILE_CUSTODY.md) corrects a reproduced
+POSIX lock loss during hash/read/force operations. V5.3 owned files now reuse the
+original descriptor; separate JVMs check actual exclusion. Earlier passing
+component tests did not cover that boundary. Joined-voter takeover and complete
+Phase 3 remain **OPEN**.
+
 [Joining-voter staging](PHASE_3_LEARNER_VOTER_STAGE.md) now prepares and forces
 an exact dormant installation from the live matching-INTENT owner. It derives a
 local certificate fence, allocator and generation without copying the peer's

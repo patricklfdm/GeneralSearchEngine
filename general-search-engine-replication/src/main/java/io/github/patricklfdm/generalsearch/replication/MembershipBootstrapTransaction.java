@@ -148,7 +148,7 @@ final class MembershipBootstrapTransaction implements AutoCloseable {
         guard();if(locks.containsKey(p)){exact(p,wanted);locks.get(p).channel().force(true);point(event+"_FORCED");AdmissionPaths.forceDirectory(p.getParent());point(event+"_PARENT_FORCED");return;}
         byte[] before=exists(p)?AdmissionPaths.read(p,wanted.length):new byte[0];
         require(Arrays.equals(before,Arrays.copyOf(wanted,before.length)),"bootstrap non-original file prefix");
-        try(var channel=FileChannel.open(p,exists(p)?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
+        try(var channel=MembershipFileAccess.open(p,exists(p)?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
             if(!exists(p)){remember(p,new byte[0]);point(event+"_CREATED");}
             if(before.length<wanted.length) {
                 channel.position(before.length);int middle=before.length+(wanted.length-before.length)/2;

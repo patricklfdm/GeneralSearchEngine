@@ -195,7 +195,7 @@ final class MembershipGenerationFiles implements AutoCloseable {
     private void complete(Path file,byte[] bytes,String event,Guard owner,MembershipBallotAllocator.Cut cut) throws IOException {
         owner.check();check();
         if(Files.exists(file,LinkOption.NOFOLLOW_LINKS))require(prefix(AdmissionPaths.read(file,bytes.length),bytes),"generation member changed from exact prefix");
-        try(var channel=FileChannel.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             channel.position(channel.size());AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,Math.toIntExact(channel.size()),bytes.length));
             capture();cut.at(event+"_WRITTEN");check();owner.check();channel.force(true);cut.at(event+"_FORCED");check();owner.check();
         }

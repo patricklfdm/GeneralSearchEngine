@@ -78,7 +78,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         // A complete frame visible after process death is conservatively retained and sealed.
         // A torn tail is never truncated or forced as a substitute for its original BASIS.
         if(tornBasis.length==0) {
-            try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {channel.force(true);}
+            try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {channel.force(true);}
             AdmissionPaths.forceDirectory(directory);
         }
         if(promise!=null)observed.set(object(promise.value().get("ballot")));
@@ -3428,7 +3428,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         var original=sources.original(plan.basis());require(Arrays.equals(original.packet().bytes(),plan.packet().bytes()),"capture torn BASIS original packet changed");
         for(var image:plan.images().entrySet())require(Arrays.equals(image.getValue(),original.images().get(image.getKey())),"capture torn BASIS original image changed");
         cut.at("BASIS_RECOVERY_VALIDATED");checkOwner();fence(bound);
-        try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             require(channel.size()==journal.length+tornBasis.length,"capture recovery journal length changed");channel.position(channel.size());
             int middle=tornBasis.length+(expected.length-tornBasis.length)/2;
             AdmissionPaths.write(channel,Arrays.copyOfRange(expected,tornBasis.length,middle));tornBasis=Arrays.copyOf(expected,middle);
@@ -3453,7 +3453,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     private void append(Decoded record,Map<String,Object> expected) throws IOException {
         checkOwner();fence(expected);require(tornBasis.length==0,"pending torn BASIS must recover before append");byte[] bytes=record.bytes();require(bytes.length<=maximum-journal.length-pendingBytes(),"grant journal overflow");
         cut.at(record.kind()+"_BEFORE_WRITE");fence(expected);
-        try(var channel=FileChannel.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             require(channel.size()==journal.length,"grant journal length changed");channel.position(journal.length);
             if(capture!=null && record.kind().equals("BASIS")) {
                 int half=bytes.length/2;AdmissionPaths.write(channel,Arrays.copyOf(bytes,half));cut.at("BASIS_PREFIX_WRITTEN");fence(expected);

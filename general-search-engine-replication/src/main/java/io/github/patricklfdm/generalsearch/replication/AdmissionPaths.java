@@ -83,7 +83,7 @@ final class AdmissionPaths {
 
     static byte[] read(Path path, int maximum) throws IOException {
         regular(path);
-        try (var channel = FileChannel.open(path, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
+        try (var channel = MembershipFileAccess.open(path, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
             long size = channel.size();
             require(size <= maximum, CAPACITY_EXCEEDED, "authority member exceeds bound");
             var buffer = ByteBuffer.allocate(Math.toIntExact(size));
@@ -122,7 +122,7 @@ final class AdmissionPaths {
     private static String digest(Path path, long size) throws IOException {
         try {
             var digest = MessageDigest.getInstance("SHA-256");
-            try (var channel = FileChannel.open(path, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
+            try (var channel = MembershipFileAccess.open(path, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
                 var buffer = ByteBuffer.allocate(64 * 1024); long read = 0;
                 int count;
                 while ((count = channel.read(buffer)) > 0) {

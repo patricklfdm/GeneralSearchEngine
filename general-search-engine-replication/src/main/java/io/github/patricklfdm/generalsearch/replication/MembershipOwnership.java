@@ -15,14 +15,14 @@ final class MembershipOwnership implements AutoCloseable {
     private static final Set<Object> INODES=new HashSet<>();
     private final Path path;
     private final Object inode;
-    private final AdmissionPaths.Owner owner;
+    private final MembershipFileAccess.Owned owner;
     private boolean closed;
-    private MembershipOwnership(Path path,Object inode,AdmissionPaths.Owner owner){this.path=path;this.inode=inode;this.owner=owner;}
+    private MembershipOwnership(Path path,Object inode,MembershipFileAccess.Owned owner){this.path=path;this.inode=inode;this.owner=owner;}
     static synchronized MembershipOwnership own(Path requested,boolean create)throws IOException {
         Path path=AdmissionPaths.safe(requested);
         if(PATHS.contains(path))throw occupied();
         Object before=null;if(!create){AdmissionPaths.regular(path);before=MembershipBasisSources.key(path);if(INODES.contains(before))throw occupied();}
-        var owner=AdmissionPaths.own(path,create);
+        var owner=MembershipFileAccess.own(path,create,true,c->{});
         try {
             Object inode=MembershipBasisSources.key(path);MembershipValidation.require(before==null || before.equals(inode),"membership owner inode changed during open");if(INODES.contains(inode))throw occupied();
             PATHS.add(path);INODES.add(inode);return new MembershipOwnership(path,inode,owner);

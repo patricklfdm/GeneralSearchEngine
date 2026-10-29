@@ -162,7 +162,7 @@ final class MembershipFutureRetentionFiles implements AutoCloseable {
         require(allowance>=proposed.length && allowance<=MembershipResources.Unit.JOURNAL.bytes,"future retention completion journal capacity");
         try {
             cut.at("FUTURE_RETENTION_BEFORE_WRITE");guard.check();owner.check();check();
-            try(var channel=FileChannel.open(directory.resolve(NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+            try(var channel=MembershipFileAccess.open(directory.resolve(NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                 remember(new byte[0]);int half=proposed.length/2;
                 AdmissionPaths.write(channel,Arrays.copyOf(proposed,half));remember(Arrays.copyOf(proposed,half));event("FUTURE_RETENTION_PREFIX_WRITTEN",guard,cut);
                 AdmissionPaths.write(channel,Arrays.copyOfRange(proposed,half,proposed.length));remember(proposed);event("FUTURE_RETENTION_WRITTEN",guard,cut);
@@ -181,7 +181,7 @@ final class MembershipFutureRetentionFiles implements AutoCloseable {
                 AdmissionPaths.forceDirectory(directory);event("FUTURE_RETENTION_DISCARD_PARENT_FORCED",()->{},cut);
             }
             if(active!=null) {
-                try(var channel=FileChannel.open(directory.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+                try(var channel=MembershipFileAccess.open(directory.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
                 event("FUTURE_RETENTION_RECOVERY_FORCED",()->{},cut);AdmissionPaths.forceDirectory(directory);event("FUTURE_RETENTION_RECOVERY_PARENT_FORCED",()->{},cut);
             }
         }catch(IOException|RuntimeException|Error error){failed=true;throw error;}

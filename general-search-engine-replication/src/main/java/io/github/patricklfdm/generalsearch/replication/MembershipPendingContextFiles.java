@@ -186,7 +186,7 @@ final class MembershipPendingContextFiles implements AutoCloseable {
             var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));
             boolean create=nextIdentity==null;if(create)options.add(StandardOpenOption.CREATE_NEW);
             guarded(guard);
-            try(var channel=FileChannel.open(directory.resolve(NEXT),options)) {
+            try(var channel=MembershipFileAccess.open(directory.resolve(NEXT),options)) {
                 if(create) {snapshotNext(new byte[0]);event("CONTEXT_CANDIDATE_CREATED",guard,cut);}
                 Object inode=nextIdentity.key();int offset=nextBytes.length,middle=offset+(bytes.length-offset)/2;
                 require(channel.size()==offset,"pending context candidate length changed");channel.position(offset);
@@ -222,7 +222,7 @@ final class MembershipPendingContextFiles implements AutoCloseable {
     }
     private void sealActive(MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
         guarded(guard);
-        try(var channel=FileChannel.open(directory.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+        try(var channel=MembershipFileAccess.open(directory.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
         event("CONTEXT_ACTIVE_FORCED",guard,cut);AdmissionPaths.forceDirectory(directory);
         event("CONTEXT_ACTIVE_PARENT_FORCED",guard,cut);
     }

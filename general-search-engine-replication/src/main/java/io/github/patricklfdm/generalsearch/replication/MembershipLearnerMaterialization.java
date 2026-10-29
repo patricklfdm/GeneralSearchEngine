@@ -157,7 +157,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
     }
     private void write(String name,byte[] bytes,String prefix)throws IOException {
         check();boolean exists=members.containsKey(name);
-        try(var channel=FileChannel.open(directory.resolve(name),exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
+        try(var channel=MembershipFileAccess.open(directory.resolve(name),exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
                 Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
             if(!exists){update(name);point(prefix+"_CREATED");}
             int offset=Math.toIntExact(members.get(name).bytes());channel.position(offset);
@@ -169,7 +169,7 @@ final class MembershipLearnerMaterialization<T> implements AutoCloseable {
         }
     }
     private void force(String name,String event)throws IOException {
-        check();try(var channel=FileChannel.open(directory.resolve(name),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+        check();try(var channel=MembershipFileAccess.open(directory.resolve(name),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
         point(event);AdmissionPaths.forceDirectory(directory);point(event+"_PARENT");
     }
     private void seal()throws IOException {

@@ -31,7 +31,7 @@ final class MembershipJournalRotationFiles {
         }
         var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));
         if(pending==null)options.add(StandardOpenOption.CREATE_NEW);
-        try(var channel=FileChannel.open(path,options)) {
+        try(var channel=MembershipFileAccess.open(path,options)) {
             if(pending==null){capture();cut.at("JOURNAL_ROTATION_CREATED");check();owner.check();}
             channel.position(channel.size());AdmissionPaths.write(channel,Arrays.copyOfRange(compact,Math.toIntExact(channel.size()),compact.length));capture();
             cut.at("JOURNAL_ROTATION_WRITTEN");check();owner.check();channel.force(true);

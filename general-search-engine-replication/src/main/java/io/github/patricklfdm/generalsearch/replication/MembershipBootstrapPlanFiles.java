@@ -74,7 +74,7 @@ final class MembershipBootstrapPlanFiles implements AutoCloseable {
     }
     private void write(String name,byte[] bytes,String prefix)throws IOException {
         check();Path path=directory.resolve(name);AdmissionPaths.absent(path);
-        try(var channel=FileChannel.open(path,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+        try(var channel=MembershipFileAccess.open(path,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             remember(name,new byte[0]);point(prefix+"_CREATED");int half=bytes.length/2;
             AdmissionPaths.write(channel,Arrays.copyOf(bytes,half));remember(name,Arrays.copyOf(bytes,half));point(prefix+"_PREFIX_WRITTEN");
             AdmissionPaths.write(channel,Arrays.copyOfRange(bytes,half,bytes.length));remember(name,bytes);point(prefix+"_WRITTEN");
@@ -82,7 +82,7 @@ final class MembershipBootstrapPlanFiles implements AutoCloseable {
         }
     }
     private void force(String name,String point)throws IOException {
-        check();try(var channel=FileChannel.open(directory.resolve(name),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}point(point);
+        check();try(var channel=MembershipFileAccess.open(directory.resolve(name),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}point(point);
     }
     private void seal()throws IOException {
         try {

@@ -372,7 +372,7 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
             Files.move(path.resolve(RETIREMENT_NEXT),path.resolve(RETIREMENT),StandardCopyOption.ATOMIC_MOVE);
             files.remove(RETIREMENT_NEXT);files.put(RETIREMENT,candidate);event("SUPERSEDED_END_RETIREMENT_RENAMED",guard,cut);
         }else {
-            try(var channel=FileChannel.open(path.resolve(RETIREMENT),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+            try(var channel=MembershipFileAccess.open(path.resolve(RETIREMENT),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
             event("SUPERSEDED_END_RETIREMENT_RESEALED",guard,cut);
         }
         AdmissionPaths.forceDirectory(path);AdmissionPaths.forceDirectory(path.getParent());event("SUPERSEDED_END_AUTHORITY_FORCED",guard,cut);
@@ -393,7 +393,7 @@ final class MembershipAppliedEndFiles implements AutoCloseable {
     private void complete(String name,byte[] expected,String label,MembershipGenerationFiles.Guard guard,MembershipBallotAllocator.Cut cut)throws IOException {
         check();guard.check();boolean present=files.containsKey(name);var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));
         if(!present)options.add(StandardOpenOption.CREATE_NEW);
-        try(var channel=FileChannel.open(path.resolve(name),options)) {
+        try(var channel=MembershipFileAccess.open(path.resolve(name),options)) {
             if(!present){updated(name,new byte[0]);event(label+"_CREATED",guard,cut);}
             Object originalKey=files.get(name).key();int offset=Math.toIntExact(files.get(name).bytes());channel.position(offset);int middle=offset+(expected.length-offset)/2;
             AdmissionPaths.write(channel,Arrays.copyOfRange(expected,offset,middle));updated(name,Arrays.copyOf(expected,middle));require(originalKey.equals(files.get(name).key()),"applied-end replaced write target");event(label+"_PREFIX_WRITTEN",guard,cut);

@@ -64,7 +64,7 @@ final class MembershipScratch implements AutoCloseable {
         if(prior.length!=marker.length) {
             var names=MembershipBasisSources.children(directory,8);
             require(names.equals(exists?Set.of(LOCK,MARKER):Set.of(LOCK)),"incomplete scratch marker has data");
-            try(var file=FileChannel.open(path,exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
+            try(var file=MembershipFileAccess.open(path,exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
                     Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
                 file.position(prior.length);AdmissionPaths.write(file,Arrays.copyOfRange(marker,prior.length,marker.length));
                 events.at("MARKER_WRITTEN");file.force(true);events.at("MARKER_FORCED");

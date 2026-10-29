@@ -110,7 +110,7 @@ final class MembershipLearnerRetentionFiles implements AutoCloseable {
     void reseal(MembershipBallotAllocator.Cut cut)throws IOException {
         owner.check();check();require(state!=null && next==null,"learner retention recovery state");
         try {
-            try(var channel=FileChannel.open(directory.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
+            try(var channel=MembershipFileAccess.open(directory.resolve(FILE),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
             event("LEARNER_RETENTION_RECOVERY_ACTIVE_FORCED",cut);AdmissionPaths.forceDirectory(directory);
             event("LEARNER_RETENTION_RECOVERY_PARENT_FORCED",cut);
         }catch(IOException|RuntimeException|Error e){failed=true;throw e;}
@@ -122,7 +122,7 @@ final class MembershipLearnerRetentionFiles implements AutoCloseable {
         require(allowance>=bytes.length && allowance<=MembershipResources.Unit.JOURNAL.bytes,"learner retention completion journal capacity");
         try {
             cut.at("LEARNER_RETENTION_BEFORE_WRITE");owner.check();check();
-            try(var channel=FileChannel.open(directory.resolve(NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+            try(var channel=MembershipFileAccess.open(directory.resolve(NEXT),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                 next=new byte[0];nextIdentity=inspect(directory.resolve(NEXT),0,hash(next));
                 int half=bytes.length/2;AdmissionPaths.write(channel,Arrays.copyOf(bytes,half));remember(Arrays.copyOf(bytes,half));
                 event("LEARNER_RETENTION_PREFIX_WRITTEN",cut);

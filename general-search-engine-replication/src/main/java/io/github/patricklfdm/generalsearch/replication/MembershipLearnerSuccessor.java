@@ -180,7 +180,7 @@ final class MembershipLearnerSuccessor implements AutoCloseable {
     }
     private void write(String name,byte[] bytes,String event)throws IOException {
         check();boolean exists=metadata.containsKey(name);
-        try(var channel=FileChannel.open(directory.resolve(name),exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
+        try(var channel=MembershipFileAccess.open(directory.resolve(name),exists?Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS):
                 Set.of(StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS))) {
             if(!exists){remember(name,bytes);point(event+"_CREATED");}
             int offset=Math.toIntExact(metadata.get(name).bytes());channel.position(offset);
