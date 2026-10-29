@@ -55,8 +55,9 @@ Existing legacy learner fixtures do not opt into this mode, and the original
 failed native cancellation entry remains unmodified. No test-only local ledger
 is presented as a repaired end-to-end run.
 
-Remaining implementation must carry the exact obligation through real quorum
-ACKs before source exposure. It must also
+The subsequent [native quorum recording](PHASE_3_LEARNER_RETENTION_QUORUM.md)
+provides dedicated forced ACKs. Remaining implementation must consume that exact
+live recording before source exposure. It must also
 bind narrowing to an actual forced learner head, retain both possibilities after
 lost ACKs, and preserve the obligation through PREPARE replacement, READY,
 CANCEL and matching locally forced INTENT. These steps precede automatic/public

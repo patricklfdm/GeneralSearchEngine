@@ -1,0 +1,66 @@
+{
+  "acceptedClasses": {
+    "V53FormatTest": {
+      "reportSha256": "008ab9fad7dab2eee24e71c8520bda939a0efc06dd278daeb1333ce239e6b72b",
+      "seconds": 0.169,
+      "tests": 5
+    },
+    "V53LearnerRetentionQuorumTest": {
+      "reportSha256": "dd49d133cce7943e90316d128f39b4c0357641508e1a62333787bea94d0744c0",
+      "seconds": 244.114,
+      "tests": 3
+    }
+  },
+  "actualNetwork": {
+    "attemptsToNode2": 2,
+    "endpointIndex": 3,
+    "lostDurableAck": true,
+    "receiverRevision": 1,
+    "voters": [
+      "node-1",
+      "node-2"
+    ]
+  },
+  "archive": {
+    "bytes": 4791616,
+    "path": "target/v53-learner-retention-quorum/originals-and-validation.tar.gz",
+    "sha256": "3959e96e8285552a8f1728302fe782eb53b476b5a683ce721180ad9bca497ac4"
+  },
+  "base": "894fbc5982e634ad5cef97eede9e60e4158dc790",
+  "codeAndBuildInputsChecked": 1681,
+  "correctedTestSources": [
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerRetentionQuorumTest.java"
+  ],
+  "failureNotes": {
+    "learnerquorum": "sandbox denied creation of local TCP sockets before bootstrap/protocol; three errors retained",
+    "learnerquorumfinal": "test report uses explicit node/digests rows; also asserts recording is revoked by a higher local ballot",
+    "learnerquorumtcp": "protocol assertions passed; test evidence writer used a node name as a forbidden JSON object key"
+  },
+  "independentFullPhysicalQualification": false,
+  "javaTests": 8,
+  "learnerVotingEnabled": false,
+  "nativeHistories": 3,
+  "nativeLocalHistory": [
+    "BARRIER",
+    "RESERVE",
+    "PREPARE"
+  ],
+  "pending": [
+    "exact live recording consumed under source-export lock",
+    "forced learner-head confirmation/narrowing",
+    "native READY/CANCEL learner recovery and matching INTENT",
+    "all five joining profiles",
+    "fresh-process halt/SIGKILL and independent original-first physical/wire qualification",
+    "maximum combined resources and autonomous Phase 3 closure"
+  ],
+  "phase3Complete": false,
+  "productionClassCount": 892,
+  "productionFixAfterFailure": false,
+  "pythonTests": 11,
+  "replicatedExportEnabled": false,
+  "schema": "gse-v53-learner-retention-quorum-v1",
+  "sourceUnchangedAfterSandboxFailure": true,
+  "status": "PASS_FOCUSED_COMPONENT",
+  "syntaxFixtures": 54,
+  "unchangedEarlierFrames": 52
+}

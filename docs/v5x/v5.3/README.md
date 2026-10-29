@@ -7,7 +7,9 @@ the learner correctly refuses the missing ancestry. [Bounded local obligations](
 now preserve exact learner endpoints through local publication and reopen.
 [Frozen-source capture and selected merge](PHASE_3_LEARNER_RETENTION_SELECTION.md)
 now preserve their union across installation, interrupted completion and later
-CANCEL. Real quorum recording and confirmed narrowing remain unimplemented;
+CANCEL. [Native quorum recording](PHASE_3_LEARNER_RETENTION_QUORUM.md) now adds
+explicit forced ACKs for the original stable endpoint. Binding that recording to
+source exposure and confirming/narrowing the learner head remain unimplemented;
 export in the new mode stays disabled. Native learner cancellation/reopen,
 process/independent replay and full Phase 3 qualification remain **OPEN**.
 

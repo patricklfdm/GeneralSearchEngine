@@ -45,7 +45,7 @@ class V53FormatTest {
                 assertNotEquals(decoded.digest(), decoded.rootDigest());
             } else assertThrows(IllegalArgumentException.class, decoded::rootDigest);
         }
-        assertEquals(52, seen.size());
+        assertEquals(54, seen.size());
     }
     @Test void commandAndReadTokenEncodingRemainExact() throws Exception {
         for (Object item : list(fixtures().get("commandPayloads"))) {

@@ -760,6 +760,52 @@
         }
       }
     },
+    "APPLY": {
+      "id": 27,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "certificate": "hash",
+              "selection": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "APPLY_ACK": {
+      "id": 28,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "acknowledgement": {
+                "nullable": "hash"
+              },
+              "certificate": "hash",
+              "selection": "hash",
+              "statement": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
     "CHECKPOINT_ACK": {
       "id": 19,
       "maximum": 8388608,
@@ -996,6 +1042,51 @@
         }
       }
     },
+    "LEARNER_RETENTION_ACK": {
+      "id": 30,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "intent": "hash",
+              "ledger": "hash",
+              "revision": "counter"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "LEARNER_RETENTION_INTENT": {
+      "id": 29,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "endpoint": "retentionAnchor",
+              "learner": "identity",
+              "request": "request",
+              "selection": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
     "PREPARE": {
       "id": 2,
       "maximum": 8388608,
@@ -1086,6 +1177,29 @@
           "payload": {
             "object": {
               "certificate": "hash"
+            }
+          },
+          "recipient": "identity",
+          "root": "hash",
+          "sender": "identity",
+          "sequence": "positive",
+          "trace": "uuid",
+          "view": "hash"
+        }
+      }
+    },
+    "PUBLISH_ACK": {
+      "id": 26,
+      "maximum": 32768,
+      "schema": {
+        "object": {
+          "ballot": "ballot",
+          "payload": {
+            "object": {
+              "certificate": "hash",
+              "generation": "hash",
+              "published": "retentionAnchor",
+              "selection": "hash"
             }
           },
           "recipient": "identity",
@@ -1274,75 +1388,6 @@
             "object": {
               "digest": "hash",
               "id": "uuid"
-            }
-          },
-          "recipient": "identity",
-          "root": "hash",
-          "sender": "identity",
-          "sequence": "positive",
-          "trace": "uuid",
-          "view": "hash"
-        }
-      }
-    },
-    "PUBLISH_ACK": {
-      "id": 26,
-      "maximum": 32768,
-      "schema": {
-        "object": {
-          "ballot": "ballot",
-          "payload": {
-            "object": {
-              "certificate": "hash",
-              "selection": "hash",
-              "published": "retentionAnchor",
-              "generation": "hash"
-            }
-          },
-          "recipient": "identity",
-          "root": "hash",
-          "sender": "identity",
-          "sequence": "positive",
-          "trace": "uuid",
-          "view": "hash"
-        }
-      }
-    },
-    "APPLY": {
-      "id": 27,
-      "maximum": 32768,
-      "schema": {
-        "object": {
-          "ballot": "ballot",
-          "payload": {
-            "object": {
-              "certificate": "hash",
-              "selection": "hash"
-            }
-          },
-          "recipient": "identity",
-          "root": "hash",
-          "sender": "identity",
-          "sequence": "positive",
-          "trace": "uuid",
-          "view": "hash"
-        }
-      }
-    },
-    "APPLY_ACK": {
-      "id": 28,
-      "maximum": 32768,
-      "schema": {
-        "object": {
-          "ballot": "ballot",
-          "payload": {
-            "object": {
-              "certificate": "hash",
-              "selection": "hash",
-              "statement": "hash",
-              "acknowledgement": {
-                "nullable": "hash"
-              }
             }
           },
           "recipient": "identity",

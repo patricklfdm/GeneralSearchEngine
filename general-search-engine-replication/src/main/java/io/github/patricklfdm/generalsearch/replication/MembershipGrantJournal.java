@@ -487,6 +487,50 @@ final class MembershipGrantJournal implements AutoCloseable {
         checkOwner();require(learnerRetention==null,"learner source export requires replicated retention permit");
     }
 
+    synchronized void checkLearnerRetentionResources(MembershipResources budget)throws IOException {
+        require(resources==budget,"learner retention requires actual storage resource owner");learnerRetentionState();
+    }
+    /** Build from the original native reservation (or the already retained one),
+     * never from a caller-supplied learner receipt or inferred newer cut. */
+    synchronized MembershipLearnerRetentionIntent learnerRetentionIntent(MembershipIdentity joining,Map<String,Object> ballot)throws IOException {
+        var plan=learnerRetentionState().plan();checkRetentionRound(ballot,null);
+        var offered=object(parse(plan.offer(current.capsule,current.ancestry(),joining).bytes(),MembershipLearnerRetentionPlan.MAXIMUM));
+        var intent=new MembershipLearnerRetentionIntent(Map.of("selection",current.selectedRecord().orElseThrow().digest(),
+                "request",offered.get("request"),"learner",MembershipPeerRetentionPlan.identity(joining),
+                "endpoint",MembershipRetentionIntent.anchor(current.capsule.terminal())));
+        checkLearnerRetentionRound(intent,ballot);return intent;
+    }
+    private void checkLearnerRetentionRound(MembershipLearnerRetentionIntent intent,Map<String,Object> ballot)throws IOException {
+        learnerRetentionState();checkRetentionRound(ballot,null);var context=current.capsule.context;
+        require(context.view.get("operation")==null && intent.request.get("root").equals(context.root)
+                && intent.request.get("expected").equals(context.authority())
+                && !context.voters().contains(intent.learner.nodeId().value())
+                && intent.learner.equals(context.identities.get(intent.learner.nodeId().value())),"learner intent original stable reservation");
+        require(intent.selection.equals(current.selectedRecord().orElseThrow().digest()) && intent.endpoint.equals(current.capsule.terminal()),
+                "learner intent changed selected endpoint");
+        var offered=object(parse(learnerRetention.state().plan().offer(current.capsule,current.ancestry(),intent.learner).bytes(),MembershipLearnerRetentionPlan.MAXIMUM));
+        require(offered.get("request").equals(intent.request),"learner intent changed original request");
+        floorIdle();applicationReferencesIdle();require(pendingAccept.active()==null,"learner intent pending slot");
+    }
+    /** Force before ACK, with the same installed-round fence checked after the
+     * durable transaction. A lost reply keeps every recorded possibility. */
+    synchronized Decoded recordLearnerRetention(MembershipIdentity sender,Decoded request)throws IOException {
+        require(request.kind().equals("LEARNER_RETENTION_INTENT"),"learner retention request kind");learnerRetentionState();
+        var value=request.value();var ballot=object(value.get("ballot"));
+        current.capsule.context.wire(request,sender,identity,ballot,UUID.fromString((String)value.get("trace")),number(value.get("sequence")));
+        require(sender.nodeId().value().equals(ballot.get("proposer")),"learner retention requires current proposer");
+        var intent=new MembershipLearnerRetentionIntent(object(value.get("payload")));checkLearnerRetentionRound(intent,ballot);
+        var state=retainLearnerOffer(intent.learner);
+        checkLearnerRetentionRound(intent,ballot);cut.at("LEARNER_RETENTION_ACK_BEFORE_RETURN");checkLearnerRetentionRound(intent,ballot);
+        var response=new TreeMap<>(value);response.put("sender",value.get("recipient"));response.put("recipient",value.get("sender"));
+        response.put("payload",Map.of("intent",intent.digest,"revision",state.revision(),"ledger",state.digest()));
+        return decode(encode("wire","LEARNER_RETENTION_ACK",response),"wire","LEARNER_RETENTION_ACK");
+    }
+    synchronized void checkLearnerRetentionRecording(MembershipLearnerRetentionIntent intent,Map<String,Object> ballot)throws IOException {
+        checkLearnerRetentionRound(intent,ballot);
+        require(learnerRetention.state().plan().recorded().contains(intent.endpoint),"learner intent endpoint not retained");
+    }
+
     private void loadPeerRetention()throws IOException {
         if(Files.exists(directory.resolve(MembershipPeerRetentionFiles.FILE),LinkOption.NOFOLLOW_LINKS)
                 || Files.exists(directory.resolve(MembershipPeerRetentionFiles.NEXT),LinkOption.NOFOLLOW_LINKS))

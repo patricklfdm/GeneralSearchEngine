@@ -343,8 +343,12 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             var reply=owner.acknowledgePublished(sender,request);long elapsed=clock.getAsLong()-received;
             require(!closed && elapsed>=0 && elapsed<budget,"published endpoint closed/original deadline");return reply;
         }
-        if(kind.equals("RETENTION_INTENT") || kind.equals("FUTURE_RETENTION_INTENT")) {
-            scratchOwner.check();var reply=kind.equals("RETENTION_INTENT")?owner.recordPeerRetention(sender,request):owner.recordFutureRetention(sender,request);
+        if(Set.of("RETENTION_INTENT","FUTURE_RETENTION_INTENT","LEARNER_RETENTION_INTENT").contains(kind)) {
+            scratchOwner.check();var reply=switch(kind) {
+                case "RETENTION_INTENT" -> owner.recordPeerRetention(sender,request);
+                case "FUTURE_RETENTION_INTENT" -> owner.recordFutureRetention(sender,request);
+                default -> owner.recordLearnerRetention(sender,request);
+            };
             long elapsed=clock.getAsLong()-received;
             require(!closed && elapsed>=0 && elapsed<budget,"retention endpoint closed/original deadline");return reply;
         }

@@ -205,9 +205,10 @@ admission; wire paths are bounded relative inventory names, never arbitrary path
 
 [format-catalog.json](format-catalog.json) fixes IDs, field names/types/order rules,
 array bounds, nullability, enum spellings, maxima and command payloads for **24
-storage kinds and 28 wire kinds**. [byte-fixtures.json](byte-fixtures.json) retains
-52 independent syntax fixtures. [Phase 3 amendments A04–A08](PHASE_3_CONTRACT_AMENDMENTS.md)
-add internal retention, publication and application controls; all original 45 frames remain unchanged.
+storage kinds and 30 wire kinds**. [byte-fixtures.json](byte-fixtures.json) retains
+54 independent syntax fixtures. [Phase 3 amendments A04–A08 and A31](PHASE_3_CONTRACT_AMENDMENTS.md)
+add internal retention, publication, application and nonvoting learner-retention
+controls; all original 45 frames and the 52 pre-A31 frames remain unchanged.
 These fixtures do not certify identity/quorum
 semantics: the model oracles and later physical decoder must check those too.
 

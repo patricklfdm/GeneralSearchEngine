@@ -1,5 +1,50 @@
 # V5.3 Phase 3 contract amendments
 
+## A31 — original-round nonvoting learner retention acknowledgements
+
+Add internal `LEARNER_RETENTION_INTENT` (29) and `LEARNER_RETENTION_ACK` (30),
+each at most 32 KiB with the unchanged unpublished 1.3 framing. The catalog now
+contains 24 storage and 30 wire kinds. All 52 earlier frames, commands, read-token
+bytes and resource ceilings remain exact. No legacy retention message gains a
+second meaning.
+
+The request binds the installed SELECTED, complete original ADD/REPLACE request,
+permanent joining identity and exact endpoint (cut/catalog/application). The
+normal envelope binds root, view, original proposer ballot, sender/recipient,
+trace and sequence. Each acknowledging voter independently requires its own
+installed round and authenticated current endpoint, the same original stable
+configuration, a nonvoting joining identity, and no pending application slot or
+maintenance. Received endpoint hashes cannot substitute for local authority.
+
+Under the native writer lock, the receiver adds the endpoint to its bounded
+learner ledger without dropping an older possibility. A third endpoint or a
+different operation refuses. An identical request is idempotent. Only after the
+candidate force, active replacement and parent force may it return an ACK binding
+the logical request digest and its own durable revision/ledger digest. Ballot
+checks after force and immediately before return prevent a fenced ACK; the
+already forced obligation survives a lost response or later fencing.
+
+The proposer records locally and counts distinct current voters, then uses up to
+three identical I/O/deadline attempts per peer within one original deadline.
+Malformed, unrelated, exhausted, fenced, expired or closed rounds cannot produce
+a recording. Close cancels a future even if it is returned by the exchange only
+after cancellation. All control reservations use the actual native owner's pool.
+No learner identity counts toward a majority.
+
+The returned recording is temporary and bound to this owner, selected endpoint,
+ballot and deadline. It does not survive a new owner/election. The durable ledger
+does survive, through exact frozen-source capture and selected-source merging.
+This first implementation deliberately supplies no export capability: the
+source-transfer path remains closed in the new mode until it consumes the exact
+live recording under the same lock. It also provides no learner-head confirmation,
+narrowing, matching INTENT, joint-voter eligibility or autonomous scheduling.
+
+The native focused network test and source-bound receipt document their actual
+execution separately. Full all-profile/process/physical qualification remains in
+the deferred Phase 3 queue. Rollback before publication removes these two kinds
+and their recording path, restoring the previous catalog without reinterpreting
+an ACK. V5.0–V5.2 runtimes, workflows and release pins remain unchanged.
+
 ## A04 — explicit current-target retention intent and acknowledgement
 
 V5.3 remains unpublished. The original Phase 0/1 catalog had 24 storage and 21

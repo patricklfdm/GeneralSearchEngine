@@ -7,7 +7,9 @@ the learner correctly refuses the missing ancestry. [Bounded local obligations](
 now preserve exact learner endpoints through local publication and reopen.
 [Frozen-source capture and selected merge](PHASE_3_LEARNER_RETENTION_SELECTION.md)
 now preserve their union across installation, interrupted completion and later
-CANCEL. Real quorum recording and confirmed narrowing remain unimplemented;
+CANCEL. [Native quorum recording](PHASE_3_LEARNER_RETENTION_QUORUM.md) now adds
+explicit forced ACKs for the original stable endpoint. Binding that recording to
+source exposure and confirming/narrowing the learner head remain unimplemented;
 export in the new mode stays disabled. Native learner cancellation/reopen,
 process/independent replay and full Phase 3 qualification remain **OPEN**.
 
@@ -47,6 +49,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 
 | Gate | Unit of execution | Required final evidence |
 | --- | --- | --- |
+| Learner current-endpoint quorum | Independent whole native ADD/REPLACE histories | All five joining profiles and process cuts, exact forced ACKs and wire replay, source-exposure binding and authentic head confirmation; the focused three-voter ADD test does not close the full gate |
 | Frozen learner retention and selected merge | One native continuous history plus independent whole halt/SIGKILL cases | Exact source-bound ledgers, selection/installation completion, all process cuts and original-first physical/force replay; five Java component cases are executed, not complete process or quorum qualification |
 | `V53LearnerCancellationTest` and native cancellation | One original prepared learner history through certified CANCEL and local retention/restart | All five joining profiles, initial/promoted/alternating heads, original forces and source ancestry, bounded resources, halt/SIGKILL, precise evidence negatives and automatic integration; component exception cuts do not replace these gates |
 | `V53LearnerStoreTest` and preparation tests | Focused component suite | All assertions on the final source; explicitly conditional historical fixtures do not become native distributed evidence |
