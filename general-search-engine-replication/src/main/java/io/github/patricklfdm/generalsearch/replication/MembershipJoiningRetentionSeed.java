@@ -9,6 +9,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * voting, dispatch, ledger installation or deletion authority. */
 final class MembershipJoiningRetentionSeed {
     static final int MAXIMUM=FRAME;
+    static final int FRAGMENT_MAXIMUM=2*1024*1024;
     private static final String SCHEMA="gse-v53-joining-retention-seed/1.3";
     private final byte[] bytes;
     final MembershipPeerRetentionPlan peers;
@@ -20,17 +21,31 @@ final class MembershipJoiningRetentionSeed {
     static MembershipJoiningRetentionSeed capture(MembershipCapsule current,byte[] ancestry,MembershipIdentity joining,
             List<MembershipSelection.Source> sources) {
         require(sources.size()>=2 && sources.size()<=5,"joining retention old source count");
-        var rows=new ArrayList<Object>();
-        for(var source:sources) {
-            var peer=MembershipPeerRetentionSource.read(source);var learner=MembershipLearnerRetentionSource.read(source);
-            // The first initializer is intentionally limited to a settled old
-            // majority. An unpublished future is never converted to an empty
-            // ledger; that requires a separate carried-vote transaction.
-            require(peer.proofs().isEmpty(),"joining retention unsettled future");
-            rows.add(Map.of("basis",base(source.basis.bytes()),"envelope",base(source.capsule.packet.envelope()),
-                    "peers",base(MembershipPeerRetentionSource.wrapper(peer)),
-                    "learner",base(MembershipLearnerRetentionSource.wrapper(learner))));
-        }
+        var rows=new ArrayList<byte[]>();
+        for(var source:sources)rows.add(fragment(source));
+        return assemble(current,ancestry,joining,rows);
+    }
+    /** One frozen owner's original bytes. No quorum or remote authority. */
+    static byte[] fragment(MembershipSelection.Source source) {
+        var peer=MembershipPeerRetentionSource.read(source);var learner=MembershipLearnerRetentionSource.read(source);
+        // The first initializer is intentionally limited to a settled old
+        // majority. An unpublished future is never converted to an empty
+        // ledger; that requires a separate carried-vote transaction.
+        require(peer.proofs().isEmpty(),"joining retention unsettled future");
+        return canonical(Map.of("basis",base(source.basis.bytes()),"envelope",base(source.capsule.packet.envelope()),
+                "peers",base(MembershipPeerRetentionSource.wrapper(peer)),
+                "learner",base(MembershipLearnerRetentionSource.wrapper(learner))),FRAGMENT_MAXIMUM);
+    }
+    static Decoded fragmentBasis(byte[] bytes) {
+        require(bytes.length<=FRAGMENT_MAXIMUM,"joining retention fragment capacity");var row=object(parse(bytes,FRAGMENT_MAXIMUM));
+        require(row.keySet().equals(Set.of("basis","envelope","peers","learner")) && Arrays.equals(bytes,canonical(row,FRAGMENT_MAXIMUM)),
+                "joining retention canonical fragment");return decode(unbase(row.get("basis"),16384),"records","BASIS");
+    }
+    /** Used only while a network acquisition still owns and checks its received
+     * originals. Decoding this value alone is never an installation permit. */
+    static MembershipJoiningRetentionSeed assemble(MembershipCapsule current,byte[] ancestry,MembershipIdentity joining,List<byte[]> fragments) {
+        require(fragments.size()>=2 && fragments.size()<=5,"joining retention old source count");var rows=new ArrayList<Object>();
+        for(byte[] bytes:fragments){fragmentBasis(bytes);rows.add(parse(bytes,FRAGMENT_MAXIMUM));}
         return read(canonical(Map.of("schema",SCHEMA,"root",current.context.root,
                 "joining",MembershipPeerRetentionPlan.identity(joining),"cut",current.context.cut,
                 "catalog",current.terminal().catalog(),"application",current.terminal().application(),"sources",rows),MAXIMUM),

@@ -86,6 +86,9 @@ class V53JoiningIntentExportTest {
     @Test void actualJoiningVoterCompletesJointFinalAndFreshStableBarrier()throws Exception {
         nativeJoining(true,true,true,true,true,true,true);
     }
+    @Test void actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier()throws Exception {
+        nativeJoining(true,true,true,true,true,true,true,true);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
@@ -105,6 +108,9 @@ class V53JoiningIntentExportTest {
         nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,initializeJoined,false);
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,boolean initializeJoined,boolean continueJoint)throws Exception {
+        nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,initializeJoined,continueJoint,false);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,boolean initializeJoined,boolean continueJoint,boolean remoteRetention)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
         // The additional complete installation/cold-open scenario has one
         // declared owner lifetime from its start. Existing scenarios keep
@@ -348,7 +354,19 @@ class V53JoiningIntentExportTest {
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gsr"),frozenOriginal.basis.bytes());
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gscp"),frozenOriginal.capsule.packet.bytes());}
                                                                 if(initializeJoined) {
-                                                                    if(continueJoint)journal.initializeJoinedRetention(originals);
+                                                                    if(remoteRetention) {
+                                                                        var seedWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+                                                                        try(var transport=new MembershipTransport(journal,n.bounds,pool,(peer,q)->{throw new java.io.IOException("joining retention has no vote listener");},MembershipTransport.Events.NONE);
+                                                                                var acquisition=new MembershipJoiningRetentionAcquisition(journal,pool,n.bounds,
+                                                                                    (peer,q,kind,deadline)->transport.exchange(peer,q,kind,deadline).thenApply(answer->{seedWire.add(V53SelectedPullTest.wire(q,answer));return answer;}),
+                                                                                    ()->{},System::nanoTime,System.nanoTime(),BUDGET)) {
+                                                                            assertArrayEquals(seed.bytes(),acquisition.fetch().bytes());
+                                                                            assertEquals(beforeSeed,V53ReplayFilesTest.files(request.replicaDirectory()));
+                                                                            journal.initializeJoinedRetention(acquisition);
+                                                                        }
+                                                                        Files.write(n.f.raw.resolve("joining-retention-wire.json"),canonical(seedWire,8*1024*1024));
+                                                                        System.out.println("v53JoiningIntentStage=remote-old-majority-retention-initialized");
+                                                                    }else if(continueJoint)journal.initializeJoinedRetention(originals);
                                                                     journal.close();
                                                                     if(!continueJoint)initializeRetention(plan,pool,config,originals,seed,n.f.raw);
                                                                 }else {

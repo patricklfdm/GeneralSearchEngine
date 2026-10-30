@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining retention acquisition](PHASE_3_JOINING_RETENTION_NETWORK.md) now reads
+exact old-majority fragments through the bounded transfer path and presents a
+live original-owner handle to durable initialization. Focused component tests
+are source-bound; the compiled TCP/FINAL/barrier/cold-reopen history is queued
+for hosted execution. Old-grant coordinator scheduling and full native/process
+qualification remain required. Phase 3 remains **OPEN**. Earlier entries below
+retain their historical source and scope.
+
 [Actual joining continuation](PHASE_3_JOINING_CONTINUATION.md) now has a native
 component history: permanent node-4 joins nodes 1 and 2 while old node-3 remains
 offline, then the round driver publishes FINAL, activates the stable view and

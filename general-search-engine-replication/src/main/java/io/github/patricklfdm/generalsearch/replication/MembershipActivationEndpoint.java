@@ -274,6 +274,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         String reference=(String)object(request.value().get("payload")).get("digest");
         if(!MembershipPrefixExport.reference(current,reference) && !MembershipLearnerDiscovery.rootReference(current,sender,reference)
                 && !MembershipJoiningIntentExport.reference(current,sender,reference)
+                && !MembershipJoiningRetentionExport.reference(current,sender,reference)
                 && MembershipLearnerPrefixExport.scope(current,sender,reference)==null
                 && MembershipLearnerProgressAccess.scope(current,sender,reference)==null)return null;
         synchronized(prefixRegistry) {

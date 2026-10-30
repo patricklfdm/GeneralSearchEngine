@@ -1,5 +1,27 @@
 # V5.3 Phase 3 contract amendments
 
+## A60 — original old-majority retention acquisition
+
+The unused actual joining owner may read original frozen fragments from distinct
+old voters through existing bounded prefix transfers. Bind exact root, JOINT cut,
+identity, catalog/application and one ballot; revalidate the old-majority union
+without narrowing peer uncertainty or learner renewal debt. Only a live
+acquisition bound to the unchanged original joined installation and resource
+pool may enter its durable initialization transaction. Bare decoded seeds confer
+no new authority. The read allocates no ballot and grants no vote.
+
+Use the existing six-prefix-borrow, CONTROL and global queue limits. Retain the
+original deadline and bounded identical-frame transport retries. Only unavailable
+transport can move to another old identity; explicit rejection, corrupt inputs,
+capacity failure and changed ownership stop. Close revokes new uses and cancels
+pending reads; a previously admitted initialization retains its accounting until
+exit. Completed initialization cannot repair missing original ledgers. Public
+formats, persisted seed bytes, timing and resource bounds remain unchanged.
+
+See [joining retention acquisition](PHASE_3_JOINING_RETENTION_NETWORK.md).
+Autonomous old-grant coordination and whole-history/process qualification remain
+required; the compiled native entry is not an executed result.
+
 ## A59 — retire obsolete same-cut sources before a new installation
 
 A durable newer PROMISE, a settled exact current cut and no current manifest

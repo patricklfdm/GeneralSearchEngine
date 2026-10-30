@@ -294,6 +294,15 @@ final class MembershipSourcePull implements AutoCloseable {
     MembershipSourceReceive fetchPrefix(Path scratch)throws IOException {
         return fetchPrefix(scratch,null);
     }
+    /** One bounded read-only metadata export. The owning caller must authenticate
+     * its contents; no record, vote, prefix or historical ownership is minted. */
+    byte[] fetchPrefixMetadata(String reference,int maximum)throws IOException {
+        synchronized(this){require(prefixCut!=null && learner==null && !used && !closed,"prefix metadata single use");used=true;}
+        try {
+            require(maximum>0 && maximum<=FRAME,"prefix metadata capacity");
+            return metadataBlob(offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.RECORD,null,null),maximum);
+        }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
+    }
     MembershipSourceReceive fetchPrefix(Path scratch,MembershipImageBorrow originalImages)throws IOException {
         return fetchPrefix(scratch,originalImages,false);
     }

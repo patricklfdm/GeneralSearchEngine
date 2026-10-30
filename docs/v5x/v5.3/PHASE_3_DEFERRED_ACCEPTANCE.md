@@ -1,5 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining retention acquisition](PHASE_3_JOINING_RETENTION_NETWORK.md) now reads
+exact old-majority fragments through the bounded transfer path and presents a
+live original-owner handle to durable initialization. Focused component tests
+are source-bound; the compiled TCP/FINAL/barrier/cold-reopen history is queued
+for hosted execution. Old-grant coordinator scheduling and full native/process
+qualification remain required. Phase 3 remains **OPEN**. Earlier entries below
+retain their historical source and scope.
+
 [Actual joining continuation](PHASE_3_JOINING_CONTINUATION.md) now has a native
 component history: permanent node-4 joins nodes 1 and 2 while old node-3 remains
 offline, then the round driver publishes FINAL, activates the stable view and
@@ -336,6 +344,27 @@ Output is always **PARTIAL**, with native/history/selected-head/process-death
 qualification false. It cannot authorize deletion or turn a Java result line into
 complete acceptance. Its eleven small parser regressions use synthetic copied
 snapshots, not native protocol evidence.
+
+## Network retention initialization history
+
+Run the following complete history against the final source, with its original
+40-minute test-owner lifetime and unchanged production deadlines:
+
+```bash
+mvn -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dtest=V53JoiningIntentExportTest#actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier test
+```
+
+The actual joining directory must acquire its old-majority fragments through TCP,
+force the original three-ledger initialization, participate with the surviving old
+majority through FINAL, activate the stable view, publish a fresh BARRIER and
+cold-reopen. Retain its original wire/files and replay them independently before
+negative mutations. This entry is compiled, not locally executed in the network
+acquisition increment. Alternative old majorities, acquisition cancellation and
+close racing an admitted initialization, all profiles, original process-death
+recovery and maximum combined resource checks remain required. Keep acquisition,
+initialization, continuation and cold reopen on the same runner/history.
 
 ## Hosted campaign requirements
 

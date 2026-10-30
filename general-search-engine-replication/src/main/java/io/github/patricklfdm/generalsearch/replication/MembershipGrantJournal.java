@@ -833,14 +833,33 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Read-only preparation. No empty-ledger fallback and no voting/dispatch
      * permit: the following durable initialization transaction is still needed. */
     synchronized MembershipJoiningRetentionSeed joiningRetentionSeed(List<MembershipSelection.Source> originals)throws IOException {
+        checkJoiningRetentionUnused();var seed=MembershipJoiningRetentionSeed.capture(current.capsule,current.ancestry(),identity,originals);
+        joinedOwner.unused();return seed;
+    }
+    private void checkJoiningRetentionUnused()throws IOException {
         checkOwner();require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
         require(peerRetention==null && futureRetention==null && learnerRetention==null,"joining retention already initialized");
         for(String name:List.of(MembershipPeerRetentionFiles.FILE,MembershipPeerRetentionFiles.NEXT,
                 MembershipLearnerRetentionFiles.FILE,MembershipLearnerRetentionFiles.NEXT,
                 MembershipFutureRetentionFiles.FILE,MembershipFutureRetentionFiles.NEXT))
             require(!Files.exists(directory.resolve(name),LinkOption.NOFOLLOW_LINKS),"joining retention original ledger already exists");
-        joinedOwner.unused();var seed=MembershipJoiningRetentionSeed.capture(current.capsule,current.ancestry(),identity,originals);
-        joinedOwner.unused();return seed;
+        joinedOwner.unused();
+    }
+    final class JoiningRetentionPreparation {
+        private final MembershipCurrentGeneration generation=current;
+        final MembershipCapsule capsule=current.capsule;
+        final byte[] ancestry;
+        private final Map<String,Object> fence;
+        private JoiningRetentionPreparation()throws IOException {ancestry=current.ancestry();fence=discoveryState(resources).ballot();}
+        void check()throws IOException {synchronized(MembershipGrantJournal.this){checkJoiningRetentionUnused();
+            require(current==generation,"joining retention installation changed");checkActivationBallot(capsule.context.authority(),fence);}}
+    }
+    synchronized JoiningRetentionPreparation joiningRetentionPreparation(MembershipResources budget)throws IOException {
+        checkJoiningRetentionUnused();require(resources==budget,"joining retention actual resource owner");
+        return new JoiningRetentionPreparation();
+    }
+    synchronized void initializeJoinedRetention(MembershipJoiningRetentionAcquisition acquisition)throws IOException {
+        try(var use=acquisition.useFor(this,resources)){installJoiningRetention(use.seed);}
     }
     private void recoverJoiningRetention()throws IOException {
         require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
@@ -873,6 +892,13 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(peerRetention==null && futureRetention==null && learnerRetention==null
                 && (joiningRetention==null || !joiningRetention.ready()),"joining retention already initialized");
         joinedOwner.unused();var seed=MembershipJoiningRetentionSeed.capture(current.capsule,current.ancestry(),identity,originals);
+        installJoiningRetention(seed);
+    }
+    private void installJoiningRetention(MembershipJoiningRetentionSeed original)throws IOException {
+        checkBaseOwner();require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
+        require(peerRetention==null && futureRetention==null && learnerRetention==null
+                && (joiningRetention==null || !joiningRetention.ready()),"joining retention already initialized");joinedOwner.unused();
+        var seed=MembershipJoiningRetentionSeed.read(original.bytes(),current.capsule,current.ancestry(),identity);
         joiningRetentionInProgress=true;
         try {
             if(joiningRetention==null)joiningRetention=new MembershipJoiningRetentionFiles(new HistoryRead(this),joinedOwner,maximum-storedJournal().length-pendingBytes());

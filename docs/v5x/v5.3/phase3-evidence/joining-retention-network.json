@@ -1,0 +1,89 @@
+{
+  "archive": {
+    "bytes": 19281183,
+    "path": "target/v53-joining-retention-network/component-validation.tar.gz",
+    "sha256": "46bb0d161d3168d7d147b7d97108940566f1737bf26505789aa0b808f3afe1d2"
+  },
+  "archiveMembers": 9347,
+  "automaticCoordinatorConnected": false,
+  "baseCommit": "47ba2a6bf5364aa0ffb5516a069477b708e1b4ef",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1554,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "deferred": [
+    "actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier",
+    "alternative-old-majorities-and-all-profiles",
+    "close-racing-admitted-native-initialization",
+    "original-process-death-recovery",
+    "maximum-combined-resources",
+    "autonomous-old-grant-coordinator"
+  ],
+  "executions": {
+    "joiningretentionnetwork": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionFilesTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionSeedTest": 12
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningretentionnetwork",
+      "requestedTests": [
+        "V53JoiningRetentionNetworkTest",
+        "V53JoiningRetentionSeedTest",
+        "V53JoiningRetentionFilesTest"
+      ],
+      "seconds": 21.43475811899407,
+      "skipped": 0,
+      "tests": 18
+    },
+    "joiningretentionnetworkfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionFilesTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionSeedTest": 12,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceExchangeTest": 14,
+        "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest": 16
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningretentionnetworkfinal",
+      "requestedTests": [
+        "V53JoiningRetentionNetworkTest",
+        "V53JoiningRetentionSeedTest",
+        "V53JoiningRetentionFilesTest",
+        "V53TransferServiceTest",
+        "V53SourceExchangeTest"
+      ],
+      "seconds": 248.99308770000061,
+      "skipped": 0,
+      "tests": 49
+    }
+  },
+  "finalCodeAndBuildInputsChecked": 1303,
+  "nativeHistoryExecuted": false,
+  "paidCloud": false,
+  "phase3Closed": false,
+  "publicRuntime": false,
+  "schema": "gse-v53-joining-retention-network-component-v1",
+  "scope": "bounded-original-fragment-exchange-and-initialization-wiring",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "b5177ba09cafd756502d9254ed15c109c6619a4acd18fa99a97d443bf703b15b",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "9807a3726980da8c26ae62762f17010dd81ff89c8868eb778568a76058145610",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionAcquisition.java": "519a868a64aaa1332b1db63820fc5254f5c0470b31f4d034dd719fcb7d5dcccb",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionExport.java": "da291956f158e7695406cf9fbc6dddc3c227389c66f5713f78e315690593319a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionSeed.java": "3042f1ed17099a33ec85030ac33645bb3de45e933ca6f4ddc65196b304b4456e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java": "401a8c6c757f2480322fabf1feb27675eed923db926a6a3252e00071c6de3664",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java": "aa14c9a63de0544fee0670ba17f6efb49734043cbf95ecbece1c5c2a110b3d38",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "c820d971d30379013d02eb9c9f65466bbea8990d8ba5625ba6d4db5008e6e018",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningRetentionNetworkTest.java": "eda7f67ebf4b84f7ed9d1db0dcd4a415a2c1f9c9f43dcfb13c7f8c9c52a1f437"
+  },
+  "status": "PASS"
+}
