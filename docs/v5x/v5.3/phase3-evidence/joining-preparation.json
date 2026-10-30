@@ -1,0 +1,83 @@
+{
+  "archive": {
+    "bytes": 19068676,
+    "path": "target/v53-joining-preparation/component-validation.tar.gz",
+    "sha256": "fcd2dd40c7fa0862ddf48ed2ce79c03c27ef70004c6fee11f65f8751fe662c02"
+  },
+  "archiveMembers": 8611,
+  "automaticCoordinatorConnected": false,
+  "baseCommit": "fb60b6d274a746e6dc52e3423cd0e2b3000c2344",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1560,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "deferred": [
+    "actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier",
+    "alternative-old-majorities-and-all-profiles",
+    "close-racing-admitted-native-initialization",
+    "original-process-death-recovery",
+    "maximum-combined-resources",
+    "automatic-runtime-scheduling-and-inter-owner-handoff"
+  ],
+  "executions": {
+    "joiningretentioncampaign": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionCampaignTest": 7,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningretentioncampaign",
+      "requestedTests": [
+        "V53JoiningRetentionCampaignTest",
+        "V53JoiningRetentionNetworkTest"
+      ],
+      "seconds": 27.38054013699002,
+      "skipped": 0,
+      "tests": 12
+    },
+    "joiningretentioncampaignfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionCampaignTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionFilesTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionSeedTest": 12
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningretentioncampaignfinal",
+      "requestedTests": [
+        "V53JoiningRetentionCampaignTest",
+        "V53JoiningRetentionNetworkTest",
+        "V53JoiningRetentionSeedTest",
+        "V53JoiningRetentionFilesTest",
+        "V53ActivationTest"
+      ],
+      "seconds": 54.17796252800326,
+      "skipped": 0,
+      "tests": 38
+    }
+  },
+  "finalCodeAndBuildInputsChecked": 1305,
+  "nativeHistoryExecuted": false,
+  "oldSidePreparationImplemented": true,
+  "paidCloud": false,
+  "phase3Closed": false,
+  "publicRuntime": false,
+  "schema": "gse-v53-joining-preparation-component-v1",
+  "scope": "bounded-old-side-prepare-and-exact-source-routing-hints",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionAcquisition.java": "7bc3f8c0246dd0fff47555546469f92a3eb013593b312b6219cdb4240fb25e85",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionCampaign.java": "fa0d59a9e9d376c7587923960c0413a8580b2b9b675e8723412c17bd49e0ab45",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "b4752108b15c44565930b24b0fbd35e03aae5b560fd43803b5de9e2afb5661bd",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningRetentionCampaignTest.java": "2c1bd4ec986d0d57282d606c75036847334781f567d07d189ce79db9e7b510a1"
+  },
+  "status": "PASS"
+}

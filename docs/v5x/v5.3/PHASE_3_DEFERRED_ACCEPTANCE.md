@@ -1,5 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Old-majority joining preparation](PHASE_3_JOINING_PREPARATION.md) now uses one
+bounded PREPARE campaign without source selection. Its exact root/cut/ballot and
+BASIS routing hint limits the new owner's separately verified acquisition.
+Thirty-eight focused tests pass; the compiled whole TCP history now includes
+this step and read-only joining-copy service before initialization. Native
+maintenance/continuation, autonomous scheduling and full qualification remain
+pending. Phase 3 remains **OPEN**; earlier entries retain their source-bound scope.
+
 [Joining retention acquisition](PHASE_3_JOINING_RETENTION_NETWORK.md) now reads
 exact old-majority fragments through the bounded transfer path and presents a
 live original-owner handle to durable initialization. Focused component tests
@@ -356,6 +364,11 @@ mvn -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
   -Dtest=V53JoiningIntentExportTest#actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier test
 ```
 
+The actual old proposer must run the native old-side preparation step over TCP
+under the same deadline as the subsequent acquisition. The new owner's temporary
+listener must serve only STATUS and complete prefix/generation reads for governing
+floor maintenance, refusing votes before initialization. Its acquisition must use
+the exact root/cut/ballot/BASIS hint and revalidate all original source bytes.
 The actual joining directory must acquire its old-majority fragments through TCP,
 force the original three-ledger initialization, participate with the surviving old
 majority through FINAL, activate the stable view, publish a fresh BARRIER and

@@ -335,10 +335,32 @@ class V53JoiningIntentExportTest {
                                                                     for(String obsolete:old.supersededPublishedSources(seedMaintenance))old.retireSource(obsolete);
                                                                     old.releaseFloor();seedMaintenance.check();
                                                                 }
+                                                                long retentionStarted=System.nanoTime();
+                                                                var seedWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+                                                                // The installed joining owner serves read-only copies
+                                                                // for governing-floor maintenance before it can vote.
+                                                                try(var readOnly=remoteRetention?MembershipTransferService.prefix(journal,pool,n.bounds,()->{},System::nanoTime,retentionStarted,BUDGET):null;
+                                                                        var transport=remoteRetention?new MembershipTransport(journal,n.bounds,pool,(peer,q)->{
+                                                                            if(q.kind().equals("STATUS_PROBE"))return journal.discoveryStatus(peer,q);
+                                                                            if(!Set.of("CHUNK","TRANSFER_COMMIT").contains(q.kind()))throw new java.io.IOException("joining retention read-only listener");
+                                                                            return readOnly.handle(peer,q);
+                                                                        },MembershipTransport.Events.NONE):null) {
+                                                                MembershipJoiningRetentionCampaign.Hint prepared=null;
                                                                 var originals=new ArrayList<MembershipSelection.Source>();
-                                                                long counter=owner.reserveCounter();var ballot=Map.<String,Object>of("counter",counter,
-                                                                        "proposer",owner.activationIdentity().nodeId().value(),"incarnation",owner.activationIdentity().storageId().toString());
-                                                                for(int i=0;i<2;i++){n.owners.get(i).prepareCurrent(ballot);originals.add(n.owners.get(i).originalSource());}
+                                                                if(remoteRetention) {
+                                                                    try(var preparation=new MembershipJoiningRetentionCampaign(owner,n.endpoints.getFirst(),resources,n.bounds,
+                                                                            (peer,q,kind,deadline)->n.transports.getFirst().exchange(peer,q,kind,deadline).thenApply(answer->{seedWire.add(V53SelectedPullTest.wire(q,answer));return answer;}),
+                                                                            ()->{},temp.resolve("old-retention-preparation-"+UUID.randomUUID()),System::nanoTime,retentionStarted,BUDGET,joining)) {
+                                                                        prepared=preparation.run();
+                                                                    }
+                                                                    for(String node:new TreeSet<>(prepared.sources().keySet()))originals.add(n.owners.stream()
+                                                                            .filter(old->old.activationIdentity().nodeId().value().equals(node)).findFirst().orElseThrow().originalSource());
+                                                                    System.out.println("v53JoiningIntentStage=old-majority-retention-prepared-over-tcp");
+                                                                }else {
+                                                                    long counter=owner.reserveCounter();var ballot=Map.<String,Object>of("counter",counter,
+                                                                            "proposer",owner.activationIdentity().nodeId().value(),"incarnation",owner.activationIdentity().storageId().toString());
+                                                                    for(int i=0;i<2;i++){n.owners.get(i).prepareCurrent(ballot);originals.add(n.owners.get(i).originalSource());}
+                                                                }
                                                                 assertThrows(IllegalArgumentException.class,()->owner.joiningRetentionSeed(originals));
                                                                 var beforeSeed=V53ReplayFilesTest.files(request.replicaDirectory());
                                                                 var seed=journal.joiningRetentionSeed(originals);
@@ -355,11 +377,9 @@ class V53JoiningIntentExportTest {
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gscp"),frozenOriginal.capsule.packet.bytes());}
                                                                 if(initializeJoined) {
                                                                     if(remoteRetention) {
-                                                                        var seedWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
-                                                                        try(var transport=new MembershipTransport(journal,n.bounds,pool,(peer,q)->{throw new java.io.IOException("joining retention has no vote listener");},MembershipTransport.Events.NONE);
-                                                                                var acquisition=new MembershipJoiningRetentionAcquisition(journal,pool,n.bounds,
+                                                                        try(var acquisition=new MembershipJoiningRetentionAcquisition(journal,pool,n.bounds,
                                                                                     (peer,q,kind,deadline)->transport.exchange(peer,q,kind,deadline).thenApply(answer->{seedWire.add(V53SelectedPullTest.wire(q,answer));return answer;}),
-                                                                                    ()->{},System::nanoTime,System.nanoTime(),BUDGET)) {
+                                                                                    ()->{},System::nanoTime,retentionStarted,BUDGET,prepared)) {
                                                                             assertArrayEquals(seed.bytes(),acquisition.fetch().bytes());
                                                                             assertEquals(beforeSeed,V53ReplayFilesTest.files(request.replicaDirectory()));
                                                                             journal.initializeJoinedRetention(acquisition);
@@ -367,6 +387,7 @@ class V53JoiningIntentExportTest {
                                                                         Files.write(n.f.raw.resolve("joining-retention-wire.json"),canonical(seedWire,8*1024*1024));
                                                                         System.out.println("v53JoiningIntentStage=remote-old-majority-retention-initialized");
                                                                     }else if(continueJoint)journal.initializeJoinedRetention(originals);
+                                                                    if(transport!=null)transport.close();if(readOnly!=null)readOnly.close();
                                                                     journal.close();
                                                                     if(!continueJoint)initializeRetention(plan,pool,config,originals,seed,n.f.raw);
                                                                 }else {
@@ -375,6 +396,7 @@ class V53JoiningIntentExportTest {
                                                                 }
                                                                 probeOldLocks(n);
                                                                 System.out.println("v53JoiningIntentStage=original-old-majority-retention-seed-read-only");
+                                                                }
                                                             }
                                                             // Recovery owns the original joining root; it is never
                                                             // copied to manufacture a second initialization history.

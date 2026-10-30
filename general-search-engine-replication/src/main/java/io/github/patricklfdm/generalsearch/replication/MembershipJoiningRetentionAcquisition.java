@@ -18,6 +18,7 @@ final class MembershipJoiningRetentionAcquisition implements AutoCloseable {
     private final MembershipSourcePull.Guard guard;
     private final LongSupplier clock;
     private final long started,budget;
+    private final MembershipJoiningRetentionCampaign.Hint prepared;
     private final List<MembershipResources.Lease> held=new ArrayList<>();
     private MembershipSourcePull pending;
     private volatile boolean closed;
@@ -27,10 +28,16 @@ final class MembershipJoiningRetentionAcquisition implements AutoCloseable {
 
     MembershipJoiningRetentionAcquisition(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget)throws IOException {
+        this(owner,resources,bounds,link,guard,clock,started,budget,null);
+    }
+    MembershipJoiningRetentionAcquisition(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,
+            MembershipJoiningRetentionCampaign.Hint prepared)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"joining retention acquisition budget");
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
         this.link=Objects.requireNonNull(link);this.guard=Objects.requireNonNull(guard);this.clock=Objects.requireNonNull(clock);
-        this.started=started;this.budget=budget;original=owner.joiningRetentionPreparation(resources);check();
+        this.started=started;this.budget=budget;this.prepared=prepared;original=owner.joiningRetentionPreparation(resources);
+        if(prepared!=null)prepared.check(original.capsule.context,owner.activationIdentity());check();
     }
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"joining retention acquisition closed/original deadline");
@@ -49,7 +56,7 @@ final class MembershipJoiningRetentionAcquisition implements AutoCloseable {
             var old=new TreeSet<>(MembershipContext.nodes(context.view,"old"));long size=16384;
             require(MembershipJoiningRetentionExport.reference(context,owner.activationIdentity(),
                     MembershipJoiningRetentionExport.reference(context,owner.activationIdentity())),"joining retention new joint owner required");
-            for(String node:old) {
+            for(String node:prepared==null?old:new TreeSet<>(prepared.sources().keySet())) {
                 if(fragments.size()>old.size()/2)break;check();var peer=context.identities.get(node);
                 var lease=reserve(3L*MembershipJoiningRetentionSeed.FRAGMENT_MAXIMUM);boolean retained=false;
                 try(var pull=MembershipSourcePull.prefix(owner,new MembershipDiscovery.Hint(peer,context.cut,false),resources,bounds,link,this::check,clock,started,budget)) {
@@ -60,6 +67,7 @@ final class MembershipJoiningRetentionAcquisition implements AutoCloseable {
                             && basis.value().get("cut").equals(context.cut) && basis.value().get("view").equals(context.authority())
                             && basis.value().get("accepted")==null,"joining retention received owner/cut/tail");
                     context.ballot(basis.value().get("ballot"),true);
+                    if(prepared!=null)prepared.fragment(context,owner.activationIdentity(),peer,basis);
                     require(ballot==null || ballot.equals(basis.value().get("ballot")),"joining retention mixed received ballots");
                     ballot=basis.value().get("ballot");fragments.add(fragment);size=Math.addExact(size,fragment.length);retained=true;
                 }catch(MembershipTransport.Failure error) {

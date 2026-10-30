@@ -1,5 +1,13 @@
 # V5.3 — controlled cluster operations
 
+[Old-majority joining preparation](PHASE_3_JOINING_PREPARATION.md) now uses one
+bounded PREPARE campaign without source selection. Its exact root/cut/ballot and
+BASIS routing hint limits the new owner's separately verified acquisition.
+Thirty-eight focused tests pass; the compiled whole TCP history now includes
+this step and read-only joining-copy service before initialization. Native
+maintenance/continuation, autonomous scheduling and full qualification remain
+pending. Phase 3 remains **OPEN**; earlier entries retain their source-bound scope.
+
 [Joining retention acquisition](PHASE_3_JOINING_RETENTION_NETWORK.md) now reads
 exact old-majority fragments through the bounded transfer path and presents a
 live original-owner handle to durable initialization. Focused component tests

@@ -1,5 +1,10 @@
 # Joining retention acquisition from original old voters
 
+The subsequent [old-side preparation component](PHASE_3_JOINING_PREPARATION.md)
+provides a bounded PREPARE step and exact routing hints. The results below remain
+bound to this earlier acquisition snapshot; native whole-history acceptance and
+automatic scheduling are still pending.
+
 Phase 3 remains **OPEN**. The joining owner can now request each old voter's
 frozen retention fragment over the existing bounded transfer path, assemble an
 exact old majority, and present a live acquisition handle to the durable

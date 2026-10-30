@@ -1,5 +1,29 @@
 # V5.3 Phase 3 contract amendments
 
+## A61 — bounded old-side preparation without selection
+
+Use one actual old proposer's fresh grant at the joining JOINT cut to prepare
+an old majority through existing PREPARE handling. Preserve native pre-grant
+maintenance, original-source force and post-grant retirement before replies.
+Do not call selection or installation from this step. Its root/cut/joining/
+ballot/BASIS hint is only routing data. The new owner must acquire and validate
+every exact original source and conservative ledger union before its existing
+live capability can initialize any ledger. Missing or changed hinted sources
+cannot be silently replaced.
+
+Transport retries preserve exact request bytes and the original invocation
+lifetime, with at most three attempts or a stricter caller limit. Only exhausted
+IO/deadline failure permits another old voter on the same ballot. Explicit
+rejections, corruption, capacity, closed ownership and higher fences stop;
+close cancels pending reads and retains ownership if draining fails. Existing
+wire formats, majority rules, resource bounds and production time limits remain
+unchanged. The joining owner must be able to serve read-only complete copies for
+maintenance while refusing votes before its initialization is complete.
+
+See [old-majority preparation](PHASE_3_JOINING_PREPARATION.md). The native composed
+history and automatic scheduling remain unqualified; component test success is
+not a phase exit.
+
 ## A60 — original old-majority retention acquisition
 
 The unused actual joining owner may read original frozen fragments from distinct
