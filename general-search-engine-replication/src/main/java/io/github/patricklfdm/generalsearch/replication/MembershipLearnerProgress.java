@@ -27,6 +27,8 @@ final class MembershipLearnerProgress implements AutoCloseable {
     private MembershipLearnerDiscovery discovery;
     private MembershipSourcePull prefix,generation;
     private MembershipFloor.Copy result;
+    private MembershipTransport joiningTransport;
+    private MembershipJoiningIntentPull joining;
 
     MembershipLearnerProgress(MembershipLearnerHead head,MembershipIdentity peer,ReplicationBounds bounds,
             MembershipTransport.Events events,LongSupplier clock,long started,long budget)throws IOException {
@@ -81,9 +83,23 @@ final class MembershipLearnerProgress implements AutoCloseable {
         var receiver=prefix.completeLearnerIntentSource(head,copy,cut);check();
         return MembershipLearnerIntent.install(head,receiver,copy,cut);
     }
+    /** Read pending metadata against this exact complete SEALED transfer and
+     * live typed owner. No received value is a durable joining witness. */
+    synchronized MembershipJoiningIntentPull joiningMetadata()throws IOException {
+        var copy=source();require(joiningTransport==null,"learner joining metadata single exchange");
+        if(head instanceof MembershipLearnerMaterialization.CurrentHead current)current.requireAvailable();
+        joiningTransport=MembershipTransport.learnerJoiningIntent(request,new MembershipDiscovery.Hint(peer,copy.capsule.context.cut,false),
+                bounds,resources,events);
+        try {
+            joining=new MembershipJoiningIntentPull(request,peer,copy.capsule,head.receipt(),resources,bounds,joiningTransport::exchange,
+                    ()->{source();head.check();if(head instanceof MembershipLearnerMaterialization.CurrentHead current)current.requireAvailable();},
+                    clock,started,budget);
+            return joining;
+        }catch(IOException|RuntimeException|Error error){joiningTransport.close();throw error;}
+    }
     @Override public void close()throws IOException {
-        MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t;
-        synchronized(this){closed=true;result=null;d=discovery;p=prefix;g=generation;t=transport;}
-        MembershipLearnerSource.closeChildren(d,g,p,t);
+        MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t,jt;MembershipJoiningIntentPull j;
+        synchronized(this){closed=true;result=null;d=discovery;p=prefix;g=generation;t=transport;jt=joiningTransport;j=joining;}
+        MembershipLearnerSource.closeChildren(j,jt,d,g,p,t);
     }
 }

@@ -1,0 +1,629 @@
+{
+  "actualTypedOwnerAndTcp": true,
+  "archive": {
+    "bytes": 6385830,
+    "path": "target/v53-joining-intent-receiver/component-validation.tar.gz",
+    "sha256": "0721b902605d134a3f14208ce89d37f0e4adaf7718c5b56b7ee458eda241cff4"
+  },
+  "baseCommit": "221231f8f529b0ff9f42f7e15050c971326e33a0",
+  "codeAndBuildInputsChecked": 1728,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1466,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "developmentFailure": "joiningreceiver: 47 of 49 tests passed. The quorum-negative fixture attempted to encode only one witness, which the existing format rejected before the decoder under test. It now encodes two known identities, one outside the old governing voters, and the receiver must reject that nonquorum. The noncanonical-JSON case correctly rejected with ReplicationException; its test incorrectly expected IllegalArgumentException. Tests corrected and a live typed-owner/TCP integration case added; receiver production code unchanged.",
+  "durableFilesChangedByRead": false,
+  "fiveJoiningProfilesConditional": true,
+  "fullNativeReceiverQualified": false,
+  "integrationVotingHistory": "conditional fixture; not native certificate or joining qualification",
+  "malformedReplyVariants": 8,
+  "metadataMutations": 18,
+  "newAppliedEndAck": false,
+  "newStoredCertificateAuthority": false,
+  "originalPhysicalReplay": false,
+  "paidCloud": false,
+  "passingTests": 53,
+  "pending": [
+    "original receiver provenance and durable force/recovery under actual typed owner",
+    "coordinator SEALED-source acquisition and pending INTENT scheduling",
+    "new-side applied-end ACK, minimum-quorum JOINT publication, joined native handoff",
+    "joint FINAL and fresh barrier; all-profile native physical/history/process qualification"
+  ],
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "reports": {
+    "joiningreceiver": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentPullTest": {
+        "cases": [
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[1]",
+            "seconds": 0.234,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[2]",
+            "seconds": 0.059,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[3]",
+            "seconds": 0.071,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[4]",
+            "seconds": 0.047,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[5]",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[6]",
+            "seconds": 0.023,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[7]",
+            "seconds": 0.034,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[8]",
+            "seconds": 0.04,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[9]",
+            "seconds": 0.025,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[10]",
+            "seconds": 0.024,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[11]",
+            "seconds": 0.023,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[12]",
+            "seconds": 0.021,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[13]",
+            "seconds": 0.023,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[14]",
+            "seconds": 0.021,
+            "status": "FAIL"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[15]",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[16]",
+            "seconds": 0.023,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[17]",
+            "seconds": 0.021,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[18]",
+            "seconds": 0.032,
+            "status": "FAIL"
+          },
+          {
+            "name": "expiredOrRevokedParentCannotPublishLateBytesOrKeepAReadableResult",
+            "seconds": 0.076,
+            "status": "PASS"
+          },
+          {
+            "name": "lostRepliesRetryTheSameBytesAndOriginalDeadline(String)[1]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "lostRepliesRetryTheSameBytesAndOriginalDeadline(String)[2]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "lostRepliesRetryTheSameBytesAndOriginalDeadline(String)[3]",
+            "seconds": 0.025,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[1]",
+            "seconds": 0.033,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[2]",
+            "seconds": 0.025,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[3]",
+            "seconds": 0.022,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[4]",
+            "seconds": 0.026,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[5]",
+            "seconds": 0.031,
+            "status": "PASS"
+          },
+          {
+            "name": "sharedCapacityIsReservedBeforeReadingContent",
+            "seconds": 0.021,
+            "status": "PASS"
+          },
+          {
+            "name": "permanentFailureAndRetryExhaustionStopWithoutLeaking",
+            "seconds": 0.085,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[1]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[2]",
+            "seconds": 0.016,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[3]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[4]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[5]",
+            "seconds": 0.017,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[6]",
+            "seconds": 0.017,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[7]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[8]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "closeCancelsAnOutstandingExchange",
+            "seconds": 0.018,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "29ab46a89eb9cf8a861aab1503180b881b79158fa005049e065e4bd2552a6bb2"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerDiscoveryTest": {
+        "cases": [
+          {
+            "name": "reservationAliasBindsTheFullRequestAndExactCorrelation",
+            "seconds": 0.132,
+            "status": "PASS"
+          },
+          {
+            "name": "expiryDuringReplyCannotReturnRootOrStartAnotherAttempt",
+            "seconds": 0.013,
+            "status": "PASS"
+          },
+          {
+            "name": "exhaustionAndPermanentFailuresStopWithinTheFrozenAttemptLimit",
+            "seconds": 0.059,
+            "status": "PASS"
+          },
+          {
+            "name": "wellFormedDifferentRootIsNotAcceptedEvenWithMatchingTransportEnvelope",
+            "seconds": 0.017,
+            "status": "PASS"
+          },
+          {
+            "name": "offerAndChunkCorruptionNeverReachCommit",
+            "seconds": 0.093,
+            "status": "PASS"
+          },
+          {
+            "name": "transientRetriesPreserveOriginalFrameAndDeadline",
+            "seconds": 0.014,
+            "status": "PASS"
+          },
+          {
+            "name": "activeReservationAcceptsOnlyTheExactJoiningMemberAcrossEveryAddReplaceProfile",
+            "seconds": 0.278,
+            "status": "PASS"
+          },
+          {
+            "name": "absentJointCompletedAndRetiredReservationCannotStartLearnerDiscovery",
+            "seconds": 0.092,
+            "status": "PASS"
+          },
+          {
+            "name": "permanentIdentityDoesNotByItselfGrantLearnerEligibility",
+            "seconds": 0.026,
+            "status": "PASS"
+          },
+          {
+            "name": "rootBytesComeFromChunkedOriginalAndDoNotConflateTheTwoDigests",
+            "seconds": 0.025,
+            "status": "PASS"
+          },
+          {
+            "name": "closeDuringSubmissionCancelsThePendingFutureInsteadOfWaitingForBudget",
+            "seconds": 0.015,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e9977bf6e840bc63fa486655d012fc36728cabf13b738818fe264ac6bffc290d"
+      }
+    },
+    "joiningreceiverfixed": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentPullTest": {
+        "cases": [
+          {
+            "name": "actualPreparedOwnerAndCompleteProgressGuardTheReadOnlyContact",
+            "seconds": 26.283,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[1]",
+            "seconds": 0.043,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[2]",
+            "seconds": 0.021,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[3]",
+            "seconds": 0.019,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[4]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[5]",
+            "seconds": 0.022,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[6]",
+            "seconds": 0.019,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[7]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[8]",
+            "seconds": 0.019,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[9]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[10]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[11]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[12]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[13]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[14]",
+            "seconds": 0.022,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[15]",
+            "seconds": 0.021,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[16]",
+            "seconds": 0.017,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[17]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalsCannotBecomeMetadata(String)[18]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "expiredOrRevokedParentCannotPublishLateBytesOrKeepAReadableResult",
+            "seconds": 0.054,
+            "status": "PASS"
+          },
+          {
+            "name": "lostRepliesRetryTheSameBytesAndOriginalDeadline(String)[1]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "lostRepliesRetryTheSameBytesAndOriginalDeadline(String)[2]",
+            "seconds": 0.019,
+            "status": "PASS"
+          },
+          {
+            "name": "lostRepliesRetryTheSameBytesAndOriginalDeadline(String)[3]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[1]",
+            "seconds": 0.029,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[2]",
+            "seconds": 0.023,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[3]",
+            "seconds": 0.023,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[4]",
+            "seconds": 0.027,
+            "status": "PASS"
+          },
+          {
+            "name": "exactMetadataForEveryJoiningProfileIsNotPublication(int, String)[5]",
+            "seconds": 0.024,
+            "status": "PASS"
+          },
+          {
+            "name": "sharedCapacityIsReservedBeforeReadingContent",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "permanentFailureAndRetryExhaustionStopWithoutLeaking",
+            "seconds": 0.08,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[1]",
+            "seconds": 0.017,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[2]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[3]",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[4]",
+            "seconds": 0.025,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[5]",
+            "seconds": 0.017,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[6]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[7]",
+            "seconds": 0.016,
+            "status": "PASS"
+          },
+          {
+            "name": "badExchangeCannotComplete(String)[8]",
+            "seconds": 0.02,
+            "status": "PASS"
+          },
+          {
+            "name": "closeCancelsAnOutstandingExchange",
+            "seconds": 0.02,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "f1f57c24b682674e91f4300f4d781afc743a3ebe30bb6a5adbdc2c899644849f"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerDiscoveryTest": {
+        "cases": [
+          {
+            "name": "reservationAliasBindsTheFullRequestAndExactCorrelation",
+            "seconds": 0.104,
+            "status": "PASS"
+          },
+          {
+            "name": "expiryDuringReplyCannotReturnRootOrStartAnotherAttempt",
+            "seconds": 0.013,
+            "status": "PASS"
+          },
+          {
+            "name": "exhaustionAndPermanentFailuresStopWithinTheFrozenAttemptLimit",
+            "seconds": 0.056,
+            "status": "PASS"
+          },
+          {
+            "name": "wellFormedDifferentRootIsNotAcceptedEvenWithMatchingTransportEnvelope",
+            "seconds": 0.014,
+            "status": "PASS"
+          },
+          {
+            "name": "offerAndChunkCorruptionNeverReachCommit",
+            "seconds": 0.097,
+            "status": "PASS"
+          },
+          {
+            "name": "transientRetriesPreserveOriginalFrameAndDeadline",
+            "seconds": 0.015,
+            "status": "PASS"
+          },
+          {
+            "name": "activeReservationAcceptsOnlyTheExactJoiningMemberAcrossEveryAddReplaceProfile",
+            "seconds": 0.276,
+            "status": "PASS"
+          },
+          {
+            "name": "absentJointCompletedAndRetiredReservationCannotStartLearnerDiscovery",
+            "seconds": 0.086,
+            "status": "PASS"
+          },
+          {
+            "name": "permanentIdentityDoesNotByItselfGrantLearnerEligibility",
+            "seconds": 0.016,
+            "status": "PASS"
+          },
+          {
+            "name": "rootBytesComeFromChunkedOriginalAndDoNotConflateTheTwoDigests",
+            "seconds": 0.014,
+            "status": "PASS"
+          },
+          {
+            "name": "closeDuringSubmissionCancelsThePendingFutureInsteadOfWaitingForBudget",
+            "seconds": 0.012,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "ff8272c2e51a59f13424bbc2f0a0f15ab9d557dafdd6fa401810682a9863a543"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": {
+        "cases": [
+          {
+            "name": "progressTransportStillRejectsVotingAndEnrollmentReferencesInTheJointView",
+            "seconds": 0.089,
+            "status": "PASS"
+          },
+          {
+            "name": "preparedOwnerReadsCancellationAndJointProgressWithoutChangingItsReceiptOrGrantingAVote",
+            "seconds": 32.609,
+            "status": "PASS"
+          },
+          {
+            "name": "missingParentAncestryAndClosedTypedOwnersRefuseWithoutChangingLocalAuthority",
+            "seconds": 7.255,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "b55fd116db264e1027b9d625fbfa98bc462ff2c04b01fd10f4271e030a74e763"
+      }
+    }
+  },
+  "runs": {
+    "joiningreceiver": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentPullTest": 38,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerDiscoveryTest": 11
+      },
+      "exit": 1,
+      "failures": 2,
+      "label": "joiningreceiver",
+      "requestedTests": [
+        "V53JoiningIntentPullTest",
+        "V53LearnerDiscoveryTest"
+      ],
+      "seconds": 16.612255469997763,
+      "skipped": 0,
+      "tests": 49
+    },
+    "joiningreceiverfixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentPullTest": 39,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerDiscoveryTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerProgressNetworkTest": 3
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningreceiverfixed",
+      "requestedTests": [
+        "V53JoiningIntentPullTest",
+        "V53LearnerDiscoveryTest",
+        "V53LearnerProgressNetworkTest"
+      ],
+      "seconds": 81.26534857199294,
+      "skipped": 0,
+      "tests": 53
+    }
+  },
+  "schema": "gse-v53-joining-intent-receiver-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningIntentMetadata.java": "44768c36bf38181a49b7859e677db41d64a697f039e7be1b9b52fa122d88dd8d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningIntentPull.java": "f120233d3c59a5f5d558ad8f320fbc2ca67f29329401e1cf919909c848cdb872",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerProgress.java": "3cd121f2d0713e22e3784cbe9474e2ad9a7427d72135c386442fbcfd77bdd64d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentPullTest.java": "1ce7d4c2ac581140630d18cd860fa16f85389b44e32c75b0497b1a77ab92fa8e"
+  },
+  "sourceSnapshot": "joiningreceiverfixed",
+  "status": "PASS_JOINING_INTENT_RECEIVER_COMPONENT"
+}

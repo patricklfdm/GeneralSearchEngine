@@ -1,5 +1,23 @@
 # V5.3 Phase 3 contract amendments
 
+
+## A46 — bounded pending INTENT reception without force authority
+
+The [pending receiver](PHASE_3_JOINING_INTENT_RECEIVER.md) is a single exchange
+under the same complete SEALED progress transfer, actual typed head and original
+deadline. Compare full request, permanent identities, typed receipt, parent,
+phased original records, unchanged application and exact projected catalog and
+checkpoint. Reserve the declared body before chunk allocation; retain its
+CONTROL charge until close and release failed exchanges. Retry only transport
+IO/DEADLINE failures, at most the existing bound capped at three, with identical
+request bytes and deadline. Cancellation, parent revocation, malformed replies
+and semantic rejection cannot become a successful result.
+
+The standalone decoder and returned metadata are structural values, not force
+observations or certificate/installation authority. The owner-bound entry has no
+ACK, storage mutation or public readiness path. Native minimal-quorum receiver
+force/recovery, joint publication and full Phase 3 qualification remain open.
+
 ## A45 — pending joining metadata, without publication authority
 
 The [joining metadata export](PHASE_3_JOINING_INTENT_METADATA.md) uses the existing

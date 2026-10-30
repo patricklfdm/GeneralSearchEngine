@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Pending INTENT reception](PHASE_3_JOINING_INTENT_RECEIVER.md) now adds a bounded
+read-only client under the live typed learner and its completed SEALED progress
+transfer. It checks the exact original-byte projection and retries only transient
+transport failures. Received values grant no stored-certificate ownership or
+checkpoint ACK; durable joining witnesses and Phase 3 closure remain **OPEN**.
+
 [Prepublication INTENT metadata](PHASE_3_JOINING_INTENT_METADATA.md) now has a
 read-only native export for the exact sealed joining identity. A real old-quorum
 certificate and completed native application are required; a published JOINT
