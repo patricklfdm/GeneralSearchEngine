@@ -23,6 +23,12 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     record HeartbeatContact(String root,String view,Map<String,Object> ballot,MembershipIdentity proposer,long receivedNanos) {
         HeartbeatContact {ballot=Map.copyOf(ballot);}
     }
+    enum ActivationStage { GRANTED, INSTALLED }
+    /** Two once-only completion hints per incoming campaign. Neither a promise
+     * nor an installation proves READY; these are volatile scheduling inputs. */
+    record ActivationProgress(String root,String view,Map<String,Object> ballot,ActivationStage stage,long completedNanos) {
+        ActivationProgress {ballot=Map.copyOf(ballot);}
+    }
     // null is the permanent closed sentinel; an empty Optional is a fresh
     // endpoint. A delayed completion cannot resurrect either a close or a
     // superseded observation. This cell is never written to the journal.
@@ -57,6 +63,13 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         try{owner.checkActivationWait(contact.view(),contact.ballot());}
         catch(IllegalArgumentException stale){return Optional.empty();}
         return closed?Optional.empty():value;
+    }
+    Optional<ActivationProgress> activationProgress() {
+        var active=scope;if(closed || active==null || active.ended || active.expired())return Optional.empty();
+        var progress=active.progress;if(progress==null)return Optional.empty();
+        try{owner.checkActivationWait(progress.view(),progress.ballot());}
+        catch(IllegalArgumentException stale){return Optional.empty();}
+        return closed || active!=scope || active.ended || active.expired()?Optional.empty():Optional.of(progress);
     }
     private void recordHeartbeatContact(MembershipIdentity sender,Decoded request,long received) {
         if(!Boolean.TRUE.equals(object(request.value().get("payload")).get("activated")))return;
@@ -123,6 +136,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         final long started,limit;
         final Set<CompletableFuture<Decoded>> pending=ConcurrentHashMap.newKeySet();
         volatile boolean ended;
+        volatile ActivationProgress progress;
         private MembershipTransferService service;
         private MembershipGenerationMaintenance maintenance;
         private final Object slotRegistry=new Object();
@@ -150,6 +164,20 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                     && request.value().get("view").equals(capsule.context.authority()),"completed activation publication original authority");
             require(Arrays.equals(response.bytes(),owner.acknowledgePublished(sender,request).bytes()),"completed activation publication exact acknowledgement");
             require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");
+        }
+        // Called only by the single control worker after full validation and
+        // successful durable work. A duplicate with a new trace cannot create
+        // a third milestone or move a completed milestone's timestamp.
+        void progressed(Decoded request,Decoded response) {
+            ActivationStage stage;
+            if(request.kind().equals("PREPARE") && response.kind().equals("PROMISE"))stage=ActivationStage.GRANTED;
+            else if(request.kind().equals("SELECTED") && response.kind().equals("INSTALL_ACK"))stage=ActivationStage.INSTALLED;
+            else return;
+            synchronized(registry) {
+                if(closed || ended || scope!=this || expired())return;
+                if(progress==null || stage.compareTo(progress.stage())>0)
+                    progress=new ActivationProgress(capsule.context.root,capsule.context.authority(),ballot,stage,clock.getAsLong());
+            }
         }
         CompletableFuture<Decoded> exchange(MembershipIdentity peer,Decoded request,String kind,long deadline) {
             try {
@@ -380,6 +408,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                                     destination,active::check,clock,active.started,active.limit)) {response=incoming.install();}
                 }else response=active.nativeControl(sender,request);
                 active.completed(sender,request,response);lease.reserveControl(request.size()+(long)response.size());active.completed(sender,request,response);
+                active.progressed(request,response);
                 synchronized(registry){finished=true;result.complete(response);}
             }catch(Throwable error){
                 // SourcePull has already checked exact sender/recipient/root/view,

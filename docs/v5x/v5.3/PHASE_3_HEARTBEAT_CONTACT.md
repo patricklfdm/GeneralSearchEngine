@@ -15,9 +15,10 @@ original arrival time, not the later writer-completion time. Expired/failed work
 cannot extend the apparent liveness window.
 
 Only `activated=true` updates this cell. A false flag remains a valid fencing hint
-but is not evidence of a live ready proposer. Future campaign-progress scheduling
-must be based on its own admitted protocol progress; repeated unactivated pulses
-must not indefinitely suppress other candidates merely by arriving.
+but is not evidence of a live ready proposer. The subsequent
+[activation completion milestones](PHASE_3_ELECTION_WAIT.md#admitted-activation-milestones)
+are separate admitted progress. Repeated unactivated pulses must not indefinitely
+suppress other candidates merely by arriving.
 
 The single bounded atomic cell retains root/view, proposer identity, ballot and
 arrival time. A lower-ballot completion cannot replace a higher one; same-ballot

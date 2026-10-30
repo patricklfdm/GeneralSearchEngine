@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Activation completion milestones](PHASE_3_ELECTION_WAIT.md#admitted-activation-milestones)
+provide two once-only scheduling hints per incoming campaign. They do not turn
+incomplete transfer chatter into progress or renew the original lifetime.
+Whole competing-candidate, cold-reopen and process-death histories remain
+required; retain each wait, transfer, installation and its resulting election
+on the same runner and original filesystem when adding those gates.
+
 [Bounded automatic fresh campaigns](PHASE_3_AUTOMATIC_CAMPAIGNS.md) adds one
 native higher-ballot reactivation history under a single 300-second fixture
 budget. Complete physical/fence/READY/network replay now passes all 388 original

@@ -43,33 +43,46 @@ final class MembershipElectionWait implements AutoCloseable {
         try {
             var state=snapshot();long armed=time(),delay=delay();
             MembershipActivationEndpoint.HeartbeatContact seen=null;
+            MembershipActivationEndpoint.ActivationProgress seenProgress=null;
+            boolean activityArmed=false;
             for(;;) {
                 long now=time();
                 try{owner.checkActivationWait(state.context().authority(),state.ballot());}
                 catch(IllegalArgumentException changed) {
                     // A new observed campaign/view is real progress, but it does
                     // not extend the enclosing invocation or create authority.
-                    state=snapshot();armed=time();delay=delay();seen=null;now=armed;
+                    state=snapshot();armed=time();delay=delay();seen=null;seenProgress=null;activityArmed=false;now=armed;
                 }
                 var contact=endpoint.heartbeatContact().orElse(null);
-                if(contact!=null && !contact.equals(seen)) {
-                    require(contact.root().equals(state.context().root),"election contact foreign root");
-                    if(!contact.view().equals(state.context().authority()) || !contact.ballot().equals(state.ballot())) {
-                        state=snapshot();armed=time();delay=delay();seen=null;continue;
+                var progress=endpoint.activationProgress().orElse(null);
+                boolean newContact=contact!=null && !contact.equals(seen),newProgress=progress!=null && !progress.equals(seenProgress);
+                if(newContact || newProgress) {
+                    require(!newContact || contact.root().equals(state.context().root),"election contact foreign root");
+                    require(!newProgress || progress.root().equals(state.context().root),"election progress foreign root");
+                    if(newContact && (!contact.view().equals(state.context().authority()) || !contact.ballot().equals(state.ballot()))
+                            || newProgress && (!progress.view().equals(state.context().authority()) || !progress.ballot().equals(state.ballot()))) {
+                        state=snapshot();armed=time();delay=delay();seen=null;seenProgress=null;activityArmed=false;continue;
                     }
-                    now=time();
-                    long age=now-contact.receivedNanos();require(age>=0,"election contact from future clock");
-                    // Do not postpone from the poll time: an old or delayed ACK
-                    // carries its original arrival and may already be expired.
-                    armed=contact.receivedNanos();delay=delay();seen=contact;
+                    now=time();long at=newContact?contact.receivedNanos():progress.completedNanos();
+                    if(newContact)require(now-contact.receivedNanos()>=0,"election contact from future clock");
+                    if(newProgress) {
+                        require(now-progress.completedNanos()>=0,"election progress from future clock");
+                        if(progress.completedNanos()-at>0)at=progress.completedNanos();
+                    }
+                    // Use original arrival/completion, never poll time. Delayed
+                    // heartbeats cannot move a newer progress arm backwards.
+                    if(!activityArmed || at-armed>0){armed=at;delay=delay();activityArmed=true;}
+                    if(newContact)seen=contact;if(newProgress)seenProgress=progress;
                 }
                 if(now-armed>=delay) {
                     var current=snapshot();
                     if(!current.context().authority().equals(state.context().authority()) || !current.ballot().equals(state.ballot())) {
-                        state=current;armed=time();delay=delay();seen=null;continue;
+                        state=current;armed=time();delay=delay();seen=null;seenProgress=null;activityArmed=false;continue;
                     }
                     var latest=endpoint.heartbeatContact().orElse(null);
                     if(latest!=null && !latest.equals(seen))continue;
+                    var latestProgress=endpoint.activationProgress().orElse(null);
+                    if(latestProgress!=null && !latestProgress.equals(seenProgress))continue;
                     owner.checkActivationWait(current.context().authority(),current.ballot());time();return current;
                 }
                 long left=Math.min(budget-(now-started),delay-(now-armed));require(left>0,"election wait original deadline");

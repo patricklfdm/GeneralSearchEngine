@@ -206,8 +206,11 @@ class V53ActivationEndpointTest {
                     }
                     try(var campaign=new MembershipActivation(owners.getFirst(),queue,System::nanoTime,BUDGET)) {
                         endpoints.getFirst().serve(campaign);var images=new TreeMap<String,byte[]>();
+                        assertTrue(endpoints.getFirst().activationProgress().isEmpty(),"local serving is not incoming progress");
                         for(int n=1;n<=size/2;n++) {
                             var peer=group.identities.get(n);var request=campaign.prepare(peer);var reply=refs.getFirst().get().exchange(peer,request,"PROMISE",campaign.started()+BUDGET).get(30,TimeUnit.SECONDS);wire.add(V53SelectedPullTest.wire(request,reply));
+                            var progress=endpoints.get(n).activationProgress().orElseThrow();
+                            assertEquals(MembershipActivationEndpoint.ActivationStage.GRANTED,progress.stage());assertEquals(campaign.ballot(),progress.ballot());
                             var pull=new MembershipSourcePull(group.capsule,group.identities.getFirst(),peer,campaign.ballot(),UUID.randomUUID(),queue,bound,
                                     refs.getFirst().get()::exchange,()->owners.getFirst().checkActivation(campaign.ownSource().basis,null,false),System::nanoTime,campaign.started(),BUDGET);pulls.add(pull);
                             var received=pull.fetch(temp.resolve("tcp-promised-"+size+"-"+n),(String)object(reply.value().get("payload")).get("basis"));images.putAll(received.images());campaign.promised(peer,reply,received,verifier(),List.of());
@@ -216,6 +219,7 @@ class V53ActivationEndpointTest {
                         for(int n=1;n<=size/2;n++) {
                             var peer=group.identities.get(n);var request=campaign.installation(peer);var reply=refs.getFirst().get().exchange(peer,request,"INSTALL_ACK",campaign.started()+BUDGET).get(30,TimeUnit.SECONDS);
                             wire.add(V53SelectedPullTest.wire(request,reply));campaign.installed(peer,reply);
+                            assertEquals(MembershipActivationEndpoint.ActivationStage.INSTALLED,endpoints.get(n).activationProgress().orElseThrow().stage());
                         }
                         assertEquals(MembershipActivation.State.INSTALLED,campaign.state());Files.write(raw.resolve("selected.gsr"),campaign.votingSelection().bytes());f.snapshot("installed");
                         Files.write(raw.resolve("wire.json"),canonical(wire,1024*1024));

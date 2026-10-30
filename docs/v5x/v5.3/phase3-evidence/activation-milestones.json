@@ -1,0 +1,274 @@
+{
+  "archive": {
+    "bytes": 7053010,
+    "directories": 293,
+    "files": 4164,
+    "path": "target/v53-activation-progress/qualification.tar.gz",
+    "sha256": "56140054f81373dfffac1a92b35851753a16d96728d1570114599714f34e4c05"
+  },
+  "baseCommit": "336c66f03065af93eae9d8f9e519ecbf8c8af70f",
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 13,
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationProgressTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionWaitTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53HeartbeatContactTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "activationprogressfinal",
+      "requestedTests": [
+        "V53ActivationProgressTest",
+        "V53ElectionWaitTest",
+        "V53HeartbeatContactTest",
+        "V53ActivationEndpointTest"
+      ],
+      "seconds": 349.40618737600744,
+      "skipped": 0,
+      "tests": 38
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationProgressTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "activationprogressarrival",
+      "requestedTests": [
+        "V53ActivationProgressTest#delayedOlderHeartbeatCannotUndoAnAlreadyConsumedMilestone"
+      ],
+      "seconds": 21.610210693994304,
+      "skipped": 0,
+      "tests": 1
+    }
+  ],
+  "failedExecution": {
+    "classes": {
+      "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 12,
+      "io.github.patricklfdm.generalsearch.replication.V53ActivationProgressTest": 8,
+      "io.github.patricklfdm.generalsearch.replication.V53ElectionWaitTest": 7,
+      "io.github.patricklfdm.generalsearch.replication.V53HeartbeatContactTest": 7
+    },
+    "exit": 1,
+    "failures": 18,
+    "label": "activationprogressfixed",
+    "requestedTests": [
+      "V53ActivationProgressTest",
+      "V53ElectionWaitTest#delayReturnsOnlyRevalidatedOriginalStateWithoutAllocatingGrant+oldAcceptedArrivalDoesNotAcquireANewDeadlineAtPollTime+recentAcceptedContactPostponesOnceAndCannotOutliveParentBudget+repeatedInactiveSameBallotDoesNotKeepAnotherCandidateWaiting+closeWakesIdleWaitWithoutAcquiringBusyWriter+dueWaitChecksOriginalStorageBeforeReturningCandidate+jitterOutsideFrozenPolicyFailsWithoutGrant",
+      "V53HeartbeatContactTest",
+      "V53ActivationEndpointTest#duplicatePrepareSharesOriginalReplyAndExpiryCannotRenewScope+duplicateInFlightControlSharesTaskAndDifferentControlIsBounded+schedulerExpiresPendingWorkWithoutAnIncomingPoll+validHigherPrepareFencesBeforeTheControlQueueCanAcceptIt+foreignProposerCannotFenceAndObservationDoesNotWaitForWriter+sourceFailureDoesNotManufacturePromiseAndExactRetryDoesNotRestartTask+closePreservesForeignScratchAndCanFinishAfterItsRemoval+failedDrainRetainsScratchOwnershipUntilWorkerStops+localRegistrationKeepsOriginalCampaignStartAndReleasesExportsOnExpiry+corruptedOriginalRecordFailsBeforeGrantAndDoesNotRetry+waitingForWriterDoesNotResetIncomingBudget+correlatedHigherSourceRejectionFencesButForeignReplyDoesNot"
+    ],
+    "seconds": 128.73096337498282,
+    "skipped": 0,
+    "tests": 34
+  },
+  "failureNotes": [
+    "Four new-fixture errors assumed a zero start instead of the actual first incoming deadline.",
+    "Fourteen existing fixture errors were sandbox loopback socket denials."
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pythonTests": 10,
+  "qualification": [
+    {
+      "kind": "activation",
+      "path": "target/v53-native-cancellation/builds/activationprogressfinal-fcab64dd/general-search-engine-replication/target/v53-activation-endpoint/run-49a88b2b-1176-4161-a8a1-cf19feed9229",
+      "result": {
+        "negatives": [
+          {
+            "case": "scope",
+            "reason": "endpoint scope/receipt",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-profile",
+            "reason": "endpoint complete inventory",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-ack",
+            "reason": "activation exchange inventory",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-install",
+            "reason": "activation exact installed bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "control-delivery",
+            "reason": "endpoint original control delivery",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-source",
+            "reason": "endpoint missing source transfer",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-source",
+            "reason": "endpoint unexpected/duplicate source transfer",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-source",
+            "reason": "endpoint source correlation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-data",
+            "reason": "endpoint source exact data",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-force",
+            "reason": "activation force order",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "automaticCampaign": false,
+          "cases": [
+            {
+              "installed": 2,
+              "selected": 2,
+              "size": 3
+            },
+            {
+              "installed": 3,
+              "selected": 3,
+              "size": 4
+            },
+            {
+              "installed": 3,
+              "selected": 3,
+              "size": 5
+            }
+          ],
+          "network": true,
+          "publicRuntime": false,
+          "schema": "gse-v53-activation-endpoint-v1",
+          "status": "PASS"
+        },
+        "sourceExchanges": 213
+      }
+    },
+    {
+      "kind": "round",
+      "path": "target/v53-native-cancellation/builds/activationprogressfinal-fcab64dd/general-search-engine-replication/target/v53-native-dispatch/run-757a7d27-1984-4aab-81e6-f52850902782",
+      "result": {
+        "negatives": [
+          {
+            "case": "missing-ready",
+            "reason": "round exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-ready",
+            "reason": "round exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-ready-ack",
+            "reason": "round readiness after fresh publication",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-completion",
+            "reason": "round original publication acknowledgement",
+            "status": "REJECTED"
+          },
+          {
+            "case": "extra-result",
+            "reason": "round result scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-selection",
+            "reason": "round installed original selection",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-parent",
+            "reason": "round exact slot entry",
+            "status": "REJECTED"
+          },
+          {
+            "case": "physical-selector",
+            "reason": "admitted exact published-2: node-1",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "internalReady": true,
+          "mode": "stable",
+          "original": {
+            "autonomous": false,
+            "discoveryPeers": 2,
+            "phase3Complete": false,
+            "selected": 2,
+            "slots": 2,
+            "status": "PASS",
+            "transfers": 39
+          },
+          "phase3Complete": false,
+          "publicReady": false,
+          "slots": 2,
+          "status": "PASS"
+        }
+      }
+    },
+    {
+      "kind": "closed-wait",
+      "path": "target/v53-native-cancellation/builds/activationprogressfinal-fcab64dd/general-search-engine-replication/target/v53-native-dispatch/run-f14ed1d8-52bb-423f-b62d-3eabfc8cfdf4",
+      "result": {
+        "negatives": [
+          {
+            "case": "allocator",
+            "reason": "admitted exact after-close: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "selector",
+            "reason": "admitted exact after-close: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "extra-grant",
+            "reason": "admitted exact after-close: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "hidden-force",
+            "reason": "closed election wait exact reopen only",
+            "status": "REJECTED"
+          },
+          {
+            "case": "hidden-wire",
+            "reason": "closed election wait no wire",
+            "status": "REJECTED"
+          },
+          {
+            "case": "hidden-failure",
+            "reason": "closed election wait no failures",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "authorityWrites": false,
+          "autonomousElection": false,
+          "originalFirst": true,
+          "phase3Complete": false,
+          "publicRuntime": false,
+          "scope": "native-wait-closed-without-grant",
+          "status": "PASS"
+        }
+      }
+    }
+  ],
+  "qualificationSeconds": 8.347244320000755,
+  "schema": "gse-v53-activation-milestones-v1",
+  "scope": "activation-milestones-and-existing-native-paths",
+  "status": "PASS"
+}

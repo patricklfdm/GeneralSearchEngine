@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Admitted activation milestones](PHASE_3_ELECTION_WAIT.md#admitted-activation-milestones)
+now connect completed incoming grant and selected-installation work to the private
+election wait. Each scope advances at most twice; duplicates and unfinished
+transfers cannot renew it. Original completion time, fence/view revocation and
+the unchanged parent deadline govern this hint. Competing automatic nodes,
+storage/listener reopen ownership and complete process/transition qualification
+remain open; this component does not close Phase 3.
+
 [Bounded automatic fresh campaigns](PHASE_3_AUTOMATIC_CAMPAIGNS.md) now drain a
 typed lost round before opening another under the same original lifetime, with
 no client mutation replay. Its native two-campaign history now passes complete
