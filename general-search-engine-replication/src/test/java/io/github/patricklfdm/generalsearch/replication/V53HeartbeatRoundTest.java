@@ -66,7 +66,7 @@ class V53HeartbeatRoundTest {
         try(var f=new Fixture()) {
             f.link.set((p,r,k,d)->CompletableFuture.failedFuture(new MembershipTransport.Failure(MembershipTransport.Reason.DEADLINE,"missing",null)));
             var usage=f.local.budgets.getFirst().usage();
-            try(var round=f.pulse()) {assertEquals("heartbeat majority unavailable",assertThrows(IllegalArgumentException.class,round::run).getMessage());}
+            try(var round=f.pulse()) {assertEquals(MembershipCampaignLost.Reason.CONTACT_UNAVAILABLE,assertThrows(MembershipCampaignLost.class,round::run).reason);}
             assertEquals(6,f.requests.size());assertEquals(2,f.requests.stream().map(Decoded::digest).distinct().count());
             assertEquals(Set.of(BUDGET),new HashSet<>(f.deadlines));assertEquals(usage,f.local.budgets.getFirst().usage());
         }
@@ -75,6 +75,13 @@ class V53HeartbeatRoundTest {
         try(var f=new Fixture()) {
             f.link.set((p,r,k,d)->p.equals(f.first())?CompletableFuture.failedFuture(new MembershipTransport.Failure(MembershipTransport.Reason.CAPACITY,"busy",null)):f.ack(p,r));
             try(var round=f.pulse()){assertEquals(Set.of("node-1","node-3"),round.run().responding());}
+            assertEquals(2,f.requests.size());
+        }
+    }
+    @Test void closedTransportIsTerminalRatherThanContactLoss()throws Exception {
+        try(var f=new Fixture()) {
+            f.link.set((p,r,k,d)->CompletableFuture.failedFuture(new MembershipTransport.Failure(MembershipTransport.Reason.CLOSED,"transport closed",null)));
+            try(var round=f.pulse()){assertEquals(MembershipTransport.Reason.CLOSED,assertThrows(MembershipTransport.Failure.class,round::run).reason);}
             assertEquals(2,f.requests.size());
         }
     }
@@ -92,7 +99,7 @@ class V53HeartbeatRoundTest {
     @Test void verifiedHigherRejectFencesBeforeQueuedMajorityCanReturn()throws Exception {
         try(var f=new Fixture()) {
             f.link.set((p,r,k,d)->p.equals(f.first())?f.ack(p,r):CompletableFuture.completedFuture(V53ActivationDriverTest.reject(r,"STALE_EPOCH",true,false)));
-            try(var round=f.pulse()){assertThrows(IllegalArgumentException.class,round::run);}
+            try(var round=f.pulse()){assertEquals(MembershipCampaignLost.Reason.HIGHER_BALLOT,assertThrows(MembershipCampaignLost.class,round::run).reason);}
             assertThrows(IllegalArgumentException.class,f::guard);
         }
     }
@@ -215,7 +222,7 @@ class V53HeartbeatRoundTest {
             assertEquals("PUBLISH_ACK",round.submit("DATA",helper.data(n)).kind());
             assertArrayEquals(barrier.bytes(),round.readiness().bytes());
             var higher=new TreeMap<>(n.ballot);higher.put("counter",number(higher.get("counter"))+1);n.owners.getFirst().observeCurrent(higher);
-            assertThrows(IllegalArgumentException.class,round::readiness);assertEquals(MembershipRoundDriver.State.FAILED,round.state());
+            assertEquals(MembershipCampaignLost.Reason.HIGHER_BALLOT,assertThrows(MembershipCampaignLost.class,round::readiness).reason);assertEquals(MembershipRoundDriver.State.FAILED,round.state());
             Files.write(n.f.raw.resolve("result.json"),canonical(Map.of("status","PASS","slots",2,"network",true,"autonomous",false),4096));
             Files.write(n.f.raw.resolve("round-result.json"),canonical(Map.of("status","PASS","mode","stable","internalReady",true,"publicReady",false),4096));
         }

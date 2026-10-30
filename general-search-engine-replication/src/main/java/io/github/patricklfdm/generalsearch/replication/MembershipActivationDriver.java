@@ -83,6 +83,7 @@ final class MembershipActivationDriver implements AutoCloseable {
     }
     private static IOException failure(String message,Throwable cause) {
         if(cause instanceof Error error)throw error;
+        if(cause instanceof MembershipCampaignLost lost)return lost;
         return new IOException(message,cause);
     }
     /** The returned record is only an installed selection; voting must still check its live owner. */
@@ -163,11 +164,11 @@ final class MembershipActivationDriver implements AutoCloseable {
             try {localImages=(MembershipSourceExport)owner.exportTransfer(own.basis.digest(),own.capsule.context.authority(),campaign.ballot(),clock,started,budget);}
             catch(IOException|RuntimeException error){campaign.close();throw error;}
         }
-        void checkBase()throws IOException {remaining();require(!ended,"activation driver round ended");owner.checkActivation(own.basis,null,false);remaining();}
+        void checkBase()throws IOException {remaining();require(!ended,"activation driver round ended");owner.checkCampaignWait(own.capsule.context.authority(),campaign.ballot());owner.checkActivation(own.basis,null,false);remaining();}
         void check()throws IOException {checkBase();if(history!=null)history.recheck();}
         void waiting()throws IOException {
             waitingRemaining();require(!ended,"activation driver round ended");
-            owner.checkActivationWait(own.capsule.context.authority(),campaign.ballot());
+            owner.checkCampaignWait(own.capsule.context.authority(),campaign.ballot());
         }
         MembershipActivationAncestry.Resolution history(List<MembershipSelection.Source> sources)throws IOException {
             require(history==null,"activation original source set already fixed");
@@ -282,7 +283,8 @@ final class MembershipActivationDriver implements AutoCloseable {
                         own.capsule.context.wire(response,target,own.owner,campaign.ballot(),UUID.fromString((String)frame.value().get("trace")),number(frame.value().get("sequence")));
                         if(response.kind().equals("REJECT")) {
                             var higher=object(object(response.value().get("payload")).get("promised"));own.capsule.context.ballot(higher,true);
-                            if(compareBallot(higher,campaign.ballot())>0){owner.observeCurrent(higher);fatal.compareAndSet(null,new IOException("higher activation promise"));}
+                            if(compareBallot(higher,campaign.ballot())>0){owner.observeCurrent(higher);fatal.compareAndSet(null,
+                                new MembershipCampaignLost(MembershipCampaignLost.Reason.HIGHER_BALLOT,"higher activation promise"));}
                         }
                         return response;
                     });

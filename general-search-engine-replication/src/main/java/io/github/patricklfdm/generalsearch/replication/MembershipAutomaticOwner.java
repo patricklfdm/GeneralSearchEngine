@@ -7,11 +7,11 @@ import java.util.function.LongSupplier;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.Decoded;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** One bounded automatic campaign/service lifetime. All protocol calls are
- * serialized; an error ends the lifetime, never replays a client mutation.
+/** One bounded automatic service lifetime. All protocol calls are serialized;
+ * typed campaign loss may start a fresh round, never replay a client mutation.
  * This private owner exposes no public read/leadership lease or user callbacks. */
 final class MembershipAutomaticOwner implements AutoCloseable {
-    enum State { NEW, STARTING, READY, FAILED, CLOSED }
+    enum State { NEW, STARTING, READY, RESTARTING, FAILED, CLOSED }
     interface Session extends AutoCloseable {
         Decoded start(long originalStarted)throws IOException;
         void idle()throws IOException;
@@ -20,6 +20,7 @@ final class MembershipAutomaticOwner implements AutoCloseable {
         Decoded submit(String kind,byte[] bytes)throws IOException;
         @Override void close()throws IOException;
     }
+    @FunctionalInterface interface Factory {Session open()throws IOException;}
     /** Waiting timeout does not cancel the admitted operation or change its
      * deadline. No externally executable completion callback runs on the owner. */
     static final class Call {
@@ -47,31 +48,42 @@ final class MembershipAutomaticOwner implements AutoCloseable {
         }
         @Override public void close(){input.close();waiter.close();}
     }
-    private final Session session;
+    private Session session;
+    private final Factory next;
+    private final int maximumRounds;
     private final MembershipResources resources;
     private final ReplicationBounds bounds;
     private final LongSupplier clock;
     private final long budget,interval;
     private final MembershipResources.Lease ownership;
     private final ArrayDeque<Work> queue=new ArrayDeque<>();
+    private final List<MembershipCampaignLost.Reason> losses=new ArrayList<>();
     private final Call started=new Call();
     private Thread worker;
     private State state=State.NEW;
     private boolean closed,terminated;
     private Throwable failure;
-    private int pending;
+    private int pending,rounds;
     private long began;
 
     MembershipAutomaticOwner(Session session,MembershipResources resources,ReplicationBounds bounds,AutomaticLeadershipPolicy policy,
             LongSupplier clock,long budget) {
+        this(session,()->{throw new IOException("automatic owner has no next round");},1,resources,bounds,policy,clock,budget);
+    }
+    MembershipAutomaticOwner(Session session,Factory next,int maximumRounds,MembershipResources resources,ReplicationBounds bounds,
+            AutomaticLeadershipPolicy policy,LongSupplier clock,long budget) {
         require(budget>0 && budget<Long.MAX_VALUE/2,"automatic owner budget");
-        this.session=Objects.requireNonNull(session);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
+        this.session=Objects.requireNonNull(session);this.next=Objects.requireNonNull(next);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
+        require(maximumRounds>0 && maximumRounds<=Math.min(MembershipResources.Unit.SOURCE.count,bounds.maxRetryAttempts()),"automatic owner round count");
+        this.maximumRounds=maximumRounds;
         this.clock=Objects.requireNonNull(clock);this.budget=budget;interval=TimeUnit.MILLISECONDS.toNanos(policy.heartbeatIntervalMillis());
         ownership=resources.reserve(MembershipResources.Unit.CONTROL,"automatic-loop-owner",65536);
     }
     synchronized State state(){return state;}
     synchronized Optional<Throwable> failure(){return Optional.ofNullable(failure);}
     synchronized int pending(){return pending;}
+    synchronized int rounds(){return rounds;}
+    synchronized List<MembershipCampaignLost.Reason> losses(){return List.copyOf(losses);}
     synchronized Call start() {
         require(!closed && state==State.NEW,"automatic owner single start");
         began=clock.getAsLong();state=State.STARTING;
@@ -93,19 +105,17 @@ final class MembershipAutomaticOwner implements AutoCloseable {
         long now=clock.getAsLong(),elapsed=now-began;
         require(elapsed>=0 && elapsed<budget,"automatic owner original deadline");return now;
     }
-    private void loop() {
-        Throwable stopped=null;
-        try {
-            time();var barrier=session.start(began);long lastHeartbeat=time();
+    private void serve(Session current)throws IOException,InterruptedException {
+            time();var barrier=current.start(began);long lastHeartbeat=time();
             synchronized(this){require(!closed,"automatic owner closed before ready");state=State.READY;}
             // Arm before exposing startup completion: a caller waking and
             // advancing the clock must not postpone the first due heartbeat.
             started.result.complete(barrier);
             for(;;) {
-                long now=time();session.idle();now=time();
+                long now=time();current.idle();now=time();
                 // Due heartbeats precede queued commands, but a slow sample is
                 // not followed by a burst of missed ticks. It grants no lease.
-                if(now-lastHeartbeat>=interval){session.heartbeat();lastHeartbeat=time();continue;}
+                if(now-lastHeartbeat>=interval){current.heartbeat();lastHeartbeat=time();continue;}
                 Work work;
                 synchronized(this) {
                     time();work=queue.pollFirst();
@@ -115,10 +125,40 @@ final class MembershipAutomaticOwner implements AutoCloseable {
                     }
                 }
                 try {
-                    time();var result=work.kind==null?session.readiness():session.submit(work.kind,work.bytes);time();
+                    time();var result=work.kind==null?current.readiness():current.submit(work.kind,work.bytes);time();
                     work.call.result.complete(result);
                 }catch(IOException|RuntimeException|Error error){work.call.result.completeExceptionally(error);throw error;}
                 finally{work.close();synchronized(this){pending--;}}
+            }
+    }
+    private void closeSession()throws IOException {
+        Session current;synchronized(this){current=session;}
+        if(current!=null) {
+            current.close(); // A failed drain retains the exact child reference.
+            synchronized(this){if(session==current)session=null;}
+        }
+    }
+    private void loop() {
+        Throwable stopped=null;
+        try {
+            for(;;) {
+                Session current;synchronized(this){current=session;rounds++;}
+                try{serve(current);}
+                catch(MembershipCampaignLost lost) {
+                    // Do not infer retryability from message text or a nested
+                    // cause. Cleanup/integrity failures remain terminal.
+                    synchronized(this) {
+                        losses.add(lost.reason);
+                        if(closed || rounds>=maximumRounds || lost.getSuppressed().length!=0)throw lost;
+                        state=State.RESTARTING;
+                    }
+                    rejectQueued(lost);
+                    try{closeSession();}catch(IOException|RuntimeException|Error cleanup){lost.addSuppressed(cleanup);throw lost;}
+                    time();var fresh=Objects.requireNonNull(next.open());
+                    synchronized(this){session=fresh;}
+                    require(fresh!=current,"automatic owner must open a fresh session");time();
+                    // The next start receives began, not the retry's clock.
+                }
             }
         }catch(InterruptedException error){Thread.currentThread().interrupt();stopped=new IOException("automatic owner interrupted",error);}
         catch(IOException|RuntimeException|Error error){stopped=error;}
@@ -127,7 +167,7 @@ final class MembershipAutomaticOwner implements AutoCloseable {
             synchronized(this){if(!closed){state=State.FAILED;failure=stopped;}}
             started.result.completeExceptionally(stopped);rejectQueued(stopped);
             boolean drained=false;
-            try{session.close();drained=true;}
+            try{closeSession();drained=true;}
             catch(IOException|RuntimeException|Error error){stopped.addSuppressed(error);synchronized(this){failure=stopped;}}
             if(drained)ownership.close();
             synchronized(this){terminated=true;notifyAll();}
@@ -144,7 +184,7 @@ final class MembershipAutomaticOwner implements AutoCloseable {
         var error=new IOException("automatic owner closed");started.result.completeExceptionally(error);rejectQueued(error);
         // Native close owns cancellation and drain, including discovery's
         // special handling. Do not blindly interrupt that child from here.
-        session.close();
+        closeSession();
         if(active==Thread.currentThread())return;
         if(active!=null) {
             long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());

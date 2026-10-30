@@ -1,5 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Bounded automatic fresh campaigns](PHASE_3_AUTOMATIC_CAMPAIGNS.md) adds one
+native higher-ballot reactivation history under a single 300-second fixture
+budget. Its physical/fence/READY replay and eighteen negatives pass, but complete
+cross-campaign network replay is still required. Preserve the same original
+bootstrap, both selections, fence, barriers, DATA and close on one filesystem;
+parallelize only independent whole histories. Cold reopen and the full matrix
+remain open.
+
 [Native automatic service](PHASE_3_AUTOMATIC_SERVICE.md) has one source-bound
 local whole-history pass, including original discovery, fresh barrier, scheduled
 heartbeat, queued DATA and close. Preserve its original trace and fixture gates

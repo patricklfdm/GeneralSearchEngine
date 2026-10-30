@@ -145,7 +145,7 @@ class V53RoundDriverTest {
         try(var n=network(null);var round=driver(n,(event,record)->{if(event.equals("BEFORE_READY")) {
             var higher=new TreeMap<>(n.ballot);higher.put("counter",number(higher.get("counter"))+1);n.owners.getFirst().observeCurrent(higher);
         }})) {
-            assertThrows(IllegalArgumentException.class,round::start);assertEquals(MembershipRoundDriver.State.FAILED,round.state());
+            assertEquals(MembershipCampaignLost.Reason.HIGHER_BALLOT,assertThrows(MembershipCampaignLost.class,round::start).reason);assertEquals(MembershipRoundDriver.State.FAILED,round.state());
             assertEquals(1L,n.owners.getFirst().activationContext().cut.get("index"));assertThrows(IllegalArgumentException.class,round::readiness);
         }
     }

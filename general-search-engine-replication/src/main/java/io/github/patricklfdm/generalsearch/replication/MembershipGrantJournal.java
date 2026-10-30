@@ -3117,6 +3117,18 @@ final class MembershipGrantJournal implements AutoCloseable {
         var generation=current;require(generation!=null && generation.capsule.context.authority().equals(view),"activation view changed");
         fence(ballot);
     }
+    /** Typed cancellation for an already-bound campaign, not a storage check
+     * or grant. Keep incoming protocol validation's original errors unchanged. */
+    void checkCampaignWait(String view,Map<String,Object> ballot)throws MembershipCampaignLost {
+        live();var generation=current;require(generation!=null,"current generation required");
+        Objects.requireNonNull(view);Objects.requireNonNull(ballot);
+        if(!generation.capsule.context.authority().equals(view))
+            throw new MembershipCampaignLost(MembershipCampaignLost.Reason.VIEW_CHANGED,"activation view changed");
+        var bound=observed.get();require(bound!=null,"campaign root fence absent");
+        if(compareBallot(bound,ballot)>0)
+            throw new MembershipCampaignLost(MembershipCampaignLost.Reason.HIGHER_BALLOT,"higher ballot observed; fresh campaign required");
+        require(bound.equals(ballot),"campaign fence does not match original ballot");
+    }
     /** Volatile replies cannot outlive the exact live owner, grant, view or installed selection. */
     synchronized void checkActivation(Decoded original,Decoded selected,boolean installed) throws IOException {
         require(current!=null && promise!=null && basis!=null,"activation grant unavailable");checkOwner();

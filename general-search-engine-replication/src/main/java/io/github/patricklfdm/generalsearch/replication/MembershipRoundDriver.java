@@ -79,7 +79,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"native round original deadline");
     }
     private void current()throws IOException {
-        time();var voting=owner.voting(resources);
+        time();owner.checkCampaignWait(authority,ballot);var voting=owner.voting(resources);
         require(selection!=null && owner.originalSelection().orElseThrow().digest().equals(selection.digest())
                 && voting.ballot.equals(ballot) && voting.before.context.authority().equals(authority),"native round selection/authority changed");
         require(voting.before.context.cut.equals(expectedCut),"native round external publication");voting.check();endpoint.checkInstalled();time();
@@ -217,7 +217,13 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     /** Transfer serial invocation ownership to one private automatic control
      * loop. The caller must no longer invoke this driver directly. */
     synchronized MembershipAutomaticOwner automaticOwner(AutomaticLeadershipPolicy policy) {
-        return new MembershipAutomaticOwner(automaticSession(policy),resources,bounds,policy,clock,budget);
+        return new MembershipAutomaticOwner(automaticSession(policy),()->{
+            var fresh=new MembershipRoundDriver<>(owner,endpoint,resources,bounds,transport,
+                scratch.resolveSibling(scratch.getFileName()+"-retry-"+UUID.randomUUID()),clock,budget,maximumCampaigns,
+                configuration,storage,events,slotEvents);
+            try{return fresh.automaticSession(policy);}
+            catch(RuntimeException|Error error){try{fresh.close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
+        },Math.min(3,bounds.maxRetryAttempts()),resources,bounds,policy,clock,budget);
     }
     /** The same native adapter can be instrumented by whole-history tests;
      * its returned heartbeat is diagnostic and never reused as readiness. */
@@ -231,7 +237,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
             public void idle()throws IOException {
                 time();synchronized(MembershipRoundDriver.this) {
                     require(!closed && state==State.READY && runner==null,"automatic owner idle state");
-                    owner.checkActivationWait(authority,ballot);
+                    owner.checkCampaignWait(authority,ballot);
                 }
             }
             public MembershipHeartbeatRound.Contact heartbeat()throws IOException {return MembershipRoundDriver.this.heartbeat();}

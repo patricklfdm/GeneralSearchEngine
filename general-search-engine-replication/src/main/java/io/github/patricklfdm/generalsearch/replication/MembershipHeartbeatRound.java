@@ -58,7 +58,7 @@ final class MembershipHeartbeatRound implements AutoCloseable {
         if(Thread.currentThread().isInterrupted())throw new IOException("heartbeat round interrupted");
         long elapsed=clock.getAsLong()-started;
         require(!closed && elapsed>=0 && elapsed<budget,"heartbeat round closed/original deadline");
-        owner.checkActivationWait(context.authority(),ballot);
+        owner.checkCampaignWait(context.authority(),ballot);
     }
     private final class Attempt implements AutoCloseable {
         final MembershipIdentity peer;
@@ -123,7 +123,7 @@ final class MembershipHeartbeatRound implements AutoCloseable {
             while(!majority(responding)) {
                 waiting();var possible=new HashSet<>(responding);
                 attempts.forEach((node,attempt)->{if(!attempt.exhausted)possible.add(node);});
-                require(majority(possible),"heartbeat majority unavailable");
+                if(!majority(possible))throw new MembershipCampaignLost(MembershipCampaignLost.Reason.CONTACT_UNAVAILABLE,"heartbeat majority unavailable");
                 long remaining=budget-(clock.getAsLong()-started);require(remaining>0,"heartbeat round original deadline");
                 Reply reply;
                 try{reply=replies.poll(Math.min(remaining,TimeUnit.MILLISECONDS.toNanos(50)),TimeUnit.NANOSECONDS);}
@@ -136,7 +136,8 @@ final class MembershipHeartbeatRound implements AutoCloseable {
                     if(failure instanceof MembershipTransport.Failure transport) {
                         if((transport.reason==MembershipTransport.Reason.IO || transport.reason==MembershipTransport.Reason.DEADLINE)
                                 && attempt.retry.attempts()<maximumAttempts){attempt.send();continue;}
-                        if(transport.reason!=MembershipTransport.Reason.PROTOCOL){attempt.exhausted=true;attempt.close();continue;}
+                        if(transport.reason==MembershipTransport.Reason.IO || transport.reason==MembershipTransport.Reason.DEADLINE
+                                || transport.reason==MembershipTransport.Reason.CAPACITY){attempt.exhausted=true;attempt.close();continue;}
                     }
                     if(failure instanceof IOException io)throw io;if(failure instanceof RuntimeException runtime)throw runtime;
                     throw new IOException("heartbeat exchange failed",failure);
