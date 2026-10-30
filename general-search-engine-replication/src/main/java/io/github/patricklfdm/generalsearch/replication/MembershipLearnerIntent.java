@@ -12,7 +12,9 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 final class MembershipLearnerIntent implements AutoCloseable {
     static final String PLAN="intent.json",NEXT="intent.next.json",SOURCE="source";
     private final MembershipLearnerDisposition retained;
-    private MembershipLearnerIntent(MembershipLearnerDisposition retained){this.retained=retained;}
+    private final MembershipLearnerDisposition recoveredPending;
+    private MembershipLearnerIntent(MembershipLearnerDisposition retained){this(retained,null);}
+    private MembershipLearnerIntent(MembershipLearnerDisposition retained,MembershipLearnerDisposition recoveredPending){this.retained=retained;this.recoveredPending=recoveredPending;}
     static Path directory(MembershipLearnerPlan plan){return MembershipLearnerDisposition.directory(plan,MembershipLearnerDisposition.Kind.INTENT);}
 
     static Map<String,Object> match(MembershipLearnerHead head,MembershipFloor.Copy copy)throws IOException {
@@ -80,6 +82,9 @@ final class MembershipLearnerIntent implements AutoCloseable {
     static MembershipLearnerIntent installPublished(MembershipLearnerProgress.PublishedIntent original,MembershipBallotAllocator.Cut cut)throws IOException {
         return new MembershipLearnerIntent(MembershipLearnerDisposition.installPublished(original,cut));
     }
+    static MembershipLearnerIntent resumePublished(MembershipLearnerHead head,MembershipBallotAllocator.Cut cut)throws IOException {
+        var pair=MembershipLearnerDisposition.resumePublished(head,cut);return new MembershipLearnerIntent(pair.intent(),pair.pending());
+    }
     final class Forced {
         private Forced() {}
         MembershipCapsule source()throws IOException{return retained.forcedIntent();}
@@ -93,5 +98,5 @@ final class MembershipLearnerIntent implements AutoCloseable {
     }
     Forced forced()throws IOException {retained.requireStandaloneVoterHandoff();retained.forcedIntent();return new Forced();}
     Map<String,Object> result()throws IOException{return retained.result();}
-    @Override public void close()throws IOException{retained.close();}
+    @Override public void close()throws IOException{MembershipLearnerSource.closeChildren(retained,recoveredPending);}
 }

@@ -1,0 +1,348 @@
+{
+  "actualPendingOwner": true,
+  "archive": {
+    "bytes": 9603653,
+    "path": "target/v53-pending-pair-recovery/component-validation.tar.gz",
+    "sha256": "a97764e2681986c2c4590ae19e441eff67eb323e188a89052c2fbe7ce8caadd1"
+  },
+  "baseCommit": "c1a986c4841095215d8d389db744dac7a691aff1",
+  "codeAndBuildInputsChecked": 1737,
+  "coldPairRecovery": true,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1496,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "corruptOrCopiedOriginalsRefused": true,
+  "developmentNotes": "The first execution exposed an actual reservation-key collision: pending and full histories could contain the same image digest in separate owned files, but cold restoration reused the legacy cancel:<name> image owner on both sides. The pending SOURCE restore now uses a distinct joining-source owner key. Both physical images remain separately charged under the same seven-image allowance. All seven new cases then passed, and both standalone recovery regressions passed on the corrected source. Original failed snapshot/logs/reports remain retained; no resource or timing limit was raised.",
+  "executions": {
+    "pendingpairowners": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingpairowners",
+      "requestedTests": [
+        "V53PendingPublishedRecoveryTest#coldPairReforcesExactOriginalsWithoutASecondReceivingSlot"
+      ],
+      "seconds": 217.28552068999852,
+      "skipped": 0,
+      "tests": 2
+    },
+    "pendingpairqualified": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingRetentionTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingpairqualified",
+      "requestedTests": [
+        "V53PendingPublishedRecoveryTest#originalInterruptedChildIsCompletedAfterBothHistoriesAreValidated+eitherOriginalOrCopiedLinkRefusesBeforeAnyRecoveryMutation+capacityRefusalOnEitherSidePreservesBothOriginalsAndReleasesPartialReservations+failureDuringEitherReforceRevokesTheWholePairAndCanReopenTheSameFiles",
+        "V53LearnerPendingRetentionTest#originalForcedMarkerMovesOnlyTheReceivingCategoryAndSurvivesColdReopen",
+        "V53LearnerIntentTest#forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter"
+      ],
+      "seconds": 621.1590924329939,
+      "skipped": 0,
+      "tests": 7
+    },
+    "pendingpairrecovery": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingRetentionTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest": 7
+      },
+      "exit": 1,
+      "failures": 7,
+      "label": "pendingpairrecovery",
+      "requestedTests": [
+        "V53PendingPublishedRecoveryTest",
+        "V53LearnerPendingRetentionTest#originalForcedMarkerMovesOnlyTheReceivingCategoryAndSurvivesColdReopen",
+        "V53LearnerIntentTest#forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter"
+      ],
+      "seconds": 675.360473683002,
+      "skipped": 0,
+      "tests": 9
+    }
+  },
+  "journalCapacityRefused": true,
+  "latestCases": {
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest#forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter": {
+      "failures": [],
+      "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+      "seconds": 23.967,
+      "snapshot": "pendingpairqualified",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingRetentionTest#originalForcedMarkerMovesOnlyTheReceivingCategoryAndSurvivesColdReopen": {
+      "failures": [],
+      "name": "originalForcedMarkerMovesOnlyTheReceivingCategoryAndSurvivesColdReopen",
+      "seconds": 45.841,
+      "snapshot": "pendingpairqualified",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest#capacityRefusalOnEitherSidePreservesBothOriginalsAndReleasesPartialReservations": {
+      "failures": [],
+      "name": "capacityRefusalOnEitherSidePreservesBothOriginalsAndReleasesPartialReservations",
+      "seconds": 108.172,
+      "snapshot": "pendingpairqualified",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest#coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[1]": {
+      "failures": [],
+      "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[1]",
+      "seconds": 104.946,
+      "snapshot": "pendingpairowners",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest#coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[2]": {
+      "failures": [],
+      "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[2]",
+      "seconds": 105.21,
+      "snapshot": "pendingpairowners",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest#eitherOriginalOrCopiedLinkRefusesBeforeAnyRecoveryMutation": {
+      "failures": [],
+      "name": "eitherOriginalOrCopiedLinkRefusesBeforeAnyRecoveryMutation",
+      "seconds": 115.009,
+      "snapshot": "pendingpairqualified",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest#failureDuringEitherReforceRevokesTheWholePairAndCanReopenTheSameFiles": {
+      "failures": [],
+      "name": "failureDuringEitherReforceRevokesTheWholePairAndCanReopenTheSameFiles",
+      "seconds": 127.879,
+      "snapshot": "pendingpairqualified",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest#originalInterruptedChildIsCompletedAfterBothHistoriesAreValidated(String)[1]": {
+      "failures": [],
+      "name": "originalInterruptedChildIsCompletedAfterBothHistoriesAreValidated(String)[1]",
+      "seconds": 104.245,
+      "snapshot": "pendingpairqualified",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest#originalInterruptedChildIsCompletedAfterBothHistoriesAreValidated(String)[2]": {
+      "failures": [],
+      "name": "originalInterruptedChildIsCompletedAfterBothHistoriesAreValidated(String)[2]",
+      "seconds": 103.671,
+      "snapshot": "pendingpairqualified",
+      "status": "PASS"
+    }
+  },
+  "learnerCapacityRefused": true,
+  "linkedCompletedReopen": true,
+  "linkedJointReopen": true,
+  "nativeJoinedInstallation": false,
+  "originalFirstPreflight": true,
+  "originalPhysicalReplay": false,
+  "originalStandaloneRecoveryRegression": true,
+  "paidCloud": false,
+  "partialChildSourceMoveRecovery": true,
+  "passingTests": 9,
+  "pending": [
+    "complete pending custody/placement/native installation",
+    "coordinator scheduling, alternate-leader continuation, joint FINAL and fresh barrier",
+    "all-profile original physical/history/process qualification"
+  ],
+  "pendingCustody": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "publicReady": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "qualificationBoundary": "Same-JVM close/reopen of actual typed owners and original TCP-acquired sources, conditional old-voter history and injected I/O failures. Both original histories/link and all resource reservations precede the first recovery force. No new forced capability is issued during preflight; linked voter handoff still awaits custody/placement. No independent process-death or physical/history qualification is claimed.",
+  "reports": {
+    "pendingpairowners": {
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[1]",
+            "seconds": 104.946,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[2]",
+            "seconds": 105.21,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "09c786b9c413c24bdf030ec860292f9def2dc8b41c8d78963baa06b977e34690"
+      }
+    },
+    "pendingpairqualified": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+            "seconds": 23.967,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e8797f84dddd27783252e208517e77f925f001325e21aaae74256d07ce1f1ea1"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingRetentionTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "originalForcedMarkerMovesOnlyTheReceivingCategoryAndSurvivesColdReopen",
+            "seconds": 45.841,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "4275bcb35b126a62c77916d523cccdd9e924ed83dd0076ea882704e6187b5d0a"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "originalInterruptedChildIsCompletedAfterBothHistoriesAreValidated(String)[1]",
+            "seconds": 104.245,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "originalInterruptedChildIsCompletedAfterBothHistoriesAreValidated(String)[2]",
+            "seconds": 103.671,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "capacityRefusalOnEitherSidePreservesBothOriginalsAndReleasesPartialReservations",
+            "seconds": 108.172,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "failureDuringEitherReforceRevokesTheWholePairAndCanReopenTheSameFiles",
+            "seconds": 127.879,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "eitherOriginalOrCopiedLinkRefusesBeforeAnyRecoveryMutation",
+            "seconds": 115.009,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "bfb1088cfbef02f1f6fe6acacb9780c34551ed36f0480075351cb5a43ffb05a9"
+      }
+    },
+    "pendingpairrecovery": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+            "seconds": 23.081,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "1631774d4271908d0db6282a108f90501bcba5eceb4a1bd705eb188b96f3ba81"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingRetentionTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "originalForcedMarkerMovesOnlyTheReceivingCategoryAndSurvivesColdReopen",
+            "seconds": 42.051,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "4f33af4b7149d58ed2413972bba2a5143b7a98965b664ae7314395347d444c75"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest": {
+        "cases": [
+          {
+            "failures": [
+              "resource ownership/count"
+            ],
+            "name": "originalInterruptedChildIsCompletedAfterBothHistoriesAreValidated(String)[1]",
+            "seconds": 80.183,
+            "status": "FAIL"
+          },
+          {
+            "failures": [
+              "resource ownership/count"
+            ],
+            "name": "originalInterruptedChildIsCompletedAfterBothHistoriesAreValidated(String)[2]",
+            "seconds": 82.973,
+            "status": "FAIL"
+          },
+          {
+            "failures": [
+              "resource ownership/count"
+            ],
+            "name": "capacityRefusalOnEitherSidePreservesBothOriginalsAndReleasesPartialReservations",
+            "seconds": 85.955,
+            "status": "FAIL"
+          },
+          {
+            "failures": [
+              "Unexpected exception type thrown, expected: <java.io.IOException> but was: <java.lang.IllegalArgumentException>"
+            ],
+            "name": "failureDuringEitherReforceRevokesTheWholePairAndCanReopenTheSameFiles",
+            "seconds": 90.618,
+            "status": "FAIL"
+          },
+          {
+            "failures": [
+              "resource ownership/count"
+            ],
+            "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[1]",
+            "seconds": 107.033,
+            "status": "FAIL"
+          },
+          {
+            "failures": [
+              "resource ownership/count"
+            ],
+            "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[2]",
+            "seconds": 83.918,
+            "status": "FAIL"
+          },
+          {
+            "failures": [
+              "resource ownership/count"
+            ],
+            "name": "eitherOriginalOrCopiedLinkRefusesBeforeAnyRecoveryMutation",
+            "seconds": 89.781,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "8af3a627e9cb103ebde22088c45fb257f8fff2b85097b09ab7c2f0fbf90a7793"
+      }
+    }
+  },
+  "sameJvmReopen": true,
+  "schema": "gse-v53-pending-pair-recovery-component-v1",
+  "singleLearnerSlot": true,
+  "sourceCapacityRefused": true,
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "d307077988694bc701e9cc3a98abb99b73d13b3495bf80b75c8a8d6148e26221",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerIntent.java": "e20f0e2a993cce33b6ee70ce33dcdf26152a56ed4f28cbb7f53b4c22eeef3bd7",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java": "e9602ad397f73d4c3871ed24f249bc8e6de51abb9c317e2ef67f6e5c67682e88",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedRecoveryTest.java": "a12db306a25b3cf961e510b332d4f04b2e39cd745cbbb5902d5300f8920c2dd9"
+  },
+  "sourceSnapshot": "pendingpairqualified",
+  "sourceSnapshotDifferences": {
+    "pendingpairowners": [],
+    "pendingpairrecovery": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java"
+    ]
+  },
+  "status": "PASS_PENDING_PAIR_RECOVERY_COMPONENT",
+  "wholePairFailureRelease": true
+}

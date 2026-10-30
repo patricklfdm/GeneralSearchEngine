@@ -373,6 +373,14 @@ final class MembershipLearnerStore implements AutoCloseable {
         MembershipLearnerDisposition.requireAbsent(MembershipLearnerCancellation.directory(plan.summary()),MembershipLearnerDisposition.Kind.CANCEL);
         require(intent==null || intent.closed(),"learner INTENT already owned");intent=value;
     }
+    void requirePublishedRecovery()throws IOException {
+        check();require(!recoveringPlacement(),"linked pair placement recovery not connected");
+        require((pendingIntent==null || pendingIntent.closed()) && (intent==null || intent.closed()),"linked recovery has a live original owner");
+        MembershipLearnerDisposition.requireAbsent(MembershipLearnerCancellation.directory(plan.summary()),MembershipLearnerDisposition.Kind.CANCEL);
+    }
+    void attachRecoveredPublished(MembershipLearnerDisposition parent,MembershipLearnerDisposition value)throws IOException {
+        requirePublishedRecovery();value.requireLinkedParent(parent);pendingIntent=parent;intent=value;
+    }
     void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
         check();require(complete && intent!=null && !intent.closed(),"learner custody needs matching INTENT");
         result.roots.add(path);owner.collectCustody(result);operation.collectCustody(result);

@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Linked pair recovery](PHASE_3_PENDING_PAIR_RECOVERY.md) now reads and validates
+both original plans before re-forcing either history. It restores the pending
+metadata as SOURCE and the published source as the single LEARNER, preserving
+all original bytes/inodes and bounded image/journal charges. Complete linked
+custody, placement/native installation and Phase 3 qualification remain **OPEN**.
+
 [Linked published retention](PHASE_3_PENDING_PUBLISHED_RETENTION.md) now forces the
 complete published INTENT under an exact original pending-source link. It keeps
 both histories and their existing SOURCE/LEARNER/image reservations. Unlinked

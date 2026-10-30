@@ -1,5 +1,32 @@
 # V5.3 Phase 3 contract amendments
 
+## A52 — original-first pending/full-INTENT pair recovery
+
+An explicit pair recovery entry may reopen A51's linked private plans under the
+same actual typed learner. Read and independently validate both full original
+histories, exact pending ACK and complete retained marker, both plan/inventory
+identities and the original link before re-forcing or renaming either side.
+Reject live/duplicate owners and any CANCEL or placement state. Ordinary
+standalone recovery keeps its original coexistence restrictions.
+
+A complete original retained marker supports restoring pending metadata directly
+under an existing SOURCE reservation; it does not require another LEARNER slot.
+Reserve all original pending SOURCE/JOURNAL/images and child LEARNER/images before
+mutation. All failures close partial reservations and preserve original files.
+A missing/torn pending end or marker cannot coexist legitimately with a linked
+child and is refused. Complete original child plans may finish their exact
+source move; missing/torn child plans are preserved and refused.
+
+Re-force the original pending plan/source, ACK, marker and parents before
+completing the original full INTENT. Check both owners around every exposed force
+boundary. A recovered terminal result requires both sides to finish; a failure
+revokes the whole recovered pair. Closing its handle releases both sides without
+deleting originals. No acquisition retry, new source, new typed receipt or
+resource/time allowance is introduced. No original forced capability is minted
+during preflight. Linked voter handoff remains gated until complete custody and
+placement account for the pending sidecar. Same-JVM owner close/reopen and
+injected I/O qualification do not establish process-death or Phase 3 closure.
+
 ## A51 — original pending/full-INTENT linkage
 
 The completed A50 acquisition can issue one private, live published-source

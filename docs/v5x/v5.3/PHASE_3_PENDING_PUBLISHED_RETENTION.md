@@ -41,3 +41,7 @@ The [component receipt](phase3-evidence/pending-published-retention.json) record
 actual execution and preserved failures. Pair cold recovery, process death,
 native installation, all profiles and independent physical/history replay remain
 separate requirements.
+
+The subsequent [pair recovery component](PHASE_3_PENDING_PAIR_RECOVERY.md) adds
+original-first close/reopen. The voter capability remains gated on complete
+linked custody and placement.
