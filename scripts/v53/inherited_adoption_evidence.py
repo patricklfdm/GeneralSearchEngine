@@ -74,14 +74,15 @@ def required(files):
 
 
 class Walk:
-    def __init__(self, root, *, selected_prefix=None):
+    def __init__(self, root, *, selected_prefix=None, size=4, initial_label='retaining-genesis'):
         self.selected_prefix = selected_prefix
-        self.root = Path(root); self.names = ['node-'+str(i) for i in range(1, 5)]
-        self.group = s.initialize(p.original(self.root, 4, False))
+        need(type(size) is int and 3 <= size <= 5, 'inherited adoption bootstrap size')
+        self.root = Path(root); self.names = ['node-'+str(i) for i in range(1, size+1)]
+        self.group = s.initialize(p.original(self.root, size, False))
         self.group = {n: dict(files, **{u.FILE: u.frame(u.initial(files), {})}) for n, files in self.group.items()}
         self.snapshots = set(); self.futures = {}; self.pending = {}; self.sources = {}; self.intents = {}; self.ends = {}
         self.observed = set()
-        self.match('retaining-genesis')
+        if initial_label is not None: self.match(initial_label)
 
     def match(self, label, group=None):
         p.match(self.root, label, self.group if group is None else group); self.snapshots.add(label)

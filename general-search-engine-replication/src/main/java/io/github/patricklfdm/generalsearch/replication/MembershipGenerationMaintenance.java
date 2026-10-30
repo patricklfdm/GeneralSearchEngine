@@ -67,8 +67,13 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         if(work==null)return;try{work.close();}finally{synchronized(this){pulls.remove(work);}}
     }
     static List<String> copyOrder(MembershipContext context,Set<String> joining) {
+        return copyOrder(context,joining,Set.of());
+    }
+    static List<String> copyOrder(MembershipContext context,Set<String> joining,Set<String> installed) {
         require(joining.size()<=1 && context.voters().containsAll(joining),"maintenance joining identities");
+        require(context.voters().containsAll(installed),"maintenance installed identities");
         return context.voters().stream().sorted(Comparator.<String,Boolean>comparing(n->!joining.contains(n))
+                .thenComparing(n->!installed.contains(n))
                 .thenComparing(Comparator.naturalOrder())).toList();
     }
     void run()throws IOException {
@@ -78,12 +83,24 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         var receiving=new HashMap<String,List<MembershipSourcePull>>();
         var voters=new TreeSet<String>();voters.add(own.owner.nodeId().value());
         var joining=owner.maintenanceJoiningPeers();
+        // The installed cohort has just acknowledged this selected cut. Prefer
+        // it over unrelated voters, but still acquire every complete original
+        // copy: neither that ACK nor this ordering is floor authority. A new
+        // joining owner remains first; before-grant maintenance has no current
+        // installed cohort and retains the ordinary known-voter order.
+        var installed=new HashSet<String>();
+        if(original!=null) {
+            check();
+            for(Object value:MembershipFormat.list(owner.originalSelection().orElseThrow().value().get("sources")))
+                installed.add((String)MembershipFormat.object(value).get("voter"));
+            check();
+        }
         // The complete copies at this floor share the exact current application.
         // Borrow its live physical bytes instead of creating one receiving image
         // per remote copy in addition to the separately accounted floor images.
         try(var images=owner.exportPrefix(MembershipContext.cutDigest(context.cut),ballot,
                 context.authority(),resources,clock,started,budget)) {
-        for(String node:copyOrder(context,joining)) {
+        for(String node:copyOrder(context,joining,installed)) {
             if(quorum(voters) && voters.containsAll(joining))break;if(voters.contains(node))continue;check();
             MembershipSourcePull source=null,generation=null;boolean retain=false;
             try {

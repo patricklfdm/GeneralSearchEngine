@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Heterogeneous discovery](PHASE_3_DISCOVERED_TRANSITION.md) adds the continuous
+5-to-4 stale-survivor/removed-owner producer. Original-first inspection covers
+seven preparation slots, both real TCP adoptions and removed-owner fencing,
+with eleven exact negatives. It remains PARTIAL: complete service-round replay,
+native availability, process cuts, all profiles and automatic elections are open.
+
 [Discovered round entry](PHASE_3_DISCOVERED_ROUND.md) integrates the existing
 discovery/adoption and round components under one original deadline. Complete
 native heterogeneous survivor/removal histories, transfer-source rotation,

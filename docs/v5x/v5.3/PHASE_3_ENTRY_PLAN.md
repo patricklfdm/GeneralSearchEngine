@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Heterogeneous discovery](PHASE_3_DISCOVERED_TRANSITION.md) now has a complete
+native 5-to-4 producer and original-first inspection through both adoptions.
+Its first execution exposed maintenance ordering that consulted an unselected
+voter before the installed cohort. The preference correction preserves complete
+floor authority, fallback and existing limits. Service-round replay and autonomous
+elections remain open; the bounded inspection returns PARTIAL.
+
 [Discovered round entry](PHASE_3_DISCOVERED_ROUND.md) now connects bounded
 known-identity discovery, verified original-prefix adoption and fresh activation
 under one lifetime. STATUS cannot grant service, and a removed identity remains

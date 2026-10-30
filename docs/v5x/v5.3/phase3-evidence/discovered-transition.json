@@ -1,0 +1,874 @@
+{
+  "archive": {
+    "bytes": 40067751,
+    "directories": 5047,
+    "members": 33816,
+    "path": "target/v53-discovered-transition/qualification.tar.gz",
+    "sha256": "63f7eea37100d9e42607f9b21c00e813cfbc4fdcc925d8a370159410097691d4"
+  },
+  "baseCommit": "197877169f1f71db9ae63eb449ef069748cf6497",
+  "correctedControlTiming": {
+    "controls": [
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 11.552077
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "seconds": 12.719893
+          }
+        ],
+        "kind": "PREPARE",
+        "node": "node-4",
+        "request": "fbedea13c1220bea2b8c5ef1be9628094b7f9e90356cb4b05fdbb4dbd8251aeb"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 11.552388
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 12.719669
+          }
+        ],
+        "kind": "PREPARE",
+        "node": "node-1",
+        "request": "fbedea13c1220bea2b8c5ef1be9628094b7f9e90356cb4b05fdbb4dbd8251aeb"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 11.572178
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "seconds": 12.698552
+          }
+        ],
+        "kind": "PREPARE",
+        "node": "node-4",
+        "request": "108c1c8f2b00db48af19e9cb04b3be8b4c69da5cf5dcc308515234c4112e857a"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 11.572391
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 12.698231
+          }
+        ],
+        "kind": "PREPARE",
+        "node": "node-2",
+        "request": "108c1c8f2b00db48af19e9cb04b3be8b4c69da5cf5dcc308515234c4112e857a"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 15.058205
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 20.182285
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 25.239864
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "seconds": 25.398143
+          }
+        ],
+        "kind": "SELECTED",
+        "node": "node-4",
+        "request": "cc01519cdc7cce29fe86551f99bbac9ce2bb7ae2ba844bdcb4c22c3d45e4e378"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 15.058448
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 20.182635
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 25.24008
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.39794
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.409888
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.42147
+          }
+        ],
+        "kind": "SELECTED",
+        "node": "node-1",
+        "request": "cc01519cdc7cce29fe86551f99bbac9ce2bb7ae2ba844bdcb4c22c3d45e4e378"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 15.141155
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 20.247055
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 25.331841
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "seconds": 25.524486
+          }
+        ],
+        "kind": "SELECTED",
+        "node": "node-4",
+        "request": "09509e7098fe9514a2b8649dae0b2fa2684d2b196476e17684db2498aac10c1c"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 15.141387
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 20.247301
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 25.332182
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.524289
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.533266
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.543456
+          }
+        ],
+        "kind": "SELECTED",
+        "node": "node-2",
+        "request": "09509e7098fe9514a2b8649dae0b2fa2684d2b196476e17684db2498aac10c1c"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 34.522252
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 39.611826
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 44.725893
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-4",
+        "request": "dd354101c91953f98200e0cb8066fa7471110cefc52533cae0917c23c6de7ffd"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 34.533089
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 39.642722
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 44.708103
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-4",
+        "request": "f8ed3e982c9173ddae48bf4c9fa52117d009fc478e1c2abae647a444b86e8c87"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 34.549065
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 39.672556
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 44.780661
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 49.743521
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 49.743521
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 49.743521
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-1",
+        "request": "dd354101c91953f98200e0cb8066fa7471110cefc52533cae0917c23c6de7ffd"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 34.568805
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 39.704007
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 44.748969
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 52.167753
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 52.167753
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 52.167753
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-2",
+        "request": "f8ed3e982c9173ddae48bf4c9fa52117d009fc478e1c2abae647a444b86e8c87"
+      }
+    ],
+    "maximumTransportAttempts": 3,
+    "origin": "first-diagnostic-event",
+    "probes": [
+      {
+        "recipient": "node-1",
+        "sender": "node-5",
+        "trace": "4445def6-23a7-493e-8b1e-51585187c290"
+      },
+      {
+        "recipient": "node-1",
+        "sender": "node-4",
+        "trace": "65c3f8f1-ae12-4896-9bb7-80dc0b2b9ccd"
+      },
+      {
+        "recipient": "node-1",
+        "sender": "node-4",
+        "trace": "1efdf598-cbe5-4242-9bf4-4452390efe3e"
+      },
+      {
+        "recipient": "node-2",
+        "sender": "node-4",
+        "trace": "21e1efc8-6119-43b3-952d-4b3cb4deacd5"
+      },
+      {
+        "recipient": "node-1",
+        "sender": "node-4",
+        "trace": "70eb6354-8ec2-4217-8526-c7d0fee004fc"
+      },
+      {
+        "recipient": "node-2",
+        "sender": "node-4",
+        "trace": "ff8a3cc1-0a2b-4aa5-9b2f-ea5dcc21ab53"
+      },
+      {
+        "recipient": "node-2",
+        "sender": "node-1",
+        "trace": "03420177-06e1-4617-aa9b-3635e9cf36b4"
+      },
+      {
+        "recipient": "node-1",
+        "sender": "node-2",
+        "trace": "513dbd93-6014-4fe2-a5c8-3104541f8e4c"
+      },
+      {
+        "recipient": "node-4",
+        "sender": "node-1",
+        "trace": "c86cd5e9-62de-4861-a32d-52dfc52eb07c"
+      },
+      {
+        "recipient": "node-4",
+        "sender": "node-2",
+        "trace": "8debaed7-d92b-4b79-a0d3-95c417994690"
+      }
+    ],
+    "requestLimitSeconds": 5
+  },
+  "correctedInspection": {
+    "negatives": [
+      {
+        "case": "original-application",
+        "reason": "admitted exact slot-4-applied: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offline-owner-repaired",
+        "reason": "admitted exact slot-7-settled: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-observation",
+        "reason": "discovered transition original observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-adoption-fence",
+        "reason": "admitted exact node-5-adopted: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "survivor-selector",
+        "reason": "admitted exact node-4-adopted: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unrelated-owner",
+        "reason": "admitted exact node-4-adopted: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-owner-vote",
+        "reason": "discovered transition removed owner remains fenced",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-delivery",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-adoption",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unverified-hint",
+        "reason": "prefix discovery original cut",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-source-bytes",
+        "reason": "prefix exact data",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "adoptions": 2,
+      "autonomousElection": false,
+      "discovery": [
+        {
+          "exchanges": 10,
+          "node": "node-5",
+          "traces": 3
+        },
+        {
+          "exchanges": 10,
+          "node": "node-4",
+          "traces": 3
+        }
+      ],
+      "fullHistoryQualified": false,
+      "originalFirst": true,
+      "originalSlots": 7,
+      "phase3Complete": false,
+      "scope": "original-prelude-and-adoption-only",
+      "snapshots": 54,
+      "status": "PARTIAL"
+    }
+  },
+  "executions": {
+    "discoverednative": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53DiscoveredTransitionTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "discoverednative",
+      "requestedTests": [
+        "V53DiscoveredTransitionTest"
+      ],
+      "seconds": 355.1256946499925,
+      "skipped": 0,
+      "tests": 1
+    },
+    "discoveredselected": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53DiscoveredTransitionTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "discoveredselected",
+      "requestedTests": [
+        "V53DiscoveredTransitionTest"
+      ],
+      "seconds": 347.6561236629932,
+      "skipped": 0,
+      "tests": 1
+    },
+    "selectedfloor": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningMaintenanceTest": 13,
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceLifetimeTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "selectedfloor",
+      "requestedTests": [
+        "V53JoiningMaintenanceTest",
+        "V53MaintenanceLifetimeTest"
+      ],
+      "seconds": 196.86163103299623,
+      "skipped": 0,
+      "tests": 14
+    }
+  },
+  "fullHistoryQualified": false,
+  "limitations": [
+    "First unchanged-bound history failed on exhausted ACCEPT exchanges after both adoptions and selected installation.",
+    "The corrected native run still failed on ACCEPT exchange deadlines; the ordering change is not a demonstrated timing fix.",
+    "Independent inspection derives bootstrap, seven slots, both original adoptions, 20 wire exchanges and removed-owner final fencing.",
+    "All eleven exact negative variants validate the unmodified originals first.",
+    "This inspector does not qualify selected installation, service slots, all network traffic or floor mutations after adoption.",
+    "Automatic elections, whole-history original replay, process cuts and all seven profiles remain open."
+  ],
+  "originalControlTiming": {
+    "controls": [
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 11.862488
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "seconds": 13.127553
+          }
+        ],
+        "kind": "PREPARE",
+        "node": "node-4",
+        "request": "d445733f36d3593d03d514ac83d650cac2043c848ac76fe10cf26abca968de9b"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 11.862804
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 13.127308
+          }
+        ],
+        "kind": "PREPARE",
+        "node": "node-1",
+        "request": "d445733f36d3593d03d514ac83d650cac2043c848ac76fe10cf26abca968de9b"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 11.882784
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "seconds": 13.146258
+          }
+        ],
+        "kind": "PREPARE",
+        "node": "node-4",
+        "request": "4de20c56aa70facf24d34709bac53a86942a8873a9b0bdd82b1bde5ac8807586"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 11.883099
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 13.146051
+          }
+        ],
+        "kind": "PREPARE",
+        "node": "node-2",
+        "request": "4de20c56aa70facf24d34709bac53a86942a8873a9b0bdd82b1bde5ac8807586"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 15.789334
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 20.845633
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "seconds": 25.761709
+          }
+        ],
+        "kind": "SELECTED",
+        "node": "node-4",
+        "request": "b0c441c5b001edc1b4ec4acd99c9d4dded8843cb194bed7f9b2081eabc9c53fe"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 15.789569
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 20.846999
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.761498
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.772531
+          }
+        ],
+        "kind": "SELECTED",
+        "node": "node-1",
+        "request": "b0c441c5b001edc1b4ec4acd99c9d4dded8843cb194bed7f9b2081eabc9c53fe"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 15.881472
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 20.960742
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "seconds": 25.862568
+          }
+        ],
+        "kind": "SELECTED",
+        "node": "node-4",
+        "request": "5013c4d1a93e91a3a79a66d698e292395af1d2386585096576be92cce5be5d90"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 15.881687
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 20.961227
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.862352
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "seconds": 25.871717
+          }
+        ],
+        "kind": "SELECTED",
+        "node": "node-2",
+        "request": "5013c4d1a93e91a3a79a66d698e292395af1d2386585096576be92cce5be5d90"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 34.802614
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 39.859284
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 44.907138
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-4",
+        "request": "12429c56fb0469f3169b1cd6836837aaf9ddb9daa629e4df474ae673b9c906f4"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 34.823945
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 39.934298
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 44.93592
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 52.260227
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 52.260226
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 52.260226
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-2",
+        "request": "12429c56fb0469f3169b1cd6836837aaf9ddb9daa629e4df474ae673b9c906f4"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 34.830254
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 39.942701
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 44.997323
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-4",
+        "request": "b909f6a2ba6e505fe779ef12f5a4f9a8d92c4acf4089ea8430d991cc339fa3b8"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 34.851473
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 39.971285
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 45.026197
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 49.941532
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 49.941524
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 49.941524
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-1",
+        "request": "b909f6a2ba6e505fe779ef12f5a4f9a8d92c4acf4089ea8430d991cc339fa3b8"
+      }
+    ],
+    "maximumTransportAttempts": 3,
+    "origin": "first-diagnostic-event",
+    "probes": [
+      {
+        "recipient": "node-1",
+        "sender": "node-5",
+        "trace": "d06ecf3f-1df2-4896-96e0-0d63ad2e81b8"
+      },
+      {
+        "recipient": "node-1",
+        "sender": "node-4",
+        "trace": "b67243e2-1d1f-4443-a21e-35254d10fcf9"
+      },
+      {
+        "recipient": "node-1",
+        "sender": "node-4",
+        "trace": "46ecf225-4d7d-4842-b65b-df048003d996"
+      },
+      {
+        "recipient": "node-2",
+        "sender": "node-4",
+        "trace": "c822e7fe-efa9-42bf-9191-dcefb1c25240"
+      },
+      {
+        "recipient": "node-1",
+        "sender": "node-4",
+        "trace": "41112146-1951-49ad-a9ac-61f7c8d7bd31"
+      },
+      {
+        "recipient": "node-2",
+        "sender": "node-4",
+        "trace": "a142c607-0d1b-412f-82d5-42ef3fe4548a"
+      },
+      {
+        "recipient": "node-1",
+        "sender": "node-2",
+        "trace": "aff22d1f-4eea-4a19-a83f-65abd182f780"
+      },
+      {
+        "recipient": "node-2",
+        "sender": "node-1",
+        "trace": "9d64d01a-9a12-4c97-b49a-66be6c74b485"
+      },
+      {
+        "recipient": "node-3",
+        "sender": "node-2",
+        "trace": "c3e861fe-e281-440a-a620-f54e3a6ee5ae"
+      },
+      {
+        "recipient": "node-3",
+        "sender": "node-1",
+        "trace": "26d1382a-46ea-4875-a6d6-f7e96c6b8247"
+      }
+    ],
+    "requestLimitSeconds": 5
+  },
+  "originalInspection": {
+    "negatives": [
+      {
+        "case": "original-application",
+        "reason": "admitted exact slot-4-applied: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offline-owner-repaired",
+        "reason": "admitted exact slot-7-settled: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-observation",
+        "reason": "discovered transition original observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-adoption-fence",
+        "reason": "admitted exact node-5-adopted: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "survivor-selector",
+        "reason": "admitted exact node-4-adopted: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unrelated-owner",
+        "reason": "admitted exact node-4-adopted: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-owner-vote",
+        "reason": "discovered transition removed owner remains fenced",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-delivery",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-adoption",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unverified-hint",
+        "reason": "prefix discovery original cut",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-source-bytes",
+        "reason": "prefix exact data",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "adoptions": 2,
+      "autonomousElection": false,
+      "discovery": [
+        {
+          "exchanges": 10,
+          "node": "node-5",
+          "traces": 3
+        },
+        {
+          "exchanges": 10,
+          "node": "node-4",
+          "traces": 3
+        }
+      ],
+      "fullHistoryQualified": false,
+      "originalFirst": true,
+      "originalSlots": 7,
+      "phase3Complete": false,
+      "scope": "original-prelude-and-adoption-only",
+      "snapshots": 54,
+      "status": "PARTIAL"
+    }
+  },
+  "paidCloud": false,
+  "phase3Closed": false,
+  "pythonTests": 16,
+  "readers": {
+    "scripts/v53/discovered_transition_evidence.py": "ccd5b580d475e4967e8ab1b7fd4a16dcffe0fe96229cb5de9f3069020121c30b",
+    "scripts/v53/inherited_adoption_evidence.py": "a39ccbfa322201355d4b17f3b891d26ce74186a3e147fcdb1eb836f756e53271",
+    "scripts/v53/test_discovered_transition_evidence.py": "ac12cf4c8d89759961a4ed79a5a25be754ca401e4bb3a07b144aac96042392d1"
+  },
+  "schema": "gse-v53-discovered-transition-v1",
+  "snapshots": {
+    "discoverednative": "discoverednative-afd35a8d",
+    "discoveredselected": "discoveredselected-0cba235d",
+    "selectedfloor": "selectedfloor-5537769a"
+  },
+  "status": "PARTIAL"
+}
