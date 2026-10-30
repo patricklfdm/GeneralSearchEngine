@@ -2,10 +2,11 @@
 
 [Bounded automatic fresh campaigns](PHASE_3_AUTOMATIC_CAMPAIGNS.md) now drain a
 typed lost round before opening another under the same original lifetime, with
-no client mutation replay. Conditional boundary tests and one native two-campaign
-history pass; independent reconstruction covers fourteen snapshot groups and
-eighteen negatives. Its full cross-campaign network replay remains PARTIAL.
-Process restart, all transition profiles and Phase 3 closure remain open.
+no client mutation replay. Its native two-campaign history now passes complete
+original replay: fourteen snapshot groups, all 388 exchanges, 68 complete source
+traces and one explicitly unused incomplete trace, plus 47 exact negatives.
+Process restart, admitted-progress ownership, all transition profiles and Phase 3
+closure remain open.
 
 [One complete native automatic service history](PHASE_3_AUTOMATIC_SERVICE.md)
 now passes default-bound election wait, discovery, fresh barrier, scheduled

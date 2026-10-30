@@ -2,8 +2,8 @@
 
 [Bounded automatic fresh campaigns](PHASE_3_AUTOMATIC_CAMPAIGNS.md) adds one
 native higher-ballot reactivation history under a single 300-second fixture
-budget. Its physical/fence/READY replay and eighteen negatives pass, but complete
-cross-campaign network replay is still required. Preserve the same original
+budget. Complete physical/fence/READY/network replay now passes all 388 original
+exchanges and 47 negatives. Preserve the same original
 bootstrap, both selections, fence, barriers, DATA and close on one filesystem;
 parallelize only independent whole histories. Cold reopen and the full matrix
 remain open.

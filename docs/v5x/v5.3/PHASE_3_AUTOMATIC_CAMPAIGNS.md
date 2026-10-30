@@ -63,11 +63,45 @@ pair. The first reader attempt omitted pre-campaign maintenance and that unused
 capture and failed; its diagnostic is retained. The raw Java history was not
 modified or rerun to fix the reader.
 
-`automatic_restart_evidence` deliberately returns **PARTIAL**, even after its
-physical checks and negatives succeed. Complete source transfers, discovery and
-force ordering across both campaigns still need independent network replay.
-It does not establish native process restart, SIGKILL recovery, all membership
-profiles, public readiness or Phase 3 closure.
+`automatic_restart_evidence` deliberately retains its **PARTIAL** result: that
+entry checks physical state and the fence/READY boundaries. The complete network
+continuation below adds its own acceptance rather than widening the older entry.
+
+## Complete original network replay
+
+`automatic_restart_network` now replays this same unchanged native history in
+full. The [network receipt](phase3-evidence/automatic-campaign-network.json)
+binds the original Java execution/source and the new Python reader separately.
+No native workload was rerun and no original evidence was edited.
+
+| Continuous phase | Original exchanges | Source traces |
+| --- | ---: | ---: |
+| First discovery and activation | 28 | 4 |
+| Barrier 1 | 79 | 16 |
+| Higher fence, discovery and second activation | 85 | 10 |
+| Barrier 2 | 87 | 18 |
+| DATA 3 | 109 | 21 |
+| Total | 388 | 69 |
+
+Of the 69 traces, 68 complete their original transfers. The remaining trace
+belongs to the unused node-3 source: its BASIS and PROMISE complete, then its
+CAPSULE offer arrives without the body or commit. The reader checks that exact
+offer against node 3's independently reconstructed capture, without accepting it
+as a usable source. Only the complete selected pair can justify installation.
+
+The replay requires original discovery before allocation, complete maintenance
+copies before floor/retirement, forced grants and delivered replies before
+dependent selection, exact ACCEPT/PROOF receipts, all application endorsements
+(including parent and hidden-ancestor ACKs), and durable future recording on both
+voters before every publication send. It accounts for every wire response and
+delivery, permits only finite identical retries and rejects cross-phase trace
+reuse. The three unselected rejection groups are bound to the exact requests
+derived from their corresponding recording rounds; diagnostics do not vote.
+
+Twenty-nine network negatives plus the eighteen physical/fence negatives reject
+for their declared reasons. Twenty-three focused Python tests pass. This remains
+one controlled three-node history, not native process restart, SIGKILL recovery,
+all membership profiles, public readiness or Phase 3 closure.
 
 ## Reproduction and next gate
 
@@ -75,14 +109,14 @@ profiles, public readiness or Phase 3 closure.
 mvn -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
   -Dsurefire.failIfNoSpecifiedTests=false \
   -Dtest=V53AutomaticCampaignTest,V53CampaignFenceTest,V53AutomaticRestartTest test
-python3 -B -m scripts.v53.automatic_restart_evidence RAW_DIRECTORY --qualify
+python3 -B -m scripts.v53.automatic_restart_network RAW_DIRECTORY --qualify
 ```
 
 The native test prints `v53NativeDispatchEvidence=...`. Keep its entire bootstrap,
 first activation, fence, new election, second activation, DATA and close together
 in one workspace. Hosted parallelism may distribute independent whole histories,
-not stages of this history. Next complete the retained history's network replay,
-then extend automatic ownership to admitted progress and safe process recovery.
+not stages of this history. Next extend automatic ownership to admitted progress
+and safe process recovery.
 The seven membership profiles and complete process/negative matrix remain open.
 
 No POM, workflow, frozen format/resource limits or paid-cloud behavior changes.
