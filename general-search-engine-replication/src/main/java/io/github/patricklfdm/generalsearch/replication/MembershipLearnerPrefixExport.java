@@ -39,6 +39,7 @@ final class MembershipLearnerPrefixExport implements MembershipTransferExport {
     private final MembershipIdentity reader;
     private final boolean progress;
     private final MembershipLearnerRetentionQuorum.Recording recording;
+    private final MembershipGrantJournal.PublishedLearnerSource published;
     private final MembershipResources resources;
     private final MembershipPrefixExport borrow;
     private final Map<String,MembershipSourceExport.Content> references;
@@ -54,8 +55,14 @@ final class MembershipLearnerPrefixExport implements MembershipTransferExport {
     MembershipLearnerPrefixExport(MembershipGrantJournal owner,MembershipIdentity reader,Decoded request,
             MembershipResources resources,LongSupplier clock,long started,long budget,boolean progress,
             MembershipLearnerRetentionQuorum.Recording recording)throws IOException {
+        this(owner,reader,request,resources,clock,started,budget,progress,recording,null);
+    }
+    MembershipLearnerPrefixExport(MembershipGrantJournal owner,MembershipIdentity reader,Decoded request,
+            MembershipResources resources,LongSupplier clock,long started,long budget,boolean progress,
+            MembershipLearnerRetentionQuorum.Recording recording,MembershipGrantJournal.PublishedLearnerSource published)throws IOException {
+        require(published==null || progress && recording==null,"published learner export capability scope");
         this.owner=Objects.requireNonNull(owner);this.reader=Objects.requireNonNull(reader);this.progress=progress;
-        this.recording=recording;this.resources=resources;
+        this.recording=recording;this.published=published;this.resources=resources;
         synchronized(owner) {
             retention();original=owner.activationCapsule();
             require(owner.discoveryState(resources).context()==original.context,"learner prefix shared exclusive owner");
@@ -87,7 +94,8 @@ final class MembershipLearnerPrefixExport implements MembershipTransferExport {
         return scope;
     }
     private void retention()throws IOException {
-        if(recording==null)owner.checkLearnerRetentionExport();else recording.checkExport(owner,reader,resources);
+        if(published!=null)published.checkExport(owner,reader,resources);
+        else if(recording==null)owner.checkLearnerRetentionExport();else recording.checkExport(owner,reader,resources);
     }
     private void check()throws IOException {
         require(!closed && owner.activationCapsule()==original,"learner prefix original generation replaced/closed");

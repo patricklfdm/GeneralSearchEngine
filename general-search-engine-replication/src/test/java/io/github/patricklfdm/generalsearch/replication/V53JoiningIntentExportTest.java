@@ -71,16 +71,26 @@ class V53JoiningIntentExportTest {
     @Test void minimalOldMajorityPublishesJointUsingTheActualJoiningEndpoint()throws Exception {
         nativeJoining(true,true);
     }
+    @Test void minimalOldMajorityPublicationInstallsActualJoiningNativeOwnerAndReopensIt()throws Exception {
+        nativeJoining(true,true,true);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint)throws Exception {
+        nativeJoining(retainPending,publishJoint,false);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
-        try(var n=network.new Network(3,helper.controlBounds(),BUDGET,f->{
+        // The additional complete installation/cold-open scenario has one
+        // declared owner lifetime from its start. Existing scenarios keep
+        // their 12 minutes; no RPC timeout or production bound is changed.
+        long lifetime=installJoined?TimeUnit.MINUTES.toNanos(20):BUDGET;
+        try(var n=network.new Network(3,helper.controlBounds(),lifetime,f->{
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learners")){owner.initializeLearnerRetention();}
-        },true);var round=helper.driver(n,MembershipRoundDriver.Events.NONE,BUDGET)) {
+        },true);var round=helper.driver(n,MembershipRoundDriver.Events.NONE,lifetime)) {
             // The short Network.activate helper fixes a 180-second campaign.
-            // This complete typed-learner history uses one declared 12-minute
+            // This complete typed-learner history uses one declared
             // owner lifetime from its start, without extending any RPC timeout.
             n.transports.get(2).close();round.start();assertEquals(List.of(0,1),n.voters);
             int port;try(var socket=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){port=socket.getLocalPort();}
@@ -104,6 +114,7 @@ class V53JoiningIntentExportTest {
                         round.submit("READY",canonical(Map.of("number",1L,"receipt",typed.receipt().value().get("receipt")),8192));
                         publish(n,"SEAL",Map.of("number",1L));var before=owner.activationContext();var first=initial(request,targets.getFirst(),before.cut);
                         System.out.println("v53JoiningIntentStage=sealed");
+                        if(installJoined)assertThrows(IllegalArgumentException.class,()->owner.publishedLearnerSource(joining,resources));
                         // A SEALED catalog alone cannot mint an original pending source.
                         assertThrows(IllegalArgumentException.class,()->new MembershipJoiningIntentExport(owner,joining,first,resources,
                                 System::nanoTime,System.nanoTime(),BUDGET));
@@ -193,19 +204,129 @@ class V53JoiningIntentExportTest {
                                         }
                                         Files.write(n.f.raw.resolve("joining-ack-wire.json"),canonical(ackWire,1024*1024));
                                         System.out.println("v53JoiningIntentStage=joint-published-by-old-majority");
+                                        if(installJoined) {
+                                            // Consume the actual retained owner and native published
+                                            // source. No fixture history, decoded replacement owner
+                                            // or direct checkpoint insertion supplies this joining end.
+                                            progress.close();var retained=pending.retainSource();Decoded nativeBasis;long nativeCounter;
+                                            var confirmationWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+                                            try(var headEndpoint=retained.listenHead(n.bounds,(event,q,a)->{
+                                                if(event.equals("BEFORE_RESPONSE_WRITE"))confirmationWire.add(V53SelectedPullTest.wire(q,a));
+                                            })) {
+                                                for(int voter:n.voters) {
+                                                    var sourceOwner=n.owners.get(voter);var sourcePool=n.resources.get(voter);
+                                                    assertEquals(List.of(3L,5L),sourceOwner.learnerRetentionState().plan().recorded().stream().map(a->number(a.cut().get("index"))).toList());
+                                                    try(var probe=new MembershipLearnerHeadProbe(sourceOwner,joining,sourcePool,n.bounds,
+                                                            n.transports.get(voter)::exchange,System::nanoTime,System.nanoTime(),BUDGET)) {
+                                                        var received=probe.run();assertEquals(5L,number(received.endpoint().cut().get("index")));
+                                                        assertThrows(IllegalArgumentException.class,()->received.confirmation(n.owners.get(1-voter),n.resources.get(1-voter)));
+                                                        var confirmed=sourceOwner.retainLearnerConfirmation(received);
+                                                        assertEquals(List.of(5L),confirmed.plan().recorded().stream().map(a->number(a.cut().get("index"))).toList());
+                                                        var ledger=object(parse(confirmed.plan().bytes(),MembershipLearnerRetentionPlan.MAXIMUM));
+                                                        assertEquals(List.of(3L),list(ledger.get("renewals")).stream().map(v->number(object(object(v).get("cut")).get("index"))).toList());
+                                                        assertTrue(ledger.containsKey("confirmation"));
+                                                        Files.write(n.f.raw.resolve("joining-confirmed-node-"+(voter+1)+".json"),canonical(ledger,MembershipLearnerRetentionPlan.MAXIMUM));
+                                                    }
+                                                }
+                                            }
+                                            // Published-prefix permits are issued only by the exact
+                                            // native owner; bare/foreign capabilities remain refused.
+                                            var permit=owner.publishedLearnerSource(joining,resources);
+                                            permit.checkExport(owner,joining,resources);
+                                            assertThrows(IllegalArgumentException.class,()->permit.checkExport(n.owners.get(1),joining,n.resources.get(1)));
+                                            assertThrows(IllegalArgumentException.class,()->permit.checkExport(owner,targets.getFirst(),resources));
+                                            assertThrows(IllegalArgumentException.class,()->permit.checkExport(owner,joining,pool));
+                                            assertThrows(IllegalArgumentException.class,owner::checkLearnerRetentionExport);
+                                            assertThrows(IllegalArgumentException.class,()->owner.publishedLearnerSource(targets.get(1),resources));
+                                            var originalLedger=owner.learnerRetentionState();
+                                            var readRequest=frame(request,targets.getFirst(),UUID.randomUUID(),1,"CHUNK",Map.of("id",UUID.randomUUID().toString(),
+                                                    "action","REQUEST","offset",0L,"bytes","","digest",MembershipLearnerProgressAccess.reference(request,owner.activationContext().cut,"prefix")));
+                                            assertThrows(IllegalArgumentException.class,()->new MembershipLearnerPrefixExport(owner,joining,readRequest,resources,
+                                                    System::nanoTime,System.nanoTime(),BUDGET,true));
+                                            try(var export=new MembershipLearnerPrefixExport(owner,joining,readRequest,resources,
+                                                    System::nanoTime,System.nanoTime(),BUDGET,true,null,permit)) {
+                                                assertFalse(export.references().isEmpty());
+                                            }
+                                            assertEquals(originalLedger,owner.learnerRetentionState());
+                                            Files.write(n.f.raw.resolve("joining-head-wire.json"),canonical(confirmationWire,1024*1024));
+                                            assertEquals(2,confirmationWire.size());
+                                            System.out.println("v53JoiningIntentStage=both-old-voters-confirmed-original-sealed-source");
+                                            try(var published=new MembershipLearnerProgress(retained,targets.getFirst(),n.bounds,
+                                                    MembershipTransport.Events.NONE,System::nanoTime,System.nanoTime(),BUDGET)) {
+                                                published.fetch(temp.resolve("joining-published-progress"));
+                                                assertEquals(originalLedger,owner.learnerRetentionState(),"configured-member read does not add learner uncertainty");
+                                                assertEquals(6L,number(published.source().capsule.context.cut.get("index")));
+                                                System.out.println("v53JoiningIntentStage=original-joint-source-received");
+                                                try(var intent=published.retainPublishedIntent(e->{})) {
+                                                    published.close();
+                                                    try(var stage=MembershipLearnerVoterStage.install(intent.forced(),e->{});
+                                                            var custody=MembershipLearnerCustody.take(stage.readyCapability(),e->{});
+                                                            var placement=MembershipLearnerPlacement.install(custody,e->{})) {
+                                                        var joined=MembershipLearnerJoinedAdmission.install(placement,builder().configuration(),config,e->{});
+                                                        MembershipLearnerJoinedOriginal.verify(joined,builder().configuration(),config);
+                                                        joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-placed"));
+                                                        System.out.println("v53JoiningIntentStage=actual-joined-placement");
+                                                        try(var retired=MembershipLearnerJoinedRetirement.retire(joined,builder().configuration(),config,e->{});
+                                                                var journal=MembershipGrantJournal.openJoined(retired,builder().configuration(),config,e->{})) {
+                                                            assertEquals(1,pool.usage().counts().get(MembershipResources.Unit.GENERATION));
+                                                            assertFalse(pool.usage().counts().containsKey(MembershipResources.Unit.SOURCE));
+                                                            nativeCounter=journal.reserveCounter();nativeBasis=journal.prepareCurrent(Map.of("counter",nativeCounter,
+                                                                    "proposer",joining.nodeId().value(),"incarnation",joining.storageId().toString()));
+                                                            assertEquals("BASIS",nativeBasis.kind());assertEquals("node-4",nativeBasis.value().get("voter"));
+                                                            new V53MembershipOwnershipTest().probe(request.replicaDirectory().resolve("replica.lock"));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            assertEquals(0,pool.usage().leases());
+                                            try(var journal=MembershipGrantJournal.reopenJoined(plan,pool,builder().configuration(),config,e->{})) {
+                                                assertArrayEquals(nativeBasis.bytes(),journal.prepareCurrent(Map.of("counter",nativeCounter,
+                                                        "proposer",joining.nodeId().value(),"incarnation",joining.storageId().toString())).bytes());
+                                                assertTrue(journal.reserveCounter()>nativeCounter);
+                                            }
+                                            assertEquals(0,pool.usage().leases());
+                                            joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-native"));
+                                            Files.write(n.f.raw.resolve("joining-native-basis.gsr"),nativeBasis.bytes());
+                                            assertFalse(Files.exists(request.replicaDirectory().resolve(MembershipBootstrapAdmissionData.FILE)));
+                                            System.out.println("v53JoiningIntentStage=actual-joined-native-cold-reopened");
+                                        }
                                     }
                                 }
                             }
                             if(!publishJoint)guardChecks(n,request,first);
                             Files.write(n.f.raw.resolve("joining-intent-wire.json"),canonical(wire,8*1024*1024));
                             Files.write(n.f.raw.resolve("joining-intent-result.json"),canonical(Map.of("status","PASS","oldVoters",List.of("node-1","node-2"),
-                                    "nativeHistory",true,"typedLearner",true,"newSideEndForced",retainPending,"publishedJoint",publishJoint,"publicReady",false),4096));
+                                    "nativeHistory",true,"typedLearner",true,"newSideEndForced",retainPending,"publishedJoint",publishJoint,"nativeJoined",installJoined,"publicReady",false),4096));
                         }
                     }
                 }
             }
             assertEquals(0,pool.usage().leases());
         }
+    }
+    /** Retain actual predecessor/native files for later independent replay.
+     * Shared read descriptors preserve live POSIX ownership during capture. */
+    private static void joinedSnapshot(MembershipLearnerPlan plan,Path materialization,Path output)throws Exception {
+        Files.createDirectory(output);var roots=new TreeMap<>(MembershipLearnerPlacement.originalRoots(plan));
+        roots.put("custody",MembershipLearnerCustody.directory(plan));roots.put("placement",MembershipLearnerPlacement.directory(plan));
+        roots.put("retirement",MembershipLearnerJoinedRetirement.directory(plan));roots.put("nativeOwner",MembershipJoinedOwner.directory(plan));roots.put("materialization",materialization);
+        var inventory=MembershipLearnerCustody.capture(roots,null);
+        for(var row:roots.entrySet())if(Files.exists(row.getValue())) {
+            Path destination=Files.createDirectory(output.resolve(row.getKey()));
+            try(var paths=Files.walk(row.getValue())) {
+                for(Path source:paths.toList()) {
+                    Path to=destination.resolve(row.getValue().relativize(source));
+                    if(Files.isDirectory(source)){if(!Files.exists(to))Files.createDirectory(to);}
+                    else try(var input=MembershipFileAccess.open(source,StandardOpenOption.READ);
+                            var target=java.nio.channels.FileChannel.open(to,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE)) {
+                        var buffer=java.nio.ByteBuffer.allocate(65536);
+                        while(input.read(buffer)>0){buffer.flip();while(buffer.hasRemaining())target.write(buffer);buffer.clear();}
+                    }
+                }
+            }
+        }
+        assertEquals(inventory,MembershipLearnerCustody.capture(roots,null));
+        Files.write(output.resolve("inventory.json"),canonical(inventory,1024*1024));
     }
     private void guardChecks(V53NativeDispatchTest.Network n,MembershipLearnerRequest request,Decoded first)throws Exception {
         var owner=n.owners.getFirst();var resources=n.resources.getFirst();var joining=request.identity();

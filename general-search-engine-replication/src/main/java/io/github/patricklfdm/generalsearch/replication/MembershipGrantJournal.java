@@ -532,6 +532,28 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized void checkLearnerRetentionExport()throws IOException {
         checkOwner();require(learnerRetention==null,"learner source export requires replicated retention permit");
     }
+    /** Read-only current-prefix authority for the original joining identity
+     * already present in a locally forced JOINT/completed history. This is not
+     * a learner reservation ACK, election source quorum or new voter grant. */
+    final class PublishedLearnerSource {
+        private final MembershipCapsule original;
+        private final MembershipIdentity learner;
+        private PublishedLearnerSource(MembershipIdentity learner,MembershipResources pool)throws IOException {
+            require(ownedHistory && current!=null,"published learner native original required");
+            checkLearnerRetentionResources(pool);this.learner=learner;original=current.capsule;checkExport(MembershipGrantJournal.this,learner,pool);
+        }
+        void checkExport(MembershipGrantJournal source,MembershipIdentity reader,MembershipResources pool)throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                require(source==MembershipGrantJournal.this && reader.equals(learner) && resources==pool,
+                        "published learner foreign owner/reader/resources");
+                checkLearnerRetentionResources(pool);require(current.capsule==original,"published learner original generation replaced");
+                MembershipLearnerProgressAccess.publishedSource(original,current.ancestry(),learner,identity,learnerRetention.state().plan());
+            }
+        }
+    }
+    synchronized PublishedLearnerSource publishedLearnerSource(MembershipIdentity learner,MembershipResources pool)throws IOException {
+        return new PublishedLearnerSource(learner,pool);
+    }
     synchronized boolean learnerRetentionRequired()throws IOException {checkOwner();return learnerRetention!=null;}
 
     synchronized void checkLearnerRetentionResources(MembershipResources budget)throws IOException {

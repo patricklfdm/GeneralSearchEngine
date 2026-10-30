@@ -1,5 +1,14 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Published joining-source export](PHASE_3_PUBLISHED_LEARNER_SOURCE.md) binds
+configured-member progress to its actual native current source and original
+retained operation. Ordinary nonvoting learner exports retain their majority
+requirement. Seven Java cases pass, including actual old-two-of-three JOINT
+publication through native joining installation and same-JVM reopen. Old-voter
+lock probes, new-member FINAL/barrier and full qualification remain outstanding;
+Phase 3 remains **OPEN**.
+
+
 [Pending-source confirmation](PHASE_3_PENDING_HEAD_CONFIRMATION.md) addresses the
 retained native third-source refusal with actual per-owner QUERY/ACK and forced
 ledger updates. Focused component checks do not replace the remaining joint

@@ -78,6 +78,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         final MembershipResources.Lease marker;
         volatile MembershipSourceSession session;
         volatile MembershipLearnerRetentionQuorum.Recording recording;
+        volatile MembershipGrantJournal.PublishedLearnerSource publishedLearner;
         String completedRequest;
         Decoded completedReply;
         volatile boolean dead,released;
@@ -101,7 +102,9 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     if(learnerPrefix || learnerProgress) {
                         MembershipLearnerPrefixExport.checkRequest(context,key.reader,identity,request,!learnerPrefix);
                         if(owner.learnerRetentionRequired()) {
-                            require(learnerServing!=null,"learner serving quorum link required");recording=learnerServing.get(key.reader);
+                            if(learnerProgress && context.voters().contains(key.reader.nodeId().value()))
+                                publishedLearner=owner.publishedLearnerSource(key.reader,resources);
+                            else {require(learnerServing!=null,"learner serving quorum link required");recording=learnerServing.get(key.reader);}
                         }
                     }else if(prefix && !joiningIntent && !context.voters().contains(key.reader.nodeId().value()) && owner.learnerRetentionRequired()) {
                         require(MembershipLearnerDiscovery.rootReference(context,key.reader,digest),"learner source requires reserved alias");
@@ -111,7 +114,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                             prefix && MembershipLearnerDiscovery.rootReference(context,key.reader,digest)?
                             new MembershipLearnerRootExport(owner,key.reader,request,resources,clock,started,budget):
                             learnerPrefix || learnerProgress?
-                            new MembershipLearnerPrefixExport(owner,key.reader,request,resources,clock,started,budget,!learnerPrefix,recording):
+                            new MembershipLearnerPrefixExport(owner,key.reader,request,resources,clock,started,budget,!learnerPrefix,recording,publishedLearner):
                             prefix?owner.exportPrefix(digest,object(request.value().get("ballot")),
                             (String)request.value().get("view"),resources,clock,started,budget):
                             publication!=null && publication.published()?owner.exportPublishedCheckpoint(publication,digest,clock,started,budget):
@@ -136,7 +139,10 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                 return reply;
             }catch(IOException|RuntimeException|Error error){abort();throw error;}
         }
-        void checkRecording()throws IOException {var active=recording;if(active!=null)active.checkExport(owner,key.reader,resources);}
+        void checkRecording()throws IOException {
+            var active=recording;if(active!=null)active.checkExport(owner,key.reader,resources);
+            var published=publishedLearner;if(published!=null)published.checkExport(owner,key.reader,resources);
+        }
         boolean liveSession(){return session!=null && !dead && !released;}
         synchronized void abort(){dead=true;completedRequest=null;completedReply=null;if(session!=null){session.close();session=null;}}
         synchronized void close(){abort();if(!released){released=true;marker.close();}}

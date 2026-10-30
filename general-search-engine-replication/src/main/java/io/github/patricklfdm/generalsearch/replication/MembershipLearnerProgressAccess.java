@@ -40,6 +40,18 @@ final class MembershipLearnerProgressAccess {
         require(nodes(old,"old").contains(voter.nodeId().value()),"learner confirmation requester not original voter");
         return original;
     }
+    /** Pure binding check, not an export permit. After local publication the
+     * joining identity may read the current prefix like any configured member;
+     * this does not establish its local installation or voting eligibility. */
+    static void publishedSource(MembershipCapsule current,byte[] ancestry,MembershipIdentity learner,
+            MembershipIdentity source,MembershipLearnerRetentionPlan retained) {
+        var context=current.context;var original=headRequest(context,learner,source);
+        require(context.voters().contains(learner.nodeId().value()),"published learner not configured");
+        var plan=object(parse(retained.bytes(),MembershipLearnerRetentionPlan.MAXIMUM));
+        require(original.equals(plan.get("request")) && MembershipPeerRetentionPlan.identity(learner).equals(plan.get("learner")),
+                "published learner original retained request");
+        retained.required(current,ancestry);
+    }
     static String reference(MembershipLearnerRequest learner,Map<String,Object> cut,String scope) {
         return reference(learner.root().manifestDigest(),learner.identity(),MembershipLearnerDiscovery.request(learner.change()),cut,scope);
     }

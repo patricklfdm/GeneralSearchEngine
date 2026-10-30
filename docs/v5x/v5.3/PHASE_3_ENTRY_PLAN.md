@@ -1,5 +1,14 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Published joining-source export](PHASE_3_PUBLISHED_LEARNER_SOURCE.md) binds
+configured-member progress to its actual native current source and original
+retained operation. Ordinary nonvoting learner exports retain their majority
+requirement. Seven Java cases pass, including actual old-two-of-three JOINT
+publication through native joining installation and same-JVM reopen. Old-voter
+lock probes, new-member FINAL/barrier and full qualification remain outstanding;
+Phase 3 remains **OPEN**.
+
+
 [Pending-source confirmation](PHASE_3_PENDING_HEAD_CONFIRMATION.md) connects the
 actual retained SEALED source to each old voter's durable progress confirmation.
 It preserves the two-endpoint bound and prior renewal debt; Phase 3 remains

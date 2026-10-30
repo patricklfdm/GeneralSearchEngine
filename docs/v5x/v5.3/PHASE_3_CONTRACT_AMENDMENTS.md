@@ -1,5 +1,28 @@
 # V5.3 Phase 3 contract amendments
 
+## A55 — exact configured-member progress after published INTENT
+
+A native owner may issue a private current-prefix permit for the exact original
+joining identity already present in its verified JOINT/completed configuration.
+Bind the unchanged current capsule, actual owner/resources, permanent request and
+retained learner ledger ancestry. Only the original prepared joining identity
+and a still-current original source voter qualify. No decoded evidence supplies
+the permit; non-native history owners cannot issue one.
+
+The permit adapts the already permitted read-only configured-member prefix route
+to the exact original progress alias. It does not establish learner installation,
+voting eligibility, election sources, a quorum ACK or peer progress. Preserve
+all existing learner possibilities and renewal debt without appending a new
+nonvoting endpoint. Recheck actual ownership, current-generation identity and
+complete original binding on creation, reads and cached completion responses.
+
+Pre-JOINT nonvoting exports retain their real replicated-retention requirement.
+A foreign/bare permit, pre-JOINT or retired operation, missing/conflicting ledger
+or replaced/closed native owner refuses. No public format, resource cap, production
+time allowance or stable/joint majority rule changes. See
+[published original joining source](PHASE_3_PUBLISHED_LEARNER_SOURCE.md).
+
+
 ## A54 — actual retained pending-source confirmation after publication
 
 Permit only the private forced pending SOURCE owner to observe its original
