@@ -70,18 +70,51 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
     /** Own acquisition through force completion and dispatch handoff. The hint
      * is routing data; only the acquisition's original owner may initialize. */
     void initialize(MembershipJoiningRetentionCampaign.Hint prepared)throws IOException {
-        Objects.requireNonNull(prepared);initialTime();
-        require(handoff.state()==MembershipEndpointHandoff.State.READ_ONLY,"joining initialization requires read-only endpoint");
+        initialize(Objects.requireNonNull(prepared),null);
+    }
+    /** The permanent old proposer publishes only an ephemeral routing hint.
+     * Fetch it on the same bounded channel before reading exact original sources. */
+    void initializeFrom(MembershipIdentity proposer)throws IOException {initialize(null,Objects.requireNonNull(proposer));}
+    private void initialize(MembershipJoiningRetentionCampaign.Hint supplied,MembershipIdentity proposer)throws IOException {
+        initialTime();require(handoff.state()==MembershipEndpointHandoff.State.READ_ONLY,"joining initialization requires read-only endpoint");
         var admitted=new java.util.concurrent.atomic.AtomicBoolean();
         try {
             initialization.execute(()->{
-                admitted.set(true);initialTime();var acquisition=new MembershipJoiningRetentionAcquisition(owner,resources,bounds,link,
-                        this::initialTime,clock,started,budget,prepared);
+                admitted.set(true);initialTime();
                 return new MembershipInitializationTask.Action(){
+                    private MembershipSourcePull pending;
+                    private MembershipJoiningRetentionAcquisition acquisition;
+                    private boolean cancelled;
                     @Override public void run()throws IOException {
-                        acquisition.fetch();initialTime();owner.initializeJoinedRetention(acquisition);initialTime();activate();
+                        // Keep encoded/decoded routing data charged until the
+                        // admitted transaction exits, including concurrent close.
+                        try(var routing=proposer==null?null:resources.reserve(MembershipResources.Unit.CONTROL,
+                                "joining-hint-receive-"+UUID.randomUUID(),4L*MembershipJoiningPreparation.MAXIMUM)) {
+                            var hint=supplied;
+                            if(proposer!=null) {
+                                var original=owner.joiningRetentionPreparation(resources);var context=original.capsule.context;
+                                require(proposer.equals(context.identities.get(proposer.nodeId().value()))
+                                        && MembershipContext.nodes(context.view,"old").contains(proposer.nodeId().value()),"joining preparation known old proposer");
+                                var read=MembershipSourcePull.prefix(owner,new MembershipDiscovery.Hint(proposer,context.cut,false),resources,bounds,link,
+                                        MembershipJoiningEndpoint.this::initialTime,clock,started,budget);
+                                synchronized(this){if(cancelled){read.close();throw new IOException("joining hint read cancelled before admission");}pending=read;}
+                                try(read){
+                                    byte[] raw=read.fetchPrefixMetadata(MembershipJoiningPreparation.reference(context,owner.activationIdentity()),MembershipJoiningPreparation.MAXIMUM);
+                                    initialTime();original.check();hint=MembershipJoiningPreparation.read(raw,context,owner.activationIdentity(),proposer);
+                                }
+                                synchronized(this){pending=null;}
+                            }
+                            initialTime();var made=new MembershipJoiningRetentionAcquisition(owner,resources,bounds,link,
+                                    MembershipJoiningEndpoint.this::initialTime,clock,started,budget,hint);
+                            synchronized(this){if(cancelled){made.close();throw new IOException("joining source read cancelled before admission");}acquisition=made;}
+                            made.fetch();initialTime();owner.initializeJoinedRetention(made);initialTime();activate();
+                        }
                     }
-                    @Override public void close(){acquisition.close();}
+                    @Override public void close()throws IOException {
+                        MembershipSourcePull read;MembershipJoiningRetentionAcquisition acquired;
+                        synchronized(this){cancelled=true;read=pending;acquired=acquisition;}
+                        try{if(acquired!=null)acquired.close();}finally{if(read!=null)read.close();}
+                    }
                 };
             });
         }catch(IOException|RuntimeException|Error error){

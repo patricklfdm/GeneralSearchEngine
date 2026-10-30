@@ -1,0 +1,128 @@
+{
+  "archive": {
+    "bytes": 38378580,
+    "path": "target/v53-joining-hint-handoff/component-validation.tar.gz",
+    "sha256": "47d53c7ad785ada910ca076175394a7dc6c650186cc7215a6589833d9d3b3a42"
+  },
+  "archiveMembers": 17420,
+  "automaticCoordinatorConnected": false,
+  "baseCommit": "b477d1ee58b18d72826a2a86d465b0cf62df37bc",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1576,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "deferred": [
+    "actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier",
+    "alternative-old-majorities-and-all-profiles",
+    "native-tcp-hint-acquisition-initialization-and-cold-resume",
+    "close-racing-admitted-native-initialization",
+    "original-process-death-recovery",
+    "maximum-combined-resources",
+    "automatic-runtime-scheduling-and-inter-owner-handoff"
+  ],
+  "executions": {
+    "joininghintwire": {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "joininghintwire",
+      "requestedTests": [
+        "V53JoiningPreparationTest",
+        "V53JoiningEndpointTest",
+        "V53InitializationTaskTest"
+      ],
+      "seconds": 16.751591031003045,
+      "skipped": 0,
+      "tests": 0
+    },
+    "joininghintwirefinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 13,
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest": 7,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionCampaignTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest": 16
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joininghintwirefinal",
+      "requestedTests": [
+        "V53JoiningPreparationTest",
+        "V53JoiningEndpointTest",
+        "V53InitializationTaskTest",
+        "V53JoiningRetentionCampaignTest",
+        "V53JoiningRetentionNetworkTest",
+        "V53TransferServiceTest",
+        "V53ActivationEndpointTest"
+      ],
+      "seconds": 243.5412605570018,
+      "skipped": 0,
+      "tests": 59
+    },
+    "joininghintwirefixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest": 6
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joininghintwirefixed",
+      "requestedTests": [
+        "V53JoiningPreparationTest",
+        "V53JoiningEndpointTest",
+        "V53InitializationTaskTest"
+      ],
+      "seconds": 22.192756511998596,
+      "skipped": 0,
+      "tests": 16
+    },
+    "joininghintwirequalified": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joininghintwirequalified",
+      "requestedTests": [
+        "V53JoiningPreparationTest",
+        "V53JoiningEndpointTest",
+        "V53InitializationTaskTest"
+      ],
+      "seconds": 21.52204613100912,
+      "skipped": 0,
+      "tests": 17
+    }
+  },
+  "finalCodeAndBuildInputsChecked": 1313,
+  "nativeHistoryExecuted": false,
+  "paidCloud": false,
+  "phase3Closed": false,
+  "publicRuntime": false,
+  "remoteHintHandoffImplemented": true,
+  "retainedFailures": {
+    "joininghintwire": "negative test used inferred wildcard ArrayList and attempted to append; test compilation refused it"
+  },
+  "schema": "gse-v53-joining-hint-handoff-component-v1",
+  "scope": "ephemeral-original-proposer-routing-over-existing-frames",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "6e5968f45547041c083c6d3d4bba84c3e776affa2ace0dd5f586aff48c2559ec",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningEndpoint.java": "3a1fcafc771fa7c6751d81cc1e3739f7e9e94941496fc4c23b7ef5a22e09d11a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparation.java": "3471f3122d74c1ff888b0ce9d542c0a91e9dde3bd286550035df9fcf0dd5cc66",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionCampaign.java": "6d9eef70a948271f1ab7010f42a794b15b6327c164a07414fec88c08b4149642",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java": "27333c206298e7b5ff8a2c0ce00804f40b3bf4dbf629ab8c7110aba8dfb23ee7",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "2ba9674a15e299ac6bd57e49155cf8900c1b1ec90bf80ed4bdff7c6157289820",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningPreparationTest.java": "353d6b87a73379a6e321763665f1e9dad62edf2516060122ede02eabc0ad3567"
+  },
+  "status": "PASS"
+}

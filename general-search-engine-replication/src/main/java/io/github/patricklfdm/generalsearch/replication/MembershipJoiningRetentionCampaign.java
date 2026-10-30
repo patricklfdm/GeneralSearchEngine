@@ -46,6 +46,7 @@ final class MembershipJoiningRetentionCampaign implements AutoCloseable {
     private boolean used;
     private Thread runner;
     private volatile OldSide exchange;
+    private volatile MembershipJoiningPreparation publication;
 
     MembershipJoiningRetentionCampaign(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,MembershipResources resources,
             ReplicationBounds bounds,MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,
@@ -85,14 +86,20 @@ final class MembershipJoiningRetentionCampaign implements AutoCloseable {
             endpoint.serve(campaign);check();
             var step=new OldSide(campaign,owner,resources,bounds,link,()->check(),clock,started,budget,joining);
             synchronized(this){if(closed){step.close();throw new IOException("joining preparation closed before old-side exchange");}exchange=step;}
-            try(step){return step.run();}finally{exchange=null;}
+            try(step){
+                var hint=step.run();check();var made=new MembershipJoiningPreparation(owner,resources,hint,()->check(),clock,started,budget);
+                synchronized(this){if(closed){made.close();throw new IOException("joining preparation closed before publication");}publication=made;}
+                endpoint.publishJoiningPreparation(made);check();return hint;
+            }finally{exchange=null;}
         }catch(IOException|RuntimeException|Error error) {
+            var published=publication;if(published!=null)endpoint.revokeJoiningPreparation(published);
             var active=campaign;if(active!=null)try{endpoint.abandon(active.ballot());}catch(RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;
         }finally{finished.countDown();}
     }
     @Override public void close()throws IOException {
         boolean running;Thread worker;OldSide wait;
         synchronized(this){closed=true;running=used && finished.getCount()!=0;worker=runner;wait=exchange;}
+        var published=publication;if(published!=null)endpoint.revokeJoiningPreparation(published);
         if(wait!=null)wait.close();if(running && worker!=Thread.currentThread())worker.interrupt();
         var work=maintenance;if(work!=null)work.close();
         if(running && worker!=Thread.currentThread())try{require(finished.await(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"joining preparation close timeout");}

@@ -1,5 +1,29 @@
 # V5.3 Phase 3 contract amendments
 
+## A64 — ephemeral joining preparation routing publication
+
+After the actual old majority is prepared, publish a bounded canonical routing
+hint through the old proposer's existing transfer endpoint. Bind exact local
+BASIS/ballot, root, JOINT cut, joining identity, original preparation guard and
+local deadline. Close, expiry, selection and changed original authority revoke
+new reads. This ephemeral metadata payload introduces no persisted record or
+new frozen wire frame and proves no remote majority force.
+
+The joining endpoint obtains the hint through ordinary bounded reads under its
+own original deadline. Do not transfer monotonic-clock authority between hosts.
+Validate canonical fields, proposer, member set and identity; then separately
+acquire and validate every exact original source before native initialization.
+No hint or conditional fixture can replace the original-owner capability.
+Preserve existing identical transport retries and explicit-rejection handling.
+
+Charge each publication/export 32 KiB and receiving routing data 64 KiB to
+existing CONTROL capacity. Retain receiver accounting through admitted force
+completion on concurrent close. Exact completed read-reply caches retain their
+existing semantics and confer no additional authority. Native whole-history,
+process, maximum-resource and autonomous orchestration gates remain required.
+
+See [joining hint handoff](PHASE_3_JOINING_HINT_HANDOFF.md).
+
 ## A63 — managed initialization retains admitted force ownership
 
 The actual joining endpoint owns one acquisition/initialization/handoff operation.

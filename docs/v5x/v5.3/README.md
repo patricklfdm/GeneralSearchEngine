@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Joining preparation hint handoff](PHASE_3_JOINING_HINT_HANDOFF.md) now publishes
+bounded routing data on the old proposer's endpoint and lets the new owner fetch
+it through existing transfer frames before managed initialization. The native
+whole history no longer directly passes the hint between owners, but remains
+compiled/deferred. Election/proposer discovery, complete autonomous orchestration
+and full native/process qualification remain open; Phase 3 is **OPEN**.
+
 [Owned joining initialization](PHASE_3_JOINING_INITIALIZATION.md) now owns
 acquisition, durable initialization and private voting handoff under the original
 deadline. Close cancels reads and drains admitted force work without interrupting

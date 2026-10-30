@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining preparation hint handoff](PHASE_3_JOINING_HINT_HANDOFF.md) now publishes
+bounded routing data on the old proposer's endpoint and lets the new owner fetch
+it through existing transfer frames before managed initialization. The native
+whole history no longer directly passes the hint between owners, but remains
+compiled/deferred. Election/proposer discovery, complete autonomous orchestration
+and full native/process qualification remain open; Phase 3 is **OPEN**.
+
 [Owned joining initialization](PHASE_3_JOINING_INITIALIZATION.md) now owns
 acquisition, durable initialization and private voting handoff under the original
 deadline. Close cancels reads and drains admitted force work without interrupting
@@ -382,7 +389,9 @@ mvn -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
 The actual old proposer must run the native old-side preparation step over TCP
 under the same deadline as the subsequent acquisition. The new owner's temporary
 listener must serve only STATUS and complete prefix/generation reads for governing
-floor maintenance, refusing votes before initialization. Its acquisition must use
+floor maintenance, refusing votes before initialization. The old preparation
+scope must remain alive while the new endpoint obtains its canonical routing hint
+through actual TCP, without a directly injected Hint object. Acquisition must use
 the exact root/cut/ballot/BASIS hint and revalidate all original source bytes.
 The actual joining directory must acquire its old-majority fragments through TCP,
 force the original three-ledger initialization, participate with the surviving old

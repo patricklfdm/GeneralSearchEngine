@@ -11,6 +11,8 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * or voting authority. The owner loop must poll expiry and close on campaign replacement.
  * A failed trace remains a bounded tombstone until this whole scope closes. */
 final class MembershipTransferService implements MembershipTransport.Handler,AutoCloseable {
+    @FunctionalInterface interface PreparationLookup {MembershipTransferExport open(MembershipIdentity reader,Decoded request)throws IOException;}
+    private final PreparationLookup preparations;
     private record Key(MembershipIdentity reader,UUID trace) {}
     record Usage(int traces,int live,int calls,boolean closed) {}
     private final MembershipGrantJournal owner;
@@ -38,26 +40,30 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
     }
     MembershipTransferService(MembershipGrantJournal owner,Map<String,Object> ballot,MembershipResources resources,
             ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipTransport.Events events)throws IOException {
-        this(owner,ballot,resources,bounds,guard,clock,started,budget,events,false,null,null);
+        this(owner,ballot,resources,bounds,guard,clock,started,budget,events,false,null,null,null);
     }
     static MembershipTransferService prefix(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget)throws IOException {
-        return new MembershipTransferService(owner,Map.of(),resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,true,null,null);
+        return new MembershipTransferService(owner,Map.of(),resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,true,null,null,null);
     }
     static MembershipTransferService prefix(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipSourcePull.Link link)throws IOException {
-        return new MembershipTransferService(owner,Map.of(),resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,true,null,link);
+        return new MembershipTransferService(owner,Map.of(),resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,true,null,link,null);
+    }
+    static MembershipTransferService prefix(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
+            MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipSourcePull.Link link,PreparationLookup preparations)throws IOException {
+        return new MembershipTransferService(owner,Map.of(),resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,true,null,link,preparations);
     }
     static MembershipTransferService publication(MembershipGrantJournal owner,MembershipGrantJournal.Publication publication,
             MembershipResources resources,ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget)throws IOException {
-        return new MembershipTransferService(owner,publication.ballot,resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,false,publication,null);
+        return new MembershipTransferService(owner,publication.ballot,resources,bounds,guard,clock,started,budget,MembershipTransport.Events.NONE,false,publication,null,null);
     }
     private MembershipTransferService(MembershipGrantJournal owner,Map<String,Object> ballot,MembershipResources resources,
-            ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipTransport.Events events,boolean prefix,MembershipGrantJournal.Publication publication,MembershipSourcePull.Link learnerLink)throws IOException {
+            ReplicationBounds bounds,MembershipSourcePull.Guard guard,LongSupplier clock,long started,long budget,MembershipTransport.Events events,boolean prefix,MembershipGrantJournal.Publication publication,MembershipSourcePull.Link learnerLink,PreparationLookup preparations)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"transfer service time budget");this.prefix=prefix;this.publication=publication;
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
         this.guard=Objects.requireNonNull(guard);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
-        this.events=Objects.requireNonNull(events);
+        this.events=Objects.requireNonNull(events);this.preparations=preparations;
         context=publication==null?owner.activationContext():publication.before.context;identity=owner.activationIdentity();if(!prefix)context.ballot(ballot,true);this.ballot=Map.copyOf(ballot);
         learnerServing=learnerLink==null?null:new MembershipLearnerRetentionServing(owner,context,resources,learnerLink,clock,started,budget);
         frameLimit=Math.min(FRAME,bounds.maxFrameBytes());chunkLimit=Math.min(4*1024*1024,bounds.snapshotChunkBytes());
@@ -100,6 +106,8 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     boolean learnerProgress=prefix && MembershipLearnerProgressAccess.scope(context,key.reader,digest)!=null;
                     boolean joiningIntent=prefix && MembershipJoiningIntentExport.reference(context,key.reader,digest);
                     boolean joiningRetention=prefix && MembershipJoiningRetentionExport.reference(context,key.reader,digest);
+                    boolean preparation=prefix && MembershipJoiningPreparation.reference(context,key.reader,digest);
+                    if(preparation)require(preparations!=null,"joining preparation not published");
                     if(learnerPrefix || learnerProgress) {
                         MembershipLearnerPrefixExport.checkRequest(context,key.reader,identity,request,!learnerPrefix);
                         if(owner.learnerRetentionRequired()) {
@@ -110,7 +118,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     }else if(prefix && !joiningIntent && !context.voters().contains(key.reader.nodeId().value()) && owner.learnerRetentionRequired()) {
                         require(MembershipLearnerDiscovery.rootReference(context,key.reader,digest),"learner source requires reserved alias");
                     }
-                    var export=joiningRetention?
+                    var export=preparation?preparations.open(key.reader,request):joiningRetention?
                             new MembershipJoiningRetentionExport(owner,key.reader,request,resources,clock,started,budget):joiningIntent?
                             new MembershipJoiningIntentExport(owner,key.reader,request,resources,clock,started,budget):
                             prefix && MembershipLearnerDiscovery.rootReference(context,key.reader,digest)?

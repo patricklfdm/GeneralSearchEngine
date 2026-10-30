@@ -37,6 +37,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private final Object prefixRegistry=new Object();
     private volatile MembershipTransferService prefixService;
     private volatile boolean closed;
+    private volatile MembershipJoiningPreparation joiningPreparation;
     private Control control;
     private int waiters;
 
@@ -265,7 +266,18 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private void releaseEndedControl() {
         synchronized(registry){if(control!=null && control.finished && control.active.ended){control.close();control=null;}}
     }
-    private void expire(){var active=scope;if(active!=null && active.expired())active.close();var prefix=prefixService;if(prefix!=null)prefix.poll();releaseEndedControl();}
+    private void expire(){var active=scope;if(active!=null && active.expired())active.close();var prefix=prefixService;if(prefix!=null)prefix.poll();
+        var preparation=joiningPreparation;if(preparation!=null && !preparation.poll())revokeJoiningPreparation(preparation);releaseEndedControl();}
+    void publishJoiningPreparation(MembershipJoiningPreparation publication)throws IOException {
+        Objects.requireNonNull(publication).belongsTo(owner,resources);
+        synchronized(registry){require(!closed && joiningPreparation==null,"joining preparation endpoint occupied/closed");joiningPreparation=publication;}
+    }
+    void revokeJoiningPreparation(MembershipJoiningPreparation publication) {
+        synchronized(registry){if(joiningPreparation==publication)joiningPreparation=null;}publication.close();
+    }
+    private MembershipTransferExport preparation(MembershipIdentity reader,Decoded request)throws IOException {
+        var publication=joiningPreparation;require(publication!=null && !closed,"joining preparation not published/closed");return publication.open(reader,request);
+    }
     private Decoded prefix(MembershipIdentity sender,Decoded request,long received)throws IOException {
         var active=prefixService;
         if(active!=null && active.contains(sender,request))return active.handle(sender,request);
@@ -275,6 +287,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         if(!MembershipPrefixExport.reference(current,reference) && !MembershipLearnerDiscovery.rootReference(current,sender,reference)
                 && !MembershipJoiningIntentExport.reference(current,sender,reference)
                 && !MembershipJoiningRetentionExport.reference(current,sender,reference)
+                && !MembershipJoiningPreparation.reference(current,sender,reference)
                 && MembershipLearnerPrefixExport.scope(current,sender,reference)==null
                 && MembershipLearnerProgressAccess.scope(current,sender,reference)==null)return null;
         synchronized(prefixRegistry) {
@@ -282,7 +295,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             if(active==null || !active.poll() || !active.sameCut(current.cut)) {
                 if(active!=null)active.close();
                 prefixService=active=MembershipTransferService.prefix(owner,resources,bounds,
-                        ()->{require(!closed,"prefix endpoint closed");scratchOwner.check();},clock,received,budget,link);
+                        ()->{require(!closed,"prefix endpoint closed");scratchOwner.check();},clock,received,budget,link,this::preparation);
             }
         }
         return active.handle(sender,request);
@@ -406,6 +419,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public void close()throws IOException {
         synchronized(registry){closed=true;if(control!=null)control.result.completeExceptionally(new IOException("activation endpoint closed"));}
+        var preparation=joiningPreparation;if(preparation!=null)revokeJoiningPreparation(preparation);
         expiry.shutdownNow();IOException failure=null;
         try{synchronized(prefixRegistry){if(prefixService!=null)prefixService.close();}}
         catch(RuntimeException error){failure=new IOException("activation prefix close failed",error);}
