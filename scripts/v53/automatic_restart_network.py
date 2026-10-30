@@ -134,8 +134,8 @@ class Phase:
         return dict(exchanges=len(self.entries),transfers=self.transfer_count,unusedIncompleteTransfers=self.unfinished,_traces=self.used)
 
 
-def maintenance(phase, before, owner, ballot, lower, upper):
-    peer = next(v for v in VOTERS if v != owner)
+def maintenance(phase, before, owner, ballot, lower, upper, *, voters=VOTERS):
+    peer = next(v for v in voters if v != owner)
     floor = phase.at(owner,'FLOOR_PARENT_FORCED')
     phase.ordered(owner,['FLOOR_COPIES_FORCED','FLOOR_AUTHORITY_FORCED','FLOOR_PARENT_FORCED','FLOOR_BEFORE_RETURN',
         'RETENTION_PARENT_FORCED','RETENTION_PARENT_FORCED','RETIREMENT_DELETE_VALIDATED','RETIREMENT_CLEARED',
@@ -211,78 +211,84 @@ def activate(root, events, entries, start, stop, identities, number):
     return phase.finish()
 
 
-def slot(root, events, entries, start, stop, identities, index):
-    before = group(root,'installed-1' if index == 1 else 'installed-2' if index == 2 else 'published-2')
+def slot(root, events, entries, start, stop, identities, index, *, before_stage=None, voters=VOTERS, received_requests=False):
+    # Both callers physically reconstruct these exact snapshots first. A cold
+    # reopen may select a different peer whose own future ledger starts lower;
+    # its revision is derived from that original frame, never from slot number.
+    # Receive-only events are allowed only after the caller validates raw sends.
+    before = group(root,before_stage or ('installed-1' if index == 1 else 'installed-2' if index == 2 else 'published-2'))
+    need(voters in (('node-1','node-2'),('node-1','node-3')), 'restart network stable pair')
+    peer = voters[1]; unused = next(node for node in identities if node not in voters)
     applied = group(root,f'applied-{index}'); published = group(root,f'published-{index}')
     selected_raw = c.current(before['node-1'])[1]['selected.gsr']; selected = f.decode(selected_raw,'records','SELECTED'); ballot = selected['ballot']
     frames,_ = c.pending(applied['node-1']['pending.accept'],('PROOF','CERTIFICATE'))
     phase = Phase(events,entries,start,stop,identities)
     for value in phase.entries:
-        need(value['request']['ballot'] == ballot and value['request']['sender']['node'] in VOTERS
-             and value['request']['recipient']['node'] in VOTERS,'restart network current slot authority')
-    for node in VOTERS:
-        maintenance(phase,before,node,ballot,start,phase.at(node,'ACCEPT_PARENT_FORCED'))
+        need(value['request']['ballot'] == ballot and value['request']['sender']['node'] in voters
+             and value['request']['recipient']['node'] in voters,'restart network current slot authority')
+    for node in voters:
+        maintenance(phase,before,node,ballot,start,phase.at(node,'ACCEPT_PARENT_FORCED'),voters=voters)
         phase.ordered(node,['ACCEPT_PARENT_FORCED','PROOF_PARENT_FORCED','CERTIFICATE_PARENT_FORCED','APPLY_ACK_DIRECTORY_FORCED',
             'FUTURE_RETENTION_PARENT_FORCED','PUBLICATION_SELECTOR_FORCED','FUTURE_RETENTION_PROMOTED','PUBLICATION_BEFORE_RETURN'])
-    need(not any(v['node']=='node-3' for v in events[start+1:stop]), 'restart network no unselected slot work')
+    need(not any(v['node']==unused and not (received_requests and v['event']=='NETWORK_REQUEST') for v in events[start+1:stop]),
+         'restart network no unselected slot work')
     def observed(node,kind):return f.canonical(dict(root=selected['root'],voter=node,incarnation=identities[node]['storage'],
         phase=kind,record=e.digest(frames[kind])))
-    for kind in ('ACCEPT','ENTRY') + (('PAYLOAD',) if index == 3 else ()):
-        phase.transfer('node-2','node-1',record(frames[kind]),ballot,phase.at('node-1','ACCEPT_PARENT_FORCED'),phase.at('node-2','ACCEPT_PARENT_FORCED'))
-    phase.transfer('node-2','node-1',record(observed('node-1','ACCEPT'),True),ballot,
-        phase.at('node-1','ACCEPT_PARENT_FORCED'),phase.at('node-2','ACCEPT_PARENT_FORCED'))
-    phase.transfer('node-1','node-2',record(observed('node-2','ACCEPT'),True),ballot,
-        phase.at('node-2','ACCEPT_PARENT_FORCED'),phase.at('node-1','PROOF_PARENT_FORCED'))
-    phase.transfer('node-2','node-1',record(frames['PROOF']),ballot,
-        phase.at('node-1','PROOF_PARENT_FORCED'),phase.at('node-2','PROOF_PARENT_FORCED'))
-    phase.transfer('node-2','node-1',record(observed('node-1','ACCEPT'),True),ballot,
-        phase.at('node-2','ACCEPT_PARENT_FORCED'),phase.at('node-2','PROOF_PARENT_FORCED'))
-    phase.transfer('node-1','node-2',record(observed('node-2','PROOF'),True),ballot,
-        phase.at('node-2','PROOF_PARENT_FORCED'),phase.at('node-1','CERTIFICATE_PARENT_FORCED'))
-    phase.transfer('node-2','node-1',record(frames['CERTIFICATE']),ballot,
-        phase.at('node-1','CERTIFICATE_PARENT_FORCED'),phase.at('node-2','CERTIFICATE_PARENT_FORCED'))
+    for kind in ('ACCEPT','ENTRY') + (('PAYLOAD',) if f.decode(frames['ENTRY'],'records','ENTRY')['kind'] == 'DATA' else ()):
+        phase.transfer(peer,'node-1',record(frames[kind]),ballot,phase.at('node-1','ACCEPT_PARENT_FORCED'),phase.at(peer,'ACCEPT_PARENT_FORCED'))
+    phase.transfer(peer,'node-1',record(observed('node-1','ACCEPT'),True),ballot,
+        phase.at('node-1','ACCEPT_PARENT_FORCED'),phase.at(peer,'ACCEPT_PARENT_FORCED'))
+    phase.transfer('node-1',peer,record(observed(peer,'ACCEPT'),True),ballot,
+        phase.at(peer,'ACCEPT_PARENT_FORCED'),phase.at('node-1','PROOF_PARENT_FORCED'))
+    phase.transfer(peer,'node-1',record(frames['PROOF']),ballot,
+        phase.at('node-1','PROOF_PARENT_FORCED'),phase.at(peer,'PROOF_PARENT_FORCED'))
+    phase.transfer(peer,'node-1',record(observed('node-1','ACCEPT'),True),ballot,
+        phase.at(peer,'ACCEPT_PARENT_FORCED'),phase.at(peer,'PROOF_PARENT_FORCED'))
+    phase.transfer('node-1',peer,record(observed(peer,'PROOF'),True),ballot,
+        phase.at(peer,'PROOF_PARENT_FORCED'),phase.at('node-1','CERTIFICATE_PARENT_FORCED'))
+    phase.transfer(peer,'node-1',record(frames['CERTIFICATE']),ballot,
+        phase.at('node-1','CERTIFICATE_PARENT_FORCED'),phase.at(peer,'CERTIFICATE_PARENT_FORCED'))
     for kind in ('ACCEPT','PROOF'):
-        phase.transfer('node-2','node-1',record(observed('node-1',kind),True),ballot,
-            phase.at('node-2','PROOF_PARENT_FORCED'),phase.at('node-2','CERTIFICATE_PARENT_FORCED'))
-    for node in VOTERS:
-        peer = next(v for v in VOTERS if v != node)
-        for name,raw in applied[peer].items():
+        phase.transfer(peer,'node-1',record(observed('node-1',kind),True),ballot,
+            phase.at(peer,'PROOF_PARENT_FORCED'),phase.at(peer,'CERTIFICATE_PARENT_FORCED'))
+    for node in voters:
+        other = next(v for v in voters if v != node)
+        for name,raw in applied[other].items():
             if name.startswith('applied-end/') and name.endswith('ack.gsr'):
-                phase.transfer(node,peer,record(raw),ballot,phase.at(peer,'APPLY_ACK_DIRECTORY_FORCED'),phase.at(node,'PUBLICATION_SELECTOR_FORCED'))
+                phase.transfer(node,other,record(raw),ballot,phase.at(other,'APPLY_ACK_DIRECTORY_FORCED'),phase.at(node,'PUBLICATION_SELECTOR_FORCED'))
     for kind,key in (('ACCEPT','acceptance'),('PROOF','proof')):
-        phase.control(kind,'node-1','node-2',{key:e.digest(frames[kind])},kind+'_ACK',
-            dict(entry=e.digest(frames['ENTRY']),receipt=e.digest(observed('node-2',kind))),ballot,
-            phase.at('node-2',kind+'_PARENT_FORCED'),phase.at('node-1',('PROOF' if kind=='ACCEPT' else 'CERTIFICATE')+'_PARENT_FORCED'))
+        phase.control(kind,'node-1',peer,{key:e.digest(frames[kind])},kind+'_ACK',
+            dict(entry=e.digest(frames['ENTRY']),receipt=e.digest(observed(peer,kind))),ballot,
+            phase.at(peer,kind+'_PARENT_FORCED'),phase.at('node-1',('PROOF' if kind=='ACCEPT' else 'CERTIFICATE')+'_PARENT_FORCED'))
     certificate = e.digest(frames['CERTIFICATE']); payload = dict(certificate=certificate,selection=e.digest(selected_raw))
-    phase.control('APPLY','node-1','node-2',payload,'APPLY_ACK',dict(payload,
-        statement=e.digest(applied['node-2']['applied-end/statement.gsr']),acknowledgement=e.digest(applied['node-2']['applied-end/ack.gsr'])),
-        ballot,phase.at('node-2','APPLY_ACK_DIRECTORY_FORCED'),phase.recording('node-1'))
+    phase.control('APPLY','node-1',peer,payload,'APPLY_ACK',dict(payload,
+        statement=e.digest(applied[peer]['applied-end/statement.gsr']),acknowledgement=e.digest(applied[peer]['applied-end/ack.gsr'])),
+        ballot,phase.at(peer,'APPLY_ACK_DIRECTORY_FORCED'),phase.recording('node-1'))
     parent = c.anchor(c.current(before['node-1'])[2]['capsule']); upper = c.anchor(c.current(published['node-1'])[2]['capsule'])
-    intent = dict(selection=e.digest(selected_raw),certificate=certificate,peer=identities['node-2'],lower=parent,parent=parent,upper=upper)
-    future_frames = {}; revisions = set()
-    for node in VOTERS:
+    intent = dict(selection=e.digest(selected_raw),certificate=certificate,peer=identities[peer],lower=parent,parent=parent,upper=upper)
+    future_frames = {}; revisions = {}
+    for node in voters:
         files = applied[node]; raw = files[n.future.FILE]
-        revision = json.loads(raw[48:48+int.from_bytes(raw[44:48],'big')])['revision']+1; revisions.add(revision)
+        revision = json.loads(raw[48:48+int.from_bytes(raw[44:48],'big')])['revision']+1; revisions[node] = revision
         records = {k:files['applied-end/'+k] for k in ('selector.gsr','certificate.gsr','catalog.gsr','statement.gsr','ack.gsr')}
         local = c.current(files)[1]; records.update({k:local[k] for k in ('promise.gsr','selected.gsr')})
         records.update({kind.lower()+'.gsr':frames[kind] for kind in ('ENTRY','ACCEPT','PROOF')})
         future_frames[node] = n.future.frame(dict(n.future.initial(files),revision=revision,previous=e.digest(raw),
-            parent=parent,peers=[dict(identity=identities['node-2'],lower=parent)]),records)
+            parent=parent,peers=[dict(identity=identities[peer],lower=parent)]),records)
         promoted = n.future.frame(dict(n.future.initial(files),revision=revision+1,previous=e.digest(future_frames[node])),{})
         need(published[node][n.future.FILE] == promoted,'restart network original future recording')
-    need(revisions == {2*index-1}, 'restart network exact future revision')
     quorum = phase.at('node-1','FUTURE_QUORUM_COMPLETE')
-    need(events[quorum] == dict(node='node-1',event='FUTURE_QUORUM_COMPLETE',index=index,voters=list(VOTERS)),
+    need(events[quorum] == dict(node='node-1',event='FUTURE_QUORUM_COMPLETE',index=index,voters=list(voters)),
          'restart network actual recording majority')
     need(phase.recording('node-1') < quorum,'restart network local recording before quorum')
-    _,trace,future_rows = phase.control('FUTURE_RETENTION_INTENT','node-1','node-2',intent,'FUTURE_RETENTION_ACK',
-        dict(intent=e.digest(f.canonical(intent)),storage='FUTURE',revision=2*index-1,digest=e.digest(future_frames['node-2'])),
-        ballot,phase.recording('node-2'),quorum,sequence=2)
-    prefix,_,packet = c.current(published['node-2'])
-    _,_,rows = phase.control('PUBLISH','node-1','node-2',dict(certificate=certificate),'PUBLISH_ACK',
+    _,trace,future_rows = phase.control('FUTURE_RETENTION_INTENT','node-1',peer,intent,'FUTURE_RETENTION_ACK',
+        dict(intent=e.digest(f.canonical(intent)),storage='FUTURE',revision=revisions[peer],digest=e.digest(future_frames[peer])),
+        ballot,phase.recording(peer),quorum,sequence=sorted(identities).index(peer)+1)
+    prefix,_,packet = c.current(published[peer])
+    _,_,rows = phase.control('PUBLISH','node-1',peer,dict(certificate=certificate),'PUBLISH_ACK',
         dict(certificate=certificate,selection=e.digest(selected_raw),published=c.anchor(packet['capsule']),
-             generation=e.digest(published['node-2'][prefix+'generation.gsr'])),ballot,
-        phase.at('node-2','PUBLICATION_BEFORE_RETURN'),phase.at('node-1','PUBLICATION_SELECTOR_FORCED'),sequence=4,trace=trace)
+             generation=e.digest(published[peer][prefix+'generation.gsr'])),ballot,
+        phase.at(peer,'PUBLICATION_BEFORE_RETURN'),phase.at('node-1','PUBLICATION_SELECTOR_FORCED'),sequence=4,trace=trace)
     sends = [(i,v) for i,v in enumerate(events) if start < i < stop and v['event']=='PUBLICATION_SEND_BOUNDARY']
     hashes = {e.digest(base64.b64decode(v['row']['request'],validate=True)) for v in rows}
     need(sends and all(quorum < i and v['node']=='node-1' and v['request'] in hashes for i,v in sends)
@@ -291,7 +297,7 @@ def slot(root, events, entries, start, stop, identities, index):
     for row in rows:
         digest = e.digest(base64.b64decode(row['row']['request'],validate=True))
         need(any(v['request']==digest and i < row['offered'] for i,v in sends),'restart network original publication send')
-    rejected = dict(future_rows[0]['request'],recipient=identities['node-3'],sequence=3)
+    rejected = dict(future_rows[0]['request'],recipient=identities[unused],sequence=sorted(identities).index(unused)+1)
     result = phase.finish(); result.update(index=index,recordingQuorums=1,
         _rejected=e.digest(f.encode('wire','FUTURE_RETENTION_INTENT',rejected))); return result
 

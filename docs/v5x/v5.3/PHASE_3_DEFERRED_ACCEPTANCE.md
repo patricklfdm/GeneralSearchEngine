@@ -1,12 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
-[Native node lifetime](PHASE_3_AUTOMATIC_OWNER.md#native-node-lifetime) has nine
-focused lifecycle checks and one actual three-node same-process cold-reopen
-history. Original physical replay covers sixteen snapshot groups, both selected
-majorities, two DATA images and two fresh barriers. Complete wire/source/ACK
-replay of this changed-majority history, SIGKILL/restart and all profiles remain
-required. Keep both lifetimes, retained sources, snapshots and traces on the same
-original filesystem; never split a reopen history across runners.
+[Native node lifetime](PHASE_3_AUTOMATIC_OWNER.md#complete-network-replay) has nine
+focused lifecycle checks and a new fully instrumented three-node cold-reopen
+history. Complete original physical/network replay covers sixteen snapshot
+groups, 515 request writes, 488 responses and 48 negatives. The earlier
+physical-only history remains separately retained. SIGKILL/restart, competing
+candidates and all profiles remain required. Keep both lifetimes, retained
+sources, snapshots and traces on the same original filesystem; never split a
+reopen history across runners.
 
 [Activation completion milestones](PHASE_3_ELECTION_WAIT.md#admitted-activation-milestones)
 provide two once-only scheduling hints per incoming campaign. They do not turn

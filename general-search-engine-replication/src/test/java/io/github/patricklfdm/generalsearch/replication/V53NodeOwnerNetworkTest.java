@@ -34,7 +34,8 @@ class V53NodeOwnerNetworkTest {
                         .filter(identity->!identity.equals(target.identity())).toList(),target.replicaDirectory(),target.materialization(),bounds,AutomaticLeadershipPolicy.forBounds(bounds));
                 var hooks=new MembershipNodeOwner.Hooks(event->events.add(Map.of("node",name,"incarnation",incarnation,"event",event)),
                     (event,request,response)->{
-                        if(event.equals("BEFORE_REQUEST_WRITE"))events.add(Map.of("node",name,"incarnation",incarnation,"event","NETWORK_SEND","request",request.digest(),"kind",request.kind()));
+                        if(event.equals("BEFORE_REQUEST_WRITE"))events.add(Map.of("node",name,"incarnation",incarnation,"event","NETWORK_SEND","request",request.digest(),"kind",request.kind(),"bytes",Base64.getEncoder().encodeToString(request.bytes())));
+                        if(event.equals("AFTER_REQUEST_READ"))events.add(Map.of("node",name,"incarnation",incarnation,"event","NETWORK_REQUEST","request",request.digest(),"kind",request.kind()));
                         if(event.equals("BEFORE_REQUEST_WRITE") && request.kind().equals("PUBLISH"))events.add(Map.of("node",name,"event","PUBLICATION_SEND_BOUNDARY","request",request.digest()));
                         if(event.equals("AFTER_RESPONSE_READ"))events.add(Map.of("node",name,"incarnation",incarnation,"event","NETWORK_RECEIVED","kind",response.kind(),"response",response.digest()));
                         if(event.equals("BEFORE_RESPONSE_WRITE")) {

@@ -112,10 +112,10 @@ The [node lifetime receipt](phase3-evidence/node-lifetime.json) binds:
   retention merges, application images and all sixteen snapshot groups. It also
   verifies object lifetimes, original reopen forces and fresh READY ordering.
 
-The cold-reopen result deliberately remains `PARTIAL`: full wire/source/ACK
-replay for this changed-majority history, process death and all profiles remain
-open. Same-process cold reopen is not SIGKILL. The producer retains all 487 wire
-exchanges, but that count is not a network qualification claim. Each explicit
+The earlier cold-reopen result remains `PARTIAL`: its 487 wire exchanges lack
+original send bytes for silent requests. The subsequent fully instrumented
+history below supplies network qualification without rewriting that result.
+Same-process cold reopen is not SIGKILL. Each explicit
 service object has a 180-second fixture lifetime; production timings and resource
 limits are unchanged. Preserve the whole bootstrap-to-close history on one
 runner. No public API, workflow, POM, frozen-format or paid-cloud change.
@@ -123,3 +123,56 @@ runner. No public API, workflow, POM, frozen-format or paid-cloud change.
 Rollback removes the private node wrapper and its tests/reader. The existing
 explicit journal/endpoint/transport owners remain available; no persisted-format
 migration or data rollback is necessary.
+
+## Complete network replay
+
+The [network receipt](phase3-evidence/node-network.json) binds a new whole native
+history to the same runtime source plus two fixture observations: complete raw
+bytes before request writes, and a boundary after authenticated request reads.
+The source, bootstrap, storage and evidence from the earlier 487-exchange run
+remain intact. This is a distinct execution, not additional evidence fabricated
+for the earlier run.
+
+The new history again changes its selected remote voter from node 2 to node 3
+after close/open. Independent physical replay runs first. Network replay then
+binds all 515 request writes to original identities, object lifetimes and phases;
+all 488 responses require prior actual receipts, and observed client deliveries
+require corresponding prior responses. Both selections, all four slots, source
+bytes, application transfer, maintenance, original ACCEPT/PROOF observations,
+checkpoint ACKs and future-retention quorums are checked before publication.
+
+| Whole-history phase | Response exchanges | Source traces |
+| --- | ---: | ---: |
+| First activation | 28 | 4 |
+| BARRIER 1 | 81 | 16 |
+| DATA 2 | 96 | 19 |
+| Cold reopen and second activation | 88 | 10 |
+| BARRIER 3 | 86 | 18 |
+| DATA 4 | 109 | 21 |
+
+Of 88 source traces, 87 complete. The unused node 2 basis pull stops after its
+original data and before commit. The reader checks exactly that prefix and never
+completes it or counts it toward SELECTED. Node 3's installation includes the
+original application image absent from its lower bootstrap cut. Its future ledger
+has a different revision from node 1's; each ACK must match its own independently
+reduced physical frame, rather than a revision inferred from the slot number.
+
+The remaining 27 writes are nine groups of three silent attempts: four unused
+future-retention requests and five checkpoint lookups against the unselected
+owner. Their original envelopes and checkpoint references are reconstructed;
+none supplies a vote, ACK or delivery. An unrelated, additional or unbounded
+silent request fails validation. The retained bytes establish these failed
+attempts, not a particular socket error or scheduler root cause.
+
+All 48 physical/network negatives pass, including missing original writes or
+receipts, excess attempts, cross-phase and old-lifetime writes, changed unused
+source bytes, missing application data and fabricated checkpoint references.
+Nineteen focused Python tests pass. The shared slot reader also replays the
+earlier 388-exchange automatic reactivation history and all 47 of its negatives;
+that historical result remains bound to its original runtime source.
+
+The new one-history result is `PASS` with `fullWireReplay=true`. Phase 3 remains
+**OPEN**: actual halt/SIGKILL, competing automatic candidates and complete
+transition/profile qualification are still required. No runtime Java, POM,
+workflow, protocol format, time/resource limit or paid-cloud behavior changed in
+this network-replay batch.

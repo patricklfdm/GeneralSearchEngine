@@ -1,0 +1,718 @@
+{
+  "archive": {
+    "bytes": 6160194,
+    "directories": 538,
+    "files": 4523,
+    "path": "target/v53-node-network/qualification.tar.gz",
+    "sha256": "029ef0f78b7905437e51e5e2b4de7c516eb86dcafb6379f07db41b41fb689112"
+  },
+  "baseCommit": "fdb26df91a0ca1ee7b03c935f43ebf4b683d030b",
+  "developmentNotes": [
+    "Initial new-reader replay rejected a real unused basis DATA prefix without its commit; exact partial-prefix validation was added only for nonselected sources.",
+    "Two new unit fixture cases initially used the wrong case for the identity schema name; corrected before final validation."
+  ],
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53NodeOwnerNetworkTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "nodewireraw",
+      "requestedTests": [
+        "V53NodeOwnerNetworkTest"
+      ],
+      "seconds": 206.465704481001,
+      "skipped": 0,
+      "tests": 1
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pythonTests": 19,
+  "qualification": [
+    {
+      "kind": "node-network",
+      "path": "target/v53-native-cancellation/builds/nodewireraw-241f186b/general-search-engine-replication/target/v53-node-owner/run-0363bfe3-2fe8-44b9-bee3-760adb432259",
+      "result": {
+        "negatives": [
+          {
+            "case": "initial-image",
+            "reason": "bootstrap original image binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "first-data",
+            "reason": "bootstrap validation image header",
+            "status": "REJECTED"
+          },
+          {
+            "case": "before-reopen",
+            "reason": "admitted exact before-reopen: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selector",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-data",
+            "reason": "admitted exact applied-4: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "final-extra",
+            "reason": "admitted exact after-close: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selection",
+            "reason": "node owner original selection",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-selection",
+            "reason": "node owner selected stable majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unused-grant",
+            "reason": "admitted exact installed-2: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-ready",
+            "reason": "node owner exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-ready",
+            "reason": "node owner readiness fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-owner",
+            "reason": "node owner lifetime identity",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-owner",
+            "reason": "node owner event lifetime required",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-reopen-force",
+            "reason": "node owner exact cold reopen forces",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-install-force",
+            "reason": "selected retention force order: node owner installation node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-publication-force",
+            "reason": "selected retention force order: node owner publication node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-completion",
+            "reason": "node owner original completion",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-scope",
+            "reason": "node owner producer scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-discovery",
+            "reason": "restart network original status probe",
+            "status": "REJECTED"
+          },
+          {
+            "case": "discovery-cut",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-response-row",
+            "reason": "discovered selection unmatched response event",
+            "status": "REJECTED"
+          },
+          {
+            "case": "invented-delivery",
+            "reason": "restart network delivery without original response",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-delivery",
+            "reason": "restart network delivery without original response",
+            "status": "REJECTED"
+          },
+          {
+            "case": "source-bytes",
+            "reason": "restart network source exact data",
+            "status": "REJECTED"
+          },
+          {
+            "case": "source-offer",
+            "reason": "restart network source original offer",
+            "status": "REJECTED"
+          },
+          {
+            "case": "basis-reply",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reply-identity",
+            "reason": "discovered selection wire correlation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "vote-receipt",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "apply-statement",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-revision",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-digest",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-quorum",
+            "reason": "restart network local recording before quorum",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-quorum",
+            "reason": "restart network actual recording majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-publication",
+            "reason": "restart network recording before every publication send",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-retirement",
+            "reason": "selected retention force order: restart network node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-parent-ack",
+            "reason": "restart network required original source",
+            "status": "REJECTED"
+          },
+          {
+            "case": "bootstrap-force",
+            "reason": "closed election wait initialization",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send-bytes",
+            "reason": "node network original send shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-receipt",
+            "reason": "node network response without original receipt",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-request-receipt",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "four-write-attempts",
+            "reason": "node network bounded identical writes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cross-phase-request",
+            "reason": "node network request crosses completed phase",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-lifetime-request",
+            "reason": "node network request wrong node lifetime",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-silent-retention",
+            "reason": "node network exact unused retention attempt",
+            "status": "REJECTED"
+          },
+          {
+            "case": "silent-checkpoint-reference",
+            "reason": "node network original unused checkpoint lookup",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unused-prefix-data",
+            "reason": "node network exact unused source prefix",
+            "status": "REJECTED"
+          },
+          {
+            "case": "selected-image-data",
+            "reason": "restart network source exact data",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "completeTransfers": 87,
+          "exchanges": 488,
+          "fullWireReplay": true,
+          "originalFirst": true,
+          "phase3Complete": false,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 81,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 16,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 96,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 19,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 88,
+              "transfers": 10,
+              "unusedIncompleteTransfers": 1,
+              "voters": [
+                "node-1",
+                "node-3"
+              ]
+            },
+            {
+              "exchanges": 86,
+              "index": 3,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 109,
+              "index": 4,
+              "recordingQuorums": 1,
+              "transfers": 21,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "physical": {
+            "campaigns": 2,
+            "coldReopens": 1,
+            "fullWireReplay": false,
+            "originalFirst": true,
+            "phase3Complete": false,
+            "physicalReplay": true,
+            "processRestart": false,
+            "publicRuntime": false,
+            "scope": "native-node-cold-reopen-physical",
+            "slots": 4,
+            "snapshotGroups": 16,
+            "status": "PARTIAL"
+          },
+          "processRestart": false,
+          "publicRuntime": false,
+          "requests": 515,
+          "scope": "one-native-node-cold-reopen-history",
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 3,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 3,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 3,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            }
+          ],
+          "silentRequests": 27,
+          "status": "PASS",
+          "transfers": 88,
+          "unusedIncompleteTransfers": 1
+        }
+      }
+    },
+    {
+      "kind": "historical-network",
+      "path": "target/v53-native-cancellation/builds/campaignrestartnative-962e1dc0/general-search-engine-replication/target/v53-native-dispatch/run-a76e2ee2-bfcc-49ad-af06-1fb0e49f5084",
+      "result": {
+        "negatives": [
+          {
+            "case": "initial-image",
+            "reason": "bootstrap original image binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "first-selection",
+            "reason": "automatic restart original selection",
+            "status": "REJECTED"
+          },
+          {
+            "case": "fence-allocator",
+            "reason": "admitted exact after-fence: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "fence-write",
+            "reason": "admitted exact after-fence: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selection",
+            "reason": "automatic restart original selection",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unused-source",
+            "reason": "admitted exact installed-2: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-vote",
+            "reason": "admitted exact applied-2: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selector",
+            "reason": "admitted exact published-2: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "third-ancestry",
+            "reason": "admitted exact published-3: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "third-vote",
+            "reason": "admitted exact applied-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "final-extra",
+            "reason": "admitted exact after-close: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-ready",
+            "reason": "automatic restart lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-ready",
+            "reason": "automatic restart readiness fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "fence-cut",
+            "reason": "automatic restart original fence",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-fence-reply",
+            "reason": "automatic restart exact fence reply",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-fence-delivery",
+            "reason": "automatic restart delivered fence between rounds",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-allocation-force",
+            "reason": "selected retention force order: automatic restart fence allocation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-scope",
+            "reason": "automatic restart producer scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-discovery",
+            "reason": "restart network original status probe",
+            "status": "REJECTED"
+          },
+          {
+            "case": "discovery-cut",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-response-row",
+            "reason": "discovered selection unmatched response event",
+            "status": "REJECTED"
+          },
+          {
+            "case": "invented-delivery",
+            "reason": "restart network delivery without original response",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-delivery",
+            "reason": "restart network delivery without original response",
+            "status": "REJECTED"
+          },
+          {
+            "case": "source-bytes",
+            "reason": "restart network source exact data",
+            "status": "REJECTED"
+          },
+          {
+            "case": "source-reference",
+            "reason": "restart network required original source",
+            "status": "REJECTED"
+          },
+          {
+            "case": "source-offer",
+            "reason": "restart network source original offer",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-authority-commit",
+            "reason": "restart network incomplete authority source",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unused-capsule-offer",
+            "reason": "restart network unused original offer",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-unused-offer",
+            "reason": "restart network exact source shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-basis-force",
+            "reason": "selected retention force order: restart network node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-install-force",
+            "reason": "selected retention force order: restart network node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "basis-reply",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-basis-delivery",
+            "reason": "restart network required original source",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reply-identity",
+            "reason": "discovered selection wire correlation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "vote-receipt",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "apply-statement",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-revision",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-digest",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-quorum",
+            "reason": "restart network local recording before quorum",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-quorum",
+            "reason": "restart network actual recording majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-publication",
+            "reason": "restart network recording before every publication send",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-retirement",
+            "reason": "selected retention force order: restart network node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "foreign-rejection",
+            "reason": "restart network original rejection kind",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cross-phase-trace",
+            "reason": "restart network fresh cross-phase traces",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-parent-ack",
+            "reason": "restart network required original source",
+            "status": "REJECTED"
+          },
+          {
+            "case": "excessive-control-attempts",
+            "reason": "discovered selection identical bounded attempts",
+            "status": "REJECTED"
+          },
+          {
+            "case": "bootstrap-force",
+            "reason": "closed election wait initialization",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "completeTransfers": 68,
+          "exchanges": 388,
+          "fullWireReplay": true,
+          "originalFirst": true,
+          "phase3Complete": false,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 79,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 16,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 85,
+              "transfers": 10,
+              "unusedIncompleteTransfers": 1
+            },
+            {
+              "exchanges": 87,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 109,
+              "index": 3,
+              "recordingQuorums": 1,
+              "transfers": 21,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "physical": {
+            "campaigns": 2,
+            "fullWireReplay": false,
+            "nativeFence": true,
+            "phase3Complete": false,
+            "physicalReplay": true,
+            "processRestart": false,
+            "publicRuntime": false,
+            "scope": "automatic-two-campaign-physical-replay",
+            "slots": 3,
+            "snapshotGroups": 14,
+            "status": "PARTIAL"
+          },
+          "processRestart": false,
+          "publicRuntime": false,
+          "scope": "one-native-automatic-two-campaign-history",
+          "status": "PASS",
+          "transfers": 69,
+          "unusedIncompleteTransfers": 1
+        }
+      }
+    }
+  ],
+  "qualificationSeconds": 93.2204177530075,
+  "schema": "gse-v53-node-network-v1",
+  "scope": "native-node-cold-reopen-network",
+  "scopeNotes": [
+    "A new raw-send/receive-instrumented native history; earlier 487-exchange originals are unchanged.",
+    "The previous automatic reactivation history is a reader regression against its original runtime, not a new workload execution.",
+    "Same-process cold reopen is not SIGKILL; complete Phase 3 profiles/process qualification remains open."
+  ],
+  "status": "PASS"
+}
