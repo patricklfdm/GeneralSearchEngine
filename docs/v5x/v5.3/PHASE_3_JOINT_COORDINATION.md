@@ -57,7 +57,14 @@ cleanup. The retained data does not establish the underlying latency cause.
 This failure is not converted to a pass, and no timeout/retry bound is increased.
 It remains a required final-source native validation item.
 
-The complete joining TCP history is compiled, not executed here. Its retaining
+The original increment compiled the complete joining TCP history without running it.
+The later [native qualification](PHASE_3_NATIVE_JOINING_QUALIFICATION.md) exposed
+a scratch-parent defect after initialization/cold reopen. Preparation and normal
+activation now reuse the caller's same OUTGOING scope only after draining the
+previous owner; the exact marker/lock continues to enforce identity and exclusion.
+The correction has 40 focused passing tests; full corrected history is pending.
+
+At the original increment, Its retaining
 cold continuation now calls this coordinator instead of constructing the normal
 round directly. This adds a fresh preparation and completion probe for an
 already initialized member; it does not yet exercise concurrent early-start

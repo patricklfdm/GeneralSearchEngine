@@ -29,10 +29,21 @@ unchanged. The early-start marker retains the observed original request/reply;
 that marker is an observation, not independent proof of a majority or force.
 
 All Java sources compile and 25 related discovery/endpoint/task tests passed in
-36.489 seconds. A single whole native execution has been started from immutable
-`joiningearlyhistory-4f644ca2`; its result remains pending in this increment.
-No live process was restarted because observation took time. Its native result
-must be retained and reviewed before claiming acceptance.
+36.489 seconds. The original whole native execution from immutable
+`joiningearlyhistory-4f644ca2` has now failed after completing early discovery,
+remote old-majority retention initialization, endpoint promotion and retaining
+cold reopen. The subsequent coordinator requested `scratch/preparation` without
+an existing scratch parent and stopped with `parent must already exist`. This
+is an implementation defect, not a timeout or an accepted full history. Original
+source, raw files and failure reports remain retained.
+
+The correction reuses one OUTGOING scratch scope serially: preparation closes
+and drains before normal activation reopens the same original marker/lock. No
+arbitrary parent is created and no path, ownership or resource check is relaxed.
+A short regression reproduces the old failure; another proves overlap is refused
+and drained reuse preserves the marker and journal. All 40 related tests pass.
+One corrected whole history, `jointscratchhistory-a0ff0bb8`, is running; complete
+acceptance remains pending. See [the correction receipt](phase3-evidence/joint-scratch.json).
 
 ## Strict portable snapshot inventory
 

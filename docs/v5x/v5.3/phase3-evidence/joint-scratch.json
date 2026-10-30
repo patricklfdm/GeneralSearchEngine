@@ -1,0 +1,107 @@
+{
+  "archive": {
+    "bytes": 29874438,
+    "members": 13972,
+    "path": "target/v53-joint-scratch/component-validation.tar.gz",
+    "sha256": "dc077aaa81c08af102b8912cd47060679f6b5f725d53acb188ff40761908cfe8"
+  },
+  "baseCommit": "2c563d5b600f32b6518cc2537b23a118a70bdaae",
+  "componentStatus": "PASS",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1605,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "correctedHistory": {
+    "label": "jointscratchhistory",
+    "snapshot": "jointscratchhistory-a0ff0bb8",
+    "status": "PENDING"
+  },
+  "executions": {
+    "joiningearlyhistory": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joiningearlyhistory",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory"
+      ],
+      "seconds": 766.4228995439917,
+      "skipped": 0,
+      "tests": 1
+    },
+    "jointscratchbefore": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JointContinuationTest": 2
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "jointscratchbefore",
+      "requestedTests": [
+        "V53JointContinuationTest#coordinatorOwnsTheRequestedScratchRootBeforeNativePrelude+preparationDrainsBeforeActivationReusesItsOriginalScratchOwner"
+      ],
+      "seconds": 16.237125939995167,
+      "skipped": 0,
+      "tests": 2
+    },
+    "jointscratchfixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompletionWaitTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningCompletionTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionCampaignTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53JointContinuationTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53ScratchTest": 13
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "jointscratchfixed",
+      "requestedTests": [
+        "V53JointContinuationTest",
+        "V53ScratchTest",
+        "V53JoiningRetentionCampaignTest",
+        "V53CompletionWaitTest",
+        "V53JoiningCompletionTest"
+      ],
+      "seconds": 46.04287433800346,
+      "skipped": 0,
+      "tests": 40
+    }
+  },
+  "finalCodeAndBuildInputsChecked": 1323,
+  "note": "Conditional short regressions prove scratch ownership only; the original failed full history remains failed.",
+  "originalDefaultTimeoutIssue": "OPEN: retained publication delivery timeout",
+  "originalHistory": {
+    "label": "joiningearlyhistory",
+    "notQualified": [
+      "joint-continuation",
+      "final",
+      "fresh-barrier",
+      "complete-independent-replay"
+    ],
+    "reached": [
+      "early-real-absence",
+      "native-retention-initialized",
+      "endpoint-active",
+      "retaining-cold-reopen"
+    ],
+    "reason": "parent must already exist",
+    "status": "FAIL"
+  },
+  "paidCloud": false,
+  "phase3Closed": false,
+  "physicalHistoryQualified": false,
+  "publicRuntime": false,
+  "schema": "gse-v53-joint-scratch-correction-v1",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJointContinuation.java": "47fc364cf2f4db353148d311c4fb0dfa9366f95b4cd7d1e26294f0bc7f9b0964",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointContinuationTest.java": "f1b8bcc3c105267d1958b739f8cf986ea60586301d544a285f0ccbf3713613d2"
+  },
+  "status": "PARTIAL"
+}

@@ -3,7 +3,10 @@
 [Native early-start qualification](PHASE_3_NATIVE_JOINING_QUALIFICATION.md) now
 has a complete history entry that observes real TCP absence before starting old
 preparation, then continues through initialization, FINAL/BARRIER and cold reopen.
-Its final-source acceptance is pending. Strict portable joining snapshots and
+Its first execution initialized and cold reopened the joining owner, then failed
+at a missing coordinator scratch parent. The serial scratch handoff is corrected
+and 40 focused tests pass; corrected full-history acceptance remains pending.
+Strict portable joining snapshots and
 retained transport timing diagnostics support the remaining independent replay;
 none of these observations closes Phase 3, which remains **OPEN**.
 

@@ -73,7 +73,7 @@ final class MembershipJointContinuation<K,T> implements AutoCloseable {
             time();original=owner.discoveryState(resources).context();var joining=joining(original,owner.activationIdentity());
             if(joining.isPresent()) {
                 var prepared=new MembershipJoiningRetentionCampaign(owner,endpoint,resources,bounds,transport::exchange,this::original,
-                        scratch.resolve("preparation"),clock,started,budget,joining.get());
+                        scratch,clock,started,budget,joining.get());
                 synchronized(this){if(closed){prepared.close();throw new IOException("joint continuation closed before preparation");}preparation=prepared;}
                 prepared.run();original();transition(State.WAITING);
                 var wait=new MembershipCompletionWait(new MembershipCompletionWait.Probe(){
@@ -85,7 +85,11 @@ final class MembershipJointContinuation<K,T> implements AutoCloseable {
                 synchronized(this){waiting=null;preparation=null;}
             }
             original();transition(State.ACTIVATING);
-            var active=new MembershipRoundDriver<>(owner,endpoint,resources,bounds,transport,scratch.resolve("round"),clock,budget,maximumCampaigns,configuration,storage,events,slotEvents);
+            // Both children own OUTGOING scratch for this exact journal. Reopen
+            // the same scope only after preparation closes/drains; its marker
+            // and lock enforce identity and exclude concurrent reuse. Invented
+            // nested roots would require an unowned, nonexistent parent.
+            var active=new MembershipRoundDriver<>(owner,endpoint,resources,bounds,transport,scratch,clock,budget,maximumCampaigns,configuration,storage,events,slotEvents);
             synchronized(this){if(closed){active.close();throw new IOException("joint continuation closed before round");}round=active;}
             var barrier=active.start(started);time();active.readiness();transition(State.READY);return barrier;
         }catch(IOException|RuntimeException|Error error){fail(error);throw error;}
