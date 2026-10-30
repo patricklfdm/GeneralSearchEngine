@@ -20,6 +20,8 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     static final int MAXIMUM=64*1024;
     static final int PENDING_MAXIMUM=MAXIMUM+MembershipJoiningIntentMetadata.MAXIMUM;
     static final String PENDING_ACK="joining-ack.gsr";
+    static final String PENDING_SOURCE="retained-source.json";
+    static final int PENDING_SOURCE_MAXIMUM=32*1024;
     private final int maximum;
     private final MembershipLearnerHead head;
     private final MembershipLearnerStore store;
@@ -38,12 +40,14 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     private MembershipCapsule verified;
     private MembershipLearnerVoterStage voterStage;
     private MembershipLearnerCheckpointEndpoint checkpointEndpoint;
+    private MembershipResources.Lease resumedMetadata;
+    private boolean pendingSourceRetained;
     private static String schema(Kind kind){return switch(kind){case CANCEL->"gse-v53-learner-cancellation/1.3";case INTENT->"gse-v53-learner-intent/1.3";case PENDING_INTENT->"gse-v53-learner-pending-intent/1.3";};}
     private static String planName(Kind kind){return switch(kind){case CANCEL->PLAN;case INTENT->"intent.json";case PENDING_INTENT->"pending-intent.json";};}
     private static String nextName(Kind kind){return switch(kind){case CANCEL->NEXT;case INTENT->"intent.next.json";case PENDING_INTENT->"pending-intent.next.json";};}
     private static int maximum(Kind kind){return kind==Kind.PENDING_INTENT?PENDING_MAXIMUM:MAXIMUM;}
     private static MembershipResources.Lease reservePending(MembershipLearnerHead head,Kind kind)throws IOException {
-        return kind==Kind.PENDING_INTENT?head.resources().reserve(MembershipResources.Unit.JOURNAL,"learner-pending-intent",2L*PENDING_MAXIMUM+2048):null;
+        return kind==Kind.PENDING_INTENT?head.resources().reserve(MembershipResources.Unit.JOURNAL,"learner-pending-intent",2L*PENDING_MAXIMUM+2048+PENDING_SOURCE_MAXIMUM):null;
     }
 
     static Path directory(MembershipLearnerPlan plan,Kind kind) {
@@ -89,7 +93,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
                 && value.get("learner").equals(MembershipBootstrapSeed.identity(head.request().identity()))
                 && value.get("anchor").equals(anchor(head.source())),"learner cancellation original prepared owner");
         require(kind==Kind.CANCEL || value.get("receipt").equals(head.receipt().digest()),"learner INTENT original typed receipt");
-        require(kind==Kind.PENDING_INTENT?2L*maximum+2048<=MembershipResources.Unit.JOURNAL.bytes:
+        require(kind==Kind.PENDING_INTENT?2L*maximum+2048+PENDING_SOURCE_MAXIMUM<=MembershipResources.Unit.JOURNAL.bytes:
                 MembershipLearnerSlot.METADATA_MAXIMUM+2L*MAXIMUM<=MembershipResources.Unit.MISC.bytes,"learner cancellation metadata capacity");
         binding=MembershipLearnerAdmissionPlan.binding(object(value.get("path")));
         stagingBinding=MembershipLearnerAdmissionPlan.binding(object(value.get("staging")));
@@ -152,7 +156,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         String planName=planName(kind),nextName=nextName(kind);
         for(var other:Kind.values())if(other!=kind)requireAbsent(directory(store(head).summary(),other),other);
         var summary=store(head).summary();Path directory=AdmissionPaths.safe(directory(summary,kind));
-        var allowed=new HashSet<>(Set.of(planName,nextName,SOURCE));if(kind==Kind.PENDING_INTENT)allowed.add(PENDING_ACK);
+        var allowed=new HashSet<>(Set.of(planName,nextName,SOURCE));if(kind==Kind.PENDING_INTENT)allowed.addAll(Set.of(PENDING_ACK,PENDING_SOURCE));
         var names=children(directory,allowed.size());require(allowed.containsAll(names) && (names.contains(planName)||names.contains(nextName)),"learner cancellation original plan missing");
         var journal=reservePending(head,kind);MembershipLearnerDisposition result=null;
         try {
@@ -162,6 +166,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
             result.directoryKey=key(directory);
             for(String name:List.of(planName,nextName))if(names.contains(name))result.remember(name,bytes);
             if(names.contains(PENDING_ACK))result.remember(PENDING_ACK,AdmissionPaths.read(directory.resolve(PENDING_ACK),2048));
+            if(names.contains(PENDING_SOURCE))result.remember(PENDING_SOURCE,AdmissionPaths.read(directory.resolve(PENDING_SOURCE),PENDING_SOURCE_MAXIMUM));
             result.reserve();result.validate();result.store.attachDisposition(result);
             if(result.store.recoveringPlacement()) {
                 require(kind==Kind.INTENT && names.equals(Set.of(planName,SOURCE)) && result.location().equals(result.destination),
@@ -178,7 +183,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
             if(name.endsWith(".image"))leases.add(resources.reserve(MembershipResources.Unit.APPLICATION,"cancel:"+name,number(row.get("size"))));
             else bytes=Math.addExact(bytes,number(row.get("size")));
         }
-        leases.add(resources.reserve(MembershipResources.Unit.LEARNER,"learner-cancellation",bytes));
+        resumedMetadata=resources.reserve(MembershipResources.Unit.LEARNER,"learner-cancellation",bytes);leases.add(resumedMetadata);
     }
     private Path location()throws IOException {
         AdmissionPaths.recheck(binding);AdmissionPaths.recheck(stagingBinding);
@@ -197,7 +202,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         if(directoryKey!=null) {
             require(directoryKey.equals(key(directory)),"learner cancellation directory replaced");var names=new TreeSet<>(metadata.keySet());
             if(Files.exists(destination,LinkOption.NOFOLLOW_LINKS))names.add(SOURCE);
-            require(children(directory,kind==Kind.PENDING_INTENT?4:3).equals(names),"learner cancellation metadata inventory changed");
+            require(children(directory,kind==Kind.PENDING_INTENT?5:3).equals(names),"learner cancellation metadata inventory changed");
             for(var row:metadata.entrySet())require(row.getValue().equals(inspect(directory.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),"learner cancellation metadata replaced");
         }
     }
@@ -221,6 +226,12 @@ final class MembershipLearnerDisposition implements AutoCloseable {
             if(metadata.containsKey(PENDING_ACK)) {
                 byte[] ack=AdmissionPaths.read(directory.resolve(PENDING_ACK),2048),expected=pendingAcknowledgement(pending).bytes();
                 require(ack.length<=expected.length && Arrays.equals(ack,Arrays.copyOf(expected,ack.length)),"joining original acknowledgement prefix changed");
+            }
+            if(metadata.containsKey(PENDING_SOURCE)) {
+                require(metadata.containsKey(planName) && metadata.containsKey(PENDING_ACK) && source.equals(destination),"joining retained source needs complete original end");
+                AdmissionPaths.exact(directory.resolve(PENDING_ACK),pendingAcknowledgement(pending).bytes());
+                byte[] marker=AdmissionPaths.read(directory.resolve(PENDING_SOURCE),PENDING_SOURCE_MAXIMUM),expected=sourceMarker();
+                require(marker.length<=expected.length && Arrays.equals(marker,Arrays.copyOf(expected,marker.length)),"joining retained source original prefix changed");
             }
         }
         terminal=row;verified=capsule;check();
@@ -310,6 +321,54 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     }
     synchronized MembershipCapsule pendingSource()throws IOException {pendingMetadata();return verified;}
     synchronized MembershipJoiningIntentMetadata pendingOriginals()throws IOException {return pendingMetadata();}
+    private byte[] sourceMarker()throws IOException {
+        return canonical(Map.of("schema","gse-v53-joining-retained-source/1.3","plan",hash(plan),
+                "planKey",metadata.get(planName).key().toString(),"sourceKey",value.get("sourceKey"),
+                "receipt",value.get("receipt"),"ack",hash(AdmissionPaths.read(directory.resolve(PENDING_ACK),2048)),
+                "ackKey",metadata.get(PENDING_ACK).key().toString(),"markerKey",metadata.get(PENDING_SOURCE).key().toString()),PENDING_SOURCE_MAXIMUM);
+    }
+    /** Unforgeable local retention provenance; not a head selector or vote. */
+    final class RetainedSource {
+        private RetainedSource()throws IOException {check();}
+        void check()throws IOException {
+            synchronized(MembershipLearnerDisposition.this) {
+                require(kind==Kind.PENDING_INTENT && complete && pendingSourceRetained,"joining source not retained");
+                MembershipLearnerDisposition.this.check();AdmissionPaths.exact(directory.resolve(PENDING_SOURCE),sourceMarker());
+            }
+        }
+        MembershipCapsule source()throws IOException {check();return verified;}
+    }
+    /** Release the single receiving category only after the same original
+     * history is forced as a retained SOURCE. All physical bytes stay charged. */
+    synchronized RetainedSource retainPendingSource()throws IOException {
+        var pending=pendingMetadata();require(metadata.containsKey(PENDING_ACK),"joining source requires forced ACK");
+        AdmissionPaths.exact(directory.resolve(PENDING_ACK),pendingAcknowledgement(pending).bytes());
+        if(pendingSourceRetained)return new RetainedSource();
+        String name="joining-retained:"+summary.planDigest();
+        // Capacity refusal precedes marker creation; a rejected reservation
+        // does not damage the live pending owner or its checkpoint listener.
+        try(var claim=resumedMetadata==null?retained.get("source.gscp").prepareSource(destination.resolve("source.gscp"),name):resumedMetadata.prepareSource(name)) {
+            try {
+                boolean exists=metadata.containsKey(PENDING_SOURCE);
+                var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));
+                if(!exists)options.add(StandardOpenOption.CREATE_NEW);
+                try(var channel=MembershipFileAccess.open(directory.resolve(PENDING_SOURCE),options)) {
+                    if(!exists){remember(PENDING_SOURCE,new byte[0]);point("LEARNER_CANCEL_RETAIN_CREATED");}
+                    byte[] expected=sourceMarker();var original=metadata.get(PENDING_SOURCE);int offset=Math.toIntExact(original.bytes());
+                    AdmissionPaths.exact(directory.resolve(PENDING_SOURCE),Arrays.copyOf(expected,offset));channel.position(offset);
+                    int middle=offset+(expected.length-offset)/2;AdmissionPaths.write(channel,Arrays.copyOfRange(expected,offset,middle));
+                    remember(PENDING_SOURCE,Arrays.copyOf(expected,middle));require(original.key().equals(metadata.get(PENDING_SOURCE).key()),"joining source marker replaced");
+                    point("LEARNER_CANCEL_RETAIN_PREFIX_WRITTEN");AdmissionPaths.write(channel,Arrays.copyOfRange(expected,middle,expected.length));
+                    remember(PENDING_SOURCE,expected);require(original.key().equals(metadata.get(PENDING_SOURCE).key()),"joining source marker replaced");
+                    point("LEARNER_CANCEL_RETAIN_WRITTEN");channel.force(true);point("LEARNER_CANCEL_RETAIN_FORCED");
+                }
+                AdmissionPaths.forceDirectory(directory);point("LEARNER_CANCEL_RETAIN_PARENT_FORCED");
+                if(resumedMetadata==null)retained.get("source.gscp").requireSourceClaim(destination.resolve("source.gscp"),claim);else claim.requireSource(resumedMetadata);
+                point("LEARNER_CANCEL_RETAIN_BEFORE_TRANSFER");claim.commit();pendingSourceRetained=true;
+                point("LEARNER_CANCEL_RETAIN_TRANSFERRED");return new RetainedSource();
+            }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+        }
+    }
     /** Private live provenance for serving only the actual forced pending ACK.
      * The caller cannot construct this from decoded record/observation values. */
     final class PendingCheckpoint {

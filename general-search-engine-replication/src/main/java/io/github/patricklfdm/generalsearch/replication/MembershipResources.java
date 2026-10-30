@@ -21,6 +21,7 @@ final class MembershipResources {
     private record Key(Unit unit,String owner) {}
     private Map<Key,Lease> leases=new HashMap<>();
     private final Set<GenerationClaim> generationClaims=new HashSet<>();
+    private final Set<SourceClaim> sourceClaims=new HashSet<>();
     private final long metadataLimit, stagingLimit, queueLimit;
     private long metadata, staging, queued, protectedUsed;
 
@@ -36,7 +37,9 @@ final class MembershipResources {
         require(unit==Unit.WAITER ? bytes==0 : bytes>0,"reservation bytes");
         var key=new Key(unit,owner);
         require(!leases.containsKey(key) && generationClaims.stream().noneMatch(c->c.target.equals(key))
-                && leases.keySet().stream().filter(k->k.unit==unit).count()+(unit==Unit.GENERATION?generationClaims.size():0)<unit.count,"resource ownership/count");
+                && sourceClaims.stream().noneMatch(c->c.target.equals(key))
+                && leases.keySet().stream().filter(k->k.unit==unit).count()
+                    +(unit==Unit.GENERATION?generationClaims.size():unit==Unit.SOURCE?sourceClaims.size():0)<unit.count,"resource ownership/count");
         // Subtraction avoids overflow even when a caller supplies a very large staging limit.
         if(unit.metadata) {
             require(bytes<=metadataLimit-metadata,"metadata capacity");
@@ -56,7 +59,8 @@ final class MembershipResources {
         var counts=new EnumMap<Unit,Integer>(Unit.class);
         for(var key:leases.keySet())counts.merge(key.unit,1,Integer::sum);
         if(!generationClaims.isEmpty())counts.merge(Unit.GENERATION,generationClaims.size(),Integer::sum);
-        return new Usage(metadata,staging,queued,leases.size()+generationClaims.size(),Map.copyOf(counts));
+        if(!sourceClaims.isEmpty())counts.merge(Unit.SOURCE,sourceClaims.size(),Integer::sum);
+        return new Usage(metadata,staging,queued,leases.size()+generationClaims.size()+sourceClaims.size(),Map.copyOf(counts));
     }
     synchronized void admitChange(long changes,long identities,long results,int joining) {
         require(changes>=0 && changes<256 && identities>=3 && identities<=512 && results>=0 && results<64
@@ -64,7 +68,7 @@ final class MembershipResources {
         require(HEADROOM-protectedUsed<=metadataLimit-metadata,"completion headroom");
     }
     synchronized void requireCompleteStorage(Set<Lease> expected) {
-        require(generationClaims.isEmpty() && expected.equals(new HashSet<>(leases.values()))
+        require(generationClaims.isEmpty() && sourceClaims.isEmpty() && expected.equals(new HashSet<>(leases.values()))
                 && leases.keySet().stream().noneMatch(k->k.unit==Unit.CONTROL || k.unit==Unit.WAITER),
                 "learner custody requires every original storage lease and no pending work");
     }
@@ -137,10 +141,11 @@ final class MembershipResources {
                     "storage transfer requires original storage lease");
             require(name!=null && !name.isEmpty() && name.length()<=128,"storage transfer owner name");
             require(sources.add(lease.key) && targets.add(new Key(lease.key.unit,name)),"storage transfer duplicate target");
-            require(generationClaims.stream().noneMatch(c->c.source==lease),"storage transfer has pending generation claim");
+            require(generationClaims.stream().noneMatch(c->c.source==lease) && sourceClaims.stream().noneMatch(c->c.source==lease),"storage transfer has pending retention claim");
         }
         for(var target:targets)require((!leases.containsKey(target) || sources.contains(target))
-                && generationClaims.stream().noneMatch(c->c.target.equals(target)),"storage transfer target occupied");
+                && generationClaims.stream().noneMatch(c->c.target.equals(target))
+                && sourceClaims.stream().noneMatch(c->c.target.equals(target)),"storage transfer target occupied");
         // Allocate all successor handles before revoking any predecessor.
         var result=new LinkedHashMap<Lease,Lease>();
         original.forEach((lease,name)->result.put(lease,new Lease(new Key(lease.key.unit,name),lease.bytes)));
@@ -207,15 +212,33 @@ final class MembershipResources {
                 var target=new Key(Unit.GENERATION,owner);
                 require(bytes<=Unit.GENERATION.bytes && !leases.containsKey(target)
                         && generationClaims.stream().noneMatch(c->c.source==this || c.target.equals(target))
+                        && sourceClaims.stream().noneMatch(c->c.source==this)
                         && leases.keySet().stream().filter(k->k.unit==Unit.GENERATION).count()+generationClaims.size()<Unit.GENERATION.count,
                         "generation reservation capacity");
                 var claim=new GenerationClaim(this,target);generationClaims.add(claim);return claim;
+            }
+        }
+        /** A pending joining history is a retained source, not another selected
+         * generation. Reserve its existing source slot before forcing the owner
+         * marker; keep every byte charged to the learner until commit. */
+        SourceClaim prepareSource(String owner) {
+            synchronized(MembershipResources.this) {
+                require(!released && leases.get(key)==this && key.unit==Unit.LEARNER,"learner source reservation owner");
+                require(owner!=null && !owner.isEmpty() && owner.length()<=128,"source reservation name");
+                var target=new Key(Unit.SOURCE,owner);
+                require(bytes<=Unit.SOURCE.bytes && !leases.containsKey(target)
+                        && sourceClaims.stream().noneMatch(c->c.source==this || c.target.equals(target))
+                        && generationClaims.stream().noneMatch(c->c.source==this)
+                        && leases.keySet().stream().filter(k->k.unit==Unit.SOURCE).count()+sourceClaims.size()<Unit.SOURCE.count,
+                        "source reservation capacity");
+                var claim=new SourceClaim(this,target);sourceClaims.add(claim);return claim;
             }
         }
         @Override public void close() {
             synchronized(MembershipResources.this) {
                 if(released)return;
                 for(var claim:new ArrayList<>(generationClaims))if(claim.source==this)claim.close();
+                for(var claim:new ArrayList<>(sourceClaims))if(claim.source==this)claim.close();
                 require(leases.remove(key)==this,"foreign resource release");released=true;
                 if(key.unit.metadata)metadata-=bytes;
                 if(key.unit.staging)staging-=bytes;
@@ -223,6 +246,23 @@ final class MembershipResources {
                 if(key.unit.protectedSpace())protectedUsed-=bytes;
             }
         }
+    }
+    /** Ownership changes atomically; metadata and staging remain fully charged. */
+    final class SourceClaim implements AutoCloseable {
+        private final Lease source;private final Key target;private boolean closed;
+        private SourceClaim(Lease source,Key target){this.source=source;this.target=target;}
+        void requireSource(Lease expected) {
+            synchronized(MembershipResources.this){require(!closed && sourceClaims.contains(this) && source==expected,"source claim foreign source");}
+        }
+        void commit() {
+            synchronized(MembershipResources.this) {
+                require(!closed && sourceClaims.contains(this) && !source.released
+                        && source.key.unit==Unit.LEARNER && leases.get(source.key)==source && !leases.containsKey(target),"source claim closed or foreign");
+                leases.remove(source.key);source.key=target;leases.put(target,source);
+                sourceClaims.remove(this);closed=true;
+            }
+        }
+        @Override public void close(){synchronized(MembershipResources.this){if(!closed){sourceClaims.remove(this);closed=true;}}}
     }
     /** No duplicate byte reservation or release/reacquire gap. A pending claim
      * consumes a generation count, while its bytes remain charged as LEARNER. */

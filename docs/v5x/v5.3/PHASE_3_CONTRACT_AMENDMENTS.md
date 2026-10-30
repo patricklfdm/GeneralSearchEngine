@@ -1,6 +1,24 @@
 # V5.3 Phase 3 contract amendments
 
 
+## A49 — pending history retention without another generation
+
+The [pending source handoff](PHASE_3_PENDING_SOURCE_RETENTION.md) requires the
+actual pending owner and exact forced ACK. Reserve an existing SOURCE slot
+before marker creation; force the original inode-bound marker and parent before
+atomically reclassifying its LEARNER lease. Keep all metadata, staging and image
+bytes charged. The immutable history is not a selected GENERATION; reserve that
+second generation for voter staging. SOURCE/GENERATION/LEARNER limits remain
+six/two/one, with 32 KiB additional private marker allowance inside the existing
+pending JOURNAL limit.
+
+Cold continuation checks original typed/source/plan/ACK bytes and marker identity
+before mutation, completes only the exact prefix, and forces before category
+transfer. Outstanding source claims cannot be stolen, selected concurrently or
+passed to custody. The capability grants neither a vote nor ordinary admission.
+Published JOINT acquisition, linked full INTENT/custody and complete Phase 3
+qualification remain open.
+
 ## A48 — exact pending-owner checkpoint reads
 
 The [joining checkpoint listener](PHASE_3_JOINING_CHECKPOINT.md) is created only

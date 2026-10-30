@@ -134,6 +134,12 @@ final class MembershipReceiveFile implements AutoCloseable {
         void requireGenerationClaim(Path path,MembershipResources.GenerationClaim claim)throws IOException {
             check(path);claim.requireSource(lease);
         }
+        MembershipResources.SourceClaim prepareSource(Path path,String name)throws IOException {
+            check(path);return lease.prepareSource(name);
+        }
+        void requireSourceClaim(Path path,MembershipResources.SourceClaim claim)throws IOException {
+            check(path);claim.requireSource(lease);
+        }
         @Override public void close()throws IOException {if(!closed){closed=true;try{owner.close();}finally{lease.close();}}}
     }
     /** Parent preflights every file before detaching any. No I/O is performed in

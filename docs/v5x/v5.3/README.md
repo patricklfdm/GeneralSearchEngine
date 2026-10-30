@@ -1,5 +1,13 @@
 # V5.3 — controlled cluster operations
 
+[Pending source retention](PHASE_3_PENDING_SOURCE_RETENTION.md) now forces an
+original marker before atomically changing the pending history from the single
+LEARNER receiving category to an existing SOURCE slot. All bytes remain charged;
+the second GENERATION slot stays available for voter staging. Twenty-nine focused
+tests passed. Published-JOINT acquisition through this capability, linked
+INTENT/custody and complete Phase 3
+qualification remain **OPEN**.
+
 [Original joining checkpoint serving](PHASE_3_JOINING_CHECKPOINT.md) now exposes
 only the actual pending learner's forced ACK through the existing bounded
 transfer/pull path. A native old-two-of-three history now completes actual ACK

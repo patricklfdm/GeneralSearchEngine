@@ -1,0 +1,299 @@
+{
+  "archive": {
+    "bytes": 9621567,
+    "path": "target/v53-pending-continuation/component-validation.tar.gz",
+    "sha256": "c73a346b5415341b2894ef512db172ccb6c8fced135891392f6bebe04ae64cc1"
+  },
+  "baseCommit": "523d28ac632aef556fd229f5834541ffdad41f4f",
+  "checkpointAndPersistenceRegressions": 4,
+  "codeAndBuildInputsChecked": 1735,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1481,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "copyMarkerRejected": true,
+  "developmentFailures": "Initial snapshot failed test compilation because two new tests used the non-static inner Lease type without an explicit import. Runtime compiled; no tests executed. Both imports were corrected; the first snapshot and log remain retained. The later checkpoint regression adds one test class without changing the already-tested runtime or previous test files.",
+  "forceBeforeSourceTransfer": true,
+  "nativeJoinedInstallation": false,
+  "originalPhysicalReplay": false,
+  "originalPrefixRecovery": true,
+  "paidCloud": false,
+  "passingTests": 29,
+  "pending": [
+    "bounded pending-owner published JOINT acquisition and exact pending certificate binding",
+    "linked full INTENT retention and complete original custody/recovery",
+    "coordinator scheduling, alternate leader, joint FINAL and fresh barrier",
+    "all-profile original physical/history/process qualification"
+  ],
+  "pendingOriginalTests": 10,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "publicResourceLimitsChanged": false,
+  "publishedJointAcquisition": false,
+  "pythonTests": 1,
+  "qualificationBoundary": "Actual typed source/TCP/files with conditional old voting history and injected IOException cuts; atomic accounting, original marker force/reopen, same-owner ACK serving and existing regression checks. This does not qualify published-JOINT download, native installation, process death or full Phase 3.",
+  "reports": {
+    "pendingsourceregression": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest": {
+        "cases": [
+          {
+            "name": "actualOwnerAckUsesTheExistingPullAndRetriesIdenticalLostReplies",
+            "seconds": 46.431,
+            "status": "PASS"
+          },
+          {
+            "name": "ownerCloseAtTheActualWriteBoundaryRevokesACompletedReply",
+            "seconds": 43.01,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "4bb27332349797e5ba9dd88156f314fdcd777965c5cf7f542096450dc10ef6fd"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": {
+        "cases": [
+          {
+            "name": "originalSourceAndTypedImageAreForcedBeforeTheNewSideAckAndSurviveReopen",
+            "seconds": 48.216,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "67d67cc5f504847b677887a04e58c404ce96a902c67960fc1f999dddfa21f30c"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingRetainedCheckpointTest": {
+        "cases": [
+          {
+            "name": "retainingOriginalHistoryKeepsActualCheckpointPullWorkingUntilOwnerClose",
+            "seconds": 44.949,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "0fe58fba8ebf679612ea42acc4f1ba0b77fec904a5709a8f82ab6b7da6ef6ff7"
+      }
+    },
+    "pendingsourceretained": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerGenerationClaimTest": {
+        "cases": [
+          {
+            "name": "fullGenerationCapacityAndWrongKindsRefuseWithoutAccountingChanges",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "cancelledClaimPreservesReceivingOwnershipAndSourceCloseRevokesAClaim",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "countClaimPrecedesSelectionWithoutDuplicatingOrReleasingOriginalBytes",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "outstandingClaimCannotBeStolenByAConcurrentReservation",
+            "seconds": 0.003,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "2ed54fdb0afe0dd6c21d19d1723153399a9689d90291b6670330a3714410cba6"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingRetentionTest": {
+        "cases": [
+          {
+            "name": "interruptedForceOrTransferResumesOnlyItsOriginalMarker(String)[1]",
+            "seconds": 46.668,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedForceOrTransferResumesOnlyItsOriginalMarker(String)[2]",
+            "seconds": 45.717,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedForceOrTransferResumesOnlyItsOriginalMarker(String)[3]",
+            "seconds": 46.11,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedForceOrTransferResumesOnlyItsOriginalMarker(String)[4]",
+            "seconds": 44.678,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedForceOrTransferResumesOnlyItsOriginalMarker(String)[5]",
+            "seconds": 46.071,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedForceOrTransferResumesOnlyItsOriginalMarker(String)[6]",
+            "seconds": 46.899,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedForceOrTransferResumesOnlyItsOriginalMarker(String)[7]",
+            "seconds": 48.12,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOrCopiedMarkerAndOriginalSourceRefuseBeforeRecoveryMutation",
+            "seconds": 46.367,
+            "status": "PASS"
+          },
+          {
+            "name": "originalForcedMarkerMovesOnlyTheReceivingCategoryAndSurvivesColdReopen",
+            "seconds": 46.849,
+            "status": "PASS"
+          },
+          {
+            "name": "missingAckAndFullSourceCapacityRefuseBeforeMarkerAndLeaveOwnerUsable",
+            "seconds": 41.623,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "ab7d20b2d78a0d0abc8e72d82ae07548b30a46fa5d7a2afdc3bf403c5f992db3"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceClaimTest": {
+        "cases": [
+          {
+            "name": "cancelledForeignAndRevokedClaimsNeverLoseTheOriginalCharge",
+            "seconds": 0.044,
+            "status": "PASS"
+          },
+          {
+            "name": "sourceClaimReservesTheSixthSlotBeforeConcurrentAcquisition",
+            "seconds": 0.004,
+            "status": "PASS"
+          },
+          {
+            "name": "sourceRetentionKeepsAllBytesChargedWithoutSpendingAGeneration",
+            "seconds": 0.003,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "37728b99f2b8bb171ff222927a2317b82f9ea972631b98990cff88562810e689"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": {
+        "cases": [
+          {
+            "name": "retryKeepsOriginalBytesDeadlineAndThreeTotalAttempts",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "partialStorageGrowthKeepsItsCountAndCannotSpendCompletionHeadroom",
+            "seconds": 0.002,
+            "status": "PASS"
+          },
+          {
+            "name": "completeDigestSemanticOrSinkFailureNeverBecomesVerifiedOrSilentlyReleasesOwnedBytes",
+            "seconds": 0.03,
+            "status": "PASS"
+          },
+          {
+            "name": "completeMetadataEnvelopeIncludesEveryCopyAndCompletionHeadroom",
+            "seconds": 0.005,
+            "status": "PASS"
+          },
+          {
+            "name": "stagingCountsMetadataAndApplicationTogetherAndQueueIsGlobal",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "transferIsBoundBeforeAnyWriteAndDuplicateAcknowledgementDoesNotDuplicateBytes",
+            "seconds": 0.003,
+            "status": "PASS"
+          },
+          {
+            "name": "lifetimeExhaustionBlocksNewMembershipButNotOrdinaryReservations",
+            "seconds": 0.001,
+            "status": "PASS"
+          },
+          {
+            "name": "changedOriginalBasisCutSourceAndCapacityRejectBeforeSinkUse",
+            "seconds": 0.003,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "a01a1ec3045ceb64c28da1b8ffc61b4f89095d1468841c6c9fc8f638c76bc077"
+      }
+    },
+    "pendingsourceretention": {}
+  },
+  "resourceTests": 15,
+  "retainedSourceCheckpointPull": true,
+  "runs": {
+    "pendingsourceregression": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingRetainedCheckpointTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingsourceregression",
+      "requestedTests": [
+        "V53PendingRetainedCheckpointTest",
+        "V53LearnerCheckpointEndpointTest#actualOwnerAckUsesTheExistingPullAndRetriesIdenticalLostReplies+ownerCloseAtTheActualWriteBoundaryRevokesACompletedReply",
+        "V53LearnerPendingIntentTest#originalSourceAndTypedImageAreForcedBeforeTheNewSideAckAndSurviveReopen"
+      ],
+      "seconds": 192.99144084700674,
+      "skipped": 0,
+      "tests": 4
+    },
+    "pendingsourceretained": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerGenerationClaimTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingRetentionTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerSourceClaimTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53ResourceTransferTest": 8
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingsourceretained",
+      "requestedTests": [
+        "V53LearnerSourceClaimTest",
+        "V53LearnerGenerationClaimTest",
+        "V53ResourceTransferTest",
+        "V53LearnerPendingRetentionTest"
+      ],
+      "seconds": 462.2102023560001,
+      "skipped": 0,
+      "tests": 25
+    },
+    "pendingsourceretention": {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "pendingsourceretention",
+      "requestedTests": [
+        "V53LearnerSourceClaimTest",
+        "V53LearnerGenerationClaimTest",
+        "V53ResourceTransferTest",
+        "V53LearnerPendingRetentionTest"
+      ],
+      "seconds": 14.396897742000874,
+      "skipped": 0,
+      "tests": 0
+    }
+  },
+  "schema": "gse-v53-pending-source-retention-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "1310f1e1cb547ebb78d78ee48538a00e99ae831152f467ab30a62d2700decc1b",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPendingIntent.java": "dbec0400e2d451edc510e7021b426772e61630001d0c66e14a2667ce7996cc03",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipReceiveFile.java": "5115c330fd63ead36b3356a4621ce174c1de94a52e132095b674fb87c04194a4",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipResources.java": "e1764d2fbe78ee40c4fdf764388d088dde6331aa302548bbc387776f31325d17",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerPendingRetentionTest.java": "6d0828c936018bfb8c51196649dab41d6d886eb6ba8a456a0eb6fc41f03ed528",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerSourceClaimTest.java": "80b1e8914f28a34656c704e6e4c66a5411a152ded50ede8a8267d20a18d9a170",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingRetainedCheckpointTest.java": "3075cfa66bb1033df45006d8a48a00d9c51ab5e7af6051e5f78f01935b61558c"
+  },
+  "sourceSnapshot": "pendingsourceregression",
+  "status": "PASS_PENDING_SOURCE_RETENTION_COMPONENT",
+  "unchangedByteCharges": true
+}
