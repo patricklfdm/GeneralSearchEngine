@@ -367,6 +367,12 @@ final class MembershipLearnerStore implements AutoCloseable {
             require(pendingIntent==null || pendingIntent.closed(),"learner pending INTENT already owned");pendingIntent=value;
         }
     }
+    void attachPublishedDisposition(MembershipLearnerDisposition value,MembershipLearnerDisposition parent)throws IOException {
+        check();require(parent==pendingIntent && parent!=null && !parent.closed(),"linked INTENT requires actual store pending owner");
+        value.requireLinkedParent(parent);
+        MembershipLearnerDisposition.requireAbsent(MembershipLearnerCancellation.directory(plan.summary()),MembershipLearnerDisposition.Kind.CANCEL);
+        require(intent==null || intent.closed(),"learner INTENT already owned");intent=value;
+    }
     void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
         check();require(complete && intent!=null && !intent.closed(),"learner custody needs matching INTENT");
         result.roots.add(path);owner.collectCustody(result);operation.collectCustody(result);

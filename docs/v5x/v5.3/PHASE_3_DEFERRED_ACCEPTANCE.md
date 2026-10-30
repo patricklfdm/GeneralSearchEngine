@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Linked published retention](PHASE_3_PENDING_PUBLISHED_RETENTION.md) now forces the
+complete published INTENT under an exact original pending-source link. It keeps
+both histories and their existing SOURCE/LEARNER/image reservations. Unlinked
+resume still refuses the pair; linked cold recovery and complete custody are
+required before this path may issue a voter-install capability. Phase 3 remains
+**OPEN**.
+
 [Pending-owned published progress](PHASE_3_PENDING_PUBLISHED_PROGRESS.md) now
 receives complete JOINT/COMPLETED history through the actual retained owner and
 existing bounded TCP path. It binds the original typed receipt and exact INTENT

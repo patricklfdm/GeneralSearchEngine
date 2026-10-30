@@ -1,0 +1,263 @@
+{
+  "actualPendingOwner": true,
+  "archive": {
+    "bytes": 6395992,
+    "path": "target/v53-pending-published-retention/component-validation.tar.gz",
+    "sha256": "cd29560ea1deded75af9784ccca64eabde41077718ae6e808b7333e04214a477"
+  },
+  "baseCommit": "998c5330146c4ae0492d12e5e464eb36a29a6c9b",
+  "codeAndBuildInputsChecked": 1736,
+  "coldPairRecovery": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1491,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "developmentNotes": "The first immutable snapshot tested seven new linked-retention cases plus original standalone INTENT force/recovery. Both published-phase cases reached their final release check but the test expected a zero-valued count instead of the existing resource map omitting empty categories. The final snapshot changes only that one test assertion to getOrDefault; all runtime source bytes are identical. Both affected phases were rerun, together with the same-value/later-ballot and different-value acquisition regressions. The other six unchanged cases remain qualified by the first snapshot. All original failed evidence is retained; no budget/timeout/retry or runtime semantics were relaxed.",
+  "forcedLinkedCompleted": true,
+  "forcedLinkedJoint": true,
+  "interruptedForcePreserved": true,
+  "latestCases": {
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest#forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter": {
+      "failures": [],
+      "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+      "seconds": 24.595,
+      "snapshot": "pendingpublishedlinked",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest#incompleteOrExpiredAcquisitionCannotWriteLinkedPlan": {
+      "failures": [],
+      "name": "incompleteOrExpiredAcquisitionCannotWriteLinkedPlan",
+      "seconds": 58.892,
+      "snapshot": "pendingpublishedlinked",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest#interruptedLinkedForcePreservesBothOriginalsAndRejectsUnlinkedRecovery(String)[1]": {
+      "failures": [],
+      "name": "interruptedLinkedForcePreservesBothOriginalsAndRejectsUnlinkedRecovery(String)[1]",
+      "seconds": 79.855,
+      "snapshot": "pendingpublishedlinked",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest#interruptedLinkedForcePreservesBothOriginalsAndRejectsUnlinkedRecovery(String)[2]": {
+      "failures": [],
+      "name": "interruptedLinkedForcePreservesBothOriginalsAndRejectsUnlinkedRecovery(String)[2]",
+      "seconds": 82.301,
+      "snapshot": "pendingpublishedlinked",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest#interruptedLinkedForcePreservesBothOriginalsAndRejectsUnlinkedRecovery(String)[3]": {
+      "failures": [],
+      "name": "interruptedLinkedForcePreservesBothOriginalsAndRejectsUnlinkedRecovery(String)[3]",
+      "seconds": 84.391,
+      "snapshot": "pendingpublishedlinked",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest#pendingMutationAtForceBoundaryRevokesChildWithoutDeletingEvidence": {
+      "failures": [],
+      "name": "pendingMutationAtForceBoundaryRevokesChildWithoutDeletingEvidence",
+      "seconds": 80.607,
+      "snapshot": "pendingpublishedlinked",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest#publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[1]": {
+      "failures": [],
+      "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[1]",
+      "seconds": 88.071,
+      "snapshot": "pendingpublishedlinkedfinal",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest#publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[2]": {
+      "failures": [],
+      "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[2]",
+      "seconds": 84.891,
+      "snapshot": "pendingpublishedlinkedfinal",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedValueTest#laterValidCertificateForTheSameOriginalEntryAndCheckpointIsAccepted": {
+      "failures": [],
+      "name": "laterValidCertificateForTheSameOriginalEntryAndCheckpointIsAccepted",
+      "seconds": 58.684,
+      "snapshot": "pendingpublishedlinkedfinal",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedValueTest#validDifferentIntentCannotConsumeTheOriginalPendingEnd": {
+      "failures": [],
+      "name": "validDifferentIntentCannotConsumeTheOriginalPendingEnd",
+      "seconds": 56.409,
+      "snapshot": "pendingpublishedlinkedfinal",
+      "status": "PASS"
+    }
+  },
+  "nativeJoinedInstallation": false,
+  "originalParentBinding": true,
+  "originalPhysicalReplay": false,
+  "originalStandaloneIntentRegression": true,
+  "paidCloud": false,
+  "passingCases": 10,
+  "pending": [
+    "original-first cold pair recovery without a second LEARNER slot",
+    "complete pending custody/placement/native installation",
+    "coordinator scheduling, alternate-leader continuation, joint FINAL and fresh barrier",
+    "all-profile original physical/history/process qualification"
+  ],
+  "pendingCustody": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "publicReady": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "qualificationBoundary": "Actual typed/pending owner, TCP acquisition, original private pair linkage and filesystem force with conditional old-voter histories. Until original pair cold recovery and complete custody are implemented, linked retention explicitly refuses the voter-install capability.",
+  "reports": {
+    "pendingpublishedlinked": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+            "seconds": 24.595,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "fe2906f2fcce30b9f8e7158088d47f070be9f20a4e320bd51563b10a376248c1"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "pendingMutationAtForceBoundaryRevokesChildWithoutDeletingEvidence",
+            "seconds": 80.607,
+            "status": "PASS"
+          },
+          {
+            "failures": [
+              "expected: <0> but was: <null>"
+            ],
+            "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[1]",
+            "seconds": 99.624,
+            "status": "FAIL"
+          },
+          {
+            "failures": [
+              "expected: <0> but was: <null>"
+            ],
+            "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[2]",
+            "seconds": 84.972,
+            "status": "FAIL"
+          },
+          {
+            "failures": [],
+            "name": "incompleteOrExpiredAcquisitionCannotWriteLinkedPlan",
+            "seconds": 58.892,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "interruptedLinkedForcePreservesBothOriginalsAndRejectsUnlinkedRecovery(String)[1]",
+            "seconds": 79.855,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "interruptedLinkedForcePreservesBothOriginalsAndRejectsUnlinkedRecovery(String)[2]",
+            "seconds": 82.301,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "interruptedLinkedForcePreservesBothOriginalsAndRejectsUnlinkedRecovery(String)[3]",
+            "seconds": 84.391,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "969f800b9e678024b208b9fad598026d8285d42879bcabe879ae176ba0bff861"
+      }
+    },
+    "pendingpublishedlinkedfinal": {
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[1]",
+            "seconds": 88.071,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[2]",
+            "seconds": 84.891,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "b1333d3795f90ccae41f69a84afbd24b921034259ef06feec3adaf63a9fb9046"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedValueTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "laterValidCertificateForTheSameOriginalEntryAndCheckpointIsAccepted",
+            "seconds": 58.684,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "validDifferentIntentCannotConsumeTheOriginalPendingEnd",
+            "seconds": 56.409,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "2c5a643ce7f4b7c06c20b59b6590f7fa1b8dc6fc22abe1db59ec6a5499738a13"
+      }
+    }
+  },
+  "runs": {
+    "pendingpublishedlinked": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest": 7
+      },
+      "exit": 1,
+      "failures": 2,
+      "label": "pendingpublishedlinked",
+      "requestedTests": [
+        "V53PendingPublishedRetentionTest",
+        "V53LearnerIntentTest#forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter"
+      ],
+      "seconds": 589.3168756709929,
+      "skipped": 0,
+      "tests": 8
+    },
+    "pendingpublishedlinkedfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedValueTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingpublishedlinkedfinal",
+      "requestedTests": [
+        "V53PendingPublishedRetentionTest#publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners",
+        "V53PendingPublishedValueTest"
+      ],
+      "seconds": 291.1592065099976,
+      "skipped": 0,
+      "tests": 4
+    }
+  },
+  "schema": "gse-v53-pending-published-retention-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "344994f67526ebbdd1f9e870e2ab95e2df4b02809d62b3e7e9323099bb5ee3b7",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerIntent.java": "2a3be946166a28dd612e2802b79e435edb07401de54bf128963e238660902575",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerProgress.java": "ae4c285a991e9f0be7b7f0dbb4188a35aee15a23ee33eddbb73d291eb7eee5b6",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java": "4a00a0c9e7d9d882aae081b8ad26f3c8593998be1471109007b5eeb723983dba",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedRetentionTest.java": "9dda3e822347c2bd5091e1babe541f0fb9c5952b788a61412f3924891f94fb63"
+  },
+  "sourceSnapshot": "pendingpublishedlinkedfinal",
+  "status": "PASS_LINKED_PUBLISHED_RETENTION_COMPONENT"
+}

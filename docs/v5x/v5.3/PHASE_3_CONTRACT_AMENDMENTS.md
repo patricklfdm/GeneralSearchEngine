@@ -1,5 +1,31 @@
 # V5.3 Phase 3 contract amendments
 
+## A51 — original pending/full-INTENT linkage
+
+The completed A50 acquisition can issue one private, live published-source
+capability. Only that capability can retain the downloaded full INTENT alongside
+its actual A49 pending SOURCE owner. It binds the same typed head and resource
+pool, independently verifies published source/ancestry and requires the exact
+original INTENT entry/checkpoint. Decoded values and ordinary `retainIntent` or
+resume do not authorize coexistence.
+
+The bounded private INTENT plan gains `pendingSource` only for this route. Bind
+the original pending directory/inode, plan digest/inode, retained source inode,
+typed receipt, marker digest/inode and ACK digest/inode. Recheck that live
+relationship around each force boundary. Force the plan before source rename;
+force source members and both parents before returning. Detach actual receiving
+owners first so incomplete plans preserve source bytes. Keep the original
+pending history unchanged and charged as SOURCE; the full history consumes the
+existing LEARNER category and its image reservations. No capacity limit, public
+wire record, fixture, format catalog or acquisition deadline is changed.
+
+Until linked pair recovery and complete custody are connected, this route returns
+only its forced terminal result: it must refuse the voter-install capability.
+Unlinked resume refuses both complete and interrupted pairs before writes. Parent
+revocation or original-byte/inode changes revoke the child. Closing releases
+reservations without deleting either history. These component tests do not prove
+cold pair recovery, native voter installation, process death or Phase 3 closure.
+
 
 ## A50 — published progress from the original pending owner
 

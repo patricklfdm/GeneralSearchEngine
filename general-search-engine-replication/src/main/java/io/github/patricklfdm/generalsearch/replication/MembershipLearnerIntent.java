@@ -77,6 +77,9 @@ final class MembershipLearnerIntent implements AutoCloseable {
     static MembershipLearnerIntent resume(MembershipLearnerHead head,MembershipBallotAllocator.Cut cut)throws IOException {
         return new MembershipLearnerIntent(MembershipLearnerDisposition.resume(head,cut,MembershipLearnerDisposition.Kind.INTENT));
     }
+    static MembershipLearnerIntent installPublished(MembershipLearnerProgress.PublishedIntent original,MembershipBallotAllocator.Cut cut)throws IOException {
+        return new MembershipLearnerIntent(MembershipLearnerDisposition.installPublished(original,cut));
+    }
     final class Forced {
         private Forced() {}
         MembershipCapsule source()throws IOException{return retained.forcedIntent();}
@@ -88,7 +91,7 @@ final class MembershipLearnerIntent implements AutoCloseable {
         byte[] ancestry()throws IOException{return retained.intentAncestry();}
         void attach(MembershipLearnerVoterStage stage)throws IOException{retained.attachVoterStage(stage);}
     }
-    Forced forced()throws IOException {retained.forcedIntent();return new Forced();}
+    Forced forced()throws IOException {retained.requireStandaloneVoterHandoff();retained.forcedIntent();return new Forced();}
     Map<String,Object> result()throws IOException{return retained.result();}
     @Override public void close()throws IOException{retained.close();}
 }

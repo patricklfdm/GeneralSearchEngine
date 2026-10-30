@@ -39,6 +39,10 @@ handing the complete source to existing custody/placement/native installation.
 Closing the download keeps the original pending evidence and removes only its
 own receiving scratch.
 
+The subsequent [linked retention component](PHASE_3_PENDING_PUBLISHED_RETENTION.md)
+now implements that explicit durable transition. It preserves both histories;
+linked cold recovery and full custody still precede voter installation.
+
 Focused tests use real typed preparation, files and TCP with conditional old
 voting histories. They cover JOINT/COMPLETED reads, incomplete SEALED refusal,
 parent revocation at an actual response, original deadline and marker changes,

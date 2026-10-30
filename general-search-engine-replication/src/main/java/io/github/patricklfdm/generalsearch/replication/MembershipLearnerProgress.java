@@ -101,6 +101,24 @@ final class MembershipLearnerProgress implements AutoCloseable {
         var receiver=prefix.completeLearnerIntentSource(head,copy,cut);check();
         return MembershipLearnerIntent.install(head,receiver,copy,cut);
     }
+    /** Only the completed live acquisition can link a full INTENT to its actual
+     * retained pending owner. Decoded source/plan values cannot issue this. */
+    final class PublishedIntent {
+        private final MembershipFloor.Copy copy;
+        private PublishedIntent()throws IOException {require(pending!=null,"published retention requires pending owner");copy=MembershipLearnerProgress.this.source();check();}
+        void check()throws IOException {
+            require(MembershipLearnerProgress.this.source()==copy,"published original acquisition changed");pending.matchPublished(copy);
+        }
+        MembershipLearnerHead head()throws IOException {check();return head;}
+        MembershipFloor.Copy source()throws IOException {check();return copy;}
+        MembershipLearnerDisposition.RetainedSource parent()throws IOException {check();return pending;}
+        MembershipSourceReceive receiver(MembershipBallotAllocator.Cut cut)throws IOException {
+            check();var receiver=prefix.completeLearnerIntentSource(head,copy,cut);check();return receiver;
+        }
+    }
+    MembershipLearnerIntent retainPublishedIntent(MembershipBallotAllocator.Cut cut)throws IOException {
+        return MembershipLearnerIntent.installPublished(new PublishedIntent(),cut);
+    }
     /** Read pending metadata against this exact complete SEALED transfer and
      * live typed owner. No received value is a durable joining witness. */
     synchronized MembershipJoiningIntentPull joiningMetadata()throws IOException {
