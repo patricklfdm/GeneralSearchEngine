@@ -6,6 +6,20 @@ from .evidence import digest, encoded, need, strict
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = 'docs/v5x/v5.2'
 POLICY_SHA256 = '6d58dca98af4e2098318b3cffa49f8f3217ecb7f2e1b3545810505a607d9d319'
+RELEASE_POMS = {'pom.xml', 'reactor/pom.xml', 'general-search-engine-replication/pom.xml',
+                'general-search-engine-processor/pom.xml'}
+
+
+def source_bytes(root, name):
+    raw = regular(root/name)
+    # Compare with the ORIGINAL accepted snapshot inventory. Only the project
+    # version line may differ; dependencies, plugins, timestamp and source stay
+    # byte-for-byte bound. Never regenerate the cloud baseline for a release.
+    if name in RELEASE_POMS:
+        final = b'    <version>5.2.0</version>\n'
+        if raw.count(final) == 1:
+            raw = raw.replace(final, b'    <version>5.2.0-SNAPSHOT</version>\n', 1)
+    return raw
 
 
 def regular(path):
@@ -29,7 +43,7 @@ def runtime_inventory(root, spec):
         for path in base.rglob('*'):
             need(not path.is_symlink(), 'runtime source symlink')
             if path.is_file(): paths.add(path.relative_to(root).as_posix())
-    return {name: digest(regular(root/name)) for name in sorted(paths)}
+    return {name: digest(source_bytes(root, name)) for name in sorted(paths)}
 
 
 def check(root=ROOT):
@@ -65,7 +79,7 @@ def check(root=ROOT):
     spec = rules['runtimeSource']; inventory = runtime_inventory(root, spec)
     need(len(inventory) == spec['filesCount'] and digest(encoded(inventory)) == spec['inventorySha256'],
          'runtime/build source differs from accepted snapshot; evidence-impact review required')
-    return dict(scope='registered compact evidence and unchanged runtime/build sources; no raw replay',
+    return dict(scope='registered compact evidence and unchanged runtime/build sources except exact project version lines; no raw replay',
                 verification=entry['verification'], measuredSources=entry['measuredSources'],
                 measuredSequences=entry['measuredSequences'], totals=entry['totals'],
                 exceptions=entry['exceptions'], measuredArtifactPins=provenance['artifactPins'],

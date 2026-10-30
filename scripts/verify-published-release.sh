@@ -102,6 +102,19 @@ if [[ "$version" == 5.0.0 ]]; then
         python3 -m scripts.v50.candidate_artifacts validate-directory "$verification_root/candidate-jars"
     )
 fi
+if [[ "$version" == 5.2.0 ]]; then
+    mkdir "$verification_root/candidate-artifacts"
+    for artifact in "${artifacts[@]}"; do
+        cp "$download_dir/$artifact-$version.pom" "$verification_root/candidate-artifacts/$artifact.pom"
+        for suffix in '' -sources -javadoc; do
+            cp "$download_dir/$artifact-$version$suffix.jar" "$verification_root/candidate-artifacts/"
+        done
+    done
+    (
+        cd "$project_dir"
+        python3 -m scripts.v52.candidate_artifacts validate-directory "$verification_root/candidate-artifacts"
+    )
+fi
 if [[ "$version" == 5.1.0 ]]; then
     mkdir "$verification_root/candidate-artifacts"
     for artifact in "${artifacts[@]}"; do
@@ -169,5 +182,14 @@ if [[ "$version" == 5.1.* ]]; then
         -f "$project_dir/compatibility/v51-style-consumer/pom.xml" \
         -Dgse.version="$version" clean test
     consumer_summary="clean V1 through V5.1 consumers"
+fi
+if [[ "$version" == 5.2.* ]]; then
+    for consumer in v51 v52; do
+        "$project_dir/mvnw" --batch-mode --no-transfer-progress \
+            -Dmaven.repo.local="$maven_repo" \
+            -f "$project_dir/compatibility/$consumer-style-consumer/pom.xml" \
+            -Dgse.version="$version" clean test
+    done
+    consumer_summary="clean V1 through V5.2 consumers (seven modules)"
 fi
 echo "Published release verification: PASS ($((${#artifacts[@]} * 4)) artifacts, signatures, SHA-1 files, and $consumer_summary)"

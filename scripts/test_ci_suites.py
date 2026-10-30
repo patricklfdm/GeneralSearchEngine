@@ -57,7 +57,8 @@ class SuiteContractTest(unittest.TestCase):
         for job, body in jobs.items():
             steps = s.steps(s.fields(body, 4)["steps"])
             calls = ["".join(values["run"]).strip() for values in steps.values()
-                     if "run" in values and "scripts/verify-v52-" in "".join(values["run"])]
+                     if "run" in values and any("scripts/verify-v52-"+gate+".sh" in "".join(values["run"])
+                                                for gates in commands.values() for gate in gates)]
             if calls:
                 actual[job] = calls
         expected={job:["scripts/verify-v52-"+gate+".sh --skip-build" for gate in gates] for job,gates in commands.items()}

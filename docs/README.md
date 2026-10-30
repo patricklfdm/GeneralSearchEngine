@@ -23,7 +23,9 @@ now has implemented public policies and completed
 qualification was subsequently connected to the
 [complete protected cloud acceptance](v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md).
 Phase 6 registration/closeout merged through PR #364; the
-[Phase 7 release plan](v5x/v5.2/PHASE_7_CHECKLIST.md) remains open.
+[Phase 7 release plan](v5x/v5.2/PHASE_7_CHECKLIST.md) now prepares the final
+5.2.0 candidate after Phase 7A merged with passing master full CI. Final-source
+qualification and publication remain open.
 
 ## v5.2 — unreleased replica reads
 
@@ -33,7 +35,7 @@ Phase 6 registration/closeout merged through PR #364; the
 - [Cloud evidence provenance](v5x/v5.2/phase6-cloud-provenance.json)
 - [Cloud baseline registry](v5x/v5.2/cloud-benchmark-baselines.json)
 - [Phase 7 release preparation plan](v5x/v5.2/PHASE_7_CHECKLIST.md)
-- [Snapshot release checklist](v5x/v5.2/RELEASE_CHECKLIST.md)
+- [Final candidate and release checklist](v5x/v5.2/RELEASE_CHECKLIST.md)
 - [V5.2 migration guide](v5x/v5.2/MIGRATION_GUIDE.md)
 - [Draft V5.2 release notes](v5x/v5.2/RELEASE_NOTES.md)
 - [Source-reviewed entry and requirements](v5x/v5.2/PHASE_0_ENTRY_PLAN.md)

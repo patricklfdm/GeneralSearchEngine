@@ -10,7 +10,7 @@ class BuildCoordinatesTest(unittest.TestCase):
     def test_current_is_closed_and_historical_allowlist_stays_closed(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp)
-            for version in (*b.VERSIONS,'5.2.0','5.2.1-SNAPSHOT','5.2.0-SNAPSHOT-forged','6.0.0'):
+            for version in (*b.VERSIONS,'5.2.1-SNAPSHOT','5.2.0-SNAPSHOT-forged','6.0.0'):
                 (root/'pom.xml').write_text('<project><version>'+version+'</version></project>')
                 if version in b.VERSIONS:
                     self.assertEqual(version,b.current(root))
@@ -31,7 +31,11 @@ class BuildCoordinatesTest(unittest.TestCase):
                 with self.assertRaises(ValueError):b.regression_pair(names,inventory,root)
 
     def test_v52_shared_build_requires_the_new_executed_tests(self):
-        roots=['target/general-search-engine-5.2.0-SNAPSHOT.jar','replication.jar',ci_v51_bundle.CLASSES,ci_v51_bundle.REPORTS]
+        for version in ('5.2.0-SNAPSHOT', '5.2.0'):
+            with self.subTest(version=version): self.check_shared_build(version)
+
+    def check_shared_build(self, version):
+        roots=[f'target/general-search-engine-{version}.jar','replication.jar',ci_v51_bundle.CLASSES,ci_v51_bundle.REPORTS]
         files={name:b'jar' for name in roots[:2]}
         for worker in ('V51StorageWorker','V51ProtocolWorker','V51RuntimeWorker'):
             files[ci_v51_bundle.CLASSES+'/pkg/'+worker+'.class']=b'class'

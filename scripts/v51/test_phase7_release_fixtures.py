@@ -30,7 +30,7 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
             self.assertEqual(current,ET.parse(ROOT/name).getroot().findtext('m:version',namespaces=NS),name)
         consumers=list((ROOT/'compatibility').glob('*-style-consumer/pom.xml'))
         expected={'v1','v2','v3','v4','v5','v51'}
-        if current=='5.2.0-SNAPSHOT':expected.add('v52')
+        if current in ('5.2.0-SNAPSHOT', '5.2.0'):expected.add('v52')
         self.assertEqual({v+'-style-consumer' for v in expected},{p.parent.name for p in consumers})
         for path in consumers:self.assertEqual(current,ET.parse(path).getroot().findtext('m:properties/m:gse.version',namespaces=NS))
 

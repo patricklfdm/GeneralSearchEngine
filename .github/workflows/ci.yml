@@ -2688,7 +2688,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Verify V5.2 snapshot release preparation and published API compatibility
+      - name: Verify V5.2 release preparation and published API compatibility
         run: |
           python3 -m unittest scripts.v52.test_release_preparation
           python3 -m scripts.v52.release_preparation --output target/v52-release-preparation
@@ -2712,7 +2712,12 @@ jobs:
 
       - name: Verify reproducible artifacts
         run: |
-          if grep -Eq '^    <version>5\.1\.0</version>$' pom.xml; then
+          if grep -Eq '^    <version>5\.2\.0</version>$' pom.xml; then
+            scripts/verify-v52-phase7-release.sh --skip-consumers
+            python3 -m scripts.v52.candidate_artifacts validate-build
+            scripts/verify-v52-canonical-build.sh
+            python3 -m scripts.v52.candidate_artifacts validate-evidence target/v52-canonical-reproducibility --source "$GITHUB_SHA"
+          elif grep -Eq '^    <version>5\.1\.0</version>$' pom.xml; then
             scripts/verify-v51-phase7-release.sh --skip-consumers
             python3 -m scripts.v51.candidate_artifacts validate-build
             scripts/verify-v51-canonical-build.sh
@@ -2724,6 +2729,15 @@ jobs:
           else
             scripts/verify-reproducible-build.sh
           fi
+
+      - name: Upload V5.2 canonical reproducibility receipt
+        if: ${{ always() && hashFiles('target/v52-canonical-reproducibility/**') != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-canonical-reproducibility-${{ github.sha }}
+          path: target/v52-canonical-reproducibility
+          if-no-files-found: warn
+          retention-days: 90
 
       - name: Upload V5.1 canonical reproducibility receipt
         if: ${{ always() && hashFiles('target/v51-canonical-reproducibility/**') != '' }}

@@ -68,7 +68,7 @@ class CompositeTest(unittest.TestCase):
             self.assertEqual(suite["evidence"], actual_out)
             downloads += len(actual_in); uploads += len(actual_out)
         # Includes the V5.2 snapshot release-preparation receipt upload.
-        self.assertEqual((32, 131), (downloads, uploads))
+        self.assertEqual((32, 132), (downloads, uploads))
 
     def test_wrong_or_missing_producer_id_never_falls_back_to_a_name(self):
         original = "artifact-id: " + s.BUILD_ID

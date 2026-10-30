@@ -210,6 +210,9 @@ class InputsTest(unittest.TestCase):
         source = git('rev-parse', 'HEAD').decode().strip(); bound = dict(binding(), source=source)
         with patch.object(p.build, 'binding', return_value=bound), patch.object(p.build, 'layout', return_value=roots()):
             self.assertEqual(bound, p.checkout(repo, source))
+            final_roots = [name.replace('5.2.0-SNAPSHOT', '5.2.0') for name in roots()]
+            with patch.object(p.build, 'layout', return_value=final_roots):
+                with self.assertRaisesRegex(ValueError, 'input candidate version'): p.checkout(repo, source)
             (repo/'untracked').write_text('x')
             with self.assertRaisesRegex(ValueError, 'dirty checkout'): p.checkout(repo, source)
             (repo/'untracked').unlink(); (repo/'tracked').write_text('changed')

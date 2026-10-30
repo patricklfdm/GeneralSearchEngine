@@ -3,12 +3,16 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
-## Unreleased — 5.2.0-SNAPSHOT
+## 5.2.0 — 2026-10-29
+
+Release candidate; not yet published. Final-source full CI and operator release
+approval remain required. The date is the candidate preparation date.
 
 - Add snapshot release preparation: accepted cloud-source binding, nine JAR/three
   POM integrity, published 5.1 API/binary and default-read compatibility, packaged
   token fixtures and independent consumer coverage. Retain receipts for 90 days;
-  final 5.2.0 freeze and publication remain pending.
+  freeze final 5.2.0 coordinates and canonical unsigned artifacts in Phase 7B.
+  Publication remains pending.
 
 - Add explicit replica-read API declarations, fixed 112-byte history-bound tokens
   and an additive default method that rejects unsupported reads without invoking

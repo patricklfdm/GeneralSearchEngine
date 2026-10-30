@@ -11,7 +11,7 @@ from .test_remote_java import fixture
 class NativeJavaTest(unittest.TestCase):
     def setUp(self):
         self.base=storage_fixture.NativeStorageTest('test_actual_factory_original_mount_install_and_complete_history_placement')
-        self.base.setUp();self.addCleanup(self.base.doCleanups)
+        self.addCleanup(self.base.doCleanups);self.base.setUp()
         self.storage=self.base.prepare();self.group=self.base.group;self.calls=[];self.installers=[];self.records={};self.fail=False;self.drift=False
         self.value,raw=fixture(self.storage.source);self.path=self.base.root/'java.tar.gz';self.path.write_bytes(raw)
         outer=self

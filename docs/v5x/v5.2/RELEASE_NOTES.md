@@ -1,6 +1,6 @@
 # GeneralSearchEngine 5.2.0 release notes — draft
 
-These notes describe the implemented V5.2 snapshot. **5.2.0 is not published**;
+These notes describe the final V5.2 candidate. **5.2.0 is not published**;
 stable remains 5.1.0. Follow the [release checklist](RELEASE_CHECKLIST.md) before
 assigning a final date, tag or available coordinates.
 
@@ -36,6 +36,5 @@ failed attempts remain visible; reserved costs are not a provider bill.
 
 Phase 7A binds those original compact records and unchanged runtime/build sources
 to snapshot packaging/API checks. It does not replay cloud histories again or
-claim that the local snapshot JARs equal measured cloud JAR bytes. Final candidate
-reproducibility, exact-source full CI, signed publication and remote verification
-remain Phase 7B/8 work.
+claim that the local snapshot JARs equal measured cloud JAR bytes. Phase 7B pins final coordinates and reproducible unsigned bytes. Exact-source
+full CI, signed publication and remote verification remain acceptance gates.

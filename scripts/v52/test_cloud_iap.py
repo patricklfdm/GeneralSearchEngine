@@ -716,7 +716,7 @@ class NativeGuestFactoryTest(unittest.TestCase):
     def setUp(self):
         runner_test.NativeRunnerTest.setUpClass()
         self.base=runner_test.NativeRunnerTest('test_complete_native_factory_original_inputs_resources_and_final_cleanup')
-        self.base.setUp();self.addCleanup(self.base.doCleanups);self.root=self.base.root
+        self.addCleanup(self.base.doCleanups);self.base.setUp();self.root=self.base.root
         self.access=iap.access.generate(self.root/'keys','b'*32);self.key=self.root/'keys/identity'
         self.base.arguments['guest_access']=self.access;self.base.prepare()
         self.session=self.base.open();self.addCleanup(self.session.close)

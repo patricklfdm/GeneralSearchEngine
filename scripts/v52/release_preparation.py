@@ -1,4 +1,4 @@
-"""V5.2 snapshot packaging and published compatibility, without publication or cloud execution."""
+"""V5.2 packaging and published compatibility, without publication or cloud execution."""
 import argparse
 import os
 from pathlib import Path
@@ -72,7 +72,10 @@ def run(output, control_directory):
                   candidateFrozen=False, publication=False, paidCloud=False, rawCloudReplayed=False)
     try:
         record['cloudBaseline'] = b.check(ROOT)
-        version = b.policy(ROOT)['version']; record['version'] = version
+        from scripts.build_coordinates import current
+        version = current(ROOT)
+        need(version in (b.policy(ROOT)['version'], '5.2.0'), 'release preparation version')
+        record['version'] = version
         record['checkoutSource'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
         record['workingTreeClean'] = not subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT).strip()
         record['artifacts'] = artifact_inventory(ROOT, version)

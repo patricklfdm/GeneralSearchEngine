@@ -4,7 +4,8 @@ Current milestone: V5.2 [complete protected cloud acceptance](v5.2/PHASE_6_CLOUD
 passed in `40841038976/1` at verifier source `8b9aa60a`. The fifteen execution units
 represent all five rounds; the explicit source continuation and one-run retention
 waiver remain visible. Phase 6 registration/closeout merged through PR #364;
-[Phase 7A preparation](v5.2/RELEASE_CHECKLIST.md) is implemented pending acceptance. Stable remains published 5.1.0.
+[Phase 7A preparation](v5.2/RELEASE_CHECKLIST.md) merged through PR #365;
+master full CI `40968660073` passed all 62 jobs. Phase 7B is the current batch. Stable remains published 5.1.0.
 
 Historical V5.1 publication context: Phase 6 closed through PR #320,
 master `5c88a2b908347fa3e411e2018876657a21fa0912`,
@@ -22,7 +23,7 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 <a id="current-batch-v52-phase-1"></a>
 
-## Current batch: V5.2 Phase 7A snapshot release preparation
+## Current batch: V5.2 Phase 7B final candidate preparation
 
 Phase 6 closeout merged through PR #364 at `a8125ebe`. Its verifier and measured
 sources remain distinct; see the [acceptance](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md).
@@ -31,8 +32,11 @@ The [release checklist](v5.2/RELEASE_CHECKLIST.md) records compact baseline and
 API/binary/default-method probes, three token vectors, seven consumers and
 90-day release-preparation evidence. The full cloud workload is not repeated.
 
-Keep `5.2.0-SNAPSHOT` in this batch. Next is Phase 7B: explicit final 5.2.0
-canonical build/publication routes, exact-source full CI and frozen artifacts.
+Final `5.2.0` coordinates and explicit canonical build/publication routes are
+prepared in this batch. Two fixed-toolchain clean builds have identical nine-JAR/
+three-POM hashes. Only exact project-version lines differ from the original
+328-file runtime/build inventory. Final-source full CI remains required after
+commit/merge; local working-tree evidence cannot replace it.
 Published tags, cloud byte pins and concurrent V5.3 development remain outside
 this work. See the [migration guide](v5.2/MIGRATION_GUIDE.md) and
 [draft notes](v5.2/RELEASE_NOTES.md). No tag or publication is authorized here.
