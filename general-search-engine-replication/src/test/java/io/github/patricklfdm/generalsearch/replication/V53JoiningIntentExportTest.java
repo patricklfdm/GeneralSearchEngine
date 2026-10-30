@@ -381,7 +381,7 @@ class V53JoiningIntentExportTest {
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gscp"),frozenOriginal.capsule.packet.bytes());}
                                                                 if(initializeJoined) {
                                                                     if(remoteRetention) {
-                                                                        joiningEndpoint.initializeFrom(owner.activationIdentity());assertJoinedRetention(journal,seed.bytes(),joining);
+                                                                        joiningEndpoint.initialize();assertJoinedRetention(journal,seed.bytes(),joining);
                                                                         assertEquals(MembershipEndpointHandoff.State.ACTIVE,joiningEndpoint.state());
                                                                         assertNotNull(joiningEndpoint.votingEndpoint());
                                                                         Files.write(n.f.raw.resolve("joining-retention-wire.json"),canonical(seedWire,8*1024*1024));

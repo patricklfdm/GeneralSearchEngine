@@ -1,5 +1,23 @@
 # V5.3 Phase 3 contract amendments
 
+## A65 — bounded discovery of existing joining preparation
+
+The joining owner may locate an existing old-proposer preparation by one ordered
+pass over the current JOINT cut's known old identities. Only an exact correlated
+initial `NOT_READY` reply or exhausted bounded IO/deadline transport attempts may
+advance to another identity. A refusal after transfer starts, malformed response,
+capacity/closed transport or unknown I/O stops discovery. Do not observe remote
+promises, choose a highest ballot, combine hints or allocate another campaign.
+
+The first valid complete hint fixes the route for the unchanged exact-source
+acquisition and native initialization checks. Share the original local deadline,
+cut/fence and cancellation guard. Charge discovery 64 KiB of CONTROL until its
+reader exits and owner closes; retain the managed initializer's separate routing
+charge through admitted force. No published hint, absence reply or routing result
+grants voting rights. Whole native/process and autonomous-runtime gates stay open.
+
+See [joining preparation discovery](PHASE_3_JOINING_DISCOVERY.md).
+
 ## A64 — ephemeral joining preparation routing publication
 
 After the actual old majority is prepared, publish a bounded canonical routing

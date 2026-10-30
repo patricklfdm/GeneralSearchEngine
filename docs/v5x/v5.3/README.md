@@ -1,5 +1,14 @@
 # V5.3 — controlled cluster operations
 
+[Joining preparation discovery](PHASE_3_JOINING_DISCOVERY.md) now finds an
+existing old proposer from the current known old identities before managed
+initialization. It makes one bounded pass, preserves the original deadline and
+stops on malformed/fatal responses; no remote promise is observed. The complete
+native history now supplies neither a proposer nor a Hint to the joining entry,
+but remains compiled/deferred. Automatic preparation/election scheduling and
+full native/process qualification remain open; Phase 3 is **OPEN**. Older entries
+below retain their historical source-bound scope.
+
 [Joining preparation hint handoff](PHASE_3_JOINING_HINT_HANDOFF.md) now publishes
 bounded routing data on the old proposer's endpoint and lets the new owner fetch
 it through existing transfer frames before managed initialization. The native

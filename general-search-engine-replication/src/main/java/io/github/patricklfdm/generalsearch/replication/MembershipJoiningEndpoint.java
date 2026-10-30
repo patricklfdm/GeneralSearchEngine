@@ -72,6 +72,8 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
     void initialize(MembershipJoiningRetentionCampaign.Hint prepared)throws IOException {
         initialize(Objects.requireNonNull(prepared),null);
     }
+    /** Discover one prepared old proposer without an externally supplied route. */
+    void initialize()throws IOException {initialize(null,null);}
     /** The permanent old proposer publishes only an ephemeral routing hint.
      * Fetch it on the same bounded channel before reading exact original sources. */
     void initializeFrom(MembershipIdentity proposer)throws IOException {initialize(null,Objects.requireNonNull(proposer));}
@@ -83,12 +85,13 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
                 admitted.set(true);initialTime();
                 return new MembershipInitializationTask.Action(){
                     private MembershipSourcePull pending;
+                    private MembershipJoiningPreparationDiscovery discovery;
                     private MembershipJoiningRetentionAcquisition acquisition;
                     private boolean cancelled;
                     @Override public void run()throws IOException {
                         // Keep encoded/decoded routing data charged until the
                         // admitted transaction exits, including concurrent close.
-                        try(var routing=proposer==null?null:resources.reserve(MembershipResources.Unit.CONTROL,
+                        try(var routing=supplied!=null?null:resources.reserve(MembershipResources.Unit.CONTROL,
                                 "joining-hint-receive-"+UUID.randomUUID(),4L*MembershipJoiningPreparation.MAXIMUM)) {
                             var hint=supplied;
                             if(proposer!=null) {
@@ -103,6 +106,12 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
                                     initialTime();original.check();hint=MembershipJoiningPreparation.read(raw,context,owner.activationIdentity(),proposer);
                                 }
                                 synchronized(this){pending=null;}
+                            }else if(hint==null) {
+                                var original=owner.joiningRetentionPreparation(resources);
+                                var search=new MembershipJoiningPreparationDiscovery(owner,resources,bounds,link,
+                                        ()->{initialTime();original.check();},clock,started,budget);
+                                synchronized(this){if(cancelled){search.close();throw new IOException("joining discovery cancelled before admission");}discovery=search;}
+                                hint=search.find();initialTime();original.check();
                             }
                             initialTime();var made=new MembershipJoiningRetentionAcquisition(owner,resources,bounds,link,
                                     MembershipJoiningEndpoint.this::initialTime,clock,started,budget,hint);
@@ -111,9 +120,9 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
                         }
                     }
                     @Override public void close()throws IOException {
-                        MembershipSourcePull read;MembershipJoiningRetentionAcquisition acquired;
-                        synchronized(this){cancelled=true;read=pending;acquired=acquisition;}
-                        try{if(acquired!=null)acquired.close();}finally{if(read!=null)read.close();}
+                        MembershipSourcePull read;MembershipJoiningRetentionAcquisition acquired;MembershipJoiningPreparationDiscovery search;
+                        synchronized(this){cancelled=true;read=pending;acquired=acquisition;search=discovery;}
+                        try{if(acquired!=null)acquired.close();}finally{try{if(read!=null)read.close();}finally{if(search!=null)search.close();}}
                     }
                 };
             });

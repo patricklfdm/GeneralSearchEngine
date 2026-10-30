@@ -1,0 +1,100 @@
+{
+  "archive": {
+    "bytes": 19404751,
+    "path": "target/v53-joining-discovery/component-validation.tar.gz",
+    "sha256": "d4f923a85ec06fc4e47265fc86e2436b038f1bd107127a4c4c2e74fd9c65d70c"
+  },
+  "archiveMembers": 9267,
+  "automaticCoordinatorConnected": false,
+  "baseCommit": "d94d413a6ce5cc4dcb5218f1e1e179d6c94605e8",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1582,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "deferred": [
+    "actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier",
+    "alternative-old-majorities-and-all-profiles",
+    "native-tcp-hint-acquisition-initialization-and-cold-resume",
+    "close-racing-admitted-native-initialization",
+    "original-process-death-recovery",
+    "maximum-combined-resources",
+    "automatic-old-preparation-and-election-scheduling",
+    "complete-learner-runtime-orchestration"
+  ],
+  "executions": {
+    "joiningdiscovery": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationDiscoveryTest": 7,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningdiscovery",
+      "requestedTests": [
+        "V53JoiningPreparationDiscoveryTest",
+        "V53JoiningPreparationTest",
+        "V53JoiningEndpointTest",
+        "V53InitializationTaskTest"
+      ],
+      "seconds": 42.460192056998494,
+      "skipped": 0,
+      "tests": 24
+    },
+    "joiningdiscoveryfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 13,
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationDiscoveryTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest": 7,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionCampaignTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest": 16
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningdiscoveryfinal",
+      "requestedTests": [
+        "V53JoiningPreparationDiscoveryTest",
+        "V53JoiningPreparationTest",
+        "V53JoiningEndpointTest",
+        "V53InitializationTaskTest",
+        "V53JoiningRetentionCampaignTest",
+        "V53JoiningRetentionNetworkTest",
+        "V53TransferServiceTest",
+        "V53ActivationEndpointTest"
+      ],
+      "seconds": 297.6346258859994,
+      "skipped": 0,
+      "tests": 68
+    }
+  },
+  "finalCodeAndBuildInputsChecked": 1315,
+  "knownOldDiscoveryImplemented": true,
+  "nativeHistoryExecuted": false,
+  "paidCloud": false,
+  "phase3Closed": false,
+  "publicRuntime": false,
+  "remoteHintHandoffImplemented": true,
+  "retainedFailures": {},
+  "schema": "gse-v53-joining-discovery-component-v1",
+  "scope": "bounded-known-old-proposer-discovery-before-managed-initialization",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "c6c2ed44bd42ba073b04915aaca3022546c6ffba0095b8064bf9fb1668b8bd5f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningEndpoint.java": "34e70c6bdb1565002431ae03d7f53f015460e62f8571242a9f5fdf34a530ba52",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparation.java": "0bc2c53a767734fe7b8d9c000aa2f3472cba16584cdebb72a0e044cb1d2797b6",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparationDiscovery.java": "d5872850c11e679d2607f7e5a43289eda1d691101e44d6d9c37d47cf7d5d6371",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "60352e0fc4aedcc60b51c31d48436d2f15c64b28bf3dad0b868836284780aefd",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningPreparationDiscoveryTest.java": "7446134ff97c52a24ee19e61fe89026c840ce3b655e350cb2110fcd66ff89e8c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningPreparationTest.java": "0504b328b37cab63fad1ced2c76a05beccce5b38c1e593a99f8f2d9cf7a5bc2b"
+  },
+  "status": "PASS"
+}

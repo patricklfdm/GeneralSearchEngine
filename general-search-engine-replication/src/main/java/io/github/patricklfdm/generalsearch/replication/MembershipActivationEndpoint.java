@@ -290,6 +290,15 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 && !MembershipJoiningPreparation.reference(current,sender,reference)
                 && MembershipLearnerPrefixExport.scope(current,sender,reference)==null
                 && MembershipLearnerProgressAccess.scope(current,sender,reference)==null)return null;
+        if(MembershipJoiningPreparation.reference(current,sender,reference)) {
+            var preparation=joiningPreparation;
+            if(preparation==null || !preparation.poll()) {
+                if(preparation!=null)revokeJoiningPreparation(preparation);
+                scratchOwner.check();var reply=MembershipJoiningPreparation.unavailable(owner,resources,sender,request);
+                long elapsed=clock.getAsLong()-received;
+                require(!closed && elapsed>=0 && elapsed<budget,"joining discovery endpoint closed/original deadline");return reply;
+            }
+        }
         synchronized(prefixRegistry) {
             require(!closed,"prefix endpoint closed");active=prefixService;
             if(active==null || !active.poll() || !active.sameCut(current.cut)) {

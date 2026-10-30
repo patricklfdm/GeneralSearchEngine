@@ -61,7 +61,8 @@ class V53JoiningPreparationTest {
             catch(IOException|RuntimeException error){return CompletableFuture.failedFuture(error);}
         })) {
             var before=V53ReplayFilesTest.files(l.path);
-            assertThrows(IllegalArgumentException.class,()->pull.fetchPrefixMetadata(MembershipJoiningPreparation.reference(l.reader.activationContext(),l.reader.activationIdentity()),MembershipJoiningPreparation.MAXIMUM));
+            var rejection=assertThrows(MembershipSourcePull.Rejected.class,()->pull.fetchPrefixMetadata(MembershipJoiningPreparation.reference(l.reader.activationContext(),l.reader.activationIdentity()),MembershipJoiningPreparation.MAXIMUM));
+            assertEquals("NOT_READY",object(rejection.response.value().get("payload")).get("reason"));
             assertEquals(before,V53ReplayFilesTest.files(l.path));
         }
     }

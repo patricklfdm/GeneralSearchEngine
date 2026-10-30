@@ -19,6 +19,22 @@ final class MembershipJoiningPreparation implements AutoCloseable {
         return MembershipJoiningRetentionExport.reference(context,joining,MembershipJoiningRetentionExport.reference(context,joining))
                 && reference(context,joining).equals(digest);
     }
+    private static void initial(MembershipContext context,MembershipIdentity local,MembershipIdentity reader,Decoded request) {
+        var payload=object(request.value().get("payload"));
+        require(MembershipContext.nodes(context.view,"old").contains(local.nodeId().value())
+                && reference(context,reader,(String)payload.get("digest")),"joining preparation original old/joining identities");
+        MembershipPrefixExport.envelope(context,local,reader,request);
+        require(request.kind().equals("CHUNK") && number(request.value().get("sequence"))==1
+                && request.value().get("view").equals(context.authority()) && payload.get("action").equals("REQUEST")
+                && number(payload.get("offset"))==0 && payload.get("bytes").equals(""),"joining preparation initial request");
+    }
+    /** Absence is reported only for a valid initial read at the exact JOINT cut.
+     * It is neither a grant nor an instruction to observe this promise. */
+    static Decoded unavailable(MembershipGrantJournal owner,MembershipResources resources,MembershipIdentity reader,Decoded request)throws IOException {
+        synchronized(owner){var current=owner.discoveryState(resources);initial(current.context(),owner.activationIdentity(),reader,request);
+            var values=new TreeMap<>(request.value());values.put("sender",request.value().get("recipient"));values.put("recipient",request.value().get("sender"));
+            values.put("payload",Map.of("promised",current.ballot(),"reason","NOT_READY"));return decode(encode("wire","REJECT",values),"wire","REJECT");}
+    }
     static byte[] bytes(MembershipJoiningRetentionCampaign.Hint hint) {
         var sources=new TreeMap<>(hint.sources()).entrySet().stream().map(v->Map.of("node",v.getKey(),"basis",v.getValue())).toList();
         return canonical(Map.of("schema",SCHEMA,"root",hint.root(),"cut",hint.cut(),"joining",MembershipBootstrapSeed.identity(hint.joining()),
@@ -72,10 +88,7 @@ final class MembershipJoiningPreparation implements AutoCloseable {
     }
     MembershipTransferExport open(MembershipIdentity reader,Decoded request)throws IOException {
         check();require(joining.equals(reader) && reference(context,reader,(String)object(request.value().get("payload")).get("digest")),"joining preparation exact joining reader/reference");
-        MembershipPrefixExport.envelope(context,owner.activationIdentity(),reader,request);
-        var payload=object(request.value().get("payload"));require(request.kind().equals("CHUNK") && number(request.value().get("sequence"))==1
-                && request.value().get("view").equals(context.authority()) && payload.get("action").equals("REQUEST")
-                && number(payload.get("offset"))==0 && payload.get("bytes").equals(""),"joining preparation initial request");
+        initial(context,owner.activationIdentity(),reader,request);
         var charge=resources.reserve(MembershipResources.Unit.CONTROL,"joining-preparation-export-"+UUID.randomUUID(),2L*MAXIMUM);
         try{check();return new Export(reader,request,charge);}catch(IOException|RuntimeException|Error error){charge.close();throw error;}
     }
