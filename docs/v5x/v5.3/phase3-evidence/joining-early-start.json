@@ -1,0 +1,203 @@
+{
+  "archive": {
+    "bytes": 19514897,
+    "path": "target/v53-joining-early-start/component-validation.tar.gz",
+    "sha256": "a84f9a212351620a2bb41d14a23c72ac8d1c7ea73b70c970a024748bbfad2689"
+  },
+  "archiveMembers": 8866,
+  "baseCommit": "079d9550fdc89bae342e2e359b47b0a40112db94",
+  "completedJavaExecutions": {
+    "joiningearlycompile": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationDiscoveryTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationRendezvousTest": 6
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningearlycompile",
+      "requestedTests": [
+        "V53JoiningPreparationRendezvousTest",
+        "V53JoiningPreparationDiscoveryTest",
+        "V53JoiningEndpointTest",
+        "V53InitializationTaskTest"
+      ],
+      "seconds": 36.488627849001205,
+      "selectionMatched": true,
+      "skipped": 0,
+      "tests": 25
+    },
+    "rounddeadlineprobe": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "rounddeadlineprobe",
+      "requestedTests": [
+        "V53RoundDriverTest#activationFreshBarrierAndSequentialDataHaveOneGuardedOwner"
+      ],
+      "seconds": 141.67152476399497,
+      "selectionMatched": true,
+      "skipped": 0,
+      "tests": 1
+    }
+  },
+  "componentStatus": "PASS",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1603,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "deferred": [
+    "complete-native-history-outcome-and-independent-replay",
+    "original-default-timeout-stable-round",
+    "all-profiles-and-process-death",
+    "maximum-combined-resources",
+    "automatic-election-adoption",
+    "removed-proposer-takeover"
+  ],
+  "finalCodeAndBuildInputsChecked": 1323,
+  "historicalArchive": {
+    "path": "target/v53-joining-continuation/component-validation.tar.gz",
+    "sha256": "ca4da5eb9c7feb0f3e5aa57ed154a74072ae140e491c3c86a3be9b05febc3053"
+  },
+  "historicalSnapshotReplay": {
+    "currentJavaAcceptance": false,
+    "observations": {
+      "joining-originals-continuation": {
+        "bytes": 288815,
+        "initializationQualified": false,
+        "members": 60,
+        "nativeHistoryQualified": false,
+        "phase3Complete": false,
+        "roots": 15,
+        "scope": "joining-original-inventory",
+        "stage": "native",
+        "status": "PARTIAL"
+      },
+      "joining-originals-native": {
+        "bytes": 147056,
+        "initializationQualified": false,
+        "members": 47,
+        "nativeHistoryQualified": false,
+        "phase3Complete": false,
+        "roots": 15,
+        "scope": "joining-original-inventory",
+        "stage": "native",
+        "status": "PARTIAL"
+      },
+      "joining-originals-placed": {
+        "bytes": 197918,
+        "initializationQualified": false,
+        "members": 80,
+        "nativeHistoryQualified": false,
+        "phase3Complete": false,
+        "roots": 15,
+        "scope": "joining-original-inventory",
+        "stage": "placed",
+        "status": "PARTIAL"
+      }
+    },
+    "originalInventoryFilesVerified": 1359,
+    "source": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/joiningcontinuationnativefinal-95d42274/general-search-engine-replication/target/v53-native-dispatch/run-5be9f2e7-f8ac-4f4b-abb3-093a4698f97f"
+  },
+  "nativeEarlyStartupQualified": false,
+  "paidCloud": false,
+  "pendingHistory": {
+    "case": "V53JoiningIntentExportTest.joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+    "label": "joiningearlyhistory",
+    "sourceSnapshot": "joiningearlyhistory-4f644ca2",
+    "status": "PENDING"
+  },
+  "phase3Closed": false,
+  "physicalHistoryQualified": false,
+  "publicRuntime": false,
+  "pythonTests": 24,
+  "pythonTestsStatus": "PASS",
+  "retainedFailures": {
+    "rounddeadlineprobe": {
+      "case": "V53RoundDriverTest.activationFreshBarrierAndSequentialDataHaveOneGuardedOwner",
+      "reason": "membership exchange deadline",
+      "timingRootCauseEstablished": false
+    }
+  },
+  "schema": "gse-v53-native-joining-qualification-increment-v1",
+  "scope": "native-early-start-entry-and-strict-original-snapshot-reader",
+  "sourceFiles": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "c8e3af57bc4da3cd20970886932369d967ee82694d186dde4352e2fe21e1dc9c",
+    "scripts/v53/joining_snapshot.py": "36458f980e1a7c1837fe914a7d77fb9b1a03f4ece9b16afe368ee818a129db07",
+    "scripts/v53/test_joining_snapshot.py": "da68da83df482e27d77bf2dc7de0bbba237ac44fdb7c15795e1e2a01a022445e"
+  },
+  "status": "PARTIAL",
+  "transportObservations": {
+    "outcome": "FAILED: membership exchange deadline",
+    "phase3Complete": false,
+    "requests": [
+      {
+        "clientDeliveredSeconds": [
+          54.748754257
+        ],
+        "clientWritesSeconds": [
+          44.799926087,
+          50.353540325
+        ],
+        "firstReadToResponseOrCloseSeconds": 9.675897843000001,
+        "firstWriteToResponseOrCloseSeconds": 9.869146618999999,
+        "nestedRequests": {
+          "CHUNK": 2,
+          "TRANSFER_COMMIT": 1
+        },
+        "request": "04bf3a5076e6d9b7fd56cdba9c73e9e8e5d7e554fe823414bb52963b7fa90f92",
+        "serverFailuresSeconds": [],
+        "serverReadsSeconds": [
+          44.993174863,
+          50.620289969
+        ],
+        "serverResponseSeconds": [
+          54.669072706,
+          54.748525308
+        ]
+      },
+      {
+        "clientDeliveredSeconds": [],
+        "clientWritesSeconds": [
+          98.699229719,
+          104.049802489,
+          109.37305668
+        ],
+        "firstReadToResponseOrCloseSeconds": 15.685173509999998,
+        "firstWriteToResponseOrCloseSeconds": 15.895150466999993,
+        "nestedRequests": {
+          "CHUNK": 4,
+          "TRANSFER_COMMIT": 2
+        },
+        "request": "804ae72c758c1471992ad8f53ebbd782c9f745bb9e0c3c58b3091814cc7f241f",
+        "serverFailuresSeconds": [
+          114.594380186,
+          114.59438056,
+          114.594381408
+        ],
+        "serverReadsSeconds": [
+          98.909206676,
+          104.440352562,
+          109.767063567
+        ],
+        "serverResponseSeconds": []
+      }
+    ],
+    "rows": 831,
+    "sameJvmClock": true,
+    "schema": "gse-v53-local-transport-diagnostic-v1",
+    "sourcePath": "target/v53-native-cancellation/builds/rounddeadlineprobe-81e08558/general-search-engine-replication/target/v53-native-dispatch-diagnostics/run-9f6cd2a8-ebcd-40a7-8d67-5b21f8a262e1.jsonl",
+    "sourceSha256": "951dc7e550ec7099140d812b4c88575a638c77eae0c0f5b56c8ba1edcb533d82",
+    "status": "OBSERVATION_ONLY",
+    "timingRootCauseEstablished": false
+  }
+}

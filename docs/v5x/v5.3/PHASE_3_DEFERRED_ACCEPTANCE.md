@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Native early-start qualification](PHASE_3_NATIVE_JOINING_QUALIFICATION.md) now
+has a complete history entry that observes real TCP absence before starting old
+preparation, then continues through initialization, FINAL/BARRIER and cold reopen.
+Its final-source acceptance is pending. Strict portable joining snapshots and
+retained transport timing diagnostics support the remaining independent replay;
+none of these observations closes Phase 3, which remains **OPEN**.
+
 [Joining preparation rendezvous](PHASE_3_JOINING_RENDEZVOUS.md) lets the managed
 initializer wait for a later old-proposer publication under its original lifetime.
 Only explicitly absent routes are polled again; exhausted transport routes are
@@ -416,11 +423,24 @@ mvn -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
   -Dtest=V53JoiningIntentExportTest#actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier test
 ```
 
-A separate whole-history variant is still required to start managed
-initialization before the old proposer publishes. It must retain actual initial
-absence, exclude exhausted routes without retry renewal, then complete original
-native acquisition/force and the remaining history. Conditional rendezvous tests
-and compilation do not satisfy that gate.
+The early-start whole-history variant is now implemented and has a local
+execution pending at this source. It starts managed initialization first, waits
+for an actual correlated initial absence response, then runs old preparation.
+It preserves a separate original generation/capsule/ancestry expectation before
+the initializer may write, and joins the initializer under its original deadline.
+The old after-preparation entry and its read-only seed checks remain unchanged.
+Run each complete history in its own fresh JVM/workspace; do not split at the
+initialization, FINAL or cold-reopen boundaries.
+
+```bash
+mvn -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  -Dtest=V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory test
+```
+
+These entries still need independent original-first physical/history replay and
+negative qualification. Conditional rendezvous tests and compilation do not
+satisfy that gate.
 
 The actual old proposer must run the native old-side preparation step over TCP
 under the same deadline as the subsequent acquisition. The new owner's temporary

@@ -89,6 +89,9 @@ class V53JoiningIntentExportTest {
     @Test void actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier()throws Exception {
         nativeJoining(true,true,true,true,true,true,true,true);
     }
+    @Test void joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory()throws Exception {
+        nativeJoining(true,true,true,true,true,true,true,true,true);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
@@ -111,6 +114,10 @@ class V53JoiningIntentExportTest {
         nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,initializeJoined,continueJoint,false);
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,boolean initializeJoined,boolean continueJoint,boolean remoteRetention)throws Exception {
+        nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,initializeJoined,continueJoint,remoteRetention,false);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup)throws Exception {
+        assertTrue(!earlyStartup || remoteRetention && initializeJoined && continueJoint);
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
         // The additional complete installation/cold-open scenario has one
         // declared owner lifetime from its start. Existing scenarios keep
@@ -337,12 +344,27 @@ class V53JoiningIntentExportTest {
                                                                 }
                                                                 long retentionStarted=System.nanoTime();
                                                                 var seedWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+                                                                // Capture the actual unused joining copy before the
+                                                                // concurrent initializer may force its ledgers. This
+                                                                // pure expectation never authorizes initialization.
+                                                                var earlyCopy=earlyStartup?journal.floorCopyCurrent():null;
+                                                                byte[] earlyAncestry=earlyStartup?earlyCopy.fileBytes("ancestry.gsr"):null;
+                                                                var firstAbsent=new java.util.concurrent.CountDownLatch(1);
+                                                                var absence=new java.util.concurrent.atomic.AtomicReference<Map<String,Object>>();
                                                                 // The installed joining owner serves read-only copies
                                                                 // for governing-floor maintenance before it can vote.
                                                                 var joiningLink=new java.util.concurrent.atomic.AtomicReference<MembershipTransport>();
-                                                                try(var joiningEndpoint=remoteRetention?new MembershipJoiningEndpoint<>(journal,pool,n.bounds,(peer,q,kind,deadline)->{
+                                                                try(var initializer=earlyStartup?java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor():null;
+                                                                        var joiningEndpoint=remoteRetention?new MembershipJoiningEndpoint<>(journal,pool,n.bounds,(peer,q,kind,deadline)->{
                                                                             var channel=joiningLink.get();return channel==null?java.util.concurrent.CompletableFuture.failedFuture(new java.io.IOException("joining listener starting")):
-                                                                                    channel.exchange(peer,q,kind,deadline).thenApply(answer->{seedWire.add(V53SelectedPullTest.wire(q,answer));return answer;});
+                                                                                    channel.exchange(peer,q,kind,deadline).thenApply(answer->{
+                                                                                        var observed=V53SelectedPullTest.wire(q,answer);seedWire.add(observed);
+                                                                                        if(earlyStartup && q.kind().equals("CHUNK") && number(q.value().get("sequence"))==1
+                                                                                                && object(q.value().get("payload")).get("digest").equals(MembershipJoiningPreparation.reference(earlyCopy.capsule.context,joining))
+                                                                                                && answer.kind().equals("REJECT") && object(answer.value().get("payload")).get("reason").equals("NOT_READY")
+                                                                                                && absence.compareAndSet(null,observed))firstAbsent.countDown();
+                                                                                        return answer;
+                                                                                    });
                                                                         },temp.resolve("joining-initial-endpoint"),System::nanoTime,retentionStarted,BUDGET,builder().configuration(),config.materialization()):null;
                                                                         var transport=remoteRetention?new MembershipTransport(journal,n.bounds,pool,joiningEndpoint,MembershipTransport.Events.NONE):null;
                                                                         var retentionPreparation=remoteRetention?new MembershipJoiningRetentionCampaign(owner,n.endpoints.getFirst(),resources,n.bounds,
@@ -354,10 +376,20 @@ class V53JoiningIntentExportTest {
                                                                     assertThrows(IllegalArgumentException.class,joiningEndpoint::votingEndpoint);
                                                                 }
                                                                 MembershipJoiningRetentionCampaign.Hint prepared=null;
+                                                                java.util.concurrent.Future<?> initializing=null;
                                                                 var originals=new ArrayList<MembershipSelection.Source>();
                                                                 if(remoteRetention) {
+                                                                    if(earlyStartup) {
+                                                                        Files.write(n.f.raw.resolve("joining-early-generation.gsr"),earlyCopy.generation.bytes());
+                                                                        Files.write(n.f.raw.resolve("joining-early-capsule.gscp"),earlyCopy.capsule.packet.bytes());
+                                                                        Files.write(n.f.raw.resolve("joining-early-ancestry.gsr"),earlyAncestry);
+                                                                        initializing=initializer.submit(()->{joiningEndpoint.initialize();return null;});
+                                                                        assertTrue(firstAbsent.await(n.bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS),"actual absent preparation response before old campaign");
+                                                                        assertFalse(initializing.isDone(),"no published preparation may initialize the new owner");
+                                                                        System.out.println("v53JoiningIntentStage=initializer-observed-absence-before-old-preparation");
+                                                                    }
                                                                     prepared=retentionPreparation.run();
-                                                                    assertFalse(retentionPreparation.probeInitialized(),"original read-only joining owner is not initialized");
+                                                                    if(!earlyStartup)assertFalse(retentionPreparation.probeInitialized(),"original read-only joining owner is not initialized");
                                                                     for(String node:new TreeSet<>(prepared.sources().keySet()))originals.add(n.owners.stream()
                                                                             .filter(old->old.activationIdentity().nodeId().value().equals(node)).findFirst().orElseThrow().originalSource());
                                                                     System.out.println("v53JoiningIntentStage=old-majority-retention-prepared-over-tcp");
@@ -367,9 +399,9 @@ class V53JoiningIntentExportTest {
                                                                     for(int i=0;i<2;i++){n.owners.get(i).prepareCurrent(ballot);originals.add(n.owners.get(i).originalSource());}
                                                                 }
                                                                 assertThrows(IllegalArgumentException.class,()->owner.joiningRetentionSeed(originals));
-                                                                var beforeSeed=V53ReplayFilesTest.files(request.replicaDirectory());
-                                                                var seed=journal.joiningRetentionSeed(originals);
-                                                                assertEquals(beforeSeed,V53ReplayFilesTest.files(request.replicaDirectory()),"seed preparation must not install ledgers");
+                                                                var beforeSeed=earlyStartup?null:V53ReplayFilesTest.files(request.replicaDirectory());
+                                                                var seed=earlyStartup?MembershipJoiningRetentionSeed.capture(earlyCopy.capsule,earlyAncestry,joining,originals):journal.joiningRetentionSeed(originals);
+                                                                if(!earlyStartup)assertEquals(beforeSeed,V53ReplayFilesTest.files(request.replicaDirectory()),"seed preparation must not install ledgers");
                                                                 assertEquals(List.of(3L,5L),V53PeerRetentionPlanTest.cuts(seed.learner.recorded()));
                                                                 var ownCopy=journal.floorCopyCurrent();
                                                                 var replay=MembershipJoiningRetentionSeed.read(seed.bytes(),ownCopy.capsule,ownCopy.fileBytes("ancestry.gsr"),joining);
@@ -382,7 +414,13 @@ class V53JoiningIntentExportTest {
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gscp"),frozenOriginal.capsule.packet.bytes());}
                                                                 if(initializeJoined) {
                                                                     if(remoteRetention) {
-                                                                        joiningEndpoint.initialize();assertJoinedRetention(journal,seed.bytes(),joining);
+                                                                        if(earlyStartup) {
+                                                                            long left=BUDGET-(System.nanoTime()-retentionStarted);assertTrue(left>0,"original initialization budget remains");
+                                                                            initializing.get(left,TimeUnit.NANOSECONDS);
+                                                                            Files.write(n.f.raw.resolve("joining-early-start.json"),canonical(Map.of("schema","gse-v53-joining-early-start-v1",
+                                                                                    "initialAbsence",absence.get(),"beforeOldPreparation",true,"completed",true),8192));
+                                                                        }else joiningEndpoint.initialize();
+                                                                        assertJoinedRetention(journal,seed.bytes(),joining);
                                                                         assertEquals(MembershipEndpointHandoff.State.ACTIVE,joiningEndpoint.state());
                                                                         assertNotNull(joiningEndpoint.votingEndpoint());
                                                                         assertTrue(retentionPreparation.probeInitialized(),"old proposer observes native completion through TCP");

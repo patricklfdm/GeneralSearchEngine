@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native early-start qualification](PHASE_3_NATIVE_JOINING_QUALIFICATION.md) now
+has a complete history entry that observes real TCP absence before starting old
+preparation, then continues through initialization, FINAL/BARRIER and cold reopen.
+Its final-source acceptance is pending. Strict portable joining snapshots and
+retained transport timing diagnostics support the remaining independent replay;
+none of these observations closes Phase 3, which remains **OPEN**.
+
 [Joining preparation rendezvous](PHASE_3_JOINING_RENDEZVOUS.md) lets the managed
 initializer wait for a later old-proposer publication under its original lifetime.
 Only explicitly absent routes are polled again; exhausted transport routes are
