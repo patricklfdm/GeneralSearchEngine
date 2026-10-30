@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Ownership-preserving evidence snapshots](PHASE_3_EVIDENCE_SNAPSHOTS.md) correct
+a reproduced test-helper POSIX lock release. Independent JVM probes cover the
+helper; older continuous histories retain their original qualification limits.
+Phase 3 remains **OPEN**.
+
 [Published joining-source export](PHASE_3_PUBLISHED_LEARNER_SOURCE.md) binds
 configured-member progress to its actual native current source and original
 retained operation. Ordinary nonvoting learner exports retain their majority

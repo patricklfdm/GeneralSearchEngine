@@ -1,0 +1,234 @@
+{
+  "actualSeparateJvmLockProbes": true,
+  "archive": {
+    "bytes": 9639050,
+    "path": "target/v53-snapshot-locks/component-validation.tar.gz",
+    "sha256": "fc6c476dbf8b9775a3d1a58a196a01386dfe03ddafef12e0696ccf01e93180dd"
+  },
+  "baseCommit": "dfd088a3a1f5e8fdb673c6eaf8a0779cdfe372ab",
+  "codeAndBuildInputsChecked": 1742,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1525,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "executions": {
+    "snapshotlocksgreen": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53EvidenceSnapshotTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": 4
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "snapshotlocksgreen",
+      "requestedTests": [
+        "V53EvidenceSnapshotTest",
+        "V53MembershipOwnershipTest"
+      ],
+      "seconds": 15.002192657004343,
+      "skipped": 0,
+      "tests": 7
+    },
+    "snapshotlocksred": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53EvidenceSnapshotTest": 2
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "snapshotlocksred",
+      "requestedTests": [
+        "V53EvidenceSnapshotTest"
+      ],
+      "seconds": 13.288987775988062,
+      "skipped": 0,
+      "tests": 2
+    },
+    "snapshotlockssafe": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53EvidenceSnapshotTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": 4
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "snapshotlockssafe",
+      "requestedTests": [
+        "V53EvidenceSnapshotTest",
+        "V53MembershipOwnershipTest"
+      ],
+      "seconds": 14.793377195994253,
+      "skipped": 0,
+      "tests": 7
+    }
+  },
+  "formatsChanged": false,
+  "independentDestinationFiles": true,
+  "nativeJoiningRepeated": false,
+  "nonemptyMultiBufferCopy": true,
+  "originalPhysicalReplay": false,
+  "overwriteRefused": true,
+  "paidCloud": false,
+  "passingTests": 7,
+  "phase3Complete": false,
+  "productionCodeChanged": false,
+  "productionSingleLinkAdmissionUnchanged": true,
+  "productionTimingLimitsChanged": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "qualificationBoundary": "The original copy helper releases a live POSIX lock; the exact negative execution is retained. Three corrected snapshot tests and four existing ownership tests pass with separate JVM probes. An intermediate hard-link assertion expected the wrong exception class and is retained as a test-authoring failure. This component does not retroactively qualify old native snapshot lock exclusion or complete process-death/history replay.",
+  "repeatedCopies": true,
+  "reports": {
+    "snapshotlocksgreen": {
+      "io.github.patricklfdm.generalsearch.replication.V53EvidenceSnapshotTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "recursiveCopyPreservesRealProcessLocksAndIndependentBytes",
+            "seconds": 0.19,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "existingEvidenceRefusesOverwriteWithoutDisturbingTheOriginalOwner",
+            "seconds": 0.033,
+            "status": "PASS"
+          },
+          {
+            "failures": [
+              "Unexpected exception type thrown, expected: <java.lang.IllegalArgumentException> but was: <io.github.patricklfdm.generalsearch.replication.ReplicationException>"
+            ],
+            "name": "linkedNegativeEvidenceKeepsContentSemanticsWithoutReleasingAnOwnedInode",
+            "seconds": 0.155,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "869e59bc0c823a8ea17dde1def8f8ef4b594e369e73701b5867e9f2959ed0e82"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "renamedInodeAndRepeatedRequestsDoNotOpenAnotherChannel",
+            "seconds": 0.132,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "duplicatePlanOpenDoesNotReleaseTheExternalLock",
+            "seconds": 0.505,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "duplicateAllocatorOpenDoesNotReleaseTheExternalLockAndCloseAllowsReopen",
+            "seconds": 0.141,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "failedOpenDoesNotLeaveARegistrationAndDifferentInodesCanBeOwned",
+            "seconds": 0.06,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "36a82d56a9633f98809e6629c3ebd7835857239ff113a85daaab26b8a1f06db4"
+      }
+    },
+    "snapshotlocksred": {
+      "io.github.patricklfdm.generalsearch.replication.V53EvidenceSnapshotTest": {
+        "cases": [
+          {
+            "failures": [
+              "expected: <0> but was: <2>"
+            ],
+            "name": "recursiveCopyPreservesRealProcessLocksAndIndependentBytes",
+            "seconds": 0.131,
+            "status": "FAIL"
+          },
+          {
+            "failures": [],
+            "name": "existingEvidenceRefusesOverwriteWithoutDisturbingTheOriginalOwner",
+            "seconds": 0.033,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "f6b8bdb6fc1ac4e7d0de09fa20a45bc2605db2a68fe3bf3f71317087b487c710"
+      }
+    },
+    "snapshotlockssafe": {
+      "io.github.patricklfdm.generalsearch.replication.V53EvidenceSnapshotTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "recursiveCopyPreservesRealProcessLocksAndIndependentBytes",
+            "seconds": 0.21,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "existingEvidenceRefusesOverwriteWithoutDisturbingTheOriginalOwner",
+            "seconds": 0.047,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "linkedNegativeEvidenceKeepsContentSemanticsWithoutReleasingAnOwnedInode",
+            "seconds": 0.162,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "101f88aba12111c2cf3f8c45056e23cf50dfc5c1ca1db4c59ca9b60d1b51af22"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "renamedInodeAndRepeatedRequestsDoNotOpenAnotherChannel",
+            "seconds": 0.158,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "duplicatePlanOpenDoesNotReleaseTheExternalLock",
+            "seconds": 0.74,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "duplicateAllocatorOpenDoesNotReleaseTheExternalLockAndCloseAllowsReopen",
+            "seconds": 0.257,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "failedOpenDoesNotLeaveARegistrationAndDifferentInodesCanBeOwned",
+            "seconds": 0.063,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "037073570e2ce0db9bb56c339c4a4f4ebdba7e6461c32c64ec5c3ac94892ce30"
+      }
+    }
+  },
+  "schema": "gse-v53-evidence-snapshots-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53EvidenceSnapshotTest.java": "d80125446ec26efc0462fa584f77a421555a4bb8dc5a7c169f06628ba3e1f95c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalApplicationTest.java": "24a12828424f54cf87da04ef70ee5d894cb91617805e1cf1f6bd7c063e7b0a30"
+  },
+  "sourceSnapshotDifferences": {
+    "snapshotlocksgreen": [
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53EvidenceSnapshotTest.java"
+    ],
+    "snapshotlocksred": [
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53EvidenceSnapshotTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JournalApplicationTest.java"
+    ],
+    "snapshotlockssafe": []
+  },
+  "status": "PASS_SNAPSHOT_OWNERSHIP_COMPONENT",
+  "symbolicAndHardLinkEvidencePreserved": true
+}

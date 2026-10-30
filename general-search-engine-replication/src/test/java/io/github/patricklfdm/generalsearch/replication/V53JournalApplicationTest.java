@@ -172,7 +172,40 @@ class V53JournalApplicationTest {
         var result=new HashSet<Owned>();for(Object row:list(value)){var v=object(row);assertTrue(result.add(new Owned((String)v.get("voter"),UUID.fromString((String)v.get("storage")),(String)v.get("record"),(String)v.get("parent"))));}return result;
     }
     static void copy(Path from,Path to)throws IOException {
-        Files.createDirectory(to);try(var paths=Files.walk(from)){for(Path p:paths.toList()){Path target=to.resolve(from.relativize(p));if(Files.isDirectory(p)){if(!Files.exists(target))Files.createDirectory(target);}else Files.copy(p,target);}}
+        Files.createDirectory(to);
+        try(var paths=Files.walk(from)) {
+            for(Path p:paths.toList()) {
+                Path target=to.resolve(from.relativize(p));
+                if(Files.isDirectory(p)){if(!Files.exists(target))Files.createDirectory(target);continue;}
+                // Preserve the helper's historical content-only link semantics.
+                // A reader of a live lock must borrow the owned descriptor;
+                // closing an independent reader releases the process POSIX lock.
+                Path original=p.toRealPath();
+                if(Files.getFileStore(original).supportsFileAttributeView("unix")
+                        && ((Number)Files.getAttribute(original,"unix:nlink")).longValue()>1) {
+                    linkedCopy(original,target);continue;
+                }
+                try(var input=MembershipFileAccess.open(original,StandardOpenOption.READ);
+                        var output=java.nio.channels.FileChannel.open(target,StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE)) {
+                    var buffer=java.nio.ByteBuffer.allocate(65536);
+                    while(input.read(buffer)>0){buffer.flip();while(buffer.hasRemaining())output.write(buffer);buffer.clear();}
+                }
+            }
+        }
+    }
+    /** Malformed hard-link evidence stays readable without relaxing production
+     * single-link admission or opening that inode in the observing process. */
+    private static void linkedCopy(Path from,Path to)throws IOException {
+        var child=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData","-cp",
+                System.getProperty("java.class.path"),SnapshotCopy.class.getName(),from.toString(),to.toAbsolutePath().toString()).redirectErrorStream(true).start();
+        try {
+            if(!child.waitFor(30,java.util.concurrent.TimeUnit.SECONDS))throw new IOException("linked snapshot copy deadline");
+            if(child.exitValue()!=0)throw new IOException("linked snapshot copy: "+new String(child.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8));
+        }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException(error);}
+        finally{if(child.isAlive())child.destroyForcibly();}
+    }
+    public static final class SnapshotCopy {
+        public static void main(String[] args)throws Exception {Files.copy(Path.of(args[0]),Path.of(args[1]));}
     }
     static void child(Path root,String label,String point,String mode)throws Exception {
         Path stdout=root.resolve(label+".stdout"),stderr=root.resolve(label+".stderr");
