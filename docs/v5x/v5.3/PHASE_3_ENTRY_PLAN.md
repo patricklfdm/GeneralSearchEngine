@@ -9,6 +9,10 @@ and 40 focused tests pass; corrected full-history acceptance remains pending.
 Strict portable joining snapshots and
 retained transport timing diagnostics support the remaining independent replay;
 none of these observations closes Phase 3, which remains **OPEN**.
+[Original-source joining ledger replay](PHASE_3_JOINING_LEDGER_REPLAY.md) now
+reconstructs the three initial ledgers and native transaction bytes, with 13 exact
+evidence negatives. Full ancestry/force/network and whole-history acceptance
+remain separate open gates.
 
 [Joining preparation rendezvous](PHASE_3_JOINING_RENDEZVOUS.md) lets the managed
 initializer wait for a later old-proposer publication under its original lifetime.

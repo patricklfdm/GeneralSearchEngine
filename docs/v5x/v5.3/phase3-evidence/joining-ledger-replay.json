@@ -1,0 +1,135 @@
+{
+  "archive": {
+    "bytes": 6590213,
+    "members": 3461,
+    "path": "target/v53-joining-ledger-replay/component-validation-portable.tar.gz",
+    "sha256": "299f9c839a3bfbebd71106909d980acb5c7ddafd2a7180b9b894afeee28fdc38"
+  },
+  "archivePortableReplay": true,
+  "baseCommit": "529a7c070e3a827ba248294029f6da3ae997163f",
+  "componentStatus": "PASS",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1611,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "deferred": [
+    "full-capsule-ancestry",
+    "force-and-network-provenance",
+    "complete-native-history",
+    "all-profiles-and-process-death"
+  ],
+  "nativeHistoryQualified": false,
+  "originalHistoryStatus": "FAIL: coordinator scratch parent",
+  "originalSource": "joiningearlyhistory-4f644ca2",
+  "originalSourceArchive": {
+    "bytes": 29874438,
+    "members": 13972,
+    "path": "target/v53-joint-scratch/component-validation.tar.gz",
+    "sha256": "dc077aaa81c08af102b8912cd47060679f6b5f725d53acb188ff40761908cfe8"
+  },
+  "paidCloud": false,
+  "phase3Closed": false,
+  "publicRuntime": false,
+  "pythonTests": 42,
+  "pythonTestsPassed": true,
+  "qualification": {
+    "negatives": [
+      {
+        "case": "decision-checksum",
+        "reason": "joining derivation exact original decision",
+        "status": "REJECTED"
+      },
+      {
+        "case": "decision-key",
+        "reason": "joining derivation exact original decision",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completion-key",
+        "reason": "joining derivation exact original completion",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completion-hash",
+        "reason": "joining derivation exact original completion",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-owner",
+        "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "drop-peer-uncertainty",
+        "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "learner-empty",
+        "reason": "joining derivation exact initial ledger: learner-retention.gslr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "future-revision",
+        "reason": "joining derivation exact initial ledger: future-retention.gsft",
+        "status": "REJECTED"
+      },
+      {
+        "case": "copied-inode",
+        "reason": "joining derivation exact original decision",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-missing",
+        "reason": "joining derivation original source absent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "grant-missing",
+        "reason": "joining derivation original grant absent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "journal-owner",
+        "reason": "joining derivation original journal owner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-orphan",
+        "reason": "joining derivation retained source count",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "capsuleAncestryQualified": false,
+      "forceAndNetworkQualified": false,
+      "initialLedgerBytesVerified": true,
+      "initialLedgers": {
+        "future-retention.gsft": "9c9c5dc7568f3b7d38a6880e9e4eadcb5f1faaed7d0f684fcfa6a9ac51e8a4b7",
+        "learner-retention.gslr": "338c5a6c1d539712496d6b3d7dd66aabe3d688123fe56d7def58afd05d6aea31",
+        "peer-retention.gspr": "ad7251193eaf7df74661726f36fece3a27c55e34b5ed91a36e33565311faf136"
+      },
+      "nativeHistoryQualified": false,
+      "oldSources": 2,
+      "originalSourceBindingsVerified": true,
+      "phase3Complete": false,
+      "scope": "original-source-bound-joining-ledgers",
+      "seedSha256": "056b0fc1e67fecdbf2ce69aebe06653342ea6e618df8e8c3048f0c15c19b315e",
+      "status": "PARTIAL"
+    },
+    "phase3Complete": false,
+    "status": "PARTIAL"
+  },
+  "schema": "gse-v53-joining-ledger-replay-v1",
+  "sourceFiles": {
+    "scripts/v53/joining_retention_evidence.py": "e378d46db03798b77c690c12a3c475eaeb1a06098f9c5ca88bd7984aff4760c0",
+    "scripts/v53/test_joining_retention_evidence.py": "ab8479eb56c28234fb88eea201ecde04eb33ab6a9c56582d611498baaf41f3ae"
+  },
+  "status": "PARTIAL"
+}
