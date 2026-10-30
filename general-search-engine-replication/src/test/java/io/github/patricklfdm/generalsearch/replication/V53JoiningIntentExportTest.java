@@ -508,9 +508,13 @@ class V53JoiningIntentExportTest {
                         temp.resolve("joining-native-incoming"),System::nanoTime,budget,builder().configuration(),config.materialization());
                 var transport=new MembershipTransport(owner,n.bounds,resources,(peer,request)->{
                     try{return joiningService?joined.handle(peer,request):endpoint.handle(peer,request);}catch(java.io.IOException|RuntimeException error){
+                        n.diagnostic(owner.activationIdentity().nodeId().value(),"HANDLER_FAILED",request,error);
                         failures.add(Map.of("kind",request.kind(),"request",request.digest(),"failure",error.toString()));throw error;
                     }
-                },(event,request,response)->{if(event.equals("BEFORE_RESPONSE_WRITE"))wire.add(V53SelectedPullTest.wire(request,response));})) {
+                },(event,request,response)->{
+                    n.diagnostic(owner.activationIdentity().nodeId().value(),event,request,null);
+                    if(event.equals("BEFORE_RESPONSE_WRITE"))wire.add(V53SelectedPullTest.wire(request,response));
+                })) {
                 link.set(transport);if(joiningService){assertEquals(MembershipEndpointHandoff.State.ACTIVE,joined.state());assertNotNull(joined.votingEndpoint());}
                 assertTrue(n.transports.get(2).usage().closed());probeOldLocks(n);
                 new V53MembershipOwnershipTest().probe(config.replicaDirectory().resolve("replica.lock"));

@@ -30,6 +30,7 @@ class V53ActivationDriverTest {
         final ReplicationBounds bound;
         final LongSupplier clock;
         final boolean tcp;
+        Path driverScratch;
         Local(int size,boolean tcp,Path raw,LongSupplier clock,int requestMillis)throws Exception {
             this.clock=clock;this.tcp=tcp;bound=V53MembershipTransportTest.bounds(2,requestMillis,FRAME);
             var helper=new V53MembershipTransportTest();helper.temp=temp;group=helper.new Group(size,raw);
@@ -53,9 +54,10 @@ class V53ActivationDriverTest {
         }
         MembershipActivationDriver driver(int maximum)throws Exception {return driver(maximum,bound);}
         MembershipActivationDriver driver(int maximum,ReplicationBounds settings)throws Exception {
+            driverScratch=temp.resolve("driver-"+UUID.randomUUID());
             return new MembershipActivationDriver(owners.getFirst(),endpoints.getFirst(),budgets.getFirst(),settings,(p,r,k,d)->{
                 requests.add(r);deadlines.add(d);return override.get().exchange(p,r,k,d);
-            },V53ActivationEndpointTest.verifier(),List.of(),List.of(),temp.resolve("driver-"+UUID.randomUUID()),clock,BUDGET,maximum);
+            },V53ActivationEndpointTest.verifier(),List.of(),List.of(),driverScratch,clock,BUDGET,maximum);
         }
         @Override public void close()throws Exception {
             for(var endpoint:endpoints)endpoint.close();for(var t:group.transports)t.close();executor.shutdownNow();assertTrue(executor.awaitTermination(10,TimeUnit.SECONDS));
@@ -200,6 +202,61 @@ class V53ActivationDriverTest {
             var run=CompletableFuture.runAsync(()->assertThrows(Exception.class,driver::run));
             assertTrue(entered.await(5,TimeUnit.SECONDS));driver.close();run.get(5,TimeUnit.SECONDS);assertTrue(pending.isCancelled());
             assertTrue(l.endpoints.getFirst().usage().scopeEnded());assertThrows(Exception.class,driver::selection);
+        }
+    }
+    @Test void idlePrepareObservesHigherFenceWithoutCompetingForWriter()throws Exception {
+        idleFence("PREPARE");
+    }
+    @Test void idleInstallationObservesHigherFenceWithoutCompetingForWriter()throws Exception {
+        idleFence("SELECTED");
+    }
+    private void idleFence(String kind)throws Exception {
+        try(var l=local();var driver=l.driver(2)) {
+            var normal=l.override.get();var pending=new CompletableFuture<Decoded>();var entered=new CountDownLatch(1);
+            var request=new AtomicReference<Decoded>();var cancelled=new CountDownLatch(1);var result=new CompletableFuture<Throwable>();
+            pending.whenComplete((reply,error)->{if(pending.isCancelled())cancelled.countDown();});
+            l.override.set((p,r,k,d)->{
+                if(r.kind().equals(kind)){request.set(r);entered.countDown();return pending;}
+                return normal.exchange(p,r,k,d);
+            });
+            Thread runner=Thread.ofPlatform().start(()->{
+                try{driver.run();result.complete(null);}catch(Throwable error){result.complete(error);}
+            });
+            try {
+                assertTrue(entered.await(10,TimeUnit.SECONDS));
+                V53MembershipTransportTest.waitFor(()->Arrays.stream(runner.getStackTrace()).anyMatch(frame->
+                        frame.getClassName().equals("java.util.concurrent.ArrayBlockingQueue") && frame.getMethodName().equals("poll")));
+                // The pending RPC needs no writer access. A separately observed
+                // higher ballot must cancel it even while storage is occupied.
+                synchronized(l.owners.getFirst()) {
+                    var higher=new TreeMap<>(object(request.get().value().get("ballot")));
+                    higher.put("counter",number(higher.get("counter"))+1);l.owners.getFirst().observeCurrent(higher);
+                    assertTrue(cancelled.await(3,TimeUnit.SECONDS),"idle activation waited for the writer before cancelling a fenced RPC");
+                }
+            }finally {
+                pending.cancel(true);runner.join(10_000);
+            }
+            assertFalse(runner.isAlive());assertNotNull(result.get(1,TimeUnit.SECONDS));
+            assertEquals(1,driver.campaigns());assertFalse(l.events.get("node-1").contains("INSTALL_BEFORE_RETURN"));
+        }
+    }
+    @Test void resumedReplyRechecksAuthorityAndScratchBeforeSelection()throws Exception {
+        for(boolean scratch:List.of(false,true))try(var l=local();var driver=l.driver(2)) {
+            var normal=l.override.get();var pending=new CompletableFuture<Decoded>();var entered=new CountDownLatch(1);
+            var answer=new AtomicReference<Decoded>();
+            l.override.set((p,r,k,d)->normal.exchange(p,r,k,d).thenCompose(reply->{
+                if(r.kind().equals("PREPARE")){answer.set(reply);entered.countDown();return pending;}
+                return CompletableFuture.completedFuture(reply);
+            }));
+            var run=CompletableFuture.supplyAsync(()->{try{driver.run();return null;}catch(Exception error){return error;}});
+            assertTrue(entered.await(10,TimeUnit.SECONDS));Path damaged=scratch?l.driverScratch.resolve("owner.json"):
+                    l.group.fixture.request.targets().getFirst().replicaDirectory().resolve("selector.gsr");
+            byte[] before=Files.readAllBytes(damaged),changed=before.clone();changed[changed.length-1]^=1;
+            try {
+                Files.write(damaged,changed);pending.complete(answer.get());assertNotNull(run.get(10,TimeUnit.SECONDS));
+                assertFalse(l.events.get("node-1").contains("SELECTED_FORCED"));
+                assertFalse(l.events.get("node-1").contains("INSTALL_BEFORE_RETURN"));
+            }finally{Files.write(damaged,before);pending.cancel(true);}
         }
     }
     @Test void failedInstallationAtDeadlineCannotStartFreshGrant()throws Exception {

@@ -1,11 +1,19 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Activation waiting](PHASE_3_ACTIVATION_WAIT.md) now avoids taking the journal
+writer during idle response polling; work boundaries retain complete validation.
+This corrects a reproduced cancellation defect, not full native timing
+qualification. Phase 3 remains **OPEN**.
+
 [Native early-start qualification](PHASE_3_NATIVE_JOINING_QUALIFICATION.md) now
 has a complete history entry that observes real TCP absence before starting old
 preparation, then continues through initialization, FINAL/BARRIER and cold reopen.
 Its first execution initialized and cold reopened the joining owner, then failed
 at a missing coordinator scratch parent. The serial scratch handoff is corrected
-and 40 focused tests pass; corrected full-history acceptance remains pending.
+and 40 focused tests pass. The corrected whole run reached cold reopen, then
+failed on a joining-voter PREPARE deadline; its original evidence is retained
+in the [failed-history receipt](phase3-evidence/corrected-joint-history.json).
+Full qualification remains open.
 Strict portable joining snapshots and
 retained transport timing diagnostics support the remaining independent replay;
 none of these observations closes Phase 3, which remains **OPEN**.

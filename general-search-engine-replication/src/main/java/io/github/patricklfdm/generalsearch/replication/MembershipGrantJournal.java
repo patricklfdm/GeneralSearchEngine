@@ -3061,6 +3061,13 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized void checkActivationBallot(String view,Map<String,Object> ballot)throws IOException {
         require(current!=null && current.capsule.context.authority().equals(view),"activation view changed");checkOwner();fence(ballot);
     }
+    /** Cancellation hint only: idle waits must not acquire the writer used by
+     * peer source requests. This does not validate files, grants or selections
+     * and cannot authorize consuming a reply or performing any protocol work. */
+    void checkActivationWait(String view,Map<String,Object> ballot) {
+        var generation=current;require(generation!=null && generation.capsule.context.authority().equals(view),"activation view changed");
+        fence(ballot);
+    }
     /** Volatile replies cannot outlive the exact live owner, grant, view or installed selection. */
     synchronized void checkActivation(Decoded original,Decoded selected,boolean installed) throws IOException {
         require(current!=null && promise!=null && basis!=null,"activation grant unavailable");checkOwner();

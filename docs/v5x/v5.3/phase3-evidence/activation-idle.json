@@ -1,0 +1,65 @@
+{
+  "archive": {
+    "bytes": 19520400,
+    "members": 9163,
+    "path": "target/v53-activation-idle/component-validation.tar.gz",
+    "sha256": "5e709972ad1138373655c93fb18226f2e4f3e48ea4bdbf4a79b05c9422e83e04"
+  },
+  "baseCommit": "762742d35d5228364d9adc865973d14598978b17",
+  "componentStatus": "PASS",
+  "currentCheckedFiles": [
+    "MembershipActivationDriver.java",
+    "MembershipGrantJournal.java",
+    "V53ActivationDriverTest.java"
+  ],
+  "executions": {
+    "activationidlebefore": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest": 2
+      },
+      "exit": 1,
+      "failures": 2,
+      "label": "activationidlebefore",
+      "requestedTests": [
+        "V53ActivationDriverTest#idlePrepareObservesHigherFenceWithoutCompetingForWriter+idleInstallationObservesHigherFenceWithoutCompetingForWriter"
+      ],
+      "seconds": 28.677170930997818,
+      "skipped": 0,
+      "tests": 2
+    },
+    "activationidlefixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationDriverTest": 23,
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 13,
+        "io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53ScratchTest": 13
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "activationidlefixed",
+      "requestedTests": [
+        "V53ActivationDriverTest",
+        "V53ScratchTest",
+        "V53CurrentGenerationTest",
+        "V53ActivationEndpointTest"
+      ],
+      "seconds": 288.0517031030031,
+      "skipped": 0,
+      "tests": 58
+    }
+  },
+  "limitations": [
+    "Conditional driver/endpoint TCP fixtures do not qualify native full history.",
+    "Idle cancellation defect is reproduced; complete native timeout causality and corrected-history success remain unproven.",
+    "Native fixture diagnostic event hook added after component snapshot; it does not alter production code tested here."
+  ],
+  "paidCloud": false,
+  "phase3Closed": false,
+  "publicRuntime": false,
+  "schema": "gse-v53-activation-idle-v1",
+  "snapshots": {
+    "activationidlebefore": "activationidlebefore-1e6a68b3",
+    "activationidlefixed": "activationidlefixed-e4da4c76"
+  },
+  "status": "PARTIAL"
+}

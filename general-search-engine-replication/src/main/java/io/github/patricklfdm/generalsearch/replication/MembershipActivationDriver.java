@@ -71,8 +71,13 @@ final class MembershipActivationDriver implements AutoCloseable {
         scratchOwner=owner.openScratch(scratch,MembershipScratch.Role.OUTGOING,resources,event->{});this.scratch=scratchOwner.directory();
     }
     private long remaining()throws IOException {
+        waitingRemaining();scratchOwner.check();return waitingRemaining();
+    }
+    /** Idle queue polling has no storage effect. Keep its deadline/cancellation
+     * checks separate from the complete checks at every work boundary so the
+     * waiter does not repeatedly take the writer needed by reverse transfers. */
+    private long waitingRemaining()throws IOException {
         if(closed || Thread.currentThread().isInterrupted())throw new IOException("activation driver closed/interrupted");
-        scratchOwner.check();
         Throwable failure=fatal.get();if(failure!=null)throw failure("activation driver fenced/failed",failure);
         long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"original activation driver deadline");return budget-elapsed;
     }
@@ -160,6 +165,10 @@ final class MembershipActivationDriver implements AutoCloseable {
         }
         void checkBase()throws IOException {remaining();require(!ended,"activation driver round ended");owner.checkActivation(own.basis,null,false);remaining();}
         void check()throws IOException {checkBase();if(history!=null)history.recheck();}
+        void waiting()throws IOException {
+            waitingRemaining();require(!ended,"activation driver round ended");
+            owner.checkActivationWait(own.capsule.context.authority(),campaign.ballot());
+        }
         MembershipActivationAncestry.Resolution history(List<MembershipSelection.Source> sources)throws IOException {
             require(history==null,"activation original source set already fixed");
             if(!ancestry.isEmpty())return new MembershipActivationAncestry.Resolution(sources,ancestry);
@@ -177,7 +186,10 @@ final class MembershipActivationDriver implements AutoCloseable {
             var task=new Task(peer,request,install);synchronized(tasks){tasks.add(task);}task.thread.start();return task;
         }
         Task next(long wait)throws IOException {
-            check();try {var task=completions.poll(Math.min(remaining(),Math.min(wait,TimeUnit.MILLISECONDS.toNanos(50))),TimeUnit.NANOSECONDS);check();return task;}
+            waiting();try {
+                var task=completions.poll(Math.min(waitingRemaining(),Math.min(wait,TimeUnit.MILLISECONDS.toNanos(50))),TimeUnit.NANOSECONDS);
+                waiting();if(task!=null)check();return task;
+            }
             catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("activation driver interrupted",error);}
         }
         void select(String deferred)throws IOException {
@@ -188,7 +200,7 @@ final class MembershipActivationDriver implements AutoCloseable {
             long opportunity=TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis()),lastLaunch=clock.getAsLong();
             Task lastFailure=null;
             while(campaign.state()==MembershipActivation.State.PREPARING) {
-                check();long waited=clock.getAsLong()-lastLaunch;
+                waiting();long waited=clock.getAsLong()-lastLaunch;
                 if(launched<order.size() && (pending==0 || waited>=opportunity)) {start(order.get(launched++),false);pending++;lastLaunch=clock.getAsLong();}
                 if(pending==0){require(lastFailure!=null,"activation driver empty source set");throw new PeerUnavailable(lastFailure.peer,lastFailure.error);}
                 var task=next(opportunity);if(task==null)continue;pending--;

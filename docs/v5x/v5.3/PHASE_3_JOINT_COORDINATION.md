@@ -62,7 +62,11 @@ The later [native qualification](PHASE_3_NATIVE_JOINING_QUALIFICATION.md) expose
 a scratch-parent defect after initialization/cold reopen. Preparation and normal
 activation now reuse the caller's same OUTGOING scope only after draining the
 previous owner; the exact marker/lock continues to enforce identity and exclusion.
-The correction has 40 focused passing tests; full corrected history is pending.
+The correction has 40 focused passing tests. The subsequent whole execution
+passed native initialization/cold reopen, then failed waiting for the joining
+voter's PREPARE during normal activation. Its
+[original failed-history receipt](phase3-evidence/corrected-joint-history.json)
+remains distinct from successful substage replay. Full qualification is open.
 
 At the original increment, Its retaining
 cold continuation now calls this coordinator instead of constructing the normal

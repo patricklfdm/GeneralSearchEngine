@@ -42,8 +42,15 @@ and drains before normal activation reopens the same original marker/lock. No
 arbitrary parent is created and no path, ownership or resource check is relaxed.
 A short regression reproduces the old failure; another proves overlap is refused
 and drained reuse preserves the marker and journal. All 40 related tests pass.
-One corrected whole history, `jointscratchhistory-a0ff0bb8`, is running; complete
-acceptance remains pending. See [the correction receipt](phase3-evidence/joint-scratch.json).
+The corrected whole history, `jointscratchhistory-a0ff0bb8`, completed with failure
+after actual native cold reopen. Normal activation exhausted two campaigns while
+waiting for node-4's PREPARE response (`membership exchange deadline`). It reached
+the ordinary maintenance path; the old scratch-parent error did not recur. The
+retained thread sample is one observation of generation/file checks, not proof
+of the complete timing cause. Initial-ledger replay and all 13 exact mutations
+pass on this run's original substage; they do not turn the failed history into PASS.
+See [the scratch correction](phase3-evidence/joint-scratch.json) and
+[the completed failed-history receipt](phase3-evidence/corrected-joint-history.json).
 
 ## Strict portable snapshot inventory
 
@@ -86,8 +93,9 @@ two TRANSFER_COMMIT requests. The original round remains failed; these timings
 cannot distinguish disk, scheduling, locking and repeated verification costs.
 No claim that the issue is harmless or external is made.
 
-Source/archive hashes, completed focused checks and the pending full-history
-reference are in [the receipt](phase3-evidence/joining-early-start.json).
+The original increment's source/archive hashes and focused checks are in
+[its historical receipt](phase3-evidence/joining-early-start.json); the later
+completed failed history is recorded separately above.
 Remaining work includes reviewing this native execution, profiling the timeout
 if necessary, integrating complete independent source/force/network replay,
 exact negative qualification, all profiles/majorities, process death and the

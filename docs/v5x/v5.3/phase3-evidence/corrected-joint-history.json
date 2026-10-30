@@ -1,0 +1,125 @@
+{
+  "archive": {
+    "bytes": 11266883,
+    "members": 5475,
+    "path": "target/v53-joint-scratch/corrected-native-history.tar.gz",
+    "sha256": "7ad5203c806cb2c9532931fa0914ee91d93c2c9289cd57220061f6a8909a5617"
+  },
+  "baseCommit": "762742d35d5228364d9adc865973d14598978b17",
+  "codeAndBuildInputsChecked": 1323,
+  "limits": "Whole-history Java outcome and independent substage/component checks do not close the full protocol, process or profile gates.",
+  "observations": {
+    "execution": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "jointscratchhistory",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory"
+      ],
+      "seconds": 1109.7195417990006,
+      "skipped": 0,
+      "tests": 1
+    },
+    "initialLedgerSubstage": {
+      "negatives": [
+        {
+          "case": "decision-checksum",
+          "reason": "joining derivation exact original decision",
+          "status": "REJECTED"
+        },
+        {
+          "case": "decision-key",
+          "reason": "joining derivation exact original decision",
+          "status": "REJECTED"
+        },
+        {
+          "case": "completion-key",
+          "reason": "joining derivation exact original completion",
+          "status": "REJECTED"
+        },
+        {
+          "case": "completion-hash",
+          "reason": "joining derivation exact original completion",
+          "status": "REJECTED"
+        },
+        {
+          "case": "peer-owner",
+          "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+          "status": "REJECTED"
+        },
+        {
+          "case": "drop-peer-uncertainty",
+          "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+          "status": "REJECTED"
+        },
+        {
+          "case": "learner-empty",
+          "reason": "joining derivation exact initial ledger: learner-retention.gslr",
+          "status": "REJECTED"
+        },
+        {
+          "case": "future-revision",
+          "reason": "joining derivation exact initial ledger: future-retention.gsft",
+          "status": "REJECTED"
+        },
+        {
+          "case": "copied-inode",
+          "reason": "joining derivation exact original decision",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-missing",
+          "reason": "joining derivation original source absent",
+          "status": "REJECTED"
+        },
+        {
+          "case": "grant-missing",
+          "reason": "joining derivation original grant absent",
+          "status": "REJECTED"
+        },
+        {
+          "case": "journal-owner",
+          "reason": "joining derivation original journal owner",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-orphan",
+          "reason": "joining derivation retained source count",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "capsuleAncestryQualified": false,
+        "forceAndNetworkQualified": false,
+        "initialLedgerBytesVerified": true,
+        "initialLedgers": {
+          "future-retention.gsft": "1cd55294cc525d510d88b37c2509bbb87d144836b8f35525d6037d8fe084685c",
+          "learner-retention.gslr": "ccf5901f5dc212f860db5fe6220dae8cbe9817f01b3c2145678ed957f6416cc0",
+          "peer-retention.gspr": "18148638dbb7874bde2f6dca8fcc1f4ee5ccd7d256b4f818670937291aec3873"
+        },
+        "nativeHistoryQualified": false,
+        "oldSources": 2,
+        "originalSourceBindingsVerified": true,
+        "phase3Complete": false,
+        "scope": "original-source-bound-joining-ledgers",
+        "seedSha256": "9178b5223fa6ec6bea5a3a6e720aeb3341132442c7869e35d9385097d7153613",
+        "status": "PARTIAL"
+      },
+      "phase3Complete": false,
+      "status": "PARTIAL"
+    },
+    "phase3Closed": false,
+    "physicalHistoryQualified": false,
+    "runtimeHistoryStatus": "FAIL",
+    "sourceSnapshot": "jointscratchhistory-a0ff0bb8"
+  },
+  "paidCloud": false,
+  "phase3Closed": false,
+  "physicalHistoryQualified": false,
+  "publicRuntime": false,
+  "schema": "gse-v53-corrected-joint-history-v1",
+  "status": "PARTIAL"
+}
