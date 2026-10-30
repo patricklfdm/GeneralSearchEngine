@@ -57,6 +57,31 @@ class V53ElectionWaitTest {
             assertFalse(worker.isAlive());
         }
     }
+    @Test void freshRetryDoesNotConsumeExpiredContactAsAnImmediateElection()throws Exception {
+        try(var f=new Fixture();var wait=new MembershipElectionWait(f.l.owners.getFirst(),f.l.endpoints.getFirst(),f.l.budgets.getFirst(),
+                POLICY,f.clock::get,(a,b)->a,0,millis(100),true)) {
+            f.heartbeat(100,true);f.clock.set(millis(20));var before=files(f.l);
+            var result=new CompletableFuture<MembershipGrantJournal.DiscoveryState>();Thread worker=run(wait,result);
+            try {
+                idle(worker);f.clock.set(millis(34));assertFalse(result.isDone());
+                f.clock.set(millis(35));assertEquals(100L,result.get(5,TimeUnit.SECONDS).ballot().get("counter"));
+            }finally{wait.close();worker.join(5000);}
+            assertFalse(worker.isAlive());assertEquals(before,files(f.l));
+        }
+    }
+    @Test void freshRetryNewContactUsesOriginalArrivalAndOriginalParentDeadline()throws Exception {
+        try(var f=new Fixture();var wait=new MembershipElectionWait(f.l.owners.getFirst(),f.l.endpoints.getFirst(),f.l.budgets.getFirst(),
+                POLICY,f.clock::get,(a,b)->a,0,millis(40),true)) {
+            f.heartbeat(100,true);f.clock.set(millis(20));
+            var result=new CompletableFuture<MembershipGrantJournal.DiscoveryState>();Thread worker=run(wait,result);
+            try {
+                idle(worker);f.clock.set(millis(30));f.heartbeat(100,true);
+                V53MembershipTransportTest.waitFor(()->f.l.endpoints.getFirst().heartbeatContact().orElseThrow().receivedNanos()==millis(30));
+                f.clock.set(millis(40));assertEquals("election wait closed/original deadline",assertThrows(ExecutionException.class,
+                        ()->result.get(5,TimeUnit.SECONDS)).getCause().getMessage());
+            }finally{wait.close();worker.join(5000);}
+        }
+    }
     @Test void repeatedInactiveSameBallotDoesNotKeepAnotherCandidateWaiting()throws Exception {
         try(var f=new Fixture();var wait=f.waitFor(100)) {
             f.heartbeat(100,false);var result=new CompletableFuture<MembershipGrantJournal.DiscoveryState>();Thread worker=run(wait,result);

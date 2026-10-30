@@ -40,6 +40,7 @@ final class MembershipDiscovery implements AutoCloseable {
         require(maximumFrame>=4096,"discovery frame limit");check();
     }
     private void check()throws IOException {
+        if(closed)guard.check(); // Preserve a positively revoked parent on drain.
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"discovery closed/original deadline");
         guard.check();owner.checkActivationBallot(context.authority(),ballot);
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"discovery closed/original deadline");
@@ -81,7 +82,8 @@ final class MembershipDiscovery implements AutoCloseable {
                         // to the trusted directory or derive an authority from this reply.
                         retry.complete(request.digest(),clock.getAsLong());check();return new Hint(peer,cut,(boolean)payload.get("ready"));
                     }catch(InterruptedException error){future.cancel(true);Thread.currentThread().interrupt();throw new IOException("discovery interrupted",error);}
-                    catch(CancellationException error){throw new IOException("discovery cancelled",error);}
+                    catch(CancellationException error){if(error instanceof MembershipCampaignLost.Cancelled revoked)throw revoked.loss;
+                        throw new IOException("discovery cancelled",error);}
                     catch(TimeoutException error){future.cancel(true);throw new IOException("discovery original deadline",error);}
                     catch(ExecutionException error) {
                         var cause=error.getCause();

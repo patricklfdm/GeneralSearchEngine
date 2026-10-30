@@ -112,6 +112,7 @@ final class MembershipSourcePull implements AutoCloseable {
         else if(learner!=null)MembershipLearnerPrefixExport.originalReservation(current,learner,source);
     }
     private void check()throws IOException {
+        if(closed)guard.check(); // A revoked parent can explain its cancellation.
         require(!closed,"source pull closed");long elapsed=clock.getAsLong()-started;
         require(elapsed>=0 && elapsed<budget,"original source pull deadline");guard.check();
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"original source pull deadline");
@@ -140,7 +141,8 @@ final class MembershipSourcePull implements AutoCloseable {
                     if(result.kind().equals("REJECT"))throw new Rejected(result);
                     retry.complete(request.digest(),clock.getAsLong());return result;
                 }catch(InterruptedException error){future.cancel(true);Thread.currentThread().interrupt();throw new IOException("source pull interrupted",error);}
-                catch(CancellationException error){throw new IOException("source pull cancelled",error);}
+                catch(CancellationException error){if(error instanceof MembershipCampaignLost.Cancelled revoked)throw revoked.loss;
+                    throw new IOException("source pull cancelled",error);}
                 catch(TimeoutException error){future.cancel(true);throw new IOException("source pull original deadline",error);}
                 catch(ExecutionException error) {
                     Throwable cause=error.getCause();

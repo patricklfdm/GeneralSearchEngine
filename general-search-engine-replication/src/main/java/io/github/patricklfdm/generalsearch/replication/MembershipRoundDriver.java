@@ -221,18 +221,49 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
             var fresh=new MembershipRoundDriver<>(owner,endpoint,resources,bounds,transport,
                 scratch.resolveSibling(scratch.getFileName()+"-retry-"+UUID.randomUUID()),clock,budget,maximumCampaigns,
                 configuration,storage,events,slotEvents);
-            try{return fresh.automaticSession(policy);}
+            try{return fresh.automaticSession(policy,true);}
             catch(RuntimeException|Error error){try{fresh.close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
         },Math.min(3,bounds.maxRetryAttempts()),resources,bounds,policy,clock,budget);
+    }
+    @FunctionalInterface interface CampaignCall<R> { R run()throws IOException; }
+    static <R> R campaignCall(CampaignCall<R> call)throws IOException {
+        try{return call.run();}
+        catch(MembershipGrantJournal.HigherBallot fenced) {
+            // Never erase a failed drain or reinterpret a wrapped integrity error.
+            if(fenced.getSuppressed().length!=0)throw fenced;
+            var lost=new MembershipCampaignLost(MembershipCampaignLost.Reason.HIGHER_BALLOT,fenced.getMessage());
+            lost.initCause(fenced);throw lost;
+        }
+        catch(MembershipTransport.Failure unavailable) {
+            // A peer can stop replying before its newer promise is forced and
+            // reportable. Only direct, exhausted transport availability permits
+            // fresh recovery; malformed frames, capacity, closure and wrapped
+            // application errors do not. The owner never replays the client call.
+            if(unavailable.getSuppressed().length!=0 || !(unavailable.reason==MembershipTransport.Reason.IO
+                    || unavailable.reason==MembershipTransport.Reason.DEADLINE))throw unavailable;
+            var lost=new MembershipCampaignLost(MembershipCampaignLost.Reason.CONTACT_UNAVAILABLE,"native campaign peer unavailable");
+            lost.initCause(unavailable);throw lost;
+        }
+        catch(MembershipGenerationMaintenance.Unavailable unavailable) {
+            // Serving a just-forced grant performs the same published-copy
+            // maintenance as the pre-grant check. Neither absence can skip the
+            // floor; both leave the original durable grant for fresh discovery.
+            if(unavailable.getSuppressed().length!=0)throw unavailable;
+            var lost=new MembershipCampaignLost(MembershipCampaignLost.Reason.CONTACT_UNAVAILABLE,"published original copies unavailable");
+            lost.initCause(unavailable);throw lost;
+        }
     }
     /** The same native adapter can be instrumented by whole-history tests;
      * its returned heartbeat is diagnostic and never reused as readiness. */
     synchronized MembershipAutomaticOwner.Session automaticSession(AutomaticLeadershipPolicy policy) {
+        return automaticSession(policy,false);
+    }
+    private synchronized MembershipAutomaticOwner.Session automaticSession(AutomaticLeadershipPolicy policy,boolean freshRetry) {
         Objects.requireNonNull(policy);
         require(!closed && state==State.NEW && runner==null,"automatic owner requires unused round");
         return new MembershipAutomaticOwner.Session() {
             public Decoded start(long began)throws IOException {
-                return startAutomatic(began,policy,(minimum,maximum)->ThreadLocalRandom.current().nextLong(minimum,maximum+1));
+                return campaignCall(()->MembershipRoundDriver.this.start(began,true,policy,(minimum,maximum)->ThreadLocalRandom.current().nextLong(minimum,maximum+1),freshRetry));
             }
             public void idle()throws IOException {
                 time();synchronized(MembershipRoundDriver.this) {
@@ -240,9 +271,9 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
                     owner.checkCampaignWait(authority,ballot);
                 }
             }
-            public MembershipHeartbeatRound.Contact heartbeat()throws IOException {return MembershipRoundDriver.this.heartbeat();}
-            public Decoded readiness()throws IOException {return MembershipRoundDriver.this.readiness();}
-            public Decoded submit(String kind,byte[] payload)throws IOException {return MembershipRoundDriver.this.submit(kind,payload);}
+            public MembershipHeartbeatRound.Contact heartbeat()throws IOException {return campaignCall(()->MembershipRoundDriver.this.heartbeat());}
+            public Decoded readiness()throws IOException {return campaignCall(()->MembershipRoundDriver.this.readiness());}
+            public Decoded submit(String kind,byte[] payload)throws IOException {return campaignCall(()->MembershipRoundDriver.this.submit(kind,payload));}
             public void close()throws IOException {MembershipRoundDriver.this.close();}
         };
     }
@@ -250,11 +281,14 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         return start(originalStarted,discover,null,null);
     }
     private Decoded start(long originalStarted,boolean discover,AutomaticLeadershipPolicy policy,LongBinaryOperator jitter)throws IOException {
+        return start(originalStarted,discover,policy,jitter,false);
+    }
+    private Decoded start(long originalStarted,boolean discover,AutomaticLeadershipPolicy policy,LongBinaryOperator jitter,boolean freshRetry)throws IOException {
         enter(State.NEW,originalStarted);
         try {
             if(policy!=null) {
                 transition(State.WAITING);
-                var child=new MembershipElectionWait(owner,endpoint,resources,policy,clock,jitter,started,budget);
+                var child=new MembershipElectionWait(owner,endpoint,resources,policy,clock,jitter,started,budget,freshRetry);
                 boolean registered=false;
                 try {
                     synchronized(this){require(!closed,"native round closed before election wait");electionWait=child;registered=true;}

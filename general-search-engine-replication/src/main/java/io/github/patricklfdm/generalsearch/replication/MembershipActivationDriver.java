@@ -99,7 +99,15 @@ final class MembershipActivationDriver implements AutoCloseable {
             if(nativeHistory && owner.publishedMaintenanceRequired()) {
                 remaining();var work=MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,link,()->remaining(),scratch,clock,started,budget);
                 synchronized(lifecycle){if(closed){work.close();throw new IOException("activation driver closed before maintenance");}maintenance=work;}
-                try(work){work.run();remaining();}finally{maintenance=null;}
+                try(work){work.run();remaining();}
+                catch(MembershipGenerationMaintenance.Unavailable unavailable) {
+                    // A concurrently publishing peer may not yet have this
+                    // exact cut. Drain and return to bounded discovery/election;
+                    // never skip the floor or guess retryability from a message.
+                    if(unavailable.getSuppressed().length!=0)throw unavailable;
+                    var lost=new MembershipCampaignLost(MembershipCampaignLost.Reason.CONTACT_UNAVAILABLE,"pre-grant original copies unavailable");
+                    lost.initCause(unavailable);throw lost;
+                }finally{maintenance=null;}
             }
             while(campaigns<maximumCampaigns) {
                 remaining();Round round=new Round();active=round;campaigns++;
@@ -160,7 +168,18 @@ final class MembershipActivationDriver implements AutoCloseable {
         volatile boolean ended;
         boolean success;
         Round()throws IOException {
-            campaign=new MembershipActivation(owner,resources,clock,started,budget);own=campaign.ownSource();
+            try{campaign=new MembershipActivation(owner,resources,clock,started,budget);}
+            catch(MembershipOperationException unavailable) {
+                // Only initial grant admission, before an original grant is
+                // submitted. Concurrent incoming copies can own this headroom;
+                // waiting never frees their storage or replays any client slot.
+                if(unavailable.reason()!=MembershipOperationException.Reason.CAPACITY_EXCEEDED
+                        || unavailable.outcome()!=AutomaticReplicationException.Outcome.NOT_SUBMITTED
+                        || unavailable.getSuppressed().length!=0)throw unavailable;
+                var lost=new MembershipCampaignLost(MembershipCampaignLost.Reason.CONTACT_UNAVAILABLE,"original grant admission unavailable");
+                lost.initCause(unavailable);throw lost;
+            }
+            own=campaign.ownSource();
             try {localImages=(MembershipSourceExport)owner.exportTransfer(own.basis.digest(),own.capsule.context.authority(),campaign.ballot(),clock,started,budget);}
             catch(IOException|RuntimeException error){campaign.close();throw error;}
         }

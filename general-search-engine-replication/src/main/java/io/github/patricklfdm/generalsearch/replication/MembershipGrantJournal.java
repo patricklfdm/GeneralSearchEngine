@@ -1047,7 +1047,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(state.pending() && state.target().equals(intent.upper) && state.peers.stream().anyMatch(p->p.identity().equals(intent.peer)
                 && p.lower().equals(intent.lower)),"future intent not durably recorded locally");
     }
-    private Decoded futureRetentionRejection(Decoded request,String reason) {
+    private Decoded promisedRejection(Decoded request,String reason) {
         var response=new TreeMap<>(request.value());response.put("sender",request.value().get("recipient"));response.put("recipient",request.value().get("sender"));
         response.put("payload",Map.of("reason",reason,"promised",object(promise.value().get("ballot"))));
         return decode(encode("wire","REJECT",response),"wire","REJECT");
@@ -1068,14 +1068,14 @@ final class MembershipGrantJournal implements AutoCloseable {
             if(!Arrays.equals(plan.bytes(),peerRetention.state().plan().bytes()))retainPeerPlan(plan);
             storage="CURRENT";digest=peerRetention.state().digest();revision=peerRetention.state().revision();
         } else {
-            if(nativeApplied==null)return futureRetentionRejection(request,"NOT_READY");var target=pendingPublication(nativeApplied);
+            if(nativeApplied==null)return promisedRejection(request,"NOT_READY");var target=pendingPublication(nativeApplied);
             require(target.parent().equals(intent.parent) && target.target().equals(intent.upper)
                     && target.vote.certificate().digest().equals(intent.certificate),"future intent changed native application");
             current.capsule.verifyAncestry(current.ancestry(),List.of(intent.lower));
             var points=peerRetention.state().plan().possible(intent.peer);
             // Distinct old endpoints would require a third possible cut. Obtain
             // a verified complete peer copy before retrying; never choose one.
-            if(points.size()!=1 || !points.getFirst().equals(intent.lower))return futureRetentionRejection(request,"CAPACITY_EXCEEDED");
+            if(points.size()!=1 || !points.getFirst().equals(intent.lower))return promisedRejection(request,"CAPACITY_EXCEEDED");
             var state=retainFutureTarget(intent.peer,target);storage="FUTURE";digest=state.digest;revision=state.revision;
         }
         checkFutureIntent(intent,ballot);cut.at("FUTURE_RETENTION_ACK_BEFORE_RETURN");checkFutureIntent(intent,ballot);
@@ -1762,6 +1762,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         }
         void check()throws IOException {
             synchronized(MembershipGrantJournal.this){checkOwner();
+                fence(ballot);
                 require(ownedHistory && current.selector.digest().equals(selector) && current.capsule.context.cut.equals(before.context.cut)
                         && promise!=null && promise.value().get("ballot").equals(ballot) && selection!=null && selection.digest().equals(selected)
                         && selected.equals(current.manifest.value().get("selection")),"native voting selection changed/uninstalled");
@@ -2985,8 +2986,17 @@ final class MembershipGrantJournal implements AutoCloseable {
         var next=ballot(context.ballot(incoming,true));
         observed.updateAndGet(prior->prior==null || compareBallot(next,prior)>0?next:prior);
     }
+    /** A positively observed higher ballot, distinct from corrupt/missing state.
+     * Incoming protocol keeps its validation error; only the outgoing automatic
+     * session may translate this exact type into bounded campaign cancellation. */
+    static final class HigherBallot extends IllegalArgumentException {
+        private static final long serialVersionUID=1L;
+        private HigherBallot(){super("higher ballot observed; fresh campaign required");}
+    }
     private void fence(Map<String,Object> expected) {
-        live();require(expected.equals(observed.get()),"higher ballot observed; fresh campaign required");
+        live();var actual=observed.get();
+        if(actual!=null && compareBallot(actual,expected)>0)throw new HigherBallot();
+        require(expected.equals(actual),"higher ballot observed; fresh campaign required");
     }
 
     synchronized long reserveCounter() throws IOException {
@@ -3100,6 +3110,16 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized MembershipCapsule activationCapsule() throws IOException {
         require(current!=null,"current generation required");checkOwner();return current.capsule;
     }
+    /** Authenticated negative only; no grant, vote, scope admission or mutation.
+     * Explain an obsolete control with the actual forced promise before its old
+     * scope fails validation and the socket would otherwise just close. */
+    synchronized Optional<Decoded> rejectOlderCampaign(MembershipIdentity sender,Decoded request)throws IOException {
+        live();require(current!=null,"current generation required");
+        require(Set.of("PREPARE","SELECTED","ACCEPT","PROOF","APPLY").contains(request.kind()),"stale campaign control kind");
+        if(promise==null || compareBallot(object(promise.value().get("ballot")),object(request.value().get("ballot")))<=0)return Optional.empty();
+        MembershipActivation.incoming(current.capsule.context,identity,sender,request,request.kind());checkOwner();
+        return Optional.of(promisedRejection(request,"STALE_EPOCH"));
+    }
     /** Authenticate a current-view proposer before observing its ballot. This does
      * not wait for the writer monitor and cannot grant or install anything. */
     void observeActivation(MembershipIdentity sender,Decoded request) {
@@ -3132,6 +3152,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Volatile replies cannot outlive the exact live owner, grant, view or installed selection. */
     synchronized void checkActivation(Decoded original,Decoded selected,boolean installed) throws IOException {
         require(current!=null && promise!=null && basis!=null,"activation grant unavailable");checkOwner();
+        fence(object(original.value().get("ballot")));
         require(Arrays.equals(original.bytes(),basis.bytes()) && original.value().get("ballot").equals(promise.value().get("ballot"))
                 && original.value().get("view").equals(current.capsule.context.authority()),"activation grant/view changed");
         fence(object(original.value().get("ballot")));

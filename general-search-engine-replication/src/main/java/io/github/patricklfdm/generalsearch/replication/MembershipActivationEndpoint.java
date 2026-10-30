@@ -136,6 +136,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         final long started,limit;
         final Set<CompletableFuture<Decoded>> pending=ConcurrentHashMap.newKeySet();
         volatile boolean ended;
+        volatile MembershipCampaignLost revoked;
         volatile ActivationProgress progress;
         private MembershipTransferService service;
         private MembershipGenerationMaintenance maintenance;
@@ -149,6 +150,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         }
         boolean expired(){long elapsed=clock.getAsLong()-started;return elapsed<0 || elapsed>=limit;}
         void check()throws IOException {
+            if(revoked!=null)throw revoked;
             require(!closed && !ended && !expired(),"original activation endpoint deadline/closed");
             scratchOwner.check();
             owner.checkActivationBallot(capsule.context.authority(),ballot);
@@ -184,7 +186,10 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 check();require(deadline==started+limit,"activation endpoint changed deadline");
                 var result=Objects.requireNonNull(link.exchange(peer,request,kind,deadline));pending.add(result);
                 result.whenComplete((reply,error)->pending.remove(result));
-                if(closed || ended || expired())result.cancel(true);
+                if(closed || ended || expired()) {
+                    if(revoked!=null)result.completeExceptionally(new MembershipCampaignLost.Cancelled(revoked));
+                    else result.cancel(true);
+                }
                 return result;
             }catch(IOException|RuntimeException error){return CompletableFuture.failedFuture(error);}
         }
@@ -263,7 +268,10 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             MembershipTransferService old;MembershipSlotEndpoint oldSlot;MembershipGenerationMaintenance cleanup;
             synchronized(this){ended=true;old=service;service=null;cleanup=maintenance;}
             synchronized(slotRegistry){oldSlot=slot;slot=null;}
-            for(var future:pending)future.cancel(true);
+            for(var future:pending) {
+                if(revoked!=null)future.completeExceptionally(new MembershipCampaignLost.Cancelled(revoked));
+                else future.cancel(true);
+            }
             // Never hold registry, scope or journal monitors while releasing exports.
             RuntimeException failure=null;
             for(Runnable action:List.<Runnable>of(
@@ -291,7 +299,12 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             }
             scope=next=new Scope(capsule,ballot,started,limit);
         }
-        if(old!=null)old.close();releaseEndedControl();next.check();return next;
+        if(old!=null) {
+            try{owner.checkCampaignWait(old.capsule.context.authority(),old.ballot);}
+            catch(MembershipCampaignLost lost){old.revoked=lost;}
+            old.close();
+        }
+        releaseEndedControl();next.check();return next;
     }
     /** Register the actual local campaign before any peer may fetch its PROMISE.
      * The original local start/deadline is inherited, never reset by registration. */
@@ -426,6 +439,15 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         long received=clock.getAsLong();require(!closed,"activation endpoint closed");String kind=request.kind();Scope active;
+        // Preserve lock-free fencing before any stale-reply/storage lookup.
+        if(kind.equals("PREPARE"))owner.observeActivation(sender,request);
+        if(Set.of("PREPARE","SELECTED","ACCEPT","PROOF","APPLY").contains(kind)) {
+            scratchOwner.check();var rejected=owner.rejectOlderCampaign(sender,request);
+            if(rejected.isPresent()) {
+                long elapsed=clock.getAsLong()-received;
+                require(!closed && elapsed>=0 && elapsed<budget,"stale campaign endpoint closed/original deadline");return rejected.orElseThrow();
+            }
+        }
         if(kind.equals("HEARTBEAT")) {
             // An authentic higher ballot fences immediately, even if a force
             // owns the writer monitor. A heartbeat never opens/revives a grant
@@ -465,7 +487,6 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         }
         if(kind.equals("PREPARE")) {
             // No control queue or writer monitor before the higher-ballot fence.
-            owner.observeActivation(sender,request);
             active=enter(owner.activationCapsule(),object(request.value().get("ballot")),received,budget);
         } else {
             active=scope;require(active!=null,"activation endpoint scope unavailable");
@@ -505,9 +526,13 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         catch(RuntimeException error){failure=new IOException("activation prefix close failed",error);}
         try{var active=scope;if(active!=null)active.close();}
         catch(RuntimeException error){var closing=new IOException("activation scope close failed",error);if(failure==null)failure=closing;else failure.addSuppressed(closing);}
-        controls.shutdownNow();
+        // Scope closure cancels its exchanges and guards every next operation.
+        // Let the control worker release its exact receiving inodes without an
+        // interrupt closing their FileChannels while cleanup is still using them.
+        controls.shutdown();
         try {boolean controlStopped=controls.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);
             boolean expiryStopped=expiry.awaitTermination(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);
+            if(!controlStopped)controls.shutdownNow();
             require(controlStopped && expiryStopped,"activation endpoint close timeout");}
         catch(InterruptedException error){Thread.currentThread().interrupt();var interrupted=new IOException("activation endpoint close interrupted",error);
             if(failure==null)failure=interrupted;else failure.addSuppressed(interrupted);}

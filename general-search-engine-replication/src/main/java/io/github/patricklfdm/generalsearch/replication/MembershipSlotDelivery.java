@@ -59,7 +59,7 @@ final class MembershipSlotDelivery {
                     var value=response.get(left,TimeUnit.NANOSECONDS);guard.check();MembershipWire.correlated(request,value,kind+"_ACK");
                     if(value.kind().equals("REJECT")) {
                         var promised=object(object(value.value().get("payload")).get("promised"));context.ballot(promised,true);
-                        if(MembershipContext.compareBallot(promised,original.ballot)>0)owner.observeCurrent(promised);
+                        if(MembershipContext.compareBallot(promised,original.ballot)>0){owner.observeCurrent(promised);guard.check();}
                         throw new MembershipSourcePull.Rejected(value);
                     }
                     require(value.value().get("payload").equals(expected),"slot delivery exact acknowledgement");retry.complete(request.digest(),clock.getAsLong());return value;

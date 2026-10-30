@@ -72,7 +72,10 @@ class V53ActivationEndpointTest {
     @Test void validHigherPrepareFencesBeforeTheControlQueueCanAcceptIt()throws Exception {
         try(var l=new Local()) {
             var pending=new CompletableFuture<Decoded>();var entered=new CountDownLatch(1);l.link.set((p,r,k,d)->{entered.countDown();return pending;});
-            var first=l.prepare();var call=CompletableFuture.runAsync(()->assertThrows(Exception.class,()->l.endpoint.handle(l.proposer(),first)));
+            var first=l.prepare();var call=CompletableFuture.runAsync(()->{
+                var lost=assertThrows(MembershipCampaignLost.class,()->l.endpoint.handle(l.proposer(),first));
+                assertEquals(MembershipCampaignLost.Reason.HIGHER_BALLOT,lost.reason);
+            });
             assertTrue(entered.await(5,TimeUnit.SECONDS));
             var values=new TreeMap<>(first.value());var higher=new TreeMap<>(object(first.value().get("ballot")));higher.put("counter",number(higher.get("counter"))+1);values.put("ballot",higher);
             var next=decode(encode("wire","PREPARE",values),"wire","PREPARE");
@@ -108,6 +111,31 @@ class V53ActivationEndpointTest {
             Path foreign=Files.writeString(l.scratch.resolve("foreign"),"operator data");
             assertThrows(IllegalArgumentException.class,l.endpoint::close);assertEquals("operator data",Files.readString(foreign));
             Files.delete(foreign);l.endpoint.close();assertEquals(Set.of("owner.json","scope.lock"),MembershipBasisSources.children(l.scratch,8));
+        }
+    }
+    @Test void closeLetsCancelledControlReleaseItsOwnedFileBeforeInterrupting()throws Exception {
+        try(var l=new Local()) {
+            var entered=new CountDownLatch(1);var release=new CountDownLatch(1);var interrupted=new AtomicBoolean();
+            var failure=new AtomicReference<Throwable>();Path copy=l.scratch.resolve("source-cancelled");
+            l.link.set((p,r,k,d)->{
+                try {
+                    Files.createDirectory(copy);
+                    try(var file=V53SourceReceiveTest.file(copy.resolve("source.gscp"),new byte[]{1},l.base.peerResources,new AtomicLong(),MembershipReceiveFile.Events.NONE)) {
+                        entered.countDown();
+                        try{release.await();}catch(InterruptedException error){interrupted.set(true);}
+                        // Cleanup still owns the inode and can force the parent.
+                    }
+                    Files.delete(copy);return CompletableFuture.failedFuture(new IOException("cancelled control unwound"));
+                }catch(Exception error){return CompletableFuture.failedFuture(error);}
+            });
+            var request=l.prepare();var call=CompletableFuture.runAsync(()->assertThrows(Exception.class,()->l.endpoint.handle(l.proposer(),request)));
+            assertTrue(entered.await(5,TimeUnit.SECONDS));
+            var closing=Thread.ofPlatform().start(()->{try{l.endpoint.close();}catch(Throwable error){failure.set(error);}});
+            try {
+                V53MembershipTransportTest.waitFor(()->l.endpoint.usage().closed() && (closing.getState()==Thread.State.TIMED_WAITING || !closing.isAlive()));
+            }finally{release.countDown();}
+            closing.join(5000);assertFalse(closing.isAlive());call.get(5,TimeUnit.SECONDS);
+            assertNull(failure.get());assertFalse(interrupted.get(),"live control cleanup was interrupted");assertFalse(Files.exists(copy));
         }
     }
     @Test void failedDrainRetainsScratchOwnershipUntilWorkerStops()throws Exception {

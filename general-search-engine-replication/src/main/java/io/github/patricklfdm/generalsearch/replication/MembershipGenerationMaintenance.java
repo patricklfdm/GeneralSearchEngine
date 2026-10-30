@@ -11,6 +11,13 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * floor authority. Receiving ownership lives through durable floor/observations;
  * the floor then owns the complete copies through retirement/release. */
 final class MembershipGenerationMaintenance implements AutoCloseable {
+    /** A completed published-copy pass lacked exact original owners. No floor,
+     * observation or retirement has been forced at this point. This type is
+     * distinct from decoding, integrity, fencing and cleanup failures. */
+    static final class Unavailable extends IOException {
+        private static final long serialVersionUID=1L;
+        private Unavailable(String message){super(message);}
+    }
     private final MembershipGrantJournal owner;
     private final MembershipGrantJournal.Voting original;
     private final MembershipGrantJournal.PublishedMaintenance published;
@@ -45,6 +52,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         context=beforeGrant?published.context:original.before.context;ballot=beforeGrant?published.ballot:original.ballot;check();
     }
     private void check()throws IOException {
+        if(closed)guard.check(); // Preserve a positive parent revocation, never infer one.
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"native maintenance closed/original deadline");
         guard.check();if(published==null)original.check();else published.check();elapsed=clock.getAsLong()-started;
         require(!closed && elapsed>=0 && elapsed<budget,"native maintenance closed/original deadline");
@@ -123,7 +131,10 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
                         && error.reason!=MembershipTransport.Reason.CAPACITY)throw error;check();
             }finally{if(!retain){try{release(generation);}finally{release(source);}}}
         }
-        check();require(quorum(voters),"native generation maintenance quorum unavailable");
+        check();
+        if(published!=null && !quorum(voters))throw new Unavailable("native generation maintenance quorum unavailable");
+        if(published!=null && !voters.containsAll(joining))throw new Unavailable("native generation maintenance joining copy unavailable");
+        require(quorum(voters),"native generation maintenance quorum unavailable");
         require(voters.containsAll(joining),"native generation maintenance joining copy unavailable");
         owner.establishFloor(copies,copy->{
             // Only this exact complete replacement has been forced, including

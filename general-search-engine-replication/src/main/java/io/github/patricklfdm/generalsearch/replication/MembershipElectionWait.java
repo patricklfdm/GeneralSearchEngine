@@ -16,14 +16,19 @@ final class MembershipElectionWait implements AutoCloseable {
     private final LongSupplier clock;
     private final LongBinaryOperator jitter;
     private final long started,budget,minimum,maximum;
+    private final boolean freshRetry;
     private final BlockingQueue<Boolean> wake=new ArrayBlockingQueue<>(1);
     private volatile boolean closed;
     private boolean used;
     MembershipElectionWait(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,MembershipResources resources,
             AutomaticLeadershipPolicy policy,LongSupplier clock,LongBinaryOperator jitter,long started,long budget) {
+        this(owner,endpoint,resources,policy,clock,jitter,started,budget,false);
+    }
+    MembershipElectionWait(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,MembershipResources resources,
+            AutomaticLeadershipPolicy policy,LongSupplier clock,LongBinaryOperator jitter,long started,long budget,boolean freshRetry) {
         require(budget>0 && budget<Long.MAX_VALUE/2,"election wait budget");
         this.owner=Objects.requireNonNull(owner);this.endpoint=Objects.requireNonNull(endpoint);this.resources=Objects.requireNonNull(resources);
-        this.clock=Objects.requireNonNull(clock);this.jitter=Objects.requireNonNull(jitter);this.started=started;this.budget=budget;
+        this.clock=Objects.requireNonNull(clock);this.jitter=Objects.requireNonNull(jitter);this.started=started;this.budget=budget;this.freshRetry=freshRetry;
         minimum=TimeUnit.MILLISECONDS.toNanos(policy.minElectionTimeoutMillis());maximum=TimeUnit.MILLISECONDS.toNanos(policy.maxElectionTimeoutMillis());
     }
     private long time()throws IOException {
@@ -41,7 +46,7 @@ final class MembershipElectionWait implements AutoCloseable {
     MembershipGrantJournal.DiscoveryState await()throws IOException {
         synchronized(this){require(!used && !closed,"election wait single use");used=true;}
         try {
-            var state=snapshot();long armed=time(),delay=delay();
+            var state=snapshot();long armed=time(),retryEntered=armed,delay=delay();
             MembershipActivationEndpoint.HeartbeatContact seen=null;
             MembershipActivationEndpoint.ActivationProgress seenProgress=null;
             boolean activityArmed=false;
@@ -71,7 +76,13 @@ final class MembershipElectionWait implements AutoCloseable {
                     }
                     // Use original arrival/completion, never poll time. Delayed
                     // heartbeats cannot move a newer progress arm backwards.
-                    if(!activityArmed || at-armed>0){armed=at;delay=delay();activityArmed=true;}
+                    // A failed campaign gets one ordinary election interval.
+                    // An already expired cached milestone cannot spend all new
+                    // rounds immediately. New contacts retain their actual time;
+                    // this never renews the original enclosing deadline.
+                    if((!freshRetry || at-retryEntered>=0) && (!activityArmed || at-armed>0)){
+                        armed=at;delay=delay();activityArmed=true;
+                    }
                     if(newContact)seen=contact;if(newProgress)seenProgress=progress;
                 }
                 if(now-armed>=delay) {

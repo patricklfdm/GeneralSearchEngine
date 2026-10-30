@@ -39,6 +39,20 @@ class V53DiscoveryTest {
         Map<String,String> files()throws Exception{return V53ReplayFilesTest.files(group.fixture.request.targets().getFirst().replicaDirectory());}
         @Override public void close()throws Exception {owner.close();group.close();assertEquals(0,budget.usage().leases());}
     }
+    @Test void exactRevocationKeepsCancellationAndGenericCancellationCannotImpersonateIt()throws Exception {
+        try(var l=new Local()) {
+            var lost=new MembershipCampaignLost(MembershipCampaignLost.Reason.HIGHER_BALLOT,"original parent revoked");
+            for(boolean typed:List.of(false,true)) {
+                var cancelled=typed?new MembershipCampaignLost.Cancelled(lost):new CancellationException("original campaign revoked");
+                if(!typed)cancelled.initCause(lost);
+                var future=CompletableFuture.<Decoded>failedFuture(cancelled);assertTrue(future.isCancelled());
+                try(var query=l.query((p,r,k,d)->future)) {
+                    var actual=assertThrows(IOException.class,()->query.query(l.peer()));
+                    if(typed)assertSame(lost,actual);else assertFalse(actual instanceof MembershipCampaignLost);
+                }
+            }
+        }
+    }
     @Test void realTcpDiscoveryReadsPublishedStorageAtEveryStableSizeWithoutAnyForce()throws Exception {
         var evidence=Files.createDirectories(Path.of("target/v53-discovery/run-"+UUID.randomUUID()));System.out.println("v53DiscoveryEvidence="+evidence.toAbsolutePath());
         var cases=new ArrayList<Map<String,Object>>();

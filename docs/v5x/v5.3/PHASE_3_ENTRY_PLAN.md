@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Concurrent native campaigns](PHASE_3_COMPETING_CAMPAIGNS.md) expose and correct
+specific loss-classification, stale-control and cancellation/drain defects.
+Their complete three-owner qualification still fails: after actual READY, a
+long DATA can delay the serial heartbeat and allow another campaign during
+publication. Component regressions and retained failures are separate from
+successful whole-history replay; active-write liveness is the next integration
+task. Phase 3 remains **OPEN**.
+
 [Native in-flight process recovery](PHASE_3_NODE_INFLIGHT.md) adds actual
 halt/SIGKILL at ACCEPT and PROOF parent force. The original unreturned DATA is
 reaccepted under the fresh ballot before a separate new BARRIER grants READY.

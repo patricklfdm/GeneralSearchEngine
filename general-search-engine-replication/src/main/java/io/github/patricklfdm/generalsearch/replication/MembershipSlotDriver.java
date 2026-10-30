@@ -112,7 +112,7 @@ final class MembershipSlotDriver implements AutoCloseable {
             synchronized(this){if(closed){pull.close();throw new IOException("slot receipt closed");}pulls.add(pull);}
             try(pull){var observed=pull.fetchVoteObservation(record);check();require(result.add(observed),"slot duplicate original observation");}
             catch(MembershipSourcePull.Rejected error){var higher=object(object(error.response.value().get("payload")).get("promised"));
-                voting.before.context.ballot(higher,true);if(MembershipContext.compareBallot(higher,voting.ballot)>0)owner.observeCurrent(higher);throw error;}
+                voting.before.context.ballot(higher,true);if(MembershipContext.compareBallot(higher,voting.ballot)>0){owner.observeCurrent(higher);check();}throw error;}
             finally{synchronized(this){pulls.remove(pull);}}
         });
         require(result.stream().map(MembershipContext.Owned::voter).collect(java.util.stream.Collectors.toSet()).equals(selected),"slot actual original observation set");

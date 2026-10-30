@@ -1,0 +1,493 @@
+{
+  "archive": {
+    "bytes": 17256503,
+    "files": 32045,
+    "path": "target/v53-competing-node/qualification.tar.gz",
+    "sha256": "d4d1ae2a428ddbcda6b373a3d4f713cc7cde484e6cb510f3f999ea35823f2f08"
+  },
+  "archiveVerification": {
+    "archiveSha256": "d4d1ae2a428ddbcda6b373a3d4f713cc7cde484e6cb510f3f999ea35823f2f08",
+    "files": 32045,
+    "status": "PASS"
+  },
+  "baseCommit": "d7b1a86fead733e69f3d1b204da8ad7ab2ffb811",
+  "baselineScope": "Two endpoint regressions use the exact d7b1a86f endpoint with the other candidate files retained; this is not a complete original-source run.",
+  "componentRegressionStatus": "PASS",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1696,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "contractUnitTests": 1,
+  "currentSourceCompetitionStatus": "NOT_RUN",
+  "developmentNotes": [
+    "Eight whole three-owner histories failed under distinct source snapshots and remain retained; none is replaced by a rerun success.",
+    "The original pre-grant copy-acquisition regression failed before the typed unavailable correction.",
+    "Two intermediate compiler failures and their exact source inputs are retained.",
+    "The final renamed V53CompetingNodeQualification is an explicit non-default whole-history entry; its preceding executions used V53CompetingNodeTest. Renaming does not turn their failures into successes.",
+    "Latest whole history reached READY, then its sole DATA lost the campaign during publication. Active writes currently delay the serial heartbeat; this integration remains required.",
+    "Existing process/physical/network receipts qualify their earlier runtime sources, not these changed Java bytes.",
+    "No published API, record/wire schema, POM, workflow, configured timing/resource limit or paid cloud change.",
+    "Final-source complete competition was not rerun after the closed-discovery guard check and explicit producer rename; the retained eight FAIL results bind their recorded source snapshots."
+  ],
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "competingfirst",
+      "requestedTests": [
+        "V53CompetingNodeTest"
+      ],
+      "seconds": 63.27254057797836,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceCampaignTest": 2
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "maintenancebaseline",
+      "requestedTests": [
+        "V53MaintenanceCampaignTest"
+      ],
+      "seconds": 30.227369714004453,
+      "skipped": 0,
+      "tests": 2
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53AutomaticCampaignTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53CampaignFenceTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceCampaignTest": 2
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "competingmaintenance",
+      "requestedTests": [
+        "V53MaintenanceCampaignTest",
+        "V53CompetingNodeTest",
+        "V53AutomaticCampaignTest",
+        "V53CampaignFenceTest"
+      ],
+      "seconds": 69.93318178900518,
+      "skipped": 0,
+      "tests": 16
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 14,
+        "io.github.patricklfdm.generalsearch.replication.V53AutomaticCampaignTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53CampaignFenceTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceCampaignTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53NativeCampaignFenceTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "competingfence",
+      "requestedTests": [
+        "V53NativeCampaignFenceTest",
+        "V53ActivationEndpointTest",
+        "V53CompetingNodeTest",
+        "V53MaintenanceCampaignTest",
+        "V53AutomaticCampaignTest",
+        "V53CampaignFenceTest"
+      ],
+      "seconds": 185.9275076049962,
+      "skipped": 0,
+      "tests": 31
+    },
+    {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "competingreject",
+      "requestedTests": [
+        "V53NativeCampaignFenceTest",
+        "V53CompetingNodeTest"
+      ],
+      "seconds": 10.135182593017817,
+      "skipped": 0,
+      "tests": 0
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53NativeCampaignFenceTest": 3
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "competingavailability",
+      "requestedTests": [
+        "V53NativeCampaignFenceTest",
+        "V53CompetingNodeTest"
+      ],
+      "seconds": 96.13537662598537,
+      "skipped": 0,
+      "tests": 4
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceCampaignTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53NativeCampaignFenceTest": 3
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "competingpublished",
+      "requestedTests": [
+        "V53MaintenanceCampaignTest",
+        "V53NativeCampaignFenceTest",
+        "V53CompetingNodeTest"
+      ],
+      "seconds": 123.02177980501438,
+      "skipped": 0,
+      "tests": 6
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53NativeCampaignFenceTest": 4
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "competingcapacity",
+      "requestedTests": [
+        "V53NativeCampaignFenceTest",
+        "V53CompetingNodeTest"
+      ],
+      "seconds": 113.52301223602262,
+      "skipped": 0,
+      "tests": 5
+    },
+    {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "competingdelay",
+      "requestedTests": [
+        "V53ElectionWaitTest#freshRetryDoesNotConsumeExpiredContactAsAnImmediateElection+freshRetryNewContactUsesOriginalArrivalAndOriginalParentDeadline+oldAcceptedArrivalDoesNotAcquireANewDeadlineAtPollTime",
+        "V53CompetingNodeTest"
+      ],
+      "seconds": 10.287349433987401,
+      "skipped": 0,
+      "tests": 0
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionWaitTest": 3
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "competingfreshdelay",
+      "requestedTests": [
+        "V53ElectionWaitTest#freshRetryDoesNotConsumeExpiredContactAsAnImmediateElection+freshRetryNewContactUsesOriginalArrivalAndOriginalParentDeadline+oldAcceptedArrivalDoesNotAcquireANewDeadlineAtPollTime",
+        "V53CompetingNodeTest"
+      ],
+      "seconds": 53.69072785999742,
+      "skipped": 0,
+      "tests": 4
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53DiscoveryTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "competingrevocation",
+      "requestedTests": [
+        "V53ActivationEndpointTest#validHigherPrepareFencesBeforeTheControlQueueCanAcceptIt",
+        "V53DiscoveryTest#exactRevocationKeepsCancellationAndGenericCancellationCannotImpersonateIt",
+        "V53CompetingNodeTest"
+      ],
+      "seconds": 108.15845246298704,
+      "skipped": 0,
+      "tests": 3
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53NativeCampaignFenceTest": 1
+      },
+      "exit": 1,
+      "failures": 2,
+      "label": "competingendpointbaseline",
+      "requestedTests": [
+        "V53ActivationEndpointTest#closeLetsCancelledControlReleaseItsOwnedFileBeforeInterrupting",
+        "V53NativeCampaignFenceTest#obsoleteNativeAcceptReturnsOriginalHigherPromiseAndCancelsSender"
+      ],
+      "seconds": 28.921131251001498,
+      "skipped": 0,
+      "tests": 2
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 14,
+        "io.github.patricklfdm.generalsearch.replication.V53AutomaticCampaignTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53CampaignFenceTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53DiscoveryTest": 15,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionWaitTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53GrantJournalTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceCampaignTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53NativeCampaignFenceTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53SlotEndpointTest": 14,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceExchangeTest": 14
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "competingregressions",
+      "requestedTests": [
+        "V53MaintenanceCampaignTest",
+        "V53NativeCampaignFenceTest",
+        "V53ActivationEndpointTest",
+        "V53ElectionWaitTest",
+        "V53DiscoveryTest",
+        "V53SourceExchangeTest",
+        "V53AutomaticCampaignTest",
+        "V53CampaignFenceTest",
+        "V53SlotEndpointTest",
+        "V53GrantJournalTest"
+      ],
+      "seconds": 1186.7596908579872,
+      "skipped": 0,
+      "tests": 97
+    }
+  ],
+  "failedHistories": [
+    {
+      "closeFailure": [],
+      "failure": [
+        "java.lang.AssertionError: automatic owner failed: node-1",
+        "\tat io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest.threeAutomaticOwnersConvergeAndPublishOneOriginalData(V53CompetingNodeTest.java:58)",
+        "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)",
+        "\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)"
+      ],
+      "failureSha256": "5e78bd7840853f836abc720b506777b7c8a1698a0bcc639cb5689f3eda0c45eb",
+      "label": "competingfirst",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/competingfirst-68a2a264/general-search-engine-replication/target/v53-competing-node/run-68bf3c08-81bb-4bea-be80-366ca0aa401a",
+      "result": {
+        "automaticOwners": 3,
+        "defaultBounds": true,
+        "nodes": 3,
+        "phase3Complete": false,
+        "physicalReplay": false,
+        "producerPassed": false,
+        "status": "FAIL"
+      }
+    },
+    {
+      "closeFailure": [
+        "java.io.IOException: node endpoint drain failed",
+        "\tat io.github.patricklfdm.generalsearch.replication.MembershipNodeOwner.failed(MembershipNodeOwner.java:82)",
+        "\tat io.github.patricklfdm.generalsearch.replication.MembershipNodeOwner.close(MembershipNodeOwner.java:108)",
+        "\tat io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest.threeAutomaticOwnersConvergeAndPublishOneOriginalData(V53CompetingNodeTest.java:91)"
+      ],
+      "failure": [
+        "java.lang.AssertionError: automatic owner failed: node-1",
+        "\tat io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest.threeAutomaticOwnersConvergeAndPublishOneOriginalData(V53CompetingNodeTest.java:58)",
+        "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)",
+        "\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)"
+      ],
+      "failureSha256": "1f67f3369e575bda4989183a7dd9224c4fc97b044a1836d67235944c44973688",
+      "label": "competingmaintenance",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/competingmaintenance-37dafdff/general-search-engine-replication/target/v53-competing-node/run-0e95fdb3-abc6-4e49-8d75-dc8a51e3822d",
+      "result": {
+        "automaticOwners": 3,
+        "defaultBounds": true,
+        "nodes": 3,
+        "phase3Complete": false,
+        "physicalReplay": false,
+        "producerPassed": false,
+        "status": "FAIL"
+      }
+    },
+    {
+      "closeFailure": [],
+      "failure": [
+        "java.lang.AssertionError: automatic owner failed: node-2",
+        "\tat io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest.threeAutomaticOwnersConvergeAndPublishOneOriginalData(V53CompetingNodeTest.java:58)",
+        "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)",
+        "\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)"
+      ],
+      "failureSha256": "b53b9668b6a3bc44ca465fce3aa4f2be1df56b19e617ae717f5bb520b7a8855c",
+      "label": "competingfence",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/competingfence-b290c100/general-search-engine-replication/target/v53-competing-node/run-fa3e5ebc-ee13-437c-b385-fe8cb4ee3f6c",
+      "result": {
+        "automaticOwners": 3,
+        "defaultBounds": true,
+        "nodes": 3,
+        "phase3Complete": false,
+        "physicalReplay": false,
+        "producerPassed": false,
+        "status": "FAIL"
+      }
+    },
+    {
+      "closeFailure": [],
+      "failure": [
+        "java.lang.AssertionError: automatic owner failed: node-2",
+        "\tat io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest.threeAutomaticOwnersConvergeAndPublishOneOriginalData(V53CompetingNodeTest.java:58)",
+        "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)",
+        "\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)"
+      ],
+      "failureSha256": "342deeff931090b77f0aab8a78d2ba597b6eaf6cbdcd287a4c5089a23a0ace46",
+      "label": "competingavailability",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/competingavailability-267e3872/general-search-engine-replication/target/v53-competing-node/run-637fa24a-fda4-48f1-8e82-e9135ee2fbc2",
+      "result": {
+        "automaticOwners": 3,
+        "defaultBounds": true,
+        "nodes": 3,
+        "phase3Complete": false,
+        "physicalReplay": false,
+        "producerPassed": false,
+        "status": "FAIL"
+      }
+    },
+    {
+      "closeFailure": [],
+      "failure": [
+        "java.lang.AssertionError: automatic owner failed: node-2",
+        "\tat io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest.threeAutomaticOwnersConvergeAndPublishOneOriginalData(V53CompetingNodeTest.java:58)",
+        "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)",
+        "\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)"
+      ],
+      "failureSha256": "c7c3724865f5d166a2d2bb6d4366776ca8d86329dabc0ec548e34ceef17a8910",
+      "label": "competingpublished",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/competingpublished-73ad5227/general-search-engine-replication/target/v53-competing-node/run-fa7bb7fa-1957-4182-aa86-b67d9f2f32a9",
+      "result": {
+        "automaticOwners": 3,
+        "defaultBounds": true,
+        "nodes": 3,
+        "phase3Complete": false,
+        "physicalReplay": false,
+        "producerPassed": false,
+        "status": "FAIL"
+      }
+    },
+    {
+      "closeFailure": [],
+      "failure": [
+        "java.lang.AssertionError: automatic owner failed: node-3",
+        "\tat io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest.threeAutomaticOwnersConvergeAndPublishOneOriginalData(V53CompetingNodeTest.java:58)",
+        "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)",
+        "\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)"
+      ],
+      "failureSha256": "2bc814a428d0dd46b5894663c3fbe2f4a13160b5623ebd9e7659bfa5546aec95",
+      "label": "competingcapacity",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/competingcapacity-2da531ee/general-search-engine-replication/target/v53-competing-node/run-83d291cf-7610-4dd1-92c0-cfb30f231969",
+      "result": {
+        "automaticOwners": 3,
+        "defaultBounds": true,
+        "nodes": 3,
+        "phase3Complete": false,
+        "physicalReplay": false,
+        "producerPassed": false,
+        "status": "FAIL"
+      }
+    },
+    {
+      "closeFailure": [],
+      "failure": [
+        "java.lang.AssertionError: automatic owner failed: node-1",
+        "\tat io.github.patricklfdm.generalsearch.replication.V53CompetingNodeTest.threeAutomaticOwnersConvergeAndPublishOneOriginalData(V53CompetingNodeTest.java:58)",
+        "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)",
+        "\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)"
+      ],
+      "failureSha256": "e763cd3c3e4f0afbc5260ebdd2477019c05405104125eb58b42a763d9eb046f0",
+      "label": "competingfreshdelay",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/competingfreshdelay-0873da33/general-search-engine-replication/target/v53-competing-node/run-65dcedaa-4894-4711-9ce6-7da57101b9ec",
+      "result": {
+        "automaticOwners": 3,
+        "defaultBounds": true,
+        "nodes": 3,
+        "phase3Complete": false,
+        "physicalReplay": false,
+        "producerPassed": false,
+        "status": "FAIL"
+      }
+    },
+    {
+      "closeFailure": [],
+      "failure": [
+        "java.util.concurrent.ExecutionException: io.github.patricklfdm.generalsearch.replication.MembershipCampaignLost: native campaign peer unavailable",
+        "\tat java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:396)",
+        "\tat java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2096)",
+        "\tat io.github.patricklfdm.generalsearch.replication.MembershipAutomaticOwner$Call.await(MembershipAutomaticOwner.java:29)"
+      ],
+      "failureSha256": "347e3d313c8313c75c8a365b3b8d5db41e661960a40c3fcd5ad1a5356d60e732",
+      "label": "competingrevocation",
+      "path": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/competingrevocation-8602afec/general-search-engine-replication/target/v53-competing-node/run-ea110d7c-c8aa-4dd9-a410-46741b847271",
+      "result": {
+        "automaticOwners": 3,
+        "defaultBounds": true,
+        "nodes": 3,
+        "phase3Complete": false,
+        "physicalReplay": false,
+        "producerPassed": false,
+        "status": "FAIL"
+      }
+    }
+  ],
+  "finalDocumentationContract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1697,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "independentReplay": false,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "remaining": [
+    "Active-write liveness and deterministic blocked-write/fence/drain checks",
+    "A passing complete ungated native competing-owner history",
+    "Independent original physical/network/history replay of competing selections",
+    "Remaining all-profile transition/process qualification and Phase 3 closure matrix"
+  ],
+  "retainedCompetitionStatus": "FAIL",
+  "retainedTools": [
+    "archive.py",
+    "receipt.py",
+    "tools/snapshot.py",
+    "tools/run.py"
+  ],
+  "schema": "gse-v53-competing-campaign-components-v1",
+  "scope": "Exact typed campaign loss, stale-control rejection and cancellation/drain; no complete competing-history qualification",
+  "sources": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java": "81e7b75661b4216917449e1fd3bfe2378a5772052b50947e3d00317ff7422767",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "f11fe4d8c775a4546084ed6a307c1b9f7c8da3e6f399980ad7bfb959cf4283fd",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCampaignLost.java": "37af1cf4260afdcb8d5c1edf5c17c4c1a55826f79eaeccb045fd6066a915ccf1",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipDiscovery.java": "79f559975fc919e4de2a6d7152ed88f158fbad9cdeaec0dacb43dcf7dc6d5b30",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipElectionWait.java": "4997d8ff460534bc93df68ac745669af74d61c4967bcc6a027d7e19034b13900",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java": "9e841123327d3bd493c1786f10e2ca4e5dfdcc842fc8acaafbc61e8091bb602c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "328a82bce1c380b7153ca3e41529f84f2a693ab83871b493960945b7f73b1fd1",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java": "5dbbb113447796f9bc7685a9d697706973155af984a428c971460be7ab8a51c6",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDelivery.java": "d4d993b43ac1418b3a90495589f0730d18276c4870e1464121346578aa27b5c5",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDriver.java": "0d84a22a90699ca12e63335b807107aaa74c5bc65677f3344438d022914fda78",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java": "6412928fb5d0cde01eb2453618f77424dbf5cbfb3e8bcdb6cafaa82e42295f0e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActivationEndpointTest.java": "fc042c716a64725c8c26a0cce6facb050093e2849398f36d41e9406b69c74ddc",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingNodeQualification.java": "aa619b49585f84ab055e5248d647dc8aa1039d90ae40b78bebc2727145085248",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53DiscoveryTest.java": "30b97225dc45879db2902432e2d302a41a660c72a4d5ab277a431cb657419a01",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ElectionWaitTest.java": "abf2cd156bd644f145a6e90e66bf89fa1a9708c7304c51576d4137a8ff4115de",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaintenanceCampaignTest.java": "a7eac9362a0b011c08d6a7868d0efd9359a67149e05bfe802d2ffc3cac23e7b8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeCampaignFenceTest.java": "d53b6423dcbc203bdaca85592c2f80e1f7c4ab20ba10e54522c5060df12e4b4f"
+  },
+  "status": "PARTIAL"
+}
