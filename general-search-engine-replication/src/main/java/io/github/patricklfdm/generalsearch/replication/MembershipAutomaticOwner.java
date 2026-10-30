@@ -84,6 +84,7 @@ final class MembershipAutomaticOwner implements AutoCloseable {
     synchronized int pending(){return pending;}
     synchronized int rounds(){return rounds;}
     synchronized List<MembershipCampaignLost.Reason> losses(){return List.copyOf(losses);}
+    synchronized boolean drained(){return closed && session==null && pending==0 && (worker==null || !worker.isAlive());}
     synchronized Call start() {
         require(!closed && state==State.NEW,"automatic owner single start");
         began=clock.getAsLong();state=State.STARTING;
@@ -191,6 +192,10 @@ final class MembershipAutomaticOwner implements AutoCloseable {
             try{synchronized(this){while(!terminated){long left=end-System.nanoTime();
                 if(left<=0)throw new IOException("automatic owner close drain deadline");TimeUnit.NANOSECONDS.timedWait(this,left);}}}
             catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IOException("automatic owner close interrupted",interrupted);}
+            try {
+                long left=end-System.nanoTime();if(active.isAlive() && left>0)TimeUnit.NANOSECONDS.timedJoin(active,left);
+                if(active.isAlive())throw new IOException("automatic owner thread drain deadline");
+            }catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IOException("automatic owner close interrupted",interrupted);}
         }
         ownership.close();
     }

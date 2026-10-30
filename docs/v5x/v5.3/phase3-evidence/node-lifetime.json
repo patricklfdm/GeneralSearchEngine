@@ -1,0 +1,235 @@
+{
+  "archive": {
+    "bytes": 7352321,
+    "directories": 326,
+    "files": 4421,
+    "path": "target/v53-node-lifetime/qualification.tar.gz",
+    "sha256": "6fbd8b616b89811a4bb908126250358f900390f0da2d3fbc35dc1ebc9544b2ef"
+  },
+  "baseCommit": "328928db56a37a67df247ee5cc04a651b2e89d3e",
+  "developmentNotes": [
+    "Initial reader incorrectly assumed the second selected pair was unchanged; its rejected replay is retained.",
+    "Negative-driver image error wording and malformed single-source mutation were corrected before qualification."
+  ],
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53AutomaticOwnerTest": 14,
+        "io.github.patricklfdm.generalsearch.replication.V53MembershipTransportTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53NodeOwnerTest": 8
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "nodeownerfirst",
+      "requestedTests": [
+        "V53NodeOwnerTest",
+        "V53AutomaticOwnerTest",
+        "V53MembershipTransportTest#cancellationDoesNotFreeCapacityUntilHeldWorkerUnwinds+continuationCanReuseSinglePermitAndCloseItsOwnTransport+closeInterruptsHeldHandlerAndReclaimsAllSocketAndQueueOwners+globalIncompleteConnectionsAreBoundedAndCloseReleasesTheirHeaders"
+      ],
+      "seconds": 57.33026296098251,
+      "skipped": 0,
+      "tests": 26
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53NodeOwnerNetworkTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "nodeownernative",
+      "requestedTests": [
+        "V53NodeOwnerNetworkTest"
+      ],
+      "seconds": 214.4794374120247,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53NodeOwnerTest": 9
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "nodeownerfailure",
+      "requestedTests": [
+        "V53NodeOwnerTest"
+      ],
+      "seconds": 61.81924742698902,
+      "skipped": 0,
+      "tests": 9
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pythonTests": 14,
+  "qualification": [
+    {
+      "kind": "closed-wait",
+      "path": "target/v53-native-cancellation/builds/nodeownerfirst-f29efb09/general-search-engine-replication/target/v53-native-dispatch/run-c326b295-84e1-4890-9c6b-30a1d538b4d4",
+      "result": {
+        "negatives": [
+          {
+            "case": "allocator",
+            "reason": "admitted exact after-close: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "selector",
+            "reason": "admitted exact after-close: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "extra-grant",
+            "reason": "admitted exact after-close: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "hidden-force",
+            "reason": "closed election wait exact reopen only",
+            "status": "REJECTED"
+          },
+          {
+            "case": "hidden-wire",
+            "reason": "closed election wait no wire",
+            "status": "REJECTED"
+          },
+          {
+            "case": "hidden-failure",
+            "reason": "closed election wait no failures",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "authorityWrites": false,
+          "autonomousElection": false,
+          "originalFirst": true,
+          "phase3Complete": false,
+          "publicRuntime": false,
+          "scope": "native-wait-closed-without-grant",
+          "status": "PASS"
+        }
+      }
+    },
+    {
+      "kind": "node-reopen",
+      "path": "target/v53-native-cancellation/builds/nodeownernative-ba629132/general-search-engine-replication/target/v53-node-owner/run-4c861100-9ee2-460c-8bd9-ae3446d61af9",
+      "result": {
+        "negatives": [
+          {
+            "case": "initial-image",
+            "reason": "bootstrap original image binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "first-data",
+            "reason": "bootstrap validation image header",
+            "status": "REJECTED"
+          },
+          {
+            "case": "before-reopen",
+            "reason": "admitted exact before-reopen: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selector",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-data",
+            "reason": "admitted exact applied-4: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "final-extra",
+            "reason": "admitted exact after-close: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selection",
+            "reason": "node owner original selection",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-selection",
+            "reason": "node owner selected stable majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unused-grant",
+            "reason": "admitted exact installed-2: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-ready",
+            "reason": "node owner exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-ready",
+            "reason": "node owner readiness fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-owner",
+            "reason": "node owner lifetime identity",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-owner",
+            "reason": "node owner event lifetime required",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-reopen-force",
+            "reason": "node owner exact cold reopen forces",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-install-force",
+            "reason": "selected retention force order: node owner installation node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-publication-force",
+            "reason": "selected retention force order: node owner publication node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-completion",
+            "reason": "node owner original completion",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-scope",
+            "reason": "node owner producer scope",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "campaigns": 2,
+          "coldReopens": 1,
+          "fullWireReplay": false,
+          "originalFirst": true,
+          "phase3Complete": false,
+          "physicalReplay": true,
+          "processRestart": false,
+          "publicRuntime": false,
+          "scope": "native-node-cold-reopen-physical",
+          "slots": 4,
+          "snapshotGroups": 16,
+          "status": "PARTIAL"
+        }
+      }
+    }
+  ],
+  "qualificationSeconds": 7.757757733023027,
+  "schema": "gse-v53-node-lifetime-v1",
+  "scope": "native-node-lifetime-and-cold-reopen",
+  "scopeNotes": [
+    "Same-process cold reopen is not SIGKILL.",
+    "The second actual selection changes from node 2 to node 3. Full network replay remains pending.",
+    "The early eight lifecycle tests were rerun as a nine-test final fixture; 36 executions cover 28 distinct Java tests."
+  ],
+  "status": "PASS"
+}

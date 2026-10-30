@@ -1,11 +1,19 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native node lifetime](PHASE_3_AUTOMATIC_OWNER.md#native-node-lifetime) now owns
+original storage, endpoint, transport and automatic service through partial open,
+cancellation, drain failure and explicit cold reopen. Nine lifecycle tests and
+existing owner/transport regressions pass. One three-node close/open history
+passes independent physical/lifecycle replay across sixteen snapshot groups and
+two fresh barriers, including a changed selected peer. Its full network replay,
+process-death and complete profile qualification remain open; Phase 3 is **OPEN**.
+
 [Admitted activation milestones](PHASE_3_ELECTION_WAIT.md#admitted-activation-milestones)
 now connect completed incoming grant and selected-installation work to the private
 election wait. Each scope advances at most twice; duplicates and unfinished
 transfers cannot renew it. Original completion time, fence/view revocation and
 the unchanged parent deadline govern this hint. Competing automatic nodes,
-storage/listener reopen ownership and complete process/transition qualification
+complete cold-reopen network replay and process/transition qualification
 remain open; this component does not close Phase 3.
 
 [Bounded automatic fresh campaigns](PHASE_3_AUTOMATIC_CAMPAIGNS.md) now drain a

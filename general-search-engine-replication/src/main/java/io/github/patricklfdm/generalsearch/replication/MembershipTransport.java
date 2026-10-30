@@ -136,6 +136,10 @@ final class MembershipTransport implements AutoCloseable {
         peers=Map.copyOf(next);
     }
     Usage usage(){return new Usage(outboundCount.get(),inboundCount.get(),channels.size(),closed);}
+    /** close() from an I/O callback only cancels. Storage ownership must wait
+     * for this predicate on an external closer before releasing its journal. */
+    boolean drained(){return closed && (acceptor==null || !acceptor.isAlive()) && workers.isTerminated()
+            && channels.isEmpty() && outboundCount.get()==0 && inboundCount.get()==0;}
     private Peer peer(MembershipIdentity identity)throws IOException {
         var peer=peers.get(identity.nodeId().value());
         if(peer==null && directory!=null) {
