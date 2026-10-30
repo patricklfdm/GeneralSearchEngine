@@ -44,6 +44,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     private MembershipActivationDriver activation;
     private MembershipPrefixRecovery discovery;
     private MembershipHeartbeatRound heartbeat;
+    private MembershipWorkPulse workPulse;
     private MembershipElectionWait electionWait;
     private MembershipSlotDriver slot;
     private Decoded selection,barrier;
@@ -95,7 +96,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     }
     private Decoded publish(Decoded entry,byte[] payload)throws IOException {
         current();events.at("SLOT_BEGIN",entry);current();
-        var child=new MembershipSlotDriver(owner,endpoint,resources,bounds,transport,clock,started,budget,configuration,storage,slotEvents);
+        var child=new MembershipSlotDriver(owner,endpoint,resources,bounds,transport,clock,started,budget,configuration,storage,slotEvents,this::pulseWhileWorking);
         boolean registered=false;
         try {
             synchronized(this){require(!closed,"native round closed before slot");slot=child;registered=true;}
@@ -190,6 +191,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
             require(fresh.value().get("origin").equals(ballot),"native round fresh barrier ballot");
             events.at("BEFORE_READY",done);current();
             synchronized(this){require(!closed,"native round closed before readiness");barrier=done;state=State.READY;}
+            if(workPulse!=null)workPulse.completed();
             return done;
         }
     }
@@ -287,6 +289,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         enter(State.NEW,originalStarted);
         try {
             if(policy!=null) {
+                workPulse=new MembershipWorkPulse(clock,TimeUnit.MILLISECONDS.toNanos(policy.heartbeatIntervalMillis()));
                 transition(State.WAITING);
                 var child=new MembershipElectionWait(owner,endpoint,resources,policy,clock,jitter,started,budget,freshRetry);
                 boolean registered=false;
@@ -342,17 +345,27 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
      * service lease; every later operation still performs current() and votes. */
     MembershipHeartbeatRound.Contact heartbeat()throws IOException {
         enter(State.READY);
-        try {
-            current();long began=clock.getAsLong(),remaining=budget-(began-started);
-            long limit=Math.min(remaining,TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis())*Math.min(3,bounds.maxRetryAttempts()));
-            var child=new MembershipHeartbeatRound(owner,resources,bounds,transport::exchange,this::current,clock,began,limit);
-            boolean registered=false;
-            try {
-                synchronized(this){require(!closed,"native round closed before heartbeat");heartbeat=child;registered=true;}
-                var result=child.run();current();return result;
-            }finally {child.close();synchronized(this){if(registered && heartbeat==child)heartbeat=null;}}
-        }catch(IOException|RuntimeException|Error error){fail(error);throw error;}
+        try{return sampleHeartbeat();}
+        catch(IOException|RuntimeException|Error error){fail(error);throw error;}
         finally{leave();}
+    }
+    /** Cooperatively service liveness on the single slot coordinator. Never
+     * sample from a peer worker, under the writer monitor, or during recovery.
+     * The ordinary current() guard still requires the exact original cut. */
+    private void pulseWhileWorking()throws IOException {
+        if(Thread.holdsLock(owner))return;
+        synchronized(this){if(runner!=Thread.currentThread() || workPulse==null || state!=State.READY || barrier==null)return;}
+        time();workPulse.due(()->{sampleHeartbeat();});time();
+    }
+    private MembershipHeartbeatRound.Contact sampleHeartbeat()throws IOException {
+        current();long began=clock.getAsLong(),remaining=budget-(began-started);
+        long limit=Math.min(remaining,TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis())*Math.min(3,bounds.maxRetryAttempts()));
+        var child=new MembershipHeartbeatRound(owner,resources,bounds,transport::exchange,this::current,clock,began,limit);
+        boolean registered=false;
+        try {
+            synchronized(this){require(!closed && heartbeat==null,"native round closed/overlapping heartbeat");heartbeat=child;registered=true;}
+            var result=child.run();current();if(workPulse!=null)workPulse.completed();return result;
+        }finally {child.close();synchronized(this){if(registered && heartbeat==child)heartbeat=null;}}
     }
     private void fail(Throwable original) {
         synchronized(this){if(!closed)state=State.FAILED;barrier=null;}

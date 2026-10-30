@@ -81,6 +81,39 @@ class V53FutureRetentionEndpointTest {
             fixture.snapshot("after-endpoint");V53NativeApplicationTest.save(fixture);
         }
     }
+    @Test void pendingRecordingServicesProgressOutsideTheWriterWithoutInventingAnAck()throws Exception {
+        try(var group=new Group(3,true)) {
+            var requests=new LinkedHashMap<MembershipIdentity,Decoded>();var pending=new LinkedHashMap<MembershipIdentity,CompletableFuture<Decoded>>();
+            MembershipSourcePull.Link link=(peer,request,kind,deadline)->{requests.put(peer,request);var f=new CompletableFuture<Decoded>();pending.put(peer,f);return f;};
+            var pulses=new AtomicInteger();
+            MembershipSourcePull.Guard pulse=()->{
+                assertFalse(Thread.holdsLock(group.owners.getFirst()));pulses.incrementAndGet();
+                var peer=group.owners.get(1).activationIdentity();
+                try{pending.get(peer).complete(group.deliver(1,requests.get(peer)));}
+                catch(Exception error){throw new IOException(error);}
+            };
+            try(var quorum=new MembershipFutureRetentionQuorum(group.owners.getFirst(),group.peer(),group.fixture.ballot,
+                    group.owners.getFirst().pendingPublication(group.applied.getFirst()),group.budgets.getFirst(),link,System::nanoTime,System.nanoTime(),BUDGET,pulse)) {
+                assertEquals(Set.of("node-1","node-2"),quorum.record().voters());
+                assertEquals(1,pulses.get());assertTrue(pending.get(group.peer()).isCancelled());
+                assertEquals(2,requests.size());
+            }
+        }
+    }
+    @Test void progressCannotRenewOriginalRecordingDeadlineAndCancelsPendingPeers()throws Exception {
+        try(var group=new Group(3,true)) {
+            long started=System.nanoTime();var clock=new AtomicLong(started);var pending=new ArrayList<CompletableFuture<Decoded>>();
+            var deadlines=new ArrayList<Long>();
+            MembershipSourcePull.Link link=(peer,request,kind,deadline)->{deadlines.add(deadline);var f=new CompletableFuture<Decoded>();pending.add(f);return f;};
+            try(var quorum=new MembershipFutureRetentionQuorum(group.owners.getFirst(),group.peer(),group.fixture.ballot,
+                    group.owners.getFirst().pendingPublication(group.applied.getFirst()),group.budgets.getFirst(),link,clock::get,started,BUDGET,()->clock.set(started+BUDGET))) {
+                var error=assertThrows(IllegalArgumentException.class,quorum::record);
+                assertEquals("original future quorum deadline/closed",error.getMessage());
+                assertEquals(List.of(started+BUDGET,started+BUDGET),deadlines);
+                assertTrue(pending.stream().allMatch(CompletableFuture::isCancelled));
+            }
+        }
+    }
     @Test void realNetworkReceiverUsesOwnNativeProofIncludingIntendedTargetVoter()throws Exception {
         for(int size:List.of(3,4,5))try(var group=new Group(size,true)) {
             var intent=group.intent();var endpoints=new ArrayList<MembershipActivationEndpoint>();var transports=new ArrayList<MembershipTransport>();

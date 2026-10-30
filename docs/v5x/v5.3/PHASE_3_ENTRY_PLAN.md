@@ -1,12 +1,17 @@
 # V5.3 Phase 3 entry and closure checklist
 
-[Concurrent native campaigns](PHASE_3_COMPETING_CAMPAIGNS.md) expose and correct
+[Active-write heartbeat progress](PHASE_3_ACTIVE_WRITE_HEARTBEAT.md) now services
+liveness from the original slot coordinator at unlocked work/wait boundaries.
+It preserves the original authority, cut, deadline and one client mutation;
+higher fencing and close still terminate that invocation. Component results and
+complete competing-owner histories are recorded separately; Phase 3 remains **OPEN**.
+
+[Concurrent native campaigns](PHASE_3_COMPETING_CAMPAIGNS.md) exposed and corrected
 specific loss-classification, stale-control and cancellation/drain defects.
-Their complete three-owner qualification still fails: after actual READY, a
-long DATA can delay the serial heartbeat and allow another campaign during
-publication. Component regressions and retained failures are separate from
-successful whole-history replay; active-write liveness is the next integration
-task. Phase 3 remains **OPEN**.
+Their earlier three-owner histories failed, including a long DATA delaying the
+serial heartbeat and allowing another campaign during publication. Those failures
+remain bound to their original source; the newer integration above does not
+retroactively qualify them.
 
 [Native in-flight process recovery](PHASE_3_NODE_INFLIGHT.md) adds actual
 halt/SIGKILL at ACCEPT and PROOF parent force. The original unreturned DATA is

@@ -1,0 +1,1225 @@
+{
+  "archive": {
+    "bytes": 6123331,
+    "files": 10228,
+    "path": "target/v53-work-pulse/qualification.tar.gz",
+    "sha256": "00a2865d09d663914de1c25018996d2d790888bcf0d9dfa3d0f12a45a060988a"
+  },
+  "archiveVerification": {
+    "archiveSha256": "00a2865d09d663914de1c25018996d2d790888bcf0d9dfa3d0f12a45a060988a",
+    "files": 10228,
+    "status": "PASS"
+  },
+  "baseCommit": "0bb2603186db8eb19422d13c309df59fbb9595fb",
+  "baselineScope": "Exact 0bb26031 MembershipRoundDriver with other candidate production files retained. The original held-ACCEPT regression uses raw automatic-round start; final tests use the actual Session adapter. This is not a complete old-runtime run.",
+  "competition": {
+    "diagnostics": [
+      {
+        "failure": "",
+        "node": "node-1",
+        "state": "RESTARTING"
+      },
+      {
+        "failure": "io.github.patricklfdm.generalsearch.replication.MembershipCampaignLost: pre-grant original copies unavailable\n\tat io.github.patricklfdm.generalsearch.replication.MembershipActivationDriver.run(MembershipActivationDriver.java:108)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver.activate(MembershipRoundDriver.java:141)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver.start(MembershipRoundDriver.java:314)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver$1.lambda$start$1(MembershipRoundDriver.java:268)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver.campaignCall(MembershipRoundDriver.java:232)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver$1.start(MembershipRoundDriver.java:268)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipAutomaticOwner.serve(MembershipAutomaticOwner.java:110)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipAutomaticOwner.loop(MembershipAutomaticOwner.java:147)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nCaused by: io.github.patricklfdm.generalsearch.replication.MembershipGenerationMaintenance$Unavailable: native generation maintenance quorum unavailable\n\tat io.github.patricklfdm.generalsearch.replication.MembershipGenerationMaintenance.run(MembershipGenerationMaintenance.java:135)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipActivationDriver.run(MembershipActivationDriver.java:102)\n\t... 8 more\n",
+        "node": "node-2",
+        "state": "FAILED"
+      },
+      {
+        "failure": "",
+        "node": "node-3",
+        "state": "READY"
+      }
+    ],
+    "heartbeatWrites": [
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1347,
+        "recipient": "node-1",
+        "request": "2e89ea4aebf1edeeea93a0655c5283cfa551584fcf5241b59b6cd4c14fa3b0fd",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1351,
+        "recipient": "node-2",
+        "request": "93c00c45e3c6f343b9cb7a02fd83a25c4c8ccba6b9779f3cc3f813fe2cd9149e",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1355,
+        "recipient": "node-1",
+        "request": "95763f3f3eb4a43dcb21818204c60df55b0bd9b5af6607753bed33bf8bed5ff3",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1359,
+        "recipient": "node-2",
+        "request": "571aab605b0c38c5edd40cf44036be5c58d66d879284a142f3986b74c77f4ea5",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1601,
+        "recipient": "node-1",
+        "request": "c6b6f05b28707c7a12a70a9f08eeaaa55d4ad0062f6f2935bb6487d73e86d413",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1607,
+        "recipient": "node-2",
+        "request": "e59c46c8891fa94b7b6a1283d43f9df08ed8d0d1077015100db9fff687d4a03e",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1832,
+        "recipient": "node-1",
+        "request": "e6e3f820414811ad1804456acd383879b718ad40112eb3fa51db695873b0be87",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1835,
+        "recipient": "node-2",
+        "request": "0c65f562b5f1bd2db6cf857bf7412be176d7f060ed51bf77813af1924a7d3744",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1838,
+        "recipient": "node-2",
+        "request": "0c65f562b5f1bd2db6cf857bf7412be176d7f060ed51bf77813af1924a7d3744",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 1841,
+        "recipient": "node-2",
+        "request": "0c65f562b5f1bd2db6cf857bf7412be176d7f060ed51bf77813af1924a7d3744",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 2111,
+        "recipient": "node-1",
+        "request": "c8b7fd32005cf798d4eabd2e7b92c9b9a5c659a7f5ebb8dd81a7b4e683baa931",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 2116,
+        "recipient": "node-2",
+        "request": "4f29e0942513bd2187c11e02432215da070732767aee211f120e69db6eb05076",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 2122,
+        "recipient": "node-2",
+        "request": "4f29e0942513bd2187c11e02432215da070732767aee211f120e69db6eb05076",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 2247,
+        "recipient": "node-1",
+        "request": "f5b2f6df7eb10f6438223e20b51f1d9ccd3456c1156082861b2327fc9bbc344c",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 2251,
+        "recipient": "node-2",
+        "request": "c1e01f0972ae052ca4547c1353ab5e5dc6dec923b55877aa7468740c37a9ed36",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 2323,
+        "recipient": "node-1",
+        "request": "8066408a17765633d2cf479819034e222176452d04ca2980dcd26474ded879f2",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 2325,
+        "recipient": "node-2",
+        "request": "a449943cf5cfb7d6b1218cf0686f8e9406dbccc8e1aa9946566a7bfb575f36f5",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 2328,
+        "recipient": "node-2",
+        "request": "a449943cf5cfb7d6b1218cf0686f8e9406dbccc8e1aa9946566a7bfb575f36f5",
+        "sender": "node-3"
+      },
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000003",
+          "proposer": "node-3"
+        },
+        "cut": {
+          "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "index": 1,
+          "view": {
+            "generation": 0,
+            "new": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "old": [
+              "node-1",
+              "node-2",
+              "node-3"
+            ],
+            "operation": null
+          }
+        },
+        "eventIndex": 2331,
+        "recipient": "node-2",
+        "request": "a449943cf5cfb7d6b1218cf0686f8e9406dbccc8e1aa9946566a7bfb575f36f5",
+        "sender": "node-3"
+      }
+    ],
+    "observations": [
+      {
+        "event": "START_COMPLETED",
+        "kind": "PUBLISH_ACK",
+        "node": "node-3",
+        "value": {
+          "ballot": {
+            "counter": 2,
+            "incarnation": "00000000-0000-0005-0000-000000000003",
+            "proposer": "node-3"
+          },
+          "payload": {
+            "certificate": "a85cc2c5c28eb7262c8370584ee52f7be92059860dd086ac88b6df8ded22a3cd",
+            "generation": "6dce28a93bbd0531386be19ee8a44935828264c7566b3f576b10a6db4eadc1be",
+            "published": {
+              "application": "0437c7482ff61814f30951f4d082dcebcbec4959fb34f98284379cef01ac1928",
+              "catalog": "674bb22ae76f4290ee451c0747b112eb23c17bb21631fb6f99f1d3d15cf9704d",
+              "cut": {
+                "entry": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+                "index": 1,
+                "view": {
+                  "generation": 0,
+                  "new": [
+                    "node-1",
+                    "node-2",
+                    "node-3"
+                  ],
+                  "old": [
+                    "node-1",
+                    "node-2",
+                    "node-3"
+                  ],
+                  "operation": null
+                }
+              }
+            },
+            "selection": "47eea4b9303498f3fe1b351cc6bbdefbeba055266103cd411b057e524aebb7a7"
+          },
+          "recipient": {
+            "host": "127.0.0.1",
+            "node": "node-3",
+            "port": 34147,
+            "storage": "00000000-0000-0005-0000-000000000003"
+          },
+          "root": "0194adb85bac758aad9281c6037944ed708abf05ab22e11241ab4d3e1a833d15",
+          "sender": {
+            "host": "127.0.0.1",
+            "node": "node-3",
+            "port": 34147,
+            "storage": "00000000-0000-0005-0000-000000000003"
+          },
+          "sequence": 1,
+          "trace": "be094c7a-b334-4426-825a-7ba123cc004f",
+          "view": "6e456f4b26d98e711c7ae491fabf378564c1ada62a29f3c3698660a14f164964"
+        }
+      },
+      {
+        "event": "DATA_COMPLETED",
+        "kind": "PUBLISH_ACK",
+        "node": "node-3",
+        "value": {
+          "ballot": {
+            "counter": 2,
+            "incarnation": "00000000-0000-0005-0000-000000000003",
+            "proposer": "node-3"
+          },
+          "payload": {
+            "certificate": "07dab5ad557042e548658cafd9377ea5aab5a438e880dfd7a1e7d9832d6561ae",
+            "generation": "617f7cdcc612e51a834680265950d78140d4fd17a082e286bb1544e2ec356214",
+            "published": {
+              "application": "7f5c25525a12d2463a41283bec2c0b425e5e489bc805c6b5a27c4e86ec236e58",
+              "catalog": "74c00f343858b63910203d62fda57ea759013c4cf1fef03ac098ff2c1e121ed7",
+              "cut": {
+                "entry": "35663d5d830ea8643a5dc7d0c9bebec0ee682f39fb725796d6785110ac46c519",
+                "index": 2,
+                "view": {
+                  "generation": 0,
+                  "new": [
+                    "node-1",
+                    "node-2",
+                    "node-3"
+                  ],
+                  "old": [
+                    "node-1",
+                    "node-2",
+                    "node-3"
+                  ],
+                  "operation": null
+                }
+              }
+            },
+            "selection": "47eea4b9303498f3fe1b351cc6bbdefbeba055266103cd411b057e524aebb7a7"
+          },
+          "recipient": {
+            "host": "127.0.0.1",
+            "node": "node-3",
+            "port": 34147,
+            "storage": "00000000-0000-0005-0000-000000000003"
+          },
+          "root": "0194adb85bac758aad9281c6037944ed708abf05ab22e11241ab4d3e1a833d15",
+          "sender": {
+            "host": "127.0.0.1",
+            "node": "node-3",
+            "port": 34147,
+            "storage": "00000000-0000-0005-0000-000000000003"
+          },
+          "sequence": 1,
+          "trace": "bbb577a1-e751-4e5e-9c3b-82571c0621ba",
+          "view": "6e456f4b26d98e711c7ae491fabf378564c1ada62a29f3c3698660a14f164964"
+        }
+      }
+    ],
+    "raw": "target/v53-native-cancellation/builds/workpulsecompetition-64813e27/general-search-engine-replication/target/v53-competing-node/run-683a3169-b576-426d-b890-371672f22368",
+    "rawHashes": {
+      "calls.json": "b961e891f165c19571c9ae7e31362f90e72d33725f93c392c38f6fa873eaa12f",
+      "close-failure.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostics.json": "80cd6adf2bdb2c6d07e4aa3ab253dd54e6b03bc24198cc86b409dd9c666cab67",
+      "events.json": "b47ace320a261ce1698c84d07f25fa7e483b00d49f3c38c62ddd7378c0938ea2",
+      "failure.txt": "8d347e3482050e8293855bda10a6b3de73d4b5e18300a1a630a4240a6370ced1",
+      "observations.json": "31899f20e37240a6382715ca830e94ed9ffe470b84944cabd5b0e016c6adc4a2",
+      "original-application.image": "0437c7482ff61814f30951f4d082dcebcbec4959fb34f98284379cef01ac1928",
+      "original-plan.gsbp": "d7b79f630273ab28ad13a4e922396d7f1c5207a51efacaa22208bf12dd39b526",
+      "result.json": "b253e1e8f50319bec34f66eaa4583a3e62f64d8dcd5ce3773c877166253243e7",
+      "wire.json": "ed9c996eb799dbbcdc8f710f3532e702d8566084d9e1ed1afab660c203e5f428"
+    },
+    "responses": [
+      {
+        "count": 3,
+        "kind": "ACCEPT",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "ACCEPT_ACK",
+        "sender": "node-3"
+      },
+      {
+        "count": 2,
+        "kind": "APPLY",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "APPLY_ACK",
+        "sender": "node-3"
+      },
+      {
+        "count": 38,
+        "kind": "CHUNK",
+        "reason": "",
+        "recipient": "node-3",
+        "response": "CHUNK",
+        "sender": "node-1"
+      },
+      {
+        "count": 38,
+        "kind": "CHUNK",
+        "reason": "",
+        "recipient": "node-3",
+        "response": "SOURCE_OFFER",
+        "sender": "node-1"
+      },
+      {
+        "count": 2,
+        "kind": "CHUNK",
+        "reason": "",
+        "recipient": "node-3",
+        "response": "CHUNK",
+        "sender": "node-2"
+      },
+      {
+        "count": 2,
+        "kind": "CHUNK",
+        "reason": "",
+        "recipient": "node-3",
+        "response": "SOURCE_OFFER",
+        "sender": "node-2"
+      },
+      {
+        "count": 23,
+        "kind": "CHUNK",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "CHUNK",
+        "sender": "node-3"
+      },
+      {
+        "count": 23,
+        "kind": "CHUNK",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "SOURCE_OFFER",
+        "sender": "node-3"
+      },
+      {
+        "count": 2,
+        "kind": "FUTURE_RETENTION_INTENT",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "FUTURE_RETENTION_ACK",
+        "sender": "node-3"
+      },
+      {
+        "count": 7,
+        "kind": "HEARTBEAT",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "HEARTBEAT_ACK",
+        "sender": "node-3"
+      },
+      {
+        "count": 1,
+        "kind": "PREPARE",
+        "reason": "STALE_EPOCH",
+        "recipient": "node-1",
+        "response": "REJECT",
+        "sender": "node-2"
+      },
+      {
+        "count": 1,
+        "kind": "PREPARE",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "PROMISE",
+        "sender": "node-3"
+      },
+      {
+        "count": 2,
+        "kind": "PROOF",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "PROOF_ACK",
+        "sender": "node-3"
+      },
+      {
+        "count": 5,
+        "kind": "PUBLISH",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "PUBLISH_ACK",
+        "sender": "node-3"
+      },
+      {
+        "count": 1,
+        "kind": "SELECTED",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "INSTALL_ACK",
+        "sender": "node-3"
+      },
+      {
+        "count": 2,
+        "kind": "STATUS_PROBE",
+        "reason": "",
+        "recipient": "node-2",
+        "response": "STATUS",
+        "sender": "node-1"
+      },
+      {
+        "count": 4,
+        "kind": "STATUS_PROBE",
+        "reason": "",
+        "recipient": "node-3",
+        "response": "STATUS",
+        "sender": "node-1"
+      },
+      {
+        "count": 5,
+        "kind": "STATUS_PROBE",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "STATUS",
+        "sender": "node-2"
+      },
+      {
+        "count": 5,
+        "kind": "STATUS_PROBE",
+        "reason": "",
+        "recipient": "node-3",
+        "response": "STATUS",
+        "sender": "node-2"
+      },
+      {
+        "count": 3,
+        "kind": "STATUS_PROBE",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "STATUS",
+        "sender": "node-3"
+      },
+      {
+        "count": 1,
+        "kind": "STATUS_PROBE",
+        "reason": "",
+        "recipient": "node-2",
+        "response": "STATUS",
+        "sender": "node-3"
+      },
+      {
+        "count": 38,
+        "kind": "TRANSFER_COMMIT",
+        "reason": "",
+        "recipient": "node-3",
+        "response": "TRANSFER_COMMIT",
+        "sender": "node-1"
+      },
+      {
+        "count": 1,
+        "kind": "TRANSFER_COMMIT",
+        "reason": "",
+        "recipient": "node-3",
+        "response": "TRANSFER_COMMIT",
+        "sender": "node-2"
+      },
+      {
+        "count": 23,
+        "kind": "TRANSFER_COMMIT",
+        "reason": "",
+        "recipient": "node-1",
+        "response": "TRANSFER_COMMIT",
+        "sender": "node-3"
+      }
+    ],
+    "scope": "diagnostic framing and timeline only; independent full physical/history replay absent",
+    "slots": [
+      {
+        "eventIndex": 321,
+        "kind": "ENTRY",
+        "node": "node-3",
+        "value": {
+          "authority": "6e456f4b26d98e711c7ae491fabf378564c1ada62a29f3c3698660a14f164964",
+          "index": 1,
+          "kind": "BARRIER",
+          "origin": {
+            "counter": 2,
+            "incarnation": "00000000-0000-0005-0000-000000000003",
+            "proposer": "node-3"
+          },
+          "payload": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "previous": "adf3b176192dd7fab169c7f5545b4691e8ee6b6094000249c0f45b2bb26ce384",
+          "root": "0194adb85bac758aad9281c6037944ed708abf05ab22e11241ab4d3e1a833d15"
+        }
+      },
+      {
+        "eventIndex": 1353,
+        "kind": "ENTRY",
+        "node": "node-3",
+        "value": {
+          "authority": "6e456f4b26d98e711c7ae491fabf378564c1ada62a29f3c3698660a14f164964",
+          "index": 2,
+          "kind": "DATA",
+          "origin": {
+            "counter": 2,
+            "incarnation": "00000000-0000-0005-0000-000000000003",
+            "proposer": "node-3"
+          },
+          "payload": "4e74914bfb34ad34ac1acf40de917e763b2d8aba9f9256a9787db1c546598573",
+          "previous": "65e947caf51c06f5ed53b10d2746bfbf5a9d0bab005aa7cd65c2902965db2b36",
+          "root": "0194adb85bac758aad9281c6037944ed708abf05ab22e11241ab4d3e1a833d15"
+        }
+      }
+    ],
+    "status": {
+      "automaticOwners": 3,
+      "defaultBounds": true,
+      "nodes": 3,
+      "phase3Complete": false,
+      "physicalReplay": false,
+      "producerPassed": false,
+      "status": "FAIL"
+    }
+  },
+  "componentRegressionStatus": "PASS",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1702,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "contractUnitTests": 1,
+  "currentSourceCompetitionStatus": "FAIL",
+  "developmentNotes": [
+    "The boundary snapshot had one test failure: raw round returned HigherBallot while the test expected automatic Session CampaignLost. The final test invokes the real Session; no assertion was relaxed.",
+    "317 production/POM/resource inputs and the heartbeat/future regression sources are identical between boundary and final executions.",
+    "Three-owner producer completed BARRIER cut 1 and one DATA cut 2, then failed the all-owners-healthy assertion; node 2 failed pre-grant original-copy acquisition. No complete original replay is claimed.",
+    "All development and baseline failures are retained. Existing earlier source-bound receipts are not requalified by these component passes.",
+    "No client mutation replay, authority/schema change, deadline/limit relaxation, workflow or paid cloud action."
+  ],
+  "distinctPassingComponentChecks": 33,
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActiveWriteHeartbeatTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53WorkPulseTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "workpulsefirst",
+      "requestedTests": [
+        "V53WorkPulseTest",
+        "V53ActiveWriteHeartbeatTest#heldAcceptStillSendsHeartbeatThenCompletesTheOnlyData"
+      ],
+      "seconds": 93.22715559898643,
+      "skipped": 0,
+      "tests": 6
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActiveWriteHeartbeatTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53FutureRetentionEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest": 16,
+        "io.github.patricklfdm.generalsearch.replication.V53WorkPulseTest": 5
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "workpulseboundaries",
+      "requestedTests": [
+        "V53WorkPulseTest",
+        "V53ActiveWriteHeartbeatTest",
+        "V53HeartbeatRoundTest",
+        "V53FutureRetentionEndpointTest#pendingRecordingServicesProgressOutsideTheWriterWithoutInventingAnAck+progressCannotRenewOriginalRecordingDeadlineAndCancelsPendingPeers+closingDuringExchangeSubmissionCancelsTheReturnedFuture+lateAndUnrelatedRepliesCannotCompleteRecording"
+      ],
+      "seconds": 511.0769987489912,
+      "skipped": 0,
+      "tests": 29
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActiveWriteHeartbeatTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "workpulsebaseline",
+      "requestedTests": [
+        "V53ActiveWriteHeartbeatTest#heldAcceptStillSendsHeartbeatThenCompletesTheOnlyData"
+      ],
+      "seconds": 97.8877769469982,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeQualification": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "workpulsecompetition",
+      "requestedTests": [
+        "V53CompetingNodeQualification"
+      ],
+      "seconds": 113.22828505502548,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActiveWriteHeartbeatTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53WorkPulseTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "workpulsefinal",
+      "requestedTests": [
+        "V53WorkPulseTest",
+        "V53ActiveWriteHeartbeatTest",
+        "V53SlotDriverTest#cancellationDrainsOutgoingPhaseAndNeverReportsSuccess+parentCancellationAtActualSocketWritePreventsRemoteAcceptance+higherBallotBeforeTheFinalReturnPreventsSuccess+invalidAckDoesNotRetryOrCountAsAnOriginalReceipt"
+      ],
+      "seconds": 369.0329495490005,
+      "skipped": 0,
+      "tests": 13
+    }
+  ],
+  "independentReplay": false,
+  "paidCloud": false,
+  "passingComponentChecks": [
+    {
+      "testCase": "closeCancelsHeartbeatAndHeldDataWithoutSuccess",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53ActiveWriteHeartbeatTest"
+    },
+    {
+      "testCase": "heldAcceptStillSendsHeartbeatThenCompletesTheOnlyData",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53ActiveWriteHeartbeatTest"
+    },
+    {
+      "testCase": "heldPublicationStillSendsHeartbeatBeforeLocalCompletion",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53ActiveWriteHeartbeatTest"
+    },
+    {
+      "testCase": "higherHeartbeatResponseStopsHeldDataWithoutReplay",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53ActiveWriteHeartbeatTest"
+    },
+    {
+      "testCase": "closingDuringExchangeSubmissionCancelsTheReturnedFuture",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53FutureRetentionEndpointTest"
+    },
+    {
+      "testCase": "lateAndUnrelatedRepliesCannotCompleteRecording",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53FutureRetentionEndpointTest"
+    },
+    {
+      "testCase": "pendingRecordingServicesProgressOutsideTheWriterWithoutInventingAnAck",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53FutureRetentionEndpointTest"
+    },
+    {
+      "testCase": "progressCannotRenewOriginalRecordingDeadlineAndCancelsPendingPeers",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53FutureRetentionEndpointTest"
+    },
+    {
+      "testCase": "advertisedProgressRemainsAHintWithoutChangingTheOwnedCut",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "capacityFailureBeforeFanoutDoesNotLeakReservationsOrSend",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "capacityPeerIsNotRetriedWhenAnotherPeerCompletesMajority",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "closeCancelsAllPendingPeersAndWakesTheRunner",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "closedTransportIsTerminalRatherThanContactLoss",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "exhaustedPeersFailWithoutResettingTheSamplingBudget",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "foreignHigherRejectCannotChangeRootFence",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "idleHigherFenceCancelsPendingPeersWhileWriterIsHeld",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "lateAuthenticatedHigherReplyStillFencesAfterLocalCompletion",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "lostResponsesRetryIdenticalBytesUnderOneDeadline",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "majorityDoesNotWaitForUnresponsivePeerAndReleasesItsFuture",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "malformedCorrelatedReplyCannotBecomeAHeartbeatOrBeRetried",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "nativeReadyRoundSamplesWithoutWritingOrReusingContactAsReadiness",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "replyAfterOriginalDeadlineDoesNotBecomeContact",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "requestEncodingFailureReturnsItsPreallocatedReservation",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "verifiedHigherRejectFencesBeforeQueuedMajorityCanReturn",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest"
+    },
+    {
+      "testCase": "cancellationDrainsOutgoingPhaseAndNeverReportsSuccess",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest"
+    },
+    {
+      "testCase": "higherBallotBeforeTheFinalReturnPreventsSuccess",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest"
+    },
+    {
+      "testCase": "invalidAckDoesNotRetryOrCountAsAnOriginalReceipt",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest"
+    },
+    {
+      "testCase": "parentCancellationAtActualSocketWritePreventsRemoteAcceptance",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53SlotDriverTest"
+    },
+    {
+      "testCase": "backwardsClockDoesNotAuthorizeAPulse",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53WorkPulseTest"
+    },
+    {
+      "testCase": "nestedProgressCannotStartOverlappingSample",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53WorkPulseTest"
+    },
+    {
+      "testCase": "noPulseBeforeActualReadinessAndOnlyAtDueInterval",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53WorkPulseTest"
+    },
+    {
+      "testCase": "parentFailureIsPropagatedWithoutAnyReplacementDeadline",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53WorkPulseTest"
+    },
+    {
+      "testCase": "slowSampleDoesNotBurstAndExplicitHeartbeatRearmsSameInterval",
+      "testClass": "io.github.patricklfdm.generalsearch.replication.V53WorkPulseTest"
+    }
+  ],
+  "phase3Complete": false,
+  "remaining": [
+    "Follower startup/recovery availability under concurrent automatic owners",
+    "Passing full native competing-owner producer and independent original replay",
+    "All-profile/process qualification and complete Phase 3 matrix"
+  ],
+  "schema": "gse-v53-active-write-heartbeat-v1",
+  "sourceParity": {
+    "boundariesToFinalDifferences": [
+      "docs/v5x/v5.3/PHASE_3_ACTIVE_WRITE_HEARTBEAT.md",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActiveWriteHeartbeatTest.java"
+    ],
+    "productionInputs": 317,
+    "status": "PASS",
+    "unchangedRegressionSources": [
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionEndpointTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53HeartbeatRoundTest.java"
+    ]
+  },
+  "sources": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "51d5ac27619fc02050a830aa516a432ab1d0c651f89b673a7710ebce676fdbd1",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFutureRetentionQuorum.java": "07ac050db3aeb86b422ea30e38e541be1055017a1cc1e22d5dc5b6ed7817dff1",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java": "1958f424a8a1a0347d5e2260eb3c197ef3af74b4b0fd4801d8ba643e4e37b011",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSlotDriver.java": "edb9bf3d79f1472f20e629c092baaa59b49583be1b88d09f9890238a927dd24e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipWorkPulse.java": "e83d4fc32b86d6d77e2f731fbd624bed6c2bde88c2b75041dab07434e7ae4d63",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ActiveWriteHeartbeatTest.java": "1f9281446fdf3ffb1798a576162290e03fc76d178ac03be7d331e4345a947fdc",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FutureRetentionEndpointTest.java": "165a93884f094d8906ee70ac7568dd1923682a2e392698466de4d74cd02c17c0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53WorkPulseTest.java": "e6fc5b68e782b60be08557566728e3e34e5f583e4373b4f5cb2999aa20c7dc17"
+  },
+  "status": "PARTIAL"
+}

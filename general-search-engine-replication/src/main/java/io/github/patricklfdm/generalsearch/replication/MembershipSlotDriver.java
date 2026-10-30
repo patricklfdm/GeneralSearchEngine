@@ -32,6 +32,7 @@ final class MembershipSlotDriver implements AutoCloseable {
     private final Application application;
     private final Acceptance acceptance;
     private final Events events;
+    private final MembershipSourcePull.Guard pulse;
     private final List<MembershipIdentity> peers;
     private final Set<String> selected;
     private final Decoded selection;
@@ -51,12 +52,19 @@ final class MembershipSlotDriver implements AutoCloseable {
             ReplicationBounds bounds,MembershipTransport transport,LongSupplier clock,long started,long budget,
             io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
             io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Events events)throws IOException {
+        this(owner,endpoint,resources,bounds,transport,clock,started,budget,configuration,storage,events,()->{});
+    }
+    <K,T> MembershipSlotDriver(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,MembershipResources resources,
+            ReplicationBounds bounds,MembershipTransport transport,LongSupplier clock,long started,long budget,
+            io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> configuration,
+            io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K,T> storage,Events events,
+            MembershipSourcePull.Guard pulse)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"slot driver budget");this.owner=Objects.requireNonNull(owner);
         this.endpoint=Objects.requireNonNull(endpoint);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
         this.transport=Objects.requireNonNull(transport);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
         Objects.requireNonNull(configuration);Objects.requireNonNull(storage);application=()->owner.applyCurrent(configuration,storage);
         acceptance=(entry,payload)->owner.acceptCurrent(entry,payload,configuration,storage);
-        this.events=Objects.requireNonNull(events);voting=owner.voting(resources);selection=owner.originalSelection().orElseThrow();
+        this.events=Objects.requireNonNull(events);this.pulse=Objects.requireNonNull(pulse);voting=owner.voting(resources);selection=owner.originalSelection().orElseThrow();
         var local=owner.activationIdentity();require(local.nodeId().value().equals(voting.ballot.get("proposer")),"slot driver original proposer");
         var names=new TreeSet<String>();for(var row:list(selection.value().get("sources")))require(names.add((String)object(row).get("voter")),"slot driver distinct selected voter");
         require(names.contains(local.nodeId().value()) && names.size()<=6,"slot driver selected proposer/count");
@@ -71,7 +79,12 @@ final class MembershipSlotDriver implements AutoCloseable {
         if(closed || Thread.currentThread().isInterrupted())throw new IOException("slot driver closed/interrupted");
         long elapsed=clock.getAsLong()-started;require(elapsed>=0 && elapsed<budget,"slot driver original deadline");
     }
-    private void check()throws IOException {time();voting.check();time();}
+    private void check()throws IOException {time();voting.check();progress();time();}
+    private void progress()throws IOException {
+        // Only the coordinator owns outbound liveness; peer workers continue
+        // their normal validation but may never create a concurrent sample.
+        if(Thread.currentThread()==runner)pulse.check();
+    }
     private void fanout(PeerWork work)throws IOException {
         check();var completions=new ExecutorCompletionService<Void>(workers);var phase=new ArrayList<Future<Void>>();
         try {
@@ -84,8 +97,12 @@ final class MembershipSlotDriver implements AutoCloseable {
                 }
             }
             for(int i=0;i<peers.size();i++) {
-                check();var task=completions.poll(budget-(clock.getAsLong()-started),TimeUnit.NANOSECONDS);
-                require(task!=null,"slot driver original deadline");task.get();check();
+                check();Future<Void> task;
+                do {
+                    time();owner.checkActivationWait(voting.before.context.authority(),voting.ballot);progress();time();
+                    task=completions.poll(Math.min(budget-(clock.getAsLong()-started),TimeUnit.MILLISECONDS.toNanos(50)),TimeUnit.NANOSECONDS);
+                }while(task==null);
+                task.get();check();
             }
         }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("slot peer phase interrupted",error);}
         catch(ExecutionException error){throw failure(error.getCause());}
@@ -129,11 +146,11 @@ final class MembershipSlotDriver implements AutoCloseable {
     }
     private Decoded execute(Decoded entry,byte[] payload)throws IOException {
         check();boolean carried=voting.carriedSlot();
-        if(!carried)endpoint.maintainInstalled();check();acceptance.accept(entry,payload);check();
+        if(!carried)endpoint.maintainInstalled(this::progress);check();acceptance.accept(entry,payload);check();
         var accept=voting.record("ACCEPT").orElseThrow();deliver("ACCEPT",accept);var accepts=observations(accept);
         // Every selected owner has now forced the same new-ballot ACCEPT. Only
         // then may original governing copies retire old generations/staging.
-        if(carried){endpoint.maintainInstalled();check();}
+        if(carried){endpoint.maintainInstalled(this::progress);check();}
         var values=new TreeMap<>(accept.value());values.put("accepts",witnesses(accept,accepts));var proof=decode(encode("records","PROOF",values),"records","PROOF");
         check();owner.proveCurrent(proof,accepts);check();deliver("PROOF",proof);var proofs=observations(proof);
         values=new TreeMap<>(proof.value());values.put("proofs",witnesses(proof,proofs));var certificate=decode(encode("records","CERTIFICATE",values),"records","CERTIFICATE");
@@ -146,7 +163,7 @@ final class MembershipSlotDriver implements AutoCloseable {
         var ready=new ArrayList<MembershipFutureRetentionQuorum.Recorded>();
         for(var peer:peers) {
             check();var recording=new MembershipFutureRetentionQuorum(owner,peer,voting.ballot,owner.pendingPublication(applied),resources,
-                    transport::exchange,clock,started,budget);
+                    transport::exchange,clock,started,budget,this::progress);
             synchronized(this){if(closed){recording.close();throw new IOException("slot future quorum closed");}recordings.add(recording);}
             var recorded=recording.record();check();events.at("FUTURE_QUORUM_COMPLETE",certificate,recorded.voters());check();ready.add(recorded);
         }

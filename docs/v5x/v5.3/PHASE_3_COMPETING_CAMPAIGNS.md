@@ -1,5 +1,10 @@
 # Native competing-campaign recovery
 
+Subsequent [active-write heartbeat integration](PHASE_3_ACTIVE_WRITE_HEARTBEAT.md)
+adds cooperative progress within the same original DATA invocation. The results
+below describe this document's earlier source and retained failed histories;
+new-source component and competition evidence is recorded separately.
+
 Phase 3 remains **OPEN**. Three independently started private native node owners
 now exercise concurrent election over actual TCP and original durable storage.
 This batch corrects defects exposed by that producer; a producer result of

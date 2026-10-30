@@ -32,7 +32,14 @@ final class MembershipFutureRetentionQuorum implements AutoCloseable {
                     synchronized(MembershipFutureRetentionQuorum.this){dispatchPending=future;if(closed)future.cancel(true);}
                     try {
                         long left=budget-(clock.getAsLong()-started);require(left>0,"original future publication deadline");
-                        var response=future.get(left,TimeUnit.NANOSECONDS);check();MembershipWire.correlated(request,response,"PUBLISH_ACK");
+                        Decoded response;
+                        for(;;) {
+                            pulse.check();time();owner.checkActivationWait(context.authority(),ballot);
+                            left=budget-(clock.getAsLong()-started);require(left>0,"original future publication deadline");
+                            try{response=future.get(Math.min(left,TimeUnit.MILLISECONDS.toNanos(50)),TimeUnit.NANOSECONDS);break;}
+                            catch(TimeoutException tick){time();}
+                        }
+                        check();MembershipWire.correlated(request,response,"PUBLISH_ACK");
                         if(response.kind().equals("REJECT")) {
                             var promised=object(object(response.value().get("payload")).get("promised"));context.ballot(promised,true);
                             if(MembershipContext.compareBallot(promised,ballot)>0)owner.observeCurrent(promised);
@@ -43,12 +50,13 @@ final class MembershipFutureRetentionQuorum implements AutoCloseable {
                                 && payload.get("published").equals(MembershipRetentionIntent.anchor(intent.upper)),"publication acknowledgement changed target");
                         MembershipValidation.digest((String)payload.get("generation"));retry.complete(request.digest(),clock.getAsLong());return response;
                     }catch(InterruptedException error){future.cancel(true);Thread.currentThread().interrupt();throw new IOException("publication interrupted",error);}
-                    catch(TimeoutException|CancellationException error){future.cancel(true);throw new IOException("publication original deadline/closed",error);}
+                    catch(CancellationException error){future.cancel(true);throw new IOException("publication original deadline/closed",error);}
                     catch(ExecutionException error) {
                         var failure=cause(error);check();if(retryable(failure) && retry.attempts()<3)continue;
                         if(failure instanceof IOException io)throw io;if(failure instanceof RuntimeException runtime)throw runtime;
                         throw new IOException("publication exchange failed",failure);
-                    }finally{synchronized(MembershipFutureRetentionQuorum.this){if(dispatchPending==future)dispatchPending=null;}}
+                    }finally{if(!future.isDone())future.cancel(true);
+                        synchronized(MembershipFutureRetentionQuorum.this){if(dispatchPending==future)dispatchPending=null;}}
                 }
             }
         }
@@ -79,6 +87,7 @@ final class MembershipFutureRetentionQuorum implements AutoCloseable {
     private final MembershipGrantJournal.PendingPublication target;
     private final MembershipResources resources;
     private final MembershipSourcePull.Link link;
+    private final MembershipSourcePull.Guard pulse;
     private final MembershipContext context;
     private final Map<String,Object> ballot;
     private final MembershipFutureRetentionIntent intent;
@@ -95,9 +104,14 @@ final class MembershipFutureRetentionQuorum implements AutoCloseable {
     MembershipFutureRetentionQuorum(MembershipGrantJournal owner,MembershipIdentity peer,Map<String,Object> ballot,
             MembershipGrantJournal.PendingPublication target,MembershipResources resources,MembershipSourcePull.Link link,
             LongSupplier clock,long started,long budget)throws IOException {
+        this(owner,peer,ballot,target,resources,link,clock,started,budget,()->{});
+    }
+    MembershipFutureRetentionQuorum(MembershipGrantJournal owner,MembershipIdentity peer,Map<String,Object> ballot,
+            MembershipGrantJournal.PendingPublication target,MembershipResources resources,MembershipSourcePull.Link link,
+            LongSupplier clock,long started,long budget,MembershipSourcePull.Guard pulse)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"future quorum budget");this.owner=Objects.requireNonNull(owner);this.target=Objects.requireNonNull(target);
         this.resources=Objects.requireNonNull(resources);this.link=Objects.requireNonNull(link);this.clock=Objects.requireNonNull(clock);
-        this.started=started;this.budget=budget;this.ballot=Map.copyOf(ballot);
+        this.started=started;this.budget=budget;this.ballot=Map.copyOf(ballot);this.pulse=Objects.requireNonNull(pulse);
         synchronized(owner){owner.checkRetentionResources(resources);context=owner.activationContext();intent=owner.futureRetentionIntent(peer,ballot,target);}
         require(ballot.get("proposer").equals(owner.activationIdentity().nodeId().value()),"future quorum proposer");time();
     }
@@ -127,7 +141,11 @@ final class MembershipFutureRetentionQuorum implements AutoCloseable {
             while(!quorum(acknowledged)) {
                 live();var possible=new HashSet<>(acknowledged);attempts.forEach((n,a)->{if(!a.exhausted)possible.add(n);});
                 require(quorum(possible),"future retention quorum unavailable");Reply reply;
-                try{reply=replies.poll(budget-(clock.getAsLong()-started),TimeUnit.NANOSECONDS);}
+                try {
+                    do{time();owner.checkActivationWait(context.authority(),ballot);pulse.check();time();
+                        reply=replies.poll(Math.min(budget-(clock.getAsLong()-started),TimeUnit.MILLISECONDS.toNanos(50)),TimeUnit.NANOSECONDS);}
+                    while(reply==null);
+                }
                 catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("future quorum interrupted",error);}
                 require(reply!=null,"original future quorum deadline/closed");live();var attempt=attempts.get(reply.node);
                 require(attempt!=null && !attempt.exhausted && !acknowledged.contains(reply.node),"unexpected future completion");

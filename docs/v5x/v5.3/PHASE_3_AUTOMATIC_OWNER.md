@@ -21,8 +21,11 @@ One control thread runs all outbound work. A due heartbeat precedes queued
 commands. Sampling completion starts the next interval, avoiding bursts of
 missed ticks after slow storage or scheduling. Requests and heartbeats share the
 original enclosing budget; neither a successful pulse nor a client wait renews
-it. A long active operation can delay a pulse. No failover or latency SLA is
-claimed, and active-campaign progress integration remains necessary.
+it. The original owner could delay a pulse for a whole active operation.
+[Cooperative active-write progress](PHASE_3_ACTIVE_WRITE_HEARTBEAT.md) now services
+due samples at unlocked work/wait boundaries inside that invocation. An individual
+synchronous storage operation can still delay progress; no failover or latency SLA
+is claimed. Complete competition and profile qualification remain required.
 
 The mailbox counts both queued and executing calls against the configured
 pending-call bound and the existing global 64-waiter limit. Its fixed 64 KiB

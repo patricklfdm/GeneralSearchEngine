@@ -219,10 +219,12 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         void maintain()throws IOException {
             maintain(false);
         }
-        void maintain(boolean beforeGrant)throws IOException {
-            check();if(!(beforeGrant?owner.publishedMaintenanceRequired():owner.nativeGenerationMaintenanceRequired()))return;
-            var work=beforeGrant?MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,this::exchange,this::check,scratch,clock,started,limit):
-                    new MembershipGenerationMaintenance(owner,resources,bounds,this::exchange,this::check,scratch,clock,started,limit);
+        void maintain(boolean beforeGrant)throws IOException {maintain(beforeGrant,()->{});}
+        void maintain(boolean beforeGrant,MembershipSourcePull.Guard pulse)throws IOException {
+            MembershipSourcePull.Guard guarded=()->{pulse.check();check();};
+            guarded.check();if(!(beforeGrant?owner.publishedMaintenanceRequired():owner.nativeGenerationMaintenanceRequired()))return;
+            var work=beforeGrant?MembershipGenerationMaintenance.beforeGrant(owner,resources,bounds,this::exchange,guarded,scratch,clock,started,limit):
+                    new MembershipGenerationMaintenance(owner,resources,bounds,this::exchange,guarded,scratch,clock,started,limit);
             synchronized(this){if(ended || closed){work.close();throw new IOException("native maintenance scope ended");}
                 require(maintenance==null,"native maintenance already active");maintenance=work;}
             try(work){work.run();}finally{synchronized(this){if(maintenance==work)maintenance=null;}}
@@ -329,11 +331,13 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     /** The serialized outgoing owner uses the same actual maintenance path before
      * creating its own vote. Incoming native slots invoke it automatically. */
-    void maintainInstalled()throws IOException {
+    void maintainInstalled()throws IOException {maintainInstalled(()->{});}
+    void maintainInstalled(MembershipSourcePull.Guard pulse)throws IOException {
+        Objects.requireNonNull(pulse);
         require(slots!=null,"typed native endpoint required");var active=scope;
         require(active!=null,"native maintenance requires active campaign");active.check();
         synchronized(active.slotRegistry){require(!active.slotChanging && active.slotCalls==0,"native slot busy before maintenance");active.slotChanging=true;}
-        try{active.maintain();}finally{synchronized(active.slotRegistry){active.slotChanging=false;active.slotRegistry.notifyAll();}}
+        try{active.maintain(false,pulse);}finally{synchronized(active.slotRegistry){active.slotChanging=false;active.slotRegistry.notifyAll();}}
     }
     private void releaseEndedControl() {
         synchronized(registry){if(control!=null && control.finished && control.active.ended){control.close();control=null;}}
