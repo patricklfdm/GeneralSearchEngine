@@ -861,6 +861,13 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized void initializeJoinedRetention(MembershipJoiningRetentionAcquisition acquisition)throws IOException {
         try(var use=acquisition.useFor(this,resources)){installJoiningRetention(use.seed);}
     }
+    /** Serving eligibility only. Every later grant/slot still uses the ordinary
+     * current-view protocol; this check cannot establish public readiness. */
+    synchronized void joiningEndpointReady(MembershipResources budget)throws IOException {
+        require(resources==budget && ownedHistory && joinedOwner!=null && joiningRetention!=null
+                && joiningRetention.ready(),"joining endpoint requires original completed initialization");
+        checkOwner();peerRetentionState();futureRetentionState();learnerRetentionState();
+    }
     private void recoverJoiningRetention()throws IOException {
         require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
         if(!MembershipJoiningRetentionFiles.present(directory)) {

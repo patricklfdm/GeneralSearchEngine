@@ -1,5 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining endpoint handoff](PHASE_3_JOINING_ENDPOINT.md) now provides the native
+owner's read-only listener, durable-initialization-gated promotion and retaining
+cold resume. Switching drains old calls; failed cleanup retains ownership for
+retry. Focused lifecycle/read tests are separate from the compiled, still deferred
+whole TCP/FINAL/BARRIER history. Autonomous scheduling and full native/process
+qualification remain required. Phase 3 remains **OPEN**; older entries below keep
+their source-bound historical scope.
+
 [Old-majority joining preparation](PHASE_3_JOINING_PREPARATION.md) now uses one
 bounded PREPARE campaign without source selection. Its exact root/cut/ballot and
 BASIS routing hint limits the new owner's separately verified acquisition.

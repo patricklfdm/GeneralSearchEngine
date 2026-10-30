@@ -1,5 +1,27 @@
 # V5.3 Phase 3 contract amendments
 
+## A62 — original joining endpoint handoff
+
+Before initialization, the actual unused joined owner serves only nonvoting
+STATUS and bounded current-prefix/generation reads to exact old identities.
+Retain its original cut, ownership guard and initialization deadline. Refuse
+voting requests before observing any ballot. Only the original forced completion
+and three validated retention ledgers permit promotion or retaining cold resume;
+conditional or absent originals never authorize an empty-ledger fallback.
+
+Stop admission and drain old handler calls before publishing the ordinary typed
+activation endpoint. Revoke replies still inside the dispatcher; already returned
+read-only transport data is not claimed to be socket-send-revoked. Failure keeps
+serving disabled and retains unclosed resources for cleanup retry. Charge dispatch
+bookkeeping to existing CONTROL capacity and use the existing request timeout for
+cleanup waits. Initialization retains its original deadline; subsequent voting
+campaigns use existing endpoint deadlines and protocol checks. Dispatch ACTIVE
+is not public READY. No wire format, persisted schema, majority, public bound or
+phase-exit requirement changes.
+
+See [joining endpoint handoff](PHASE_3_JOINING_ENDPOINT.md). Complete native and
+process histories, all profiles and autonomous scheduling remain unqualified.
+
 ## A61 — bounded old-side preparation without selection
 
 Use one actual old proposer's fresh grant at the joining JOINT cut to prepare
