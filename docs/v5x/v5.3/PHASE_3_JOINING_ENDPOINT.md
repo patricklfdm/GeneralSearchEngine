@@ -1,5 +1,10 @@
 # Joining endpoint ownership and voting handoff
 
+The following describes the endpoint-handoff increment. The subsequent
+[owned initialization](PHASE_3_JOINING_INITIALIZATION.md) now makes promotion
+private and provides the managed `initialize(hint)` entry; its final-source
+validation is recorded separately.
+
 Phase 3 remains **OPEN**. `MembershipJoiningEndpoint` replaces the test-only
 joining listener with an explicit production lifecycle component. It does not
 implement the complete autonomous coordinator or expose public READY.

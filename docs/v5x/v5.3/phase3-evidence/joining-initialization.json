@@ -1,0 +1,90 @@
+{
+  "archive": {
+    "bytes": 18973638,
+    "path": "target/v53-joining-initialization/component-validation.tar.gz",
+    "sha256": "761ab243d3d0f8ab95522a89fbe77bb2cd01eaeb556cda378638eb0992983b8c"
+  },
+  "archiveMembers": 8174,
+  "automaticCoordinatorConnected": false,
+  "baseCommit": "54d9f9466a629de689533a62de517e4c4fa44292",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1571,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "deferred": [
+    "actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier",
+    "alternative-old-majorities-and-all-profiles",
+    "native-managed-initialization-handoff",
+    "close-racing-admitted-native-initialization",
+    "original-process-death-recovery",
+    "maximum-combined-resources",
+    "automatic-runtime-scheduling-and-inter-owner-handoff"
+  ],
+  "executions": {
+    "joininginitialization": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53EndpointHandoffTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionCampaignTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionFilesTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joininginitialization",
+      "requestedTests": [
+        "V53InitializationTaskTest",
+        "V53EndpointHandoffTest",
+        "V53JoiningEndpointTest",
+        "V53JoiningRetentionNetworkTest",
+        "V53JoiningRetentionCampaignTest",
+        "V53JoiningRetentionFilesTest"
+      ],
+      "seconds": 82.12830609899538,
+      "skipped": 0,
+      "tests": 31
+    },
+    "joininginitializationfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53EndpointHandoffTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionNetworkTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joininginitializationfinal",
+      "requestedTests": [
+        "V53InitializationTaskTest",
+        "V53EndpointHandoffTest",
+        "V53JoiningEndpointTest",
+        "V53JoiningRetentionNetworkTest"
+      ],
+      "seconds": 19.309052453987533,
+      "skipped": 0,
+      "tests": 21
+    }
+  },
+  "finalCodeAndBuildInputsChecked": 1311,
+  "managedInitializationImplemented": true,
+  "nativeHistoryExecuted": false,
+  "paidCloud": false,
+  "phase3Closed": false,
+  "publicRuntime": false,
+  "schema": "gse-v53-joining-initialization-component-v1",
+  "scope": "owned-acquisition-force-handoff-and-cancellation-drain",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipInitializationTask.java": "b152ff1c930e48d27992b052f92b3bc1c9ff9195113038caa7a20729d8509c28",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningEndpoint.java": "254b9fe017fc83bdc55b7820cef9b6aaae8860767479ff0e4cc474426725baaf",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53InitializationTaskTest.java": "55dc3693d099c1c2aace2eb3be009d1a4b083e6fa715dc92c6391e936486faaf",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "b72f6241249aea49c64f08ead6eebe2d415f2b17a89fba0714fd4420490e8edb"
+  },
+  "status": "PASS"
+}

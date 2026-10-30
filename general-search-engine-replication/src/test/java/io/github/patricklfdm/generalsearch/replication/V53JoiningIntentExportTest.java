@@ -342,12 +342,12 @@ class V53JoiningIntentExportTest {
                                                                 var joiningLink=new java.util.concurrent.atomic.AtomicReference<MembershipTransport>();
                                                                 try(var joiningEndpoint=remoteRetention?new MembershipJoiningEndpoint<>(journal,pool,n.bounds,(peer,q,kind,deadline)->{
                                                                             var channel=joiningLink.get();return channel==null?java.util.concurrent.CompletableFuture.failedFuture(new java.io.IOException("joining listener starting")):
-                                                                                    channel.exchange(peer,q,kind,deadline);
+                                                                                    channel.exchange(peer,q,kind,deadline).thenApply(answer->{seedWire.add(V53SelectedPullTest.wire(q,answer));return answer;});
                                                                         },temp.resolve("joining-initial-endpoint"),System::nanoTime,retentionStarted,BUDGET,builder().configuration(),config.materialization()):null;
                                                                         var transport=remoteRetention?new MembershipTransport(journal,n.bounds,pool,joiningEndpoint,MembershipTransport.Events.NONE):null) {
                                                                 if(remoteRetention) {
                                                                     joiningLink.set(transport);assertEquals(MembershipEndpointHandoff.State.READ_ONLY,joiningEndpoint.state());
-                                                                    assertThrows(IllegalArgumentException.class,joiningEndpoint::activate);
+                                                                    assertThrows(IllegalArgumentException.class,()->journal.joiningEndpointReady(pool));
                                                                     assertThrows(IllegalArgumentException.class,joiningEndpoint::votingEndpoint);
                                                                 }
                                                                 MembershipJoiningRetentionCampaign.Hint prepared=null;
@@ -382,14 +382,8 @@ class V53JoiningIntentExportTest {
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gscp"),frozenOriginal.capsule.packet.bytes());}
                                                                 if(initializeJoined) {
                                                                     if(remoteRetention) {
-                                                                        try(var acquisition=new MembershipJoiningRetentionAcquisition(journal,pool,n.bounds,
-                                                                                    (peer,q,kind,deadline)->transport.exchange(peer,q,kind,deadline).thenApply(answer->{seedWire.add(V53SelectedPullTest.wire(q,answer));return answer;}),
-                                                                                    ()->{},System::nanoTime,retentionStarted,BUDGET,prepared)) {
-                                                                            assertArrayEquals(seed.bytes(),acquisition.fetch().bytes());
-                                                                            assertEquals(beforeSeed,V53ReplayFilesTest.files(request.replicaDirectory()));
-                                                                            journal.initializeJoinedRetention(acquisition);
-                                                                        }
-                                                                        joiningEndpoint.activate();assertEquals(MembershipEndpointHandoff.State.ACTIVE,joiningEndpoint.state());
+                                                                        joiningEndpoint.initialize(prepared);assertJoinedRetention(journal,seed.bytes(),joining);
+                                                                        assertEquals(MembershipEndpointHandoff.State.ACTIVE,joiningEndpoint.state());
                                                                         assertNotNull(joiningEndpoint.votingEndpoint());
                                                                         Files.write(n.f.raw.resolve("joining-retention-wire.json"),canonical(seedWire,8*1024*1024));
                                                                         System.out.println("v53JoiningIntentStage=remote-old-majority-retention-initialized-and-endpoint-promoted");

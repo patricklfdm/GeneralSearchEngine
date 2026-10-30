@@ -22,6 +22,7 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
     private final SearchEngineConfiguration<K,T> configuration;
     private final DurableStorageConfig<K,T> storage;
     private final MembershipEndpointHandoff handoff;
+    private final MembershipInitializationTask initialization;
     private volatile MembershipActivationEndpoint voting;
     private volatile boolean closed;
     MembershipJoiningEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
@@ -40,7 +41,8 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
         require(budget>0 && budget<Long.MAX_VALUE/2,"joining endpoint initialization budget");
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
         this.link=Objects.requireNonNull(link);this.scratch=Objects.requireNonNull(scratch);this.clock=Objects.requireNonNull(clock);
-        this.started=started;this.budget=budget;this.configuration=Objects.requireNonNull(configuration);this.storage=Objects.requireNonNull(storage);initialTime();
+        this.started=started;this.budget=budget;this.configuration=Objects.requireNonNull(configuration);this.storage=Objects.requireNonNull(storage);
+        initialization=new MembershipInitializationTask(bounds.requestTimeoutMillis());initialTime();
         MembershipEndpointHandoff.Endpoint first;
         if(resume)first=openVoting();
         else {var original=owner.joiningRetentionPreparation(resources);first=new ReadOnly(owner,resources,bounds,original::check,clock,started,budget);}
@@ -62,16 +64,39 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
     }
     /** The original forced completion and all three live ledgers are mandatory.
      * New voting campaigns retain the normal endpoint's per-campaign deadlines. */
-    void activate()throws IOException {
+    private void activate()throws IOException {
         initialTime();owner.joiningEndpointReady(resources);handoff.replace(this::openVoting);
+    }
+    /** Own acquisition through force completion and dispatch handoff. The hint
+     * is routing data; only the acquisition's original owner may initialize. */
+    void initialize(MembershipJoiningRetentionCampaign.Hint prepared)throws IOException {
+        Objects.requireNonNull(prepared);initialTime();
+        require(handoff.state()==MembershipEndpointHandoff.State.READ_ONLY,"joining initialization requires read-only endpoint");
+        var admitted=new java.util.concurrent.atomic.AtomicBoolean();
+        try {
+            initialization.execute(()->{
+                admitted.set(true);initialTime();var acquisition=new MembershipJoiningRetentionAcquisition(owner,resources,bounds,link,
+                        this::initialTime,clock,started,budget,prepared);
+                return new MembershipInitializationTask.Action(){
+                    @Override public void run()throws IOException {
+                        acquisition.fetch();initialTime();owner.initializeJoinedRetention(acquisition);initialTime();activate();
+                    }
+                    @Override public void close(){acquisition.close();}
+                };
+            });
+        }catch(IOException|RuntimeException|Error error){
+            if(admitted.get())try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;
+        }
     }
     MembershipActivationEndpoint votingEndpoint()throws IOException {
         require(!closed && handoff.state()==MembershipEndpointHandoff.State.ACTIVE,"joining voting endpoint unavailable");
         owner.joiningEndpointReady(resources);return Objects.requireNonNull(voting);
     }
     MembershipEndpointHandoff.State state(){return handoff.state();}
-    @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException{return handoff.handle(sender,request);}
-    @Override public void close()throws IOException{closed=true;handoff.close();}
+    @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
+        require(!closed,"joining endpoint closed");return handoff.handle(sender,request);
+    }
+    @Override public void close()throws IOException{closed=true;initialization.close();handoff.close();}
 
     /** Nonvoting read component. It can serve conditional data in tests; only the
      * enclosing original-owner constructor may promote to a voting endpoint. */

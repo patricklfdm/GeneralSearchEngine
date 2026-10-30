@@ -1,5 +1,26 @@
 # V5.3 Phase 3 contract amendments
 
+## A63 — managed initialization retains admitted force ownership
+
+The actual joining endpoint owns one acquisition/initialization/handoff operation.
+Retain the original start/deadline and existing exact-source majority validation;
+a routing hint and lifecycle state confer no force or voting authority. Promotion
+is internal to successful durable initialization. Reject concurrent duplicate
+initialization without cancelling the admitted caller. Keep the seed inside its
+charged acquisition lifetime.
+
+Close revokes new endpoint requests and cancels pending acquisition reads. It
+must drain, rather than interrupt, already admitted force work before releasing
+endpoint ownership. Preserve references and accounting on failed drain/cleanup,
+and preserve the primary error if cleanup also fails. A completed force followed
+by cancellation/expiry remains durable and closed; only the retaining cold entry
+may subsequently validate and resume it. No timeout permits promotion, repeats a
+transaction or creates public READY.
+
+See [owned joining initialization](PHASE_3_JOINING_INITIALIZATION.md). Existing
+CONTROL capacity and request-timeout cleanup bounds are unchanged. Native
+close/force/process histories and complete coordinator qualification remain open.
+
 ## A62 — original joining endpoint handoff
 
 Before initialization, the actual unused joined owner serves only nonvoting

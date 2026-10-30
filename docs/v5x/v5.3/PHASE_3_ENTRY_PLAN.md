@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Owned joining initialization](PHASE_3_JOINING_INITIALIZATION.md) now owns
+acquisition, durable initialization and private voting handoff under the original
+deadline. Close cancels reads and drains admitted force work without interrupting
+it; failures retain ownership for cleanup retry. The complete native joining
+history now uses this entry but remains compiled/deferred. Autonomous scheduling
+and full qualification remain required; Phase 3 remains **OPEN**.
+
 [Joining endpoint handoff](PHASE_3_JOINING_ENDPOINT.md) now provides the native
 owner's read-only listener, durable-initialization-gated promotion and retaining
 cold resume. Switching drains old calls; failed cleanup retains ownership for
