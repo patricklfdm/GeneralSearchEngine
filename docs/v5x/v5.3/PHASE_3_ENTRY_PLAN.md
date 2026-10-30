@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Discovered installation replay](PHASE_3_DISCOVERED_SELECTION.md) independently
+derives the five-to-four original history through ballot 4 and the selected
+nodes 1/2/4 installation, including pre-grant floor/source retirement and all
+14 transfer traces. Its 21 negative variants pass. Complete service replay and
+autonomous election qualification remain open; the result is PARTIAL.
+
 [Serialized original floor reads](PHASE_3_FLOOR_READ_VALIDATION.md) keep full
 physical validation at both ends of one native read-only decode under the
 journal monitor. Force/deletion callbacks and later reads cannot reuse it.

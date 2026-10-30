@@ -119,7 +119,8 @@ def recovery_transcript(root, node, before, remote, after):
     return dict(node=node, traces=3, exchanges=len(probes)+sum(map(len, ordered)))
 
 
-def inspect(root):
+def adopted_history(root):
+    """Return independently reduced originals for subsequent scoped readers."""
     walk = prelude(root); transcripts = []
     for node in ('node-5', 'node-4'):
         before = walk.group[node]
@@ -127,6 +128,11 @@ def inspect(root):
         walk.match(node+'-adopted')
         transcripts.append(recovery_transcript(root, node, before, walk.group['node-1'], walk.group[node]))
     need(c.inventory(Path(root)/'after-close/node-5') == walk.group['node-5'], 'discovered transition removed owner remains fenced')
+    return walk, transcripts
+
+
+def inspect(root):
+    walk, transcripts = adopted_history(root)
     return dict(status='PARTIAL', scope='original-prelude-and-adoption-only', originalFirst=True,
                 originalSlots=7, adoptions=2, snapshots=len(walk.snapshots), discovery=transcripts,
                 fullHistoryQualified=False, autonomousElection=False, phase3Complete=False)

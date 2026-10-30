@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Discovered installation replay](PHASE_3_DISCOVERED_SELECTION.md) reuses the
+unchanged successful native producer: 55 independently derived snapshots,
+14 complete transfer traces and 21 exact negatives through installation. It
+does not substitute for BARRIER 8/DATA 9 service-history replay, remaining
+profiles or autonomous elections. Phase 3 remains **OPEN**.
+
 [Serialized original floor reads](PHASE_3_FLOOR_READ_VALIDATION.md) keep full
 physical validation at both ends of one native read-only decode under the
 journal monitor. Force/deletion callbacks and later reads cannot reuse it.
