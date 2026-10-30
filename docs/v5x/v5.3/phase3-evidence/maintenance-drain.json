@@ -1,0 +1,288 @@
+{
+  "archive": {
+    "bytes": 2643459,
+    "files": 3473,
+    "path": "target/v53-maintenance-drain/qualification.tar.gz",
+    "sha256": "9dc5d9be1d339a1746f102aabff704040b3054ca591ca4a5a2f2246be7c6202a",
+    "verification": "PASS"
+  },
+  "baseCommit": "2fa78255a8fde081591e4198bbc6cff10456190f",
+  "competition": {
+    "closeFailure": [],
+    "diagnostics": [
+      {
+        "failure": "java.lang.IllegalArgumentException: peer retention unresolved endpoint capacity\n\tat io.github.patricklfdm.generalsearch.replication.MembershipValidation.require(MembershipValidation.java:12)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipPeerRetentionPlan$Peer.<init>(MembershipPeerRetentionPlan.java:15)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipPeerRetentionPlan.lambda$mergeRecorded$3(MembershipPeerRetentionPlan.java:110)\n\tat java.base/java.util.TreeMap.forEach(TreeMap.java:1317)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipPeerRetentionPlan.mergeRecorded(MembershipPeerRetentionPlan.java:110)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipSelectedRetention.verify(MembershipSelectedRetention.java:141)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipSelectedRetention.capture(MembershipSelectedRetention.java:91)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipGrantJournal.selectCurrent(MembershipGrantJournal.java:3572)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipActivation.promised(MembershipActivation.java:163)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipActivation.promised(MembershipActivation.java:133)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipActivationDriver$Round.select(MembershipActivationDriver.java:233)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipActivationDriver.run(MembershipActivationDriver.java:115)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver.activate(MembershipRoundDriver.java:141)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver.start(MembershipRoundDriver.java:314)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver$1.lambda$start$1(MembershipRoundDriver.java:268)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver.campaignCall(MembershipRoundDriver.java:232)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipRoundDriver$1.start(MembershipRoundDriver.java:268)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipAutomaticOwner.serve(MembershipAutomaticOwner.java:110)\n\tat io.github.patricklfdm.generalsearch.replication.MembershipAutomaticOwner.loop(MembershipAutomaticOwner.java:147)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n",
+        "node": "node-1",
+        "state": "FAILED"
+      },
+      {
+        "failure": "",
+        "node": "node-2",
+        "state": "RESTARTING"
+      },
+      {
+        "failure": "",
+        "node": "node-3",
+        "state": "RESTARTING"
+      }
+    ],
+    "drains": [
+      {
+        "failure": "",
+        "files": [
+          {
+            "bytes": 500,
+            "path": "outgoing/owner.json",
+            "sha256": "ef92424152a252cf5bdff439ca8d6a5664bd9752493677aeb197b003e95cba64"
+          },
+          {
+            "bytes": 0,
+            "path": "outgoing/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 500,
+            "path": "incoming/owner.json",
+            "sha256": "f61683cf9f6b71c7d0c023a340b3114d7ce9942912b66ba4beb8e6c945d3c259"
+          },
+          {
+            "bytes": 0,
+            "path": "incoming/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 543,
+            "path": "outgoing-retry-fe8dbded-6944-4fd1-85f4-7fa12fcf826e/owner.json",
+            "sha256": "2768d5137ee37867522d3e1def162d88180f867c8f2f8e4d3a1f34f3af82e993"
+          },
+          {
+            "bytes": 0,
+            "path": "outgoing-retry-fe8dbded-6944-4fd1-85f4-7fa12fcf826e/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "leases": 0,
+        "node": "node-3"
+      },
+      {
+        "failure": "",
+        "files": [
+          {
+            "bytes": 500,
+            "path": "outgoing/owner.json",
+            "sha256": "9834b9a6326d443abd621327ff29ac2f6628408d9f4fe47b003f86d8d0455536"
+          },
+          {
+            "bytes": 0,
+            "path": "outgoing/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 500,
+            "path": "incoming/owner.json",
+            "sha256": "14018f577842e3cae5c59948c6c432628750052d455e428238ae7a3dbfd3bd72"
+          },
+          {
+            "bytes": 0,
+            "path": "incoming/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 543,
+            "path": "outgoing-retry-4399a4d7-e599-4758-9537-be424eec09cc/owner.json",
+            "sha256": "d4f1a8c86c15a95d9cc26157f8bea806e419daa0db7f90cf9fa0f7d10ef56b06"
+          },
+          {
+            "bytes": 0,
+            "path": "outgoing-retry-4399a4d7-e599-4758-9537-be424eec09cc/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "leases": 0,
+        "node": "node-2"
+      },
+      {
+        "failure": "",
+        "files": [
+          {
+            "bytes": 500,
+            "path": "outgoing/owner.json",
+            "sha256": "8ff74b0dd835cfbb87778a94170f5d1e926d1d00497a2a56025a3cc59f0c6277"
+          },
+          {
+            "bytes": 0,
+            "path": "outgoing/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 543,
+            "path": "outgoing-retry-b763eb8d-eac6-4175-b6a8-c74414a1e3fb/owner.json",
+            "sha256": "198fb4cd1f2f77ae54e8ef6e7c9b7b2fa956923df67ed6e204b3ae1ad7f7563c"
+          },
+          {
+            "bytes": 0,
+            "path": "outgoing-retry-b763eb8d-eac6-4175-b6a8-c74414a1e3fb/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 500,
+            "path": "incoming/owner.json",
+            "sha256": "82ff73cef468f131662580ee9d98c2516456dadb6d6cede6b810717513a6dca7"
+          },
+          {
+            "bytes": 0,
+            "path": "incoming/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 543,
+            "path": "outgoing-retry-9da3a6c1-9a8a-4954-a7c0-13866b28b4ec/owner.json",
+            "sha256": "1f7cfda0ebcdd296818beea2670f6408ec6d164197914f3cf97ce16eb7922acf"
+          },
+          {
+            "bytes": 0,
+            "path": "outgoing-retry-9da3a6c1-9a8a-4954-a7c0-13866b28b4ec/scope.lock",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "leases": 0,
+        "node": "node-1"
+      }
+    ],
+    "failure": [
+      "java.lang.AssertionError: automatic owner failed: node-1",
+      "\tat io.github.patricklfdm.generalsearch.replication.V53CompetingNodeQualification.threeAutomaticOwnersConvergeAndPublishOneOriginalData(V53CompetingNodeQualification.java:60)",
+      "\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)",
+      "\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)",
+      "\tat org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:767)",
+      "\tat org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)",
+      "\tat org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)",
+      "\tat org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)",
+      "\tat org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)",
+      "\tat org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)",
+      "\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)",
+      "\tat org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)"
+    ],
+    "raw": "target/v53-native-cancellation/builds/maintenancedrainwhole-5ba1a04f/general-search-engine-replication/target/v53-competing-node/run-ef1d1c86-3c48-4016-920c-f676eb8efaff",
+    "rawHashes": {
+      "calls.json": "b961e891f165c19571c9ae7e31362f90e72d33725f93c392c38f6fa873eaa12f",
+      "close-failure.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostics.json": "646c2fc3676f1e096b017b9c8931022f9046f82b2cb40fdc8f4667703534f025",
+      "drains.json": "91e553624c5d5180c60b9a2fffa35662386e3499ee53f76e6c71bdf0dd5d0a41",
+      "events.json": "fbd3ccb50ece25898b9338f33fdf26203aec24da414ef1b8620666bf487a13c9",
+      "failure.txt": "a4d4f89e03789b07410f15aafb86b116fa0ae9f6e89226b197bc5f763411af45",
+      "observations.json": "8b8d69e61a047bcb47df3a1dbddf1f9fad4ee672db96d2e7f852af6e3155f677",
+      "original-application.image": "812b71c0289dbb041c64feff73e22604aa43a41fe873ccac8a0f318825155a89",
+      "original-plan.gsbp": "307c7dd43f6238ec2988f8a8a2cea6e14ba2c697839d39e730eff6fdd1349d25",
+      "result.json": "b253e1e8f50319bec34f66eaa4583a3e62f64d8dcd5ce3773c877166253243e7",
+      "wire.json": "19ceb8223540134694d7e2e52197b661edabae2634a0154348d68f4b11fa476c"
+    },
+    "result": {
+      "automaticOwners": 3,
+      "defaultBounds": true,
+      "nodes": 3,
+      "phase3Complete": false,
+      "physicalReplay": false,
+      "producerPassed": false,
+      "status": "FAIL"
+    }
+  },
+  "componentRegressionStatus": "PASS",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1709,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "contractUnitTests": 1,
+  "developmentNotes": [
+    "All three initial regressions fail on the original implementation. The corrected suite adds one outgoing-driver case and passes four new plus twenty existing tests.",
+    "The original whole-history scratch failure did not retain a live scratch inventory. These deterministic faults establish a lost-owner defect without claiming the exact cause of every earlier failure.",
+    "The first diagnostic producer failed while encoding slash-containing JSON keys. Its terminal failure and copied scratch bytes remain retained; it is not successful qualification.",
+    "Final component and complete-competition snapshots share all production and POM input hashes. Their producer diagnostic code differs only in preserving non-IO close failures.",
+    "No retries of client DATA, new campaign budget, time/resource changes, workflow changes, paid cloud or full reactor execution.",
+    "Complete competing-owner replay and incoming maintenance crash-recovery layout qualification remain required."
+  ],
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeQualification": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "scratchdiagnostic",
+      "requestedTests": [
+        "V53CompetingNodeQualification"
+      ],
+      "seconds": 111.02606769499835,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceDrainTest": 3
+      },
+      "exit": 1,
+      "failures": 3,
+      "label": "maintenancedrainbaseline",
+      "requestedTests": [
+        "V53MaintenanceDrainTest"
+      ],
+      "seconds": 30.230731201998424,
+      "skipped": 0,
+      "tests": 3
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 14,
+        "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53DeferredSourceMaintenanceTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceCampaignTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceDrainTest": 4
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "maintenancedraincandidate",
+      "requestedTests": [
+        "V53MaintenanceDrainTest",
+        "V53ActivationEndpointTest",
+        "V53DeferredSourceMaintenanceTest",
+        "V53MaintenanceCampaignTest",
+        "V53ContinuousTransitionTest#closeDuringPreGrantMaintenanceCannotPublishANewPromise+higherBallotDuringPreGrantMaintenanceCannotPublishANewPromise"
+      ],
+      "seconds": 198.45340318599483,
+      "skipped": 0,
+      "tests": 24
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeQualification": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "maintenancedrainwhole",
+      "requestedTests": [
+        "V53CompetingNodeQualification"
+      ],
+      "seconds": 146.47280890197726,
+      "skipped": 0,
+      "tests": 1
+    }
+  ],
+  "independentReplay": false,
+  "phase3Complete": false,
+  "phase3Status": "OPEN",
+  "productionInputParity": 317,
+  "schema": "gse-v53-maintenance-drain-qualification-v1",
+  "sources": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationDriver.java": "b6e79bfb4ac6a072642f297bbaea35c77dad12bcf0c94e8d24d935519d0d9f5d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "e7d9413a0b8465f5eea856b877bd8f9897fc4da17768886b095fac44f0c2714c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java": "e79c41cb7868ed46e31fdf4f88a9765eeb1846d73f8514e16d64e642785a8a80",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingNodeQualification.java": "378a1a323d47a091e8906557f1b22ceb3aaaa1b75aee926182c6fbbd2b83ad9f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaintenanceDrainTest.java": "8ae413b2f2cbaed5c2a9506a1950a4d3713858350b9d85944e6be23e643bf0ce"
+  }
+}

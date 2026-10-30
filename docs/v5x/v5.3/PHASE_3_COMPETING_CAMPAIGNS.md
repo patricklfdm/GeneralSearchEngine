@@ -1,5 +1,9 @@
 # Native competing-campaign recovery
 
+Later [maintenance drain ownership](PHASE_3_MAINTENANCE_DRAIN.md) repairs failed
+receive cleanup references and retains per-node closing diagnostics. Its results
+are separately source-bound; the earlier failures below remain unchanged.
+
 Subsequent [active-write heartbeat integration](PHASE_3_ACTIVE_WRITE_HEARTBEAT.md)
 adds cooperative progress within the same original DATA invocation. The results
 below describe this document's earlier source and retained failed histories;

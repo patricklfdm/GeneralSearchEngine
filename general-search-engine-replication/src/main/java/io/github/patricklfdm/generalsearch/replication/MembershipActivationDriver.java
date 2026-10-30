@@ -107,7 +107,7 @@ final class MembershipActivationDriver implements AutoCloseable {
                     if(unavailable.getSuppressed().length!=0)throw unavailable;
                     var lost=new MembershipCampaignLost(MembershipCampaignLost.Reason.CONTACT_UNAVAILABLE,"pre-grant original copies unavailable");
                     lost.initCause(unavailable);throw lost;
-                }finally{maintenance=null;}
+                }finally{if(work.drained())maintenance=null;}
             }
             while(campaigns<maximumCampaigns) {
                 remaining();Round round=new Round();active=round;campaigns++;

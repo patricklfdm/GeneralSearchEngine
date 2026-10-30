@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Maintenance drain ownership](PHASE_3_MAINTENANCE_DRAIN.md) keeps failed receiving
+owners reachable through maintenance, endpoint handoff and outgoing activation.
+Only successful physical close releases the reference; unknown files still block
+deletion. Component regressions and whole competition results remain separate,
+and Phase 3 is **OPEN**.
+
 [Deferred same-cut source reclamation](PHASE_3_DEFERRED_SOURCE_MAINTENANCE.md)
 keeps obsolete sources owned and charged when an unavailable old-cut quorum cannot
 reclaim them, provided no generation/floor or joining obligation requires that

@@ -11,7 +11,7 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 
 /** Explicit whole-history qualification (select with -Dtest=V53CompetingNodeQualification).
- * This non-default gate remains failing until active-write heartbeat integration.
+ * This non-default gate retains failures until the complete native history qualifies.
  * Ungated native competition. No injected promises, chosen winner or mutation retry.
  * Producer success is PARTIAL until independent original-history qualification. */
 class V53CompetingNodeQualification {
@@ -104,8 +104,29 @@ class V53CompetingNodeQualification {
                 var node=nodes.get(i);diagnostics.add(Map.of("node","node-"+(i+1),"state",node.serviceState().map(Enum::name).orElse("UNOPENED"),
                     "failure",node.failure().map(V53CompetingNodeQualification::stack).orElse("")));
             }
-            for(var node:nodes.reversed())try{node.close();assertEquals(0,node.usage().leases());}
-            catch(IOException error){if(closing==null)closing=error;else closing.addSuppressed(error);}
+            Files.write(raw.resolve("diagnostics.json"),canonical(diagnostics,65536));
+            Files.writeString(raw.resolve("failure.txt"),failed==null?"":stack(failed));
+            var drains=new ArrayList<Map<String,Object>>();
+            for(int i=nodes.size()-1;i>=0;i--) {
+                var node=nodes.get(i);Throwable error=null;
+                try{node.close();assertEquals(0,node.usage().leases());}
+                catch(IOException|RuntimeException|AssertionError failure){
+                    error=failure;var drain=failure instanceof IOException io?io:new IOException("node resource drain failed",failure);
+                    if(closing==null)closing=drain;else closing.addSuppressed(drain);
+                }
+                var files=new ArrayList<Map<String,Object>>();Path scratch=temp.resolve("scratch-"+i);
+                try(var paths=Files.walk(scratch)) {
+                    for(Path path:paths.filter(Files::isRegularFile).toList()) {
+                        String relative=scratch.relativize(path).toString();byte[] bytes=Files.readAllBytes(path);
+                        files.add(Map.of("path",relative,"bytes",bytes.length,"sha256",hash(bytes)));
+                        Path retained=raw.resolve("drain-scratch/node-"+(i+1)).resolve(relative);
+                        Files.createDirectories(retained.getParent());Files.write(retained,bytes);
+                    }
+                }
+                drains.add(Map.of("node","node-"+(i+1),"failure",error==null?"":stack(error),
+                        "leases",node.usage().leases(),"files",files));
+            }
+            Files.write(raw.resolve("drains.json"),canonical(drains,1024*1024));
             Files.write(raw.resolve("events.json"),canonical(events,16*1024*1024));Files.write(raw.resolve("wire.json"),canonical(wire,32*1024*1024));
             Files.write(raw.resolve("observations.json"),canonical(observations,65536));Files.write(raw.resolve("diagnostics.json"),canonical(diagnostics,65536));
             Files.writeString(raw.resolve("failure.txt"),failed==null?"":stack(failed));Files.writeString(raw.resolve("close-failure.txt"),closing==null?"":stack(closing));

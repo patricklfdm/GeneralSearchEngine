@@ -72,8 +72,11 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         work.close();throw new IOException("native maintenance closed");
     }
     private void release(MembershipSourcePull work)throws IOException {
-        if(work==null)return;try{work.close();}finally{synchronized(this){pulls.remove(work);}}
+        if(work==null)return;
+        work.close(); // A failed physical drain still owns its files and leases.
+        synchronized(this){pulls.remove(work);}
     }
+    synchronized boolean drained(){return closed && discovery==null && pulls.isEmpty();}
     static List<String> copyOrder(MembershipContext context,Set<String> joining) {
         return copyOrder(context,joining,Set.of());
     }
@@ -183,7 +186,10 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         List<MembershipSourcePull> closing;MembershipDiscovery query;
         synchronized(this){closed=true;closing=List.copyOf(pulls);query=discovery;discovery=null;}
         if(query!=null)query.close();IOException failure=null;
-        for(var pull:closing)try{release(pull);}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+        for(var pull:closing)try{release(pull);}catch(IOException|RuntimeException error){
+            var next=error instanceof IOException io?io:new IOException("native maintenance receive cleanup failed",error);
+            if(failure==null)failure=next;else failure.addSuppressed(next);
+        }
         if(failure!=null)throw failure;
     }
 }

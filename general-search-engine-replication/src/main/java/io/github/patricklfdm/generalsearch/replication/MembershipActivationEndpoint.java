@@ -56,6 +56,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private volatile MembershipJoiningPreparation joiningPreparation;
     private Control control;
     private int waiters;
+    private boolean scopeChanging;
 
     Optional<HeartbeatContact> heartbeatContact() {
         var value=heartbeatContact.get();if(closed || value==null || value.isEmpty())return Optional.empty();
@@ -227,7 +228,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                     new MembershipGenerationMaintenance(owner,resources,bounds,this::exchange,guarded,scratch,clock,started,limit);
             synchronized(this){if(ended || closed){work.close();throw new IOException("native maintenance scope ended");}
                 require(maintenance==null,"native maintenance already active");maintenance=work;}
-            try(work){work.run();}finally{synchronized(this){if(maintenance==work)maintenance=null;}}
+            try(work){work.run();}finally{synchronized(this){if(maintenance==work && work.drained())maintenance=null;}}
         }
         Decoded nativeControl(MembershipIdentity sender,Decoded request)throws IOException {
             check();var installed=owner.voting(resources);
@@ -299,13 +300,21 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 require(compared>=0 && old.capsule.context.root.equals(capsule.context.root),"activation endpoint stale ballot/root");
                 if(compared==0){require(old.capsule.context.authority().equals(capsule.context.authority()),"activation endpoint changed view");return old;}
             }
-            scope=next=new Scope(capsule,ballot,started,limit);
+            if(scopeChanging)throw new MembershipTransport.Failure(MembershipTransport.Reason.CAPACITY,"previous activation scope still draining",null);
+            scopeChanging=true;
         }
-        if(old!=null) {
-            try{owner.checkCampaignWait(old.capsule.context.authority(),old.ballot);}
-            catch(MembershipCampaignLost lost){old.revoked=lost;}
-            old.close();
-        }
+        try {
+            if(old!=null) {
+                try{owner.checkCampaignWait(old.capsule.context.authority(),old.ballot);}
+                catch(MembershipCampaignLost lost){old.revoked=lost;}
+                old.close();
+            }
+            // The higher promise was already observed before admission. Keep
+            // the old physical owner reachable if drain fails; it grants no
+            // further work. No unbounded list of retired scopes is needed.
+            synchronized(registry){require(!closed && scope==old,"activation endpoint replaced/closed");
+                scope=next=new Scope(capsule,ballot,started,limit);}
+        }finally{synchronized(registry){scopeChanging=false;}}
         releaseEndedControl();next.check();return next;
     }
     /** Register the actual local campaign before any peer may fetch its PROMISE.
