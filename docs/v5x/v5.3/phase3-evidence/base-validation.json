@@ -1,0 +1,415 @@
+{
+  "archive": {
+    "bytes": 70540473,
+    "directories": 5345,
+    "members": 44691,
+    "path": "target/v53-base-validation/qualification.tar.gz",
+    "sha256": "230fcd67f10b902aeb91cdd5bae4df49b0c1914e55e76d51e5a8d2593f6e36cf"
+  },
+  "baseCommit": "6a5755a1b36c13093c1ea6c4b7c922ba217bc998",
+  "correctedInspection": {
+    "negatives": [
+      {
+        "case": "original-application",
+        "reason": "admitted exact slot-4-applied: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offline-owner-repaired",
+        "reason": "admitted exact slot-7-settled: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-observation",
+        "reason": "discovered transition original observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-adoption-fence",
+        "reason": "admitted exact node-5-adopted: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "survivor-selector",
+        "reason": "admitted exact node-4-adopted: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unrelated-owner",
+        "reason": "admitted exact node-4-adopted: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-owner-vote",
+        "reason": "discovered transition removed owner remains fenced",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-delivery",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-adoption",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unverified-hint",
+        "reason": "prefix discovery original cut",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-source-bytes",
+        "reason": "prefix exact data",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "adoptions": 2,
+      "autonomousElection": false,
+      "discovery": [
+        {
+          "exchanges": 10,
+          "node": "node-5",
+          "traces": 3
+        },
+        {
+          "exchanges": 10,
+          "node": "node-4",
+          "traces": 3
+        }
+      ],
+      "fullHistoryQualified": false,
+      "originalFirst": true,
+      "originalSlots": 7,
+      "phase3Complete": false,
+      "scope": "original-prelude-and-adoption-only",
+      "snapshots": 54,
+      "status": "PARTIAL"
+    }
+  },
+  "executions": {
+    "basevalidation": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53FencedStagingTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53RetentionValidationTest": 3
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "basevalidation",
+      "requestedTests": [
+        "V53RetentionValidationTest",
+        "V53CurrentGenerationTest",
+        "V53FencedStagingTest"
+      ],
+      "seconds": 108.87181453799712,
+      "skipped": 0,
+      "tests": 16
+    },
+    "basevalidationnative": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53DiscoveredTransitionTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "basevalidationnative",
+      "requestedTests": [
+        "V53DiscoveredTransitionTest"
+      ],
+      "seconds": 285.43284809499164,
+      "skipped": 0,
+      "tests": 1
+    },
+    "discoveredprofile": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53DiscoveredTransitionTest": 1
+      },
+      "command": [
+        "/opt/maven/bin/mvn",
+        "-o",
+        "-B",
+        "-ntp",
+        "-f",
+        "reactor/pom.xml",
+        "-pl",
+        "../general-search-engine-replication",
+        "-am",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dtest=V53DiscoveredTransitionTest",
+        "-Dv53.transport.diagnostics=true",
+        "-DargLine=-XX:StartFlightRecording=filename=/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/discoveredprofile-profile.jfr,settings=profile,maxsize=64m,dumponexit=true",
+        "test"
+      ],
+      "diagnostic": true,
+      "exit": 1,
+      "failures": 1,
+      "label": "discoveredprofile",
+      "profile": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/discoveredprofile-profile.jfr",
+      "requestedTests": [
+        "V53DiscoveredTransitionTest"
+      ],
+      "seconds": 324.17900943198765,
+      "skipped": 0,
+      "tests": 1
+    },
+    "floorplannative": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53DiscoveredTransitionTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "floorplannative",
+      "requestedTests": [
+        "V53DiscoveredTransitionTest"
+      ],
+      "seconds": 324.8581017749966,
+      "skipped": 0,
+      "tests": 1
+    },
+    "floorplansnapshot": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53FloorTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "floorplansnapshot",
+      "requestedTests": [
+        "V53FloorTest",
+        "V53FloorFilesTest"
+      ],
+      "seconds": 67.7309468290041,
+      "skipped": 0,
+      "tests": 18
+    }
+  },
+  "fencedStaging": {
+    "cases": 7,
+    "freshProcesses": false,
+    "imageSemanticClaim": false,
+    "negatives": [
+      {
+        "case": "missing-case",
+        "reason": "fenced staging case inventory"
+      },
+      {
+        "case": "changed-vote",
+        "reason": "fenced staging protected originals changed"
+      },
+      {
+        "case": "lost-original",
+        "reason": "fenced staging protected originals changed"
+      },
+      {
+        "case": "retained-staging",
+        "reason": "fenced staging protected originals changed"
+      },
+      {
+        "case": "changed-end",
+        "reason": "fenced staging exact original derived end"
+      },
+      {
+        "case": "force-order",
+        "reason": "fenced staging exact force/delete order"
+      },
+      {
+        "case": "old-ack",
+        "reason": "fenced staging old acknowledgement returned"
+      },
+      {
+        "case": "missing-observation",
+        "reason": "fenced staging observation boundary"
+      },
+      {
+        "case": "false-process",
+        "reason": "fenced staging receipt scope"
+      },
+      {
+        "case": "linked-authority",
+        "reason": "owner context linked/nonregular member"
+      },
+      {
+        "case": "extra-authority",
+        "reason": "owner context initial authority inventory"
+      }
+    ],
+    "oldAcknowledgement": false,
+    "originalFirst": true,
+    "portableReplay": "PASS",
+    "remoteOwnershipVerified": false,
+    "status": "PASS",
+    "transferredLifetime": false
+  },
+  "finalInspection": {
+    "negatives": [
+      {
+        "case": "original-application",
+        "reason": "admitted exact slot-4-applied: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offline-owner-repaired",
+        "reason": "admitted exact slot-7-settled: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-observation",
+        "reason": "discovered transition original observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-adoption-fence",
+        "reason": "admitted exact node-5-adopted: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "survivor-selector",
+        "reason": "admitted exact node-4-adopted: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unrelated-owner",
+        "reason": "admitted exact node-4-adopted: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-owner-vote",
+        "reason": "discovered transition removed owner remains fenced",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-delivery",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-adoption",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unverified-hint",
+        "reason": "prefix discovery original cut",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-source-bytes",
+        "reason": "prefix exact data",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "adoptions": 2,
+      "autonomousElection": false,
+      "discovery": [
+        {
+          "exchanges": 10,
+          "node": "node-5",
+          "traces": 3
+        },
+        {
+          "exchanges": 10,
+          "node": "node-4",
+          "traces": 3
+        }
+      ],
+      "fullHistoryQualified": false,
+      "originalFirst": true,
+      "originalSlots": 7,
+      "phase3Complete": false,
+      "scope": "original-prelude-and-adoption-only",
+      "snapshots": 54,
+      "status": "PARTIAL"
+    }
+  },
+  "interpretation": {
+    "barrierAcceptObservedSeconds": [
+      13.212,
+      13.258
+    ],
+    "baseOnlyNative": {
+      "maximumAttempts": 3,
+      "overallSeconds": 180,
+      "requestSeconds": 5,
+      "runnerSeconds": 285.43284809499164,
+      "stage": "first-ACCEPT",
+      "status": "FAIL"
+    },
+    "constraints": [
+      "No callback, force, mutation or network work reuses a read-only base check.",
+      "Every new top-level invocation revalidates actual base originals, including after exceptions.",
+      "Floor snapshots validate the complete original copy before and after cloning; all subsequent uses revalidate.",
+      "Quorum, original-copy authority, durable format, retries and deadlines are unchanged."
+    ],
+    "finalNative": {
+      "independentServiceReplay": false,
+      "maximumAttempts": 3,
+      "overallSeconds": 180,
+      "producerCompletedBarrierIndex": 8,
+      "producerReachedReady": true,
+      "requestSeconds": 5,
+      "runnerSeconds": 324.8581017749966,
+      "stage": "DATA-9-ACCEPT",
+      "status": "FAIL"
+    },
+    "limitations": [
+      "JFR is diagnostic and adds overhead; it is not a baseline performance benchmark.",
+      "Native producer PASS alone cannot qualify service-round or full-history independent replay.",
+      "Automatic elections, all profiles and process-cut acceptance remain open.",
+      "Final producer completes BARRIER 8/READY but DATA 9 ACCEPT exchanges still exhaust three attempts; no complete service history PASS."
+    ],
+    "phase3Closed": false,
+    "profile": {
+      "diagnostic": true,
+      "elapsedNotCpu": true,
+      "sameBounds": true,
+      "samplesInclusive": true
+    },
+    "safetyTests": {
+      "baseValidation": 16,
+      "floorSnapshot": 18,
+      "python": 11
+    },
+    "scope": "per-call read-only base checks and complete floor plan snapshots",
+    "status": "PARTIAL",
+    "timingFixEstablished": false
+  },
+  "originalInspection": {
+    "adoptions": 2,
+    "autonomousElection": false,
+    "discovery": [
+      {
+        "exchanges": 10,
+        "node": "node-5",
+        "traces": 3
+      },
+      {
+        "exchanges": 10,
+        "node": "node-4",
+        "traces": 3
+      }
+    ],
+    "fullHistoryQualified": false,
+    "originalFirst": true,
+    "originalSlots": 7,
+    "phase3Complete": false,
+    "scope": "original-prelude-and-adoption-only",
+    "snapshots": 54,
+    "status": "PARTIAL"
+  },
+  "paidCloud": false,
+  "phase3Closed": false,
+  "profileDiagnosticOnly": true,
+  "profileSamplesAreNotWallTime": true,
+  "schema": "gse-v53-base-validation-v1",
+  "snapshots": {
+    "basevalidation": "basevalidation-5aa08351",
+    "basevalidationnative": "basevalidationnative-56b6cd19",
+    "discoveredprofile": "discoveredprofile-e1a9a6f9",
+    "floorplannative": "floorplannative-c5a1cbbe",
+    "floorplansnapshot": "floorplansnapshot-e187095f"
+  },
+  "status": "PARTIAL"
+}

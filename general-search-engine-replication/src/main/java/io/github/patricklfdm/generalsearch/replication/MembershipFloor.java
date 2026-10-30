@@ -113,6 +113,14 @@ final class MembershipFloor {
         }
         Set<String> fileNames(){return files.keySet();}
         byte[] fileBytes(String name){check();return Objects.requireNonNull(files.get(name)).clone();}
+        /** One read-only plan snapshot, with full original validation on both
+         * sides. No callback or force may reuse this validation. Individual
+         * reads and every later snapshot still validate the complete copy. */
+        Map<String,byte[]> copyFiles() {
+            check();var snapshot=new TreeMap<String,byte[]>();
+            for(var file:files.entrySet())snapshot.put(file.getKey(),file.getValue().clone());
+            check();return Map.copyOf(snapshot);
+        }
         Map<String,Object> reference() {
             return Map.of("voter",owner.nodeId().value(),"generation",generation.digest(),
                     "catalog",capsule.terminal().catalog(),"snapshot",capsule.terminal().application());

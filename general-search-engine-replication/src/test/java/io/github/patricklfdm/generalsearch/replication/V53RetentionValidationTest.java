@@ -11,6 +11,38 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 /** Native local storage with all three ledgers. This is not a network or timing gate. */
 class V53RetentionValidationTest {
     @TempDir Path temp;
+    @Test void failedGenerationValidationCannotSuppressTheNextOriginalJournalCheck()throws Exception {
+        var helper=new V53PeerRetentionFilesTest();helper.temp=temp;var f=helper.fixture("failed-owner-check");
+        f.nativeApplication=true;var target=f.request.targets().getFirst();
+        for(var member:f.request.targets())try(var owner=f.open(member,"initialize-ledgers")) {
+            owner.initializePeerRetention();owner.initializeLearnerRetention();owner.initializeFutureRetention();
+        }
+        f.campaign(1);
+        try(var owner=f.open(target,"validation-failure")) {
+            var original=owner.activationContext().cut;var copy=owner.floorCopyCurrent();
+            String slot=(String)copy.generation.value().get("generation");
+            Path packet=target.replicaDirectory().resolve("generations/"+slot+"/source.gscp");
+            Path journal=target.replicaDirectory().resolve(MembershipGrantJournal.FILE);
+            byte[] goodPacket=Files.readAllBytes(packet),goodJournal=Files.readAllBytes(journal);
+            var usage=f.resources.usage();
+            byte[] badPacket=goodPacket.clone();badPacket[badPacket.length-1]^=1;
+            try {
+                Files.write(packet,badPacket);assertThrows(Exception.class,owner::activationContext);
+            }finally{Files.write(packet,goodPacket);}
+            // The next call must start from actual base originals, even when
+            // the preceding validation failed after checking the journal.
+            byte[] badJournal=goodJournal.clone();badJournal[badJournal.length-1]^=1;
+            try {
+                Files.write(journal,badJournal);assertThrows(Exception.class,owner::activationContext);
+                assertArrayEquals(badJournal,Files.readAllBytes(journal),"read-only checks cannot repair authority");
+            }finally{Files.write(journal,goodJournal);}
+            assertEquals(original,owner.activationContext().cut);assertEquals(usage,f.resources.usage());
+            owner.observeCurrent(new TreeMap<>(Map.of("counter",999L,"proposer",target.identity().nodeId().value(),
+                    "incarnation",target.identity().storageId().toString())));
+            assertThrows(IllegalArgumentException.class,()->owner.checkActivationBallot(copy.capsule.context.authority(),f.ballot));
+        }
+        assertEquals(0,f.resources.usage().leases());
+    }
     @Test void everyOwnerCheckRevalidatesOriginalAncestryAndAllThreeLedgers()throws Exception {
         var helper=new V53PeerRetentionFilesTest();helper.temp=temp;var f=helper.fixture("validation");f.nativeApplication=true;
         var self=f.request.targets().getFirst();var peer=f.request.targets().get(1);

@@ -187,7 +187,7 @@ final class MembershipFloorFiles implements AutoCloseable {
             MembershipGenerationFiles.Guard owner,MembershipBallotAllocator.Cut cut,Handoff handoff)throws IOException {
         require(!releasing(),"pending floor release must finish before new floor");var floor=MembershipFloor.create(root,current,offered);require(current.owner.equals(local),"floor publication owner");
         var plan=new TreeMap<String,byte[]>();plan.put(PROPOSAL,floor.bytes());plan.put(FLOOR,floor.bytes());
-        for(var copy:offered)for(String name:copy.fileNames())plan.put(copy.generation.digest()+"/"+name,copy.fileBytes(name));
+        for(var copy:offered)for(var file:copy.copyFiles().entrySet())plan.put(copy.generation.digest()+"/"+file.getKey(),file.getValue());
         check();owner.check();require(plan.keySet().containsAll(files.keySet()),"unrelated retained floor files");
         for(var file:files.entrySet())require(prefix(AdmissionPaths.read(path.resolve(file.getKey()),Math.toIntExact(limit(file.getKey()))),plan.get(file.getKey())),"floor requires exact original proposal");
         var ids=new TreeSet<String>();for(var copy:offered)ids.add(copy.generation.digest());require(ids.containsAll(directories.keySet()),"unrelated retained floor directory");

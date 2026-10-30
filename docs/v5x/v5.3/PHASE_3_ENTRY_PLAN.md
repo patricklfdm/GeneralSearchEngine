@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Serialized base validation](PHASE_3_BASE_VALIDATION.md) avoids recursive base
+checks inside one private read-only journal traversal and repeated per-member
+floor plan decoding. Original-byte, callback and fencing checks remain required.
+Focused safety validation is separate from native timing and complete Phase 3
+qualification; the new note retains the measured executions and limitations.
+
 [Heterogeneous discovery](PHASE_3_DISCOVERED_TRANSITION.md) now has a complete
 native 5-to-4 producer and original-first inspection through both adoptions.
 Its first execution exposed maintenance ordering that consulted an unselected

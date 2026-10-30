@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Serialized base validation](PHASE_3_BASE_VALIDATION.md) avoids recursive base
+checks inside one private read-only journal traversal and repeated per-member
+floor plan decoding. Original-byte, callback and fencing checks remain required.
+Focused safety validation is separate from native timing and complete Phase 3
+qualification; the new note retains the measured executions and limitations.
+
 [Heterogeneous discovery](PHASE_3_DISCOVERED_TRANSITION.md) adds the continuous
 5-to-4 stale-survivor/removed-owner producer. Original-first inspection covers
 seven preparation slots, both real TCP adoptions and removed-owner fencing,

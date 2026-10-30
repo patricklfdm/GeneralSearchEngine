@@ -90,4 +90,25 @@ class V53FloorTest {
         assertThrows(IllegalArgumentException.class,()->MembershipFloor.create(f.root(),captured,List.of(captured,b)));
     }
 
+    @Test void planSnapshotIsDefensiveAndLaterReadsStillRejectChangedOriginals()throws Exception {
+        var a=copy(temp.resolve("plan-copy"),3,6,1);
+        var forced=new MembershipContext.Owned("node-1",a.owner.storageId(),a.generation.digest(),MembershipContext.cutDigest(a.capsule.context.cut));
+        var originals=files(a);var captured=MembershipFloor.Copy.verify(a.generation,a.capsule,a.owner,Set.of(forced),originals);
+        var snapshot=captured.copyFiles();assertEquals(originals.keySet(),snapshot.keySet());
+        for(String name:originals.keySet())assertArrayEquals(originals.get(name),snapshot.get(name));
+        // Neither caller mutation of a returned plan nor a later original
+        // mutation may silently change the other side of the handoff.
+        snapshot.get("source.gscp")[0]^=1;
+        assertArrayEquals(originals.get("source.gscp"),captured.copyFiles().get("source.gscp"));
+        for(String name:List.of("generation.gsr","source.gscp","promise.gsr",
+                originals.keySet().stream().filter(n->n.endsWith(".image")).findFirst().orElseThrow())) {
+            byte[] source=originals.get(name);source[0]^=1;
+            try {
+                assertThrows(IllegalArgumentException.class,captured::copyFiles,name);
+                assertThrows(IllegalArgumentException.class,()->captured.fileBytes(name),name);
+            }finally{source[0]^=1;}
+            assertArrayEquals(source,captured.copyFiles().get(name));
+        }
+    }
+
 }

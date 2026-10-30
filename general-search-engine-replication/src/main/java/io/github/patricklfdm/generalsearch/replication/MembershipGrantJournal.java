@@ -64,6 +64,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     private final Set<MembershipVoteExport> voteExports=new HashSet<>();
     private final Set<MembershipPrefixExport> prefixExports=new HashSet<>();
     private volatile boolean failed,closed;
+    // Only the private, serialized, read-only checkWithoutFloor traversal may
+    // reuse its just-validated base originals. Never spans callbacks or work.
+    private Thread validatedBaseReader;
 
     private MembershipGrantJournal(Path directory,MembershipRoot root,MembershipIdentity identity,
             MembershipBallotAllocator allocator,int maximum,MembershipBallotAllocator.Cut cut) throws IOException {
@@ -116,7 +119,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         private final MembershipBasisSources.Originals originals;
         private HistoryRead(MembershipGrantJournal owner){this(owner,null);}
         private HistoryRead(MembershipGrantJournal owner,MembershipBasisSources.Originals originals){this.owner=owner;this.originals=originals;}
-        void check()throws IOException{owner.checkBaseOwner();}
+        void check()throws IOException{owner.checkHistoryRead();}
         void joining(MembershipCapsule source)throws IOException{if(owner.joinedOwner!=null)owner.joinedOwner.history(source);}
         Path directory(){return owner.directory;}
         MembershipRoot root(){return owner.root;}
@@ -2507,29 +2510,43 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(appliedEnd!=null)appliedEnd.check();
         if(replayFiles!=null)replayFiles.check();
     }
+    private void checkHistoryRead()throws IOException {
+        if(Thread.holdsLock(this) && validatedBaseReader==Thread.currentThread()){live();return;}
+        checkBaseOwner();
+    }
     private void checkWithoutFloor() throws IOException {
         checkBaseOwner();
-        boolean peers=current!=null && peerRetention!=null && peerRetention.initialized();
-        boolean learners=current!=null && learnerRetention!=null && learnerRetention.initialized();
-        boolean futures=current!=null && futurePending();
-        // These validations are read-only under the same journal owner. Read
-        // this exact immutable generation's ancestry once for this invocation;
-        // ancestry() still rechecks every original file before returning bytes.
-        // Nothing is cached across owner checks, callbacks or protocol work.
-        byte[] ancestry=peers || learners || futures?current.ancestry():null;
-        if(current!=null && ancestry==null)current.check();
-        if(inactive!=null)inactive.check();
-        if(peers) {
-            peerRetention.state().plan().required(current.capsule,ancestry);
-            var intent=selectedRetentionIntent();
-            require(intent==null || !intent.needsCompletion(peerRetention.state()),"selected retention completion required");
-        }
-        if(learners) {
-            learnerRetention.state().plan().required(current.capsule,ancestry);
-            var intent=selectedLearnerRetentionIntent();
-            require(intent==null || !intent.needsCompletion(learnerRetention.state()),"selected learner completion required");
-        }
-        if(futures)verifyFutureRetention(ancestry);
+        Thread previous=validatedBaseReader;
+        // HistoryRead is recursively used by current.ancestry()/check(). Its
+        // journal, sources and ledgers were checked immediately above. The
+        // current/inactive inventories and every byte/inode are still checked
+        // below. A constructor or caller outside the writer monitor gets no
+        // reuse; every new top-level call rechecks the base, including after an
+        // exception. Floor/retirement/force callbacks execute outside this scope.
+        if(Thread.holdsLock(this))validatedBaseReader=Thread.currentThread();
+        try {
+            boolean peers=current!=null && peerRetention!=null && peerRetention.initialized();
+            boolean learners=current!=null && learnerRetention!=null && learnerRetention.initialized();
+            boolean futures=current!=null && futurePending();
+            // These validations are read-only under the same journal owner. Read
+            // this exact immutable generation's ancestry once for this invocation;
+            // ancestry() still rechecks every original file before returning bytes.
+            // Nothing is cached across owner checks, callbacks or protocol work.
+            byte[] ancestry=peers || learners || futures?current.ancestry():null;
+            if(current!=null && ancestry==null)current.check();
+            if(inactive!=null)inactive.check();
+            if(peers) {
+                peerRetention.state().plan().required(current.capsule,ancestry);
+                var intent=selectedRetentionIntent();
+                require(intent==null || !intent.needsCompletion(peerRetention.state()),"selected retention completion required");
+            }
+            if(learners) {
+                learnerRetention.state().plan().required(current.capsule,ancestry);
+                var intent=selectedLearnerRetentionIntent();
+                require(intent==null || !intent.needsCompletion(learnerRetention.state()),"selected learner completion required");
+            }
+            if(futures)verifyFutureRetention(ancestry);
+        }finally{validatedBaseReader=previous;}
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
     private void checkOwner() throws IOException {
