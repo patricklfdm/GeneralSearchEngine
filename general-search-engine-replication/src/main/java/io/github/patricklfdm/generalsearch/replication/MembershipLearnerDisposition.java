@@ -337,6 +337,31 @@ final class MembershipLearnerDisposition implements AutoCloseable {
             }
         }
         MembershipCapsule source()throws IOException {check();return verified;}
+        MembershipLearnerHead head()throws IOException {check();return head;}
+        void requireAcquisition()throws IOException {
+            check();requireAbsent(directory(summary,Kind.CANCEL),Kind.CANCEL);requireAbsent(directory(summary,Kind.INTENT),Kind.INTENT);check();
+        }
+        void requireScratch(Path scratch)throws IOException {
+            requireAcquisition();head.requireDisjoint(scratch);AdmissionPaths.disjoint(List.of(directory,staging,scratch));
+        }
+        void matchPublished(MembershipFloor.Copy copy)throws IOException {
+            requireAcquisition();copy.check();MembershipLearnerIntent.match(head,copy);
+            MembershipLearnerSource.successor(verified,copy);
+            var pending=pendingMetadata();
+            // The ACK binds the immutable entry/application/checkpoint, not the
+            // ballot of its certificate. A later valid old quorum may certify
+            // the same value; the complete source independently verifies it.
+            for(String kind:List.of("ENTRY","CHECKPOINT")) {
+                var original=pending.record(kind);
+                require(Arrays.equals(original.bytes(),copy.capsule.packet.objectBytes(original.digest())),"joining published original "+kind+" changed");
+            }
+            String entry=pending.record("ENTRY").digest(),statement=pending.record("CHECKPOINT").digest();
+            require(list(copy.capsule.packet.capsule().value().get("items")).stream().map(MembershipFormat::object)
+                    .anyMatch(item->item.get("kind").equals("MEMBERSHIP") && statement.equals(item.get("statement"))
+                            && entry.equals(copy.capsule.context.record((String)item.get("certificate"),"CERTIFICATE").value().get("entry"))),
+                    "joining published original INTENT edge missing");
+            copy.check();requireAcquisition();
+        }
     }
     /** Release the single receiving category only after the same original
      * history is forced as a retained SOURCE. All physical bytes stay charged. */

@@ -1,0 +1,309 @@
+{
+  "actualPendingOwner": true,
+  "archive": {
+    "bytes": 9634308,
+    "path": "target/v53-pending-published/component-validation.tar.gz",
+    "sha256": "2d9212ef29d0870a7c0b5b3b1ac4cbf7995831e7c6175b565d6fca389d6be613"
+  },
+  "baseCommit": "cbeb353960966686055adc6be5fe31a754340e4b",
+  "codeAndBuildInputsChecked": 1737,
+  "completedHistoryRead": true,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1486,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "developmentNotes": "The initial six-case run passed. Final code additionally rejects scratch overlap with pending original paths before contact, and two further conditional histories exercise another valid ballot for the same INTENT versus a different valid INTENT value. The first eight-case execution exposed two errors in conditional-history fixture construction, before the target acquisition: new phased records were added after its context snapshot, and the alternate entry required ancestry bridges ending at its actual compacted anchor. Both fixtures were corrected without changing runtime behavior. The scratch-overlap test was also corrected to assert the existing classified STORAGE_FAILURE rather than IllegalArgumentException; original failed logs are retained. All eight final tests ran from the final snapshot.",
+  "differentIntentRejected": true,
+  "laterCertificateSameValueAccepted": true,
+  "linkedIntentRetention": false,
+  "nativeElectionQualified": false,
+  "nativeJoinedInstallation": false,
+  "originalPhysicalReplay": false,
+  "originalScratchDisjoint": true,
+  "paidCloud": false,
+  "passingTests": 8,
+  "pending": [
+    "exact linked pending/full-INTENT retention and pair recovery",
+    "complete pending custody/placement/native installation",
+    "coordinator scheduling, alternate-leader continuation, joint FINAL and fresh barrier",
+    "all-profile original physical/history/process qualification"
+  ],
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "publicReady": false,
+  "publicResourceLimitsChanged": false,
+  "publishedJointRead": true,
+  "pythonTests": 1,
+  "qualificationBoundary": "Actual typed preparation, original marker, files, TCP acquisition and source verification under conditional old quorum histories. This does not qualify linked durable INTENT retention, native elections/installation or complete Phase 3.",
+  "reports": {
+    "pendingpublished": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "decodedOrIncompleteExchangeAndExpiredSourceCannotStartRetention",
+            "seconds": 25.532,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "dd6e113936bfe5560cbf2f738f2ef07a04beec113101f303de0ce43d6849b81f"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedProgressTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "exactOriginalIntentCanBeReadFromPublishedJointOrCompletedHistory(int)[1]",
+            "seconds": 58.16,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "exactOriginalIntentCanBeReadFromPublishedJointOrCompletedHistory(int)[2]",
+            "seconds": 57.019,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "parentCloseAtTheActualReplyRevokesAcquisitionAndPreservesEvidence",
+            "seconds": 43.021,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "originalDeadlineAndChangedMarkerRefuseBeforeAnyContact",
+            "seconds": 43.831,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "stillSealedHistoryCannotSatisfyPublishedAcquisition",
+            "seconds": 58.813,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "f2c6dd7cb870aa9296f481c49e103a9fef4472d10fc40c194b446b83ed2e0997"
+      }
+    },
+    "pendingpublishedguard": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "decodedOrIncompleteExchangeAndExpiredSourceCannotStartRetention",
+            "seconds": 24.434,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "ba27cbd17faa38d76c7ce3568c3d623292bc8b8145224587a57e7f6164b0e473"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedProgressTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "exactOriginalIntentCanBeReadFromPublishedJointOrCompletedHistory(int)[1]",
+            "seconds": 57.073,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "exactOriginalIntentCanBeReadFromPublishedJointOrCompletedHistory(int)[2]",
+            "seconds": 58.158,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "parentCloseAtTheActualReplyRevokesAcquisitionAndPreservesEvidence",
+            "seconds": 38.852,
+            "status": "PASS"
+          },
+          {
+            "failures": [
+              "Unexpected exception type thrown, expected: <java.lang.IllegalArgumentException> but was: <io.github.patricklfdm.generalsearch.replication.ReplicationException>"
+            ],
+            "name": "originalDeadlineAndChangedMarkerRefuseBeforeAnyContact",
+            "seconds": 38.475,
+            "status": "FAIL"
+          },
+          {
+            "failures": [],
+            "name": "stillSealedHistoryCannotSatisfyPublishedAcquisition",
+            "seconds": 55.73,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "9f1c07279f04ece7589f6250c5ffaae986088baff25ce74d4e2d5c17cc11d582"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedValueTest": {
+        "cases": [
+          {
+            "failures": [
+              "missing exact phased record"
+            ],
+            "name": "laterValidCertificateForTheSameOriginalEntryAndCheckpointIsAccepted",
+            "seconds": 36.697,
+            "status": "FAIL"
+          },
+          {
+            "failures": [
+              "ancestry exact frozen endpoints"
+            ],
+            "name": "validDifferentIntentCannotConsumeTheOriginalPendingEnd",
+            "seconds": 38.228,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "6582b48ace8f2f0b9f64742ea1303d85b2af74aa5f96114cc39208228f42dd3e"
+      }
+    },
+    "pendingpublishedqualified": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "decodedOrIncompleteExchangeAndExpiredSourceCannotStartRetention",
+            "seconds": 25.838,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e8a9b0ff998013bd886c90ce3d2fa86bd39aaea24c84fca7c4fb2571c9caa69f"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedProgressTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "exactOriginalIntentCanBeReadFromPublishedJointOrCompletedHistory(int)[1]",
+            "seconds": 59.164,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "exactOriginalIntentCanBeReadFromPublishedJointOrCompletedHistory(int)[2]",
+            "seconds": 59.666,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "parentCloseAtTheActualReplyRevokesAcquisitionAndPreservesEvidence",
+            "seconds": 39.662,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "originalDeadlineAndChangedMarkerRefuseBeforeAnyContact",
+            "seconds": 39.611,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "stillSealedHistoryCannotSatisfyPublishedAcquisition",
+            "seconds": 57.425,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "62b0de9f8d1889c3d1cee71120305469502a6b8876077247aa0d6de8f1768771"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedValueTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "laterValidCertificateForTheSameOriginalEntryAndCheckpointIsAccepted",
+            "seconds": 56.809,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "validDifferentIntentCannotConsumeTheOriginalPendingEnd",
+            "seconds": 57.812,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "30b4a35e633169856b094a129168d83f93cc3bf9146ecf66365c1612053b7d96"
+      }
+    }
+  },
+  "runs": {
+    "pendingpublished": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedProgressTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingpublished",
+      "requestedTests": [
+        "V53PendingPublishedProgressTest",
+        "V53LearnerPendingIntentTest#decodedOrIncompleteExchangeAndExpiredSourceCannotStartRetention"
+      ],
+      "seconds": 290.56221062800614,
+      "skipped": 0,
+      "tests": 6
+    },
+    "pendingpublishedguard": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedProgressTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedValueTest": 2
+      },
+      "exit": 1,
+      "failures": 3,
+      "label": "pendingpublishedguard",
+      "requestedTests": [
+        "V53PendingPublishedProgressTest",
+        "V53PendingPublishedValueTest",
+        "V53LearnerPendingIntentTest#decodedOrIncompleteExchangeAndExpiredSourceCannotStartRetention"
+      ],
+      "seconds": 350.4739905180031,
+      "skipped": 0,
+      "tests": 8
+    },
+    "pendingpublishedqualified": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedProgressTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedValueTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingpublishedqualified",
+      "requestedTests": [
+        "V53PendingPublishedProgressTest",
+        "V53PendingPublishedValueTest",
+        "V53LearnerPendingIntentTest#decodedOrIncompleteExchangeAndExpiredSourceCannotStartRetention"
+      ],
+      "seconds": 396.33947952699964,
+      "skipped": 0,
+      "tests": 8
+    }
+  },
+  "schema": "gse-v53-pending-published-progress-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "269892eb89ff81205d732528af92259d3fbe1b2f432411d87514b0b8cf65fbba",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerProgress.java": "60117e2549bf7e027d2431d8a305c15dd75c29696d656c4baf0c0b0ac60bc32e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerProgressNetworkTest.java": "27d763b15200541d98ddf81a9e344f5b9afe96aaa955214dbd4048ae6b51787e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedProgressTest.java": "6961649a9438b13dd179ac4182c46da869e8847461891629118925f1dcddf7b4",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedValueTest.java": "b5d5453853a91ee133a6c291d89a1cd91c2e1606a76f60ac06b65ab8d33f1506"
+  },
+  "sourceSnapshot": "pendingpublishedqualified",
+  "sourceSnapshotDifferences": {
+    "pendingpublished": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerProgress.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerProgressNetworkTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedProgressTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedValueTest.java"
+    ],
+    "pendingpublishedguard": [
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerProgressNetworkTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedProgressTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedValueTest.java"
+    ]
+  },
+  "status": "PASS_PENDING_PUBLISHED_PROGRESS_COMPONENT"
+}

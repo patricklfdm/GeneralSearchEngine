@@ -1,6 +1,22 @@
 # V5.3 Phase 3 contract amendments
 
 
+## A50 — published progress from the original pending owner
+
+The [published progress entry](PHASE_3_PENDING_PUBLISHED_PROGRESS.md) requires the
+private force-backed retained SOURCE capability, actual typed head and same pool.
+Ordinary pending admission stays blocked. Existing bounded discovery/prefix/full
+copy verification must prove ancestry from both original prepared and SEALED
+cuts, matching typed receipt/operation, and JOINT or COMPLETED target history.
+Bind the exact INTENT ENTRY and CHECKPOINT (including application/catalog hashes)
+and their actual membership edge. An independently valid later-ballot certificate
+for the same entry is allowed; another value is not. Do not require a redundant
+intermediate catalog object from a valid compacted history.
+
+Guard original owner/marker and deadline before, during and after receipt. No
+CANCEL, metadata resampling or ordinary unlinked INTENT retention is allowed.
+Linked durable custody/native installation and complete Phase 3 remain open.
+
 ## A49 — pending history retention without another generation
 
 The [pending source handoff](PHASE_3_PENDING_SOURCE_RETENTION.md) requires the

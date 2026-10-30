@@ -20,11 +20,14 @@ class V53LearnerProgressNetworkTest {
         final MembershipGrantJournal owner;
         final MembershipTransferService service;
         Peer(V53CapsuleFixture history,boolean retainParent)throws Exception {
+            this(history,retainParent?List.of(bridge(history,3,history.through<6?history.through:5)):List.of());
+        }
+        Peer(V53CapsuleFixture history,List<MembershipSelection.Bridge> originals)throws Exception {
             var f=new V53CurrentGenerationFixture(3,history);path=temp.resolve("peer-"+UUID.randomUUID());f.provision(path);
-            var bridges=retainParent?List.of(bridge(history,3,history.through<6?history.through:5)):List.<MembershipSelection.Bridge>of();
+            var bridges=List.copyOf(originals);
             var opened=MembershipGrantJournal.openGenerations(path,f.root(),V53DeclarationsTest.node(1),server,f::verify,e->{});
             try {
-                if(retainParent) {
+                if(!bridges.isEmpty()) {
                     // First create an actual selected generation. Conditional
                     // historical ancestry is then provisioned just as in the
                     // existing publication-admission fixtures; no new remote

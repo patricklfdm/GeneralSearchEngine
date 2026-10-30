@@ -1,5 +1,13 @@
 # V5.3 — controlled cluster operations
 
+[Pending-owned published progress](PHASE_3_PENDING_PUBLISHED_PROGRESS.md) now
+receives complete JOINT/COMPLETED history through the actual retained owner and
+existing bounded TCP path. It binds the original typed receipt and exact INTENT
+entry/checkpoint, permitting a separately valid later certificate for that same
+value. Linked durable INTENT/custody, native joined installation from this path
+and complete Phase 3 qualification remain **OPEN**.
+
+
 [Pending source retention](PHASE_3_PENDING_SOURCE_RETENTION.md) now forces an
 original marker before atomically changing the pending history from the single
 LEARNER receiving category to an existing SOURCE slot. All bytes remain charged;

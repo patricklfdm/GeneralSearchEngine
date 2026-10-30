@@ -13,6 +13,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * originals. Subsequent voter installation is a separate protocol boundary. */
 final class MembershipLearnerProgress implements AutoCloseable {
     private final MembershipLearnerHead head;
+    private final MembershipLearnerDisposition.RetainedSource pending;
     private final MembershipLearnerRequest request;
     private final MembershipLearnerPlan terminalPlan;
     private final MembershipIdentity peer;
@@ -32,9 +33,22 @@ final class MembershipLearnerProgress implements AutoCloseable {
 
     MembershipLearnerProgress(MembershipLearnerHead head,MembershipIdentity peer,ReplicationBounds bounds,
             MembershipTransport.Events events,LongSupplier clock,long started,long budget)throws IOException {
+        this(head,null,peer,bounds,events,clock,started,budget);
+    }
+    /** This capability comes only from the force-before-SOURCE handoff. It
+     * authorizes read-only published history acquisition, not generic admission. */
+    MembershipLearnerProgress(MembershipLearnerDisposition.RetainedSource pending,MembershipIdentity peer,ReplicationBounds bounds,
+            MembershipTransport.Events events,LongSupplier clock,long started,long budget)throws IOException {
+        this(Objects.requireNonNull(pending).head(),pending,peer,bounds,events,clock,started,budget);
+    }
+    private MembershipLearnerProgress(MembershipLearnerHead head,MembershipLearnerDisposition.RetainedSource pending,
+            MembershipIdentity peer,ReplicationBounds bounds,MembershipTransport.Events events,LongSupplier clock,long started,long budget)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"learner progress original budget");
-        this.head=Objects.requireNonNull(head);head.check();MembershipLearnerCancellation.requireActive(head);
-        if(head instanceof MembershipLearnerMaterialization.CurrentHead current)current.requireAvailable();
+        this.head=Objects.requireNonNull(head);this.pending=pending;head.check();
+        if(pending==null) {
+            MembershipLearnerCancellation.requireActive(head);
+            if(head instanceof MembershipLearnerMaterialization.CurrentHead current)current.requireAvailable();
+        }else {pending.requireAcquisition();require(pending.head()==head,"joining progress foreign head");}
         terminalPlan=MembershipLearnerCancellation.store(head).summary();
         request=head.request();resources=head.resources();this.peer=Objects.requireNonNull(peer);
         require(!peer.equals(request.identity()) && request.change().target().contains(peer),"learner progress contact route");
@@ -43,10 +57,12 @@ final class MembershipLearnerProgress implements AutoCloseable {
     }
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;
-        require(!closed && elapsed>=0 && elapsed<budget,"learner progress closed/original deadline");head.check();MembershipLearnerCancellation.requireActive(terminalPlan);
+        require(!closed && elapsed>=0 && elapsed<budget,"learner progress closed/original deadline");head.check();
+        if(pending==null)MembershipLearnerCancellation.requireActive(terminalPlan);else pending.requireAcquisition();
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"learner progress closed/original deadline");
     }
     MembershipFloor.Copy fetch(Path scratch)throws IOException {
+        if(pending!=null)pending.requireScratch(scratch);
         head.requireDisjoint(scratch);AdmissionPaths.disjoint(List.of(scratch,request.replicaDirectory(),request.operationDirectory()));
         synchronized(this){check();require(!used,"learner progress single use");used=true;}
         try {
@@ -64,7 +80,7 @@ final class MembershipLearnerProgress implements AutoCloseable {
                 generation=MembershipSourcePull.learnerProgress(request,root,hint,resources,bounds,transport::exchange,this::check,clock,started,budget);
             }
             prefix.fetchPrefix(scratch);prefix.verifiedPrefix();var next=generation.fetchGeneration(prefix);check();
-            MembershipLearnerSource.successor(original,next);check();
+            MembershipLearnerSource.successor(original,next);if(pending!=null)pending.matchPublished(next);check();
             synchronized(this){check();result=next;return next;}
         }catch(IOException|RuntimeException|Error error) {
             try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;
@@ -74,11 +90,13 @@ final class MembershipLearnerProgress implements AutoCloseable {
         check();require(result!=null,"learner progress incomplete");prefix.verifiedPrefix();generation.ancestryManifest();result.check();check();return result;
     }
     MembershipLearnerCancellation retainCancellation(MembershipBallotAllocator.Cut cut)throws IOException {
+        require(pending==null,"joining published acquisition cannot become cancellation");
         var copy=source();MembershipLearnerCancellation.cancellation(head,copy);
         var receiver=prefix.completeLearnerCancellationSource(copy,cut);check();
         return MembershipLearnerCancellation.install(head,receiver,copy,cut);
     }
     MembershipLearnerIntent retainIntent(MembershipBallotAllocator.Cut cut)throws IOException {
+        require(pending==null,"joining published source requires linked original retention");
         var copy=source();MembershipLearnerIntent.match(head,copy);
         var receiver=prefix.completeLearnerIntentSource(head,copy,cut);check();
         return MembershipLearnerIntent.install(head,receiver,copy,cut);
@@ -86,6 +104,7 @@ final class MembershipLearnerProgress implements AutoCloseable {
     /** Read pending metadata against this exact complete SEALED transfer and
      * live typed owner. No received value is a durable joining witness. */
     synchronized MembershipJoiningIntentPull joiningMetadata()throws IOException {
+        require(pending==null,"joining published acquisition cannot resample pending metadata");
         var copy=source();require(joiningTransport==null,"learner joining metadata single exchange");
         if(head instanceof MembershipLearnerMaterialization.CurrentHead current)current.requireAvailable();
         joiningTransport=MembershipTransport.learnerJoiningIntent(request,new MembershipDiscovery.Hint(peer,copy.capsule.context.cut,false),
@@ -115,6 +134,7 @@ final class MembershipLearnerProgress implements AutoCloseable {
         }
     }
     MembershipLearnerPendingIntent retainPendingIntent(MembershipBallotAllocator.Cut cut)throws IOException {
+        require(pending==null,"joining published acquisition cannot recreate pending retention");
         return MembershipLearnerPendingIntent.install(new PendingIntent(),cut);
     }
     @Override public void close()throws IOException {
