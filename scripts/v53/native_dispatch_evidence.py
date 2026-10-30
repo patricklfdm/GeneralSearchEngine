@@ -362,7 +362,11 @@ def network(root, states, rounds, selection, identities, *, carried_first=False,
     return len(transfers)
 
 
-def validate(root, *, discovery=False):
+def unselected_rejections(failures):
+    need(type(failures) is list and len(failures) <= 6 and all(set(row) == {'node','kind','request','failure'} and row['node'] == 'node-3' and row['kind'] == 'FUTURE_RETENTION_INTENT' and row['failure'] == 'java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required' for row in failures), 'native dispatch bounded unselected rejection')
+
+
+def validate(root, *, discovery=False, rejection_check=None):
     root = Path(root)
     b.selection.layout(root, {'initial','original-plan.gsbp','original-application.image','before-network','installed',
         'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json','wire.json','failures.json','result.json','selected.gsr'}, 'native dispatch case inventory')
@@ -372,7 +376,7 @@ def validate(root, *, discovery=False):
     for row in calls:
         s.ordered(row['events'], ['RETENTION_PARENT_FORCED','FUTURE_RETENTION_PARENT_FORCED'], 'native dispatch initialization')
     failures = read(root/'failures.json')
-    need(type(failures) is list and len(failures) <= 6 and all(set(row) == {'node','kind','request','failure'} and row['node'] == 'node-3' and row['kind'] == 'FUTURE_RETENTION_INTENT' and row['failure'] == 'java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required' for row in failures), 'native dispatch bounded unselected rejection')
+    (unselected_rejections if rejection_check is None else rejection_check)(failures)
     transfers = network(root, states, rounds, selected, identities, discovery=discovery)
     need(read(root/'result.json') == dict(status='PASS', slots=2, network=True, autonomous=False), 'native dispatch scope')
     result = dict(status='PASS', slots=2, selected=2, transfers=transfers, autonomous=False, phase3Complete=False)

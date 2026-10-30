@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Bounded outgoing heartbeat samples](PHASE_3_HEARTBEAT_ROUND.md) extend an
+already-ready stable round with concurrent, finite contact checks. They grant no
+lease, selection or readiness and retain the original parent deadline. Native
+barrier/heartbeat/DATA replay is separate from the remaining automatic scheduler,
+campaign ownership and complete process/transition matrix; Phase 3 stays **OPEN**.
+
 [Current-view heartbeat admission](PHASE_3_HEARTBEAT.md) supplies the inbound
 liveness/fencing component. Native 3/4/5-node TCP originals and independent replay
 pass without authority writes or readiness. Outgoing scheduling, automatic

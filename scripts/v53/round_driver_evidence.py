@@ -80,12 +80,15 @@ def lifecycle(root, mode):
     need(cursor==2, 'round exact completed slot count')
 
 
-def validate(root, *, discovery=False):
+def validate(root, *, discovery=False, rejection_check=None):
     root=Path(root); result=projection(root)
     need(not discovery or result['mode']=='stable', 'round discovery stable qualification only')
     with tempfile.TemporaryDirectory(prefix='v53-round-original-') as temp:
         path=Path(temp)/'raw';shutil.copytree(root,path);(path/'round-result.json').unlink()
-        original=d.validate(path,discovery=True) if discovery else (d.validate if result['mode']=='stable' else carried.validate)(path)
+        if result['mode']=='stable':original=d.validate(path,discovery=discovery,rejection_check=rejection_check)
+        else:
+            need(rejection_check is None, 'round carried rejection policy unchanged')
+            original=carried.validate(path)
     if result['mode']=='carried-applied': need(original['phase']=='APPLIED', 'round original carried phase')
     lifecycle(root,result['mode'])
     return dict(status='PASS',mode=result['mode'],slots=2,original=original,internalReady=True,publicReady=False,phase3Complete=False)

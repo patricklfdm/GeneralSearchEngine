@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Bounded outgoing heartbeat samples](PHASE_3_HEARTBEAT_ROUND.md) extend an
+already-ready stable round with concurrent, finite contact checks. They grant no
+lease, selection or readiness and retain the original parent deadline. Native
+barrier/heartbeat/DATA replay is separate from the remaining automatic scheduler,
+campaign ownership and complete process/transition matrix; Phase 3 stays **OPEN**.
+
 [Current-view heartbeat admission](PHASE_3_HEARTBEAT.md) now fences authenticated
 higher ballots before the writer wait and returns only the receiver's original
 cut, without granting votes or readiness. Native 3/4/5-node TCP and independent

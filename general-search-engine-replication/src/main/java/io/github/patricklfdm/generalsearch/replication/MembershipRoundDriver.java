@@ -41,6 +41,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     private long started;
     private MembershipActivationDriver activation;
     private MembershipPrefixRecovery discovery;
+    private MembershipHeartbeatRound heartbeat;
     private MembershipSlotDriver slot;
     private Decoded selection,barrier;
     private Map<String,Object> ballot,expectedCut;
@@ -244,28 +245,46 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         catch(IOException|RuntimeException|Error error){fail(error);throw error;}
         finally{leave();}
     }
+    /** A liveness sample of this already-ready round. Its majority grants no
+     * service lease; every later operation still performs current() and votes. */
+    MembershipHeartbeatRound.Contact heartbeat()throws IOException {
+        enter(State.READY);
+        try {
+            current();long began=clock.getAsLong(),remaining=budget-(began-started);
+            long limit=Math.min(remaining,TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis())*Math.min(3,bounds.maxRetryAttempts()));
+            var child=new MembershipHeartbeatRound(owner,resources,bounds,transport::exchange,this::current,clock,began,limit);
+            boolean registered=false;
+            try {
+                synchronized(this){require(!closed,"native round closed before heartbeat");heartbeat=child;registered=true;}
+                var result=child.run();current();return result;
+            }finally {child.close();synchronized(this){if(registered && heartbeat==child)heartbeat=null;}}
+        }catch(IOException|RuntimeException|Error error){fail(error);throw error;}
+        finally{leave();}
+    }
     private void fail(Throwable original) {
         synchronized(this){if(!closed)state=State.FAILED;barrier=null;}
         try{release();}catch(IOException|RuntimeException error){original.addSuppressed(error);}
     }
     private void release()throws IOException {
-        MembershipSlotDriver activeSlot;MembershipActivationDriver activeActivation;MembershipPrefixRecovery activeDiscovery;
-        synchronized(this){activeSlot=slot;activeActivation=activation;activeDiscovery=discovery;}
+        MembershipSlotDriver activeSlot;MembershipActivationDriver activeActivation;MembershipPrefixRecovery activeDiscovery;MembershipHeartbeatRound activeHeartbeat;
+        synchronized(this){activeSlot=slot;activeActivation=activation;activeDiscovery=discovery;activeHeartbeat=heartbeat;}
         // Do not release the activation/parent reservation before child drain.
         if(activeSlot!=null)activeSlot.close();
         if(activeActivation!=null)activeActivation.close();
         if(activeDiscovery!=null)activeDiscovery.close();
+        if(activeHeartbeat!=null)activeHeartbeat.close();
         synchronized(this){selection=null;barrier=null;ballot=null;expectedCut=null;authority=null;carriedPending=false;}
         ownership.close();
     }
     @Override public void close()throws IOException {
-        Thread active;MembershipPrefixRecovery activeDiscovery;
-        synchronized(this){closed=true;state=State.CLOSED;barrier=null;active=runner;activeDiscovery=discovery;}
+        Thread active;MembershipPrefixRecovery activeDiscovery;MembershipHeartbeatRound activeHeartbeat;
+        synchronized(this){closed=true;state=State.CLOSED;barrier=null;active=runner;activeDiscovery=discovery;activeHeartbeat=heartbeat;}
         if(active!=null && active!=Thread.currentThread() && activeDiscovery==null)active.interrupt();
         // The runner owns cleanup while executing. Child close cancels blocked
         // network work; an expired cleanup wait keeps the parent reservation.
         MembershipSlotDriver activeSlot;MembershipActivationDriver activeActivation;
         synchronized(this){activeSlot=slot;activeActivation=activation;}
+        if(activeHeartbeat!=null)activeHeartbeat.close();
         if(activeDiscovery!=null)activeDiscovery.close();
         else if(activeSlot!=null)activeSlot.close();
         else if(activeActivation!=null)activeActivation.close();
