@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Native node process recovery](PHASE_3_NODE_PROCESS.md) adds complete local
+halt/SIGKILL histories at the completed-DATA cut. Keep bootstrap, both leader
+JVMs, the two surviving owners, original paths and all replay inputs together.
+These two parent-orchestrated recoveries do not replace in-flight crash cuts,
+automatic competing-candidate recovery or all profiles. Parallelize only
+independent complete histories when adding hosted acceptance.
+
 [Native node lifetime](PHASE_3_AUTOMATIC_OWNER.md#complete-network-replay) has nine
 focused lifecycle checks and a new fully instrumented three-node cold-reopen
 history. Complete original physical/network replay covers sixteen snapshot

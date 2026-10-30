@@ -1,4 +1,6 @@
 import base64
+import copy
+from types import SimpleNamespace
 from pathlib import Path
 import tempfile
 import unittest
@@ -47,6 +49,27 @@ class NodeOwnerNetworkTest(unittest.TestCase):
         rows={'original':[dict(at=1,received=3,response=4,request=dict(sender=dict(node='node-2')))]}
         with self.assertRaisesRegex(ValueError,'crosses completed phase'):
             n.request_phases(rows,[(-1,2),(2,5)],[{}]*5)
+
+    def unused(self):
+        request,_,_,_,_ = self.fixture(); request.update(sequence=1, payload=dict(promise=n.e.digest(b'promise')))
+        row = dict(row=dict(request='same',response='same'),request=request,answer='PROMISE',
+            response=dict(payload=dict(basis=n.e.digest(b'basis'))),offered=3,deliveries=[])
+        phase = SimpleNamespace(used=set(), sources=[], take=lambda *args:[row])
+        def run():return n.unreceived_prepare(phase,'node-2',b'promise',b'basis',request['ballot'],1,5,1,None)
+        return phase,row,run
+
+    def test_unused_original_prepare_does_not_create_delivery(self):
+        phase,row,run = self.unused();trace=run()
+        self.assertEqual({trace},phase.used);self.assertEqual([],row['deliveries'])
+
+    def test_unreceived_prepare_cannot_supply_source_or_forge_response(self):
+        for kind in ('source','basis','arrival','attempts'):
+            phase,row,run=self.unused()
+            if kind=='source':phase.sources=[dict(sender='node-1',peer='node-2')];reason='source without prepare delivery'
+            elif kind=='basis':row['response']['payload']['basis']='0'*64;reason='exact unreceived prepare'
+            elif kind=='arrival':row['deliveries']=[4];reason='bounded unreceived prepare'
+            else:phase.take=lambda *args:[copy.deepcopy(row) for _ in range(4)];reason='bounded unreceived prepare'
+            with self.subTest(kind=kind),self.assertRaisesRegex(ValueError,reason):run()
 
 
 if __name__=='__main__':unittest.main()

@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native node process recovery](PHASE_3_NODE_PROCESS.md) now covers actual halt
+and external SIGKILL after completed DATA, with the other two owners remaining
+live and a fresh JVM reopening the same original disk. Both histories require
+a new higher-ballot BARRIER before further DATA. Complete original physical,
+network and process-lifetime replay is separate from the still-open in-flight
+crash, competing-candidate and all-profile gates; Phase 3 remains **OPEN**.
+
 [Native node lifetime](PHASE_3_AUTOMATIC_OWNER.md#native-node-lifetime) now owns
 original storage, endpoint, transport and automatic service through partial open,
 cancellation, drain failure and explicit cold reopen. Nine lifecycle tests and

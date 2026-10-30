@@ -1,0 +1,865 @@
+{
+  "archive": {
+    "bytes": 7830149,
+    "directories": 862,
+    "files": 6020,
+    "path": "target/v53-node-process/qualification.tar.gz",
+    "sha256": "56a20d1c3d6b0e2760907b813ba7e3ea6a664b79c39ba0fd0396dce04db4a919"
+  },
+  "baseCommit": "0461b8e31ebba871bbc8a7be329dffd60136d24c",
+  "developmentNotes": [
+    "The initial process replay correctly refused an undelivered PREPARE reply; an exact bounded check was added only for unselected replies, without assigning delivery or source authority.",
+    "The process-reader unit suite initially had a continued-with syntax error and an expected error-message mismatch; both corrected before final validation."
+  ],
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53NodeProcessTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "nodeprocessfirst",
+      "requestedTests": [
+        "V53NodeProcessTest"
+      ],
+      "seconds": 400.64406445701024,
+      "skipped": 0,
+      "tests": 2
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pythonTests": 21,
+  "qualification": [
+    {
+      "kind": "process-halt",
+      "path": "target/v53-native-cancellation/builds/nodeprocessfirst-9e7014de/general-search-engine-replication/target/v53-node-process/run-70ba1d54-43d8-4711-8ecb-e2d3eafa536c",
+      "result": {
+        "negatives": [
+          {
+            "case": "reused-pid",
+            "reason": "node process fresh child identities",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-exit",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-lock-probe",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-disk",
+            "reason": "node process original disk paths",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-cut",
+            "reason": "node process terminal boundary",
+            "status": "REJECTED"
+          },
+          {
+            "case": "child-error",
+            "reason": "node process child stderr",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-child-send",
+            "reason": "node process exact child lifetime events",
+            "status": "REJECTED"
+          },
+          {
+            "case": "invented-drain",
+            "reason": "node process unexpected child action",
+            "status": "REJECTED"
+          },
+          {
+            "case": "copied-child-start",
+            "reason": "node process original child start",
+            "status": "REJECTED"
+          },
+          {
+            "case": "incomplete-transcript",
+            "reason": "node process complete bounded transcript",
+            "status": "REJECTED"
+          },
+          {
+            "case": "clean-close-instead-of-crash",
+            "reason": "node owner exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-fresh-barrier",
+            "reason": "node owner readiness fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-physical-selector",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-request-bytes",
+            "reason": "node network original send shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unreceived-selected-prepare",
+            "reason": "discovered selection response delivered",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "childMessages": [
+            1134,
+            1524
+          ],
+          "cut": "AFTER_DATA_RETURN",
+          "freshLeaderJvms": 2,
+          "mode": "halt",
+          "network": {
+            "completeTransfers": 87,
+            "exchanges": 491,
+            "fullWireReplay": true,
+            "originalFirst": true,
+            "phase3Complete": false,
+            "phases": [
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 79,
+                "index": 1,
+                "recordingQuorums": 1,
+                "transfers": 16,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 96,
+                "index": 2,
+                "recordingQuorums": 1,
+                "transfers": 19,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 93,
+                "transfers": 10,
+                "unusedIncompleteTransfers": 1,
+                "voters": [
+                  "node-1",
+                  "node-3"
+                ]
+              },
+              {
+                "exchanges": 86,
+                "index": 3,
+                "recordingQuorums": 1,
+                "transfers": 18,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 109,
+                "index": 4,
+                "recordingQuorums": 1,
+                "transfers": 21,
+                "unusedIncompleteTransfers": 0
+              }
+            ],
+            "physical": {
+              "campaigns": 2,
+              "coldReopens": 1,
+              "fullWireReplay": false,
+              "originalFirst": true,
+              "phase3Complete": false,
+              "physicalReplay": true,
+              "processRestart": true,
+              "publicRuntime": false,
+              "scope": "native-node-process-reopen-physical",
+              "slots": 4,
+              "snapshotGroups": 16,
+              "status": "PARTIAL"
+            },
+            "processRestart": true,
+            "publicRuntime": false,
+            "requests": 518,
+            "scope": "one-native-node-process-reopen-history",
+            "silent": [
+              {
+                "attempts": 3,
+                "index": 1,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              }
+            ],
+            "silentRequests": 27,
+            "status": "PASS",
+            "transfers": 88,
+            "unusedIncompleteTransfers": 1
+          },
+          "originalFirst": true,
+          "phase3Complete": false,
+          "powerLoss": false,
+          "processRestart": true,
+          "publicRuntime": false,
+          "scope": "one-native-node-process-reopen-history",
+          "status": "PASS",
+          "survivingFollowers": 2
+        }
+      }
+    },
+    {
+      "kind": "process-kill",
+      "path": "target/v53-native-cancellation/builds/nodeprocessfirst-9e7014de/general-search-engine-replication/target/v53-node-process/run-c865fc37-9edb-4a6a-8ab6-9e23291243c5",
+      "result": {
+        "negatives": [
+          {
+            "case": "reused-pid",
+            "reason": "node process fresh child identities",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-exit",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-lock-probe",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-disk",
+            "reason": "node process original disk paths",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-cut",
+            "reason": "node process terminal boundary",
+            "status": "REJECTED"
+          },
+          {
+            "case": "child-error",
+            "reason": "node process child stderr",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-child-send",
+            "reason": "node process exact child lifetime events",
+            "status": "REJECTED"
+          },
+          {
+            "case": "invented-drain",
+            "reason": "node process unexpected child action",
+            "status": "REJECTED"
+          },
+          {
+            "case": "copied-child-start",
+            "reason": "node process original child start",
+            "status": "REJECTED"
+          },
+          {
+            "case": "incomplete-transcript",
+            "reason": "node process complete bounded transcript",
+            "status": "REJECTED"
+          },
+          {
+            "case": "clean-close-instead-of-crash",
+            "reason": "node owner exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-fresh-barrier",
+            "reason": "node owner readiness fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-physical-selector",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-request-bytes",
+            "reason": "node network original send shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unreceived-selected-prepare",
+            "reason": "discovered selection response delivered",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "childMessages": [
+            1134,
+            1510
+          ],
+          "cut": "AFTER_DATA_RETURN",
+          "freshLeaderJvms": 2,
+          "mode": "kill",
+          "network": {
+            "completeTransfers": 87,
+            "exchanges": 485,
+            "fullWireReplay": true,
+            "originalFirst": true,
+            "phase3Complete": false,
+            "phases": [
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 79,
+                "index": 1,
+                "recordingQuorums": 1,
+                "transfers": 16,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 96,
+                "index": 2,
+                "recordingQuorums": 1,
+                "transfers": 19,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 86,
+                "transfers": 9,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-3"
+                ]
+              },
+              {
+                "exchanges": 87,
+                "index": 3,
+                "recordingQuorums": 1,
+                "transfers": 18,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 109,
+                "index": 4,
+                "recordingQuorums": 1,
+                "transfers": 21,
+                "unusedIncompleteTransfers": 0
+              }
+            ],
+            "physical": {
+              "campaigns": 2,
+              "coldReopens": 1,
+              "fullWireReplay": false,
+              "originalFirst": true,
+              "phase3Complete": false,
+              "physicalReplay": true,
+              "processRestart": true,
+              "publicRuntime": false,
+              "scope": "native-node-process-reopen-physical",
+              "slots": 4,
+              "snapshotGroups": 16,
+              "status": "PARTIAL"
+            },
+            "processRestart": true,
+            "publicRuntime": false,
+            "requests": 512,
+            "scope": "one-native-node-process-reopen-history",
+            "silent": [
+              {
+                "attempts": 3,
+                "index": 1,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              }
+            ],
+            "silentRequests": 27,
+            "status": "PASS",
+            "transfers": 87,
+            "unusedIncompleteTransfers": 0
+          },
+          "originalFirst": true,
+          "phase3Complete": false,
+          "powerLoss": false,
+          "processRestart": true,
+          "publicRuntime": false,
+          "scope": "one-native-node-process-reopen-history",
+          "status": "PASS",
+          "survivingFollowers": 2
+        }
+      }
+    },
+    {
+      "kind": "historical-cold-reopen",
+      "path": "target/v53-native-cancellation/builds/nodewireraw-241f186b/general-search-engine-replication/target/v53-node-owner/run-0363bfe3-2fe8-44b9-bee3-760adb432259",
+      "result": {
+        "negatives": [
+          {
+            "case": "initial-image",
+            "reason": "bootstrap original image binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "first-data",
+            "reason": "bootstrap validation image header",
+            "status": "REJECTED"
+          },
+          {
+            "case": "before-reopen",
+            "reason": "admitted exact before-reopen: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selector",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-data",
+            "reason": "admitted exact applied-4: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "final-extra",
+            "reason": "admitted exact after-close: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selection",
+            "reason": "node owner original selection",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-selection",
+            "reason": "node owner selected stable majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unused-grant",
+            "reason": "admitted exact installed-2: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-ready",
+            "reason": "node owner exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-ready",
+            "reason": "node owner readiness fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-owner",
+            "reason": "node owner lifetime identity",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-owner",
+            "reason": "node owner event lifetime required",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-reopen-force",
+            "reason": "node owner exact cold reopen forces",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-install-force",
+            "reason": "selected retention force order: node owner installation node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-publication-force",
+            "reason": "selected retention force order: node owner publication node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-completion",
+            "reason": "node owner original completion",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-scope",
+            "reason": "node owner producer scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-discovery",
+            "reason": "restart network original status probe",
+            "status": "REJECTED"
+          },
+          {
+            "case": "discovery-cut",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-response-row",
+            "reason": "discovered selection unmatched response event",
+            "status": "REJECTED"
+          },
+          {
+            "case": "invented-delivery",
+            "reason": "restart network delivery without original response",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-delivery",
+            "reason": "restart network delivery without original response",
+            "status": "REJECTED"
+          },
+          {
+            "case": "source-bytes",
+            "reason": "restart network source exact data",
+            "status": "REJECTED"
+          },
+          {
+            "case": "source-offer",
+            "reason": "restart network source original offer",
+            "status": "REJECTED"
+          },
+          {
+            "case": "basis-reply",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reply-identity",
+            "reason": "discovered selection wire correlation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "vote-receipt",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "apply-statement",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-revision",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-digest",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-quorum",
+            "reason": "restart network local recording before quorum",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-quorum",
+            "reason": "restart network actual recording majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-publication",
+            "reason": "restart network recording before every publication send",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-retirement",
+            "reason": "selected retention force order: restart network node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-parent-ack",
+            "reason": "restart network required original source",
+            "status": "REJECTED"
+          },
+          {
+            "case": "bootstrap-force",
+            "reason": "closed election wait initialization",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send-bytes",
+            "reason": "node network original send shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-receipt",
+            "reason": "node network response without original receipt",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-request-receipt",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "four-write-attempts",
+            "reason": "node network bounded identical writes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cross-phase-request",
+            "reason": "node network request crosses completed phase",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-lifetime-request",
+            "reason": "node network request wrong node lifetime",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-silent-retention",
+            "reason": "node network exact unused retention attempt",
+            "status": "REJECTED"
+          },
+          {
+            "case": "silent-checkpoint-reference",
+            "reason": "node network original unused checkpoint lookup",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unused-prefix-data",
+            "reason": "node network exact unused source prefix",
+            "status": "REJECTED"
+          },
+          {
+            "case": "selected-image-data",
+            "reason": "restart network source exact data",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "completeTransfers": 87,
+          "exchanges": 488,
+          "fullWireReplay": true,
+          "originalFirst": true,
+          "phase3Complete": false,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 81,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 16,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 96,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 19,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 88,
+              "transfers": 10,
+              "unusedIncompleteTransfers": 1,
+              "voters": [
+                "node-1",
+                "node-3"
+              ]
+            },
+            {
+              "exchanges": 86,
+              "index": 3,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 109,
+              "index": 4,
+              "recordingQuorums": 1,
+              "transfers": 21,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "physical": {
+            "campaigns": 2,
+            "coldReopens": 1,
+            "fullWireReplay": false,
+            "originalFirst": true,
+            "phase3Complete": false,
+            "physicalReplay": true,
+            "processRestart": false,
+            "publicRuntime": false,
+            "scope": "native-node-cold-reopen-physical",
+            "slots": 4,
+            "snapshotGroups": 16,
+            "status": "PARTIAL"
+          },
+          "processRestart": false,
+          "publicRuntime": false,
+          "requests": 515,
+          "scope": "one-native-node-cold-reopen-history",
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 3,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 3,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 3,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            }
+          ],
+          "silentRequests": 27,
+          "status": "PASS",
+          "transfers": 88,
+          "unusedIncompleteTransfers": 1
+        }
+      }
+    }
+  ],
+  "qualificationSeconds": 112.75386125099612,
+  "schema": "gse-v53-node-process-v1",
+  "scope": "native-node-process-after-data-return",
+  "scopeNotes": [
+    "Two separate whole histories: actual halt 73 or SIGKILL 137 of the leader after completed DATA 2, original-disk fresh JVM, BARRIER 3 and DATA 4.",
+    "The two follower owners remain live; fresh processes do not restore READY. Physical, wire, original path and process transcript validation precede acceptance.",
+    "The earlier cold-reopen history is a reader regression against its own retained producer. No new execution of that old fixture.",
+    "This completed-operation crash point does not qualify torn writes, competing candidates, all profiles or host power loss. Phase 3 remains open."
+  ],
+  "status": "PASS"
+}

@@ -100,7 +100,7 @@ class Service(p.Service):
         self.publish(kind, payload)
 
 
-def lifecycle(root):
+def lifecycle(root, *, process_restart=False):
     events = n.read(root/'events.json')
     need(type(events) is list and len(events) <= 32768, 'node owner bounded events')
     initial = [dict(node=node, incarnation=1, event=event)
@@ -111,7 +111,7 @@ def lifecycle(root):
         ('node-1', 'node-2', 'node-3'))
     marks = [(at, row) for at, row in enumerate(events) if row['event'].startswith(('NODE_', 'ROUND_'))]
     one = ['INSTALLED', 'SLOT_BEGIN', 'SLOT_COMPLETE', 'BEFORE_READY', 'SLOT_BEGIN', 'SLOT_COMPLETE']
-    expected = ['NODE_OPEN']*3+['ROUND_'+v for v in one]+['NODE_CLOSED', 'NODE_OPEN']+['ROUND_'+v for v in one]+['NODE_CLOSED']
+    expected = ['NODE_OPEN']*3+['ROUND_'+v for v in one]+['NODE_CRASH' if process_restart else 'NODE_CLOSED', 'NODE_OPEN']+['ROUND_'+v for v in one]+['NODE_CLOSED']
     need([row['event'] for _, row in marks] == expected, 'node owner exact lifecycle order')
     closed_at, reopened_at = marks[9][0], marks[10][0]
     need(events[closed_at+1:reopened_at] == [dict(node='node-1', incarnation=2, event=event) for event in wait.REOPEN],
@@ -166,7 +166,8 @@ def lifecycle(root):
             need(slot == 2*campaign-1 and raw == completion, 'node owner readiness fresh barrier')
 
 
-def validate(root):
+def validate(root, *, process_restart=False):
+    need(type(process_restart) is bool, 'node owner process scope')
     root = Path(root); inventory(root)
     group = n.s.initialize(b.original(root, 3, False))
     group = {node: dict(files, **{n.future.FILE:n.future.frame(n.future.initial(files), {})}) for node, files in group.items()}
@@ -178,13 +179,13 @@ def validate(root):
     # allocate above the original promise; it cannot restore its cached READY.
     service.campaign(2, 3); service.advance('BARRIER'); b.match(root, 'second-ready', service.group)
     service.advance('DATA'); b.match(root, 'after-close', service.group)
-    lifecycle(root)
+    lifecycle(root, process_restart=process_restart)
     need(n.read(root/'node-result.json') == dict(status='PARTIAL', producerPassed=True, coldReopens=1, barriers=2,
-         dataCalls=2, serviceBudgetNanos=180_000_000_000, physicalReplay=False, processRestart=False, phase3Complete=False),
+         dataCalls=2, serviceBudgetNanos=180_000_000_000, physicalReplay=False, processRestart=process_restart, phase3Complete=False),
          'node owner producer scope')
-    return dict(status='PARTIAL', scope='native-node-cold-reopen-physical', originalFirst=True, physicalReplay=True,
+    return dict(status='PARTIAL', scope='native-node-process-reopen-physical' if process_restart else 'native-node-cold-reopen-physical', originalFirst=True, physicalReplay=True,
         coldReopens=1, campaigns=2, slots=4, snapshotGroups=16, fullWireReplay=False,
-        processRestart=False, publicRuntime=False, phase3Complete=False)
+        processRestart=process_restart, publicRuntime=False, phase3Complete=False)
 
 
 NEGATIVES = {

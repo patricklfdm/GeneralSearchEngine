@@ -59,6 +59,27 @@ def unused_source(phase, value, expected, ballot, lower):
     if cursor < size or not all(value['arrivals']): phase.unfinished += 1
 
 
+def unreceived_prepare(phase, peer, promise, basis, ballot, lower, upper, sequence, trace):
+    """An original reply from an unselected voter may race cancellation.
+
+    Consume exact response observations, without manufacturing any delivery or
+    allowing a source pull to depend on them. Selected candidates use control().
+    """
+    rows = phase.take('PREPARE', 'node-1', peer)
+    need(0 < len(rows) <= 3 and all(v['row'] == rows[0]['row'] and not v['deliveries'] for v in rows),
+         'node network bounded unreceived prepare')
+    q = rows[0]['request']
+    need(q['payload'] == dict(promise=e.digest(promise)) and q['ballot'] == ballot and q['sequence'] == sequence
+         and all(v['answer'] == 'PROMISE' and v['response']['payload'] == dict(basis=e.digest(basis))
+                 and lower < v['offered'] < upper for v in rows), 'node network exact unreceived prepare')
+    if trace is None:
+        need(q['trace'] not in phase.used, 'restart network distinct control trace'); phase.used.add(q['trace'])
+    else: need(q['trace'] == trace, 'restart network original control trace')
+    need(not any(v['sender'] == 'node-1' and v['peer'] == peer for v in phase.sources),
+         'node network source without prepare delivery')
+    return q['trace']
+
+
 def activate(root, events, entries, start, stop, identities, number):
     before = a.group(root,'before-network' if number == 1 else 'before-reopen')
     installed = a.group(root,f'installed-{number}')
@@ -90,8 +111,12 @@ def activate(root, events, entries, start, stop, identities, number):
         promise,basis,raw,packet = a.frozen(installed[voter],ballot)
         phase.ordered(voter,['PROMISE_FORCED','SOURCE_DIRECTORY_FORCED','BASIS_FORCED','GRANT_BEFORE_RETURN'])
         phase.transfer(voter,'node-1',a.record(local_promise),ballot,phase.at('node-1','BASIS_FORCED'),phase.at(voter,'PROMISE_FORCED'))
-        delivery,trace,_ = phase.control('PREPARE','node-1',voter,dict(promise=e.digest(local_promise)),
-            'PROMISE',dict(basis=e.digest(basis)),ballot,phase.at(voter,'GRANT_BEFORE_RETURN'),stop,sequence=ordinal,trace=campaign_trace)
+        if voter != peer and not any(v['deliveries'] for v in phase.controls['PREPARE','node-1',voter]):
+            trace = unreceived_prepare(phase,voter,local_promise,basis,ballot,phase.at(voter,'GRANT_BEFORE_RETURN'),stop,ordinal,campaign_trace)
+            delivery = None
+        else:
+            delivery,trace,_ = phase.control('PREPARE','node-1',voter,dict(promise=e.digest(local_promise)),
+                'PROMISE',dict(basis=e.digest(basis)),ballot,phase.at(voter,'GRANT_BEFORE_RETURN'),stop,sequence=ordinal,trace=campaign_trace)
         if campaign_trace is None: campaign_trace = trace
         if voter == peer:
             phase.transfer('node-1',voter,[source(installed[voter],ballot)],ballot,delivery,local_selected)
@@ -196,8 +221,8 @@ def request_phases(sent, boundaries, originals):
                 need(originals[row['at']]['incarnation']==(1 if ordinal<3 else 2),'node network request wrong node lifetime')
 
 
-def validate(root):
-    root = Path(root); physical = p.validate(root)
+def validate(root, *, process_restart=False):
+    root = Path(root); physical = p.validate(root, process_restart=process_restart)
     # No original file is rewritten; only this validated extra event field is
     # omitted when invoking the existing strict exchange/arrival reader.
     originals = n.read(root/'events.json')
@@ -230,10 +255,10 @@ def validate(root):
     unanswered = {digest:rows for digest,rows in sent.items() if not any(v['response'] is not None for v in rows)}
     silent = silent_attempts(root,events,unanswered,silent,identities,traces)
     transfers=sum(v['transfers'] for v in results); incomplete=sum(v['unusedIncompleteTransfers'] for v in results)
-    return dict(status='PASS',scope='one-native-node-cold-reopen-history',originalFirst=True,physical=physical,
+    return dict(status='PASS',scope='one-native-node-process-reopen-history' if process_restart else 'one-native-node-cold-reopen-history',originalFirst=True,physical=physical,
         phases=results,exchanges=len(entries),transfers=transfers,completeTransfers=transfers-incomplete,unusedIncompleteTransfers=incomplete,
         requests=sum(len(v) for v in sent.values()),silentRequests=sum(v['attempts'] for v in silent),silent=silent,
-        fullWireReplay=True,processRestart=False,publicRuntime=False,phase3Complete=False)
+        fullWireReplay=True,processRestart=process_restart,publicRuntime=False,phase3Complete=False)
 
 
 SHARED_NEGATIVES = {name:a.NEGATIVES[name] for name in (
