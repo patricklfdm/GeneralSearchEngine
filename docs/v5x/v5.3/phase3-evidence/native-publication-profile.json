@@ -1,0 +1,333 @@
+{
+  "archive": {
+    "bytes": 15487120,
+    "members": 4614,
+    "path": "target/v53-activation-idle/native-publication-profile-portable.tar.gz",
+    "sha256": "926742a120d58f8255a22597be6d3bca7640191ecb751d87fe326143d8f30e24"
+  },
+  "execution": {
+    "classes": {
+      "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 1
+    },
+    "exit": 1,
+    "failures": 1,
+    "label": "activationidleprofile",
+    "requestedTests": [
+      "V53RoundDriverTest#activationFreshBarrierAndSequentialDataHaveOneGuardedOwner"
+    ],
+    "seconds": 134.59193252399564,
+    "skipped": 0,
+    "tests": 1
+  },
+  "fullHistoryQualified": false,
+  "instrumentation": [
+    "Existing transport diagnostic switch",
+    "JFR profile with recording overhead; default JDK stack depth",
+    "JFR startup logging also produced a Surefire native-stream warning; the test error is membership exchange deadline."
+  ],
+  "limits": [
+    "Conditional cancellation checks passed separately; native publication still fails.",
+    "Native samples include parked/polling platform threads; counts are not CPU-time percentages.",
+    "JDK 21 virtual-thread carrier samples and truncated stacks do not completely attribute receiver execution.",
+    "No upper-bound increase, new retry, synthetic receipt or whole-history pass is inferred."
+  ],
+  "phase3Closed": false,
+  "profile": {
+    "eventCounts": {
+      "jdk.ExecutionSample": 4206,
+      "jdk.JavaMonitorEnter": 24,
+      "jdk.NativeMethodSample": 5958,
+      "jdk.ThreadPark": 10789
+    },
+    "membershipStacks": [
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipTransport.accept",
+        3223
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipTransport.ready",
+        909
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.AdmissionPaths.forceDirectory",
+        19
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.ReplicaJson$Parser.value",
+        19
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipFileAccess$View.force",
+        18
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipBasisSources.inspect",
+        16
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.ReplicaJson$Parser.string",
+        13
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipBootstrapTransaction.file",
+        12
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipFileAccess$View.read",
+        12
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipBasisSources.children",
+        12
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipFormat.checkType",
+        11
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.ReplicaJson.append",
+        10
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.ReplicaJson.quote",
+        10
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipCurrentGeneration.check",
+        10
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.ReplicaJson.put",
+        9
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipGrantJournal.checkWithoutFloor",
+        8
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.AdmissionPaths.safe",
+        7
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipCurrentGeneration.checkFile",
+        7
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.AdmissionPaths.recheck",
+        7
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.AdmissionPaths.binding",
+        7
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipFormat.decode",
+        7
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipGrantJournal.verifyCoveredVote",
+        6
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipFormat.parserBudget",
+        5
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipFormat.parse",
+        5
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipGrantJournal.checkBaseOwner",
+        5
+      ]
+    ],
+    "monitorCounts": {
+      "io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal": 24
+    },
+    "scope": "Diagnostic profile with recording overhead. Samples do not establish wall-time attribution, a timeout root cause, or full qualification.",
+    "topFrames": [
+      [
+        "sun.nio.ch.EPoll.wait",
+        4130
+      ],
+      [
+        "java.util.concurrent.ForkJoinPool.awaitWork",
+        2951
+      ],
+      [
+        "java.io.FileInputStream.readBytes",
+        1240
+      ],
+      [
+        "java.util.concurrent.ForkJoinPool.scan",
+        840
+      ],
+      [
+        "sun.nio.fs.UnixNativeDispatcher.lstat0",
+        253
+      ],
+      [
+        "java.util.concurrent.ForkJoinPool.hasTasks",
+        216
+      ],
+      [
+        "sun.nio.fs.LinuxNativeDispatcher.getmntent0",
+        118
+      ],
+      [
+        "sun.nio.fs.UnixNativeDispatcher.getlinelen",
+        111
+      ],
+      [
+        "sun.nio.ch.UnixFileDispatcherImpl.force0",
+        41
+      ],
+      [
+        "java.util.concurrent.ForkJoinPool.runWorker",
+        24
+      ],
+      [
+        "java.lang.AbstractStringBuilder.ensureCapacityInternal",
+        15
+      ],
+      [
+        "sun.nio.fs.UnixNativeDispatcher.realpath0",
+        14
+      ],
+      [
+        "io.github.patricklfdm.generalsearch.replication.MembershipFileAccess$View.read",
+        11
+      ],
+      [
+        "sun.nio.fs.UnixNativeDispatcher.stat0",
+        9
+      ],
+      [
+        "sun.nio.fs.UnixNativeDispatcher.readdir0",
+        8
+      ]
+    ]
+  },
+  "publications": [
+    {
+      "checkpointRequests": {
+        "CHUNK": 2,
+        "TRANSFER_COMMIT": 1
+      },
+      "events": [
+        {
+          "event": "BEFORE_REQUEST_WRITE",
+          "node": "node-1",
+          "seconds": 0.0
+        },
+        {
+          "event": "AFTER_REQUEST_READ",
+          "node": "node-2",
+          "seconds": 0.253092518
+        },
+        {
+          "event": "BEFORE_REQUEST_WRITE",
+          "node": "node-1",
+          "seconds": 5.310796388
+        },
+        {
+          "event": "AFTER_REQUEST_READ",
+          "node": "node-2",
+          "seconds": 5.557756779
+        },
+        {
+          "event": "BEFORE_RESPONSE_WRITE",
+          "node": "node-2",
+          "seconds": 10.511825725
+        },
+        {
+          "event": "BEFORE_REQUEST_WRITE",
+          "node": "node-1",
+          "seconds": 10.720499243
+        },
+        {
+          "event": "BEFORE_RESPONSE_WRITE",
+          "node": "node-2",
+          "seconds": 10.729676762
+        },
+        {
+          "event": "AFTER_REQUEST_READ",
+          "node": "node-2",
+          "seconds": 10.982666739
+        },
+        {
+          "event": "BEFORE_RESPONSE_WRITE",
+          "node": "node-2",
+          "seconds": 11.087819125
+        },
+        {
+          "event": "AFTER_RESPONSE_READ",
+          "node": "node-1",
+          "seconds": 11.088040068
+        }
+      ],
+      "request": "ed533347967c029095009fef85864d4862a7ab0b9bc9f9a735f12f846926bfad"
+    },
+    {
+      "checkpointRequests": {
+        "CHUNK": 4,
+        "TRANSFER_COMMIT": 2
+      },
+      "events": [
+        {
+          "event": "BEFORE_REQUEST_WRITE",
+          "node": "node-1",
+          "seconds": 0.0
+        },
+        {
+          "event": "AFTER_REQUEST_READ",
+          "node": "node-2",
+          "seconds": 0.41562586
+        },
+        {
+          "event": "BEFORE_REQUEST_WRITE",
+          "node": "node-1",
+          "seconds": 5.481829524
+        },
+        {
+          "event": "AFTER_REQUEST_READ",
+          "node": "node-2",
+          "seconds": 5.731516989
+        },
+        {
+          "event": "BEFORE_REQUEST_WRITE",
+          "node": "node-1",
+          "seconds": 10.83519829
+        },
+        {
+          "event": "AFTER_REQUEST_READ",
+          "node": "node-2",
+          "seconds": 11.164520464
+        },
+        {
+          "event": "HANDLER_FAILED",
+          "failure": "java.io.IOException: activation endpoint closed",
+          "node": "node-2",
+          "seconds": 16.069752482
+        },
+        {
+          "event": "HANDLER_FAILED",
+          "failure": "java.io.IOException: activation endpoint closed",
+          "node": "node-2",
+          "seconds": 16.069850702
+        },
+        {
+          "event": "HANDLER_FAILED",
+          "failure": "java.io.IOException: activation endpoint closed",
+          "node": "node-2",
+          "seconds": 16.06979185
+        }
+      ],
+      "request": "e150eb28380cdd0ed595d8ea8f2bc13dd3e187463cd426d66cedbcbab5e7cea3"
+    }
+  ],
+  "qualification": "DIAGNOSTIC",
+  "schema": "gse-v53-native-publication-profile-v1",
+  "sourceSnapshot": "activationidleprofile-5023779d",
+  "status": "FAIL"
+}

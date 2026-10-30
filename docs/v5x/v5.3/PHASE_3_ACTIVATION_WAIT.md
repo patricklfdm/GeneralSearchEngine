@@ -55,3 +55,28 @@ existing optional diagnostic stream. Diagnostic timestamps and JVM profiles do
 not replace independent original-byte/force/history replay. The whole early-start
 history, default-bound native publication and full seven-profile/process matrix
 remain separate final-source qualification requirements.
+
+## Native publication diagnostic after the correction
+
+One shorter native stable run with the unchanged default RPC bounds and optional
+transport/JFR recording still failed at the second DATA publication. Execution
+including compilation took 134.592 seconds. The first PUBLISH required three
+identical requests and delivered its ACK 11.088 seconds after the first send.
+The second sent three identical requests, delivered no response, and observed
+endpoint-close failures during cleanup at 16.070 seconds. The first publication
+issued two reverse CHUNK requests and one commit; the second issued four CHUNK
+requests and two commits. These are observed events, not invented timing targets.
+
+The JFR stream records owner-monitor contention and filesystem work, but also
+native polling/sleeping carrier and command threads. Its sampling counts cannot
+be read as CPU percentages, and the default stack depth/virtual-thread sampling
+does not fully attribute receiver work. Recording adds overhead; no claim of a
+performance improvement or full timeout root-cause isolation is made. JFR startup
+logging caused a separate Surefire native-stream warning; the actual test error
+was `membership exchange deadline`.
+
+The [diagnostic receipt](phase3-evidence/native-publication-profile.json) binds
+the exact source, original trace, full JFR recording and retained member hashes.
+No workload was retried to obtain a green result. Further work must separate
+checkpoint collection from repeated integrity checks and preserve force,
+ownership, fencing and original-deadline guarantees before changing that path.

@@ -93,6 +93,13 @@ two TRANSFER_COMMIT requests. The original round remains failed; these timings
 cannot distinguish disk, scheduling, locking and repeated verification costs.
 No claim that the issue is harmless or external is made.
 
+A later [activation idle-wait correction](PHASE_3_ACTIVATION_WAIT.md) removes a
+separately reproduced writer-contention/cancellation defect. Its 58 component
+checks pass, but a subsequent default-bound stable native run still fails at the
+second publication. The original trace and JFR profile are retained in the
+[publication diagnostic receipt](phase3-evidence/native-publication-profile.json);
+neither this diagnostic nor the earlier failed whole history qualifies Phase 3.
+
 The original increment's source/archive hashes and focused checks are in
 [its historical receipt](phase3-evidence/joining-early-start.json); the later
 completed failed history is recorded separately above.
