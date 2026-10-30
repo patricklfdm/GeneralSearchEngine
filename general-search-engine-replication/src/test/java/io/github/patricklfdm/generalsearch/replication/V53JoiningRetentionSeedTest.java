@@ -152,6 +152,8 @@ class V53JoiningRetentionSeedTest {
             var before=V53ReplayFilesTest.files(target.replicaDirectory());
             assertEquals("joining retention original native owner required",assertThrows(IllegalArgumentException.class,
                     ()->owner.joiningRetentionSeed(List.of())).getMessage());
+            assertEquals("joining retention original native owner required",assertThrows(IllegalArgumentException.class,
+                    ()->owner.initializeJoinedRetention(List.of())).getMessage());
             assertEquals(before,V53ReplayFilesTest.files(target.replicaDirectory()));
         }
         assertEquals(0,fixture.resources.usage().leases());

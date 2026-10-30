@@ -1,5 +1,9 @@
 # Original inputs for joining-owner retention initialization
 
+This note records the earlier read-only component. Its downstream transaction is
+now implemented in [durable joining initialization](PHASE_3_JOINING_RETENTION_INIT.md);
+the seed itself still grants no mutation authority. Phase 3 remains **OPEN**.
+
 Phase 3 remains **OPEN**. A newly joined native owner must acquire the existing
 retention obligations before it can participate in automatic joint selection.
 Ordinary ledger initialization still requires unused genesis. This component

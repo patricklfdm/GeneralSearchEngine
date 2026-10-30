@@ -87,6 +87,10 @@ final class MembershipPeerRetentionFiles implements AutoCloseable {
         var state=decodeOwned(before,root,owner);require(state.revision()<MembershipBallotAllocator.MAX,"peer retention revision exhausted");
         return encode(root,owner,state.revision()+1,state.digest(),plan);
     }
+    /** Bytes only; an original initialization transaction supplies authority. */
+    static byte[] initial(String root,MembershipIdentity owner,MembershipPeerRetentionPlan plan) {
+        return encode(root,owner,0,null,plan);
+    }
     private void candidate(byte[] bytes) {
         int length=extent(bytes);if(length<0 || bytes.length<length)return;
         var decoded=decode(bytes);var value=object(parse(Arrays.copyOfRange(bytes,HEADER,bytes.length),MAXIMUM-HEADER));

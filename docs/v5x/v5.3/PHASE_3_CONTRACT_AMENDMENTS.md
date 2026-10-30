@@ -1,5 +1,21 @@
 # V5.3 Phase 3 contract amendments
 
+## A58 — durable three-ledger initialization for the actual joining owner
+
+Force the exact original seed before writing any joining ledger; force peer,
+future and learner ledgers before the completion marker. Preserve and complete
+original prefixes under the unused native installation. A partial decision
+cannot allocate counters or grant votes. Completed initialization cannot repair
+a missing ledger from the current cut. Keep all active/candidate/decision bytes
+inside the existing combined journal allowance, checked before writing.
+
+Retention-aware cold continuation requires `reopenJoinedRetaining`, including
+when every initialization file is missing. The installation-only component entry
+is not an automatic-owner fallback. Ordinary genesis initialization, public
+bytes and all resource/timing bounds remain unchanged. See
+[durable joining initialization](PHASE_3_JOINING_RETENTION_INIT.md). Joint
+campaign/FINAL/barrier integration and full qualification remain OPEN.
+
 ## A57 — original joining retention inputs before any initialization
 
 Prepare the new owner's retention seed only from an exact, settled, frozen old

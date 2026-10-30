@@ -159,7 +159,8 @@ final class MembershipBallotAllocator implements AutoCloseable {
         return open(requested,root,identity,cut,nativeFiles(applying,context,materialization!=null,materialization!=null),materialization);
     }
     static MembershipBallotAllocator adoptJoined(MembershipJoinedOwner joined,Path materialization,Cut cut)throws IOException {
-        joined.check();var summary=joined.summary();Path path=summary.request().replicaDirectory();var additional=nativeFiles(true,true,true,false);
+        joined.check();var summary=joined.summary();Path path=summary.request().replicaDirectory();
+        var names=new HashSet<>(nativeFiles(true,true,true,false));names.addAll(MembershipJoiningRetentionFiles.FILES);var additional=Set.copyOf(names);
         inventory(path,additional);var allocator=new MembershipBallotAllocator(path,summary.request().root(),summary.request().identity(),joined.root(),cut,additional,materialization,joined);
         try{allocator.recover();return allocator;}catch(IOException|RuntimeException|Error error){try{joined.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
@@ -209,6 +210,7 @@ final class MembershipBallotAllocator implements AutoCloseable {
         required.remove(MembershipPeerRetentionFiles.FILE);required.remove(MembershipPeerRetentionFiles.NEXT);
         required.remove(MembershipLearnerRetentionFiles.FILE);required.remove(MembershipLearnerRetentionFiles.NEXT);
         required.remove(MembershipFutureRetentionFiles.FILE);required.remove(MembershipFutureRetentionFiles.NEXT);
+        required.removeAll(MembershipJoiningRetentionFiles.FILES);
         require(seen.containsAll(required),"incomplete grant authority");
     }
 

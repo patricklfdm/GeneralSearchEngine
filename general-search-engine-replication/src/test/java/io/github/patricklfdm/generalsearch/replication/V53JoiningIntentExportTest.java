@@ -80,6 +80,9 @@ class V53JoiningIntentExportTest {
     @Test void unusedJoiningOwnerCapturesExactOldMajorityRetentionAndRefusesAfterUse()throws Exception {
         nativeJoining(true,true,true,true,true);
     }
+    @Test void originalJoiningRetentionRecoversInterruptedInitializationAndRefusesMissingCompletedLedger()throws Exception {
+        nativeJoining(true,true,true,true,true,true);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
@@ -93,6 +96,9 @@ class V53JoiningIntentExportTest {
         nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,false);
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined)throws Exception {
+        nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,false);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,boolean initializeJoined)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
         // The additional complete installation/cold-open scenario has one
         // declared owner lifetime from its start. Existing scenarios keep
@@ -222,7 +228,7 @@ class V53JoiningIntentExportTest {
                                             // Consume the actual retained owner and native published
                                             // source. No fixture history, decoded replacement owner
                                             // or direct checkpoint insertion supplies this joining end.
-                                            progress.close();var retained=pending.retainSource();Decoded nativeBasis;long nativeCounter;
+                                            progress.close();var retained=pending.retainSource();Decoded nativeBasis;long nativeCounter=0;
                                             var confirmationWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
                                             try(var headEndpoint=retained.listenHead(n.bounds,(event,q,a)->{
                                                 if(event.equals("BEFORE_RESPONSE_WRITE"))confirmationWire.add(V53SelectedPullTest.wire(q,a));
@@ -335,21 +341,34 @@ class V53JoiningIntentExportTest {
                                                                 for(var frozenOriginal:originals){String name=frozenOriginal.owner.nodeId().value();
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gsr"),frozenOriginal.basis.bytes());
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gscp"),frozenOriginal.capsule.packet.bytes());}
-                                                                nativeCounter=journal.reserveCounter();
-                                                                assertThrows(IllegalArgumentException.class,()->journal.joiningRetentionSeed(originals));
+                                                                if(initializeJoined) {
+                                                                    journal.close();
+                                                                    initializeRetention(plan,pool,config,originals,seed,n.f.raw);
+                                                                }else {
+                                                                    nativeCounter=journal.reserveCounter();
+                                                                    assertThrows(IllegalArgumentException.class,()->journal.joiningRetentionSeed(originals));
+                                                                }
                                                                 probeOldLocks(n);
                                                                 System.out.println("v53JoiningIntentStage=original-old-majority-retention-seed-read-only");
-                                                            }else nativeCounter=journal.reserveCounter();
-                                                            nativeBasis=journal.prepareCurrent(Map.of("counter",nativeCounter,
+                                                            }
+                                                            // Recovery owns the original joining root; it is never
+                                                            // copied to manufacture a second initialization history.
+                                                            try(var recovered=initializeJoined?MembershipGrantJournal.reopenJoinedRetaining(plan,pool,builder().configuration(),config,e->{}):null) {
+                                                            var active=initializeJoined?recovered:journal;
+                                                            if(!seedJoined || initializeJoined)nativeCounter=active.reserveCounter();
+                                                            nativeBasis=active.prepareCurrent(Map.of("counter",nativeCounter,
                                                                     "proposer",joining.nodeId().value(),"incarnation",joining.storageId().toString()));
                                                             assertEquals("BASIS",nativeBasis.kind());assertEquals("node-4",nativeBasis.value().get("voter"));
+                                                            if(initializeJoined)assertJoinedRetention(active,seedFrom(n.f.raw),joining);
                                                             new V53MembershipOwnershipTest().probe(request.replicaDirectory().resolve("replica.lock"));
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                             assertEquals(0,pool.usage().leases());
-                                            try(var journal=MembershipGrantJournal.reopenJoined(plan,pool,builder().configuration(),config,e->{})) {
+                                            try(var journal=initializeJoined?MembershipGrantJournal.reopenJoinedRetaining(plan,pool,builder().configuration(),config,e->{}):
+                                                    MembershipGrantJournal.reopenJoined(plan,pool,builder().configuration(),config,e->{})) {
                                                 assertArrayEquals(nativeBasis.bytes(),journal.prepareCurrent(Map.of("counter",nativeCounter,
                                                         "proposer",joining.nodeId().value(),"incarnation",joining.storageId().toString())).bytes());
                                                 assertTrue(journal.reserveCounter()>nativeCounter);
@@ -378,6 +397,77 @@ class V53JoiningIntentExportTest {
     private static void probeOldLocks(V53NativeDispatchTest.Network n)throws Exception {
         new V53MembershipOwnershipTest().probe(n.f.request.targets().stream()
                 .map(t->t.replicaDirectory().resolve("replica.lock")).toArray(Path[]::new));
+    }
+    private static byte[] seedFrom(Path raw)throws Exception {return Files.readAllBytes(raw.resolve("joining-retention-seed.json"));}
+    private static void assertJoinedRetention(MembershipGrantJournal journal,byte[] raw,MembershipIdentity identity)throws Exception {
+        var copy=journal.floorCopyCurrent();var seed=MembershipJoiningRetentionSeed.read(raw,copy.capsule,copy.fileBytes("ancestry.gsr"),identity);
+        var peers=journal.peerRetentionState();var learner=journal.learnerRetentionState();var future=journal.futureRetentionState();
+        assertEquals(0,peers.revision());assertEquals(0,learner.revision());assertEquals(0,future.revision);assertFalse(future.pending());
+        assertArrayEquals(seed.peers.bytes(),peers.plan().bytes());assertArrayEquals(seed.learner.bytes(),learner.plan().bytes());
+    }
+    private static void initializeRetention(MembershipLearnerPlan plan,MembershipResources resources,
+            MembershipReplicaConfig<Integer,Doc> config,List<MembershipSelection.Source> originals,
+            MembershipJoiningRetentionSeed seed,Path raw)throws Exception {
+        var cuts=List.of("JOINING_RETENTION_SEED_PREFIX_WRITTEN","JOINING_RETENTION_PEERS_PREFIX_WRITTEN",
+                "JOINING_RETENTION_FUTURE_PREFIX_WRITTEN","JOINING_RETENTION_LEARNER_PREFIX_WRITTEN",
+                "JOINING_RETENTION_DONE_PREFIX_WRITTEN","JOINING_RETENTION_DONE_RENAMED");
+        var observations=new ArrayList<Object>();Path directory=plan.request().replicaDirectory();
+        assertThrows(IllegalArgumentException.class,()->MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,e->{}));
+        for(int i=0;i<cuts.size();i++) {
+            String point=cuts.get(i);var hit=new java.util.concurrent.atomic.AtomicBoolean();boolean resumed=i>0;
+            var failure=assertThrows(java.io.IOException.class,()->{
+                MembershipBallotAllocator.Cut injection=event->{
+                    if(event.equals(point)){hit.set(true);throw new java.io.IOException("test interruption: "+point);}
+                };
+                try(var journal=resumed?MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,injection):
+                        MembershipGrantJournal.reopenJoined(plan,resources,builder().configuration(),config,injection)) {journal.initializeJoinedRetention(originals);}
+            });
+            assertTrue(hit.get(),failure.toString());assertEquals("test interruption: "+point,failure.getMessage());
+            assertEquals(0,resources.usage().leases());
+            var files=new TreeMap<String,Object>();
+            try(var paths=Files.list(directory)) {for(Path path:paths.toList())if(path.getFileName().toString().contains("retention")) {
+                byte[] bytes=Files.readAllBytes(path);files.put(path.getFileName().toString(),Map.of("size",(long)bytes.length,"sha256",hash(bytes),
+                        "key",MembershipBasisSources.key(path).toString()));
+            }}
+            observations.add(Map.of("cut",point,"files",files.entrySet().stream().map(row->{
+                var value=new TreeMap<>(object(row.getValue()));value.put("name",row.getKey());return value;
+            }).toList()));
+            if(i==0) {
+                try(var journal=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,e->{})) {
+                    assertFalse(Files.exists(directory.resolve(MembershipJoiningRetentionFiles.FILE)));
+                    assertThrows(IllegalArgumentException.class,()->journal.initializeJoinedRetention(List.of(originals.getFirst())));
+                    assertThrows(IllegalArgumentException.class,journal::reserveCounter);
+                }
+                assertEquals(files.get(MembershipJoiningRetentionFiles.NEXT),Map.of("size",Files.size(directory.resolve(MembershipJoiningRetentionFiles.NEXT)),
+                        "sha256",hash(Files.readAllBytes(directory.resolve(MembershipJoiningRetentionFiles.NEXT))),
+                        "key",MembershipBasisSources.key(directory.resolve(MembershipJoiningRetentionFiles.NEXT)).toString()));
+            }
+            System.out.println("v53JoiningRetentionRecoveredCut="+point);
+        }
+        try(var journal=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,e->{})) {
+            assertJoinedRetention(journal,seed.bytes(),config.localIdentity());
+            assertThrows(IllegalArgumentException.class,()->journal.initializeJoinedRetention(originals));
+            new V53MembershipOwnershipTest().probe(directory.resolve("replica.lock"));
+        }
+        // Completion forbids reconstructing a lost ledger, even before the
+        // first counter. Move and restore the original inode only while closed.
+        var required=List.of(MembershipPeerRetentionFiles.FILE,MembershipFutureRetentionFiles.FILE,MembershipLearnerRetentionFiles.FILE);
+        for(String name:required) {
+            Path active=directory.resolve(name),held=raw.resolve("held-original-"+name);
+            Files.move(active,held);try {
+                var failure=assertThrows(ReplicationException.class,()->MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,e->{}));
+                assertEquals(ReplicationException.Reason.STORAGE_FAILURE,failure.reason());
+                assertFalse(Files.exists(active));assertEquals(0,resources.usage().leases());
+            }finally{Files.move(held,active);}
+        }
+        var all=new ArrayList<>(required);all.add(MembershipJoiningRetentionFiles.FILE);all.add(MembershipJoiningRetentionFiles.DONE);
+        for(String name:all)Files.move(directory.resolve(name),raw.resolve("held-original-"+name));
+        try {
+            var failure=assertThrows(IllegalArgumentException.class,()->MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,e->{}));
+            assertEquals("joining retention original decision missing",failure.getMessage());assertEquals(0,resources.usage().leases());
+            for(String name:all)assertFalse(Files.exists(directory.resolve(name)));
+        }finally{for(String name:all)Files.move(raw.resolve("held-original-"+name),directory.resolve(name));}
+        Files.write(raw.resolve("joining-retention-initialization-cuts.json"),canonical(observations,1024*1024));
     }
     /** Retain actual predecessor/native files for later independent replay.
      * Shared read descriptors preserve live POSIX ownership during capture. */

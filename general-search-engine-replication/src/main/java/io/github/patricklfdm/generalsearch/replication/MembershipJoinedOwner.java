@@ -170,6 +170,10 @@ final class MembershipJoinedOwner implements AutoCloseable {
         }
         check();
     }
+    Map<String,Object> retentionBinding()throws IOException {
+        check();return Map.of("plan",summary.planDigest(),"native",record.digest(),"nativeKey",record.key().toString(),
+                "generation",proof.value().get("generation"),"cut",proof.value().get("cut"));
+    }
     MembershipOwnership root()throws IOException {check();return root;}
     MembershipLearnerPlan summary(){return summary;}
     MembershipResources resources(){return resources;}

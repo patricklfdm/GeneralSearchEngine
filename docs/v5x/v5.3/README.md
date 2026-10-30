@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Durable joining initialization](PHASE_3_JOINING_RETENTION_INIT.md) now forces
+an original seed, three retention ledgers and a bound completion marker. The
+retaining cold entry refuses lost originals; interrupted initialization blocks
+native use. Actual joint selection, FINAL/barrier and complete Phase 3
+qualification remain **OPEN**. Earlier component notes retain their historical
+source-bound scope.
+
 [Joining retention inputs](PHASE_3_JOINING_RETENTION_SEED.md) now preserve exact
 settled old-majority snapshots under an unused original joined-owner guard.
 Preparation is read-only; durable three-ledger initialization, joint FINAL and

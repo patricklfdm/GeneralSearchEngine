@@ -34,6 +34,8 @@ final class MembershipGrantJournal implements AutoCloseable {
     private MembershipCurrentGeneration.Verifier capsuleVerifier;
     private boolean ownedHistory;
     private MembershipJoinedOwner joinedOwner;
+    private MembershipJoiningRetentionFiles joiningRetention;
+    private boolean joiningRetentionInProgress;
     private boolean joinedGenerationClaimed;
     private MembershipGenerationFiles inactive;
     private MembershipFloorFiles floors;
@@ -395,6 +397,10 @@ final class MembershipGrantJournal implements AutoCloseable {
                     withSourceRetirement?journal.sourceRetirement.decision().orElse(null):null,pending);
             if(withContext && journal.pendingContext==null)journal.pendingContext=new MembershipPendingContextFiles(path,root,identity,resources,
                     Math.min(MembershipPendingContextFiles.MAXIMUM_METADATA,maximum-journal.storedJournal().length-journal.pendingBytes()));
+            if(joined!=null) {
+                journal.joiningRetentionInProgress=true;
+                journal.recoverJoiningRetention();
+            }
             if(materialization!=null)journal.loadPeerRetention();
             if(materialization!=null)journal.loadFutureRetention();
             if(materialization!=null)journal.loadLearnerRetention();
@@ -441,7 +447,8 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(decision.isPresent())journal.retireSource(decision.get().id());
                 else require(!journal.rotation.pending(),"partial source retirement cannot own a journal rotation");
             }
-            if(withFloorRelease && journal.floors.releasing())journal.releaseFloor();if(withRotation && journal.rotation.pending())journal.rotateJournal();if(joined!=null)joined.claimed();return journal;
+            if(withFloorRelease && journal.floors.releasing())journal.releaseFloor();if(withRotation && journal.rotation.pending())journal.rotateJournal();if(joined!=null)joined.claimed();
+            journal.joiningRetentionInProgress=false;return journal;
         }catch(IOException | RuntimeException | Error error){try{if(journal==null)owner.close();else journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     private void reloadGenerations() throws IOException {
@@ -835,6 +842,45 @@ final class MembershipGrantJournal implements AutoCloseable {
         joinedOwner.unused();var seed=MembershipJoiningRetentionSeed.capture(current.capsule,current.ancestry(),identity,originals);
         joinedOwner.unused();return seed;
     }
+    private void recoverJoiningRetention()throws IOException {
+        require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
+        if(!MembershipJoiningRetentionFiles.present(directory)) {
+            require(!MembershipJoiningRetentionFiles.ledgersPresent(directory),"joined ledger missing original initialization");return;
+        }
+        if(current==null)reloadGenerations();
+        joiningRetention=new MembershipJoiningRetentionFiles(new HistoryRead(this),joinedOwner,maximum-storedJournal().length-pendingBytes());
+        if(joiningRetention.ready())joiningRetention.resealCompleted(cut);
+        else if(joiningRetention.hasSeed()) {
+            var seed=joiningRetention.seed(current.capsule,current.ancestry());joiningRetention.prepare(seed,cut);joiningRetention.complete(cut);
+        }else {
+            joinedOwner.unused();require(!MembershipJoiningRetentionFiles.ledgersPresent(directory),"joining retention partial seed with ledgers");
+            // Keep the exact uncommitted prefix. Explicit initialization with
+            // its original sources must finish it before this owner may vote.
+        }
+    }
+    /** Cold continuation of the retention-initialized path. The caller must not
+     * fall back to the earlier installation-only entry when originals are lost. */
+    static <K,T> MembershipGrantJournal reopenJoinedRetaining(MembershipLearnerPlan plan,MembershipResources resources,
+            io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T> captured,
+            MembershipReplicaConfig<K,T> config,MembershipBallotAllocator.Cut cut)throws IOException {
+        require(MembershipJoiningRetentionFiles.present(plan.request().replicaDirectory()),"joining retention original decision missing");
+        var journal=reopenJoined(plan,resources,captured,config,cut);
+        try{require(journal.joiningRetention!=null,"joining retention original decision missing");return journal;}
+        catch(RuntimeException|Error error){try{journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
+    }
+    synchronized void initializeJoinedRetention(List<MembershipSelection.Source> originals)throws IOException {
+        checkBaseOwner();require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
+        require(peerRetention==null && futureRetention==null && learnerRetention==null
+                && (joiningRetention==null || !joiningRetention.ready()),"joining retention already initialized");
+        joinedOwner.unused();var seed=MembershipJoiningRetentionSeed.capture(current.capsule,current.ancestry(),identity,originals);
+        joiningRetentionInProgress=true;
+        try {
+            if(joiningRetention==null)joiningRetention=new MembershipJoiningRetentionFiles(new HistoryRead(this),joinedOwner,maximum-storedJournal().length-pendingBytes());
+            joiningRetention.prepare(seed,cut);joiningRetention.complete(cut);
+            loadPeerRetention();loadFutureRetention();loadLearnerRetention();recoverLearnerRetention();recoverPeerRetention();recoverFutureRetention();checkOwner();
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+        finally{joiningRetentionInProgress=false;}
+    }
     private void requireRetentionGenesis()throws IOException {
         require(number(current.capsule.context.cut.get("index"))==0,"peer retention initialization requires unused genesis");
         var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");
@@ -1057,7 +1103,7 @@ final class MembershipGrantJournal implements AutoCloseable {
             }catch(IOException failure){throw new java.io.UncheckedIOException(failure);}
         };
     }
-    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes())+(peerRetention==null?0:peerRetention.bytes())+(learnerRetention==null?0:learnerRetention.bytes())+(futureRetention==null?0:futureRetention.bytes())+futureCompletionBytes();}
+    private long pendingBytes(){return (pendingAccept==null?0:pendingAccept.bytes()+(applicationMetadata>0?pendingAccept.clearAllowance():0))+applicationMetadata+(pendingContext==null?0:pendingContext.bytes())+(peerRetention==null?0:peerRetention.bytes())+(learnerRetention==null?0:learnerRetention.bytes())+(futureRetention==null?0:futureRetention.bytes())+(joiningRetention==null?0:joiningRetention.bytes())+futureCompletionBytes();}
     private boolean importedFuturePending;
     private long futureCompletionBytes() {
         if(!futurePending() && !importedFuturePending)return 0;
@@ -2415,6 +2461,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(peerRetention!=null)peerRetention.check();
         if(learnerRetention!=null)learnerRetention.check();
         if(futureRetention!=null)futureRetention.check();
+        if(joiningRetention!=null)joiningRetention.check();
         if(appliedEnd!=null)appliedEnd.check();
         if(replayFiles!=null)replayFiles.check();
     }
@@ -2435,7 +2482,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(current!=null && futureRetention!=null && futureRetention.initialized())verifyFutureRetention();
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
-    private void checkOwner() throws IOException {checkWithoutRetirement();if(retirement!=null)retirement.check();}
+    private void checkOwner() throws IOException {
+        checkWithoutRetirement();if(retirement!=null)retirement.check();
+        require(joiningRetention==null || joiningRetentionInProgress || joiningRetention.ready(),"joining retention initialization must complete before native use");
+    }
     private void sourceIdle(){contextTransactionIdle();applicationRetirementIdle();require(!carriedVoteUntransferred(),"carried vote must transfer before another authority change");if(pendingAccept!=null)require(!pendingAccept.pending(),"pending ACCEPT requires exact original completion");if(capture!=null)require(!capture.pending(),"pending source capture must finish before authority changes");if(sourceRetirement!=null)require(!sourceRetirement.pending(),"pending source retirement must finish before authority changes");}
     private void rotationIdle(){sourceIdle();if(floors!=null)require(!floors.releasing(),"pending floor release must finish before authority changes");if(rotation!=null)require(!rotation.pending(),"pending journal rotation must finish before authority changes");}
     private void floorIdle() throws IOException {
@@ -3619,6 +3669,6 @@ final class MembershipGrantJournal implements AutoCloseable {
         for(var export:List.copyOf(voteExports))releaseVoteExport(export);
         for(var export:List.copyOf(recordExports))releaseRecordExport(export);
         for(var export:List.copyOf(sourceExports))releaseSourceExport(export);
-        if(!closed){closed=true;try{releasePublicationImage();if(futureRetention!=null)futureRetention.close();if(peerRetention!=null)peerRetention.close();if(learnerRetention!=null)learnerRetention.close();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
+        if(!closed){closed=true;try{releasePublicationImage();if(joiningRetention!=null)joiningRetention.close();if(futureRetention!=null)futureRetention.close();if(peerRetention!=null)peerRetention.close();if(learnerRetention!=null)learnerRetention.close();if(pendingContext!=null)pendingContext.close();if(appliedEnd!=null)appliedEnd.close();if(replayFiles!=null)replayFiles.close();if(retirement!=null)retirement.close();if(floors!=null)floors.close();if(inactive!=null)inactive.close();if(current!=null)current.close();if(sources!=null)sources.close();}finally{allocator.close();}}
     }
 }
