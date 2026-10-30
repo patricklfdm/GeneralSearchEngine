@@ -77,6 +77,9 @@ class V53JoiningIntentExportTest {
     @Test void actualJoiningCopyReconcilesTheOldLedgerOnlyAfterTheGoverningFloorForces()throws Exception {
         nativeJoining(true,true,true,true);
     }
+    @Test void unusedJoiningOwnerCapturesExactOldMajorityRetentionAndRefusesAfterUse()throws Exception {
+        nativeJoining(true,true,true,true,true);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
@@ -87,6 +90,9 @@ class V53JoiningIntentExportTest {
         nativeJoining(retainPending,publishJoint,installJoined,false);
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined)throws Exception {
+        nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,false);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
         // The additional complete installation/cold-open scenario has one
         // declared owner lifetime from its start. Existing scenarios keep
@@ -301,7 +307,40 @@ class V53JoiningIntentExportTest {
                                                                 probeOldLocks(n);
                                                                 System.out.println("v53JoiningIntentStage=actual-joining-floor-reconciled");
                                                             }
-                                                            nativeCounter=journal.reserveCounter();nativeBasis=journal.prepareCurrent(Map.of("counter",nativeCounter,
+                                                            if(seedJoined) {
+                                                                var copies=List.of(owner.floorCopyCurrent(),n.owners.get(1).floorCopyCurrent(),journal.floorCopyCurrent());
+                                                                for(int i=0;i<2;i++) {
+                                                                    var old=n.owners.get(i);var seedMaintenance=old.publishedMaintenance(n.resources.get(i));
+                                                                    if(i!=0)old.establishFloor(copies);
+                                                                    old.reconcileMaintenancePeers();for(var copy:copies)old.retainPeerObservation(copy);
+                                                                    old.retireInactive();
+                                                                    for(String obsolete:old.supersededPublishedSources(seedMaintenance))old.retireSource(obsolete);
+                                                                    old.releaseFloor();seedMaintenance.check();
+                                                                }
+                                                                var originals=new ArrayList<MembershipSelection.Source>();
+                                                                long counter=owner.reserveCounter();var ballot=Map.<String,Object>of("counter",counter,
+                                                                        "proposer",owner.activationIdentity().nodeId().value(),"incarnation",owner.activationIdentity().storageId().toString());
+                                                                for(int i=0;i<2;i++){n.owners.get(i).prepareCurrent(ballot);originals.add(n.owners.get(i).originalSource());}
+                                                                assertThrows(IllegalArgumentException.class,()->owner.joiningRetentionSeed(originals));
+                                                                var beforeSeed=V53ReplayFilesTest.files(request.replicaDirectory());
+                                                                var seed=journal.joiningRetentionSeed(originals);
+                                                                assertEquals(beforeSeed,V53ReplayFilesTest.files(request.replicaDirectory()),"seed preparation must not install ledgers");
+                                                                assertEquals(List.of(3L,5L),V53PeerRetentionPlanTest.cuts(seed.learner.recorded()));
+                                                                var ownCopy=journal.floorCopyCurrent();
+                                                                var replay=MembershipJoiningRetentionSeed.read(seed.bytes(),ownCopy.capsule,ownCopy.fileBytes("ancestry.gsr"),joining);
+                                                                assertArrayEquals(seed.peers.bytes(),replay.peers.bytes());assertArrayEquals(seed.learner.bytes(),replay.learner.bytes());
+                                                                Files.write(n.f.raw.resolve("joining-retention-seed.json"),seed.bytes());
+                                                                Files.write(n.f.raw.resolve("joining-retention-peers.json"),seed.peers.bytes());
+                                                                Files.write(n.f.raw.resolve("joining-retention-learner.json"),seed.learner.bytes());
+                                                                for(var frozenOriginal:originals){String name=frozenOriginal.owner.nodeId().value();
+                                                                    Files.write(n.f.raw.resolve("joining-retention-"+name+".gsr"),frozenOriginal.basis.bytes());
+                                                                    Files.write(n.f.raw.resolve("joining-retention-"+name+".gscp"),frozenOriginal.capsule.packet.bytes());}
+                                                                nativeCounter=journal.reserveCounter();
+                                                                assertThrows(IllegalArgumentException.class,()->journal.joiningRetentionSeed(originals));
+                                                                probeOldLocks(n);
+                                                                System.out.println("v53JoiningIntentStage=original-old-majority-retention-seed-read-only");
+                                                            }else nativeCounter=journal.reserveCounter();
+                                                            nativeBasis=journal.prepareCurrent(Map.of("counter",nativeCounter,
                                                                     "proposer",joining.nodeId().value(),"incarnation",joining.storageId().toString()));
                                                             assertEquals("BASIS",nativeBasis.kind());assertEquals("node-4",nativeBasis.value().get("voter"));
                                                             new V53MembershipOwnershipTest().probe(request.replicaDirectory().resolve("replica.lock"));

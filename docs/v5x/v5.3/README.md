@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Joining retention inputs](PHASE_3_JOINING_RETENTION_SEED.md) now preserve exact
+settled old-majority snapshots under an unused original joined-owner guard.
+Preparation is read-only; durable three-ledger initialization, joint FINAL and
+complete Phase 3 qualification remain **OPEN**.
+
 [Joining maintenance](PHASE_3_JOINING_MAINTENANCE.md) now acquires the actual
 joining generation before reconciling an old owner's configuration, and requires
 a forced governing floor. New-owner ledger initialization and complete native

@@ -823,6 +823,18 @@ final class MembershipGrantJournal implements AutoCloseable {
         try{return peerRetention.install(MembershipPeerRetentionPlan.genesis(current.capsule),maximum-storedJournal().length-pendingBytes(),cut);}
         catch(IOException|RuntimeException|Error error){failed=true;throw error;}
     }
+    /** Read-only preparation. No empty-ledger fallback and no voting/dispatch
+     * permit: the following durable initialization transaction is still needed. */
+    synchronized MembershipJoiningRetentionSeed joiningRetentionSeed(List<MembershipSelection.Source> originals)throws IOException {
+        checkOwner();require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
+        require(peerRetention==null && futureRetention==null && learnerRetention==null,"joining retention already initialized");
+        for(String name:List.of(MembershipPeerRetentionFiles.FILE,MembershipPeerRetentionFiles.NEXT,
+                MembershipLearnerRetentionFiles.FILE,MembershipLearnerRetentionFiles.NEXT,
+                MembershipFutureRetentionFiles.FILE,MembershipFutureRetentionFiles.NEXT))
+            require(!Files.exists(directory.resolve(name),LinkOption.NOFOLLOW_LINKS),"joining retention original ledger already exists");
+        joinedOwner.unused();var seed=MembershipJoiningRetentionSeed.capture(current.capsule,current.ancestry(),identity,originals);
+        joinedOwner.unused();return seed;
+    }
     private void requireRetentionGenesis()throws IOException {
         require(number(current.capsule.context.cut.get("index"))==0,"peer retention initialization requires unused genesis");
         var rootRecord=decode(AdmissionPaths.read(directory.resolve("root.gsr"),16384),"records","ROOT");

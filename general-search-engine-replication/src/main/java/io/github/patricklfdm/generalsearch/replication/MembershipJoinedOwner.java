@@ -157,6 +157,19 @@ final class MembershipJoinedOwner implements AutoCloseable {
             require(Arrays.equals(record.bytes(),source.packet.objectBytes(record.digest())),"native joining original INTENT provenance changed");}
         check();
     }
+    /** Initialization eligibility only. A used or replaced original cannot
+     * recreate missing ledgers from a later selector, even at the same cut. */
+    void unused()throws IOException {
+        check();
+        for(var row:proof.installed().entrySet()) {
+            Path path=row.getKey().equals(".")?summary.request().replicaDirectory():summary.request().replicaDirectory().resolve(row.getKey());
+            var expected=object(row.getValue());
+            require(key(path).toString().equals(expected.get("key")),"joining retention original installation replaced");
+            if(!Boolean.TRUE.equals(expected.get("directory")))
+                inspect(path,number(expected.get("size")),(String)expected.get("sha256"));
+        }
+        check();
+    }
     MembershipOwnership root()throws IOException {check();return root;}
     MembershipLearnerPlan summary(){return summary;}
     MembershipResources resources(){return resources;}

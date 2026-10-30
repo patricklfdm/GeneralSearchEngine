@@ -1,5 +1,20 @@
 # V5.3 Phase 3 contract amendments
 
+## A57 — original joining retention inputs before any initialization
+
+Prepare the new owner's retention seed only from an exact, settled, frozen old
+majority at its joining JOINT cut. Keep each original BASIS/inventory and both
+retention wrappers. Preserve all peer uncertainty and learner renewal debt;
+refuse an unsettled tail/future, conflicting ancestry or an over-capacity union.
+The native preparation entry requires the actual unused joined owner and its
+original installed bytes/inodes, with no existing active/candidate ledger.
+
+This is a read-only calculation. Neither decoded evidence nor its returned
+plans authorize initialization, voting, dispatch or deletion. A separate forced
+three-ledger transaction and its interrupted recovery remain required. Ordinary
+genesis initialization and all public resource/format/timing limits stay intact.
+See [joining retention inputs](PHASE_3_JOINING_RETENTION_SEED.md).
+
 ## A56 — joining retention follows an actual forced governing floor
 
 Read-only pre-grant maintenance may acquire a missing joining member's complete
