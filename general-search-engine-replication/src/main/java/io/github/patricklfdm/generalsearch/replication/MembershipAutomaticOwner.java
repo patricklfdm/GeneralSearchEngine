@@ -15,7 +15,7 @@ final class MembershipAutomaticOwner implements AutoCloseable {
     interface Session extends AutoCloseable {
         Decoded start(long originalStarted)throws IOException;
         void idle()throws IOException;
-        void heartbeat()throws IOException;
+        MembershipHeartbeatRound.Contact heartbeat()throws IOException;
         Decoded readiness()throws IOException;
         Decoded submit(String kind,byte[] bytes)throws IOException;
         @Override void close()throws IOException;

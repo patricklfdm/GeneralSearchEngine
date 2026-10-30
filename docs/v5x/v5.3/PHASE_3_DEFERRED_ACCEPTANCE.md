@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Native automatic service](PHASE_3_AUTOMATIC_SERVICE.md) has one source-bound
+local whole-history pass, including original discovery, fresh barrier, scheduled
+heartbeat, queued DATA and close. Preserve its original trace and fixture gates
+when qualifying the final source. Failure-driven fresh campaigns, ungated native
+failover/restart, all profiles and complete process/negative matrices stay open.
+
 [Bounded automatic service ownership](PHASE_3_AUTOMATIC_OWNER.md) connects one
 automatic round to periodic heartbeat and queued commands. Scheduling/accounting
 tests and a native WAITING-close history pass. Run a complete native automatic

@@ -112,7 +112,7 @@ def heartbeat(root, rows, events):
         authorityWrites=False,readLease=False)
 
 
-def validate(root):
+def validate(root, *, discovery=False):
     root=Path(root);r.projection(root)
     b.selection.layout(root,{'initial','original-plan.gsbp','original-application.image','before-network','installed',
         'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json','wire.json',
@@ -129,7 +129,7 @@ def validate(root):
         for name in ('heartbeat-before','heartbeat-after'):shutil.rmtree(path/name)
         (path/'wire.json').write_bytes(f.canonical(other));(path/'events.json').write_bytes(f.canonical([v for v in events if not extension(v)]))
         observed=any(n.transfer.t.wire(row['request'])[1]['recipient']['node']=='node-3' for row in hb)
-        original=r.validate(path,rejection_check=lambda failures:unselected_rejections(failures,observed))
+        original=r.validate(path,discovery=discovery,rejection_check=lambda failures:unselected_rejections(failures,observed))
     sample=heartbeat(root,hb,events)
     return dict(status='PASS',scope='single-native-ready-round-heartbeat',original=original,heartbeat=sample,
         originalFirst=True,autonomousElection=False,publicRuntime=False,phase3Complete=False)
@@ -186,12 +186,14 @@ def mutate(root,name):
     (root/'wire.json').write_bytes(f.canonical(rows));(root/'events.json').write_bytes(f.canonical(events))
 
 
-def qualify(root):
-    root=Path(root);original=validate(root);negatives=[]
-    for name,reason in NEGATIVES.items():
+def qualify(root, *, discovery=False):
+    root=Path(root);original=validate(root,discovery=discovery);negatives=[]
+    cases=dict(NEGATIVES,**n.DISCOVERY_NEGATIVES) if discovery else NEGATIVES
+    for name,reason in cases.items():
         with tempfile.TemporaryDirectory(prefix='v53-heartbeat-round-negative-') as temp:
-            path=Path(temp)/'raw';shutil.copytree(root,path);mutate(path,name)
-            try:validate(path)
+            path=Path(temp)/'raw';shutil.copytree(root,path)
+            (n.mutate_discovery if name in n.DISCOVERY_NEGATIVES else mutate)(path,name)
+            try:validate(path,discovery=discovery)
             except ValueError as error:need(str(error)==reason,'heartbeat round unrelated negative '+name+': '+str(error))
             else:raise ValueError('heartbeat round accepted negative '+name)
         negatives.append(dict(case=name,status='REJECTED',reason=reason))
@@ -199,5 +201,5 @@ def qualify(root):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('root');p.add_argument('--qualify',action='store_true');a=p.parse_args()
-    print(json.dumps((qualify if a.qualify else validate)(a.root),sort_keys=True))
+    p=argparse.ArgumentParser();p.add_argument('root');p.add_argument('--qualify',action='store_true');p.add_argument('--discovery',action='store_true');a=p.parse_args()
+    print(json.dumps((qualify if a.qualify else validate)(a.root,discovery=a.discovery),sort_keys=True))

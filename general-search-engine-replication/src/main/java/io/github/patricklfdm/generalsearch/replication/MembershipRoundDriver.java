@@ -217,9 +217,14 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     /** Transfer serial invocation ownership to one private automatic control
      * loop. The caller must no longer invoke this driver directly. */
     synchronized MembershipAutomaticOwner automaticOwner(AutomaticLeadershipPolicy policy) {
+        return new MembershipAutomaticOwner(automaticSession(policy),resources,bounds,policy,clock,budget);
+    }
+    /** The same native adapter can be instrumented by whole-history tests;
+     * its returned heartbeat is diagnostic and never reused as readiness. */
+    synchronized MembershipAutomaticOwner.Session automaticSession(AutomaticLeadershipPolicy policy) {
         Objects.requireNonNull(policy);
         require(!closed && state==State.NEW && runner==null,"automatic owner requires unused round");
-        return new MembershipAutomaticOwner(new MembershipAutomaticOwner.Session() {
+        return new MembershipAutomaticOwner.Session() {
             public Decoded start(long began)throws IOException {
                 return startAutomatic(began,policy,(minimum,maximum)->ThreadLocalRandom.current().nextLong(minimum,maximum+1));
             }
@@ -229,11 +234,11 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
                     owner.checkActivationWait(authority,ballot);
                 }
             }
-            public void heartbeat()throws IOException {MembershipRoundDriver.this.heartbeat();}
+            public MembershipHeartbeatRound.Contact heartbeat()throws IOException {return MembershipRoundDriver.this.heartbeat();}
             public Decoded readiness()throws IOException {return MembershipRoundDriver.this.readiness();}
             public Decoded submit(String kind,byte[] payload)throws IOException {return MembershipRoundDriver.this.submit(kind,payload);}
             public void close()throws IOException {MembershipRoundDriver.this.close();}
-        },resources,bounds,policy,clock,budget);
+        };
     }
     private Decoded start(long originalStarted,boolean discover)throws IOException {
         return start(originalStarted,discover,null,null);

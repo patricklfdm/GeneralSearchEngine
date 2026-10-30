@@ -39,7 +39,10 @@ class V53AutomaticOwnerTest {
         Script()throws Exception{}
         public Decoded start(long began)throws IOException {originalStart=began;calls.add("start");if(holdStart!=null)await(holdStart);return answer;}
         public void idle(){if(stale.get())throw new IllegalArgumentException("higher original ballot");}
-        public void heartbeat()throws IOException {calls.add("heartbeat");enteredHeartbeat.countDown();if(holdHeartbeat!=null)await(holdHeartbeat);if(heartbeatFailure!=null)throw heartbeatFailure;}
+        public MembershipHeartbeatRound.Contact heartbeat()throws IOException {
+            calls.add("heartbeat");enteredHeartbeat.countDown();if(holdHeartbeat!=null)await(holdHeartbeat);if(heartbeatFailure!=null)throw heartbeatFailure;
+            return new MembershipHeartbeatRound.Contact(Set.of("node-1","node-2"),Map.of());
+        }
         public Decoded readiness(){calls.add("guard");idle();return answer;}
         public Decoded submit(String kind,byte[] bytes)throws IOException {
             calls.add(kind);enteredSubmit.countDown();if(holdSubmit!=null)await(holdSubmit);submitted=bytes.clone();

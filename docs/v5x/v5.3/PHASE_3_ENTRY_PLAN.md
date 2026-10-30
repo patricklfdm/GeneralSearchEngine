@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[One complete native automatic service history](PHASE_3_AUTOMATIC_SERVICE.md)
+now passes default-bound election wait, discovery, fresh barrier, scheduled
+heartbeat, queued DATA and close, with independent original replay and 23
+service/close negatives. This finite gated history does not close repeated
+campaigns, process failover or all profiles; Phase 3 remains **OPEN**.
+
 [Bounded automatic service ownership](PHASE_3_AUTOMATIC_OWNER.md) now serializes
 activation, periodic heartbeat and queued commands under one original lifetime.
 Fourteen focused checks cover scheduling, capacity and drain ownership; native
