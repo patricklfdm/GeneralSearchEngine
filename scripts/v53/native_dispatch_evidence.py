@@ -36,6 +36,32 @@ def prefix_transfers(reference, members, packet, local_members):
     return [first+images, first+received]
 
 
+def current_reference(capsule, scope):
+    return e.digest(f.canonical(dict(root=capsule['root'], cut=capsule['cut'], scope=scope)))
+
+
+def maintenance_prefixes(members, packet, local_members):
+    """The packet-only scope is complete only with every exact original image.
+
+    Read-only aliases are derived from the physically replayed remote cut, never
+    learned from a received offer. Retain the older whole-prefix representations
+    for historical evidence; a narrowed transfer cannot borrow missing bytes.
+    """
+    variants = prefix_transfers(e.digest(f.canonical(packet['capsule']['cut'])), members, packet, local_members)
+    if all(local_members.get(h+'.image') == members[h+'.image'] for h in packet['images']):
+        variants.append([(current_reference(packet['capsule'], 'retained-current-packet'), members['source.gscp'], 'CAPSULE')])
+    return variants
+
+
+def maintenance_generations(manifest, members, packet):
+    """Both export scopes must deliver the same complete original metadata."""
+    tail = [(e.digest(members['ancestry.gsr']), members['ancestry.gsr'], 'RECORD')] if 'ancestry.gsr' in members else []
+    tail += [(e.digest(value), value, 'RECORD') for key, value in sorted(members.items())
+             if key not in ('generation.gsr', 'source.gscp', 'ancestry.gsr') and not key.endswith('.image')]
+    return [[(current_reference(packet['capsule'], scope), manifest, 'RECORD')]+tail
+            for scope in ('retained-current-generation', 'retained-current-generation-metadata')]
+
+
 def activation_attempts(entries):
     """A repeated installation ACK may finish after an earlier socket expired.
 
@@ -165,6 +191,8 @@ def network(root, states, rounds, selection, identities, *, carried_first=False)
                 else: add(node, raw, 'APPLICATION' if name.endswith('.image') else 'RECORD')
             directory, members, packet = c.current(files)
             add(node, files[directory+'generation.gsr'], reference=e.digest(f.canonical(dict(root=selection['root'], cut=packet['capsule']['cut'], scope='retained-current-generation'))))
+            add(node, members['source.gscp'], 'CAPSULE', current_reference(packet['capsule'], 'retained-current-packet'))
+            add(node, files[directory+'generation.gsr'], reference=current_reference(packet['capsule'], 'retained-current-generation-metadata'))
             for _, raw, _ in c.journal(files['grants.gsr'], selection['root'], node): add(node, raw)
     for round in rounds:
         for node in VOTERS:
@@ -251,14 +279,10 @@ def network(root, states, rounds, selection, identities, *, carried_first=False)
             need(names.count('FLOOR_PARENT_FORCED') == names.count('PUBLICATION_SELECTOR_FORCED') == 1, 'native dispatch one floor/publication per slot')
             floor_at = next(i for i, ev in own if ev['event'] == 'FLOOR_PARENT_FORCED')
             peer = next(n for n in VOTERS if n != node); directory, members, packet = c.current(before[peer]); cap = packet['capsule']
-            source_reference = e.digest(f.canonical(cap['cut'])); generation_reference = e.digest(f.canonical(dict(root=cap['root'], cut=cap['cut'], scope='retained-current-generation')))
-            expected = [[(source_reference, members['source.gscp'], 'CAPSULE')],
-                        [(generation_reference, before[peer][directory+'generation.gsr'], 'RECORD')]]
-            if 'ancestry.gsr' in members: expected[1].append((e.digest(members['ancestry.gsr']), members['ancestry.gsr'], 'RECORD'))
-            expected[1] += [(e.digest(value), value, 'RECORD') for key, value in sorted(members.items()) if key not in ('generation.gsr','source.gscp','ancestry.gsr') and not key.endswith('.image')]
-            for position, objects in enumerate(expected):
-                matched = [t for t in transfers if t['sender'] == node and t['peer'] == peer and t['first'] == objects[0][0]]
-                allowed = prefix_transfers(source_reference, members, packet, c.current(before[node])[1]) if position == 0 else [objects]
+            for allowed in (maintenance_prefixes(members, packet, c.current(before[node])[1]),
+                            maintenance_generations(before[peer][directory+'generation.gsr'], members, packet)):
+                references = {objects[0][0] for objects in allowed}
+                matched = [t for t in transfers if t['sender'] == node and t['peer'] == peer and t['first'] in references]
                 need(len(matched) == 1 and matched[0]['objects'] in allowed and start < matched[0]['delivered'] < floor_at, 'native dispatch complete copies before floor')
         for kind, raw in [('ACCEPT',accept),('PROOF',proof),('APPLY',certificate),('FUTURE_RETENTION_INTENT',certificate),('PUBLISH',certificate)]:
             selected_rows = [v for v in controls[kind] if start < v[4] < stop]
@@ -347,6 +371,8 @@ NEGATIVES = {
     'wrong-quorum': 'native dispatch quorum before send',
     'premature-send': 'native dispatch quorum before send',
     'initialization': 'selected retention force order: native dispatch initialization',
+    'maintenance-packet-reference': 'native dispatch original transfer offer',
+    'maintenance-generation-reference': 'native dispatch original transfer offer',
 }
 
 
@@ -363,7 +389,22 @@ def mutate(root, name):
     if name == 'initialization':
         path = root/'calls.json'; value = read(path); value[0]['events'].remove('RETENTION_PARENT_FORCED'); path.write_text(json.dumps(value)); return
     path = root/'events.json'; events = read(path)
-    if name in ('source-bytes','missing-commit','reply-identity','control-ack'):
+    if name in ('maintenance-packet-reference', 'maintenance-generation-reference'):
+        _, _, packet = c.current(c.inventory(root/'installed/node-2')); cap = packet['capsule']
+        references = ({e.digest(f.canonical(cap['cut'])), current_reference(cap, 'retained-current-packet')}
+                      if name == 'maintenance-packet-reference' else
+                      {current_reference(cap, scope) for scope in ('retained-current-generation', 'retained-current-generation-metadata')})
+        wire_path = root/'wire.json'; rows = read(wire_path)
+        original = next(row['request'] for row in rows if transfer.t.wire(row['response'])[0] == 'SOURCE_OFFER'
+                        and transfer.t.wire(row['request'])[1]['payload']['digest'] in references)
+        kind, request = transfer.t.wire(original); request['payload']['digest'] = '0'*64
+        changed = f.encode('wire', kind, request); before = e.digest(base64.b64decode(original)); after = e.digest(changed)
+        for row in rows:
+            if row['request'] == original: row['request'] = base64.b64encode(changed).decode()
+        for event in events:
+            if event['event'] == 'WIRE_RESPONSE' and event['request'] == before: event['request'] = after
+        wire_path.write_text(json.dumps(rows))
+    elif name in ('source-bytes','missing-commit','reply-identity','control-ack'):
         wire_path = root/'wire.json'; rows = read(wire_path)
         wanted = {'source-bytes':'CHUNK', 'missing-commit':'TRANSFER_COMMIT', 'reply-identity':'PROMISE', 'control-ack':'ACCEPT_ACK'}[name]
         row = next(v for v in rows if transfer.t.wire(v['response'])[0] == wanted)

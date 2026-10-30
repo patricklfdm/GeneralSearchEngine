@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
+import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*;
 
 /** Native local storage with all three ledgers. This is not a network or timing gate. */
 class V53RetentionValidationTest {
@@ -51,5 +52,26 @@ class V53RetentionValidationTest {
             }
             assertEquals(0,f.resources.usage().leases());
         }
+    }
+    @Test void publicationRechecksOriginalGenerationAndAppliedEndOnEveryUse()throws Exception {
+        Path raw=Files.createDirectories(Path.of("target/v53-retention-validation/publication-"+UUID.randomUUID()));
+        var f=V53PendingPublicationTest.certified(Files.createDirectory(temp.resolve("publication")),raw,3,false);
+        var target=f.request.targets().getFirst();MembershipGrantJournal.Publication publication;
+        try(var owner=f.open(target,"publication-checks")) {
+            publication=owner.publication(owner.applyCurrent(builder().configuration(),target.materialization()));
+            assertFalse(publication.published());var usage=f.resources.usage();
+            for(String name:List.of("selector.gsr","grants.gsr","applied-end/ack.gsr","applied-end/application.image")) {
+                Path file=target.replicaDirectory().resolve(name);byte[] original=Files.readAllBytes(file),bad=original.clone();bad[bad.length-1]^=1;
+                try {
+                    Files.write(file,bad);assertThrows(Exception.class,publication::published,name);
+                    assertArrayEquals(bad,Files.readAllBytes(file),"validation must not repair original evidence");
+                }finally{Files.write(file,original);}
+                assertFalse(publication.published());assertEquals(usage,f.resources.usage());
+            }
+            var higher=new TreeMap<>(f.ballot);higher.put("counter",number(higher.get("counter"))+1);
+            owner.observeCurrent(higher);assertThrows(IllegalArgumentException.class,publication::published);
+        }finally{V53NativeApplicationTest.save(f);}
+        assertThrows(IllegalArgumentException.class,publication::published);
+        assertEquals(0,f.resources.usage().leases());
     }
 }

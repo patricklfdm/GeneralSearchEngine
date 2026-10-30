@@ -1,0 +1,605 @@
+{
+  "archive": {
+    "bytes": 11348840,
+    "directories": 1422,
+    "members": 9809,
+    "path": "target/v53-publication-checks/qualification.tar.gz",
+    "sha256": "df2754fafc2dfb162b312f12dab4d74274b4a6d4c8e366a50cbf13b0edc86480"
+  },
+  "baseCommit": "1cd8ce1623440ec36b2a62e3807bb0a3de3cb02d",
+  "executions": {
+    "publicationchecks": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublicationTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53RemotePublicationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53RetentionValidationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "publicationchecks",
+      "requestedTests": [
+        "V53RetentionValidationTest",
+        "V53CurrentGenerationTest",
+        "V53PendingPublicationTest#refusesCallerConstructedForeignAndPreviousOwnerApplications+applicationFileReplacementRevokesTheCapability+twoFreshProcessesRecoverTheSameTargetFromOriginalDiskOnly",
+        "V53RemotePublicationTest#higherBallotAfterPublicationForceSuppressesAckAndPreservesPublishedCut+actualCheckpointMinorityCannotPublishEvenWithARecordedFutureQuorum",
+        "V53RoundDriverTest#activationFreshBarrierAndSequentialDataHaveOneGuardedOwner"
+      ],
+      "seconds": 265.1665478520008,
+      "skipped": 0,
+      "tests": 17
+    }
+  },
+  "fullHistoryQualified": false,
+  "limits": [
+    "A local byte array is shared only within one serialized owner check.",
+    "Original files are checked again on later calls; no persistent validation cache.",
+    "The native test uses unchanged default RPC and round budgets.",
+    "Earlier JFR diagnostics differ in instrumentation and do not establish a speedup.",
+    "Complete source/adoption/election/joining/process qualification is still separate."
+  ],
+  "native-timing": {
+    "note": "Single local run with optional transport events; no JFR, no latency SLA or cross-run speedup claim.",
+    "publications": [
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 0.0
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 0.175008447
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 5.335565309
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 5.580874164
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "node": "node-2",
+            "seconds": 7.237892897
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "node": "node-1",
+            "seconds": 7.238133902
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "node": "node-2",
+            "seconds": 7.638697486
+          }
+        ],
+        "request": "e2347a214f40d233f38415bc184c1a7c7445cfcb64c8da568d06fb69b34dc362"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 0.0
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 0.179668014
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 5.446519266
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 5.751114623
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 10.78020282
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 11.0207328
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "node": "node-2",
+            "seconds": 11.155681771
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "node": "node-1",
+            "seconds": 11.155920988
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "node": "node-2",
+            "seconds": 11.536678713
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "node": "node-2",
+            "seconds": 11.630796083
+          }
+        ],
+        "request": "4605bcb20631f0c85b70f15c92f3bac87afe654170994ca8901924a08b8bba77"
+      }
+    ],
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/publicationchecks-bfcfb885/general-search-engine-replication/target/v53-native-dispatch/run-3f42a7e4-e7cf-467c-bb44-a759a4bb34f0",
+    "schema": "gse-v53-native-retention-timing-v1",
+    "source": "publicationchecks-bfcfb885",
+    "suites": {
+      "io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 9
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublicationTest": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 3
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53RemotePublicationTest": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 2
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53RetentionValidationTest": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 2
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 1
+      }
+    }
+  },
+  "original-reader-failure": {
+    "message": "native dispatch original transfer offer",
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/publicationchecks-bfcfb885/general-search-engine-replication/target/v53-native-dispatch/run-3f42a7e4-e7cf-467c-bb44-a759a4bb34f0",
+    "readerSha256": "03a756e18d6727f18a84140406e9308dd81b64e732cdc403739b1256d34803f6",
+    "stage": "original-replay",
+    "status": "FAIL",
+    "type": "ValueError"
+  },
+  "paidCloud": false,
+  "phase3Closed": false,
+  "readerSources": {
+    "scripts/v53/native_dispatch_evidence.py": "0ffc84540af5c133af9ff730c36851bcc77a2f0cf449fa13fd7e977ee826100e",
+    "scripts/v53/round_driver_evidence.py": "a1bad14d44ec3bd6ced3961e867c91587ffe9feeb72c5a3255ce8a64503731c1",
+    "scripts/v53/test_native_dispatch_evidence.py": "ee6c01c0c90504315e6e888251f1f7d0f04d05040a52488dc258edbec2268c55"
+  },
+  "round-qualification": {
+    "native": {
+      "negatives": [
+        {
+          "case": "extra-file",
+          "reason": "context selection native dispatch case inventory inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "original-selection",
+          "reason": "native dispatch original selection",
+          "status": "REJECTED"
+        },
+        {
+          "case": "installed-selector",
+          "reason": "admitted exact installed: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "old-generation",
+          "reason": "admitted exact applied-1: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "first-vote",
+          "reason": "admitted exact applied-1: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "second-vote",
+          "reason": "admitted exact applied-2: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "first-ack",
+          "reason": "admitted exact applied-1: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "second-ack",
+          "reason": "admitted exact applied-2: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "peer-observation",
+          "reason": "admitted exact applied-2: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "future-proof",
+          "reason": "admitted exact published-1: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-selector",
+          "reason": "admitted exact published-2: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unselected-change",
+          "reason": "admitted exact after-close: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "scope",
+          "reason": "native dispatch scope",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "native dispatch transfer exact data",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-commit",
+          "reason": "native dispatch transfer incomplete transcript",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reply-identity",
+          "reason": "native dispatch wire correlation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "control-ack",
+          "reason": "native dispatch exact control ACK",
+          "status": "REJECTED"
+        },
+        {
+          "case": "floor-force",
+          "reason": "selected retention force order: native dispatch slot 1 node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "premature-floor",
+          "reason": "native dispatch complete copies before floor",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-delivery",
+          "reason": "native dispatch transfer delivered",
+          "status": "REJECTED"
+        },
+        {
+          "case": "late-activation-delivery",
+          "reason": "native dispatch original activation delivery",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-quorum",
+          "reason": "native dispatch quorum before send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-quorum",
+          "reason": "native dispatch quorum before send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "premature-send",
+          "reason": "native dispatch quorum before send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "initialization",
+          "reason": "selected retention force order: native dispatch initialization",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "autonomous": false,
+        "phase3Complete": false,
+        "selected": 2,
+        "slots": 2,
+        "status": "PASS",
+        "transfers": 39
+      }
+    },
+    "round": {
+      "negatives": [
+        {
+          "case": "missing-ready",
+          "reason": "round exact lifecycle order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-ready",
+          "reason": "round exact lifecycle order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-ready-ack",
+          "reason": "round readiness after fresh publication",
+          "status": "REJECTED"
+        },
+        {
+          "case": "forged-completion",
+          "reason": "round original publication acknowledgement",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-result",
+          "reason": "round result scope",
+          "status": "REJECTED"
+        },
+        {
+          "case": "forged-selection",
+          "reason": "round installed original selection",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-parent",
+          "reason": "round exact slot entry",
+          "status": "REJECTED"
+        },
+        {
+          "case": "physical-selector",
+          "reason": "admitted exact published-2: node-1",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "internalReady": true,
+        "mode": "stable",
+        "original": {
+          "autonomous": false,
+          "phase3Complete": false,
+          "selected": 2,
+          "slots": 2,
+          "status": "PASS",
+          "transfers": 39
+        },
+        "phase3Complete": false,
+        "publicReady": false,
+        "slots": 2,
+        "status": "PASS"
+      }
+    }
+  },
+  "round-qualification-final": {
+    "native": {
+      "negatives": [
+        {
+          "case": "extra-file",
+          "reason": "context selection native dispatch case inventory inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "original-selection",
+          "reason": "native dispatch original selection",
+          "status": "REJECTED"
+        },
+        {
+          "case": "installed-selector",
+          "reason": "admitted exact installed: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "old-generation",
+          "reason": "admitted exact applied-1: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "first-vote",
+          "reason": "admitted exact applied-1: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "second-vote",
+          "reason": "admitted exact applied-2: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "first-ack",
+          "reason": "admitted exact applied-1: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "second-ack",
+          "reason": "admitted exact applied-2: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "peer-observation",
+          "reason": "admitted exact applied-2: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "future-proof",
+          "reason": "admitted exact published-1: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-selector",
+          "reason": "admitted exact published-2: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unselected-change",
+          "reason": "admitted exact after-close: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "scope",
+          "reason": "native dispatch scope",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "native dispatch transfer exact data",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-commit",
+          "reason": "native dispatch transfer incomplete transcript",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reply-identity",
+          "reason": "native dispatch wire correlation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "control-ack",
+          "reason": "native dispatch exact control ACK",
+          "status": "REJECTED"
+        },
+        {
+          "case": "floor-force",
+          "reason": "selected retention force order: native dispatch slot 1 node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "premature-floor",
+          "reason": "native dispatch complete copies before floor",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-delivery",
+          "reason": "native dispatch transfer delivered",
+          "status": "REJECTED"
+        },
+        {
+          "case": "late-activation-delivery",
+          "reason": "native dispatch original activation delivery",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-quorum",
+          "reason": "native dispatch quorum before send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-quorum",
+          "reason": "native dispatch quorum before send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "premature-send",
+          "reason": "native dispatch quorum before send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "initialization",
+          "reason": "selected retention force order: native dispatch initialization",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-packet-reference",
+          "reason": "native dispatch original transfer offer",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-generation-reference",
+          "reason": "native dispatch original transfer offer",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "autonomous": false,
+        "phase3Complete": false,
+        "selected": 2,
+        "slots": 2,
+        "status": "PASS",
+        "transfers": 39
+      }
+    },
+    "round": {
+      "negatives": [
+        {
+          "case": "missing-ready",
+          "reason": "round exact lifecycle order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-ready",
+          "reason": "round exact lifecycle order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-ready-ack",
+          "reason": "round readiness after fresh publication",
+          "status": "REJECTED"
+        },
+        {
+          "case": "forged-completion",
+          "reason": "round original publication acknowledgement",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-result",
+          "reason": "round result scope",
+          "status": "REJECTED"
+        },
+        {
+          "case": "forged-selection",
+          "reason": "round installed original selection",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-parent",
+          "reason": "round exact slot entry",
+          "status": "REJECTED"
+        },
+        {
+          "case": "physical-selector",
+          "reason": "admitted exact published-2: node-1",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "internalReady": true,
+        "mode": "stable",
+        "original": {
+          "autonomous": false,
+          "phase3Complete": false,
+          "selected": 2,
+          "slots": 2,
+          "status": "PASS",
+          "transfers": 39
+        },
+        "phase3Complete": false,
+        "publicReady": false,
+        "slots": 2,
+        "status": "PASS"
+      }
+    }
+  },
+  "schema": "gse-v53-publication-checks-v1",
+  "snapshots": {
+    "publicationchecks": "publicationchecks-bfcfb885"
+  },
+  "status": "PARTIAL"
+}

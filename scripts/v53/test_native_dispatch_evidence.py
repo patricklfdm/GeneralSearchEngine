@@ -42,6 +42,37 @@ class NativeDispatchEvidenceTest(unittest.TestCase):
                 original.assert_called_once_with('invalid-root')
                 mutations.assert_not_called()
 
+    def test_packet_only_maintenance_requires_every_original_local_image(self):
+        images = [b'original one', b'original two']
+        members = {'source.gscp': b'original packet', **{evidence.e.digest(raw)+'.image': raw for raw in images}}
+        packet = dict(capsule=dict(root='root-a', cut=dict(index=1, entry='entry-a')),
+                      images={evidence.e.digest(raw): len(raw) for raw in images})
+        reference = evidence.current_reference(packet['capsule'], 'retained-current-packet')
+        expected = [(reference, b'original packet', 'CAPSULE')]
+        for local in ({}, {evidence.e.digest(images[0])+'.image': images[0]},
+                      dict(members, **{evidence.e.digest(images[1])+'.image': b'wrong bytes'})):
+            self.assertNotIn(expected, evidence.maintenance_prefixes(members, packet, local))
+        self.assertIn(expected, evidence.maintenance_prefixes(members, packet, members))
+
+    def test_generation_metadata_alias_keeps_every_original_metadata_member(self):
+        members = {'source.gscp': b'packet', 'ancestry.gsr': b'ancestry', 'promise.gsr': b'promise',
+                   'selected.gsr': b'selected', 'application.image': b'image'}
+        packet = dict(capsule=dict(root='root-a', cut=dict(index=1, entry='entry-a')))
+        variants = evidence.maintenance_generations(b'manifest', members, packet)
+        self.assertEqual(2, len(variants))
+        self.assertNotEqual(variants[0][0][0], variants[1][0][0])
+        for records in variants:
+            self.assertEqual([b'manifest', b'ancestry', b'promise', b'selected'], [row[1] for row in records])
+            self.assertTrue(all(row[2]=='RECORD' for row in records))
+        self.assertEqual(variants[0][1:], variants[1][1:])
+
+    def test_current_lookup_aliases_are_bound_to_root_cut_and_export_scope(self):
+        cap = dict(root='root-a', cut=dict(index=1, entry='entry-a'))
+        packet = evidence.current_reference(cap, 'retained-current-packet')
+        for other in (dict(cap, root='root-b'), dict(cap, cut=dict(index=2, entry='entry-b'))):
+            self.assertNotEqual(packet, evidence.current_reference(other, 'retained-current-packet'))
+        self.assertNotEqual(packet, evidence.current_reference(cap, 'retained-current-generation-metadata'))
+
 
 if __name__ == '__main__':
     unittest.main()

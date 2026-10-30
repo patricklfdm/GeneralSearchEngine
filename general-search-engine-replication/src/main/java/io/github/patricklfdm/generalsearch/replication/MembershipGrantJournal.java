@@ -1997,7 +1997,13 @@ final class MembershipGrantJournal implements AutoCloseable {
             this.owner=owner;this.applied=applied;this.vote=vote;this.before=owner.current.capsule;
         }
         private void check()throws IOException {
-            owner.checkOwner();owner.applicationTransactionIdle();
+            owner.checkOwner();checkAfterOwner();
+        }
+        /** Only for a caller that just checked this owner under its monitor.
+         * No callback, mutation or asynchronous boundary may separate the checks. */
+        private void checkAfterOwner()throws IOException {
+            require(Thread.holdsLock(owner),"pending publication requires serialized owner check");
+            owner.applicationTransactionIdle();
             require(owner.ownedHistory && owner.current.capsule==before && owner.pendingAccept!=null && !owner.pendingAccept.pending()
                     && owner.pendingAccept.active()!=null && Arrays.equals(owner.pendingAccept.active().bytes(),vote.bytes()),
                     "pending publication original owner changed");
@@ -2139,7 +2145,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(current.publishedCertificate().filter(certificate::equals).isPresent()) {
                     require(current.capsule.terminal().equals(target),"publication scope target changed");return true;
                 }
-                require(pending!=null,"published acknowledgement generation changed");pending.check();return false;
+                require(pending!=null,"published acknowledgement generation changed");pending.checkAfterOwner();return false;
             }
         }
         void check()throws IOException {published();}
@@ -2503,8 +2509,6 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void checkWithoutFloor() throws IOException {
         checkBaseOwner();
-        if(current!=null)current.check();
-        if(inactive!=null)inactive.check();
         boolean peers=current!=null && peerRetention!=null && peerRetention.initialized();
         boolean learners=current!=null && learnerRetention!=null && learnerRetention.initialized();
         boolean futures=current!=null && futurePending();
@@ -2513,6 +2517,8 @@ final class MembershipGrantJournal implements AutoCloseable {
         // ancestry() still rechecks every original file before returning bytes.
         // Nothing is cached across owner checks, callbacks or protocol work.
         byte[] ancestry=peers || learners || futures?current.ancestry():null;
+        if(current!=null && ancestry==null)current.check();
+        if(inactive!=null)inactive.check();
         if(peers) {
             peerRetention.state().plan().required(current.capsule,ancestry);
             var intent=selectedRetentionIntent();

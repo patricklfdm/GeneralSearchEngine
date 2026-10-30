@@ -5,10 +5,11 @@ writer during idle response polling; work boundaries retain complete validation.
 This corrects a reproduced cancellation defect, not full native timing
 qualification. Phase 3 remains **OPEN**.
 
-Per-call ancestry reuse across retention checks has passed the focused corruption
-and recovery checks. The default-bound native publication still fails, with its
-original source and trace retained in the
-[validation note](PHASE_3_ACTIVATION_WAIT.md#reuse-within-one-retention-validation).
+Per-call ancestry/publication check reuse has passed 17 focused Java checks and
+the default-bound stable two-slot history, including original replay and 35 exact
+evidence negatives. The [validation note](PHASE_3_ACTIVATION_WAIT.md#coalesced-publication-owner-checks)
+retains the earlier failures and exact final-source scope. Whole joining histories,
+automatic elections and complete Phase 3 acceptance remain open.
 
 [Native early-start qualification](PHASE_3_NATIVE_JOINING_QUALIFICATION.md) now
 has a complete history entry that observes real TCP absence before starting old

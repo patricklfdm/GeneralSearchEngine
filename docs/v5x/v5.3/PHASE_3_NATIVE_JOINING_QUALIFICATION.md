@@ -100,6 +100,12 @@ second publication. The original trace and JFR profile are retained in the
 [publication diagnostic receipt](phase3-evidence/native-publication-profile.json);
 neither this diagnostic nor the earlier failed whole history qualifies Phase 3.
 
+A subsequent [publication owner-check correction](PHASE_3_ACTIVATION_WAIT.md#coalesced-publication-owner-checks)
+completed the default-bound stable two-slot history and its independent original
+replay, including 35 exact evidence negatives. This result is confined to that
+history and source; the longer early-start joining continuation and complete
+seven-profile/process qualification are still required.
+
 The original increment's source/archive hashes and focused checks are in
 [its historical receipt](phase3-evidence/joining-early-start.json); the later
 completed failed history is recorded separately above.

@@ -113,3 +113,55 @@ enable JFR, so its timing is not an equivalent before/after benchmark. The
 [source-bound receipt](phase3-evidence/retention-validation.json) retains both
 test executions and the full raw history. No full-history PASS is inferred and
 the failed history is not submitted to positive evidence qualification.
+
+## Coalesced publication owner checks
+
+The following increment also avoids checking the current generation immediately
+before calling `ancestry()`, which already performs that complete check. When
+no retention consumer needs ancestry, the explicit generation check still runs.
+The inactive generation and all retention obligations remain checked before the
+owner check returns.
+
+`Publication.published()` checks its owner under the journal monitor, validates
+the current publication certificate, then validates its pending native state.
+That last step can now reuse this invocation's already completed owner check.
+The private helper requires the same monitor and still verifies the exact vote,
+original promise/selection/selector, ballot fence, certificate, application parent
+and complete native applied end. Standalone pending-capability checks still start
+with a complete owner check. There is no reuse across calls, callbacks, mutations
+or asynchronous boundaries.
+
+The new publication regression changes original selector, grant journal,
+applied acknowledgement and image bytes between uses of the same handle. It
+requires rejection without repairing evidence, then checks restored originals,
+an observed higher ballot and a closed owner. Actual minority and post-force
+higher-ballot tests exercise the real network publication path as well.
+
+All 17 selected Java tests passed on `publicationchecks-bfcfb885`, including the
+unchanged default-bound stable TCP history and two independent JVM recoveries.
+The native history completed in 99.08 seconds (Surefire test time); the complete
+focused invocation including compilation took 265.167 seconds. Its first and
+second PUBLISH responses arrived 7.238 and 11.156 seconds after the respective
+first sends, using two and three identical attempts. This is one successful
+execution with existing retries, not a five-second first-attempt guarantee or
+a measured speedup across equivalent repeated samples.
+
+Original physical replay passed, then the network reader initially rejected the
+existing packet-only/metadata-only maintenance lookup aliases. Runtime source
+inspection confirmed those scopes; the reader now derives their references from
+the physically authenticated root/cut and requires exact original packet and
+metadata bytes. Packet-only completion additionally requires every original image
+in the receiver's preceding local generation. Historical whole-prefix transfers
+remain supported. No alias learned from a received offer grants authority, and
+no force, delivery or floor ordering check is removed.
+
+Replay of that unchanged successful raw history then passed both slots and all
+39 transfers, the original force/history checks and READY lifecycle. All 27 native
+and eight round evidence mutations were rejected with their exact reasons;
+the two added native mutations replace maintenance packet/generation references
+while preserving response-event correlation. Twelve Python tests pass. The
+[receipt](phase3-evidence/publication-checks.json) binds runtime source, current
+reader overlay, original reader failure, corrected replay and archive hashes.
+This closes the named stable two-slot execution/replay check on this source;
+automatic elections, joining continuation, all profiles and the complete Phase 3
+qualification remain open. Earlier failed executions remain retained unchanged.
