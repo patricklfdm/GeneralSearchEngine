@@ -1,0 +1,181 @@
+{
+  "archive": {
+    "bytes": 22427431,
+    "directories": 2297,
+    "members": 17900,
+    "path": "target/v53-retention-validation/qualification.tar.gz",
+    "sha256": "7a084cc207f6d811317c2fd4dfda22147a4be9ab197f21398cf70e8f4e739df2"
+  },
+  "baseCommit": "a69f93b3703c3a6a1d93b9924a5e20e6f7fe840c",
+  "executions": {
+    "retentionfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53RetentionValidationTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "retentionfinal",
+      "requestedTests": [
+        "V53RetentionValidationTest",
+        "V53RoundDriverTest#activationFreshBarrierAndSequentialDataHaveOneGuardedOwner"
+      ],
+      "seconds": 200.56975943299767,
+      "skipped": 0,
+      "tests": 2
+    },
+    "retentionvalidation": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CurrentGenerationTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53FutureRetentionTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerRetentionFilesTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53PublicationAncestryTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53RetentionValidationTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "retentionvalidation",
+      "requestedTests": [
+        "V53RetentionValidationTest",
+        "V53CurrentGenerationTest",
+        "V53FutureRetentionTest",
+        "V53LearnerRetentionFilesTest",
+        "V53PublicationAncestryTest"
+      ],
+      "seconds": 396.33517200099595,
+      "skipped": 0,
+      "tests": 24
+    }
+  },
+  "fullHistoryQualified": false,
+  "limits": [
+    "A local byte array is shared only within one serialized owner check.",
+    "Original files are checked again on later calls; no persistent validation cache.",
+    "The native test uses unchanged default RPC and round budgets.",
+    "Earlier JFR diagnostics differ in instrumentation and do not establish a speedup.",
+    "The initial new test incorrectly expected restored bytes to revive a poisoned ledger handle; corrected to require reopening."
+  ],
+  "native-timing": {
+    "note": "Single local run with optional transport events; no JFR, no latency SLA or cross-run speedup claim.",
+    "publications": [
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 0.0
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 0.204274209
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 5.337027474
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 5.629015157
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "node": "node-2",
+            "seconds": 8.914587657
+          },
+          {
+            "event": "BEFORE_RESPONSE_WRITE",
+            "node": "node-2",
+            "seconds": 8.998796853
+          },
+          {
+            "event": "AFTER_RESPONSE_READ",
+            "node": "node-1",
+            "seconds": 8.999098191
+          }
+        ],
+        "request": "e8411f7902a22d538f7e81fa371d6440a8226d84add633eb822968d762f904f0"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 0.0
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 0.194930856
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 5.53633727
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 5.980408968
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "node": "node-1",
+            "seconds": 10.920504779
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "node": "node-2",
+            "seconds": 11.268055391
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "failure": "java.io.IOException: activation endpoint closed",
+            "node": "node-2",
+            "seconds": 16.10933761
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "failure": "java.io.IOException: activation endpoint closed",
+            "node": "node-2",
+            "seconds": 16.10933699
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "failure": "java.io.IOException: activation endpoint closed",
+            "node": "node-2",
+            "seconds": 16.109337472
+          }
+        ],
+        "request": "798aaa95819c54de0de383c937b03fde6bddd7883aadf4279a28e6f140e5cab3"
+      }
+    ],
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/retentionfinal-5e0dd78f/general-search-engine-replication/target/v53-native-dispatch/run-626c7351-814e-4565-bf65-940da204732a",
+    "schema": "gse-v53-native-retention-timing-v1",
+    "source": "retentionfinal-5e0dd78f",
+    "suites": {
+      "io.github.patricklfdm.generalsearch.replication.V53RetentionValidationTest": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 1
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": {
+        "errors": 1,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 1
+      }
+    }
+  },
+  "paidCloud": false,
+  "phase3Closed": false,
+  "schema": "gse-v53-retention-validation-v1",
+  "snapshots": {
+    "retentionfinal": "retentionfinal-5e0dd78f",
+    "retentionvalidation": "retentionvalidation-1a8f1f43"
+  },
+  "status": "PARTIAL"
+}

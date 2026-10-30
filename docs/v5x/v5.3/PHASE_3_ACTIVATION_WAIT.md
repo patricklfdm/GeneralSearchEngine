@@ -80,3 +80,36 @@ the exact source, original trace, full JFR recording and retained member hashes.
 No workload was retried to obtain a green result. Further work must separate
 checkpoint collection from repeated integrity checks and preserve force,
 ownership, fencing and original-deadline guarantees before changing that path.
+
+## Reuse within one retention validation
+
+`MembershipGrantJournal.checkWithoutFloor` now reads the immutable current
+generation's ancestry once for its peer, learner and pending-future checks.
+Those consumers only validate bytes under the same serialized journal owner.
+The byte array is local to that invocation; it is not retained in the owner,
+returned as a capability or reused by a later request. `ancestry()` still checks
+the original generation, and the next owner check reads it again. Future-retention
+callers outside this combined check continue to obtain their own checked bytes.
+
+This removes duplicate reads, not a protocol stage. Checkpoint statements still
+collect original-owner endorsements serially, and selector publication, original
+authority checks, journal capacity, request retries and deadlines are unchanged.
+Validation results are recorded separately from the earlier profiled failure;
+reducing redundant work alone does not establish that the timeout is resolved.
+
+On this implementation, all 23 existing current-generation, learner-retention,
+future-retention and publication-ancestry tests passed. The added native-storage
+case corrupts ancestry, source, selector and each of the three ledgers after a
+successful owner check, requires rejection without a journal write, restores the
+bytes and reopens the owner. Its first version wrongly expected a poisoned ledger
+handle to recover without reopening; that test expectation was corrected. The
+corrected case passed with unchanged resource accounting, including deliberate
+continued refusal by each poisoned handle. Nine Python replay/contract tests pass.
+
+The separate default-bound stable TCP round still failed on its second PUBLISH.
+Its first PUBLISH delivered after 8.999 seconds; the second issued three identical
+requests and was closed at 16.109 seconds without a response. This run did not
+enable JFR, so its timing is not an equivalent before/after benchmark. The
+[source-bound receipt](phase3-evidence/retention-validation.json) retains both
+test executions and the full raw history. No full-history PASS is inferred and
+the failed history is not submitted to positive evidence qualification.

@@ -679,6 +679,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private boolean futurePending(){return futureRetention!=null && futureRetention.initialized() && futureRetention.state().pending();}
     private void verifyFutureRetention()throws IOException {
+        if(futurePending())verifyFutureRetention(current.ancestry());
+    }
+    private void verifyFutureRetention(byte[] ancestry)throws IOException {
         if(!futurePending())return;var state=futureRetention.state();var currentIndex=number(current.capsule.context.cut.get("index"));
         var parents=new ArrayList<MembershipCapsule.Anchor>();
         for(var peer:state.peers) {
@@ -705,7 +708,7 @@ final class MembershipGrantJournal implements AutoCloseable {
                 if(!coveredCapture){require(appliedEnd!=null,"future retention application owner unavailable");appliedEnd.retainedTarget(state);}
             }
         }
-        current.capsule.verifyAncestry(current.ancestry(),parents);
+        current.capsule.verifyAncestry(ancestry,parents);
         checkFutureEndpointCapacity(peerRetention.state().plan());
     }
     private void checkFutureEndpointCapacity(MembershipPeerRetentionPlan plan) {
@@ -2502,17 +2505,25 @@ final class MembershipGrantJournal implements AutoCloseable {
         checkBaseOwner();
         if(current!=null)current.check();
         if(inactive!=null)inactive.check();
-        if(current!=null && peerRetention!=null && peerRetention.initialized()) {
-            peerRetention.state().plan().required(current.capsule,current.ancestry());
+        boolean peers=current!=null && peerRetention!=null && peerRetention.initialized();
+        boolean learners=current!=null && learnerRetention!=null && learnerRetention.initialized();
+        boolean futures=current!=null && futurePending();
+        // These validations are read-only under the same journal owner. Read
+        // this exact immutable generation's ancestry once for this invocation;
+        // ancestry() still rechecks every original file before returning bytes.
+        // Nothing is cached across owner checks, callbacks or protocol work.
+        byte[] ancestry=peers || learners || futures?current.ancestry():null;
+        if(peers) {
+            peerRetention.state().plan().required(current.capsule,ancestry);
             var intent=selectedRetentionIntent();
             require(intent==null || !intent.needsCompletion(peerRetention.state()),"selected retention completion required");
         }
-        if(current!=null && learnerRetention!=null && learnerRetention.initialized()) {
-            learnerRetention.state().plan().required(current.capsule,current.ancestry());
+        if(learners) {
+            learnerRetention.state().plan().required(current.capsule,ancestry);
             var intent=selectedLearnerRetentionIntent();
             require(intent==null || !intent.needsCompletion(learnerRetention.state()),"selected learner completion required");
         }
-        if(current!=null && futureRetention!=null && futureRetention.initialized())verifyFutureRetention();
+        if(futures)verifyFutureRetention(ancestry);
     }
     private void checkWithoutRetirement() throws IOException {checkWithoutFloor();if(floors!=null)floors.check();}
     private void checkOwner() throws IOException {

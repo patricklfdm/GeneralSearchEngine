@@ -5,6 +5,11 @@ writer during idle response polling; work boundaries retain complete validation.
 This corrects a reproduced cancellation defect, not full native timing
 qualification. Phase 3 remains **OPEN**.
 
+The same [validation note](PHASE_3_ACTIVATION_WAIT.md#reuse-within-one-retention-validation)
+records per-call ancestry reuse across retention checks. Corruption and recovery
+checks pass, while the retained default-bound native publication still times out;
+this optimization does not close that open qualification.
+
 [Native early-start qualification](PHASE_3_NATIVE_JOINING_QUALIFICATION.md) now
 has a complete history entry that observes real TCP absence before starting old
 preparation, then continues through initialization, FINAL/BARRIER and cold reopen.
