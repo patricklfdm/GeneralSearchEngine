@@ -1,5 +1,23 @@
 # V5.3 Phase 3 contract amendments
 
+## A56 — joining retention follows an actual forced governing floor
+
+Read-only pre-grant maintenance may acquire a missing joining member's complete
+current generation before reconciling the old native ledger. Preserve its exact
+current generation, PROMISE/SELECTED and observed-ballot fences; do not grant a
+vote or waive pending-vote guards. Require unchanged old/new majorities plus the
+actual joining copy, prioritizing it within existing receiver capacity.
+
+Force the complete original governing floor first. Reconcile from those retained
+copies only after matching the local original generation. Preserve every old
+uncertain peer endpoint; use existing complete-copy observations for subsequent
+narrowing. No hint/control ACK or configured identity alone establishes an
+installed joining peer. Repeated identical reconciliation does not create a
+revision. Do not relax ordinary unused-genesis ledger initialization for the
+joined journal; that distinct initialization transaction remains required.
+No public bytes, resource limits or production timing limits change. See
+[joining maintenance](PHASE_3_JOINING_MAINTENANCE.md).
+
 ## A55 — exact configured-member progress after published INTENT
 
 A native owner may issue a private current-prefix permit for the exact original

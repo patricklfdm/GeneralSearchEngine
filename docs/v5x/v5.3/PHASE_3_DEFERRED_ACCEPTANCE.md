@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining maintenance](PHASE_3_JOINING_MAINTENANCE.md) now acquires the actual
+joining generation before reconciling an old owner's configuration, and requires
+a forced governing floor. New-owner ledger initialization and complete native
+joint continuation remain required; Phase 3 remains **OPEN**.
+
 [Ownership-preserving evidence snapshots](PHASE_3_EVIDENCE_SNAPSHOTS.md) correct
 a reproduced test-helper POSIX lock release. Independent JVM probes cover the
 helper; older continuous histories retain their original qualification limits.

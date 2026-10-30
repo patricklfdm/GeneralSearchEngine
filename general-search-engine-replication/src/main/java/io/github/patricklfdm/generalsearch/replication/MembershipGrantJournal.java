@@ -857,6 +857,23 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized MembershipPeerRetentionFiles.State reconcilePeerRetention(List<MembershipFloor.Copy> joining)throws IOException {
         var plan=peerRetentionState().plan();return retainPeerPlan(plan.reconcile(current.capsule,current.ancestry(),joining));
     }
+    synchronized Set<String> maintenanceJoiningPeers()throws IOException {
+        return peerRetentionState().plan().joining(current.capsule,current.ancestry());
+    }
+    /** The forced governing floor must own the exact joining generation before
+     * the old ledger can acquire its new identity. Hints and APPLY/PUBLISH ACKs
+     * cannot substitute for this complete current-copy observation. */
+    synchronized void reconcileMaintenancePeers()throws IOException {
+        var previous=peerRetentionState().plan();var added=previous.joining(current.capsule,current.ancestry());
+        require(floors!=null,"maintenance reconciliation requires floor owner");
+        var retained=floors.retained().orElseThrow(()->new IllegalArgumentException("maintenance reconciliation requires forced floor"));
+        var local=retained.copies().stream().filter(c->c.owner.equals(identity)).findFirst().orElseThrow();
+        require(local.generation.digest().equals(current.manifest.digest()) && local.capsule.terminal().equals(current.capsule.terminal()),
+                "maintenance reconciliation original generation changed");
+        var joining=retained.copies().stream().filter(c->added.contains(c.owner.nodeId().value())).toList();
+        var next=previous.reconcile(current.capsule,current.ancestry(),joining);
+        if(!Arrays.equals(previous.bytes(),next.bytes()))retainPeerPlan(next);
+    }
     /** A native grant captures the current governing view, not the preceding
      * publication's view. Preserve every remaining peer endpoint and force the
      * existing reconciliation transaction before freezing that new source.
@@ -2460,7 +2477,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     synchronized PublishedMaintenance publishedMaintenance(MembershipResources budget)throws IOException {
         require(resources==budget && publishedMaintenanceRequired(),"published maintenance requires clean owned generation");
-        rotationIdle();applicationReferencesIdle();reconcileKnownPeerConfiguration();
+        // Read-only maintenance may acquire the missing joining copy before a
+        // new grant. The ledger changes only after that governing floor forces.
+        rotationIdle();applicationReferencesIdle();
         var permit=new PublishedMaintenance();permit.check();return permit;
     }
     /** Candidates are only older durable promises that neither the current

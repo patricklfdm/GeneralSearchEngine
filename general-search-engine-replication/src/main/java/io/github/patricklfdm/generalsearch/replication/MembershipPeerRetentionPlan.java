@@ -204,6 +204,10 @@ final class MembershipPeerRetentionPlan {
     /** Reconcile only an already authenticated configuration transition. New voters
      * require their actual complete current materialization; proposed targets do not
      * enter this method. Removed identities leave only after stable FINAL. */
+    Set<String> joining(MembershipCapsule current,byte[] ancestry) {
+        context(current,ancestry,false);var added=new TreeSet<>(current.context.voters());added.removeAll(peers.keySet());
+        require(added.size()<=1,"peer retention joining identity capacity");return Collections.unmodifiableSet(added);
+    }
     MembershipPeerRetentionPlan reconcile(MembershipCapsule current,byte[] ancestry,List<MembershipFloor.Copy> joining) {
         context(current,ancestry,false);require(joining.size()<=1,"peer retention joining copy count");
         var wanted=current.context.voters();var removed=new HashSet<>(peers.keySet());removed.removeAll(wanted);

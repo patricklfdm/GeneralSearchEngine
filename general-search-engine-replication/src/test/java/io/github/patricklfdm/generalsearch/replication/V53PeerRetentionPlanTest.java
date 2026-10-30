@@ -62,8 +62,11 @@ class V53PeerRetentionPlanTest {
         for(int size:List.of(3,4,5)) {
             var initial=MembershipPeerRetentionPlan.genesis(capsule(size,0));var joint=capsule(size,6);var stable=capsule(size,7);
             var learner=copy(size,6,6);var retiring=V53DeclarationsTest.node(size);
+            assertEquals(Set.of(),initial.joining(capsule(size,5),new byte[0]));
+            assertEquals(Set.of("node-6"),initial.joining(joint,new byte[0]));
             assertThrows(IllegalArgumentException.class,()->initial.reconcile(joint,new byte[0],List.of()));
             var entered=initial.reconcile(joint,new byte[0],List.of(learner));
+            assertTrue(entered.joining(joint,new byte[0]).isEmpty());
             assertArrayEquals(entered.bytes(),MembershipPeerRetentionPlan.decode(entered.bytes()).bytes());
             assertEquals(List.of(0L),cuts(entered.possible(retiring)));assertEquals(List.of(6L),cuts(entered.possible(learner.owner)));
             assertThrows(IllegalArgumentException.class,()->entered.reconcile(capsule(size,0),new byte[0],List.of()));

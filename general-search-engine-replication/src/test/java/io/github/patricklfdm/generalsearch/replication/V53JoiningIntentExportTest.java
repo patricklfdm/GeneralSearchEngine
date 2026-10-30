@@ -74,6 +74,9 @@ class V53JoiningIntentExportTest {
     @Test void minimalOldMajorityPublicationInstallsActualJoiningNativeOwnerAndReopensIt()throws Exception {
         nativeJoining(true,true,true);
     }
+    @Test void actualJoiningCopyReconcilesTheOldLedgerOnlyAfterTheGoverningFloorForces()throws Exception {
+        nativeJoining(true,true,true,true);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
@@ -81,6 +84,9 @@ class V53JoiningIntentExportTest {
         nativeJoining(retainPending,publishJoint,false);
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined)throws Exception {
+        nativeJoining(retainPending,publishJoint,installJoined,false);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
         // The additional complete installation/cold-open scenario has one
         // declared owner lifetime from its start. Existing scenarios keep
@@ -93,6 +99,7 @@ class V53JoiningIntentExportTest {
             // This complete typed-learner history uses one declared
             // owner lifetime from its start, without extending any RPC timeout.
             n.transports.get(2).close();round.start();assertEquals(List.of(0,1),n.voters);
+            if(installJoined)probeOldLocks(n);
             int port;try(var socket=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){port=socket.getLocalPort();}
             var joining=new MembershipIdentity(new ReplicationNodeId("node-4"),UUID.randomUUID(),new ReplicationEndpoint("127.0.0.1",port));
             var targets=new ArrayList<MembershipIdentity>();n.f.request.targets().forEach(t->targets.add(t.identity()));targets.add(joining);
@@ -205,6 +212,7 @@ class V53JoiningIntentExportTest {
                                         Files.write(n.f.raw.resolve("joining-ack-wire.json"),canonical(ackWire,1024*1024));
                                         System.out.println("v53JoiningIntentStage=joint-published-by-old-majority");
                                         if(installJoined) {
+                                            probeOldLocks(n);
                                             // Consume the actual retained owner and native published
                                             // source. No fixture history, decoded replacement owner
                                             // or direct checkpoint insertion supplies this joining end.
@@ -270,6 +278,29 @@ class V53JoiningIntentExportTest {
                                                                 var journal=MembershipGrantJournal.openJoined(retired,builder().configuration(),config,e->{})) {
                                                             assertEquals(1,pool.usage().counts().get(MembershipResources.Unit.GENERATION));
                                                             assertFalse(pool.usage().counts().containsKey(MembershipResources.Unit.SOURCE));
+                                                            if(maintainJoined) {
+                                                                assertEquals(Set.of("node-4"),owner.maintenanceJoiningPeers());
+                                                                var beforePeers=owner.peerRetentionState();
+                                                                var permission=owner.publishedMaintenance(resources);permission.check();
+                                                                assertEquals(beforePeers,owner.peerRetentionState());
+                                                                assertThrows(IllegalArgumentException.class,owner::reconcileMaintenancePeers);
+                                                                assertEquals(beforePeers,owner.peerRetentionState());
+                                                                // Every copy comes from its actual still-open native
+                                                                // owner, including the newly installed joining root.
+                                                                owner.establishFloor(List.of(owner.floorCopyCurrent(),
+                                                                        n.owners.get(1).floorCopyCurrent(),journal.floorCopyCurrent()));
+                                                                permission.check();owner.reconcileMaintenancePeers();permission.check();
+                                                                assertTrue(owner.maintenanceJoiningPeers().isEmpty());
+                                                                var reconciled=owner.peerRetentionState();
+                                                                assertEquals(List.of(6L),reconciled.plan().possible(joining).stream().map(a->number(a.cut().get("index"))).toList());
+                                                                for(var old:n.f.request.targets())assertEquals(beforePeers.plan().possible(old.identity()),
+                                                                        reconciled.plan().possible(old.identity()),"adding a peer cannot erase old uncertainty");
+                                                                owner.reconcileMaintenancePeers();assertEquals(reconciled,owner.peerRetentionState());
+                                                                assertEquals(originalLedger,owner.learnerRetentionState());
+                                                                Files.write(n.f.raw.resolve("joining-floor-reconciled.json"),reconciled.plan().bytes());
+                                                                probeOldLocks(n);
+                                                                System.out.println("v53JoiningIntentStage=actual-joining-floor-reconciled");
+                                                            }
                                                             nativeCounter=journal.reserveCounter();nativeBasis=journal.prepareCurrent(Map.of("counter",nativeCounter,
                                                                     "proposer",joining.nodeId().value(),"incarnation",joining.storageId().toString()));
                                                             assertEquals("BASIS",nativeBasis.kind());assertEquals("node-4",nativeBasis.value().get("voter"));
@@ -296,13 +327,18 @@ class V53JoiningIntentExportTest {
                             if(!publishJoint)guardChecks(n,request,first);
                             Files.write(n.f.raw.resolve("joining-intent-wire.json"),canonical(wire,8*1024*1024));
                             Files.write(n.f.raw.resolve("joining-intent-result.json"),canonical(Map.of("status","PASS","oldVoters",List.of("node-1","node-2"),
-                                    "nativeHistory",true,"typedLearner",true,"newSideEndForced",retainPending,"publishedJoint",publishJoint,"nativeJoined",installJoined,"publicReady",false),4096));
+                                    "nativeHistory",true,"typedLearner",true,"newSideEndForced",retainPending,"publishedJoint",publishJoint,"nativeJoined",installJoined,
+                                    "joinedFloorReconciled",maintainJoined,"publicReady",false),4096));
                         }
                     }
                 }
             }
             assertEquals(0,pool.usage().leases());
         }
+    }
+    private static void probeOldLocks(V53NativeDispatchTest.Network n)throws Exception {
+        new V53MembershipOwnershipTest().probe(n.f.request.targets().stream()
+                .map(t->t.replicaDirectory().resolve("replica.lock")).toArray(Path[]::new));
     }
     /** Retain actual predecessor/native files for later independent replay.
      * Shared read descriptors preserve live POSIX ownership during capture. */

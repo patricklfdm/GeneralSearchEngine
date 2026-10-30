@@ -66,19 +66,25 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     private void release(MembershipSourcePull work)throws IOException {
         if(work==null)return;try{work.close();}finally{synchronized(this){pulls.remove(work);}}
     }
+    static List<String> copyOrder(MembershipContext context,Set<String> joining) {
+        require(joining.size()<=1 && context.voters().containsAll(joining),"maintenance joining identities");
+        return context.voters().stream().sorted(Comparator.<String,Boolean>comparing(n->!joining.contains(n))
+                .thenComparing(Comparator.naturalOrder())).toList();
+    }
     void run()throws IOException {
         synchronized(this){require(!used && !closed,"native maintenance single use/closed");used=true;}
         check();if(!owner.nativeGenerationMaintenanceRequired())return;
         var own=owner.floorCopyCurrent();var copies=new ArrayList<MembershipFloor.Copy>();copies.add(own);
         var receiving=new HashMap<String,List<MembershipSourcePull>>();
         var voters=new TreeSet<String>();voters.add(own.owner.nodeId().value());
+        var joining=owner.maintenanceJoiningPeers();
         // The complete copies at this floor share the exact current application.
         // Borrow its live physical bytes instead of creating one receiving image
         // per remote copy in addition to the separately accounted floor images.
         try(var images=owner.exportPrefix(MembershipContext.cutDigest(context.cut),ballot,
                 context.authority(),resources,clock,started,budget)) {
-        for(String node:new TreeSet<>(context.voters())) {
-            if(quorum(voters))break;if(voters.contains(node))continue;check();
+        for(String node:copyOrder(context,joining)) {
+            if(quorum(voters) && voters.containsAll(joining))break;if(voters.contains(node))continue;check();
             MembershipSourcePull source=null,generation=null;boolean retain=false;
             try {
                 var hint=discover(context.identities.get(node));check();
@@ -93,12 +99,14 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
             }finally{if(!retain){try{release(generation);}finally{release(source);}}}
         }
         check();require(quorum(voters),"native generation maintenance quorum unavailable");
+        require(voters.containsAll(joining),"native generation maintenance joining copy unavailable");
         owner.establishFloor(copies,copy->{
             // Only this exact complete replacement has been forced, including
             // directory parents. Delete its receiving scratch before reserving
             // another copy; never release an original source or image here.
             for(var work:receiving.getOrDefault(copy.generation.digest(),List.of()))release(work);
         });check();
+        owner.reconcileMaintenancePeers();check();
         // Only these complete original copies can rule out an earlier remote
         // possibility. A publication ACK or STATUS hint cannot narrow the ledger.
         for(var copy:copies){owner.retainPeerObservation(copy);check();}
