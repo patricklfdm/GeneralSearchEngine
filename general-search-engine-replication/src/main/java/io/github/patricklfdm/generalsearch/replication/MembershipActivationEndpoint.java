@@ -240,6 +240,9 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
         require(campaign.ownSource().owner.equals(owner.activationIdentity()),"activation endpoint foreign campaign");
         var active=enter(campaign.ownSource().capsule,campaign.ballot(),campaign.started(),Math.min(budget,campaign.budget()));
         active.granted();
+        // The newly forced promise may make an intermediate source obsolete.
+        // Reclaim it while only the current generation occupies image capacity.
+        if(nativeHistory)active.maintain(true);
     }
     /** Revoke only the outgoing owner's failed round, never an intervening peer scope. */
     void abandon(Map<String,Object> ballot) {
@@ -308,6 +311,10 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                         });
                         active.check();if(nativeHistory)active.maintain(true);
                         active.check();response=MembershipActivation.prepare(owner,sender,request,promise).response();active.granted();
+                        // Complete same-cut retirement before advertising this
+                        // grant. All selected receivers must finish PREPARE
+                        // before any installation can replace a source generation.
+                        if(nativeHistory)active.maintain(true);
                     }
                 } else if(request.kind().equals("SELECTED")) {
                     Path destination=scratch.resolve("selected-"+UUID.randomUUID());

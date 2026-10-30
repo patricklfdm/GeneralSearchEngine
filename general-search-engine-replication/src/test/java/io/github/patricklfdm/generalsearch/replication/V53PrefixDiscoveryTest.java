@@ -226,6 +226,16 @@ class V53PrefixDiscoveryTest {
             }
         }
     }
+    @Test void packetOnlyBorrowRefusesMissingLocalImagesAndReleasesScratch()throws Exception {
+        try(var l=local(new AtomicLong())) {
+            var owner=l.owners.getFirst();var budget=l.budgets.getFirst();var before=budget.usage();var state=owner.discoveryState(budget);
+            var scratch=temp.resolve("missing-borrow");
+            try(var missing=owner.exportPrefix(MembershipPrefixExport.packetReference(state.context()),state.ballot(),state.context().authority(),budget,()->0L,0,BUDGET);
+                var pull=pull(l)){assertEquals("borrowed prefix requires every original image",
+                    assertThrows(MembershipSourcePull.MissingBorrowedImages.class,()->pull.fetchBorrowedPrefix(scratch,missing)).getMessage());}
+            assertFalse(Files.exists(scratch));assertEquals(before,l.budgets.getFirst().usage());
+        }
+    }
     @Test void readOnlySessionRejectsChangedRootIdentityViewBallotAndTrace()throws Exception {
         try(var l=local(new AtomicLong())) {
             var owner=l.owners.get(1);var state=owner.discoveryState(l.budgets.get(1));var reader=l.group.identities.getFirst();

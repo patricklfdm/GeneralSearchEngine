@@ -14,6 +14,30 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
  * changes. No intermediate store reset or synthetic remote vote observations. */
 class V53ContinuousTransitionTest {
     @TempDir Path temp;
+    @Test void sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies()throws Exception {
+        var helper=new V53NativeDispatchTest();helper.temp=temp;
+        try(var n=helper.new Network()) {
+            var own=n.owners.getFirst();var identity=own.activationIdentity();
+            var ballot=new TreeMap<String,Object>(Map.of("counter",own.reserveCounter(),"proposer",identity.nodeId().value(),
+                    "incarnation",identity.storageId().toString()));
+            var first=own.prepareCurrent(ballot);assertFalse(own.publishedMaintenanceRequired());
+            ballot.put("counter",own.reserveCounter());own.observeCurrent(ballot);
+            assertFalse(own.publishedMaintenanceRequired(),"an observed ballot is not durable retirement authority");
+            var latest=own.prepareCurrent(ballot);var before=V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory());
+            assertTrue(own.publishedMaintenanceRequired());assertFalse(own.nativeGenerationMaintenanceRequired());
+            assertEquals(before,V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory()));
+            var permit=own.publishedMaintenance(n.resources.getFirst());
+            assertThrows(IllegalArgumentException.class,()->own.supersededPublishedSources(permit));
+            own.establishFloor(List.of(own.floorCopyCurrent(),n.owners.get(1).floorCopyCurrent()));
+            var obsolete=own.supersededPublishedSources(permit);
+            assertEquals(List.of(first.value().get("basisId")),obsolete);
+            own.retireSource(obsolete.getFirst());permit.check();own.releaseFloor();
+            assertArrayEquals(latest.bytes(),own.originalBasis().orElseThrow().bytes());
+            assertFalse(own.publishedMaintenanceRequired());
+            assertFalse(Files.exists(n.f.request.targets().getFirst().replicaDirectory().resolve("sources/"+first.value().get("basisId"))));
+            assertEquals(1,n.resources.getFirst().usage().counts().get(MembershipResources.Unit.SOURCE));
+        }
+    }
     @Test void closeDuringPreGrantMaintenanceCannotPublishANewPromise()throws Exception {
         preGrantInterrupted(false);
     }

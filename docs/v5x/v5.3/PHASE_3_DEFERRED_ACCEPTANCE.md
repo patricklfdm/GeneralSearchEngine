@@ -1,5 +1,16 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Actual joining continuation](PHASE_3_JOINING_CONTINUATION.md) now has a native
+component history: permanent node-4 joins nodes 1 and 2 while old node-3 remains
+offline, then the round driver publishes FINAL, activates the stable view and
+publishes a fresh BARRIER. The original new directory cold-reopens at cut 8.
+Earlier failures exposed excess source-image retention and incomplete export
+lifetimes; both remain retained with their source snapshots. A subsequent
+missing-local-image fallback has separate focused validation; its final-source
+whole-history run remains queued for hosted acceptance. Phase 3 remains **OPEN**;
+automatic seed acquisition, coordinator wiring and full physical/process-death
+qualification are still required. Earlier paragraphs retain historical scope.
+
 [Durable joining initialization](PHASE_3_JOINING_RETENTION_INIT.md) now forces
 an original seed, three retention ledgers and a bound completion marker. The
 retaining cold entry refuses lost originals; interrupted initialization blocks

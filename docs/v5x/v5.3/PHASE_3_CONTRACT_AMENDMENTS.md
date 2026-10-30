@@ -1,5 +1,26 @@
 # V5.3 Phase 3 contract amendments
 
+## A59 — retire obsolete same-cut sources before a new installation
+
+A durable newer PROMISE, a settled exact current cut and no current manifest
+reference may request source maintenance even when no inactive generation
+exists. This is only a scheduling predicate. Acquire and force the original
+governing floor, then use the unchanged retirement and journal replacement
+checks; never delete from a hint, observed ballot or decoded metadata alone.
+Do this under the original endpoint scope before installation can add another
+application image. Current/latest sources, pending votes and their carried
+recovery path remain protected. Source/image counts and timing limits do not
+change. PREPARE must finish the sweep before replying so selected installations
+cannot revoke another receiver's maintenance source. Packet-only and generation
+metadata aliases use existing wire frames and finish at their exact last commit;
+borrowed image completeness and ordinary full-content aliases remain enforced.
+Only a completed narrow probe with missing local images may fall back once to
+the full prefix under the same original deadline/fence. Missing images are
+stored normally; borrowed image bytes are streamed, hashed and committed
+without another disk reservation, so the full export also finishes. Other
+errors retain the existing bounded retry/rejection policy.
+See [actual joining continuation](PHASE_3_JOINING_CONTINUATION.md).
+
 ## A58 — durable three-ledger initialization for the actual joining owner
 
 Force the exact original seed before writing any joining ledger; force peer,

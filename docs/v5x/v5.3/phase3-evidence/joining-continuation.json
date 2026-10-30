@@ -1,0 +1,834 @@
+{
+  "actualJoiningVoter": "node-4",
+  "archive": {
+    "bytes": 33672446,
+    "path": "target/v53-joining-continuation/component-validation.tar.gz",
+    "sha256": "ca4da5eb9c7feb0f3e5aa57ed154a74072ae140e491c3c86a3be9b05febc3053"
+  },
+  "automaticCoordinatorConnected": false,
+  "automaticFinal": true,
+  "automaticSeedAcquisition": false,
+  "baseCommit": "7399236e9170aa8dd81fbd501639b877fe5447be",
+  "changedDocumentLinks": 431,
+  "codeAndBuildInputsChecked": 1747,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1550,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "evidenceNegatives": 5,
+  "executions": {
+    "joiningcontinuationbaseline": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joiningcontinuationbaseline",
+      "requestedTests": [
+        "V53ContinuousTransitionTest#sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies"
+      ],
+      "seconds": 23.54102965698985,
+      "skipped": 0,
+      "tests": 1
+    },
+    "joiningcontinuationcomplete": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyFaultTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest": 17,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest": 16
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningcontinuationcomplete",
+      "requestedTests": [
+        "V53FloorFilesTest",
+        "V53SourceRetirementPlanTest",
+        "V53TransferServiceTest",
+        "V53PrefixDiscoveryTest",
+        "V53GenerationCopyFaultTest",
+        "V53ContinuousTransitionTest#closeDuringPreGrantMaintenanceCannotPublishANewPromise+higherBallotDuringPreGrantMaintenanceCannotPublishANewPromise+preGrantMaintenanceCannotBorrowPendingVoteAuthority+preGrantMaintenanceRetainsTheOriginalObservedFence",
+        "V53GenerationCopyTest",
+        "V53ContinuousTransitionTest#sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies"
+      ],
+      "seconds": 356.3596097660047,
+      "skipped": 0,
+      "tests": 68
+    },
+    "joiningcontinuationexports": {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "joiningcontinuationexports",
+      "requestedTests": [
+        "V53GenerationCopyTest",
+        "V53PrefixDiscoveryTest#packetOnlyBorrowRefusesMissingLocalImagesAndReleasesScratch",
+        "V53ContinuousTransitionTest#sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies"
+      ],
+      "seconds": 13.698065377990133,
+      "skipped": 0,
+      "tests": 0
+    },
+    "joiningcontinuationfocused": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningcontinuationfocused",
+      "requestedTests": [
+        "V53GenerationCopyTest",
+        "V53PrefixDiscoveryTest#packetOnlyBorrowRefusesMissingLocalImagesAndReleasesScratch",
+        "V53ContinuousTransitionTest#sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies"
+      ],
+      "seconds": 38.65643244299281,
+      "skipped": 0,
+      "tests": 5
+    },
+    "joiningcontinuationnativefinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningcontinuationnativefinal",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#actualJoiningVoterCompletesJointFinalAndFreshStableBarrier",
+        "V53ContinuousTransitionTest#sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies",
+        "V53GenerationCopyTest",
+        "V53PrefixDiscoveryTest#packetOnlyBorrowRefusesMissingLocalImagesAndReleasesScratch"
+      ],
+      "seconds": 1658.9843495030073,
+      "skipped": 0,
+      "tests": 6
+    },
+    "joiningcontinuationrun": {
+      "classes": {},
+      "exit": 1,
+      "failures": 0,
+      "label": "joiningcontinuationrun",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#actualJoiningVoterCompletesJointFinalAndFreshStableBarrier"
+      ],
+      "seconds": 12.639456261997111,
+      "skipped": 0,
+      "tests": 0
+    },
+    "joiningcontinuationsweep": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joiningcontinuationsweep",
+      "requestedTests": [
+        "V53ContinuousTransitionTest#sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies",
+        "V53JoiningIntentExportTest#actualJoiningVoterCompletesJointFinalAndFreshStableBarrier"
+      ],
+      "seconds": 918.2145861770114,
+      "skipped": 0,
+      "tests": 2
+    },
+    "joiningcontinuationverified": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joiningcontinuationverified",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#actualJoiningVoterCompletesJointFinalAndFreshStableBarrier"
+      ],
+      "seconds": 849.2472973179974,
+      "skipped": 0,
+      "tests": 1
+    }
+  },
+  "failedRunsPreserved": [
+    "joiningcontinuationrun: diagnostic assignment compile error before tests",
+    "joiningcontinuationverified: installed joint cut 6 then seven-image capacity rejected floor image eight; no FINAL published",
+    "joiningcontinuationsweep: direct sweep regression passed; native SELECTED-stage maintenance raced with peer installation and retained unused prefix exports",
+    "joiningcontinuationexports: sealed image-borrow interface correctly rejected an anonymous test double at compile time; replaced with an actual packet-only export"
+  ],
+  "finalSourceNativeHistoryQualified": false,
+  "freshStableActivationAndBarrier": true,
+  "joiningNativeProcessLockProbe": true,
+  "nativeEvidenceSourceSnapshot": "joiningcontinuationnativefinal",
+  "nativeInventory": {
+    "files": 1359,
+    "path": "target/v53-joining-continuation/native-inventory.json",
+    "sha256": "c86e89b78c2d9e6bc7e1dfc624b18840ee1724c45979a190bead7ae7fb0d690e"
+  },
+  "nativeJointSelection": true,
+  "offlineOldVoter": "node-3",
+  "oldVoterPhysicalLockExclusion": true,
+  "originalPhysicalReplay": false,
+  "originalReplay": {
+    "negatives": [
+      {
+        "case": "early-ready",
+        "reason": "continuation lifecycle",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-selected",
+        "reason": "selection absent from original journal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-ballot",
+        "reason": "continuation exact entry and ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-ready",
+        "reason": "readiness requires fresh stable barrier",
+        "status": "REJECTED"
+      },
+      {
+        "case": "public-ready",
+        "reason": "continuation declared scope",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "finalIndex": 7,
+      "jointCut": 6,
+      "offlineOldVoter": "node-3",
+      "originalJournalRecords": {
+        "node-1": 6,
+        "node-2": 6,
+        "node-4": 6
+      },
+      "phase3Complete": false,
+      "physicalHistoryQualification": false,
+      "publicReady": false,
+      "selections": 2,
+      "stableBarrier": 8,
+      "status": "PASS_JOINING_CONTINUATION_COMPONENT",
+      "voters": [
+        "node-1",
+        "node-2",
+        "node-4"
+      ]
+    }
+  },
+  "paidCloud": false,
+  "passingTests": 68,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "productionTimingLimitsChanged": false,
+  "publicFormatsChanged": false,
+  "publicReady": false,
+  "publicResourceLimitsChanged": false,
+  "qualificationBoundary": "Component native ADD 3-to-4 history with node-3 offline, explicit seed acquisition from original old owners, actual joined-retaining cold owner and native TCP serving, round-driven FINAL/stable activation/BARRIER, source-bound original-byte replay on the explicitly recorded native snapshot. Later missing-image fallback is checked by focused final-source tests; the final-source native history is deferred. This is not public service or complete physical/history/process-death qualification.",
+  "reports": {
+    "joiningcontinuationbaseline": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "name": "sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies",
+        "outcome": "FAIL",
+        "seconds": "6.836"
+      }
+    ],
+    "joiningcontinuationcomplete": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "receiverRejectsLateReplyAfterFencingOrDeadline",
+        "outcome": "PASS",
+        "seconds": "6.3"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "readOnlySessionRejectsChangedRootIdentityViewBallotAndTrace",
+        "outcome": "PASS",
+        "seconds": "2.733"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "untrustedHintAndSubstitutedVerifierCannotBecomeAuthority",
+        "outcome": "PASS",
+        "seconds": "2.969"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "exportRevokesOnSelectorChangeInsteadOfBlockingAdoption",
+        "outcome": "PASS",
+        "seconds": "0.237"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "scratchMutationAndCorruptTransferAreRejectedAndCleaned",
+        "outcome": "PASS",
+        "seconds": "3.05"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "removedOldViewReaderFetchesActualAdoptedJointAndFinalPrefix",
+        "outcome": "PASS",
+        "seconds": "0.87"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "borrowedCurrentImageRejectsEqualBytesAtAReplacedInode",
+        "outcome": "PASS",
+        "seconds": "2.796"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "lostOfferDataAndCommitResponsesRetryIdenticalBytesWithoutAnotherGrant",
+        "outcome": "PASS",
+        "seconds": "2.977"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "prefixImagesAreBorrowedWithoutReceivingDuplicatesAndExpireWithTheirOwner",
+        "outcome": "PASS",
+        "seconds": "2.964"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "exportRejectsReplacedFileAndOwnerClose",
+        "outcome": "PASS",
+        "seconds": "2.749"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "boundedExportsExpireAndReleaseWithoutHoldingAnObsoleteGeneration",
+        "outcome": "PASS",
+        "seconds": "2.721"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "transientFailureStopsAtThreeExactAttempts",
+        "outcome": "PASS",
+        "seconds": "2.713"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "realTcpFetchesCompletePublishedPrefixesWithoutGrantAtEveryStableSize",
+        "outcome": "PASS",
+        "seconds": "69.026"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "exportExpiresAfterWaitingForWriterAndRejectsWrongSharedBudget",
+        "outcome": "PASS",
+        "seconds": "2.699"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "packetOnlyBorrowRefusesMissingLocalImagesAndReleasesScratch",
+        "outcome": "PASS",
+        "seconds": "2.847"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "permanentFailuresAndExplicitRejectsAreNotRetried",
+        "outcome": "PASS",
+        "seconds": "2.796"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "cancelledPullCancelsPendingExchangeAndReleasesReservations",
+        "outcome": "PASS",
+        "seconds": "2.832"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "allSevenOriginalKindsAreResolvedWithoutCallerSuppliedType",
+        "outcome": "PASS",
+        "seconds": "1.845"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "realTcpRoutesWholeSourceAndSeparateRecordWithoutPreRegisteredSessions",
+        "outcome": "PASS",
+        "seconds": "15.696"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "lostRepliesReuseTheAutomaticallyOpenedSessionAndExactRequest",
+        "outcome": "PASS",
+        "seconds": "3.265"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "partialMultiContentCommitStillAllowsTheNextOriginalContent",
+        "outcome": "PASS",
+        "seconds": "3.125"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "peerConcurrencyIsBoundedAndAnotherPeerProgressesWhileFirstIsDelayed",
+        "outcome": "PASS",
+        "seconds": "3.059"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "unknownReferenceCreatesOnlyATombstoneAndChangedRetryCannotResample",
+        "outcome": "PASS",
+        "seconds": "3.067"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "delayAfterAdmissionDoesNotRenewTheBudgetOrReturnALateReply",
+        "outcome": "PASS",
+        "seconds": "2.928"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "sharedControlExhaustionRejectsBeforeTraceAndReturnsOnClose",
+        "outcome": "PASS",
+        "seconds": "3.024"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "completedOriginalRecordsLeaveOneBoundedReplayMarkerPerTrace",
+        "outcome": "PASS",
+        "seconds": "5.103"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "completedReplayCannotBeReboundOrRevivedAfterFencing",
+        "outcome": "PASS",
+        "seconds": "12.45"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "closeDuringAdmittedRequestReleasesResourcesAndCannotReopenTheTrace",
+        "outcome": "PASS",
+        "seconds": "2.937"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "wrongContextIdentitySequenceAndNonRequestDoNotAllocateTraces",
+        "outcome": "PASS",
+        "seconds": "3.038"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "publishedPacketReferencesResolveAfterPendingVotesAreRetired",
+        "outcome": "PASS",
+        "seconds": "16.151"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "lostFinalReplyReplaysTheCompletedCacheWithoutNewExport",
+        "outcome": "PASS",
+        "seconds": "3.028"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "originalDeadlinePollAndFencingReleaseEverythingWithoutRevival",
+        "outcome": "PASS",
+        "seconds": "8.841"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+        "name": "exactDuplicatesKeepOneSessionWhileFailedTraceCannotReopen",
+        "outcome": "PASS",
+        "seconds": "2.948"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "name": "preGrantMaintenanceCannotBorrowPendingVoteAuthority",
+        "outcome": "PASS",
+        "seconds": "19.316"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "name": "higherBallotDuringPreGrantMaintenanceCannotPublishANewPromise",
+        "outcome": "PASS",
+        "seconds": "13.397"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "name": "sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies",
+        "outcome": "PASS",
+        "seconds": "5.336"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "name": "closeDuringPreGrantMaintenanceCannotPublishANewPromise",
+        "outcome": "PASS",
+        "seconds": "15.847"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "name": "preGrantMaintenanceRetainsTheOriginalObservedFence",
+        "outcome": "PASS",
+        "seconds": "15.188"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "exactPlanPreservesAllFilesAcrossSizesAndGoverningViews",
+        "outcome": "PASS",
+        "seconds": "4.453"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "journalCandidateRemovesOnlyTheObsoleteOriginalGroupWithoutWriting",
+        "outcome": "PASS",
+        "seconds": "0.329"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "inactiveGenerationCannotBeSkippedBySourcePlanning",
+        "outcome": "PASS",
+        "seconds": "0.532"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "missingAboveFloorBytesOrLostOwnershipRejectThePlan",
+        "outcome": "PASS",
+        "seconds": "0.878"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "newestGrantAndMissingBasisCannotRetire",
+        "outcome": "PASS",
+        "seconds": "0.308"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "exactUnresolvedAcceptedBytesRemainOwnedInCurrent",
+        "outcome": "PASS",
+        "seconds": "0.36"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "retainedSourceTamperingIsNotHiddenByMatchingDigestReferences",
+        "outcome": "PASS",
+        "seconds": "0.33"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "floorLocalReferenceRemainsProtectedEvenWhenCurrentDoesNotReferenceIt",
+        "outcome": "PASS",
+        "seconds": "0.934"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "currentInstalledBasisRemainsProtectedAfterHigherGrant",
+        "outcome": "PASS",
+        "seconds": "0.776"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "aCompleteGoverningFloorIsRequiredAndReleaseRevokesPlanning",
+        "outcome": "PASS",
+        "seconds": "0.473"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementPlanTest",
+        "name": "obsoleteSelectedGroupLeavesNoOrphanAndCannotPruneHighest",
+        "outcome": "PASS",
+        "seconds": "0.398"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "repeatedBorrowedCopiesReleaseRemoteExportsAtTheExactLastCommit",
+        "outcome": "PASS",
+        "seconds": "1.496"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "completeAdoptedCopiesAndBoundedOriginalLifetime",
+        "outcome": "PASS",
+        "seconds": "4.556"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "partialImageBorrowStillFetchesCompleteOriginalAndClosesItsExport",
+        "outcome": "PASS",
+        "seconds": "0.966"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "completeStableJointAndFinalCopiesPreserveOriginalTail",
+        "outcome": "PASS",
+        "seconds": "6.817"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyFaultTest",
+        "name": "noCopyEscapesAfterManifestWhenActualOwnershipChanges",
+        "outcome": "PASS",
+        "seconds": "2.566"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyFaultTest",
+        "name": "malformedOriginalMetadataFailsWithoutRetryOrLeakingItsReservation",
+        "outcome": "PASS",
+        "seconds": "1.426"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyFaultTest",
+        "name": "removedOwnerMayServeHistoryButCannotSupplyAGoverningFloorCopy",
+        "outcome": "PASS",
+        "seconds": "0.806"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyFaultTest",
+        "name": "cancellationOfTheOriginalExchangeReleasesReceivingMetadata",
+        "outcome": "PASS",
+        "seconds": "0.474"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "sharedSourceCapacityRejectsBeforeAnyFloorWritesAndDoesNotLeak",
+        "outcome": "PASS",
+        "seconds": "0.209"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "retainedFloorCannotBeSilentlyOpenedThroughLegacyStorageMode",
+        "outcome": "PASS",
+        "seconds": "0.312"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "sameByteInodeReplacementAtForceCannotReturnSuccess",
+        "outcome": "PASS",
+        "seconds": "0.86"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "interruptedHandoffRetainsExactPartialCopiesAndResumesWithoutInventingAuthority",
+        "outcome": "PASS",
+        "seconds": "2.518"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "corruptionExtraFilesAndSymlinksCannotBecomeRetainedFloorAuthority",
+        "outcome": "PASS",
+        "seconds": "8.696"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "everyInterruptedBoundaryResumesOnlyTheOriginalFullCopies",
+        "outcome": "PASS",
+        "seconds": "24.232"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "sequentialHandoffForcesEachReplacementBeforeReleasingItsReceivingSlot",
+        "outcome": "PASS",
+        "seconds": "0.451"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "partialProposalAndMemberAreResumedButDoNotAuthorizeOtherChanges",
+        "outcome": "PASS",
+        "seconds": "1.189"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "oldFloorSurvivesAdoptionButCannotBeReplacedWithoutRotation",
+        "outcome": "PASS",
+        "seconds": "0.551"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "selectedGenerationFloorCopyRetainsUnresolvedOriginalTail",
+        "outcome": "PASS",
+        "seconds": "0.624"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest",
+        "name": "forcedCopiesAndFloorSurviveReopenAndExactDuplicate",
+        "outcome": "PASS",
+        "seconds": "1.412"
+      }
+    ],
+    "joiningcontinuationexports": [],
+    "joiningcontinuationfocused": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "packetOnlyBorrowRefusesMissingLocalImagesAndReleasesScratch",
+        "outcome": "PASS",
+        "seconds": "3.588"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "name": "sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies",
+        "outcome": "PASS",
+        "seconds": "5.657"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "repeatedBorrowedCopiesReleaseRemoteExportsAtTheExactLastCommit",
+        "outcome": "PASS",
+        "seconds": "1.761"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "completeAdoptedCopiesAndBoundedOriginalLifetime",
+        "outcome": "PASS",
+        "seconds": "5.377"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "completeStableJointAndFinalCopiesPreserveOriginalTail",
+        "outcome": "PASS",
+        "seconds": "7.409"
+      }
+    ],
+    "joiningcontinuationnativefinal": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest",
+        "name": "packetOnlyBorrowRefusesMissingLocalImagesAndReleasesScratch",
+        "outcome": "PASS",
+        "seconds": "3.785"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "name": "sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies",
+        "outcome": "PASS",
+        "seconds": "10.475"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+        "name": "actualJoiningVoterCompletesJointFinalAndFreshStableBarrier",
+        "outcome": "PASS",
+        "seconds": "1617.839"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "repeatedBorrowedCopiesReleaseRemoteExportsAtTheExactLastCommit",
+        "outcome": "PASS",
+        "seconds": "1.676"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "completeAdoptedCopiesAndBoundedOriginalLifetime",
+        "outcome": "PASS",
+        "seconds": "4.757"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53GenerationCopyTest",
+        "name": "completeStableJointAndFinalCopiesPreserveOriginalTail",
+        "outcome": "PASS",
+        "seconds": "7.067"
+      }
+    ],
+    "joiningcontinuationrun": [],
+    "joiningcontinuationsweep": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53ContinuousTransitionTest",
+        "name": "sameCutSourceSweepNeedsNewDurablePromiseAndOriginalGoverningCopies",
+        "outcome": "PASS",
+        "seconds": "5.35"
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+        "name": "actualJoiningVoterCompletesJointFinalAndFreshStableBarrier",
+        "outcome": "FAIL",
+        "seconds": "894.675"
+      }
+    ],
+    "joiningcontinuationverified": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+        "name": "actualJoiningVoterCompletesJointFinalAndFreshStableBarrier",
+        "outcome": "FAIL",
+        "seconds": "879.704"
+      }
+    ]
+  },
+  "sameJvmNativeReopen": true,
+  "schema": "gse-v53-joining-continuation-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "42497d096a21d4b03c774bf254f2b91ad97135a9e71ddf56230000c4c78c744d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java": "c01c8321b714731ea21abe230522ccc2e6e012e42eabfcfbb361ccd3b1a41d9d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "4b7db4bb4c1ef168b2a656ef48125815ab23e8ed6bd2bef831473f0667d668dd",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixExport.java": "3360947cfbd248c9f1b88a3c33db349b52ce1d81b80561f8ed837873f11cb368",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java": "4b52706694969933fe825be8d1a7d022d018ce19bfea61c4bfd2d701cfb73b5a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContinuousTransitionTest.java": "ea01af011e623f2502e3273ee312a8c9f9bfce85ffbd1e164cd42b3a33a83a2b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationCopyTest.java": "1ee2d2e5da4978ed1f93c915ee424bd146eceb1b8a80c1c0bb5a26f9fccc4c7c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "9b056656ac10c0f93077f1b7db297d73d4bfc859d22029abc7c734e55b51be05",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixDiscoveryTest.java": "882863f367140b842c3418e8009dd83a6ab96631dc87a730b9936bc531ea28f5"
+  },
+  "sourceSnapshot": "joiningcontinuationcomplete",
+  "sourceSnapshotDifferences": {
+    "joiningcontinuationbaseline": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixExport.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationCopyTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixDiscoveryTest.java"
+    ],
+    "joiningcontinuationcomplete": [],
+    "joiningcontinuationexports": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationCopyTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixDiscoveryTest.java"
+    ],
+    "joiningcontinuationfocused": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationCopyTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixDiscoveryTest.java"
+    ],
+    "joiningcontinuationnativefinal": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationCopyTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixDiscoveryTest.java"
+    ],
+    "joiningcontinuationrun": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixExport.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContinuousTransitionTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationCopyTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixDiscoveryTest.java"
+    ],
+    "joiningcontinuationsweep": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixExport.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationCopyTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixDiscoveryTest.java"
+    ],
+    "joiningcontinuationverified": [
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixExport.java",
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ContinuousTransitionTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GenerationCopyTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixDiscoveryTest.java"
+    ]
+  },
+  "status": "PASS_NATIVE_JOINING_CONTINUATION_COMPONENT"
+}

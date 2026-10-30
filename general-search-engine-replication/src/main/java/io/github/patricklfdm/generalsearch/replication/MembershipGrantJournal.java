@@ -2513,10 +2513,26 @@ final class MembershipGrantJournal implements AutoCloseable {
      * a source or installs a generation. Pending votes/applications retain their
      * existing carried-entry path; they cannot borrow this permission. */
     synchronized boolean publishedMaintenanceRequired()throws IOException {
-        if(!nativeGenerationMaintenanceRequired())return false;
+        boolean generations=nativeGenerationMaintenanceRequired();
+        if(!generations && !sameCutSourceMaintenanceRequired())return false;
         return (pendingAccept==null || !pendingAccept.pending() && pendingAccept.active()==null)
                 && (pendingContext==null || !pendingContext.pending() && pendingContext.active().isEmpty())
                 && (appliedEnd==null || !appliedEnd.present() && !replayFiles.present());
+    }
+    /** A fresh grant can supersede an intermediate same-cut source before it
+     * installs another generation. This is only a scheduling hint: deletion
+     * still requires original governing copies and the normal retirement plan. */
+    private boolean sameCutSourceMaintenanceRequired() {
+        if(promise==null)return false;
+        for(String id:sources.retainedIdentities()) {
+            var prior=promises.get(id);var frozen=bases.get(id);
+            if(prior==null || frozen==null || frozen.value().get("accepted")!=null
+                    || !current.capsule.context.cut.equals(frozen.value().get("cut")))continue;
+            if(!prior.digest().equals(current.manifest.value().get("promise"))
+                    && !frozen.digest().equals(current.manifest.value().get("basis"))
+                    && compareBallot(object(promise.value().get("ballot")),object(prior.value().get("ballot")))>0)return true;
+        }
+        return false;
     }
     final class PublishedMaintenance {
         private final MembershipGrantJournal owningJournal=MembershipGrantJournal.this;
@@ -3206,7 +3222,10 @@ final class MembershipGrantJournal implements AutoCloseable {
         for(var old:List.copyOf(prefixExports))if(old.expired() || old.generation!=current)releasePrefixExport(old);
         require(MembershipPrefixExport.reference(current.capsule.context,cut),"prefix cut changed");
         require(prefixExports.size()<6,"prefix export owner capacity");
-        var export=new MembershipPrefixExport(this,current,ballot,view,resources,clock,started,limit,cut.equals(MembershipPrefixExport.ancestryReference(current.capsule.context)),cut.equals(MembershipPrefixExport.generationReference(current.capsule.context)));prefixExports.add(export);
+        boolean metadataOnly=cut.equals(MembershipPrefixExport.generationMetadataReference(current.capsule.context));
+        var export=new MembershipPrefixExport(this,current,ballot,view,resources,clock,started,limit,
+                cut.equals(MembershipPrefixExport.ancestryReference(current.capsule.context)),metadataOnly || cut.equals(MembershipPrefixExport.generationReference(current.capsule.context)),
+                cut.equals(MembershipPrefixExport.packetReference(current.capsule.context)),metadataOnly);prefixExports.add(export);
         try{checkPrefixExport(export);return export;}
         catch(IOException|RuntimeException|Error error){releasePrefixExport(export);throw error;}
     }

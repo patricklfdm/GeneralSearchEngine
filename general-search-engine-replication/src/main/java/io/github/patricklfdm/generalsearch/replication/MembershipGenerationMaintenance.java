@@ -73,7 +73,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     }
     void run()throws IOException {
         synchronized(this){require(!used && !closed,"native maintenance single use/closed");used=true;}
-        check();if(!owner.nativeGenerationMaintenanceRequired())return;
+        check();if(!(published==null?owner.nativeGenerationMaintenanceRequired():owner.publishedMaintenanceRequired()))return;
         var own=owner.floorCopyCurrent();var copies=new ArrayList<MembershipFloor.Copy>();copies.add(own);
         var receiving=new HashMap<String,List<MembershipSourcePull>>();
         var voters=new TreeSet<String>();voters.add(own.owner.nodeId().value());
@@ -89,7 +89,15 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
             try {
                 var hint=discover(context.identities.get(node));check();
                 if(!hint.cut().equals(context.cut))continue;
-                source=prefix(hint);source.fetchPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);
+                source=prefix(hint);
+                try{source.fetchBorrowedPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);}
+                catch(MembershipSourcePull.MissingBorrowedImages missing) {
+                    // Same terminal application need not mean identical historical
+                    // image inventories. Only this completed packet-only probe may
+                    // fall back; retain the original fence and overall deadline.
+                    release(source);source=null;check();source=prefix(hint);
+                    source.fetchPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);
+                }
                 generation=prefix(hint);var copy=generation.fetchGeneration(source);check();
                 require(copy.owner.equals(hint.peer()) && copy.capsule.terminal().equals(own.capsule.terminal()),"native maintenance exact original copy");
                 copies.add(copy);voters.add(node);receiving.put(copy.generation.digest(),List.of(generation,source));retain=true;

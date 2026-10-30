@@ -11,6 +11,75 @@ import static io.github.patricklfdm.generalsearch.replication.V53SourceExchangeT
 /** Actual receiving primitives over conditional adopted fixtures; no full protocol claim. */
 class V53GenerationCopyTest {
   @org.junit.jupiter.api.io.TempDir Path temp;
+  @org.junit.jupiter.api.Test void partialImageBorrowStillFetchesCompleteOriginalAndClosesItsExport()throws Exception {
+    for(boolean loseCommit:List.of(false,true)) {
+      var capsule=new V53CapsuleFixture(3,"REPLACE",0);
+      byte[] extra="fixture-retained-other-application".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+      capsule.source.images.put(hash(extra),extra);capsule.images.put(hash(extra),(long)extra.length);
+      var fixture=new V53CurrentGenerationFixture(3,capsule);Path root=Files.createDirectory(temp.resolve("partial-"+loseCommit));
+      fixture.provision(root.resolve("source"));V53FloorWorker.provision(root.resolve("reader"),3,0,3);var a=resources();var b=resources();
+      try(var source=MembershipGrantJournal.openGenerations(root.resolve("source"),fixture.root(),V53DeclarationsTest.node(1),a,fixture::verify,e->{});
+          var reader=MembershipGrantJournal.openGenerations(root.resolve("reader"),fixture.root(),V53DeclarationsTest.node(3),b,fixture::verify,e->{});
+          var service=MembershipTransferService.prefix(source,a,bounds(),()->{},()->0L,0,BUDGET)) {
+        var state=reader.discoveryState(b);var hint=new MembershipDiscovery.Hint(source.activationIdentity(),source.activationContext().cut,false);
+        String borrowed=reader.activationCapsule().terminal().application();var lost=new AtomicBoolean();var retried=new ArrayList<String>();
+        MembershipSourcePull.Link link=(peer,r,kind,deadline)->{try{
+          assertEquals(BUDGET,deadline);var response=service.handle(reader.activationIdentity(),r);
+          if(loseCommit && r.kind().equals("TRANSFER_COMMIT") && object(r.value().get("payload")).get("digest").equals(borrowed)) {
+            retried.add(r.digest());if(lost.compareAndSet(false,true))throw new MembershipTransport.Failure(MembershipTransport.Reason.IO,"lost final ACK",null);
+          }
+          return CompletableFuture.completedFuture(response);
+        }catch(IOException|RuntimeException error){return CompletableFuture.failedFuture(error);}};
+        var before=b.usage();
+        try(var images=reader.exportPrefix(MembershipContext.cutDigest(state.context().cut),state.ballot(),state.context().authority(),b,()->0L,0,BUDGET)) {
+          Path probe=root.resolve("probe");
+          try(var prefix=MembershipSourcePull.prefix(reader,hint,b,bounds(),link,()->{},()->0L,0,BUDGET)) {
+            assertThrows(MembershipSourcePull.MissingBorrowedImages.class,()->prefix.fetchBorrowedPrefix(probe,images));
+          }
+          assertFalse(Files.exists(probe));assertEquals(0,service.usage().live());
+          try(var prefix=MembershipSourcePull.prefix(reader,hint,b,bounds(),link,()->{},()->0L,0,BUDGET);
+              var generation=MembershipSourcePull.prefix(reader,hint,b,bounds(),link,()->{},()->0L,0,BUDGET)) {
+            prefix.fetchPrefix(root.resolve("complete"),images);assertEquals(0,service.usage().live());
+            assertEquals(before.counts().get(MembershipResources.Unit.APPLICATION)+1,b.usage().counts().get(MembershipResources.Unit.APPLICATION));
+            var copy=generation.fetchGeneration(prefix);copy.check();assertEquals(0,service.usage().live());
+            var original=source.floorCopyCurrent();assertEquals(original.fileNames(),copy.fileNames());
+            for(String name:original.fileNames())assertArrayEquals(original.fileBytes(name),copy.fileBytes(name));
+          }
+        }
+        assertEquals(before,b.usage());assertEquals(loseCommit,lost.get());
+        if(loseCommit){assertEquals(2,retried.size());assertEquals(1,new HashSet<>(retried).size());}
+      }
+      assertEquals(0,a.usage().leases());assertEquals(0,b.usage().leases());
+    }
+  }
+  @org.junit.jupiter.api.Test void repeatedBorrowedCopiesReleaseRemoteExportsAtTheExactLastCommit()throws Exception {
+    var fixture=new V53CurrentGenerationFixture(3,0,false);Path root=Files.createDirectory(temp.resolve("repeated"));
+    fixture.provision(root.resolve("source"));V53FloorWorker.provision(root.resolve("reader"),3,0,3);var a=resources();var b=resources();
+    try(var source=MembershipGrantJournal.openGenerations(root.resolve("source"),fixture.root(),V53DeclarationsTest.node(1),a,fixture::verify,e->{});
+        var reader=MembershipGrantJournal.openGenerations(root.resolve("reader"),fixture.root(),V53DeclarationsTest.node(3),b,fixture::verify,e->{});
+        var service=MembershipTransferService.prefix(source,a,bounds(),()->{},()->0L,0,BUDGET)) {
+      var request=new AtomicReference<Decoded>();var reply=new AtomicReference<Decoded>();
+      MembershipSourcePull.Link link=(peer,r,kind,deadline)->{try{var response=service.handle(reader.activationIdentity(),r);request.set(r);reply.set(response);
+        return CompletableFuture.completedFuture(response);}catch(IOException|RuntimeException error){return CompletableFuture.failedFuture(error);}};
+      var state=reader.discoveryState(b);var before=b.usage();
+      try(var images=reader.exportPrefix(MembershipContext.cutDigest(state.context().cut),state.ballot(),state.context().authority(),b,()->0L,0,BUDGET)) {
+        for(int i=0;i<8;i++) {
+          var hint=new MembershipDiscovery.Hint(source.activationIdentity(),source.activationContext().cut,false);
+          try(var prefix=MembershipSourcePull.prefix(reader,hint,b,bounds(),link,()->{},()->0L,0,BUDGET);
+              var generation=MembershipSourcePull.prefix(reader,hint,b,bounds(),link,()->{},()->0L,0,BUDGET)) {
+            prefix.fetchBorrowedPrefix(root.resolve("receive-"+i),images);assertEquals(0,service.usage().live());
+            var copy=generation.fetchGeneration(prefix);copy.check();assertEquals(0,service.usage().live());
+            assertEquals(before.counts().get(MembershipResources.Unit.APPLICATION),b.usage().counts().get(MembershipResources.Unit.APPLICATION));
+            assertArrayEquals(reply.get().bytes(),service.handle(reader.activationIdentity(),request.get()).bytes(),"exact final retry");
+            var changed=new TreeMap<>(request.get().value());changed.put("sequence",number(changed.get("sequence"))+1);
+            assertThrows(IllegalArgumentException.class,()->service.handle(reader.activationIdentity(),decode(encode("wire","TRANSFER_COMMIT",changed),"wire","TRANSFER_COMMIT")));
+          }
+        }
+      }
+      assertEquals(before,b.usage());assertEquals(16,service.usage().traces());assertEquals(0,service.usage().live());
+    }
+    assertEquals(0,a.usage().leases());assertEquals(0,b.usage().leases());
+  }
   @org.junit.jupiter.api.Test void completeAdoptedCopiesAndBoundedOriginalLifetime()throws Exception {
     Path output=temp.resolve("adopted");Files.createDirectories(output);var rows=new ArrayList<Map<String,Object>>();
     for(String mode:List.of("complete","lost-offer","lost-data","lost-commit","exhausted","deadline","different-start","closed-prefix")) {

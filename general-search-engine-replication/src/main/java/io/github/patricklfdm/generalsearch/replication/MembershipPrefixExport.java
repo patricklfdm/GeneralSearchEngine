@@ -28,12 +28,22 @@ final class MembershipPrefixExport implements MembershipTransferExport,Membershi
     }
     MembershipPrefixExport(MembershipGrantJournal owner,MembershipCurrentGeneration generation,Map<String,Object> ballot,
             String requestView,MembershipResources resources,LongSupplier clock,long started,long budget,boolean ancestry,boolean completeGeneration) {
+        this(owner,generation,ballot,requestView,resources,clock,started,budget,ancestry,completeGeneration,false,false);
+    }
+    MembershipPrefixExport(MembershipGrantJournal owner,MembershipCurrentGeneration generation,Map<String,Object> ballot,
+            String requestView,MembershipResources resources,LongSupplier clock,long started,long budget,boolean ancestry,boolean completeGeneration,
+            boolean packetOnly,boolean metadataOnly) {
+        require(!packetOnly || !ancestry && !completeGeneration,"packet-only prefix scope");
+        require(!metadataOnly || completeGeneration,"generation metadata scope");
         require(budget>0 && budget<Long.MAX_VALUE/2,"prefix export budget");MembershipValidation.digest(requestView);
         this.owner=owner;this.generation=generation;this.ancestry=ancestry;this.completeGeneration=completeGeneration;this.ballot=Map.copyOf(ballot);this.requestView=requestView;
         this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
         context().ballot(ballot,false);var contents=new TreeMap<>(completeGeneration?generation.generationContents():ancestry?generation.ancestryContents():generation.transferContents());
+        if(packetOnly)contents.values().removeIf(v->v.kind()!=MembershipTransfer.Kind.CAPSULE);
+        if(metadataOnly)contents.values().removeIf(v->v.kind()!=MembershipTransfer.Kind.RECORD);
         var first=ancestry || completeGeneration?contents.get(generation.manifest.digest()):contents.values().stream().filter(v->v.kind()==MembershipTransfer.Kind.CAPSULE).findFirst().orElseThrow();
-        require(contents.putIfAbsent(completeGeneration?generationReference(context()):ancestry?ancestryReference(context()):cutDigest(context().cut),first)==null,"prefix cut reference collision");references=Map.copyOf(contents);
+        require(contents.putIfAbsent(packetOnly?packetReference(context()):metadataOnly?generationMetadataReference(context()):
+                completeGeneration?generationReference(context()):ancestry?ancestryReference(context()):cutDigest(context().cut),first)==null,"prefix cut reference collision");references=Map.copyOf(contents);
         metadata=resources.reserve(MembershipResources.Unit.CONTROL,"prefix-export-"+UUID.randomUUID(),4096);
     }
     /** Derived lookup alias only, never an authority record or manifest digest. */
@@ -43,8 +53,15 @@ final class MembershipPrefixExport implements MembershipTransferExport,Membershi
     static String generationReference(MembershipContext context) {
         return hash(canonical(Map.of("root",context.root,"cut",context.cut,"scope","retained-current-generation"),16384));
     }
+    static String packetReference(MembershipContext context) {
+        return hash(canonical(Map.of("root",context.root,"cut",context.cut,"scope","retained-current-packet"),16384));
+    }
+    static String generationMetadataReference(MembershipContext context) {
+        return hash(canonical(Map.of("root",context.root,"cut",context.cut,"scope","retained-current-generation-metadata"),16384));
+    }
     static boolean reference(MembershipContext context,String digest) {
-        return digest.equals(cutDigest(context.cut)) || digest.equals(ancestryReference(context)) || digest.equals(generationReference(context));
+        return digest.equals(cutDigest(context.cut)) || digest.equals(ancestryReference(context)) || digest.equals(generationReference(context))
+                || digest.equals(packetReference(context)) || digest.equals(generationMetadataReference(context));
     }
     boolean expired(){long elapsed=clock.getAsLong()-started;return closed || elapsed<0 || elapsed>=budget;}
     void revoke(){if(!closed){closed=true;metadata.close();}}

@@ -253,6 +253,17 @@ final class MembershipSourcePull implements AutoCloseable {
         for(long offset=0;offset<binding.bytes();) {check();byte[] bytes=chunk(offer,offset);receiver.chunk(binding,offset,bytes,hash(bytes));offset+=bytes.length;}
         check();receiver.finish(binding);check();commit(offer);
     }
+    /** A complete prefix export advertises every image, including locally borrowed
+     * ones. Consume and authenticate those bytes without another disk reservation
+     * so the last commit also releases the remote export. */
+    private void completeBorrowedImage(String digest,long bytes)throws IOException {
+        var offered=offer(UUID.randomUUID(),digest,MembershipTransfer.Kind.APPLICATION,digest,bytes);
+        java.security.MessageDigest hash;
+        try{hash=java.security.MessageDigest.getInstance("SHA-256");}
+        catch(java.security.NoSuchAlgorithmException error){throw new AssertionError(error);}
+        for(long offset=0;offset<bytes;) {check();byte[] part=chunk(offered,offset);hash.update(part);offset+=part.length;}
+        require(HexFormat.of().formatHex(hash.digest()).equals(digest),"borrowed remote image digest");check();commit(offered);
+    }
     /** Result is borrowed from this pull and remains physically owned/reserved until close. */
     MembershipSourceReceive fetch(Path scratch,String originalBasisDigest)throws IOException {
         return fetch(scratch,originalBasisDigest,null);
@@ -284,9 +295,23 @@ final class MembershipSourcePull implements AutoCloseable {
         return fetchPrefix(scratch,null);
     }
     MembershipSourceReceive fetchPrefix(Path scratch,MembershipImageBorrow originalImages)throws IOException {
+        return fetchPrefix(scratch,originalImages,false);
+    }
+    /** Exact same-application maintenance borrows every image. Its narrower
+     * remote scope can finish at the packet commit without pinning unused images. */
+    MembershipSourceReceive fetchBorrowedPrefix(Path scratch,MembershipImageBorrow originalImages)throws IOException {
+        Objects.requireNonNull(originalImages);require(learner==null,"borrowed packet requires voter prefix");
+        return fetchPrefix(scratch,originalImages,true);
+    }
+    static final class MissingBorrowedImages extends IOException {
+        private static final long serialVersionUID=1L;
+        MissingBorrowedImages(){super("borrowed prefix requires every original image");}
+    }
+    private MembershipSourceReceive fetchPrefix(Path scratch,MembershipImageBorrow originalImages,boolean packetOnly)throws IOException {
         synchronized(this){require(prefixCut!=null && !used && !closed,"read-only prefix single use");used=true;}
         try {
-            String reference=learner==null?cutDigest(prefixCut):learnerReference("prefix");
+            String reference=packetOnly?hash(canonical(Map.of("root",requestRoot,"cut",prefixCut,"scope","retained-current-packet"),16384)):
+                    learner==null?cutDigest(prefixCut):learnerReference("prefix");
             var packet=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.CAPSULE,null,null);
             MembershipSourceReceive staging;
             synchronized(this) {
@@ -297,9 +322,13 @@ final class MembershipSourcePull implements AutoCloseable {
                 staging=received;
             }
             receiveFile(staging,staging.packetBinding(),packet);
-            for(var binding:staging.imageBindings()) {
+            var missing=staging.imageBindings();
+            if(packetOnly && !missing.isEmpty())throw new MissingBorrowedImages();
+            for(var binding:missing) {
                 var offer=offer(binding.transfer(),binding.digest(),MembershipTransfer.Kind.APPLICATION,binding.digest(),binding.bytes());receiveFile(staging,binding,offer);
             }
+            if(!packetOnly && originalImages!=null)for(var image:staging.packet().images().entrySet())
+                if(missing.stream().noneMatch(v->v.digest().equals(image.getKey())))completeBorrowedImage(image.getKey(),image.getValue());
             staging.recheck();check();completeSource=true;return staging;
         }catch(IOException|RuntimeException|Error error){try{close();}catch(IOException|RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;}
     }
@@ -313,7 +342,7 @@ final class MembershipSourcePull implements AutoCloseable {
                     && Arrays.equals(higher.packet.objectBytes(higher.context.recordRootDigest()),originalRoot.bytes()),"ancestry expected prefix");
             ancestryPrefix=higher;
             var reference=learner!=null?learnerReference(completeGeneration?"generation":"ancestry"):
-                    completeGeneration?MembershipPrefixExport.generationReference(higher.context):MembershipPrefixExport.ancestryReference(higher.context);
+                    completeGeneration?MembershipPrefixExport.generationMetadataReference(higher.context):MembershipPrefixExport.ancestryReference(higher.context);
             var manifestOffer=offer(UUID.randomUUID(),reference,MembershipTransfer.Kind.RECORD,null,null);
             ancestryManifest=decode(metadataBlob(manifestOffer,65536),"records","GENERATION");
             var fields=ancestryManifest.value();var cap=higher.packet.capsule();
