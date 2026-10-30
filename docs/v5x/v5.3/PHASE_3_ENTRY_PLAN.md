@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Live borrowed-image validation](PHASE_3_IMAGE_VALIDATION.md) separates physical
+original checks from returning an image array. Current-generation and receiving
+owners still recheck exact bytes, identities and lifetimes on every call;
+retained sources keep their full-read fallback. This optimization does not
+change the native history or close Phase 3.
+
 [Serialized base validation](PHASE_3_BASE_VALIDATION.md) avoids recursive base
 checks inside one private read-only journal traversal and repeated per-member
 floor plan decoding. Original-byte, callback and fencing checks remain required.

@@ -107,6 +107,12 @@ final class MembershipPrefixExport implements MembershipTransferExport,Membershi
             require(hash(result).equals(digest),"prefix original image changed");owner.checkPrefixExport(this);return result;
         }
     }
+    @Override public void checkImage(String digest,long bytes)throws IOException {
+        // hasImage holds the owner monitor and checks the exact current generation,
+        // including every original file's bytes/inode and this export's lifetime.
+        // No bytes or validation result escape into a later invocation.
+        require(hasImage(digest,bytes),"prefix original image unavailable");
+    }
     @Override public byte[] read(String digest,long offset,int maximum)throws IOException {
         synchronized(owner) {
             owner.checkPrefixExport(this);byte[] bytes=completeGeneration?generation.generationChunk(digest,offset,maximum):ancestry?generation.ancestryChunk(digest,offset,maximum):generation.transferChunk(digest,offset,maximum);owner.checkPrefixExport(this);return bytes;

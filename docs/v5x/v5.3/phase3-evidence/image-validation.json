@@ -1,0 +1,593 @@
+{
+  "archive": {
+    "bytes": 24475491,
+    "directories": 2369,
+    "files": 18467,
+    "path": "target/v53-image-validation/qualification.tar.gz",
+    "sha256": "853362a6026a223390c832ae143e908364e7e81071a1faf4d6491af64d69c060"
+  },
+  "baseCommit": "05573f8bab8badeb5e2f9429785762d8c90999f2",
+  "executions": {
+    "imagenative": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53DiscoveredTransitionTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "imagenative",
+      "requestedTests": [
+        "V53DiscoveredTransitionTest"
+      ],
+      "seconds": 259.45338526800333,
+      "skipped": 0,
+      "tests": 1
+    },
+    "imagevalidation": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53PrefixDiscoveryTest": 18,
+        "io.github.patricklfdm.generalsearch.replication.V53ReceivedImageBorrowTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53RetainedImageBorrowTest": 3
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "imagevalidation",
+      "requestedTests": [
+        "V53PrefixDiscoveryTest",
+        "V53ReceivedImageBorrowTest",
+        "V53RetainedImageBorrowTest"
+      ],
+      "seconds": 351.5854659899924,
+      "skipped": 0,
+      "tests": 26
+    }
+  },
+  "fullHistoryQualified": false,
+  "interpretation": {
+    "acceptDiagnostics": [
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 21.908082
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 26.947719
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 31.970714
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-4",
+        "request": "1d345996377c684b2b9d3efa6b47157ae301e06523c2e6a95247245769a35ded"
+      },
+      {
+        "events": [
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 21.913295
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 26.95631
+          },
+          {
+            "event": "BEFORE_REQUEST_WRITE",
+            "seconds": 32.009284
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-4",
+        "request": "60429006921a7603a64df24479f77df2da2aa5e0394437a03082f70f70962474"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 21.921946
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 26.979135
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 31.990925
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 38.868015
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 38.868014
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 38.868014
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-2",
+        "request": "1d345996377c684b2b9d3efa6b47157ae301e06523c2e6a95247245769a35ded"
+      },
+      {
+        "events": [
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 21.933724
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 26.967447
+          },
+          {
+            "event": "AFTER_REQUEST_READ",
+            "seconds": 32.019341
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 37.033376
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 37.033376
+          },
+          {
+            "event": "HANDLER_FAILED",
+            "seconds": 37.033376
+          }
+        ],
+        "kind": "ACCEPT",
+        "node": "node-1",
+        "request": "60429006921a7603a64df24479f77df2da2aa5e0394437a03082f70f70962474"
+      }
+    ],
+    "acceptedScope": "focused live-image validation and original-first prelude/adoption replay only",
+    "adoptionNegativeCases": 11,
+    "afterFirstSlot": {
+      "node-1": {
+        "FLOOR_AUTHORITY_FORCED": 1,
+        "FLOOR_AUTHORITY_WRITTEN": 1,
+        "FLOOR_BEFORE_RETURN": 1,
+        "FLOOR_COPIES_FORCED": 1,
+        "FLOOR_COPY_BEFORE_RETURN": 2,
+        "FLOOR_COPY_CREATED": 3,
+        "FLOOR_COPY_DIRECTORY_FORCED": 3,
+        "FLOOR_COPY_HANDED_OFF": 3,
+        "FLOOR_DIRECTORY_CREATED": 1,
+        "FLOOR_IMAGE_FORCED": 3,
+        "FLOOR_IMAGE_WRITTEN": 3,
+        "FLOOR_MANIFEST_FORCED": 3,
+        "FLOOR_MANIFEST_WRITTEN": 3,
+        "FLOOR_MEMBER_FORCED": 15,
+        "FLOOR_MEMBER_WRITTEN": 15,
+        "FLOOR_PARENT_FORCED": 1,
+        "FLOOR_PROPOSAL_FORCED": 1,
+        "FLOOR_PROPOSAL_WRITTEN": 1,
+        "FLOOR_RELEASE_AUTHORITY_CLEARED": 1,
+        "FLOOR_RELEASE_AUTHORITY_CREATED": 1,
+        "FLOOR_RELEASE_AUTHORITY_FORCED": 1,
+        "FLOOR_RELEASE_AUTHORITY_WRITTEN": 1,
+        "FLOOR_RELEASE_BEFORE_RETURN": 1,
+        "FLOOR_RELEASE_CLEARED": 1,
+        "FLOOR_RELEASE_COPY_DELETED": 3,
+        "FLOOR_RELEASE_FILE_DELETED": 21,
+        "FLOOR_RELEASE_PARENT_FORCED": 1,
+        "FLOOR_RELEASE_PROPOSAL_CLEARED": 1,
+        "FLOOR_RELEASE_RELINQUISHED": 1,
+        "FLOOR_RESERVED": 1,
+        "NETWORK_RECEIVED": 38,
+        "RETENTION_BEFORE_WRITE": 3,
+        "RETENTION_CANDIDATE_PARENT_FORCED": 3,
+        "RETENTION_FORCED": 3,
+        "RETENTION_PARENT_FORCED": 3,
+        "RETENTION_PREFIX_WRITTEN": 3,
+        "RETENTION_RENAMED": 3,
+        "RETENTION_WRITTEN": 3,
+        "RETIREMENT_AUTHORITY_CLEARED": 1,
+        "RETIREMENT_AUTHORITY_FORCED": 1,
+        "RETIREMENT_AUTHORITY_WRITTEN": 1,
+        "RETIREMENT_BEFORE_RETURN": 1,
+        "RETIREMENT_BORROWED_IMAGES_FORCED": 1,
+        "RETIREMENT_BORROW_CLEARED": 1,
+        "RETIREMENT_BORROW_FORCED": 1,
+        "RETIREMENT_BORROW_PREFIX_WRITTEN": 1,
+        "RETIREMENT_BORROW_WRITTEN": 1,
+        "RETIREMENT_CLEARED": 1,
+        "RETIREMENT_CREATED": 1,
+        "RETIREMENT_DELETE_VALIDATED": 1,
+        "RETIREMENT_DIRECTORY_DELETED": 1,
+        "RETIREMENT_FILE_DELETED": 8,
+        "RETIREMENT_MANIFEST_FORCED": 1,
+        "RETIREMENT_MANIFEST_WRITTEN": 1,
+        "RETIREMENT_MEMBER_FORCED": 6,
+        "RETIREMENT_MEMBER_WRITTEN": 6,
+        "RETIREMENT_OLD_FILES_FORCED": 1,
+        "RETIREMENT_PARENT_FORCED": 1,
+        "RETIREMENT_PROPOSAL_CLEARED": 1,
+        "RETIREMENT_PROPOSAL_FORCED": 1,
+        "RETIREMENT_PROPOSAL_WRITTEN": 1,
+        "RETIREMENT_RESERVED": 1,
+        "RETIREMENT_SAVED_DIRECTORY_DELETED": 1,
+        "RETIREMENT_SAVED_FILE_DELETED": 7,
+        "RETIREMENT_SOURCE_CREATED": 1,
+        "RETIREMENT_SOURCE_FORCED": 1,
+        "WIRE_RESPONSE": 38
+      },
+      "node-2": {
+        "FLOOR_AUTHORITY_FORCED": 1,
+        "FLOOR_AUTHORITY_WRITTEN": 1,
+        "FLOOR_BEFORE_RETURN": 1,
+        "FLOOR_COPIES_FORCED": 1,
+        "FLOOR_COPY_BEFORE_RETURN": 2,
+        "FLOOR_COPY_CREATED": 3,
+        "FLOOR_COPY_DIRECTORY_FORCED": 3,
+        "FLOOR_COPY_HANDED_OFF": 3,
+        "FLOOR_DIRECTORY_CREATED": 1,
+        "FLOOR_IMAGE_FORCED": 3,
+        "FLOOR_IMAGE_WRITTEN": 3,
+        "FLOOR_MANIFEST_FORCED": 3,
+        "FLOOR_MANIFEST_WRITTEN": 3,
+        "FLOOR_MEMBER_FORCED": 15,
+        "FLOOR_MEMBER_WRITTEN": 15,
+        "FLOOR_PARENT_FORCED": 1,
+        "FLOOR_PROPOSAL_FORCED": 1,
+        "FLOOR_PROPOSAL_WRITTEN": 1,
+        "FLOOR_RELEASE_AUTHORITY_CLEARED": 1,
+        "FLOOR_RELEASE_AUTHORITY_CREATED": 1,
+        "FLOOR_RELEASE_AUTHORITY_FORCED": 1,
+        "FLOOR_RELEASE_AUTHORITY_WRITTEN": 1,
+        "FLOOR_RELEASE_BEFORE_RETURN": 1,
+        "FLOOR_RELEASE_CLEARED": 1,
+        "FLOOR_RELEASE_COPY_DELETED": 3,
+        "FLOOR_RELEASE_FILE_DELETED": 21,
+        "FLOOR_RELEASE_PARENT_FORCED": 1,
+        "FLOOR_RELEASE_PROPOSAL_CLEARED": 1,
+        "FLOOR_RELEASE_RELINQUISHED": 1,
+        "FLOOR_RESERVED": 1,
+        "NETWORK_RECEIVED": 38,
+        "RETENTION_BEFORE_WRITE": 3,
+        "RETENTION_CANDIDATE_PARENT_FORCED": 3,
+        "RETENTION_FORCED": 3,
+        "RETENTION_PARENT_FORCED": 3,
+        "RETENTION_PREFIX_WRITTEN": 3,
+        "RETENTION_RENAMED": 3,
+        "RETENTION_WRITTEN": 3,
+        "RETIREMENT_AUTHORITY_CLEARED": 1,
+        "RETIREMENT_AUTHORITY_FORCED": 1,
+        "RETIREMENT_AUTHORITY_WRITTEN": 1,
+        "RETIREMENT_BEFORE_RETURN": 1,
+        "RETIREMENT_BORROWED_IMAGES_FORCED": 1,
+        "RETIREMENT_BORROW_CLEARED": 1,
+        "RETIREMENT_BORROW_FORCED": 1,
+        "RETIREMENT_BORROW_PREFIX_WRITTEN": 1,
+        "RETIREMENT_BORROW_WRITTEN": 1,
+        "RETIREMENT_CLEARED": 1,
+        "RETIREMENT_CREATED": 1,
+        "RETIREMENT_DELETE_VALIDATED": 1,
+        "RETIREMENT_DIRECTORY_DELETED": 1,
+        "RETIREMENT_FILE_DELETED": 8,
+        "RETIREMENT_MANIFEST_FORCED": 1,
+        "RETIREMENT_MANIFEST_WRITTEN": 1,
+        "RETIREMENT_MEMBER_FORCED": 6,
+        "RETIREMENT_MEMBER_WRITTEN": 6,
+        "RETIREMENT_OLD_FILES_FORCED": 1,
+        "RETIREMENT_PARENT_FORCED": 1,
+        "RETIREMENT_PROPOSAL_CLEARED": 1,
+        "RETIREMENT_PROPOSAL_FORCED": 1,
+        "RETIREMENT_PROPOSAL_WRITTEN": 1,
+        "RETIREMENT_RESERVED": 1,
+        "RETIREMENT_SAVED_DIRECTORY_DELETED": 1,
+        "RETIREMENT_SAVED_FILE_DELETED": 7,
+        "RETIREMENT_SOURCE_CREATED": 1,
+        "RETIREMENT_SOURCE_FORCED": 1,
+        "WIRE_RESPONSE": 38
+      },
+      "node-4": {
+        "ACCEPT_BEFORE_RETURN": 1,
+        "ACCEPT_CANDIDATE_CREATED": 1,
+        "ACCEPT_CANDIDATE_FORCED": 1,
+        "ACCEPT_CANDIDATE_PARENT_FORCED": 1,
+        "ACCEPT_CANDIDATE_WRITTEN": 1,
+        "ACCEPT_PARENT_FORCED": 1,
+        "ACCEPT_PREFIX_WRITTEN": 1,
+        "ACCEPT_RENAMED": 1,
+        "ACCEPT_VALIDATED": 1,
+        "FLOOR_AUTHORITY_FORCED": 1,
+        "FLOOR_AUTHORITY_WRITTEN": 1,
+        "FLOOR_BEFORE_RETURN": 1,
+        "FLOOR_COPIES_FORCED": 1,
+        "FLOOR_COPY_BEFORE_RETURN": 2,
+        "FLOOR_COPY_CREATED": 3,
+        "FLOOR_COPY_DIRECTORY_FORCED": 3,
+        "FLOOR_COPY_HANDED_OFF": 3,
+        "FLOOR_DIRECTORY_CREATED": 1,
+        "FLOOR_IMAGE_FORCED": 3,
+        "FLOOR_IMAGE_WRITTEN": 3,
+        "FLOOR_MANIFEST_FORCED": 3,
+        "FLOOR_MANIFEST_WRITTEN": 3,
+        "FLOOR_MEMBER_FORCED": 15,
+        "FLOOR_MEMBER_WRITTEN": 15,
+        "FLOOR_PARENT_FORCED": 1,
+        "FLOOR_PROPOSAL_FORCED": 1,
+        "FLOOR_PROPOSAL_WRITTEN": 1,
+        "FLOOR_RELEASE_AUTHORITY_CLEARED": 1,
+        "FLOOR_RELEASE_AUTHORITY_CREATED": 1,
+        "FLOOR_RELEASE_AUTHORITY_FORCED": 1,
+        "FLOOR_RELEASE_AUTHORITY_WRITTEN": 1,
+        "FLOOR_RELEASE_BEFORE_RETURN": 1,
+        "FLOOR_RELEASE_CLEARED": 1,
+        "FLOOR_RELEASE_COPY_DELETED": 3,
+        "FLOOR_RELEASE_FILE_DELETED": 21,
+        "FLOOR_RELEASE_PARENT_FORCED": 1,
+        "FLOOR_RELEASE_PROPOSAL_CLEARED": 1,
+        "FLOOR_RELEASE_RELINQUISHED": 1,
+        "FLOOR_RESERVED": 1,
+        "NETWORK_RECEIVED": 38,
+        "RETENTION_BEFORE_WRITE": 3,
+        "RETENTION_CANDIDATE_PARENT_FORCED": 3,
+        "RETENTION_FORCED": 3,
+        "RETENTION_PARENT_FORCED": 3,
+        "RETENTION_PREFIX_WRITTEN": 3,
+        "RETENTION_RENAMED": 3,
+        "RETENTION_WRITTEN": 3,
+        "RETIREMENT_AUTHORITY_CLEARED": 1,
+        "RETIREMENT_AUTHORITY_FORCED": 1,
+        "RETIREMENT_AUTHORITY_WRITTEN": 1,
+        "RETIREMENT_BEFORE_RETURN": 1,
+        "RETIREMENT_CLEARED": 1,
+        "RETIREMENT_CREATED": 1,
+        "RETIREMENT_DELETE_VALIDATED": 1,
+        "RETIREMENT_DIRECTORY_DELETED": 1,
+        "RETIREMENT_FILE_DELETED": 5,
+        "RETIREMENT_IMAGE_FORCED": 1,
+        "RETIREMENT_IMAGE_WRITTEN": 1,
+        "RETIREMENT_MANIFEST_FORCED": 1,
+        "RETIREMENT_MANIFEST_WRITTEN": 1,
+        "RETIREMENT_MEMBER_FORCED": 3,
+        "RETIREMENT_MEMBER_WRITTEN": 3,
+        "RETIREMENT_OLD_FILES_FORCED": 1,
+        "RETIREMENT_PARENT_FORCED": 1,
+        "RETIREMENT_PROPOSAL_CLEARED": 1,
+        "RETIREMENT_PROPOSAL_FORCED": 1,
+        "RETIREMENT_PROPOSAL_WRITTEN": 1,
+        "RETIREMENT_RESERVED": 1,
+        "RETIREMENT_SAVED_DIRECTORY_DELETED": 1,
+        "RETIREMENT_SAVED_FILE_DELETED": 5,
+        "RETIREMENT_SOURCE_CREATED": 1,
+        "RETIREMENT_SOURCE_FORCED": 1,
+        "ROUND_SLOT_BEGIN": 1,
+        "WIRE_RESPONSE": 38
+      }
+    },
+    "barrier8Published": false,
+    "completeNativeStatus": "FAIL",
+    "data9Submitted": false,
+    "endpointClosedIsAfterDeadline": true,
+    "failedPhase": "first BARRIER ACCEPT",
+    "failure": "membership exchange deadline",
+    "focusedJavaTests": 26,
+    "limitation": "The old final run reached DATA 9; this run stops at BARRIER 8. Different progress and single executions do not establish a comparative latency improvement or isolate environmental variability.",
+    "limitsChanged": false,
+    "measurementRetriesAdded": false,
+    "nativeProducer": {
+      "autonomousElection": false,
+      "independentReplay": false,
+      "profile": "5-to-4-remove",
+      "publicRuntime": false,
+      "removed": "node-5",
+      "staleSurvivor": "node-4",
+      "status": "FAIL"
+    },
+    "nativeRaw": "target/v53-native-cancellation/builds/imagenative-60d095b3/general-search-engine-replication/target/v53-native-dispatch/run-28063820-9352-4a8c-b4a9-5650cf3f1e86",
+    "nextWork": "Investigate repeated floor/current/original-base verification during serialized maintenance, preserve physical checks and callbacks, complete independent post-adoption service replay and remaining native histories.",
+    "prefixNegativeCases": 13,
+    "pythonTests": 18,
+    "roundEvents": [
+      {
+        "event": "ROUND_ADOPTED",
+        "node": "node-5",
+        "ordinal": 103
+      },
+      {
+        "event": "ROUND_ADOPTED",
+        "node": "node-4",
+        "ordinal": 152
+      },
+      {
+        "event": "ROUND_INSTALLED",
+        "node": "node-4",
+        "ordinal": 774
+      },
+      {
+        "event": "ROUND_SLOT_BEGIN",
+        "node": "node-4",
+        "ordinal": 775
+      }
+    ]
+  },
+  "nativeInspection": {
+    "negatives": [
+      {
+        "case": "original-application",
+        "reason": "admitted exact slot-4-applied: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offline-owner-repaired",
+        "reason": "admitted exact slot-7-settled: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-observation",
+        "reason": "discovered transition original observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-adoption-fence",
+        "reason": "admitted exact node-5-adopted: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "survivor-selector",
+        "reason": "admitted exact node-4-adopted: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unrelated-owner",
+        "reason": "admitted exact node-4-adopted: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-owner-vote",
+        "reason": "discovered transition removed owner remains fenced",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-delivery",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-adoption",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unverified-hint",
+        "reason": "prefix discovery original cut",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-source-bytes",
+        "reason": "prefix exact data",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "adoptions": 2,
+      "autonomousElection": false,
+      "discovery": [
+        {
+          "exchanges": 10,
+          "node": "node-5",
+          "traces": 3
+        },
+        {
+          "exchanges": 10,
+          "node": "node-4",
+          "traces": 3
+        }
+      ],
+      "fullHistoryQualified": false,
+      "originalFirst": true,
+      "originalSlots": 7,
+      "phase3Complete": false,
+      "scope": "original-prelude-and-adoption-only",
+      "snapshots": 54,
+      "status": "PARTIAL"
+    }
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "prefixReplay": {
+    "negatives": [
+      {
+        "case": "scope",
+        "reason": "prefix scope/receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-profile",
+        "reason": "prefix complete inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "storage",
+        "reason": "admitted exact after",
+        "status": "REJECTED"
+      },
+      {
+        "case": "force",
+        "reason": "prefix authority writes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "scratch",
+        "reason": "prefix complete received bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "hint",
+        "reason": "prefix discovery original cut",
+        "status": "REJECTED"
+      },
+      {
+        "case": "grant",
+        "reason": "prefix exact offer",
+        "status": "REJECTED"
+      },
+      {
+        "case": "sequence",
+        "reason": "prefix exact correlation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reference",
+        "reason": "prefix exact request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "bytes",
+        "reason": "prefix exact data",
+        "status": "REJECTED"
+      },
+      {
+        "case": "commit",
+        "reason": "prefix exact commit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "truncated",
+        "reason": "prefix transcript incomplete",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra",
+        "reason": "prefix extra exchange",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "adoption": false,
+      "cases": [
+        {
+          "exchanges": 7,
+          "size": 3
+        },
+        {
+          "exchanges": 7,
+          "size": 4
+        },
+        {
+          "exchanges": 7,
+          "size": 5
+        }
+      ],
+      "network": true,
+      "publicRuntime": false,
+      "schema": "gse-v53-prefix-discovery-v1",
+      "scope": "read-only-current-prefix-acquisition",
+      "status": "PASS"
+    }
+  },
+  "schema": "gse-v53-image-validation-v1",
+  "snapshots": {
+    "imagenative": "imagenative-60d095b3",
+    "imagevalidation": "imagevalidation-743e6bd3"
+  },
+  "status": "PARTIAL"
+}

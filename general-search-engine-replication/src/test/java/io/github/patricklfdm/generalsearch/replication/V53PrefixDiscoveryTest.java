@@ -140,7 +140,10 @@ class V53PrefixDiscoveryTest {
         try(var owner=f.open(path,budget,e->{})) {
             var old=owner.activationContext();var ballot=owner.discoveryState(budget).ballot();
             try(var export=owner.exportPrefix(cutDigest(old.cut),ballot,old.authority(),budget,()->0L,0,BUDGET)) {
+                var image=export.references().values().stream().filter(v->v.kind()==MembershipTransfer.Kind.APPLICATION).findFirst().orElseThrow();
+                export.checkImage(image.digest(),image.bytes());
                 var packet=export.references().get(cutDigest(old.cut));owner.adoptCurrent(f.remote.packet(),f.remote.source.images,List.of());
+                assertThrows(IllegalArgumentException.class,()->export.checkImage(image.digest(),image.bytes()));
                 assertThrows(IllegalArgumentException.class,()->export.read(packet.digest(),0,16));assertThrows(IllegalArgumentException.class,export::references);
             }
         }
@@ -205,9 +208,14 @@ class V53PrefixDiscoveryTest {
                 assertEquals(before.counts().get(MembershipResources.Unit.APPLICATION),budget.usage().counts().get(MembershipResources.Unit.APPLICATION));
                 assertTrue(received.imageBindings().isEmpty());assertEquals(Set.of("source.gscp"),MembershipBasisSources.children(scratch,8));
                 for(var image:received.packet().images().entrySet()) {
+                    export.checkImage(image.getKey(),image.getValue());received.checkImage(image.getKey(),image.getValue());
                     assertArrayEquals(export.image(image.getKey(),image.getValue()),received.images().get(image.getKey()));
                     assertFalse(export.hasImage(image.getKey(),image.getValue()+1));
+                    assertThrows(IllegalArgumentException.class,()->export.checkImage(image.getKey(),image.getValue()+1));
+                    assertThrows(IllegalArgumentException.class,()->received.checkImage(image.getKey(),image.getValue()+1));
                 }
+                assertThrows(IllegalArgumentException.class,()->export.checkImage("f".repeat(64),1));
+                assertThrows(IllegalArgumentException.class,()->received.checkImage("f".repeat(64),1));
                 assertFalse(export.hasImage("f".repeat(64),1));assertEquals(state.context().root,export.imageRoot());
                 clock.set(BUDGET);assertThrows(IllegalArgumentException.class,received::recheck);
             }
@@ -217,12 +225,46 @@ class V53PrefixDiscoveryTest {
     @Test void borrowedCurrentImageRejectsEqualBytesAtAReplacedInode()throws Exception {
         try(var l=local(new AtomicLong())) {
             var owner=l.owners.getFirst();var state=owner.discoveryState(l.budgets.getFirst());
-            try(var export=owner.exportPrefix(cutDigest(state.context().cut),state.ballot(),state.context().authority(),l.budgets.getFirst(),()->0L,0,BUDGET)) {
+            try(var export=owner.exportPrefix(cutDigest(state.context().cut),state.ballot(),state.context().authority(),l.budgets.getFirst(),()->0L,0,BUDGET);
+                var pull=pull(l)) {
+                var received=pull.fetchPrefix(temp.resolve("replaced-borrow"),export);received.recheck();
                 var image=export.references().values().stream().filter(v->v.kind()==MembershipTransfer.Kind.APPLICATION).findFirst().orElseThrow();
                 var dir=l.group.fixture.request.targets().getFirst().replicaDirectory();var selector=decode(Files.readAllBytes(dir.resolve("selector.gsr")),"records","SELECTOR");
                 var file=dir.resolve("generations").resolve((String)selector.value().get("generation")).resolve(image.digest()+".image");
                 var replacement=file.resolveSibling("replacement");Files.write(replacement,Files.readAllBytes(file));Files.move(replacement,file,StandardCopyOption.REPLACE_EXISTING);
+                assertThrows(IllegalArgumentException.class,()->export.checkImage(image.digest(),image.bytes()));
+                assertThrows(IllegalArgumentException.class,received::recheck);
                 assertThrows(IllegalArgumentException.class,()->export.image(image.digest(),image.bytes()));
+            }
+        }
+    }
+    @Test void borrowedCurrentImageRechecksActualBytesAndClosedExportAfterEveryValidation()throws Exception {
+        for(String fault:List.of("image","closed")) {
+            var helper=new V53ActivationDriverTest();helper.temp=Files.createDirectory(temp.resolve(fault));
+            try(var l=helper.local(new AtomicLong(),1000)) {
+                var owner=l.owners.getFirst();var budget=l.budgets.getFirst();var state=owner.discoveryState(budget);
+                var before=budget.usage();
+                try(var export=owner.exportPrefix(cutDigest(state.context().cut),state.ballot(),state.context().authority(),budget,()->0L,0,BUDGET);
+                    var pull=pull(l)) {
+                    var received=pull.fetchPrefix(temp.resolve("changed-borrow-"+fault),export);
+                    var image=received.packet().images().entrySet().iterator().next();
+                    received.checkImage(image.getKey(),image.getValue());received.recheck();
+                    var directory=l.group.fixture.request.targets().getFirst().replicaDirectory();
+                    var selector=decode(Files.readAllBytes(directory.resolve("selector.gsr")),"records","SELECTOR");
+                    var file=directory.resolve("generations").resolve((String)selector.value().get("generation")).resolve(image.getKey()+".image");
+                    byte[] original=Files.readAllBytes(file);
+                    if(fault.equals("closed"))export.close();
+                    else {byte[] corrupt=original.clone();corrupt[corrupt.length-1]^=1;Files.write(file,corrupt);}
+                    try {
+                        assertThrows(IllegalArgumentException.class,()->export.checkImage(image.getKey(),image.getValue()));
+                        assertThrows(IllegalArgumentException.class,received::recheck);
+                        assertThrows(IllegalArgumentException.class,()->received.checkImage(image.getKey(),image.getValue()));
+                        assertThrows(IllegalArgumentException.class,received::images);
+                    }finally{if(fault.equals("image"))Files.write(file,original);}
+                    // Restoring the bytes does not revive an export revoked by validation.
+                    assertThrows(IllegalArgumentException.class,received::recheck);
+                }
+                assertEquals(before,budget.usage());
             }
         }
     }

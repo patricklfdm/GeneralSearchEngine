@@ -172,13 +172,16 @@ final class MembershipSourceReceive implements AutoCloseable,MembershipImageBorr
         byte[] result=borrowedImages.containsKey(digest)?localImages.image(digest,bytes):files.get(digest+".image").bytes();
         require(result.length==bytes && hash(result).equals(digest),"received borrowed image changed");recheck();return result;
     }
+    @Override public synchronized void checkImage(String digest,long bytes)throws IOException {
+        require(hasImage(digest,bytes),"received original image unavailable");
+    }
     synchronized Decoded basis()throws IOException {check();require(basis!=null,"read-only prefix has no BASIS");return basis;}
     synchronized Decoded promise()throws IOException {check();require(promise!=null,"read-only prefix has no PROMISE");return promise;}
     synchronized MembershipIdentity sourceIdentity()throws IOException {check();return source;}
     /** Recheck a borrowed complete source without allocating another image map. */
     synchronized void recheck()throws IOException {
         packet();for(var file:files.values())file.checkVerified();
-        for(var image:borrowedImages.entrySet())localImages.image(image.getKey(),image.getValue());check();
+        for(var image:borrowedImages.entrySet())localImages.checkImage(image.getKey(),image.getValue());check();
     }
     /** Materialize the missing ORIGINAL source members under this same learner
      * lease. These are the source voter's records, never fresh local votes. */
