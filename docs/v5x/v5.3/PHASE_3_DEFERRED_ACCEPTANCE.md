@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Discovered service replay](PHASE_3_DISCOVERED_SERVICE.md) independently accepts
+one unchanged native 5-to-4 service history through cut 9, including all original
+wire exchanges, complete future recording and publication. Its 32 new negatives
+pass. Remaining profiles, process crash cuts and automatic election scheduling
+still need qualification; Phase 3 remains **OPEN**. Older entries below describe
+their original partial readers, not the scope of this new reader.
+
 [Discovered installation replay](PHASE_3_DISCOVERED_SELECTION.md) reuses the
 unchanged successful native producer: 55 independently derived snapshots,
 14 complete transfer traces and 21 exact negatives through installation. It

@@ -117,6 +117,14 @@ class NativeSlot(x.Walk):
         # Intermediate ACCEPT/PROOF phases have no separate captured snapshots.
         # Their exact bytes are included in the independently matched applied end.
 
+    def checkpoint_voters(self,view,node):
+        eligible=set(view['old'])|set(view['new'])
+        chosen={node} if node in eligible else set()
+        for peer in sorted(eligible):
+            if all(len(chosen & set(view[side]))>len(view[side])//2 for side in ('old','new')):break
+            chosen.add(peer)
+        return chosen
+
     def publication_group(self,group,*,before_local_cleanup=None):
         """Derive publication files from the independently matched applied end.
 
@@ -129,11 +137,7 @@ class NativeSlot(x.Walk):
             # Checkpoint publication uses the governing end view. FINAL's
             # certificate still has the original joint ACCEPT/PROOF quorum,
             # while its new stable checkpoint needs only the new majority.
-            eligible=set(view['old'])|set(view['new'])
-            chosen={node} if node in eligible else set()
-            for peer in sorted(eligible):
-                if all(len(chosen & set(view[side]))>len(view[side])//2 for side in ('old','new')):break
-                chosen.add(peer)
+            chosen=self.checkpoint_voters(view,node)
             objects=dict(published['objects']);item=cap['items'][-1];acks=[]
             for digest in item['endorsements']:
                 ack=f.decode(objects[digest],'records','CHECKPOINT_ACK')

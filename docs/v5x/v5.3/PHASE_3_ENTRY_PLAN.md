@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Discovered service replay](PHASE_3_DISCOVERED_SERVICE.md) completes independent
+replay of one retained 5-to-4 history through BARRIER 8 and DATA 9: 56 physical
+snapshots, all 635 wire responses, both recording majorities per slot and exact
+readiness boundaries. Its 32 new negatives pass. This single native path does
+not close the remaining profiles, process cuts or autonomous elections; Phase 3
+remains **OPEN**. Entries below retain their historical scoped results.
+
 [Discovered installation replay](PHASE_3_DISCOVERED_SELECTION.md) independently
 derives the five-to-four original history through ballot 4 and the selected
 nodes 1/2/4 installation, including pre-grant floor/source retirement and all

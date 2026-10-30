@@ -83,6 +83,10 @@ class Walk:
     def application_image(self,slot,nodes):
         return (self.root/f'slot-{slot}-applied'/nodes[0]/'applied-end/application.image').read_bytes()
 
+    def data_documents(self):
+        """The fixture command's independently expected application result."""
+        return self.documents+[(707,'after-removal')]
+
     def publish(self,kind,command=None,nodes=None):
         nodes=nodes or self.active;members,packet,cap,before=self.state();self.slot+=1;slot=self.slot
         selected=e.f.decode(members['selected.gsr'],'records','SELECTED');r=cap['root'];ids={n:e.f.decode(self.group[n]['node.gsr'],'records','NODE')['identity']['storage'] for n in nodes}
@@ -107,7 +111,7 @@ class Walk:
         image=self.application_image(slot,nodes)
         if kind=='DATA':
             after=copy.deepcopy(before);after.update(application=e.digest(image),applicationSequence=before['applicationSequence']+1,lastDataIndex=slot,cut=dict(cap['cut'],index=slot,entry=e.digest(entry)))
-            application(image,self.history,after['applicationSequence'],self.documents+[(707,'after-removal')])
+            application(image,self.history,after['applicationSequence'],self.data_documents())
         else:
             e.need(image==members[cap['application']+'.image'],'cross-view control image changed')
             after=context.reduce_catalog(before,cap['catalog'],kind,command,e.digest(entry),r)
