@@ -1,0 +1,1760 @@
+{
+  "archive": {
+    "bytes": 14287518,
+    "directories": 2014,
+    "files": 12006,
+    "path": "target/v53-node-inflight/qualification.tar.gz",
+    "sha256": "fb40dc837dee8c1e314507366ea6f9cb7fb7d0485a688c4cf80de75c1c7d26d5"
+  },
+  "baseCommit": "0b03c75b6781ac360924fb3f4fe2783b6fe6e5d5",
+  "developmentNotes": [
+    "Production Java, workload bounds and persisted formats are unchanged.",
+    "The first ACCEPT/SIGKILL history passed full replay and all 19 negatives before the complete matrix qualification.",
+    "Initial PROOF replay rejected its recovery force as ACCEPT. The reader now derives the exact PROOF recovery phase from the physically validated cut; a twentieth negative rejects substitution of the reopen phase. Both diagnostics remain retained.",
+    "The exact-entry unit test was corrected to mutate each field independently; otherwise an earlier bad field could mask acceptance of a later change."
+  ],
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53NodeInFlightTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "nodeacceptfirst",
+      "requestedTests": [
+        "V53NodeInFlightTest#killAfterAccept"
+      ],
+      "seconds": 229.20820059400285,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53NodeInFlightTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53NodeProcessTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "nodeinflightmatrix",
+      "requestedTests": [
+        "V53NodeInFlightTest#haltAfterAccept+haltAfterProof+killAfterProof",
+        "V53NodeProcessTest"
+      ],
+      "seconds": 983.1585762989998,
+      "skipped": 0,
+      "tests": 5
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "pythonTests": 27,
+  "qualification": [
+    {
+      "kind": "accept_parent_forced-kill",
+      "path": "target/v53-native-cancellation/builds/nodeacceptfirst-ed383bd1/general-search-engine-replication/target/v53-node-process/run-a416cfb1-bc42-4f6f-8c46-a8c05f6c741a",
+      "result": {
+        "negatives": [
+          {
+            "case": "interrupted-vote",
+            "reason": "admitted exact before-reopen: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unexpected-follower-vote",
+            "reason": "admitted exact before-reopen: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "drop-selected-tail",
+            "reason": "inflight original selected tail",
+            "status": "REJECTED"
+          },
+          {
+            "case": "installed-tail",
+            "reason": "admitted exact installed-2: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reaccepted-vote",
+            "reason": "admitted exact applied-2: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-fresh-barrier",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted-success",
+            "reason": "inflight exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "freshened-carried-origin",
+            "reason": "inflight original entry",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-retirement",
+            "reason": "selected retention force order: inflight actual publication node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-reaccept",
+            "reason": "selected retention force order: inflight actual publication node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-ready",
+            "reason": "inflight fresh barrier before readiness",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unreceived-selected-prepare",
+            "reason": "discovered selection response delivered",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-exit",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-lock-probe",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-disk",
+            "reason": "node process original disk paths",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-cut",
+            "reason": "node process terminal boundary",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-child-send",
+            "reason": "node process exact child lifetime events",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-cut-event",
+            "reason": "node process exact interrupted force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-reopen-phase",
+            "reason": "inflight exact original reopen",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "carriedOriginalEntry": true,
+          "childMessages": [
+            791,
+            1960
+          ],
+          "cut": "ACCEPT_PARENT_FORCED",
+          "freshLeaderJvms": 2,
+          "interruptedClientSuccess": false,
+          "mode": "kill",
+          "network": {
+            "exchanges": 510,
+            "fullWireReplay": true,
+            "phases": [
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 80,
+                "index": 1,
+                "recordingQuorums": 1,
+                "transfers": 16,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 22,
+                "transfers": 2,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 62,
+                "transfers": 8,
+                "unusedIncompleteTransfers": 1,
+                "voters": [
+                  "node-1",
+                  "node-3"
+                ]
+              },
+              {
+                "exchanges": 97,
+                "index": 2,
+                "recordingQuorums": 1,
+                "transfers": 19,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 106,
+                "index": 3,
+                "recordingQuorums": 1,
+                "transfers": 20,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 115,
+                "index": 4,
+                "recordingQuorums": 1,
+                "transfers": 23,
+                "unusedIncompleteTransfers": 0
+              }
+            ],
+            "requests": 549,
+            "silent": [
+              {
+                "attempts": 3,
+                "index": 1,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              }
+            ],
+            "silentRequests": 39
+          },
+          "originalFirst": true,
+          "phase3Complete": false,
+          "physicalReplay": true,
+          "powerLoss": false,
+          "processRestart": true,
+          "publicRuntime": false,
+          "scope": "native-node-interrupted-write-recovery",
+          "status": "PASS"
+        }
+      }
+    },
+    {
+      "kind": "accept_parent_forced-halt",
+      "path": "target/v53-native-cancellation/builds/nodeinflightmatrix-869ca123/general-search-engine-replication/target/v53-node-process/run-043100f5-a624-4a72-8844-2a5f22757e39",
+      "result": {
+        "negatives": [
+          {
+            "case": "interrupted-vote",
+            "reason": "admitted exact before-reopen: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unexpected-follower-vote",
+            "reason": "admitted exact before-reopen: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "drop-selected-tail",
+            "reason": "inflight original selected tail",
+            "status": "REJECTED"
+          },
+          {
+            "case": "installed-tail",
+            "reason": "admitted exact installed-2: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reaccepted-vote",
+            "reason": "admitted exact applied-2: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-fresh-barrier",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted-success",
+            "reason": "inflight exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "freshened-carried-origin",
+            "reason": "inflight original entry",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-retirement",
+            "reason": "selected retention force order: inflight actual publication node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-reaccept",
+            "reason": "selected retention force order: inflight actual publication node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-ready",
+            "reason": "inflight fresh barrier before readiness",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unreceived-selected-prepare",
+            "reason": "discovered selection response delivered",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-exit",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-lock-probe",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-disk",
+            "reason": "node process original disk paths",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-cut",
+            "reason": "node process terminal boundary",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-child-send",
+            "reason": "node process exact child lifetime events",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-cut-event",
+            "reason": "node process exact interrupted force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-reopen-phase",
+            "reason": "inflight exact original reopen",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "carriedOriginalEntry": true,
+          "childMessages": [
+            790,
+            1924
+          ],
+          "cut": "ACCEPT_PARENT_FORCED",
+          "freshLeaderJvms": 2,
+          "interruptedClientSuccess": false,
+          "mode": "halt",
+          "network": {
+            "exchanges": 509,
+            "fullWireReplay": true,
+            "phases": [
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 80,
+                "index": 1,
+                "recordingQuorums": 1,
+                "transfers": 16,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 22,
+                "transfers": 2,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 62,
+                "transfers": 8,
+                "unusedIncompleteTransfers": 1,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 96,
+                "index": 2,
+                "recordingQuorums": 1,
+                "transfers": 19,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 106,
+                "index": 3,
+                "recordingQuorums": 1,
+                "transfers": 20,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 115,
+                "index": 4,
+                "recordingQuorums": 1,
+                "transfers": 23,
+                "unusedIncompleteTransfers": 0
+              }
+            ],
+            "requests": 521,
+            "silent": [
+              {
+                "attempts": 3,
+                "index": 1,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "FUTURE_RETENTION_INTENT"
+              }
+            ],
+            "silentRequests": 12
+          },
+          "originalFirst": true,
+          "phase3Complete": false,
+          "physicalReplay": true,
+          "powerLoss": false,
+          "processRestart": true,
+          "publicRuntime": false,
+          "scope": "native-node-interrupted-write-recovery",
+          "status": "PASS"
+        }
+      }
+    },
+    {
+      "kind": "after_data_return-halt",
+      "path": "target/v53-native-cancellation/builds/nodeinflightmatrix-869ca123/general-search-engine-replication/target/v53-node-process/run-4956e3ac-8e1d-43bc-aa84-30354b63a6aa",
+      "result": {
+        "negatives": [
+          {
+            "case": "reused-pid",
+            "reason": "node process fresh child identities",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-exit",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-lock-probe",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-disk",
+            "reason": "node process original disk paths",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-cut",
+            "reason": "node process terminal boundary",
+            "status": "REJECTED"
+          },
+          {
+            "case": "child-error",
+            "reason": "node process child stderr",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-child-send",
+            "reason": "node process exact child lifetime events",
+            "status": "REJECTED"
+          },
+          {
+            "case": "invented-drain",
+            "reason": "node process unexpected child action",
+            "status": "REJECTED"
+          },
+          {
+            "case": "copied-child-start",
+            "reason": "node process original child start",
+            "status": "REJECTED"
+          },
+          {
+            "case": "incomplete-transcript",
+            "reason": "node process complete bounded transcript",
+            "status": "REJECTED"
+          },
+          {
+            "case": "clean-close-instead-of-crash",
+            "reason": "node owner exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-fresh-barrier",
+            "reason": "node owner readiness fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-physical-selector",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-request-bytes",
+            "reason": "node network original send shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unreceived-selected-prepare",
+            "reason": "discovered selection response delivered",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "childMessages": [
+            1135,
+            1524
+          ],
+          "cut": "AFTER_DATA_RETURN",
+          "freshLeaderJvms": 2,
+          "mode": "halt",
+          "network": {
+            "completeTransfers": 87,
+            "exchanges": 492,
+            "fullWireReplay": true,
+            "originalFirst": true,
+            "phase3Complete": false,
+            "phases": [
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 80,
+                "index": 1,
+                "recordingQuorums": 1,
+                "transfers": 16,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 96,
+                "index": 2,
+                "recordingQuorums": 1,
+                "transfers": 19,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 94,
+                "transfers": 10,
+                "unusedIncompleteTransfers": 1,
+                "voters": [
+                  "node-1",
+                  "node-3"
+                ]
+              },
+              {
+                "exchanges": 86,
+                "index": 3,
+                "recordingQuorums": 1,
+                "transfers": 18,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 108,
+                "index": 4,
+                "recordingQuorums": 1,
+                "transfers": 21,
+                "unusedIncompleteTransfers": 0
+              }
+            ],
+            "physical": {
+              "campaigns": 2,
+              "coldReopens": 1,
+              "fullWireReplay": false,
+              "originalFirst": true,
+              "phase3Complete": false,
+              "physicalReplay": true,
+              "processRestart": true,
+              "publicRuntime": false,
+              "scope": "native-node-process-reopen-physical",
+              "slots": 4,
+              "snapshotGroups": 16,
+              "status": "PARTIAL"
+            },
+            "processRestart": true,
+            "publicRuntime": false,
+            "requests": 519,
+            "scope": "one-native-node-process-reopen-history",
+            "silent": [
+              {
+                "attempts": 3,
+                "index": 1,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              }
+            ],
+            "silentRequests": 27,
+            "status": "PASS",
+            "transfers": 88,
+            "unusedIncompleteTransfers": 1
+          },
+          "originalFirst": true,
+          "phase3Complete": false,
+          "powerLoss": false,
+          "processRestart": true,
+          "publicRuntime": false,
+          "scope": "one-native-node-process-reopen-history",
+          "status": "PASS",
+          "survivingFollowers": 2
+        }
+      }
+    },
+    {
+      "kind": "proof_parent_forced-halt",
+      "path": "target/v53-native-cancellation/builds/nodeinflightmatrix-869ca123/general-search-engine-replication/target/v53-node-process/run-59df5658-941a-4f80-848b-10938e4afa3d",
+      "result": {
+        "negatives": [
+          {
+            "case": "interrupted-vote",
+            "reason": "admitted exact before-reopen: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unexpected-follower-vote",
+            "reason": "admitted exact before-reopen: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "drop-selected-tail",
+            "reason": "inflight original selected tail",
+            "status": "REJECTED"
+          },
+          {
+            "case": "installed-tail",
+            "reason": "admitted exact installed-2: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reaccepted-vote",
+            "reason": "admitted exact applied-2: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-fresh-barrier",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted-success",
+            "reason": "inflight exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "freshened-carried-origin",
+            "reason": "inflight original entry",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-retirement",
+            "reason": "selected retention force order: inflight actual publication node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-reaccept",
+            "reason": "selected retention force order: inflight actual publication node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-ready",
+            "reason": "inflight fresh barrier before readiness",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unreceived-selected-prepare",
+            "reason": "discovered selection response delivered",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-exit",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-lock-probe",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-disk",
+            "reason": "node process original disk paths",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-cut",
+            "reason": "node process terminal boundary",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-child-send",
+            "reason": "node process exact child lifetime events",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-cut-event",
+            "reason": "node process exact interrupted force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-reopen-phase",
+            "reason": "inflight exact original reopen",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "carriedOriginalEntry": true,
+          "childMessages": [
+            875,
+            1857
+          ],
+          "cut": "PROOF_PARENT_FORCED",
+          "freshLeaderJvms": 2,
+          "interruptedClientSuccess": false,
+          "mode": "halt",
+          "network": {
+            "exchanges": 513,
+            "fullWireReplay": true,
+            "phases": [
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 79,
+                "index": 1,
+                "recordingQuorums": 1,
+                "transfers": 16,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 61,
+                "transfers": 9,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 96,
+                "index": 2,
+                "recordingQuorums": 1,
+                "transfers": 19,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 106,
+                "index": 3,
+                "recordingQuorums": 1,
+                "transfers": 20,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 115,
+                "index": 4,
+                "recordingQuorums": 1,
+                "transfers": 23,
+                "unusedIncompleteTransfers": 0
+              }
+            ],
+            "requests": 525,
+            "silent": [
+              {
+                "attempts": 3,
+                "index": 1,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "FUTURE_RETENTION_INTENT"
+              }
+            ],
+            "silentRequests": 12
+          },
+          "originalFirst": true,
+          "phase3Complete": false,
+          "physicalReplay": true,
+          "powerLoss": false,
+          "processRestart": true,
+          "publicRuntime": false,
+          "scope": "native-node-interrupted-write-recovery",
+          "status": "PASS"
+        }
+      }
+    },
+    {
+      "kind": "after_data_return-kill",
+      "path": "target/v53-native-cancellation/builds/nodeinflightmatrix-869ca123/general-search-engine-replication/target/v53-node-process/run-6c411f76-2c12-49be-b290-587a8ae65380",
+      "result": {
+        "negatives": [
+          {
+            "case": "reused-pid",
+            "reason": "node process fresh child identities",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-exit",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-lock-probe",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-disk",
+            "reason": "node process original disk paths",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-cut",
+            "reason": "node process terminal boundary",
+            "status": "REJECTED"
+          },
+          {
+            "case": "child-error",
+            "reason": "node process child stderr",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-child-send",
+            "reason": "node process exact child lifetime events",
+            "status": "REJECTED"
+          },
+          {
+            "case": "invented-drain",
+            "reason": "node process unexpected child action",
+            "status": "REJECTED"
+          },
+          {
+            "case": "copied-child-start",
+            "reason": "node process original child start",
+            "status": "REJECTED"
+          },
+          {
+            "case": "incomplete-transcript",
+            "reason": "node process complete bounded transcript",
+            "status": "REJECTED"
+          },
+          {
+            "case": "clean-close-instead-of-crash",
+            "reason": "node owner exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-fresh-barrier",
+            "reason": "node owner readiness fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-physical-selector",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-request-bytes",
+            "reason": "node network original send shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unreceived-selected-prepare",
+            "reason": "discovered selection response delivered",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "childMessages": [
+            1137,
+            1519
+          ],
+          "cut": "AFTER_DATA_RETURN",
+          "freshLeaderJvms": 2,
+          "mode": "kill",
+          "network": {
+            "completeTransfers": 87,
+            "exchanges": 491,
+            "fullWireReplay": true,
+            "originalFirst": true,
+            "phase3Complete": false,
+            "phases": [
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 81,
+                "index": 1,
+                "recordingQuorums": 1,
+                "transfers": 16,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 96,
+                "index": 2,
+                "recordingQuorums": 1,
+                "transfers": 19,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 91,
+                "transfers": 10,
+                "unusedIncompleteTransfers": 1,
+                "voters": [
+                  "node-1",
+                  "node-3"
+                ]
+              },
+              {
+                "exchanges": 86,
+                "index": 3,
+                "recordingQuorums": 1,
+                "transfers": 18,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 109,
+                "index": 4,
+                "recordingQuorums": 1,
+                "transfers": 21,
+                "unusedIncompleteTransfers": 0
+              }
+            ],
+            "physical": {
+              "campaigns": 2,
+              "coldReopens": 1,
+              "fullWireReplay": false,
+              "originalFirst": true,
+              "phase3Complete": false,
+              "physicalReplay": true,
+              "processRestart": true,
+              "publicRuntime": false,
+              "scope": "native-node-process-reopen-physical",
+              "slots": 4,
+              "snapshotGroups": 16,
+              "status": "PARTIAL"
+            },
+            "processRestart": true,
+            "publicRuntime": false,
+            "requests": 518,
+            "scope": "one-native-node-process-reopen-history",
+            "silent": [
+              {
+                "attempts": 3,
+                "index": 1,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "CHECKPOINT_ACK_LOOKUP"
+              }
+            ],
+            "silentRequests": 27,
+            "status": "PASS",
+            "transfers": 88,
+            "unusedIncompleteTransfers": 1
+          },
+          "originalFirst": true,
+          "phase3Complete": false,
+          "powerLoss": false,
+          "processRestart": true,
+          "publicRuntime": false,
+          "scope": "one-native-node-process-reopen-history",
+          "status": "PASS",
+          "survivingFollowers": 2
+        }
+      }
+    },
+    {
+      "kind": "proof_parent_forced-kill",
+      "path": "target/v53-native-cancellation/builds/nodeinflightmatrix-869ca123/general-search-engine-replication/target/v53-node-process/run-ed2928a0-633b-4860-8c5f-a57094b19b80",
+      "result": {
+        "negatives": [
+          {
+            "case": "interrupted-vote",
+            "reason": "admitted exact before-reopen: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unexpected-follower-vote",
+            "reason": "admitted exact before-reopen: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "drop-selected-tail",
+            "reason": "inflight original selected tail",
+            "status": "REJECTED"
+          },
+          {
+            "case": "installed-tail",
+            "reason": "admitted exact installed-2: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reaccepted-vote",
+            "reason": "admitted exact applied-2: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-fresh-barrier",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "interrupted-success",
+            "reason": "inflight exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "freshened-carried-origin",
+            "reason": "inflight original entry",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-retirement",
+            "reason": "selected retention force order: inflight actual publication node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-reaccept",
+            "reason": "selected retention force order: inflight actual publication node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-ready",
+            "reason": "inflight fresh barrier before readiness",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unreceived-selected-prepare",
+            "reason": "discovered selection response delivered",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-exit",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-lock-probe",
+            "reason": "node process exact death and drain",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-disk",
+            "reason": "node process original disk paths",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-cut",
+            "reason": "node process terminal boundary",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-child-send",
+            "reason": "node process exact child lifetime events",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-cut-event",
+            "reason": "node process exact interrupted force",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-reopen-phase",
+            "reason": "inflight exact original reopen",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "carriedOriginalEntry": true,
+          "childMessages": [
+            875,
+            1855
+          ],
+          "cut": "PROOF_PARENT_FORCED",
+          "freshLeaderJvms": 2,
+          "interruptedClientSuccess": false,
+          "mode": "kill",
+          "network": {
+            "exchanges": 512,
+            "fullWireReplay": true,
+            "phases": [
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 79,
+                "index": 1,
+                "recordingQuorums": 1,
+                "transfers": 16,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 61,
+                "transfers": 9,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 28,
+                "transfers": 4,
+                "unusedIncompleteTransfers": 0,
+                "voters": [
+                  "node-1",
+                  "node-2"
+                ]
+              },
+              {
+                "exchanges": 96,
+                "index": 2,
+                "recordingQuorums": 1,
+                "transfers": 19,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 105,
+                "index": 3,
+                "recordingQuorums": 1,
+                "transfers": 20,
+                "unusedIncompleteTransfers": 0
+              },
+              {
+                "exchanges": 115,
+                "index": 4,
+                "recordingQuorums": 1,
+                "transfers": 23,
+                "unusedIncompleteTransfers": 0
+              }
+            ],
+            "requests": 524,
+            "silent": [
+              {
+                "attempts": 3,
+                "index": 1,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 2,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 3,
+                "kind": "FUTURE_RETENTION_INTENT"
+              },
+              {
+                "attempts": 3,
+                "index": 4,
+                "kind": "FUTURE_RETENTION_INTENT"
+              }
+            ],
+            "silentRequests": 12
+          },
+          "originalFirst": true,
+          "phase3Complete": false,
+          "physicalReplay": true,
+          "powerLoss": false,
+          "processRestart": true,
+          "publicRuntime": false,
+          "scope": "native-node-interrupted-write-recovery",
+          "status": "PASS"
+        }
+      }
+    },
+    {
+      "kind": "historical-cold-reopen",
+      "path": "target/v53-native-cancellation/builds/nodewireraw-241f186b/general-search-engine-replication/target/v53-node-owner/run-0363bfe3-2fe8-44b9-bee3-760adb432259",
+      "result": {
+        "negatives": [
+          {
+            "case": "initial-image",
+            "reason": "bootstrap original image binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "first-data",
+            "reason": "bootstrap validation image header",
+            "status": "REJECTED"
+          },
+          {
+            "case": "before-reopen",
+            "reason": "admitted exact before-reopen: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selector",
+            "reason": "admitted exact published-3: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-data",
+            "reason": "admitted exact applied-4: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "final-extra",
+            "reason": "admitted exact after-close: node-3",
+            "status": "REJECTED"
+          },
+          {
+            "case": "second-selection",
+            "reason": "node owner original selection",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-selection",
+            "reason": "node owner selected stable majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unused-grant",
+            "reason": "admitted exact installed-2: node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-ready",
+            "reason": "node owner exact lifecycle order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-ready",
+            "reason": "node owner readiness fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-owner",
+            "reason": "node owner lifetime identity",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-owner",
+            "reason": "node owner event lifetime required",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-reopen-force",
+            "reason": "node owner exact cold reopen forces",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-install-force",
+            "reason": "selected retention force order: node owner installation node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-publication-force",
+            "reason": "selected retention force order: node owner publication node-2",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-completion",
+            "reason": "node owner original completion",
+            "status": "REJECTED"
+          },
+          {
+            "case": "forged-scope",
+            "reason": "node owner producer scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-discovery",
+            "reason": "restart network original status probe",
+            "status": "REJECTED"
+          },
+          {
+            "case": "discovery-cut",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-response-row",
+            "reason": "discovered selection unmatched response event",
+            "status": "REJECTED"
+          },
+          {
+            "case": "invented-delivery",
+            "reason": "restart network delivery without original response",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-delivery",
+            "reason": "restart network delivery without original response",
+            "status": "REJECTED"
+          },
+          {
+            "case": "source-bytes",
+            "reason": "restart network source exact data",
+            "status": "REJECTED"
+          },
+          {
+            "case": "source-offer",
+            "reason": "restart network source original offer",
+            "status": "REJECTED"
+          },
+          {
+            "case": "basis-reply",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "reply-identity",
+            "reason": "discovered selection wire correlation",
+            "status": "REJECTED"
+          },
+          {
+            "case": "vote-receipt",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "apply-statement",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-revision",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "future-digest",
+            "reason": "restart network exact delivered control",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-quorum",
+            "reason": "restart network local recording before quorum",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-quorum",
+            "reason": "restart network actual recording majority",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-publication",
+            "reason": "restart network recording before every publication send",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-retirement",
+            "reason": "selected retention force order: restart network node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-parent-ack",
+            "reason": "restart network required original source",
+            "status": "REJECTED"
+          },
+          {
+            "case": "bootstrap-force",
+            "reason": "closed election wait initialization",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send-bytes",
+            "reason": "node network original send shape",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-send",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-receipt",
+            "reason": "node network response without original receipt",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-request-receipt",
+            "reason": "node network received request without write",
+            "status": "REJECTED"
+          },
+          {
+            "case": "four-write-attempts",
+            "reason": "node network bounded identical writes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "cross-phase-request",
+            "reason": "node network request crosses completed phase",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-lifetime-request",
+            "reason": "node network request wrong node lifetime",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-silent-retention",
+            "reason": "node network exact unused retention attempt",
+            "status": "REJECTED"
+          },
+          {
+            "case": "silent-checkpoint-reference",
+            "reason": "node network original unused checkpoint lookup",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unused-prefix-data",
+            "reason": "node network exact unused source prefix",
+            "status": "REJECTED"
+          },
+          {
+            "case": "selected-image-data",
+            "reason": "restart network source exact data",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "completeTransfers": 87,
+          "exchanges": 488,
+          "fullWireReplay": true,
+          "originalFirst": true,
+          "phase3Complete": false,
+          "phases": [
+            {
+              "exchanges": 28,
+              "transfers": 4,
+              "unusedIncompleteTransfers": 0,
+              "voters": [
+                "node-1",
+                "node-2"
+              ]
+            },
+            {
+              "exchanges": 81,
+              "index": 1,
+              "recordingQuorums": 1,
+              "transfers": 16,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 96,
+              "index": 2,
+              "recordingQuorums": 1,
+              "transfers": 19,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 88,
+              "transfers": 10,
+              "unusedIncompleteTransfers": 1,
+              "voters": [
+                "node-1",
+                "node-3"
+              ]
+            },
+            {
+              "exchanges": 86,
+              "index": 3,
+              "recordingQuorums": 1,
+              "transfers": 18,
+              "unusedIncompleteTransfers": 0
+            },
+            {
+              "exchanges": 109,
+              "index": 4,
+              "recordingQuorums": 1,
+              "transfers": 21,
+              "unusedIncompleteTransfers": 0
+            }
+          ],
+          "physical": {
+            "campaigns": 2,
+            "coldReopens": 1,
+            "fullWireReplay": false,
+            "originalFirst": true,
+            "phase3Complete": false,
+            "physicalReplay": true,
+            "processRestart": false,
+            "publicRuntime": false,
+            "scope": "native-node-cold-reopen-physical",
+            "slots": 4,
+            "snapshotGroups": 16,
+            "status": "PARTIAL"
+          },
+          "processRestart": false,
+          "publicRuntime": false,
+          "requests": 515,
+          "scope": "one-native-node-cold-reopen-history",
+          "silent": [
+            {
+              "attempts": 3,
+              "index": 1,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 2,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 3,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 3,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 3,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "FUTURE_RETENTION_INTENT"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            },
+            {
+              "attempts": 3,
+              "index": 4,
+              "kind": "CHECKPOINT_ACK_LOOKUP"
+            }
+          ],
+          "silentRequests": 27,
+          "status": "PASS",
+          "transfers": 88,
+          "unusedIncompleteTransfers": 1
+        }
+      }
+    }
+  ],
+  "qualificationSeconds": 201.49284685298335,
+  "schema": "gse-v53-node-inflight-v1",
+  "scope": "native-node-interrupted-write-recovery",
+  "scopeNotes": [
+    "Four distinct original bootstrap/process/reopen histories: ACCEPT or PROOF parent force, halt 73 or SIGKILL 137.",
+    "The interrupted DATA has no client success. Recovery keeps its original ENTRY bytes, reaccepts under the new ballot, then completes a fresh BARRIER before READY.",
+    "Both completed-DATA process fixtures also reran with the current producer. The earlier cold-reopen history is a reader regression against its retained producer, not a new execution.",
+    "All process observations, same original paths, physical snapshots, original wire messages and exact negatives are checked. No public runtime, autonomous competing failover or host power-loss claim. Phase 3 remains open."
+  ],
+  "status": "PASS"
+}

@@ -17,7 +17,8 @@ class V53NodeProcessTest {
     @TempDir Path temp;
     @Test void haltThenOriginalDiskFreshBarrier()throws Exception{run("halt");}
     @Test void sigkillThenOriginalDiskFreshBarrier()throws Exception{run("kill");}
-    void run(String mode)throws Exception {
+    void run(String mode)throws Exception {run(mode,"AFTER_DATA_RETURN");}
+    void run(String mode,String point)throws Exception {
         Path evidence=Files.createDirectories(Path.of("target/v53-node-process/run-"+UUID.randomUUID())),raw=Files.createDirectory(evidence.resolve("history")),processes=Files.createDirectory(evidence.resolve("process"));
         System.out.println("v53NodeProcessEvidence="+evidence.toAbsolutePath());
         var f=new V53BootstrapPublicationTest.Fixture(raw,V53OwnedCrossViewTest.networkRequest(Files.createDirectory(temp.resolve("group")),3,false));
@@ -46,7 +47,7 @@ class V53NodeProcessTest {
                     var opened=new CountDownLatch(1);var proceed=new CountDownLatch(1);var cut=new CountDownLatch(1);
                     Path stdout=processes.resolve("life-"+life+".jsonl"),stderr=processes.resolve("life-"+life+".stderr");
                     Process child=new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-cp",System.getProperty("java.class.path"),
-                            V53NodeProcessWorker.class.getName(),spec.toAbsolutePath().toString(),Integer.toString(life),mode).redirectError(stderr.toFile()).start();children.add(child);
+                            V53NodeProcessWorker.class.getName(),spec.toAbsolutePath().toString(),Integer.toString(life),mode,point).redirectError(stderr.toFile()).start();children.add(child);
                     var row=new TreeMap<String,Object>();row.put("life",life);row.put("pid",child.pid());records.add(row);
                     var reader=readers.submit(()->{
                         try(var input=child.inputReader(StandardCharsets.UTF_8);var output=child.outputWriter(StandardCharsets.UTF_8);var retained=Files.newBufferedWriter(stdout,StandardCharsets.UTF_8,StandardOpenOption.CREATE_NEW)) {
@@ -57,8 +58,9 @@ class V53NodeProcessTest {
                                     case "started" -> {assertEquals(child.pid(),number(object(value).get("pid")));row.put("started",value);}
                                     case "opened" -> {assertEquals(life,number(value));opened.countDown();assertTrue(proceed.await(30,TimeUnit.SECONDS));}
                                     case "cut" -> {
-                                        assertEquals(1,life);assertEquals(Map.of("name","AFTER_DATA_RETURN","mode",mode,"pid",child.pid()),value);
-                                        assertThrows(Exception.class,()->{try(var ignored=MembershipOwnership.own(f.request.targets().getFirst().replicaDirectory().resolve("replica.lock"),false)){fail("live leader lock released");}});
+                                        assertEquals(1,life);assertEquals(Map.of("name",point,"mode",mode,"pid",child.pid()),value);
+                                        var locked=assertThrows(ReplicationException.class,()->{try(var ignored=MembershipOwnership.own(f.request.targets().getFirst().replicaDirectory().resolve("replica.lock"),false)){fail("live leader lock released");}});
+                                        assertEquals("membership file already owned",locked.getMessage());
                                         row.put("lockHeldBeforeDeath",true);
                                     }
                                     case "closed" -> {assertEquals(2,life);assertEquals(2,number(value));row.put("drained",true);}
@@ -96,7 +98,7 @@ class V53NodeProcessTest {
                 Files.write(raw.resolve("events.json"),canonical(events,16*1024*1024));Files.write(raw.resolve("wire.json"),canonical(wire,32*1024*1024));f.snapshot("after-close");V53NativeApplicationTest.save(f);
                 Files.write(raw.resolve("node-result.json"),canonical(Map.of("status","PARTIAL","producerPassed",success && closing==null,"coldReopens",1,"barriers",2,"dataCalls",2,
                         "physicalReplay",false,"processRestart",true,"phase3Complete",false,"serviceBudgetNanos",V53NodeOwnerNetworkTest.BUDGET),4096));
-                Files.write(processes.resolve("result.json"),canonical(Map.of("mode",mode,"cut","AFTER_DATA_RETURN","children",records,"status",success && closing==null?"PARTIAL":"FAIL","powerLoss",false,"phase3Complete",false),65536));
+                Files.write(processes.resolve("result.json"),canonical(Map.of("mode",mode,"cut",point,"children",records,"status",success && closing==null?"PARTIAL":"FAIL","powerLoss",false,"phase3Complete",false),65536));
                 if(closing!=null)throw closing;
             }
         }

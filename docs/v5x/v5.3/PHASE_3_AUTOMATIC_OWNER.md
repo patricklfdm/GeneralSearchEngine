@@ -130,6 +130,9 @@ The subsequent [node process gate](PHASE_3_NODE_PROCESS.md) extends this exact
 physical/network replay to distinct leader JVMs after halt and SIGKILL. Its
 completed-DATA crash point and original process observations are separately
 qualified; they do not change the same-process scope of the history below.
+The later [in-flight process gate](PHASE_3_NODE_INFLIGHT.md) separately requires
+exact retained DATA reacceptance and a fresh readiness barrier after actual
+ACCEPT/PROOF parent-force death.
 
 The [network receipt](phase3-evidence/node-network.json) binds a new whole native
 history to the same runtime source plus two fixture observations: complete raw

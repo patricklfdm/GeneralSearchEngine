@@ -80,7 +80,7 @@ def unreceived_prepare(phase, peer, promise, basis, ballot, lower, upper, sequen
     return q['trace']
 
 
-def activate(root, events, entries, start, stop, identities, number):
+def activate(root, events, entries, start, stop, identities, number, *, carried=False):
     before = a.group(root,'before-network' if number == 1 else 'before-reopen')
     installed = a.group(root,f'installed-{number}')
     chosen = (root/f'selected-{number}.gsr').read_bytes(); selected = f.decode(chosen,'records','SELECTED')
@@ -88,13 +88,14 @@ def activate(root, events, entries, start, stop, identities, number):
     old = f.decode(c.current(before['node-1'])[1]['promise.gsr'],'records','PROMISE')['ballot']
     phase = a.Phase(events,entries,start,stop,identities)
     allocation = phase.at('node-1','ALLOCATOR_BEFORE_WRITE')
-    discovery_end = allocation if number == 1 else phase.at('node-1','FLOOR_PARENT_FORCED')
+    need(type(carried) is bool and (not carried or number == 2 and selected['nextEntry'] is not None), 'node network carried activation scope')
+    discovery_end = allocation if number == 1 or carried else phase.at('node-1','FLOOR_PARENT_FORCED')
     previous = start
     for voter in ('node-2','node-3'):
         previous = phase.probe('node-1',voter,old,c.current(before[voter])[2]['capsule']['cut'],previous,discovery_end)
     previous_voters = (tuple(v['voter'] for v in f.decode(c.current(before['node-1'])[1]['selected.gsr'],
         'records','SELECTED')['sources']) if number == 2 else voters)
-    if number == 2: a.maintenance(phase,before,'node-1',old,previous,allocation,voters=previous_voters)
+    if number == 2 and not carried: a.maintenance(phase,before,'node-1',old,previous,allocation,voters=previous_voters)
     local_promise = a.frozen(installed['node-1'],ballot)[0]
     phase.ordered('node-1',['ALLOCATOR_FORCED','ALLOCATOR_DIRECTORY_FORCED','ALLOCATOR_BEFORE_RETURN','PROMISE_FORCED'])
     for voter in voters:
@@ -102,7 +103,8 @@ def activate(root, events, entries, start, stop, identities, number):
             'SELECTED_FORCED','SELECTED_BEFORE_RETURN','INSTALL_SELECTOR_FORCED','INSTALL_PARENT_FORCED','INSTALL_BEFORE_RETURN'])
     if number == 2:
         old_peer = previous_voters[1]
-        a.maintenance(phase,before,old_peer,ballot,allocation,phase.at(old_peer,'PROMISE_FORCED'),voters=previous_voters)
+        if not carried or before[old_peer]['pending.accept'] == c.EMPTY:
+            a.maintenance(phase,before,old_peer,ballot,allocation,phase.at(old_peer,'PROMISE_FORCED'),voters=previous_voters)
     local_selected = phase.at('node-1','SELECTED_FORCED')
     prepared = [v for v in ('node-2','node-3') if ('PREPARE','node-1',v) in phase.controls]
     need(prepared in (['node-2'],['node-2','node-3']) and peer in prepared,'node network bounded candidates')

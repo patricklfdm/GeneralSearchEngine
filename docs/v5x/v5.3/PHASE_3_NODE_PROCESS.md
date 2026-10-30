@@ -63,7 +63,9 @@ JARs or class files.
 ## Remaining gates and rollback
 
 This is a completed-DATA process restart, with parent-controlled successor
-startup. Crash cuts during ACCEPT/PROOF/install/publication, competing automatic
+startup. The subsequent [in-flight gate](PHASE_3_NODE_INFLIGHT.md) adds ACCEPT
+and PROOF parent-force cuts; it does not enlarge the scope of this receipt.
+Other install/publication cuts, competing automatic
 candidates, membership transitions and the full profile matrix remain required.
 Independent whole histories may later run in parallel; the two lifetimes of one
 history must not be split across runners. Public runtime and paid cloud remain

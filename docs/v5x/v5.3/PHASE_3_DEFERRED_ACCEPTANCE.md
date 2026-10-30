@@ -1,9 +1,16 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[In-flight native process histories](PHASE_3_NODE_INFLIGHT.md) cover the four
+ACCEPT/PROOF parent-force and halt/SIGKILL combinations, with fresh-ballot
+reacceptance of the original DATA followed by a distinct BARRIER before READY.
+Keep crash, original-disk reopen, exact byte replay and every phase's network
+history together. Remaining crash cuts, competing candidates and all profiles
+are still separate required gates; this does not close Phase 3.
+
 [Native node process recovery](PHASE_3_NODE_PROCESS.md) adds complete local
 halt/SIGKILL histories at the completed-DATA cut. Keep bootstrap, both leader
 JVMs, the two surviving owners, original paths and all replay inputs together.
-These two parent-orchestrated recoveries do not replace in-flight crash cuts,
+These two parent-orchestrated recoveries do not replace the in-flight gate above,
 automatic competing-candidate recovery or all profiles. Parallelize only
 independent complete histories when adding hosted acceptance.
 

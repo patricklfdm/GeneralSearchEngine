@@ -1,11 +1,17 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Native in-flight process recovery](PHASE_3_NODE_INFLIGHT.md) adds actual
+halt/SIGKILL at ACCEPT and PROOF parent force. The original unreturned DATA is
+reaccepted under the fresh ballot before a separate new BARRIER grants READY.
+Original physical, wire and process replay must all pass; competing candidates,
+the remaining crash cuts and all-profile qualification still keep Phase 3 **OPEN**.
+
 [Native node process recovery](PHASE_3_NODE_PROCESS.md) now covers actual halt
 and external SIGKILL after completed DATA, with the other two owners remaining
 live and a fresh JVM reopening the same original disk. Both histories require
 a new higher-ballot BARRIER before further DATA. Complete original physical,
-network and process-lifetime replay is separate from the still-open in-flight
-crash, competing-candidate and all-profile gates; Phase 3 remains **OPEN**.
+network and process-lifetime replay is separate from the later in-flight gate
+above and the still-open competing-candidate/all-profile gates; Phase 3 remains **OPEN**.
 
 [Native node lifetime](PHASE_3_AUTOMATIC_OWNER.md#native-node-lifetime) now owns
 original storage, endpoint, transport and automatic service through partial open,

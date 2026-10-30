@@ -23,9 +23,9 @@ def inventory(root):
         {f'life-{life}.{suffix}' for life in (1, 2) for suffix in ('jsonl', 'stderr')}, 'node process retained inputs')
 
 
-def children(result):
+def children(result, *, cut='AFTER_DATA_RETURN'):
     need(type(result) is dict and set(result) == {'mode', 'cut', 'children', 'status', 'powerLoss', 'phase3Complete'}
-         and result['mode'] in ('halt', 'kill') and result['cut'] == 'AFTER_DATA_RETURN'
+         and result['mode'] in ('halt', 'kill') and result['cut'] == cut
          and result['status'] == 'PARTIAL' and result['powerLoss'] is False and result['phase3Complete'] is False,
          'node process producer scope')
     rows = result['children']
@@ -54,7 +54,7 @@ def transcript(path):
     return result
 
 
-def observations(root, rows):
+def observations(root, rows, *, cut='AFTER_DATA_RETURN'):
     history = root/'history'; process = root/'process'; events = n.read(history/'events.json'); wire = n.read(history/'wire.json')
     crash = next(i for i, row in enumerate(events) if row['event'] == 'NODE_CRASH')
     parts = (events[:crash], events[crash+1:]); counts = []
@@ -62,7 +62,7 @@ def observations(root, rows):
         need((process/f'life-{life}.stderr').read_bytes() == b'', 'node process child stderr')
         messages = transcript(process/f'life-{life}.jsonl')
         need(messages[0] == dict(action='started', value=row['started']), 'node process original child start')
-        ending = dict(action='cut', value=dict(name='AFTER_DATA_RETURN', mode=row['started']['mode'], pid=row['pid'])) if life == 1 else dict(action='closed', value=2)
+        ending = dict(action='cut', value=dict(name=cut, mode=row['started']['mode'], pid=row['pid'])) if life == 1 else dict(action='closed', value=2)
         need(messages[-1] == ending, 'node process terminal boundary')
         actual = []; snapshots = []; opened = 0
         for message in messages[1:-1]:
@@ -87,8 +87,13 @@ def observations(root, rows):
             else: raise ValueError('node process unexpected child action')
         need(opened == 1 and actual == [v for v in part if v['node'] == 'node-1'], 'node process exact child lifetime events')
         first = 2*life-1
-        need(snapshots == [f'installed-{life}', f'applied-{first}', f'published-{first}', 'first-ready' if life == 1 else 'second-ready',
-             f'applied-{first+1}', f'published-{first+1}'], 'node process exact child snapshots')
+        expected = [f'installed-{life}', f'applied-{first}', f'published-{first}', 'first-ready' if life == 1 else 'second-ready',
+             f'applied-{first+1}', f'published-{first+1}']
+        if cut != 'AFTER_DATA_RETURN':
+            expected = expected[:-2] if life == 1 else expected[:1]+['applied-2','published-2']+expected[1:]
+            if life == 1:
+                need(messages[-2] == dict(action='event',value=dict(node='node-1',incarnation=1,event=cut)), 'node process exact interrupted force')
+        need(snapshots == expected, 'node process exact child snapshots')
         counts.append(len(messages))
     return counts
 

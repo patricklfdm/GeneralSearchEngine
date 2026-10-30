@@ -87,11 +87,14 @@ class Walk:
         """The fixture command's independently expected application result."""
         return self.documents+[(707,'after-removal')]
 
+    def entry_bytes(self, fields):
+        return e.f.encode('records', 'ENTRY', fields)
+
     def publish(self,kind,command=None,nodes=None):
         nodes=nodes or self.active;members,packet,cap,before=self.state();self.slot+=1;slot=self.slot
         selected=e.f.decode(members['selected.gsr'],'records','SELECTED');r=cap['root'];ids={n:e.f.decode(self.group[n]['node.gsr'],'records','NODE')['identity']['storage'] for n in nodes}
         payload=b'' if kind=='BARRIER' else command if kind=='DATA' else e.f.canonical(command)
-        entry=e.f.encode('records','ENTRY',dict(root=r,authority=e.authority(r,cap['cut']['view']),index=slot,previous=cap['cut']['entry'],origin=selected['ballot'],kind=kind,payload=e.digest(payload)))
+        entry=self.entry_bytes(dict(root=r,authority=e.authority(r,cap['cut']['view']),index=slot,previous=cap['cut']['entry'],origin=selected['ballot'],kind=kind,payload=e.digest(payload)))
         self.requested(slot,entry,payload)
         context.majority(cap['cut']['view'],nodes)
         accept=e.f.encode('records','ACCEPT',dict(root=r,authority=selected['view'],ballot=selected['ballot'],index=slot,entry=e.digest(entry)))

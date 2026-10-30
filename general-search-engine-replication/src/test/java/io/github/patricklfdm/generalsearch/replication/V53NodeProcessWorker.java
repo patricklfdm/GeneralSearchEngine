@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 
@@ -40,8 +41,16 @@ public final class V53NodeProcessWorker {
             if(!"ACK".equals(input.readLine()))throw new IOException("parent observation acknowledgement absent");
         }
     }
+    static void crash(Pipe sink,String point,String mode)throws IOException {
+        sink.accept("cut",Map.of("name",point,"mode",mode,"pid",ProcessHandle.current().pid()));
+        if(mode.equals("halt"))Runtime.getRuntime().halt(73);
+        if(!mode.equals("kill"))throw new AssertionError("unknown process fault");
+        try{Thread.sleep(120_000);}catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException(error);}
+        throw new AssertionError("external SIGKILL absent");
+    }
     public static void main(String[] args)throws Exception {
-        Path spec=Path.of(args[0]);int life=Integer.parseInt(args[1]);String mode=args[2];
+        Path spec=Path.of(args[0]);int life=Integer.parseInt(args[1]);String mode=args[2],point=args.length==4?args[3]:"AFTER_DATA_RETURN";
+        if(!Set.of("AFTER_DATA_RETURN","ACCEPT_PARENT_FORCED","PROOF_PARENT_FORCED").contains(point))throw new AssertionError("unknown crash boundary");
         var values=object(parse(Files.readAllBytes(spec),65536));var paths=list(values.get("nodes")).stream().map(MembershipFormat::object).toList();
         var identities=new ArrayList<MembershipIdentity>();
         for(var path:paths)identities.add(MembershipContext.identity(object(decode(Files.readAllBytes(Path.of((String)path.get("replica")).resolve("node.gsr")),"records","NODE").value().get("identity"))));
@@ -52,7 +61,15 @@ public final class V53NodeProcessWorker {
                 storage(materialization,2),bounds,AutomaticLeadershipPolicy.forBounds(bounds));
         Path scratch=Path.of((String)values.get("scratch"));var sink=new Pipe();
         sink.accept("started",Map.of("pid",ProcessHandle.current().pid(),"life",life,"mode",mode));
-        var node=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,hooks("node-1",life,sink));
+        var original=hooks("node-1",life,sink);var activeSlot=new AtomicLong();
+        var instrumented=new MembershipNodeOwner.Hooks(event->{
+            original.storage().at(event);
+            if(life==1 && activeSlot.get()==2 && event.equals(point))crash(sink,point,mode);
+        },original.network(),(event,record)->{
+            if(event.equals("SLOT_BEGIN"))activeSlot.set(number(record.value().get("index")));
+            original.round().at(event,record);
+        },original.slot());
+        var node=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,instrumented);
         // A real halt/kill bypasses this finally and every owner close method.
         try {
             node.open();if(node.serviceState().orElseThrow()!=MembershipAutomaticOwner.State.NEW)throw new AssertionError("restored READY");
@@ -66,10 +83,8 @@ public final class V53NodeProcessWorker {
             }
             if(!node.submit("DATA",payload).await(180,TimeUnit.SECONDS).kind().equals("PUBLISH_ACK"))throw new AssertionError("missing DATA publication");
             if(life==1) {
-                sink.accept("cut",Map.of("name","AFTER_DATA_RETURN","mode",mode,"pid",ProcessHandle.current().pid()));
-                if(mode.equals("halt"))Runtime.getRuntime().halt(73);
-                if(!mode.equals("kill"))throw new AssertionError("unknown process fault");
-                Thread.sleep(120_000);throw new AssertionError("external SIGKILL absent");
+                if(!point.equals("AFTER_DATA_RETURN"))throw new AssertionError("declared write boundary not reached");
+                crash(sink,point,mode);
             }
         }finally{node.close();}
         if(node.usage().leases()!=0)throw new AssertionError("node drain leak");
