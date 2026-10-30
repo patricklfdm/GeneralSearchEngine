@@ -120,6 +120,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         private HistoryRead(MembershipGrantJournal owner){this(owner,null);}
         private HistoryRead(MembershipGrantJournal owner,MembershipBasisSources.Originals originals){this.owner=owner;this.originals=originals;}
         void check()throws IOException{owner.checkHistoryRead();}
+        boolean serialized(){return Thread.holdsLock(owner);}
         void joining(MembershipCapsule source)throws IOException{if(owner.joinedOwner!=null)owner.joinedOwner.history(source);}
         Path directory(){return owner.directory;}
         MembershipRoot root(){return owner.root;}

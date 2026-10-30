@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Serialized original floor reads](PHASE_3_FLOOR_READ_VALIDATION.md) keep full
+physical validation at both ends of one native read-only decode under the
+journal monitor. Force/deletion callbacks and later reads cannot reuse it.
+Source exchange still checks immediately before send and after each reply.
+Native availability and complete Phase 3 qualification remain separate gates.
+
 [Live borrowed-image validation](PHASE_3_IMAGE_VALIDATION.md) separates physical
 original checks from returning an image array. Current-generation and receiving
 owners still recheck exact bytes, identities and lifetimes on every call;

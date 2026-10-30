@@ -1,0 +1,412 @@
+{
+  "archive": {
+    "bytes": 34503066,
+    "directories": 2287,
+    "files": 22393,
+    "path": "target/v53-floor-read-validation/qualification.tar.gz",
+    "sha256": "6c344e50099cb135f94e5111c0130deeae6a6759462ce12d029a2b1b99640007"
+  },
+  "baseCommit": "9e09d7157b1c70e5b3e54d40a32db6970d5dc5ca",
+  "executions": {
+    "floorread": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53FloorFilesTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53FloorReadValidationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53FloorReleaseTest": 11
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "floorread",
+      "requestedTests": [
+        "V53FloorReadValidationTest",
+        "V53FloorFilesTest",
+        "V53FloorReleaseTest"
+      ],
+      "seconds": 112.54742734199681,
+      "skipped": 0,
+      "tests": 24
+    },
+    "floorreadfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53FloorReadValidationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceExchangeTest": 14
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "floorreadfinal",
+      "requestedTests": [
+        "V53FloorReadValidationTest",
+        "V53SourceExchangeTest"
+      ],
+      "seconds": 153.12637862400152,
+      "skipped": 0,
+      "tests": 16
+    },
+    "floorreadnative": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53DiscoveredTransitionTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "floorreadnative",
+      "requestedTests": [
+        "V53DiscoveredTransitionTest"
+      ],
+      "seconds": 347.69787871299195,
+      "skipped": 0,
+      "tests": 1
+    }
+  },
+  "fullHistoryQualified": false,
+  "interpretation": {
+    "acceptDiagnostics": [
+      {
+        "attempts": 3,
+        "latencySeconds": 12.109638,
+        "receivedSeconds": [
+          31.988289
+        ],
+        "request": "858eb72078b19530d75bb2b7d3d830835d0b57065da9921a4e2a43000b56cc11",
+        "startSeconds": 19.878651
+      },
+      {
+        "attempts": 3,
+        "latencySeconds": 12.092109,
+        "receivedSeconds": [
+          31.976444
+        ],
+        "request": "c3b7309cf194afd9217c494af9911b2aeefe90c1b966cdf7d34d3d320c9a2c80",
+        "startSeconds": 19.884335
+      },
+      {
+        "attempts": 3,
+        "latencySeconds": 13.978946,
+        "receivedSeconds": [
+          83.500319
+        ],
+        "request": "9a782f2f58da47906f7da0271bd0683a76e6845b79b147795b0f1ed6ac687535",
+        "startSeconds": 69.521373
+      },
+      {
+        "attempts": 3,
+        "latencySeconds": 13.997519,
+        "receivedSeconds": [
+          83.529457
+        ],
+        "request": "e14e6a6e0490a6a57817a4ad9641967cfd6cf93f61ba7a6319afe453cf292428",
+        "startSeconds": 69.531938
+      }
+    ],
+    "adoptionNegativeCases": 11,
+    "barrier8Published": true,
+    "completeNativeStatus": "PASS",
+    "data9Published": true,
+    "focusedJavaTests": 38,
+    "focusedTestCoverage": {
+      "finalFloorReadTests": 2,
+      "finalSourceExchangeTests": 14,
+      "initialUnchangedFloorSuites": 22
+    },
+    "fullHistoryQualified": false,
+    "initialTestFailure": "The force-callback corruption was rejected as ReplicationException(CONFLICTING_HISTORY), while the new test incorrectly expected IllegalArgumentException. Only that assertion was corrected; all initial reports remain retained.",
+    "limitation": "One native producer completed under unchanged limits. ACCEPTs still needed all three attempts. This is not a latency SLA, proof of a timing root cause, or independent service-history qualification; unselected node-3 rejections and all prior failures remain retained.",
+    "limitsChanged": false,
+    "measurementRetriesAdded": false,
+    "nativeProducer": {
+      "autonomousElection": false,
+      "independentReplay": false,
+      "profile": "5-to-4-remove",
+      "publicRuntime": false,
+      "removed": "node-5",
+      "staleSurvivor": "node-4",
+      "status": "PASS"
+    },
+    "nativeRaw": "target/v53-native-cancellation/builds/floorreadnative-8f4b1162/general-search-engine-replication/target/v53-native-dispatch/run-a8eea3f6-6b8b-44fc-a963-abbe5870b488",
+    "nextWork": "Derive post-adoption selection, maintenance, BARRIER 8 and DATA 9 from independent physical/history/network replay, then continue remaining profiles and autonomous election integration.",
+    "phase3Complete": false,
+    "pythonTests": 22,
+    "rejectedPeerOperations": [
+      {
+        "count": 18,
+        "failure": "java.lang.IllegalArgumentException: activation endpoint scope unavailable",
+        "kind": "CHUNK",
+        "node": "node-3"
+      },
+      {
+        "count": 12,
+        "failure": "java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required",
+        "kind": "FUTURE_RETENTION_INTENT",
+        "node": "node-3"
+      }
+    ],
+    "roundEvents": [
+      {
+        "event": "ROUND_ADOPTED",
+        "node": "node-5",
+        "ordinal": 103
+      },
+      {
+        "event": "ROUND_ADOPTED",
+        "node": "node-4",
+        "ordinal": 152
+      },
+      {
+        "event": "ROUND_INSTALLED",
+        "node": "node-4",
+        "ordinal": 774
+      },
+      {
+        "event": "ROUND_SLOT_BEGIN",
+        "node": "node-4",
+        "ordinal": 775
+      },
+      {
+        "event": "SLOT_APPLIED",
+        "node": "node-4",
+        "ordinal": 1930
+      },
+      {
+        "event": "SLOT_FUTURE_QUORUM_COMPLETE",
+        "node": "node-4",
+        "ordinal": 1962
+      },
+      {
+        "event": "SLOT_FUTURE_QUORUM_COMPLETE",
+        "node": "node-4",
+        "ordinal": 1994
+      },
+      {
+        "event": "SLOT_PUBLISHED",
+        "node": "node-4",
+        "ordinal": 2278
+      },
+      {
+        "event": "ROUND_SLOT_COMPLETE",
+        "node": "node-4",
+        "ordinal": 2280
+      },
+      {
+        "event": "ROUND_BEFORE_READY",
+        "node": "node-4",
+        "ordinal": 2281
+      },
+      {
+        "event": "ROUND_SLOT_BEGIN",
+        "node": "node-4",
+        "ordinal": 2282
+      },
+      {
+        "event": "SLOT_APPLIED",
+        "node": "node-4",
+        "ordinal": 3560
+      },
+      {
+        "event": "SLOT_FUTURE_QUORUM_COMPLETE",
+        "node": "node-4",
+        "ordinal": 3592
+      },
+      {
+        "event": "SLOT_FUTURE_QUORUM_COMPLETE",
+        "node": "node-4",
+        "ordinal": 3624
+      },
+      {
+        "event": "SLOT_PUBLISHED",
+        "node": "node-4",
+        "ordinal": 3965
+      },
+      {
+        "event": "ROUND_SLOT_COMPLETE",
+        "node": "node-4",
+        "ordinal": 3967
+      }
+    ],
+    "selectedNodes": [
+      "node-1",
+      "node-2",
+      "node-4"
+    ],
+    "sourceNegativeCases": 13
+  },
+  "nativeInspection": {
+    "negatives": [
+      {
+        "case": "original-application",
+        "reason": "admitted exact slot-4-applied: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offline-owner-repaired",
+        "reason": "admitted exact slot-7-settled: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "original-observation",
+        "reason": "discovered transition original observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-adoption-fence",
+        "reason": "admitted exact node-5-adopted: node-5",
+        "status": "REJECTED"
+      },
+      {
+        "case": "survivor-selector",
+        "reason": "admitted exact node-4-adopted: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unrelated-owner",
+        "reason": "admitted exact node-4-adopted: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "removed-owner-vote",
+        "reason": "discovered transition removed owner remains fenced",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-delivery",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-adoption",
+        "reason": "discovered transition delivered before adoption",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unverified-hint",
+        "reason": "prefix discovery original cut",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-source-bytes",
+        "reason": "prefix exact data",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "adoptions": 2,
+      "autonomousElection": false,
+      "discovery": [
+        {
+          "exchanges": 10,
+          "node": "node-5",
+          "traces": 3
+        },
+        {
+          "exchanges": 10,
+          "node": "node-4",
+          "traces": 3
+        }
+      ],
+      "fullHistoryQualified": false,
+      "originalFirst": true,
+      "originalSlots": 7,
+      "phase3Complete": false,
+      "scope": "original-prelude-and-adoption-only",
+      "snapshots": 54,
+      "status": "PARTIAL"
+    }
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "schema": "gse-v53-floor-read-validation-v1",
+  "snapshots": {
+    "floorread": "floorread-6c4eece1",
+    "floorreadfinal": "floorreadfinal-e2de051f",
+    "floorreadnative": "floorreadnative-8f4b1162"
+  },
+  "sourceReplay": {
+    "negatives": [
+      {
+        "case": "scope",
+        "reason": "source exchange scope/receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-profile",
+        "reason": "source exchange complete inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-authority",
+        "reason": "admitted exact after",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-scratch",
+        "reason": "source exchange exact scratch",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-offer",
+        "reason": "source exchange wire kinds",
+        "status": "REJECTED"
+      },
+      {
+        "case": "sequence",
+        "reason": "source exchange exact correlation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-identity",
+        "reason": "source exchange exact correlation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offer-digest",
+        "reason": "source exchange exact offer",
+        "status": "REJECTED"
+      },
+      {
+        "case": "packet-reference",
+        "reason": "source exchange exact request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-data",
+        "reason": "source exchange exact data",
+        "status": "REJECTED"
+      },
+      {
+        "case": "commit-id",
+        "reason": "source exchange exact commit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-commit",
+        "reason": "source exchange incomplete transcript",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-transfer",
+        "reason": "source exchange complete transcript",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "cases": [
+        {
+          "exchanges": 15,
+          "size": 3
+        },
+        {
+          "exchanges": 15,
+          "size": 4
+        },
+        {
+          "exchanges": 15,
+          "size": 5
+        }
+      ],
+      "network": true,
+      "publicRuntime": false,
+      "schema": "gse-v53-source-exchange-v1",
+      "scope": "complete-original-source-delivery",
+      "status": "PASS"
+    }
+  },
+  "status": "PARTIAL"
+}

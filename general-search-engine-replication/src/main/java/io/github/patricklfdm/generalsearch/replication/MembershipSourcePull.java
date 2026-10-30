@@ -125,7 +125,10 @@ final class MembershipSourcePull implements AutoCloseable {
         require(request.size()<=frameLimit,"source pull request frame limit");var retry=new MembershipExchange(request.digest(),started,budget);
         try(var held=resources.reserve(MembershipResources.Unit.CONTROL,"source-request-"+UUID.randomUUID(),request.size())) {
             for(;;) {
-                check();retry.attempt(request.digest(),clock.getAsLong());CompletableFuture<Decoded> future;
+                // Attempt accounting cannot send or consume protocol data. Check
+                // the complete guard after its clock read, immediately before
+                // link.exchange, rather than twice around this pure bookkeeping.
+                retry.attempt(request.digest(),clock.getAsLong());CompletableFuture<Decoded> future;
                 synchronized(this){check();future=Objects.requireNonNull(link.exchange(source,request,kind,started+budget));pending=future;if(closed)future.cancel(true);}
                 try {
                     long left=budget-(clock.getAsLong()-started);require(left>0,"original source pull deadline");

@@ -128,7 +128,24 @@ final class MembershipFloorFiles implements AutoCloseable {
     Optional<Decoded> read() throws IOException {return retained().map(Retained::floor);}
     Optional<Retained> retained() throws IOException {check();return releasing()?Optional.empty():retainedOriginal();}
     private Optional<Retained> retainedOriginal() throws IOException {
-        check();if(!complete())return Optional.empty();var floor=bound(AdmissionPaths.read(path.resolve(FLOOR),16384));
+        check();if(!complete())return Optional.empty();
+        OriginalRead read=null;
+        // Only native history under its journal monitor can share these physical
+        // checks during this private read-only decode. Constructors and the
+        // caller-supplied verifier keep their original per-callback checks.
+        if(historyOwner!=null && historyOwner.serialized()){historyOwner.check();read=new OriginalRead();}
+        try{return retainedOriginal(read);}finally{if(read!=null)read.active=false;}
+    }
+    private final class OriginalRead {
+        private final Thread thread=Thread.currentThread();
+        private boolean active=true;
+        private void check(MembershipFloorFiles source) {
+            require(active && source==MembershipFloorFiles.this && thread==Thread.currentThread()
+                    && historyOwner!=null && historyOwner.serialized(),"floor original read expired/unserialized");
+        }
+    }
+    private Optional<Retained> retainedOriginal(OriginalRead read) throws IOException {
+        var floor=bound(AdmissionPaths.read(path.resolve(FLOOR),16384));
         var copies=new ArrayList<MembershipFloor.Copy>();var expected=new TreeSet<String>(Set.of(PROPOSAL,FLOOR));if(releasing())expected.add(RELEASE);
         var rootBytes=decode(AdmissionPaths.read(parent.resolve("root.gsr"),16384),"records","ROOT");MembershipFloor.Copy own=null;
         for(Object row:list(floor.value().get("sources"))) {
@@ -140,7 +157,7 @@ final class MembershipFloorFiles implements AutoCloseable {
             MembershipCapsule capsule;
             if(historyOwner==null)capsule=Objects.requireNonNull(verifier.verify(rootBytes,packet,images));
             else {
-                var retained=new RetainedCopy(this,floor,generation,ref,packet,members);
+                var retained=new RetainedCopy(this,floor,generation,ref,packet,members,read);
                 try{capsule=MembershipCapsule.verifyStored(rootBytes,packet,images,retained);}finally{retained.active=false;}
             }
             require(Arrays.equals(capsule.packet.bytes(),packet.bytes()),"floor verifier substituted source");
@@ -152,7 +169,9 @@ final class MembershipFloorFiles implements AutoCloseable {
             require(copy.reference().equals(ref),"retained floor source binding");copies.add(copy);if(voter.equals(local.nodeId().value()))own=copy;
         }
         require(expected.equals(files.keySet()) && directories.size()==copies.size() && own!=null,"retained floor inventory/owner");
-        MembershipFloor.verify(floor,root,own,copies);check();return Optional.of(new Retained(floor,List.copyOf(copies)));
+        MembershipFloor.verify(floor,root,own,copies);check();
+        if(read!=null){read.check(this);historyOwner.check();}
+        return Optional.of(new Retained(floor,List.copyOf(copies)));
     }
     static final class RetainedCopy implements MembershipCapsule.StoredCopy {
         private final MembershipFloorFiles source;
@@ -160,13 +179,15 @@ final class MembershipFloorFiles implements AutoCloseable {
         private final Map<String,Object> reference;
         private final MembershipSourcePacket packet;
         private final Map<String,byte[]> members;
+        private final OriginalRead read;
         private boolean active=true;
         private RetainedCopy(MembershipFloorFiles source,Decoded floor,Decoded generation,Map<String,Object> reference,
-                MembershipSourcePacket packet,Map<String,byte[]> members) {
-            this.source=source;this.floor=floor;this.generation=generation;this.reference=reference;this.packet=packet;this.members=Map.copyOf(members);
+                MembershipSourcePacket packet,Map<String,byte[]> members,OriginalRead read) {
+            this.source=source;this.floor=floor;this.generation=generation;this.reference=reference;this.packet=packet;this.members=Map.copyOf(members);this.read=read;
         }
         public void check(Decoded root,MembershipSourcePacket packet)throws IOException {
-            require(active && source.historyOwner!=null,"floor history read expired");source.historyOwner.check();source.check();
+            require(active && source.historyOwner!=null,"floor history read expired");
+            if(read==null){source.historyOwner.check();source.check();}else read.check(source);
             require(source.complete() && Arrays.equals(floor.bytes(),AdmissionPaths.read(source.path.resolve(FLOOR),16384))
                     && root.rootDigest().equals(source.root.manifestDigest()) && Arrays.equals(this.packet.bytes(),packet.bytes())
                     && list(floor.value().get("sources")).contains(reference) && generation.digest().equals(reference.get("generation")),"floor history original binding");
