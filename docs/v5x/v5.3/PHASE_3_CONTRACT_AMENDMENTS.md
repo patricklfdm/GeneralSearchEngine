@@ -1,6 +1,23 @@
 # V5.3 Phase 3 contract amendments
 
 
+## A47 — original pending learner end before new-side ACK
+
+The [pending joining transaction](PHASE_3_PENDING_JOINING_END.md) accepts only the
+private completed progress exchange under the live typed learner. Retain its
+complete original SEALED source, exact receipt and pending INTENT metadata in a
+fixed inode/path/inventory-bound plan. Reserve the existing JOURNAL allowance
+before plan allocation/read; transfer the original receiving leases, force the
+plan/source/parents, and only then write and force the exact new-side checkpoint
+ACK and its parent. No public format or capacity changes.
+
+Close preserves originals. Cold continuation requires the actual prepared typed
+owner and those same originals, refuses torn plans before mutation, and finishes
+only the exact original move and ACK prefix. Pending state blocks ordinary
+preparation/CANCEL/published-INTENT custody; it supplies neither an election vote,
+fabricated SELECTOR nor publication. Native ACK routing, future retention,
+JOINT publication and complete Phase 3 qualification remain open.
+
 ## A46 — bounded pending INTENT reception without force authority
 
 The [pending receiver](PHASE_3_JOINING_INTENT_RECEIVER.md) is a single exchange

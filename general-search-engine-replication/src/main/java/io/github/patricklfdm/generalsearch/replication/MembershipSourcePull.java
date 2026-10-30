@@ -471,6 +471,14 @@ final class MembershipSourcePull implements AutoCloseable {
         require(learner.equals(head.request()) && resources==head.resources(),"learner INTENT original receiving owner");
         MembershipLearnerIntent.match(head,original);received.completeLearnerGeneration(original,cut);check();return received;
     }
+    MembershipSourceReceive completeLearnerPendingIntentSource(MembershipLearnerHead head,MembershipFloor.Copy original,MembershipBallotAllocator.Cut cut)throws IOException {
+        check();require(learner!=null && learnerProgress && completeSource && received!=null,"joining source is not a progress transfer");
+        require(learner.equals(head.request()) && resources==head.resources(),"joining original receiving owner");
+        MembershipLearnerProgressAccess.original(original.capsule.context,learner,source);
+        var row=MembershipLearnerProgressAccess.operation(original.capsule.context,learner.identity());
+        require(row.get("phase").equals("SEALED") && head.receipt().value().get("receipt").equals(row.get("receipt")),"joining original SEALED receipt");
+        received.completeLearnerGeneration(original,cut);check();return received;
+    }
     MembershipSourceReceive completeLearnerSource(MembershipFloor.Copy original,MembershipBallotAllocator.Cut cut)throws IOException {
         check();require(learner!=null && !learnerProgress && completeSource && received!=null,"learner source is not an admission transfer");
         var prefix=verifiedPrefix();require(Arrays.equals(prefix.packet.bytes(),original.capsule.packet.bytes()),"learner retained source prefix");

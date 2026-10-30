@@ -13,11 +13,14 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * A partial transaction blocks further acquisition; only exact original recovery
  * may finish it. Closing releases leases, but never removes retained evidence. */
 final class MembershipLearnerDisposition implements AutoCloseable {
-    enum Kind { CANCEL, INTENT }
+    enum Kind { CANCEL, INTENT, PENDING_INTENT }
     final Kind kind;
     private final String planName,nextName;
     static final String PLAN="cancellation.json",NEXT="cancellation.next.json",SOURCE="source";
     static final int MAXIMUM=64*1024;
+    static final int PENDING_MAXIMUM=MAXIMUM+MembershipJoiningIntentMetadata.MAXIMUM;
+    static final String PENDING_ACK="joining-ack.gsr";
+    private final int maximum;
     private final MembershipLearnerHead head;
     private final MembershipLearnerStore store;
     private final MembershipLearnerPlan summary;
@@ -33,10 +36,16 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     private Map<String,Object> terminal;
     private MembershipCapsule verified;
     private MembershipLearnerVoterStage voterStage;
-    private static String schema(Kind kind){return kind==Kind.CANCEL?"gse-v53-learner-cancellation/1.3":"gse-v53-learner-intent/1.3";}
+    private static String schema(Kind kind){return switch(kind){case CANCEL->"gse-v53-learner-cancellation/1.3";case INTENT->"gse-v53-learner-intent/1.3";case PENDING_INTENT->"gse-v53-learner-pending-intent/1.3";};}
+    private static String planName(Kind kind){return switch(kind){case CANCEL->PLAN;case INTENT->"intent.json";case PENDING_INTENT->"pending-intent.json";};}
+    private static String nextName(Kind kind){return switch(kind){case CANCEL->NEXT;case INTENT->"intent.next.json";case PENDING_INTENT->"pending-intent.next.json";};}
+    private static int maximum(Kind kind){return kind==Kind.PENDING_INTENT?PENDING_MAXIMUM:MAXIMUM;}
+    private static MembershipResources.Lease reservePending(MembershipLearnerHead head,Kind kind)throws IOException {
+        return kind==Kind.PENDING_INTENT?head.resources().reserve(MembershipResources.Unit.JOURNAL,"learner-pending-intent",2L*PENDING_MAXIMUM+2048):null;
+    }
 
     static Path directory(MembershipLearnerPlan plan,Kind kind) {
-        return plan.request().operationDirectory().resolveSibling(".gse-v53-learner-"+(kind==Kind.CANCEL?"cancel":"intent")+"-"+plan.planDigest());
+        return plan.request().operationDirectory().resolveSibling(".gse-v53-learner-"+switch(kind){case CANCEL->"cancel";case INTENT->"intent";case PENDING_INTENT->"pending-intent";}+"-"+plan.planDigest());
     }
     static MembershipLearnerStore store(MembershipLearnerHead head)throws IOException {
         return head instanceof MembershipLearnerMaterialization.PreparedGeneration prepared?prepared.store():
@@ -52,7 +61,8 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     static void requireAbsent(Path directory,Kind kind) {
         require(!Files.exists(AdmissionPaths.safe(directory),LinkOption.NOFOLLOW_LINKS),
                 kind==Kind.CANCEL?"learner cancellation requires original recovery; preparation stopped":
-                "learner INTENT requires original recovery; preparation stopped");
+                kind==Kind.INTENT?"learner INTENT requires original recovery; preparation stopped":
+                "learner pending INTENT requires original recovery; preparation stopped");
     }
     private static Map<String,Object> anchor(MembershipCapsule capsule) {
         return Map.of("source",hash(capsule.packet.bytes()),"cut",capsule.context.cut,
@@ -66,17 +76,19 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         return row;
     }
     private MembershipLearnerDisposition(MembershipLearnerHead head,byte[] plan,MembershipBallotAllocator.Cut cut,Kind kind)throws IOException {
-        this.kind=kind;planName=kind==Kind.CANCEL?PLAN:"intent.json";nextName=kind==Kind.CANCEL?NEXT:"intent.next.json";
+        this.kind=kind;planName=planName(kind);nextName=nextName(kind);maximum=maximum(kind);
         this.head=head;this.store=store(head);summary=store.summary();this.cut=Objects.requireNonNull(cut);this.plan=plan.clone();
-        value=object(parse(plan,MAXIMUM));require(Arrays.equals(plan,canonical(value,MAXIMUM)),"learner cancellation canonical plan");
-        require(value.keySet().equals(kind==Kind.CANCEL?Set.of("schema","plan","request","learner","anchor","peer","path","staging","sourceKey","files"):
-                Set.of("schema","plan","request","learner","anchor","peer","path","staging","sourceKey","files","receipt"))
+        value=object(parse(plan,maximum));require(Arrays.equals(plan,canonical(value,maximum)),"learner cancellation canonical plan");
+        var fields=new HashSet<>(Set.of("schema","plan","request","learner","anchor","peer","path","staging","sourceKey","files"));
+        if(kind!=Kind.CANCEL)fields.add("receipt");if(kind==Kind.PENDING_INTENT)fields.add("pending");
+        require(value.keySet().equals(fields)
                 && value.get("schema").equals(schema(kind)) && value.get("plan").equals(summary.planDigest())
                 && value.get("request").equals(MembershipLearnerDiscovery.request(head.request().change()))
                 && value.get("learner").equals(MembershipBootstrapSeed.identity(head.request().identity()))
                 && value.get("anchor").equals(anchor(head.source())),"learner cancellation original prepared owner");
         require(kind==Kind.CANCEL || value.get("receipt").equals(head.receipt().digest()),"learner INTENT original typed receipt");
-        require(MembershipLearnerSlot.METADATA_MAXIMUM+2L*MAXIMUM<=MembershipResources.Unit.MISC.bytes,"learner cancellation metadata capacity");
+        require(kind==Kind.PENDING_INTENT?2L*maximum+2048<=MembershipResources.Unit.JOURNAL.bytes:
+                MembershipLearnerSlot.METADATA_MAXIMUM+2L*MAXIMUM<=MembershipResources.Unit.MISC.bytes,"learner cancellation metadata capacity");
         binding=MembershipLearnerAdmissionPlan.binding(object(value.get("path")));
         stagingBinding=MembershipLearnerAdmissionPlan.binding(object(value.get("staging")));
         directory=directory(summary,kind);staging=MembershipLearnerAdmissionPlan.path(stagingBinding);destination=directory.resolve(SOURCE);
@@ -97,7 +109,20 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     }
     static MembershipLearnerDisposition install(MembershipLearnerHead head,MembershipSourceReceive receiver,
             MembershipFloor.Copy copy,MembershipBallotAllocator.Cut cut,Kind kind)throws IOException {
-        requireActive(head);if(kind==Kind.CANCEL)cancellation(head,copy);else MembershipLearnerIntent.match(head,copy);receiver.requireResources(head.resources());
+        require(kind!=Kind.PENDING_INTENT,"pending INTENT requires original progress exchange");
+        return install(head,receiver,copy,cut,kind,null);
+    }
+    static MembershipLearnerDisposition installPending(MembershipLearnerProgress.PendingIntent original,MembershipBallotAllocator.Cut cut)throws IOException {
+        var head=original.head();var copy=original.source();var receiver=original.receiver(cut);byte[] metadata=original.metadata();original.check();
+        return install(head,receiver,copy,cut,Kind.PENDING_INTENT,metadata);
+    }
+    private static MembershipLearnerDisposition install(MembershipLearnerHead head,MembershipSourceReceive receiver,
+            MembershipFloor.Copy copy,MembershipBallotAllocator.Cut cut,Kind kind,byte[] pending)throws IOException {
+        requireActive(head);
+        if(kind==Kind.CANCEL)cancellation(head,copy);else if(kind==Kind.INTENT)MembershipLearnerIntent.match(head,copy);
+        else {head.check();copy.check();MembershipLearnerSource.successor(head.source(),copy);
+            MembershipJoiningIntentMetadata.inspect(head.request(),copy.owner,copy.capsule,head.receipt(),pending);}
+        receiver.requireResources(head.resources());
         Path staging=receiver.completeLearnerDirectory(copy);var summary=store(head).summary();Path directory=directory(summary,kind);
         var rows=new ArrayList<Map<String,Object>>();
         for(String name:new TreeSet<>(copy.fileNames())) {
@@ -108,33 +133,41 @@ final class MembershipLearnerDisposition implements AutoCloseable {
                 "request",MembershipLearnerDiscovery.request(head.request().change()),"learner",MembershipBootstrapSeed.identity(head.request().identity()),
                 "anchor",anchor(head.source()),"peer",MembershipBootstrapSeed.identity(copy.owner),"path",AdmissionPaths.binding(directory),
                 "staging",AdmissionPaths.binding(staging),"sourceKey",key(staging).toString(),"files",rows));
-        if(kind==Kind.INTENT)values.put("receipt",head.receipt().digest());byte[] plan=canonical(values,MAXIMUM);
-        var result=new MembershipLearnerDisposition(head,plan,cut,kind);
+        if(kind!=Kind.CANCEL)values.put("receipt",head.receipt().digest());
+        var journal=reservePending(head,kind);MembershipLearnerDisposition result=null;
         try {
+            if(kind==Kind.PENDING_INTENT)values.put("pending",parse(pending,MembershipJoiningIntentMetadata.MAXIMUM));
+            byte[] plan=canonical(values,maximum(kind));result=new MembershipLearnerDisposition(head,plan,cut,kind);
+            if(journal!=null)result.leases.add(journal);
             AdmissionPaths.absent(directory);result.validate();result.store.attachDisposition(result);
             result.retained.putAll(receiver.detachLearner(copy));
             Files.createDirectory(directory);result.directoryKey=key(directory);AdmissionPaths.forceDirectory(directory.getParent());result.point("LEARNER_CANCEL_DIRECTORY_FORCED");
             result.writePlan();result.finish();return result;
-        }catch(IOException|RuntimeException|Error error){result.failed=true;try{result.close();}catch(Exception cleanup){error.addSuppressed(cleanup);}throw error;}
+        }catch(IOException|RuntimeException|Error error){if(result!=null){result.failed=true;try{result.close();}catch(Exception cleanup){error.addSuppressed(cleanup);}}
+            else if(journal!=null)journal.close();throw error;}
     }
     static MembershipLearnerDisposition resume(MembershipLearnerHead head,MembershipBallotAllocator.Cut cut,Kind kind)throws IOException {
-        String planName=kind==Kind.CANCEL?PLAN:"intent.json",nextName=kind==Kind.CANCEL?NEXT:"intent.next.json";
-        requireAbsent(directory(store(head).summary(),kind==Kind.CANCEL?Kind.INTENT:Kind.CANCEL),kind==Kind.CANCEL?Kind.INTENT:Kind.CANCEL);
+        String planName=planName(kind),nextName=nextName(kind);
+        for(var other:Kind.values())if(other!=kind)requireAbsent(directory(store(head).summary(),other),other);
         var summary=store(head).summary();Path directory=AdmissionPaths.safe(directory(summary,kind));
-        var names=children(directory,3);require(Set.of(planName,nextName,SOURCE).containsAll(names) && (names.contains(planName)||names.contains(nextName)),"learner cancellation original plan missing");
-        byte[] bytes=AdmissionPaths.read(directory.resolve(names.contains(planName)?planName:nextName),MAXIMUM);
-        if(names.contains(planName)&&names.contains(nextName))AdmissionPaths.exact(directory.resolve(nextName),bytes);
-        var result=new MembershipLearnerDisposition(head,bytes,cut,kind);
+        var allowed=new HashSet<>(Set.of(planName,nextName,SOURCE));if(kind==Kind.PENDING_INTENT)allowed.add(PENDING_ACK);
+        var names=children(directory,allowed.size());require(allowed.containsAll(names) && (names.contains(planName)||names.contains(nextName)),"learner cancellation original plan missing");
+        var journal=reservePending(head,kind);MembershipLearnerDisposition result=null;
         try {
+            byte[] bytes=AdmissionPaths.read(directory.resolve(names.contains(planName)?planName:nextName),maximum(kind));
+            if(names.contains(planName)&&names.contains(nextName))AdmissionPaths.exact(directory.resolve(nextName),bytes);
+            result=new MembershipLearnerDisposition(head,bytes,cut,kind);if(journal!=null)result.leases.add(journal);
             result.directoryKey=key(directory);
             for(String name:List.of(planName,nextName))if(names.contains(name))result.remember(name,bytes);
+            if(names.contains(PENDING_ACK))result.remember(PENDING_ACK,AdmissionPaths.read(directory.resolve(PENDING_ACK),2048));
             result.reserve();result.validate();result.store.attachDisposition(result);
             if(result.store.recoveringPlacement()) {
                 require(kind==Kind.INTENT && names.equals(Set.of(planName,SOURCE)) && result.location().equals(result.destination),
                         "learner placement incomplete original INTENT");
                 result.store.placementRecovery().check();result.complete=true;
             }else result.finish();return result;
-        }catch(IOException|RuntimeException|Error error){result.failed=true;try{result.close();}catch(Exception cleanup){error.addSuppressed(cleanup);}throw error;}
+        }catch(IOException|RuntimeException|Error error){if(result!=null){result.failed=true;try{result.close();}catch(Exception cleanup){error.addSuppressed(cleanup);}}
+            else if(journal!=null)journal.close();throw error;}
     }
     private void reserve()throws IOException {
         long bytes=0;var resources=head.resources();
@@ -162,7 +195,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         if(directoryKey!=null) {
             require(directoryKey.equals(key(directory)),"learner cancellation directory replaced");var names=new TreeSet<>(metadata.keySet());
             if(Files.exists(destination,LinkOption.NOFOLLOW_LINKS))names.add(SOURCE);
-            require(children(directory,3).equals(names),"learner cancellation metadata inventory changed");
+            require(children(directory,kind==Kind.PENDING_INTENT?4:3).equals(names),"learner cancellation metadata inventory changed");
             for(var row:metadata.entrySet())require(row.getValue().equals(inspect(directory.resolve(row.getKey()),row.getValue().bytes(),row.getValue().digest())),"learner cancellation metadata replaced");
         }
     }
@@ -180,7 +213,14 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         MembershipLearnerSource.successor(original,capsule,files.getOrDefault("ancestry.gsr",new byte[0]));
         var row=MembershipLearnerProgressAccess.operation(capsule.context,head.request().identity());
         if(kind==Kind.CANCEL)require(row.get("phase").equals("CANCELLED"),"learner cancellation original terminal proof missing");
-        else MembershipLearnerIntent.match(head,capsule,peer,files.getOrDefault("ancestry.gsr",new byte[0]));
+        else if(kind==Kind.INTENT)MembershipLearnerIntent.match(head,capsule,peer,files.getOrDefault("ancestry.gsr",new byte[0]));
+        else {
+            var pending=MembershipJoiningIntentMetadata.inspect(head.request(),peer,capsule,head.receipt(),canonical(value.get("pending"),MembershipJoiningIntentMetadata.MAXIMUM));
+            if(metadata.containsKey(PENDING_ACK)) {
+                byte[] ack=AdmissionPaths.read(directory.resolve(PENDING_ACK),2048),expected=pendingAcknowledgement(pending).bytes();
+                require(ack.length<=expected.length && Arrays.equals(ack,Arrays.copyOf(expected,ack.length)),"joining original acknowledgement prefix changed");
+            }
+        }
         terminal=row;verified=capsule;check();
     }
     static final class Stored implements MembershipCapsule.StoredCopy {
@@ -196,7 +236,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         @Override public Decoded record(String name,String kind){return decode(Objects.requireNonNull(files.get(name)),"records",kind);}
     }
     private void remember(String name,byte[] bytes)throws IOException {metadata.put(name,inspect(directory.resolve(name),bytes.length,hash(bytes)));}
-    private void point(String event)throws IOException {check();cut.at(kind==Kind.CANCEL?event:event.replace("LEARNER_CANCEL_","LEARNER_INTENT_"));check();}
+    private void point(String event)throws IOException {check();cut.at(kind==Kind.CANCEL?event:event.replace("LEARNER_CANCEL_",kind==Kind.INTENT?"LEARNER_INTENT_":"LEARNER_JOINING_"));check();}
     private void force(Path path)throws IOException {
         check();try(var channel=MembershipFileAccess.open(path,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)){channel.force(true);}
     }
@@ -233,6 +273,41 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     Map<String,Object> result()throws IOException {
         check();require(complete,"learner cancellation not forced");return object(parse(canonical(terminal,16384),16384));
     }
+    private MembershipJoiningIntentMetadata pendingMetadata()throws IOException {
+        require(kind==Kind.PENDING_INTENT && complete,"joining original retention not forced");validate();
+        return MembershipJoiningIntentMetadata.inspect(head.request(),MembershipContext.identity(object(value.get("peer"))),verified,head.receipt(),
+                canonical(value.get("pending"),MembershipJoiningIntentMetadata.MAXIMUM));
+    }
+    private Decoded pendingAcknowledgement(MembershipJoiningIntentMetadata pending)throws IOException {
+        var statement=pending.record("CHECKPOINT");var identity=head.request().identity();
+        return decode(encode("records","CHECKPOINT_ACK",Map.of("root",statement.value().get("root"),"cut",statement.value().get("end"),
+                "statement",statement.digest(),"voter",identity.nodeId().value(),"incarnation",identity.storageId().toString())),"records","CHECKPOINT_ACK");
+    }
+    /** Only the fully forced original pending transaction may endorse its exact
+     * new-side end. No selector, election vote or published view is fabricated. */
+    synchronized MembershipAppliedEndFiles.Endorsement endorsePending()throws IOException {
+        var pending=pendingMetadata();byte[] expected=pendingAcknowledgement(pending).bytes();
+        try {
+            boolean exists=metadata.containsKey(PENDING_ACK);var options=new HashSet<OpenOption>(Set.of(StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS));
+            if(!exists)options.add(StandardOpenOption.CREATE_NEW);
+            try(var channel=MembershipFileAccess.open(directory.resolve(PENDING_ACK),options)) {
+                if(!exists){remember(PENDING_ACK,new byte[0]);point("LEARNER_CANCEL_ACK_CREATED");}
+                var original=metadata.get(PENDING_ACK);int offset=Math.toIntExact(original.bytes());channel.position(offset);
+                int middle=offset+(expected.length-offset)/2;AdmissionPaths.write(channel,Arrays.copyOfRange(expected,offset,middle));
+                remember(PENDING_ACK,Arrays.copyOf(expected,middle));require(original.key().equals(metadata.get(PENDING_ACK).key()),"joining acknowledgement write target changed");
+                point("LEARNER_CANCEL_ACK_PREFIX_WRITTEN");AdmissionPaths.write(channel,Arrays.copyOfRange(expected,middle,expected.length));
+                remember(PENDING_ACK,expected);require(original.key().equals(metadata.get(PENDING_ACK).key()),"joining acknowledgement write target changed");
+                point("LEARNER_CANCEL_ACK_WRITTEN");channel.force(true);point("LEARNER_CANCEL_ACK_FORCED");
+            }
+            AdmissionPaths.forceDirectory(directory);point("LEARNER_CANCEL_ACK_PARENT_FORCED");
+            pendingMetadata();var ack=decode(expected,"records","CHECKPOINT_ACK");var identity=head.request().identity();
+            var observation=new MembershipContext.Owned(identity.nodeId().value(),identity.storageId(),ack.digest(),
+                    MembershipContext.cutDigest(object(ack.value().get("cut"))));
+            point("LEARNER_CANCEL_ACK_BEFORE_RETURN");return new MembershipAppliedEndFiles.Endorsement(ack,observation,Optional.empty());
+        }catch(IOException|RuntimeException|Error error){failed=true;throw error;}
+    }
+    synchronized MembershipCapsule pendingSource()throws IOException {pendingMetadata();return verified;}
+    synchronized MembershipJoiningIntentMetadata pendingOriginals()throws IOException {return pendingMetadata();}
     MembershipCapsule forcedIntent()throws IOException {
         require(kind==Kind.INTENT && complete,"learner INTENT not forced");validate();return verified;
     }

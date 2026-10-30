@@ -97,6 +97,26 @@ final class MembershipLearnerProgress implements AutoCloseable {
             return joining;
         }catch(IOException|RuntimeException|Error error){joiningTransport.close();throw error;}
     }
+    /** Only this real complete source and dedicated authenticated contact can
+     * supply pending receipt provenance. Decoded metadata alone cannot. */
+    final class PendingIntent {
+        private final MembershipFloor.Copy copy;
+        private final MembershipJoiningIntentMetadata metadata;
+        private PendingIntent()throws IOException {copy=MembershipLearnerProgress.this.source();require(joining!=null,"joining metadata exchange missing");metadata=joining.metadata();check();}
+        void check()throws IOException {
+            require(MembershipLearnerProgress.this.source()==copy && joining.metadata()==metadata,"joining original exchange changed");head.check();
+            MembershipJoiningIntentMetadata.inspect(request,peer,copy.capsule,head.receipt(),metadata.bytes());
+        }
+        MembershipLearnerHead head()throws IOException{check();return head;}
+        MembershipFloor.Copy source()throws IOException{check();return copy;}
+        byte[] metadata()throws IOException{check();return metadata.bytes();}
+        MembershipSourceReceive receiver(MembershipBallotAllocator.Cut cut)throws IOException {
+            check();var receiver=prefix.completeLearnerPendingIntentSource(head,copy,cut);check();return receiver;
+        }
+    }
+    MembershipLearnerPendingIntent retainPendingIntent(MembershipBallotAllocator.Cut cut)throws IOException {
+        return MembershipLearnerPendingIntent.install(new PendingIntent(),cut);
+    }
     @Override public void close()throws IOException {
         MembershipLearnerDiscovery d;MembershipSourcePull p,g;MembershipTransport t,jt;MembershipJoiningIntentPull j;
         synchronized(this){closed=true;result=null;d=discovery;p=prefix;g=generation;t=transport;jt=joiningTransport;j=joining;}

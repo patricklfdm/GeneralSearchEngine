@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original pending joining end](PHASE_3_PENDING_JOINING_END.md) now retains the
+complete SEALED source and matching INTENT metadata under the actual typed
+learner before forcing a new-side checkpoint ACK. Explicit recovery preserves
+original plans, source identities and ACK prefixes. JOINT publication, native
+handoff from this pending path and complete Phase 3 qualification remain **OPEN**.
+
+The following earlier entries retain their source-bound component scope.
+
 [Pending INTENT reception](PHASE_3_JOINING_INTENT_RECEIVER.md) now adds a bounded
 read-only client under the live typed learner and its completed SEALED progress
 transfer. It checks the exact original-byte projection and retries only transient

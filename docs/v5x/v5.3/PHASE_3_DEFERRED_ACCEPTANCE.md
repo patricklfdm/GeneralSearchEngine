@@ -1,5 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Original pending joining end](PHASE_3_PENDING_JOINING_END.md) now retains the
+complete SEALED source and matching INTENT metadata under the actual typed
+learner before forcing a new-side checkpoint ACK. Explicit recovery preserves
+original plans, source identities and ACK prefixes. JOINT publication, native
+handoff from this pending path and complete Phase 3 qualification remain **OPEN**.
+
+The following earlier entries retain their source-bound component scope.
+
 [Pending INTENT reception](PHASE_3_JOINING_INTENT_RECEIVER.md) now adds a bounded
 read-only client under the live typed learner and its completed SEALED progress
 transfer. It checks the exact original-byte projection and retries only transient
@@ -179,6 +187,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 | Native handoff and retirement | One continuous multi-revision native history, plus independent halt/SIGKILL histories | Exact physical/transport replay, original candidate and head, explicit covered deletion, resource release and bounded slot reuse; remains outstanding |
 | Prepared learner progress | `V53LearnerProgressTest` and `V53LearnerProgressNetworkTest`, followed by whole native histories | Exact request-bound terminal/joint acquisition, complete generation and prepared-parent ancestry, unchanged local receipt/authority, lost-response bounds and closed-owner refusal. Conditional voter fixtures do not qualify native CANCEL/INTENT or local durable installation |
 | Successor lifecycle | One continuous original learner history | Install, select and retire bounded originals across revisions, cancellation and locally forced matching INTENT before votes |
+| Pending learner applied end | Independent `V53LearnerPendingIntentTest` histories and one whole `V53JoiningIntentExportTest#originalTypedLearnerForcesTheMissingNewSideEndWithoutPublishingJoint` history | Original SEALED acquisition before pending INTENT, actual typed receipt/source retention, force-before-ACK, bounded recovery and native minimum old/new quorum checks; add ACK wire delivery, publication, independent original replay and process-death cuts before full qualification |
 | Final Phase 3 protocol audit | Complete prescribed scenarios | Learner ADD/REPLACE, all seven transitions, alternative-leader continuation and maximum combined resource bounds; component results cannot substitute |
 
 The process test supports one exact whole case through the Maven system property

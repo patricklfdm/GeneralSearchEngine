@@ -27,7 +27,7 @@ final class MembershipLearnerStore implements AutoCloseable {
     private boolean preparedGeneration;
     private MembershipLearnerSuccessor successor;
     private MembershipLearnerSlot slot;
-    private MembershipLearnerDisposition cancellation,intent;
+    private MembershipLearnerDisposition cancellation,intent,pendingIntent;
     private MembershipLearnerRetirement retirement;
     private boolean predecessorReleased;
     private MembershipLearnerPlacement.Recovery placementRecovery;
@@ -355,12 +355,16 @@ final class MembershipLearnerStore implements AutoCloseable {
     void requireActive()throws IOException {check();MembershipLearnerCancellation.requireActive(plan.summary());}
     void attachDisposition(MembershipLearnerDisposition value)throws IOException {
         check();Objects.requireNonNull(value);
+        for(var kind:MembershipLearnerDisposition.Kind.values())if(kind!=value.kind)
+            MembershipLearnerDisposition.requireAbsent(MembershipLearnerDisposition.directory(plan.summary(),kind),kind);
         if(value.kind==MembershipLearnerDisposition.Kind.CANCEL) {
             require(cancellation==null || cancellation.closed(),"learner cancellation already owned");
             MembershipLearnerDisposition.requireAbsent(MembershipLearnerIntent.directory(plan.summary()),MembershipLearnerDisposition.Kind.INTENT);cancellation=value;
-        }else {
+        }else if(value.kind==MembershipLearnerDisposition.Kind.INTENT) {
             require(intent==null || intent.closed(),"learner INTENT already owned");
             MembershipLearnerDisposition.requireAbsent(MembershipLearnerCancellation.directory(plan.summary()),MembershipLearnerDisposition.Kind.CANCEL);intent=value;
+        }else {
+            require(pendingIntent==null || pendingIntent.closed(),"learner pending INTENT already owned");pendingIntent=value;
         }
     }
     void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
@@ -373,7 +377,7 @@ final class MembershipLearnerStore implements AutoCloseable {
         intent.collectCustody(result);
     }
     @Override public void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(intent);children.add(cancellation);children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
+        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();children.add(pendingIntent);children.add(intent);children.add(cancellation);children.add(slot);children.add(successor);children.add(typed);children.addAll(received.values());children.addAll(leases);
         children.add(owner);children.add(operation);MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }

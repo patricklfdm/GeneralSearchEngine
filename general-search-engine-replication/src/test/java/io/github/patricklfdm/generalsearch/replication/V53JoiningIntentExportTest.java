@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*;
 
-/** Actual bootstrap/typed learner/old-quorum INTENT originals. Metadata receipt
- * is not a joined checkpoint ACK; that next native path remains separate. */
+/** Actual bootstrap/typed learner/old-quorum INTENT originals. Only the separate
+ * durable pending owner may supply a new-side ACK; neither test publishes JOINT. */
 class V53JoiningIntentExportTest {
     @TempDir Path temp;
     static final long BUDGET=TimeUnit.MINUTES.toNanos(12);
@@ -62,6 +62,12 @@ class V53JoiningIntentExportTest {
         assertArrayEquals(done.bytes(),exchange(contact,peer,last,"TRANSFER_COMMIT").bytes());return out.toByteArray();
     }
     @Test void minimalOldMajorityCanServeOriginalIntentBeforeJointCheckpointExists()throws Exception {
+        nativeJoining(false);
+    }
+    @Test void originalTypedLearnerForcesTheMissingNewSideEndWithoutPublishingJoint()throws Exception {
+        nativeJoining(true);
+    }
+    private void nativeJoining(boolean retainPending)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
         try(var n=network.new Network(3,helper.controlBounds(),BUDGET,f->{
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learners")){owner.initializeLearnerRetention();}
@@ -94,49 +100,81 @@ class V53JoiningIntentExportTest {
                         // A SEALED catalog alone cannot mint an original pending source.
                         assertThrows(IllegalArgumentException.class,()->new MembershipJoiningIntentExport(owner,joining,first,resources,
                                 System::nanoTime,System.nanoTime(),BUDGET));
-                        var row=object(list(before.catalog.get("results")).getLast());var sealed=new TreeMap<String,Object>();
-                        for(String field:List.of("request","prepared","receipt"))sealed.put(field,row.get(field));
-                        var next=input(n,"INTENT",Map.of("sealed",sealed));n.endpoints.getFirst().maintainInstalled();
-                        owner.acceptCurrent(next.entry,next.payload,builder().configuration(),n.f.request.targets().getFirst().materialization());
-                        assertThrows(IllegalArgumentException.class,()->owner.joiningIntent(joining));
-                        var certificate=n.apply(owner.voting(resources).record("ACCEPT").orElseThrow());
-                        var applied=owner.voting(resources).application().orElseThrow();
-                        var other=n.owners.get(1).voting(n.resources.get(1)).application().orElseThrow();
-                        assertEquals(List.of("node-1","node-2"),list(certificate.value().get("proofs")).stream().map(v->object(v).get("voter")).toList());
-                        // Old majority certificate is real, but old 2/3 alone is
-                        // not new 3/4. Keep that required refusal unchanged.
-                        assertThrows(IllegalArgumentException.class,()->applied.plan().complete(
-                                List.of(applied.endorsement().acknowledgement(),other.endorsement().acknowledgement()),
-                                Set.of(applied.endorsement().owned(),other.endorsement().owned())));
-                        assertSame(before,owner.activationContext());assertFalse(before.voters().contains("node-4"));
-                        var files=V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory());
-                        var learnerFiles=V53ReplayFilesTest.files(request.operationDirectory());
-                        var wire=new ArrayList<Map<String,Object>>();
-                        try(var contact=MembershipTransport.learnerJoiningIntent(request,new MembershipDiscovery.Hint(targets.getFirst(),before.cut,false),n.bounds,pool,(event,q,a)->{
-                            if(event.equals("AFTER_RESPONSE_READ"))wire.add(V53SelectedPullTest.wire(q,a));
-                        })) {
-                            var forbidden=new TreeMap<>(first.value());var p=new TreeMap<>(object(first.value().get("payload")));
-                            p.put("digest",MembershipLearnerDiscovery.reference(request));forbidden.put("payload",p);
-                            assertEquals(MembershipTransport.Reason.PROTOCOL,V53MembershipTransportTest.failure(contact.exchange(targets.getFirst(),
-                                    decode(encode("wire","CHUNK",forbidden),"wire","CHUNK"),"SOURCE_OFFER",System.nanoTime()+BUDGET)).reason);
-                            var bytes=fetch(contact,request,targets.getFirst(),first);var value=object(parse(bytes,FRAME));var records=object(value.get("records"));
-                            assertEquals("gse-v53-joining-intent-metadata/1.3",value.get("schema"));assertEquals(sealed.get("request"),value.get("request"));
-                            assertEquals(MembershipRetentionIntent.anchor(owner.activationCapsule().terminal()),value.get("parent"));
-                            assertEquals(MembershipBootstrapSeed.identity(joining),value.get("learner"));
-                            assertEquals(Set.of("ENTRY","ACCEPT","PROOF","CERTIFICATE","CATALOG","CHECKPOINT"),records.keySet());
-                            assertArrayEquals(certificate.bytes(),Base64.getDecoder().decode((String)records.get("CERTIFICATE")));
-                            assertArrayEquals(next.entry.bytes(),Base64.getDecoder().decode((String)records.get("ENTRY")));
-                            assertArrayEquals(next.payload,Base64.getDecoder().decode((String)value.get("payload")));
-                            assertArrayEquals(applied.plan().catalog.bytes(),Base64.getDecoder().decode((String)records.get("CATALOG")));
-                            assertArrayEquals(applied.plan().statement.bytes(),Base64.getDecoder().decode((String)records.get("CHECKPOINT")));
-                            Files.write(n.f.raw.resolve("joining-intent.json"),bytes);
+                        // Fetch the still-published SEALED history before the
+                        // pending slot, using the original retained learner head.
+                        // The pending metadata route cannot replace that history.
+                        try(var progress=retainPending?new MembershipLearnerProgress(typed.retainGeneration(),targets.getFirst(),n.bounds,
+                                MembershipTransport.Events.NONE,System::nanoTime,System.nanoTime(),BUDGET):null) {
+                            if(progress!=null) {
+                                progress.fetch(temp.resolve("joining-progress"));
+                                System.out.println("v53JoiningIntentStage=original-sealed-received");
+                            }
+                            var row=object(list(before.catalog.get("results")).getLast());var sealed=new TreeMap<String,Object>();
+                            for(String field:List.of("request","prepared","receipt"))sealed.put(field,row.get(field));
+                            var next=input(n,"INTENT",Map.of("sealed",sealed));n.endpoints.getFirst().maintainInstalled();
+                            owner.acceptCurrent(next.entry,next.payload,builder().configuration(),n.f.request.targets().getFirst().materialization());
+                            assertThrows(IllegalArgumentException.class,()->owner.joiningIntent(joining));
+                            var certificate=n.apply(owner.voting(resources).record("ACCEPT").orElseThrow());
+                            var applied=owner.voting(resources).application().orElseThrow();
+                            var other=n.owners.get(1).voting(n.resources.get(1)).application().orElseThrow();
+                            assertEquals(List.of("node-1","node-2"),list(certificate.value().get("proofs")).stream().map(v->object(v).get("voter")).toList());
+                            // Old majority certificate is real, but old 2/3 alone is
+                            // not new 3/4. Keep that required refusal unchanged.
+                            assertThrows(IllegalArgumentException.class,()->applied.plan().complete(
+                                    List.of(applied.endorsement().acknowledgement(),other.endorsement().acknowledgement()),
+                                    Set.of(applied.endorsement().owned(),other.endorsement().owned())));
+                            assertSame(before,owner.activationContext());assertFalse(before.voters().contains("node-4"));
+                            var files=V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory());
+                            var learnerFiles=V53ReplayFilesTest.files(request.operationDirectory());
+                            var wire=new ArrayList<Map<String,Object>>();
+                            try(var contact=MembershipTransport.learnerJoiningIntent(request,new MembershipDiscovery.Hint(targets.getFirst(),before.cut,false),n.bounds,pool,(event,q,a)->{
+                                if(event.equals("AFTER_RESPONSE_READ"))wire.add(V53SelectedPullTest.wire(q,a));
+                            })) {
+                                var forbidden=new TreeMap<>(first.value());var p=new TreeMap<>(object(first.value().get("payload")));
+                                p.put("digest",MembershipLearnerDiscovery.reference(request));forbidden.put("payload",p);
+                                assertEquals(MembershipTransport.Reason.PROTOCOL,V53MembershipTransportTest.failure(contact.exchange(targets.getFirst(),
+                                        decode(encode("wire","CHUNK",forbidden),"wire","CHUNK"),"SOURCE_OFFER",System.nanoTime()+BUDGET)).reason);
+                                var bytes=fetch(contact,request,targets.getFirst(),first);var value=object(parse(bytes,FRAME));var records=object(value.get("records"));
+                                assertEquals("gse-v53-joining-intent-metadata/1.3",value.get("schema"));assertEquals(sealed.get("request"),value.get("request"));
+                                assertEquals(MembershipRetentionIntent.anchor(owner.activationCapsule().terminal()),value.get("parent"));
+                                assertEquals(MembershipBootstrapSeed.identity(joining),value.get("learner"));
+                                assertEquals(Set.of("ENTRY","ACCEPT","PROOF","CERTIFICATE","CATALOG","CHECKPOINT"),records.keySet());
+                                assertArrayEquals(certificate.bytes(),Base64.getDecoder().decode((String)records.get("CERTIFICATE")));
+                                assertArrayEquals(next.entry.bytes(),Base64.getDecoder().decode((String)records.get("ENTRY")));
+                                assertArrayEquals(next.payload,Base64.getDecoder().decode((String)value.get("payload")));
+                                assertArrayEquals(applied.plan().catalog.bytes(),Base64.getDecoder().decode((String)records.get("CATALOG")));
+                                assertArrayEquals(applied.plan().statement.bytes(),Base64.getDecoder().decode((String)records.get("CHECKPOINT")));
+                                Files.write(n.f.raw.resolve("joining-intent.json"),bytes);
+                            }
+                            assertEquals(files,V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory()));
+                            assertEquals(learnerFiles,V53ReplayFilesTest.files(request.operationDirectory()));assertSame(before,owner.activationContext());
+                            if(progress!=null) {
+                                var original=progress.joiningMetadata().fetch();
+                                assertArrayEquals(certificate.bytes(),original.record("CERTIFICATE").bytes());
+                                var events=new ArrayList<String>();
+                                try(var pending=progress.retainPendingIntent(events::add)) {
+                                    var added=pending.endorse();
+                                    assertArrayEquals(applied.plan().statement.bytes(),pending.originals().record("CHECKPOINT").bytes());
+                                    var checkpoint=applied.plan().complete(
+                                            List.of(applied.endorsement().acknowledgement(),other.endorsement().acknowledgement(),added.acknowledgement()),
+                                            Set.of(applied.endorsement().owned(),other.endorsement().owned(),added.owned()));
+                                    assertEquals("JOINT",MembershipLearnerProgressAccess.operation(checkpoint.context,joining).get("phase"));
+                                    assertSame(before,owner.activationContext());assertFalse(before.voters().contains("node-4"));
+                                    assertEquals(files,V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory()));
+                                    assertTrue(events.indexOf("LEARNER_JOINING_SOURCE_PARENTS_FORCED")<events.indexOf("LEARNER_JOINING_ACK_CREATED"));
+                                    assertTrue(events.indexOf("LEARNER_JOINING_ACK_FORCED")<events.indexOf("LEARNER_JOINING_ACK_BEFORE_RETURN"));
+                                    assertFalse(Files.exists(config.materialization().directory()));
+                                    Files.write(n.f.raw.resolve("joining-forced-ack.gsr"),added.acknowledgement().bytes());
+                                    Files.write(n.f.raw.resolve("joining-force-events.json"),canonical(events,16384));
+                                    Files.write(n.f.raw.resolve("joining-complete-capsule.gscp"),checkpoint.packet.bytes());
+                                    System.out.println("v53JoiningIntentStage=new-side-end-forced");
+                                }
+                            }
+                            guardChecks(n,request,first);
+                            Files.write(n.f.raw.resolve("joining-intent-wire.json"),canonical(wire,8*1024*1024));
+                            Files.write(n.f.raw.resolve("joining-intent-result.json"),canonical(Map.of("status","PASS","oldVoters",List.of("node-1","node-2"),
+                                    "nativeHistory",true,"typedLearner",true,"newSideEndForced",retainPending,"publishedJoint",false,"publicReady",false),4096));
                         }
-                        assertEquals(files,V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory()));
-                        assertEquals(learnerFiles,V53ReplayFilesTest.files(request.operationDirectory()));assertSame(before,owner.activationContext());
-                        guardChecks(n,request,first);
-                        Files.write(n.f.raw.resolve("joining-intent-wire.json"),canonical(wire,8*1024*1024));
-                        Files.write(n.f.raw.resolve("joining-intent-result.json"),canonical(Map.of("status","PASS","oldVoters",List.of("node-1","node-2"),
-                                "nativeHistory",true,"typedLearner",true,"publishedJoint",false,"publicReady",false),4096));
                     }
                 }
             }

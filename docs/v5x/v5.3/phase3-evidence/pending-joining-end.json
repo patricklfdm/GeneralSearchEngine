@@ -1,0 +1,273 @@
+{
+  "archive": {
+    "bytes": 10431349,
+    "path": "target/v53-pending-joining-end/component-validation.tar.gz",
+    "sha256": "5f2b13a3de4647d8400934ca334cd46626ba167c1546cca13c5e4e8ba201f2b7"
+  },
+  "baseCommit": "0f2f03fcfc2d54f4f14f9d3907f6d95d8bacf214",
+  "codeAndBuildInputsChecked": 1730,
+  "conditionalTypedStorageCases": 23,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1471,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "injectedIoCuts": 19,
+  "nativeArtifacts": {
+    "general-search-engine-replication/target/v53-native-dispatch/run-760635bd-3b69-4da5-9616-8507fd7ca489/joining-complete-capsule.gscp": "20c49eaf71382102f5bad6d150abc3b26967ffb271a4a243d0e0a8c049dc0614",
+    "general-search-engine-replication/target/v53-native-dispatch/run-760635bd-3b69-4da5-9616-8507fd7ca489/joining-force-events.json": "b48bb3d9d2bdc516487a1acbb6345a73a8136ddd175c9824a1c681ac010dbb1d",
+    "general-search-engine-replication/target/v53-native-dispatch/run-760635bd-3b69-4da5-9616-8507fd7ca489/joining-forced-ack.gsr": "331efdc9fa0cd8fb7b7c89d4211f5cd4b18417d557623fc92f5dd6bce68b01a5",
+    "general-search-engine-replication/target/v53-native-dispatch/run-760635bd-3b69-4da5-9616-8507fd7ca489/joining-intent-result.json": "35a61279c05d8a0c580d9c88e14e4d06388265e0f18c2b6254ecb4e4301936ae",
+    "general-search-engine-replication/target/v53-native-dispatch/run-760635bd-3b69-4da5-9616-8507fd7ca489/joining-intent-wire.json": "e3586de2e2efd11cd53c14a3da8b341ae930fc702c36c47e2dceb70f36b6fb14",
+    "general-search-engine-replication/target/v53-native-dispatch/run-760635bd-3b69-4da5-9616-8507fd7ca489/joining-intent.json": "f848aa88996f1bfecf98bb598f5839b66df6a2345d463423f463a9a483a4036e"
+  },
+  "nativeCheckpointAssembly": true,
+  "nativeJointPublication": false,
+  "nativeNewSideForcedAck": true,
+  "nativeOldTwoOfThree": true,
+  "originalPhysicalReplay": false,
+  "paidCloud": false,
+  "passingTests": 26,
+  "pending": [
+    "coordinator SEALED-source acquisition and pending INTENT scheduling",
+    "ACK wire delivery and future retention before minimum-quorum JOINT publication",
+    "pending-to-published-JOINT conversion and joined native handoff",
+    "joint FINAL and fresh barrier; all-profile native physical/history/process qualification"
+  ],
+  "phase3Complete": false,
+  "priorTerminalRegressions": 2,
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "publicReady": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "qualificationBoundary": "Conditional typed/TCP storage and reopen cases plus one actual bootstrap/old-quorum INTENT/new-learner force history. Checkpoint assembled in memory; not published. I/O injections are not process death. Original physical/history replay remains open.",
+  "reports": {
+    "pendingjoining": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": {
+        "cases": [
+          {
+            "name": "originalSourceAndTypedImageAreForcedBeforeTheNewSideAckAndSurviveReopen",
+            "seconds": 46.145,
+            "status": "PASS"
+          },
+          {
+            "name": "alteredOriginalPlanSourceOrAckRefusesBeforeRecoveryWrites",
+            "seconds": 44.954,
+            "status": "PASS"
+          },
+          {
+            "name": "decodedOrIncompleteExchangeAndExpiredSourceCannotStartRetention",
+            "seconds": 23.995,
+            "status": "PASS"
+          },
+          {
+            "name": "occupiedJournalRefusesBeforeRetainedDecisionAndReleasesScratch",
+            "seconds": 31.031,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "35a40200fc233b0c7af36f5e441f406c3b5113b59b57cbe16eef821d0a1891f2"
+      }
+    },
+    "pendingjoiningcuts": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": {
+        "cases": [
+          {
+            "name": "forcedCancellationSurvivesOwnerRestartAndStopsOldPreparationWithoutVotingOrDeleting",
+            "seconds": 19.562,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "4e45c28cfc2c044020818042d20af06cec79895db1151ec94f36dadad2046b50"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+            "seconds": 23.834,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "6045e8959e92388ca018d5003a97e91bbac617b0de6ecbf7dd4439ebdc54196f"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": {
+        "cases": [
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[1]",
+            "seconds": 33.733,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[2]",
+            "seconds": 32.496,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[3]",
+            "seconds": 32.636,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[4]",
+            "seconds": 38.802,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[5]",
+            "seconds": 39.747,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[6]",
+            "seconds": 39.299,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[7]",
+            "seconds": 40.206,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[8]",
+            "seconds": 40.164,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[9]",
+            "seconds": 39.523,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[10]",
+            "seconds": 39.68,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[11]",
+            "seconds": 39.705,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[12]",
+            "seconds": 40.544,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[13]",
+            "seconds": 41.604,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[14]",
+            "seconds": 41.396,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[15]",
+            "seconds": 40.671,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[16]",
+            "seconds": 40.931,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[17]",
+            "seconds": 41.82,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[18]",
+            "seconds": 41.038,
+            "status": "PASS"
+          },
+          {
+            "name": "interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal(String)[19]",
+            "seconds": 41.908,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "c00746a3420212700213412b9b8d7d0cc5adb5d4b0185f91b91ff9e606922864"
+      }
+    },
+    "pendingjoiningnative": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": {
+        "cases": [
+          {
+            "name": "originalTypedLearnerForcesTheMissingNewSideEndWithoutPublishingJoint",
+            "seconds": 544.475,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "5777812bfc269b4a3e7dda5256a70a3801a6e2136dc95b25d8bb00104b975882"
+      }
+    }
+  },
+  "runs": {
+    "pendingjoining": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": 4
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingjoining",
+      "requestedTests": [
+        "V53LearnerPendingIntentTest#originalSourceAndTypedImageAreForcedBeforeTheNewSideAckAndSurviveReopen+decodedOrIncompleteExchangeAndExpiredSourceCannotStartRetention+occupiedJournalRefusesBeforeRetainedDecisionAndReleasesScratch+alteredOriginalPlanSourceOrAckRefusesBeforeRecoveryWrites"
+      ],
+      "seconds": 158.49427870199725,
+      "skipped": 0,
+      "tests": 4
+    },
+    "pendingjoiningcuts": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": 19
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingjoiningcuts",
+      "requestedTests": [
+        "V53LearnerPendingIntentTest#interruptedRetentionAndAckEitherPreserveIncompleteProofOrResealTheOriginal",
+        "V53LearnerIntentTest#forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+        "V53LearnerCancellationTest#forcedCancellationSurvivesOwnerRestartAndStopsOldPreparationWithoutVotingOrDeleting"
+      ],
+      "seconds": 790.0891880190029,
+      "skipped": 0,
+      "tests": 21
+    },
+    "pendingjoiningnative": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingjoiningnative",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#originalTypedLearnerForcesTheMissingNewSideEndWithoutPublishingJoint"
+      ],
+      "seconds": 548.0822833519924,
+      "skipped": 0,
+      "tests": 1
+    }
+  },
+  "schema": "gse-v53-pending-joining-end-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "6241ea2abf57ba8c02fe5f648b24368ed9c4545e89522034f6b20900e557074e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPendingIntent.java": "1048751333955a4a1a117dcea5109c2504436083606ed0bb09775d4638dd34bc",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerProgress.java": "e73b2805eadc40a257ef7179f9bb680ed7c88e5e3a3626a35df21a15d581a5c8",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java": "fa5d43ccc0710f1d39e041e28c653088b58fef6fd241dcc23f91c811bac710a4",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java": "e1958e584bd79c087d8b2b11fed1ffe73129832fe1c361f741b251c52cba8cd8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "5f6ecd8d5cd767a43a7e07b4638323cb7b15cb4cd28030a33da7e645c8d8abc4",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerPendingIntentTest.java": "f5202ca7904dcb5d6c530a2675b932d1acfce9a9568ac76b3d07ebc190ec34c3"
+  },
+  "sourceSnapshot": "pendingjoiningnative",
+  "status": "PASS_PENDING_JOINING_END_COMPONENT"
+}
