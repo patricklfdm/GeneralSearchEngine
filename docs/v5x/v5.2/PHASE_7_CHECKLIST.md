@@ -1,9 +1,9 @@
 # V5.2 Phase 7 release preparation plan
 
-**Status:** 7A snapshot preparation implemented; validation and operator acceptance
-are tracked in the [release checklist](RELEASE_CHECKLIST.md). Phase 6 closeout
-merged through PR #364 at `a8125ebe`. Keep `5.2.0-SNAPSHOT` until 7B. Final
-candidate freeze and publication remain open; stable remains published 5.1.0.
+**Status:** Phase 7A merged through PR #365 at `abc8bc1b`; exact-master full
+CI `40968660073` passed all 62 jobs. Phase 7B prepares final `5.2.0` coordinates,
+canonical artifacts and release gates. Candidate-source protected CI, operator
+approval and publication remain pending; see [release checklist](RELEASE_CHECKLIST.md).
 
 ## Entry and preserved evidence
 
@@ -41,22 +41,21 @@ experiments merely to update release documentation.
   audit and Javadocs. Keep the full original cloud archive outside any Maven clean.
 - [x] Record local vs hosted validation separately; snapshot reproducibility is
   diagnostic and cannot substitute for the final frozen 7B build.
-- [ ] Operator review/merge of 7A; preserve any CI exception as an explicit record.
+- [x] Operator review/merge of 7A; full master CI passed without a skip.
 
 ## 7B — final 5.2.0 candidate
 
-- [ ] Align all three publishable modules, reactor/examples, seven consumers and
+- [x] Align all three publishable modules, reactor/examples, seven consumers and
   artifact resolvers to `5.2.0`, preserving compatibility fixtures for older releases.
-- [ ] Freeze the V5.2 canonical JDK/Maven/OS image and output timestamp. Two
+- [x] Freeze the V5.2 canonical JDK/Maven/OS image and output timestamp. Two
   independent clean workspaces must produce identical nine unsigned JARs and
   three POMs. Pin all twelve hashes and source-bound reproducibility receipts.
-- [ ] Add V5.2 candidate/canonical commands and release fixtures, adapting the
+- [x] Add V5.2 candidate/canonical commands and release fixtures, adapting the
   V5.1 `candidate_artifacts`, `verify-v51-canonical-build.sh` and phase-7 pattern.
-- [ ] Update `.github/workflows/release.yml`, the CI release-artifact route and
-  `scripts/verify-published-release.sh` explicitly for 5.2.0. The current routes
-  have 5.1.0-specific byte checks and only run the newer remote consumer for 5.1.*;
-  the generic fallback is insufficient for a V5.2 release.
-- [ ] Require final `validate-evidence --source` correlation, byte checks before
+- [x] Update `.github/workflows/release.yml`, the CI release-artifact route and
+  `scripts/verify-published-release.sh` explicitly for 5.2.0. V5.2 has its own exact-byte
+  checks and both V5.1/V5.2 remote consumers in addition to the five legacy consumers.
+- [x] Require final `validate-evidence --source` correlation, byte checks before
   and after signing/deployment, all seven fresh remote consumers and at least
   90-day retention for release/canonical evidence.
 - [ ] Obtain and record protected full candidate validation on the exact final

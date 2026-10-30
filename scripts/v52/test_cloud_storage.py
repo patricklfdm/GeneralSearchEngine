@@ -41,7 +41,7 @@ class InstallationVerificationTest(unittest.TestCase):
 class EndpointTest(unittest.TestCase):
     def setUp(self):
         self.base=volume_fixture.VolumeTest('test_original_blank_device_and_independent_retained_and_current_replay')
-        self.base.setUp();self.addCleanup(self.base.doCleanups);self.value=self.base.value;self.events=[]
+        self.addCleanup(self.base.doCleanups);self.base.setUp();self.value=self.base.value;self.events=[]
         self.fault=lambda action,result:result
         self.parent=SimpleNamespace(exchange=self.exchange,note=Mock(),record_check=Mock())
         self.guests=SimpleNamespace(session=SimpleNamespace(owner=SimpleNamespace(checkpoint=lambda:dict(
@@ -254,7 +254,7 @@ class RemoteRejectionTest(unittest.TestCase):
 class NativeStorageTest(unittest.TestCase):
     def setUp(self):
         self.base=iap_fixture.NativeGuestFactoryTest('test_native_identity_scoped_token_environment_binding_and_close_order')
-        self.base.setUp();self.addCleanup(self.base.doCleanups);self.root=self.base.root;self.session=self.base.session
+        self.addCleanup(self.base.doCleanups);self.base.setUp();self.root=self.base.root;self.session=self.base.session
         self.group=self.base.open();self.models={};self.installs={};self.installers=[];self.actions=[];self.parents={}
         self.stack=ExitStack();self.addCleanup(self.stack.close)
         self.lose_prepare=True;self.lose_install=True;self.changed_install=False;self.change_reply=lambda *args:None

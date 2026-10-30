@@ -14,7 +14,7 @@ one-time Phase 7A CI skip remains recorded separately from successful Phase 7B C
 
 **Current:** Phase 0 PR #335 accepted the [V5.2 read contract](docs/v5x/v5.2/PHASE_0_CONTRACT.md).
 The capture/waiter kernel and three explicit policies are implemented at
-`5.2.0-SNAPSHOT`. [Phase 4](docs/v5x/v5.2/PHASE_4_QUALIFICATION.md) completes local
+`5.2.0` candidate. [Phase 4](docs/v5x/v5.2/PHASE_4_QUALIFICATION.md) completes local
 correctness and compatibility qualification, with an explicit
 [schedule-to-evidence map](docs/v5x/v5.2/PHASE_4_SCHEDULE_RESULTS.md).
 [Phase 5 combined hardening](docs/v5x/v5.2/PHASE_5_HARDENING.md) is locally verified.
@@ -23,7 +23,8 @@ run `40841038976/1` at verifier source `8b9aa60a`: fifteen execution units acros
 all five rounds, with the original quota continuation and single retention waiver
 preserved. Phase 6 registration/closeout merged through PR #364;
 [Phase 7](docs/v5x/v5.2/PHASE_7_CHECKLIST.md) covers packaged consumers, API/Javadocs,
-final coordinates and canonical artifacts next. Cloud admission used the accepted
+final coordinates and canonical artifacts in the current batch. Phase 7A merged
+through PR #365 with all 62 master CI jobs passing; final-source CI remains pending. Cloud admission used the accepted
 Cloud Build/full-CI policy; final release-candidate validation remains separate.
 Earlier milestones follow below.
 

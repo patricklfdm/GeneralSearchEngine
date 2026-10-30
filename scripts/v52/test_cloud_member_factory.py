@@ -11,7 +11,7 @@ class NativePreparationTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):fixture.NativeRunnerTest.setUpClass()
     def setUp(self):
-        self.base=fixture.NativeRunnerTest();self.base.setUp();self.addCleanup(self.base.doCleanups)
+        self.base=fixture.NativeRunnerTest();self.addCleanup(self.base.doCleanups);self.base.setUp()
         self.root=self.base.root/'staged-checkout';self.root.mkdir();self.stage=s.stage;self.staged=[];self.builds=[]
         self.java_error=False;self.order=[]
         def stage(root,source,build,package,output,**kwargs):

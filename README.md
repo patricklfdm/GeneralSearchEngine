@@ -31,7 +31,8 @@ The [complete protected cloud set](docs/v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md) no
 passes all five rounds under the recorded batch exceptions. Phase 6 registration
 merged through PR #364. [Phase 7A snapshot preparation](docs/v5x/v5.2/RELEASE_CHECKLIST.md)
 adds packaged compatibility checks and [migration guidance](docs/v5x/v5.2/MIGRATION_GUIDE.md);
-final artifact freeze and release qualification remain open. V5.2 is not yet a published release.
+Phase 7A passed master full CI; Phase 7B prepares final candidate artifacts.
+Final-source qualification and publication remain open. V5.2 is not yet a published release.
 
 V5.0 adds an optional replication artifact with exactly three fixed voters, a
 configured leader, durable quorum commit proof, explicit activation, catch-up and

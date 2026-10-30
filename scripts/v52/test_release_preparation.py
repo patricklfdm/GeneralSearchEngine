@@ -62,6 +62,24 @@ class BaselineTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'regular file'): b.check(self.root)
             path.unlink(); path.write_bytes(raw)
 
+    def test_final_project_version_is_the_only_allowed_baseline_conversion(self):
+        original = b.check(self.root)['runtimeSource']
+        for name in b.RELEASE_POMS:
+            path = self.root/name
+            raw = path.read_bytes().replace(b'<version>5.2.0</version>', b'<version>5.2.0-SNAPSHOT</version>')
+            path.write_bytes(raw)
+        self.assertEqual(original, b.check(self.root)['runtimeSource'])
+        for name in b.RELEASE_POMS:
+            path = self.root/name
+            path.write_bytes(path.read_bytes().replace(b'<version>5.2.0-SNAPSHOT</version>', b'<version>5.2.0</version>'))
+        self.assertEqual(original, b.check(self.root)['runtimeSource'])
+        path = self.root/'pom.xml'; raw = path.read_bytes()
+        for changed in (raw.replace(b'5.2.0', b'5.2.1'), raw.replace(b'2026-09-19', b'2026-10-29'),
+                        raw.replace(b'<version>5.2.0</version>', b'<version>5.2.0</version>\n<version>5.2.0</version>')):
+            path.write_bytes(changed)
+            with self.assertRaisesRegex(ValueError, 'runtime/build source differs'): b.check(self.root)
+        path.write_bytes(raw)
+
 
 class PackagingTest(unittest.TestCase):
     def setUp(self):
@@ -150,6 +168,32 @@ class PackagingTest(unittest.TestCase):
         self.assertEqual('FAIL', receipt['status'])
         for name in ('candidateFrozen', 'publication', 'paidCloud', 'rawCloudReplayed'): self.assertFalse(receipt[name])
         with self.assertRaises(FileExistsError): r.run(output, self.root/'controls')
+
+
+class FixtureCleanupTest(unittest.TestCase):
+    def test_nested_native_setup_failure_restores_parent_patches(self):
+        from types import SimpleNamespace
+        from . import test_cloud_native_runner as native, test_cloud_native_cleanup as cleanup
+        from . import test_cloud_iap as iap, test_cloud_storage as storage, test_cloud_java as java
+        from . import test_cloud_member_factory as member, test_cloud_prepare as prepare
+        for child, parent in ((native.NativeRunnerTest, cleanup.NativeCleanupTest),
+                              (iap.NativeGuestFactoryTest, native.NativeRunnerTest),
+                              (storage.NativeStorageTest, iap.NativeGuestFactoryTest),
+                              (java.NativeJavaTest, storage.NativeStorageTest),
+                              (member.NativePreparationTest, native.NativeRunnerTest),
+                              (prepare.PrepareTest, native.NativeRunnerTest)):
+            state = SimpleNamespace(active=False)
+            def fail_setup(case):
+                case.enterContext(patch.object(state, 'active', True))
+                raise ValueError('original fixture setup failure')
+            class Probe(child):
+                def runTest(self): self.fail('failed setup must not execute a test')
+            result = unittest.TestResult()
+            with self.subTest(child=child.__name__), patch.object(parent, 'setUp', fail_setup):
+                Probe().run(result)
+                self.assertEqual(1, len(result.errors))
+                self.assertIn('original fixture setup failure', result.errors[0][1])
+                self.assertFalse(state.active, 'failed nested setup leaked a global patch')
 
 
 if __name__ == '__main__': unittest.main()

@@ -27,7 +27,7 @@ class NativeRunnerTest(unittest.TestCase):
 
     def setUp(self):
         self.case=native_test.NativeCleanupTest('test_empty_control_pass_is_observation_only_and_does_not_certify_delete_path')
-        self.case.setUp();self.addCleanup(self.case.doCleanups);self.root=self.case.root;self.cfg=self.case.cfg
+        self.addCleanup(self.case.doCleanups);self.case.setUp();self.root=self.case.root;self.cfg=self.case.cfg
         self.case.role='runner';self.case.make();self.case.clock.now=100
         self.case.env['GITHUB_RUN_ID']='654321'
         bound=credentials.identity(self.cfg['provider'],self.cfg['projectNumber'],self.case.env,role='runner',source=SOURCE,checkout=SOURCE)
@@ -40,6 +40,10 @@ class NativeRunnerTest(unittest.TestCase):
             schema='gse-v52-sdk-runtime-v1',status='PASS',pythonVersion='3.11.17',sdkVersion='1.0.0',
             credentialEnvironmentInherited=False,cloudOperationExecuted=False)))
         self.stack.enter_context(patch.object(inputs,'checkout',return_value=binding()))
+        # The modeled source and archive are the frozen Phase 6 snapshot, not
+        # the developer checkout's later final-release POM. Bind both halves of
+        # this synthetic checkout consistently; production provenance stays closed.
+        self.stack.enter_context(patch.object(inputs.build,'layout',return_value=roots()))
         self.stack.enter_context(patch.object(artifacts.Network,'get',new=lambda client,path:self.github(path)))
         self.network_download=artifacts.Network.download
         self.stack.enter_context(patch.object(artifacts.Network,'download',new=lambda client,identity,out,size:self.download(identity,out,size)))

@@ -101,7 +101,7 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
             self.assertEqual(["temurin"], re.findall(r"^          distribution: (.+)$", setups[0], re.MULTILINE), name)
             expected = "'21'" if name == "compatibility" else "'" + selector + "'"
             if release:
-                expected = "${{ (env.RELEASE_TAG == 'v4.4.0' || env.RELEASE_TAG == 'v5.0.0' || env.RELEASE_TAG == 'v5.1.0') && '" + selector + "' || '21' }}"
+                expected = "${{ (env.RELEASE_TAG == 'v4.4.0' || env.RELEASE_TAG == 'v5.0.0' || env.RELEASE_TAG == 'v5.1.0' || env.RELEASE_TAG == 'v5.2.0') && '" + selector + "' || '21' }}"
             self.assertEqual([expected], re.findall(r"^          java-version: (.+)$", setups[0], re.MULTILINE), name)
 
     def test_workflows_select_the_available_temurin_lts_catalog_version(self) -> None:

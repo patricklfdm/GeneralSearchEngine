@@ -18,7 +18,7 @@ Release `38488481320` published that source. All twelve remote artifact hashes,
 signatures/checksums and clean V1–V5.1 consumers pass independent verification.
 Phase 8 is complete; stable is **5.1.0**.
 
-- **Status:** V5.0 and V5.1 published; V5.2 protected cloud set accepted, registration merged and Phase 7A release preparation implemented; V5.3–V5.4 planned
+- **Status:** V5.0 and V5.1 published; V5.2 protected cloud set accepted, registration and Phase 7A merged; Phase 7B candidate prepared; V5.3–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **V5.2 replication reference:** published `5.1.0`
@@ -36,7 +36,7 @@ Phase 8 is complete; stable is **5.1.0**.
 
 ## Next entry and proposal status
 
-**Current batch:** [Phase 7A snapshot release preparation](v5.2/RELEASE_CHECKLIST.md).
+**Current batch:** [Phase 7B final candidate preparation](v5.2/RELEASE_CHECKLIST.md).
 Protected `verify-set` run `40841038976/1` accepted all fifteen original execution
 units, representing three canonical rounds, five drill shards and experiment.
 The receipt preserves both measured sources/sequences and the narrowly authorized
@@ -44,8 +44,9 @@ experiment retention exception. Its verifier source is `8b9aa60a`; the registrat
 source is not a measured source. See the [acceptance record](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md).
 
 Phase 7A reuses the existing seventh consumer and public runtime evidence.
-Complete its [release checklist](v5.2/RELEASE_CHECKLIST.md), then freeze final
-5.2.0 artifacts in 7B.
+Phase 7A merged through PR #365; master CI `40968660073` passed all 62 jobs.
+Phase 7B prepares final 5.2.0 artifacts and release gates; final-source CI and
+operator publication remain pending in the [release checklist](v5.2/RELEASE_CHECKLIST.md).
 Earlier cloud-support CI skips do not replace final-candidate full validation.
 The [handoff](NEXT_DEVELOPMENT_HANDOFF.md) separates current work from historical
 pre-cloud implementation notes. Concurrent V5.3 development remains outside the

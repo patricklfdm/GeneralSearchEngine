@@ -12,7 +12,7 @@ class PrepareTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls): fixture.NativeRunnerTest.setUpClass()
     def setUp(self):
-        self.base = fixture.NativeRunnerTest(); self.base.setUp(); self.addCleanup(self.base.doCleanups)
+        self.base = fixture.NativeRunnerTest(); self.addCleanup(self.base.doCleanups); self.base.setUp()
         self.request = dict(member='canonical-3-legacy', sequence='c'*32, estimate=deepcopy(self.base.arguments['quote']))
         self.count = 0
     def execute(self):

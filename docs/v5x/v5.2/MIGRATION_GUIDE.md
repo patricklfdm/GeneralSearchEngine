@@ -1,6 +1,6 @@
 # Migrating to V5.2 explicit replica reads
 
-Status: snapshot release preparation at `5.2.0-SNAPSHOT`. Published stable is
+Status: final candidate preparation at `5.2.0`. Published stable is
 5.1.0; final 5.2.0 artifacts and publication are pending the
 [release checklist](RELEASE_CHECKLIST.md).
 
