@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Deferred same-cut source reclamation](PHASE_3_DEFERRED_SOURCE_MAINTENANCE.md)
+keeps obsolete sources owned and charged when an unavailable old-cut quorum cannot
+reclaim them, provided no generation/floor or joining obligation requires that
+maintenance. A fresh grant still needs normal capacity and exact source selection.
+Qualification is recorded separately; Phase 3 remains **OPEN**.
+
 [Active-write heartbeat progress](PHASE_3_ACTIVE_WRITE_HEARTBEAT.md) now services
 liveness from the original slot coordinator at unlocked work/wait boundaries.
 It preserves the original authority, cut, deadline and one client mutation;

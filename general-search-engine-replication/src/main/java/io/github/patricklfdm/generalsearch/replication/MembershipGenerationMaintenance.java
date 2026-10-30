@@ -132,7 +132,16 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
             }finally{if(!retain){try{release(generation);}finally{release(source);}}}
         }
         check();
-        if(published!=null && !quorum(voters))throw new Unavailable("native generation maintenance quorum unavailable");
+        if(published!=null && !quorum(voters)) {
+            // An obsolete same-cut source is a reclamation opportunity, not
+            // permission to delete it and not a prerequisite for another grant.
+            // Peers may already have published a newer same-view cut. Keep all
+            // originals charged; normal source/image admission must still reserve
+            // the next campaign. A pending generation/floor or joining obligation
+            // cannot defer its required maintenance this way.
+            if(joining.isEmpty() && !owner.nativeGenerationMaintenanceRequired()){check();return;}
+            throw new Unavailable("native generation maintenance quorum unavailable");
+        }
         if(published!=null && !voters.containsAll(joining))throw new Unavailable("native generation maintenance joining copy unavailable");
         require(quorum(voters),"native generation maintenance quorum unavailable");
         require(voters.containsAll(joining),"native generation maintenance joining copy unavailable");
@@ -154,7 +163,14 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         synchronized(this){received=List.copyOf(pulls);}
         for(var work:received){release(work);check();}
         owner.retireInactive();check();
-        if(published!=null)for(String source:owner.supersededPublishedSources(published)) {
+        // Selected-prefix installation may have advanced a lagging proposer
+        // after source-only maintenance was deferred. This newly forced floor
+        // now covers the old sources. Reuse the normal published permit only
+        // when no pending vote/application owns them; never release their image
+        // charges merely because selection succeeded.
+        var sourcePermit=published!=null?published:
+                owner.publishedMaintenanceRequired()?owner.publishedMaintenance(resources):null;
+        if(sourcePermit!=null)for(String source:owner.supersededPublishedSources(sourcePermit)) {
             // The old physical source stays owned until its original retirement
             // decision and journal replacement are forced. A new campaign must
             // not accumulate another full image on top of obsolete sources.
