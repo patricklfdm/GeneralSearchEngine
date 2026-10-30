@@ -1,8 +1,9 @@
-# GeneralSearchEngine 5.2.0 release notes — draft
+# GeneralSearchEngine 5.2.0 release notes
 
-These notes describe the final V5.2 candidate. **5.2.0 is not published**;
-stable remains 5.1.0. Follow the [release checklist](RELEASE_CHECKLIST.md) before
-assigning a final date, tag or available coordinates.
+**5.2.0 is published**, dated October 29, 2026 (America/Los_Angeles).
+Signed tag `v5.2.0` points to `0743490458c07ef87423b8cd4d4dcf8565dbac93`.
+The [release record](RELEASE_CHECKLIST.md) links exact-source full CI, all three
+successful Release jobs, Maven Central publication and independent verification.
 
 ## Added
 
@@ -36,5 +37,16 @@ failed attempts remain visible; reserved costs are not a provider bill.
 
 Phase 7A binds those original compact records and unchanged runtime/build sources
 to snapshot packaging/API checks. It does not replay cloud histories again or
-claim that the local snapshot JARs equal measured cloud JAR bytes. Phase 7B pins final coordinates and reproducible unsigned bytes. Exact-source
-full CI, signed publication and remote verification remain acceptance gates.
+claim that the local snapshot JARs equal measured cloud JAR bytes. Phase 7B froze
+final coordinates and reproducible unsigned bytes. Exact-source full CI passed
+all 62 jobs; Release `41010395652/1` published the signed source. Independent
+remote verification passed twelve POM/JAR signatures/checksums, twelve canonical
+hashes and seven fresh consumers (26 tests). Release receipts are retained for
+90 days. Historical cloud failures and the two specific exceptions remain visible.
+
+## Availability
+
+- [Core 5.2.0](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/5.2.0)
+- [Annotation processor 5.2.0](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/5.2.0)
+- [Replication 5.2.0](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-replication/5.2.0)
+- [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.2.0)

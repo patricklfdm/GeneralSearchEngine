@@ -1,8 +1,9 @@
 # Migrating to V5.2 explicit replica reads
 
-Status: final candidate preparation at `5.2.0`. Published stable is
-5.1.0; final 5.2.0 artifacts and publication are pending the
-[release checklist](RELEASE_CHECKLIST.md).
+Status: `5.2.0` is published and independently verified. Use aligned `5.2.0`
+core/replication/processor coordinates as needed; the
+[release checklist](RELEASE_CHECKLIST.md) records the signed source, Central
+publication, canonical hashes and seven remote consumers.
 
 ## Dependencies and deployment
 

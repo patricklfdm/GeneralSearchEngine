@@ -1,7 +1,7 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 and V5.1 published and independently verified; V5.2 complete protected cloud set accepted; Phase 6 registration merged; Phase 7A snapshot release preparation implemented
-- **Current stable / next replication reference:** GeneralSearchEngine `5.1.0`
+- **Status:** V5.0–V5.2 published and independently verified; V5.3 cluster operations is developed separately
+- **Current stable / next replication reference:** GeneralSearchEngine `5.2.0`
 - **Inherited search/storage reference:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -11,6 +11,14 @@ add automated leadership, explicit replica reads, membership operations and fina
 hardening. Sharding and distributed query are not V5 work.
 
 ## Next development entry
+
+V5.2 [Phases 7 and 8](v5.2/RELEASE_CHECKLIST.md) are complete: PR #366,
+exact-master CI `40999633695/2` (62 jobs), signed `v5.2.0` and Release
+`41010395652/1`. All twelve remote signatures/checksums and canonical hashes
+pass, as do seven fresh consumers (26 tests). The [migration guide](v5.2/MIGRATION_GUIDE.md)
+describes explicit read policies and the homogeneous-group boundary.
+The next minor is V5.3 cluster operations; its separate development worktree
+should reconcile with this published baseline before integration.
 
 V5.1 [Phases 7 and 8](v5.1/RELEASE_CHECKLIST.md) are complete: PR #322,
 exact-master CI `38482900297` (46 jobs, attempt 1), signed tag `v5.1.0` and
@@ -27,15 +35,16 @@ process-fault and consumer evidence. [Combined hardening](v5.2/PHASE_5_HARDENING
 is locally verified. The [complete protected cloud set](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md)
 now passes all five rounds, retaining the explicit batch exceptions and original
 source identities. Phase 6 registration merged through PR #364. The
-[Phase 7A release checklist](v5.2/RELEASE_CHECKLIST.md) tracks packaged compatibility,
-consumer checks and validation before the final artifact freeze in 7B.
+[release checklist](v5.2/RELEASE_CHECKLIST.md) records packaged compatibility,
+consumer checks, final artifact freeze and completed publication.
 The accepted V5.1 cloud evidence retains its original
 sources/sequences; publication does not alter those measurements.
 
 The [development handoff](NEXT_DEVELOPMENT_HANDOFF.md) records the reading order,
 review boundaries, source identities and validation guidance in this repository.
 
-**Planning status:** V5.1 is published. Later-minor/V6 refinements remain proposals;
+**Planning status:** V5.2 is published. Later-minor/V6 refinements remain proposals
+until their own acceptance;
 runtime work follows the relevant accepted phase entry, with separate authorization
 for paid execution and publication.
 

@@ -9,25 +9,25 @@
 - [CI refactor completed handoff](CI_REFACTOR_HANDOFF.md)
 - [CI refactor final hosted acceptance and measured replay results](CI_REFACTOR_ACCEPTANCE.md)
 
-This directory preserves published records through V5.1 and completed development
+This directory preserves published records through V5.2 and completed development
 phases. The repository root [`README.md`](../README.md) remains the user-facing entry
 point; [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) indexes phase history and
 current planning. Accepted version-specific charters and contracts govern their
 scope. Proposed documents are not accepted merely because they are linked here.
 
-Current development is V5.2 explicit replica reads. The accepted Phase 0 contract
-now has implemented public policies and completed
+Current stable is **5.2.0**, with explicit replica reads. Its accepted contract
+has implemented public policies and completed
 [local Phase 4 qualification](v5x/v5.2/PHASE_4_QUALIFICATION.md), followed by
 [combined Phase 5 hardening](v5x/v5.2/PHASE_5_HARDENING.md). The complete
 [hosted M01–M04 cohort](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) passed; remote adapter
 qualification was subsequently connected to the
 [complete protected cloud acceptance](v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md).
-Phase 6 registration/closeout merged through PR #364; the
-[Phase 7 release plan](v5x/v5.2/PHASE_7_CHECKLIST.md) now prepares the final
-5.2.0 candidate after Phase 7A merged with passing master full CI. Final-source
-qualification and publication remain open.
+Phase 6 registration merged through PR #364; Phase 7A/#365 and Phase 7B/#366
+completed release preparation. Exact-source full CI passed all 62 jobs;
+signed Release `41010395652/1` and independent remote verification closed
+[Phases 7 and 8](v5x/v5.2/RELEASE_CHECKLIST.md). V5.3 work remains separate.
 
-## v5.2 — unreleased replica reads
+## v5.2 — current stable explicit replica reads
 
 - [Phase 6 protected cloud acceptance and original-run inventory](v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md)
 - [Phase 6 closeout checklist](v5x/v5.2/PHASE_6_CHECKLIST.md)
@@ -37,7 +37,8 @@ qualification and publication remain open.
 - [Phase 7 release preparation plan](v5x/v5.2/PHASE_7_CHECKLIST.md)
 - [Final candidate and release checklist](v5x/v5.2/RELEASE_CHECKLIST.md)
 - [V5.2 migration guide](v5x/v5.2/MIGRATION_GUIDE.md)
-- [Draft V5.2 release notes](v5x/v5.2/RELEASE_NOTES.md)
+- [V5.2 release notes](v5x/v5.2/RELEASE_NOTES.md)
+- [V5.2 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.2.0)
 - [Source-reviewed entry and requirements](v5x/v5.2/PHASE_0_ENTRY_PLAN.md)
 - [Phase 0 contract and decisions](v5x/v5.2/PHASE_0_CONTRACT.md)
 - [Read authority, lifecycle and resource bounds](v5x/v5.2/READ_AUTHORITY_AND_LIFECYCLE.md)
@@ -83,7 +84,7 @@ qualification and publication remain open.
 - [Complete hosted M01–M04 acceptance](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
-## v5.1 — current stable automatic leadership
+## v5.1 — previous stable automatic leadership
 
 - [Development handoff, reading order and integration review](v5x/NEXT_DEVELOPMENT_HANDOFF.md)
 - [V5.x proposed scope refinement](v5x/NEXT_DEVELOPMENT_ADDENDUM.md)

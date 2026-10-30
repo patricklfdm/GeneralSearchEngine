@@ -1,8 +1,8 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current milestone: [V5.2 complete protected cloud set accepted](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md);
-Phase 6 registration merged through PR #364 and [Phase 7A](v5.2/RELEASE_CHECKLIST.md)
-is implemented pending acceptance. Stable remains [published V5.1](v5.1/RELEASE_CHECKLIST.md).
+Current milestone: [V5.2 published and independently verified](v5.2/RELEASE_CHECKLIST.md).
+PR #366, exact-master full CI `40999633695/2` (62 jobs), signed `v5.2.0`
+and Release `41010395652/1` close Phases 7 and 8. Stable is **5.2.0**.
 
 Historical V5.1 closeout:
 Phase 6 closed through PR #320 at `5c88a2b908347fa3e411e2018876657a21fa0912`,
@@ -16,9 +16,9 @@ accepted through PR #322, master `516fe1efb54ef0787f38209108f322f258f71696`,
 exact-master CI `38482900297` attempt 1 (all 46 jobs). Signed tag `v5.1.0` and
 Release `38488481320` published that source. All twelve remote artifact hashes,
 signatures/checksums and clean V1–V5.1 consumers pass independent verification.
-Phase 8 is complete; stable is **5.1.0**.
+V5.1 Phase 8 is complete; `5.1.0` is the previous stable reference.
 
-- **Status:** V5.0 and V5.1 published; V5.2 protected cloud set accepted, registration and Phase 7A merged; Phase 7B candidate prepared; V5.3–V5.4 planned
+- **Status:** V5.0–V5.2 published; V5.3 cluster operations proceeds separately; V5.4 remains future work
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **V5.2 replication reference:** published `5.1.0`
@@ -30,13 +30,13 @@ Phase 8 is complete; stable is **5.1.0**.
 | --- | --- | --- |
 | 5.0 — published | Configured-leader replication | Accepted through Phases 0–8; see the [release record](v5.0/RELEASE_CHECKLIST.md). |
 | 5.1 — published | Automated leadership | Accepted through Phases 0–8; see the [release record](v5.1/RELEASE_CHECKLIST.md). |
-| 5.2 | Replica reads | Can followers serve only the consistency they explicitly prove? |
+| 5.2 — published | Replica reads | Accepted through Phases 0–8; see the [release record](v5.2/RELEASE_CHECKLIST.md). |
 | 5.3 | Cluster operations | Can membership and maintenance change without violating committed history? |
 | 5.4 | Final hardening | Is the replicated single-shard line a stable future architecture reference? |
 
 ## Next entry and proposal status
 
-**Current batch:** [Phase 7B final candidate preparation](v5.2/RELEASE_CHECKLIST.md).
+**Completed:** [V5.2 release and independent verification](v5.2/RELEASE_CHECKLIST.md).
 Protected `verify-set` run `40841038976/1` accepted all fifteen original execution
 units, representing three canonical rounds, five drill shards and experiment.
 The receipt preserves both measured sources/sequences and the narrowly authorized
@@ -45,12 +45,13 @@ source is not a measured source. See the [acceptance record](v5.2/PHASE_6_CLOUD_
 
 Phase 7A reuses the existing seventh consumer and public runtime evidence.
 Phase 7A merged through PR #365; master CI `40968660073` passed all 62 jobs.
-Phase 7B prepares final 5.2.0 artifacts and release gates; final-source CI and
-operator publication remain pending in the [release checklist](v5.2/RELEASE_CHECKLIST.md).
+Phase 7B merged through PR #366 at `0743490458c07ef87423b8cd4d4dcf8565dbac93`.
+Full CI `40999633695/2` passed all 62 jobs. Signed Release `41010395652/1`
+and independent twelve-artifact/seven-consumer verification completed publication.
 Earlier cloud-support CI skips do not replace final-candidate full validation.
 The [handoff](NEXT_DEVELOPMENT_HANDOFF.md) separates current work from historical
-pre-cloud implementation notes. Concurrent V5.3 development remains outside the
-V5.2 release scope.
+pre-cloud implementation notes. V5.3 integration should use the published 5.2.0
+baseline; concurrent development remains outside the V5.2 closeout scope.
 
 ## Historical V5.1 implementation milestones
 
