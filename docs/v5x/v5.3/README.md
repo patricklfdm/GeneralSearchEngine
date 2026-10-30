@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Joining preparation rendezvous](PHASE_3_JOINING_RENDEZVOUS.md) lets the managed
+initializer wait for a later old-proposer publication under its original lifetime.
+Only explicitly absent routes are polled again; exhausted transport routes are
+excluded. Conditional routing/lifecycle tests are distinct from still-deferred
+native concurrent startup and full history acceptance. Phase 3 remains **OPEN**.
+
 [Joint continuation coordination](PHASE_3_JOINT_COORDINATION.md) now owns old-side
 preparation, bounded completion waiting, cleanup and fresh normal activation
 under one original deadline. Only explicit initial absence is polled; errors

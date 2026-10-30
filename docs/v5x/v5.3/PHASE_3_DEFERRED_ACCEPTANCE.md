@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining preparation rendezvous](PHASE_3_JOINING_RENDEZVOUS.md) lets the managed
+initializer wait for a later old-proposer publication under its original lifetime.
+Only explicitly absent routes are polled again; exhausted transport routes are
+excluded. Conditional routing/lifecycle tests are distinct from still-deferred
+native concurrent startup and full history acceptance. Phase 3 remains **OPEN**.
+
 [Joint continuation coordination](PHASE_3_JOINT_COORDINATION.md) now owns old-side
 preparation, bounded completion waiting, cleanup and fresh normal activation
 under one original deadline. Only explicit initial absence is polled; errors
@@ -409,6 +415,12 @@ mvn -B -ntp -f reactor/pom.xml -pl ../general-search-engine-replication -am \
   -Dsurefire.failIfNoSpecifiedTests=false \
   -Dtest=V53JoiningIntentExportTest#actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier test
 ```
+
+A separate whole-history variant is still required to start managed
+initialization before the old proposer publishes. It must retain actual initial
+absence, exclude exhausted routes without retry renewal, then complete original
+native acquisition/force and the remaining history. Conditional rendezvous tests
+and compilation do not satisfy that gate.
 
 The actual old proposer must run the native old-side preparation step over TCP
 under the same deadline as the subsequent acquisition. The new owner's temporary

@@ -1,5 +1,26 @@
 # V5.3 Phase 3 contract amendments
 
+## A68 — wait only on explicitly absent preparation routes
+
+The managed joining initializer may begin before an old proposer publishes its
+preparation. One discovery scan still checks known old identities in order and
+fixes the first exact valid hint. Between scans, retain the original cut/fence,
+local start/budget and cancellation guard; use existing request-timeout spacing.
+Only routes returning a correlated initial `NOT_READY` survive into another scan.
+A route exhausting its existing IO/deadline retries is excluded for this entire
+rendezvous. If all routes are exhausted, fail rather than granting another retry
+budget. An unknown I/O, malformed/foreign response, fatal rejection or refusal
+after transfer begins stops immediately. Remote promises are not observed.
+
+The result is routing metadata, never initialization authority. The actual source
+acquisition, original-owner force transaction and endpoint handoff remain
+mandatory. Hold 64 KiB of existing CONTROL capacity for rendezvous metadata until
+close/drain, in addition to existing per-pass and initializer accounting. No new
+persisted record, wire kind, frozen bound or election policy is introduced.
+
+See [joining preparation rendezvous](PHASE_3_JOINING_RENDEZVOUS.md). Concurrent
+native startup, all profiles and process histories remain unqualified.
+
 ## A67 — coordinate one original JOINT continuation lifetime
 
 An actual old voter at a JOINT cut may derive the unique new identity from the

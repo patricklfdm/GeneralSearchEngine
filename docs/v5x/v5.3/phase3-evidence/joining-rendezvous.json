@@ -1,0 +1,105 @@
+{
+  "archive": {
+    "bytes": 19050450,
+    "path": "target/v53-joining-rendezvous/component-validation.tar.gz",
+    "sha256": "db2129e52229607bac6add703a2e61546abd5eff3ba3ca4325e85ef28870cfec"
+  },
+  "archiveMembers": 8218,
+  "baseCommit": "f4420fc1a0d161e2523c1776db9e423f661c8835",
+  "conditionalRoutingOnly": true,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1599,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "deferred": [
+    "native-concurrent-early-initialization-before-old-preparation",
+    "actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier",
+    "alternative-old-majorities-and-all-profiles",
+    "original-process-death-recovery",
+    "maximum-combined-resources",
+    "automatic-election-adoption-scheduling",
+    "removed-proposer-takeover",
+    "complete-learner-runtime-orchestration"
+  ],
+  "executions": {
+    "joiningrendezvous": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompletionWaitTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationDiscoveryTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationRendezvousTest": 6
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningrendezvous",
+      "requestedTests": [
+        "V53JoiningPreparationRendezvousTest",
+        "V53JoiningPreparationDiscoveryTest",
+        "V53CompletionWaitTest",
+        "V53JoiningInitializationTest"
+      ],
+      "seconds": 36.8420707579935,
+      "selectionMatched": false,
+      "skipped": 0,
+      "tests": 23
+    },
+    "joiningrendezvousfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompletionWaitTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningCompletionTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningEndpointTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationDiscoveryTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationRendezvousTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningPreparationTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningrendezvousfinal",
+      "requestedTests": [
+        "V53JoiningPreparationRendezvousTest",
+        "V53JoiningPreparationDiscoveryTest",
+        "V53CompletionWaitTest",
+        "V53JoiningEndpointTest",
+        "V53InitializationTaskTest",
+        "V53JoiningPreparationTest",
+        "V53JoiningCompletionTest"
+      ],
+      "seconds": 69.9305754310044,
+      "selectionMatched": true,
+      "skipped": 0,
+      "tests": 46
+    }
+  },
+  "finalCodeAndBuildInputsChecked": 1323,
+  "nativeHistoryExecuted": false,
+  "nativeInitializerPositiveExecuted": false,
+  "openNativeFailures": [
+    "joint-coordination.json: native stable second DATA publication exchange deadline"
+  ],
+  "paidCloud": false,
+  "phase3Closed": false,
+  "publicRuntime": false,
+  "retainedIncompleteSelections": {
+    "joiningrendezvous": {
+      "actualFailures": 0,
+      "actualTests": 23,
+      "launcherExit": 1,
+      "reason": "requested class V53JoiningInitializationTest does not exist"
+    }
+  },
+  "schema": "gse-v53-joining-rendezvous-component-v1",
+  "scope": "conditional-preparation-routing-with-absence-only-waiting",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningEndpoint.java": "2170c8bb95f7a08c6042ff79ffc9df1bb7a0392bb5a9ac285989df6ef1649109",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparationDiscovery.java": "5caaee894e158fe93d15123e8d899fde88292262b4c40bc98ab4882c9f682162",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparationRendezvous.java": "b2caf9b02bf57262f38a805bb0631a8acddb61f086068aa3532a2820d1a622a9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningPreparationRendezvousTest.java": "58d11bebd89b92f9f73d912f4ce39c8020686d0d1b8f26a77e6eee11452e592e"
+  },
+  "status": "PASS"
+}

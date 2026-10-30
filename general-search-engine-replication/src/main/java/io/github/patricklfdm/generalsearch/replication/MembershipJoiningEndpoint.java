@@ -72,7 +72,7 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
     void initialize(MembershipJoiningRetentionCampaign.Hint prepared)throws IOException {
         initialize(Objects.requireNonNull(prepared),null);
     }
-    /** Discover one prepared old proposer without an externally supplied route. */
+    /** Await a prepared old proposer without an externally supplied route. */
     void initialize()throws IOException {initialize(null,null);}
     /** The permanent old proposer publishes only an ephemeral routing hint.
      * Fetch it on the same bounded channel before reading exact original sources. */
@@ -85,7 +85,7 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
                 admitted.set(true);initialTime();
                 return new MembershipInitializationTask.Action(){
                     private MembershipSourcePull pending;
-                    private MembershipJoiningPreparationDiscovery discovery;
+                    private MembershipJoiningPreparationRendezvous discovery;
                     private MembershipJoiningRetentionAcquisition acquisition;
                     private boolean cancelled;
                     @Override public void run()throws IOException {
@@ -108,10 +108,10 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
                                 synchronized(this){pending=null;}
                             }else if(hint==null) {
                                 var original=owner.joiningRetentionPreparation(resources);
-                                var search=new MembershipJoiningPreparationDiscovery(owner,resources,bounds,link,
+                                var search=new MembershipJoiningPreparationRendezvous(owner,resources,bounds,link,
                                         ()->{initialTime();original.check();},clock,started,budget);
                                 synchronized(this){if(cancelled){search.close();throw new IOException("joining discovery cancelled before admission");}discovery=search;}
-                                hint=search.find();initialTime();original.check();
+                                hint=search.await();initialTime();original.check();
                             }
                             initialTime();var made=new MembershipJoiningRetentionAcquisition(owner,resources,bounds,link,
                                     MembershipJoiningEndpoint.this::initialTime,clock,started,budget,hint);
@@ -120,7 +120,7 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
                         }
                     }
                     @Override public void close()throws IOException {
-                        MembershipSourcePull read;MembershipJoiningRetentionAcquisition acquired;MembershipJoiningPreparationDiscovery search;
+                        MembershipSourcePull read;MembershipJoiningRetentionAcquisition acquired;MembershipJoiningPreparationRendezvous search;
                         synchronized(this){cancelled=true;read=pending;acquired=acquisition;search=discovery;}
                         try{if(acquired!=null)acquired.close();}finally{try{if(read!=null)read.close();}finally{if(search!=null)search.close();}}
                     }
