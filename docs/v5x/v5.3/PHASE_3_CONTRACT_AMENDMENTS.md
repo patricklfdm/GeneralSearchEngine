@@ -1,5 +1,28 @@
 # V5.3 Phase 3 contract amendments
 
+## A54 — actual retained pending-source confirmation after publication
+
+Permit only the private forced pending SOURCE owner to observe its original
+stable SEALED endpoint through the existing learner head QUERY/ACK. Keep the
+typed selector unchanged and ordinary typed-head queries blocked while pending.
+Check the original ACK, source, marker, identities and bytes/inodes before and
+after response hooks; closing the owner or recording linked INTENT revokes the
+observation. Track and drain the listener before custody with all reservations.
+
+An original retained operation in JOINT/COMPLETED may supply the old owner's
+query binding only when that owner is still a current voter and was a voter in
+the original prepared stable view. All current ancestry and exact Received
+owner/resource checks remain. Do not enable post-terminal discovery or a new
+voter's original-source authority. Each old source owner receives and forces
+its own confirmation. Narrow earlier possibilities while preserving renewal
+debt; keep the existing two-point, two-renewal and byte bounds.
+
+See [pending-source confirmation](PHASE_3_PENDING_HEAD_CONFIRMATION.md). No
+public wire/storage format or production time allowance changes. A53's failed
+native third offer remains retained. Full native qualification and Phase 3
+closure require the separately recorded evidence, not this amendment alone.
+
+
 ## A53 — complete pending-linked custody, placement and retirement
 
 The [linked joining path](PHASE_3_PENDING_JOINED_CUSTODY.md) may issue staged

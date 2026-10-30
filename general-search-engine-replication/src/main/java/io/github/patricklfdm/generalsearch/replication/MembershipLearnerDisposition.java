@@ -41,6 +41,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     private MembershipCapsule verified;
     private MembershipLearnerVoterStage voterStage;
     private MembershipLearnerCheckpointEndpoint checkpointEndpoint;
+    private MembershipLearnerHeadEndpoint headEndpoint;
     private MembershipResources.Lease resumedMetadata;
     private boolean pendingSourceRetained;
     private static String schema(Kind kind){return switch(kind){case CANCEL->"gse-v53-learner-cancellation/1.3";case INTENT->"gse-v53-learner-intent/1.3";case PENDING_INTENT->"gse-v53-learner-pending-intent/1.3";};}
@@ -423,6 +424,14 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         }
         MembershipCapsule source()throws IOException {check();return verified;}
         MembershipLearnerHead head()throws IOException {check();return head;}
+        MembershipLearnerHeadEndpoint listenHead(ReplicationBounds bounds,MembershipTransport.Events events)throws IOException {
+            synchronized(MembershipLearnerDisposition.this) {
+                requireAcquisition();
+                require((checkpointEndpoint==null || checkpointEndpoint.closed()) && (headEndpoint==null || headEndpoint.closed()),
+                        "joining progress endpoint already owned");
+                headEndpoint=new MembershipLearnerHeadEndpoint(this,bounds,events);return headEndpoint;
+            }
+        }
         private MembershipLearnerDisposition owner()throws IOException {check();return MembershipLearnerDisposition.this;}
         private Map<String,Object> link()throws IOException {check();return pendingLink();}
         void requireAcquisition()throws IOException {
@@ -528,7 +537,7 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         long elapsed=clock.getAsLong()-started;
         require(budget>0 && budget<Long.MAX_VALUE/2 && elapsed>=0 && elapsed<budget
                 && Math.min(FRAME,bounds.maxFrameBytes())>=4096 && bounds.snapshotChunkBytes()>0,"joining checkpoint original limits");
-        pendingMetadata();require(checkpointEndpoint==null || checkpointEndpoint.closed(),"joining checkpoint endpoint already owned");
+        pendingMetadata();require((checkpointEndpoint==null || checkpointEndpoint.closed()) && (headEndpoint==null || headEndpoint.closed()),"joining checkpoint endpoint already owned");
         checkpointEndpoint=new MembershipLearnerCheckpointEndpoint(new PendingCheckpoint(),bounds,events,clock,started,budget);
         return checkpointEndpoint;
     }
@@ -536,12 +545,12 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         require(kind==Kind.INTENT && complete,"learner INTENT not forced");validate();return verified;
     }
     void prepareVoterHandoff()throws IOException {
-        guardIntent();if(pendingParent!=null)pendingParent.drainCheckpoint();guardIntent();
+        guardIntent();if(pendingParent!=null)pendingParent.drainListeners();guardIntent();
     }
-    private void drainCheckpoint()throws IOException {
-        MembershipLearnerCheckpointEndpoint endpoint;
-        synchronized(this){check();endpoint=checkpointEndpoint;}
-        if(endpoint!=null)endpoint.close();check();
+    private void drainListeners()throws IOException {
+        MembershipLearnerCheckpointEndpoint endpoint;MembershipLearnerHeadEndpoint progress;
+        synchronized(this){check();endpoint=checkpointEndpoint;progress=headEndpoint;}
+        if(endpoint!=null)endpoint.close();if(progress!=null)progress.close();check();
     }
     Optional<Map<String,Object>> intentPendingLink()throws IOException {
         guardIntent();return pendingParent==null?Optional.empty():Optional.of(pendingParent.pendingLink());
@@ -574,18 +583,19 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         require(voterStage!=null && !voterStage.closed(),"learner custody needs live staged voter");voterStage.collectCustody(result);
     }
     private void collectPendingCustody(MembershipLearnerCustody.Collected result)throws IOException {
-        check();require(kind==Kind.PENDING_INTENT && complete && pendingSourceRetained && (checkpointEndpoint==null || checkpointEndpoint.closed()),
+        check();require(kind==Kind.PENDING_INTENT && complete && pendingSourceRetained && (checkpointEndpoint==null || checkpointEndpoint.closed())
+                && (headEndpoint==null || headEndpoint.closed()),
                 "pending custody requires forced quiescent original end");pendingLink();result.roots.add(directory);result.leases.addAll(leases);
         for(var value:retained.values())value.collectCustody(result);
     }
     boolean closed(){return closed;}
     @Override public void close()throws IOException {
-        MembershipLearnerCheckpointEndpoint endpoint;
-        synchronized(this){closed=true;endpoint=checkpointEndpoint;}
+        MembershipLearnerCheckpointEndpoint endpoint;MembershipLearnerHeadEndpoint progress;
+        synchronized(this){closed=true;endpoint=checkpointEndpoint;progress=headEndpoint;}
         // Readers take the original owner monitor. Revoke first, but never
         // drain transport workers while holding that monitor. Keep reservations
         // for a retry if transport draining itself fails.
-        if(endpoint!=null)endpoint.close();
+        if(endpoint!=null)endpoint.close();if(progress!=null)progress.close();
         var children=new ArrayList<AutoCloseable>();
         synchronized(this) {
             if(released)return;released=true;if(voterStage!=null)children.add(voterStage);children.addAll(retained.values());children.addAll(leases);

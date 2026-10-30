@@ -14,20 +14,28 @@ final class MembershipLearnerHeadEndpoint implements AutoCloseable {
     private final Map<String,MembershipIdentity> voters;
     private final MembershipTransport transport;
     private final Object guard=new Object();
-    private boolean closed;
+    private volatile boolean closed,released;
 
     MembershipLearnerHeadEndpoint(MembershipLearnerHead head,ReplicationBounds bounds,
             MembershipTransport.Events events)throws IOException {
-        Objects.requireNonNull(events);
-        observation=MembershipLearnerHeadObservation.capture(head);
+        this(MembershipLearnerHeadObservation.capture(head),bounds,events);
+    }
+    MembershipLearnerHeadEndpoint(MembershipLearnerDisposition.RetainedSource retained,ReplicationBounds bounds,
+            MembershipTransport.Events events)throws IOException {
+        this(MembershipLearnerHeadObservation.capture(retained),bounds,events);
+    }
+    private MembershipLearnerHeadEndpoint(MembershipLearnerHeadObservation observation,ReplicationBounds bounds,
+            MembershipTransport.Events events)throws IOException {
+        this.observation=observation;
         try {
-            var source=head.source();root=source.context.root;
+            Objects.requireNonNull(events);Objects.requireNonNull(bounds);observation.check();
+            var source=observation.source();root=source.context.root;
             // Retain only the at-most-five original voter identities, not a
             // second full decoded operation catalog or source packet.
             var originalVoters=new TreeMap<String,MembershipIdentity>();
             for(String node:source.context.voters())originalVoters.put(node,source.context.identities.get(node));
             voters=Map.copyOf(originalVoters);
-            transport=new MembershipTransport(source,observation.learner,bounds,head.resources(),this::answer,(event,request,response)->{
+            transport=new MembershipTransport(source,observation.learner,bounds,observation.resources(),this::answer,(event,request,response)->{
                 events.at(event,request,response);
                 // External hooks never execute under the lifecycle monitor.
                 // Recheck after hooks, immediately before writing any ACK.
@@ -52,10 +60,11 @@ final class MembershipLearnerHeadEndpoint implements AutoCloseable {
             var answer=decode(encode("wire","LEARNER_HEAD_ACK",reply),"wire","LEARNER_HEAD_ACK");check();return answer;
         }
     }
+    boolean closed(){return released;}
     @Override public void close()throws IOException {
         synchronized(guard){closed=true;}
         // Do not hold guard while draining transport workers that may need it.
         // On a drain failure keep the observation accounted until close retries.
-        transport.close();synchronized(guard){observation.close();}
+        transport.close();synchronized(guard){observation.close();released=true;}
     }
 }

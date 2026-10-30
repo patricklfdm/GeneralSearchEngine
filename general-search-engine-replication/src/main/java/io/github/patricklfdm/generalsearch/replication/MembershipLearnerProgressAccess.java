@@ -28,6 +28,18 @@ final class MembershipLearnerProgressAccess {
     static Map<String,Object> operation(MembershipContext context,MembershipIdentity reader) {
         var row=find(context,reader);require(row!=null,"learner progress missing retained prepared operation");return row;
     }
+    /** A retained original operation may confirm its still-owned stable source
+     * after JOINT publication. Only a permanent original voter can request it;
+     * ordinary discovery remains restricted to the active pre-JOINT phase. */
+    static Map<String,Object> headRequest(MembershipContext context,MembershipIdentity learner,MembershipIdentity voter) {
+        require(voter.equals(context.identities.get(voter.nodeId().value())) && context.voters().contains(voter.nodeId().value()),
+                "learner confirmation current original voter");
+        var row=operation(context,learner);var original=object(row.get("request"));
+        require(Set.of("JOINT","COMPLETED").contains(row.get("phase")),"learner confirmation published INTENT required");
+        var old=object(object(object(row.get("prepared")).get("cut")).get("view"));
+        require(nodes(old,"old").contains(voter.nodeId().value()),"learner confirmation requester not original voter");
+        return original;
+    }
     static String reference(MembershipLearnerRequest learner,Map<String,Object> cut,String scope) {
         return reference(learner.root().manifestDigest(),learner.identity(),MembershipLearnerDiscovery.request(learner.change()),cut,scope);
     }

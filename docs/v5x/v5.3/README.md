@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Pending-source confirmation](PHASE_3_PENDING_HEAD_CONFIRMATION.md) connects the
+actual retained SEALED source to each old voter's durable progress confirmation.
+It preserves the two-endpoint bound and prior renewal debt; Phase 3 remains
+**OPEN**, with native integration and broader acceptance recorded separately.
+
+
 [Pending-linked joining](PHASE_3_PENDING_JOINED_CUSTODY.md) now carries both
 original histories through custody, placement, covered retirement and native
 journal ownership. Cold recovery binds the exact original pending end, preserves

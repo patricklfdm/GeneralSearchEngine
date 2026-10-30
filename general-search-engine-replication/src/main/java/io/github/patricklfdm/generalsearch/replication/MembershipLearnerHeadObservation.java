@@ -14,16 +14,17 @@ final class MembershipLearnerHeadObservation implements AutoCloseable {
     final MembershipIdentity learner;
     final MembershipCapsule.Anchor endpoint;
     private final MembershipLearnerHead head;
+    private final MembershipLearnerDisposition.RetainedSource retained;
     private final MembershipResources resources;
     private final MembershipResources.Lease lease;
     private boolean closed;
 
-    private MembershipLearnerHeadObservation(MembershipLearnerHead head,MembershipResources resources,
+    private MembershipLearnerHeadObservation(MembershipLearnerHead head,MembershipLearnerDisposition.RetainedSource retained,MembershipResources resources,
             MembershipResources.Lease lease)throws IOException {
-        this.head=head;this.resources=resources;this.lease=lease;
+        this.head=head;this.retained=retained;this.resources=resources;this.lease=lease;
         var original=head.request();learner=original.identity();
         request=object(parse(canonical(MembershipLearnerDiscovery.request(original.change()),8192),8192));
-        var source=head.source();var terminal=source.terminal();
+        var source=source();var terminal=source.terminal();
         endpoint=new MembershipCapsule.Anchor(object(parse(canonical(terminal.cut(),8192),8192)),terminal.catalog(),terminal.application());
         require(source.context.root.equals(original.root().manifestDigest())
                 && !source.context.voters().contains(learner.nodeId().value()),"learner observation nonvoting original");
@@ -32,15 +33,26 @@ final class MembershipLearnerHeadObservation implements AutoCloseable {
     static MembershipLearnerHeadObservation capture(MembershipLearnerHead head)throws IOException {
         Objects.requireNonNull(head);head.check();MembershipLearnerCancellation.requireActive(head);
         var resources=head.resources();var lease=resources.reserve(MembershipResources.Unit.CONTROL,"learner-head-"+UUID.randomUUID(),BYTES);
-        try{return new MembershipLearnerHeadObservation(head,resources,lease);}
+        try{return new MembershipLearnerHeadObservation(head,null,resources,lease);}
         catch(IOException|RuntimeException|Error error){lease.close();throw error;}
     }
+    /** Only the original forced pending SOURCE can report this later stable
+     * endpoint. It does not advance the typed selector or report the INTENT cut. */
+    static MembershipLearnerHeadObservation capture(MembershipLearnerDisposition.RetainedSource retained)throws IOException {
+        Objects.requireNonNull(retained);retained.requireAcquisition();var head=retained.head();
+        var resources=head.resources();var lease=resources.reserve(MembershipResources.Unit.CONTROL,"learner-head-"+UUID.randomUUID(),BYTES);
+        try{return new MembershipLearnerHeadObservation(head,retained,resources,lease);}
+        catch(IOException|RuntimeException|Error error){lease.close();throw error;}
+    }
+    MembershipCapsule source()throws IOException {return retained==null?head.source():retained.source();}
+    MembershipResources resources(){return resources;}
     void check()throws IOException {
-        require(!closed,"learner head observation closed");head.check();MembershipLearnerCancellation.requireActive(head);
+        require(!closed,"learner head observation closed");head.check();
+        if(retained==null)MembershipLearnerCancellation.requireActive(head);else retained.requireAcquisition();
         var original=head.request();
         require(head.resources()==resources && original.identity().equals(learner)
                 && MembershipLearnerDiscovery.request(original.change()).equals(request)
-                && head.source().terminal().equals(endpoint),"learner head observation changed original");
+                && source().terminal().equals(endpoint),"learner head observation changed original");
     }
     @Override public void close(){if(!closed){closed=true;lease.close();}}
 }

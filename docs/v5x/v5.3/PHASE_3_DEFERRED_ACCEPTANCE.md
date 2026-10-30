@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Pending-source confirmation](PHASE_3_PENDING_HEAD_CONFIRMATION.md) addresses the
+retained native third-source refusal with actual per-owner QUERY/ACK and forced
+ledger updates. Focused component checks do not replace the remaining joint
+continuation, original-first replay or process-death/all-profile qualification.
+The earlier entries below retain their historical source-bound scope.
+
+
 [Linked pair recovery](PHASE_3_PENDING_PAIR_RECOVERY.md) now reads and validates
 both original plans before re-forcing either history. It restores the pending
 metadata as SOURCE and the published source as the single LEARNER, preserving

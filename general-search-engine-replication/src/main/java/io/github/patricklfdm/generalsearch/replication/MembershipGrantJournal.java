@@ -547,8 +547,9 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(retained.get("request")!=null && MembershipPeerRetentionPlan.identity(joining).equals(retained.get("learner"))
                 && context.voters().contains(identity.nodeId().value()),"learner head probe retained voter binding");
         var request=object(retained.get("request"));
-        require(request.equals(MembershipLearnerDiscovery.reservation(context,joining))
-                && request.get("expected").equals(context.authority()),"learner head probe original reservation");
+        var original=request.get("expected").equals(context.authority())?MembershipLearnerDiscovery.reservation(context,joining):
+                MembershipLearnerProgressAccess.headRequest(context,joining,identity);
+        require(request.equals(original),"learner head probe original reservation");
         return request;
     }
     synchronized void checkLearnerHeadEndpoint(MembershipIdentity joining,MembershipResources budget,Map<String,Object> request,
