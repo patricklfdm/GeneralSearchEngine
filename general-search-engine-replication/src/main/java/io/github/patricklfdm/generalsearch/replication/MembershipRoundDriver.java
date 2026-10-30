@@ -209,7 +209,31 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         return startAutomatic(policy,(minimum,maximum)->ThreadLocalRandom.current().nextLong(minimum,maximum+1));
     }
     Decoded startAutomatic(AutomaticLeadershipPolicy policy,LongBinaryOperator jitter)throws IOException {
-        return start(clock.getAsLong(),true,Objects.requireNonNull(policy),Objects.requireNonNull(jitter));
+        return startAutomatic(clock.getAsLong(),policy,jitter);
+    }
+    private Decoded startAutomatic(long originalStarted,AutomaticLeadershipPolicy policy,LongBinaryOperator jitter)throws IOException {
+        return start(originalStarted,true,Objects.requireNonNull(policy),Objects.requireNonNull(jitter));
+    }
+    /** Transfer serial invocation ownership to one private automatic control
+     * loop. The caller must no longer invoke this driver directly. */
+    synchronized MembershipAutomaticOwner automaticOwner(AutomaticLeadershipPolicy policy) {
+        Objects.requireNonNull(policy);
+        require(!closed && state==State.NEW && runner==null,"automatic owner requires unused round");
+        return new MembershipAutomaticOwner(new MembershipAutomaticOwner.Session() {
+            public Decoded start(long began)throws IOException {
+                return startAutomatic(began,policy,(minimum,maximum)->ThreadLocalRandom.current().nextLong(minimum,maximum+1));
+            }
+            public void idle()throws IOException {
+                time();synchronized(MembershipRoundDriver.this) {
+                    require(!closed && state==State.READY && runner==null,"automatic owner idle state");
+                    owner.checkActivationWait(authority,ballot);
+                }
+            }
+            public void heartbeat()throws IOException {MembershipRoundDriver.this.heartbeat();}
+            public Decoded readiness()throws IOException {return MembershipRoundDriver.this.readiness();}
+            public Decoded submit(String kind,byte[] payload)throws IOException {return MembershipRoundDriver.this.submit(kind,payload);}
+            public void close()throws IOException {MembershipRoundDriver.this.close();}
+        },resources,bounds,policy,clock,budget);
     }
     private Decoded start(long originalStarted,boolean discover)throws IOException {
         return start(originalStarted,discover,null,null);
@@ -246,9 +270,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     /** The producer supplies only an operation payload; parent, ballot and index
      * are allocated here. No automatic replay of an indeterminate client call. */
     Decoded submit(String kind,byte[] bytes)throws IOException {
-        Objects.requireNonNull(bytes);require(Set.of("DATA","BARRIER","RESERVE","PREPARE","READY","SEAL","CANCEL","RETIRE").contains(kind),"native stable slot kind");
-        require(bytes.length<=Math.min(FRAME,bounds.maxFrameBytes()),"native round payload bound");
-        if(kind.equals("BARRIER"))require(bytes.length==0,"native barrier empty payload");
+        validateInput(kind,bytes,bounds);
         enter(State.READY);
         try(var payloadLease=resources.reserve(MembershipResources.Unit.CONTROL,"round-input",Math.max(1,bytes.length))) {
             current();byte[] payload=bytes.clone();
@@ -258,6 +280,11 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
             return done;
         }catch(IOException|RuntimeException|Error error){fail(error);throw error;}
         finally{leave();}
+    }
+    static void validateInput(String kind,byte[] bytes,ReplicationBounds bounds) {
+        Objects.requireNonNull(bytes);require(Set.of("DATA","BARRIER","RESERVE","PREPARE","READY","SEAL","CANCEL","RETIRE").contains(kind),"native stable slot kind");
+        require(bytes.length<=Math.min(FRAME,bounds.maxFrameBytes()),"native round payload bound");
+        if(kind.equals("BARRIER"))require(bytes.length==0,"native barrier empty payload");
     }
     /** This guard is mandatory; state() alone is diagnostic and grants nothing. */
     Decoded readiness()throws IOException {

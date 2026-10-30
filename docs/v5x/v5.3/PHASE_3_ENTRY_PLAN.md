@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Bounded automatic service ownership](PHASE_3_AUTOMATIC_OWNER.md) now serializes
+activation, periodic heartbeat and queued commands under one original lifetime.
+Fourteen focused checks cover scheduling, capacity and drain ownership; native
+replay covers close during WAITING. Whole automatic service/failover histories,
+fresh campaigns after failure and the complete matrix remain required.
+
 [Bounded automatic election entry](PHASE_3_ELECTION_WAIT.md) now owns the wait,
 discovery, activation and fresh barrier in one invocation. Nine Java checks and
 two independently replayed native histories cover normal entry and close before

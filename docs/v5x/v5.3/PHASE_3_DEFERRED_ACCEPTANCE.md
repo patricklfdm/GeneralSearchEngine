@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Bounded automatic service ownership](PHASE_3_AUTOMATIC_OWNER.md) connects one
+automatic round to periodic heartbeat and queued commands. Scheduling/accounting
+tests and a native WAITING-close history pass. Run a complete native automatic
+service history before claiming that integration qualified; keep activation,
+barrier, heartbeats, submissions and close on the same original filesystem.
+Failure-driven fresh campaigns and all restart/profile gates remain open.
+
 [Bounded automatic election entry](PHASE_3_ELECTION_WAIT.md) now owns the wait,
 discovery, activation and fresh barrier in one invocation. Nine Java checks and
 two independently replayed native histories cover normal entry and close before
