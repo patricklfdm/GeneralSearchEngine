@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Bounded automatic election entry](PHASE_3_ELECTION_WAIT.md) now owns the wait,
+discovery, activation and fresh barrier in one invocation. Nine Java checks and
+two independently replayed native histories cover normal entry and close before
+grant. Continuous campaign/heartbeat ownership and full process/transition
+qualification remain required; Phase 3 stays **OPEN**.
+
 [Volatile heartbeat contact](PHASE_3_HEARTBEAT_CONTACT.md) now retains an
 authenticated original arrival for future automatic scheduling. Higher fences,
 close and endpoint recreation invalidate it; it grants no readiness or lease.

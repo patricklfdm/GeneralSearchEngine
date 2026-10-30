@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.LongBinaryOperator;
 import java.util.function.LongSupplier;
 import io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
@@ -16,7 +18,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * timer. A changed authority requires fresh activation within the original
  * lifetime, never a reused old grant or a restarted deadline. */
 final class MembershipRoundDriver<K,T> implements AutoCloseable {
-    enum State { NEW, DISCOVERING, ACTIVATING, RECOVERING, READY, FAILED, CLOSED }
+    enum State { NEW, WAITING, DISCOVERING, ACTIVATING, RECOVERING, READY, FAILED, CLOSED }
     interface Events {
         Events NONE=(event,record)->{};
         void at(String event,Decoded record)throws IOException;
@@ -42,6 +44,7 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     private MembershipActivationDriver activation;
     private MembershipPrefixRecovery discovery;
     private MembershipHeartbeatRound heartbeat;
+    private MembershipElectionWait electionWait;
     private MembershipSlotDriver slot;
     private Decoded selection,barrier;
     private Map<String,Object> ballot,expectedCut;
@@ -202,9 +205,27 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
      * The returned value still requires readiness(); STATUS never enables it. */
     Decoded startDiscovered()throws IOException {return start(clock.getAsLong(),true);}
     Decoded startDiscovered(long originalStarted)throws IOException {return start(originalStarted,true);}
+    Decoded startAutomatic(AutomaticLeadershipPolicy policy)throws IOException {
+        return startAutomatic(policy,(minimum,maximum)->ThreadLocalRandom.current().nextLong(minimum,maximum+1));
+    }
+    Decoded startAutomatic(AutomaticLeadershipPolicy policy,LongBinaryOperator jitter)throws IOException {
+        return start(clock.getAsLong(),true,Objects.requireNonNull(policy),Objects.requireNonNull(jitter));
+    }
     private Decoded start(long originalStarted,boolean discover)throws IOException {
+        return start(originalStarted,discover,null,null);
+    }
+    private Decoded start(long originalStarted,boolean discover,AutomaticLeadershipPolicy policy,LongBinaryOperator jitter)throws IOException {
         enter(State.NEW,originalStarted);
         try {
+            if(policy!=null) {
+                transition(State.WAITING);
+                var child=new MembershipElectionWait(owner,endpoint,resources,policy,clock,jitter,started,budget);
+                boolean registered=false;
+                try {
+                    synchronized(this){require(!closed,"native round closed before election wait");electionWait=child;registered=true;}
+                    child.await();time();
+                }finally{child.close();synchronized(this){if(registered && electionWait==child)electionWait=null;}}
+            }
             if(discover) {
                 transition(State.DISCOVERING);
                 var child=new MembershipPrefixRecovery(owner,resources,bounds,transport::exchange,this::time,scratch,clock,started,budget);
@@ -266,25 +287,27 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         try{release();}catch(IOException|RuntimeException error){original.addSuppressed(error);}
     }
     private void release()throws IOException {
-        MembershipSlotDriver activeSlot;MembershipActivationDriver activeActivation;MembershipPrefixRecovery activeDiscovery;MembershipHeartbeatRound activeHeartbeat;
-        synchronized(this){activeSlot=slot;activeActivation=activation;activeDiscovery=discovery;activeHeartbeat=heartbeat;}
+        MembershipSlotDriver activeSlot;MembershipActivationDriver activeActivation;MembershipPrefixRecovery activeDiscovery;MembershipHeartbeatRound activeHeartbeat;MembershipElectionWait activeWait;
+        synchronized(this){activeSlot=slot;activeActivation=activation;activeDiscovery=discovery;activeHeartbeat=heartbeat;activeWait=electionWait;}
         // Do not release the activation/parent reservation before child drain.
         if(activeSlot!=null)activeSlot.close();
         if(activeActivation!=null)activeActivation.close();
         if(activeDiscovery!=null)activeDiscovery.close();
         if(activeHeartbeat!=null)activeHeartbeat.close();
+        if(activeWait!=null)activeWait.close();
         synchronized(this){selection=null;barrier=null;ballot=null;expectedCut=null;authority=null;carriedPending=false;}
         ownership.close();
     }
     @Override public void close()throws IOException {
-        Thread active;MembershipPrefixRecovery activeDiscovery;MembershipHeartbeatRound activeHeartbeat;
-        synchronized(this){closed=true;state=State.CLOSED;barrier=null;active=runner;activeDiscovery=discovery;activeHeartbeat=heartbeat;}
+        Thread active;MembershipPrefixRecovery activeDiscovery;MembershipHeartbeatRound activeHeartbeat;MembershipElectionWait activeWait;
+        synchronized(this){closed=true;state=State.CLOSED;barrier=null;active=runner;activeDiscovery=discovery;activeHeartbeat=heartbeat;activeWait=electionWait;}
         if(active!=null && active!=Thread.currentThread() && activeDiscovery==null)active.interrupt();
         // The runner owns cleanup while executing. Child close cancels blocked
         // network work; an expired cleanup wait keeps the parent reservation.
         MembershipSlotDriver activeSlot;MembershipActivationDriver activeActivation;
         synchronized(this){activeSlot=slot;activeActivation=activation;}
         if(activeHeartbeat!=null)activeHeartbeat.close();
+        if(activeWait!=null)activeWait.close();
         if(activeDiscovery!=null)activeDiscovery.close();
         else if(activeSlot!=null)activeSlot.close();
         else if(activeActivation!=null)activeActivation.close();
