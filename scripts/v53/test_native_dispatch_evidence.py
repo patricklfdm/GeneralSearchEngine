@@ -4,6 +4,14 @@ from . import native_dispatch_evidence as evidence
 
 
 class NativeDispatchEvidenceTest(unittest.TestCase):
+    def test_discovery_original_failure_stops_before_any_negative(self):
+        with patch.object(evidence, 'validate', side_effect=ValueError('invalid original')) as original:
+            with patch.object(evidence.tempfile, 'TemporaryDirectory') as mutations:
+                with self.assertRaisesRegex(ValueError, '^invalid original$'):
+                    evidence.qualify('invalid-root', discovery=True)
+                original.assert_called_once_with('invalid-root', discovery=True)
+                mutations.assert_not_called()
+
     def test_finite_identical_activation_replies_can_have_different_event_positions(self):
         rows = [('SELECTED', {'trace':'same'}, 'INSTALL_ACK', {'selection':'original'}, at) for at in (10,20,30)]
         self.assertEqual(rows, evidence.activation_attempts(rows))

@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Discovered round entry](PHASE_3_DISCOVERED_ROUND.md) integrates the existing
+discovery/adoption and round components under one original deadline. Complete
+native heterogeneous survivor/removal histories, transfer-source rotation,
+process cuts and independent replay remain queued; focused conditional adoption
+and an unchanged-view native history do not close those gates.
+
 [Activation waiting](PHASE_3_ACTIVATION_WAIT.md) now avoids taking the journal
 writer during idle response polling; work boundaries retain complete validation.
 This corrects a reproduced cancellation defect, not full native timing

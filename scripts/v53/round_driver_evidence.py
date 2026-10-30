@@ -80,11 +80,12 @@ def lifecycle(root, mode):
     need(cursor==2, 'round exact completed slot count')
 
 
-def validate(root):
+def validate(root, *, discovery=False):
     root=Path(root); result=projection(root)
+    need(not discovery or result['mode']=='stable', 'round discovery stable qualification only')
     with tempfile.TemporaryDirectory(prefix='v53-round-original-') as temp:
         path=Path(temp)/'raw';shutil.copytree(root,path);(path/'round-result.json').unlink()
-        original=(d.validate if result['mode']=='stable' else carried.validate)(path)
+        original=d.validate(path,discovery=True) if discovery else (d.validate if result['mode']=='stable' else carried.validate)(path)
     if result['mode']=='carried-applied': need(original['phase']=='APPLIED', 'round original carried phase')
     lifecycle(root,result['mode'])
     return dict(status='PASS',mode=result['mode'],slots=2,original=original,internalReady=True,publicReady=False,phase3Complete=False)
@@ -102,8 +103,8 @@ NEGATIVES = {
 }
 
 
-def qualify(root):
-    root=Path(root);original=validate(root);negatives=[]
+def qualify(root, *, discovery=False):
+    root=Path(root);original=validate(root,discovery=True) if discovery else validate(root);negatives=[]
     for name,reason in NEGATIVES.items():
         with tempfile.TemporaryDirectory(prefix='v53-round-negative-') as temp:
             path=Path(temp)/'raw';shutil.copytree(root,path);rows=d.read(path/'events.json')
@@ -124,7 +125,7 @@ def qualify(root):
             elif name=='wrong-parent':change(event('SLOT_BEGIN'),'ENTRY',lambda v:v.update(previous='0'*64))
             else:(path/'published-2/node-1/selector.gsr').write_bytes(b'changed')
             (path/'events.json').write_text(json.dumps(rows))
-            try:validate(path)
+            try:validate(path,discovery=True) if discovery else validate(path)
             except ValueError as error:need(str(error)==reason,'round negative wrong reason: '+name+': '+str(error))
             else:raise ValueError('round mutation accepted: '+name)
         negatives.append(dict(case=name,status='REJECTED',reason=reason))
@@ -132,5 +133,5 @@ def qualify(root):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('root');p.add_argument('--qualify',action='store_true');a=p.parse_args()
-    print(json.dumps((qualify if a.qualify else validate)(a.root),sort_keys=True))
+    p=argparse.ArgumentParser();p.add_argument('root');p.add_argument('--qualify',action='store_true');p.add_argument('--discovery',action='store_true');a=p.parse_args()
+    print(json.dumps((qualify if a.qualify else validate)(a.root,discovery=a.discovery),sort_keys=True))

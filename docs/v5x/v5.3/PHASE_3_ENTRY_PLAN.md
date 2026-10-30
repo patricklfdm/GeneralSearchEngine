@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Discovered round entry](PHASE_3_DISCOVERED_ROUND.md) now connects bounded
+known-identity discovery, verified original-prefix adoption and fresh activation
+under one lifetime. STATUS cannot grant service, and a removed identity remains
+ineligible after adoption. Focused component/native checks remain distinct from
+complete heterogeneous histories, automatic elections and Phase 3 closure.
+
 [Activation waiting](PHASE_3_ACTIVATION_WAIT.md) now avoids taking the journal
 writer during idle response polling; work boundaries retain complete validation.
 This corrects a reproduced cancellation defect, not full native timing

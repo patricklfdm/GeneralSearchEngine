@@ -56,10 +56,19 @@ class V53RoundDriverTest {
         }
     }
     @Test void activationFreshBarrierAndSequentialDataHaveOneGuardedOwner()throws Exception {
+        stable(false);
+    }
+    @Test void discoveredStartScansBeforeFreshActivationAndBarrier()throws Exception {
+        stable(true);
+    }
+    private void stable(boolean discover)throws Exception {
         try(var n=network(null);var round=driver(n,MembershipRoundDriver.Events.NONE)) {
+            var requests=Collections.synchronizedList(new ArrayList<String>());
+            n.beforeSend.set(request->requests.add(request.kind()));
             assertEquals(MembershipRoundDriver.State.NEW,round.state());assertThrows(IllegalArgumentException.class,round::readiness);
             assertThrows(IllegalArgumentException.class,()->driver(n,MembershipRoundDriver.Events.NONE));
-            var barrier=round.start();assertEquals("PUBLISH_ACK",barrier.kind());assertArrayEquals(barrier.bytes(),round.readiness().bytes());
+            var barrier=discover?round.startDiscovered():round.start();assertEquals("PUBLISH_ACK",barrier.kind());assertArrayEquals(barrier.bytes(),round.readiness().bytes());
+            if(discover){assertEquals(List.of("STATUS_PROBE","STATUS_PROBE"),requests.subList(0,2));assertEquals("PREPARE",requests.get(2));}
             assertEquals(MembershipRoundDriver.State.READY,round.state());
             assertThrows(IllegalArgumentException.class,round::start);
             assertThrows(IllegalArgumentException.class,()->round.submit("INTENT",new byte[0]));

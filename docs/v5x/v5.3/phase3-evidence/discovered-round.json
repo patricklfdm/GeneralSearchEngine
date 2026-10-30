@@ -1,0 +1,328 @@
+{
+  "archive": {
+    "bytes": 19743529,
+    "directories": 196,
+    "members": 9078,
+    "path": "target/v53-discovered-round/qualification.tar.gz",
+    "sha256": "73754875cc57249c345334a870c3846b71b277b035bdd9c2e972616442c27092"
+  },
+  "baseCommit": "50bafa4ae6e88ab61342245b1de8b1c10d0913f0",
+  "executions": {
+    "prefixrecovery": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53PrefixRecoveryTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 1
+      },
+      "exit": 1,
+      "failures": 2,
+      "label": "prefixrecovery",
+      "requestedTests": [
+        "V53PrefixRecoveryTest",
+        "V53RoundDriverTest#discoveredStartScansBeforeFreshActivationAndBarrier"
+      ],
+      "seconds": 148.08353510500456,
+      "skipped": 0,
+      "tests": 7
+    },
+    "prefixrecoveryfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53PrefixRecoveryTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "prefixrecoveryfinal",
+      "requestedTests": [
+        "V53PrefixRecoveryTest",
+        "V53RoundDriverTest#busyOwnerRefusesAnotherCallAndCloseDrainsWithoutReady"
+      ],
+      "seconds": 75.80135854199762,
+      "skipped": 0,
+      "tests": 9
+    }
+  },
+  "fullHistoryQualified": false,
+  "legacyReplay": {
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/publicationchecks-bfcfb885/general-search-engine-replication/target/v53-native-dispatch/run-3f42a7e4-e7cf-467c-bb44-a759a4bb34f0",
+    "result": {
+      "internalReady": true,
+      "mode": "stable",
+      "original": {
+        "autonomous": false,
+        "phase3Complete": false,
+        "selected": 2,
+        "slots": 2,
+        "status": "PASS",
+        "transfers": 39
+      },
+      "phase3Complete": false,
+      "publicReady": false,
+      "slots": 2,
+      "status": "PASS"
+    }
+  },
+  "limitations": [
+    "First run retained: native method passed, two incorrect new-test expectations failed.",
+    "Final nine-test run passed; the unchanged native method passed in the first source snapshot.",
+    "Conditional local adoption fixtures do not establish native heterogeneous transition behavior.",
+    "Explicit discovery replay validates two original probes, 39 transfers, two slots and 39 exact negatives.",
+    "One native success is not a request latency SLA or complete Phase 3 qualification.",
+    "Automatic election scheduling, complete heterogeneous/process histories and all seven profiles remain open."
+  ],
+  "originalReaderFailure": {
+    "message": "native dispatch wire authority",
+    "productionCorrectionRequired": false,
+    "readerSha256": "0ffc84540af5c133af9ff730c36851bcc77a2f0cf449fa13fd7e977ee826100e",
+    "scope": "original unchanged discovered-round history rejected by the prior reader",
+    "type": "ValueError"
+  },
+  "paidCloud": false,
+  "phase3Closed": false,
+  "pythonTests": 14,
+  "readers": {
+    "scripts/v53/native_dispatch_evidence.py": "40e204daf0c6c07fb1d1b46e658ec1817f80ed0a0af942111d4c320f3ed2434a",
+    "scripts/v53/round_driver_evidence.py": "23494b5af8cac0ae57fcafad25a6ef213d222e30b8e6942846329a75278f6987",
+    "scripts/v53/test_native_dispatch_evidence.py": "4b23537d6cc615423df6f106c49e94ef5d300c771bb0c826415b211400377993",
+    "scripts/v53/test_round_driver_evidence.py": "d4eb319e6331d6a6c72f29e1336e1022687066bda7a6f8f4cad994fca3edaaec"
+  },
+  "replay": {
+    "native": {
+      "negatives": [
+        {
+          "case": "extra-file",
+          "reason": "context selection native dispatch case inventory inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "original-selection",
+          "reason": "native dispatch original selection",
+          "status": "REJECTED"
+        },
+        {
+          "case": "installed-selector",
+          "reason": "admitted exact installed: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "old-generation",
+          "reason": "admitted exact applied-1: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "first-vote",
+          "reason": "admitted exact applied-1: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "second-vote",
+          "reason": "admitted exact applied-2: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "first-ack",
+          "reason": "admitted exact applied-1: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "second-ack",
+          "reason": "admitted exact applied-2: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "peer-observation",
+          "reason": "admitted exact applied-2: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "future-proof",
+          "reason": "admitted exact published-1: node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-selector",
+          "reason": "admitted exact published-2: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unselected-change",
+          "reason": "admitted exact after-close: node-3",
+          "status": "REJECTED"
+        },
+        {
+          "case": "scope",
+          "reason": "native dispatch scope",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-bytes",
+          "reason": "native dispatch transfer exact data",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-commit",
+          "reason": "native dispatch transfer incomplete transcript",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reply-identity",
+          "reason": "native dispatch wire correlation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "control-ack",
+          "reason": "native dispatch exact control ACK",
+          "status": "REJECTED"
+        },
+        {
+          "case": "floor-force",
+          "reason": "selected retention force order: native dispatch slot 1 node-1",
+          "status": "REJECTED"
+        },
+        {
+          "case": "premature-floor",
+          "reason": "native dispatch complete copies before floor",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-delivery",
+          "reason": "native dispatch transfer delivered",
+          "status": "REJECTED"
+        },
+        {
+          "case": "late-activation-delivery",
+          "reason": "native dispatch original activation delivery",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-quorum",
+          "reason": "native dispatch quorum before send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-quorum",
+          "reason": "native dispatch quorum before send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "premature-send",
+          "reason": "native dispatch quorum before send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "initialization",
+          "reason": "selected retention force order: native dispatch initialization",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-packet-reference",
+          "reason": "native dispatch original transfer offer",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-generation-reference",
+          "reason": "native dispatch original transfer offer",
+          "status": "REJECTED"
+        },
+        {
+          "case": "discovery-fence",
+          "reason": "native discovery original fence",
+          "status": "REJECTED"
+        },
+        {
+          "case": "discovery-cut",
+          "reason": "native discovery original status",
+          "status": "REJECTED"
+        },
+        {
+          "case": "discovery-delivery",
+          "reason": "native discovery before grant",
+          "status": "REJECTED"
+        },
+        {
+          "case": "discovery-missing",
+          "reason": "native discovery complete known scan",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "autonomous": false,
+        "discoveryPeers": 2,
+        "phase3Complete": false,
+        "selected": 2,
+        "slots": 2,
+        "status": "PASS",
+        "transfers": 39
+      }
+    },
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/prefixrecovery-d91aec0e/general-search-engine-replication/target/v53-native-dispatch/run-99c5061e-4c15-4844-ba1f-e397eda6c9cc",
+    "round": {
+      "negatives": [
+        {
+          "case": "missing-ready",
+          "reason": "round exact lifecycle order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-ready",
+          "reason": "round exact lifecycle order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-ready-ack",
+          "reason": "round readiness after fresh publication",
+          "status": "REJECTED"
+        },
+        {
+          "case": "forged-completion",
+          "reason": "round original publication acknowledgement",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-result",
+          "reason": "round result scope",
+          "status": "REJECTED"
+        },
+        {
+          "case": "forged-selection",
+          "reason": "round installed original selection",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-parent",
+          "reason": "round exact slot entry",
+          "status": "REJECTED"
+        },
+        {
+          "case": "physical-selector",
+          "reason": "admitted exact published-2: node-1",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "internalReady": true,
+        "mode": "stable",
+        "original": {
+          "autonomous": false,
+          "discoveryPeers": 2,
+          "phase3Complete": false,
+          "selected": 2,
+          "slots": 2,
+          "status": "PASS",
+          "transfers": 39
+        },
+        "phase3Complete": false,
+        "publicReady": false,
+        "slots": 2,
+        "status": "PASS"
+      }
+    },
+    "seconds": 16.07101684999361,
+    "source": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/prefixrecovery-d91aec0e"
+  },
+  "schema": "gse-v53-discovered-round-v1",
+  "snapshots": {
+    "prefixrecovery": "prefixrecovery-d91aec0e",
+    "prefixrecoveryfinal": "prefixrecoveryfinal-c4e86288"
+  },
+  "status": "PARTIAL"
+}

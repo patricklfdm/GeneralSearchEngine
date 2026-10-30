@@ -1,5 +1,23 @@
 # V5.3 Phase 3 contract amendments
 
+## A69 — discover and adopt before a fresh internal round
+
+The [discovered round entry](PHASE_3_DISCOVERED_ROUND.md) may perform one bounded
+pass over the original local permanent directory before allocating its own grant.
+Retain the same start, deadline, local cut and root fence across STATUS, complete
+prefix/ancestry reads and adoption. Hints never grant votes or readiness, and
+cannot add identities. Exhausted IO/deadline exchanges may move to another known
+identity; malformed/fatal/capacity responses stop. Never retry a durable adoption
+failure as another source. Adopt only a verified higher cut in a different authority
+through the existing original-history transaction, then require fresh ordinary
+activation and BARRIER. Known removal remains ineligible for campaigning.
+
+Reserve 256 KiB of existing CONTROL capacity for the bounded directory/bookkeeping;
+retain all existing receiving/image/scratch accounting. Close cancels reads and
+drains the owner without interrupting an admitted adoption force. No new election
+timer, public operation, format, production bound or workflow is introduced.
+Complete native heterogeneous/process qualification remains required.
+
 ## A68 — wait only on explicitly absent preparation routes
 
 The managed joining initializer may begin before an old proposer publishes its

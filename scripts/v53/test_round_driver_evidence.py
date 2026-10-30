@@ -7,6 +7,12 @@ from . import round_driver_evidence as e
 
 
 class RoundDriverEvidenceTest(unittest.TestCase):
+    def test_discovery_scope_refuses_carried_history_before_copying(self):
+        with patch.object(e, 'projection', return_value={'mode':'carried-applied'}), patch.object(e.shutil,'copytree') as copy:
+            with self.assertRaisesRegex(ValueError, '^round discovery stable qualification only$'):
+                e.validate(Path('/carried-original'), discovery=True)
+        copy.assert_not_called()
+
     def test_original_failure_cannot_count_as_mutation_rejection(self):
         with patch.object(e, 'validate', side_effect=ValueError('broken original')) as validate, patch.object(e.shutil, 'copytree') as copy:
             with self.assertRaisesRegex(ValueError, '^broken original$'):e.qualify(Path('/unread-original'))

@@ -174,7 +174,36 @@ def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA')):
     return states, rounds, selection, identities
 
 
-def network(root, states, rounds, selection, identities, *, carried_first=False):
+def discovery_controls(root, entries, events, selection, identities):
+    """This exact stable history has two read-only probes before any new grant.
+
+    Their correlation fence and cuts come from physically validated pre-network
+    files, not STATUS. Later maintenance and every voting frame retain the actual
+    selected ballot. This is not a general heterogeneous adoption validator.
+    """
+    original = {node: c.inventory(root/'before-network'/node) for node in identities}
+    promises = [value for kind, _, value in c.journal(original['node-1']['grants.gsr'], selection['root'], 'node-1') if kind=='PROMISE']
+    need(len(promises)==1, 'native discovery original fence')
+    fence = promises[0]
+    peers = sorted(set(identities)-{'node-1'})
+    need(len(entries)==len(peers) and [v[1]['recipient']['node'] for v in entries]==peers,
+         'native discovery complete known scan')
+    first_write = next((i for i, row in enumerate(events) if row['node']=='node-1' and row['event']=='ALLOCATOR_BEFORE_WRITE'), None)
+    need(first_write is not None, 'native discovery before grant')
+    previous = -1; traces = set()
+    for (_, request, answer, response, at), peer in zip(entries, peers):
+        need(request['sender']==identities['node-1'] and request['ballot']==fence['ballot'] and request['view']==fence['view']
+             and request['sequence']==1 and request['trace'] not in traces, 'native discovery original fence')
+        traces.add(request['trace']); cut = c.current(original[peer])[2]['capsule']['cut']
+        need(answer=='STATUS' and response['payload']==dict(cut=cut,nonce=request['payload']['nonce'],ready=False),
+             'native discovery original status')
+        digest = e.digest(f.encode('wire', answer, response))
+        delivered = [i for i, row in enumerate(events) if row==dict(node='node-1',event='NETWORK_RECEIVED',kind='STATUS',response=digest)]
+        need(len(delivered)==1 and previous < at < delivered[0] < first_write, 'native discovery before grant')
+        previous = delivered[0]
+
+
+def network(root, states, rounds, selection, identities, *, carried_first=False, discovery=False):
     events = read(root/'events.json'); rows = read(root/'wire.json'); content = {}; refs = defaultdict(set)
     need(type(events) is list and len(events) < 32768 and type(rows) is list and 0 < len(rows) < 32768, 'native dispatch bounded traces')
     def add(node, raw, kind='RECORD', reference=None):
@@ -199,22 +228,26 @@ def network(root, states, rounds, selection, identities, *, carried_first=False)
             for value in round['originals']: add(node, value)
         for (node, _), value in round['receipts'].items():
             add(node, value, reference=e.digest(f.canonical(dict(schema='gse-v53-vote-observation/1.3', receipt=e.digest(value)))))
-    traces = defaultdict(list); controls = defaultdict(list); response_positions = defaultdict(list)
+    traces = defaultdict(list); controls = defaultdict(list); response_positions = defaultdict(list); probes = []
     for i, event in enumerate(events):
         if event['event'] == 'WIRE_RESPONSE': response_positions[event['request'], event['response']].append(i)
     for row in rows:
         need(set(row) == {'request','response','withheld'} and row['withheld'] is False, 'native dispatch successful wire row')
         kind, request = transfer.t.wire(row['request']); answer, response = transfer.t.wire(row['response'])
         sender, target = request['sender']['node'], request['recipient']['node']
+        initial_probe = discovery and kind=='STATUS_PROBE' and request['ballot']!=selection['ballot']
         need(sender in identities and target in identities and sender != target and request['sender'] == identities[sender] and request['recipient'] == identities[target]
-             and request['root'] == selection['root'] and request['view'] == selection['view'] and request['ballot'] == selection['ballot'], 'native dispatch wire authority')
+             and request['root'] == selection['root'] and request['view'] == selection['view']
+             and (initial_probe or request['ballot'] == selection['ballot']), 'native dispatch wire authority')
         need({k:v for k,v in response.items() if k != 'payload'} == dict({k:v for k,v in request.items() if k != 'payload'}, sender=request['recipient'], recipient=request['sender']), 'native dispatch wire correlation')
         key = (e.digest(base64.b64decode(row['request'], validate=True)), e.digest(base64.b64decode(row['response'], validate=True)))
         need(response_positions[key], 'native dispatch response event'); at = response_positions[key].pop(0)
         entry = (kind, request, answer, response, at)
-        if kind in ('CHUNK','TRANSFER_COMMIT'): traces[request['trace']].append((row, entry))
+        if initial_probe: probes.append(entry)
+        elif kind in ('CHUNK','TRANSFER_COMMIT'): traces[request['trace']].append((row, entry))
         else: controls[kind].append(entry)
     need(not any(response_positions.values()), 'native dispatch unmatched response event')
+    if discovery: discovery_controls(root, probes, events, selection, identities)
     transfers = []
     for trace in traces.values():
         logical = {}
@@ -329,7 +362,7 @@ def network(root, states, rounds, selection, identities, *, carried_first=False)
     return len(transfers)
 
 
-def validate(root):
+def validate(root, *, discovery=False):
     root = Path(root)
     b.selection.layout(root, {'initial','original-plan.gsbp','original-application.image','before-network','installed',
         'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json','wire.json','failures.json','result.json','selected.gsr'}, 'native dispatch case inventory')
@@ -340,9 +373,11 @@ def validate(root):
         s.ordered(row['events'], ['RETENTION_PARENT_FORCED','FUTURE_RETENTION_PARENT_FORCED'], 'native dispatch initialization')
     failures = read(root/'failures.json')
     need(type(failures) is list and len(failures) <= 6 and all(set(row) == {'node','kind','request','failure'} and row['node'] == 'node-3' and row['kind'] == 'FUTURE_RETENTION_INTENT' and row['failure'] == 'java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required' for row in failures), 'native dispatch bounded unselected rejection')
-    transfers = network(root, states, rounds, selected, identities)
+    transfers = network(root, states, rounds, selected, identities, discovery=discovery)
     need(read(root/'result.json') == dict(status='PASS', slots=2, network=True, autonomous=False), 'native dispatch scope')
-    return dict(status='PASS', slots=2, selected=2, transfers=transfers, autonomous=False, phase3Complete=False)
+    result = dict(status='PASS', slots=2, selected=2, transfers=transfers, autonomous=False, phase3Complete=False)
+    if discovery: result['discoveryPeers']=2
+    return result
 
 
 NEGATIVES = {
@@ -437,18 +472,55 @@ def mutate(root, name):
     path.write_text(json.dumps(events))
 
 
-def qualify(root):
-    original = validate(root); results = []
-    for name, reason in NEGATIVES.items():
+def qualify(root, *, discovery=False):
+    original = validate(root, discovery=True) if discovery else validate(root); results = []
+    cases = dict(NEGATIVES, **DISCOVERY_NEGATIVES) if discovery else NEGATIVES
+    for name, reason in cases.items():
         with tempfile.TemporaryDirectory(prefix='v53-native-dispatch-negative-') as temp:
-            dest = Path(temp)/'raw'; shutil.copytree(root, dest); mutate(dest, name)
-            try: validate(dest)
+            dest = Path(temp)/'raw'; shutil.copytree(root, dest)
+            (mutate_discovery if name in DISCOVERY_NEGATIVES else mutate)(dest, name)
+            try: validate(dest, discovery=True) if discovery else validate(dest)
             except ValueError as error: need(str(error) == reason, 'native dispatch unrelated negative '+name+': '+str(error))
             else: raise ValueError('native dispatch accepted negative '+name)
             results.append(dict(case=name, status='REJECTED', reason=reason))
     return dict(original=original, negatives=results)
 
 
+DISCOVERY_NEGATIVES = {
+    'discovery-fence': 'native discovery original fence',
+    'discovery-cut': 'native discovery original status',
+    'discovery-delivery': 'native discovery before grant',
+    'discovery-missing': 'native discovery complete known scan',
+}
+
+
+def mutate_discovery(root, name):
+    rows = read(root/'wire.json'); events = read(root/'events.json')
+    selected = f.decode((root/'selected.gsr').read_bytes(), 'records', 'SELECTED')
+    row = next(v for v in rows if (lambda pair: pair[0]=='STATUS_PROBE' and pair[1]['ballot']!=selected['ballot'])(transfer.t.wire(v['request'])))
+    _, request = transfer.t.wire(row['request']); _, response = transfer.t.wire(row['response'])
+    old_request, old_response = (e.digest(base64.b64decode(row[key],validate=True)) for key in ('request','response'))
+    if name=='discovery-delivery':
+        delivered = next(v for v in events if v['event']=='NETWORK_RECEIVED' and v.get('response')==old_response)
+        events.remove(delivered);events.append(delivered)
+    elif name=='discovery-missing':
+        rows.remove(row)
+        events = [v for v in events if not (v['event']=='WIRE_RESPONSE' and v['request']==old_request)
+                  and not (v['event']=='NETWORK_RECEIVED' and v.get('response')==old_response)]
+    else:
+        if name=='discovery-fence':
+            request['ballot']['counter']+=100;response['ballot']=copy.deepcopy(request['ballot'])
+        elif name=='discovery-cut':response['payload']['cut']['entry']='0'*64
+        else:raise ValueError('unknown discovery mutation')
+        raw_request=f.encode('wire','STATUS_PROBE',request);raw_response=f.encode('wire','STATUS',response)
+        row.update(request=base64.b64encode(raw_request).decode(),response=base64.b64encode(raw_response).decode())
+        for event in events:
+            if event['event']=='WIRE_RESPONSE' and event['request']==old_request:
+                event.update(request=e.digest(raw_request),response=e.digest(raw_response))
+            elif event['event']=='NETWORK_RECEIVED' and event.get('response')==old_response:event['response']=e.digest(raw_response)
+    (root/'wire.json').write_text(json.dumps(rows));(root/'events.json').write_text(json.dumps(events))
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(); parser.add_argument('root'); parser.add_argument('--negative', action='store_true'); args = parser.parse_args()
-    print(json.dumps((qualify if args.negative else validate)(args.root), sort_keys=True))
+    parser = argparse.ArgumentParser(); parser.add_argument('root'); parser.add_argument('--negative', action='store_true'); parser.add_argument('--discovery',action='store_true'); args = parser.parse_args()
+    print(json.dumps((qualify if args.negative else validate)(args.root,discovery=args.discovery), sort_keys=True))
