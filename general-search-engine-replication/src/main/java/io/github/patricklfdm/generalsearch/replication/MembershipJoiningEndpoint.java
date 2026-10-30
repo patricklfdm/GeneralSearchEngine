@@ -170,6 +170,8 @@ final class MembershipJoiningEndpoint<K,T> implements MembershipTransport.Handle
                     && MembershipContext.nodes(context.view,"old").contains(sender.nodeId().value()),"joining read refuses voting or non-old reader");
             Decoded reply;
             if(request.kind().equals("STATUS_PROBE"))reply=owner.discoveryStatus(sender,request);
+            else if(request.kind().equals("CHUNK") && MembershipJoiningCompletion.reference(context,owner.activationIdentity(),
+                    (String)object(request.value().get("payload")).get("digest")))reply=MembershipJoiningCompletion.unavailable(owner,resources,sender,request);
             else {
                 if(!transfers.contains(sender,request))require(request.kind().equals("CHUNK")
                         && MembershipPrefixExport.reference(context,(String)object(request.value().get("payload")).get("digest")),"joining read prefix/generation only");

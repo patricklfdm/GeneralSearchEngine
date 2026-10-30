@@ -357,6 +357,7 @@ class V53JoiningIntentExportTest {
                                                                 var originals=new ArrayList<MembershipSelection.Source>();
                                                                 if(remoteRetention) {
                                                                     prepared=retentionPreparation.run();
+                                                                    assertFalse(retentionPreparation.probeInitialized(),"original read-only joining owner is not initialized");
                                                                     for(String node:new TreeSet<>(prepared.sources().keySet()))originals.add(n.owners.stream()
                                                                             .filter(old->old.activationIdentity().nodeId().value().equals(node)).findFirst().orElseThrow().originalSource());
                                                                     System.out.println("v53JoiningIntentStage=old-majority-retention-prepared-over-tcp");
@@ -384,6 +385,7 @@ class V53JoiningIntentExportTest {
                                                                         joiningEndpoint.initialize();assertJoinedRetention(journal,seed.bytes(),joining);
                                                                         assertEquals(MembershipEndpointHandoff.State.ACTIVE,joiningEndpoint.state());
                                                                         assertNotNull(joiningEndpoint.votingEndpoint());
+                                                                        assertTrue(retentionPreparation.probeInitialized(),"old proposer observes native completion through TCP");
                                                                         Files.write(n.f.raw.resolve("joining-retention-wire.json"),canonical(seedWire,8*1024*1024));
                                                                         System.out.println("v53JoiningIntentStage=remote-old-majority-retention-initialized-and-endpoint-promoted");
                                                                     }else if(continueJoint)journal.initializeJoinedRetention(originals);

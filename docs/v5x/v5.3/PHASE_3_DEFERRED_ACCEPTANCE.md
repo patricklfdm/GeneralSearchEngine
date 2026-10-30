@@ -1,5 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining completion observation](PHASE_3_JOINING_COMPLETION.md) now lets the
+old preparation probe the actual new identity before giving way to fresh
+activation. Only the completed native owner can serve the positive observation;
+initial absence is distinct from failure, and no observation grants a vote or
+public READY. The whole TCP history checks both sides of initialization but is
+still compiled/deferred. Automatic coordination and full native/process
+qualification remain open; Phase 3 is **OPEN**.
+
 [Joining preparation discovery](PHASE_3_JOINING_DISCOVERY.md) now finds an
 existing old proposer from the current known old identities before managed
 initialization. It makes one bounded pass, preserves the original deadline and
@@ -406,8 +414,11 @@ known old identity; the discovery pass must not observe a promise or renew its
 deadline. Acquisition must use
 the exact root/cut/ballot/BASIS hint and revalidate all original source bytes.
 The actual joining directory must acquire its old-majority fragments through TCP,
-force the original three-ledger initialization, participate with the surviving old
-majority through FINAL, activate the stable view, publish a fresh BARRIER and
+force the original three-ledger initialization, and make the original old
+proposer's completion probe move from correlated NOT_READY to a successful native
+observation over TCP. The observation must not itself grant or allocate a ballot.
+Then participate with the surviving old majority through FINAL, activate the
+stable view, publish a fresh BARRIER and
 cold-reopen. Retain its original wire/files and replay them independently before
 negative mutations. This entry is compiled, not locally executed in the network
 acquisition increment. Alternative old majorities, acquisition cancellation and

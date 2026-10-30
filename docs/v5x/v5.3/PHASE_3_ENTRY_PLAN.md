@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining completion observation](PHASE_3_JOINING_COMPLETION.md) now lets the
+old preparation probe the actual new identity before giving way to fresh
+activation. Only the completed native owner can serve the positive observation;
+initial absence is distinct from failure, and no observation grants a vote or
+public READY. The whole TCP history checks both sides of initialization but is
+still compiled/deferred. Automatic coordination and full native/process
+qualification remain open; Phase 3 is **OPEN**.
+
 [Joining preparation discovery](PHASE_3_JOINING_DISCOVERY.md) now finds an
 existing old proposer from the current known old identities before managed
 initialization. It makes one bounded pass, preserves the original deadline and

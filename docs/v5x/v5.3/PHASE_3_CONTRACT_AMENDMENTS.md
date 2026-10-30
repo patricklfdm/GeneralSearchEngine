@@ -1,5 +1,24 @@
 # V5.3 Phase 3 contract amendments
 
+## A66 — observe joining completion before ending preparation
+
+The old proposer may probe the actual new identity at the exact JOINT cut while
+retaining its original preparation. Only the completed native joined owner may
+export the bounded completion observation over existing transfer frames; the
+read-only endpoint returns correlated initial `NOT_READY`. Do not change STATUS,
+observe a ballot, grant public READY or infer completion from a current cut.
+
+Only initial absence returns false. Correlation/content failure, mid-transfer
+refusal, capacity, closed ownership, expired/fenced preparation or exhausted
+transport attempts remain failures. The successful observation grants no protocol
+authority; normal fresh activation and separate governing majorities still follow.
+Retain original deadlines and charge export/probe metadata to existing CONTROL
+capacity (32/64 KiB). Cancel and drain an active probe before releasing its old
+preparation. A failed drain keeps ownership for cleanup retry.
+
+See [joining completion observation](PHASE_3_JOINING_COMPLETION.md). Automatic
+coordination and complete native/process qualification remain open.
+
 ## A65 — bounded discovery of existing joining preparation
 
 The joining owner may locate an existing old-proposer preparation by one ordered

@@ -107,6 +107,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     boolean joiningIntent=prefix && MembershipJoiningIntentExport.reference(context,key.reader,digest);
                     boolean joiningRetention=prefix && MembershipJoiningRetentionExport.reference(context,key.reader,digest);
                     boolean preparation=prefix && MembershipJoiningPreparation.reference(context,key.reader,digest);
+                    boolean completion=prefix && MembershipJoiningCompletion.reference(context,identity,digest);
                     if(preparation)require(preparations!=null,"joining preparation not published");
                     if(learnerPrefix || learnerProgress) {
                         MembershipLearnerPrefixExport.checkRequest(context,key.reader,identity,request,!learnerPrefix);
@@ -118,7 +119,8 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     }else if(prefix && !joiningIntent && !context.voters().contains(key.reader.nodeId().value()) && owner.learnerRetentionRequired()) {
                         require(MembershipLearnerDiscovery.rootReference(context,key.reader,digest),"learner source requires reserved alias");
                     }
-                    var export=preparation?preparations.open(key.reader,request):joiningRetention?
+                    var export=completion?new MembershipJoiningCompletion(owner,key.reader,request,resources,clock,started,budget):
+                            preparation?preparations.open(key.reader,request):joiningRetention?
                             new MembershipJoiningRetentionExport(owner,key.reader,request,resources,clock,started,budget):joiningIntent?
                             new MembershipJoiningIntentExport(owner,key.reader,request,resources,clock,started,budget):
                             prefix && MembershipLearnerDiscovery.rootReference(context,key.reader,digest)?

@@ -288,6 +288,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
                 && !MembershipJoiningIntentExport.reference(current,sender,reference)
                 && !MembershipJoiningRetentionExport.reference(current,sender,reference)
                 && !MembershipJoiningPreparation.reference(current,sender,reference)
+                && !MembershipJoiningCompletion.reference(current,owner.activationIdentity(),reference)
                 && MembershipLearnerPrefixExport.scope(current,sender,reference)==null
                 && MembershipLearnerProgressAccess.scope(current,sender,reference)==null)return null;
         if(MembershipJoiningPreparation.reference(current,sender,reference)) {

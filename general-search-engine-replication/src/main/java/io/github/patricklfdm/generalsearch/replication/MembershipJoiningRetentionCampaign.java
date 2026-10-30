@@ -47,6 +47,8 @@ final class MembershipJoiningRetentionCampaign implements AutoCloseable {
     private Thread runner;
     private volatile OldSide exchange;
     private volatile MembershipJoiningPreparation publication;
+    private Hint prepared;
+    private MembershipJoiningCompletion.Probe completion;
 
     MembershipJoiningRetentionCampaign(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,MembershipResources resources,
             ReplicationBounds bounds,MembershipSourcePull.Link link,MembershipSourcePull.Guard guard,Path scratch,
@@ -89,16 +91,26 @@ final class MembershipJoiningRetentionCampaign implements AutoCloseable {
             try(step){
                 var hint=step.run();check();var made=new MembershipJoiningPreparation(owner,resources,hint,()->check(),clock,started,budget);
                 synchronized(this){if(closed){made.close();throw new IOException("joining preparation closed before publication");}publication=made;}
-                endpoint.publishJoiningPreparation(made);check();return hint;
+                endpoint.publishJoiningPreparation(made);check();synchronized(this){prepared=hint;}return hint;
             }finally{exchange=null;}
         }catch(IOException|RuntimeException|Error error) {
             var published=publication;if(published!=null)endpoint.revokeJoiningPreparation(published);
             var active=campaign;if(active!=null)try{endpoint.abandon(active.ballot());}catch(RuntimeException cleanup){error.addSuppressed(cleanup);}throw error;
         }finally{finished.countDown();}
     }
+    /** Keep publication alive until the new native owner reports completed
+     * initialization. False only means an initial, correlated NOT_READY reply. */
+    boolean probeInitialized()throws IOException {
+        check();MembershipJoiningCompletion.Probe probe;
+        synchronized(this){require(!closed && finished.getCount()==0 && prepared!=null && completion==null,"joining completion preparation unfinished/busy");
+            probe=new MembershipJoiningCompletion.Probe(owner,resources,bounds,link,()->check(),clock,started,budget,prepared);completion=probe;}
+        try{return probe.run();}
+        finally{probe.close();synchronized(this){if(completion==probe)completion=null;}}
+    }
     @Override public void close()throws IOException {
-        boolean running;Thread worker;OldSide wait;
-        synchronized(this){closed=true;running=used && finished.getCount()!=0;worker=runner;wait=exchange;}
+        boolean running;Thread worker;OldSide wait;MembershipJoiningCompletion.Probe probe;
+        synchronized(this){closed=true;running=used && finished.getCount()!=0;worker=runner;wait=exchange;probe=completion;}
+        if(probe!=null)probe.close();
         var published=publication;if(published!=null)endpoint.revokeJoiningPreparation(published);
         if(wait!=null)wait.close();if(running && worker!=Thread.currentThread())worker.interrupt();
         var work=maintenance;if(work!=null)work.close();
