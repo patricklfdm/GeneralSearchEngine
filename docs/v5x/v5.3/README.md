@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Election/discovery scheduling](PHASE_3_ELECTION_DISCOVERY.md) now distinguishes
+incoming pre-grant activity from a failed local campaign, and rechecks contact
+after prefix discovery. Original deadlines and actual campaign limits remain;
+Phase 3 is **OPEN** pending complete native/history qualification.
+
 [Activation waiting](PHASE_3_ACTIVATION_WAIT.md) now avoids taking the journal
 writer during idle response polling; work boundaries retain complete validation.
 This corrects a reproduced cancellation defect, not full native timing

@@ -10,6 +10,28 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * read original storage; idle polls use the existing volatile cancellation fence.
  * The subsequent campaign must rediscover/revalidate before allocating a ballot. */
 final class MembershipElectionWait implements AutoCloseable {
+    /** An expired timer is a revocable scheduling decision, never permission
+     * to allocate a ballot after arbitrary intervening discovery work. */
+    record Decision(MembershipGrantJournal.DiscoveryState state,
+            MembershipActivationEndpoint.HeartbeatContact contact,
+            MembershipActivationEndpoint.ActivationProgress progress) {
+        boolean current(MembershipGrantJournal owner,MembershipActivationEndpoint endpoint,MembershipResources resources)throws IOException {
+            require(!endpoint.usage().closed(),"election decision endpoint closed");
+            var now=owner.discoveryState(resources);
+            if(!now.context().root.equals(state.context().root)
+                    || !now.context().authority().equals(state.context().authority())
+                    || !now.context().cut.equals(state.context().cut) || !now.ballot().equals(state.ballot()))return false;
+            if(!Objects.equals(contact,endpoint.heartbeatContact().orElse(null))
+                    || !Objects.equals(progress,endpoint.activationProgress().orElse(null)))return false;
+            try{owner.checkCampaignWait(state.context().authority(),state.ballot());}
+            catch(MembershipCampaignLost changed) {
+                if(changed.getSuppressed().length!=0 || !(changed.reason==MembershipCampaignLost.Reason.HIGHER_BALLOT
+                        || changed.reason==MembershipCampaignLost.Reason.VIEW_CHANGED))throw changed;
+                return false;
+            }
+            return true;
+        }
+    }
     private final MembershipGrantJournal owner;
     private final MembershipActivationEndpoint endpoint;
     private final MembershipResources resources;
@@ -44,6 +66,9 @@ final class MembershipElectionWait implements AutoCloseable {
         require(state.context().voters().contains(owner.activationIdentity().nodeId().value()),"election requires current voter");time();return state;
     }
     MembershipGrantJournal.DiscoveryState await()throws IOException {
+        return awaitDecision().state();
+    }
+    Decision awaitDecision()throws IOException {
         synchronized(this){require(!used && !closed,"election wait single use");used=true;}
         try {
             var state=snapshot();long armed=time(),retryEntered=armed,delay=delay();
@@ -94,7 +119,7 @@ final class MembershipElectionWait implements AutoCloseable {
                     if(latest!=null && !latest.equals(seen))continue;
                     var latestProgress=endpoint.activationProgress().orElse(null);
                     if(latestProgress!=null && !latestProgress.equals(seenProgress))continue;
-                    owner.checkActivationWait(current.context().authority(),current.ballot());time();return current;
+                    owner.checkActivationWait(current.context().authority(),current.ballot());time();return new Decision(current,seen,seenProgress);
                 }
                 long left=Math.min(budget-(now-started),delay-(now-armed));require(left>0,"election wait original deadline");
                 try{wake.poll(Math.min(left,TimeUnit.MILLISECONDS.toNanos(50)),TimeUnit.NANOSECONDS);}

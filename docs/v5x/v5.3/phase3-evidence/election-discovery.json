@@ -1,0 +1,251 @@
+{
+  "archive": {
+    "bytes": 4546948,
+    "files": 4894,
+    "path": "target/v53-election-discovery/qualification.tar.gz",
+    "sha256": "a8e013945b9bf4a72c882ad099ae7f956ca71949b8df0c9da08be037ada3fd99",
+    "verification": "PASS"
+  },
+  "baseCommit": "bafce01eddab0bb32e344653f9d8e6392ce2f419",
+  "componentAcceptance": {
+    "failures": 0,
+    "label": "electiondiscoveryfinal",
+    "newChecks": 11,
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 73
+  },
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionDiscoveryTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "electiondiscoveryoriginal",
+      "requestedTests": [
+        "V53ElectionDiscoveryTest"
+      ],
+      "seconds": 19.26007853500778,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationProgressTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionDiscoveryTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionWaitTest": 11
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "electiondiscoveryfix",
+      "requestedTests": [
+        "V53ElectionDiscoveryTest",
+        "V53ElectionWaitTest",
+        "V53ActivationProgressTest"
+      ],
+      "seconds": 224.20737541199196,
+      "skipped": 0,
+      "tests": 22
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53AutomaticCampaignTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionDecisionTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionDiscoveryTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53PrefixRecoveryTest": 10
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "electiondiscoveryregressions",
+      "requestedTests": [
+        "V53ElectionDiscoveryTest",
+        "V53ElectionDecisionTest",
+        "V53PrefixRecoveryTest",
+        "V53AutomaticCampaignTest"
+      ],
+      "seconds": 175.96201845200267,
+      "skipped": 0,
+      "tests": 28
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionDiscoveryTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "electiondecisionoriginal",
+      "requestedTests": [
+        "V53ElectionDiscoveryTest#sameBallotHeartbeatDuringDiscoveryRequiresFreshScanBeforeGrant"
+      ],
+      "seconds": 50.61528684600489,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationProgressTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53AutomaticCampaignTest": 10,
+        "io.github.patricklfdm.generalsearch.replication.V53AutomaticOwnerTest": 14,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionDecisionTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionDiscoveryTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionWaitTest": 11,
+        "io.github.patricklfdm.generalsearch.replication.V53NodeOwnerTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53PrefixRecoveryTest": 11
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "electiondiscoveryfinal",
+      "requestedTests": [
+        "V53ElectionDiscoveryTest",
+        "V53ElectionDecisionTest",
+        "V53PrefixRecoveryTest",
+        "V53AutomaticCampaignTest",
+        "V53AutomaticOwnerTest",
+        "V53NodeOwnerTest",
+        "V53ElectionWaitTest",
+        "V53ActivationProgressTest"
+      ],
+      "seconds": 371.53920678500435,
+      "skipped": 0,
+      "tests": 73
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeQualification": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "electiondiscoverywhole",
+      "requestedTests": [
+        "V53CompetingNodeQualification"
+      ],
+      "seconds": 162.9223531119933,
+      "skipped": 0,
+      "tests": 1
+    }
+  ],
+  "intermediateFailure": {
+    "correction": "reuse the exact request; no runtime bound changes",
+    "failure": "duplicate-grant fixture generated PREPARE again and exhausted its exchange attempts",
+    "label": "electiondiscoveryregressions"
+  },
+  "originalComparisons": [
+    {
+      "failure": "higher incoming ballot during prefix discovery exhausts recovery before first local grant",
+      "label": "electiondiscoveryoriginal",
+      "schedulingSource": "bafce01e"
+    },
+    {
+      "failure": "same-ballot heartbeat during discovery: two probes before PREPARE instead of four",
+      "label": "electiondecisionoriginal",
+      "retainsNewDiagnosticHelpers": true,
+      "schedulingSource": "bafce01e"
+    }
+  ],
+  "paidCloud": false,
+  "pending": [
+    "pre-ready liveness and actual source-retention convergence",
+    "complete original-history replay and negatives",
+    "joining/process/all-profile Phase 3 qualification"
+  ],
+  "phase3Complete": false,
+  "productionInputParity": 318,
+  "pushed": false,
+  "pythonAcceptance": {
+    "scope": "contract and frozen format",
+    "status": "PASS",
+    "tests": 9
+  },
+  "schema": "gse-v53-election-discovery-evidence-v1",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipElectionWait.java": "49c8db6a9e2310939b163a77a049c4ab22ee36264e012c2885ddacf4aa5d9a49",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipNodeOwner.java": "743578b69c51b0b6e6f8e08ba85f14401d7a1049f638e0f357eab8c72f343213",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPrefixRecovery.java": "347e83f91b3fe9ec4f90d1c48e34de7381601960a33faf6f5f1a6c94149f3c6f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java": "89b033e707be128acaf58c0f49247b6704c29cef231be98b2466d7c191fda3a1",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompetingNodeQualification.java": "9e9c8251998db880447895fd029138f9653c1611a3a45de71b0fc24804e15806",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ElectionDecisionTest.java": "bc5de057c338bcd9689746bbd409cb401b09d50cad8e9459a662921a0cf6be3e",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ElectionDiscoveryTest.java": "a0f77b6bc144527b0570ace231ce088d0cc4175429907c39ede99af22ba360e6",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PrefixRecoveryTest.java": "ea4a8379640369981d9c784e7427d05f128b5a0662ec553a50dbdaa4f9756eff"
+  },
+  "status": "PARTIAL",
+  "unchangedSnapshotInputs": true,
+  "wholeQualification": {
+    "clientMutationRetry": false,
+    "diagnostics": [
+      {
+        "losses": [
+          "CONTACT_UNAVAILABLE",
+          "HIGHER_BALLOT",
+          "CONTACT_UNAVAILABLE"
+        ],
+        "node": "node-1",
+        "rounds": 3,
+        "state": "FAILED"
+      },
+      {
+        "losses": [
+          "HIGHER_BALLOT",
+          "HIGHER_BALLOT"
+        ],
+        "node": "node-2",
+        "rounds": 3,
+        "state": "RESTARTING"
+      },
+      {
+        "losses": [
+          "HIGHER_BALLOT",
+          "CONTACT_UNAVAILABLE"
+        ],
+        "node": "node-3",
+        "rounds": 3,
+        "state": "RESTARTING"
+      }
+    ],
+    "drains": [
+      {
+        "failure": "",
+        "leases": 0,
+        "node": "node-3"
+      },
+      {
+        "failure": "",
+        "leases": 0,
+        "node": "node-2"
+      },
+      {
+        "failure": "",
+        "leases": 0,
+        "node": "node-1"
+      }
+    ],
+    "label": "electiondiscoverywhole",
+    "monotonicDiagnosticTimes": true,
+    "observations": [
+      {
+        "event": "START_COMPLETED",
+        "node": "node-3"
+      },
+      {
+        "event": "READINESS_LOST",
+        "node": "node-3",
+        "reason": "HIGHER_BALLOT"
+      },
+      {
+        "event": "START_COMPLETED",
+        "node": "node-2"
+      },
+      {
+        "event": "READINESS_LOST",
+        "node": "node-2",
+        "reason": "HIGHER_BALLOT"
+      }
+    ],
+    "physicalReplay": false,
+    "policyChanged": false,
+    "producerPassed": false,
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/electiondiscoverywhole-f29cd42c/general-search-engine-replication/target/v53-competing-node/run-603932de-827e-4b64-b31f-b50628ed0f8b",
+    "status": "FAIL",
+    "terminalFailure": "original grant admission unavailable: original source retention capacity (resource ownership/count)"
+  }
+}

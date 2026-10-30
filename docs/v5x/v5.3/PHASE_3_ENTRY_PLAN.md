@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Election/discovery scheduling](PHASE_3_ELECTION_DISCOVERY.md) rechecks expired
+decisions after prefix discovery and keeps drained, pre-adoption fencing in the
+same original election wait. Actual campaign recovery remains bounded; component
+results and complete competing-owner qualification remain separate open gates.
+
 [Complete-copy peer confirmation](PHASE_3_PEER_CONFIRMATION.md) retains original
 generation observations through frozen-source reconciliation. Older endpoint debt
 continues checkpoint renewal until verified selection; generic decoded merges

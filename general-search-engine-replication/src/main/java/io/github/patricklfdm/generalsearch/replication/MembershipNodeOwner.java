@@ -48,6 +48,11 @@ final class MembershipNodeOwner<K,T> implements AutoCloseable {
     MembershipResources.Usage usage(){return resources.usage();}
     synchronized Optional<MembershipAutomaticOwner.State> serviceState(){return automatic==null?Optional.empty():Optional.of(automatic.state());}
     synchronized Optional<Throwable> failure(){return automatic==null?Optional.empty():automatic.failure();}
+    record Recovery(int rounds,List<MembershipCampaignLost.Reason> losses) {}
+    synchronized Optional<Recovery> recovery() {
+        if(automatic==null)return Optional.empty();
+        synchronized(automatic){return Optional.of(new Recovery(automatic.rounds(),automatic.losses()));}
+    }
     private void opening()throws IOException {if(state!=State.OPENING)throw new IOException("node open cancelled");}
     /** A bound listener refuses work until every owner has been published.
      * open does not campaign; start enters the existing bounded automatic loop. */

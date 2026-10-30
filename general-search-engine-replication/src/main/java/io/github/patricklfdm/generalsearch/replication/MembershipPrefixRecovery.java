@@ -13,6 +13,13 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * READY. Transport exhaustion may move to another known identity, but a failed
  * durable adoption is never retried or hidden by another source. */
 final class MembershipPrefixRecovery implements AutoCloseable {
+    /** Only a drained, read-only discovery pass may return to election wait.
+     * A fencing error after durable adoption starts is never converted. */
+    static final class Superseded extends IOException {
+        private static final long serialVersionUID=1L;
+        Superseded(MembershipGrantJournal.HigherBallot cause){super("election discovery superseded before adoption",cause);}
+        Superseded(){super("original prefix changed before election adoption");}
+    }
     private final MembershipGrantJournal owner;
     private final MembershipResources resources;
     private final ReplicationBounds bounds;
@@ -28,6 +35,8 @@ final class MembershipPrefixRecovery implements AutoCloseable {
     private MembershipSourcePull source,ancestry;
     private Thread runner;
     private boolean used;
+    private boolean adoptionAttempted;
+    private boolean election;
     private volatile boolean closed;
 
     MembershipPrefixRecovery(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
@@ -50,8 +59,21 @@ final class MembershipPrefixRecovery implements AutoCloseable {
         require(!closed && elapsed>=0 && elapsed<budget,"prefix recovery original deadline");
     }
     private void check()throws IOException {
-        time();owner.checkActivationBallot(original.context().authority(),original.ballot());
-        require(owner.activationContext().cut.equals(original.context().cut),"prefix recovery original cut changed");time();
+        time();
+        if(election && !adoptionAttempted)synchronized(owner) {
+            // Incoming, already verified publication/adoption is also follower
+            // progress. Read physical storage before recognizing the change;
+            // never classify an arbitrary validation error by its message.
+            var current=owner.discoveryState(resources);
+            require(current.context().root.equals(original.context().root),"prefix recovery root changed");
+            if(!current.context().authority().equals(original.context().authority())
+                    || !current.context().cut.equals(original.context().cut))throw new Superseded();
+            owner.checkActivationBallot(original.context().authority(),original.ballot());
+        }else {
+            owner.checkActivationBallot(original.context().authority(),original.ballot());
+            require(owner.activationContext().cut.equals(original.context().cut),"prefix recovery original cut changed");
+        }
+        time();
     }
     private CompletableFuture<Decoded> exchange(MembershipIdentity peer,Decoded request,String kind,long deadline) {
         CompletableFuture<Decoded> future;
@@ -71,8 +93,18 @@ final class MembershipPrefixRecovery implements AutoCloseable {
     private void release()throws IOException {
         releasePulls();if(scratchOwner!=null){scratchOwner.close();scratchOwner=null;}ownership.close();
     }
+    Optional<Decoded> runForElection()throws IOException {
+        try{return run(true);}
+        catch(MembershipGrantJournal.HigherBallot changed) {
+            if(adoptionAttempted || changed.getSuppressed().length!=0)throw changed;
+            throw new Superseded(changed);
+        }
+    }
     Optional<Decoded> run()throws IOException {
-        synchronized(this){require(!used && !closed,"prefix recovery single use/closed");used=true;runner=Thread.currentThread();}
+        return run(false);
+    }
+    private Optional<Decoded> run(boolean election)throws IOException {
+        synchronized(this){require(!used && !closed,"prefix recovery single use/closed");used=true;this.election=election;runner=Thread.currentThread();}
         Throwable failure=null;
         try {
             check();var context=original.context();var local=owner.activationIdentity();
@@ -101,6 +133,7 @@ final class MembershipPrefixRecovery implements AutoCloseable {
                 // this runner, never interrupting a force already admitted here.
                 synchronized(owner) {
                     check();source.verifiedPrefix();ancestry.ancestry();
+                    adoptionAttempted=true;
                     return Optional.of(owner.adoptCurrent(verified,images,bridges));
                 }
             }

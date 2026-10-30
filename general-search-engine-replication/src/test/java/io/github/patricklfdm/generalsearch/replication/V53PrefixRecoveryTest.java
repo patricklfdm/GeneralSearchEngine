@@ -82,6 +82,29 @@ class V53PrefixRecoveryTest {
             assertEquals(before,l.budget.usage());assertTrue(l.events.isEmpty());
         }
     }
+    @Test void electionDiscoveryConvertsOnlyDirectCleanPreAdoptionFencing()throws Exception {
+        for(String mode:List.of("clean","suppressed","wrapped","deadline"))try(var l=local()) {
+            var before=l.budget.usage();var files=l.files();
+            try(var work=recovery(l,(p,r,k,d)->{
+                var reply=l.response(r);
+                if(mode.equals("deadline")){l.clock.set(BUDGET);return CompletableFuture.completedFuture(reply);}
+                var higher=new TreeMap<>(l.ballot);higher.put("counter",number(higher.get("counter"))+1);l.owner.observeCurrent(higher);
+                try{l.owner.checkActivationBallot(l.owner.activationContext().authority(),l.ballot);throw new AssertionError("missing fence");}
+                catch(MembershipGrantJournal.HigherBallot lost) {
+                    if(mode.equals("suppressed"))lost.addSuppressed(new IOException("failed original drain"));
+                    return CompletableFuture.failedFuture(mode.equals("wrapped")?new IOException("unclassified wrapper",lost):lost);
+                }catch(IOException error){return CompletableFuture.failedFuture(error);}
+            })) {
+                var failure=assertThrows(Exception.class,work::runForElection);
+                if(mode.equals("clean"))assertInstanceOf(MembershipPrefixRecovery.Superseded.class,failure);
+                else {
+                    assertFalse(failure instanceof MembershipPrefixRecovery.Superseded);
+                    if(mode.equals("suppressed"))assertEquals("failed original drain",failure.getSuppressed()[0].getMessage());
+                }
+            }
+            assertEquals(files,l.files());assertEquals(before,l.budget.usage());assertTrue(l.events.isEmpty());
+        }
+    }
     @Test void actualAdoptionRequiresCompleteOriginalPrefixAndAncestry()throws Exception {
         // Historical forces are conditional fixtures. This exercises actual
         // exported bytes, retained-copy verification and durable adoption, not
@@ -89,30 +112,48 @@ class V53PrefixRecoveryTest {
         for(int through:List.of(6,7))adoption(through,"normal");
     }
     @Test void durableAdoptionFailureCannotFallThroughToAnotherSource()throws Exception {adoption(7,"fail");}
+    @Test void fencingAfterDurableAdoptionStartsCannotReturnToElectionWait()throws Exception {adoption(7,"fenced-election");}
+    @Test void verifiedIncomingAdoptionBeforeLocalAdoptionReturnsToElectionWait()throws Exception {adoption(7,"external-adoption");}
     @Test void closeDrainsAnAdmittedAdoptionWithoutInterruptingItsForces()throws Exception {adoption(7,"close");}
     private void adoption(int through,String mode)throws Exception {
             var fixture=new V53AdoptionFenceFixture(3,through);Path server=temp.resolve("server-"+through),client=temp.resolve("client-"+through);
             fixture.provision(server);V53FloorWorker.provision(client,3,0,3);var a=resources();var b=resources();var events=new ArrayList<String>();
             var forced=new CountDownLatch(1);var resume=new CountDownLatch(1);
+            var adopting=new AtomicReference<MembershipGrantJournal>();
             try(var remote=fixture.open(server,a,e->{});
                 var owner=MembershipGrantJournal.openGenerations(client,fixture.initial.root(),V53DeclarationsTest.node(3),b,
                     (r,p,m)->MembershipCapsule.verify(r,p,m,fixture.owned),event->{
                         events.add(event);if(event.equals("ADOPTION_INSTALL_FENCED")) {
                             if(mode.equals("fail"))throw new IOException("injected durable adoption failure");
+                            if(mode.equals("fenced-election")) {
+                                var current=adopting.get();var state=current.discoveryState(b);var higher=new TreeMap<>(state.ballot());
+                                higher.put("counter",number(higher.get("counter"))+1);current.observeCurrent(higher);
+                                current.checkActivationBallot(state.context().authority(),state.ballot());
+                            }
                             if(mode.equals("close")){forced.countDown();try{assertTrue(resume.await(10,TimeUnit.SECONDS));}
                                 catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException("force interrupted",error);}
                                 assertFalse(Thread.currentThread().isInterrupted());}
                         }
                     })) {
+                adopting.set(owner);
                 remote.adoptCurrent(fixture.remote.packet(),fixture.remote.source.images,List.of());var before=V53ReplayFilesTest.files(server);
                 var calls=new ArrayList<String>();
                 try(var service=MembershipTransferService.prefix(remote,a,bounds(),()->{},()->0L,0,BUDGET);
                     var work=new MembershipPrefixRecovery(owner,b,bounds(),(p,r,k,d)->{
                         calls.add(r.kind());assertEquals(remote.activationIdentity(),p);assertEquals(BUDGET,d);
-                        try{return CompletableFuture.completedFuture(r.kind().equals("STATUS_PROBE")?remote.discoveryStatus(owner.activationIdentity(),r):service.handle(owner.activationIdentity(),r));}
+                        try {
+                            if(mode.equals("external-adoption") && calls.size()==1)owner.adoptCurrent(fixture.remote.packet(),fixture.remote.source.images,List.of());
+                            return CompletableFuture.completedFuture(r.kind().equals("STATUS_PROBE")?remote.discoveryStatus(owner.activationIdentity(),r):service.handle(owner.activationIdentity(),r));
+                        }
                         catch(IOException|RuntimeException error){return CompletableFuture.failedFuture(error);}
                     },()->{},temp.resolve("adopt-scratch-"+through),()->0L,0,BUDGET)) {
                     if(mode.equals("fail"))assertEquals("injected durable adoption failure",assertThrows(IOException.class,work::run).getMessage());
+                    else if(mode.equals("fenced-election"))assertThrows(MembershipGrantJournal.HigherBallot.class,work::runForElection);
+                    else if(mode.equals("external-adoption")) {
+                        assertThrows(MembershipPrefixRecovery.Superseded.class,work::runForElection);
+                        assertEquals(1,calls.size());assertEquals(remote.activationContext().cut,owner.activationContext().cut);
+                        assertTrue(events.contains("ADOPTION_INSTALL_BEFORE_RETURN"));
+                    }
                     else {
                         if(mode.equals("close"))try(var executor=Executors.newVirtualThreadPerTaskExecutor()) {
                             var running=executor.submit(work::run);
@@ -126,7 +167,7 @@ class V53PrefixRecoveryTest {
                         assertEquals(through==6,owner.activationContext().voters().contains("node-3"));
                         assertTrue(events.contains("ADOPTION_INSTALL_BEFORE_RETURN"));
                     }
-                    assertFalse(calls.contains("PREPARE"));assertTrue(calls.contains("CHUNK"));
+                    assertFalse(calls.contains("PREPARE"));assertEquals(!mode.equals("external-adoption"),calls.contains("CHUNK"));
                 }
                 assertEquals(before,V53ReplayFilesTest.files(server));
             }

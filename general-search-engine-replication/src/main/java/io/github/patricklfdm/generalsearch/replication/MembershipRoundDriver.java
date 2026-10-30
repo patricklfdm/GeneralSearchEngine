@@ -285,32 +285,58 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
     private Decoded start(long originalStarted,boolean discover,AutomaticLeadershipPolicy policy,LongBinaryOperator jitter)throws IOException {
         return start(originalStarted,discover,policy,jitter,false);
     }
+    private void discoverPrefix(boolean election)throws IOException {
+        transition(State.DISCOVERING);
+        MembershipPrefixRecovery child;
+        try{child=new MembershipPrefixRecovery(owner,resources,bounds,transport::exchange,this::time,scratch,clock,started,budget);}
+        catch(MembershipGrantJournal.HigherBallot changed) {
+            if(!election || changed.getSuppressed().length!=0)throw changed;
+            throw new MembershipPrefixRecovery.Superseded(changed);
+        }
+        boolean registered=false;Throwable failure=null;
+        try {
+            synchronized(this){require(!closed,"native round closed before discovery");discovery=child;registered=true;}
+            var adopted=election?child.runForElection():child.run();time();
+            if(adopted.isPresent()){events.at("ADOPTED",adopted.orElseThrow());time();}
+        }catch(IOException|RuntimeException|Error error){failure=error;throw error;}
+        finally {
+            try {
+                child.close();
+                synchronized(this){if(registered && discovery==child)discovery=null;}
+            }catch(IOException|RuntimeException cleanup){if(failure!=null)failure.addSuppressed(cleanup);else throw cleanup;}
+        }
+    }
     private Decoded start(long originalStarted,boolean discover,AutomaticLeadershipPolicy policy,LongBinaryOperator jitter,boolean freshRetry)throws IOException {
         enter(State.NEW,originalStarted);
         try {
             if(policy!=null) {
                 workPulse=new MembershipWorkPulse(clock,TimeUnit.MILLISECONDS.toNanos(policy.heartbeatIntervalMillis()));
-                transition(State.WAITING);
-                var child=new MembershipElectionWait(owner,endpoint,resources,policy,clock,jitter,started,budget,freshRetry);
-                boolean registered=false;
-                try {
-                    synchronized(this){require(!closed,"native round closed before election wait");electionWait=child;registered=true;}
-                    child.await();time();
-                }finally{child.close();synchronized(this){if(registered && electionWait==child)electionWait=null;}}
-            }
-            if(discover) {
-                transition(State.DISCOVERING);
-                var child=new MembershipPrefixRecovery(owner,resources,bounds,transport::exchange,this::time,scratch,clock,started,budget);
-                boolean registered=false;
-                try {
-                    synchronized(this){require(!closed,"native round closed before discovery");discovery=child;registered=true;}
-                    var adopted=child.run();time();
-                    if(adopted.isPresent()){events.at("ADOPTED",adopted.orElseThrow());time();}
-                }finally {
-                    child.close();
-                    synchronized(this){if(registered && discovery==child)discovery=null;}
+                boolean retryWait=freshRetry;
+                for(;;) {
+                    transition(State.WAITING);
+                    var child=new MembershipElectionWait(owner,endpoint,resources,policy,clock,jitter,started,budget,retryWait);
+                    MembershipElectionWait.Decision decision;boolean registered=false;
+                    try {
+                        synchronized(this){require(!closed,"native round closed before election wait");electionWait=child;registered=true;}
+                        decision=child.awaitDecision();time();
+                    }finally{child.close();synchronized(this){if(registered && electionWait==child)electionWait=null;}}
+                    retryWait=false;
+                    try{if(discover)discoverPrefix(true);}
+                    catch(MembershipPrefixRecovery.Superseded changed) {
+                        // Still a follower: no local grant or client operation
+                        // has been attempted. Drain first, then resume the same
+                        // deadline's election wait; do not consume a failed
+                        // campaign round for incoming, authenticated progress.
+                        if(changed.getSuppressed().length!=0)throw changed;
+                        time();continue;
+                    }
+                    time();boolean current=decision.current(owner,endpoint,resources);time();
+                    if(current)break;
+                    // Discovery/adoption can outlive the expired timer. Observe
+                    // the new original fence/cut/contact before campaigning.
+                    // Completed heartbeats/milestones keep their arrival time.
                 }
-            }
+            }else if(discover)discoverPrefix(false);
             activate();return recoverAndReady();
         }catch(IOException|RuntimeException|Error error){fail(error);throw error;}
         finally{leave();}

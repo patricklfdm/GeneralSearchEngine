@@ -19,6 +19,9 @@ class V53CompetingNodeQualification {
     static String stack(Throwable error) {
         var text=new StringWriter();error.printStackTrace(new PrintWriter(text));return text.toString();
     }
+    static void observe(List<Map<String,Object>> events,Map<String,Object> fields) {
+        synchronized(events){var row=new TreeMap<>(fields);row.put("nanoTime",System.nanoTime());events.add(row);}
+    }
     @Test void threeAutomaticOwnersConvergeAndPublishOneOriginalData()throws Exception {
         Path raw=Files.createDirectories(Path.of("target/v53-competing-node/run-"+UUID.randomUUID()));
         System.out.println("v53CompetingNodeEvidence="+raw.toAbsolutePath());
@@ -37,20 +40,20 @@ class V53CompetingNodeQualification {
                 Path scratch=Files.createDirectory(temp.resolve("scratch-"+i));
                 var config=new MembershipReplicaConfig<>(f.result.root(),target.identity(),f.request.targets().stream().map(MembershipBootstrapTarget::identity)
                     .filter(v->!v.equals(target.identity())).toList(),target.replicaDirectory(),target.materialization(),bounds,policy);
-                var hooks=new MembershipNodeOwner.Hooks(event->events.add(Map.of("node",name,"event",event)),
+                var hooks=new MembershipNodeOwner.Hooks(event->observe(events,Map.of("node",name,"event",event)),
                     (event,request,response)->{
-                        if(event.equals("BEFORE_REQUEST_WRITE"))events.add(Map.of("node",name,"event","NETWORK_SEND","request",request.digest(),"kind",request.kind(),"bytes",Base64.getEncoder().encodeToString(request.bytes())));
-                        if(event.equals("AFTER_REQUEST_READ"))events.add(Map.of("node",name,"event","NETWORK_REQUEST","request",request.digest(),"kind",request.kind()));
-                        if(event.equals("AFTER_RESPONSE_READ"))events.add(Map.of("node",name,"event","NETWORK_RECEIVED","kind",response.kind(),"response",response.digest()));
+                        if(event.equals("BEFORE_REQUEST_WRITE"))observe(events,Map.of("node",name,"event","NETWORK_SEND","request",request.digest(),"kind",request.kind(),"bytes",Base64.getEncoder().encodeToString(request.bytes())));
+                        if(event.equals("AFTER_REQUEST_READ"))observe(events,Map.of("node",name,"event","NETWORK_REQUEST","request",request.digest(),"kind",request.kind()));
+                        if(event.equals("AFTER_RESPONSE_READ"))observe(events,Map.of("node",name,"event","NETWORK_RECEIVED","kind",response.kind(),"response",response.digest()));
                         if(event.equals("BEFORE_RESPONSE_WRITE")) {
                             var row=new TreeMap<String,Object>(V53SelectedPullTest.wire(request,response));row.put("withheld",false);wire.add(row);
-                            events.add(Map.of("node",name,"event","WIRE_RESPONSE","request",request.digest(),"response",response.digest()));
+                            observe(events,Map.of("node",name,"event","WIRE_RESPONSE","request",request.digest(),"response",response.digest()));
                         }
-                    },(event,record)->events.add(Map.of("node",name,"event","ROUND_"+event,"record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes()))),
-                    (event,record,voters)->events.add(Map.of("node",name,"event","SLOT_"+event,"record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes()),"voters",voters.stream().sorted().toList())));
+                    },(event,record)->observe(events,Map.of("node",name,"event","ROUND_"+event,"record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes()))),
+                    (event,record,voters)->observe(events,Map.of("node",name,"event","SLOT_"+event,"record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes()),"voters",voters.stream().sorted().toList())));
                 var node=new MembershipNodeOwner<>(config,builder().configuration(),scratch.resolve("incoming"),scratch.resolve("outgoing"),System::nanoTime,V53NodeOwnerNetworkTest.BUDGET,hooks);
                 nodes.add(node);node.open();assertThrows(IllegalArgumentException.class,node::readiness);
-                events.add(Map.of("node",name,"event","NODE_OPEN"));
+                observe(events,Map.of("node",name,"event","NODE_OPEN"));
             }
             long began=System.nanoTime();for(var node:nodes)calls.add(node.start());
             var seen=new boolean[3];int winner=-1;long stable=0;String barrier=null;
@@ -101,7 +104,10 @@ class V53CompetingNodeQualification {
         finally {
             var diagnostics=new ArrayList<Map<String,Object>>();IOException closing=null;
             for(int i=0;i<nodes.size();i++) {
-                var node=nodes.get(i);diagnostics.add(Map.of("node","node-"+(i+1),"state",node.serviceState().map(Enum::name).orElse("UNOPENED"),
+                var node=nodes.get(i);var recovery=node.recovery();
+                diagnostics.add(Map.of("node","node-"+(i+1),"state",node.serviceState().map(Enum::name).orElse("UNOPENED"),
+                    "rounds",recovery.map(MembershipNodeOwner.Recovery::rounds).orElse(0),
+                    "losses",recovery.map(r->r.losses().stream().map(Enum::name).toList()).orElse(List.of()),
                     "failure",node.failure().map(V53CompetingNodeQualification::stack).orElse("")));
             }
             Files.write(raw.resolve("diagnostics.json"),canonical(diagnostics,65536));

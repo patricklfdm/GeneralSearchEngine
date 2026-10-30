@@ -1,5 +1,10 @@
 # Bounded automatic election entry
 
+The subsequent [discovery-boundary correction](PHASE_3_ELECTION_DISCOVERY.md)
+revalidates the expired decision after discovery and handles pre-adoption fencing
+inside the same original waiting lifetime. The receipts below describe the
+earlier source and remain retained separately.
+
 Phase 3 remains **OPEN**. `MembershipRoundDriver.startAutomatic` now owns one
 randomized election wait, then runs existing original-prefix discovery, fresh
 activation, carried recovery and the new barrier under its original deadline.
