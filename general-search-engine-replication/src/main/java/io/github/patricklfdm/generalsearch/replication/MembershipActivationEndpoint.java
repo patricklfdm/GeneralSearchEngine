@@ -5,6 +5,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.LongSupplier;
 import static io.github.patricklfdm.generalsearch.replication.MembershipContext.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
@@ -17,6 +18,15 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * The caller closes this endpoint and its transport before closing the journal. */
 final class MembershipActivationEndpoint implements MembershipTransport.Handler,AutoCloseable {
     record Usage(int waiters,int pendingExchanges,boolean controlRunning,boolean scopeEnded,boolean closed) {}
+    /** Volatile arrival-time hint only. It cannot prove the remote READY claim
+     * or authorize a grant, service, a read lease, or a source selection. */
+    record HeartbeatContact(String root,String view,Map<String,Object> ballot,MembershipIdentity proposer,long receivedNanos) {
+        HeartbeatContact {ballot=Map.copyOf(ballot);}
+    }
+    // null is the permanent closed sentinel; an empty Optional is a fresh
+    // endpoint. A delayed completion cannot resurrect either a close or a
+    // superseded observation. This cell is never written to the journal.
+    private final AtomicReference<Optional<HeartbeatContact>> heartbeatContact=new AtomicReference<>(Optional.empty());
     private final MembershipGrantJournal owner;
     private final MembershipResources resources;
     private final ReplicationBounds bounds;
@@ -40,6 +50,27 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     private volatile MembershipJoiningPreparation joiningPreparation;
     private Control control;
     private int waiters;
+
+    Optional<HeartbeatContact> heartbeatContact() {
+        var value=heartbeatContact.get();if(closed || value==null || value.isEmpty())return Optional.empty();
+        var contact=value.orElseThrow();
+        try{owner.checkActivationWait(contact.view(),contact.ballot());}
+        catch(IllegalArgumentException stale){return Optional.empty();}
+        return closed?Optional.empty():value;
+    }
+    private void recordHeartbeatContact(MembershipIdentity sender,Decoded request,long received) {
+        if(!Boolean.TRUE.equals(object(request.value().get("payload")).get("activated")))return;
+        var contact=new HeartbeatContact((String)request.value().get("root"),(String)request.value().get("view"),
+                object(request.value().get("ballot")),sender,received);
+        for(;;) {
+            var before=heartbeatContact.get();if(before==null)return;
+            if(before.isPresent()) {
+                var old=before.orElseThrow();int comparison=compareBallot(contact.ballot(),old.ballot());
+                if(comparison<0 || comparison==0 && received-old.receivedNanos()<=0)return;
+            }
+            if(heartbeatContact.compareAndSet(before,Optional.of(contact)))return;
+        }
+    }
 
     MembershipActivationEndpoint(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
             MembershipSourcePull.Link link,List<MembershipSelection.Bridge> ancestry,List<MembershipSelection.Bridge> retained,
@@ -372,7 +403,8 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
             // scope or extends that scope's original deadline.
             owner.observeHeartbeat(sender,request);scratchOwner.check();
             var reply=owner.heartbeat(sender,request);long elapsed=clock.getAsLong()-received;
-            require(!closed && elapsed>=0 && elapsed<budget,"heartbeat endpoint closed/original deadline");return reply;
+            require(!closed && elapsed>=0 && elapsed<budget,"heartbeat endpoint closed/original deadline");
+            recordHeartbeatContact(sender,request,received);return reply;
         }
         boolean nativeSlot=slots!=null && (Set.of("ACCEPT","PROOF","APPLY").contains(kind)
                 || (kind.equals("PUBLISH") && owner.currentCertificate().isPresent()));
@@ -437,6 +469,7 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public void close()throws IOException {
         synchronized(registry){closed=true;if(control!=null)control.result.completeExceptionally(new IOException("activation endpoint closed"));}
+        heartbeatContact.set(null);
         var preparation=joiningPreparation;if(preparation!=null)revokeJoiningPreparation(preparation);
         expiry.shutdownNow();IOException failure=null;
         try{synchronized(prefixRegistry){if(prefixService!=null)prefixService.close();}}

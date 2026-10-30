@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Volatile heartbeat contact](PHASE_3_HEARTBEAT_CONTACT.md) now retains an
+authenticated original arrival for future automatic scheduling. Higher fences,
+close and endpoint recreation invalidate it; it grants no readiness or lease.
+Automatic timers/campaign ownership and complete restart/process qualification
+remain open.
+
 [Bounded outgoing heartbeat samples](PHASE_3_HEARTBEAT_ROUND.md) extend an
 already-ready stable round with concurrent, finite contact checks. They grant no
 lease, selection or readiness and retain the original parent deadline. Native
