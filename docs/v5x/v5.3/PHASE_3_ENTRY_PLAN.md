@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Pending-linked joining](PHASE_3_PENDING_JOINED_CUSTODY.md) now carries both
+original histories through custody, placement, covered retirement and native
+journal ownership. Cold recovery binds the exact original pending end, preserves
+all charges until native replacement and never recreates retired payloads.
+Minimal-old-quorum integration, coordinator continuation and complete Phase 3
+qualification remain **OPEN**. Earlier component notes below retain their
+source-bound historical scope.
+
 [Linked pair recovery](PHASE_3_PENDING_PAIR_RECOVERY.md) now reads and validates
 both original plans before re-forcing either history. It restores the pending
 metadata as SOURCE and the published source as the single LEARNER, preserving

@@ -62,7 +62,7 @@ final class MembershipLearnerPlacement implements AutoCloseable {
             try(var typed=MembershipLearnerMaterialization.prepare(input,captured,config,e->{})) {
                 MembershipLearnerHead head=store.retiring()?typed.currentHead():typed.retainGeneration();
                 require(Arrays.equals(head.receipt().bytes(),receipt.bytes()),"learner placement original typed receipt changed");
-                try(var intent=MembershipLearnerIntent.resume(head,e->{});
+                try(var intent=recovery.linkedPending()?MembershipLearnerIntent.reopenPublishedPlacement(head,recovery):MembershipLearnerIntent.resume(head,e->{});
                         var stage=MembershipLearnerVoterStage.reopenPlacement(intent.forced(),recovery)) {
                     stage.readyCapability().check();recovery.check();
                     recovery.checkJoined(intent.forced().source(),head.receipt(),captured,config);
@@ -105,6 +105,10 @@ final class MembershipLearnerPlacement implements AutoCloseable {
         // scope. Full inventory checks bracket that scope and every subsequent
         // custody force through inventory(); no unverified owner escapes it.
         void readGuard(){require(!closed,"learner placement recovery projection expired");}
+        boolean linkedPending(){readGuard();return original.value.containsKey("pendingSource");}
+        void requirePending(Map<String,Object> pending)throws IOException {
+            check();require(pending.equals(original.value.get("pendingSource")),"placement pending original link changed");
+        }
         void check()throws IOException {
             readGuard();original.checkDecision();
             require(original.project()==moved,"learner placement moved during read-only recovery");
@@ -280,6 +284,9 @@ final class MembershipLearnerPlacement implements AutoCloseable {
         }
         original.checkDecision();return List.copyOf(projected);
     }
+    static Map<String,Path> originalRoots(MembershipLearnerPlan summary)throws IOException {
+        return new Original(summary,AdmissionPaths.read(MembershipLearnerCustody.directory(summary).resolve(MembershipLearnerCustody.FILE),MembershipLearnerCustody.MAXIMUM)).roots;
+    }
     /** The small original typed plan/receipt remain admission proof after its
      * backup and receiving images retire. Never infer configuration from only
      * the joined record's self-reported digest. */
@@ -329,11 +336,14 @@ final class MembershipLearnerPlacement implements AutoCloseable {
         final Path replica,stage;
         Original(MembershipLearnerPlan summary,byte[] decision)throws IOException {
             this.summary=summary;this.decision=decision.clone();value=object(parse(decision,MembershipLearnerCustody.MAXIMUM));
-            require(value.keySet().equals(Set.of("schema","plan","path","receipt","source","roots","directoryKey"))
+            var fields=new HashSet<>(Set.of("schema","plan","path","receipt","source","roots","directoryKey"));
+            if(value.containsKey("pendingSource"))fields.add("pendingSource");
+            require(value.keySet().equals(fields)
                     && value.get("schema").equals("gse-v53-learner-custody/1.3") && value.get("plan").equals(summary.planDigest())
                     && Arrays.equals(decision,canonical(value,MembershipLearnerCustody.MAXIMUM)),"learner placement original custody shape");
             MembershipValidation.digest((String)value.get("source"));MembershipValidation.digest((String)value.get("receipt"));
-            roots=MembershipLearnerCustody.roots(summary);replica=roots.get("replica");stage=roots.get("voterStage");inventory=list(value.get("roots"));
+            var pending=value.containsKey("pendingSource")?object(value.get("pendingSource")):null;
+            roots=MembershipLearnerCustody.roots(summary,pending);replica=roots.get("replica");stage=roots.get("voterStage");inventory=list(value.get("roots"));
             require(inventory.size()==roots.size(),"learner placement original roots");var seen=new HashSet<String>();
             for(Object raw:inventory) {
                 var row=object(raw);String name=(String)row.get("name");boolean present=Boolean.TRUE.equals(row.get("present"));
@@ -342,6 +352,7 @@ final class MembershipLearnerPlacement implements AutoCloseable {
                         && row.get("path").equals(AdmissionPaths.binding(roots.get(name))),"learner placement root binding");
                 if(present)files(row); // Reject duplicate or escaping inventory names.
             }
+            if(pending!=null)MembershipLearnerPendingLink.inventory(summary,pending,inventory,(String)value.get("receipt"));
             var source=files(root(inventory,"voterStage"));var destination=files(root(inventory,"replica"));
             require(source.keySet().containsAll(MOVES) && MOVES.stream().noneMatch(destination::containsKey),"learner placement original destinations");
             for(String preserved:List.of("root.gsr","node.gsr","replica.lock")) {

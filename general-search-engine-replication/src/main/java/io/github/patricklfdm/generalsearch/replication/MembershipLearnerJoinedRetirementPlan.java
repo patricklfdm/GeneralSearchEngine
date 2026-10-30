@@ -13,7 +13,7 @@ final class MembershipLearnerJoinedRetirementPlan {
     final List<Map<String,Object>> deletions;
     final List<Path> locks;
     MembershipLearnerJoinedRetirementPlan(MembershipLearnerPlan summary)throws IOException {
-        roots=MembershipLearnerCustody.roots(summary);inventory=MembershipLearnerPlacement.placedOriginalInventory(summary);
+        roots=MembershipLearnerPlacement.originalRoots(summary);inventory=MembershipLearnerPlacement.placedOriginalInventory(summary);
         var joined=object(parse(AdmissionPaths.read(MembershipLearnerPlacement.directory(summary).resolve(MembershipLearnerJoinedAdmission.FILE),
                 MembershipLearnerJoinedAdmission.MAXIMUM),MembershipLearnerJoinedAdmission.MAXIMUM));
         var receipt=decode(MembershipBootstrapPlanData.unbase(joined.get("receipt"),16384),"records","LEARNER");
@@ -78,7 +78,21 @@ final class MembershipLearnerJoinedRetirementPlan {
             previous=name;previousBytes=bytes;counts.merge(unit,1,Integer::sum);
             if(unit==MembershipResources.Unit.APPLICATION)images.add(bytes);else metadata=Math.addExact(metadata,bytes);
         }
-        require(counts.keySet().equals(Set.of(MembershipResources.Unit.GENERATION,MembershipResources.Unit.LEARNER,MembershipResources.Unit.MISC,MembershipResources.Unit.APPLICATION))
+        var expected=new HashSet<>(Set.of(MembershipResources.Unit.GENERATION,MembershipResources.Unit.LEARNER,MembershipResources.Unit.MISC,MembershipResources.Unit.APPLICATION));
+        if(roots.containsKey(MembershipLearnerPendingLink.ROOT)) {
+            expected.addAll(Set.of(MembershipResources.Unit.SOURCE,MembershipResources.Unit.JOURNAL));
+            require(Objects.equals(counts.get(MembershipResources.Unit.SOURCE),1) && Objects.equals(counts.get(MembershipResources.Unit.JOURNAL),1),
+                    "joined pending original reservation counts");
+            var pending=inventory.stream().map(MembershipFormat::object).filter(v->MembershipLearnerPendingLink.ROOT.equals(v.get("name"))).findFirst().orElseThrow();
+            long sourceBytes=files(pending).entrySet().stream().filter(e->e.getKey().startsWith("source/") && !e.getKey().endsWith(".image"))
+                    .map(Map.Entry::getValue).map(MembershipFormat::object).filter(v->!Boolean.TRUE.equals(v.get("directory"))).mapToLong(v->number(v.get("size"))).sum();
+            long journalBytes=2L*MembershipLearnerDisposition.PENDING_MAXIMUM+2048+MembershipLearnerDisposition.PENDING_SOURCE_MAXIMUM;
+            for(Object raw:rows){var row=object(raw);
+                if(row.get("unit").equals("SOURCE"))require(number(row.get("bytes"))>=sourceBytes,"joined pending source undercharged");
+                if(row.get("unit").equals("JOURNAL"))require(number(row.get("bytes"))>=journalBytes,"joined pending journal undercharged");
+            }
+        }
+        require(counts.keySet().equals(expected)
                 && counts.get(MembershipResources.Unit.GENERATION)==2 && counts.get(MembershipResources.Unit.LEARNER)==1 && counts.get(MembershipResources.Unit.MISC)==1
                 && images.size()<=MembershipResources.Unit.APPLICATION.count,"joined retirement reservation categories");
         long required=MembershipLearnerCustody.MAXIMUM+2L*MembershipLearnerPlacement.MAXIMUM+MembershipLearnerJoinedAdmission.MAXIMUM

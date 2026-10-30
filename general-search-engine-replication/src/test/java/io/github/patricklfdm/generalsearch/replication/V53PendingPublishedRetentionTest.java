@@ -45,7 +45,7 @@ class V53PendingPublishedRetentionTest {
                 assertEquals(original,V53ReplayFilesTest.files(f.f.directory()));assertEquals(typed,V53ReplayFilesTest.files(f.f.f.local.typed()));
                 assertEquals(replica,V53ReplayFilesTest.files(f.f.f.local.source.request.replicaDirectory()));
                 assertFalse(Files.exists(f.f.f.local.config.materialization().directory()));
-                assertThrows(IllegalArgumentException.class,intent::forced,"voter handoff awaits complete linked custody");
+                intent.forced().check();
                 var files=V53ReplayFilesTest.files(directory);
                 assertThrows(IllegalArgumentException.class,()->MembershipLearnerIntent.resume(f.f.f.head,e->fail("unlinked resume")));
                 assertEquals(files,V53ReplayFilesTest.files(directory));

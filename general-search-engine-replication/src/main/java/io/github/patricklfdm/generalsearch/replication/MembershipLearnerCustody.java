@@ -48,6 +48,11 @@ final class MembershipLearnerCustody implements AutoCloseable {
         result.put("slotTyped",MembershipLearnerSlot.typedDirectory(summary));result.put("intent",MembershipLearnerIntent.directory(summary));
         result.put("voterStage",MembershipLearnerVoterStage.directory(summary));return Collections.unmodifiableMap(result);
     }
+    static Map<String,Path> roots(MembershipLearnerPlan summary,Map<String,Object> pending) {
+        if(pending==null)return roots(summary);
+        var result=new TreeMap<>(roots(summary));result.put(MembershipLearnerPendingLink.ROOT,MembershipLearnerPendingLink.shape(summary,pending));
+        return Collections.unmodifiableMap(result);
+    }
     static List<Object> capture(Map<String,Path> roots,Set<Path> managed)throws IOException {
         var result=new ArrayList<Object>();int count=0;long bytes=0;
         for(var row:roots.entrySet()) {
@@ -94,11 +99,14 @@ final class MembershipLearnerCustody implements AutoCloseable {
     private MembershipLearnerCustody(MembershipLearnerVoterStage.Ready ready,Collected collected,boolean resume,MembershipBallotAllocator.Cut cut,MembershipLearnerPlacement.Recovery recovery)throws IOException {
         this.recovery=recovery;var intent=ready.intent();summary=intent.plan();resources=intent.head().resources();usage=resources.usage();
         resources.requireCompleteStorage(collected.leases);source=intent.source();receipt=intent.head().receipt();
-        roots=roots(summary);originals=recovery==null?capture(roots,collected.roots):recovery.inventory(collected.roots);directory=directory(summary);
+        var pending=intent.pendingLink();roots=roots(summary,pending.orElse(null));
+        originals=recovery==null?capture(roots,collected.roots):recovery.inventory(collected.roots);directory=directory(summary);
+        if(pending.isPresent())MembershipLearnerPendingLink.inventory(summary,pending.orElseThrow(),originals,receipt.digest());
         intent.head().requireDisjoint(directory,MembershipLearnerPlacement.directory(summary));
         binding=AdmissionPaths.binding(directory);
         var fields=new TreeMap<String,Object>();fields.put("schema","gse-v53-learner-custody/1.3");fields.put("plan",summary.planDigest());fields.put("path",binding);
         fields.put("receipt",receipt.digest());fields.put("source",hash(source.packet.bytes()));fields.put("roots",originals);
+        pending.ifPresent(link->fields.put("pendingSource",link));
         // Prove the bound before creating a directory; file keys have the same
         // existing 4096-byte bound as other original ownership records.
         fields.put("directoryKey","x".repeat(4096));canonical(fields,MAXIMUM);

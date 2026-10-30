@@ -43,7 +43,7 @@ Results and original failures are retained in the
 
 Here cold reopen means closing and reconstructing the original owners from disk
 inside one JVM. Independent process death, maximum profiles/resources and original
-physical/history replay remain deferred. Linked custody and placement are not yet
-connected; this path still refuses the voter-install capability. Native joined
-installation, autonomous continuation, all-profile qualification and Phase 3
-closure remain open.
+physical/history replay remain deferred. At this component's original source, linked custody and placement remained
+blocked. The subsequent [linked custody component](PHASE_3_PENDING_JOINED_CUSTODY.md)
+connects those owners through native installation. Autonomous continuation,
+all-profile qualification and Phase 3 closure remain open.

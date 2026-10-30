@@ -85,18 +85,22 @@ final class MembershipLearnerIntent implements AutoCloseable {
     static MembershipLearnerIntent resumePublished(MembershipLearnerHead head,MembershipBallotAllocator.Cut cut)throws IOException {
         var pair=MembershipLearnerDisposition.resumePublished(head,cut);return new MembershipLearnerIntent(pair.intent(),pair.pending());
     }
+    static MembershipLearnerIntent reopenPublishedPlacement(MembershipLearnerHead head,MembershipLearnerPlacement.Recovery recovery)throws IOException {
+        var pair=MembershipLearnerDisposition.reopenPublishedPlacement(head,recovery);return new MembershipLearnerIntent(pair.intent(),pair.pending());
+    }
     final class Forced {
         private Forced() {}
         MembershipCapsule source()throws IOException{return retained.forcedIntent();}
         void check()throws IOException{retained.forcedIntent();}
         void guard()throws IOException{retained.guardIntent();}
+        Optional<Map<String,Object>> pendingLink()throws IOException{return retained.intentPendingLink();}
         MembershipLearnerHead head()throws IOException{return retained.intentHead();}
         MembershipLearnerPlan plan()throws IOException{return retained.intentPlan();}
         byte[] member(String name)throws IOException{return retained.intentMember(name);}
         byte[] ancestry()throws IOException{return retained.intentAncestry();}
         void attach(MembershipLearnerVoterStage stage)throws IOException{retained.attachVoterStage(stage);}
     }
-    Forced forced()throws IOException {retained.requireStandaloneVoterHandoff();retained.forcedIntent();return new Forced();}
+    Forced forced()throws IOException {retained.prepareVoterHandoff();retained.forcedIntent();return new Forced();}
     Map<String,Object> result()throws IOException{return retained.result();}
     @Override public void close()throws IOException{MembershipLearnerSource.closeChildren(retained,recoveredPending);}
 }

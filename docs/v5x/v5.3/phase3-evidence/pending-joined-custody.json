@@ -1,0 +1,434 @@
+{
+  "actualPendingCustody": true,
+  "archive": {
+    "bytes": 10526162,
+    "path": "target/v53-pending-joined-custody/component-validation.tar.gz",
+    "sha256": "f94cce0c564ddc300df4ea0f1342a99406acc03d8bb8cbd123248565a6e0a00c"
+  },
+  "baseCommit": "061057ac588f6221a7e4fd701c94d5bb5778d2fb",
+  "checkpointListenerDrained": true,
+  "codeAndBuildInputsChecked": 1739,
+  "conditionalJoinedInstallation": true,
+  "conditionalNativeCounterAndGrantColdReopen": true,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1503,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "corruptCopiedAndUnlinkedOriginalsRefused": true,
+  "executions": {
+    "pendingjoinednative": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingjoinednative",
+      "requestedTests": [
+        "V53PendingJoinedCustodyTest#linkedOriginalsReachNativeJournalAndColdReopenWithoutLosingChargesOrLocks"
+      ],
+      "seconds": 262.5634557970043,
+      "skipped": 0,
+      "tests": 2
+    },
+    "pendingjoinedoriginals": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "pendingjoinedoriginals",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#minimalOldMajorityPublicationInstallsActualJoiningNativeOwnerAndReopensIt"
+      ],
+      "seconds": 589.7727120500058,
+      "skipped": 0,
+      "tests": 1
+    },
+    "pendingjoinedrecovery": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoinedNativeOwnerTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "pendingjoinedrecovery",
+      "requestedTests": [
+        "V53PendingJoinedCustodyTest#coldPlacementBindsBothOriginalEndsAndRejectsMissingCopiedOrChangedPendingBeforeForce+pendingMutationAtLastReadBoundaryStopsColdCustodyBeforeAnyForce+interruptedPendingRetirementRestoresFullChargesAndNeverRecreatesDeletedPayloads+custodyDrainsActualPendingListenerAndValidatesLinkAgainstItsOriginalInventory",
+        "V53PendingPublishedRetentionTest#publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners",
+        "V53PendingPublishedRecoveryTest#coldPairReforcesExactOriginalsWithoutASecondReceivingSlot",
+        "V53JoinedNativeOwnerTest#actualDescriptorAndChargesReachNativeCounterAndGrantAcrossColdOpen",
+        "V53LearnerJoinedRetirementTest#deletesOnlyDerivedPredecessorsKeepsLocksProofsAndFullChargesAcrossColdOpen"
+      ],
+      "seconds": 980.4118437709985,
+      "skipped": 0,
+      "tests": 10
+    }
+  },
+  "existingNativeTestLifetimeMinutes": 12,
+  "latestCases": {
+    "io.github.patricklfdm.generalsearch.replication.V53JoinedNativeOwnerTest#actualDescriptorAndChargesReachNativeCounterAndGrantAcrossColdOpen": {
+      "failures": [],
+      "name": "actualDescriptorAndChargesReachNativeCounterAndGrantAcrossColdOpen",
+      "seconds": 34.494,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest#deletesOnlyDerivedPredecessorsKeepsLocksProofsAndFullChargesAcrossColdOpen": {
+      "failures": [],
+      "name": "deletesOnlyDerivedPredecessorsKeepsLocksProofsAndFullChargesAcrossColdOpen",
+      "seconds": 32.659,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest#coldPlacementBindsBothOriginalEndsAndRejectsMissingCopiedOrChangedPendingBeforeForce": {
+      "failures": [],
+      "name": "coldPlacementBindsBothOriginalEndsAndRejectsMissingCopiedOrChangedPendingBeforeForce",
+      "seconds": 141.455,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest#custodyDrainsActualPendingListenerAndValidatesLinkAgainstItsOriginalInventory": {
+      "failures": [],
+      "name": "custodyDrainsActualPendingListenerAndValidatesLinkAgainstItsOriginalInventory",
+      "seconds": 121.492,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest#interruptedPendingRetirementRestoresFullChargesAndNeverRecreatesDeletedPayloads": {
+      "failures": [],
+      "name": "interruptedPendingRetirementRestoresFullChargesAndNeverRecreatesDeletedPayloads",
+      "seconds": 122.963,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest#linkedOriginalsReachNativeJournalAndColdReopenWithoutLosingChargesOrLocks(int)[1]": {
+      "failures": [],
+      "name": "linkedOriginalsReachNativeJournalAndColdReopenWithoutLosingChargesOrLocks(int)[1]",
+      "seconds": 129.619,
+      "snapshot": "pendingjoinednative",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest#linkedOriginalsReachNativeJournalAndColdReopenWithoutLosingChargesOrLocks(int)[2]": {
+      "failures": [],
+      "name": "linkedOriginalsReachNativeJournalAndColdReopenWithoutLosingChargesOrLocks(int)[2]",
+      "seconds": 129.462,
+      "snapshot": "pendingjoinednative",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest#pendingMutationAtLastReadBoundaryStopsColdCustodyBeforeAnyForce": {
+      "failures": [],
+      "name": "pendingMutationAtLastReadBoundaryStopsColdCustodyBeforeAnyForce",
+      "seconds": 151.486,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest#coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[1]": {
+      "failures": [],
+      "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[1]",
+      "seconds": 111.338,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest#coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[2]": {
+      "failures": [],
+      "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[2]",
+      "seconds": 109.117,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest#publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[1]": {
+      "failures": [],
+      "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[1]",
+      "seconds": 92.859,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    },
+    "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest#publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[2]": {
+      "failures": [],
+      "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[2]",
+      "seconds": 91.397,
+      "snapshot": "pendingjoinedrecovery",
+      "status": "PASS"
+    }
+  },
+  "lifetimeNotes": "The newly added longer history declares one 20-minute endpoint/round lifetime before starting. Existing tests retain 12 minutes, and production limits and individual RPC timeouts are unchanged.",
+  "linkedColdPlacement": true,
+  "nativeArtifacts": {
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/after-close/node-1/learner-retention.gslr": "28167bf857f751ca0b5f73f49c3cdc290ca5e42c66a78e0cc8dc5d332031d880",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/after-close/node-2/learner-retention.gslr": "f1e435ae53fff9ea136d1843dd8ffc506d1fe1fe0c031f202313c09b64d92537",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/after-close/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-1/node-1/learner-retention.gslr": "19a8e766e3547b3a97e0a05974d28c8cc78b77d7d10872cd4ba03bbba1ac807f",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-1/node-2/learner-retention.gslr": "5af06a0e5128c4027afde5f4207f138bd9369cd5e3234bdce54b1503c4a86d23",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-1/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-2/node-1/learner-retention.gslr": "19a8e766e3547b3a97e0a05974d28c8cc78b77d7d10872cd4ba03bbba1ac807f",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-2/node-2/learner-retention.gslr": "5af06a0e5128c4027afde5f4207f138bd9369cd5e3234bdce54b1503c4a86d23",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-2/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-3/node-1/learner-retention.gslr": "19a8e766e3547b3a97e0a05974d28c8cc78b77d7d10872cd4ba03bbba1ac807f",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-3/node-2/learner-retention.gslr": "5af06a0e5128c4027afde5f4207f138bd9369cd5e3234bdce54b1503c4a86d23",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-3/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-4/node-1/learner-retention.gslr": "df8aaa01966c41dee11634a0758a80d6e851706dace4d188b9279227721a0425",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-4/node-2/learner-retention.gslr": "b980d8b1ec633be6f78b99d6e436dc85b4fe2e030ae8578a4ee0a2ec2f77f911",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-4/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-6/node-1/learner-retention.gslr": "28167bf857f751ca0b5f73f49c3cdc290ca5e42c66a78e0cc8dc5d332031d880",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-6/node-2/learner-retention.gslr": "f1e435ae53fff9ea136d1843dd8ffc506d1fe1fe0c031f202313c09b64d92537",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/applied-6/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/before-network/node-1/learner-retention.gslr": "19a8e766e3547b3a97e0a05974d28c8cc78b77d7d10872cd4ba03bbba1ac807f",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/before-network/node-2/learner-retention.gslr": "5af06a0e5128c4027afde5f4207f138bd9369cd5e3234bdce54b1503c4a86d23",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/before-network/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/failures.json": "6237d4270d40dca181c2d2518ced49e89e9c01fea175259597a0e532430e6374",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/installed/node-1/learner-retention.gslr": "19a8e766e3547b3a97e0a05974d28c8cc78b77d7d10872cd4ba03bbba1ac807f",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/installed/node-2/learner-retention.gslr": "5af06a0e5128c4027afde5f4207f138bd9369cd5e3234bdce54b1503c4a86d23",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/installed/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/joining-ack-wire.json": "06ca31dfaf1a57c6f4863d86dd3b91a0d61d30aa08bd80b6b25f7a76e1e3d01c",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/joining-complete-capsule.gscp": "8570a9abdaf7b7a21f12ed9345cfcaee53b1d27d4d3149da1ee531f66ca573e3",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/joining-force-events.json": "b48bb3d9d2bdc516487a1acbb6345a73a8136ddd175c9824a1c681ac010dbb1d",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/joining-forced-ack.gsr": "a2de8eb2910dfefbd4059b91789e9713165f5ad944b2bbea8f54ba085e20ca5a",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/joining-intent.json": "4b010c2d64093e5565cf4cbba671e8c698c414d97cbf7d1a585b8ccf8c0c7213",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-1/node-1/learner-retention.gslr": "19a8e766e3547b3a97e0a05974d28c8cc78b77d7d10872cd4ba03bbba1ac807f",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-1/node-2/learner-retention.gslr": "5af06a0e5128c4027afde5f4207f138bd9369cd5e3234bdce54b1503c4a86d23",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-1/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-2/node-1/learner-retention.gslr": "19a8e766e3547b3a97e0a05974d28c8cc78b77d7d10872cd4ba03bbba1ac807f",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-2/node-2/learner-retention.gslr": "5af06a0e5128c4027afde5f4207f138bd9369cd5e3234bdce54b1503c4a86d23",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-2/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-3/node-1/learner-retention.gslr": "19a8e766e3547b3a97e0a05974d28c8cc78b77d7d10872cd4ba03bbba1ac807f",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-3/node-2/learner-retention.gslr": "5af06a0e5128c4027afde5f4207f138bd9369cd5e3234bdce54b1503c4a86d23",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-3/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-4/node-1/learner-retention.gslr": "df8aaa01966c41dee11634a0758a80d6e851706dace4d188b9279227721a0425",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-4/node-2/learner-retention.gslr": "b980d8b1ec633be6f78b99d6e436dc85b4fe2e030ae8578a4ee0a2ec2f77f911",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-4/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-6/node-1/learner-retention.gslr": "28167bf857f751ca0b5f73f49c3cdc290ca5e42c66a78e0cc8dc5d332031d880",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-6/node-2/learner-retention.gslr": "f1e435ae53fff9ea136d1843dd8ffc506d1fe1fe0c031f202313c09b64d92537",
+    "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/published-6/node-3/learner-retention.gslr": "33b6d0026bd53499a7e10b00992b1f604f62cb3656c51f8ab00366d505b96707"
+  },
+  "nativeFailures": [
+    {
+      "failure": "java.lang.IllegalArgumentException: learner retention unresolved endpoint capacity",
+      "kind": "CHUNK",
+      "node": "node-1",
+      "request": "060ae2768865d45bc335b4c44c3bd4cf0cfc9be8efef7d30f7373b8231198d66"
+    },
+    {
+      "failure": "java.lang.IllegalArgumentException: transfer trace already ended",
+      "kind": "CHUNK",
+      "node": "node-1",
+      "request": "060ae2768865d45bc335b4c44c3bd4cf0cfc9be8efef7d30f7373b8231198d66"
+    },
+    {
+      "failure": "java.lang.IllegalArgumentException: transfer trace already ended",
+      "kind": "CHUNK",
+      "node": "node-1",
+      "request": "060ae2768865d45bc335b4c44c3bd4cf0cfc9be8efef7d30f7373b8231198d66"
+    }
+  ],
+  "nativeIntegrationGap": {
+    "doNot": "raise endpoint capacity, fake a query/ACK, reset the owner, or count this experiment as a passing native handoff",
+    "failure": "learner retention unresolved endpoint capacity",
+    "originalLedgers": {
+      "node-1": {
+        "file": "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/after-close/node-1/learner-retention.gslr",
+        "hasConfirmation": false,
+        "possibleIndices": [
+          3,
+          5
+        ],
+        "revision": 2,
+        "sha256": "28167bf857f751ca0b5f73f49c3cdc290ca5e42c66a78e0cc8dc5d332031d880"
+      },
+      "node-2": {
+        "file": "general-search-engine-replication/target/v53-native-dispatch/run-9f38cb32-d490-4f78-b0ff-e1c90f9b1717/after-close/node-2/learner-retention.gslr",
+        "hasConfirmation": false,
+        "possibleIndices": [
+          3,
+          5
+        ],
+        "revision": 2,
+        "sha256": "f1e435ae53fff9ea136d1843dd8ffc506d1fe1fe0c031f202313c09b64d92537"
+      }
+    },
+    "requestKind": "CHUNK",
+    "required": "real forced retained-source progress confirmation before the third complete-source offer",
+    "status": "OPEN"
+  },
+  "nativeJoinedIntegration": false,
+  "nativeJointPublication": true,
+  "nativeOldTwoOfThree": true,
+  "nativeResearchPolicy": "The additional failing scenario was never a committed gate. Preserve its exact source, logs, ledgers and JUnit result in this archive and the research Java file. Keep the existing committed native tests unchanged; next batch must add real retained-source progress confirmation and reintroduce this integration case without weakening the two-endpoint guard.",
+  "newNativeTestLifetimeMinutes": 20,
+  "originalPhysicalReplay": false,
+  "originalReservationsUntilNativeReplacement": true,
+  "originalStandaloneRegression": true,
+  "paidCloud": false,
+  "passingTests": 12,
+  "pending": [
+    "native retained-pending progress confirmation before the JOINT source offer",
+    "automatic coordinator/election scheduling and alternate-leader continuation",
+    "joint FINAL and fresh barrier with joined voter",
+    "all-profile original physical/history/process qualification"
+  ],
+  "pendingRetirementRecovery": true,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "productionTimingLimitsChanged": false,
+  "publicFormatsChanged": false,
+  "publicReady": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "qualificationBoundary": "Twelve passing cases: six actual linked custody/recovery cases and six existing-path regressions, using conditional old histories. A separate native bootstrap/old 2/3 history completed the real learner ACK and JOINT publication but failed its third source offer because both old-voter ledgers still held unconfirmed [3,5]. It is retained as a failed research execution, not passing native handoff evidence. No process-death or independent physical/history acceptance is claimed.",
+  "reports": {
+    "pendingjoinednative": {
+      "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "linkedOriginalsReachNativeJournalAndColdReopenWithoutLosingChargesOrLocks(int)[1]",
+            "seconds": 129.619,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "linkedOriginalsReachNativeJournalAndColdReopenWithoutLosingChargesOrLocks(int)[2]",
+            "seconds": 129.462,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "66ad6f17a31048a606cb5b2ae515def9957843775d1e09a1061cff1bb91ff10b"
+      }
+    },
+    "pendingjoinedoriginals": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": {
+        "cases": [
+          {
+            "failures": [
+              "membership exchange I/O failed"
+            ],
+            "name": "minimalOldMajorityPublicationInstallsActualJoiningNativeOwnerAndReopensIt",
+            "seconds": 600.675,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "04739c55c08f2c8565974e4b918d8da0dc9226fe50b95e981b6d2865be049569"
+      }
+    },
+    "pendingjoinedrecovery": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoinedNativeOwnerTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "actualDescriptorAndChargesReachNativeCounterAndGrantAcrossColdOpen",
+            "seconds": 34.494,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "bc5fd8a797cdc5be0850b419d8f46d60eb28675f77df4ef787f94381f58ca518"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerJoinedRetirementTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "deletesOnlyDerivedPredecessorsKeepsLocksProofsAndFullChargesAcrossColdOpen",
+            "seconds": 32.659,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "d308add2eb5dffc023e6d8055465ab8acb699fd4dbbbff8930fd2cc3107e1c87"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingJoinedCustodyTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "custodyDrainsActualPendingListenerAndValidatesLinkAgainstItsOriginalInventory",
+            "seconds": 121.492,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "interruptedPendingRetirementRestoresFullChargesAndNeverRecreatesDeletedPayloads",
+            "seconds": 122.963,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "pendingMutationAtLastReadBoundaryStopsColdCustodyBeforeAnyForce",
+            "seconds": 151.486,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "coldPlacementBindsBothOriginalEndsAndRejectsMissingCopiedOrChangedPendingBeforeForce",
+            "seconds": 141.455,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "405979b28844b272ccca150f71372db966f9bb320ac630d16d814b678b5f5a99"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRecoveryTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[1]",
+            "seconds": 111.338,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "coldPairReforcesExactOriginalsWithoutASecondReceivingSlot(int)[2]",
+            "seconds": 109.117,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "078a563cb7969e4d21a5e614c6d8130515b192dbe07776decad114113dabf134"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublishedRetentionTest": {
+        "cases": [
+          {
+            "failures": [],
+            "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[1]",
+            "seconds": 92.859,
+            "status": "PASS"
+          },
+          {
+            "failures": [],
+            "name": "publishedHistoryForcesWithExactPendingLinkAndRetainsBothOwners(int)[2]",
+            "seconds": 91.397,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "647bb0ec852216b7ed9b849c791d965017dcbad036413ab818cd0ab3cf7672c6"
+      }
+    }
+  },
+  "sameJvmReopen": true,
+  "schema": "gse-v53-pending-joined-custody-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCustody.java": "cecc49cf1924706ae29b0df438105a3da46b5dcc984c1b24513b16107bc17c20",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "0a701776f25d28f2a9075966ae7736f24330d6ed16335fd282e4f2d91c021dc7",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerIntent.java": "cf29564fa5c86c436393e7a7484ee56fc0a7e4f8a390defdf8c3286d11522e2d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerJoinedRetirementPlan.java": "740d056ad2babebfd713640189f320d8672f4ed447e22235647fd3b2dc9b18c4",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPendingLink.java": "aeb74c440b8006fb844d5f52131fd7fbbc11d24ca34cfe73ba4c0ec780656f43",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPlacement.java": "06885955897929effc2bc20b13752675a9a08982172ed32d19e17b7becbc9902",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerStore.java": "d030fb14a95c65c190c72ef5aa71f7799cc82a5e2360ee852cef3485aea46aba",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingJoinedCustodyTest.java": "dbef3c4b8a2c4510a29b021440512d906824db6c546f5a67f17cad0da9b37da9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedRecoveryTest.java": "2029d9b1381cfb171bd8f5be3989d456c91adfbea349699ce91dd750fb1ef298",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingPublishedRetentionTest.java": "8e22180973094430ddab9240a15467e64df0c49fd0474282041c544aa3954fe3"
+  },
+  "sourceSnapshot": "pendingjoinedrecovery",
+  "sourceSnapshotDifferences": {
+    "pendingjoinednative": [
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PendingJoinedCustodyTest.java"
+    ],
+    "pendingjoinedoriginals": [
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java"
+    ],
+    "pendingjoinedrecovery": []
+  },
+  "status": "PASS_PENDING_JOINED_CUSTODY_COMPONENT"
+}

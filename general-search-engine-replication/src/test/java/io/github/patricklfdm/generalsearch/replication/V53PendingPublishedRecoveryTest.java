@@ -45,7 +45,7 @@ class V53PendingPublishedRecoveryTest {
                 assertTrue(events.indexOf("LEARNER_JOINING_RETAIN_PARENT_REFORCED")<events.indexOf("LEARNER_INTENT_ACTIVE_PLAN_FORCED"));
                 assertEquals("LEARNER_INTENT_BEFORE_RETURN",events.getLast());
                 assertEquals(pending,V53ReplayFilesTest.files(f.f.directory()));assertEquals(full,V53ReplayFilesTest.files(intent(f)));
-                assertThrows(IllegalArgumentException.class,restored::forced,"linked custody still required");
+                restored.forced().check();
                 assertThrows(IllegalArgumentException.class,()->resume(f,e->fail("duplicate recovery")));
                 assertFalse(Files.exists(MembershipLearnerVoterStage.directory(f.f.f.local.summary)));
             }

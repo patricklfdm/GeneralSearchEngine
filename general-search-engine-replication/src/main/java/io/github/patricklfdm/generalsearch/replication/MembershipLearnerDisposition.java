@@ -203,7 +203,14 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     }
     record RecoveredPair(MembershipLearnerDisposition pending,MembershipLearnerDisposition intent) {}
     static RecoveredPair resumePublished(MembershipLearnerHead head,MembershipBallotAllocator.Cut cut)throws IOException {
-        var store=store(head);store.requirePublishedRecovery();Objects.requireNonNull(cut);
+        return resumePublished(head,cut,null);
+    }
+    static RecoveredPair reopenPublishedPlacement(MembershipLearnerHead head,MembershipLearnerPlacement.Recovery recovery)throws IOException {
+        Objects.requireNonNull(recovery).check();return resumePublished(head,e->{},recovery);
+    }
+    private static RecoveredPair resumePublished(MembershipLearnerHead head,MembershipBallotAllocator.Cut cut,
+            MembershipLearnerPlacement.Recovery recovery)throws IOException {
+        var store=store(head);store.requirePublishedRecovery(recovery);Objects.requireNonNull(cut);
         var pair=new MembershipLearnerDisposition[2];MembershipBallotAllocator.Cut guarded=event->{
             pair[0].check();pair[1].check();cut.at(event);pair[0].check();pair[1].check();
         };
@@ -215,8 +222,18 @@ final class MembershipLearnerDisposition implements AutoCloseable {
             intent.reserve();intent.validate();parent.validate();parent.pendingLink();
             // Both original histories, their link and all capacity reservations
             // are accepted before any re-force or rename on either side.
-            store.attachRecoveredPublished(parent,intent);
-            parent.finish();parent.reforcePendingSource();intent.finish();
+            store.attachRecoveredPublished(parent,intent,recovery);
+            if(recovery==null) {parent.finish();parent.reforcePendingSource();intent.finish();}
+            else {
+                // The original forced custody/placement already binds both
+                // complete ends. Reconstruct them read-only inside that guarded
+                // recovery scope; the outer custody transfer re-forces before
+                // any owner can escape it or resume relocation.
+                require(intent.metadata.keySet().equals(Set.of(intent.planName)) && intent.location().equals(intent.destination),
+                        "linked placement incomplete original INTENT");
+                recovery.requirePending(parent.pendingLink());recovery.check();
+                parent.complete=true;parent.pendingSourceRetained=true;intent.complete=true;
+            }
             parent.check();intent.check();intent.requirePendingReady();return new RecoveredPair(parent,intent);
         }catch(IOException|RuntimeException|Error error) {
             for(var member:pair)if(member!=null){member.failed=true;try{member.close();}catch(Exception cleanup){error.addSuppressed(cleanup);}}
@@ -518,8 +535,16 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     MembershipCapsule forcedIntent()throws IOException {
         require(kind==Kind.INTENT && complete,"learner INTENT not forced");validate();return verified;
     }
-    void requireStandaloneVoterHandoff()throws IOException {
-        guardIntent();require(pendingParent==null,"linked pending/INTENT needs complete pair recovery and custody before voter handoff");
+    void prepareVoterHandoff()throws IOException {
+        guardIntent();if(pendingParent!=null)pendingParent.drainCheckpoint();guardIntent();
+    }
+    private void drainCheckpoint()throws IOException {
+        MembershipLearnerCheckpointEndpoint endpoint;
+        synchronized(this){check();endpoint=checkpointEndpoint;}
+        if(endpoint!=null)endpoint.close();check();
+    }
+    Optional<Map<String,Object>> intentPendingLink()throws IOException {
+        guardIntent();return pendingParent==null?Optional.empty():Optional.of(pendingParent.pendingLink());
     }
     void requireLinkedParent(MembershipLearnerDisposition parent)throws IOException {
         require(kind==Kind.INTENT && pendingParent!=null && pendingParent==parent,"linked INTENT foreign pending owner");check();
@@ -545,7 +570,13 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     void collectCustody(MembershipLearnerCustody.Collected result)throws IOException {
         guardIntent();result.roots.add(directory);result.leases.addAll(leases);
         for(var value:retained.values())value.collectCustody(result);
+        if(pendingParent!=null)pendingParent.collectPendingCustody(result);
         require(voterStage!=null && !voterStage.closed(),"learner custody needs live staged voter");voterStage.collectCustody(result);
+    }
+    private void collectPendingCustody(MembershipLearnerCustody.Collected result)throws IOException {
+        check();require(kind==Kind.PENDING_INTENT && complete && pendingSourceRetained && (checkpointEndpoint==null || checkpointEndpoint.closed()),
+                "pending custody requires forced quiescent original end");pendingLink();result.roots.add(directory);result.leases.addAll(leases);
+        for(var value:retained.values())value.collectCustody(result);
     }
     boolean closed(){return closed;}
     @Override public void close()throws IOException {

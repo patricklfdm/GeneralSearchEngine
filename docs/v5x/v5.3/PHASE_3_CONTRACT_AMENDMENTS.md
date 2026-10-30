@@ -1,5 +1,41 @@
 # V5.3 Phase 3 contract amendments
 
+## A53 — complete pending-linked custody, placement and retirement
+
+The [linked joining path](PHASE_3_PENDING_JOINED_CUSTODY.md) may issue staged
+voter input after draining the actual pending checkpoint listener. Collect both
+original histories' real descriptors and reservations into custody. Add the
+exact A51 pending link and one fixed original pending root only to linked
+private custody decisions; independent INTENT decisions retain their shape.
+Bind the link against the captured original inventory, not directory presence.
+Force complete custody before transferring ownership. SOURCE, JOURNAL, LEARNER,
+two GENERATION slots and all actual image charges retain their existing bounds.
+
+Only a private original placement recovery scope may reconstruct the linked
+pair without independently re-forcing it first. Validate both complete ends,
+typed history, staged voter and original inventory read-only; then re-force the
+same custody before relocation or ownership escapes. The ordinary A52 entry
+still rejects placement. Missing/copied/changed originals or last-boundary
+mutation refuse before recovery writes.
+
+Derive pending deletion from original custody under the existing retirement
+decision. Preserve complete original accounting, including SOURCE/JOURNAL,
+through partial deletion and cold recovery until the native handoff. Original
+link validation after retirement uses retained inventory identities; it must
+not recreate or resample deleted payloads. The predecessor lock descriptors
+remain owned through native replacement and cold reopen.
+
+This supersedes A51/A52's temporary linked voter-handoff block. It does not
+establish native minimum-quorum publication/continuation, process death,
+all-profile qualification or Phase 3 closure. Public formats and frozen
+resource/time allowances remain unchanged.
+
+The additional native integration attempt reached JOINT but refused a third
+source offer while the old ledgers still held unconfirmed `[3,5]`. Retain that
+failure. A real pending-source progress confirmation is still required before
+the full path can be qualified; do not raise the two-endpoint bound or treat
+the conditional custody cases as native end-to-end acceptance.
+
 ## A52 — original-first pending/full-INTENT pair recovery
 
 An explicit pair recovery entry may reopen A51's linked private plans under the
