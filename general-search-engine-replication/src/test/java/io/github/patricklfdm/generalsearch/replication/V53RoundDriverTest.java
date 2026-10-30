@@ -186,6 +186,18 @@ class V53RoundDriverTest {
             }
         }
     }
+    @Test void roundUsesOuterStartWithoutWritingOnExpiry()throws Exception {
+        try(var n=network(null)) {
+            var before=V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory());var usage=n.resources.getFirst().usage();
+            for(long began:List.of(0L,V53NativeDispatchTest.BUDGET+1))try(var round=new MembershipRoundDriver<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,
+                    n.transports.getFirst(),temp.resolve("expired-round-"+UUID.randomUUID()),()->V53NativeDispatchTest.BUDGET,V53NativeDispatchTest.BUDGET,2,
+                    builder().configuration(),n.f.request.targets().getFirst().materialization(),MembershipRoundDriver.Events.NONE,(event,record,voters)->{})) {
+                assertThrows(IllegalArgumentException.class,()->round.start(began));assertEquals(MembershipRoundDriver.State.FAILED,round.state());
+                assertEquals(before,V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory()));
+            }
+            assertEquals(usage,n.resources.getFirst().usage());
+        }
+    }
     @Test void closeDuringActivationPreventsALatePrepareWrite()throws Exception {
         try(var n=network(null);var round=driver(n,MembershipRoundDriver.Events.NONE)) {
             var entered=new CountDownLatch(1);var release=new CountDownLatch(1);var returned=new CountDownLatch(1);var first=new AtomicBoolean(true);

@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Joint continuation coordination](PHASE_3_JOINT_COORDINATION.md) now owns old-side
+preparation, bounded completion waiting, cleanup and fresh normal activation
+under one original deadline. Only explicit initial absence is polled; errors
+stop the owner. Native whole-history execution, early-start joining rendezvous,
+election scheduling and removed-proposer handoff remain open. Phase 3 is **OPEN**;
+older entries below retain their historical source-bound scope.
+
 [Joining completion observation](PHASE_3_JOINING_COMPLETION.md) now lets the
 old preparation probe the actual new identity before giving way to fresh
 activation. Only the completed native owner can serve the positive observation;

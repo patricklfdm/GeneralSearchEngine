@@ -1,0 +1,111 @@
+{
+  "archive": {
+    "bytes": 19548961,
+    "path": "target/v53-joint-coordination/component-validation.tar.gz",
+    "sha256": "cc583dba728fa1a28242704dcf31d94593db327e3224d48467a45e59aad4520d"
+  },
+  "archiveMembers": 9651,
+  "baseCommit": "c0dc23206218f27dea5052078888133068c05f69",
+  "clientSchedulingProbesSynthetic": true,
+  "componentStatus": "PASS",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1594,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "deferred": [
+    "original-default-bounds-stable-native-round-and-independent-replay",
+    "actualJoiningVoterAcquiresRetentionOverTcpThenCompletesFinalAndBarrier",
+    "early-start-initialization-rendezvous",
+    "alternative-old-majorities-and-all-profiles",
+    "original-process-death-recovery",
+    "maximum-combined-resources",
+    "automatic-election-adoption-scheduling",
+    "removed-proposer-takeover",
+    "complete-learner-runtime-orchestration"
+  ],
+  "executions": {
+    "jointcoordination": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompletionWaitTest": 7,
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningCompletionTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JointContinuationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 2
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "jointcoordination",
+      "requestedTests": [
+        "V53CompletionWaitTest",
+        "V53JointContinuationTest",
+        "V53InitializationTaskTest",
+        "V53JoiningCompletionTest",
+        "V53RoundDriverTest#roundUsesOuterStartWithoutWritingOnExpiry+activationFreshBarrierAndSequentialDataHaveOneGuardedOwner"
+      ],
+      "seconds": 152.83377575899067,
+      "skipped": 0,
+      "tests": 23
+    },
+    "jointcoordinationfinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompletionWaitTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53InitializationTaskTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningCompletionTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionCampaignTest": 8,
+        "io.github.patricklfdm.generalsearch.replication.V53JointContinuationTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "jointcoordinationfinal",
+      "requestedTests": [
+        "V53CompletionWaitTest",
+        "V53JointContinuationTest",
+        "V53InitializationTaskTest",
+        "V53JoiningCompletionTest",
+        "V53JoiningRetentionCampaignTest",
+        "V53RoundDriverTest#roundUsesOuterStartWithoutWritingOnExpiry+activationUsesOuterStartInsteadOfGrantingANewDeadline"
+      ],
+      "seconds": 45.7068788530014,
+      "skipped": 0,
+      "tests": 33
+    }
+  },
+  "finalCodeAndBuildInputsChecked": 1321,
+  "nativeJointHistoryExecuted": false,
+  "nativeStableRoundPassed": false,
+  "paidCloud": false,
+  "phase3Closed": false,
+  "publicRuntime": false,
+  "retainedFailures": {
+    "jointcoordination": {
+      "case": "V53RoundDriverTest.activationFreshBarrierAndSequentialDataHaveOneGuardedOwner",
+      "failed": 1,
+      "finalRunIncludesFailedNativeCase": false,
+      "original": "results/jointcoordination/v53-native-dispatch/run-b23c8930-a89c-40b2-80a6-00ba05058d85",
+      "passed": 22,
+      "phase": "second DATA PUBLISH node-1 to node-2",
+      "reason": "membership exchange deadline",
+      "rootCauseEstablished": false,
+      "tests": 23
+    }
+  },
+  "schema": "gse-v53-joint-coordination-component-v1",
+  "scope": "original-deadline-old-preparation-completion-wait-and-round-handoff",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipCompletionWait.java": "ab35557159bb196b7e6c1d85a0364f848e750af7ff2b3a6b572abd3069ed1050",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJointContinuation.java": "c4d551cb9763c40e75f252884940a09e3bb879d6e5c7bdfb0f27ed1bdad79c6e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java": "ec6d6b0f9138df689c36d4207fcf2e7e507436f61b3a570b2115ea339979deac",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53CompletionWaitTest.java": "a78d8a7304601eea9f1156cf7505b5de319b52d3d1b4bb57175b828c623eff13",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "0ad1bf148ee12da6a317993672a0b38610b53946c706a52480f1c7dd5a618b85",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointContinuationTest.java": "1f29e35f7e07157c0be68666b7bda0322a247830bf9146a2d57af85bb0d7f8c7",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundDriverTest.java": "0b71ccda1aa66b410afcafccf6bc77f2e9a3887ffcfd15f5d6bcbede81d265df"
+  },
+  "status": "PARTIAL"
+}

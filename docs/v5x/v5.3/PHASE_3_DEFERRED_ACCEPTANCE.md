@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joint continuation coordination](PHASE_3_JOINT_COORDINATION.md) now owns old-side
+preparation, bounded completion waiting, cleanup and fresh normal activation
+under one original deadline. Only explicit initial absence is polled; errors
+stop the owner. Native whole-history execution, early-start joining rendezvous,
+election scheduling and removed-proposer handoff remain open. Phase 3 is **OPEN**;
+older entries below retain their historical source-bound scope.
+
 [Joining completion observation](PHASE_3_JOINING_COMPLETION.md) now lets the
 old preparation probe the actual new identity before giving way to fresh
 activation. Only the completed native owner can serve the positive observation;
@@ -417,8 +424,12 @@ The actual joining directory must acquire its old-majority fragments through TCP
 force the original three-ledger initialization, and make the original old
 proposer's completion probe move from correlated NOT_READY to a successful native
 observation over TCP. The observation must not itself grant or allocate a ballot.
-Then participate with the surviving old majority through FINAL, activate the
-stable view, publish a fresh BARRIER and
+After the retaining cold reopen, the existing native history now invokes
+`MembershipJointContinuation`: a fresh old preparation, positive completion
+probe, drained preparation, then normal activation with its original start.
+This invocation observes an already initialized member; it does not yet prove
+concurrent initial rendezvous. Then participate with the surviving old majority
+through FINAL, activate the stable view, publish a fresh BARRIER and
 cold-reopen. Retain its original wire/files and replay them independently before
 negative mutations. This entry is compiled, not locally executed in the network
 acquisition increment. Alternative old majorities, acquisition cancellation and

@@ -476,9 +476,7 @@ class V53JoiningIntentExportTest {
                 link.set(transport);if(joiningService){assertEquals(MembershipEndpointHandoff.State.ACTIVE,joined.state());assertNotNull(joined.votingEndpoint());}
                 assertTrue(n.transports.get(2).usage().closed());probeOldLocks(n);
                 new V53MembershipOwnershipTest().probe(config.replicaDirectory().resolve("replica.lock"));
-                try(var continuation=new MembershipRoundDriver<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,
-                        n.transports.getFirst(),temp.resolve("joining-native-round"),System::nanoTime,budget,2,
-                        builder().configuration(),n.f.request.targets().getFirst().materialization(),(event,record)->{
+                MembershipRoundDriver.Events roundEvents=(event,record)->{
                     events.add(Map.of("event",event,"bytes",Base64.getEncoder().encodeToString(record.bytes()),"sha256",record.digest()));
                     if(event.equals("INSTALLED")) {
                         assertEquals(Set.of("node-1","node-2","node-4"),list(record.value().get("sources")).stream()
@@ -494,11 +492,19 @@ class V53JoiningIntentExportTest {
                                 AdmissionPaths.read(config.replicaDirectory().resolve("grants.gsr"),MembershipGrantJournal.MAXIMUM));
                         System.out.println("v53JoiningContinuation=installed cut="+object(record.value().get("cut")).get("index"));
                     }
-                },(event,record,voters)->{
+                };
+                MembershipSlotDriver.Events slotEvents=(event,record,voters)->{
                     if(event.equals("PUBLISHED"))System.out.println("v53JoiningContinuation=published index="+record.value().get("index"));
-                })) {
-                    var barrier=continuation.start();assertEquals(MembershipRoundDriver.State.READY,continuation.state());
-                    assertArrayEquals(barrier.bytes(),continuation.readiness().bytes());
+                };
+                try(var coordinated=joiningService?new MembershipJointContinuation<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,
+                        n.transports.getFirst(),temp.resolve("joining-coordinated-round"),System::nanoTime,budget,2,
+                        builder().configuration(),n.f.request.targets().getFirst().materialization(),roundEvents,slotEvents):null;
+                    var continuation=joiningService?null:new MembershipRoundDriver<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,
+                        n.transports.getFirst(),temp.resolve("joining-native-round"),System::nanoTime,budget,2,
+                        builder().configuration(),n.f.request.targets().getFirst().materialization(),roundEvents,slotEvents)) {
+                    var barrier=joiningService?coordinated.start():continuation.start();
+                    if(joiningService){assertEquals(MembershipJointContinuation.State.READY,coordinated.state());assertArrayEquals(barrier.bytes(),coordinated.readiness().bytes());}
+                    else {assertEquals(MembershipRoundDriver.State.READY,continuation.state());assertArrayEquals(barrier.bytes(),continuation.readiness().bytes());}
                     var context=n.owners.getFirst().activationContext();assertEquals(8L,number(context.cut.get("index")));
                     assertNull(context.view.get("operation"));assertEquals(context.view.get("old"),context.view.get("new"));
                     assertEquals(Set.of("node-1","node-2","node-3","node-4"),context.voters());
@@ -508,7 +514,7 @@ class V53JoiningIntentExportTest {
                     owner.peerRetentionState();owner.learnerRetentionState();owner.futureRetentionState();
                     result.put("status","CONTINUED");result.put("cut",context.cut);result.put("catalog",n.owners.getFirst().activationCapsule().terminal().catalog());
                     result.put("barrier",Base64.getEncoder().encodeToString(barrier.bytes()));result.put("actualNewVoter","node-4");
-                    result.put("offlineOldVoter","node-3");result.put("automaticFinalAndBarrier",true);
+                    result.put("offlineOldVoter","node-3");result.put("automaticFinalAndBarrier",true);result.put("coordinatedPreparationAndCompletion",joiningService);
                     probeOldLocks(n);new V53MembershipOwnershipTest().probe(config.replicaDirectory().resolve("replica.lock"));
                 }
             }

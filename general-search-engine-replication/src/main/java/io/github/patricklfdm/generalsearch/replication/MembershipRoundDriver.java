@@ -62,9 +62,10 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         ownership=resources.reserve(MembershipResources.Unit.CONTROL,"native-round-owner",4L*65536);
     }
     synchronized State state(){return state;}
-    private synchronized void enter(State required) {
+    private void enter(State required){enter(required,null);}
+    private synchronized void enter(State required,Long originalStarted) {
         require(!closed && state==required && runner==null,"native round state/busy");
-        if(required==State.NEW){started=clock.getAsLong();state=State.ACTIVATING;}
+        if(required==State.NEW){started=originalStarted==null?clock.getAsLong():originalStarted;state=State.ACTIVATING;}
         runner=Thread.currentThread();
     }
     private synchronized void leave(){runner=null;notifyAll();}
@@ -188,7 +189,11 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         }
     }
     Decoded start()throws IOException {
-        enter(State.NEW);
+        return start(clock.getAsLong());
+    }
+    /** Preserve the enclosing preparation/wait lifetime across fresh activation. */
+    Decoded start(long originalStarted)throws IOException {
+        enter(State.NEW,originalStarted);
         try {
             activate();return recoverAndReady();
         }catch(IOException|RuntimeException|Error error){fail(error);throw error;}

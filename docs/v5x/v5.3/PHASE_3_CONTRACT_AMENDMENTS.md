@@ -1,5 +1,25 @@
 # V5.3 Phase 3 contract amendments
 
+## A67 — coordinate one original JOINT continuation lifetime
+
+An actual old voter at a JOINT cut may derive the unique new identity from the
+existing catalog, prepare the old majority and keep its original publication
+alive while probing completion. Poll only correlated initial `NOT_READY`; every
+other failure retains the existing failure/retry semantics. Close and drain the
+preparation before a fresh ordinary activation. The fresh round inherits the
+same original local start/budget; cleanup, polling and authority handoffs cannot
+renew it. REMOVE has no new identity and proceeds to normal activation directly.
+
+The coordinator is an internal single-owner entry, not an election scheduler,
+new vote authority or public runtime. Reserve 4096 bytes of existing CONTROL
+capacity for its ownership; retain each child's existing accounting and cleanup
+rules. Failures revoke readiness. Removed proposers remain subject to ordinary
+new-view eligibility checks and cannot acquire service through this helper.
+No frozen format, production bound or measurement parameter changes.
+
+See [joint continuation coordination](PHASE_3_JOINT_COORDINATION.md). Complete
+native/process and source-bound independent replay gates remain open.
+
 ## A66 — observe joining completion before ending preparation
 
 The old proposer may probe the actual new identity at the exact JOINT cut while
