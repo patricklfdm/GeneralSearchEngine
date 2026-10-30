@@ -3083,6 +3083,20 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(current!=null,"current generation required");checkOwner();
         var reply=MembershipDiscovery.answer(current.capsule.context,identity,sender,request);checkOwner();return reply;
     }
+    /** Fence authenticated current-view liveness before waiting for the writer.
+     * No promise, basis, selected record, cut or persisted timer is written. */
+    void observeHeartbeat(MembershipIdentity sender,Decoded request) {
+        live();var generation=current;require(generation!=null,"current generation required");
+        var context=MembershipHeartbeat.incoming(generation.capsule.context,identity,sender,request);
+        observe(context,object(request.value().get("ballot")));
+    }
+    synchronized Decoded heartbeat(MembershipIdentity sender,Decoded request)throws IOException {
+        require(current!=null,"current generation required");checkOwner();
+        var context=MembershipHeartbeat.incoming(current.capsule.context,identity,sender,request);
+        var ballot=object(request.value().get("ballot"));fence(ballot);
+        var reply=MembershipHeartbeat.answer(context,identity,sender,request);
+        checkOwner();fence(ballot);return reply;
+    }
     synchronized MembershipCapsule activationCapsule() throws IOException {
         require(current!=null,"current generation required");checkOwner();return current.capsule;
     }

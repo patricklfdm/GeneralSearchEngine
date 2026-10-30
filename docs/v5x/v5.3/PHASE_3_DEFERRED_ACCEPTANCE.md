@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Current-view heartbeat admission](PHASE_3_HEARTBEAT.md) supplies the inbound
+liveness/fencing component. Native 3/4/5-node TCP originals and independent replay
+pass without authority writes or readiness. Outgoing scheduling, automatic
+campaign ownership and their complete crash/partition histories remain queued;
+this component does not close Phase 3.
+
 [Discovered service replay](PHASE_3_DISCOVERED_SERVICE.md) independently accepts
 one unchanged native 5-to-4 service history through cut 9, including all original
 wire exchanges, complete future recording and publication. Its 32 new negatives

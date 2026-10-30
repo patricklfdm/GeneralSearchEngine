@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Current-view heartbeat admission](PHASE_3_HEARTBEAT.md) now fences authenticated
+higher ballots before the writer wait and returns only the receiver's original
+cut, without granting votes or readiness. Native 3/4/5-node TCP and independent
+replay cover 38 exchanges and 27 evidence mutations. Outgoing scheduling and
+automatic campaign ownership remain required; Phase 3 is **OPEN**.
+
 [Discovered service replay](PHASE_3_DISCOVERED_SERVICE.md) completes independent
 replay of one retained 5-to-4 history through BARRIER 8 and DATA 9: 56 physical
 snapshots, all 635 wire responses, both recording majorities per slot and exact

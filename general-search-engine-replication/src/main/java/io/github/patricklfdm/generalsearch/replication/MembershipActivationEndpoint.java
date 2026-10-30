@@ -366,6 +366,14 @@ final class MembershipActivationEndpoint implements MembershipTransport.Handler,
     }
     @Override public Decoded handle(MembershipIdentity sender,Decoded request)throws IOException {
         long received=clock.getAsLong();require(!closed,"activation endpoint closed");String kind=request.kind();Scope active;
+        if(kind.equals("HEARTBEAT")) {
+            // An authentic higher ballot fences immediately, even if a force
+            // owns the writer monitor. A heartbeat never opens/revives a grant
+            // scope or extends that scope's original deadline.
+            owner.observeHeartbeat(sender,request);scratchOwner.check();
+            var reply=owner.heartbeat(sender,request);long elapsed=clock.getAsLong()-received;
+            require(!closed && elapsed>=0 && elapsed<budget,"heartbeat endpoint closed/original deadline");return reply;
+        }
         boolean nativeSlot=slots!=null && (Set.of("ACCEPT","PROOF","APPLY").contains(kind)
                 || (kind.equals("PUBLISH") && owner.currentCertificate().isPresent()));
         if(kind.equals("PUBLISH") && !nativeSlot) {
