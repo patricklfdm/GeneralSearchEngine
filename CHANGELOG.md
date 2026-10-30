@@ -5,14 +5,7 @@ Semantic Versioning once the first stable artifact is published.
 
 ## 5.2.0 — 2026-10-29
 
-Release candidate; not yet published. Final-source full CI and operator release
-approval remain required. The date is the candidate preparation date.
-
-- Add snapshot release preparation: accepted cloud-source binding, nine JAR/three
-  POM integrity, published 5.1 API/binary and default-read compatibility, packaged
-  token fixtures and independent consumer coverage. Retain receipts for 90 days;
-  freeze final 5.2.0 coordinates and canonical unsigned artifacts in Phase 7B.
-  Publication remains pending.
+### Added
 
 - Add explicit replica-read API declarations, fixed 112-byte history-bound tokens
   and an additive default method that rejects unsupported reads without invoking
@@ -25,10 +18,29 @@ approval remain required. The date is the candidate preparation date.
   units, 33 histories and 439 formal negative cases independently replayed. The
   [registered evidence](docs/v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md) retains both
   measured sources/sequences and the operator-authorized one-run retention waiver.
-  Final release-candidate validation and publication remain pending.
 - Add independent bounded read-model/token/evidence checks, a seventh external
   consumer and a required no-GCP foundation suite. Published V5.1 formats and
   historical release identities remain unchanged.
+
+### Compatibility
+
+Ordinary reads remain strong and leader-based. Explicit replica reads are opt-in
+on automatic handles; existing implementations inherit an unsupported-capability
+default. Tokens do not authenticate commits or retain old snapshots. There is no
+new paging, dynamic membership or mixed-version rolling-upgrade guarantee.
+See the [migration guide](docs/v5x/v5.2/MIGRATION_GUIDE.md).
+
+### Publication
+
+Signed tag `v5.2.0` points to `0743490458c07ef87423b8cd4d4dcf8565dbac93`
+(PR #366, exact-master full CI `40999633695`, attempt 2, all 62 jobs passed).
+[Release workflow `41010395652`](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/41010395652)
+passed all three jobs; Central deployment `112b8e7f-5903-4ede-80a5-d28bd8bee653`
+and the [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.2.0)
+completed successfully. Independent verification passes all twelve POM/JAR
+signatures/checksums, all twelve canonical hashes and seven fresh V1–V5.2
+consumers (26 tests). Publication time is `2026-10-30T06:39:07Z`, October 29
+in America/Los_Angeles. See the [release record](docs/v5x/v5.2/RELEASE_CHECKLIST.md).
 
 ## 5.1.0 — 2026-10-13
 

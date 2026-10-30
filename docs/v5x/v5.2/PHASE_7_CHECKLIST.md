@@ -1,9 +1,10 @@
 # V5.2 Phase 7 release preparation plan
 
-**Status:** Phase 7A merged through PR #365 at `abc8bc1b`; exact-master full
-CI `40968660073` passed all 62 jobs. Phase 7B prepares final `5.2.0` coordinates,
-canonical artifacts and release gates. Candidate-source protected CI, operator
-approval and publication remain pending; see [release checklist](RELEASE_CHECKLIST.md).
+**Status:** Phases 7 and 8 complete. Phase 7B merged through PR #366 at
+`0743490458c07ef87423b8cd4d4dcf8565dbac93`; exact-master full CI `40999633695`
+attempt 2 passed all 62 jobs. Signed tag `v5.2.0` and Release `41010395652/1`
+published that source. Independent Central signatures/checksums, twelve canonical
+hashes and seven consumers pass; see the [release record](RELEASE_CHECKLIST.md).
 
 ## Entry and preserved evidence
 
@@ -58,16 +59,24 @@ experiments merely to update release documentation.
 - [x] Require final `validate-evidence --source` correlation, byte checks before
   and after signing/deployment, all seven fresh remote consumers and at least
   90-day retention for release/canonical evidence.
-- [ ] Obtain and record protected full candidate validation on the exact final
+- [x] Obtain and record protected full candidate validation on the exact final
   source. Cloud Build and the earlier cloud-support CI skips do not satisfy this.
-- [ ] Review final notes/version availability and operator acceptance before a tag.
+- [x] Review final notes/version availability and operator acceptance before a tag.
 
 ## Phase 8 boundary and rollback
 
 Only after 7B acceptance may the operator create/verify/push signed `v5.2.0`,
 approve publication and independently reconcile Central/GitHub output, signatures,
 checksums, frozen bytes and fresh consumers. Do not move published tags or
-overwrite Central coordinates. Publication is not authorized by this plan.
+overwrite Central coordinates. Publication was separately authorized and executed
+by the operator; this plan alone did not grant that authorization.
+
+- [x] Signed tag verified against the repository's pinned signing key and exact
+  final source; all three Release jobs passed.
+- [x] All twelve remote POM/JAR signatures, SHA-1 files and frozen SHA-256 hashes
+  independently verified after publication.
+- [x] Seven fresh remote consumers passed 26 tests; current stable and migration
+  documentation updated for `5.2.0`.
 
 Before publication, failed preparation can be corrected in its own branch while
 leaving the original cloud baseline and published 5.1.0 intact. If candidate code

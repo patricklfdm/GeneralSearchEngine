@@ -1,32 +1,31 @@
 # GeneralSearchEngine development roadmap
 
-## Current milestone: V5.1 published; V5.2 complete cloud set accepted
+## Current milestone: V5.2 published and independently verified
 
-**Latest milestone:** V5.1 [Phases 7 and 8](docs/v5x/v5.1/RELEASE_CHECKLIST.md)
-are complete. PR #322 and exact-master CI `38482900297` accepted source
-`516fe1efb54ef0787f38209108f322f258f71696` (46 successful jobs, attempt 1).
-Signed tag `v5.1.0` and Release `38488481320` published that source to Central and
-GitHub. Independent remote verification passes all twelve canonical artifacts,
-their signatures/checksums and fresh V1–V5.1 consumers. Stable is **5.1.0**.
-The accepted [Phase 6 cloud baseline](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md)
-preserves its measured sources/sequences and historical failures/costs. The
-one-time Phase 7A CI skip remains recorded separately from successful Phase 7B CI.
+**Stable: 5.2.0.** [Phases 7 and 8](docs/v5x/v5.2/RELEASE_CHECKLIST.md) are complete.
+PR #366 accepted final source `0743490458c07ef87423b8cd4d4dcf8565dbac93`;
+exact-master full CI `40999633695` attempt 2 passed all 62 jobs. Signed tag
+`v5.2.0` and [Release 41010395652/1](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/41010395652)
+published the three Maven artifacts and GitHub Release on October 29, 2026
+(America/Los_Angeles). Independent verification passes all twelve remote
+POM/JAR signatures/checksums, twelve canonical hashes and seven consumers
+(26 tests).
 
-**Current:** Phase 0 PR #335 accepted the [V5.2 read contract](docs/v5x/v5.2/PHASE_0_CONTRACT.md).
-The capture/waiter kernel and three explicit policies are implemented at
-`5.2.0` candidate. [Phase 4](docs/v5x/v5.2/PHASE_4_QUALIFICATION.md) completes local
-correctness and compatibility qualification, with an explicit
-[schedule-to-evidence map](docs/v5x/v5.2/PHASE_4_SCHEDULE_RESULTS.md).
-[Phase 5 combined hardening](docs/v5x/v5.2/PHASE_5_HARDENING.md) is locally verified.
-[Protected cloud acceptance](docs/v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md) passed in
-run `40841038976/1` at verifier source `8b9aa60a`: fifteen execution units across
-all five rounds, with the original quota continuation and single retention waiver
-preserved. Phase 6 registration/closeout merged through PR #364;
-[Phase 7](docs/v5x/v5.2/PHASE_7_CHECKLIST.md) covers packaged consumers, API/Javadocs,
-final coordinates and canonical artifacts in the current batch. Phase 7A merged
-through PR #365 with all 62 master CI jobs passing; final-source CI remains pending. Cloud admission used the accepted
-Cloud Build/full-CI policy; final release-candidate validation remains separate.
-Earlier milestones follow below.
+The [V5.2 read contract](docs/v5x/v5.2/PHASE_0_CONTRACT.md),
+[local correctness qualification](docs/v5x/v5.2/PHASE_4_QUALIFICATION.md),
+[combined hardening](docs/v5x/v5.2/PHASE_5_HARDENING.md) and
+[protected cloud acceptance](docs/v5x/v5.2/PHASE_6_CLOUD_ACCEPTANCE.md)
+remain the qualification chain. Cloud verifier `40841038976/1` accepted fifteen
+original execution units across five rounds, retaining both measured identities,
+the quota continuation and the single retention waiver. Release publication does
+not replace those source identities or rewrite historical failures.
+
+**Next integration:** V5.3 cluster operations continues in its separate worktree.
+Reconcile that work with published `5.2.0` and its accepted contracts before
+integrating; this documentation closeout does not change V5.3 implementation,
+release scope or cloud authorization. See the [handoff](docs/v5x/NEXT_DEVELOPMENT_HANDOFF.md).
+
+## Historical V5.1 implementation milestones
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI
@@ -174,7 +173,7 @@ Subsequent acceptance through PR #304 is recorded in the
 resource, object/IAP and four-cell workload integration are now qualified.
 Full 6C remains open for larger presets; paid experiments require separate
 exact-request confirmation and user triggering.
-V5.2-V5.4 remain future work.
+At this historical V5.1 milestone, V5.2–V5.4 were future work; current status is recorded above.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed
 revision 0.1 refinements dated 2026-09-19, not accepted implementation contracts.

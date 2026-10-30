@@ -1,7 +1,8 @@
 # V5.2 release checklist
 
-Current scope: Phase 7B final candidate preparation. Stable remains 5.1.0. No tag,
-publication, paid cloud execution or final candidate qualification is implied.
+**Status:** V5.2 Phases 7 and 8 are complete. Stable is **5.2.0**, published on
+October 29, 2026 (America/Los_Angeles), and independently verified. The release
+record below distinguishes the signed release source from original cloud measurements.
 
 ## Accepted input
 
@@ -26,7 +27,7 @@ publication, paid cloud execution or final candidate qualification is implied.
   check all inherited default read policies. Existing V5.0 API checks stay active.
 - [x] Check all three original token vectors and corruptions through packaged
   public classes; extend the existing seventh independent consumer.
-- [x] Add [migration guidance](MIGRATION_GUIDE.md), [draft notes](RELEASE_NOTES.md)
+- [x] Add [migration guidance](MIGRATION_GUIDE.md), [release notes](RELEASE_NOTES.md)
   and required release-lane evidence retention for 90 days.
 - [x] Complete isolated local release-profile build, all seven consumers,
   packaged checks and focused Python/CI/documentation validation (2026-10-29).
@@ -76,9 +77,9 @@ check is separate from the final manifest and never asserts cloud/candidate JAR-
   two clean independent builds with identical nine JAR/three POM hashes.
 - [x] Explicit V5.2 release workflow, `validate-evidence --source`, byte checks
   around signing/deployment, seven remote consumers and 90-day release evidence.
-- [ ] Protected full CI on the exact final source. Cloud-support skips or Cloud
+- [x] Protected full CI on the exact final source. Cloud-support skips or Cloud
   Build do not replace this acceptance.
-- [ ] Operator-authorized signed tag/publication; independent Central/GitHub
+- [x] Operator-authorized signed tag/publication; independent Central/GitHub
   signatures/checksums/bytes and all fresh consumers; final availability record.
 
 The [Phase 7 plan](PHASE_7_CHECKLIST.md) defines the full boundary and rollback.
@@ -146,3 +147,46 @@ injected-setup-failure regression covering all six nesting paths. Original
 failures and the targeted recheck receipts remain in
 `target/v52-release-candidate-review/`; these local checks do not replace full CI
 on the final committed source.
+
+## Phase 8 publication and independent verification
+
+| Record | Accepted value |
+| --- | --- |
+| Final candidate PR | [#366](https://github.com/patricklfdm/GeneralSearchEngine/pull/366) |
+| Published commit | `0743490458c07ef87423b8cd4d4dcf8565dbac93` |
+| Full exact-master CI | [40999633695](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/40999633695), attempt 2, all 62 jobs successful |
+| Signed tag | [v5.2.0](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.2.0), tag object `3030e20524595234f3803831bc61c293688dfbae` |
+| Signing fingerprint | `91AAB7A2B0FB55C3BBB334534B6103148D643AB3` |
+| Release workflow | [41010395652](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/41010395652), attempt 1, all three jobs successful |
+| Central deployment | `112b8e7f-5903-4ede-80a5-d28bd8bee653`, successfully published |
+| GitHub Release | [5.2.0](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.2.0), ID `428722105`, neither draft nor prerelease |
+| Published at | `2026-10-30T06:39:07Z` / October 29, 23:39:07 PDT |
+| Release evidence | `v52-release-reproducibility-41010395652`, artifact `12957573420`, 90-day retention, expires `2027-01-28T05:47:42Z` |
+
+Both master CI and Release canonical receipts validate against the exact published
+commit and all twelve frozen hashes. The complete Release passed tag validation,
+Central-coordinate preflight and approved publication; one successful job alone
+was not used as a publication claim. Signing and deployment byte guards passed.
+
+After publication, `scripts/verify-release-tag.sh v5.2.0` independently validated
+the annotated tag using the pinned repository key. GitHub's tag API reports
+`unknown_key`; the repository-key signature check and Release check both pass.
+No signing key, published tag or verification requirement was changed.
+
+An independent `scripts/verify-published-release.sh 5.2.0` execution fetched
+Central's nine JARs and three POMs, their twelve signatures and SHA-1 files.
+All signatures/checksums and twelve frozen SHA-256 values passed. Seven consumers
+used a new isolated Maven repository and passed 26 tests with no failures or
+skips. Annotation-processor isolation, manifest identity and format fixtures also
+passed. These checks used pinned Temurin 21.0.12+8 and Maven 3.9.11.
+
+Raw API records, Release logs, canonical/packaging receipts, tag verification and
+the independent remote-consumer log are retained locally under
+`target/v52-release-closeout/`. The original Phase 6 policy, registry, receipts,
+measured source/sequence identities and specific exceptions remain unchanged.
+The release SHA is not substituted for either measured cloud source.
+
+Publication is immutable. Future corrections use a new release or metadata-only
+documentation update; never move `v5.2.0` or overwrite Central coordinates.
+Concurrent V5.3 development should reconcile with this published baseline in its
+own worktree; no V5.3 implementation or cloud execution is part of this closeout.

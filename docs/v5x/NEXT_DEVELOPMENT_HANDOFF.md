@@ -1,11 +1,16 @@
 # Next-development documentation handoff
 
-Current milestone: V5.2 [complete protected cloud acceptance](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md)
-passed in `40841038976/1` at verifier source `8b9aa60a`. The fifteen execution units
-represent all five rounds; the explicit source continuation and one-run retention
-waiver remain visible. Phase 6 registration/closeout merged through PR #364;
-[Phase 7A preparation](v5.2/RELEASE_CHECKLIST.md) merged through PR #365;
-master full CI `40968660073` passed all 62 jobs. Phase 7B is the current batch. Stable remains published 5.1.0.
+Current milestone: **V5.2 published and independently verified**. The
+[release record](v5.2/RELEASE_CHECKLIST.md) binds signed `v5.2.0` to
+`0743490458c07ef87423b8cd4d4dcf8565dbac93` (PR #366), exact-master full CI
+`40999633695/2` (62 successful jobs) and Release `41010395652/1` (all three jobs).
+Twelve remote signatures/checksums and canonical hashes pass; seven fresh
+consumers pass 26 tests. Stable and the next-minor replication reference are 5.2.0.
+
+Original [protected cloud acceptance](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md)
+`40841038976/1` preserves all fifteen execution units, both measured
+source/sequence identities, the quota continuation and one-run retention waiver.
+The published commit is not a replacement measured cloud source.
 
 Historical V5.1 publication context: Phase 6 closed through PR #320,
 master `5c88a2b908347fa3e411e2018876657a21fa0912`,
@@ -16,30 +21,31 @@ Phase 7B was accepted in PR #322 at `516fe1efb54ef0787f38209108f322f258f71696`,
 exact-master CI `38482900297` attempt 1 (all 46 jobs). Signed tag `v5.1.0` and
 Release `38488481320` published that commit. The independent post-publication
 check passes twelve signatures/checksums, twelve canonical hashes and all six
-fresh remote consumer modules (22 tests, V1 compile-only). Stable is **5.1.0**.
+fresh remote consumer modules (22 tests, V1 compile-only). Stable at that milestone was **5.1.0**.
 The Phase 7A skip did not carry forward to final-candidate or release validation.
 
 <a id="next-batch-v52-phase-0"></a>
 
 <a id="current-batch-v52-phase-1"></a>
 
-## Current batch: V5.2 Phase 7B final candidate preparation
+## Current handoff: V5.2 closed; reconcile separate V5.3 work
 
-Phase 6 closeout merged through PR #364 at `a8125ebe`. Its verifier and measured
-sources remain distinct; see the [acceptance](v5.2/PHASE_6_CLOUD_ACCEPTANCE.md).
-The [release checklist](v5.2/RELEASE_CHECKLIST.md) records compact baseline and
-328-file runtime/build-source checks, nine JAR/three POM packaging, published 5.1
-API/binary/default-method probes, three token vectors, seven consumers and
-90-day release-preparation evidence. The full cloud workload is not repeated.
+Phase 6 registration merged through PR #364, snapshot packaging through #365,
+and the final candidate through #366. [Phases 7 and 8](v5.2/PHASE_7_CHECKLIST.md)
+are accepted. The [release record](v5.2/RELEASE_CHECKLIST.md) records the original
+328-file runtime/build-source comparison, nine JAR/three POM canonical bytes,
+packaged compatibility, token fixtures, seven consumers and 90-day receipts.
+The full cloud workload was not rerun for publication.
 
-Final `5.2.0` coordinates and explicit canonical build/publication routes are
-prepared in this batch. Two fixed-toolchain clean builds have identical nine-JAR/
-three-POM hashes. Only exact project-version lines differ from the original
-328-file runtime/build inventory. Final-source full CI remains required after
-commit/merge; local working-tree evidence cannot replace it.
-Published tags, cloud byte pins and concurrent V5.3 development remain outside
-this work. See the [migration guide](v5.2/MIGRATION_GUIDE.md) and
-[draft notes](v5.2/RELEASE_NOTES.md). No tag or publication is authorized here.
+V5.3 cluster operations is already being developed in a separate worktree. Before
+its next integration, inspect that branch's own latest commits and accepted phase
+contracts, then reconcile against released `5.2.0`. Do not reset the development
+worktree or treat older planning snapshots as its current implementation status.
+Preserve the published tag, artifact hashes and original cloud evidence. Read the
+[V5.x charter](DEVELOPMENT_CHARTER.md), [roadmap](ROADMAP.md),
+[V5.2 migration guide](v5.2/MIGRATION_GUIDE.md) and [release notes](v5.2/RELEASE_NOTES.md)
+for the inherited contract. This closeout does not authorize paid V5.3 execution
+or publication and does not itself implement any V5.3 work.
 
 ## Historical pre-cloud integration handoff
 
