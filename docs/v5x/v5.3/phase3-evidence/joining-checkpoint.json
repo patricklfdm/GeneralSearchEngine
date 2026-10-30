@@ -1,0 +1,292 @@
+{
+  "archive": {
+    "bytes": 13715607,
+    "path": "target/v53-joining-checkpoint/component-validation.tar.gz",
+    "sha256": "7758841de80f96e89f06b1d498acb852372433f0ab710558fb70ce5771eeb4ff"
+  },
+  "baseCommit": "4edc1f6fd71b0f9f6dadb24919d3a802fe7bb712",
+  "codeAndBuildInputsChecked": 1732,
+  "conditionalCheckpointEndpointCases": 7,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1476,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "developmentFailures": "The first nine-case execution retained two failures: the real ACK/retry case exhausted the unchanged request timeout while every chunk repeatedly decoded the full unchanged history; the malformed-ballot fixture used the older epoch field instead of the V5.3 counter. Capability creation still validates the complete semantic source and forces the ACK; reads now recheck the live head and all original file paths/inodes/digests without re-decoding unchanged history. The ballot fixture was corrected and another test verifies valid later old-view campaign reads with immutable per-trace ballots. Final affected tests and the remaining boundaries run on identical corrected code snapshots.",
+  "nativeAckOwnerPulls": true,
+  "nativeArtifacts": {
+    "general-search-engine-replication/target/v53-native-dispatch/run-32b7e56a-88a8-4269-a77e-0b5ceac87da9/joining-ack-wire.json": "ae4c251a1fd53ec95d0a309e7b86487bf280ad1e6caf49fef345bf08add29489",
+    "general-search-engine-replication/target/v53-native-dispatch/run-32b7e56a-88a8-4269-a77e-0b5ceac87da9/joining-complete-capsule.gscp": "bd13b4ad9f43d195555c86a850b50ff92f72d3462fd5d81a802956d845dce9e6",
+    "general-search-engine-replication/target/v53-native-dispatch/run-32b7e56a-88a8-4269-a77e-0b5ceac87da9/joining-force-events.json": "b48bb3d9d2bdc516487a1acbb6345a73a8136ddd175c9824a1c681ac010dbb1d",
+    "general-search-engine-replication/target/v53-native-dispatch/run-32b7e56a-88a8-4269-a77e-0b5ceac87da9/joining-forced-ack.gsr": "8c5667669aae01d47402a7b744df5cc41396a8d31ce7af8cb706cf2965b39ec0",
+    "general-search-engine-replication/target/v53-native-dispatch/run-32b7e56a-88a8-4269-a77e-0b5ceac87da9/joining-intent-result.json": "b08145437420fb472dbf92237280863be9c059fb642ead8b22107b688bffbbe7",
+    "general-search-engine-replication/target/v53-native-dispatch/run-32b7e56a-88a8-4269-a77e-0b5ceac87da9/joining-intent-wire.json": "7a31669f03d3c38ee3deeb15ab9249232cb95923275eeb9ec2fc78db65b76e93",
+    "general-search-engine-replication/target/v53-native-dispatch/run-32b7e56a-88a8-4269-a77e-0b5ceac87da9/joining-intent.json": "e3726f76635822d16387402dbfbfd3511c4f58cc6c560774947b175d9eff572b"
+  },
+  "nativeCheckpointAssembly": true,
+  "nativeJointPublication": true,
+  "nativeNewSideForcedAck": true,
+  "nativeOldTwoOfThree": true,
+  "originalPhysicalReplay": false,
+  "paidCloud": false,
+  "passingTests": 11,
+  "pending": [
+    "coordinator SEALED-source acquisition and pending INTENT scheduling",
+    "pending-to-published-JOINT conversion and joined native handoff",
+    "alternate-leader continuation, joint FINAL and fresh barrier",
+    "all-profile native physical/history/process qualification"
+  ],
+  "phase3Complete": false,
+  "priorTerminalRegressions": 3,
+  "processDeathQualified": false,
+  "publicFormatsChanged": false,
+  "publicReady": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "qualificationBoundary": "Seven conditional typed/TCP checkpoint endpoint cases and three old persistence regressions; one native bootstrap/old-quorum INTENT/new-owner ACK collection and JOINT publication history. The new learner remains pending and nonserving; no native joined installation or independent original history/process replay is claimed.",
+  "reports": {
+    "joiningacknative": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": {
+        "cases": [
+          {
+            "name": "minimalOldMajorityPublishesJointUsingTheActualJoiningEndpoint",
+            "seconds": 642.39,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "4957e4a860c52188a99db4eae02ab452efdeba5965f5342cebd1997818f8f187"
+      }
+    },
+    "joiningackwirechecked": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": {
+        "cases": [
+          {
+            "name": "forcedCancellationSurvivesOwnerRestartAndStopsOldPreparationWithoutVotingOrDeleting",
+            "seconds": 21.449,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "7ec1dd9df55fcf3452b461a904b08822f65f93398f71ac82ea1b05f9c3cd7ab1"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest": {
+        "cases": [
+          {
+            "name": "failedAckForceCannotOpenAnEndpointAndStoreCloseDrainsItsChild",
+            "seconds": 84.513,
+            "status": "PASS"
+          },
+          {
+            "name": "changedOriginalsAndExpiredCompletionCannotReturnCachedSuccess",
+            "seconds": 55.832,
+            "status": "PASS"
+          },
+          {
+            "name": "actualOwnerAckUsesTheExistingPullAndRetriesIdenticalLostReplies",
+            "seconds": 66.306,
+            "status": "FAIL"
+          },
+          {
+            "name": "sixExportsAndSharedControlCapacityRemainBounded",
+            "seconds": 91.184,
+            "status": "PASS"
+          },
+          {
+            "name": "ownerCloseAtTheActualWriteBoundaryRevokesACompletedReply",
+            "seconds": 79.345,
+            "status": "PASS"
+          },
+          {
+            "name": "wrongReferencesIdentitiesAndCorrelationsCannotCreateTransfers",
+            "seconds": 46.48,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "842a5feb55e4bdc676a3c918e26bcbf2cf5cf30c6bfbf7b67472512f03d6231f"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+            "seconds": 25.976,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e938e51ed00f8df7e60eac302d832c41decfb56019be82906a5f6f23e3331fe7"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": {
+        "cases": [
+          {
+            "name": "originalSourceAndTypedImageAreForcedBeforeTheNewSideAckAndSurviveReopen",
+            "seconds": 46.635,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "9f4e420fb19f4deb5dac5b7a4dd83d7838635fe97a34e644b7e6d04cb1dc554d"
+      }
+    },
+    "joiningackwirefinal": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest": {
+        "cases": [
+          {
+            "name": "changedOriginalsAndExpiredCompletionCannotReturnCachedSuccess",
+            "seconds": 49.651,
+            "status": "PASS"
+          },
+          {
+            "name": "actualOwnerAckUsesTheExistingPullAndRetriesIdenticalLostReplies",
+            "seconds": 47.341,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "7013dcf63f7b5fa85ee926e94aad1d808195576b51ee6153b1c4e7f09be98a0d"
+      }
+    },
+    "joiningackwirerest": {
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": {
+        "cases": [
+          {
+            "name": "forcedCancellationSurvivesOwnerRestartAndStopsOldPreparationWithoutVotingOrDeleting",
+            "seconds": 23.433,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "da3bc73c40bc826fdd8cdc3924632c08f3874389cc03d71624a6e907c2326b8d"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest": {
+        "cases": [
+          {
+            "name": "laterValidCampaignCanReadTheSameEndButCannotChangeAnExistingTraceBallot",
+            "seconds": 43.361,
+            "status": "PASS"
+          },
+          {
+            "name": "failedAckForceCannotOpenAnEndpointAndStoreCloseDrainsItsChild",
+            "seconds": 84.502,
+            "status": "PASS"
+          },
+          {
+            "name": "sixExportsAndSharedControlCapacityRemainBounded",
+            "seconds": 57.825,
+            "status": "PASS"
+          },
+          {
+            "name": "ownerCloseAtTheActualWriteBoundaryRevokesACompletedReply",
+            "seconds": 47.799,
+            "status": "PASS"
+          },
+          {
+            "name": "wrongReferencesIdentitiesAndCorrelationsCannotCreateTransfers",
+            "seconds": 43.909,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "24d31610269fbac8b7936c40026cea1c82ad11f163b917868bfcccb35e7f881a"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": {
+        "cases": [
+          {
+            "name": "forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter",
+            "seconds": 26.718,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "e7101c0f880ea81d63419b1bed672cdc08c134d859bec074df1371712a9d7a25"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": {
+        "cases": [
+          {
+            "name": "originalSourceAndTypedImageAreForcedBeforeTheNewSideAckAndSurviveReopen",
+            "seconds": 49.571,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "f4f870ce5dc478e04c95be7f4515ff9535582cd01954f7f505a697129eff425e"
+      }
+    }
+  },
+  "runs": {
+    "joiningacknative": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningacknative",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#minimalOldMajorityPublishesJointUsingTheActualJoiningEndpoint"
+      ],
+      "seconds": 642.0543980530056,
+      "skipped": 0,
+      "tests": 1
+    },
+    "joiningackwirechecked": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": 1
+      },
+      "exit": 1,
+      "failures": 2,
+      "label": "joiningackwirechecked",
+      "requestedTests": [
+        "V53LearnerCheckpointEndpointTest",
+        "V53LearnerPendingIntentTest#originalSourceAndTypedImageAreForcedBeforeTheNewSideAckAndSurviveReopen",
+        "V53LearnerCancellationTest#forcedCancellationSurvivesOwnerRestartAndStopsOldPreparationWithoutVotingOrDeleting",
+        "V53LearnerIntentTest#forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter"
+      ],
+      "seconds": 520.0069442539971,
+      "skipped": 0,
+      "tests": 9
+    },
+    "joiningackwirefinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningackwirefinal",
+      "requestedTests": [
+        "V53LearnerCheckpointEndpointTest#actualOwnerAckUsesTheExistingPullAndRetriesIdenticalLostReplies+changedOriginalsAndExpiredCompletionCannotReturnCachedSuccess"
+      ],
+      "seconds": 109.81011421899893,
+      "skipped": 0,
+      "tests": 2
+    },
+    "joiningackwirerest": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCancellationTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerCheckpointEndpointTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerIntentTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerPendingIntentTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningackwirerest",
+      "requestedTests": [
+        "V53LearnerCheckpointEndpointTest#wrongReferencesIdentitiesAndCorrelationsCannotCreateTransfers+laterValidCampaignCanReadTheSameEndButCannotChangeAnExistingTraceBallot+sixExportsAndSharedControlCapacityRemainBounded+ownerCloseAtTheActualWriteBoundaryRevokesACompletedReply+failedAckForceCannotOpenAnEndpointAndStoreCloseDrainsItsChild",
+        "V53LearnerPendingIntentTest#originalSourceAndTypedImageAreForcedBeforeTheNewSideAckAndSurviveReopen",
+        "V53LearnerCancellationTest#forcedCancellationSurvivesOwnerRestartAndStopsOldPreparationWithoutVotingOrDeleting",
+        "V53LearnerIntentTest#forcePrecedesCapabilityAndRestartKeepsOriginalsWithoutInstallingAVoter"
+      ],
+      "seconds": 383.71855800600315,
+      "skipped": 0,
+      "tests": 8
+    }
+  },
+  "schema": "gse-v53-joining-checkpoint-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerCheckpointEndpoint.java": "5e000abc19b4140886d3a7f3a4014ed4f1210b3a3939cec6a335c10a73362222",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerDisposition.java": "85913a9c4dcbe8ac8ba8061514b22671b523ef561ab1c4007d481078dc34fa4d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipLearnerPendingIntent.java": "936d80069bc25b13192863ac8c75f057b6dae05e92322b8b31aa952aafe57b07",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "4a423e7d5292d2b7e079e0f8341dc9bd5fb18982e6ec657d65386536c9e6d301",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53LearnerCheckpointEndpointTest.java": "4789ab20ae1f819092b65039936fa485aca51266f0422a826c696214c1aca7c6"
+  },
+  "sourceSnapshot": "joiningacknative",
+  "status": "PASS_JOINING_CHECKPOINT_COMPONENT"
+}

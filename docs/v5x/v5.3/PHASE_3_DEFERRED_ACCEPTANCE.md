@@ -1,12 +1,21 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Original joining checkpoint serving](PHASE_3_JOINING_CHECKPOINT.md) now exposes
+only the actual pending learner's forced ACK through the existing bounded
+transfer/pull path. A native old-two-of-three history now completes actual ACK
+pulls and JOINT publication on both surviving old voters. Eleven focused tests
+passed; original-owner and response-write revocation checks remain enforced.
+Full published-JOINT learner installation, coordinator continuation and complete
+Phase 3 qualification remain **OPEN**.
+
+The following earlier entries retain their source-bound component scope.
+
 [Original pending joining end](PHASE_3_PENDING_JOINING_END.md) now retains the
 complete SEALED source and matching INTENT metadata under the actual typed
 learner before forcing a new-side checkpoint ACK. Explicit recovery preserves
 original plans, source identities and ACK prefixes. JOINT publication, native
 handoff from this pending path and complete Phase 3 qualification remain **OPEN**.
 
-The following earlier entries retain their source-bound component scope.
 
 [Pending INTENT reception](PHASE_3_JOINING_INTENT_RECEIVER.md) now adds a bounded
 read-only client under the live typed learner and its completed SEALED progress
@@ -188,6 +197,7 @@ This file is an acceptance queue, not an executed workflow or acceptance receipt
 | Prepared learner progress | `V53LearnerProgressTest` and `V53LearnerProgressNetworkTest`, followed by whole native histories | Exact request-bound terminal/joint acquisition, complete generation and prepared-parent ancestry, unchanged local receipt/authority, lost-response bounds and closed-owner refusal. Conditional voter fixtures do not qualify native CANCEL/INTENT or local durable installation |
 | Successor lifecycle | One continuous original learner history | Install, select and retire bounded originals across revisions, cancellation and locally forced matching INTENT before votes |
 | Pending learner applied end | Independent `V53LearnerPendingIntentTest` histories and one whole `V53JoiningIntentExportTest#originalTypedLearnerForcesTheMissingNewSideEndWithoutPublishingJoint` history | Original SEALED acquisition before pending INTENT, actual typed receipt/source retention, force-before-ACK, bounded recovery and native minimum old/new quorum checks; add ACK wire delivery, publication, independent original replay and process-death cuts before full qualification |
+| Original joining ACK listener and publication | Independent `V53LearnerCheckpointEndpointTest` histories and one whole `V53JoiningIntentExportTest#minimalOldMajorityPublishesJointUsingTheActualJoiningEndpoint` history | Actual owner force and TCP checkpoint reads, exact retries/revocation and bounded resources, unchanged future-retention recording; all-profile publication/reopen, pending-to-JOINT installation and independent original/history/process qualification remain required |
 | Final Phase 3 protocol audit | Complete prescribed scenarios | Learner ADD/REPLACE, all seven transitions, alternative-leader continuation and maximum combined resource bounds; component results cannot substitute |
 
 The process test supports one exact whole case through the Maven system property

@@ -1,6 +1,27 @@
 # V5.3 Phase 3 contract amendments
 
 
+## A48 — exact pending-owner checkpoint reads
+
+The [joining checkpoint listener](PHASE_3_JOINING_CHECKPOINT.md) is created only
+from the actual pending owner's newly forced original end. Serve only that ACK
+through the existing source session/pull protocol, with one listener, at most six
+live exports, shared CONTROL charges, bounded traces and the original deadline.
+No prefix/image/voting/public-service path is introduced.
+
+A valid later old-view ballot may read the same persisted end; each trace still
+pins its exact ballot and correlation. Such a read creates no promise or vote.
+Validate the immutable history when creating the capability, and recheck the
+actual typed head, all original paths/inodes/digests and ACK bytes on access and
+immediately before the response write, including cached completions. Revoke
+before draining outside the owner monitor; release reservations only after the
+listener drains. Public wire/storage formats and limits are unchanged.
+
+Native publication must still perform actual owner ACK pulls and its existing
+future-retention recording. This listener does not itself publish JOINT or turn
+the pending learner into a native voter. Complete joining and Phase 3
+qualification remain open.
+
 ## A47 — original pending learner end before new-side ACK
 
 The [pending joining transaction](PHASE_3_PENDING_JOINING_END.md) accepts only the

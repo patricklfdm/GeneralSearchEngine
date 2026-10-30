@@ -32,10 +32,12 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     private final Map<String,MembershipReceiveFile.Retained> retained=new TreeMap<>();
     private final List<MembershipResources.Lease> leases=new ArrayList<>();
     private Object directoryKey;
-    private boolean closed,failed,complete;
+    private volatile boolean closed;
+    private boolean failed,complete,released;
     private Map<String,Object> terminal;
     private MembershipCapsule verified;
     private MembershipLearnerVoterStage voterStage;
+    private MembershipLearnerCheckpointEndpoint checkpointEndpoint;
     private static String schema(Kind kind){return switch(kind){case CANCEL->"gse-v53-learner-cancellation/1.3";case INTENT->"gse-v53-learner-intent/1.3";case PENDING_INTENT->"gse-v53-learner-pending-intent/1.3";};}
     private static String planName(Kind kind){return switch(kind){case CANCEL->PLAN;case INTENT->"intent.json";case PENDING_INTENT->"pending-intent.json";};}
     private static String nextName(Kind kind){return switch(kind){case CANCEL->NEXT;case INTENT->"intent.next.json";case PENDING_INTENT->"pending-intent.next.json";};}
@@ -308,6 +310,41 @@ final class MembershipLearnerDisposition implements AutoCloseable {
     }
     synchronized MembershipCapsule pendingSource()throws IOException {pendingMetadata();return verified;}
     synchronized MembershipJoiningIntentMetadata pendingOriginals()throws IOException {return pendingMetadata();}
+    /** Private live provenance for serving only the actual forced pending ACK.
+     * The caller cannot construct this from decoded record/observation values. */
+    final class PendingCheckpoint {
+        final MembershipCapsule source;
+        final MembershipIdentity identity;
+        final MembershipResources resources;
+        final Decoded acknowledgement;
+        private PendingCheckpoint()throws IOException {
+            acknowledgement=endorsePending().acknowledgement();pendingMetadata();
+            source=verified;identity=head.request().identity();resources=head.resources();
+            check();
+        }
+        void check()throws IOException {
+            synchronized(MembershipLearnerDisposition.this) {
+                // Construction already validated/forced this immutable plan
+                // and complete source. Recheck the actual head, original paths,
+                // inodes and every byte digest on reads; unchanged bytes do not
+                // require replaying the entire semantic history per wire chunk.
+                require(kind==Kind.PENDING_INTENT && complete,"joining checkpoint original retention");
+                MembershipLearnerDisposition.this.check();
+                require(metadata.containsKey(PENDING_ACK),"joining checkpoint original ACK missing");
+                AdmissionPaths.exact(directory.resolve(PENDING_ACK),acknowledgement.bytes());
+            }
+        }
+    }
+    synchronized MembershipLearnerCheckpointEndpoint servePending(ReplicationBounds bounds,MembershipTransport.Events events,
+            java.util.function.LongSupplier clock,long started,long budget)throws IOException {
+        Objects.requireNonNull(bounds);Objects.requireNonNull(events);Objects.requireNonNull(clock);
+        long elapsed=clock.getAsLong()-started;
+        require(budget>0 && budget<Long.MAX_VALUE/2 && elapsed>=0 && elapsed<budget
+                && Math.min(FRAME,bounds.maxFrameBytes())>=4096 && bounds.snapshotChunkBytes()>0,"joining checkpoint original limits");
+        pendingMetadata();require(checkpointEndpoint==null || checkpointEndpoint.closed(),"joining checkpoint endpoint already owned");
+        checkpointEndpoint=new MembershipLearnerCheckpointEndpoint(new PendingCheckpoint(),bounds,events,clock,started,budget);
+        return checkpointEndpoint;
+    }
     MembershipCapsule forcedIntent()throws IOException {
         require(kind==Kind.INTENT && complete,"learner INTENT not forced");validate();return verified;
     }
@@ -332,8 +369,17 @@ final class MembershipLearnerDisposition implements AutoCloseable {
         require(voterStage!=null && !voterStage.closed(),"learner custody needs live staged voter");voterStage.collectCustody(result);
     }
     boolean closed(){return closed;}
-    @Override public synchronized void close()throws IOException {
-        if(closed)return;closed=true;var children=new ArrayList<AutoCloseable>();if(voterStage!=null)children.add(voterStage);children.addAll(retained.values());children.addAll(leases);
+    @Override public void close()throws IOException {
+        MembershipLearnerCheckpointEndpoint endpoint;
+        synchronized(this){closed=true;endpoint=checkpointEndpoint;}
+        // Readers take the original owner monitor. Revoke first, but never
+        // drain transport workers while holding that monitor. Keep reservations
+        // for a retry if transport draining itself fails.
+        if(endpoint!=null)endpoint.close();
+        var children=new ArrayList<AutoCloseable>();
+        synchronized(this) {
+            if(released)return;released=true;if(voterStage!=null)children.add(voterStage);children.addAll(retained.values());children.addAll(leases);
+        }
         MembershipLearnerSource.closeChildren(children.toArray(AutoCloseable[]::new));
     }
 }

@@ -12,7 +12,8 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*;
 
 /** Actual bootstrap/typed learner/old-quorum INTENT originals. Only the separate
- * durable pending owner may supply a new-side ACK; neither test publishes JOINT. */
+ * durable pending owner may supply a new-side ACK. Publication still requires
+ * native checkpoint pulls and the unchanged future-retention quorum. */
 class V53JoiningIntentExportTest {
     @TempDir Path temp;
     static final long BUDGET=TimeUnit.MINUTES.toNanos(12);
@@ -67,7 +68,13 @@ class V53JoiningIntentExportTest {
     @Test void originalTypedLearnerForcesTheMissingNewSideEndWithoutPublishingJoint()throws Exception {
         nativeJoining(true);
     }
+    @Test void minimalOldMajorityPublishesJointUsingTheActualJoiningEndpoint()throws Exception {
+        nativeJoining(true,true);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
+        nativeJoining(retainPending,false);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint)throws Exception {
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
         try(var n=network.new Network(3,helper.controlBounds(),BUDGET,f->{
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learners")){owner.initializeLearnerRetention();}
@@ -168,12 +175,31 @@ class V53JoiningIntentExportTest {
                                     Files.write(n.f.raw.resolve("joining-force-events.json"),canonical(events,16384));
                                     Files.write(n.f.raw.resolve("joining-complete-capsule.gscp"),checkpoint.packet.bytes());
                                     System.out.println("v53JoiningIntentStage=new-side-end-forced");
+                                    if(publishJoint) {
+                                        var readers=java.util.concurrent.ConcurrentHashMap.<String>newKeySet();
+                                        var ackWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
+                                        try(var listener=pending.listen(n.bounds,(event,requestFrame,response)->{
+                                            if(event.equals("BEFORE_RESPONSE_WRITE")) {
+                                                readers.add((String)object(requestFrame.value().get("sender")).get("node"));
+                                                ackWire.add(V53SelectedPullTest.wire(requestFrame,response));
+                                            }
+                                        },System::nanoTime,System.nanoTime(),BUDGET)) {
+                                            n.publish(certificate);
+                                            assertEquals(Set.of("node-1","node-2"),readers);
+                                            for(int voter:n.voters)assertEquals("JOINT",MembershipLearnerProgressAccess.operation(n.owners.get(voter).activationContext(),joining).get("phase"));
+                                            assertEquals("SEALED",MembershipLearnerProgressAccess.operation(pending.source().context,joining).get("phase"));
+                                            assertFalse(Files.exists(config.materialization().directory()));
+                                            assertEquals(0,listener.usage().exports());
+                                        }
+                                        Files.write(n.f.raw.resolve("joining-ack-wire.json"),canonical(ackWire,1024*1024));
+                                        System.out.println("v53JoiningIntentStage=joint-published-by-old-majority");
+                                    }
                                 }
                             }
-                            guardChecks(n,request,first);
+                            if(!publishJoint)guardChecks(n,request,first);
                             Files.write(n.f.raw.resolve("joining-intent-wire.json"),canonical(wire,8*1024*1024));
                             Files.write(n.f.raw.resolve("joining-intent-result.json"),canonical(Map.of("status","PASS","oldVoters",List.of("node-1","node-2"),
-                                    "nativeHistory",true,"typedLearner",true,"newSideEndForced",retainPending,"publishedJoint",false,"publicReady",false),4096));
+                                    "nativeHistory",true,"typedLearner",true,"newSideEndForced",retainPending,"publishedJoint",publishJoint,"publicReady",false),4096));
                         }
                     }
                 }

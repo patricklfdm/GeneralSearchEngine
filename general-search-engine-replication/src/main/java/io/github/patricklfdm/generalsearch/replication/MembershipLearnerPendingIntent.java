@@ -19,5 +19,9 @@ final class MembershipLearnerPendingIntent implements AutoCloseable {
     MembershipCapsule source()throws IOException{return retained.pendingSource();}
     MembershipJoiningIntentMetadata originals()throws IOException{return retained.pendingOriginals();}
     MembershipAppliedEndFiles.Endorsement endorse()throws IOException{return retained.endorsePending();}
+    MembershipLearnerCheckpointEndpoint listen(ReplicationBounds bounds,MembershipTransport.Events events,
+            java.util.function.LongSupplier clock,long started,long budget)throws IOException {
+        return retained.servePending(bounds,events,clock,started,budget);
+    }
     @Override public void close()throws IOException{retained.close();}
 }

@@ -1,12 +1,21 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original joining checkpoint serving](PHASE_3_JOINING_CHECKPOINT.md) now exposes
+only the actual pending learner's forced ACK through the existing bounded
+transfer/pull path. A native old-two-of-three history now completes actual ACK
+pulls and JOINT publication on both surviving old voters. Eleven focused tests
+passed; original-owner and response-write revocation checks remain enforced.
+Full published-JOINT learner installation, coordinator continuation and complete
+Phase 3 qualification remain **OPEN**.
+
+The following earlier entries retain their source-bound component scope.
+
 [Original pending joining end](PHASE_3_PENDING_JOINING_END.md) now retains the
 complete SEALED source and matching INTENT metadata under the actual typed
 learner before forcing a new-side checkpoint ACK. Explicit recovery preserves
 original plans, source identities and ACK prefixes. JOINT publication, native
 handoff from this pending path and complete Phase 3 qualification remain **OPEN**.
 
-The following earlier entries retain their source-bound component scope.
 
 [Pending INTENT reception](PHASE_3_JOINING_INTENT_RECEIVER.md) now adds a bounded
 read-only client under the live typed learner and its completed SEALED progress
