@@ -1,5 +1,26 @@
 # V5.3 Phase 3 contract amendments
 
+## A45 — pending joining metadata, without publication authority
+
+The [joining metadata export](PHASE_3_JOINING_INTENT_METADATA.md) uses the existing
+CHUNK/TRANSFER_COMMIT records and a derived lookup alias bound to root, full
+request, learner identity and original published SEALED cut. Only the live native
+owner's matching complete applied INTENT can supply its original ENTRY, ACCEPT,
+PROOF, CERTIFICATE, payload and projected CATALOG/CHECKPOINT bytes. Revalidate the
+original owner, certificate, selection, selector and ballot on every read.
+
+This read-only metadata does not contain an image, complete prefix or generation,
+does not advance the published cut and cannot mint CHECKPOINT_ACK, stored-history
+ownership or joining admission. It does not bypass the existing retention permit
+for original source acquisition. It borrows the same six-export registry, charges
+its body to CONTROL before construction and uses the original transfer deadline.
+No new public record/wire kind, resource ceiling or timeout is introduced.
+
+The receiver must still independently acquire and retain complete old history,
+authenticate the matching native certificate and force its exact original typed
+receipt/image and applied end before voting at the new-side checkpoint. Full
+minimal-quorum transition qualification and Phase 3 closure remain open.
+
 ## A44 — original native joined ownership
 
 The [native joining owner](PHASE_3_JOINED_NATIVE.md) consumes completed original

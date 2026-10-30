@@ -1907,6 +1907,65 @@ final class MembershipGrantJournal implements AutoCloseable {
                 && pendingAccept.active().certificate()!=null,"pending publication requires complete original certificate");
         var target=new PendingPublication(this,Objects.requireNonNull(applied),pendingAccept.active());target.check();return target;
     }
+    /** Read-only original metadata for the one sealed joining identity. This is
+     * deliberately not a complete JOINT capsule or a learner installation token.
+     * Only the actual native applied certificate can construct this capability. */
+    final class JoiningIntent {
+        private final PendingPublication pending;
+        final MembershipIdentity learner;
+        final Map<String,Object> request;
+        private JoiningIntent(MembershipIdentity learner)throws IOException {
+            pending=pendingPublication(nativeApplied);this.learner=learner;
+            request=MembershipLearnerDiscovery.reservation(pending.before.context,learner);check();
+        }
+        MembershipContext context(){return pending.before.context;}
+        void check()throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                pending.check();var before=pending.before.context;var vote=pending.vote;var plan=pending.applied.plan();
+                require(request.equals(MembershipLearnerDiscovery.reservation(before,learner))
+                        && vote.entry().value().get("kind").equals("INTENT"),"joining source requires original INTENT");
+                var row=MembershipLearnerProgressAccess.operation(before,learner);
+                require(row.get("phase").equals("SEALED") && row.get("receipt")!=null,"joining source requires sealed receipt");
+                var sealed=new TreeMap<String,Object>();for(String field:List.of("request","prepared","receipt"))sealed.put(field,row.get(field));
+                var receipt=object(row.get("receipt"));var end=object(plan.catalog.value().get("cut"));var view=object(end.get("view"));
+                require(object(command("INTENT",vote.payload())).get("sealed").equals(sealed)
+                        && receipt.get("identity").equals(MembershipBootstrapSeed.identity(learner))
+                        && receipt.get("prepared").equals(row.get("prepared"))
+                        && plan.catalog.value().get("application").equals(receipt.get("image"))
+                        && before.catalog.get("application").equals(receipt.get("image"))
+                        && plan.statement.value().get("scope").equals("MEMBERSHIP")
+                        && plan.statement.value().get("start").equals(before.cut)
+                        && plan.statement.value().get("end").equals(end)
+                        && view.get("old").equals(before.view.get("old"))
+                        && MembershipContext.nodes(view,"new").contains(learner.nodeId().value())
+                        && hash(canonical(sealed,8192)).equals(view.get("operation")),"joining source exact sealed projection");
+            }
+        }
+        long reservationBytes()throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                check();var vote=pending.vote;var plan=pending.applied.plan();
+                long originals=vote.entry().size()+vote.accept().size()+vote.proof().size()+vote.certificate().size()
+                        +vote.payloadSize()+plan.catalog.size()+plan.statement.size();
+                // Reserve original copies, Base64 and canonical container before
+                // constructing any retained export body. Existing CONTROL cap applies.
+                return Math.addExact(65536,Math.multiplyExact(4,originals));
+            }
+        }
+        byte[] metadata()throws IOException {
+            synchronized(MembershipGrantJournal.this) {
+                check();var vote=pending.vote;var plan=pending.applied.plan();var records=new TreeMap<String,String>();
+                for(var record:List.of(vote.entry(),vote.accept(),vote.proof(),vote.certificate(),plan.catalog,plan.statement))
+                    records.put(record.kind(),Base64.getEncoder().encodeToString(record.bytes()));
+                var body=Map.of("schema","gse-v53-joining-intent-metadata/1.3","root",context().root,
+                        "owner",MembershipBootstrapSeed.identity(identity),"learner",MembershipBootstrapSeed.identity(learner),
+                        "request",request,"parent",MembershipRetentionIntent.anchor(pending.before.terminal()),
+                        "target",MembershipRetentionIntent.anchor(pending.target()),"records",records,
+                        "payload",Base64.getEncoder().encodeToString(vote.payload()));
+                byte[] bytes=canonical(body,FRAME);check();return bytes;
+            }
+        }
+    }
+    synchronized JoiningIntent joiningIntent(MembershipIdentity learner)throws IOException {return new JoiningIntent(learner);}
     /** One original native application through exact publication. Unlike the
      * pending-only capability, this permits idempotent acknowledgement after the
      * selector changes, but never after another certificate/selection takes over. */

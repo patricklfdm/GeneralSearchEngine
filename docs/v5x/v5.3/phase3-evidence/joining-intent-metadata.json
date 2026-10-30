@@ -1,0 +1,337 @@
+{
+  "actualOldMajorityCertificate": [
+    "node-1",
+    "node-2"
+  ],
+  "actualTcpMetadataTransfer": true,
+  "allJoiningProfilesRoutingOnly": true,
+  "archive": {
+    "bytes": 15821534,
+    "path": "target/v53-joining-intent-metadata/component-validation.tar.gz",
+    "sha256": "afa9a42e62ed3a89f38b885f5fb1c84b47c2575a121b75c9069106a7b2918680"
+  },
+  "automaticJointPublicationQualified": false,
+  "baseCommit": "70609a50e8c7e8e5ad5f712745e0d184048a3058",
+  "codeAndBuildInputsChecked": 1725,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1460,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourcePassingCases": 16,
+  "currentSourceSnapshots": [
+    "joiningmetadatabounded"
+  ],
+  "developmentFailures": {
+    "joiningmetadata": "Native fixture used Network.activate(), which fixes a 180-second campaign even when the enclosing endpoint budget is longer. The original endpoint expired during control setup. Use the declared 12-minute whole-history RoundDriver from the beginning; no production timeout was changed.",
+    "joiningmetadatafinal": "The real TCP metadata exchange, unchanged durable files and refusal of insufficient joint checkpoint votes passed. A subsequent capacity assertion assumed six additional free export slots despite existing native-maintenance borrows. The corrected guard fills the remaining shared slots, checks exact refusal and unchanged accounting, then releases only its own borrows; production code is unchanged.",
+    "joiningmetadatafixed": "The native 2/3 INTENT certificate and rejection of insufficient new-side checkpoint votes both passed; metadata fetch then refused because the old ROOT-only learner contact rejects the new reference. Add a dedicated JOINING_INTENT client mode, preserving the existing ROOT/prefix/progress restrictions."
+  },
+  "fullProcessDeathQualified": false,
+  "nativeBootstrapAndTypedLearner": true,
+  "newSideMajorityStillRequired": true,
+  "nonvotingMetadataReadOnly": true,
+  "paidCloud": false,
+  "pending": [
+    "receiver authentication of complete retained old history and original pending certificate",
+    "force-before-ACK joining witness and its cold ownership/recovery",
+    "minimal-quorum joint publication and joined native/retention handoff",
+    "joint FINAL and fresh barrier; all-profile native physical/history/process qualification"
+  ],
+  "phase3Complete": false,
+  "publicFormatsChanged": false,
+  "publicResourceLimitsChanged": false,
+  "pythonTests": 1,
+  "receiverForceBeforeAckImplemented": false,
+  "reports": {
+    "joiningmetadata": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": {
+        "cases": [
+          {
+            "name": "minimalOldMajorityCanServeOriginalIntentBeforeJointCheckpointExists",
+            "seconds": 196.808,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "d344e155b4858a13a4737660a621f0b536febaad2f8fec74f4991f1ca5fea100"
+      }
+    },
+    "joiningmetadatabounded": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": {
+        "cases": [
+          {
+            "name": "minimalOldMajorityCanServeOriginalIntentBeforeJointCheckpointExists",
+            "seconds": 515.387,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "a92c61e3a09136c1a38fd6781161945b90289b97776f231a726958d340f2e3dc"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentReferenceTest": {
+        "cases": [
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[1]",
+            "seconds": 0.037,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[2]",
+            "seconds": 0.019,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[3]",
+            "seconds": 0.014,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[4]",
+            "seconds": 0.019,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[5]",
+            "seconds": 0.017,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "11eb87014abcdbceb4db220fa063a3c477cb315bda12b7b4e1c1b121af83125d"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublicationLifecycleTest": {
+        "cases": [
+          {
+            "name": "realPublicationRevokesPendingHandleOnlyAfterCompleteCheckpointQuorum",
+            "seconds": 15.427,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "225947e65a02439ce34e40d712d38970c34fcf5458860fa21246205069eddbbe"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53PendingPublicationTest": {
+        "cases": [
+          {
+            "name": "refusesCallerConstructedForeignAndPreviousOwnerApplications",
+            "seconds": 12.134,
+            "status": "PASS"
+          },
+          {
+            "name": "applicationFileReplacementRevokesTheCapability",
+            "seconds": 11.157,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "17db6c39393f51cb45869aa8e5d024457f42937a7e11cfff63c34f05c9bf59fc"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest": {
+        "cases": [
+          {
+            "name": "lostRepliesReuseTheAutomaticallyOpenedSessionAndExactRequest",
+            "seconds": 3.139,
+            "status": "PASS"
+          },
+          {
+            "name": "sharedControlExhaustionRejectsBeforeTraceAndReturnsOnClose",
+            "seconds": 3.079,
+            "status": "PASS"
+          },
+          {
+            "name": "completedReplayCannotBeReboundOrRevivedAfterFencing",
+            "seconds": 12.476,
+            "status": "PASS"
+          },
+          {
+            "name": "wrongContextIdentitySequenceAndNonRequestDoNotAllocateTraces",
+            "seconds": 3.001,
+            "status": "PASS"
+          },
+          {
+            "name": "lostFinalReplyReplaysTheCompletedCacheWithoutNewExport",
+            "seconds": 3.008,
+            "status": "PASS"
+          },
+          {
+            "name": "originalDeadlinePollAndFencingReleaseEverythingWithoutRevival",
+            "seconds": 9.311,
+            "status": "PASS"
+          },
+          {
+            "name": "exactDuplicatesKeepOneSessionWhileFailedTraceCannotReopen",
+            "seconds": 3.095,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "7dfe6c5f4f72975fd247bf2a058bb60dfe9f15e157bcf5da3c852d0fd5e035fe"
+      }
+    },
+    "joiningmetadatafinal": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": {
+        "cases": [
+          {
+            "name": "minimalOldMajorityCanServeOriginalIntentBeforeJointCheckpointExists",
+            "seconds": 517.482,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "eba5069cb48ccbb6abb4d312710ba9cc4848fb586190f5c8acdf5c735f9c1f6b"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentReferenceTest": {
+        "cases": [
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[1]",
+            "seconds": 0.036,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[2]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[3]",
+            "seconds": 0.014,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[4]",
+            "seconds": 0.014,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[5]",
+            "seconds": 0.017,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "633d9ec0fe4d0a05d84b67294f4e8ef2ece212be4efea13a9416b47251c17868"
+      }
+    },
+    "joiningmetadatafixed": {
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": {
+        "cases": [
+          {
+            "name": "minimalOldMajorityCanServeOriginalIntentBeforeJointCheckpointExists",
+            "seconds": 561.434,
+            "status": "FAIL"
+          }
+        ],
+        "sha256": "468e711667df51dfb88b1ee1dce8addc18b8bc6927b63c1fadd68ce8124b2acc"
+      },
+      "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentReferenceTest": {
+        "cases": [
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[1]",
+            "seconds": 0.043,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[2]",
+            "seconds": 0.019,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[3]",
+            "seconds": 0.014,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[4]",
+            "seconds": 0.018,
+            "status": "PASS"
+          },
+          {
+            "name": "aliasBindsFullRequestCutAndPermanentIdentityOnlyWhileSealed(int, String)[5]",
+            "seconds": 0.025,
+            "status": "PASS"
+          }
+        ],
+        "sha256": "3cd00bf3e7932d91cad0c09e56617c9d27caf06a09c480a3d3cac15e3461bb00"
+      }
+    }
+  },
+  "runs": {
+    "joiningmetadata": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joiningmetadata",
+      "requestedTests": [
+        "V53JoiningIntentExportTest"
+      ],
+      "seconds": 211.49544797700946,
+      "skipped": 0,
+      "tests": 1
+    },
+    "joiningmetadatabounded": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentReferenceTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublicationLifecycleTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PendingPublicationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest": 7
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "joiningmetadatabounded",
+      "requestedTests": [
+        "V53JoiningIntentExportTest",
+        "V53JoiningIntentReferenceTest",
+        "V53PendingPublicationTest#refusesCallerConstructedForeignAndPreviousOwnerApplications+applicationFileReplacementRevokesTheCapability",
+        "V53PendingPublicationLifecycleTest#realPublicationRevokesPendingHandleOnlyAfterCompleteCheckpointQuorum",
+        "V53TransferServiceTest#exactDuplicatesKeepOneSessionWhileFailedTraceCannotReopen+wrongContextIdentitySequenceAndNonRequestDoNotAllocateTraces+originalDeadlinePollAndFencingReleaseEverythingWithoutRevival+sharedControlExhaustionRejectsBeforeTraceAndReturnsOnClose+lostRepliesReuseTheAutomaticallyOpenedSessionAndExactRequest+completedReplayCannotBeReboundOrRevivedAfterFencing+lostFinalReplyReplaysTheCompletedCacheWithoutNewExport"
+      ],
+      "seconds": 606.489187218991,
+      "skipped": 0,
+      "tests": 16
+    },
+    "joiningmetadatafinal": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentReferenceTest": 5
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joiningmetadatafinal",
+      "requestedTests": [
+        "V53JoiningIntentExportTest",
+        "V53JoiningIntentReferenceTest"
+      ],
+      "seconds": 532.6598876950011,
+      "skipped": 0,
+      "tests": 6
+    },
+    "joiningmetadatafixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentReferenceTest": 5
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joiningmetadatafixed",
+      "requestedTests": [
+        "V53JoiningIntentExportTest",
+        "V53JoiningIntentReferenceTest"
+      ],
+      "seconds": 576.7102739000111,
+      "skipped": 0,
+      "tests": 6
+    }
+  },
+  "schema": "gse-v53-joining-intent-metadata-component-v1",
+  "sourceChanges": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipActivationEndpoint.java": "e15583add27857fa9beb8086f77dfd45e9b0f7073ad2ff528be4f29d7c3ebd95",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "5849b9313bed25ba6cc67cff66a5361b19828b702a124617648b1658807eaf5c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningIntentExport.java": "646429055b9462c28b9e02e445169c88c9c4f034b7660486b4508310aeae55ed",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java": "f19bffacad3f56953249b0a76aa5549fe8836527af1e0289edd33cb930d778d9",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java": "63e8f189b244ff995cae68b968336d9b1c0a74dd0036798349403cb88c597482",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "ee86308a159e0233fc4c8682b7c54a9d7d9ebf56462da496408ad758a472c9c2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentReferenceTest.java": "09344604dfc38a65d469c05bc6d34977cec27b8a12fb5db258f19a2e740f7084"
+  },
+  "status": "PASS_JOINING_INTENT_METADATA_COMPONENT"
+}

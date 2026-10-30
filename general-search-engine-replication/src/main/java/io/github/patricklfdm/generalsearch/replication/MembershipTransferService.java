@@ -97,15 +97,18 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
                     String digest=(String)payload.get("digest");
                     boolean learnerPrefix=prefix && MembershipLearnerPrefixExport.scope(context,key.reader,digest)!=null;
                     boolean learnerProgress=prefix && MembershipLearnerProgressAccess.scope(context,key.reader,digest)!=null;
+                    boolean joiningIntent=prefix && MembershipJoiningIntentExport.reference(context,key.reader,digest);
                     if(learnerPrefix || learnerProgress) {
                         MembershipLearnerPrefixExport.checkRequest(context,key.reader,identity,request,!learnerPrefix);
                         if(owner.learnerRetentionRequired()) {
                             require(learnerServing!=null,"learner serving quorum link required");recording=learnerServing.get(key.reader);
                         }
-                    }else if(prefix && !context.voters().contains(key.reader.nodeId().value()) && owner.learnerRetentionRequired()) {
+                    }else if(prefix && !joiningIntent && !context.voters().contains(key.reader.nodeId().value()) && owner.learnerRetentionRequired()) {
                         require(MembershipLearnerDiscovery.rootReference(context,key.reader,digest),"learner source requires reserved alias");
                     }
-                    var export=prefix && MembershipLearnerDiscovery.rootReference(context,key.reader,digest)?
+                    var export=joiningIntent?
+                            new MembershipJoiningIntentExport(owner,key.reader,request,resources,clock,started,budget):
+                            prefix && MembershipLearnerDiscovery.rootReference(context,key.reader,digest)?
                             new MembershipLearnerRootExport(owner,key.reader,request,resources,clock,started,budget):
                             learnerPrefix || learnerProgress?
                             new MembershipLearnerPrefixExport(owner,key.reader,request,resources,clock,started,budget,!learnerPrefix,recording):

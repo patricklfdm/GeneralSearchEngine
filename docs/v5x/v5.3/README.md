@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Prepublication INTENT metadata](PHASE_3_JOINING_INTENT_METADATA.md) now has a
+read-only native export for the exact sealed joining identity. A real old-quorum
+certificate and completed native application are required; a published JOINT
+checkpoint is not. This is the first connection needed to break the minimal-old-
+quorum joining cycle. Learner-side original-source authentication, force-before-
+ACK and joint publication/continuation remain **OPEN**.
+
 [Native joined ownership](PHASE_3_JOINED_NATIVE.md) now transfers actual root
 and sidecar descriptors plus the complete surviving storage group into the
 native allocator/journal. Genuine local counter and PROMISE/BASIS operations
