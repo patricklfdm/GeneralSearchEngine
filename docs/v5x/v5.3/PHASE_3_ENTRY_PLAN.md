@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Complete-copy peer confirmation](PHASE_3_PEER_CONFIRMATION.md) retains original
+generation observations through frozen-source reconciliation. Older endpoint debt
+continues checkpoint renewal until verified selection; generic decoded merges
+remain conservative. Component/original-history results and automatic competition
+are recorded separately; Phase 3 remains **OPEN**.
+
 [Maintenance drain ownership](PHASE_3_MAINTENANCE_DRAIN.md) keeps failed receiving
 owners reachable through maintenance, endpoint handoff and outgoing activation.
 Only successful physical close releases the reference; unknown files still block

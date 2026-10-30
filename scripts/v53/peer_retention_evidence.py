@@ -48,6 +48,9 @@ def decode(raw):
     need(type(revision) is int and 0 <= revision <= 2**63-2, 'retention revision')
     need((revision == 0) == (value['previous'] is None), 'retention predecessor')
     need(value['plan']['root'] == value['root'], 'retention plan root')
+    if any({'confirmation', 'renewals'} & set(row) for row in value['plan'].get('peers', [])):
+        from .peer_confirmation_evidence import plan
+        plan(value['plan'])  # Syntax/binding only; never a new forced-copy observation.
     return value
 
 

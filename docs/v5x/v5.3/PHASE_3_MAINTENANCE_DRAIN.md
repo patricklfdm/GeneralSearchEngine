@@ -1,5 +1,9 @@
 # Maintenance drain ownership
 
+The subsequent [peer confirmation correction](PHASE_3_PEER_CONFIRMATION.md)
+addresses the selected three-endpoint union exposed here. It has separate source
+bindings and does not convert this retained failed competition into a pass.
+
 Phase 3 remains **OPEN**. The retained three-owner competition in
 [deferred source maintenance](PHASE_3_DEFERRED_SOURCE_MAINTENANCE.md) failed its
 finite campaign gate and also reported `live scratch children remain`. That

@@ -1,5 +1,10 @@
 # Phase 3B — bounded peer endpoint projection
 
+This records the original pure projection milestone. Subsequent native ledger,
+selected-source and [complete-copy confirmation](PHASE_3_PEER_CONFIRMATION.md)
+integration retain its endpoint bounds and add durable observation/renewal
+metadata. The historical producer/qualification scope below is unchanged.
+
 Status: **LOCAL COMPONENT QUALIFICATION**, not durable or distributed retention.
 The [offline-survivor investigation](PHASE_3_SURVIVOR_RETENTION.md) remains open.
 This batch implements the immutable state rules required before persistence and

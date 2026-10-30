@@ -6,11 +6,15 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 
 /** Pure peer-endpoint retention projection. This is NOT a durable receipt or permission
  * to dispatch. A runtime must persist/replicate its intent before exposure and recover
- * the same uncertainty through selected sources. No public runtime uses this class yet. */
+ * the same uncertainty through selected sources. Decoding alone is not progress. */
 final class MembershipPeerRetentionPlan {
-    private record Peer(MembershipIdentity identity, List<MembershipCapsule.Anchor> possible) {
+    private record Peer(MembershipIdentity identity, List<MembershipCapsule.Anchor> possible,
+                        MembershipPeerConfirmation confirmation,List<MembershipCapsule.Anchor> renewals) {
+        Peer(MembershipIdentity identity,List<MembershipCapsule.Anchor> possible){this(identity,possible,null,List.of());}
         Peer {
             Objects.requireNonNull(identity);possible=possible.stream().map(a->new MembershipCapsule.Anchor(
+                    object(parse(canonical(a.cut(),16384),16384)),a.catalog(),a.application())).toList();
+            renewals=renewals.stream().map(a->new MembershipCapsule.Anchor(
                     object(parse(canonical(a.cut(),16384),16384)),a.catalog(),a.application())).toList();
             require(!possible.isEmpty() && possible.size()<=2,"peer retention unresolved endpoint capacity");
             long previous=-1;
@@ -19,6 +23,13 @@ final class MembershipPeerRetentionPlan {
                 MembershipValidation.digest(anchor.catalog());MembershipValidation.digest(anchor.application());
                 require(index(anchor)>previous,"peer retention endpoint order");previous=index(anchor);
             }
+            require(renewals.size()<=2,"peer retention pending renewal capacity");previous=-1;
+            for(var anchor:renewals) {
+                checkType(anchor.cut(),"cut");MembershipContext.checkView(object(anchor.cut().get("view")));
+                MembershipValidation.digest(anchor.catalog());MembershipValidation.digest(anchor.application());
+                require(index(anchor)>previous && index(anchor)<index(possible.getFirst()),"peer retention pending renewal order");previous=index(anchor);
+            }
+            require(confirmation==null || confirmation.endpoint.equals(possible.getFirst()),"peer confirmation retained endpoint");
         }
     }
     private final String root;
@@ -30,7 +41,8 @@ final class MembershipPeerRetentionPlan {
         this.peers=Collections.unmodifiableSortedMap(new TreeMap<>(peers));
         var voters=new TreeSet<String>(MembershipContext.nodes(view,"old"));voters.addAll(MembershipContext.nodes(view,"new"));
         require(this.peers.keySet().equals(voters) && peers.size()<=6,"peer retention exact governing identities");
-        peers.forEach((name,peer)->require(name.equals(peer.identity.nodeId().value()),"peer retention identity key"));
+        peers.forEach((name,peer)->{require(name.equals(peer.identity.nodeId().value()),"peer retention identity key");
+            if(peer.confirmation!=null)peer.confirmation.binding(root,peer.identity);});
     }
     private static long viewPosition(Map<String,Object> view){return 2*number(view.get("generation"))+(view.get("operation")==null?0:1);}
     private static long index(MembershipCapsule.Anchor anchor){return number(anchor.cut().get("index"));}
@@ -41,8 +53,12 @@ final class MembershipPeerRetentionPlan {
     /** Private canonical metadata, never a capsule, voter receipt or remote proof. */
     byte[] bytes() {
         var rows=new ArrayList<Object>();
-        for(var peer:peers.values())rows.add(Map.of("identity",identity(peer.identity),"possible",peer.possible.stream()
-                .map(a->Map.of("cut",a.cut(),"catalog",a.catalog(),"application",a.application())).toList()));
+        for(var peer:peers.values()) {
+            var row=new TreeMap<String,Object>();row.put("identity",identity(peer.identity));
+            row.put("possible",peer.possible.stream().map(MembershipRetentionIntent::anchor).toList());
+            if(peer.confirmation!=null)row.put("confirmation",peer.confirmation.value());
+            if(!peer.renewals.isEmpty())row.put("renewals",peer.renewals.stream().map(MembershipRetentionIntent::anchor).toList());rows.add(row);
+        }
         return canonical(Map.of("root",root,"view",view,"peers",rows),32768);
     }
     static MembershipPeerRetentionPlan decode(byte[] bytes) {
@@ -50,7 +66,8 @@ final class MembershipPeerRetentionPlan {
         var rows=list(value.get("peers"));require(rows.size()>=3 && rows.size()<=6,"peer retention plan count");
         var peers=new TreeMap<String,Peer>();String prior="";
         for(var row:rows) {
-            var p=object(row);require(p.keySet().equals(Set.of("identity","possible")),"peer retention peer fields");
+            var p=object(row);require(p.keySet().containsAll(Set.of("identity","possible"))
+                    && Set.of("identity","possible","confirmation","renewals").containsAll(p.keySet()),"peer retention peer fields");
             var encoded=object(p.get("identity"));var id=MembershipContext.identity(encoded);
             require(encoded.equals(identity(id)),"peer retention identity fields");String name=id.nodeId().value();
             require(name.compareTo(prior)>0,"peer retention peer order");prior=name;
@@ -60,7 +77,13 @@ final class MembershipPeerRetentionPlan {
                 var a=object(point);require(a.keySet().equals(Set.of("cut","catalog","application")),"peer retention anchor fields");
                 anchors.add(new MembershipCapsule.Anchor(object(a.get("cut")),(String)a.get("catalog"),(String)a.get("application")));
             }
-            peers.put(name,new Peer(id,anchors));
+            var renewals=new ArrayList<MembershipCapsule.Anchor>();
+            if(p.containsKey("renewals")) {
+                var old=list(p.get("renewals"));require(!old.isEmpty() && old.size()<=2,"peer retention pending renewal capacity");
+                for(var item:old) {var a=object(item);require(a.keySet().equals(Set.of("cut","catalog","application")),"peer retention renewal fields");
+                    renewals.add(new MembershipCapsule.Anchor(object(a.get("cut")),(String)a.get("catalog"),(String)a.get("application")));}
+            }
+            peers.put(name,new Peer(id,anchors,p.containsKey("confirmation")?MembershipPeerConfirmation.decodeValue(p.get("confirmation")):null,renewals));
         }
         var plan=new MembershipPeerRetentionPlan((String)value.get("root"),object(value.get("view")),peers);
         require(Arrays.equals(bytes,plan.bytes()),"peer retention noncanonical plan");return plan;
@@ -81,11 +104,14 @@ final class MembershipPeerRetentionPlan {
     }
     private List<MembershipCapsule.Anchor> anchors() {
         var ordered=new TreeMap<Long,MembershipCapsule.Anchor>();
-        for(var peer:peers.values())for(var anchor:peer.possible) {
+        for(var peer:peers.values())for(var anchor:required(peer)) {
             var previous=ordered.putIfAbsent(index(anchor),anchor);
             require(previous==null || previous.equals(anchor),"peer retention conflicting history endpoint");
         }
         return List.copyOf(ordered.values());
+    }
+    private static List<MembershipCapsule.Anchor> required(Peer peer) {
+        var result=new ArrayList<>(peer.renewals);result.addAll(peer.possible);return result;
     }
     List<MembershipCapsule.Anchor> required(MembershipCapsule current,byte[] ancestry) {
         context(current,ancestry,false);return anchors();
@@ -94,20 +120,47 @@ final class MembershipPeerRetentionPlan {
     /** Metadata projection only; the installation must authenticate these anchors. */
     List<MembershipCapsule.Anchor> recorded(){return anchors();}
     static MembershipPeerRetentionPlan mergeRecorded(String root,Map<String,Object> view,List<MembershipPeerRetentionPlan> originals) {
+        return mergeRecorded(root,view,originals,null);
+    }
+    static MembershipPeerRetentionPlan mergeSelected(String root,Map<String,Object> view,MembershipSelectedRetention.Originals originals) {
+        Objects.requireNonNull(originals);return mergeRecorded(root,view,originals.plans,originals.authority);
+    }
+    static MembershipPeerRetentionPlan mergeJoining(String root,Map<String,Object> view,MembershipJoiningRetentionSeed.Originals originals) {
+        Objects.requireNonNull(originals);return mergeRecorded(root,view,originals.plans,originals.authority);
+    }
+    private static MembershipPeerRetentionPlan mergeRecorded(String root,Map<String,Object> view,List<MembershipPeerRetentionPlan> originals,MembershipContext authority) {
         require(!originals.isEmpty() && originals.size()<=7,"selected retention local/source count");
         var first=originals.getFirst();var union=new TreeMap<String,TreeMap<Long,MembershipCapsule.Anchor>>();
-        first.peers.keySet().forEach(n->union.put(n,new TreeMap<>()));
+        first.peers.keySet().forEach(n->union.put(n,new TreeMap<>()));var confirmations=new TreeMap<String,MembershipPeerConfirmation>();
+        var history=new TreeMap<Long,MembershipCapsule.Anchor>();
         for(var plan:originals) {
             require(plan.root.equals(root) && plan.view.equals(view) && plan.peers.keySet().equals(first.peers.keySet()),"selected retention original root/view");
+            for(var anchor:plan.recorded()) {
+                var previous=history.putIfAbsent(index(anchor),anchor);
+                require(previous==null || previous.equals(anchor),"selected retention conflicting history endpoint");
+            }
             for(var row:plan.peers.entrySet()) {
                 require(row.getValue().identity.equals(first.peers.get(row.getKey()).identity),"selected retention original identity");
-                for(var anchor:row.getValue().possible) {
+                for(var anchor:required(row.getValue())) {
                     var previous=union.get(row.getKey()).putIfAbsent(index(anchor),anchor);
                     require(previous==null || previous.equals(anchor),"selected retention conflicting endpoint");
                 }
+                var proof=row.getValue().confirmation;
+                if(authority!=null && proof!=null) {
+                    require(row.getValue().identity.equals(authority.identities.get(row.getKey())),"selected confirmation permanent identity");
+                    require(index(proof.endpoint)<=number(authority.cut.get("index")),"selected confirmation beyond selected cut");
+                    proof.binding(root,row.getValue().identity);var old=confirmations.get(row.getKey());
+                    if(old==null || index(proof.endpoint)>index(old.endpoint)
+                            || index(proof.endpoint)==index(old.endpoint) && proof.digest().compareTo(old.digest())<0)confirmations.put(row.getKey(),proof);
+                }
             }
         }
-        var peers=new TreeMap<String,Peer>();union.forEach((n,points)->peers.put(n,new Peer(first.peers.get(n).identity,List.copyOf(points.values()))));
+        // Validate all original conflicts before discharge. The proof comes
+        // only from verified native selected originals, never a decoded plan.
+        var peers=new TreeMap<String,Peer>();union.forEach((n,points)->{
+            var proof=confirmations.get(n);if(proof!=null)points.headMap(index(proof.endpoint),false).clear();
+            peers.put(n,new Peer(first.peers.get(n).identity,List.copyOf(points.values()),proof,List.of()));
+        });
         return new MembershipPeerRetentionPlan(root,view,peers);
     }
     List<MembershipCapsule.Anchor> possible(MembershipIdentity peer) {
@@ -120,7 +173,8 @@ final class MembershipPeerRetentionPlan {
         context(current,ancestry,true);var old=possible(peer);
         require(old.size()==1,"peer retention unresolved dispatch");
         require(index(old.getFirst())<index(current.terminal()),"peer retention target must advance");
-        var next=new TreeMap<>(peers);next.put(peer.nodeId().value(),new Peer(peer,List.of(old.getFirst(),current.terminal())));
+        var prior=peers.get(peer.nodeId().value());var next=new TreeMap<>(peers);
+        next.put(peer.nodeId().value(),new Peer(peer,List.of(old.getFirst(),current.terminal()),prior.confirmation,prior.renewals));
         return new MembershipPeerRetentionPlan(root,view,next);
     }
     /** Conservative remote intent at this owner's already authenticated current
@@ -154,7 +208,8 @@ final class MembershipPeerRetentionPlan {
             var existing=points.putIfAbsent(index(anchor),anchor);
             require(existing==null || existing.equals(anchor),"retention intent conflicting endpoint");
         }
-        var next=new TreeMap<>(peers);next.put(peer.nodeId().value(),new Peer(peer,List.copyOf(points.values())));
+        var prior=peers.get(peer.nodeId().value());var next=new TreeMap<>(peers);
+        next.put(peer.nodeId().value(),new Peer(peer,List.copyOf(points.values()),prior.confirmation,prior.renewals));
         return new MembershipPeerRetentionPlan(root,view,next);
     }
     private static void copy(MembershipCapsule current,byte[] ancestry,MembershipFloor.Copy copy) {
@@ -168,10 +223,20 @@ final class MembershipPeerRetentionPlan {
     MembershipPeerRetentionPlan observe(MembershipCapsule current,byte[] ancestry,MembershipFloor.Copy copy) {
         context(current,ancestry,true);copy(current,ancestry,copy);var old=possible(copy.owner);var observed=copy.capsule.terminal();
         if(index(observed)<index(old.getFirst()))return this;
+        // Genesis cannot discharge an older endpoint. Keep unchanged legacy
+        // bytes instead of creating a useless confirmation/revision at startup.
+        if(index(observed)==0)return this;
         var next=new TreeMap<>(peers);var endpoints=new ArrayList<MembershipCapsule.Anchor>();endpoints.add(observed);
         for(var anchor:old)if(index(anchor)>index(observed))endpoints.add(anchor);
         else if(index(anchor)==index(observed))require(anchor.equals(observed),"peer retention conflicting observed endpoint");
-        next.put(copy.owner.nodeId().value(),new Peer(copy.owner,endpoints));return new MembershipPeerRetentionPlan(root,view,next);
+        var prior=peers.get(copy.owner.nodeId().value());var renewals=new TreeMap<Long,MembershipCapsule.Anchor>();
+        prior.renewals.forEach(a->renewals.put(index(a),a));old.stream().filter(a->index(a)<index(observed)).forEach(a->renewals.put(index(a),a));
+        var proof=MembershipPeerConfirmation.observed(copy);
+        // An equivalent later manifest need not rewrite an already confirmed
+        // endpoint. The original bytes are sufficient and remain immutable.
+        if(prior.confirmation!=null && prior.confirmation.endpoint.equals(observed))proof=prior.confirmation;
+        next.put(copy.owner.nodeId().value(),new Peer(copy.owner,endpoints,proof,List.copyOf(renewals.values())));
+        var result=new MembershipPeerRetentionPlan(root,view,next);result.bytes();return result;
     }
     /** Conservative selected-state merge. A purported higher endpoint in another
      * plan never erases a lower possibility. Only actual complete-copy observations
@@ -183,7 +248,7 @@ final class MembershipPeerRetentionPlan {
         for(String node:current.context.voters())union.put(node,new TreeMap<>());
         for(var original:originals) {
             original.context(current,ancestry,true);
-            for(var entry:original.peers.entrySet())for(var anchor:entry.getValue().possible) {
+            for(var entry:original.peers.entrySet())for(var anchor:required(entry.getValue())) {
                 var previous=union.get(entry.getKey()).putIfAbsent(index(anchor),anchor);
                 require(previous==null || previous.equals(anchor),"peer retention conflicting imported endpoint");
             }

@@ -1,5 +1,10 @@
 # Phase 3B — selector-coupled retention merge
 
+Later [complete-copy confirmations](PHASE_3_PEER_CONFIRMATION.md) add a verified
+original-source discharge path. Bare decoded unions remain conservative; a
+revision or cut claim still cannot erase uncertainty. The evidence below records
+the earlier union-only component, not the subsequent confirmation qualification.
+
 Status: **LOCAL COMPONENT QUALIFICATION**. The
 [source-bound receipt](phase3-evidence/selected-retention.json) records the build
 snapshots, native process evidence and independent replay. This extends the

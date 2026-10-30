@@ -8,6 +8,12 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
  * frozen old-majority originals are retained for replay. This value grants no
  * voting, dispatch, ledger installation or deletion authority. */
 final class MembershipJoiningRetentionSeed {
+    /** Created only after exact old-majority originals and their complete
+     * endpoint ancestry have passed the seed verifier. Never an install permit. */
+    static final class Originals {
+        final List<MembershipPeerRetentionPlan> plans;final MembershipContext authority;
+        private Originals(List<MembershipPeerRetentionPlan> plans,MembershipContext authority){this.plans=List.copyOf(plans);this.authority=authority;}
+    }
     static final int MAXIMUM=FRAME;
     static final int FRAGMENT_MAXIMUM=2*1024*1024;
     private static final String SCHEMA="gse-v53-joining-retention-seed/1.3";
@@ -52,7 +58,8 @@ final class MembershipJoiningRetentionSeed {
                 current,ancestry,joining);
     }
     /** Replays the exact included bytes; decoded output is still not authority.
-     * Uncertainty is unioned, never narrowed from a claimed higher endpoint. */
+     * Only included native complete-copy confirmations can discharge old peer
+     * uncertainty; a claimed higher cut alone cannot. */
     static MembershipJoiningRetentionSeed read(byte[] bytes,MembershipCapsule current,byte[] ancestry,MembershipIdentity joining) {
         require(bytes.length<=MAXIMUM,"joining retention total capacity");var value=object(parse(bytes,MAXIMUM));
         require(value.keySet().equals(Set.of("schema","root","joining","cut","catalog","application","sources"))
@@ -87,7 +94,7 @@ final class MembershipJoiningRetentionSeed {
             peer.state().plan().capture(current,ancestry);learner.state().plan().required(current,ancestry);
             peers.add(peer.state().plan());learners.add(learner.state().plan());
         }
-        var peerPlan=MembershipPeerRetentionPlan.mergeRecorded(context.root,context.view,peers);
+        var peerPlan=MembershipPeerRetentionPlan.mergeJoining(context.root,context.view,new Originals(peers,context));
         var learnerPlan=MembershipLearnerRetentionPlan.mergeRecorded(context.root,learners);
         peerPlan.required(current,ancestry);learnerPlan.required(current,ancestry);
         return new MembershipJoiningRetentionSeed(bytes,peerPlan,learnerPlan);

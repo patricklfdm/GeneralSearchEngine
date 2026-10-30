@@ -82,6 +82,22 @@ class V53JoiningRetentionSeedTest {
         assertThrows(IllegalArgumentException.class,()->MembershipJoiningRetentionSeed.capture(in.current,in.ancestry,
                 new MembershipIdentity(in.joining.nodeId(),UUID.randomUUID(),in.joining.endpoint()),in.sources));
     }
+    @Test void includedOldMajorityCanCarryConfirmedPeerProgress()throws Exception {
+        var in=input(3,"REPLACE");var first=in.sources.getFirst();var peer=V53DeclarationsTest.node(3);
+        var plan=MembershipPeerRetentionSource.read(first).state().plan();
+        var learner=MembershipLearnerRetentionSource.read(first).state().plan();
+        var fields=object(V53ContextFixture.mutable(parse(plan.bytes(),32768)));var row=object(list(fields.get("peers")).get(2));
+        var points=new ArrayList<Object>(list(row.get("possible")));
+        points.add(MembershipRetentionIntent.anchor(V53CapsuleFixture.fromHistory(in.fixture.source,3).verify().terminal()));row.put("possible",points);
+        var old=MembershipPeerRetentionPlan.decode(canonical(fields,32768));
+        var helper=new V53PeerRetentionPlanTest();helper.temp=temp;
+        var confirmed=old.observe(in.current,in.ancestry,helper.copy(3,6,3));
+        assertThrows(IllegalArgumentException.class,()->MembershipPeerRetentionPlan.mergeRecorded(in.current.context.root,in.current.context.view,List.of(old,confirmed)));
+        var sources=List.of(source(in.fixture,"node-1",20,old,learner,null),source(in.fixture,"node-2",20,confirmed,learner,null));
+        var seed=MembershipJoiningRetentionSeed.capture(in.current,in.ancestry,in.joining,sources);
+        assertEquals(List.of(6L),V53PeerRetentionPlanTest.cuts(seed.peers.possible(peer)));
+        assertArrayEquals(seed.peers.bytes(),MembershipJoiningRetentionSeed.read(seed.bytes(),in.current,in.ancestry,in.joining).peers.bytes());
+    }
     @Test void rejectsWrongCutUnsettledTailAndMissingLedger() {
         var in=input(3,"ADD");var first=in.sources.getFirst();
         var peer=MembershipPeerRetentionSource.read(first).state().plan();var learner=MembershipLearnerRetentionSource.read(first).state().plan();

@@ -10,6 +10,12 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipValidati
 /** Local selector-coupled merge intent. Exact included originals are retained, not
  * six full source packets. This is not permission to dispatch or a new vote. */
 final class MembershipSelectedRetention {
+    /** Constructed only after every original source, local ledger and fixed
+     * SELECTED reference has passed this verifier. Not a copy observation. */
+    static final class Originals {
+        final List<MembershipPeerRetentionPlan> plans;final MembershipContext authority;
+        private Originals(List<MembershipPeerRetentionPlan> plans,MembershipContext authority){this.plans=List.copyOf(plans);this.authority=authority;}
+    }
     static final int MAGIC=0x47535253;
     static final int MAXIMUM=HEADER+4+4096+4+65536+4+MembershipPeerRetentionFiles.MAXIMUM+4
             +6*(12+16384+MembershipSourcePacket.ENVELOPE+MembershipPeerRetentionSource.MAXIMUM);
@@ -138,7 +144,7 @@ final class MembershipSelectedRetention {
         }
         MembershipSelectedSources.cuts(bases.toByteArray(),selected);
         require(refs.stream().map(MembershipFormat::object).anyMatch(r->r.get("voter").equals(local.nodeId().value())),"selected retention local source absent");
-        return new MembershipSelectedRetention(bytes,raw,MembershipPeerRetentionPlan.mergeRecorded(root,view,plans),objects,List.copyOf(futures.values()));
+        return new MembershipSelectedRetention(bytes,raw,MembershipPeerRetentionPlan.mergeSelected(root,view,new Originals(plans,authority.context)),objects,List.copyOf(futures.values()));
     }
     private static void part(ByteArrayOutputStream output,byte[] bytes,int maximum) {
         require(bytes.length>0 && bytes.length<=maximum,"selected retention member bound");

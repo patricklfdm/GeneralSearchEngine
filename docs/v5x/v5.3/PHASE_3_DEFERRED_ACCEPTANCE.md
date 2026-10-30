@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Peer confirmation](PHASE_3_PEER_CONFIRMATION.md) adds a focused native
+bootstrap/three-election/publication replay. Preserve every original generation,
+local renewal debt, frozen source and selected completion when extending this to
+process-death cuts and all profiles. Complete automatic competing-owner replay
+and joining-confirmation crash qualification remain separate required gates.
+
 [In-flight native process histories](PHASE_3_NODE_INFLIGHT.md) cover the four
 ACCEPT/PROOF parent-force and halt/SIGKILL combinations, with fresh-ballot
 reacceptance of the original DATA followed by a distinct BARRIER before READY.

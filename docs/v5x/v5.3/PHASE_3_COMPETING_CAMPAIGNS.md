@@ -1,5 +1,10 @@
 # Native competing-campaign recovery
 
+[Complete-copy peer confirmation](PHASE_3_PEER_CONFIRMATION.md) addresses the
+later three-endpoint selected union using retained original generation observations.
+It preserves conservative admission for unconfirmed sources and keeps all earlier
+failed histories; the dedicated receipt records the new-source qualification.
+
 Later [maintenance drain ownership](PHASE_3_MAINTENANCE_DRAIN.md) repairs failed
 receive cleanup references and retains per-node closing diagnostics. Its results
 are separately source-bound; the earlier failures below remain unchanged.

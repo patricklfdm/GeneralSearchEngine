@@ -43,6 +43,9 @@ def intent(owner, selected, before, rows):
 
 def merged(before, sources):
     original = r.decode(before); plan = copy.deepcopy(original['plan'])
+    for raw in [before, *sources]:
+        need(all(not {'confirmation', 'renewals'} & set(row) for row in r.decode(raw)['plan']['peers']),
+             'peer confirmation requires original provenance replay')
     by_owner = {f.canonical(row['identity']): row for row in plan['peers']}
     for raw in sources:
         state = r.decode(raw)
@@ -71,7 +74,7 @@ def initialize(group):
             for (n, files), identity in zip(sorted(group.items()), identities)}
 
 
-def campaign(root, group, counter, observed, *, selected_prefix=None, proposer='node-1'):
+def campaign(root, group, counter, observed, *, selected_prefix=None, proposer='node-1', merge_ledgers=merged, retained_ancestry=None):
     """Only fresh UUIDs are observed. Every other byte is independently derived."""
     need(proposer in group, 'selected retention original proposer absent')
     from . import learner_retention_evidence as learner
@@ -128,9 +131,11 @@ def campaign(root, group, counter, observed, *, selected_prefix=None, proposer='
         members = dict(zip(('promise.gsr', 'basis.gsr'), grants[node]), **{'selected.gsr': selected,
             'selected-sources.gsr': b''.join(grants[n][1] for n in names), 'source.gscp': raw})
         members.update({h+'.image': old[h+'.image'] for h in packet['images']})
+        if retained_ancestry is not None and retained_ancestry[node]:
+            members['ancestry.gsr'] = retained_ancestry[node]
         selector, generation = b.c.generation(members, p.decode(raw)['capsule'], node, 'b' if prefix == 'generations/a/' else 'a', None)
         installed[node] = dict(files, **generation, **{'selector.gsr': selector,
-                              FILE: merged(files[FILE], [group[n][FILE] for n in names])})
+                              FILE: merge_ledgers(files[FILE], [group[n][FILE] for n in names])})
         if learner_mode:installed[node][learner.FILE]=learner.merged(files[learner.FILE],[group[n][learner.FILE] for n in names])
     return prepared, chosen, installed
 

@@ -1,0 +1,325 @@
+{
+  "archive": {
+    "bytes": 11561189,
+    "files": 24677,
+    "path": "target/v53-peer-retention-merge/qualification.tar.gz",
+    "sha256": "1ae9490b6ce733cdaf42404ec7645423ade0095b1321c828d947ae417c1639e9",
+    "verification": "PASS"
+  },
+  "baseCommit": "f7ff51bcf82053ba55624ae87cebdf2c82128906",
+  "competingQualification": {
+    "analysis": {
+      "drains": [
+        {
+          "failure": "",
+          "leases": 0,
+          "node": "node-3"
+        },
+        {
+          "failure": "",
+          "leases": 0,
+          "node": "node-2"
+        },
+        {
+          "failure": "",
+          "leases": 0,
+          "node": "node-1"
+        }
+      ],
+      "events": {
+        "node-1": {
+          "ALLOCATOR_BEFORE_RETURN": 1,
+          "RETENTION_PARENT_FORCED": 10,
+          "ROUND_BEFORE_READY": 0,
+          "ROUND_INSTALLED": 0,
+          "ROUND_SLOT_COMPLETE": 0,
+          "SELECTED_FORCED": 3,
+          "SELECTED_RETENTION_COMPLETED": 2,
+          "SLOT_PUBLISHED": 0
+        },
+        "node-2": {
+          "ALLOCATOR_BEFORE_RETURN": 3,
+          "RETENTION_PARENT_FORCED": 5,
+          "ROUND_BEFORE_READY": 1,
+          "ROUND_INSTALLED": 1,
+          "ROUND_SLOT_COMPLETE": 1,
+          "SELECTED_FORCED": 1,
+          "SELECTED_RETENTION_COMPLETED": 1,
+          "SLOT_PUBLISHED": 1
+        },
+        "node-3": {
+          "ALLOCATOR_BEFORE_RETURN": 2,
+          "RETENTION_PARENT_FORCED": 5,
+          "ROUND_BEFORE_READY": 1,
+          "ROUND_INSTALLED": 2,
+          "ROUND_SLOT_COMPLETE": 1,
+          "SELECTED_FORCED": 2,
+          "SELECTED_RETENTION_COMPLETED": 1,
+          "SLOT_PUBLISHED": 1
+        }
+      },
+      "observations": [
+        {
+          "event": "START_COMPLETED",
+          "node": "node-3"
+        },
+        {
+          "event": "READINESS_LOST",
+          "node": "node-3",
+          "reason": "HIGHER_BALLOT"
+        },
+        {
+          "event": "START_COMPLETED",
+          "node": "node-2"
+        }
+      ]
+    },
+    "failure": "MembershipCampaignLost: higher activation promise",
+    "raw": "target/v53-native-cancellation/builds/peerconfirmationwhole-f3a49d89/general-search-engine-replication/target/v53-competing-node/run-f7f68778-9fb1-437b-8ddb-7dd42657870c",
+    "rawHashes": {
+      "calls.json": "b961e891f165c19571c9ae7e31362f90e72d33725f93c392c38f6fa873eaa12f",
+      "close-failure.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "diagnostics.json": "12a0bd0f52d6770bdf34d8b0f60578e399d043406d43a318d32b04aa9403304c",
+      "drains.json": "b4107f03137e43c8bcbc36ecae83e4656ac2b47f79ff005ff93a5e53ca405ce5",
+      "events.json": "21e0121826d2bf8557e58ce8c24fd837f390e63c8516e9ba3782e33b1dd66141",
+      "failure.txt": "ff34fe78abfeacae86607710a7515a7f43f9236554d18fb61e2058362e60c74b",
+      "observations.json": "127ad28fa7cdd1a23d1a93acf3c8673d1967b1b23849dc4bdadb500036a70349",
+      "original-application.image": "2689d11dbb50864223a3286fc0d4b96d7db740aef6d553a4789f34b96b137869",
+      "original-plan.gsbp": "0f1831ede100d3c14147fddff83df13c45f4922b2c0350281d32f7bd9abe367a",
+      "result.json": "b253e1e8f50319bec34f66eaa4583a3e62f64d8dcd5ce3773c877166253243e7",
+      "wire.json": "76c111e1936016ec792079312dfeaad325c919e216a6fa6e8991dca7c02bf999"
+    },
+    "result": {
+      "automaticOwners": 3,
+      "defaultBounds": true,
+      "nodes": 3,
+      "phase3Complete": false,
+      "physicalReplay": false,
+      "producerPassed": false,
+      "status": "FAIL"
+    },
+    "roundLimitInference": "The terminal unsuppressed typed loss before external close is consistent with exhaustion of the existing three-round limit; the in-memory round counter is not directly recorded.",
+    "status": "FAIL"
+  },
+  "componentRegressionStatus": "PASS",
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1719,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "developmentNotes": [
+    "The original implementation deterministically fails the new native regression at the three-endpoint selected union.",
+    "The first corrected snapshot passed 11 tests. The next 31-test draft failed three new checks: repeated observation rewrote the ledger, and two negative tests tried to mutate immutable maps. All original attempts remain archived.",
+    "The final 25-test component snapshot and the complete competition snapshot match every production and POM input. The final Python reader has its own complete source/contract input inventory.",
+    "Native confirmations retain exact original generation bytes and checkpoint renewal debt. Only verified selected or old-majority joining originals permit discharge; bare decoded merge remains conservative.",
+    "The independent original replay first needed current-prefix handling, correct generation lookup and pre-merge installation ancestry. Failed reader attempts are retained, never counted as accepted negatives; the native history was not rerun for those reader fixes.",
+    "The corrected whole competition did not report the earlier endpoint capacity error, but did not converge or complete client DATA. All three owners drained with zero leases.",
+    "No time/resource/retry limits, workflows, POMs, public wire catalog, client replay or paid-cloud behavior changed. No push or external dispatch."
+  ],
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53PeerConfirmationTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "peerconfirmationbaseline",
+      "requestedTests": [
+        "V53PeerConfirmationTest"
+      ],
+      "seconds": 77.29971799100167,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53PeerConfirmationTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53SelectedRetentionTest": 4
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "peerconfirmationcandidate",
+      "requestedTests": [
+        "V53PeerConfirmationTest",
+        "V53PeerRetentionPlanTest",
+        "V53SelectedRetentionTest"
+      ],
+      "seconds": 208.06759209898883,
+      "skipped": 0,
+      "tests": 11
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionSeedTest": 12,
+        "io.github.patricklfdm.generalsearch.replication.V53PeerConfirmationTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest": 6,
+        "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionSourceTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53SelectedRetentionTest": 4
+      },
+      "exit": 1,
+      "failures": 3,
+      "label": "peerconfirmationqualified",
+      "requestedTests": [
+        "V53PeerConfirmationTest",
+        "V53PeerRetentionPlanTest",
+        "V53SelectedRetentionTest",
+        "V53JoiningRetentionSeedTest",
+        "V53PeerRetentionSourceTest"
+      ],
+      "seconds": 370.73979429900646,
+      "skipped": 0,
+      "tests": 31
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53FutureRetentionEndpointTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningRetentionSeedTest": 13,
+        "io.github.patricklfdm.generalsearch.replication.V53PeerConfirmationTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionFilesTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53RetentionQuorumTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53SelectedRetentionTest": 4
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "peerconfirmationfinal",
+      "requestedTests": [
+        "V53PeerConfirmationTest",
+        "V53JoiningRetentionSeedTest",
+        "V53SelectedRetentionTest",
+        "V53PeerRetentionFilesTest#nativeDispatchRetainsBothEndpointsAcrossReopenAndOldReplies",
+        "V53FutureRetentionEndpointTest#delayedDuplicateAfterPublicationUsesCurrentLedgerAndNeverRegressesRealObservation+earlierAmbiguityAndDifferentLowerEndpointsRequireRealCopyReconciliation",
+        "V53RetentionQuorumTest#duplicateAndLaterRealObservationDoNotRewriteOrRegressLedger"
+      ],
+      "seconds": 332.27635660397937,
+      "skipped": 0,
+      "tests": 25
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeQualification": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "peerconfirmationwhole",
+      "requestedTests": [
+        "V53CompetingNodeQualification"
+      ],
+      "seconds": 137.24524273499264,
+      "skipped": 0,
+      "tests": 1
+    }
+  ],
+  "independentReplay": {
+    "automaticCompetition": false,
+    "campaigns": 3,
+    "joining": false,
+    "negatives": [
+      {
+        "case": "bootstrap",
+        "reason": "admitted original public bootstrap"
+      },
+      {
+        "case": "generation",
+        "reason": "admitted exact slot-2-settled: node-3"
+      },
+      {
+        "case": "confirmation",
+        "reason": "admitted exact after-confirmation: node-2"
+      },
+      {
+        "case": "renewals",
+        "reason": "admitted exact after-confirmation: node-2"
+      },
+      {
+        "case": "source",
+        "reason": "admitted exact round-3-prepared: node-2"
+      },
+      {
+        "case": "selected",
+        "reason": "admitted exact round-3-selected: node-1"
+      },
+      {
+        "case": "completion",
+        "reason": "admitted exact round-3-installed: node-1"
+      },
+      {
+        "case": "ancestry",
+        "reason": "admitted exact round-3-installed: node-1"
+      },
+      {
+        "case": "published",
+        "reason": "admitted exact slot-3-settled: node-1"
+      },
+      {
+        "case": "copy-call",
+        "reason": "peer confirmation complete original calls"
+      },
+      {
+        "case": "force",
+        "reason": "selected retention force order: peer confirmation"
+      },
+      {
+        "case": "early-return",
+        "reason": "selected retention force order: peer confirmation install-3"
+      }
+    ],
+    "originalBootstrap": true,
+    "originalPublication": true,
+    "phase3Complete": false,
+    "processCrash": false,
+    "publications": 3,
+    "raw": "target/v53-native-cancellation/builds/peerconfirmationfinal-203b3a23/general-search-engine-replication/target/v53-selected-retention/run-8d97102f-b76a-477a-a2a5-3e44fdc36a82",
+    "result": "target/v53-peer-retention-merge/qualified-replay.json",
+    "scope": "native-peer-confirmation-selected-merge",
+    "sha256": "56c807d4e6ecebd2e804a0671121141d7e5ffdb1e7cf0b5dd590f524ec773053",
+    "status": "PASS"
+  },
+  "originalFailure": {
+    "analysis": "target/v53-peer-retention-merge/original-endpoints.json",
+    "sha256": "270db15769e1ac994b9975bb60394cd1c58278e7fcb69961ae1f5fdce02c51d2",
+    "sourceReceipt": "docs/v5x/v5.3/phase3-evidence/maintenance-drain.json"
+  },
+  "phase3Complete": false,
+  "phase3Status": "OPEN",
+  "productionInputParity": 318,
+  "pythonValidation": {
+    "command": "python3 -B -m unittest discover -s scripts/v53 -t . -p test_*.py",
+    "exit": 0,
+    "inputInventorySha256": "7c4d9948c5425a8fafd8a99e7d8f44af51da3699a04febb631cac1b633673f23",
+    "inputInventoryVerifiedUnchangedAtTestCompletion": true,
+    "logSha256": "1703080a6bbbb8ff3e6c45da6f258c348743e1f6337dd3216d211fa844aba9b3",
+    "seconds": 87.07887090998702,
+    "status": "PASS",
+    "subsequentDocumentationChanges": [
+      "docs/v5x/v5.3/PHASE_3_PEER_CONFIRMATION.md"
+    ],
+    "tests": 924
+  },
+  "remaining": [
+    "Complete automatic competing-owner convergence and independent network/history replay",
+    "Incoming maintenance direct-source scratch crash recovery",
+    "Confirmation process cuts, repeated renewal capacity and all membership profiles",
+    "Extend older original-first native/joining readers for the new optional metadata before complete Phase 3 acceptance"
+  ],
+  "schema": "gse-v53-peer-confirmation-qualification-v1",
+  "sources": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "8a3f99b3552d0a73d62fca2082af6944ba7468613fbbffd4806bfa1357742e9f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningRetentionSeed.java": "e93ddac429bb6978134e7eb1e528e63be703c9d87e07dac77b8c766d198a8f6d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerConfirmation.java": "c922a04bf0ceb33946abe930f4f21af5fbdb7945c2c0aa9d45de1f054ed91d0c",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionPlan.java": "dbf38f7dbe2f66d1389eb52f5f3c748e9ee23d0083f6f41db29bc6b9b7aa3a54",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSelectedRetention.java": "fa1c613bd6cd4b902a00b47092485310defe072b2d6d1764db9ef3b977f19848",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningRetentionSeedTest.java": "eac0408e8e32f20c8d8c0638bd14b5cfa4ff57a4ce963477549d394f66c8ead9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53PeerConfirmationTest.java": "4de8357b3effc3f2e5f76aa8323bb504aa1ebd003f72602f272ca66623fc3d11",
+    "scripts/v53/peer_confirmation_evidence.py": "5cde8bc78a2126659acd66cfe5f2cd6aa0be9b08623254703da2a12d5b9d780b",
+    "scripts/v53/peer_retention_evidence.py": "00da2490cd6456e95419fa63857a6eb3a841411d26f049319b00d7e73cfa90ca",
+    "scripts/v53/selected_retention_evidence.py": "448fb8515c6e2910592e3c95f89640d82e70e14320363afb0cd696765bd81c97",
+    "scripts/v53/test_peer_confirmation_evidence.py": "07cf7a398e2dfe8078dbf80cd98e81bbf0a52a6b256dbaabc7907fa4ecd607fc"
+  },
+  "status": "PARTIAL"
+}
