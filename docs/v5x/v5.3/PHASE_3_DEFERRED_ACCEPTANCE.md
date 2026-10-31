@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining profile network replay](PHASE_3_JOINING_PROFILE_NETWORK.md) composes
+physical continuation with complete attempted transport and original durable
+ACK checks. It binds the actual joining identity for all five ADD/REPLACE
+profiles; full export/maintenance/process and cohort qualification remain open.
+
 [Original transport failures](PHASE_3_TRANSPORT_ATTEMPTS.md) now retain and
 independently bind terminal observations without inventing ACKs. Six short TCP
 cases qualify the collection path; old incomplete histories remain rejected.

@@ -53,7 +53,7 @@ class V53TransportAttemptTest {
                 "cases",cases,"network",true,"phase3Complete",false,"completeMembershipHistory",false),65536));
     }
     private static MembershipTransport.Events trace(String node,boolean scoped,List<Map<String,Object>> events,List<Map<String,Object>> wire) {
-        if(scoped)return new V53JoiningTrace(node,events,wire).transport("attempt-test");
+        if(scoped)return new V53JoiningTrace(node,events,wire).transport("attempt-test",(event,request,response)->{});
         return V53JoiningTrace.withFailures(node,null,events,()->true,(event,request,response)->{
             V53JoiningTrace.requestObservation(events,node,event,request);
             if(event.equals("AFTER_RESPONSE_READ"))events.add(Map.of("node",node,"event","NETWORK_RECEIVED","kind",response.kind(),"response",response.digest()));

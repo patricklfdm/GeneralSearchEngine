@@ -53,6 +53,18 @@ final class V53JoiningTrace {
             }
         };
     }
+    /** Preserve both callback methods when a fixture adds diagnostics. */
+    MembershipTransport.Events transport(String scope,MembershipTransport.Events observer) {
+        var collected=transport(scope);Objects.requireNonNull(observer);
+        return new MembershipTransport.Events() {
+            @Override public void at(String event,Decoded request,Decoded response)throws java.io.IOException {
+                collected.at(event,request,response);observer.at(event,request,response);
+            }
+            @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason)throws java.io.IOException {
+                collected.failed(outbound,request,reason);observer.failed(outbound,request,reason);
+            }
+        };
+    }
     MembershipTransport.Events transport(String scope) {
         Objects.requireNonNull(scope);
         return withFailures(node,scope,events,()->true,(event,request,response)->{

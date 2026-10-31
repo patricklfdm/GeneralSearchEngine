@@ -246,10 +246,9 @@ class V53JoiningIntentExportTest {
                             var files=V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory());
                             var learnerFiles=V53ReplayFilesTest.files(request.operationDirectory());
                             var wire=new ArrayList<Map<String,Object>>();
-                            try(var contact=MembershipTransport.learnerJoiningIntent(request,new MembershipDiscovery.Hint(targets.getFirst(),before.cut,false),n.bounds,pool,(event,q,a)->{
-                                trace.transport("intent-metadata").at(event,q,a);
+                            try(var contact=MembershipTransport.learnerJoiningIntent(request,new MembershipDiscovery.Hint(targets.getFirst(),before.cut,false),n.bounds,pool,trace.transport("intent-metadata",(event,q,a)->{
                                 if(event.equals("AFTER_RESPONSE_READ"))wire.add(V53SelectedPullTest.wire(q,a));
-                            })) {
+                            }))) {
                                 var forbidden=new TreeMap<>(first.value());var p=new TreeMap<>(object(first.value().get("payload")));
                                 p.put("digest",MembershipLearnerDiscovery.reference(request));forbidden.put("payload",p);
                                 assertEquals(MembershipTransport.Reason.PROTOCOL,V53MembershipTransportTest.failure(contact.exchange(targets.getFirst(),
@@ -291,13 +290,12 @@ class V53JoiningIntentExportTest {
                                     if(publishJoint) {
                                         var readers=java.util.concurrent.ConcurrentHashMap.<String>newKeySet();
                                         var ackWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
-                                        try(var listener=pending.listen(n.bounds,(event,requestFrame,response)->{
-                                            trace.transport("pending-listener").at(event,requestFrame,response);
+                                        try(var listener=pending.listen(n.bounds,trace.transport("pending-listener",(event,requestFrame,response)->{
                                             if(event.equals("BEFORE_RESPONSE_WRITE")) {
                                                 readers.add((String)object(requestFrame.value().get("sender")).get("node"));
                                                 ackWire.add(V53SelectedPullTest.wire(requestFrame,response));
                                             }
-                                        },System::nanoTime,System.nanoTime(),BUDGET)) {
+                                        }),System::nanoTime,System.nanoTime(),BUDGET)) {
                                             n.publish(certificate);
                                             if(profile.requiresJoiningAck())assertEquals(new HashSet<>(profile.oldVoters()),readers);
                                             else assertTrue(new HashSet<>(profile.oldVoters()).containsAll(readers));
@@ -322,10 +320,9 @@ class V53JoiningIntentExportTest {
                                             // or direct checkpoint insertion supplies this joining end.
                                             progress.close();var retained=pending.retainSource();Decoded nativeBasis;long nativeCounter=0;
                                             var confirmationWire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
-                                            try(var headEndpoint=retained.listenHead(n.bounds,(event,q,a)->{
-                                                trace.transport("retained-head").at(event,q,a);
+                                            try(var headEndpoint=retained.listenHead(n.bounds,trace.transport("retained-head",(event,q,a)->{
                                                 if(event.equals("BEFORE_RESPONSE_WRITE"))confirmationWire.add(V53SelectedPullTest.wire(q,a));
-                                            })) {
+                                            }))) {
                                                 for(int voter:n.voters) {
                                                     var sourceOwner=n.owners.get(voter);var sourcePool=n.resources.get(voter);
                                                     assertEquals(List.of(preparedIndex,sealedIndex),sourceOwner.learnerRetentionState().plan().recorded().stream().map(a->number(a.cut().get("index"))).toList());
@@ -594,11 +591,10 @@ class V53JoiningIntentExportTest {
                         n.diagnostic(owner.activationIdentity().nodeId().value(),"HANDLER_FAILED",request,error);
                         failures.add(Map.of("kind",request.kind(),"request",request.digest(),"failure",error.toString()));throw error;
                     }
-                },(event,request,response)->{
-                    trace.transport("continuation-endpoint").at(event,request,response);
+                },trace.transport("continuation-endpoint",(event,request,response)->{
                     n.diagnostic(owner.activationIdentity().nodeId().value(),event,request,null);
                     if(event.equals("BEFORE_RESPONSE_WRITE"))wire.add(V53SelectedPullTest.wire(request,response));
-                })) {
+                }))) {
                 link.set(transport);if(joiningService){assertEquals(MembershipEndpointHandoff.State.ACTIVE,joined.state());assertNotNull(joined.votingEndpoint());}
                 for(int i=profile.majority();i<profile.size();i++)assertTrue(n.transports.get(i).usage().closed());probeOldLocks(n);
                 new V53MembershipOwnershipTest().probe(config.replicaDirectory().resolve("replica.lock"));

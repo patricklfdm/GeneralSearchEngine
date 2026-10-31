@@ -72,7 +72,7 @@ def installations(root, events, rows, replay, bases):
         actual = [(at,v) for at,v in enumerate(events) if v.get('node') == node and v['event'] == 'SELECTED_FORCED']
         need(len(expected) == len(actual),'joining network complete selection forces')
         for (digest,selected),(at,event) in zip(expected,actual):
-            need(event.get('scope') == ('continuation-owner' if node == 'node-4' else None),
+            need(event.get('scope') == ('continuation-owner' if node == replay.joining else None),
                  'joining network selection lifetime')
             forced[node,digest] = at
             for source in selected['sources']:
@@ -91,14 +91,14 @@ def installations(root, events, rows, replay, bases):
         need(selected is not None and row['answer'] == 'INSTALL_ACK' and q['payload'] == dict(selection=digest) and
              q['ballot'] == selected['ballot'] and q['view'] == selected['view'] and
              a['payload'] == dict(selection=digest, cut=selected['cut']), 'joining network installation authority')
-        node = q['recipient']['node']; scope = 'continuation-owner' if node == 'node-4' else None
+        node = q['recipient']['node']; scope = 'continuation-owner' if node == replay.joining else None
         need((node,digest) not in used and forced[q['sender']['node'],digest] < row['sent'] and
              row['received'] < forced[node,digest] < row['offered'], 'joining network selected propagation order')
         used.add((node,digest))
         cut = selected['cut']['index']
         labels = {0:'installed',2:'installed-2',4:'installed-3',6:'installed-4',9:'continuation-installed-9',10:'continuation-installed-10'}
         need(cut in labels,'joining network known installation snapshot')
-        directory = Path(root)/(f'joining-installed-{cut}/replica' if node == 'node-4' else labels[cut]+'/'+node)
+        directory = Path(root)/(f'joining-installed-{cut}/replica' if node == replay.joining else labels[cut]+'/'+node)
         # Every snapshot is first compared against independent derivation by
         # physical.validate. Its member count now determines required forces.
         _,members,packet = disk.current(disk.inventory(directory))
@@ -114,9 +114,9 @@ def installations(root, events, rows, replay, bases):
     return dict(boundInstallReplies=count, forcedSelections=len(forced))
 
 
-def network(root):
+def network(root, *, size=3, kind='ADD'):
     """Only called standalone after the original physical precondition passes."""
-    root = Path(root); replay = s.Replay(root)
+    root = Path(root); replay = s.Replay(root,size=size,kind=kind)
     for index in range(1,12): replay.step(index)
     events = s.collection.read_json(root,'events.json',s.collection.EVENT_BYTES)
     wires = s.collection.read_json(root,'wire.json',s.collection.WIRE_BYTES)

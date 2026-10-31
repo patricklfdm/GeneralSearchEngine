@@ -26,6 +26,30 @@ class V53LearnerHeadProtocolTest {
                 "ballot",MembershipLearnerDiscovery.correlation(original.identity()),"trace",UUID.randomUUID().toString(),"sequence",1L,
                 "payload",Map.of("request",MembershipLearnerDiscovery.request(original.change())))),"wire","LEARNER_HEAD_QUERY");
     }
+    @Test void rejectedHeadQueryForwardsTheOriginalTransportTerminal()throws Exception {
+        var helper=new V53LearnerMaterializationTest();helper.temp=temp;
+        try(var f=helper.new Fixture();var typed=f.prepare(e->{})) {
+            var head=typed.retainGeneration();var voter=f.source.owner.activationIdentity();
+            var request=changed(query(head,voter),v->v.put("sequence",2L));
+            var seen=new CompletableFuture<MembershipTransport.Reason>();
+            var observer=new MembershipTransport.Events() {
+                @Override public void at(String event,Decoded q,Decoded a) {}
+                @Override public void failed(boolean outbound,Decoded q,MembershipTransport.Reason reason) {
+                    assertFalse(outbound);assertArrayEquals(request.bytes(),q.bytes());seen.complete(reason);
+                }
+            };
+            var before=V53ReplayFilesTest.files(f.base);
+            try(var server=new MembershipLearnerHeadEndpoint(head,V53SourceExchangeTest.bounds(),observer);
+                var client=new MembershipTransport(head.source(),voter,V53SourceExchangeTest.bounds(),f.source.server,
+                        (p,q)->{throw new IOException("read-only test contact");},MembershipTransport.Events.NONE)) {
+                var failure=assertThrows(ExecutionException.class,()->client.exchange(head.request().identity(),request,"LEARNER_HEAD_ACK",
+                        System.nanoTime()+TimeUnit.SECONDS.toNanos(10)).get(15,TimeUnit.SECONDS));
+                assertEquals(MembershipTransport.Reason.IO,((MembershipTransport.Failure)failure.getCause()).reason);
+                assertEquals(MembershipTransport.Reason.PROTOCOL,seen.get(5,TimeUnit.SECONDS));
+            }
+            assertEquals(before,V53ReplayFilesTest.files(f.base));
+        }
+    }
     @Test void endpointRequiresForcedHeadExactVoterAndRequestWithoutWritingOrVoting()throws Exception {
         var helper=new V53LearnerMaterializationTest();helper.temp=temp;
         try(var f=helper.new Fixture();var typed=f.prepare(e->{})) {

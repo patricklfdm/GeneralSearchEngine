@@ -4,9 +4,30 @@ import java.util.*;
 import java.util.concurrent.*;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.Decoded;
 import static io.github.patricklfdm.generalsearch.replication.V53ActivationTest.response;
 
 class V53JoiningTraceTest {
+    @Test void additionalDiagnosticsPreserveBothCallbackMethodsAndOriginalOrder()throws Exception {
+        var events=new ArrayList<Map<String,Object>>();var wire=new ArrayList<Map<String,Object>>();
+        var observed=new ArrayList<String>();var trace=new V53JoiningTrace("node-4",events,wire);
+        var request=V53MembershipWireTest.sample("PREPARE");
+        var transport=trace.transport("continuation-endpoint",new MembershipTransport.Events() {
+            @Override public void at(String event,Decoded q,Decoded a) {
+                assertSame(request,q);assertEquals(event,events.getLast().get("event"));observed.add(event);
+            }
+            @Override public void failed(boolean outbound,Decoded q,MembershipTransport.Reason reason)throws java.io.IOException {
+                assertSame(request,q);assertEquals("NETWORK_ATTEMPT_FAILED",events.getLast().get("event"));
+                assertEquals(outbound?"OUTBOUND":"INBOUND",events.getLast().get("direction"));
+                observed.add(reason.name());throw new java.io.IOException("diagnostic failure after original capture");
+            }
+        });
+        transport.at("AFTER_REQUEST_READ",request,null);
+        var error=assertThrows(java.io.IOException.class,()->transport.failed(false,request,MembershipTransport.Reason.PROTOCOL));
+        assertEquals("diagnostic failure after original capture",error.getMessage());
+        assertEquals(List.of("AFTER_REQUEST_READ","PROTOCOL"),observed);assertEquals(2,events.size());
+        assertEquals("continuation-endpoint",events.getLast().get("scope"));assertTrue(wire.isEmpty());
+    }
     @Test void oldRequestObservationsKeepUnansweredAttemptsWithoutInventingResponses()throws Exception {
         var events=new ArrayList<Map<String,Object>>();var request=V53MembershipWireTest.sample("PREPARE");
         for(int attempt=0;attempt<2;attempt++)V53JoiningTrace.requestObservation(events,"node-1","BEFORE_REQUEST_WRITE",request);

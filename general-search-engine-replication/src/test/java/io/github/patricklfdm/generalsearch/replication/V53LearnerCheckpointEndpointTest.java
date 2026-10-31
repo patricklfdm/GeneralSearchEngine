@@ -72,6 +72,29 @@ class V53LearnerCheckpointEndpointTest {
         }
         @Override public void close()throws Exception{pending.close();fixture.close();}
     }
+    @Test void rejectedCheckpointQueryForwardsTheOriginalTransportTerminal()throws Exception {
+        try(var f=new Fixture()) {
+            var first=f.first();var value=new TreeMap<>(first.value());var payload=new TreeMap<>(object(value.get("payload")));
+            payload.put("offset",1L);value.put("payload",payload);var request=decode(encode("wire","CHUNK",value),"wire","CHUNK");
+            var seen=new CompletableFuture<MembershipTransport.Reason>();
+            var observer=new MembershipTransport.Events() {
+                @Override public void at(String event,Decoded q,Decoded a) {}
+                @Override public void failed(boolean outbound,Decoded q,MembershipTransport.Reason reason) {
+                    assertFalse(outbound);assertArrayEquals(request.bytes(),q.bytes());seen.complete(reason);
+                }
+            };
+            try(var endpoint=f.listen(observer);var contact=f.contact()) {
+                // Opening the listener first forces its legitimate original ACK.
+                var before=V53ReplayFilesTest.files(f.fixture.directory());
+                var failure=assertThrows(ExecutionException.class,()->contact.exchange(f.local,request,"SOURCE_OFFER",
+                        System.nanoTime()+TimeUnit.SECONDS.toNanos(10)).get(15,TimeUnit.SECONDS));
+                assertEquals(MembershipTransport.Reason.IO,((MembershipTransport.Failure)failure.getCause()).reason);
+                assertEquals(MembershipTransport.Reason.PROTOCOL,seen.get(5,TimeUnit.SECONDS));
+                assertEquals(0,endpoint.usage().traces());
+                assertEquals(before,V53ReplayFilesTest.files(f.fixture.directory()));
+            }
+        }
+    }
     @Test void actualOwnerAckUsesTheExistingPullAndRetriesIdenticalLostReplies()throws Exception {
         try(var f=new Fixture();var endpoint=f.listen(MembershipTransport.Events.NONE);var contact=f.contact()) {
             var events=new ArrayList<Decoded>();var deadlines=new HashSet<Long>();var attempts=new HashMap<String,Integer>();

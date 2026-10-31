@@ -34,9 +34,14 @@ final class MembershipLearnerCheckpointEndpoint implements AutoCloseable {
         require(frameLimit>=4096 && chunkLimit>0,"joining checkpoint frame limits");
         metadata=resources.reserve(MembershipResources.Unit.CONTROL,"joining-checkpoint-service-"+UUID.randomUUID(),32768);
         try {
-            transport=new MembershipTransport(original.source,original.identity,bounds,resources,this::answer,(event,request,response)->{
-                events.at(event,request,response);
-                if(event.equals("BEFORE_RESPONSE_WRITE"))synchronized(guard){check();}
+            transport=new MembershipTransport(original.source,original.identity,bounds,resources,this::answer,new MembershipTransport.Events() {
+                @Override public void at(String event,Decoded request,Decoded response)throws IOException {
+                    events.at(event,request,response);
+                    if(event.equals("BEFORE_RESPONSE_WRITE"))synchronized(guard){check();}
+                }
+                @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason)throws IOException {
+                    events.failed(outbound,request,reason);
+                }
             });
         }catch(IOException|RuntimeException|Error error){metadata.close();throw error;}
     }
