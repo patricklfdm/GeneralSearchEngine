@@ -72,14 +72,18 @@ def activation_attempts(entries):
     return entries
 
 
-def maintenance(group):
-    """A floor retires the inactive generation; it does not compact original grants."""
+def maintenance(group, *, confirmed_retention=False):
+    """Derive floor observations and inactive-generation retirement."""
     result = dict(group)
     for node in VOTERS:
         files = group[node]; current = c.current(files)[0]
         files = {k: v for k, v in files.items() if not k.startswith('generations/') or k == current[:-1] or k.startswith(current)}
         # Actual collection visits self, then the other original majority member.
         for peer in (node, next(n for n in VOTERS if n != node)):
+            if confirmed_retention:
+                from .peer_observation_evidence import observe_same_cut
+                files[s.FILE] = observe_same_cut(files[s.FILE], group[node], group[peer])
+                continue
             previous = s.r.decode(files[s.FILE]); plan = copy.deepcopy(previous['plan'])
             identity = future.identity(group[peer]); anchor = c.anchor(c.current(group[peer])[2]['capsule'])
             next(row for row in plan['peers'] if row['identity'] == identity)['possible'] = [anchor]
@@ -88,7 +92,7 @@ def maintenance(group):
     return result
 
 
-def physical(root):
+def physical(root, *, confirmed_retention=False):
     group = s.initialize(b.original(root, 3, False))
     group = {n: dict(v, **{future.FILE: future.frame(future.initial(v), {})}) for n, v in group.items()}
     b.match(root, 'before-network', group)
@@ -97,16 +101,23 @@ def physical(root):
     _, initial, packet = c.current(group['node-1'])
     chosen = initial['selected.gsr']; selection = f.decode(chosen, 'records', 'SELECTED')
     need(b.t.plans.read(root/'selected.gsr', 65536) == chosen, 'native dispatch original selection')
-    return slots(root, group, selection)
+    return slots(root, group, selection, confirmed_retention=confirmed_retention)
 
 
-def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA')):
+def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA'), confirmed_retention=False):
     """Replay two complete slots from an independently established installation."""
     chosen = f.encode('records', 'SELECTED', selection)
     states = [copy.deepcopy(group)]; rounds = []; first = None
     identities = {n: future.identity(files) for n, files in group.items()}
     for index, kind in enumerate(kinds, 1):
-        group = maintenance(group); states.append(copy.deepcopy(group))
+        before = group
+        group = maintenance(group, confirmed_retention=confirmed_retention); states.append(copy.deepcopy(group))
+        maintenance_writes = {node: s.r.decode(group[node][s.FILE])['revision'] - s.r.decode(before[node][s.FILE])['revision'] for node in VOTERS}
+        retirement_events = {node: [] for node in VOTERS}
+        if confirmed_retention and carried is not None and index == 2:
+            from .native_source_retirement_evidence import retire_predecessor
+            group, retirement_events = retire_predecessor(group, VOTERS)
+            states[-1] = copy.deepcopy(group)
         _, local, packet = c.current(group['node-1']); cap = packet['capsule']
         text = b'100:next-slot'; payload = b'\x01'+struct.pack('>HIII', 1, 1, 4, 100)+struct.pack('>I', len(text))+text if kind == 'DATA' else b''
         entry = f.encode('records', 'ENTRY', dict(root=cap['root'], authority=selection['view'], index=index,
@@ -167,7 +178,7 @@ def slots(root, group, selection, *, carried=None, kinds=('BARRIER', 'DATA')):
             published[node][future.FILE] = future.frame(dict(future.initial(group[node]), revision=2*index, previous=e.digest(recorded[node][future.FILE])), {})
         b.match(root, 'published-'+str(index), published); states.append(copy.deepcopy(published))
         receipts = {(node, phase): receipt(node, phase, raw) for node in VOTERS for phase, raw in [('ACCEPT', accept), ('PROOF', proof)]}
-        rounds.append(dict(index=index, cap=cap, originals=originals, ends=ends, receipts=receipts, intent=intent, recorded=recorded, published=published, upper=upper))
+        rounds.append(dict(index=index, cap=cap, originals=originals, ends=ends, receipts=receipts, intent=intent, recorded=recorded, published=published, upper=upper, maintenanceWrites=maintenance_writes, retirementEvents=retirement_events))
         if first is None: first = dict(parent=c.anchor(cap), end=upper, certificate=e.digest(certificate), proof={e.digest(v): v for v in originals})
         group = published
     b.match(root, 'after-close', group)
@@ -203,7 +214,7 @@ def discovery_controls(root, entries, events, selection, identities):
         previous = delivered[0]
 
 
-def network(root, states, rounds, selection, identities, *, carried_first=False, discovery=False):
+def network(root, states, rounds, selection, identities, *, carried_first=False, discovery=False, confirmed_retention=False):
     events = read(root/'events.json'); rows = read(root/'wire.json'); content = {}; refs = defaultdict(set)
     need(type(events) is list and len(events) < 32768 and type(rows) is list and 0 < len(rows) < 32768, 'native dispatch bounded traces')
     def add(node, raw, kind='RECORD', reference=None):
@@ -302,13 +313,25 @@ def network(root, states, rounds, selection, identities, *, carried_first=False,
         for node in VOTERS:
             own = [(i+start, ev) for i, ev in enumerate(part) if ev['node'] == node]
             names = [ev['event'] for _, ev in own]
-            required = ['FLOOR_PARENT_FORCED','FLOOR_BEFORE_RETURN','RETENTION_PARENT_FORCED','RETENTION_PARENT_FORCED',
+            count = round['maintenanceWrites'][node] if confirmed_retention else 2
+            need(type(count) is int and 0 <= count <= 2, 'native dispatch bounded original observations')
+            required = ['FLOOR_PARENT_FORCED','FLOOR_BEFORE_RETURN'] + ['RETENTION_PARENT_FORCED']*count + [
                 'RETIREMENT_DELETE_VALIDATED','RETIREMENT_CLEARED','FLOOR_RELEASE_RELINQUISHED','FLOOR_RELEASE_BEFORE_RETURN',
                 'ACCEPT_PARENT_FORCED','PROOF_PARENT_FORCED','CERTIFICATE_PARENT_FORCED','APPLY_ACK_DIRECTORY_FORCED',
                 'FUTURE_RETENTION_PARENT_FORCED','PUBLICATION_SELECTOR_FORCED','FUTURE_RETENTION_PROMOTED','PUBLICATION_BEFORE_RETURN']
             if carried_first and index == 1:
                 required.remove('ACCEPT_PARENT_FORCED'); required.insert(0, 'ACCEPT_PARENT_FORCED')
             s.ordered(names, required, 'native dispatch slot '+str(index)+' '+node)
+            if confirmed_retention:
+                first, last = names.index('FLOOR_BEFORE_RETURN'), names.index('RETIREMENT_DELETE_VALIDATED')
+                need([v for v in names[first:last] if v.startswith('RETENTION_')] == list(s.r.POINTS)*count,
+                     'native dispatch exact observation writes')
+                source_events = round['retirementEvents'][node]
+                need([v for v in names if v.startswith(('SOURCE_RETIREMENT_', 'JOURNAL_ROTATION_'))] == source_events,
+                     'native dispatch exact source retirement')
+                if source_events:
+                    s.ordered(names, ['RETIREMENT_BEFORE_RETURN', *source_events, 'FLOOR_RELEASE_AUTHORITY_CREATED'],
+                              'native source retirement after generation before floor release')
             need(names.count('FLOOR_PARENT_FORCED') == names.count('PUBLICATION_SELECTOR_FORCED') == 1, 'native dispatch one floor/publication per slot')
             floor_at = next(i for i, ev in own if ev['event'] == 'FLOOR_PARENT_FORCED')
             peer = next(n for n in VOTERS if n != node); directory, members, packet = c.current(before[peer]); cap = packet['capsule']
@@ -366,21 +389,22 @@ def unselected_rejections(failures):
     need(type(failures) is list and len(failures) <= 6 and all(set(row) == {'node','kind','request','failure'} and row['node'] == 'node-3' and row['kind'] == 'FUTURE_RETENTION_INTENT' and row['failure'] == 'java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required' for row in failures), 'native dispatch bounded unselected rejection')
 
 
-def validate(root, *, discovery=False, rejection_check=None):
+def validate(root, *, discovery=False, rejection_check=None, confirmed_retention=False):
     root = Path(root)
     b.selection.layout(root, {'initial','original-plan.gsbp','original-application.image','before-network','installed',
         'applied-1','published-1','applied-2','published-2','after-close','calls.json','events.json','wire.json','failures.json','result.json','selected.gsr'}, 'native dispatch case inventory')
-    states, rounds, selected, identities = physical(root)
+    states, rounds, selected, identities = physical(root, confirmed_retention=confirmed_retention)
     calls = read(root/'calls.json')
     need([(row['node'], row['operation']) for row in calls] == [(n,'initialize-retention') for n in sorted(identities)], 'native dispatch bootstrap owner calls')
     for row in calls:
         s.ordered(row['events'], ['RETENTION_PARENT_FORCED','FUTURE_RETENTION_PARENT_FORCED'], 'native dispatch initialization')
     failures = read(root/'failures.json')
     (unselected_rejections if rejection_check is None else rejection_check)(failures)
-    transfers = network(root, states, rounds, selected, identities, discovery=discovery)
+    transfers = network(root, states, rounds, selected, identities, discovery=discovery, confirmed_retention=confirmed_retention)
     need(read(root/'result.json') == dict(status='PASS', slots=2, network=True, autonomous=False), 'native dispatch scope')
     result = dict(status='PASS', slots=2, selected=2, transfers=transfers, autonomous=False, phase3Complete=False)
     if discovery: result['discoveryPeers']=2
+    if confirmed_retention: result['retentionSemantics']='original-copy-confirmation'
     return result
 
 
@@ -476,18 +500,67 @@ def mutate(root, name):
     path.write_text(json.dumps(events))
 
 
-def qualify(root, *, discovery=False):
-    original = validate(root, discovery=True) if discovery else validate(root); results = []
+def qualify(root, *, discovery=False, confirmed_retention=False):
+    options = {}
+    if discovery: options['discovery'] = True
+    if confirmed_retention: options['confirmed_retention'] = True
+    original = validate(root, **options); results = []
     cases = dict(NEGATIVES, **DISCOVERY_NEGATIVES) if discovery else NEGATIVES
+    if confirmed_retention: cases = dict(cases, **OBSERVATION_NEGATIVES)
     for name, reason in cases.items():
         with tempfile.TemporaryDirectory(prefix='v53-native-dispatch-negative-') as temp:
             dest = Path(temp)/'raw'; shutil.copytree(root, dest)
-            (mutate_discovery if name in DISCOVERY_NEGATIVES else mutate)(dest, name)
-            try: validate(dest, discovery=True) if discovery else validate(dest)
+            (mutate_observation if name in OBSERVATION_NEGATIVES else mutate_discovery if name in DISCOVERY_NEGATIVES else mutate)(dest, name)
+            try: validate(dest, **options)
             except ValueError as error: need(str(error) == reason, 'native dispatch unrelated negative '+name+': '+str(error))
             else: raise ValueError('native dispatch accepted negative '+name)
             results.append(dict(case=name, status='REJECTED', reason=reason))
     return dict(original=original, negatives=results)
+
+
+OBSERVATION_NEGATIVES = {
+    'genesis-invented-revision': 'admitted exact applied-1: node-1',
+    'confirmation-bytes': 'admitted exact applied-2: node-1',
+    'confirmation-missing': 'admitted exact applied-2: node-1',
+    'confirmation-forgotten-renewal': 'admitted exact applied-2: node-1',
+    'confirmation-stale-endpoint': 'admitted exact applied-2: node-1',
+    'confirmation-revision-chain': 'admitted exact applied-2: node-1',
+    'genesis-invented-force': 'native dispatch exact observation writes',
+    'observation-missing-force': 'native dispatch exact observation writes',
+    'observation-force-order': 'native dispatch exact observation writes',
+    'observation-extra-write': 'native dispatch exact observation writes',
+}
+
+
+def mutate_observation(root, name):
+    if name == 'genesis-invented-revision':
+        path=root/'applied-1/node-1'/s.FILE; raw=path.read_bytes(); value=s.r.decode(raw)
+        value.update(revision=value['revision']+1,previous=e.digest(raw));path.write_bytes(s.r.frame(value));return
+    if name.startswith('confirmation-'):
+        path=root/'applied-2/node-1'/s.FILE; value=s.r.decode(path.read_bytes())
+        row=next(v for v in value['plan']['peers'] if v['identity']['node']=='node-2')
+        if name=='confirmation-bytes':
+            record=f.decode(base64.b64decode(row['confirmation'],validate=True),'records','GENERATION')
+            record['generation']='b' if record['generation']=='a' else 'a'
+            row['confirmation']=base64.b64encode(f.encode('records','GENERATION',record)).decode()
+        elif name=='confirmation-missing':del row['confirmation']
+        elif name=='confirmation-forgotten-renewal':del row['renewals']
+        elif name=='confirmation-stale-endpoint':row['possible']=row['renewals'][:1]
+        elif name=='confirmation-revision-chain':value['previous']='f'*64
+        else:raise ValueError('unknown observation mutation')
+        path.write_bytes(s.r.frame(value));return
+    path=root/'events.json';events=read(path);begins=[i for i,v in enumerate(events) if v['event']=='SLOT_BEGIN']
+    first=begins[0] if name=='genesis-invented-force' else begins[1]
+    floor=next(i for i in range(first,len(events)) if events[i]['node']=='node-1' and events[i]['event']=='FLOOR_BEFORE_RETURN')
+    if name=='genesis-invented-force':events.insert(floor+1,dict(node='node-1',event='RETENTION_PARENT_FORCED'))
+    else:
+        force=next(i for i in range(floor+1,len(events)) if events[i]['node']=='node-1' and events[i]['event']=='RETENTION_FORCED')
+        parent=next(i for i in range(force+1,len(events)) if events[i]['node']=='node-1' and events[i]['event']=='RETENTION_PARENT_FORCED')
+        if name=='observation-missing-force':events.pop(force)
+        elif name=='observation-force-order':events[force],events[parent]=events[parent],events[force]
+        elif name=='observation-extra-write':events[parent+1:parent+1]=[dict(node='node-1',event=v) for v in s.r.POINTS]
+        else:raise ValueError('unknown observation mutation')
+    path.write_text(json.dumps(events))
 
 
 DISCOVERY_NEGATIVES = {
@@ -526,5 +599,5 @@ def mutate_discovery(root, name):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(); parser.add_argument('root'); parser.add_argument('--negative', action='store_true'); parser.add_argument('--discovery',action='store_true'); args = parser.parse_args()
-    print(json.dumps((qualify if args.negative else validate)(args.root,discovery=args.discovery), sort_keys=True))
+    parser = argparse.ArgumentParser(); parser.add_argument('root'); parser.add_argument('--negative', action='store_true'); parser.add_argument('--discovery',action='store_true'); parser.add_argument('--confirmed-retention',action='store_true'); args = parser.parse_args()
+    print(json.dumps((qualify if args.negative else validate)(args.root,discovery=args.discovery,confirmed_retention=args.confirmed_retention), sort_keys=True))

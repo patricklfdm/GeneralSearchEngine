@@ -1,5 +1,10 @@
 # Liveness during installed-campaign recovery
 
+Subsequent [original-copy observation replay](PHASE_3_OBSERVATION_REPLAY.md)
+qualifies the retained component histories with an explicit current-semantics
+reader. The original failed result below remains unchanged; whole automatic
+competition still requires independent qualification.
+
 Phase 3 remains **OPEN**. The preceding
 [election/discovery qualification](PHASE_3_ELECTION_DISCOVERY.md) recorded
 22–28-second intervals between installation and READY, with another automatic

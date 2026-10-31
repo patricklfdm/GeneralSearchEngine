@@ -15,6 +15,7 @@ import uuid
 from . import native_dispatch_evidence as d
 from . import distinct_minority_evidence as old
 from . import inherited_future_evidence as install
+from . import native_source_retirement_evidence as retirement
 
 b, c, e, f, need = d.b, d.c, d.e, d.f, d.need
 s, future = d.s, d.future
@@ -95,7 +96,7 @@ def activation(root, group, phase):
     return installed, f.decode(chosen, 'records', 'SELECTED')
 
 
-def validate(root):
+def validate(root, *, confirmed_retention=False):
     root = Path(root); phase = b.t.plans.read(root/'carried-phase.txt', 32).decode()
     need(phase in PHASES, 'carried phase')
     expected = {'initial','original-plan.gsbp','original-application.image','carried-phase.txt','carried-result.json',
@@ -105,8 +106,8 @@ def validate(root):
     expected |= {'slot-1-'+{'ACCEPT':'accepted','PROOF':'proved','CERTIFICATE':'certified'}[k] for k in ('ACCEPT', *PHASES[phase])}
     b.selection.layout(root, expected, 'carried slot inventory')
     before, entry = prelude(root, phase); group, selected = activation(root, before, phase)
-    states, rounds, selected, identities = d.slots(root, group, selected, carried=entry, kinds=('BARRIER','BARRIER'))
-    transfers = d.network(root, states, rounds, selected, identities, carried_first=True)
+    states, rounds, selected, identities = d.slots(root, group, selected, carried=entry, kinds=('BARRIER','BARRIER'), confirmed_retention=confirmed_retention)
+    transfers = d.network(root, states, rounds, selected, identities, carried_first=True, confirmed_retention=confirmed_retention)
     calls = d.read(root/'calls.json')
     for kind in ('ACCEPT', *PHASES[phase]):
         rows = [v for v in calls if v['operation'] == {'ACCEPT':'accept','PROOF':'proof','CERTIFICATE':'certificate'}[kind]+'-1']
@@ -124,7 +125,9 @@ def validate(root):
     failures = d.read(root/'failures.json')
     need(isinstance(failures,list) and len(failures) <= 6 and all(v['node']=='node-3' and v['kind']=='FUTURE_RETENTION_INTENT'
         and v['failure']=='java.lang.IllegalArgumentException: higher ballot observed; fresh campaign required' for v in failures), 'carried unexpected network failure')
-    return dict(status='PASS', phase=phase, slots=2, voters=3, selected=2, transfers=transfers, automaticElection=False, publicReady=False, phase3Complete=False)
+    result=dict(status='PASS', phase=phase, slots=2, voters=3, selected=2, transfers=transfers, automaticElection=False, publicReady=False, phase3Complete=False)
+    if confirmed_retention:result['retentionSemantics']='original-copy-confirmation'
+    return result
 
 
 NEGATIVES = {
@@ -140,16 +143,20 @@ NEGATIVES = {
 }
 
 
-def qualify(root):
-    root=Path(root); original=validate(root); negatives=[]
-    for name,reason in NEGATIVES.items():
+def qualify(root, *, confirmed_retention=False):
+    options={'confirmed_retention':True} if confirmed_retention else {}
+    root=Path(root); original=validate(root,**options); negatives=[]
+    cases=dict(NEGATIVES,**d.OBSERVATION_NEGATIVES,**retirement.NEGATIVES) if confirmed_retention else NEGATIVES
+    for name,reason in cases.items():
         reason=reason.format(phase=original['phase'].lower())
         with tempfile.TemporaryDirectory(prefix='v53-carried-slot-negative-') as temp:
             path=Path(temp)/'raw';shutil.copytree(root,path)
             files={'old-vote':'old-'+original['phase'].lower()+'/node-1/pending.accept', 'installed-original':'installed/node-2/selector.gsr',
                 'new-vote':'applied-1/node-1/pending.accept','published':'published-1/node-2/selector.gsr',
                 'fresh-barrier':'applied-2/node-2/pending.accept','unselected':'after-close/node-3/pending.accept'}
-            if name in files: (path/files[name]).write_bytes(b'changed')
+            if name in retirement.NEGATIVES:retirement.mutate(path,name)
+            elif name in d.OBSERVATION_NEGATIVES:d.mutate_observation(path,name)
+            elif name in files: (path/files[name]).write_bytes(b'changed')
             elif name in ('missing-accept','early-floor'):
                 rows=d.read(path/'events.json');node='node-2' if name=='missing-accept' else 'node-1'
                 at=next(i for i,v in enumerate(rows) if v['node']==node and v['event']=='ACCEPT_PARENT_FORCED')
@@ -159,7 +166,7 @@ def qualify(root):
                 (path/'events.json').write_text(json.dumps(rows))
             else:
                 value=d.read(path/'carried-result.json');value['publicReady']=True;(path/'carried-result.json').write_text(json.dumps(value))
-            try:validate(path)
+            try:validate(path,**options)
             except ValueError as error:need(str(error)==reason,'carried negative wrong reason: '+name+': '+str(error))
             else:raise ValueError('carried mutation accepted: '+name)
         negatives.append(dict(case=name,status='REJECTED',reason=reason))
@@ -167,5 +174,5 @@ def qualify(root):
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');args=parser.parse_args()
-    print(json.dumps((qualify if args.qualify else validate)(args.root),sort_keys=True))
+    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');parser.add_argument('--confirmed-retention',action='store_true');args=parser.parse_args()
+    print(json.dumps((qualify if args.qualify else validate)(args.root,confirmed_retention=args.confirmed_retention),sort_keys=True))

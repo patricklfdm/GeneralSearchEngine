@@ -1,0 +1,166 @@
+{
+  "archive": {
+    "bytes": 10180290,
+    "files": 7917,
+    "path": "target/v53-observation-replay/qualification.tar.gz",
+    "sha256": "81486f705c8dc649316db1d55b2637995088c1ce660a304f6c0aeff946fcdb58",
+    "verification": "PASS"
+  },
+  "baseCommit": "d0fcc4db0cca512b32e4dfca788fe4b3a691bc49",
+  "distinctMutationNames": 77,
+  "histories": 5,
+  "negativeExecutions": 201,
+  "phase3Complete": false,
+  "portableReplay": [
+    {
+      "case": "carried",
+      "status": "PASS"
+    },
+    {
+      "case": "discovered",
+      "status": "PASS"
+    },
+    {
+      "case": "heartbeat",
+      "status": "PASS"
+    },
+    {
+      "case": "stable",
+      "status": "PASS"
+    },
+    {
+      "case": "legacy-heartbeat",
+      "status": "PASS"
+    }
+  ],
+  "priorOriginalFailuresRetained": [
+    "prior-failure/ready-heartbeat-replay.json",
+    "analysis/carried-qualified.json"
+  ],
+  "producerInputInventoriesVerified": true,
+  "productionInputParity": 318,
+  "productionInputsUnchanged": true,
+  "pythonTests": {
+    "seconds": 85.866,
+    "status": "PASS",
+    "tests": 932
+  },
+  "qualifications": [
+    {
+      "negativeExecutions": 18,
+      "report": "stable-qualified.json",
+      "seconds": 9.305037593003362,
+      "status": "PASS"
+    },
+    {
+      "negativeExecutions": 18,
+      "report": "discovered-qualified.json",
+      "seconds": 9.313083934015594,
+      "status": "PASS"
+    },
+    {
+      "negativeExecutions": 23,
+      "report": "heartbeat-qualified.json",
+      "seconds": 18.56175227399217,
+      "status": "PASS"
+    },
+    {
+      "negativeExecutions": 25,
+      "report": "carried-repaired-qualified.json",
+      "seconds": 18.14492068599793,
+      "status": "PASS"
+    },
+    {
+      "negativeExecutions": 13,
+      "report": "legacy-heartbeat-qualified.json",
+      "seconds": 12.403242722997675,
+      "status": "PASS"
+    },
+    {
+      "negativeExecutions": 37,
+      "report": "stable-lower-qualified.json",
+      "seconds": 13.95088480800041,
+      "status": "PASS"
+    },
+    {
+      "negativeExecutions": 41,
+      "report": "discovered-lower-qualified.json",
+      "seconds": 15.797311218979303,
+      "status": "PASS"
+    },
+    {
+      "negativeExecutions": 26,
+      "report": "carried-lower-qualified.json",
+      "seconds": 14.68427863100078,
+      "status": "PASS"
+    }
+  ],
+  "rawHistories": [
+    {
+      "archivePath": "observation-replay/raw/carried",
+      "name": "carried",
+      "options": {
+        "confirmed_retention": true,
+        "discovery": false
+      },
+      "producer": "recoverypulseregressions",
+      "reader": "round"
+    },
+    {
+      "archivePath": "observation-replay/raw/discovered",
+      "name": "discovered",
+      "options": {
+        "confirmed_retention": true,
+        "discovery": true
+      },
+      "producer": "recoverypulseregressions",
+      "reader": "round"
+    },
+    {
+      "archivePath": "observation-replay/raw/heartbeat",
+      "name": "heartbeat",
+      "options": {
+        "confirmed_retention": true,
+        "discovery": false
+      },
+      "producer": "recoverypulseregressions",
+      "reader": "heartbeat"
+    },
+    {
+      "archivePath": "observation-replay/raw/stable",
+      "name": "stable",
+      "options": {
+        "confirmed_retention": true,
+        "discovery": false
+      },
+      "producer": "recoverypulseregressions",
+      "reader": "round"
+    },
+    {
+      "archivePath": "observation-replay/raw/legacy-heartbeat",
+      "name": "legacy-heartbeat",
+      "options": {
+        "confirmed_retention": false,
+        "discovery": false
+      },
+      "producer": "heartbeatroundresumed",
+      "reader": "heartbeat"
+    }
+  ],
+  "readerSources": {
+    "scripts/v53/carried_slot_evidence.py": "49f152584c41d609b88c9f9a83b2f04f2e0f9260fac67dbaec7dde7d2007c882",
+    "scripts/v53/heartbeat_round_evidence.py": "2fd89a7aa34f4ef1dc143779f05c32277e5ac94657c2889f6338af189ee45a64",
+    "scripts/v53/native_dispatch_evidence.py": "0742ece8acc0c1293e5bc21a23491d77778b64725daf8d4d8f7150ea57eb982d",
+    "scripts/v53/native_source_retirement_evidence.py": "bd08bed6f0dc8ca67bc2dd8fd956028da879a8f59349e28e41f6fc1fb07f5ea5",
+    "scripts/v53/peer_observation_evidence.py": "8d4e08a9d677377a7ab78f3378bd6e0b37f23721499ae6a8e943452b130a5c60",
+    "scripts/v53/round_driver_evidence.py": "ea2ce2e53e4aa60a07b7e0d4b9be36a847b53081044a8e4de1980c5ef6c066ad",
+    "scripts/v53/test_observation_replay_modes.py": "7eadde8e165d0bb8d813b9f17e9503edc81f4dd1848cea7de6d0a774ef56eacd",
+    "scripts/v53/test_peer_observation_evidence.py": "630931774f74b7ea2a8033e734b6d939843f2377de733510cdd9b84be7c5d3b9"
+  },
+  "schema": "gse-v53-observation-replay-v1",
+  "scope": "component-original-copy-observation-replay",
+  "status": "PASS",
+  "wholeCompetitionReplay": false,
+  "workloadsRerun": 0,
+  "wrongModesRejected": 5
+}

@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original-copy observation replay](PHASE_3_OBSERVATION_REPLAY.md) repairs the
+component reader's genesis/no-op and confirmation reconstruction and checks the
+carried predecessor's exact source retirement. Five retained histories pass;
+whole competing-owner replay and the remaining closure gates stay open.
+
 [Recovery heartbeat progress](PHASE_3_RECOVERY_HEARTBEAT.md) samples after checked
 installation and at unlocked recovery boundaries. It does not grant READY or
 replace the fresh BARRIER. Joint samples check both original voter majorities;

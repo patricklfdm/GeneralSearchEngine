@@ -80,15 +80,15 @@ def lifecycle(root, mode):
     need(cursor==2, 'round exact completed slot count')
 
 
-def validate(root, *, discovery=False, rejection_check=None):
+def validate(root, *, discovery=False, rejection_check=None, confirmed_retention=False):
     root=Path(root); result=projection(root)
     need(not discovery or result['mode']=='stable', 'round discovery stable qualification only')
     with tempfile.TemporaryDirectory(prefix='v53-round-original-') as temp:
         path=Path(temp)/'raw';shutil.copytree(root,path);(path/'round-result.json').unlink()
-        if result['mode']=='stable':original=d.validate(path,discovery=discovery,rejection_check=rejection_check)
+        if result['mode']=='stable':original=d.validate(path,discovery=discovery,rejection_check=rejection_check,confirmed_retention=confirmed_retention)
         else:
             need(rejection_check is None, 'round carried rejection policy unchanged')
-            original=carried.validate(path)
+            original=carried.validate(path,confirmed_retention=confirmed_retention)
     if result['mode']=='carried-applied': need(original['phase']=='APPLIED', 'round original carried phase')
     lifecycle(root,result['mode'])
     return dict(status='PASS',mode=result['mode'],slots=2,original=original,internalReady=True,publicReady=False,phase3Complete=False)
@@ -106,9 +106,14 @@ NEGATIVES = {
 }
 
 
-def qualify(root, *, discovery=False):
-    root=Path(root);original=validate(root,discovery=True) if discovery else validate(root);negatives=[]
-    for name,reason in NEGATIVES.items():
+def qualify(root, *, discovery=False, confirmed_retention=False):
+    options={}
+    if discovery:options['discovery']=True
+    if confirmed_retention:options['confirmed_retention']=True
+    root=Path(root);original=validate(root,**options);negatives=[]
+    cases=dict(NEGATIVES,**d.OBSERVATION_NEGATIVES) if confirmed_retention else NEGATIVES
+    if confirmed_retention and original['mode']=='carried-applied':cases=dict(cases,**carried.retirement.NEGATIVES)
+    for name,reason in cases.items():
         with tempfile.TemporaryDirectory(prefix='v53-round-negative-') as temp:
             path=Path(temp)/'raw';shutil.copytree(root,path);rows=d.read(path/'events.json')
             def event(kind): return next(row for row in rows if row['event']=='ROUND_'+kind)
@@ -116,7 +121,9 @@ def qualify(root, *, discovery=False):
                 family='records' if kind in ('SELECTED','ENTRY') else 'wire'
                 value=f.decode(base64.b64decode(row['bytes']),family,kind);mutation(value);raw=f.encode(family,kind,value)
                 row['record']=e.digest(raw);row['bytes']=base64.b64encode(raw).decode()
-            if name=='missing-ready': rows.remove(event('BEFORE_READY'))
+            if name in carried.retirement.NEGATIVES:carried.retirement.mutate(path,name);rows=d.read(path/'events.json')
+            elif name in d.OBSERVATION_NEGATIVES:d.mutate_observation(path,name);rows=d.read(path/'events.json')
+            elif name=='missing-ready': rows.remove(event('BEFORE_READY'))
             elif name=='early-ready':
                 row=event('BEFORE_READY');rows.remove(row);rows.insert(next(i for i,v in enumerate(rows) if v['event']=='ROUND_SLOT_COMPLETE'),row)
             elif name=='wrong-ready-ack':
@@ -128,7 +135,7 @@ def qualify(root, *, discovery=False):
             elif name=='wrong-parent':change(event('SLOT_BEGIN'),'ENTRY',lambda v:v.update(previous='0'*64))
             else:(path/'published-2/node-1/selector.gsr').write_bytes(b'changed')
             (path/'events.json').write_text(json.dumps(rows))
-            try:validate(path,discovery=True) if discovery else validate(path)
+            try:validate(path,**options)
             except ValueError as error:need(str(error)==reason,'round negative wrong reason: '+name+': '+str(error))
             else:raise ValueError('round mutation accepted: '+name)
         negatives.append(dict(case=name,status='REJECTED',reason=reason))
@@ -136,5 +143,5 @@ def qualify(root, *, discovery=False):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('root');p.add_argument('--qualify',action='store_true');p.add_argument('--discovery',action='store_true');a=p.parse_args()
-    print(json.dumps((qualify if a.qualify else validate)(a.root,discovery=a.discovery),sort_keys=True))
+    p=argparse.ArgumentParser();p.add_argument('root');p.add_argument('--qualify',action='store_true');p.add_argument('--discovery',action='store_true');p.add_argument('--confirmed-retention',action='store_true');a=p.parse_args()
+    print(json.dumps((qualify if a.qualify else validate)(a.root,discovery=a.discovery,confirmed_retention=a.confirmed_retention),sort_keys=True))

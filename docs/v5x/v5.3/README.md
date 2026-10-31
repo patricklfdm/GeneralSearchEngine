@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Original-copy observation replay](PHASE_3_OBSERVATION_REPLAY.md) now qualifies
+retained stable, discovered, carried and READY-heartbeat histories with exact
+confirmation, renewal, force and source-retirement checks. Legacy histories keep
+their original mode. Whole automatic-history acceptance and Phase 3 remain **OPEN**.
+
 [Recovery heartbeat progress](PHASE_3_RECOVERY_HEARTBEAT.md) extends automatic
 liveness to validated installation and recovery before READY. Joint contact
 requires both voter majorities; recovery and the fresh BARRIER still separately
