@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Joining control replay](PHASE_3_JOINING_CONTROL_REPLAY.md) now composes the eight
+remaining control exports and six learner retention authorizations. Together with
+the earlier reader it covers all 361 content-bearing sessions / 686 contents in
+the same healthy history. Fault/expiry, remaining maintenance, process/profile and
+mapping qualification remain required; Phase 3 is open.
+
 [Joining export replay](PHASE_3_JOINING_EXPORT_REPLAY.md) now binds 678 committed
 contents in 353 sessions to original generation/source lifetimes and record
 capabilities. Eight joining control exports and learner retention authorization

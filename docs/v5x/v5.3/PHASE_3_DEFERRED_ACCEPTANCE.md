@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining control replay](PHASE_3_JOINING_CONTROL_REPLAY.md) now binds the eight
+remaining original control exports and six learner retention authorizations.
+Healthy content composition covers 361 sessions / 686 contents. Next qualify the
+remaining maintenance/control and fault/expiry boundaries, then the required
+process/profile and frozen mapping gates; this is not whole Phase 3 acceptance.
+
 [Joining export replay](PHASE_3_JOINING_EXPORT_REPLAY.md) adds original temporal
 generation/source and record-capability checks on the same retained execution.
 The explicit next boundary is learner retention/quorum authorization and the

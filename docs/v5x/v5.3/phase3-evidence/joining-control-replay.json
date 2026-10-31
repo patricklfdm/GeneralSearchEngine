@@ -1,0 +1,197 @@
+{
+  "allExportFamiliesQualified": false,
+  "archive": {
+    "bytes": 34537338,
+    "entries": 16013,
+    "memberHashesVerified": true,
+    "negativeReplayRepeated": false,
+    "path": "target/v53-joining-control-replay/sealed/joining-control-replay.tar.gz",
+    "portableOriginal": "PASS",
+    "portableScopeStatus": "PASS",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "abbdaac667aab7c574c942ce296f41cbc8a5540d3467ade655cde89c93c50a29",
+    "sha256": "447927d33f790874dde935f0655baf59f3b686a2cebea3671c8c77a714d308f2",
+    "status": "PASS"
+  },
+  "archiveReceiptNote": "Archive reader contains the pre-seal receipt; finalized receipt is retained separately to avoid a self-referential archive hash.",
+  "baseHead": "9ce198f54d9ffa8326999fcdade109e8921b3e93",
+  "buildManifestSha256": "5c2fc5985a9f7beba7712365c4067b2fe523d986a4a1a1a55b479737b0810d95",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "698ec89e3d66cba3ca396376a52604b9dad528b5a2ab9aad7ad6976f5a5fde11",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "c6621228e21245169cdd58a7a26d07c31281f559ea99f18bb02e1836b81ed05f",
+    "docs/v5x/v5.3/PHASE_3_JOINING_CONTROL_REPLAY.md": "57cae151253ddcb81b2bd7b5273237287e85371e5970a210a47a46fc2a09c91e",
+    "docs/v5x/v5.3/README.md": "b1242b19c2b9d6697febc3c9d7d6bea3c40462f09a61e2fe63db2f6acef0b857",
+    "scripts/v53/joining_control_evidence.py": "214bcd7a2f50a0f74f5e0044035a92f9c41fd3572c5f9087ee573bea774525e6",
+    "scripts/v53/test_joining_control_evidence.py": "1d94122b9cd04fca52fd638f848638cbdaae13f4a1b6176cbd0919a424ea9372"
+  },
+  "collectionSha256": "5a32e0a88bb8034de53ca1aecc5277372e04910ef04baae85c7143d5f6b1cbd7",
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1840,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "nativeExecution": {
+    "elapsedSeconds": 879.386,
+    "exit": 0
+  },
+  "newNativeExecutions": 0,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalFilesPreservedInNegatives": true,
+  "priorPhysicalNetworkExportPrecondition": true,
+  "processDeathQualified": false,
+  "producerHead": "9136083fb35318f74b4003b8aa61fee71a3725cc",
+  "producerPath": "target/v53-joining-history/original-9136083f",
+  "producerReceiptSha256": "cd566df3ce01bfce1e484226860e741b5a33981af50d512c204d49f49a428f8f",
+  "productionChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "case": "root-alias",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control exact original export",
+        "status": "REJECTED"
+      },
+      {
+        "case": "intent-target",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control exact original export",
+        "status": "REJECTED"
+      },
+      {
+        "case": "hint-source",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control exact original export",
+        "status": "REJECTED"
+      },
+      {
+        "case": "fragment-wrapper",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control exact original export",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completion-cut",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control exact original export",
+        "status": "REJECTED"
+      },
+      {
+        "case": "retention-ledger",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control exact retention ACK",
+        "status": "REJECTED"
+      },
+      {
+        "case": "retention-revision",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control exact retention ACK",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-retention-force",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control peer retention force",
+        "status": "REJECTED"
+      },
+      {
+        "case": "local-retention-force",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control local retention force",
+        "status": "REJECTED"
+      },
+      {
+        "case": "late-recording",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control learner export without live recording",
+        "status": "REJECTED"
+      },
+      {
+        "case": "head-before-handoff",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control head before retained handoff",
+        "status": "REJECTED"
+      },
+      {
+        "case": "head-confirmation-force",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control head confirmation force",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completion-before-initialization",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control completion initialization/fence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completion-closed-owner",
+        "networkAndExportPrecondition": "PASS",
+        "reason": "joining control original owner lifetime",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "allExportFamiliesQualified": false,
+      "completePhysicalQualified": false,
+      "confirmedHeads": 2,
+      "controls": {
+        "completion": 2,
+        "intent": 2,
+        "preparation": 1,
+        "retention": 2,
+        "root": 1
+      },
+      "forceAndNetworkQualified": false,
+      "learnerSessions": {
+        "published": 2,
+        "recorded": 4
+      },
+      "observedCommittedContents": 686,
+      "observedContentSessions": 361,
+      "observedControlExportsQualified": true,
+      "observedLearnerRetentionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "retentionRounds": 2,
+      "scope": "one-native-ADD-original-control-exports-and-learner-retention",
+      "status": "PASS"
+    }
+  },
+  "qualificationSha256": "c98570b256ebe091eb589ca2b668bf56b9ac6ab76452d51398188938922f0a32",
+  "remaining": [
+    "faulted/expired/cancelled export cases",
+    "remaining maintenance/control composition",
+    "process-death cases",
+    "all seven profiles",
+    "frozen acceptance mapping"
+  ],
+  "retainedDiagnostics": [
+    "inventory.log",
+    "inventory-v2.log",
+    "replay-initial.stderr"
+  ],
+  "schema": "gse-v53-joining-control-replay-v1",
+  "scope": "one-native-ADD-original-control-exports-and-learner-retention",
+  "sourceSha256": "b507199f32c078a6f5a889ef008902185818d6184ec851c52307ae9a0c8e5b25",
+  "status": "PASS",
+  "testLogSha256": "de710d1342cb52b2a81409fb5bfd12a3d506c2ee5facde2f0ec7621383e8b671",
+  "tests": {
+    "joiningPythonTests": 248,
+    "status": "PASS"
+  },
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+}

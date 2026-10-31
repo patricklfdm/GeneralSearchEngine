@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining control replay](PHASE_3_JOINING_CONTROL_REPLAY.md) closes the preceding
+healthy-history content gaps: eight control exports and six learner authorizations,
+including original retention force/ACK and retained-head causality. This does not
+close fault/expiry, remaining maintenance/control, process/profile or frozen mapping
+requirements; full Phase 3 flags remain false.
+
 [Joining export replay](PHASE_3_JOINING_EXPORT_REPLAY.md) checks original current
 generations, frozen sources, record/vote and checkpoint capabilities for 678 of
 686 committed contents. Learner retention authorization and eight joining control
