@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Same-view network replay](PHASE_3_SAME_VIEW_NETWORK.md) now composes the original
+storage derivation with grants, transport, remote installation ACKs and the
+joining proposer’s local installation order. Full export/maintenance, profile
+and process composition remain open; this is not Phase 3 closure.
+
 [Same-view storage replay](PHASE_3_SAME_VIEW_PHYSICAL.md) independently derives
 the retained 3-REPLACE recovery, including unequal-source FLOORs, complete source
 retirement prefixes and selected installation. Full force/transport/export and

@@ -78,3 +78,7 @@ unobserved failures or other profiles.
 There are no runtime Java, wire, POM, workflow, resource or timing changes. No
 native workload, paid cloud experiment, push or workflow dispatch is needed for
 this replay batch.
+
+The subsequent [same-view network replay](PHASE_3_SAME_VIEW_NETWORK.md) composes
+this derivation with the original transport and installation ACK boundaries.
+Its broader export, retention-force, maintenance and process limits remain explicit.

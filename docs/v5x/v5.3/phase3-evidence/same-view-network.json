@@ -1,0 +1,449 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeWorkload": false,
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "archive": {
+    "bytes": 30678958,
+    "directories": 1489,
+    "directorySetVerified": true,
+    "elapsedSeconds": 6.079,
+    "files": 13080,
+    "memberHashesVerified": true,
+    "path": "target/v53-same-view-network-20261031/sealed/same-view-network.tar.gz",
+    "sha256": "ec8ba0e0998262ead68ae8ecd3cbf9c7d0c5600dd54c593c3c302bcafa8be83f"
+  },
+  "archiveManifest": {
+    "bytes": 2857964,
+    "path": "target/v53-same-view-network-20261031/sealed/manifest.json",
+    "sha256": "a2ccba2899bedc16769173bc18a83feece2c6d9389f0eaf6a87715eb9241f719"
+  },
+  "baseHead": "79d5a79c4055cd440375c63370716c8edb99e7dd",
+  "completeControlExportQualified": false,
+  "completePhysicalQualified": false,
+  "deferred": [
+    "all control-export and maintenance/peer/learner force lifetimes",
+    "complete current-source profile cohort including REMOVE",
+    "whole-history process-death cuts",
+    "frozen acceptance mapping"
+  ],
+  "developmentDiagnostics": {
+    "failedLegacyOriginal": {
+      "execution": {
+        "elapsedSeconds": 21.8,
+        "exit": 1,
+        "inputInventorySha256": "09e0379388d95a30d4d5e41d87d1d774492d8a0c321e8e846243b2e25a4ea297",
+        "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-profile-network-20261031/native-3-replace/workspace/general-search-engine-replication/target/v53-native-dispatch/run-6ec8b0a5-7404-4f56-a267-51a5e9e0cdec"
+      },
+      "file": {
+        "bytes": 1762,
+        "path": "target/v53-same-view-network-20261031/legacy-profile.json",
+        "sha256": "97a7f30072b5f284240e426a3a66a2d962c135f063bd426bb557c185a8c233d8"
+      },
+      "reason": "retained pre-correction original lacks receiver terminal; still rejected, not a new regression"
+    },
+    "firstMatrix": {
+      "execution": {
+        "elapsedSeconds": 144.153,
+        "exit": 1
+      },
+      "file": {
+        "bytes": 5852,
+        "path": "target/v53-same-view-network-20261031/reader/qualified.json",
+        "sha256": "d7a3d7db4b03c326723b79c00b6365d685ca74a66d49df7ef34454669adef3c8"
+      },
+      "reason": "negative event movement used dictionary equality and selected an earlier equal event; corrected to object identity with a regression"
+    }
+  },
+  "documentation": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1920,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "durableACKsQualified": true,
+  "forceAndNetworkQualified": false,
+  "legacyReplay": {
+    "exactPreviousResult": true,
+    "execution": {
+      "elapsedSeconds": 22.352,
+      "exit": 0,
+      "inputInventorySha256": "075da5502de423ef9ec4a631d9fd2bd26378b56f016b6588d9b60d3387c36856",
+      "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-profile-network-20261031/native-corrected-3-replace/workspace/general-search-engine-replication/target/v53-native-dispatch/run-d92706cc-0ec7-446c-8d5c-faf577058d72"
+    },
+    "file": {
+      "bytes": 1516,
+      "path": "target/v53-same-view-network-20261031/legacy-corrected.json",
+      "sha256": "d268a5ae6498b018d85b20df0fa1c41fe88ae7f7dfa5e554caed3656ba69beff"
+    }
+  },
+  "maintenanceAndPeerCompositionQualified": false,
+  "nativeInput": {
+    "build": {
+      "bytes": 288598,
+      "path": "target/v53-same-view-network-20261031/original-input/build.json",
+      "sha256": "72a2992c984d1874256ab5d0c2379358c5e852080eb3cacc112124c438473bbc"
+    },
+    "inventory": {
+      "bytes": 589747,
+      "path": "target/v53-same-view-network-20261031/input-inventory.json",
+      "sha256": "6fbfa9544f774c5282f5cdd57b0c3aca05ca85fcc25e5ec8e967c2fab4d2224d"
+    },
+    "raw": "target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "receipt": {
+      "bytes": 1755,
+      "path": "target/v53-same-view-network-20261031/original-input/receipt.json",
+      "sha256": "cc9d49d6cbad9810cd53422912eb8eefc750790e294cc9ac61c14dc97585d58c"
+    },
+    "source": {
+      "bytes": 606423,
+      "path": "target/v53-same-view-network-20261031/original-input/source.json",
+      "sha256": "ab1b13b0d54ab5505dab93be8d48b003945c96216916d8b1bee847ffacea32e8"
+    },
+    "toolchain": {
+      "bytes": 370,
+      "path": "target/v53-same-view-network-20261031/original-input/toolchain.json",
+      "sha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+    }
+  },
+  "observedNetworkQualified": true,
+  "phase3Complete": false,
+  "portable": {
+    "exactOriginalResult": true,
+    "execution": {
+      "elapsedSeconds": 24.153,
+      "exit": 0
+    },
+    "file": {
+      "bytes": 1816,
+      "path": "target/v53-same-view-network-20261031/portable.json",
+      "sha256": "c6d8d402a8b47e689b9a9d6b6680b21a90a5a28d42a231677b37cdc69c1a2515"
+    },
+    "pythonAssertionsDisabled": true
+  },
+  "processDeathQualified": false,
+  "profile": "3-REPLACE",
+  "python": {
+    "errors": 0,
+    "failures": 0,
+    "log": {
+      "bytes": 2553,
+      "path": "target/v53-same-view-network-20261031/python-final.log",
+      "sha256": "de0e07b5b3744cdba38327c3ba9a52b7432c60468c73f3c803be57832ade281c"
+    },
+    "tests": 466
+  },
+  "qualification": {
+    "execution": {
+      "elapsedSeconds": 205.958,
+      "exit": 0
+    },
+    "file": {
+      "bytes": 12008,
+      "path": "target/v53-same-view-network-20261031/reader-v2/qualified.json",
+      "sha256": "1a7ecf2d52542015836a98e6e586a67f3d00956e4db3909fb6f571d875720e9d"
+    },
+    "result": {
+      "negatives": [
+        {
+          "case": "missing-send",
+          "reason": "joining network receive without send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-request",
+          "reason": "joining network response without request",
+          "status": "REJECTED"
+        },
+        {
+          "case": "late-request",
+          "reason": "joining network response without request",
+          "status": "REJECTED"
+        },
+        {
+          "case": "overlapping-retry",
+          "reason": "joining network ambiguous overlapping retry",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-send-owner",
+          "reason": "joining network send identity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-send-kind",
+          "reason": "joining network send bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-server-lifetime",
+          "reason": "joining network response request binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-client-lifetime",
+          "reason": "joining network client lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-delivery",
+          "reason": "joining network undelivered healthy response",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-grant-force",
+          "reason": "joining network durable grant order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-promise",
+          "reason": "joining network force before promise reply",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-promise-authority",
+          "reason": "joining network prepare authority",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-prepare-view",
+          "reason": "joining network prepare authority",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-selection",
+          "reason": "joining network selection before delivered promises",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-propagation",
+          "reason": "joining network selected propagation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-install-image-force",
+          "reason": "joining network durable installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-install-cut",
+          "reason": "joining network installation authority",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-chunk",
+          "reason": "joining network complete transfer commit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-offer-extent",
+          "reason": "joining network complete transfer commit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-commit",
+          "reason": "joining network complete transfer commit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "transfer-sequence-gap",
+          "reason": "joining network transfer sequence",
+          "status": "REJECTED"
+        },
+        {
+          "case": "transfer-before-delivery",
+          "reason": "joining network transfer next before delivery",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-early-selection",
+          "reason": "joining network selection before delivered promises",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-grant-force",
+          "reason": "joining network durable grant order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-remote-image-force",
+          "reason": "joining network durable installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-early-ACK",
+          "reason": "joining network durable installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-wrong-ACK-cut",
+          "reason": "joining network installation authority",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-local-selection-return",
+          "reason": "joining network recovery local selection return",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-local-reservation",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-local-before-delivered-ACK",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-local-wrong-lifetime",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-local-member-force",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-duplicate-local-force",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-unbound-selection-force",
+          "reason": "joining network unbound selection force",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-caller-missing",
+          "reason": "joining failure missing caller terminal",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-receiver-missing",
+          "reason": "joining failure missing receiver terminal",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-caller-foreign",
+          "reason": "joining failure sender lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-receiver-foreign",
+          "reason": "joining failure receiver lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-caller-duplicate",
+          "reason": "joining duplicate outbound terminal",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-receiver-duplicate",
+          "reason": "joining duplicate inbound terminal",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "completeControlExportQualified": false,
+        "completePhysicalQualified": false,
+        "durableACKsQualified": true,
+        "forceAndNetworkQualified": false,
+        "maintenanceAndPeerCompositionQualified": false,
+        "network": {
+          "boundInstallReplies": 7,
+          "boundPhaseResponses": 55,
+          "boundPromiseReplies": 9,
+          "committedTransfers": 524,
+          "deliveredResponses": 1693,
+          "exactTransferRetries": 2,
+          "failedAttempts": 5,
+          "forcedGrants": 19,
+          "forcedSelections": 14,
+          "futureTargets": 11,
+          "ownedSlotTransactions": 22,
+          "receivedRequests": 1698,
+          "recoveryInstallReplies": 1,
+          "recoveryLocalInstallations": 1,
+          "rejectedTransferAttempts": 2,
+          "responseLessFailures": 5,
+          "sentRequests": 1698,
+          "slots": 11,
+          "terminalObservations": 10,
+          "transferSessions": 282,
+          "transferredBytes": 2192253,
+          "wireExchanges": 1693
+        },
+        "observedNetworkQualified": true,
+        "phase3Complete": false,
+        "physicalContinuation": {
+          "adoption": {
+            "inheritedLocalBridges": 1,
+            "promiseAppended": true,
+            "remoteBridges": 0,
+            "requiredParents": 4
+          },
+          "capturedGrantComparisons": 19,
+          "completePhysicalQualified": false,
+          "finalCut": 11,
+          "forceAndNetworkQualified": false,
+          "governingFloorForceWindows": 15,
+          "ownerSnapshotComparisons": 28,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "3-REPLACE",
+          "recovery": {
+            "fromCut": 10,
+            "longest": "node-1",
+            "proposer": "node-4",
+            "selectedVoters": [
+              "node-1",
+              "node-4"
+            ],
+            "toCut": 11
+          },
+          "sameViewPhysicalQualified": false,
+          "sameViewStorageQualified": true,
+          "scope": "original-same-view-selected-recovery",
+          "sourceRetirementLocalOrderSegments": 15,
+          "sourceRetirementPrefixes": 225,
+          "sourceRetirementTransactions": 15,
+          "status": "PARTIAL"
+        },
+        "processDeathQualified": false,
+        "profile": "3-REPLACE",
+        "recoveryLocalInstallationQualified": true,
+        "sameViewPhysicalQualified": false,
+        "scope": "original-same-view-network-and-durable-ACKs",
+        "status": "PARTIAL"
+      }
+    }
+  },
+  "reader": {
+    "codeSha256": {
+      "joining_network_evidence.py": "fb4c483cc67b777752f449da62aef8d58f0e64f949565332398f0160df518134",
+      "joining_same_view_network.py": "52373fd2d231ba3ffaf78989d7c73ce2b72c42fe4b19772a87eb9b8cffb48ff6",
+      "test_joining_same_view_network.py": "b931bd6e69312870c94dfeacad0aafd495900f40cd5f5cf84f51e8353b4adf0d"
+    },
+    "frozenSourceUnchanged": true,
+    "source": {
+      "bytes": 607511,
+      "path": "target/v53-same-view-network-20261031/reader-v2/source.json",
+      "sha256": "0747106f0f3c80540465cb10adb2fe369ed8d940059b1b1a9b446effbb34da93"
+    }
+  },
+  "recoveryLocalInstallationQualified": true,
+  "sameViewPhysicalQualified": false,
+  "schema": "gse-v53-same-view-network-batch-v1",
+  "scope": "retained-original-same-view-transport-and-installation-ACKs",
+  "status": "PARTIAL"
+}
