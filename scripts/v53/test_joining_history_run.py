@@ -135,11 +135,13 @@ class JoiningHistoryRunTest(unittest.TestCase):
         # Snapshot format and semantic ledger replay have their own real-reader
         # tests; here only collection boundaries and refusal ordering are tested.
         with patch.object(h.snapshot, 'read'), patch.object(h.grants, 'validate', return_value={'status':'PARTIAL'}) as grants, \
+                patch.object(h.retirements, 'validate', return_value={'status':'PARTIAL'}) as retirements, \
                 patch.object(h.ledgers, 'validate', return_value={'status': 'PARTIAL'}) as ledger:
             result = h.collection(raw)
             self.assertEqual('PARTIAL', result['status']); self.assertTrue(result['collectionComplete'])
             self.assertFalse(result['nativeHistoryQualified']); self.assertFalse(result['phase3Complete'])
             grants.assert_called_once_with(raw, json.loads((raw/'events.json').read_bytes()), whole_history=True)
+            retirements.assert_called_once_with(raw, json.loads((raw/'events.json').read_bytes()))
             ledger.assert_called_once_with(raw, confirmed_peers=True); ledger.reset_mock()
             rawsave(raw / 'events.json', [])
             with self.assertRaisesRegex(ValueError, 'traces missing'): h.collection(raw)
@@ -149,6 +151,12 @@ class JoiningHistoryRunTest(unittest.TestCase):
         raw = self.minimal_collection()
         with patch.object(h.snapshot, 'read'), patch.object(h.ledgers, 'validate') as ledger:
             with self.assertRaisesRegex(ValueError, '^grant capture collection missing$'): h.collection(raw)
+            ledger.assert_not_called()
+
+    def test_missing_retirement_prefixes_stop_collection_before_ledger_validation(self):
+        raw = self.minimal_collection()
+        with patch.object(h.snapshot, 'read'), patch.object(h.grants,'validate'), patch.object(h.ledgers,'validate') as ledger:
+            with self.assertRaisesRegex(ValueError, '^retirement capture collection missing$'): h.collection(raw)
             ledger.assert_not_called()
 
     def test_missing_snapshot_scope_or_cold_return_is_not_complete(self):

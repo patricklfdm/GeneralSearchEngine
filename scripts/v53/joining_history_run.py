@@ -20,13 +20,14 @@ import xml.etree.ElementTree as ET
 from . import joining_snapshot as snapshot
 from . import joining_retention_evidence as ledgers
 from . import joining_grant_captures as grants
+from . import joining_source_retirement as retirements
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = 'general-search-engine-replication'
 CLASS = 'io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest'
 METHOD = 'joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory'
 TEST = CLASS.rsplit('.', 1)[-1] + '#' + METHOD
-SCHEMA = 'gse-v53-joining-history-collection-v2'
+SCHEMA = 'gse-v53-joining-history-collection-v3'
 need = snapshot.need
 
 
@@ -154,11 +155,13 @@ def collection(raw):
     need(any(v.get('scope') == 'continuation-endpoint' and v.get('event') == 'BEFORE_RESPONSE_WRITE' for v in joining),
          'whole joining response observations missing')
     grant_result = grants.validate(raw, events, whole_history=True)
+    retirement_result = retirements.validate(raw, events)
     ledger_result = ledgers.validate(raw, confirmed_peers=True)
     need(inventory(raw) == original, 'whole joining evidence changed during collection')
     return dict(status='PARTIAL', collectionComplete=True, scope='joining-history-collection-and-ledger-only',
                 nativeHistoryQualified=False, forceAndNetworkQualified=False, phase3Complete=False,
-                events=len(events), wirePairs=len(wire), finalIndex=index, ledger=ledger_result, grants=grant_result, inventory=original)
+                events=len(events), wirePairs=len(wire), finalIndex=index, ledger=ledger_result, grants=grant_result,
+                sourceRetirements=retirement_result, inventory=original)
 
 
 def tail(path):

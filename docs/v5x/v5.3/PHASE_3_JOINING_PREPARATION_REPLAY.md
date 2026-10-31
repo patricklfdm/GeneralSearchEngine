@@ -37,6 +37,10 @@ callback names do not carry the source ID: the reader checks local order and
 file counts, not a separately retained identity-bound retirement decision or
 complete cross-node force/network causality.
 
+The later [source-retirement capture](PHASE_3_SOURCE_RETIREMENT_CAPTURE.md) adds
+those transient observations for future executions. This archived execution
+remains unchanged; its local order/count check is not upgraded by that addition.
+
 `GRANT_CAPTURED` is an observation marker, not a protocol force event. The older
 initialization-order reader now ignores only that marker while preserving exact
 checks for all original force callbacks. Capture completeness and byte binding

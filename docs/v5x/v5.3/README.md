@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Source-retirement prefix capture](PHASE_3_SOURCE_RETIREMENT_CAPTURE.md) now
+retains original transient decisions and every local deletion boundary with
+deduplicated file bytes. The real writer component and independent 15-prefix
+comparison pass; composing those decisions into the next complete joining
+history and full force/network qualification remain open.
+
 [Original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md) now
 derives the previously missing intermediate sources on a fresh complete history.
 All 19 captured grants and 16 local source-retirement groups match, followed by

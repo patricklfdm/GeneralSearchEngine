@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Source-retirement prefix capture](PHASE_3_SOURCE_RETIREMENT_CAPTURE.md) is now
+implemented and independently checked on one real writer transaction. Before
+another complete history is qualified, derive its governing floors and all source
+retirement prefixes, compose full transport/force causality, then run the remaining
+process/profile/mapping gates. New collection v3 observations cannot fill an older
+archive's missing transient decisions.
+
 [Original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md) now
 uses one new uninterrupted `c8f5d616` execution with all 19 original grant copies.
 Intermediate preparation and continuation are independently derived through

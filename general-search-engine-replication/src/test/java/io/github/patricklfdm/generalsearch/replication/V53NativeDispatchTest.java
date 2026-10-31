@@ -43,6 +43,7 @@ class V53NativeDispatchTest {
         final AtomicReference<java.util.function.Consumer<Decoded>> beforeSend=new AtomicReference<>(request->{});
         volatile boolean observeRequests;
         volatile V53GrantCapture grantCapture;
+        volatile V53SourceRetirementCapture retirementCapture;
         final AtomicReference<MembershipBallotAllocator.Cut> hook=new AtomicReference<>(event->{});
         final AtomicBoolean holdNextQuery=new AtomicBoolean();
         final CountDownLatch queryEntered=new CountDownLatch(1);
@@ -75,6 +76,7 @@ class V53NativeDispatchTest {
                 owners.add(MembershipGrantJournal.openRetainingFuturePeers(target.replicaDirectory(),target.materialization().directory(),f.result.root(),target.identity(),budget,
                         MembershipGrantJournal.MAXIMUM,event->{events.add(Map.of("node",target.identity().nodeId().value(),"event",event));
                             var capture=grantCapture;if(capture!=null)capture.at(target.identity().nodeId().value(),"network-owner",target.replicaDirectory(),event);
+                            var retirement=retirementCapture;if(retirement!=null)retirement.at(target.identity().nodeId().value(),"network-owner",target.replicaDirectory(),event);
                             if(target.identity().nodeId().value().equals("node-2"))hook.get().at(event);}));
             }
             for(int i=0;i<size;i++) {

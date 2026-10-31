@@ -1,0 +1,188 @@
+{
+  "archive": {
+    "bytes": 26801373,
+    "entries": 11168,
+    "memberHashesVerified": true,
+    "path": "target/v53-source-retirement-capture-review/sealed/source-retirement-capture.tar.gz",
+    "portableOriginalAndTwelveNegatives": "PASS",
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "8d6f58ccb87da1c537bd3e354a75752da113be3785c3cad18f5fc02536b68f52",
+    "sha256": "344883514655127192add5852ea74ab7c47e7eb7b3b164b4eaf6f479a09be22b",
+    "sourceAndBuildVerified": true,
+    "status": "PASS"
+  },
+  "baseHead": "2028ef12437c8dc6115e3188e737829596d80f83",
+  "buildManifestSha256": "62caba19e1c5692f13047fe61770a8937538b1685e63fee999e858914bdfd0a8",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "d65629c9206d4aced7455da46a61a9dffa107ae3fcf95e5e4f177f49976c6be1",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "b3cfffb776c156c8929b158178504ba995ddbc4d2fefa71fd77f550db4224983",
+    "docs/v5x/v5.3/PHASE_3_JOINING_PREPARATION_REPLAY.md": "2a030e4ec27eded80b27b4711392baa965bc3b3415918a6bfee5d0ab2d7b0853",
+    "docs/v5x/v5.3/PHASE_3_SOURCE_RETIREMENT_CAPTURE.md": "ab82d7bdecd3c4fc44cbc57e9694a6dc8079a4c1b44cf9be2d45a5d262bca334",
+    "docs/v5x/v5.3/README.md": "d85a88bc77ee3e4409d76e8bec7e75bc39760e82f830d24bbbb0ba0f7350fea1",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "968d6257d58f4af45f2471f39d9438e51540bb23fc62daa920cf72de28072acb",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTrace.java": "7d9e73c38f575c945dd281c0409e08ffc36faf4f7f3275d1e2507777e31d41ce",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "e0e27df968a62e10f4717076b130998c1485b8d6dbbc6355684fbb1782a033a5",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceRetirementCapture.java": "25d9f3f72e93e7cc0935d01e0121b29dd70c6ff85777283b411e13d988fc0101",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53SourceRetirementCaptureTest.java": "7e6065266c2886075f5d0cae1c4cd1f16b32301061e5c0c26255d1c0f68ae164",
+    "scripts/v53/joining_history_run.py": "07d0509e455ae39cd0c3018f539529e9fe0d31e16965359c774c373076be1f61",
+    "scripts/v53/joining_preparation_evidence.py": "c0d5584b1baff07b4e8ba58fa1f05221273d33537a7b8fcbc4f67d43f037fdd9",
+    "scripts/v53/joining_source_retirement.py": "2c4ba0ea2d04ede2336bd48fa988df9d066b250dab17ee5aa7a8911db9294d34",
+    "scripts/v53/test_joining_history_run.py": "238043356b5a45249dce262cabb006ccbb564f543d3197eae0e601dad616bee6",
+    "scripts/v53/test_joining_source_retirement.py": "45c7e6133ef716e5b3a6e99c8e238f816dc3bc088ad77cfeba5d8fdd0c445336"
+  },
+  "collectionSchema": "gse-v53-joining-history-collection-v3",
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1817,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "historicalReplay": {
+    "resultSha256": "170b608c08b0d9be84fc1307cd34125a3e30de85f6ef3b1a527cd41e48ae8196",
+    "scope": "unchanged-c8f5d616-original",
+    "status": "PASS"
+  },
+  "java": {
+    "logSha256": "2b8a51f24e91fc72ddbd44e940d5c82558195d9a7287c1956a9909a36ec8318a",
+    "newTests": 2,
+    "status": "PASS",
+    "suites": {
+      "V53GrantCaptureTest": {
+        "seconds": 4.051,
+        "sha256": "f96cb9fed37c65eecebc73af265094f473495b42a43bc1f52ae229b274b10618",
+        "tests": 2
+      },
+      "V53JoiningTraceTest": {
+        "seconds": 0.047,
+        "sha256": "bfaa92944f842efbeda33372afab219367223f51f236a4ac13708669728444eb",
+        "tests": 3
+      },
+      "V53SourceRetirementCaptureTest": {
+        "seconds": 1.412,
+        "sha256": "c13fa091cd5e4e43e76ee16c0f0817ed71f6dc8181cd2aed4cf0e5bc0594d92a",
+        "tests": 2
+      }
+    },
+    "tests": 7
+  },
+  "limitations": [
+    "The 15-prefix real writer exercise uses an independently reconstructed floor fixture, not a whole joining history.",
+    "The next complete joining execution must retain v3 prefixes and independently derive each governing floor/retirement from the same history.",
+    "Complete force/network composition, process boundaries, seven profiles and frozen requirement mapping remain pending.",
+    "The archived reader contains a draft batch receipt to avoid a circular hash; final receipt is retained separately."
+  ],
+  "nativeExecutionScope": "targeted-incremental-reactor-test-in-original-workspace",
+  "originalInventorySha256": "1b632f660d7668f1626e6027c71d5ee571224db9c981fe4613db5cd16bd9dcd3",
+  "originalRaw": "general-search-engine-replication/target/v53-source-retirement-capture/run-e68fb7cb-f3a2-497d-b553-93d6831bf218",
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portableReplay": {
+    "resultSha256": "d3fb3ab0db84daafc21e0f998eb110d324046ae1ab93354ef22b0ce315aa1091",
+    "scope": "original-and-twelve-exact-negatives-from-frozen-reader",
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "productionJavaChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "compiledJavaAndPoms": 1375,
+    "count": 705
+  },
+  "python": {
+    "logSha256": "7cd23ba89b17870b74d1d0eed483b4d5d54cdcc42f4ebfa255b197e635e206da",
+    "newTests": 9,
+    "status": "PASS",
+    "tests": 176
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "case": "missing-copy",
+        "reason": "retirement capture missing copy/start",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-event-digest",
+        "reason": "retirement capture event digest",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-object",
+        "reason": "retirement capture missing object/size",
+        "status": "REJECTED"
+      },
+      {
+        "case": "altered-object",
+        "reason": "retirement capture object identity/capacity",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-object",
+        "reason": "retirement capture unobserved object",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-floor",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-source-file",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "status": "REJECTED"
+      },
+      {
+        "case": "premature-journal-pruning",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-deletion",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_FILE_DELETED",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-preserved-file",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_BEFORE_RETURN",
+        "status": "REJECTED"
+      },
+      {
+        "case": "lost-force",
+        "reason": "retirement capture exact prefix count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-scope",
+        "reason": "retirement capture event point/scope",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "capturedPrefixes": 15,
+      "independentInitialFixture": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "source-retirement-component-prefixes",
+      "status": "PASS",
+      "transactions": 1,
+      "wholeJoiningHistory": false
+    }
+  },
+  "retainedDevelopmentFailures": [
+    "target/v53-source-retirement-capture-review/python-initial.log"
+  ],
+  "schema": "gse-v53-source-retirement-capture-batch-v1",
+  "scope": "test-only-source-retirement-prefixes",
+  "sourceManifestSha256": "d47dac8a56b5ee3d769d321e972143a0df4411f5620739df9273d3d0c8ab96fa",
+  "sourceSnapshotPrecedesFinalReceipt": true,
+  "status": "PARTIAL",
+  "wholeHistoryExecuted": false,
+  "workflowChanged": false
+}

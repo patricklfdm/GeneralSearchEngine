@@ -10,6 +10,8 @@ final class V53JoiningTrace {
     private final String node;
     private final List<Map<String,Object>> events,wire;
     private V53GrantCapture grants;
+    private V53SourceRetirementCapture retirements;
+    private Path retirementReplica;
     private Path replica;
     V53JoiningTrace(String node,List<Map<String,Object>> events,List<Map<String,Object>> wire) {
         this.node=Objects.requireNonNull(node);this.events=Objects.requireNonNull(events);this.wire=Objects.requireNonNull(wire);
@@ -18,10 +20,15 @@ final class V53JoiningTrace {
         if(this.grants!=null)throw new IllegalStateException("joining grant observation already bound");
         this.grants=Objects.requireNonNull(grants);this.replica=Objects.requireNonNull(replica);
     }
+    void retainRetirements(V53SourceRetirementCapture retirements,Path replica) {
+        if(this.retirements!=null)throw new IllegalStateException("joining retirement observation already bound");
+        this.retirements=Objects.requireNonNull(retirements);this.retirementReplica=Objects.requireNonNull(replica);
+    }
     MembershipBallotAllocator.Cut cut(String scope) {
         Objects.requireNonNull(scope);
         return event->{events.add(Map.of("node",node,"scope",scope,"event",event));
-            if(grants!=null)grants.at(node,scope,replica,event);};
+            if(grants!=null)grants.at(node,scope,replica,event);
+            if(retirements!=null)retirements.at(node,scope,retirementReplica,event);};
     }
     /** Optional old-owner request observations. Keep their existing response
      * callbacks untouched; an attempted write is not proof of delivery. */

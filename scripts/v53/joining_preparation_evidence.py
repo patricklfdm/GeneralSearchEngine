@@ -13,6 +13,7 @@ import tempfile
 
 from . import joining_continuation_evidence as continuation
 from . import joining_grant_captures as captures
+from . import joining_source_retirement as retirements
 
 c = continuation
 init, s, f, disk, need, sha = c.init, c.s, c.f, c.disk, c.need, c.sha
@@ -73,7 +74,7 @@ def retirement_order(local, deleted_file_counts):
     prefix += ['JOURNAL_ROTATION_'+v for v in ('CREATED','WRITTEN','FORCED','RENAMED','PARENT_FORCED')]
     prefix += ['SOURCE_RETIREMENT_JOURNAL_PRUNED']
     suffix = ['SOURCE_RETIREMENT_'+v for v in ('DIRECTORY_DELETED','CLEARED','BEFORE_RETURN')]
-    rows = [v for v in local if v.startswith(('SOURCE_RETIREMENT_', 'JOURNAL_ROTATION_'))]
+    rows = [v for v in local if v != retirements.EVENT and v.startswith(('SOURCE_RETIREMENT_', 'JOURNAL_ROTATION_'))]
     position = 0; observed = []
     while position < len(rows):
         need(rows[position:position+len(prefix)] == prefix, 'joining preparation original source retirement order')
@@ -147,6 +148,8 @@ class Continuation(c.Continuation):
 def validate(root):
     root = Path(root); original = s.collection.inventory(root)
     events = s.collection.read_json(root, 'events.json', 8*captures.MIB)
+    if (root/retirements.DIRECTORY).exists() or any(row.get('event') == retirements.EVENT for row in events):
+        retirements.validate(root,events)
     observed = Captures(root, events)
     c.t.publication.validate(root)
     replay = s.Replay(root)

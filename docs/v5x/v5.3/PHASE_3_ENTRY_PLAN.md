@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Source-retirement prefix capture](PHASE_3_SOURCE_RETIREMENT_CAPTURE.md) adds the
+missing original transient decision bytes and a separately derived per-prefix
+comparison API. Collection v3 requires these observations. Component checks pass;
+same-history floor/retirement derivation and full force/network closure remain open.
+
 [Original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md) removes
 the intermediate-source projection on one new complete `3-ADD` history: 19
 derived grants, 16 local source-retirement groups and both final installations
