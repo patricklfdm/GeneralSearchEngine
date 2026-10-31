@@ -1,5 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining profile prefixes](PHASE_3_JOINING_PROFILES.md) extend the actual
+bootstrap-to-JOINT execution and original semantic reader to all five ADD/REPLACE
+profiles. Separate old/new majorities are preserved, including overlapping
+old-only checkpoints. The 3-REPLACE prefix is locally replayed. The 4-ADD execution exposed
+a test-helper publication-order defect, corrected with a focused TCP regression;
+its complete rerun is deferred. Current-source profiles, FINAL/cold continuation and
+complete physical/network/process/frozen-mapping acceptance remain required.
+
 [Joining source-reply matrix](PHASE_3_JOINING_FAULT_MATRIX.md) requires all three
 complete initial offer/data/commit loss histories on one exact producer/build.
 Its original-first aggregate replays each full physical/peer chain and fourteen

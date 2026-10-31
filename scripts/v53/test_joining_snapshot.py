@@ -62,6 +62,22 @@ class JoiningSnapshotTest(unittest.TestCase):
         for name in ('nativeOwner','retirement'):
             shutil.rmtree(self.root/name);row=self.row(name);row['present']=False;del row['files']
         self.save();self.assertEqual('placed',j.validate(self.root,stage='placed')['stage']);self.reject('joining snapshot required roots')
+    def test_pending_snapshot_cannot_be_promoted_to_placed_or_native(self):
+        import shutil
+        for row in self.rows:
+            if row['present']:shutil.rmtree(self.root/row['name']);row.pop('files')
+            row['present']=row['name'] in j.PENDING
+            if row['present']:
+                name=row['name'];(self.root/name).mkdir()
+                row['files']=[dict(name='.',identity=dict(directory=True,key=name+'-dir'))]
+        self.save();self.assertEqual('pending',j.validate(self.root,stage='pending')['stage'])
+        for stage in ('placed','native'):
+            with self.subTest(stage=stage),self.assertRaisesRegex(ValueError,'joining snapshot required roots'):j.read(self.root,stage=stage)
+        row=self.row('nativeOwner');row['present']=True
+        (self.root/'nativeOwner').mkdir();row['files']=[dict(name='.',identity=dict(directory=True,key='native-owner'))]
+        self.save()
+        with self.assertRaisesRegex(ValueError,'joining snapshot premature placement roots'):j.read(self.root,stage='pending')
+
     def test_duplicate_member_name_is_rejected(self):
         self.row()['files'].append(copy.deepcopy(self.row()['files'][1]));self.save();self.reject('joining snapshot ordered members')
 

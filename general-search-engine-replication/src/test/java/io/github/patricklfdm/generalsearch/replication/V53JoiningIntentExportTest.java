@@ -104,6 +104,13 @@ class V53JoiningIntentExportTest {
     @Test void joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory()throws Exception {
         nativeJoining(true,true,true,true,true,true,true,true,true);
     }
+    /** Separate prefix gate: all five joining profiles stop at actual JOINT publication.
+     * It must not be mistaken for FINAL, native initialization or cold recovery. */
+    @Test void joiningProfilePublishesOriginalJointCheckpoint()throws Exception {
+        var profile=V53JoiningProfile.parse(System.getProperty("v53.joining.profile","3-ADD"));
+        assertTrue(System.getProperty("v53.joining.sourceFault","").isEmpty(),"profile prefix does not select source faults");
+        nativeJoining(true,true,false,false,false,false,false,false,false,profile,true);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
@@ -129,6 +136,13 @@ class V53JoiningIntentExportTest {
         nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,initializeJoined,continueJoint,remoteRetention,false);
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup)throws Exception {
+        nativeJoining(retainPending,publishJoint,installJoined,maintainJoined,seedJoined,initializeJoined,continueJoint,remoteRetention,earlyStartup,
+                new V53JoiningProfile(3,MembershipChangeKind.ADD),false);
+    }
+    private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,
+            boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup,V53JoiningProfile profile,boolean prefixOnly)throws Exception {
+        assertTrue(!prefixOnly || retainPending && publishJoint && !installJoined && !continueJoint && !earlyStartup);
+        assertTrue(profile.name().equals("3-ADD") || prefixOnly,"complete profile continuation is a separate gate");
         assertTrue(!earlyStartup || remoteRetention && initializeJoined && continueJoint);
         String sourceFault=System.getProperty("v53.joining.sourceFault","");
         assertTrue(sourceFault.isEmpty() || earlyStartup && Set.of("SOURCE_OFFER","CHUNK","TRANSFER_COMMIT").contains(sourceFault),
@@ -137,13 +151,17 @@ class V53JoiningIntentExportTest {
         // The additional complete installation/cold-open scenario has one
         // declared owner lifetime from its start. Existing scenarios keep
         // their 12 minutes; no RPC timeout or production bound is changed.
-        long lifetime=continueJoint?TimeUnit.MINUTES.toNanos(40):installJoined?TimeUnit.MINUTES.toNanos(20):BUDGET;
-        try(var n=network.new Network(3,helper.controlBounds(),lifetime,f->{
+        // The new all-profile prefix can include three old voters and all
+        // their maintenance/publication copies. Give it the existing 20-minute
+        // fixture lifetime once at construction; individual RPC/retry and
+        // learner-source budgets remain unchanged. Legacy methods are unchanged.
+        long lifetime=continueJoint?TimeUnit.MINUTES.toNanos(40):(installJoined || prefixOnly)?TimeUnit.MINUTES.toNanos(20):BUDGET;
+        try(var n=network.new Network(profile.size(),helper.controlBounds(),lifetime,f->{
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learners")){owner.initializeLearnerRetention();}
         },true);var round=helper.driver(n,MembershipRoundDriver.Events.NONE,lifetime)) {
             // Preserve original attempts and receives for full causal replay.
             // Older fixture families retain their existing trace vocabulary.
-            n.observeRequests=earlyStartup;
+            n.observeRequests=earlyStartup || prefixOnly;
             if(earlyStartup) {
                 n.grantCapture=new V53GrantCapture(n.f.raw,n.events);
                 n.retirementCapture=new V53SourceRetirementCapture(n.f.raw,n.events);
@@ -151,14 +169,15 @@ class V53JoiningIntentExportTest {
             // The short Network.activate helper fixes a 180-second campaign.
             // This complete typed-learner history uses one declared
             // owner lifetime from its start, without extending any RPC timeout.
-            n.transports.get(2).close();round.start();assertEquals(List.of(0,1),n.voters);
+            for(int i=profile.majority();i<profile.size();i++)n.transports.get(i).close();
+            round.start();assertEquals(profile.liveIndices(),n.voters);
             if(installJoined)probeOldLocks(n);
             int port;try(var socket=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){port=socket.getLocalPort();}
-            var joining=new MembershipIdentity(new ReplicationNodeId("node-4"),UUID.randomUUID(),new ReplicationEndpoint("127.0.0.1",port));
+            var joining=new MembershipIdentity(new ReplicationNodeId(profile.joining()),UUID.randomUUID(),new ReplicationEndpoint("127.0.0.1",port));
             var trace=new V53JoiningTrace(joining.nodeId().value(),n.events,n.wire);
-            var targets=new ArrayList<MembershipIdentity>();n.f.request.targets().forEach(t->targets.add(t.identity()));targets.add(joining);
+            var targets=new ArrayList<MembershipIdentity>();n.f.request.targets().stream().filter(t->profile.targets().contains(t.identity().nodeId().value())).forEach(t->targets.add(t.identity()));targets.add(joining);
             var owner=n.owners.getFirst();var resources=n.resources.getFirst();
-            var change=new MembershipChangeRequest(new MembershipOperationId(n.f.result.root(),1),owner.activationContext().authority(),MembershipChangeKind.ADD,targets);
+            var change=new MembershipChangeRequest(new MembershipOperationId(n.f.result.root(),1),owner.activationContext().authority(),profile.kind(),targets);
             var request=new MembershipLearnerRequest(n.f.result.root(),joining,change,temp.resolve("learner"),temp.resolve("operation"));
             round.submit("RESERVE",canonical(Map.of("request",MembershipLearnerDiscovery.request(change)),8192));
             round.submit("PREPARE",canonical(Map.of("number",1L,"revision",1L),8192));
@@ -212,14 +231,15 @@ class V53JoiningIntentExportTest {
                             assertThrows(IllegalArgumentException.class,()->owner.joiningIntent(joining));
                             var certificate=n.apply(owner.voting(resources).record("ACCEPT").orElseThrow());
                             var applied=owner.voting(resources).application().orElseThrow();
-                            var other=n.owners.get(1).voting(n.resources.get(1)).application().orElseThrow();
-                            assertEquals(List.of("node-1","node-2"),list(certificate.value().get("proofs")).stream().map(v->object(v).get("voter")).toList());
-                            // Old majority certificate is real, but old 2/3 alone is
-                            // not new 3/4. Keep that required refusal unchanged.
-                            assertThrows(IllegalArgumentException.class,()->applied.plan().complete(
-                                    List.of(applied.endorsement().acknowledgement(),other.endorsement().acknowledgement()),
-                                    Set.of(applied.endorsement().owned(),other.endorsement().owned())));
-                            assertSame(before,owner.activationContext());assertFalse(before.voters().contains("node-4"));
+                            var oldAcks=new ArrayList<Decoded>();var oldOwned=new HashSet<MembershipContext.Owned>();
+                            for(int voter:n.voters){var end=n.owners.get(voter).voting(n.resources.get(voter)).application().orElseThrow().endorsement();
+                                oldAcks.add(end.acknowledgement());oldOwned.add(end.owned());}
+                            assertEquals(profile.oldVoters(),list(certificate.value().get("proofs")).stream().map(v->object(v).get("voter")).toList());
+                            // Only 3->4 ADD needs the joining end with this live old majority.
+                            // REPLACE removes the offline last old voter; its old majority overlaps the new one.
+                            if(profile.requiresJoiningAck())assertThrows(IllegalArgumentException.class,()->applied.plan().complete(oldAcks,oldOwned));
+                            else assertEquals("JOINT",MembershipLearnerProgressAccess.operation(applied.plan().complete(oldAcks,oldOwned).context,joining).get("phase"));
+                            assertSame(before,owner.activationContext());assertFalse(before.voters().contains(profile.joining()));
                             var files=V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory());
                             var learnerFiles=V53ReplayFilesTest.files(request.operationDirectory());
                             var wire=new ArrayList<Map<String,Object>>();
@@ -252,11 +272,11 @@ class V53JoiningIntentExportTest {
                                 try(var pending=progress.retainPendingIntent(event->{trace.cut("pending-intent").at(event);events.add(event);})) {
                                     var added=pending.endorse();
                                     assertArrayEquals(applied.plan().statement.bytes(),pending.originals().record("CHECKPOINT").bytes());
-                                    var checkpoint=applied.plan().complete(
-                                            List.of(applied.endorsement().acknowledgement(),other.endorsement().acknowledgement(),added.acknowledgement()),
-                                            Set.of(applied.endorsement().owned(),other.endorsement().owned(),added.owned()));
+                                    var allAcks=new ArrayList<>(oldAcks);allAcks.add(added.acknowledgement());
+                                    var allOwned=new HashSet<>(oldOwned);allOwned.add(added.owned());
+                                    var checkpoint=applied.plan().complete(allAcks,allOwned);
                                     assertEquals("JOINT",MembershipLearnerProgressAccess.operation(checkpoint.context,joining).get("phase"));
-                                    assertSame(before,owner.activationContext());assertFalse(before.voters().contains("node-4"));
+                                    assertSame(before,owner.activationContext());assertFalse(before.voters().contains(profile.joining()));
                                     assertEquals(files,V53ReplayFilesTest.files(n.f.request.targets().getFirst().replicaDirectory()));
                                     assertTrue(events.indexOf("LEARNER_JOINING_SOURCE_PARENTS_FORCED")<events.indexOf("LEARNER_JOINING_ACK_CREATED"));
                                     assertTrue(events.indexOf("LEARNER_JOINING_ACK_FORCED")<events.indexOf("LEARNER_JOINING_ACK_BEFORE_RETURN"));
@@ -276,7 +296,8 @@ class V53JoiningIntentExportTest {
                                             }
                                         },System::nanoTime,System.nanoTime(),BUDGET)) {
                                             n.publish(certificate);
-                                            assertEquals(Set.of("node-1","node-2"),readers);
+                                            if(profile.requiresJoiningAck())assertEquals(new HashSet<>(profile.oldVoters()),readers);
+                                            else assertTrue(new HashSet<>(profile.oldVoters()).containsAll(readers));
                                             for(int voter:n.voters)assertEquals("JOINT",MembershipLearnerProgressAccess.operation(n.owners.get(voter).activationContext(),joining).get("phase"));
                                             assertEquals("SEALED",MembershipLearnerProgressAccess.operation(pending.source().context,joining).get("phase"));
                                             assertFalse(Files.exists(config.materialization().directory()));
@@ -284,6 +305,13 @@ class V53JoiningIntentExportTest {
                                         }
                                         Files.write(n.f.raw.resolve("joining-ack-wire.json"),canonical(ackWire,1024*1024));
                                         System.out.println("v53JoiningIntentStage=joint-published-by-old-majority");
+                                        if(prefixOnly) {
+                                            pendingSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-pending"));
+                                            Files.write(n.f.raw.resolve("joining-profile.json"),canonical(Map.of("profile",profile.name(),"initialSize",profile.size(),
+                                                    "kind",profile.kind().name(),"joining",profile.joining(),"oldVoters",profile.oldVoters(),"targets",profile.targets(),
+                                                    "oldOnlyJointCheckpoint",!profile.requiresJoiningAck(),"cut",owner.activationContext().cut,
+                                                    "finalAndColdReopen",false),8192));
+                                        }
                                         if(installJoined) {
                                             probeOldLocks(n);
                                             // Consume the actual retained owner and native published
@@ -521,7 +549,7 @@ class V53JoiningIntentExportTest {
                             }
                             if(!publishJoint)guardChecks(n,request,first);
                             Files.write(n.f.raw.resolve("joining-intent-wire.json"),canonical(wire,8*1024*1024));
-                            Files.write(n.f.raw.resolve("joining-intent-result.json"),canonical(Map.of("status","PASS","oldVoters",List.of("node-1","node-2"),
+                            Files.write(n.f.raw.resolve("joining-intent-result.json"),canonical(Map.of("status","PASS","oldVoters",profile.oldVoters(),
                                     "nativeHistory",true,"typedLearner",true,"newSideEndForced",retainPending,"publishedJoint",publishJoint,"nativeJoined",installJoined,
                                     "joinedFloorReconciled",maintainJoined,"publicReady",false),4096));
                         }
@@ -711,7 +739,17 @@ class V53JoiningIntentExportTest {
     /** Retain actual predecessor/native files for later independent replay.
      * Shared read descriptors preserve live POSIX ownership during capture. */
     private static void joinedSnapshot(MembershipLearnerPlan plan,Path materialization,Path output)throws Exception {
-        Files.createDirectory(output);var roots=new TreeMap<>(MembershipLearnerPlacement.originalRoots(plan));
+        snapshot(plan,materialization,output,false);
+    }
+    static void pendingSnapshot(MembershipLearnerPlan plan,Path materialization,Path output)throws Exception {
+        snapshot(plan,materialization,output,true);
+    }
+    private static void snapshot(MembershipLearnerPlan plan,Path materialization,Path output,boolean pending)throws Exception {
+        // A pending learner has no custody/placement decision. Read only its
+        // original path declarations; never manufacture those later records.
+        var roots=new TreeMap<>(pending?MembershipLearnerCustody.roots(plan):MembershipLearnerPlacement.originalRoots(plan));
+        if(pending)roots.put("pendingIntent",MembershipLearnerPendingIntent.directory(plan));
+        Files.createDirectory(output);
         roots.put("custody",MembershipLearnerCustody.directory(plan));roots.put("placement",MembershipLearnerPlacement.directory(plan));
         roots.put("retirement",MembershipLearnerJoinedRetirement.directory(plan));roots.put("nativeOwner",MembershipJoinedOwner.directory(plan));roots.put("materialization",materialization);
         var inventory=MembershipLearnerCustody.capture(roots,null);

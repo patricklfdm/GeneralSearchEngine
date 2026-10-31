@@ -165,12 +165,20 @@ class V53NativeDispatchTest {
         }
         void publish(Decoded certificate)throws Exception {
             var own=owners.getFirst();var applied=own.voting(resources.getFirst()).application().orElseThrow();
-            // Each target's actual recording quorum precedes that target's publication.
-            try(var remote=new MembershipFutureRetentionQuorum(own,owners.get(1).activationIdentity(),ballot,own.pendingPublication(applied),resources.getFirst(),
-                        transports.getFirst()::exchange,System::nanoTime,System.nanoTime(),BUDGET)) {
-                var recorded=remote.record();events.add(Map.of("node","node-1","event","FUTURE_QUORUM_COMPLETE","index",certificate.value().get("index"),"voters",recorded.voters().stream().sorted().toList()));
-                assertEquals("PUBLISH_ACK",recorded.dispatch(transports.getFirst()).kind());
-            }
+            // Match the slot driver: record every target while all governing
+            // voters still have the old view. Publishing one target first can
+            // destroy the recording quorum for the next target at INTENT.
+            var recordings=new ArrayList<MembershipFutureRetentionQuorum>();
+            var ready=new ArrayList<MembershipFutureRetentionQuorum.Recorded>();
+            try {
+                for(int voter:voters)if(voter!=0) {
+                    var remote=new MembershipFutureRetentionQuorum(own,owners.get(voter).activationIdentity(),ballot,own.pendingPublication(applied),resources.getFirst(),
+                            transports.getFirst()::exchange,System::nanoTime,System.nanoTime(),BUDGET);
+                    recordings.add(remote);var recorded=remote.record();ready.add(recorded);
+                    events.add(Map.of("node","node-1","event","FUTURE_QUORUM_COMPLETE","index",certificate.value().get("index"),"voters",recorded.voters().stream().sorted().toList()));
+                }
+                for(var recorded:ready)assertEquals("PUBLISH_ACK",recorded.dispatch(transports.getFirst()).kind());
+            }finally{for(var recording:recordings)recording.close();}
             assertEquals("PUBLISH_ACK",endpoints.getFirst().handle(own.activationIdentity(),request(0,"PUBLISH",Map.of("certificate",certificate.digest()))).kind());
             for(int i:voters)assertEquals(certificate.value().get("index"),owners.get(i).activationContext().cut.get("index"));
             f.snapshot("published-"+certificate.value().get("index"));

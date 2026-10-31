@@ -1,0 +1,548 @@
+{
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "bytes": 134606492,
+    "entries": 63832,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-profiles/sealed/joining-profile-prefixes.tar.gz",
+    "phase3Complete": false,
+    "portableReplays": {
+      "3-REPLACE": {
+        "negatives": [
+          {
+            "case": "missing-applied-slot",
+            "reason": "joining prefix consecutive history",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-published-slot",
+            "reason": "joining prefix publication history",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-joining-ack",
+            "reason": "joining retained pending ACK bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-applied-catalog",
+            "reason": "joining independently reduced applied end",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-offline-owner",
+            "reason": "joining offline voter changed",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "completePhysicalQualified": false,
+          "controls": [
+            "BARRIER",
+            "RESERVE",
+            "BARRIER",
+            "PREPARE",
+            "BARRIER",
+            "READY",
+            "BARRIER",
+            "SEAL",
+            "INTENT"
+          ],
+          "finalAndColdReopenQualified": false,
+          "forceAndNetworkQualified": false,
+          "internalReadyCuts": [
+            1,
+            3,
+            5,
+            7
+          ],
+          "joining": "node-4",
+          "newVoters": [
+            "node-1",
+            "node-2",
+            "node-4"
+          ],
+          "oldOnlyJointCheckpoint": true,
+          "oldVoters": [
+            "node-1",
+            "node-2"
+          ],
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "3-REPLACE",
+          "publicReady": false,
+          "scope": "joining-prefix-catalog-certificate-checkpoint-chain",
+          "semanticChainQualified": true,
+          "slots": 9,
+          "status": "PASS"
+        }
+      }
+    },
+    "readerSourceSha256": "4a1a12e37b07f2f351c1648280c45321513059ddbbe80cdfd676507db8d03149",
+    "sha256": "d68747d49ca42453be30d565abe572e66142c9827538bd2b26e90394f7751818",
+    "sourceAndBuildVerified": true,
+    "status": "PASS",
+    "workloadsRerun": false
+  },
+  "archiveReceiptNote": "The reader archive contains a COLLECTING pre-result receipt; final hashes/results remain outside it to avoid a circular archive hash.",
+  "availableProfiles": [
+    "3-ADD",
+    "4-ADD",
+    "3-REPLACE",
+    "4-REPLACE",
+    "5-REPLACE"
+  ],
+  "baseHead": "e57f6efd07d05b264082bbf4b27e14765fb62f55",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "e0e17f352a0e2c6830306acd648fc78167809fd346934d5c55c7d2cf004340d8",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "dfa9dc01dc1bf6624252221c7325102479e58e96d569eb52a98e0406e06c713a",
+    "docs/v5x/v5.3/PHASE_3_JOINING_PROFILES.md": "8033ba1c0fc648c8469ee732234addc456ccce75a45fe309bca2691f291b5bc5",
+    "docs/v5x/v5.3/README.md": "c5b9808e03516cb25a47edcd090c3352fc85d10b7fb412743995811a3c4f884f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "2c8307329545944dd1b30c60524fb952d7be28e50fc93cf6e1fe495f031926dd",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningProfile.java": "4af3e71bb9a6af5dbbb000c9dc724af467748acea0d06f7f4ec03bbcb009d05b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningProfileTest.java": "f0f428f8eb4e029a1220285c408be4c9d1e795a0fa419a662b29c36d0d280ebc",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningPublicationOrderTest.java": "71cd1310a03516438718027ef21514ee98476f85d1888cab0ae294135109f35b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "662b3f007d102f335c13e52e7a86d02266e6ce29edad851d4ce6b41a2a72c821",
+    "scripts/v53/joining_catalog_evidence.py": "2a0f59863985ba61b4150f9758727914461bb75b0dffb316b7dbedcd2973260e",
+    "scripts/v53/joining_profile_evidence.py": "40c0cf5d417e1f5b5180426d7b7a9c59ded23aa7b45e16d2a7054b29d3f1ec8e",
+    "scripts/v53/joining_profile_run.py": "f9fec7c9a424e806992660a19da5a67328eee736d7432b2660bab5555f0b52b2",
+    "scripts/v53/joining_snapshot.py": "7c4c6b09fe9660d9b3a863e448d8814e326e8acc4cd04fed9a0fd9876010320b",
+    "scripts/v53/test_joining_profile_evidence.py": "63f92a3fa5bf79228437ba39486d1887410c6d14296bb9887bc41b885e0d3bce",
+    "scripts/v53/test_joining_profile_run.py": "e4be859bf345fbc8b17ad303b86b82548bda1ccecee3a4bba86e856d1ca89778",
+    "scripts/v53/test_joining_snapshot.py": "b907fba6444596a8053297dbec04dcabdfbae88ae519544b989ed0364e7a07c2"
+  },
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1874,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentSourceOrderRegression": {
+    "buildSha256": "ec1420cc21864d5651b8477c00557b766a2a8095b05b30ba8318632708880439",
+    "fullJoiningQualified": false,
+    "phase3Complete": false,
+    "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-cd4756fe-3da9-4942-9ec1-70f09c368f43",
+    "receiptPath": "target/v53-joining-profiles/order-regression/receipt.json",
+    "receiptSha256": "16404566dd2093bcb064bb3dad3219bcd94108148b9cba300fe24e8d7853f80e",
+    "scope": "conditional sealed setup, actual TCP all-target recording and joint publication",
+    "sourceSha256": "0f8d85041d23b15abed71e47a2d84860daf5fcd3e6b018134d47b047c3ef18b4",
+    "status": "PASS",
+    "tests": [
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningProfileTest",
+        "elapsedSeconds": 0.087,
+        "sha256": "af1265f06ec082b2c4ec181bfbbef087d8ab8980ab807a9bdad9a3445afe792c",
+        "tests": 7
+      },
+      {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningPublicationOrderTest",
+        "elapsedSeconds": 187.41,
+        "sha256": "4da69f7207b86994d443b0739cd218c502714715f4ffa4e163099c9a115cadd9",
+        "tests": 1
+      }
+    ]
+  },
+  "failedProducerAttempts": [
+    {
+      "logSha256": "8e930564173078faeb5970dc8d49118a8a43e81152015049648864f86c6e3a33",
+      "profile": "4-ADD",
+      "receipt": {
+        "baseHead": "e57f6efd07d05b264082bbf4b27e14765fb62f55",
+        "command": [
+          "/opt/maven/bin/mvn",
+          "-o",
+          "-B",
+          "-ntp",
+          "-f",
+          "reactor/pom.xml",
+          "-pl",
+          "../general-search-engine-replication",
+          "-am",
+          "-Dsurefire.failIfNoSpecifiedTests=false",
+          "-Dtest=V53JoiningIntentExportTest#joiningProfilePublishesOriginalJointCheckpoint",
+          "-Dv53.joining.profile=4-ADD",
+          "test"
+        ],
+        "execution": {
+          "elapsedSeconds": 757.887,
+          "exit": 1
+        },
+        "executionStatus": "FAIL",
+        "failure": {
+          "message": "joining prefix Maven failed; original retained",
+          "type": "ValueError"
+        },
+        "finalAndColdReopenQualified": false,
+        "forceAndNetworkQualified": false,
+        "phase3Complete": false,
+        "profile": "4-ADD",
+        "retries": 0,
+        "schema": "gse-v53-joining-profile-prefix-v1",
+        "semanticChainQualified": false,
+        "sourceSha256": "4dcb8e3df7dc2d64e13551a19c742264da24abcfa5e5ae9de1ed0bdd16635e34",
+        "status": "FAIL",
+        "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+      }
+    },
+    {
+      "logSha256": "4714b31626c7a9dd6c978abcc8f530d865013f54a222891f96de2f0664c739ca",
+      "profile": "3-REPLACE",
+      "receipt": {
+        "baseHead": "e57f6efd07d05b264082bbf4b27e14765fb62f55",
+        "command": [
+          "/opt/maven/bin/mvn",
+          "-o",
+          "-B",
+          "-ntp",
+          "-f",
+          "reactor/pom.xml",
+          "-pl",
+          "../general-search-engine-replication",
+          "-am",
+          "-Dsurefire.failIfNoSpecifiedTests=false",
+          "-Dtest=V53JoiningIntentExportTest#joiningProfilePublishesOriginalJointCheckpoint",
+          "-Dv53.joining.profile=3-REPLACE",
+          "test"
+        ],
+        "execution": {
+          "elapsedSeconds": 430.737,
+          "exit": 1
+        },
+        "executionStatus": "FAIL",
+        "failure": {
+          "message": "joining prefix Maven failed; original retained",
+          "type": "ValueError"
+        },
+        "finalAndColdReopenQualified": false,
+        "forceAndNetworkQualified": false,
+        "phase3Complete": false,
+        "profile": "3-REPLACE",
+        "retries": 0,
+        "schema": "gse-v53-joining-profile-prefix-v1",
+        "semanticChainQualified": false,
+        "sourceSha256": "4dcb8e3df7dc2d64e13551a19c742264da24abcfa5e5ae9de1ed0bdd16635e34",
+        "status": "FAIL",
+        "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+      }
+    },
+    {
+      "logSha256": "6199dff9c186a9b882cfbbd315ba063749b772ea0429fc4b6b98547a8571553a",
+      "profile": "4-ADD-ordering",
+      "receipt": {
+        "baseHead": "e57f6efd07d05b264082bbf4b27e14765fb62f55",
+        "command": [
+          "/opt/maven/bin/mvn",
+          "-o",
+          "-B",
+          "-ntp",
+          "-f",
+          "reactor/pom.xml",
+          "-pl",
+          "../general-search-engine-replication",
+          "-am",
+          "-Dsurefire.failIfNoSpecifiedTests=false",
+          "-Dtest=V53JoiningIntentExportTest#joiningProfilePublishesOriginalJointCheckpoint",
+          "-Dv53.joining.profile=4-ADD",
+          "test"
+        ],
+        "execution": {
+          "elapsedSeconds": 790.439,
+          "exit": 1
+        },
+        "executionStatus": "FAIL",
+        "failure": {
+          "message": "joining prefix Maven failed; original retained",
+          "type": "ValueError"
+        },
+        "finalAndColdReopenQualified": false,
+        "forceAndNetworkQualified": false,
+        "phase3Complete": false,
+        "profile": "4-ADD",
+        "retries": 0,
+        "schema": "gse-v53-joining-profile-prefix-v1",
+        "semanticChainQualified": false,
+        "sourceSha256": "87d5ee52a1b7e56e2eee6dbb614612dc4150fb6ce335112a4449680c3b3b6a98",
+        "status": "FAIL",
+        "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+      }
+    }
+  ],
+  "finalAndColdReopenQualified": false,
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "javaLogSha256": "ecb6e5ce939433baad1e0fa86da524de80606fd38fccf3d698e1b90ae3f50863",
+  "nativeExecutions": [
+    {
+      "buildSha256": "245c4d1d1f78fe795a575573db295ab4efe7797033aacf521301717d1c998e65",
+      "elapsedSeconds": 456.782,
+      "method": "joiningProfilePublishesOriginalJointCheckpoint",
+      "portableQualification": {
+        "negatives": [
+          {
+            "case": "missing-applied-slot",
+            "reason": "joining prefix consecutive history",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-published-slot",
+            "reason": "joining prefix publication history",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-joining-ack",
+            "reason": "joining retained pending ACK bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-applied-catalog",
+            "reason": "joining independently reduced applied end",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-offline-owner",
+            "reason": "joining offline voter changed",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "completePhysicalQualified": false,
+          "controls": [
+            "BARRIER",
+            "RESERVE",
+            "BARRIER",
+            "PREPARE",
+            "BARRIER",
+            "READY",
+            "BARRIER",
+            "SEAL",
+            "INTENT"
+          ],
+          "finalAndColdReopenQualified": false,
+          "forceAndNetworkQualified": false,
+          "internalReadyCuts": [
+            1,
+            3,
+            5,
+            7
+          ],
+          "joining": "node-4",
+          "newVoters": [
+            "node-1",
+            "node-2",
+            "node-4"
+          ],
+          "oldOnlyJointCheckpoint": true,
+          "oldVoters": [
+            "node-1",
+            "node-2"
+          ],
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "3-REPLACE",
+          "publicReady": false,
+          "scope": "joining-prefix-catalog-certificate-checkpoint-chain",
+          "semanticChainQualified": true,
+          "slots": 9,
+          "status": "PASS"
+        }
+      },
+      "producerPath": "target/v53-joining-profiles/final-3-replace",
+      "producerReceiptStatus": "PARTIAL",
+      "profile": "3-REPLACE",
+      "reportSha256": "9b8f5c3aa58df86d1f94e068a170a454100fce0536122b8fd1011af1c289e08a",
+      "retries": 0,
+      "sourceSha256": "87d5ee52a1b7e56e2eee6dbb614612dc4150fb6ce335112a4449680c3b3b6a98",
+      "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+    }
+  ],
+  "paidCloud": false,
+  "pendingCurrentSourcePrefixProfiles": [
+    "3-ADD",
+    "4-ADD",
+    "3-REPLACE",
+    "4-REPLACE",
+    "5-REPLACE"
+  ],
+  "phase3Complete": false,
+  "priorCompleteHistoryRegression": {
+    "negatives": [
+      {
+        "case": "missing-applied-slot",
+        "reason": "joining complete consecutive applied history",
+        "status": "REJECTED"
+      },
+      {
+        "case": "entry-parent",
+        "reason": "joining original governing entry",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proof-receipt",
+        "reason": "joining original phased receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-accepts",
+        "reason": "quorum identity/order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "learner-votes-before-intent",
+        "reason": "quorum identity/order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-old-majority-only",
+        "reason": "both governing majorities",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ready-wrong-revision",
+        "reason": "ready exact prepared identity",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-wrong-binding",
+        "reason": "final binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-applied-catalog",
+        "reason": "joining independently reduced applied end",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-checkpoint-old-majority-only",
+        "reason": "both governing majorities",
+        "status": "REJECTED"
+      },
+      {
+        "case": "hidden-membership-boundary",
+        "reason": "joining capsule membership coverage",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-checkpoint-ack",
+        "reason": "quorum identity/order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "offline-voter-changed",
+        "reason": "joining offline voter changed",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-final-ready",
+        "reason": "joining complete round lifecycle",
+        "status": "REJECTED"
+      },
+      {
+        "case": "ready-before-barrier",
+        "reason": "joining readiness before stable barrier",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "checkpointObservations": 49,
+      "completePhysicalQualified": false,
+      "controls": [
+        "BARRIER",
+        "RESERVE",
+        "BARRIER",
+        "PREPARE",
+        "BARRIER",
+        "READY",
+        "BARRIER",
+        "SEAL",
+        "INTENT",
+        "FINAL",
+        "BARRIER"
+      ],
+      "forceAndNetworkQualified": false,
+      "internalReadyCuts": [
+        1,
+        3,
+        5,
+        7,
+        11
+      ],
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "profile": "3-ADD",
+      "publicReady": false,
+      "scope": "native-ADD-catalog-certificate-checkpoint-chain",
+      "selections": 6,
+      "semanticChainQualified": true,
+      "slots": 11,
+      "status": "PASS"
+    }
+  },
+  "processDeathQualified": false,
+  "producerNote": "The qualified REPLACE prefix identifies its own producer source/build. The latest all-target publication-order correction has a separate current-source focused TCP regression; complete current-source prefixes remain pending. Reader final-source replay is separately retained in the archive. The first REPLACE producer failed in the new snapshot collector; the first 4-ADD producer exhausted the inherited 12-minute endpoint lifetime. A collector-only correction was stopped after the latter diagnosis. A later 4-ADD execution exposed the helper publication-order defect. Corrected-source executions start fresh histories; no failed stage is spliced or automatically retried.",
+  "productionChanged": false,
+  "profileBoundaryReview": {
+    "originalUnchanged": true,
+    "producerLabelsIgnored": true,
+    "status": "PASS",
+    "wrongReaderProfile": "joining exact native membership profile"
+  },
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "pythonLogSha256": "72314f42074e2a279f83fc4e2d933d071c3aa51e95bb1af50f6571ff719f48ac",
+  "remaining": [
+    "other current-source prefix executions",
+    "remaining profile FINAL and stable cold continuation",
+    "complete force/network/process gates",
+    "all seven membership profiles and frozen S/N mapping"
+  ],
+  "schema": "gse-v53-joining-profile-prefix-batch-v1",
+  "scope": "joining prefix implementation and scoped local qualification",
+  "status": "PARTIAL",
+  "stoppedObsoleteProducer": {
+    "baseHead": "e57f6efd07d05b264082bbf4b27e14765fb62f55",
+    "command": [
+      "/opt/maven/bin/mvn",
+      "-o",
+      "-B",
+      "-ntp",
+      "-f",
+      "reactor/pom.xml",
+      "-pl",
+      "../general-search-engine-replication",
+      "-am",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dtest=V53JoiningIntentExportTest#joiningProfilePublishesOriginalJointCheckpoint",
+      "-Dv53.joining.profile=4-ADD",
+      "test"
+    ],
+    "executionStatus": "FAIL",
+    "failure": {
+      "message": "",
+      "type": "KeyboardInterrupt"
+    },
+    "finalAndColdReopenQualified": false,
+    "forceAndNetworkQualified": false,
+    "phase3Complete": false,
+    "profile": "4-ADD",
+    "retries": 0,
+    "schema": "gse-v53-joining-profile-prefix-v1",
+    "semanticChainQualified": false,
+    "sourceSha256": "753fe06390c7b2d68e34d2cd717390d7eb2ff5608df19b018dd9971d18e8f5ee",
+    "status": "FAIL",
+    "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+  },
+  "tests": {
+    "javaFocused": 8,
+    "joiningPython": 337,
+    "nativePrefixes": 1,
+    "newPython": 10,
+    "portableNegatives": 5,
+    "priorCatalogNegatives": 15
+  }
+}

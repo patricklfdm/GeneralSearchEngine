@@ -16,6 +16,7 @@ ROOTS = frozenset(('custody', 'initialTyped', 'intent', 'materialization', 'nati
                   'slotTyped', 'slots', 'successor', 'successorTyped', 'voterStage'))
 REQUIRED = frozenset(('custody', 'nativeOwner', 'operation', 'placement', 'replica', 'retirement'))
 PLACED = REQUIRED - {'nativeOwner', 'retirement'}
+PENDING = frozenset(('operation', 'initialTyped', 'pendingIntent'))
 
 
 def path_binding(row):
@@ -62,7 +63,7 @@ class Snapshot:
 
 
 def read(root, *, stage='native'):
-    need(stage in ('placed', 'native'), 'joining snapshot declared stage')
+    need(stage in ('pending', 'placed', 'native'), 'joining snapshot declared stage')
     root = Path(root)
     need(root.is_dir() and not root.is_symlink(), 'joining snapshot directory')
     raw = s.regular(root/'inventory.json', MIB); rows = s.e.parse(raw)
@@ -107,7 +108,8 @@ def read(root, *, stage='native'):
                      and type(identity['sha256']) is str and re.fullmatch('[0-9a-f]{64}',identity['sha256']), 'joining snapshot file identity')
                 total+=identity['size'];need(total<=384*MIB+7*64*MIB, 'joining snapshot extent')
                 checked_file(file,identity)
-    need((PLACED if stage=='placed' else REQUIRED)<=present, 'joining snapshot required roots')
+    need((PENDING if stage=='pending' else PLACED if stage=='placed' else REQUIRED)<=present, 'joining snapshot required roots')
+    if stage=='pending':need(not present & {'custody','placement','retirement','nativeOwner','materialization','voterStage'}, 'joining snapshot premature placement roots')
     if stage=='placed':need(not present & {'nativeOwner','retirement'}, 'joining snapshot premature native roots')
     need({p.name for p in root.iterdir()}==present|{'inventory.json'}, 'joining snapshot layout')
     return Snapshot(root,{v['name']:v for v in rows},total)
@@ -121,5 +123,5 @@ def validate(root, *, stage='native'):
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--stage',choices=('placed','native'),default='native');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--stage',choices=('pending','placed','native'),default='native');args=parser.parse_args()
     print(json.dumps(validate(args.root,stage=args.stage),sort_keys=True))

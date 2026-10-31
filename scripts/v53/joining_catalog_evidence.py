@@ -61,8 +61,14 @@ def phased_certificate(raw, parent, identities, root):
 
 
 class Replay:
-    def __init__(self, root):
-        self.path = Path(root); self.original = bootstrap.original(self.path, 3, False)
+    def __init__(self, root, *, size=3, kind='ADD'):
+        need((size,kind) in ((3,'ADD'),(4,'ADD'),(3,'REPLACE'),(4,'REPLACE'),(5,'REPLACE')), 'joining replay profile')
+        self.size, self.kind = size, kind
+        self.joining = 'node-' + str(size+1)
+        self.old = tuple('node-' + str(i) for i in range(1,size+1))
+        self.offline = self.old[size//2+1:]
+        self.targets = list(self.old if kind=='ADD' else self.old[:-1]) + [self.joining]
+        self.path = Path(root); self.original = bootstrap.original(self.path, size, False)
         _, members, packet = disk.current(self.original['node-1'])
         self.root = packet['capsule']['root']; self.root_bytes = self.original['node-1']['root.gsr']
         self.genesis = self.original['node-1']['genesis.gsr']
@@ -79,11 +85,11 @@ class Replay:
     def owner(self, phase, index, node):
         key = phase, index, node
         if key not in self.snapshots:
-            if node == 'node-4':
+            if node == self.joining:
                 path = self.path / f'joining-{phase}-{index}'
                 joining.read(path); path /= 'replica'
             else:
-                need(node in ('node-1', 'node-2', 'node-3'), 'joining observed phase owner')
+                need(node in self.old, 'joining observed phase owner')
                 path = self.path / f'{phase}-{index}' / node
             self.snapshots[key] = disk.inventory(path)
         return self.snapshots[key]
@@ -190,9 +196,9 @@ class Replay:
         if kind == 'BARRIER': need(parts['PAYLOAD'] == b'', 'joining empty barrier')
         else: f.check_type(payload, {'object': f.catalog()['commands'][kind]}, f.catalog()['types'])
         if kind == 'RESERVE':
-            need(payload['request']['kind'] == 'ADD' and payload['request']['number'] == 1 and
-                 [v['node'] for v in payload['request']['target']] == ['node-1', 'node-2', 'node-3', 'node-4'],
-                 'joining exact native ADD profile')
+            need(payload['request']['kind'] == self.kind and payload['request']['number'] == 1 and
+                 [v['node'] for v in payload['request']['target']] == self.targets,
+                 'joining exact native membership profile')
         after = catalog.reduce_catalog(before, sha(self.catalogs[-1]), kind, payload, sha(parts['ENTRY']), self.root)
         if kind == 'READY': self.typed(payload['receipt'])
         voters = [v['voter'] for v in cert['proofs']]
@@ -234,7 +240,7 @@ class Replay:
         if kind == 'INTENT':
             raw = joining.s.regular(self.path / 'joining-forced-ack.gsr', 8192)
             need(raw == self.placed_snapshot().member('pendingIntent', 'joining-ack.gsr'), 'joining retained pending ACK bytes')
-            self.ack(statement, 'node-4', raw)
+            self.ack(statement, self.joining, raw)
         for node in voters:
             files = self.owner('published', index, node); _, members, packet = disk.current(files)
             self.packet(packet, index)
@@ -242,8 +248,9 @@ class Replay:
                  f.decode(files['node.gsr'], 'records', 'NODE', self.root)['identity'] ==
                  catalog.identities(after['identities'])[node], 'joining published unchanged application/identity')
         # The offline old voter never supplies an invented vote or newer end.
-        need(self.owner('applied', index, 'node-3') == disk.inventory(self.path / 'before-network/node-3') and
-             self.owner('published', index, 'node-3') == self.owner('applied', index, 'node-3'), 'joining offline voter changed')
+        for node in self.offline:
+            need(self.owner('applied', index, node) == disk.inventory(self.path / 'before-network' / node) and
+                 self.owner('published', index, node) == self.owner('applied', index, node), 'joining offline voter changed')
         return kind
 
 
