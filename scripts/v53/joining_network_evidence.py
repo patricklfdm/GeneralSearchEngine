@@ -75,7 +75,7 @@ def causal(events, wires, identities, root):
     return rows
 
 
-def transfers(rows):
+def transfers(rows, *, contents=None):
     """Check bytes/offsets/extent/commit, keeping rejections out of success.
 
     This proves transcript integrity. An offer's reference alone is not proof
@@ -115,7 +115,7 @@ def transfers(rows):
                      'joining network source offer')
                 need(0 <= ap['bytes'] <= 64*p.captures.MIB and ap['kind'] in ('RECORD','CAPSULE','APPLICATION'),
                      'joining network transfer bound')
-                active = dict(ap, parts=bytearray()); identifiers.add(qp['id'])
+                active = dict(ap, parts=bytearray(), offer=row); identifiers.add(qp['id'])
             elif row['answer'] == 'CHUNK':
                 need(active is not None and row['kind'] == 'CHUNK', 'joining network chunk without offer')
                 offset = len(active['parts']); chunk = base64.b64decode(ap['bytes'], validate=True)
@@ -130,6 +130,8 @@ def transfers(rows):
                 need(qp == ap == dict(id=active['id'], digest=active['digest']) and
                      len(active['parts']) == active['bytes'] and sha(active['parts']) == active['digest'],
                      'joining network complete transfer commit')
+                if contents is not None:
+                    contents.append(dict(offer=active['offer'],commit=row,raw=bytes(active['parts']),kind=active['kind']))
                 total += len(active['parts']); complete += 1; active = None
             prior = row
         need(active is None, 'joining network incomplete transfer')

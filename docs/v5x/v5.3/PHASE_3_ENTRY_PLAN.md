@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining export replay](PHASE_3_JOINING_EXPORT_REPLAY.md) checks original current
+generations, frozen sources, record/vote and checkpoint capabilities for 678 of
+686 committed contents. Learner retention authorization and eight joining control
+exports remain unqualified, alongside the process/profile and frozen mapping
+gates. The result stays PARTIAL; no Phase 3 closure flag is promoted.
+
 [Joining network replay](PHASE_3_JOINING_NETWORK_REPLAY.md) now qualifies complete
 observed transport pairing, transfer integrity and durable grant/selection/install
 ACK causality on the existing complete `3-ADD` history. Complete temporal export

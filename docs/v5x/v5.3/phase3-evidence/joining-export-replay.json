@@ -1,0 +1,284 @@
+{
+  "allExportFamiliesQualified": false,
+  "archive": {
+    "bytes": 34544310,
+    "entries": 16020,
+    "memberHashesVerified": true,
+    "negativeReplayRepeated": false,
+    "path": "target/v53-joining-export-replay/sealed-final/joining-export-replay.tar.gz",
+    "portableCoverageStatus": "PARTIAL",
+    "portableOriginal": "PASS",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "50732cbef63bb93940ae3538600070f28ee4599b3d701815c778ac6238d0c9e3",
+    "sha256": "be28489938f7bd83b70ba883fa0b12be09700737d8266df7f6c1819a7355b4c8",
+    "status": "PASS"
+  },
+  "archiveReceiptNote": "Archive reader contains the pre-seal receipt; finalized receipt is retained separately to avoid a self-referential archive hash.",
+  "baseHead": "30a04c35d2e7fe4b1518eb050ca83ebc817c90c9",
+  "buildManifestSha256": "5c2fc5985a9f7beba7712365c4067b2fe523d986a4a1a1a55b479737b0810d95",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "859c067712d1ab646ae3f12e2dc3b86ba854b61266bfd3f7c342e1bb7e97d66c",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "df7857694d854edc7918111d74acf0d7eca7ad91a56ca4816146583969bfd5bf",
+    "docs/v5x/v5.3/PHASE_3_JOINING_EXPORT_REPLAY.md": "759c95031a69f31d71e3310b1425fec108975648afa186abe14311b01e31fd73",
+    "docs/v5x/v5.3/README.md": "e5ae46dcee6fb25888f0dbd6d30f3826dcc8605552086c9271eab909f6904dfc",
+    "scripts/v53/joining_export_evidence.py": "a8851883cc1c1b9602d0c1ed8b858443d40fa1f5f0e86eb9d36521f962ec34e1",
+    "scripts/v53/joining_network_evidence.py": "a22cff16f4e6c75626cc0ad51b1adc26eb723652d912a98a2ad48b167d89369c",
+    "scripts/v53/test_joining_export_evidence.py": "f661fb5e82924b2aa4c35f91a3a6eb0956bbda32d92d3621607c4f696c537d38",
+    "scripts/v53/test_joining_network_evidence.py": "0a1bdf3ceb3349ec79a37bb5f8ff38401794bc2b3931750103be094572f27db7"
+  },
+  "collectionSha256": "5a32e0a88bb8034de53ca1aecc5277372e04910ef04baae85c7143d5f6b1cbd7",
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1835,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "learnerRetentionAuthorizationQualified": false,
+  "nativeExecution": {
+    "elapsedSeconds": 879.386,
+    "exit": 0
+  },
+  "newNativeExecutions": 0,
+  "originalNetworkPrecondition": true,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalFilesPreservedInNegatives": true,
+  "processDeathQualified": false,
+  "producerHead": "9136083fb35318f74b4003b8aa61fee71a3725cc",
+  "producerPath": "target/v53-joining-history/original-9136083f",
+  "producerReceiptSha256": "cd566df3ce01bfce1e484226860e741b5a33981af50d512c204d49f49a428f8f",
+  "productionChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "case": "generation-alias",
+        "networkPrecondition": "PASS",
+        "reason": "joining export current generation alias",
+        "status": "REJECTED"
+      },
+      {
+        "case": "generation-bytes",
+        "networkPrecondition": "PASS",
+        "reason": "joining export exact current generation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-alias",
+        "networkPrecondition": "PASS",
+        "reason": "joining export original source alias",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-ballot",
+        "networkPrecondition": "PASS",
+        "reason": "joining export original source view/ballot",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-promise",
+        "networkPrecondition": "PASS",
+        "reason": "joining export exact frozen source",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-after-retirement",
+        "networkPrecondition": "PASS",
+        "reason": "joining export inactive frozen source",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt-alias",
+        "networkPrecondition": "PASS",
+        "reason": "joining export unavailable original record",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt-voter",
+        "networkPrecondition": "PASS",
+        "reason": "joining export exact live record",
+        "status": "REJECTED"
+      },
+      {
+        "case": "receipt-before-force",
+        "networkPrecondition": "PASS",
+        "reason": "joining export unavailable original record",
+        "status": "REJECTED"
+      },
+      {
+        "case": "record-view",
+        "networkPrecondition": "PASS",
+        "reason": "joining export record original context",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completed-checkpoint-voter",
+        "networkPrecondition": "PASS",
+        "reason": "joining export exact completed checkpoint",
+        "status": "REJECTED"
+      },
+      {
+        "case": "pending-after-retain",
+        "networkPrecondition": "PASS",
+        "reason": "joining export pending ACK lifetime",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "allExportFamiliesQualified": false,
+      "boundSessions": {
+        "current-generation": 104,
+        "frozen-source": 20,
+        "journal": 18,
+        "learner-current-content": 6,
+        "native-applied-checkpoint": 27,
+        "native-vote-receipt": 90,
+        "pending-joining-checkpoint": 2,
+        "pending-payload": 7,
+        "pending-record": 52,
+        "published-local-checkpoint": 4,
+        "published-record": 23
+      },
+      "boundTransfers": {
+        "current-generation": 368,
+        "frozen-source": 60,
+        "journal": 18,
+        "learner-current-content": 27,
+        "native-applied-checkpoint": 27,
+        "native-vote-receipt": 90,
+        "pending-joining-checkpoint": 2,
+        "pending-payload": 7,
+        "pending-record": 52,
+        "published-local-checkpoint": 4,
+        "published-record": 23
+      },
+      "completePhysicalQualified": false,
+      "forceAndNetworkQualified": false,
+      "generationWindows": 41,
+      "learnerRetentionAuthorizationQualified": false,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "recordWindows": 382,
+      "scope": "native-ADD-temporal-exports-and-original-record-capabilities",
+      "sourceWindows": 19,
+      "status": "PARTIAL",
+      "unqualifiedSessionCount": 8,
+      "unqualifiedSessions": [
+        {
+          "firstEvent": 5119,
+          "firstKind": "ROOT",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "92f1c3603f42b9283435187dab0d14a99b866ab2ec918fca8e9ceeb67649170c",
+          "trace": "ceabccab-b41e-4c98-b269-64010a7a9e1e",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 12315,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "50307b306ad1ed2567704d3161081ca982bd504349c295b57e61e96162b6883f",
+          "trace": "31f3b45a-b182-4a59-9062-802c5e3c45f8",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 12335,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "50307b306ad1ed2567704d3161081ca982bd504349c295b57e61e96162b6883f",
+          "trace": "78351174-94a0-4724-8360-36a6a69cbcf0",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13570,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "faff38cf35bf08a97f26a569112c2d40c3dcd816cb731d1cb04c4cb53cf91293",
+          "trace": "eb03f3af-4560-47c0-9dce-55ccdbc65550",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13582,
+          "firstKind": "unframed-record",
+          "owner": "node-1",
+          "reader": "node-4",
+          "reference": "a13c804c6f3e5eef57376c49cb3a1260fc3f49fc9ef33534bc5da11767dc4c92",
+          "trace": "f907776f-e9cb-470e-a2b5-448dea6b8f61",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13594,
+          "firstKind": "unframed-record",
+          "owner": "node-2",
+          "reader": "node-4",
+          "reference": "a13c804c6f3e5eef57376c49cb3a1260fc3f49fc9ef33534bc5da11767dc4c92",
+          "trace": "5d438b92-cb99-432d-bcbb-5d56b985aed7",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 13649,
+          "firstKind": "unframed-record",
+          "owner": "node-4",
+          "reader": "node-1",
+          "reference": "f3542bcfb26d02d3c8e3734d2b28e87bebf77a943a4108ce71197c778414b8fd",
+          "trace": "e404b8b5-53e7-448f-a2a0-3704bd52110d",
+          "transfers": 1
+        },
+        {
+          "firstEvent": 14434,
+          "firstKind": "unframed-record",
+          "owner": "node-4",
+          "reader": "node-1",
+          "reference": "f3542bcfb26d02d3c8e3734d2b28e87bebf77a943a4108ce71197c778414b8fd",
+          "trace": "6b31508b-18d2-4511-b0e5-c038a2da2d0b",
+          "transfers": 1
+        }
+      ],
+      "unqualifiedTransfers": 8
+    }
+  },
+  "qualificationSha256": "170ed2b774229e8384294d1dcb5b9a486828c1b6e5c4d7707f59c6ac8110eb97",
+  "qualificationStatus": "PASS",
+  "remaining": [
+    "eight joining control exports",
+    "learner retention/quorum authorization",
+    "remaining control/maintenance boundaries",
+    "expiry/cancellation fault cases",
+    "process-death cases",
+    "all seven profiles",
+    "frozen acceptance mapping"
+  ],
+  "retainedDiagnostics": [
+    "replay-initial.stderr",
+    "replay-diagnosis.json",
+    "replay-records.stderr",
+    "record-window-diagnosis.json",
+    "record-context-diagnosis.json",
+    "unit-expanded.log",
+    "qualification-initial.json",
+    "archive-attempt-note.json"
+  ],
+  "schema": "gse-v53-joining-export-replay-v1",
+  "sourceSha256": "b507199f32c078a6f5a889ef008902185818d6184ec851c52307ae9a0c8e5b25",
+  "status": "PARTIAL",
+  "testLogSha256": "f0c3def9f29dfeb89022b31bc2cb8cbf889f030f8df0df74cf1407b2d13dc48a",
+  "tests": {
+    "joiningPythonTests": 234,
+    "status": "PASS"
+  },
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+}

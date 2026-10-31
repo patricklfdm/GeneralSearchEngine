@@ -101,6 +101,17 @@ class JoiningNetworkEvidenceTest(unittest.TestCase):
         rows=self.transfer();rows[1]['sent']=rows[0]['delivered']
         with self.assertRaisesRegex(ValueError,'^joining network transfer next before delivery$'):n.transfers(rows)
 
+    def test_content_collection_requires_commit_and_does_not_duplicate_retries(self):
+        rows=self.transfer();contents=[]
+        retry=copy.deepcopy(rows[-1]);retry.update(sent=16,received=17,offered=18,delivered=19)
+        n.transfers([*rows,retry],contents=contents)
+        self.assertEqual([dict(offer=rows[0],commit=rows[-1],raw=b'original transfer',kind='RECORD')],contents)
+        contents=[]
+        with self.assertRaisesRegex(ValueError,'^joining network incomplete transfer$'):n.transfers(rows[:-1],contents=contents)
+        self.assertEqual([],contents)
+        rows[0].update(answer='REJECT',response=dict(payload=dict(reason='NOT_READY')))
+        n.transfers(rows[:1],contents=contents);self.assertEqual([],contents)
+
     def test_transfer_missing_or_reordered_chunks_cannot_commit(self):
         for mutation,reason in [('missing','transfer sequence'),('offset','exact transfer chunk'),('hash','exact transfer chunk'),
                                 ('commit','complete transfer commit'),('truncated','incomplete transfer')]:

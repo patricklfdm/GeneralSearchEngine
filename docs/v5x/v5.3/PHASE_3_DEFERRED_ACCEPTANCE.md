@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining export replay](PHASE_3_JOINING_EXPORT_REPLAY.md) adds original temporal
+generation/source and record-capability checks on the same retained execution.
+The explicit next boundary is learner retention/quorum authorization and the
+eight joining root/intent/preparation/retention/completion exports. Its 678 bound
+contents do not close full force/network, process, profile or mapping acceptance.
+
 [Joining network replay](PHASE_3_JOINING_NETWORK_REPLAY.md) reuses the same original
 history and qualifies complete observed transport pairing, transfer integrity,
 19 grants, 14 selection forces and eight installation ACKs. Next bind complete

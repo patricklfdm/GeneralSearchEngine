@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Joining export replay](PHASE_3_JOINING_EXPORT_REPLAY.md) now binds 678 committed
+contents in 353 sessions to original generation/source lifetimes and record
+capabilities. Eight joining control exports and learner retention authorization
+remain explicit gaps; the result is PARTIAL and Phase 3 remains open.
+
 [Joining network replay](PHASE_3_JOINING_NETWORK_REPLAY.md) now binds all 2,208
 observed exchanges to their send/read/response/delivery boundaries on the existing
 complete history. It checks transfer integrity, 19 durable grants, 14 selections
