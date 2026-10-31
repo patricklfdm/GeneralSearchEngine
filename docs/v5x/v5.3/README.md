@@ -1,5 +1,15 @@
 # V5.3 — controlled cluster operations
 
+[Conditional joining continuation replay](PHASE_3_JOINING_CONTINUATION_REPLAY.md)
+now derives both selected installations, FINAL, BARRIER and final cold storage
+from the initialized owners, comparing 28 complete node inventories. The archived
+intermediate ballot-7 node-2 BASIS/source was reclaimed without a full retained
+capture; its digest cannot replace those bytes. The first continuation boundary
+therefore remains conditional, with complete physical qualification false. A
+fresh uninterrupted producer must capture that preparation and retirement along
+with the planned complete transport observations. Process/profile gates and
+Phase 3 remain **OPEN**.
+
 [Joining initialization physical replay](PHASE_3_JOINING_INITIALIZATION_REPLAY.md)
 now connects old-majority joint preparation to three-ledger initialization,
 the native owner's own grant and retaining cold reopen: 72 old-node inventories

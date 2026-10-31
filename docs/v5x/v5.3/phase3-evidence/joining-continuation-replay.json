@@ -1,0 +1,245 @@
+{
+  "archive": {
+    "bytes": 10207548,
+    "files": 4331,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-continuation/joining-continuation-replay.tar.gz",
+    "sha256": "32162d74a36b854f4b8374bdf72f17ca3325201bd21ee2226ea4d08144b9b6cb"
+  },
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "d0f2cee045845ea39655b924c05bfe948e9664be04fb2c61b646092383746ed1",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "c55ef9360b7994b6598d2fb57e95f9677bc70abbac0237dcf38a6b5da44a53b1",
+    "docs/v5x/v5.3/PHASE_3_JOINING_CONTINUATION_REPLAY.md": "3e809031d4e3bb532334003c9743fba9c9ea50d8131b9bb5f86c29626302ed43",
+    "docs/v5x/v5.3/README.md": "6069f8983b11acdf295157864faa48e26af30bf691bbe1c156786d174feef419",
+    "scripts/v53/joining_continuation_evidence.py": "d75f7ab3e5ab33f9a8a15ef7ef7dd8c59a4a3df89fde96ba8f0f0f26c3ac726b",
+    "scripts/v53/test_joining_continuation_evidence.py": "8e3329cb868515e72a1fd0c24cd63fd746165204429cff4f0dee09b43796a85d"
+  },
+  "completePhysicalQualified": false,
+  "conditionalContinuationQualified": true,
+  "contract": {
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1800,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "6077d0b5ce29d373b04b5006855d953bf028fac5b358c5fb97dfba8cfe0fc4bf"
+  },
+  "forceAndNetworkQualified": false,
+  "intermediatePreparationPhysicalQualified": false,
+  "limitations": [
+    "The original ballot-7 node-2 preparation retains only a BASIS digest, not its complete source. The first ballot-8 boundary is explicitly conditional on reclaimed intermediate storage.",
+    "Exact 28 complete node inventories, two selected installations, FINAL/BARRIER, ten joining families and the final same-JVM cold snapshot are checked. This is not complete original physical or network causality.",
+    "All 22 negatives pass the preceding initialization gate. Portable replay repeats the relocated original positive only; it does not claim another complete negative run.",
+    "A new uninterrupted producer must capture both old preparation sources before retirement. Do not stitch a new execution into this original history.",
+    "Fresh complete send/arrival/force qualification, process death, all seven profiles and frozen mapping remain open. No workload rerun or cloud dispatch."
+  ],
+  "originalCollectionSha256": "94fa10496fcd2c8264b0daf7f82c1ccc3447e7a2efe391ef5d6c3ab78ba567f0",
+  "originalInventoryMatchesProducer": true,
+  "originalProducerReceipt": "target/v53-joining-history/original-df22c398/receipt.json",
+  "originalProducerReceiptSha256": "c252348418035ec86bbd440f1041ef228f90d35ccf09d5188a04b0750748fffc",
+  "originalProducerSource": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+  "originalRawArchive": {
+    "path": "target/v53-joining-catalog/joining-catalog-history.tar.gz",
+    "sha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f"
+  },
+  "phase3Complete": false,
+  "portableReplay": {
+    "elapsedSeconds": 10.647,
+    "originalInventoryUnchanged": true,
+    "scope": "relocated-original-positive-only",
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "productionJavaChanged": false,
+  "python": {
+    "failures": 0,
+    "logSha256": "98f31b04450d815c08f08faf0443618072ea4de5aafef49fb3e87421b4be7772",
+    "newTests": 11,
+    "status": "PASS",
+    "tests": 73
+  },
+  "readerBaseHead": "702adaac07a5388e302a05a421490d8f5703fe29",
+  "readerSourceSha256": "0721608bb9732f614405c0a454f1ef78fda1d9193cefc9a80ecc97f4ca6a8974",
+  "readerSourceSnapshotPrecedesFinalReceipt": true,
+  "replay": {
+    "negatives": [
+      {
+        "case": "preparation-correlation-changed",
+        "initializationGate": "PASS",
+        "reason": "joining continuation preparation correlation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-orphan",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-peer-revision",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-learner-confirmation-lost",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-inactive-generation-lost",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-source-image-changed",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-extra-allocation",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-offline-owner-changed",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joint-obsolete-source-retained",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stable-peer-revision",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-10: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stable-adopted-fence-lost",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-10: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stable-future-revision",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-10: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "stable-orphan",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-10: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "standalone-grant-changed",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact standalone grants",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-orphan",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: after-close: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "final-extra-allocation",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: after-close: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-extra-allocation",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact family: joining-originals-stable-cold: replica",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-peer-revision",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact family: joining-originals-stable-cold: replica",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-future-revision",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact family: joining-originals-stable-cold: replica",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-immutable-file-changed",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact family: joining-originals-stable-cold: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-original-key-changed",
+        "initializationGate": "PASS",
+        "reason": "joining continuation immutable original identity",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cold-force-omitted",
+        "initializationGate": "PASS",
+        "reason": "joining continuation original cold reseal order",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "coldSnapshots": 2,
+      "completePhysicalQualified": false,
+      "conditionalContinuationQualified": true,
+      "finalCut": 11,
+      "forceAndNetworkQualified": false,
+      "intermediatePreparationPhysicalQualified": false,
+      "ownerSnapshotComparisons": 28,
+      "phase3Complete": false,
+      "preparationBoundary": {
+        "ballot": {
+          "counter": 7,
+          "incarnation": "00000000-0000-0005-0000-000000000001",
+          "proposer": "node-1"
+        },
+        "intermediatePreparationPhysicalQualified": false,
+        "observedBasisSha256": "ec0433bf92920fca936cb16aa337e82f41c3af83476e369d7dbfe4651166ed22",
+        "observedProposerPromiseSha256": "fb4604f114ed9ae6dddb691568c1e3bc94d245edd04affdce8ab99b951890de6",
+        "oldPeer": "node-2",
+        "originalPromiseTransferExchanges": 3
+      },
+      "processDeathQualified": false,
+      "publications": 2,
+      "scope": "native-ADD-conditional-joint-continuation",
+      "selectedInstallations": 2,
+      "status": "PASS"
+    }
+  },
+  "replaySha256": "a10fdcfbe4dc4b29a72ab737073080675b188556f8da0452e4804e417d909462",
+  "schema": "gse-v53-phase3-joining-continuation-replay-v1",
+  "sourceDelta": {
+    "frozenInputsChanged": false,
+    "pomChanged": false,
+    "producerHead": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+    "productionJavaChanged": false,
+    "protectedChanges": [],
+    "protectedCount": 685,
+    "readerBaseHead": "702adaac07a5388e302a05a421490d8f5703fe29",
+    "status": "PASS"
+  },
+  "status": "PARTIAL"
+}
