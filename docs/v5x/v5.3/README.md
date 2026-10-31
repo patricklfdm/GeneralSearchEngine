@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Three-owner automatic-history replay](PHASE_3_COMPETING_REPLAY.md) independently
+reconstructs the retained clean competition, its final files, all original sends
+and responses, heartbeat contact and publication dependencies. This one history
+passes physical/network validation; the profile/process matrix and Phase 3 remain **OPEN**.
+
 [Original-copy observation replay](PHASE_3_OBSERVATION_REPLAY.md) now qualifies
 retained stable, discovered, carried and READY-heartbeat histories with exact
 confirmation, renewal, force and source-retirement checks. Legacy histories keep

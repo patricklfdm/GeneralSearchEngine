@@ -1,0 +1,86 @@
+{
+  "archive": {
+    "bytes": 5994935,
+    "files": 2910,
+    "path": "target/v53-competing-replay/qualification.tar.gz",
+    "sha256": "5e66174e6a7ac3bbb5345eda8f4de51ae9bb44c665e89f85c758a5893dbdfdcf",
+    "verification": "PASS"
+  },
+  "baseCommit": "875a192ee7fa9576f9264a72782cd30656bbf9de",
+  "focusedPythonTests": {
+    "newTests": 10,
+    "status": "PASS",
+    "tests": 30
+  },
+  "negativeCases": 32,
+  "optimized": {
+    "negativeCases": 32,
+    "seconds": 16.28580548800528,
+    "status": "PASS"
+  },
+  "original": {
+    "clientMutations": 1,
+    "fullWireReplay": true,
+    "network": {
+      "exchanges": 223,
+      "heartbeat": {
+        "completedContacts": 10,
+        "responses": 20,
+        "samples": 11
+      },
+      "phases": [
+        {
+          "exchanges": 28,
+          "transfers": 4,
+          "unusedIncompleteTransfers": 0
+        },
+        {
+          "exchanges": 79,
+          "transfers": 16,
+          "unusedIncompleteTransfers": 0
+        },
+        {
+          "exchanges": 96,
+          "transfers": 19,
+          "unusedIncompleteTransfers": 0
+        }
+      ],
+      "sends": 231,
+      "status": "PASS",
+      "transfers": 39,
+      "unansweredIntents": 2
+    },
+    "originalFirst": true,
+    "phase3Complete": false,
+    "physicalReplay": true,
+    "processDeath": false,
+    "proposer": "node-1",
+    "publicRuntime": false,
+    "scope": "single-campaign-three-native-owners",
+    "scratchTransfersDrained": true,
+    "selected": [
+      "node-1",
+      "node-2"
+    ],
+    "slots": 2,
+    "status": "PASS"
+  },
+  "phase3Complete": false,
+  "portableReplay": "PASS",
+  "producer": {
+    "inputFilesVerified": 4226,
+    "inputManifestSha256": "bd2e65cf4a018e8d4666dfdbabba2c145fe39abd92e1b5394a4ce30d2a23a660",
+    "label": "recoverypulsewhole",
+    "productionInputsUnchanged": 318
+  },
+  "readerSources": {
+    "scripts/v53/competing_node_evidence.py": "49f8f9d0846045c0b6ba9591e2c40bb7c4d1a68ecab3976dc72e7b83208e95a0",
+    "scripts/v53/competing_node_negatives.py": "ae02127efaeaf60e5f165858f8ccad61381cfec8dc7a4634a1c77e93d136e44a",
+    "scripts/v53/competing_node_network.py": "49b6c42648c7262dde6879d9970ca9f80aa906b72c1d414995847e025b1d5759",
+    "scripts/v53/test_competing_node_evidence.py": "9146c91efd0c4b593b29d7a8b698bee5e286ff2d811d468f75bd011aefbb25f5"
+  },
+  "schema": "gse-v53-competing-replay-v1",
+  "scope": "single-campaign-three-native-owners",
+  "status": "PASS",
+  "workloadsRerun": 0
+}

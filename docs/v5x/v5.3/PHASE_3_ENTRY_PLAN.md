@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Whole competing-owner replay](PHASE_3_COMPETING_REPLAY.md) qualifies the retained
+single-campaign three-owner BARRIER/DATA history independently of producer claims.
+All-profile, joining/joint, process-death and complete requirement-mapping gates
+remain open; this does not close 3B, 3D or 3E as a whole.
+
 [Original-copy observation replay](PHASE_3_OBSERVATION_REPLAY.md) repairs the
 component reader's genesis/no-op and confirmation reconstruction and checks the
 carried predecessor's exact source retirement. Five retained histories pass;

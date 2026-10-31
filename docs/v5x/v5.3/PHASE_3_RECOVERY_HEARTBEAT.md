@@ -1,5 +1,9 @@
 # Liveness during installed-campaign recovery
 
+The retained successful three-owner producer subsequently receives independent
+[whole-history physical/network replay](PHASE_3_COMPETING_REPLAY.md). Its original
+`PARTIAL` receipt and the historical observations below remain unchanged.
+
 Subsequent [original-copy observation replay](PHASE_3_OBSERVATION_REPLAY.md)
 qualifies the retained component histories with an explicit current-semantics
 reader. The original failed result below remains unchanged; whole automatic

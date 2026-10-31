@@ -1,5 +1,9 @@
 # Original-copy observation replay
 
+Subsequent [three-owner competition replay](PHASE_3_COMPETING_REPLAY.md) validates
+the retained whole single-campaign history. The component evidence and historical
+scope of this batch remain unchanged; the full Phase 3 matrix is still open.
+
 Phase 3 remains **OPEN**. This batch repairs independent Python reconstruction
 for the retention semantics already implemented in `bafce01e`. It replays retained
 native histories from the [recovery-heartbeat batch](PHASE_3_RECOVERY_HEARTBEAT.md);
