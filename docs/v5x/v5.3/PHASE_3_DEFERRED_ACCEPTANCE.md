@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Same-view storage replay](PHASE_3_SAME_VIEW_PHYSICAL.md) independently derives
+the retained 3-REPLACE recovery, including unequal-source FLOORs, complete source
+retirement prefixes and selected installation. Full force/transport/export and
+process/profile composition remain required; Phase 3 is open.
+
 [Joining same-view recovery](PHASE_3_JOINING_SAME_VIEW.md) adds a complete
 FINAL-adoption/BARRIER-installation execution and fixes maintenance blocking on
 newer same-view peers. Exact original covering copies protect the local floor;

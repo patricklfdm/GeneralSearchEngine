@@ -1,0 +1,292 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeWorkload": false,
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "bytes": 18845435,
+    "directories": 1206,
+    "directorySetVerified": true,
+    "elapsedSeconds": 3.963,
+    "files": 8681,
+    "memberHashesVerified": true,
+    "path": "target/v53-same-view-physical-20261031/sealed/same-view-physical.tar.gz",
+    "sha256": "6d54ffaf49a4d1f009c772ba4d50daacac5c2a315b3e32b99f0eb071e77afa6b"
+  },
+  "archiveManifest": {
+    "bytes": 1841524,
+    "path": "target/v53-same-view-physical-20261031/sealed/manifest.json",
+    "sha256": "e386c10b3dcec32ff4a28158e059ea7b0795c60ae70d92cdd78fe786671c6113"
+  },
+  "baseHead": "b2f3f35987c62447565e44cab003089413066421",
+  "completePhysicalQualified": false,
+  "deferred": [
+    "same-view original transport and durable installation ACK composition",
+    "all control-export and maintenance/peer lifetimes",
+    "complete current-source profile cohort including REMOVE",
+    "whole-history process-death cuts",
+    "frozen acceptance mapping"
+  ],
+  "documentation": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1914,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "failedOriginal": {
+    "file": {
+      "bytes": 110,
+      "path": "target/v53-same-view-physical-20261031/failed-original-rejection.json",
+      "sha256": "b56f676f3a61d7182c47ab954159d1f2beade694684248494ce1e3099a961298"
+    },
+    "result": {
+      "negativeCases": 0,
+      "originalUnchanged": true,
+      "reason": "joining snapshot directory",
+      "status": "REJECTED"
+    }
+  },
+  "forceAndNetworkQualified": false,
+  "nativeInput": {
+    "build": {
+      "bytes": 288598,
+      "path": "target/v53-same-view-physical-20261031/original-input/build.json",
+      "sha256": "72a2992c984d1874256ab5d0c2379358c5e852080eb3cacc112124c438473bbc"
+    },
+    "input": {
+      "bytes": 2555,
+      "path": "target/v53-same-view-physical-20261031/input.json",
+      "sha256": "4a87b49212e14ac2847da10c3894122b3dec34e34878ccc90f4bde34880c2227"
+    },
+    "inventory": {
+      "bytes": 589747,
+      "path": "target/v53-same-view-physical-20261031/input-inventory.json",
+      "sha256": "6fbfa9544f774c5282f5cdd57b0c3aca05ca85fcc25e5ec8e967c2fab4d2224d"
+    },
+    "nativeWorkloadRerun": false,
+    "originalUnchanged": true,
+    "precedingArchive": {
+      "bytes": 55180609,
+      "directories": 3662,
+      "directorySetVerified": true,
+      "elapsedSeconds": 12.116,
+      "files": 26413,
+      "memberHashesVerified": true,
+      "path": "target/v53-joining-same-view-20261031/sealed-v2/joining-same-view.tar.gz",
+      "sha256": "4cc52194187ef19dbab3e2293d6ca020a67f71026b044e9ae7d8b622c6513f24"
+    },
+    "producerReceipt": {
+      "bytes": 1755,
+      "path": "target/v53-same-view-physical-20261031/original-input/receipt.json",
+      "sha256": "cc9d49d6cbad9810cd53422912eb8eefc750790e294cc9ac61c14dc97585d58c"
+    },
+    "profile": "3-REPLACE",
+    "raw": "target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "source": {
+      "bytes": 606423,
+      "path": "target/v53-same-view-physical-20261031/original-input/source.json",
+      "sha256": "ab1b13b0d54ab5505dab93be8d48b003945c96216916d8b1bee847ffacea32e8"
+    },
+    "toolchain": {
+      "bytes": 370,
+      "path": "target/v53-same-view-physical-20261031/original-input/toolchain.json",
+      "sha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+    }
+  },
+  "negatives": [
+    {
+      "case": "prefix-extra-allocation",
+      "reason": "joining continuation exact family: joining-after-final-prefix: replica",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "recovery-peer-debt-lost",
+      "reason": "joining continuation exact family: joining-before-final-recovery: replica",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "recovery-original-source-lost",
+      "reason": "joining continuation exact family: joining-after-final-recovery: replica",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "recovery-prior-generation-lost",
+      "reason": "joining continuation exact family: joining-after-final-recovery: replica",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "installed-old-extra-allocation",
+      "reason": "joining same-view installed old owner: node-1",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "covering-floor-local-cut",
+      "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "covering-floor-peer-catalog",
+      "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "covering-floor-source-member",
+      "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "covering-floor-early-journal",
+      "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "covering-floor-missing-force",
+      "reason": "joining retirement governing floor force order",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "covering-floor-early-release",
+      "reason": "joining retirement released governing floor",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    },
+    {
+      "case": "cold-force-omitted",
+      "reason": "joining continuation original cold reseal order",
+      "semanticAndCaptureGates": "PASS",
+      "status": "REJECTED"
+    }
+  ],
+  "phase3Complete": false,
+  "portable": {
+    "assertionsDisabled": true,
+    "exactOriginalResult": true,
+    "execution": {
+      "elapsedSeconds": 19.747,
+      "exit": 0
+    },
+    "qualification": {
+      "bytes": 752,
+      "path": "target/v53-same-view-physical-20261031/portable.json",
+      "sha256": "164da9e3cc31a6da489d7d0efda721685e7f8fa7e58d0e9d089ac21819d4e695"
+    },
+    "scope": "positive complete physical storage replay; all twelve negatives ran on the original",
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "pythonTests": {
+    "elapsedSeconds": 5.544,
+    "log": {
+      "bytes": 2538,
+      "path": "target/v53-same-view-physical-20261031/python-final.log",
+      "sha256": "9690965d314c2a7e8637a96b967d16794c8fabc1801279073a878a12fb457a69"
+    },
+    "newTests": 10,
+    "status": "PASS",
+    "tests": 451
+  },
+  "reader": {
+    "committedCodeSha256": {
+      "scripts/v53/joining_same_view_physical.py": "49fdbd3c5b845288fe4dce45e8c425942d38ab2140a322f69c8650eb550d864f",
+      "scripts/v53/test_joining_same_view_physical.py": "80a6084ef3113658801855865c2bd2ca735c717b85779f1d0496704fbdc24c62"
+    },
+    "execution": {
+      "elapsedSeconds": 282.937,
+      "exit": 0
+    },
+    "formattingNormalization": {
+      "astIdentical": true,
+      "bytesRemoved": 1,
+      "change": "remove one blank line at EOF",
+      "committedSha256": "49fdbd3c5b845288fe4dce45e8c425942d38ab2140a322f69c8650eb550d864f",
+      "path": "scripts/v53/joining_same_view_physical.py",
+      "qualifiedSha256": "cd15ade98b83aba4b7909d18a2a0380c1527a60986f1ec464d042b89701078a0",
+      "receipt": "target/v53-same-view-physical-20261031/source-normalization.json",
+      "remainingBytesIdentical": true
+    },
+    "frozenSourceUnchanged": true,
+    "python": {
+      "executable": "/usr/bin/python3",
+      "version": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+    },
+    "qualification": {
+      "bytes": 4881,
+      "path": "target/v53-same-view-physical-20261031/reader/qualified.json",
+      "sha256": "c45a19fb38560b63cd1cd2d476eaa29e478a8eb2047aee13117b5b30bc93c5d9"
+    },
+    "qualifiedCodeSha256": {
+      "scripts/v53/joining_same_view_physical.py": "cd15ade98b83aba4b7909d18a2a0380c1527a60986f1ec464d042b89701078a0",
+      "scripts/v53/test_joining_same_view_physical.py": "80a6084ef3113658801855865c2bd2ca735c717b85779f1d0496704fbdc24c62"
+    },
+    "source": {
+      "bytes": 606908,
+      "path": "target/v53-same-view-physical-20261031/reader/source.json",
+      "sha256": "e3b34abb8291a4b36124baabd089babdb861d95757a069e32180040d4bbc97b5"
+    }
+  },
+  "result": {
+    "adoption": {
+      "inheritedLocalBridges": 1,
+      "promiseAppended": true,
+      "remoteBridges": 0,
+      "requiredParents": 4
+    },
+    "capturedGrantComparisons": 19,
+    "completePhysicalQualified": false,
+    "finalCut": 11,
+    "forceAndNetworkQualified": false,
+    "governingFloorForceWindows": 15,
+    "ownerSnapshotComparisons": 28,
+    "phase3Complete": false,
+    "processDeathQualified": false,
+    "profile": "3-REPLACE",
+    "recovery": {
+      "fromCut": 10,
+      "longest": "node-1",
+      "proposer": "node-4",
+      "selectedVoters": [
+        "node-1",
+        "node-4"
+      ],
+      "toCut": 11
+    },
+    "sameViewPhysicalQualified": false,
+    "sameViewStorageQualified": true,
+    "scope": "original-same-view-selected-recovery",
+    "sourceRetirementLocalOrderSegments": 15,
+    "sourceRetirementPrefixes": 225,
+    "sourceRetirementTransactions": 15,
+    "status": "PARTIAL"
+  },
+  "retainedDiagnostics": {
+    "directory": "target/v53-same-view-physical-20261031",
+    "notes": [
+      "Initial reader drafts caught a missing imported alias and the distinction between all live copies and the minimal healthy governing quorum.",
+      "The first negative matrix stopped when the old adoption-only mutation found no remaining peer debt after selected installation. The mutation now removes the actual retained debt before that installation.",
+      "Only the final frozen source qualification counts; original native bytes and all earlier diagnostics remain retained."
+    ]
+  },
+  "sameViewPhysicalQualified": false,
+  "sameViewStorageQualified": true,
+  "schema": "gse-v53-same-view-physical-v1",
+  "scope": "original-3-REPLACE-same-view-storage-and-source-retirement",
+  "status": "PARTIAL"
+}

@@ -66,6 +66,12 @@ frozen acceptance mapping remain separate required gates. The existing adoption-
 physical/network reader must continue rejecting this new path until that derivation
 exists; the semantic result does not override it.
 
+The subsequent [same-view storage replay](PHASE_3_SAME_VIEW_PHYSICAL.md) now
+derives this original's unequal-source FLOOR, retained source transactions and
+selected installation through cold reopen. Full force/transport/export composition
+remains separate; this does not promote the semantic receipt to complete physical
+qualification.
+
 ## Retained validation
 
 The [batch receipt](phase3-evidence/joining-same-view.json) records the failed
