@@ -1,0 +1,69 @@
+{
+  "archive": {
+    "bytes": 231560,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-observations/joining-observations.tar.gz",
+    "sha256": "e313bcef267f22b53f2b95e44420544b669be9106bc5e64e3162e8ed519d1983"
+  },
+  "baseSource": "c58babc3",
+  "changedSources": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "111a377e11c13eceefb227d3d14ac677593f2337a0ddc86d2e7787f9f75f3b09",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTrace.java": "c0dd62ce9c213c1de1c21471512127fbb55d7fc3120e2480d53d2b863df4e1d3",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTraceTest.java": "d33152a004aa3be1eb4c889a01ff236252ef36866512f4df5c5fc4a624e945a4",
+    "scripts/v53/joining_history_run.py": "8477010792f68076dd9e1860773388c58ce3228cfff49001aa31cfea79aff6b6",
+    "scripts/v53/test_joining_history_run.py": "16e89f3307b5e9b8fe635472d10e9364cd4c2d3dc01521716b1071bafa918ae6"
+  },
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1759,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "java": {
+    "classes": {
+      "V53EvidenceArrayTest": 4,
+      "V53FormatTest": 5,
+      "V53JoiningTraceTest": 2
+    },
+    "elapsedSeconds": 16.061,
+    "exit": 0,
+    "failures": 0,
+    "logSha256": "9fc28fc3636491a6484234ee79853384f5cfb1320356258ae3b35c02788d8366",
+    "skipped": 0,
+    "sourceSha256": "bac853141d2af31f1c9643e5fe266b3f20cee0ae6665f778ff6875c87ae71e24"
+  },
+  "limitations": [
+    "Only focused Java component tests, Python tests, compilation and contract checks were executed on this source.",
+    "Synthetic collection inputs test refusal boundaries, not native consensus.",
+    "Corrected whole history must run on one filesystem before full independent replay.",
+    "All profiles and process/network cuts remain open."
+  ],
+  "nativeHistoryQualified": false,
+  "phase3Complete": false,
+  "priorFailedHistoryStillRejected": [
+    {
+      "case": "failed-whole-JUnit",
+      "outcome": "REJECT",
+      "reason": "whole joining test did not pass"
+    },
+    {
+      "case": "missing-global-trace",
+      "outcome": "REJECT",
+      "reason": "learner snapshot regular member"
+    }
+  ],
+  "productionJavaChanged": false,
+  "python": {
+    "failures": 0,
+    "logSha256": "a28f237754743be147799bc6b02ded0755ec5f6babe551362ad69da1e6fe3c80",
+    "tests": 46
+  },
+  "schema": "gse-v53-phase3-joining-observations-v1",
+  "status": "PARTIAL",
+  "wholeHistoryExecution": "PENDING"
+}

@@ -18,6 +18,12 @@ now accepts the actual direct receiving layout under the original owned scope.
 Its component/process evidence is separate from full automatic and joining
 qualification; Phase 3 remains **OPEN**.
 
+[Whole joining observations](PHASE_3_JOINING_OBSERVATIONS.md) now retain new-node
+force/transport callbacks and SEAL/FINAL/BARRIER snapshots. An isolated long-test
+entry preserves source/build inputs, reports progress each minute and checks
+collection completeness. Corrected whole execution and independent replay remain
+pending; Phase 3 is **OPEN**.
+
 [Three-owner automatic-history replay](PHASE_3_COMPETING_REPLAY.md) independently
 reconstructs the retained clean competition, its final files, all original sends
 and responses, heartbeat contact and publication dependencies. This one history

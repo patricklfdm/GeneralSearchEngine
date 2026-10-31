@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Whole joining observations](PHASE_3_JOINING_OBSERVATIONS.md) add the missing
+new-node callbacks and actual installation/SEAL/FINAL/BARRIER snapshots. Use
+`python3 -B -u -m scripts.v53.joining_history_run <new-output> --maven <maven>`
+for the next complete history. Keep its exact source/build/JUnit/raw inputs;
+the collector intentionally returns PARTIAL and does not replace independent
+physical/force/network replay. The corrected whole execution remains pending.
+
 [Maintenance renewal reconciliation](PHASE_3_MAINTENANCE_OBSERVATIONS.md) now
 refreshes the real selection and BARRIER before accepting a new command when
 renewal debt is full. Retain every additional installation, original selected

@@ -738,6 +738,12 @@ checklist, with a local commit after each validated batch and no automatic push.
 
 ## Implementation order
 
+[Whole joining observations and execution entry](PHASE_3_JOINING_OBSERVATIONS.md)
+retain new-node force/transport callbacks and the previously missing manual-SEAL,
+joint FINAL/BARRIER and cold-reopen snapshots. The isolated entry records progress
+and separates execution, collection and independent qualification. Corrected-source
+whole execution and complete replay remain deferred; this does not close 3C–3E.
+
 [Concrete stable control admission](PHASE_3_ROUND_CONTROLS.md) corrects the
 round owner's conceptual `CONTROL` input to the six frozen concrete command
 names. An actual RESERVE/CANCEL TCP regression passes and preserves the permanent
