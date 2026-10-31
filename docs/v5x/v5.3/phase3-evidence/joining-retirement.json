@@ -1,0 +1,236 @@
+{
+  "archive": {
+    "bytes": 10110792,
+    "files": 4294,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-retirement/joining-retirement-replay.tar.gz",
+    "sha256": "8adfdd70e42ef0ee7dfce0a0bb25d06155f8e04b7feddcb5096280f246680309"
+  },
+  "changedSources": {
+    "scripts/v53/joining_retirement_evidence.py": "69e06358adf7dc1b03d28d2bec090bf41782daa0d6fa01231b5c7a751d03ea8d",
+    "scripts/v53/test_joining_retirement_evidence.py": "72d80e4c4d15134136fd165bfa6f5be4e7ea9930b9cbcede26d6336ca849d0da"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1790,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "6ea159d7131091914e5966a75c37295dcc5cd275e291b35aeb3a78d0c9d78dcf"
+  },
+  "forceAndNetworkQualified": false,
+  "joiningRetirementPhysicalQualified": true,
+  "limitations": [
+    "This gate derives 46 predecessor deletions, 11 original reservations, four native reservations and nine complete sidecar families for one original 3-ADD execution.",
+    "Twenty-four files and 33 surviving original inode keys are compared. Later allocator/grant bytes, initialization ledgers/transaction and new sources remain outside this handoff comparison.",
+    "Original old-voter joint source preparation, joining retention initialization/own grant/cold reopen, joint recapture and later installations still require full physical integration.",
+    "Paths and inode keys are original observations. Derived bytes do not establish complete force/network order or process-crash safety.",
+    "The updated send/arrival fixture requires a fresh whole execution. All seven profiles, remaining process cuts and frozen mappings remain open."
+  ],
+  "nativeInitializationQualified": false,
+  "nativeOwnerHandoffPhysicalQualified": true,
+  "originalCollectionSha256": "94fa10496fcd2c8264b0daf7f82c1ccc3447e7a2efe391ef5d6c3ab78ba567f0",
+  "originalInventoryMatchesProducer": true,
+  "originalProducerReceipt": "target/v53-joining-history/original-df22c398/receipt.json",
+  "originalProducerReceiptSha256": "c252348418035ec86bbd440f1041ef228f90d35ccf09d5188a04b0750748fffc",
+  "originalProducerSource": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+  "originalRawArchive": {
+    "path": "target/v53-joining-catalog/joining-catalog-history.tar.gz",
+    "sha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f"
+  },
+  "phase3Complete": false,
+  "portableReplay": {
+    "elapsedSeconds": 223.425,
+    "negativeResultsIdentical": true,
+    "originalInventoryUnchanged": true,
+    "originalResultIdentical": true,
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "productionJavaChanged": false,
+  "python": {
+    "failures": 0,
+    "logSha256": "70bd112ed3a9f3db72b4c8f2870bd05214fad0f8e8b697266886f3030040da1e",
+    "newTests": 14,
+    "status": "PASS",
+    "tests": 108
+  },
+  "readerBaseHead": "efd78f504bbfaab109c56d903d1441dc0e89da87",
+  "readerSha256": "69e06358adf7dc1b03d28d2bec090bf41782daa0d6fa01231b5c7a751d03ea8d",
+  "readerSourceSha256": "cc41677bec474a5f11d86966ce9ffc4aa8ed90dbbb403d52c9628f4f9699db52",
+  "readerSourceSnapshotPrecedesFinalReceipt": true,
+  "replay": {
+    "elapsedSeconds": 219.137,
+    "negatives": [
+      {
+        "case": "deletion-omitted",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "deletion-reordered",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "deletion-live-generation",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reservation-shrink-typed",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reservation-alias-images",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reservation-shrink-journal",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reservation-shrink-stage",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reservation-after-deletion",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joined-fingerprint",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "retired-count",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "retired-record-key",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: retirement",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-retirement-fingerprint",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: nativeOwner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-journal-charge",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: nativeOwner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-image-owner",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: nativeOwner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-generation-charge",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: nativeOwner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-record-key",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: nativeOwner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "predecessor-payload-survives",
+        "placementGate": "PASS",
+        "reason": "joining retirement predecessor still present",
+        "status": "REJECTED"
+      },
+      {
+        "case": "live-typed-proof-missing",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: initialTyped",
+        "status": "REJECTED"
+      },
+      {
+        "case": "empty-lock-replaced",
+        "placementGate": "PASS",
+        "reason": "joining retirement surviving original inode",
+        "status": "REJECTED"
+      },
+      {
+        "case": "generation-inode-replaced",
+        "placementGate": "PASS",
+        "reason": "joining retirement surviving original inode",
+        "status": "REJECTED"
+      },
+      {
+        "case": "absent-root-path-changed",
+        "placementGate": "PASS",
+        "reason": "joining retirement original path changed",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unowned-sidecar-file",
+        "placementGate": "PASS",
+        "reason": "joining retirement exact family: nativeOwner",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "comparedFiles": 24,
+      "completePhysicalQualified": false,
+      "deletedOriginalMembers": 46,
+      "exactSidecarFamilies": 9,
+      "forceAndNetworkQualified": false,
+      "joiningRetirementPhysicalQualified": true,
+      "nativeInitializationQualified": false,
+      "nativeOwnerHandoffPhysicalQualified": true,
+      "nativeReservations": 4,
+      "oldOwnerSnapshots": 69,
+      "phase3Complete": false,
+      "predecessorReservations": 11,
+      "preservedOriginalKeys": 33,
+      "processDeathQualified": false,
+      "scope": "native-ADD-original-retirement-and-owner",
+      "status": "PASS"
+    }
+  },
+  "replaySha256": "113beaeb2ac0fb14f234f5d7191806715964ded9b955bba474214f4965d92749",
+  "schema": "gse-v53-phase3-joining-retirement-v1",
+  "sourceDelta": {
+    "frozenInputsChanged": false,
+    "pomChanged": false,
+    "producerHead": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+    "productionJavaChanged": false,
+    "protectedChanges": [],
+    "protectedCount": 685,
+    "readerBaseHead": "efd78f504bbfaab109c56d903d1441dc0e89da87",
+    "status": "PASS"
+  },
+  "status": "PARTIAL"
+}

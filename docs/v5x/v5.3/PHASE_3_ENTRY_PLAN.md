@@ -1,5 +1,13 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining retirement and native ownership replay](PHASE_3_JOINING_RETIREMENT_REPLAY.md)
+extends the derived placement through 46 exact predecessor deletions and the
+immutable native handoff, including original and replacement resource charges.
+Twenty-two placement-preserving negatives exercise this boundary. Original
+old-majority joint preparation, joining retention initialization/own grants,
+joint recapture and later installations remain the next physical work; full
+force/network/process/profile qualification and Phase 3 remain open.
+
 [Joining placement replay](PHASE_3_JOINING_PLACEMENT_REPLAY.md) now derives all
 65 files in eight original joining directory families from the composed old
 history: learner/typed preparation, pending and published INTENT, adopted voter

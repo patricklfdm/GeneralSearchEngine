@@ -46,6 +46,13 @@ history to all 65 original joining files across eight directory families,
 including typed/pending source provenance, adopted generation and custody/atomic
 placement. Retirement, native initialization and joint continuation remain open.
 
+[Joining retirement and native ownership replay](PHASE_3_JOINING_RETIREMENT_REPLAY.md)
+now derives all 46 predecessor deletions, eleven original reservations, four
+native reservations and the immutable handoff. Nine exact sidecar families,
+24 derived files and 33 surviving original inode keys qualify this boundary.
+Old-voter joint preparation, joining initialization/grants and later continuation
+still require physical integration; Phase 3 remains **OPEN**.
+
 [Three-owner automatic-history replay](PHASE_3_COMPETING_REPLAY.md) independently
 reconstructs the retained clean competition, its final files, all original sends
 and responses, heartbeat contact and publication dependencies. This one history

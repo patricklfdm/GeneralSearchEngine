@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining retirement and native ownership replay](PHASE_3_JOINING_RETIREMENT_REPLAY.md)
+derives the 46 predecessor deletions, complete original reservations and immutable
+native handoff on the same history. Reuse this derived owner when replaying
+old-majority joint preparation and joining retention initialization/grants. The
+later mutable files are deliberately outside this handoff's byte comparison;
+neither snapshot presence nor a native ownership record qualifies their history.
+
 [Joining placement replay](PHASE_3_JOINING_PLACEMENT_REPLAY.md) reconstructs all
 65 placed files across eight directory families, including original inode-bound
 custody and placement records. Continue from these derived files through actual
