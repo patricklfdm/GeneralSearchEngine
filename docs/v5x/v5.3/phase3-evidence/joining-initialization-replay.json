@@ -1,0 +1,271 @@
+{
+  "archive": {
+    "bytes": 10126030,
+    "files": 4302,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-initialization/joining-initialization-replay-final.tar.gz",
+    "sha256": "1a10346f4b6e14a560399c4d0d716b31d5a4542e0d33c8ce8c9f6e5083876b5e"
+  },
+  "changedSources": {
+    "scripts/v53/joining_initialization_evidence.py": "2c6e1b0fcae322abf5904416cb70615c8deeed0bbdad6e89bd68f79a0587db31",
+    "scripts/v53/test_joining_initialization_evidence.py": "d081e4ac8cfc49ead95afc92237636dfcb34e4b4fd46d60cca0b54649c0ba64e"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1795,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "55d663ca23dc43fb480c079b29e52b58c1ee9ae38275a73e8b7aeebe445f3aa9"
+  },
+  "developmentFailuresRetained": [
+    "qualification-first.log",
+    "qualification-complete.log",
+    "python-first.log"
+  ],
+  "finalDocumentation": {
+    "path": "docs/v5x/v5.3/PHASE_3_JOINING_INITIALIZATION_REPLAY.md",
+    "sha256": "a57f09fdeb3f6ef04c9332019cc5474e3f7de13750ac86f4cbcf93b97afdb229"
+  },
+  "forceAndNetworkQualified": false,
+  "historicalInitializationReceiptPreserved": {
+    "path": "docs/v5x/v5.3/phase3-evidence/joining-initialization.json",
+    "sha256": "4f76fd1e964561fdc3613cb09ebdb38e59a1e485ef287484c46b2077f619a99a"
+  },
+  "joiningInitializationLocalOrderQualified": true,
+  "joiningInitializationPhysicalQualified": true,
+  "limitations": [
+    "One original 3-ADD history: derive both SEALED confirmations, joint floor/peer maintenance, old-majority frozen preparation, native initialization and own grant/cold reopen.",
+    "All 33 native files across ten families and 72 old-node inventories compare exactly; local initialization/reseal/grant/repeated-basis callback order is checked.",
+    "Original trace/source UUIDs and recorded filesystem identities are observations, not authority for derived byte contents.",
+    "Joint continuation rediscovery/recapture and FINAL/new-stable installations remain the next physical integration boundary.",
+    "Complete force/network causality, the fresh whole execution with complete send/arrival observations, all profiles, process cuts and frozen mappings remain open."
+  ],
+  "originalCollectionSha256": "94fa10496fcd2c8264b0daf7f82c1ccc3447e7a2efe391ef5d6c3ab78ba567f0",
+  "originalInventoryMatchesProducer": true,
+  "originalProducerReceipt": "target/v53-joining-history/original-df22c398/receipt.json",
+  "originalProducerReceiptSha256": "c252348418035ec86bbd440f1041ef228f90d35ccf09d5188a04b0750748fffc",
+  "originalProducerSource": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+  "originalRawArchive": {
+    "path": "target/v53-joining-catalog/joining-catalog-history.tar.gz",
+    "sha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f"
+  },
+  "phase3Complete": false,
+  "portableReplay": {
+    "elapsedSeconds": 266.664,
+    "negativeResultsIdentical": true,
+    "originalInventoryUnchanged": true,
+    "originalResultIdentical": true,
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "productionJavaChanged": false,
+  "python": {
+    "failures": 0,
+    "logSha256": "6295a9641e5ac44017433663a1182da19b023c29c412f300aa4b84183096ab21",
+    "newTests": 16,
+    "status": "PASS",
+    "tests": 136
+  },
+  "readerBaseHead": "14384272a41f8934dfd32a78139b060dde609374",
+  "readerSha256": "2c6e1b0fcae322abf5904416cb70615c8deeed0bbdad6e89bd68f79a0587db31",
+  "readerSourceSha256": "06d52e70a994ea5d75afd1708040b2d041c8c403b661624b6d0d65e0711cd3d1",
+  "readerSourceSnapshotPrecedesFinalDocumentation": true,
+  "readerSourceSnapshotPrecedesFinalReceipt": true,
+  "replay": {
+    "elapsedSeconds": 262.672,
+    "negatives": [
+      {
+        "case": "head-wrong-endpoint",
+        "reason": "joining initialization exact original head exchange",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "head-foreign-owner",
+        "reason": "joining initialization exact original head exchange",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "confirmed-learner-debt-lost",
+        "reason": "joining initialization exact confirmed learner plan",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reconcile-old-debt-lost",
+        "reason": "joining initialization exact reconciled peer plan",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-peer-ledger-debt-lost",
+        "reason": "joining initialization exact old prepared inventory: node-1",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-learner-ledger-debt-lost",
+        "reason": "joining initialization exact old prepared inventory: node-2",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-premature-selection",
+        "reason": "joining initialization exact prepared grant suffix",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-reused-source-id",
+        "reason": "joining initialization fresh original source identity",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-changed-frozen-packet",
+        "reason": "joining initialization exact frozen grant bytes",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-retained-source-removed",
+        "reason": "joining initialization exact old prepared inventory: node-1",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-standalone-source-changed",
+        "reason": "joining initialization exact retained old source: node-2",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-copy-changed",
+        "reason": "joining initialization exact early joining copy",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "seed-changed",
+        "reason": "joining initialization exact derived seed",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "initialized-peer-missing",
+        "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "initialized-learner-debt-lost",
+        "reason": "joining derivation exact initial ledger: learner-retention.gslr",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "initialization-decision-changed",
+        "reason": "joining derivation exact original decision",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-adopted-promise-changed",
+        "reason": "joining initialization exact prepared grant suffix",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-new-promise-changed",
+        "reason": "joining initialization exact frozen grant bytes",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-standalone-basis-changed",
+        "reason": "joining initialization exact native basis",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-source-image-changed",
+        "reason": "joining initialization exact native family: replica",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-extra-allocation",
+        "reason": "joining initialization exact native family: replica",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "native-orphan-file",
+        "reason": "joining initialization exact native family: replica",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "initialization-force-missing",
+        "reason": "joining initialization original transaction force order",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "first-grant-force-reordered",
+        "reason": "joining initialization original first grant order",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "repeated-basis-rewritten",
+        "reason": "joining initialization original repeated basis order",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reopen-before-initialization",
+        "reason": "joining initialization original lifecycle order",
+        "retirementGate": "PASS",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "comparedNativeFiles": 33,
+      "completePhysicalQualified": false,
+      "forceAndNetworkQualified": false,
+      "initializedLedgers": 3,
+      "joiningInitializationLocalOrderQualified": true,
+      "joiningInitializationPhysicalQualified": true,
+      "nativeFamilies": 10,
+      "oldOwnerSnapshots": 72,
+      "originalHeadExchanges": 2,
+      "phase3Complete": false,
+      "preparedOldSources": 2,
+      "processDeathQualified": false,
+      "scope": "native-ADD-original-joining-initialization",
+      "status": "PASS"
+    }
+  },
+  "replaySha256": "74f77e33c8bbdb8f933f352a86b5007c186030450420e5d49105a97606166586",
+  "schema": "gse-v53-phase3-joining-initialization-v1",
+  "sourceDelta": {
+    "frozenInputsChanged": false,
+    "pomChanged": false,
+    "producerHead": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+    "productionJavaChanged": false,
+    "protectedChanges": [],
+    "protectedCount": 685,
+    "readerBaseHead": "14384272a41f8934dfd32a78139b060dde609374",
+    "status": "PASS"
+  },
+  "status": "PARTIAL"
+}

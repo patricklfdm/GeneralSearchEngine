@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Joining initialization physical replay](PHASE_3_JOINING_INITIALIZATION_REPLAY.md)
+now connects old-majority joint preparation to three-ledger initialization,
+the native owner's own grant and retaining cold reopen: 72 old-node inventories
+and all 33 native files across ten families, with local force-order checks and
+26 exact negatives. Joint continuation/recapture and later installations remain
+the next physical boundary; full network/process/profile qualification is open.
+
 [Confirmed joining ledger replay](PHASE_3_JOINING_LEDGER_REPLAY.md#explicit-confirmed-peer-mode)
 now reconstructs native confirmation-bearing initialization without discarding
 unconfirmed peer or learner obligations. The earlier continuous probe failed

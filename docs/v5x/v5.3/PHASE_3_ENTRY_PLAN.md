@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining initialization physical replay](PHASE_3_JOINING_INITIALIZATION_REPLAY.md)
+now derives SEALED confirmations, preserved renewal debt, joint peer/floor
+reconciliation, both old frozen sources, native initialization and own grant/cold
+reopen. All ten native directory families match; local lifecycle order is checked.
+Joint continuation rediscovery/recapture and FINAL/new-stable installations still
+need physical integration. Full force/network/process/profile gates remain open.
+
 [Joining retirement and native ownership replay](PHASE_3_JOINING_RETIREMENT_REPLAY.md)
 extends the derived placement through 46 exact predecessor deletions and the
 immutable native handoff, including original and replacement resource charges.

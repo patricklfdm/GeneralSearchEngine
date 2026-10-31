@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining initialization physical replay](PHASE_3_JOINING_INITIALIZATION_REPLAY.md)
+qualifies the complete native snapshot from derived old-majority preparation and
+retired original placement, including initialized ledgers and the own grant/cold
+reopen. Extend these exact old and new owner states through joint rediscovery,
+recapture and the last two installations. Local initialization callback order is
+not complete network causality or process-death evidence; those gates stay open.
+
 [Joining retirement and native ownership replay](PHASE_3_JOINING_RETIREMENT_REPLAY.md)
 derives the 46 predecessor deletions, complete original reservations and immutable
 native handoff on the same history. Reuse this derived owner when replaying
