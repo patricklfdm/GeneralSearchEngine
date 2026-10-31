@@ -121,12 +121,18 @@ def network(root):
     events = s.collection.read_json(root,'events.json',s.collection.EVENT_BYTES)
     wires = s.collection.read_json(root,'wire.json',s.collection.WIRE_BYTES)
     identities = s.catalog.identities(replay.states[-1]['identities'])
-    rows = causal(events,wires,identities,replay.root)
+    failed=[];rows = causal(events,wires,identities,replay.root,failed=failed)
     result = transfers(rows)
     grant_result,bases = grants(root,events,rows)
     result.update(grant_result,**installations(root,events,rows,replay,bases))
     result.update(phase.phase_replay(events,rows,replay,phase.blocks(events,replay)))
     result.update(wireExchanges=len(rows),sentRequests=len(rows),receivedRequests=len(rows),deliveredResponses=sum(v['delivered'] is not None for v in rows))
+    if failed:
+        response_less=[v for v in failed if not v['withheldResponse']]
+        result.update(sentRequests=len(rows)+len(response_less),
+                      receivedRequests=len(rows)+sum(v['received'] is not None for v in response_less),
+                      failedAttempts=len(failed),responseLessFailures=len(response_less),
+                      terminalObservations=sum(1+(v['serverFailed'] is not None) for v in failed))
     policy=phase.loss.declaration(events)
     if policy:result.update(sourceFault=policy['kind'],lostReplies=1,recoveredLostReplies=1)
     return result

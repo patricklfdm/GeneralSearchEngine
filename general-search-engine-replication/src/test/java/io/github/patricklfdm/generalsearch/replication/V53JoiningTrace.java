@@ -2,6 +2,7 @@ package io.github.patricklfdm.generalsearch.replication;
 
 import java.util.*;
 import java.nio.file.Path;
+import java.util.function.BooleanSupplier;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 
 /** Observations only: share the old owners' event order, without issuing capabilities.
@@ -38,9 +39,23 @@ final class V53JoiningTrace {
         else if(event.equals("AFTER_REQUEST_READ"))events.add(Map.of("node",node,"event","NETWORK_REQUEST",
                 "request",request.digest(),"kind",request.kind()));
     }
+    static MembershipTransport.Events withFailures(String node,String scope,List<Map<String,Object>> events,
+            BooleanSupplier enabled,MembershipTransport.Events delegate) {
+        return new MembershipTransport.Events() {
+            @Override public void at(String event,Decoded request,Decoded response)throws java.io.IOException {
+                delegate.at(event,request,response);
+            }
+            @Override public void failed(boolean outbound,Decoded request,MembershipTransport.Reason reason) {
+                if(!enabled.getAsBoolean())return;
+                var row=new TreeMap<String,Object>();row.put("node",node);if(scope!=null)row.put("scope",scope);
+                row.put("event","NETWORK_ATTEMPT_FAILED");row.put("direction",outbound?"OUTBOUND":"INBOUND");
+                row.put("request",request.digest());row.put("kind",request.kind());row.put("reason",reason.name());events.add(row);
+            }
+        };
+    }
     MembershipTransport.Events transport(String scope) {
         Objects.requireNonNull(scope);
-        return (event,request,response)->{
+        return withFailures(node,scope,events,()->true,(event,request,response)->{
             var row=new TreeMap<String,Object>();row.put("node",node);row.put("scope",scope);row.put("event",event);
             row.put("request",request.digest());row.put("kind",request.kind());
             // Preserve attempted writes too, including requests whose reply is lost.
@@ -53,6 +68,6 @@ final class V53JoiningTrace {
                 var exchange=new TreeMap<String,Object>(V53SelectedPullTest.wire(request,response));
                 exchange.put("withheld",false);wire.add(exchange);
             }
-        };
+        });
     }
 }

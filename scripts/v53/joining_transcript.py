@@ -2,6 +2,7 @@
 import base64
 from collections import defaultdict, deque
 from . import joining_phase_evidence as phase
+from . import joining_attempts
 
 f, need, sha = phase.f, phase.need, phase.sha
 wire = phase.exchange.d.transfer.t.wire
@@ -9,15 +10,20 @@ SENDS = {'NETWORK_SEND', 'BEFORE_REQUEST_WRITE'}
 READS = {'NETWORK_REQUEST', 'AFTER_REQUEST_READ'}
 
 
-def causal(events, wires, identities, root, *, transfer_only=False):
+def causal(events, wires, identities, root, *, transfer_only=False, failed=None):
     """Consume each actual send, server read, response and client read once.
 
-    Require complete delivery except for one explicitly declared initial
-    learner-source loss, paired with its next identical successful retry.
+    Require complete delivery except for independently bound failed control
+    attempts and one explicitly declared initial learner-source loss, paired
+    with its next identical successful retry. Failures are never ACK rows.
     Publication may explicitly request only transfer causality; this leaves
     control-attempt qualification to the separate complete-network gate.
     """
     rows = phase.exchanges(events, wires, identities, root)
+    failures = {} if transfer_only else joining_attempts.failures(events,rows,identities,root)
+    completions = defaultdict(list)
+    for value in failures.values():
+        if not value['withheldResponse']:completions[value['finished']].append(value)
     if transfer_only: rows = [v for v in rows if v['kind'] in ('CHUNK', 'TRANSFER_COMMIT')]
     offers = {v['offered']: v for v in rows}
     pending, accepted = defaultdict(deque), defaultdict(deque)
@@ -60,16 +66,25 @@ def causal(events, wires, identities, root, *, transfer_only=False):
             response.update(sent=attempt['sent'], received=attempt['received'])
             if response.get('withheld',False):
                 need(response['delivered'] is None and response['sent']<response['received']<at,'joining network withheld causal order')
-                attempt['finished']=at
+                attempt['finished']=failures.get(attempt['sent'],{}).get('finished',at)
             else:
                 need(response['delivered'] is not None, 'joining network undelivered healthy response')
                 delivered = events[response['delivered']]
                 need(attempt['scope'] == delivered.get('scope'), 'joining network client lifetime')
                 attempt['finished'] = response['delivered']
                 need(response['sent'] < response['received'] < at < response['delivered'], 'joining network causal order')
-    need(not any(pending.values()) and not any(accepted.values()) and sends == reads == len(rows),
+        for failure in completions.get(at,[]):
+            attempt=live.get(failure['requestHash'])
+            need(attempt is not None and attempt['sent']==failure['sent'],'joining failure unmatched live attempt')
+            queue=(accepted if failure['received'] is not None else pending)[failure['requestHash']]
+            need(queue and queue.popleft() is attempt,'joining failure unmatched received attempt')
+            attempt['finished']=failure['finished']
+    no_response=[value for value in failures.values() if not value['withheldResponse']]
+    need(not any(pending.values()) and not any(accepted.values()) and sends == len(rows)+len(no_response) and
+         reads == len(rows)+sum(value['received'] is not None for value in no_response),
          'joining network incomplete healthy exchange')
     phase.loss.requests(events,rows)
+    if failed is not None:failed.extend(failures.values())
     return rows
 
 

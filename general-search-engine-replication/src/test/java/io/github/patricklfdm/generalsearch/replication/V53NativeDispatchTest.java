@@ -99,7 +99,8 @@ class V53NativeDispatchTest {
                                 diagnostic(owner.activationIdentity().nodeId().value(),"HANDLER_FAILED",request,error);
                                 failures.add(Map.of("node",owner.activationIdentity().nodeId().value(),"kind",request.kind(),"request",request.digest(),"failure",error.toString()));throw error;}
                         };
-                MembershipTransport.Events transportEvents=(event,request,response)->{
+                MembershipTransport.Events transportEvents=V53JoiningTrace.withFailures(owner.activationIdentity().nodeId().value(),null,events,
+                        ()->observeRequests,(event,request,response)->{
                             diagnostic(owner.activationIdentity().nodeId().value(),event,request,null);
                             if(event.equals("BEFORE_REQUEST_WRITE"))beforeSend.get().accept(request);
                             if(observeRequests)V53JoiningTrace.requestObservation(events,owner.activationIdentity().nodeId().value(),event,request);
@@ -111,7 +112,7 @@ class V53NativeDispatchTest {
                                 events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","WIRE_RESPONSE","request",request.digest(),"response",response.digest()));
                                 if(lost)throw new IOException("lost native dispatch reply");
                             }
-                        };
+                        });
                 var transport=liveDirectory?new MembershipTransport(owner,bounds,resources.get(i),handler,transportEvents):
                         new MembershipTransport(owner.activationCapsule(),owner.activationIdentity(),bounds,resources.get(i),handler,transportEvents);
                 transports.add(transport);links.get(i).set(transport);

@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Original transport failures](PHASE_3_TRANSPORT_ATTEMPTS.md) now retain and
+independently bind terminal observations without inventing ACKs. Six short TCP
+cases qualify the collection path; old incomplete histories remain rejected.
+Full current-source profile and process acceptance remains open.
+
 [Joining profile continuation](PHASE_3_JOINING_PROFILE_CONTINUATION.md)
 derives the actual selected cohort through FINAL/BARRIER and the unselected
 joiner's newer-authority adoption. Retained 3-REPLACE and legacy 3-ADD histories

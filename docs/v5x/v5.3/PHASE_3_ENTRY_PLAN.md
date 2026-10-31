@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original transport failures](PHASE_3_TRANSPORT_ATTEMPTS.md) now retain and
+independently bind terminal observations without inventing ACKs. Six short TCP
+cases qualify the collection path; old incomplete histories remain rejected.
+Full current-source profile and process acceptance remains open.
+
 [Joining profile completion](PHASE_3_JOINING_PROFILE_COMPLETION.md) extends all five
 ADD/REPLACE producers through FINAL, the new-view BARRIER and retaining cold
 reopen. Actual selected sets may omit the joining voter; its later recovery uses

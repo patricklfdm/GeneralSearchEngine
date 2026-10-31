@@ -1,0 +1,324 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "bytes": 15018554,
+    "files": 6104,
+    "memberHashesVerified": true,
+    "path": "target/v53-transport-attempts-20261031/sealed/transport-attempts.tar.gz",
+    "sha256": "2a6dc07d03c238ed49152e48dba8b5763d4bf1082777c36c88801599c9263333"
+  },
+  "baseHead": "12e7afc6548377859512fc542083a77c2fdb0b96",
+  "codeSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java": "721caede5ac4c00a9ab904bc06aac5069242487e5cfc5fda71beef50684163de",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTrace.java": "097604a6fc77e942efa5adb8e0a602b2f8b22da522626e018f0c5caf559eed12",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "93a697792507789d340938c36bebc534ef2ce5757060807986c30ba07555d10a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransportAttemptTest.java": "cf5d7537e8fd376d914b508287d9eac8cbe7ae6adb0e9ada11d5fc4d0d5a0b77",
+    "scripts/v53/joining_attempts.py": "a6324d847e8e02bf907182b4690709f1e5dbfd6c4f7fd41e4a6c41b178696c5a",
+    "scripts/v53/joining_network_evidence.py": "e3967f73df531546be8e4ca70eb7604dbe57ec37e2a8781fae30569865745d25",
+    "scripts/v53/joining_transcript.py": "8ea8a1a594d2574d7caf9b6867aac2be650278e9b55ab55ea10dc4cc9f4504c0",
+    "scripts/v53/test_joining_attempts.py": "045f42f7fc8075a7a476d939de2490449df7075bf6a74d2e52a333d810578f7f",
+    "scripts/v53/transport_attempt_evidence.py": "4b6cb799116ed9526d3b0723eb507b2d13ac7fefcc3038b2a826baa605070de4"
+  },
+  "completeMembershipHistory": false,
+  "completePhysicalQualified": false,
+  "documentation": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1897,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "incompleteHistoricalThreeReplace": {
+    "nativeRerun": false,
+    "originalTerminalRows": 0,
+    "reason": "joining network ambiguous overlapping retry",
+    "status": "EXPECTED_REJECTION"
+  },
+  "incrementalBuildSha256": "041ad1b65edee05b5225b4222610d01aecc6901a8e525d9497383c0a56ed76de",
+  "initialSandboxFailure": {
+    "log": {
+      "bytes": 29672,
+      "path": "target/v53-transport-attempts-20261031/maven.log",
+      "sha256": "4271bdeafb945586b753c3396721c64611809e5ccff2227e649f8b4b2c12fd84"
+    },
+    "reason": "loopback socket operation not permitted"
+  },
+  "legacyPeerReplay": {
+    "file": {
+      "bytes": 558,
+      "path": "target/v53-transport-attempts-20261031/legacy-peer.json",
+      "sha256": "2d87de19ab761c390904bb7bb181ff669e9b3b66bc578ab090c8554ab164376c"
+    },
+    "result": {
+      "capturedLedgers": 19,
+      "chainSha256": "1b599dbe30a161dc6501368db8020af4cf851b3c001ee4e809c0d3e85f1a3054",
+      "completePhysicalQualified": false,
+      "durableWrites": 90,
+      "finalRevisions": {
+        "node-1": 40,
+        "node-2": 40,
+        "node-3": 0,
+        "node-4": 10
+      },
+      "forceAndNetworkQualified": false,
+      "ledgerComparisons": 97,
+      "openReseals": 8,
+      "peerLedgerCompositionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-ADD-original-peer-ledger-chain",
+      "status": "PASS",
+      "writesByKind": {
+        "maintenance": 54,
+        "publication": 24,
+        "selected": 12
+      }
+    },
+    "unchanged": true
+  },
+  "nativeExecution": {
+    "build": "incremental local test build",
+    "cleanReactor": false,
+    "log": {
+      "bytes": 4721,
+      "path": "target/v53-transport-attempts-20261031/maven-loopback.log",
+      "sha256": "4b030283332c81832c9a551b95980bb247b4aafa8c86a19a1953a76a6888cb66"
+    },
+    "original": {
+      "cases": [
+        {
+          "case": "old-handler-io",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "old-handler-protocol",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "old-send-guard",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "scoped-handler-io",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "scoped-handler-protocol",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "scoped-send-guard",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        }
+      ],
+      "completeMembershipHistory": false,
+      "network": true,
+      "phase3Complete": false,
+      "schema": "gse-v53-transport-attempts-v1",
+      "status": "PASS"
+    },
+    "protectedCI": false,
+    "tests": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "name": "V53TransportAttemptTest",
+        "seconds": 30.532,
+        "skipped": 0,
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "name": "V53MembershipTransportTest",
+        "seconds": 52.137,
+        "skipped": 0,
+        "tests": 13
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "name": "V53JoiningTraceTest",
+        "seconds": 0.102,
+        "skipped": 0,
+        "tests": 3
+      }
+    ]
+  },
+  "nativeSourceSha256": "22bd009112982d6778dd93374b3627f4fba38d6030fb8f1ebab8d9b787d5a551",
+  "negatives": [
+    {
+      "case": "missing-caller-terminal",
+      "reason": "joining failure missing caller terminal",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-server-terminal",
+      "reason": "joining failure missing receiver terminal",
+      "status": "REJECTED"
+    },
+    {
+      "case": "foreign-caller",
+      "reason": "joining failure sender lifetime",
+      "status": "REJECTED"
+    },
+    {
+      "case": "foreign-receiver",
+      "reason": "joining failure receiver lifetime",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-request-kind",
+      "reason": "joining failure original request identity",
+      "status": "REJECTED"
+    },
+    {
+      "case": "unknown-reason",
+      "reason": "joining failure observation shape",
+      "status": "REJECTED"
+    },
+    {
+      "case": "duplicate-caller",
+      "reason": "joining duplicate outbound terminal",
+      "status": "REJECTED"
+    },
+    {
+      "case": "duplicate-receiver",
+      "reason": "joining duplicate inbound terminal",
+      "status": "REJECTED"
+    },
+    {
+      "case": "terminal-before-send",
+      "reason": "joining failure without attempted send",
+      "status": "REJECTED"
+    },
+    {
+      "case": "lost-observations",
+      "reason": "joining network ambiguous overlapping retry",
+      "status": "REJECTED"
+    },
+    {
+      "case": "different-retry",
+      "reason": "transport attempt original classified retry",
+      "status": "REJECTED"
+    },
+    {
+      "case": "rewritten-storage",
+      "reason": "admitted exact after: node-1",
+      "status": "REJECTED"
+    },
+    {
+      "case": "claims-membership-complete",
+      "reason": "transport attempt receipt scope",
+      "status": "REJECTED"
+    }
+  ],
+  "phase3Complete": false,
+  "portableReplay": {
+    "assertionsDisabled": true,
+    "elapsedSeconds": 3.078,
+    "negativeCases": 13,
+    "original": {
+      "cases": [
+        {
+          "case": "old-handler-io",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "old-handler-protocol",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "old-send-guard",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "scoped-handler-io",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "scoped-handler-protocol",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        },
+        {
+          "case": "scoped-send-guard",
+          "failedWrites": 1,
+          "storageUnchanged": true,
+          "successfulReplies": 1
+        }
+      ],
+      "completeMembershipHistory": false,
+      "network": true,
+      "phase3Complete": false,
+      "schema": "gse-v53-transport-attempts-v1",
+      "status": "PASS"
+    }
+  },
+  "processDeathQualified": false,
+  "python": {
+    "focusedTests": 15,
+    "joiningTests": 414,
+    "logs": [
+      {
+        "bytes": 2403,
+        "path": "target/v53-transport-attempts-20261031/python-joining.log",
+        "sha256": "511bb83ebf26a55a6488e249a421a578b6c41550104583abf9e96dad01be0e7f"
+      },
+      {
+        "bytes": 114,
+        "path": "target/v53-transport-attempts-20261031/python-focused-final.log",
+        "sha256": "65c0f48527ff9a41da5ed09132faa4dc01e41dbee2cdd4cdd371c1d3ddbf3182"
+      },
+      {
+        "bytes": 114,
+        "path": "target/v53-transport-attempts-20261031/python-focused-optimized.log",
+        "sha256": "43d5a77f0d94ac8ad9ada9c430c8d65c6966dcb014ffce00a9df914b1fda3b0e"
+      }
+    ],
+    "optimizedFocusedTests": 15
+  },
+  "readerManifestSha256": "69b8939f3c990ae33b78adc5e7d802d9c1663b7d043d052d9bcdaec269d3e3a3",
+  "remaining": [
+    "new-producer complete native profiles",
+    "same-view joining installation replay",
+    "complete control/export/maintenance/peer composition across profiles",
+    "whole-history fault and process cuts",
+    "REMOVE profiles",
+    "frozen acceptance mapping"
+  ],
+  "schema": "gse-v53-transport-attempt-batch-v1",
+  "scope": "original terminal observation and bounded TCP component qualification",
+  "status": "PARTIAL"
+}
