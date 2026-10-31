@@ -1,10 +1,16 @@
 # V5.3 — controlled cluster operations
 
+[Original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md) now
+derives the previously missing intermediate sources on a fresh complete history.
+All 19 captured grants and 16 local source-retirement groups match, followed by
+the selected installations, FINAL/BARRIER and cold storage. Complete force/network,
+process-death, all-profile and requirement-mapping gates remain open.
+
 [Original grant capture](PHASE_3_JOINING_GRANT_CAPTURE.md) now preserves complete
 writer-held grant/source directories before retirement and makes their presence
-mandatory in collection v2. Two real native grants, lock probes and twelve
-evidence mutations pass; the full updated joining history remains unexecuted.
-This closes the collection implementation gap, not full physical qualification.
+mandatory in collection v2. Its initial two-grant exercise, lock probes and
+twelve evidence mutations passed; the later whole execution is recorded above.
+Collection completeness alone does not establish full physical qualification.
 
 [Conditional joining continuation replay](PHASE_3_JOINING_CONTINUATION_REPLAY.md)
 now derives both selected installations, FINAL, BARRIER and final cold storage

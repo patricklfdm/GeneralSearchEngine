@@ -1,0 +1,271 @@
+{
+  "archive": {
+    "bytes": 33945645,
+    "entries": 15501,
+    "memberHashesVerified": true,
+    "originalInventorySha256": "d9c64f16c7e0d7d0e6d07b56af10c0bda92bdd57840446add841c0976de5d444",
+    "path": "target/v53-joining-preparation/original-replay-final/joining-preparation-replay.tar.gz",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceFiles": 4298,
+    "readerSourceManifestSha256": "70eee6c2774f89d6e6cd4c41b795263f7ae15905bd07c753829198576f45a692",
+    "sha256": "17b2addcf92d4ede1496e167f26751de50d04177206ee981962d63859e7b0fd8",
+    "status": "PASS"
+  },
+  "baseHead": "c8f5d616ef565cef7e70ce783c123984ccbe560c",
+  "buildManifestSha256": "942b68c58ab75bee0dcb04509f74c5c627553635198533c428d3208697d11491",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "a6882fd512a1a2c6619250e7cd086906a99ba1f90fc36f1a25c10731cd550176",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "7e9066e3c473ab80efcfebfabc5205bdf7cf11a6e903791ffb85fc0d52fb4c9f",
+    "docs/v5x/v5.3/PHASE_3_JOINING_GRANT_CAPTURE.md": "1a25537a768bf9e79c63aa2d983c4e50125c6668caa17a9ceebb6aa2a4056213",
+    "docs/v5x/v5.3/PHASE_3_JOINING_PREPARATION_REPLAY.md": "175cf67d65e13529ade6740cafa3d8d8daa315a080557d101a9545e44b4f918d",
+    "docs/v5x/v5.3/README.md": "f7f042aed223b0350653d64b0e2858ca9f722c8e830921df7dd32e25e0ebb3ff",
+    "scripts/v53/joining_continuation_evidence.py": "a9c920557393206727445f7ff23cb6c1ec15d319e812d80236b1f76dd5cedbf0",
+    "scripts/v53/joining_initialization_evidence.py": "025896e25f01941d4ca1763a1bed7afe30afdc002746cc59af2d4820d86e7f97",
+    "scripts/v53/joining_preparation_evidence.py": "f17a60ecc95f6241b33d88b93f31afd9763c44ccc38663abd929c8ab1b2ed9a3",
+    "scripts/v53/joining_transition_evidence.py": "720b23d2115dd94a7e3e9f108f77c368289f354c2f750b481a505f1c62434b09",
+    "scripts/v53/test_joining_preparation_evidence.py": "ecba29bfc43361db2b3be767879b1072d91547ba5b6b023878f8e1e911adff04"
+  },
+  "collection": {
+    "collectionComplete": true,
+    "events": 21339,
+    "finalIndex": 11,
+    "forceAndNetworkQualified": false,
+    "grants": {
+      "bytes": 2537346,
+      "captures": 19,
+      "forceAndNetworkQualified": false,
+      "intermediateBallot": 7,
+      "intermediatePreparationPhysicalQualified": false,
+      "nativeHistoryQualified": false,
+      "phase3Complete": false,
+      "scope": "original-grant-copy-collection",
+      "status": "PARTIAL"
+    },
+    "nativeHistoryQualified": false,
+    "phase3Complete": false,
+    "scope": "joining-history-collection-and-ledger-only",
+    "status": "PARTIAL",
+    "wirePairs": 2209
+  },
+  "collectionSha256": "52d0aac33902f901fdbdf7ef8d43d02b03ef665922fe45ff11b1380815e0e6f4",
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1812,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "historicalCompatibility": {
+    "resultSha256": "325577997298af87c8bb753db06e232eb5211799e878c868f74b823831372877",
+    "scope": "unchanged-conditional-archive-original-positive",
+    "status": "PASS"
+  },
+  "intermediatePreparationPhysicalQualified": true,
+  "limitations": [
+    "One uninterrupted 3-ADD history; not all seven profiles.",
+    "Local retirement callbacks check order and deletion counts, without source-ID-bound transient decision copies.",
+    "Full transport/force composition, process cuts and frozen requirement mapping remain pending.",
+    "The historical conditional archive is unchanged and is not combined with new observations.",
+    "The archived reader source contains a pre-final receipt to avoid a circular archive digest."
+  ],
+  "markerOrder": {
+    "result": {
+      "diagnosticMarker": "PASS",
+      "missingBasisForce": "REJECTED",
+      "original": "PASS",
+      "reason": "joining initialization original first grant order"
+    },
+    "sha256": "ba68d9e5c2b2b5078365ff358526277e2d22386dbf4e7338f80362135b215b42"
+  },
+  "originalInventorySha256": "d9c64f16c7e0d7d0e6d07b56af10c0bda92bdd57840446add841c0976de5d444",
+  "originalRaw": "target/v53-joining-history/original-c8f5d616/workspace/general-search-engine-replication/target/v53-native-dispatch/run-9c8f4826-6f15-45fa-b271-43402522d3bb",
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portableReplay": {
+    "fullRawInventoryUnchanged": true,
+    "negativeReplayRepeated": false,
+    "producerSourceAndBuildVerified": true,
+    "resultSha256": "170b608c08b0d9be84fc1307cd34125a3e30de85f6ef3b1a527cd41e48ae8196",
+    "scope": "relocated-original-positive-with-frozen-reader",
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "producerReceipt": {
+    "baseHead": "c8f5d616ef565cef7e70ce783c123984ccbe560c",
+    "buildSha256": "942b68c58ab75bee0dcb04509f74c5c627553635198533c428d3208697d11491",
+    "collectionComplete": true,
+    "collectionExecution": {
+      "elapsedSeconds": 2.016,
+      "exit": 0
+    },
+    "collectionSha256": "52d0aac33902f901fdbdf7ef8d43d02b03ef665922fe45ff11b1380815e0e6f4",
+    "command": [
+      "/opt/maven/bin/mvn",
+      "-o",
+      "-B",
+      "-ntp",
+      "-f",
+      "reactor/pom.xml",
+      "-pl",
+      "../general-search-engine-replication",
+      "-am",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dtest=V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+      "test"
+    ],
+    "execution": {
+      "elapsedSeconds": 918.149,
+      "exit": 0
+    },
+    "executionStatus": "PASS",
+    "junit": {
+      "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+      "errors": 0,
+      "failures": 0,
+      "method": "joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+      "skipped": 0,
+      "tests": 1
+    },
+    "nativeHistoryQualified": false,
+    "phase3Complete": false,
+    "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-9c8f4826-6f15-45fa-b271-43402522d3bb",
+    "retries": 0,
+    "schema": "gse-v53-joining-history-collection-v2",
+    "sourceSha256": "5a851e1ea1129a073dd852d6c9fbff8c9001e02dc59a1fb41a1cf74fc2c2df6d",
+    "status": "PARTIAL",
+    "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+  },
+  "productionJavaChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705,
+    "manifestSha256": "627b6ec1888851f2c1e55dcb703a31e313473de2389ca361f8d4ec32b55bf545"
+  },
+  "python": {
+    "logSha256": "c3fced24fe52ce6bb0a76db2c5f967aa9f1a296b0020b4ceef889748ff970c7a",
+    "newTests": 9,
+    "status": "PASS",
+    "tests": 167
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "captureCollection": "PASS",
+        "case": "bootstrap-extra-allocation",
+        "initializationGate": "PASS",
+        "reason": "joining preparation exact captured inventory: node-1: 2",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "intermediate-extra-file",
+        "initializationGate": "PASS",
+        "reason": "joining preparation exact captured inventory: node-2: 7",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "intermediate-prior-source-lost",
+        "initializationGate": "PASS",
+        "reason": "joining initialization exact prepared grant suffix",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "intermediate-frozen-ledger",
+        "initializationGate": "PASS",
+        "reason": "joining initialization exact frozen grant bytes",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "native-grant-extra-file",
+        "initializationGate": "PASS",
+        "reason": "joining preparation exact captured inventory: node-4: 6",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "activation-obsolete-source-restored",
+        "initializationGate": "PASS",
+        "reason": "joining preparation exact captured inventory: node-1: 8",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "retirement-force-lost",
+        "initializationGate": "PASS",
+        "reason": "joining preparation original source retirement order",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "retirement-delete-extra",
+        "initializationGate": "PASS",
+        "reason": "joining preparation original source retirement count",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "duplicate-complete-grant",
+        "initializationGate": "PASS",
+        "reason": "joining preparation duplicate observed grant",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "joint-source-image-changed",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact inventory: continuation-installed-9: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "standalone-grant-changed",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact standalone grants",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "cold-peer-revision",
+        "initializationGate": "PASS",
+        "reason": "joining continuation exact family: joining-originals-stable-cold: replica",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "capturedGrantComparisons": 19,
+      "coldSnapshots": 2,
+      "completePhysicalQualified": false,
+      "finalCut": 11,
+      "forceAndNetworkQualified": false,
+      "intermediatePreparationPhysicalQualified": true,
+      "ownerSnapshotComparisons": 28,
+      "phase3Complete": false,
+      "precedingOwnerSnapshotComparisons": 72,
+      "processDeathQualified": false,
+      "publications": 2,
+      "scope": "native-ADD-original-joint-preparation-and-continuation",
+      "selectedInstallations": 2,
+      "sourceRetirementLocalOrderSegments": 16,
+      "status": "PASS",
+      "unconditionalContinuationQualified": true
+    }
+  },
+  "qualificationSha256": "1fde18baf7c87ada07113bc7af0b616c9cef5ba854c2824017b3b34bc7690bec",
+  "schema": "gse-v53-joining-preparation-replay-batch-v1",
+  "scope": "native-ADD-original-joint-preparation-and-continuation",
+  "sourceManifestSha256": "5a851e1ea1129a073dd852d6c9fbff8c9001e02dc59a1fb41a1cf74fc2c2df6d",
+  "sourceSnapshotPrecedesFinalReceipt": true,
+  "status": "PARTIAL",
+  "unconditionalContinuationQualified": true,
+  "workflowChanged": false
+}

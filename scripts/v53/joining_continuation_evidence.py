@@ -210,6 +210,9 @@ class Continuation:
         self.group = copy.deepcopy(initialization.group); self.group['node-4'] = copy.deepcopy(initialization.joined)
         self.identifiers = set(initialization.identifiers); self.comparisons = 0
 
+    def prepared(self, node, files):
+        """Optional complete producer capture; the historical reader has none."""
+
     def actual(self, label, node):
         if node != 'node-4': return disk.inventory(self.root/label/node)
         joining = 'joining-originals-continuation' if label == 'after-close' else 'joining-'+label.removeprefix('continuation-')
@@ -241,6 +244,7 @@ class Continuation:
         for node in VOTERS:
             observed = disk.current(self.actual(label, node))[1]['basis.gsr']
             self.group[node], sources[node] = capture(self.group[node], ballot, observed, self.identifiers)
+            self.prepared(node, self.group[node])
         selected = self.replay.phases[cut]['SELECTED']
         maintained = {node: maintenance(self.group, node) for node in VOTERS}
         for node in VOTERS:

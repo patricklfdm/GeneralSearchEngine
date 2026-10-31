@@ -112,7 +112,9 @@ def local_order(events):
          'joining initialization event collection bound')
     stages = ('initial-owner', 'retaining-owner', 'repeated-basis-owner')
     rows = {stage: [(index, row['event']) for index, row in enumerate(events)
-                   if row.get('node') == 'node-4' and row.get('scope') == stage] for stage in stages}
+                   if row.get('node') == 'node-4' and row.get('scope') == stage and row['event'] != 'GRANT_CAPTURED'] for stage in stages}
+    # A diagnostic copy marker is not a new protocol force boundary. The v2
+    # collector binds its bytes separately; all actual callbacks stay exact.
     need(all(rows.values()) and rows[stages[0]][-1][0] < rows[stages[1]][0][0] < rows[stages[1]][-1][0] < rows[stages[2]][0][0],
          'joining initialization original lifecycle order')
     writes = ['JOINING_RETENTION_'+name+'_'+step for name in ('SEED', 'PEERS', 'FUTURE', 'LEARNER', 'DONE')
@@ -145,6 +147,9 @@ class Initialization:
         self.group = copy.deepcopy(self.owner.history.group)
         self.joined = copy.deepcopy(handoff.expected['replica'])
         self.identifiers = set(); self.originals = []
+
+    def prepared(self, node, files):
+        """Optional original capture comparison, never a source of expected bytes."""
 
     def confirmations(self):
         wire = s.catalog.parse((self.root/'joining-head-wire.json').read_bytes())
@@ -186,6 +191,7 @@ class Initialization:
         for node in transition.VOTERS:
             actual = disk.inventory(self.root/'before-joint-continuation'/node)
             self.group[node], source = prepare(self.group[node], ballot, actual['grants.gsr'], self.identifiers)
+            self.prepared(node, self.group[node])
             self.originals.append(source)
             for suffix, raw in zip(('gsr', 'gscp'), source):
                 need((self.root/('joining-retention-'+node+'.'+suffix)).read_bytes() == raw,
@@ -215,6 +221,7 @@ class Initialization:
         ballot = next_ballot(self.joined)
         observed = self.handoff.snap.member('replica', 'grants.gsr')
         self.joined, source = prepare(self.joined, ballot, observed, self.identifiers)
+        self.prepared(self.owner.joining['node'], self.joined)
         need((self.root/'joining-native-basis.gsr').read_bytes() == source[0], 'joining initialization exact native basis')
         # Reopening the same promise preserves its source and grant bytes. The
         # fixture then reserves one more counter, without another PREPARE.

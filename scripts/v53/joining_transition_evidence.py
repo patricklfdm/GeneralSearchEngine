@@ -104,6 +104,9 @@ class History:
             need(disk.inventory(self.root/label/node) == files, 'joining exact transition inventory: '+label+': '+node)
             self.comparisons += 1
 
+    def prepared(self, node, files):
+        """Optional whole-history comparison of the independently derived grant."""
+
     def campaign(self, ordinal):
         if ordinal > 1: self.group = maintenance(self.group)
         group = {n: self.group[n] for n in VOTERS}
@@ -119,8 +122,9 @@ class History:
                 revision=state['revision']+1, previous=sha(before), plan=plan))
         label = 'installed' if ordinal == 1 else 'installed-'+str(ordinal)
         ancestry = {n: disk.current(files)[1].get('ancestry.gsr', b'') for n, files in group.items()}
-        _, _, installed = selected.campaign(self.root, group, ordinal+1, label,
+        prepared, _, installed = selected.campaign(self.root, group, ordinal+1, label,
             selected_prefix=reachable.prefix, merge_ledgers=merged, retained_ancestry=ancestry)
+        for node, files in prepared.items(): self.prepared(node, files)
         self.group.update(installed); self.match(label, self.group)
 
     def offer(self):

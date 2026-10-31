@@ -1,9 +1,15 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md) removes
+the intermediate-source projection on one new complete `3-ADD` history: 19
+derived grants, 16 local source-retirement groups and both final installations
+through the stable cold reopen. Complete identity-bound transient decisions,
+force/network/process, all-profile and mapping qualification remain pending.
+
 [Original grant capture](PHASE_3_JOINING_GRANT_CAPTURE.md) adds writer-held
 complete grant/source copies and collection v2 refusal for missing intermediate
-preparation. Targeted native/negative checks pass; the updated uninterrupted
-history and its full physical/force/network derivation remain pending.
+preparation. Targeted native/negative checks passed; the updated uninterrupted
+execution and preparation replay are recorded above. Full qualification remains open.
 
 [Conditional joining continuation replay](PHASE_3_JOINING_CONTINUATION_REPLAY.md)
 now derives both selected installations, FINAL, BARRIER and final cold storage

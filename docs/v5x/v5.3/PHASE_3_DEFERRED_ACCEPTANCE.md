@@ -1,10 +1,17 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md) now
+uses one new uninterrupted `c8f5d616` execution with all 19 original grant copies.
+Intermediate preparation and continuation are independently derived through
+cut 11; the old conditional archive stays unchanged. Compose identity-bound
+transient decisions and complete force/network replay next, then the remaining
+process cuts, seven profiles and frozen mappings. Phase 3 remains **OPEN**.
+
 [Original grant capture](PHASE_3_JOINING_GRANT_CAPTURE.md) is implemented and
-checked with a small real writer exercise. The next uninterrupted early-start
-history must use collection v2 and retain both intermediate preparation sources.
-That full execution, intermediate physical derivation and force/network replay
-remain pending; do not attach new captures to the old conditional archive.
+checked with a small real writer exercise. The later complete early-start history
+uses collection v2 and retains both intermediate preparation sources as recorded
+above. Full force/network qualification remains pending; do not attach those
+new captures to the old conditional archive.
 
 [Conditional joining continuation replay](PHASE_3_JOINING_CONTINUATION_REPLAY.md)
 now derives both selected installations, FINAL, BARRIER and final cold storage

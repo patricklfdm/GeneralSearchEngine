@@ -64,7 +64,9 @@ All 158 joining Python tests pass. The
 logs, original copies, portable replay and archive hashes.
 
 The complete early-start history with these new hooks has **not run** in this
-batch. The small writer exercise is not a replacement for it. After finishing
+capture-implementation batch. Its later execution and replay are recorded in
+[original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md).
+The small writer exercise is not a replacement for that history. After finishing
 the whole-history readers, execute one new uninterrupted source/build-bound
 history, with minute-by-minute progress through the existing entry point:
 
