@@ -340,7 +340,10 @@ class V53JoiningIntentExportTest {
                                                                 for(int i=0;i<2;i++) {
                                                                     var old=n.owners.get(i);var seedMaintenance=old.publishedMaintenance(n.resources.get(i));
                                                                     if(i!=0)old.establishFloor(copies);
-                                                                    old.reconcileMaintenancePeers();for(var copy:copies)old.retainPeerObservation(copy);
+                                                                    // This is optional maintenance after forcing the complete
+                                                                    // floor. Preserve full renewal debt until the actual
+                                                                    // joining-source merge, just as native maintenance does.
+                                                                    old.reconcileMaintenancePeers();for(var copy:copies)old.retainMaintenancePeerObservation(copy);
                                                                     old.retireInactive();
                                                                     for(String obsolete:old.supersededPublishedSources(seedMaintenance))old.retireSource(obsolete);
                                                                     old.releaseFloor();seedMaintenance.check();
@@ -405,7 +408,7 @@ class V53JoiningIntentExportTest {
                                                                 var beforeSeed=earlyStartup?null:V53ReplayFilesTest.files(request.replicaDirectory());
                                                                 var seed=earlyStartup?MembershipJoiningRetentionSeed.capture(earlyCopy.capsule,earlyAncestry,joining,originals):journal.joiningRetentionSeed(originals);
                                                                 if(!earlyStartup)assertEquals(beforeSeed,V53ReplayFilesTest.files(request.replicaDirectory()),"seed preparation must not install ledgers");
-                                                                assertEquals(List.of(3L,5L),V53PeerRetentionPlanTest.cuts(seed.learner.recorded()));
+                                                                assertEquals(List.of(preparedIndex,sealedIndex),V53PeerRetentionPlanTest.cuts(seed.learner.recorded()));
                                                                 var ownCopy=journal.floorCopyCurrent();
                                                                 var replay=MembershipJoiningRetentionSeed.read(seed.bytes(),ownCopy.capsule,ownCopy.fileBytes("ancestry.gsr"),joining);
                                                                 assertArrayEquals(seed.peers.bytes(),replay.peers.bytes());assertArrayEquals(seed.learner.bytes(),replay.learner.bytes());

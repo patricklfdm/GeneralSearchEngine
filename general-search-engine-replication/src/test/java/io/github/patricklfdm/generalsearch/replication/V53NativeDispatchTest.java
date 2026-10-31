@@ -173,8 +173,8 @@ class V53NativeDispatchTest {
         @Override public void close()throws Exception {
             hook.set(event->{});if(driver!=null)driver.close();for(var endpoint:endpoints)endpoint.close();for(var transport:transports)transport.close();
             for(var owner:owners)owner.close();for(var budget:resources)assertEquals(0,budget.usage().leases());
-            Files.write(f.raw.resolve("wire.json"),canonical(wire,16*1024*1024));Files.write(f.raw.resolve("events.json"),canonical(events,8*1024*1024));
-            Files.write(f.raw.resolve("failures.json"),canonical(failures,1024*1024));
+            Files.write(f.raw.resolve("wire.json"),V53EvidenceArray.encode(wire,16*1024*1024));Files.write(f.raw.resolve("events.json"),V53EvidenceArray.encode(events,8*1024*1024));
+            Files.write(f.raw.resolve("failures.json"),V53EvidenceArray.encode(failures,1024*1024));
             f.snapshot("after-close");V53NativeApplicationTest.save(f);
             if(diagnose)try(var writer=Files.newBufferedWriter(Files.createDirectories(Path.of("target/v53-native-dispatch-diagnostics")).resolve(f.raw.getFileName()+".jsonl"))) {
                 for(var row:diagnostics){writer.write(new String(canonical(row,65536),java.nio.charset.StandardCharsets.UTF_8));writer.newLine();}

@@ -13,9 +13,9 @@ standalone source or a claimed endpoint alone cannot pass this binding.
 
 The independent decoder checks the exact old majority, distinct ordered owners,
 same original ballot, settled tails, full packet/BASIS inventories, included
-peer/learner wrappers and their matching capture promises. It conservatively
-unions every retained endpoint, including pending learner renewals. Decoded
-confirmations cannot discard uncertainty. Different same-index endpoints, a
+peer/learner wrappers and their matching capture promises. The default mode
+conservatively unions every retained endpoint, including pending learner renewals.
+It does not interpret peer confirmations. Different same-index endpoints, a
 future endpoint, wrong permanent identities and excess endpoint counts reject.
 
 From those inputs, derive the canonical seed and all three revision-zero ledgers
@@ -60,3 +60,81 @@ python3 -B -m scripts.v53.joining_retention_evidence /path/to/native/raw --quali
 This command qualifies only the stated ledger derivation layer. Complete
 initialization authority, full native/process histories, all actual profiles and
 alternative majorities remain in the [acceptance queue](PHASE_3_DEFERRED_ACCEPTANCE.md).
+
+## Explicit confirmed-peer mode
+
+Current native originals can carry complete-copy confirmations and pending
+renewals. Use `--confirmed-peers` for those originals; a failed default replay
+never silently changes interpretation. All original packet/BASIS, journal,
+owner, promise and source-cut bindings still apply.
+
+Before dropping any peer endpoint, the reader checks every source's possible
+endpoints and renewal obligations against its exact current generation's capsule
+endpoints or retained ancestry. It checks bridge framing, both endpoints,
+permanent ACK identities, exact statement bindings and the governing majority.
+It validates all supplied bridges, including ones no longer needed after merge.
+These checks establish endpoint bindings; they are not independent reconstruction
+of the complete capsule history or proof that an ACK was actually forced.
+
+The merger rejects original conflicts across peers and sources before discharge.
+It selects the highest confirmed endpoint for each permanent peer, breaking
+equal-endpoint ties by the SHA-256 of the exact encoded generation. Only strictly
+older peer endpoints are discharged. Later unresolved targets remain, the final
+two-endpoint limit remains, and learner renewals are always merged conservatively.
+The initial ledgers and transaction files are still compared byte for byte.
+
+```bash
+python3 -B -m scripts.v53.joining_retention_evidence /path/to/native/raw \
+  --confirmed-peers --qualify
+```
+
+Confirmed-mode negative qualification requires an original confirmation and adds
+missing/changed confirmation checks to the original 13 mutations. Each mutation
+must reject at its exact expected check, after the unmodified original validates.
+The result remains **PARTIAL**: `capsuleAncestryQualified`,
+`forceAndNetworkQualified`, `nativeHistoryQualified` and `phase3Complete` remain
+false. Passing this layer does not convert a failed later continuation into a
+successful complete history.
+
+The full early-start native probe of `825513a4` reached actual JOINT publication
+and original joining-prefix receipt, then rejected a third renewal in the test
+coordinator's pre-seed maintenance. That coordinator still called strict
+`retainPeerObservation` directly after forcing the complete floor. It now uses
+`retainMaintenancePeerObservation`, matching production maintenance: full debt
+remains in the original ledger until the actual joining-source merge. The strict
+operation, its rejection checks, production Java and all resource/time limits
+are unchanged. This failed original remains retained independently of the
+corrected execution.
+
+The next retained execution passed that maintenance boundary and the two
+maintenance regression methods, then stopped at the fixture's remaining literal
+learner expectation `[3,5]`. Its actual PREPARE/SEAL endpoints were `[4,8]` because
+the real pre-command selections also publish BARRIERs. The assertion now requires
+the endpoints of those already completed PREPARE and SEAL operations, preserving
+the exact two obligations rather than deleting an expected endpoint. Both failed
+executions remain failed; neither is replaced by the later run's result.
+
+The corrected-index execution completed actual remote initialization, FINAL at
+cut 10, the fresh stable BARRIER at cut 11 and retaining stable cold reopen.
+However, closing the fixture then failed while encoding `events.json`: the whole
+trace exceeded the single-message 65,536-token budget. The test remains **FAIL**.
+Its `wire.json` and joining snapshots/results survive; `events.json`, `calls.json`
+and `after-close` do not. Missing observations are not reconstructed or combined
+with a later execution to manufacture a complete pass.
+
+`V53EvidenceArray` now encodes each test observation using the unchanged protocol
+encoder, then assembles the canonical array under the existing aggregate byte
+limit. Network wire/events/failures and native call histories use this helper.
+No production parser, per-record token/depth check or file byte limit changes.
+Seven serialization regressions pass, including a 20,000-row trace reproducing
+the old token error, byte-limit boundaries and identical small-history bytes.
+The two native maintenance regressions and 77 related Python tests also pass.
+
+On that failed execution's unchanged initialized substage, confirmed-mode replay
+derives the exact three ledgers and both transaction files; all 15 negatives
+reject at their specified checks. Default legacy mode explicitly rejects its
+confirmation-bearing plans. The earlier legacy original still passes its 13
+negative checks. The complete corrected-writer history and full independent
+physical/force/network replay remain required. Retained source hashes, execution
+outcomes, portable replay and archive identities are in
+[the qualification receipt](phase3-evidence/joining-confirmations.json).

@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining confirmation qualification](PHASE_3_JOINING_LEDGER_REPLAY.md#explicit-confirmed-peer-mode)
+now covers the exact initialized ledgers and 15 evidence negatives. The latest
+continuous probe completed FINAL/BARRIER and stable cold reopen, then failed at
+aggregate trace encoding. The fixture writer is corrected; that failed original
+is retained and a complete corrected-writer rerun remains necessary. No Phase 3
+closure or full physical/network acceptance follows from the ledger substage.
+
 [Bounded maintenance observations](PHASE_3_MAINTENANCE_OBSERVATIONS.md) defer
 optional narrowing when renewal debt is full, preserving the exact old ledger
 and all checkpoint obligations. A pre-command fresh election and BARRIER perform

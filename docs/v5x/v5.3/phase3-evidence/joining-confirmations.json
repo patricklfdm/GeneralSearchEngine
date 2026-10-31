@@ -1,0 +1,480 @@
+{
+  "archive": {
+    "archiveContentVerified": true,
+    "bytes": 12572813,
+    "directories": 2023,
+    "files": 9406,
+    "independentFullHistoryReplay": false,
+    "path": "target/v53-joining-confirmations/joining-confirmations.tar.gz",
+    "sha256": "94efa2693cc5062eab7ab3e8d58b75afd8fc5e51f94c2d7e68f9b1e7fef54010"
+  },
+  "baseCommit": "825513a4a118a56d6d5f1e1f3959a84a153580f4",
+  "changedCode": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53EvidenceArray.java": "5c60b0b328e8baf7ec9c4ac04fc191527d7c3ee5b69581be45dd93cbc1b85d0b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53EvidenceArrayTest.java": "65701d1002a9be04137021a0f6ac6ebbc87156c404d2a57ceb284bd2fcf2571f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "20ba581dab201ff9d9b6dd6ac10aca7fa6cf6b4fa2c43f9ad1636852013c3f71",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeApplicationTest.java": "8092c861b50609b86eb538f5534dc8d378f561e6bb4978337818e8620ac954b0",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "89d49cbfc24790c8ba5748f8330b937291ed9376dc4720c5c0a0d2eb70ca626f",
+    "scripts/v53/joining_confirmation_evidence.py": "0aaeadd347cf96c25cfe89457b5ba5618fbea731363570aa4281a28f160a260a",
+    "scripts/v53/joining_retention_evidence.py": "663288efea956a3f41f2cac3b0c1084ac1a201d98cfb8271bb0724482e8d94c3",
+    "scripts/v53/test_joining_confirmation_evidence.py": "d60d6b1b60a4d4decdabde859b6cad44fbd463da9491ba3c6edc59deebaa2966"
+  },
+  "collectorFailure": {
+    "correction": "Use originalPath for collection metadata; preserve both attempts and rerun the readers against unchanged originals.",
+    "phase": "portable-comparison",
+    "reason": "The auxiliary replay collector overwrote the validator original result object with the evidence path. The archive reader itself returned zero with all 15 negatives; comparison refused the incomplete expected object.",
+    "status": "FAIL"
+  },
+  "confirmedLedgerReplay": {
+    "elapsedSeconds": 3.01233054799377,
+    "negatives": [
+      {
+        "case": "decision-checksum",
+        "reason": "joining derivation exact original decision",
+        "status": "REJECTED"
+      },
+      {
+        "case": "decision-key",
+        "reason": "joining derivation exact original decision",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completion-key",
+        "reason": "joining derivation exact original completion",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completion-hash",
+        "reason": "joining derivation exact original completion",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-owner",
+        "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "drop-peer-uncertainty",
+        "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "learner-empty",
+        "reason": "joining derivation exact initial ledger: learner-retention.gslr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "future-revision",
+        "reason": "joining derivation exact initial ledger: future-retention.gsft",
+        "status": "REJECTED"
+      },
+      {
+        "case": "copied-inode",
+        "reason": "joining derivation exact original decision",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-missing",
+        "reason": "joining derivation original source absent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "grant-missing",
+        "reason": "joining derivation original grant absent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "journal-owner",
+        "reason": "joining derivation original journal owner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-orphan",
+        "reason": "joining derivation retained source count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-confirmation-missing",
+        "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-confirmation-changed",
+        "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "capsuleAncestryQualified": false,
+      "confirmedPeerProjection": true,
+      "forceAndNetworkQualified": false,
+      "initialLedgerBytesVerified": true,
+      "initialLedgers": {
+        "future-retention.gsft": "f1326f54a909e50e37260ad8ddffdfd635dc456c27533c0834cbf236db900fda",
+        "learner-retention.gslr": "9ab7e2a3ed0177e4e017fb975e141863bd4669caeca291fb8038bb30b3d925f3",
+        "peer-retention.gspr": "f437315b226967dfd8037290e5003f0ee027459250683f74079a5a81aaea36ae"
+      },
+      "nativeHistoryQualified": false,
+      "oldSources": 2,
+      "originalEndpointBindingsVerified": true,
+      "originalSourceBindingsVerified": true,
+      "phase3Complete": false,
+      "scope": "original-source-bound-joining-ledgers",
+      "seedSha256": "1dd576de6bcfe4e5eead75788ea334f4b033205527d54c1ce2c54b5c40a23c25",
+      "status": "PARTIAL"
+    },
+    "originalPath": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-confirmations/builds/joining-indices-92d34ef7/general-search-engine-replication/target/v53-native-dispatch/run-dd8b2594-5029-4da7-a15c-c03a61fbc120",
+    "phase3Complete": false,
+    "producerExit": 1,
+    "status": "PARTIAL"
+  },
+  "correction": "Use the existing conservative maintenance operation only at the fixture maintenance boundary. Actual original-source reconciliation still discharges peer debt; strict observation still refuses.",
+  "defaultModeOnCurrentOriginal": {
+    "message": "joining derivation peer identity",
+    "status": "REJECTED",
+    "type": "ValueError"
+  },
+  "executions": {
+    "evidence-array": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53EvidenceArrayTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53LearnerEvidenceJsonTest": 3
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "evidence-array",
+      "requestedTests": [
+        "V53EvidenceArrayTest",
+        "V53LearnerEvidenceJsonTest"
+      ],
+      "seconds": 15.059802422998473,
+      "skipped": 0,
+      "tests": 7
+    },
+    "joining-complete": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joining-complete",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory"
+      ],
+      "seconds": 490.70179056198685,
+      "skipped": 0,
+      "tests": 1
+    },
+    "joining-indices": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joining-indices",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory"
+      ],
+      "seconds": 927.0447625839734,
+      "skipped": 0,
+      "tests": 1
+    },
+    "joining-maintenance": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceObservationTest": 2
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joining-maintenance",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+        "V53MaintenanceObservationTest"
+      ],
+      "seconds": 627.6654534669942,
+      "skipped": 0,
+      "tests": 3
+    }
+  },
+  "finalSourceWholeHistoryRerunRequired": true,
+  "independentFullHistoryReplay": false,
+  "intermediateFailure": "Maintenance correction passed its two regressions; the whole history then failed the obsolete learner [3,5] assertion against actual [4,8]. Derive those expected positions from the actual earlier PREPARE and SEAL.",
+  "legacyEndpointReplay": {
+    "capsuleAncestryQualified": false,
+    "confirmedPeerProjection": true,
+    "elapsedSeconds": 0.04925699299201369,
+    "forceAndNetworkQualified": false,
+    "initialLedgerBytesVerified": true,
+    "initialLedgers": {
+      "future-retention.gsft": "1cd55294cc525d510d88b37c2509bbb87d144836b8f35525d6037d8fe084685c",
+      "learner-retention.gslr": "ccf5901f5dc212f860db5fe6220dae8cbe9817f01b3c2145678ed957f6416cc0",
+      "peer-retention.gspr": "18148638dbb7874bde2f6dca8fcc1f4ee5ccd7d256b4f818670937291aec3873"
+    },
+    "nativeHistoryQualified": false,
+    "oldSources": 2,
+    "originalEndpointBindingsVerified": true,
+    "originalSourceBindingsVerified": true,
+    "phase3Complete": false,
+    "scope": "original-source-bound-joining-ledgers",
+    "seedSha256": "9178b5223fa6ec6bea5a3a6e720aeb3341132442c7869e35d9385097d7153613",
+    "status": "PARTIAL"
+  },
+  "legacyOriginalArchive": {
+    "path": "target/v53-joint-scratch/corrected-native-history.tar.gz",
+    "sha256": "7ad5203c806cb2c9532931fa0914ee91d93c2c9289cd57220061f6a8909a5617"
+  },
+  "legacyReplay": {
+    "elapsedSeconds": 1.9436307360010687,
+    "negatives": [
+      {
+        "case": "decision-checksum",
+        "reason": "joining derivation exact original decision",
+        "status": "REJECTED"
+      },
+      {
+        "case": "decision-key",
+        "reason": "joining derivation exact original decision",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completion-key",
+        "reason": "joining derivation exact original completion",
+        "status": "REJECTED"
+      },
+      {
+        "case": "completion-hash",
+        "reason": "joining derivation exact original completion",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-owner",
+        "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "drop-peer-uncertainty",
+        "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "learner-empty",
+        "reason": "joining derivation exact initial ledger: learner-retention.gslr",
+        "status": "REJECTED"
+      },
+      {
+        "case": "future-revision",
+        "reason": "joining derivation exact initial ledger: future-retention.gsft",
+        "status": "REJECTED"
+      },
+      {
+        "case": "copied-inode",
+        "reason": "joining derivation exact original decision",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-missing",
+        "reason": "joining derivation original source absent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "grant-missing",
+        "reason": "joining derivation original grant absent",
+        "status": "REJECTED"
+      },
+      {
+        "case": "journal-owner",
+        "reason": "joining derivation original journal owner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-orphan",
+        "reason": "joining derivation retained source count",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "capsuleAncestryQualified": false,
+      "confirmedPeerProjection": false,
+      "forceAndNetworkQualified": false,
+      "initialLedgerBytesVerified": true,
+      "initialLedgers": {
+        "future-retention.gsft": "1cd55294cc525d510d88b37c2509bbb87d144836b8f35525d6037d8fe084685c",
+        "learner-retention.gslr": "ccf5901f5dc212f860db5fe6220dae8cbe9817f01b3c2145678ed957f6416cc0",
+        "peer-retention.gspr": "18148638dbb7874bde2f6dca8fcc1f4ee5ccd7d256b4f818670937291aec3873"
+      },
+      "nativeHistoryQualified": false,
+      "oldSources": 2,
+      "originalEndpointBindingsVerified": false,
+      "originalSourceBindingsVerified": true,
+      "phase3Complete": false,
+      "scope": "original-source-bound-joining-ledgers",
+      "seedSha256": "9178b5223fa6ec6bea5a3a6e720aeb3341132442c7869e35d9385097d7153613",
+      "status": "PARTIAL"
+    },
+    "phase3Complete": false,
+    "status": "PARTIAL"
+  },
+  "originalCapsuleAndForceHistoryQualified": false,
+  "originalFailure": "Whole 825513a4 joining reached JOINT; the fixture pre-seed maintenance still called strict retainPeerObservation and rejected a third renewal. The original remains failed.",
+  "phase3Complete": false,
+  "portableReplay": {
+    "directory": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-confirmations/portable-47a987f6",
+    "exactResult": true,
+    "exit": 0,
+    "fullHistoryQualified": false,
+    "negatives": 15,
+    "scope": "original-source-bound-joining-ledgers",
+    "seconds": 5.135723719984526,
+    "status": "PASS"
+  },
+  "producerObservations": {
+    "joining-continuation-failures.json": [],
+    "joining-continuation-result.json": {
+      "actualNewVoter": "node-4",
+      "automaticFinalAndBarrier": true,
+      "barrier": "R1NSUAABAAMAGgAAAAAEk72hLCfvUa9uyFDVeEFSZ+SZdfl3SYIsXpYzJcJv7io9eyJiYWxsb3QiOnsiY291bnRlciI6OSwiaW5jYXJuYXRpb24iOiIwMDAwMDAwMC0wMDAwLTAwMDUtMDAwMC0wMDAwMDAwMDAwMDEiLCJwcm9wb3NlciI6Im5vZGUtMSJ9LCJwYXlsb2FkIjp7ImNlcnRpZmljYXRlIjoiZmYyMzI2ZDdlNTYzNzA5MzQ5NWY3YWQ2M2UwYzljNTc5NjUxNDJhMWM0YWIxNmJhMmI0N2RkNDhkYWM2NjE5OCIsImdlbmVyYXRpb24iOiJhNWE5Y2ViNDZmNDM2ZDdiODhkODUxM2I3OTEyM2VkMTJhMTY4ZWYxYjRlNDg4NjE4M2UxZTAwNmE2NzBmOTZkIiwicHVibGlzaGVkIjp7ImFwcGxpY2F0aW9uIjoiMWY0ZjYxMDI5Y2Y2YzEwOWM0YjQyZDMxMzM2MDNjYjg2YjQzZmFhOGJiNmM2MTA2ZDAyY2JmZjNiNzYyMDk0NCIsImNhdGFsb2ciOiIwYzQyMmQ2Mjg4YjdhOTUxZjJlM2E0NWZkNmIyYmVkY2YyMjhjMWJkYTQzNTYxNTIxZmFmMDM1MDhjZmU4OTM1IiwiY3V0Ijp7ImVudHJ5IjoiMjZlOTY5MWUzZWFkOGU2YjI3Mzg0MmZhZjYwZjMwZjg5NjQ0Mzc3NmU0NGQ1Y2U5ZTVkZGVlZjVmODA1ZTU4NiIsImluZGV4IjoxMSwidmlldyI6eyJnZW5lcmF0aW9uIjoxLCJuZXciOlsibm9kZS0xIiwibm9kZS0yIiwibm9kZS0zIiwibm9kZS00Il0sIm9sZCI6WyJub2RlLTEiLCJub2RlLTIiLCJub2RlLTMiLCJub2RlLTQiXSwib3BlcmF0aW9uIjpudWxsfX19LCJzZWxlY3Rpb24iOiI1NWZkNTYwMTRiOGM3OGYxMWZiNTkwNDQ4OGFjOTYxMDZkMGFkNmQyODliNzE4M2Y1NjBiM2YxYzEyMDczYTA3In0sInJlY2lwaWVudCI6eyJob3N0IjoiMTI3LjAuMC4xIiwibm9kZSI6Im5vZGUtMSIsInBvcnQiOjQ1ODI1LCJzdG9yYWdlIjoiMDAwMDAwMDAtMDAwMC0wMDA1LTAwMDAtMDAwMDAwMDAwMDAxIn0sInJvb3QiOiJmYjgyNzI3MzZhOGVjZTAwZTY5MGNlY2RkNjE4N2UzZDhjNjEyZjA3NjQ5MTcyYzMxMTY2NjZlN2NhMGY3NzhmIiwic2VuZGVyIjp7Imhvc3QiOiIxMjcuMC4wLjEiLCJub2RlIjoibm9kZS0xIiwicG9ydCI6NDU4MjUsInN0b3JhZ2UiOiIwMDAwMDAwMC0wMDAwLTAwMDUtMDAwMC0wMDAwMDAwMDAwMDEifSwic2VxdWVuY2UiOjEsInRyYWNlIjoiOGQyYmU2ZTUtOWU4NS00YjUzLWIzMGQtOTdiODExNTY4NzA0IiwidmlldyI6IjRkMjIyN2M2YTRiOTY2MTkwMTYzY2UxOTk2NzljZjA5MWQ0YjgxMWQyZmRhYjI1MWY0ZjEwOTEwYWUzZDJhYTEifQ==",
+      "catalog": "0c422d6288b7a951f2e3a45fd6b2bedcf228c1bda43561521faf03508cfe8935",
+      "coordinatedPreparationAndCompletion": true,
+      "cut": {
+        "entry": "26e9691e3ead8e6b273842faf60f30f896443776e44d5ce9e5ddeef5f805e586",
+        "index": 11,
+        "view": {
+          "generation": 1,
+          "new": [
+            "node-1",
+            "node-2",
+            "node-3",
+            "node-4"
+          ],
+          "old": [
+            "node-1",
+            "node-2",
+            "node-3",
+            "node-4"
+          ],
+          "operation": null
+        }
+      },
+      "offlineOldVoter": "node-3",
+      "publicReady": false,
+      "stableColdReopened": true,
+      "status": "PASS"
+    },
+    "joining-intent-result.json": {
+      "joinedFloorReconciled": true,
+      "nativeHistory": true,
+      "nativeJoined": true,
+      "newSideEndForced": true,
+      "oldVoters": [
+        "node-1",
+        "node-2"
+      ],
+      "publicReady": false,
+      "publishedJoint": true,
+      "status": "PASS",
+      "typedLearner": true
+    }
+  },
+  "productionJavaUnchanged": true,
+  "publicRuntimeQualified": false,
+  "python": {
+    "elapsedSeconds": 1.0457273889915086,
+    "errors": 0,
+    "failures": 0,
+    "modules": [
+      "joining_confirmation_evidence",
+      "joining_retention_evidence",
+      "peer_confirmation_evidence",
+      "peer_observation_evidence",
+      "peer_retention_evidence",
+      "peer_retention_source_evidence",
+      "learner_retention_evidence",
+      "joining_snapshot",
+      "learner_slot_snapshot"
+    ],
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 77
+  },
+  "remaining": [
+    "Repeat the complete uninterrupted joining history on the corrected evidence writer; retain events, calls and after-close before claiming a complete passing execution.",
+    "Complete source-derived physical, force and network replay of all additional selections and the continuous joining history.",
+    "All joining profiles, alternative majorities, process-death cases and complete Phase 3 requirement mapping.",
+    "Qualify continuous-service/election overhead; no throughput or failover SLA is established."
+  ],
+  "resourceAndTimeLimitsUnchanged": true,
+  "schema": "gse-v53-joining-confirmations-qualification-v1",
+  "sourceComparison": {
+    "allProducerInputsRecorded": true,
+    "changedInputs": [
+      "docs/v5x/v5.3/PHASE_3_JOINING_LEDGER_REPLAY.md",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "scripts/v53/joining_confirmation_evidence.py",
+      "scripts/v53/joining_retention_evidence.py",
+      "scripts/v53/test_joining_confirmation_evidence.py"
+    ],
+    "productionJavaChanged": []
+  },
+  "sourceQualification": {
+    "evidenceArray": "Final fixture writer compiled in the isolated reactor; seven serialization regressions pass. Complete joining rerun on this evidence-writer source remains required.",
+    "joiningIndices": "Final functional assertions and stable cold reopen completed on production 825513a4 with two fixture corrections; aggregate trace close failed. No original trace is reconstructed or promoted to PASS."
+  },
+  "status": "PARTIAL",
+  "supplement": {
+    "bytes": 5107,
+    "members": {
+      "collector-failure.json": {
+        "bytes": 423,
+        "sha256": "113263203486c37263724306c62133e258656fa3865a578215caa734049cd654"
+      },
+      "confirmed-replay-v2.json": {
+        "bytes": 3350,
+        "sha256": "02bd4a69aaedcdf5b8e4bd194f283fe2841eb16ab05c671700a8fe43f7988b8e"
+      },
+      "current-default-replay-v2.json": {
+        "bytes": 100,
+        "sha256": "e00c95d231259b122d571c57b93b6adc417117d7f6593821f3cb0f440304b43d"
+      },
+      "portable-replay-v2.json": {
+        "bytes": 307,
+        "sha256": "9cd4cd7f9ac3e273f91735e50dc5f694e5f329e1ca228d98a8420bc730cd2424"
+      },
+      "portable-v2.py": {
+        "bytes": 1737,
+        "sha256": "2024568caff324f06a1a0bec42a6fd955c0dd5675123fa04f07c13fa119700fc"
+      },
+      "portable-v2.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "portable-v2.stdout": {
+        "bytes": 2546,
+        "sha256": "27e316d6885c768cc367c3de9c969156a7a3bce14b313caf291bd92b0260c534"
+      },
+      "portable.py": {
+        "bytes": 1721,
+        "sha256": "f81113ff119c5e9ca9a605128294ff78ad2ed7ea5433c56f7f0c0cf8e375fbb3"
+      },
+      "portable.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "portable.stdout": {
+        "bytes": 2546,
+        "sha256": "27e316d6885c768cc367c3de9c969156a7a3bce14b313caf291bd92b0260c534"
+      },
+      "receipt.py": {
+        "bytes": 4739,
+        "sha256": "d9b59e6d98fe747b97ed3764ad211e5aa7039bbf32c9e578d8f3d99a801ecd35"
+      },
+      "replay-v2.py": {
+        "bytes": 1391,
+        "sha256": "92ce2625fd7f4720ed54232397f664d9212f18350bb5c242d44595544f6b4930"
+      }
+    },
+    "path": "target/v53-joining-confirmations/joining-confirmations-followup.tar.gz",
+    "sha256": "f192c71778da6447137dc094f0428a89007c48f077084b56d6a1333dee5e683e"
+  },
+  "traceCollectionFailure": "Functional FINAL at 10, BARRIER at 11 and stable cold reopen completed; Network.close then rejected aggregate events JSON at the per-message token limit. events.json, calls.json and after-close were not retained. The original test remains FAIL.",
+  "wholeJoiningExecutionStatus": "FAIL"
+}

@@ -18,7 +18,7 @@ class V53NativeApplicationTest {
         assertThrows(Stop.class,()->f.publish(1,false));f.observer=(target,operation,event)->{};f.observations.clear();return f;
     }
     static void save(V53BootstrapPublicationTest.Fixture f)throws Exception {
-        Files.write(f.raw.resolve("calls.json"),canonical(f.calls,8*1024*1024));
+        Files.write(f.raw.resolve("calls.json"),V53EvidenceArray.encode(f.calls,8*1024*1024));
     }
     @Test void nativeReopenAppliesAndPublishesAllStableSizesAndSourceKinds()throws Exception {
         Path root=Files.createDirectories(Path.of("target/v53-native-application/histories-"+UUID.randomUUID()));

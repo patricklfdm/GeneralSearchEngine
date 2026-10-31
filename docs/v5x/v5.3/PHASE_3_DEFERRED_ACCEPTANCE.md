@@ -7,8 +7,14 @@ record and checkpoint obligation in the complete early-start joining history.
 Run `V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory`
 through initialization, FINAL/BARRIER and cold reopen on one original filesystem;
 the shorter JOINT publication pass cannot be stitched into that later history.
-Extend independent replay for these additional selections and native confirmed
-joining ledgers before claiming whole-history acceptance. Performance overhead,
+The latest corrected-index run completed functional FINAL/BARRIER and stable cold
+reopen, but lost its global event trace at close due to the single-message JSON
+token budget. After the bounded fixture writer correction, repeat this entire
+history as one hosted case before declaring a passing execution; do not recreate
+the missing events or join it to a later run. Initial confirmed-ledger replay now
+passes separately, including 15 exact negatives. Extend independent replay for
+the additional selections and complete original force/network history before
+claiming whole-history acceptance. Performance overhead,
 all profiles and process-death qualification remain separate gates.
 
 [Peer confirmation](PHASE_3_PEER_CONFIRMATION.md) adds a focused native

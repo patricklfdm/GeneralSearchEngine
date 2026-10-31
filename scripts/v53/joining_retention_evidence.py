@@ -19,6 +19,7 @@ from . import peer_retention_source_evidence as peer_source
 from . import learner_retention_evidence as learner
 from . import future_retention_evidence as future
 from . import carried_publication_evidence as physical
+from . import joining_confirmation_evidence as confirmations
 
 f, need, sha = snapshot.f, snapshot.need, snapshot.s.digest
 MIB = snapshot.MIB
@@ -81,7 +82,7 @@ def union(target, rows):
     need(len(target)<=2, 'joining derivation conservative endpoint capacity')
 
 
-def derive(current, joining, originals):
+def derive(current, joining, originals, *, confirmed_peers=False, source_ancestry=None):
     """Conditional on the supplied original capsule history; never a vote/permit."""
     cap=current['capsule'];view=cap['cut']['view'];root=cap['root']
     catalog=f.decode(current['objects'][cap['catalog']],'records','CATALOG')
@@ -93,7 +94,8 @@ def derive(current, joining, originals):
     need(view['operation'] is not None and joining['node'] not in old and joining['node'] in new
          and identities.get(joining['node'])==joining, 'joining derivation exact new identity')
     need(type(originals) in (list,tuple) and len(old)//2<len(originals)<=min(5,len(old)), 'joining derivation old majority')
-    prior='';ballot=None;rows=[];peers={node:{} for node in voters};learners={};bound=None
+    need(source_ancestry is None or confirmed_peers and len(source_ancestry)==len(originals), 'joining derivation ancestry inputs')
+    prior='';ballot=None;rows=[];peers={node:{} for node in voters};learners={};bound=None;peer_plans=[]
     for basis_raw,packet_raw in originals:
         basis=f.decode(basis_raw,'records','BASIS');node=basis['voter']
         need(node>prior and node in old, 'joining derivation ordered old owners');prior=node
@@ -111,9 +113,12 @@ def derive(current, joining, originals):
         plan=peer['plan']
         need(set(plan)=={'root','view','peers'} and plan['root']==root and plan['view']==view
              and type(plan['peers']) is list and len(plan['peers'])==len(voters), 'joining derivation peer plan')
-        for expected,row in zip(voters,plan['peers']):
-            need(type(row) is dict and set(row)=={'identity','possible'} and row['identity']==identities[expected], 'joining derivation peer identity')
-            union(peers[expected],points(row['possible']))
+        if confirmed_peers:
+            confirmations.confirmed.plan(plan);peer_plans.append(plan)
+        else:
+            for expected,row in zip(voters,plan['peers']):
+                need(type(row) is dict and set(row)=={'identity','possible'} and row['identity']==identities[expected], 'joining derivation peer identity')
+                union(peers[expected],points(row['possible']))
         plan=nonvoting['plan'];learner.plan(plan)
         if plan['request'] is not None:
             operations=[r['request'] for r in catalog['results'] if r['request']['number']==plan['request']['number']]
@@ -122,11 +127,14 @@ def derive(current, joining, originals):
             need(bound is None or bound==identity, 'joining derivation learner binding');bound=identity
             # Decoded confirmations never discharge a lower original endpoint.
             union(learners,points(plan.get('renewals',[]),empty=True));union(learners,points(plan['possible']))
+        if source_ancestry is not None:
+            confirmations.bind_endpoints(original,source_ancestry[len(rows)],peer['plan'],plan)
         row=dict(basis=base64.b64encode(basis_raw).decode(),
                  envelope=base64.b64encode(part(original['capsuleBytes'])+part(original['indexBytes'])).decode(),
                  peers=base64.b64encode(peer_bytes).decode(),learner=base64.b64encode(learner_bytes).decode())
         need(len(f.canonical(row))<=2*MIB, 'joining derivation fragment capacity');rows.append(row)
     peer_plan=dict(root=root,view=view,peers=[dict(identity=identities[n],possible=[peers[n][k] for k in sorted(peers[n])]) for n in voters])
+    if confirmed_peers:peer_plan=confirmations.merge(peer_plans,current,identities,list(learners.values()))
     learner_plan=dict(root=root,request=bound[0] if bound else None,learner=bound[1] if bound else None,
                       possible=[learners[k] for k in sorted(learners)])
     anchors={cap['cut']['index']:{k:cap[k] for k in ('cut','catalog','application')}}
@@ -177,7 +185,7 @@ def transaction(snap, seed, initial):
     for name in LEDGERS:need(snap.member('replica',name)==initial[name], 'joining derivation exact initial ledger: '+name)
 
 
-def validate(root):
+def validate(root, *, confirmed_peers=False):
     root=Path(root);snap=snapshot.read(root/'joining-originals-native')
     files={v['name']:snap.member('replica',v['name']) for v in snap.identities['replica']['files'] if 'directory' not in v['identity']}
     prefix,_,current=physical.current(files);joining=f.decode(files['node.gsr'],'records','NODE')['identity']
@@ -185,7 +193,7 @@ def validate(root):
     need(sha(files[prefix+'generation.gsr'])==joined['generation'], 'joining derivation original installed generation')
     paths=sorted(root.glob('joining-retention-node-*.gsr'))
     need(2<=len(paths)<=5 and {p.stem for p in paths}=={p.stem for p in root.glob('joining-retention-node-*.gscp')},
-         'joining derivation retained source count');originals=[]
+         'joining derivation retained source count');originals=[];ancestry=[]
     identities={v['node']:v for v in f.decode(current['objects'][current['capsule']['catalog']],'records','CATALOG')['identities']}
     for path in paths:
         raw=snapshot.s.regular(path,16384);basis=f.decode(raw,'records','BASIS');node=basis['voter']
@@ -196,12 +204,20 @@ def validate(root):
         rows=physical.journal(original['grants.gsr'],basis['root'],node)
         need(sum(kind=='BASIS' and value==raw for kind,value,_ in rows)==1, 'joining derivation original grant absent')
         need(original.get('sources/'+basis['basisId']+'/source.gscp')==data, 'joining derivation original source absent')
+        if confirmed_peers:
+            _,members,current_source=physical.current(original)
+            cap=packet.decode(data)['capsule']
+            need(all(current_source['capsule'][k]==cap[k] for k in ('root','cut','catalog','application')),
+                 'joining derivation original ancestry cut')
+            ancestry.append(members.get('ancestry.gsr',b''))
         originals.append((raw,data))
-    seed,initial=derive(current,joining,originals)
+    seed,initial=derive(current,joining,originals,confirmed_peers=confirmed_peers,
+                        source_ancestry=ancestry if confirmed_peers else None)
     transaction(snap,seed,initial)
     return dict(status='PARTIAL',scope='original-source-bound-joining-ledgers',oldSources=len(originals),
                 seedSha256=sha(seed),initialLedgers={n:sha(v) for n,v in initial.items()},
                 originalSourceBindingsVerified=True,initialLedgerBytesVerified=True,
+                confirmedPeerProjection=confirmed_peers,originalEndpointBindingsVerified=confirmed_peers,
                 capsuleAncestryQualified=False,forceAndNetworkQualified=False,nativeHistoryQualified=False,phase3Complete=False)
 
 
@@ -227,6 +243,16 @@ def mutate(root, name):
         value=peer_source.r.decode((replica/LEDGERS[0]).read_bytes())
         if name=='peer-owner':value['owner']['storage']='00000000-0000-0000-0000-000000000099'
         else:value['plan']['peers'][-1]['possible']=[]
+        replace(LEDGERS[0],peer_source.r.frame(value))
+    elif name in ('peer-confirmation-missing','peer-confirmation-changed'):
+        value=peer_source.r.decode((replica/LEDGERS[0]).read_bytes())
+        rows=[v for v in value['plan']['peers'] if 'confirmation' in v]
+        need(bool(rows),'negative requires original peer confirmation');row=rows[0]
+        if name.endswith('missing'):row.pop('confirmation')
+        else:
+            proof=f.decode(base64.b64decode(row['confirmation'],validate=True),'records','GENERATION')
+            proof['generation']='a' if proof['generation']=='b' else 'b'
+            row['confirmation']=base64.b64encode(f.encode('records','GENERATION',proof)).decode()
         replace(LEDGERS[0],peer_source.r.frame(value))
     elif name=='learner-empty':
         value=learner.decode((replica/LEDGERS[2]).read_bytes());value['plan']=dict(root=value['root'],request=None,learner=None,possible=[])
@@ -265,14 +291,20 @@ NEGATIVES = {
     'journal-owner':'joining derivation original journal owner',
     'source-orphan':'joining derivation retained source count',
 }
+CONFIRMATION_NEGATIVES = {
+    'peer-confirmation-missing':'joining derivation exact initial ledger: '+LEDGERS[0],
+    'peer-confirmation-changed':'joining derivation exact initial ledger: '+LEDGERS[0],
+}
 
 
-def qualify(root):
-    original=validate(root);results=[]
-    for name,reason in NEGATIVES.items():
+def qualify(root, *, confirmed_peers=False):
+    validate_mode=lambda path:validate(path,confirmed_peers=True) if confirmed_peers else validate(path)
+    original=validate_mode(root);results=[]
+    cases=NEGATIVES | (CONFIRMATION_NEGATIVES if confirmed_peers else {})
+    for name,reason in cases.items():
         with tempfile.TemporaryDirectory(prefix='v53-joining-ledger-negative-') as directory:
             copied=Path(directory)/'raw';shutil.copytree(root,copied);mutate(copied,name)
-            try:validate(copied)
+            try:validate_mode(copied)
             except ValueError as error:need(str(error)==reason,'joining derivation negative wrong rejection: '+str(error))
             else:raise ValueError('joining derivation negative accepted: '+name)
         results.append(dict(case=name,status='REJECTED',reason=reason))
@@ -280,5 +312,6 @@ def qualify(root):
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');args=parser.parse_args()
-    print(json.dumps((qualify if args.qualify else validate)(args.root),sort_keys=True))
+    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true')
+    parser.add_argument('--confirmed-peers',action='store_true');args=parser.parse_args()
+    print(json.dumps((qualify if args.qualify else validate)(args.root,confirmed_peers=args.confirmed_peers),sort_keys=True))

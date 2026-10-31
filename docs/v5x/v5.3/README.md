@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Confirmed joining ledger replay](PHASE_3_JOINING_LEDGER_REPLAY.md#explicit-confirmed-peer-mode)
+now reconstructs native confirmation-bearing initialization without discarding
+unconfirmed peer or learner obligations. The continuous probe reached FINAL,
+fresh BARRIER and stable cold reopen, but failed collecting its full event trace.
+The bounded evidence writer is corrected and component-tested; complete rerun
+and independent whole-history qualification remain open.
+
 [Bounded maintenance observations](PHASE_3_MAINTENANCE_OBSERVATIONS.md) preserve
 the existing conservative ledger when another observation would exceed renewal
 debt and reconcile through a fresh actual election before accepting another
