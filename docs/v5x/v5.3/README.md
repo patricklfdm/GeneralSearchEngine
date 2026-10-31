@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Original grant capture](PHASE_3_JOINING_GRANT_CAPTURE.md) now preserves complete
+writer-held grant/source directories before retirement and makes their presence
+mandatory in collection v2. Two real native grants, lock probes and twelve
+evidence mutations pass; the full updated joining history remains unexecuted.
+This closes the collection implementation gap, not full physical qualification.
+
 [Conditional joining continuation replay](PHASE_3_JOINING_CONTINUATION_REPLAY.md)
 now derives both selected installations, FINAL, BARRIER and final cold storage
 from the initialized owners, comparing 28 complete node inventories. The archived

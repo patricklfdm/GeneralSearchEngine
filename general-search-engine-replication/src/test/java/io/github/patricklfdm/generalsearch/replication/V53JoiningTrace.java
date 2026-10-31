@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.replication;
 
 import java.util.*;
+import java.nio.file.Path;
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 
 /** Observations only: share the old owners' event order, without issuing capabilities.
@@ -8,12 +9,19 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 final class V53JoiningTrace {
     private final String node;
     private final List<Map<String,Object>> events,wire;
+    private V53GrantCapture grants;
+    private Path replica;
     V53JoiningTrace(String node,List<Map<String,Object>> events,List<Map<String,Object>> wire) {
         this.node=Objects.requireNonNull(node);this.events=Objects.requireNonNull(events);this.wire=Objects.requireNonNull(wire);
     }
+    void retainGrants(V53GrantCapture grants,Path replica) {
+        if(this.grants!=null)throw new IllegalStateException("joining grant observation already bound");
+        this.grants=Objects.requireNonNull(grants);this.replica=Objects.requireNonNull(replica);
+    }
     MembershipBallotAllocator.Cut cut(String scope) {
         Objects.requireNonNull(scope);
-        return event->events.add(Map.of("node",node,"scope",scope,"event",event));
+        return event->{events.add(Map.of("node",node,"scope",scope,"event",event));
+            if(grants!=null)grants.at(node,scope,replica,event);};
     }
     /** Optional old-owner request observations. Keep their existing response
      * callbacks untouched; an attempted write is not proof of delivery. */

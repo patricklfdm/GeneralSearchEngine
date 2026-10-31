@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original grant capture](PHASE_3_JOINING_GRANT_CAPTURE.md) adds writer-held
+complete grant/source copies and collection v2 refusal for missing intermediate
+preparation. Targeted native/negative checks pass; the updated uninterrupted
+history and its full physical/force/network derivation remain pending.
+
 [Conditional joining continuation replay](PHASE_3_JOINING_CONTINUATION_REPLAY.md)
 now derives both selected installations, FINAL, BARRIER and final cold storage
 from the initialized owners, comparing 28 complete node inventories. The archived

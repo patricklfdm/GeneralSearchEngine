@@ -1,0 +1,191 @@
+{
+  "archive": {
+    "bytes": 10307082,
+    "entries": 4718,
+    "memberHashesVerified": true,
+    "path": "target/v53-grant-capture-review/joining-grant-capture-final.tar.gz",
+    "rawFilesAndDirectoriesMatch": true,
+    "sha256": "7fa74995f672b1024dab478fb2831659a963866b3d3951075e06164e58baef5d"
+  },
+  "baseHead": "89b91e980ba0274cba2df5549b615830ecf00187",
+  "buildManifestSha256": "d5fc05197e68acf482c229b4602b73c99867808a960e72f968b731eba48cf50e",
+  "capture": {
+    "bytes": 55483,
+    "captures": 2,
+    "forceAndNetworkQualified": false,
+    "intermediatePreparationPhysicalQualified": false,
+    "nativeHistoryQualified": false,
+    "phase3Complete": false,
+    "qualification": {
+      "negatives": [
+        {
+          "case": "missing-return",
+          "reason": "grant capture orphan/capacity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-final-marker",
+          "reason": "grant capture incomplete event copies",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-marker",
+          "reason": "grant capture orphan/capacity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "path-traversal",
+          "reason": "grant capture ordered unique path",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unobserved-directory",
+          "reason": "grant capture unobserved copies",
+          "status": "REJECTED"
+        },
+        {
+          "case": "event-digest",
+          "reason": "grant capture event binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "stale-inventory",
+          "reason": "grant capture copied inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-image",
+          "reason": "grant capture source inventory",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-image",
+          "reason": "grant capture original image",
+          "status": "REJECTED"
+        },
+        {
+          "case": "torn-journal",
+          "reason": "torn grant journal body",
+          "status": "REJECTED"
+        },
+        {
+          "case": "foreign-owner",
+          "reason": "grant capture original owner",
+          "status": "REJECTED"
+        },
+        {
+          "case": "frozen-ledger",
+          "reason": "grant capture frozen ledger binding",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "bytes": 55483,
+        "captures": 2,
+        "forceAndNetworkQualified": false,
+        "intermediatePreparationPhysicalQualified": false,
+        "nativeHistoryQualified": false,
+        "phase3Complete": false,
+        "scope": "original-grant-copy-collection",
+        "status": "PARTIAL"
+      }
+    },
+    "scope": "original-grant-copy-collection",
+    "status": "PARTIAL"
+  },
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "e8e0b49dad597fbc571eaafafb51b0bd2c138467c52c7728116dcb2c407346a3",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "8734c02f7f96b4749c08bd14d4129276b4ac93d3b555a933d4eb3320cc22a493",
+    "docs/v5x/v5.3/PHASE_3_JOINING_GRANT_CAPTURE.md": "7a1370800386777782cfc2770fa9913b5526dea6b48bf1b57cb0d46a0e84aeb8",
+    "docs/v5x/v5.3/README.md": "7574ca361851aded1da15d4a1f203f16b0131207c5afb0a9bbf9290365a4c423",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GrantCapture.java": "4be60ff2caf53a747b29d239587b4d08d3db6173821f0ebcd489c16cfd13f5f5",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53GrantCaptureTest.java": "ee93f759c26915eebcfa39de33e4582a4333b01546daef3c02b40b921bbb28b2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "a558f0530444c719b96e032aa05769a54333c32ac0be52d0642c72cfaa28ef19",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTrace.java": "30a1f250e4a837d734194bac8307732f83bf9cc612895c07d82f1e4a0d7a1b56",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "89c55c3924789ca769f4728c446199d3dc59351f42091b21a84dafd7b16817c1",
+    "scripts/v53/joining_grant_captures.py": "98cc6def3f3b67f89fbc2698bcd436edf4ebe2d25a9b72e560d5e46be34e7534",
+    "scripts/v53/joining_history_run.py": "7f5659cada03e1e201c4c9448db88199ecca1a0442ac2a9969fe0436ef65b853",
+    "scripts/v53/test_joining_grant_captures.py": "a0b85df43460f93a5e7feba03845e75a0caddaddee68167532c35460571a0775",
+    "scripts/v53/test_joining_history_run.py": "b0ccae8792bd7e9c4efe7f0b9fefaa764237af7a40045e01baeef2e72af00511"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1805,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "historicalRefusal": {
+    "originalRaw": "target/v53-joining-catalog/portable/producer/raw",
+    "reason": "grant capture collection missing",
+    "status": "REJECTED"
+  },
+  "intermediatePreparationPhysicalQualified": false,
+  "java": {
+    "logSha256": "cc41e34d9cb1ae57770cea3467502e35b4de9baed5aa1baf633800d19b5bc398",
+    "scope": "targeted-incremental-reactor-test",
+    "status": "PASS",
+    "suites": [
+      {
+        "class": "V53GrantCaptureTest",
+        "elapsedSeconds": 4.052,
+        "reportSha256": "82a020d1e985d44df8764bb432ea17f63eec3b2da2021a1f6c96ceed6793b5e8",
+        "tests": 2
+      },
+      {
+        "class": "V53JoiningTraceTest",
+        "elapsedSeconds": 0.114,
+        "reportSha256": "cd0a94ce60a8329ad6e971f670e4a8da052995c45a1dbb2fb37e29dc10037103",
+        "tests": 3
+      }
+    ],
+    "tests": 5
+  },
+  "limitations": [
+    "The two real grants are from a small offline-bootstrap writer exercise, not the full early-start joining history.",
+    "Collector v2 requires complete intermediate old-voter captures but does not derive their preparation or retirement.",
+    "The historical df22c398 archive remains unchanged and conditional; new captures cannot fill its missing middle.",
+    "Full uninterrupted source-bound physical/force/network replay, process cuts, all seven profiles and requirement mapping remain pending."
+  ],
+  "originalInventorySha256": "232f7539e02db6e7af9848c3fab5203ccb1c44871522e98c819da8fb656cf36b",
+  "originalRaw": "general-search-engine-replication/target/v53-grant-capture/run-6cb99574-fb25-4609-99a6-cdc5dba7a75f",
+  "phase3Complete": false,
+  "portableReplay": {
+    "fullRawInventoryUnchanged": true,
+    "resultSha256": "b1bc37a2193593cebe6394cd14b6dfc35bb7f981d0ed055d3c071e94dbc069ba",
+    "scope": "relocated-original-and-all-twelve-negatives",
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "productionJavaChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705,
+    "manifestSha256": "82e3b935c4e1b52868266006bf0bc9e6827596abdfa4bf8a7c880bce5a23a854"
+  },
+  "python": {
+    "logSha256": "b0811ed5906c33d9551081d5feefc0505eb588c50ea3bf8b87753c5ee2520376",
+    "newTests": 12,
+    "status": "PASS",
+    "tests": 158
+  },
+  "retainedDevelopmentFailures": [
+    "target/v53-grant-capture-review/maven.log",
+    "target/v53-grant-capture-review/maven-fixed.log",
+    "target/v53-grant-capture-review/archive-layout-initial.json"
+  ],
+  "schema": "gse-v53-joining-grant-capture-batch-v1",
+  "scope": "test-only-original-grant-collection",
+  "sourceFiles": 4294,
+  "sourceManifestSha256": "ff73dc0fd5c76b77de8f11547d2b6ee3891a8aa83a258756105c3b904e007535",
+  "sourceSnapshotPrecedesFinalReceipt": true,
+  "status": "PARTIAL",
+  "wholeHistoryExecution": "NOT_RUN",
+  "workflowChanged": false
+}

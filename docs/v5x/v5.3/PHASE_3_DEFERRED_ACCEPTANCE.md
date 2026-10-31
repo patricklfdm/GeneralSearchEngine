@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Original grant capture](PHASE_3_JOINING_GRANT_CAPTURE.md) is implemented and
+checked with a small real writer exercise. The next uninterrupted early-start
+history must use collection v2 and retain both intermediate preparation sources.
+That full execution, intermediate physical derivation and force/network replay
+remain pending; do not attach new captures to the old conditional archive.
+
 [Conditional joining continuation replay](PHASE_3_JOINING_CONTINUATION_REPLAY.md)
 now derives both selected installations, FINAL, BARRIER and final cold storage
 from the initialized owners, comparing 28 complete node inventories. The archived

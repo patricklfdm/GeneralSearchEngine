@@ -141,6 +141,7 @@ class V53JoiningIntentExportTest {
             // Preserve original attempts and receives for full causal replay.
             // Older fixture families retain their existing trace vocabulary.
             n.observeRequests=earlyStartup;
+            if(earlyStartup)n.grantCapture=new V53GrantCapture(n.f.raw,n.events);
             // The short Network.activate helper fixes a 180-second campaign.
             // This complete typed-learner history uses one declared
             // owner lifetime from its start, without extending any RPC timeout.
@@ -160,6 +161,7 @@ class V53JoiningIntentExportTest {
             var pool=new MembershipResources(512*MembershipResources.MIB);
             var config=new MembershipReplicaConfig<>(request.root(),joining,List.of(),request.replicaDirectory(),storage(temp.resolve("core"),2),
                     n.bounds,AutomaticLeadershipPolicy.forBounds(n.bounds));
+            if(earlyStartup)trace.retainGrants(n.grantCapture,request.replicaDirectory());
             try(var source=new MembershipLearnerSource(request,targets.getFirst(),pool,n.bounds,trace.transport("learner-source"),
                     ()->{},System::nanoTime,System.nanoTime(),BUDGET)) {
                 source.fetch(temp.resolve("receiving"));var plan=source.plan(trace.cut("learner-plan"));
