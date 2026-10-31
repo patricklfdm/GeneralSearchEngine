@@ -1,0 +1,470 @@
+{
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "bytes": 29169689,
+    "entries": 15007,
+    "memberHashesVerified": true,
+    "negativeReplayRepeated": false,
+    "path": "target/v53-transfer-fault-review/sealed/transfer-faults.tar.gz",
+    "portableOriginal": "PASS",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "7c1c3c0ba1e68854883a06b63f4781a64db6143123f6e51a50efa59f4b627270",
+    "sha256": "424838967d1d02b16905bf5d02deaba48ad1d7a7e1cd9d70e05d9f4c9afab905",
+    "status": "PASS"
+  },
+  "archiveReceiptNote": "Archive reader retains the pre-seal receipt; final archive hashes are recorded separately to avoid a self-referential hash.",
+  "baseHead": "3f569bd19b81c2b61474e5473f5075ab64dc3ef4",
+  "buildManifestSha256": "0f4fc1915d6d30f05155cb2060e6d0f9c8097c7ea2fcfb9963386bbcab482d9f",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "627ecf634a4aa1c8139ea0b2c01bc6355e09754e0b14b005a3e6237ddcd92d9b",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "1dbbe03f8e2dbb824dbeff5c84405b17693cf74cc75e9e0a90983a282cb29e38",
+    "docs/v5x/v5.3/PHASE_3_TRANSFER_FAULTS.md": "bbc42ecc90ec4c13bdd063c5393ec61912f09f5745f46f75bfbba8e984413206",
+    "docs/v5x/v5.3/README.md": "504a8845658a21d711bfafcfd708617ee26136a943c0d3f02e5088fba5137b21",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferFaultsTest.java": "836060e9cbf04f9eb2cd281b6ed7121f38b414bb781d415a004246960c93cb6e",
+    "scripts/v53/test_transfer_fault_evidence.py": "8e1a323c958ef4d84581dbbf11afaebec76f971b8e4325f0941e2cdbb805830b",
+    "scripts/v53/transfer_fault_evidence.py": "14d72997dd94f9592ccaa0e09fdfe9598d57f17b56e339f587d0d1ff6d976de2"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1855,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "diagnosticsNote": "Compile accessor error, incorrect 12-versus-3 assertion and initial exact negative-reason mismatch are retained. The passing matrix is a complete fresh execution after test-only fixes; no successful fragments were stitched.",
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "nativeExecution": {
+    "elapsedSeconds": 16.38,
+    "method": "publicBootstrapTcpFaultsAtAllStableSizes",
+    "reactorElapsedSeconds": 25.29,
+    "reportSha256": "7c1416e8e4990913a549117a079a06aae4d7a8d5bd18a17ff66142225b9eb19b",
+    "tests": 1
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "producerSourceSha256": "fb0570a5a15c1215e6d59e6a128dff1eac95d4762069c93459469503cf13c910",
+  "productionChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "pythonLogSha256": "e76eddea346fb0f46d92527e29f30b589cc2e7cc485dbc1a831643014824b7d5",
+  "qualification": {
+    "negatives": [
+      {
+        "case": "scope",
+        "reason": "transfer fault exact matrix receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-profile",
+        "reason": "transfer fault complete profile inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-case",
+        "reason": "transfer fault complete case inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-after",
+        "reason": "admitted exact after: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-record",
+        "reason": "transfer fault original received record",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-drop",
+        "reason": "transfer fault TCP attempt order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivered-drop",
+        "reason": "transfer fault TCP attempt order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-sender",
+        "reason": "transfer fault original correlation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extended-deadline",
+        "reason": "transfer fault original deadline",
+        "status": "REJECTED"
+      },
+      {
+        "case": "raised-attempt-limit",
+        "reason": "transfer fault original deadline",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-response",
+        "reason": "transfer fault original response bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-retry",
+        "reason": "transfer fault immutable original request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extra-attempt",
+        "reason": "transfer fault complete attempt matrix",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-drop-count",
+        "reason": "transfer fault observed result",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-expiry",
+        "reason": "transfer fault exact scope controls",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-clock-reset",
+        "reason": "transfer fault exact scope controls",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-promise-force",
+        "reason": "transfer fault original source force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "basis-before-force",
+        "reason": "transfer fault original source force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-source-image-force",
+        "reason": "transfer fault original source force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "retained-live-export",
+        "reason": "transfer fault exact scope controls",
+        "status": "REJECTED"
+      },
+      {
+        "case": "server-resource-leak",
+        "reason": "transfer fault resource release observation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "client-resource-leak",
+        "reason": "transfer fault resource release observation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "boolean-resource-count",
+        "reason": "transfer fault resource observation shape",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-owner-resources",
+        "reason": "transfer fault original owner resource observation",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-owner-lifetime",
+        "reason": "transfer fault continuous owner resource observation",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "allMembershipProfilesQualified": false,
+      "cases": 27,
+      "faultInjectionClock": "explicit-offset; not measured elapsed time",
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "profiles": [
+        {
+          "cases": [
+            {
+              "attempts": 4,
+              "case": "lost-offer",
+              "droppedReplies": 1,
+              "received": true,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 4,
+              "case": "lost-data",
+              "droppedReplies": 1,
+              "received": true,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 4,
+              "case": "lost-commit",
+              "droppedReplies": 1,
+              "received": true,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 3,
+              "case": "exhausted-offer",
+              "droppedReplies": 3,
+              "received": false,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 3,
+              "case": "expired-active",
+              "droppedReplies": 0,
+              "received": false,
+              "terminalProbes": 2
+            },
+            {
+              "attempts": 5,
+              "case": "expired-completed",
+              "droppedReplies": 0,
+              "received": true,
+              "terminalProbes": 2
+            },
+            {
+              "attempts": 2,
+              "case": "closed-active",
+              "droppedReplies": 0,
+              "received": false,
+              "terminalProbes": 1
+            },
+            {
+              "attempts": 5,
+              "case": "changed-completed",
+              "droppedReplies": 0,
+              "received": true,
+              "terminalProbes": 2
+            },
+            {
+              "attempts": 4,
+              "case": "owner-closed-completed",
+              "droppedReplies": 0,
+              "received": true,
+              "terminalProbes": 1
+            }
+          ],
+          "size": 3
+        },
+        {
+          "cases": [
+            {
+              "attempts": 4,
+              "case": "lost-offer",
+              "droppedReplies": 1,
+              "received": true,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 4,
+              "case": "lost-data",
+              "droppedReplies": 1,
+              "received": true,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 4,
+              "case": "lost-commit",
+              "droppedReplies": 1,
+              "received": true,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 3,
+              "case": "exhausted-offer",
+              "droppedReplies": 3,
+              "received": false,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 3,
+              "case": "expired-active",
+              "droppedReplies": 0,
+              "received": false,
+              "terminalProbes": 2
+            },
+            {
+              "attempts": 5,
+              "case": "expired-completed",
+              "droppedReplies": 0,
+              "received": true,
+              "terminalProbes": 2
+            },
+            {
+              "attempts": 2,
+              "case": "closed-active",
+              "droppedReplies": 0,
+              "received": false,
+              "terminalProbes": 1
+            },
+            {
+              "attempts": 5,
+              "case": "changed-completed",
+              "droppedReplies": 0,
+              "received": true,
+              "terminalProbes": 2
+            },
+            {
+              "attempts": 4,
+              "case": "owner-closed-completed",
+              "droppedReplies": 0,
+              "received": true,
+              "terminalProbes": 1
+            }
+          ],
+          "size": 4
+        },
+        {
+          "cases": [
+            {
+              "attempts": 4,
+              "case": "lost-offer",
+              "droppedReplies": 1,
+              "received": true,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 4,
+              "case": "lost-data",
+              "droppedReplies": 1,
+              "received": true,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 4,
+              "case": "lost-commit",
+              "droppedReplies": 1,
+              "received": true,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 3,
+              "case": "exhausted-offer",
+              "droppedReplies": 3,
+              "received": false,
+              "terminalProbes": 0
+            },
+            {
+              "attempts": 3,
+              "case": "expired-active",
+              "droppedReplies": 0,
+              "received": false,
+              "terminalProbes": 2
+            },
+            {
+              "attempts": 5,
+              "case": "expired-completed",
+              "droppedReplies": 0,
+              "received": true,
+              "terminalProbes": 2
+            },
+            {
+              "attempts": 2,
+              "case": "closed-active",
+              "droppedReplies": 0,
+              "received": false,
+              "terminalProbes": 1
+            },
+            {
+              "attempts": 5,
+              "case": "changed-completed",
+              "droppedReplies": 0,
+              "received": true,
+              "terminalProbes": 2
+            },
+            {
+              "attempts": 4,
+              "case": "owner-closed-completed",
+              "droppedReplies": 0,
+              "received": true,
+              "terminalProbes": 1
+            }
+          ],
+          "size": 5
+        }
+      ],
+      "resourceCounts": "source-bound observations",
+      "scope": "original-public-bootstrap-TCP-transfer-faults",
+      "status": "PASS"
+    },
+    "originalPreserved": true
+  },
+  "qualificationSha256": "a571700e603502d110d7d8f64e18fcfb2e9a3e0aebc645dab7e3e29fbac3065d",
+  "rawInventorySha256": "33a96e8ad1c7d8f182b1b27c1a55b4fb2eb5d9386ecaa8a3249763631e898da5",
+  "rawPath": "target/v53-transfer-fault-review/workspace/general-search-engine-replication/target/v53-transfer-faults/run-ac3eba79-6499-4fbd-a93c-0638f1606a1f",
+  "relatedReplay": {
+    "v53-record-exchange": "PASS",
+    "v53-source-exchange": "PASS",
+    "v53-transfer-service": "PASS"
+  },
+  "remaining": [
+    "joining-history fault/expiry/cancellation and complete force/network composition",
+    "real process halt/SIGKILL/restart",
+    "all seven membership-change profiles",
+    "frozen acceptance mapping"
+  ],
+  "retainedFailures": [
+    "compile.log",
+    "native.log",
+    "failed-native-test.java",
+    "failed-java-reports",
+    "qualification-initial.stderr"
+  ],
+  "schema": "gse-v53-transfer-fault-review-v1",
+  "scope": "original-public-bootstrap-TCP-transfer-faults",
+  "status": "PASS",
+  "tests": {
+    "nativeCases": 27,
+    "nativeMethods": 1,
+    "pythonTotal": 35,
+    "readerTests": 21,
+    "relatedJava": {
+      "status": "PASS",
+      "suites": [
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53SourceExchangeTest",
+          "elapsedSeconds": 120.337,
+          "errors": 0,
+          "failures": 0,
+          "reportSha256": "245aec5101fffcb4717600386a10a9ab1770763163841811e599b24208fe01df",
+          "skipped": 0,
+          "tests": 14
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53TransferServiceTest",
+          "elapsedSeconds": 91.113,
+          "errors": 0,
+          "failures": 0,
+          "reportSha256": "bf07fba99492eadf8732f6bb790e2db7ff58f642fd23317e832894299a826af0",
+          "skipped": 0,
+          "tests": 16
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53RecordExchangeTest",
+          "elapsedSeconds": 58.1,
+          "errors": 0,
+          "failures": 0,
+          "reportSha256": "1edd5ae018bfea43f5ecdde65967ab9cd25ec5e706116269d84df26c1b6c5de9",
+          "skipped": 0,
+          "tests": 10
+        }
+      ],
+      "tests": 40
+    },
+    "relatedPythonTests": 14
+  },
+  "toolchainSha256": "bddeb1629e6de3901ab931960b8f4d29c9e68e4389f0c2a01f97f76a5fdcda16"
+}

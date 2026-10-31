@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original TCP transfer faults](PHASE_3_TRANSFER_FAULTS.md) now qualify nine
+fault/expiry/close cases at each of stable sizes 3, 4 and 5: 102 observed attempts,
+18 dropped replies and 24 terminal refusal probes, with original physical/wire
+replay and 25 exact evidence negatives. Each profile uses two TCP endpoints and
+one original native source. This does not replace joining-history fault/process
+composition, all seven membership profiles or frozen acceptance mapping.
+
 [Joining peer replay](PHASE_3_JOINING_PEER_REPLAY.md) completes continuous
 peer-ledger derivation and force composition for the same original healthy ADD
 history. All 90 writes have one derived cause and an exact authority interval;
