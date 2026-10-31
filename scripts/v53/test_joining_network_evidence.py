@@ -51,6 +51,35 @@ class JoiningNetworkEvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'^joining network ambiguous overlapping retry$'):
             n.causal([events[0],*events],wires,ids,root)
 
+    def test_transfer_only_is_explicit_and_cannot_qualify_unanswered_controls(self):
+        events,wires,ids,root=self.exchange()
+        unanswered=[events[0],events[1],events[0],events[1]]
+        self.assertEqual([],n.causal(unanswered,[],ids,root,transfer_only=True))
+        with self.assertRaisesRegex(ValueError,'^joining network ambiguous overlapping retry$'):
+            n.causal(unanswered,[],ids,root)
+        # Filtering is based on authenticated request bytes, not just a label.
+        unanswered[0]=dict(unanswered[0],kind='CHUNK')
+        with self.assertRaisesRegex(ValueError,'^joining network send bytes$'):
+            n.causal(unanswered,[],ids,root,transfer_only=True)
+
+    def test_transfer_only_still_requires_every_original_transfer_boundary(self):
+        events,_,ids,root=self.exchange()
+        _,_,_,_,q,a=fixture.JoiningPhaseEvidenceTest().wire()
+        q['payload']=dict(id=q['trace'],action='REQUEST',offset=0,digest='a'*64,bytes='')
+        a['payload']=dict(id=q['trace'],kind='RECORD',digest='a'*64,bytes=512)
+        qr=n.f.encode('wire','CHUNK',q);ar=n.f.encode('wire','SOURCE_OFFER',a)
+        request,response=n.sha(qr),n.sha(ar)
+        events=[dict(node='node-1',event='NETWORK_SEND',kind='CHUNK',request=request,bytes=base64.b64encode(qr).decode()),
+                dict(node='node-2',event='NETWORK_REQUEST',kind='CHUNK',request=request),
+                dict(node='node-2',event='WIRE_RESPONSE',request=request,response=response),
+                dict(node='node-1',event='NETWORK_RECEIVED',kind='SOURCE_OFFER',response=response)]
+        wires=[dict(request=base64.b64encode(qr).decode(),response=base64.b64encode(ar).decode(),withheld=False)]
+        self.assertEqual(1,len(n.causal(events,wires,ids,root,transfer_only=True)))
+        for changed,reason in ((events[1:],'receive without send'),(events[:-1],'undelivered healthy response'),
+                               ([events[0],*events],'ambiguous overlapping retry')):
+            with self.subTest(reason=reason),self.assertRaisesRegex(ValueError,'^joining network '+reason+'$'):
+                n.causal(changed,wires,ids,root,transfer_only=True)
+
     def test_late_request_mutation_targets_its_own_reply_after_nested_exchanges(self):
         events,wires,_,_=self.exchange();request=events[1]['request']
         events.insert(2,dict(events[2],request='other-request'))

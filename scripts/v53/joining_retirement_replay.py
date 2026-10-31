@@ -132,7 +132,7 @@ class Continuation(p.Continuation):
 
 def validate(root):
     root=Path(root);original=s.collection.inventory(root)
-    events=s.collection.read_json(root,'events.json',8*p.captures.MIB)
+    events=s.collection.read_json(root,'events.json',s.collection.EVENT_BYTES)
     grants=p.Captures(root,events);retirements=Retirements(root,events)
     c.t.publication.validate(root);replay=s.Replay(root)
     for index in range(1,12):replay.step(index)

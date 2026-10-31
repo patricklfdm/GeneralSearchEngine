@@ -103,7 +103,9 @@ def compare(transaction, initial, authority, compact, identifier):
 
 def validate(root, events=None):
     root = Path(root)
-    if events is None: events = json.loads(grants.snapshot.s.regular(root/'events.json',8*grants.MIB))
+    if events is None:
+        from .joining_history_run import read_json, EVENT_BYTES
+        events = read_json(root,'events.json',EVENT_BYTES)
     transactions = collect(root,events)
     return dict(status='PARTIAL',scope='original-source-retirement-prefix-collection',transactions=len(transactions),
                 capturedPrefixes=sum(len(v['steps']) for v in transactions),

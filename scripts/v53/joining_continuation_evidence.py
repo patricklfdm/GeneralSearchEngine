@@ -35,8 +35,8 @@ def cold_order(events):
 
 def preparation_boundary(root, group):
     """Bind the observed preparation without inventing its missing source."""
-    rows = json.loads((Path(root)/'wire.json').read_bytes())
-    need(type(rows) is list and len(rows) <= 32768, 'joining continuation bounded preparation trace')
+    rows = init.s.collection.read_json(Path(root),'wire.json',init.s.collection.WIRE_BYTES)
+    need(type(rows) is list and len(rows) <= init.s.collection.HISTORY_ROWS, 'joining continuation bounded preparation trace')
     ballot = init.next_ballot(group['node-1']); cap = disk.current(group['node-1'])[2]['capsule']
     identities = {n:f.decode(v['node.gsr'], 'records', 'NODE')['identity'] for n,v in group.items()}
     prepared = []; originals = []

@@ -147,7 +147,7 @@ class Continuation(c.Continuation):
 
 def validate(root):
     root = Path(root); original = s.collection.inventory(root)
-    events = s.collection.read_json(root, 'events.json', 8*captures.MIB)
+    events = s.collection.read_json(root, 'events.json', s.collection.EVENT_BYTES)
     if (root/retirements.DIRECTORY).exists() or any(row.get('event') == retirements.EVENT for row in events):
         retirements.validate(root,events)
     observed = Captures(root, events)
@@ -250,7 +250,7 @@ def qualify(root, progress=None):
     for name, reason in NEGATIVES.items():
         with tempfile.TemporaryDirectory(prefix='v53-preparation-negative-') as temp:
             target = Path(temp)/'raw'; shutil.copytree(root,target); mutate(target,name)
-            events = s.collection.read_json(target,'events.json',8*captures.MIB)
+            events = s.collection.read_json(target,'events.json',s.collection.EVENT_BYTES)
             captures.validate(target,events,whole_history=True)
             init.validate(target)
             try: validate(target)

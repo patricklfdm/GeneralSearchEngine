@@ -20,8 +20,8 @@ n=peer.n;need=n.need
 def inputs(root):
     model=n.s.Replay(root)
     for index in range(1,12):model.step(index)
-    return (n.s.collection.read_json(root,'events.json',8*n.p.captures.MIB),
-            n.s.collection.read_json(root,'wire.json',16*n.p.captures.MIB),
+    return (n.s.collection.read_json(root,'events.json',n.s.collection.EVENT_BYTES),
+            n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES),
             n.s.catalog.identities(model.states[-1]['identities']),model.root)
 
 

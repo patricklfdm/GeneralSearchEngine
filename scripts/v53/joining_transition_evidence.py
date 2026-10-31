@@ -32,17 +32,17 @@ def require_coverage(files):
     return confirmation.endpoints(packet, members.get('ancestry.gsr', b''))
 
 
-def maintenance(group, retiring=None, floor_copies=None):
+def maintenance(group, retiring=None, floor_copies=None, *, voters=VOTERS):
     """Project observed copies and only superseded, covered local sources."""
     result = copy.deepcopy(group)
-    for node in VOTERS:
+    for node in voters:
         files = result[node]; prefix, members, _ = disk.current(group[node])
         need(files['pending.accept'] == disk.EMPTY and not any(name == 'applied-end' or name.startswith('applied-end/') for name in files),
              'joining transition maintenance requires completed publication')
         publication.phases.empty_future(files[future.FILE], files)
         # Copies are the preceding independently derived publications/installs,
         # not manifests accepted merely because their checksums agree.
-        for peer in (node, next(n for n in VOTERS if n != node)):
+        for peer in (node, *(n for n in voters if n != node)):
             files[PEERS] = observation.observe_same_cut(files[PEERS], group[node], group[peer], defer_renewal=True)
         available = require_coverage(files)
         files = {name: raw for name, raw in files.items() if not name.startswith('generations/')
@@ -58,7 +58,7 @@ def maintenance(group, retiring=None, floor_copies=None):
                 retired.add(identifier)
         if retired:
             if retiring is not None:
-                retiring(node, files, {n:group[n] for n in VOTERS} if floor_copies is None else floor_copies, retired)
+                retiring(node, files, {n:group[n] for n in voters} if floor_copies is None else floor_copies, retired)
             files = {name: raw for name, raw in files.items() if not (name.startswith('sources/') and name.split('/')[1] in retired)}
             rows = disk.journal(files['grants.gsr'], future.initial(files)['root'], node)
             # In this history no accepted tail or still-owned older basis remains.
@@ -95,6 +95,7 @@ def applied_end(replay, files, index, node):
 class History:
     def __init__(self, root, replay):
         self.root, self.replay = Path(root), replay
+        self.voters = replay.old[:replay.size//2+1]
         self.group = learner.initialize(selected.initialize(replay.original))
         self.group = {n: dict(files, **{future.FILE: future.frame(future.initial(files), {})}) for n, files in self.group.items()}
         self.comparisons = 0; self.expected = {}; self.label = None
@@ -110,11 +111,11 @@ class History:
         """Optional whole-history comparison of the independently derived grant."""
 
     def maintain(self):
-        self.group = maintenance(self.group)
+        self.group = maintenance(self.group,voters=self.voters)
 
     def campaign(self, ordinal):
         if ordinal > 1: self.maintain()
-        group = {n: self.group[n] for n in VOTERS}
+        group = {n: self.group[n] for n in self.voters}
         current = disk.current(group['node-1'])[2]
         for files in group.values(): require_coverage(files)
         identities = s.catalog.identities(self.replay.states[current['capsule']['cut']['index']]['identities'])
@@ -135,20 +136,20 @@ class History:
     def offer(self):
         state = self.replay.states[disk.current(self.group['node-1'])[2]['capsule']['cut']['index']]
         request = next(v['request'] for v in state['results'] if v['request']['number'] == state['active'])
-        joining = s.catalog.identities(state['identities'])['node-4']
-        for node in VOTERS: self.group[node] = learner.offer(self.group[node], request, joining)
+        joining = s.catalog.identities(state['identities'])[self.replay.joining]
+        for node in self.voters: self.group[node] = learner.offer(self.group[node], request, joining)
 
     def slot(self, index):
         self.maintain()
         applied = copy.deepcopy(self.group); parts = self.replay.phases[index-1]
-        for node in VOTERS:
+        for node in self.voters:
             files = applied[node]; _, members, _ = disk.current(files)
             local = dict(parts, SELECTOR=files['selector.gsr'], PROMISE=members['promise.gsr'], SELECTED=members['selected.gsr'])
             files['pending.accept'] = s.packed_phases(local)
             files.update(applied_end(self.replay, files, index, node))
             publication.publication_members(self.replay, files, index)
         self.match('applied-'+str(index), applied)
-        self.group = {node: publication.expected_publication(self.replay, files, index, node) if node in VOTERS else files
+        self.group = {node: publication.expected_publication(self.replay, files, index, node) if node in self.voters else files
                       for node, files in applied.items()}
         self.match('published-'+str(index), self.group)
 
@@ -158,16 +159,17 @@ class History:
             self.campaign(ordinal)
             self.slot(2*ordinal-1); self.slot(2*ordinal)
         self.offer(); self.slot(9)
-        return dict(status='PASS', scope='native-ADD-bootstrap-through-old-voter-INTENT', slots=9,
+        return dict(status='PASS', scope='native-'+self.replay.kind+'-bootstrap-through-old-voter-INTENT', profile=str(self.replay.size)+'-'+self.replay.kind, slots=9,
             campaigns=4, ownerSnapshotComparisons=self.comparisons, throughIntentPhysicalQualified=True,
             completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False)
 
 
-def validate(root):
+def validate(root, *, size=3, kind='ADD'):
     root = Path(root); original = s.collection.inventory(root)
-    publication.validate(root)
-    replay = s.Replay(root)
+    publication.validate(root,size=size,kind=kind)
+    replay = s.Replay(root,size=size,kind=kind)
     for index in range(1, 12): replay.step(index)
+    replay.publication_receipts=publication.CheckpointReceipts(root,replay)
     result = History(root, replay).run()
     need(s.collection.inventory(root) == original, 'joining original changed during transition replay')
     return result
@@ -203,7 +205,7 @@ def write_inventory(directory, files):
         else: path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(raw)
 
 
-def mutate(root, name):
+def mutate(root, name, *, size=3, kind='ADD'):
     need(name in NEGATIVES, 'unknown joining transition mutation')
     if name.startswith('installed-'):
         ordinal = 3 if name in ('installed-extra-member','installed-selection-changed','installed-learner-offer-erased') else (
@@ -262,8 +264,9 @@ def mutate(root, name):
         files['allocator.gsr'] = f.encode('records','ALLOCATOR',value)
     # Recompute a fully matching published successor. The previous gate takes
     # this applied state as its input; only the new history rejects its origin.
-    replay = s.Replay(root)
+    replay = s.Replay(root,size=size,kind=kind)
     for at in range(1,12): replay.step(at)
+    replay.publication_receipts=publication.CheckpointReceipts(root,replay)
     successor = publication.expected_publication(replay, files, index, node)
     write_inventory(directory, files); write_inventory(root/f'published-{index}'/node, successor)
 

@@ -21,6 +21,25 @@ class JoiningHistoryRunTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
+    def test_native_history_capacity_matches_writer_and_exceeds_legacy_wire_envelope(self):
+        java=(h.ROOT/h.MODULE/'src/test/java/io/github/patricklfdm/generalsearch/replication/V53EvidenceArray.java').read_text()
+        self.assertEqual((64*1024*1024,32*1024*1024,65536),(h.WIRE_BYTES,h.EVENT_BYTES,h.HISTORY_ROWS))
+        self.assertIn('WIRE_BYTES=64*1024*1024, EVENT_BYTES=32*1024*1024, HISTORY_ROWS=65536',java)
+        producer=(h.ROOT/h.MODULE/'src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java').read_text()
+        self.assertIn('encode(wire,V53EvidenceArray.WIRE_BYTES)',producer)
+        self.assertIn('encode(events,V53EvidenceArray.EVENT_BYTES)',producer)
+        rows=[{'bytes':'x'*600_000}]*30;rawsave(self.root/'wire.json',rows)
+        with self.assertRaises(ValueError):h.read_json(self.root,'wire.json',16*1024*1024)
+        self.assertEqual(rows,h.read_json(self.root,'wire.json',h.WIRE_BYTES))
+
+    def test_history_row_capacity_cannot_bypass_individual_record_checks(self):
+        rawsave(self.root/'events.json',[{'event':'force'}]*(h.HISTORY_ROWS+1))
+        with self.assertRaisesRegex(ValueError,'^collection history row capacity$'):
+            h.read_json(self.root,'events.json',h.EVENT_BYTES)
+        rawsave(self.root/'wire.json',[{'bytes':'x'*h.ROW_BYTES}])
+        with self.assertRaisesRegex(ValueError,'^collection individual row capacity$'):
+            h.read_json(self.root,'wire.json',h.WIRE_BYTES)
+
     def source_producer(self):
         producer=self.root/'producer';work=producer/'workspace';(work/'scripts').mkdir(parents=True)
         (work/'scripts/tool.sh').write_bytes(b'original');(work/'scripts/tool.sh').chmod(0o755)

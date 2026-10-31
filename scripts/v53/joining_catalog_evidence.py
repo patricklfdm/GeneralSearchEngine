@@ -255,7 +255,7 @@ class Replay:
 
 
 def lifecycle(root, replay):
-    rows = collection.read_json(root, 'events.json', 8 * joining.MIB)
+    rows = collection.read_json(root, 'events.json', collection.EVENT_BYTES)
     need(type(rows) is list and all(type(v) is dict for v in rows), 'joining original round events')
     rows = [v for v in rows if str(v.get('event', '')).startswith(('ROUND_', 'JOINING_ROUND_'))]
     selected = pending = complete = None; installed = []; started = []; ready = []
@@ -373,7 +373,7 @@ def change_payload(parts, payload):
 
 def mutate(root, name):
     if name in ('missing-final-ready', 'ready-before-barrier'):
-        rows = collection.read_json(root, 'events.json', 8 * joining.MIB)
+        rows = collection.read_json(root, 'events.json', collection.EVENT_BYTES)
         ready = next(v for v in rows if v.get('event') == 'JOINING_ROUND_BEFORE_READY'); rows.remove(ready)
         if name == 'ready-before-barrier':
             before = next(i for i, v in enumerate(rows) if v.get('event') == 'JOINING_ROUND_SLOT_BEGIN')

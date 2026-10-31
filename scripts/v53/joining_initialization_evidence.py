@@ -108,7 +108,7 @@ def prepare(files, ballot, observed, identifiers):
 
 def local_order(events):
     """Bind the derived transaction and grant to their three original scopes."""
-    need(type(events) is list and len(events) < 32768 and all(type(row) is dict for row in events),
+    need(type(events) is list and len(events) <= s.collection.HISTORY_ROWS and all(type(row) is dict for row in events),
          'joining initialization event collection bound')
     stages = ('initial-owner', 'retaining-owner', 'repeated-basis-owner')
     rows = {stage: [(index, row['event']) for index, row in enumerate(events)

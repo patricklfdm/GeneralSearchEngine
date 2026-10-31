@@ -119,7 +119,7 @@ class JoiningInitializationEvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '^joining initialization allocator exhausted$'): j.next_ballot(files)
 
     def test_aggregate_events_have_explicit_collection_bound(self):
-        for rows in ({}, [None], [{}]*32768):
+        for rows in ({}, [None], [{}]*(j.s.collection.HISTORY_ROWS+1)):
             with self.assertRaisesRegex(ValueError, '^joining initialization event collection bound$'): j.local_order(rows)
         with self.assertRaisesRegex(ValueError, '^joining initialization original lifecycle order$'): j.local_order([])
 

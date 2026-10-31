@@ -6,6 +6,20 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class V53EvidenceArrayTest {
+    @Test void largerProfileTraceExceedsLegacyEnvelopeWithoutChangingAnyRow() {
+        var row=Map.of("bytes","x".repeat(600_000));var rows=Collections.nCopies(30,row);
+        assertThrows(IllegalArgumentException.class,()->V53EvidenceArray.encode(rows,16*1024*1024));
+        byte[] actual=V53EvidenceArray.encode(rows,V53EvidenceArray.WIRE_BYTES);
+        assertTrue(actual.length>16*1024*1024);assertTrue(actual.length<V53EvidenceArray.WIRE_BYTES);
+        String one=new String(MembershipFormat.canonical(row,1024*1024),StandardCharsets.US_ASCII);
+        assertEquals("["+String.join(",",Collections.nCopies(30,one))+"]",new String(actual,StandardCharsets.US_ASCII));
+    }
+    @Test void aggregateHistoryRowLimitIsIndependentOfPerMessageTokens() {
+        var row=Map.of("event","force");
+        assertNotNull(V53EvidenceArray.encode(Collections.nCopies(V53EvidenceArray.HISTORY_ROWS,row),V53EvidenceArray.EVENT_BYTES));
+        assertEquals("evidence array row capacity",assertThrows(IllegalArgumentException.class,()->
+            V53EvidenceArray.encode(Collections.nCopies(V53EvidenceArray.HISTORY_ROWS+1,row),V53EvidenceArray.EVENT_BYTES)).getMessage());
+    }
     @Test void completeTraceExceedsOneMessageTokensWithoutLosingAnyOrderedRow() {
         var rows=new ArrayList<Object>();var expected=new StringJoiner(",","[","]");
         for(int i=0;i<20_000;i++) {

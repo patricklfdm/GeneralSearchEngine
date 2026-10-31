@@ -107,6 +107,68 @@ class JoiningPublicationEvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '^both governing majorities$'):
             j.checkpoint_group(replay, 8, 9, 'RANGE')
 
+    def collected(self,*,change=None):
+        from . import joining_transcript as transcript
+        replay,group=self.bridge()
+        # The joiner wrote a valid ACK, but the overlapping old pair suffices.
+        replay.states[9]['cut']['view']=dict(replay.states[9]['cut']['view'],new=['node-1','node-2','node-4'])
+        group=[j.f.encode('records','CHECKPOINT',replay.checkpoint(8,9,'RANGE')),*group[1:]];statement=j.sha(group[0])
+        group=[group[0],*[j.f.encode('records','CHECKPOINT_ACK',dict(j.f.decode(raw,'records','CHECKPOINT_ACK'),
+            cut=replay.states[9]['cut'],statement=statement)) for raw in group[1:]]]
+        replay.acks={(statement,j.f.decode(raw,'records','CHECKPOINT_ACK')['voter']):raw for raw in group[1:]}
+        identity=replay.states[9]['identities'][3]
+        value=j.f.decode(group[1],'records','CHECKPOINT_ACK')
+        extra=j.f.encode('records','CHECKPOINT_ACK',dict(value,voter='node-4',incarnation=identity['storage']))
+        replay.acks[statement,'node-4']=extra
+        local={'applied-end/ack.gsr':group[1]};replay.owner=lambda *args:local
+        contents=[dict(kind='RECORD',raw=group[2],offer=dict(sent=11,request=dict(sender=dict(node='node-1'),recipient=dict(node='node-2'))),
+                       commit=dict(delivered=19))]
+        if change:change(replay,local,contents)
+        def transfers(rows,*,contents):contents.extend(self.contents);return {'committedTransfers':len(self.contents)}
+        self.contents=contents
+        with patch.object(j.semantic.collection,'read_json',return_value=[]),patch.object(transcript,'causal',return_value=[]) as causal, \
+             patch.object(transcript,'transfers',side_effect=transfers),patch.object(j.phases,'blocks',return_value={(9,'node-1'):dict(APPLY_BEFORE_RETURN=10,PUBLICATION_VALIDATED=20)}):
+            receipts=j.CheckpointReceipts(Path('/original'),replay)
+        self.assertTrue(causal.call_args.kwargs['transfer_only'])
+        return replay,group,receipts
+
+    def test_publication_uses_only_original_delivered_acknowledgements(self):
+        replay,group,receipts=self.collected();replay.publication_receipts=receipts
+        self.assertEqual(3,len(replay.acks));self.assertEqual(1,receipts.transfers)
+        self.assertEqual(group,j.checkpoint_group(replay,8,9,'RANGE',node='node-1'))
+        # Retained ancestry may also contain this exact sufficient subset.
+        self.assertEqual({8:group},j.original_bridges(replay,{'ancestry.gsr':b''.join(group)}))
+        with self.assertRaisesRegex(ValueError,'^joining publication missing collected statement$'):
+            j.checkpoint_group(replay,8,9,'RANGE',node='node-2')
+
+    def test_unrequested_or_out_of_window_ack_cannot_supply_a_publication_majority(self):
+        for mode in ('absent','early','late'):
+            def change(replay,local,contents):
+                if mode=='absent':contents.clear()
+                elif mode=='early':contents[0]['offer']['sent']=10
+                else:contents[0]['commit']['delivered']=20
+            with self.subTest(mode=mode),self.assertRaisesRegex(ValueError,'^both governing majorities$'):
+                self.collected(change=change)
+
+    def test_retained_ancestry_keeps_a_valid_subset_of_observed_acks(self):
+        replay,group,_=self.collected()
+        self.assertEqual(3,len(replay.acks))
+        self.assertEqual({8:group},j.original_bridges(replay,{'ancestry.gsr':b''.join(group)}))
+
+    def test_delivered_ack_requires_exact_observed_bytes_and_original_voter(self):
+        for mode in ('duplicate','peer','statement','bytes','own'):
+            def change(replay,local,contents):
+                if mode=='duplicate':contents.append(copy.deepcopy(contents[0]))
+                elif mode=='peer':contents[0]['offer']['request']['recipient']['node']='node-4'
+                elif mode=='own':local['applied-end/ack.gsr']=contents[0]['raw']
+                else:
+                    value=j.f.decode(contents[0]['raw'],'records','CHECKPOINT_ACK')
+                    value['statement' if mode=='statement' else 'incarnation']='e'*64 if mode=='statement' else '00000000-0000-0000-0000-000000000099'
+                    contents[0]['raw']=j.f.encode('records','CHECKPOINT_ACK',value)
+            reason='local' if mode=='own' else 'delivered'
+            with self.subTest(mode=mode),self.assertRaisesRegex(ValueError,'^joining publication original '+reason+' ACK$'):
+                self.collected(change=change)
+
     def test_invalid_original_is_never_negative_evidence(self):
         with patch.object(j, 'validate', side_effect=ValueError('original failed')), patch.object(j.shutil, 'copytree') as copied:
             with self.assertRaisesRegex(ValueError, '^original failed$'): j.qualify(Path('/original'))

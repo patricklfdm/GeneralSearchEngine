@@ -1,4 +1,4 @@
-"""Original-first vote/application/publication force and ACK replay for native ADD.
+"""Original-first vote/application/publication force and ACK replay for ADD/REPLACE.
 
 The original semantic chain supplies bytes, never force observations. Bind every
 wire response/delivery and each slot's successful force sequence to those bytes.
@@ -24,7 +24,7 @@ f, need, sha, disk = semantic.f, semantic.need, semantic.sha, semantic.disk
 def exchanges(events, wires, identities, root):
     """One original response per observed delivery, including scoped new owners."""
     positions = defaultdict(deque)
-    need(type(events) is list and len(events) < 32768 and type(wires) is list and len(wires) < 32768,
+    need(type(events) is list and len(events) <= semantic.collection.HISTORY_ROWS and type(wires) is list and len(wires) <= semantic.collection.HISTORY_ROWS,
          'joining bounded wire observations')
     for at, row in enumerate(events):
         if row.get('event') == 'WIRE_RESPONSE':
@@ -91,16 +91,18 @@ def force_names():
 
 def blocks(events, replay):
     result = {}; critical = force_names()
-    for node in ('node-1', 'node-2', 'node-3', 'node-4'):
+    nodes=(*replay.old,replay.joining)
+    need(all(v.get('node') in nodes for v in events if v.get('event') in critical), 'joining slot force unknown owner')
+    for node in nodes:
         indices = [i for i, raw in enumerate(replay.phases, 1)
                    if node in [v['voter'] for v in f.decode(raw['CERTIFICATE'], 'records', 'CERTIFICATE')['proofs']]]
         rows = [(i, v) for i, v in enumerate(events) if v.get('node') == node and v.get('event') in critical]
         need([v['event'] for _, v in rows] == critical * len(indices), 'joining exact slot force order: ' + node)
         for ordinal, index in enumerate(indices):
             held = rows[ordinal*len(critical):(ordinal+1)*len(critical)]
-            need(all(set(v) == ({'node', 'scope', 'event'} if node == 'node-4' else {'node', 'event'}) for _, v in held),
+            need(all(set(v) == ({'node', 'scope', 'event'} if node == replay.joining else {'node', 'event'}) for _, v in held),
                  'joining force event shape')
-            if node == 'node-4': need(all(v['scope'] == 'continuation-owner' for _, v in held), 'joining force owner lifetime')
+            if node == replay.joining: need(all(v['scope'] == 'continuation-owner' for _, v in held), 'joining force owner lifetime')
             result[index, node] = {v['event']: at for at, v in held}
     return result
 
@@ -243,17 +245,17 @@ def phase_replay(events, rows, replay, physical):
     return dict(slots=len(replay.phases),ownedSlotTransactions=len(physical),boundPhaseResponses=len(used),futureTargets=target_count)
 
 
-def validate(root):
-    root = Path(root); inventory = semantic.collection.inventory(root); chain = semantic.validate(root)
-    replay = semantic.Replay(root)
+def validate(root, *, size=3, kind='ADD'):
+    root = Path(root); inventory = semantic.collection.inventory(root); chain = semantic.validate(root,size=size,kind=kind)
+    replay = semantic.Replay(root,size=size,kind=kind)
     for index in range(1, chain['slots']+1): replay.step(index)
-    events = semantic.collection.read_json(root, 'events.json', 8*semantic.joining.MIB)
-    wires = semantic.collection.read_json(root, 'wire.json', 16*semantic.joining.MIB)
+    events = semantic.collection.read_json(root, 'events.json', semantic.collection.EVENT_BYTES)
+    wires = semantic.collection.read_json(root, 'wire.json', semantic.collection.WIRE_BYTES)
     identities = semantic.catalog.identities(replay.states[-1]['identities'])
     rows = exchanges(events, wires, identities, replay.root)
     result = phase_replay(events, rows, replay, blocks(events, replay))
     need(semantic.collection.inventory(root) == inventory, 'joining original history changed during phase replay')
-    return dict(status='PASS',scope='native-ADD-forced-slot-phases-and-delivered-ACKs',**result,
+    return dict(status='PASS',scope='native-'+kind+'-forced-slot-phases-and-delivered-ACKs',profile=str(size)+'-'+kind,**result,
         wireResponses=len(rows),deliveredResponses=sum(v['delivered'] is not None for v in rows),
         completePhysicalQualified=False,forceAndNetworkQualified=False,processDeathQualified=False,phase3Complete=False)
 
@@ -280,8 +282,8 @@ NEGATIVES = {
 
 
 def mutate(root, name):
-    events = semantic.collection.read_json(root, 'events.json', 8*semantic.joining.MIB)
-    wires = semantic.collection.read_json(root, 'wire.json', 16*semantic.joining.MIB)
+    events = semantic.collection.read_json(root, 'events.json', semantic.collection.EVENT_BYTES)
+    wires = semantic.collection.read_json(root, 'wire.json', semantic.collection.WIRE_BYTES)
     def at(event, node='node-2'):
         return next(i for i, row in enumerate(events) if row.get('node') == node and row.get('event') == event)
     missing = {'accept-force-missing': 'ACCEPT_CANDIDATE_FORCED', 'proof-parent-force-missing': 'PROOF_PARENT_FORCED',

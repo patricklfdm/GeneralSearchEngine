@@ -29,6 +29,10 @@ CLASS = 'io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportT
 METHOD = 'joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory'
 TEST = CLASS.rsplit('.', 1)[-1] + '#' + METHOD
 SCHEMA = 'gse-v53-joining-history-collection-v3'
+WIRE_BYTES = 64 * 1024 * 1024
+EVENT_BYTES = 32 * 1024 * 1024
+HISTORY_ROWS = 65536
+ROW_BYTES = 16 * 1024 * 1024
 need = snapshot.need
 
 
@@ -138,19 +142,22 @@ def read_json(root, name, maximum):
         need(len(rows) == len(dict(rows)), 'collection duplicate JSON key')
         return dict(rows)
     value = json.loads(raw, object_pairs_hook=unique)
+    need(type(value) is not list or len(value)<=HISTORY_ROWS,'collection history row capacity')
     need(snapshot.f.canonical(value) == raw, 'collection noncanonical JSON')
     # Like the Java history writer, bound individual messages instead of
     # applying a one-message token budget to the entire event history.
     for row in value if type(value) is list else [value]:
-        snapshot.f.parse_budget(snapshot.f.canonical(row))
+        encoded=snapshot.f.canonical(row)
+        need(len(encoded)<=ROW_BYTES,'collection individual row capacity')
+        snapshot.f.parse_budget(encoded)
     return value
 
 
 def collection(raw):
     # This detects missing observations. It does not prove their causal validity.
     original = inventory(raw)
-    events = read_json(raw, 'events.json', 8 * snapshot.MIB)
-    wire = read_json(raw, 'wire.json', 16 * snapshot.MIB)
+    events = read_json(raw, 'events.json', EVENT_BYTES)
+    wire = read_json(raw, 'wire.json', WIRE_BYTES)
     calls = read_json(raw, 'calls.json', 8 * snapshot.MIB)
     failures = read_json(raw, 'failures.json', snapshot.MIB)
     need(all(type(v) is list for v in (events, wire, calls, failures)) and events and wire and calls,

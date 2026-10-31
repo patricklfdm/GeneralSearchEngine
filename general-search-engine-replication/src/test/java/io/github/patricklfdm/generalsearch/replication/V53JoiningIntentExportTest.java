@@ -688,8 +688,8 @@ class V53JoiningIntentExportTest {
         }catch(Exception|Error error){result.put("status","FAIL");result.put("failure",error.toString());throw error;}
         finally {
             joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-originals-continuation"));
-            Files.write(n.f.raw.resolve("joining-continuation-wire.json"),V53EvidenceArray.encode(wire,16*1024*1024));
-            Files.write(n.f.raw.resolve("joining-continuation-events.json"),V53EvidenceArray.encode(events,1024*1024));
+            Files.write(n.f.raw.resolve("joining-continuation-wire.json"),V53EvidenceArray.encode(wire,V53EvidenceArray.WIRE_BYTES));
+            Files.write(n.f.raw.resolve("joining-continuation-events.json"),V53EvidenceArray.encode(events,V53EvidenceArray.EVENT_BYTES));
             Files.write(n.f.raw.resolve("joining-continuation-failures.json"),V53EvidenceArray.encode(failures,1024*1024));
             Files.write(n.f.raw.resolve("joining-continuation-result.json"),canonical(result,65536));
         }

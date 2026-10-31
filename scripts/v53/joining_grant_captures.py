@@ -230,8 +230,8 @@ if __name__ == '__main__':
     parser.add_argument('--qualify', action='store_true')
     args = parser.parse_args()
     # Aggregate event logs have a per-message budget in the original collector.
-    from .joining_history_run import read_json
-    events = read_json(Path(args.raw), 'events.json', 8*MIB)
+    from .joining_history_run import read_json, EVENT_BYTES
+    events = read_json(Path(args.raw), 'events.json', EVENT_BYTES)
     result = validate(args.raw, events, whole_history=args.whole_history)
     if args.qualify: result['qualification'] = qualify(args.raw, events)
     print(json.dumps(result, sort_keys=True))

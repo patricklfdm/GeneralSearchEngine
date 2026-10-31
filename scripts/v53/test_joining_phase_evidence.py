@@ -85,7 +85,7 @@ class JoiningPhaseEvidenceTest(unittest.TestCase):
             j.control([*rows,changed],'ACCEPT','node-2',q['payload'],a['payload'],q,-1,2)
 
     def test_every_original_slot_force_is_required_in_order(self):
-        parts,_,_,_=fixture.JoiningCatalogEvidenceTest().phase();replay=SimpleNamespace(phases=[parts])
+        parts,_,_,_=fixture.JoiningCatalogEvidenceTest().phase();replay=SimpleNamespace(phases=[parts],old=('node-1','node-2','node-3'),joining='node-4')
         events=[dict(node=node,event=event) for node in ('node-1','node-2') for event in j.force_names()]
         self.assertEqual(2,len(j.blocks(events,replay)))
         for ordinal in range(len(j.force_names())):
@@ -93,7 +93,7 @@ class JoiningPhaseEvidenceTest(unittest.TestCase):
                 j.blocks(events[:ordinal]+events[ordinal+1:],replay)
 
     def test_joined_slot_forces_cannot_come_from_a_different_lifetime(self):
-        parts,_,_,_=fixture.JoiningCatalogEvidenceTest().phase(True);replay=SimpleNamespace(phases=[parts])
+        parts,_,_,_=fixture.JoiningCatalogEvidenceTest().phase(True);replay=SimpleNamespace(phases=[parts],old=('node-1','node-2','node-3'),joining='node-4')
         events=[dict(node=node,event=event,**(dict(scope='continuation-owner') if node=='node-4' else {}))
                 for node in ('node-1','node-2','node-4') for event in j.force_names()]
         self.assertEqual(3,len(j.blocks(events,replay)))
@@ -104,6 +104,28 @@ class JoiningPhaseEvidenceTest(unittest.TestCase):
         with patch.object(j,'validate',side_effect=ValueError('original failed')),patch.object(j.shutil,'copytree') as copied:
             with self.assertRaisesRegex(ValueError,'^original failed$'):j.qualify(Path('/original'))
             copied.assert_not_called()
+
+    def test_profile_force_owners_do_not_alias_old_node_four_with_the_joiner(self):
+        for size in (3,4,5):
+            old=tuple('node-'+str(i) for i in range(1,size+1));joining='node-'+str(size+1)
+            selected=(*old[:size//2],old[-1],joining)
+            replay=SimpleNamespace(old=old,joining=joining,phases=[{'CERTIFICATE':b'original'}])
+            cert=dict(proofs=[dict(voter=n) for n in selected])
+            events=[dict(node=n,event=e,**({'scope':'continuation-owner'} if n==joining else {}))
+                    for n in selected for e in j.force_names()]
+            with self.subTest(size=size),patch.object(j.f,'decode',return_value=cert):
+                self.assertEqual({(1,n) for n in selected},set(j.blocks(events,replay)))
+                with self.assertRaisesRegex(ValueError,'^joining exact slot force order: '+joining+'$'):
+                    j.blocks(events[:-1],replay)
+                events[-1]['scope']='old-owner'
+                with self.assertRaisesRegex(ValueError,'^joining force owner lifetime$'):j.blocks(events,replay)
+
+    def test_foreign_force_owner_cannot_disappear_outside_the_known_profile(self):
+        parts,_,_,_=fixture.JoiningCatalogEvidenceTest().phase()
+        replay=SimpleNamespace(phases=[parts],old=('node-1','node-2','node-3'),joining='node-4')
+        events=[dict(node=n,event=e) for n in replay.old[:2] for e in j.force_names()]
+        with self.assertRaisesRegex(ValueError,'^joining slot force unknown owner$'):
+            j.blocks(events+[dict(node='node-99',event=j.force_names()[0])],replay)
 
     def test_metadata_force_multiplicity_and_parent_order_are_checked(self):
         names=['APPLY_METADATA_FORCED']*4+['APPLY_PARENT_STATEMENT_FORCED']

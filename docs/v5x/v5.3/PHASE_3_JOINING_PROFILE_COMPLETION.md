@@ -114,8 +114,11 @@ majority rejection remains tested for every profile.
 ## Qualification status and remaining work
 
 See the source/build-bound [batch receipt](phase3-evidence/joining-profile-completion.json)
-for actual local executions, tests and retained failed attempts. The current
-complete five-profile hosted cohort is still pending. Old source evidence is
+for actual local executions, tests and retained failed attempts. The [profile-aware physical follow-up](PHASE_3_JOINING_PROFILE_PHYSICAL.md) now
+replays the retained 3-REPLACE history through three scoped gates. Its fresh 4-ADD
+execution reached the final cold reopen but failed on the old wire-evidence
+envelope; it remains unqualified. The complete corrected-source five-profile
+hosted cohort is still pending. Old source evidence is
 retained and replayed without relabeling it as a new native execution.
 
 The corrected complete local 3-REPLACE history passes all eleven original slots,

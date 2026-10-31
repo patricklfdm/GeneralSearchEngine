@@ -293,8 +293,8 @@ def authorize_pending(values,events,model):
 def replay(root):
     root=Path(root);model=n.s.Replay(root)
     for index in range(1,12):model.step(index)
-    events=n.s.collection.read_json(root,'events.json',8*p.captures.MIB)
-    wires=n.s.collection.read_json(root,'wire.json',16*p.captures.MIB)
+    events=n.s.collection.read_json(root,'events.json',n.s.collection.EVENT_BYTES)
+    wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
     identities=n.s.catalog.identities(model.states[-1]['identities'])
     rows=n.causal(events,wires,identities,model.root);contents=[];n.transfers(rows,contents=contents)
     generations=generation_windows(root,events,model);sources=source_windows(root,events)
@@ -347,8 +347,8 @@ NEGATIVES={
 
 
 def mutate(root,name):
-    events=n.s.collection.read_json(root,'events.json',8*p.captures.MIB)
-    wires=n.s.collection.read_json(root,'wire.json',16*p.captures.MIB)
+    events=n.s.collection.read_json(root,'events.json',n.s.collection.EVENT_BYTES)
+    wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
     model=n.s.Replay(root)
     for index in range(1,12):model.step(index)
     rows=n.causal(events,wires,n.s.catalog.identities(model.states[-1]['identities']),model.root)

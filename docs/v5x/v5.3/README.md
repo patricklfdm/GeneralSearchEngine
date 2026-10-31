@@ -1,5 +1,15 @@
 # V5.3 — controlled cluster operations
 
+[Joining profile physical replay](PHASE_3_JOINING_PROFILE_PHYSICAL.md) extends
+slot-force, publication and bootstrap-to-INTENT storage readers to all five
+ADD/REPLACE profiles. Publication uses each publisher's original delivered ACK
+set, preserving valid overlapping majorities without requiring an unused joining
+ACK. Full control-attempt, joining recovery, maintenance/process and profile
+cohort qualification remain open; the aggregate returns PARTIAL. A complete
+4-ADD attempt reached cold reopen but failed while saving its oversized wire
+trace. The bounded test envelopes are corrected; that failed run remains
+unqualified and a corrected-source execution is deferred.
+
 [Joining profile completion](PHASE_3_JOINING_PROFILE_COMPLETION.md) extends all five
 ADD/REPLACE producers through FINAL, the new-view BARRIER and retaining cold
 reopen. Actual selected sets may omit the joining voter; its later recovery uses

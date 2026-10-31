@@ -1,4 +1,4 @@
-"""Derive native ADD publication inventories from original applied snapshots.
+"""Derive native ADD/REPLACE publication inventories from original applied snapshots.
 
 The semantic reader first authenticates commands, catalogs and observed ACKs.
 This reader derives the exact next packet, coverage, generation and retention
@@ -20,6 +20,50 @@ from . import learner_retention_evidence as learner
 
 f, need, sha, disk = semantic.f, semantic.need, semantic.sha, semantic.disk
 PEERS = 'peer-retention.gspr'
+
+
+class CheckpointReceipts:
+    """Use complete delivered original transfers, not published endorsement lists.
+
+    A forced joining ACK may exist without ever being requested by a sufficient
+    overlapping majority. Each publisher owns its own successful collection.
+    """
+    def __init__(self, root, replay):
+        from . import joining_transcript as transcript
+        events=semantic.collection.read_json(root,'events.json',semantic.collection.EVENT_BYTES)
+        wires=semantic.collection.read_json(root,'wire.json',semantic.collection.WIRE_BYTES)
+        identities=semantic.catalog.identities(replay.states[-1]['identities'])
+        rows=transcript.causal(events,wires,identities,replay.root,transfer_only=True);contents=[]
+        self.transport=transcript.transfers(rows,contents=contents)
+        self.acks={};self.transfers=0;self.bindings=[];blocks=phases.blocks(events,replay)
+        for (index,node),block in blocks.items():
+            lower,upper=block['APPLY_BEFORE_RETURN'],block['PUBLICATION_VALIDATED']
+            local=replay.owner('applied',index,node)
+            groups={}
+            for name,raw in local.items():
+                if name.startswith('applied-end/') and (name=='applied-end/ack.gsr' or name.endswith('-ack.gsr')):
+                    value=f.decode(raw,'records','CHECKPOINT_ACK',replay.root)
+                    need(value['voter']==node and replay.acks.get((value['statement'],node))==raw,'joining publication original local ACK')
+                    need(value['statement'] not in groups,'joining publication duplicate local statement')
+                    groups[value['statement']]={node:raw}
+            for transfer in contents:
+                offer,commit=transfer['offer'],transfer['commit'];request=offer['request']
+                if request['sender']['node']!=node or not lower<offer['sent']<commit['delivered']<upper:continue
+                raw=transfer['raw']
+                if transfer['kind']!='RECORD' or len(raw)<10 or int.from_bytes(raw[8:10],'big')!=f.catalog()['records']['CHECKPOINT_ACK']['id']:continue
+                value=f.decode(raw,'records','CHECKPOINT_ACK',replay.root);statement=value['statement'];peer=value['voter']
+                need(statement in groups and peer==request['recipient']['node'] and peer not in groups[statement]
+                     and replay.acks.get((statement,peer))==raw,'joining publication original delivered ACK')
+                groups[statement][peer]=raw;self.transfers+=1
+                self.bindings.append(dict(index=index,node=node,peer=peer,statement=statement,
+                    sent=offer['sent'],committed=commit['delivered'],acknowledgement=sha(raw)))
+            for statement,receipts in groups.items():
+                semantic.catalog.majority(replay.states[index]['cut']['view'],sorted(receipts))
+                self.acks[node,statement]=[receipts[n] for n in sorted(receipts)]
+
+    def get(self,node,statement):
+        need((node,statement) in self.acks,'joining publication missing collected statement')
+        return self.acks[node,statement]
 
 
 def anchor(replay, index):
@@ -56,9 +100,11 @@ def required_points(replay, files, index):
     return unique
 
 
-def checkpoint_group(replay, start, end, kind):
+def checkpoint_group(replay, start, end, kind, *, node=None):
     raw = f.encode('records', 'CHECKPOINT', replay.checkpoint(start, end, kind))
-    acknowledgements = [value for (statement, _), value in sorted(replay.acks.items()) if statement == sha(raw)]
+    receipts=getattr(replay,'publication_receipts',None)
+    acknowledgements = receipts.get(node,sha(raw)) if node is not None and receipts is not None else [
+        value for (statement, _), value in sorted(replay.acks.items()) if statement == sha(raw)]
     voters = [f.decode(v, 'records', 'CHECKPOINT_ACK', replay.root)['voter'] for v in acknowledgements]
     semantic.catalog.majority(replay.states[end]['cut']['view'], voters)
     return [raw, *acknowledgements]
@@ -75,7 +121,11 @@ def original_bridges(replay, members):
     for group in groups:
         value = f.decode(group[0], 'records', 'CHECKPOINT', replay.root)
         start, end = value['start']['index'], value['end']['index']
-        need(start not in result and group == checkpoint_group(replay, start, end, 'RANGE'),
+        expected=f.encode('records','CHECKPOINT',replay.checkpoint(start,end,'RANGE'))
+        voters=[f.decode(raw,'records','CHECKPOINT_ACK',replay.root)['voter'] for raw in group[1:]]
+        try:semantic.catalog.majority(replay.states[end]['cut']['view'],voters)
+        except ValueError as error:raise ValueError('joining publication original ancestry') from error
+        need(start not in result and group[0]==expected and all(replay.acks.get((sha(expected),node))==raw for node,raw in zip(voters,group[1:])),
              'joining publication original ancestry')
         result[start] = group
     return result
@@ -84,6 +134,7 @@ def original_bridges(replay, members):
 def publication_members(replay, files, index):
     """Exact new generation members; original published files are never read."""
     _, local, packet = disk.current(files); cap = packet['capsule']
+    node=f.decode(files['node.gsr'],'records','NODE',replay.root)['identity']['node']
     parts = replay.phases[index-1]; kind = replay.entries[index-1]['kind']
     membership = kind in ('INTENT', 'FINAL')
     start, _, scope = semantic.capsules.spans(replay.entries, index)[-1]
@@ -91,7 +142,7 @@ def publication_members(replay, files, index):
     if not membership and retained and retained[-1]['kind'] == 'RANGE': retained.pop()
     objects = {sha(raw): raw for raw in (replay.root_bytes, replay.genesis, replay.catalogs[index])}
     for item in retained: objects.update(cross.retain_item(packet, item))
-    current = checkpoint_group(replay, start, index, scope)
+    current = checkpoint_group(replay, start, index, scope,node=node)
     objects.update({sha(raw): raw for raw in current})
     objects.update({sha(parts[k]): parts[k] for k in ('ENTRY', 'ACCEPT', 'PROOF', 'CERTIFICATE', 'PAYLOAD')})
     descriptor = None
@@ -110,7 +161,7 @@ def publication_members(replay, files, index):
                 if name.startswith('applied-end/') and name.endswith('-statement.gsr')}
     need(observed == set(labels), 'joining publication required applied ancestry')
     for label, lower in labels.items():
-        need(files['applied-end/'+label+'-statement.gsr'] == checkpoint_group(replay, lower, index, 'RANGE')[0],
+        need(files['applied-end/'+label+'-statement.gsr'] == checkpoint_group(replay, lower, index, 'RANGE',node=node)[0],
              'joining publication exact applied ancestry')
     original = original_bridges(replay, local)
     bridges = [group for lower, group in original.items() if lower in required and lower <= start]
@@ -122,7 +173,7 @@ def publication_members(replay, files, index):
         direct.update((value['start']['index'], value['end']['index']))
     need(all(at in original for at in required if at <= start and at not in direct),
          'joining publication missing original bridge')
-    bridges += [checkpoint_group(replay, lower, index, 'RANGE') for lower in labels.values()]
+    bridges += [checkpoint_group(replay, lower, index, 'RANGE',node=node) for lower in labels.values()]
     for group in bridges: objects.update({sha(raw): raw for raw in group})
     selected = f.decode(parts['SELECTED'], 'records', 'SELECTED', replay.root)
     first_index = selected['cut']['index']+1
@@ -184,10 +235,11 @@ def expected_publication(replay, files, index, node):
     return expected
 
 
-def validate(root):
+def validate(root, *, size=3, kind='ADD'):
     root = Path(root); inventory = semantic.collection.inventory(root)
-    original = semantic.validate(root); replay = semantic.Replay(root)
+    original = semantic.validate(root,size=size,kind=kind); replay = semantic.Replay(root,size=size,kind=kind)
     for index in range(1, original['slots']+1): replay.step(index)
+    replay.publication_receipts=CheckpointReceipts(root,replay)
     publications = byte_count = 0
     for index, parts in enumerate(replay.phases, 1):
         voters = [v['voter'] for v in f.decode(parts['CERTIFICATE'], 'records', 'CERTIFICATE')['proofs']]
@@ -196,8 +248,9 @@ def validate(root):
             need(replay.owner('published', index, node) == expected, 'joining exact publication inventory')
             publications += 1; byte_count += sum(len(v) for v in expected.values() if v is not None)
     need(semantic.collection.inventory(root) == inventory, 'joining original changed during publication replay')
-    return dict(status='PASS', scope='native-ADD-applied-to-published-inventories', slots=original['slots'],
-        publications=publications, comparedBytes=byte_count, publicationPhysicalQualified=True,
+    return dict(status='PASS', scope='native-'+kind+'-applied-to-published-inventories', profile=str(size)+'-'+kind, slots=original['slots'],
+        publications=publications, comparedBytes=byte_count, collectedCheckpointTransfers=replay.publication_receipts.transfers,
+        publicationPhysicalQualified=True,
         completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False)
 
 

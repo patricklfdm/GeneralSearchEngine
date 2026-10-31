@@ -104,8 +104,8 @@ class Replay:
     def __init__(self,root):
         self.root=Path(root);self.model=n.s.Replay(root)
         for index in range(1,12):self.model.step(index)
-        self.events=n.s.collection.read_json(self.root,'events.json',8*e.p.captures.MIB)
-        wires=n.s.collection.read_json(self.root,'wire.json',16*e.p.captures.MIB)
+        self.events=n.s.collection.read_json(self.root,'events.json',n.s.collection.EVENT_BYTES)
+        wires=n.s.collection.read_json(self.root,'wire.json',n.s.collection.WIRE_BYTES)
         self.rows=n.causal(self.events,wires,n.s.catalog.identities(self.model.states[-1]['identities']),self.model.root)
         contents=[];n.transfers(self.rows,contents=contents);self.groups=e.sessions(contents)
         self.windows=e.generation_windows(root,self.events,self.model);self.sources=e.source_windows(root,self.events)
@@ -290,7 +290,7 @@ NEGATIVES={
 
 def mutate(root,name):
     root=Path(root);reader=Replay(root);events=reader.events
-    wires=n.s.collection.read_json(root,'wire.json',16*e.p.captures.MIB)
+    wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
     def replace(row,side,kind,value):
         old=sha(base64.b64decode(row[side]));raw=f.encode('wire',kind,value);row[side]=encoded(raw)
         for event in events:
