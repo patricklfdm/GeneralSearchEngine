@@ -1,11 +1,20 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Complete joining execution and catalog replay](PHASE_3_JOINING_CATALOG_REPLAY.md)
+now retain one successful whole `3-ADD` history on `df22c398`, including all global
+events and stage snapshots. Its independent catalog/certificate/checkpoint and
+internal readiness chain passes 15 negatives, separately from the 15 ledger
+negatives. Extend full physical and force/network replay on these original bytes;
+do not rerun or relabel the producer merely to develop a reader. Changed runtime
+or fixture sources require their own executed qualification. All remaining
+profiles and process cuts stay deferred.
+
 [Whole joining observations](PHASE_3_JOINING_OBSERVATIONS.md) add the missing
 new-node callbacks and actual installation/SEAL/FINAL/BARRIER snapshots. Use
 `python3 -B -u -m scripts.v53.joining_history_run <new-output> --maven <maven>`
 for the next complete history. Keep its exact source/build/JUnit/raw inputs;
 the collector intentionally returns PARTIAL and does not replace independent
-physical/force/network replay. The corrected whole execution remains pending.
+physical/force/network replay. The corrected whole execution now has the pass above.
 
 [Maintenance renewal reconciliation](PHASE_3_MAINTENANCE_OBSERVATIONS.md) now
 refreshes the real selection and BARRIER before accepting a new command when
@@ -14,11 +23,11 @@ record and checkpoint obligation in the complete early-start joining history.
 Run `V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory`
 through initialization, FINAL/BARRIER and cold reopen on one original filesystem;
 the shorter JOINT publication pass cannot be stitched into that later history.
-The latest corrected-index run completed functional FINAL/BARRIER and stable cold
+The earlier corrected-index run completed functional FINAL/BARRIER and stable cold
 reopen, but lost its global event trace at close due to the single-message JSON
 token budget. After the bounded fixture writer correction, repeat this entire
-history as one hosted case before declaring a passing execution; do not recreate
-the missing events or join it to a later run. Initial confirmed-ledger replay now
+history before declaring a passing execution; the new single local run above
+does so without recreating missing events or joining attempts. Confirmed-ledger replay now
 passes separately, including 15 exact negatives. Extend independent replay for
 the additional selections and complete original force/network history before
 claiming whole-history acceptance. Performance overhead,

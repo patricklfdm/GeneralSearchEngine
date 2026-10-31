@@ -1,0 +1,364 @@
+{
+  "archive": {
+    "bytes": 26443720,
+    "directories": 707,
+    "files": 11640,
+    "hashesVerified": true,
+    "path": "target/v53-joining-catalog/joining-catalog-history.tar.gz",
+    "sha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f"
+  },
+  "collection": {
+    "bytes": 28033605,
+    "events": 17616,
+    "files": 3107,
+    "finalIndex": 11,
+    "wirePairs": 2211
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1764,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "df2b96e06634573e16e27e49fb241db4580ea171b7926550a484d818e86d1d78"
+  },
+  "fixtureJavaChanged": false,
+  "forceAndNetworkQualified": false,
+  "limitations": [
+    "This is one native 3-ADD execution and its independently derived semantic catalog/certificate/checkpoint/internal-readiness chain.",
+    "Complete ownership/generation/retention/reclamation physical-state replay remains open.",
+    "Original force/network causal replay, process-death cases, all seven profiles and frozen Phase 3 mappings remain open.",
+    "The earlier corrected-index trace-encoding failure remains failed and is not stitched into this run.",
+    "Producer and reader source manifests are separate. A reader-only replay does not qualify a changed runtime or fixture."
+  ],
+  "phase3Complete": false,
+  "pomChanged": false,
+  "portability": {
+    "archive": {
+      "bytes": 77503,
+      "files": 7,
+      "memberHashesVerified": true,
+      "path": "target/v53-joining-catalog/joining-catalog-portability.tar.gz",
+      "sha256": "b7cfadb16442e383d73cf4757a5b55034ebedc12a7cbfacd4d13248675cd1d12"
+    },
+    "result": {
+      "archiveSha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f",
+      "catalogAndLedgerIdentical": true,
+      "catalogNegatives": 15,
+      "elapsedSeconds": 17.123,
+      "fullPhysicalAndNetworkQualified": false,
+      "independentReaderFromArchive": true,
+      "ledgerNegatives": 15,
+      "status": "PASS"
+    },
+    "resultSha256": "f74ab7f28adb9bcfe7602a12d8855f5eb7eda8ade44a4a609108229cf1c6fd1e"
+  },
+  "processDeathQualified": false,
+  "producer": {
+    "baseHead": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+    "buildSha256": "99182c56d9c84d3cc03faaad10a6d3de1eb42fdedd4999e658380307581e16ad",
+    "collectionComplete": true,
+    "collectionExecution": {
+      "elapsedSeconds": 1.477,
+      "exit": 0
+    },
+    "collectionSha256": "94fa10496fcd2c8264b0daf7f82c1ccc3447e7a2efe391ef5d6c3ab78ba567f0",
+    "command": [
+      "/opt/maven/bin/mvn",
+      "-o",
+      "-B",
+      "-ntp",
+      "-f",
+      "reactor/pom.xml",
+      "-pl",
+      "../general-search-engine-replication",
+      "-am",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dtest=V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+      "test"
+    ],
+    "execution": {
+      "elapsedSeconds": 954.74,
+      "exit": 0
+    },
+    "executionStatus": "PASS",
+    "junit": {
+      "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+      "errors": 0,
+      "failures": 0,
+      "method": "joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+      "skipped": 0,
+      "tests": 1
+    },
+    "nativeHistoryQualified": false,
+    "path": "target/v53-joining-history/original-df22c398",
+    "phase3Complete": false,
+    "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-69c04a26-5f7f-478d-9216-088b7bbaec54",
+    "receiptSha256": "c252348418035ec86bbd440f1041ef228f90d35ccf09d5188a04b0750748fffc",
+    "retries": 0,
+    "schema": "gse-v53-joining-history-collection-v1",
+    "sourceSha256": "15da9f750e3d09be474fdfa8e3b09230e285ea0c99be08578f46de7b6e737558",
+    "status": "PARTIAL",
+    "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+  },
+  "productionJavaChanged": false,
+  "python": {
+    "failures": 0,
+    "logPath": "target/v53-joining-catalog/python-tests-final.log",
+    "logSha256": "9d7e871a0d8ad489652c752a0762a945de315716597961a23e04c5f521485199",
+    "newTests": 10,
+    "status": "PASS",
+    "tests": 65
+  },
+  "reader": {
+    "path": "scripts/v53/joining_catalog_evidence.py",
+    "sha256": "637fdd35b2a24045347743acccb983b6ed6971d57360ef47d7d1ba471e2958d0",
+    "sourceDiffersFromProducer": true,
+    "sourceManifestSha256": "254be21538c0f738a932ed090637417ff475033864aebe2ba817d2ac66f4a575"
+  },
+  "replay": {
+    "catalog": {
+      "negatives": [
+        {
+          "case": "missing-applied-slot",
+          "reason": "joining complete consecutive applied history",
+          "status": "REJECTED"
+        },
+        {
+          "case": "entry-parent",
+          "reason": "joining original governing entry",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proof-receipt",
+          "reason": "joining original phased receipt",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-accepts",
+          "reason": "quorum identity/order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "learner-votes-before-intent",
+          "reason": "quorum identity/order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "joint-old-majority-only",
+          "reason": "both governing majorities",
+          "status": "REJECTED"
+        },
+        {
+          "case": "ready-wrong-revision",
+          "reason": "ready exact prepared identity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-wrong-binding",
+          "reason": "final binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-applied-catalog",
+          "reason": "joining independently reduced applied end",
+          "status": "REJECTED"
+        },
+        {
+          "case": "joint-checkpoint-old-majority-only",
+          "reason": "both governing majorities",
+          "status": "REJECTED"
+        },
+        {
+          "case": "hidden-membership-boundary",
+          "reason": "joining capsule membership coverage",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-checkpoint-ack",
+          "reason": "quorum identity/order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "offline-voter-changed",
+          "reason": "joining offline voter changed",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-final-ready",
+          "reason": "joining complete round lifecycle",
+          "status": "REJECTED"
+        },
+        {
+          "case": "ready-before-barrier",
+          "reason": "joining readiness before stable barrier",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "checkpointObservations": 49,
+        "completePhysicalQualified": false,
+        "controls": [
+          "BARRIER",
+          "RESERVE",
+          "BARRIER",
+          "PREPARE",
+          "BARRIER",
+          "READY",
+          "BARRIER",
+          "SEAL",
+          "INTENT",
+          "FINAL",
+          "BARRIER"
+        ],
+        "forceAndNetworkQualified": false,
+        "internalReadyCuts": [
+          1,
+          3,
+          5,
+          7,
+          11
+        ],
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "3-ADD",
+        "publicReady": false,
+        "scope": "native-ADD-catalog-certificate-checkpoint-chain",
+        "selections": 6,
+        "semanticChainQualified": true,
+        "slots": 11,
+        "status": "PASS"
+      }
+    },
+    "confirmedLedgers": {
+      "negatives": [
+        {
+          "case": "decision-checksum",
+          "reason": "joining derivation exact original decision",
+          "status": "REJECTED"
+        },
+        {
+          "case": "decision-key",
+          "reason": "joining derivation exact original decision",
+          "status": "REJECTED"
+        },
+        {
+          "case": "completion-key",
+          "reason": "joining derivation exact original completion",
+          "status": "REJECTED"
+        },
+        {
+          "case": "completion-hash",
+          "reason": "joining derivation exact original completion",
+          "status": "REJECTED"
+        },
+        {
+          "case": "peer-owner",
+          "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+          "status": "REJECTED"
+        },
+        {
+          "case": "drop-peer-uncertainty",
+          "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+          "status": "REJECTED"
+        },
+        {
+          "case": "learner-empty",
+          "reason": "joining derivation exact initial ledger: learner-retention.gslr",
+          "status": "REJECTED"
+        },
+        {
+          "case": "future-revision",
+          "reason": "joining derivation exact initial ledger: future-retention.gsft",
+          "status": "REJECTED"
+        },
+        {
+          "case": "copied-inode",
+          "reason": "joining derivation exact original decision",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-missing",
+          "reason": "joining derivation original source absent",
+          "status": "REJECTED"
+        },
+        {
+          "case": "grant-missing",
+          "reason": "joining derivation original grant absent",
+          "status": "REJECTED"
+        },
+        {
+          "case": "journal-owner",
+          "reason": "joining derivation original journal owner",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-orphan",
+          "reason": "joining derivation retained source count",
+          "status": "REJECTED"
+        },
+        {
+          "case": "peer-confirmation-missing",
+          "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+          "status": "REJECTED"
+        },
+        {
+          "case": "peer-confirmation-changed",
+          "reason": "joining derivation exact initial ledger: peer-retention.gspr",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "capsuleAncestryQualified": false,
+        "confirmedPeerProjection": true,
+        "forceAndNetworkQualified": false,
+        "initialLedgerBytesVerified": true,
+        "initialLedgers": {
+          "future-retention.gsft": "c7f81d844108b4ffc745f5117963248c0669cbef95fe28937f5908c5ae1f7ed6",
+          "learner-retention.gslr": "fab00dfbf9605e35cc2b3fe0024dd9f3e0f59ded06a19e4d035d58fb6d906aee",
+          "peer-retention.gspr": "3296200fa95ed2feb8f70988dee3e9561c204b60475e705be4beb53c541d5efb"
+        },
+        "nativeHistoryQualified": false,
+        "oldSources": 2,
+        "originalEndpointBindingsVerified": true,
+        "originalSourceBindingsVerified": true,
+        "phase3Complete": false,
+        "scope": "original-source-bound-joining-ledgers",
+        "seedSha256": "699153d2bf145d8fc45ee5e84a0fcac2fa48964434d3433626dee4241ff1de0a",
+        "status": "PARTIAL"
+      },
+      "phase3Complete": false,
+      "status": "PARTIAL"
+    },
+    "elapsedSeconds": 15.625,
+    "path": "target/v53-joining-catalog/replay-source-cut.json",
+    "sha256": "e8023b42e4c72403cffe693b4450250f3847b3cca2a17d91c8e21a25f3aa165a"
+  },
+  "schema": "gse-v53-phase3-joining-catalog-v1",
+  "sourceCompatibility": {
+    "currentReaderMatchesQualifiedArchive": true,
+    "fixtureJavaChanged": false,
+    "path": "target/v53-joining-catalog/source-compatibility.json",
+    "pomChanged": false,
+    "producerHead": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+    "producerSourceSha256": "15da9f750e3d09be474fdfa8e3b09230e285ea0c99be08578f46de7b6e737558",
+    "productionJavaChanged": false,
+    "protectedInputCount": 1511,
+    "readerSnapshotChanges": [
+      "scripts/v53/joining_catalog_evidence.py",
+      "scripts/v53/test_joining_catalog_evidence.py"
+    ],
+    "readerSourceSha256": "254be21538c0f738a932ed090637417ff475033864aebe2ba817d2ac66f4a575",
+    "sha256": "8f8dc91dd0b10fb0675ab24d85b9f92c7c734603dd9de28c0892a0e1f5649eb6",
+    "sourceIdentityShared": false,
+    "status": "PASS"
+  },
+  "status": "PARTIAL",
+  "workflowChanged": false
+}

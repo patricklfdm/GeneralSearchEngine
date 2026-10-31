@@ -7,7 +7,8 @@ history, every profile, process-death recovery, or public readiness.
 The previous [confirmed-ledger history](phase3-evidence/joining-confirmations.json)
 completed functional FINAL, BARRIER and stable cold reopen, but its JUnit execution
 failed while serializing the global event array. Its missing events cannot be
-recreated. Corrected-source whole execution remains a deferred acceptance item.
+recreated. The [later whole execution and catalog replay](PHASE_3_JOINING_CATALOG_REPLAY.md)
+now pass on `df22c398`; complete physical/force/network qualification remains open.
 
 ## Actual observation coverage
 
@@ -89,7 +90,8 @@ it must not split or stitch this history. The older failed attempt remains faile
 
 The [batch receipt](phase3-evidence/joining-observations.json) records 11 passing
 Java component tests, 46 passing Python tests, the source manifest and retained
-archive hashes. It explicitly leaves corrected whole execution pending.
+archive hashes. It left corrected whole execution pending at that batch; the
+newer execution and replay receipt above records its subsequent result separately.
 
 Focused Java tests check callback ordering across threads/owners, attempted writes
 without successful wire evidence, distinct scopes and bounded serialization.
@@ -98,7 +100,7 @@ links/byte bounds, duplicate JSON keys, large histories, missing observations,
 failure retention and heartbeat behavior. Synthetic collection unit inputs test
 collection boundaries only; they are not executed consensus evidence.
 
-Run the whole corrected history through this entry in deferred hosted acceptance,
-then extend independent replay to every additional selection and new-node lifetime.
+The corrected whole history has now passed through this entry. Extend independent
+physical and force/network replay to every selection and new-node lifetime.
 Complete seven-profile coverage, native process/network cuts and Phase 3 mapping
-remain separate required gates. No full-history passing result is claimed here.
+remain separate required gates. Successful execution does not close those gates.

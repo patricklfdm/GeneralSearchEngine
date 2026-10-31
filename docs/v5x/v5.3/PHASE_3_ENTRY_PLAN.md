@@ -1,10 +1,17 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Complete joining execution and catalog replay](PHASE_3_JOINING_CATALOG_REPLAY.md)
+now pass one original `3-ADD` history through FINAL, new-view BARRIER, cold reopen
+and close. Independent replay covers eleven slots, six selections, 49 checkpoint
+ACK observations and five internal READY boundaries, with 15 exact negatives;
+the existing ledger reader adds 15 separate negatives. Complete physical and
+force/network replay, all profiles and process cuts remain open.
+
 [Joining confirmation qualification](PHASE_3_JOINING_LEDGER_REPLAY.md#explicit-confirmed-peer-mode)
-now covers the exact initialized ledgers and 15 evidence negatives. The latest
+now covers the exact initialized ledgers and 15 evidence negatives. The earlier
 continuous probe completed FINAL/BARRIER and stable cold reopen, then failed at
 aggregate trace encoding. The fixture writer is corrected; that failed original
-is retained and a complete corrected-writer rerun remains necessary. No Phase 3
+is retained separately from the corrected whole pass above. No Phase 3
 closure or full physical/network acceptance follows from the ledger substage.
 
 [Bounded maintenance observations](PHASE_3_MAINTENANCE_OBSERVATIONS.md) defer
@@ -742,7 +749,8 @@ checklist, with a local commit after each validated batch and no automatic push.
 retain new-node force/transport callbacks and the previously missing manual-SEAL,
 joint FINAL/BARRIER and cold-reopen snapshots. The isolated entry records progress
 and separates execution, collection and independent qualification. Corrected-source
-whole execution and complete replay remain deferred; this does not close 3C–3E.
+whole execution and catalog replay now pass; the remaining complete replay does
+not yet close 3C–3E.
 
 [Concrete stable control admission](PHASE_3_ROUND_CONTROLS.md) corrects the
 round owner's conceptual `CONTROL` input to the six frozen concrete command

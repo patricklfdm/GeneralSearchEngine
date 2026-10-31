@@ -21,8 +21,10 @@ qualification; Phase 3 remains **OPEN**.
 [Whole joining observations](PHASE_3_JOINING_OBSERVATIONS.md) now retain new-node
 force/transport callbacks and SEAL/FINAL/BARRIER snapshots. An isolated long-test
 entry preserves source/build inputs, reports progress each minute and checks
-collection completeness. Corrected whole execution and independent replay remain
-pending; Phase 3 is **OPEN**.
+collection completeness. The [complete corrected execution and independent catalog
+chain](PHASE_3_JOINING_CATALOG_REPLAY.md) now pass one native `3-ADD` history and
+15 semantic negatives, alongside 15 ledger negatives. Complete physical/force/
+network replay and all profiles remain open; Phase 3 is **OPEN**.
 
 [Three-owner automatic-history replay](PHASE_3_COMPETING_REPLAY.md) independently
 reconstructs the retained clean competition, its final files, all original sends
