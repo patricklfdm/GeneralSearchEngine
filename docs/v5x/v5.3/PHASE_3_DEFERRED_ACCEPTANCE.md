@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining peer replay](PHASE_3_JOINING_PEER_REPLAY.md) adds continuous healthy
+peer-ledger derivation, exact original comparisons and force lifetime checks.
+Its 90 writes cover maintenance, selection and publication without restarting
+from final snapshots. Continue with fault/expiry and process-cut composition,
+then all-profile and frozen mapping acceptance; Phase 3 is not closed.
+
 [Joining maintenance replay](PHASE_3_JOINING_MAINTENANCE_REPLAY.md) composes the
 same original discovery, complete-copy delivery and floor lifecycle observations.
 Continue with peer-observation/retention and fault/expiry boundaries, then the

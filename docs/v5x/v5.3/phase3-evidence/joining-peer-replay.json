@@ -1,0 +1,236 @@
+{
+  "archive": {
+    "bytes": 34537858,
+    "entries": 16024,
+    "memberHashesVerified": true,
+    "negativeReplayRepeated": false,
+    "path": "target/v53-joining-peer-replay/sealed/joining-peer-replay.tar.gz",
+    "portableOriginal": "PASS",
+    "portableScopeStatus": "PASS",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "544a36a646bd15cf45a41756d12034f89e771392a54cf26e617100a64fd9883c",
+    "sha256": "d133ff83d57aa8d81be44f84d940afe5edf518a8618aacc52a417acc4d247ac7",
+    "status": "PASS"
+  },
+  "archiveReceiptNote": "Archive reader contains the pre-seal receipt; finalized receipt is retained separately to avoid a self-referential archive hash.",
+  "baseHead": "0f33ed82053a8dd6ec88a802e7c6667911cd90f5",
+  "buildManifestSha256": "5c2fc5985a9f7beba7712365c4067b2fe523d986a4a1a1a55b479737b0810d95",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "282bf9d7d69dd8fd814d90cde2348b67da2d8fbde87995188690920314704a1b",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "b30efb28202e2aa386082ec91119c86489f5087615fc77a045dcb301322bd68f",
+    "docs/v5x/v5.3/PHASE_3_JOINING_PEER_REPLAY.md": "e58b742a0ad2d6124f115ba60e56f3cbec466777e793e0f5fd0f38ccaac1ff1f",
+    "docs/v5x/v5.3/README.md": "8b49aafac4647bb9ba23ab4267df31c8df7633fc80d62c4f5bb9567b95c15387",
+    "scripts/v53/joining_peer_evidence.py": "8b4dd3f0cc1388a6f2d6945b6a1ecb535ff5843f7e329fac3d35022f13726043",
+    "scripts/v53/test_joining_peer_evidence.py": "3ac354489f0b6d9e45f0f8f4396233a3dc8e4dfb0bc39ef683b02a0c17830374"
+  },
+  "collectionSha256": "5a32e0a88bb8034de53ca1aecc5277372e04910ef04baae85c7143d5f6b1cbd7",
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1850,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "diagnosticsNote": "Initial reader development errors and earlier 16-case qualification are retained separately. Final 20-case qualification and portable replay use the complete reader. No native history was rerun.",
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "nativeExecution": {
+    "elapsedSeconds": 879.386,
+    "exit": 0
+  },
+  "newNativeExecutions": 0,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalFilesAndWirePreservedInNegatives": true,
+  "prerequisiteReceipt": "docs/v5x/v5.3/phase3-evidence/joining-maintenance-replay.json",
+  "prerequisiteReceiptSha256": "bbfdbe34a7546bb4f4e9f165ca3d145682713c8043a59092d8f48f27e1a3d431",
+  "priorPhysicalNetworkExportControlMaintenancePrecondition": true,
+  "processDeathQualified": false,
+  "producerHead": "9136083fb35318f74b4003b8aa61fee71a3725cc",
+  "producerPath": "target/v53-joining-history/original-9136083f",
+  "producerReceiptSha256": "cd566df3ce01bfce1e484226860e741b5a33981af50d512c204d49f49a428f8f",
+  "productionChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "case": "force-missing",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer exact write force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "rename-before-force",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer exact write force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "candidate-parent-missing",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer exact write force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-write-owner",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer original write owner",
+        "status": "REJECTED"
+      },
+      {
+        "case": "incomplete-write",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer incomplete durable write",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-write",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer unbound durable writes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "maintenance-before-floor",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer maintenance durable write count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "maintenance-after-retirement",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer maintenance durable write count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-before-force",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer selected durable write count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-before-install",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer selected durable write count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-completion",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer unbound selected completions",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-after-promotion",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer publication durable write count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-before-retirement",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer publication durable write count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-write",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer publication durable write count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-without-completion",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer selected completion count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "maintenance-omit-write",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer maintenance durable write count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reseal-parent-missing",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer exact open reseal count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reseal-parent-before-active",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer open reseal force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reseal-after-future-recovery",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer open reseal force order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-reseal",
+        "networkExportControlMaintenancePrecondition": "PASS",
+        "reason": "joining peer unbound open reseal",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "capturedLedgers": 19,
+      "chainSha256": "280871d960e4948d946655ac821e4848e0e517f5ca76ca3757af299ab9958481",
+      "completePhysicalQualified": false,
+      "durableWrites": 90,
+      "finalRevisions": {
+        "node-1": 40,
+        "node-2": 40,
+        "node-3": 0,
+        "node-4": 10
+      },
+      "forceAndNetworkQualified": false,
+      "ledgerComparisons": 97,
+      "openReseals": 8,
+      "peerLedgerCompositionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-ADD-original-peer-ledger-chain",
+      "status": "PASS",
+      "writesByKind": {
+        "maintenance": 54,
+        "publication": 24,
+        "selected": 12
+      }
+    }
+  },
+  "qualificationSha256": "e332d99bf84690ead3cb38cb72ad71c707a8702adc65b96ddeb5ac1b0d182b79",
+  "remaining": [
+    "faulted/expired/cancelled operations and complete force/network composition",
+    "process-death cases",
+    "all seven profiles",
+    "frozen acceptance mapping"
+  ],
+  "retainedDiagnostics": [
+    "replay-initial.stderr",
+    "replay-reseals.stderr",
+    "qualification-initial.json",
+    "qualification-initial.stderr",
+    "python-initial.log"
+  ],
+  "schema": "gse-v53-joining-peer-replay-v1",
+  "scope": "one-native-ADD-original-peer-ledger-chain",
+  "sourceSha256": "b507199f32c078a6f5a889ef008902185818d6184ec851c52307ae9a0c8e5b25",
+  "status": "PASS",
+  "testLogSha256": "754ff72a8da536a40a877de1abb518062d0aca1ed2efc08de2dc4443612f0666",
+  "tests": {
+    "joiningPythonTests": 286,
+    "newReaderTests": 24,
+    "status": "PASS"
+  },
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+}

@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Joining peer replay](PHASE_3_JOINING_PEER_REPLAY.md) continuously derives all 90
+peer-ledger writes in the original healthy ADD history: 54 maintenance updates,
+12 selected merges and 24 publication promotions. It binds their exact force
+lifetimes, eight open-time reseals and 97 retained ledger observations. Fault/expiry, process
+cuts, all seven profiles and frozen acceptance mapping remain open.
+
 [Joining maintenance replay](PHASE_3_JOINING_MAINTENANCE_REPLAY.md) binds the
 original discovery hints to complete-copy acquisition and floor force/release
 lifetimes. Its 38 network floors and two direct fixture floors remain distinct.

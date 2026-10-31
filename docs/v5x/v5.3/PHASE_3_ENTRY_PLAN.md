@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining peer replay](PHASE_3_JOINING_PEER_REPLAY.md) completes continuous
+peer-ledger derivation and force composition for the same original healthy ADD
+history. All 90 writes have one derived cause and an exact authority interval;
+97 retained ledgers, including 19 grant captures and eight open reseals, match. This does not qualify
+intermediate crash recovery, fault/expiry paths, other profiles or frozen mapping.
+
 [Joining maintenance replay](PHASE_3_JOINING_MAINTENANCE_REPLAY.md) checks the
 healthy history's 55 discovery hints, 40 floor lifetimes and 96 complete copies,
 including actual transfer delivery, force/handoff and release ordering. The two
