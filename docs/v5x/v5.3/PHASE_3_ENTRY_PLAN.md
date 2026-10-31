@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining publication inventory replay](PHASE_3_JOINING_PUBLICATION_REPLAY.md)
+derives all 24 applied-to-published transitions in the original native ADD history,
+including exact packet objects, coverage, generations, ancestor obligations and
+ledger promotion. Twenty-six semantic-preserving negatives qualify this boundary.
+Intervening activation, installation, maintenance and custody state still need
+whole-history physical derivation; Phase 3 remains **OPEN**.
+
 [Joining slot force/ACK replay](PHASE_3_JOINING_PHASE_REPLAY.md) adds original
 response/delivery matching, every slot's vote/application/publication force order
 and independently reconstructed future-proof promotion. It does not complete

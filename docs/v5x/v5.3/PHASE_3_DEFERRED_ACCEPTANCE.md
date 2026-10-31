@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining publication inventory replay](PHASE_3_JOINING_PUBLICATION_REPLAY.md)
+now compares all 24 original applied-to-published inventories, with 26 exact
+semantic-preserving negatives. Reuse these original bytes while extending the
+physical reader across intervening activation/maintenance and joining custody;
+this conditional transition does not close whole-history physical qualification.
+
 [Joining slot force/ACK replay](PHASE_3_JOINING_PHASE_REPLAY.md) qualifies the
 eleven-slot force/response boundary on the existing `df22c398` original. For full
 network causality, execute the updated early-start fixture once with complete

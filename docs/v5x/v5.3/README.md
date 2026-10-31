@@ -2,10 +2,10 @@
 
 [Confirmed joining ledger replay](PHASE_3_JOINING_LEDGER_REPLAY.md#explicit-confirmed-peer-mode)
 now reconstructs native confirmation-bearing initialization without discarding
-unconfirmed peer or learner obligations. The continuous probe reached FINAL,
-fresh BARRIER and stable cold reopen, but failed collecting its full event trace.
-The bounded evidence writer is corrected and component-tested; complete rerun
-and independent whole-history qualification remain open.
+unconfirmed peer or learner obligations. The earlier continuous probe failed
+collecting its full event trace. After the bounded writer correction, one
+complete original execution and semantic replay passed as recorded below;
+independent whole-history physical/network qualification remains open.
 
 [Bounded maintenance observations](PHASE_3_MAINTENANCE_OBSERVATIONS.md) preserve
 the existing conservative ledger when another observation would exceed renewal
@@ -30,6 +30,11 @@ network replay and all profiles remain open; Phase 3 is **OPEN**.
 eleven slots, 24 owned transactions and 13 future-retention targets against the
 same original history. Complete request-attempt observations are added to the
 test fixture for its next execution; the old history cannot supply missing sends.
+
+[Joining publication inventory replay](PHASE_3_JOINING_PUBLICATION_REPLAY.md)
+derives the exact 24 publication inventories and rejects 26 self-consistent
+mutations accepted by the prior semantic reader. Intervening physical state,
+complete network causality and process/profile qualification remain open.
 
 [Three-owner automatic-history replay](PHASE_3_COMPETING_REPLAY.md) independently
 reconstructs the retained clean competition, its final files, all original sends

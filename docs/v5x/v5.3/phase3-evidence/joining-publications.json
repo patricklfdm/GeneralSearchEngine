@@ -1,0 +1,253 @@
+{
+  "archive": {
+    "bytes": 10081398,
+    "files": 4283,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-publication/joining-publication-replay.tar.gz",
+    "sha256": "07603887ceaa749d7462b922f67100b5c7d25207715f4e4eed479a40e57f9228"
+  },
+  "changedSources": {
+    "scripts/v53/joining_publication_evidence.py": "12f5d061f7072819443c6aa0f0283bb9676f978c61239b8978193f32b6c2eb35",
+    "scripts/v53/test_joining_publication_evidence.py": "8b1a36158c2a6f79557b157ececfa116a3807d31837ca6e2c9132696d8abdcc9"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1775,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "3b813b82f21b9f173eb1585e53b7e79c1be27c0365aed6dbee75dc891839a4f2"
+  },
+  "forceAndNetworkQualified": false,
+  "limitations": [
+    "This gate derives the exact applied-to-published transition for 24 original owned publications, not all intervening physical state.",
+    "Pre-publication activation, selected installation, maintenance, original source retirement and joining custody still require complete independent derivation.",
+    "Original ledger revisions and unchanged files are conditional predecessor inputs, not independent force receipts.",
+    "The changed send/arrival fixture requires a fresh whole execution; this batch replays the unchanged df22c398 original without rerunning workload.",
+    "All seven profiles, process cuts and frozen requirement mappings remain open."
+  ],
+  "originalCollectionSha256": "94fa10496fcd2c8264b0daf7f82c1ccc3447e7a2efe391ef5d6c3ab78ba567f0",
+  "originalInventoryMatchesProducer": true,
+  "originalProducerReceipt": "target/v53-joining-history/original-df22c398/receipt.json",
+  "originalProducerReceiptSha256": "c252348418035ec86bbd440f1041ef228f90d35ccf09d5188a04b0750748fffc",
+  "originalProducerSource": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+  "originalRawArchive": {
+    "path": "target/v53-joining-catalog/joining-catalog-history.tar.gz",
+    "sha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f"
+  },
+  "phase3Complete": false,
+  "portableReplay": {
+    "elapsedSeconds": 91.626,
+    "negativeResultsIdentical": true,
+    "originalInventoryUnchanged": true,
+    "originalResultIdentical": true,
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "productionJavaChanged": false,
+  "publicationPhysicalQualified": true,
+  "python": {
+    "failures": 0,
+    "logSha256": "e9112a509b2d233af9b56d04c1826d232d4bedccba6ad4031ca63911410bec45",
+    "newLogSha256": "f4eb0ff6216c19f8cf8f4942164aa83b9c0b681bbf9b9378ad344e36056d073c",
+    "newTests": 12,
+    "status": "PASS",
+    "tests": 112
+  },
+  "readerBaseHead": "f6895230a666128aa91e926e1be0b4c566de2c14",
+  "readerSha256": "12f5d061f7072819443c6aa0f0283bb9676f978c61239b8978193f32b6c2eb35",
+  "readerSourceSha256": "8f70a071c0689241c7f270accb12945be2636e7ae395ed25050d44494c74d28a",
+  "readerSourceSnapshotPrecedesFinalReceipt": true,
+  "replay": {
+    "elapsedSeconds": 90.528,
+    "negatives": [
+      {
+        "case": "extra-packet-object",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-current-proof-object",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-first-proof-object",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "coverage-first-parent",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "coverage-selection",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "coverage-ancestor-omitted",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "membership-ancestry-lost",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "manifest-promise",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "manifest-owned-tail",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "selected-bytes-changed",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-generation-lost",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "old-generation-changed",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-changed",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "grant-changed",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "pending-not-retired",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "applied-end-not-retired",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "orphan-generation-file",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-revision",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-predecessor",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-possible",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "peer-view-promoted-early",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "learner-ledger-changed",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "future-predecessor",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joining-owner-coverage",
+        "reason": "joining exact publication inventory",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "required-applied-ancestor-missing",
+        "reason": "joining publication required applied ancestry",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      },
+      {
+        "case": "applied-ancestor-order",
+        "reason": "joining publication exact applied ancestry",
+        "semanticGate": "PASS",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "comparedBytes": 3406994,
+      "completePhysicalQualified": false,
+      "forceAndNetworkQualified": false,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "publicationPhysicalQualified": true,
+      "publications": 24,
+      "scope": "native-ADD-applied-to-published-inventories",
+      "slots": 11,
+      "status": "PASS"
+    }
+  },
+  "replaySha256": "a68b4fca2561c75d8904cffdc66b615ead5e7926e99282be7a087f2008b63a1e",
+  "schema": "gse-v53-phase3-joining-publications-v1",
+  "sourceDelta": {
+    "frozenInputsChanged": false,
+    "pomChanged": false,
+    "producerHead": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+    "productionJavaChanged": false,
+    "protectedChanges": [],
+    "protectedCount": 458,
+    "readerBaseHead": "f6895230a666128aa91e926e1be0b4c566de2c14",
+    "status": "PASS"
+  },
+  "status": "PARTIAL"
+}
