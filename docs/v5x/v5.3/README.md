@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Incoming maintenance scratch recovery](PHASE_3_SCRATCH_RECOVERY.md#direct-incoming-maintenance-recovery)
+now accepts the actual direct receiving layout under the original owned scope.
+Its component/process evidence is separate from full automatic and joining
+qualification; Phase 3 remains **OPEN**.
+
 [Three-owner automatic-history replay](PHASE_3_COMPETING_REPLAY.md) independently
 reconstructs the retained clean competition, its final files, all original sends
 and responses, heartbeat contact and publication dependencies. This one history

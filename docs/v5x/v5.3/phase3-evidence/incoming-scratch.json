@@ -1,0 +1,175 @@
+{
+  "archive": {
+    "bytes": 15167243,
+    "directories": 708,
+    "files": 6760,
+    "path": "target/v53-incoming-scratch/qualification-portable.tar.gz",
+    "sha256": "33c08788512384e1a06f99f3d7c878a753f3c564c196e882a3c82ce1c0ea48a7",
+    "verification": "PASS"
+  },
+  "baseCommit": "e4c3432323f4fc658941e8d52e68d8df7a29c488",
+  "executions": {
+    "corrected": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 14,
+        "io.github.patricklfdm.generalsearch.replication.V53IncomingScratchTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53ScratchActivationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53ScratchProcessTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53ScratchTest": 13,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceExchangeTest": 14,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceReceiveTest": 15
+      },
+      "exit": 1,
+      "failures": 6,
+      "label": "corrected",
+      "requestedTests": [
+        "V53IncomingScratchTest",
+        "V53ScratchTest",
+        "V53ScratchProcessTest",
+        "V53ScratchActivationTest",
+        "V53SourceReceiveTest",
+        "V53SourceExchangeTest",
+        "V53ActivationEndpointTest"
+      ],
+      "seconds": 233.5330060480046,
+      "skipped": 0,
+      "tests": 64
+    },
+    "loopback": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActivationEndpointTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "loopback",
+      "requestedTests": [
+        "V53ActivationEndpointTest#realTcpEndpointOwnsPrepareSourcesAndSelectedInstallationAtThreeSizes"
+      ],
+      "seconds": 52.57723217800958,
+      "skipped": 0,
+      "tests": 1
+    },
+    "original": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53IncomingScratchTest": 4
+      },
+      "exit": 1,
+      "failures": 3,
+      "label": "original",
+      "requestedTests": [
+        "V53IncomingScratchTest"
+      ],
+      "seconds": 16.147716642997693,
+      "skipped": 0,
+      "tests": 4
+    },
+    "processfixed": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53IncomingScratchTest": 5,
+        "io.github.patricklfdm.generalsearch.replication.V53ScratchActivationTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53ScratchProcessTest": 2,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceExchangeTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53SourceReceiveTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "processfixed",
+      "requestedTests": [
+        "V53IncomingScratchTest",
+        "V53ScratchProcessTest",
+        "V53ScratchActivationTest",
+        "V53SourceExchangeTest#realTcpFetchesOriginalRecordsPacketAndImagesAtEveryStableSize",
+        "V53SourceReceiveTest#actualTcpChunksPopulateCompleteBoundedFilesAndDuplicateDeliveryIsIdempotent"
+      ],
+      "seconds": 64.17364939401159,
+      "skipped": 0,
+      "tests": 11
+    }
+  },
+  "failedArchive": {
+    "path": "target/v53-incoming-scratch/qualification.tar.gz",
+    "reason": "empty directories omitted; original-first bootstrap replay rejected archive",
+    "sha256": "0d360283dccc4e8022f40c88b8e318f50d119030c3d118a73bea008574687781"
+  },
+  "fullMaintenanceHistory": false,
+  "hostedRun": false,
+  "originalFailuresRetained": true,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "productionInputsVerified": 542,
+  "qualification": {
+    "freshJvms": 90,
+    "portable": [
+      {
+        "cases": 20,
+        "history": "legacy",
+        "status": "PASS"
+      },
+      {
+        "cases": 10,
+        "history": "direct",
+        "status": "PASS"
+      }
+    ],
+    "processCases": 30,
+    "pythonTests": 13,
+    "replays": [
+      {
+        "freshJvms": 60,
+        "name": "legacy",
+        "negativeCases": 10,
+        "processCases": 20,
+        "seconds": 0.766269881016342,
+        "status": "PASS"
+      },
+      {
+        "freshJvms": 60,
+        "name": "legacy-optimized",
+        "negativeCases": 10,
+        "processCases": 20,
+        "seconds": 0.9152545740071218,
+        "status": "PASS"
+      },
+      {
+        "freshJvms": 30,
+        "name": "direct",
+        "negativeCases": 11,
+        "processCases": 10,
+        "seconds": 0.6156409780087415,
+        "status": "PASS"
+      },
+      {
+        "freshJvms": 30,
+        "name": "direct-optimized",
+        "negativeCases": 11,
+        "processCases": 10,
+        "seconds": 0.6895559200202115,
+        "status": "PASS"
+      }
+    ],
+    "uniqueJavaTests": 65,
+    "wrongModes": [
+      {
+        "history": "legacy",
+        "reason": "scratch complete process inventory",
+        "status": "REJECTED"
+      },
+      {
+        "history": "direct",
+        "reason": "scratch complete process inventory",
+        "status": "REJECTED"
+      }
+    ]
+  },
+  "schema": "gse-v53-incoming-scratch-v1",
+  "scope": "direct-incoming-receiving-recovery",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipScratch.java": "c21b640fe2ed133d7d941561e33db89a7eb71ffe204f2362cbb027e57a8c92c3",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53IncomingScratchTest.java": "1b03c321973ccff801447d531415d547949ef7eb2d9c26504eacd15dd6107d19",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ScratchActivationTest.java": "e3d9afeada6b88e02fbece5f2016f9fdfd8fdedd26cffbc30d1dbcc621667e34",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53ScratchProcessTest.java": "cee16db7226d105708e1a9971fe1dcc23bf9b341ec3cf2589a8dde7e25f7dc94",
+    "scripts/v53/scratch_recovery_evidence.py": "5691d8d84d907f26071e279d5961cfa02c2a0fb26dd13d7d1d161e14695d8540",
+    "scripts/v53/test_scratch_recovery_evidence.py": "dc3af98f2eb1c6d5566a8379dab6704e2162a692c897ace8e4e78f2e1d8c5012"
+  },
+  "status": "PASS"
+}

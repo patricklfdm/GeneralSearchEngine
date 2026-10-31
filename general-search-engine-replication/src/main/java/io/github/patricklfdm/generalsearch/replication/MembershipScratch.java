@@ -124,11 +124,18 @@ final class MembershipScratch implements AutoCloseable {
     }
     private void recover()throws IOException {
         try(var tree=new Tree()) {
-            for(String name:new TreeSet<>(MembershipBasisSources.children(directory,8))) {
-                if(name.equals(MARKER) || name.equals(LOCK))continue;Path path=directory.resolve(name);
-                if(role==Role.OUTGOING){require(name.matches("source-"+UUID_TEXT),"outgoing scratch name");tree.source(path);}
+            var names=new TreeSet<>(MembershipBasisSources.children(directory,8));names.removeAll(Set.of(MARKER,LOCK));
+            boolean selected=role==Role.INCOMING && names.size()==1 && names.first().matches("selected-"+UUID_TEXT);
+            // Incoming maintenance pulls original floor copies directly into
+            // source-UUID, whereas SELECTED receives one nested source set.
+            // The single control worker drains one layout before the other;
+            // mixed layouts are not an abandoned scope we can safely adopt.
+            if(role==Role.INCOMING)require(selected || names.stream().allMatch(name->name.matches("source-"+UUID_TEXT)),"incoming scratch name/count");
+            for(String name:names) {
+                Path path=directory.resolve(name);
+                if(!selected){require(name.matches("source-"+UUID_TEXT),"outgoing scratch name");tree.source(path);}
                 else {
-                    require(name.matches("selected-"+UUID_TEXT) && tree.directories.isEmpty(),"incoming scratch name/count");tree.directory(path);
+                    tree.directory(path);
                     for(String child:new TreeSet<>(MembershipBasisSources.children(path,6))) {
                         require(child.matches("source-[0-5]"),"selected scratch source name");tree.source(path.resolve(child));
                     }

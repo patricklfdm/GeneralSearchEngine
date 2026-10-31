@@ -19,16 +19,18 @@ CLEANUP=('RECOVERY_VALIDATED','FILE_REMOVED','FILE_REMOVAL_FORCED','DIRECTORY_RE
 UUID=r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
 
-def histories():
-    for role in ('OUTGOING','INCOMING'):
+def histories(direct_incoming=False):
+    for role in (('INCOMING',) if direct_incoming else ('OUTGOING','INCOMING')):
         for mode in ('halt','kill'):
             for receive,cleanup in zip(RECEIVE,CLEANUP):
                 name=f'{role.lower()}-{mode}-{receive.lower()}'
-                yield dict(case=name,role=role,mode=mode,receiveCut=receive,cleanupCut=cleanup,
-                           receiveExit=91 if mode=='halt' else 137,cleanupExit=91 if mode=='halt' else 137,freshJvms=3,status='PASS')
+                row=dict(case=name,role=role,mode=mode,receiveCut=receive,cleanupCut=cleanup,
+                         receiveExit=91 if mode=='halt' else 137,cleanupExit=91 if mode=='halt' else 137,freshJvms=3,status='PASS')
+                if direct_incoming:row['layout']='direct-incoming'
+                yield row
 
 
-def history(path,row,grant,original):
+def history(path,row,grant,original,*,direct_incoming=False):
     expected={'case.json','receive.ready','cleanup.ready','recover.json','crashed','interrupted','after'}
     expected|={f'{stage}.{suffix}' for stage in ('receive','cleanup','recover') for suffix in ('stdout','stderr')}
     e.need(path.is_dir() and not path.is_symlink() and {p.name for p in path.iterdir()}==expected,'scratch case inventory')
@@ -44,7 +46,10 @@ def history(path,row,grant,original):
     e.need(set(parent)=={'path','parentRealPath','fileStoreName','fileStoreType','parentFileKey'} and all(isinstance(v,str) and v for v in parent.values()) and
            Path(parent['path']).is_absolute() and str(Path(parent['path']).parent)==parent['parentRealPath'] and isinstance(marker['directoryKey'],str) and marker['directoryKey'],'scratch original path binding')
     dirs=sorted(name for name,value in crashed.items() if value is None)
-    if row['role']=='OUTGOING':
+    if direct_incoming:
+        e.need(row['role']=='INCOMING' and row.get('layout')=='direct-incoming' and len(dirs)==1
+               and re.fullmatch('source-'+UUID,dirs[0]),'scratch direct incoming directory shape');source=dirs[0]
+    elif row['role']=='OUTGOING':
         e.need(len(dirs)==1 and re.fullmatch('source-'+UUID,dirs[0]),'scratch outgoing directory shape');source=dirs[0]
     else:
         e.need(len(dirs)==2 and re.fullmatch('selected-'+UUID,dirs[0]) and dirs[1]==dirs[0]+'/source-1','scratch incoming directory shape');source=dirs[1]
@@ -68,7 +73,7 @@ def history(path,row,grant,original):
     return row
 
 
-def validate(directory):
+def validate(directory,*,direct_incoming=False):
     root=Path(directory);e.need(root.is_dir() and not root.is_symlink() and {p.name for p in root.iterdir()}=={'receipt.json','stable-3'},'scratch evidence inventory')
     raw=root/'stable-3';x.case(raw,3,additional=('grant.json','crashes'))
     files=c.inventory(raw/'captured/node-1');_,members,packet=c.current(files);r=packet['capsule']['root'];records=c.journal(files['grants.gsr'],r,'node-1')
@@ -77,20 +82,25 @@ def validate(directory):
                promise=e.digest(records[-2][1]),basis=e.digest(records[-1][1]),capsule=e.digest(members['source.gscp']))
     e.need(load(raw/'grant.json')==grant,'scratch original grant')
     original={'source.gscp':members['source.gscp'],**{h+'.image':members[h+'.image'] for h in packet['images']}}
-    rows=list(histories());e.need({p.name for p in (raw/'crashes').iterdir()}=={v['case'] for v in rows},'scratch complete process inventory')
-    cases=[history(raw/'crashes'/row['case'],row,grant,original) for row in rows]
-    expected=dict(schema='gse-v53-scratch-process-v1',status='PASS',cases=cases,freshJvms=60,publicRuntime=False,network=False,scope='receiving-scratch-restart-only')
+    rows=list(histories(direct_incoming));e.need({p.name for p in (raw/'crashes').iterdir()}=={v['case'] for v in rows},'scratch complete process inventory')
+    cases=[history(raw/'crashes'/row['case'],row,grant,original,direct_incoming=direct_incoming) for row in rows]
+    expected=dict(schema='gse-v53-scratch-direct-process-v1' if direct_incoming else 'gse-v53-scratch-process-v1',
+        status='PASS',cases=cases,freshJvms=30 if direct_incoming else 60,publicRuntime=False,network=False,scope='receiving-scratch-restart-only')
     e.need(load(root/'receipt.json')==expected,'scratch scope/receipt');return expected
 
 
-def qualify(directory):
-    result=validate(directory);negative=[]
+def qualify(directory,*,direct_incoming=False):
+    # Select the declared mode explicitly. Never retry an invalid legacy history
+    # with another layout or use producer PASS to choose an acceptance contract.
+    options={'direct_incoming':True} if direct_incoming else {}
+    result=validate(directory,**options);negative=[]
     mutations=[('scope','scratch scope/receipt'),('missing-case','scratch complete process inventory'),('grant','scratch original grant'),
                ('receiving-bytes','scratch original receiving state'),('owner','scratch owner binding'),('interrupted','scratch exact interrupted deletion'),
                ('recovery-receipt','scratch exact recovery receipt'),('final-extra','scratch final state'),('exit','scratch case binding'),('cut','scratch exact observed process cut')]
+    if direct_incoming:mutations.append(('layout','scratch direct incoming directory shape'))
     for name,reason in mutations:
         with tempfile.TemporaryDirectory(prefix='v53-scratch-negative-') as temp:
-            target=Path(temp)/'raw';shutil.copytree(directory,target);raw=target/'stable-3';member=raw/'crashes/outgoing-halt-created'
+            target=Path(temp)/'raw';shutil.copytree(directory,target);raw=target/'stable-3';member=raw/('crashes/incoming-halt-created' if direct_incoming else 'crashes/outgoing-halt-created')
             if name=='scope':p=target/'receipt.json';v=load(p);v['publicRuntime']=True;p.write_text(json.dumps(v))
             elif name=='missing-case':shutil.rmtree(member)
             elif name=='grant':p=raw/'grant.json';v=load(p);v['local']=v['source'];p.write_text(json.dumps(v))
@@ -101,13 +111,15 @@ def qualify(directory):
             elif name=='final-extra':(member/'after/unlisted').write_bytes(b'keep')
             elif name=='exit':p=member/'case.json';v=load(p);v['receiveExit']=0;p.write_text(json.dumps(v))
             elif name=='cut':p=member/'receive.ready';v=load(p);v['cut']='COMPLETE';p.write_text(json.dumps(v))
-            try:validate(target)
-            except ValueError as error:e.need(reason in str(error),'scratch unrelated negative: '+name+': '+str(error))
+            elif name=='layout':
+                path=next((member/'crashed').glob('source-*'));path.rename(path.with_name(path.name.replace('source-','selected-',1)))
+            try:validate(target,**options)
+            except ValueError as error:e.need(reason==str(error),'scratch unrelated negative: '+name+': '+str(error))
             else:raise ValueError('scratch accepted negative: '+name)
             negative.append(dict(case=name,status='REJECTED',reason=reason))
     return dict(original=result,negatives=negative)
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--qualify',action='store_true');a=p.parse_args()
-    print(json.dumps(qualify(a.directory) if a.qualify else validate(a.directory),sort_keys=True))
+    p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--qualify',action='store_true');p.add_argument('--direct-incoming',action='store_true');a=p.parse_args()
+    print(json.dumps((qualify if a.qualify else validate)(a.directory,direct_incoming=a.direct_incoming),sort_keys=True))

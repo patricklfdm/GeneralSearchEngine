@@ -10,6 +10,29 @@ import static io.github.patricklfdm.generalsearch.replication.V53SourceExchangeT
 
 class V53ScratchActivationTest {
     @TempDir Path temp;
+    @Test void incomingEndpointReopensKilledDirectReceiveWithoutChangingAuthority()throws Exception {
+        var helper=new V53ActivationEndpointTest();helper.temp=temp;
+        try(var local=helper.new Local()) {
+            local.endpoint.close();Path raw=Files.createDirectory(temp.resolve("incoming-original"));
+            Path exported=Files.createDirectory(raw.resolve("exported"));
+            var leader=local.base.leader;
+            try(var source=leader.exportSource(leader.originalBasis().orElseThrow(),BUDGET)) {
+                for(var content:source.contents())Files.write(exported.resolve(content.digest()+".bin"),V53SourceExportTest.complete(source,content));
+                V53ScratchProcessTest.save(raw.resolve("grant.json"),Map.of("root",source.context().root,"source",MembershipBootstrapSeed.identity(source.identity()),
+                        "local",MembershipBootstrapSeed.identity(local.base.peer.activationIdentity()),"promise",source.promise().digest(),"basis",source.source().basis.digest(),"capsule",V53SourceReceiveTest.packetOffer(source).digest()));
+            }
+            var before=new ArrayList<Map<String,String>>();
+            for(var target:local.base.f.request.targets())before.add(V53ReplayFilesTest.files(target.replicaDirectory()));
+            new V53ScratchProcessTest().child(raw,local.scratch,MembershipScratch.Role.INCOMING,"receive","PARTIAL_IMAGE","kill",raw.resolve("crash"),true);
+            try(var reopened=new MembershipActivationEndpoint(local.base.peer,local.base.peerResources,V53TransferServiceTest.bound(2),
+                    (peer,request,kind,deadline)->local.link.get().exchange(peer,request,kind,deadline),
+                    List.of(),List.of(),local.scratch,local.base.clock::get,BUDGET)) {
+                assertEquals(Set.of("owner.json","scope.lock"),MembershipBasisSources.children(local.scratch,8));
+                for(int n=0;n<before.size();n++)assertEquals(before.get(n),V53ReplayFilesTest.files(local.base.f.request.targets().get(n).replicaDirectory()));
+                assertFalse(reopened.usage().controlRunning());
+            }
+        }
+    }
     @Test void driverReopensActualKilledReceiveScopeThenInstallsANewSelection()throws Exception {
         var helper=new V53ActivationDriverTest();helper.temp=temp;
         try(var group=helper.local()) {

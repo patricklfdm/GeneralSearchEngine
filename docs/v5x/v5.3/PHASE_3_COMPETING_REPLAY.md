@@ -1,5 +1,10 @@
 # Independent replay of three native automatic owners
 
+The subsequently identified direct receiving-scratch gap is addressed in
+[incoming maintenance recovery](PHASE_3_SCRATCH_RECOVERY.md#direct-incoming-maintenance-recovery).
+That component/process result does not extend this history's runtime source or
+close whole interrupted maintenance and joining qualification.
+
 Phase 3 remains **OPEN**. This batch independently replays the retained successful
 `V53CompetingNodeQualification` execution from the
 [recovery-heartbeat batch](PHASE_3_RECOVERY_HEARTBEAT.md). That producer's unchanged

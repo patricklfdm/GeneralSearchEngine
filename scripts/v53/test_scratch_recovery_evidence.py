@@ -6,6 +6,28 @@ from . import scratch_recovery_evidence as e
 
 
 class ScratchRecoveryEvidenceTest(unittest.TestCase):
+    def test_direct_incoming_mode_has_its_own_complete_process_matrix(self):
+        old=list(e.histories());direct=list(e.histories(True))
+        self.assertEqual(20,len(old));self.assertEqual(10,len(direct))
+        self.assertTrue(all('layout' not in row for row in old))
+        self.assertTrue(all(row['role']=='INCOMING' and row['layout']=='direct-incoming' for row in direct))
+        self.assertEqual({(mode,cut) for mode in ('halt','kill') for cut in e.RECEIVE},
+                         {(row['mode'],row['receiveCut']) for row in direct})
+
+    def test_direct_original_failure_cannot_fall_back_to_another_mode(self):
+        with patch.object(e,'validate',side_effect=ValueError('invalid direct')) as validate,patch.object(e.shutil,'copytree') as copy:
+            with self.assertRaisesRegex(ValueError,'^invalid direct$'):e.qualify('absent',direct_incoming=True)
+            validate.assert_called_once_with('absent',direct_incoming=True);copy.assert_not_called()
+
+    def test_direct_mode_is_preserved_during_negative_validation(self):
+        with patch.object(e,'validate',side_effect=[{},ValueError('unrelated')]) as validate,patch.object(e.shutil,'copytree'),patch.object(e,'load',return_value={}),patch.object(Path,'write_text',return_value=0):
+            with self.assertRaisesRegex(ValueError,'scratch unrelated negative: scope: unrelated'):e.qualify('absent',direct_incoming=True)
+            self.assertTrue(all(call.kwargs=={'direct_incoming':True} for call in validate.call_args_list))
+
+    def test_negative_requires_the_exact_reason_not_an_embedded_substring(self):
+        with patch.object(e,'validate',side_effect=[{},ValueError('unexpected scratch scope/receipt detail')]),patch.object(e.shutil,'copytree'),patch.object(e,'load',return_value={}),patch.object(Path,'write_text',return_value=0):
+            with self.assertRaisesRegex(ValueError,'scratch unrelated negative'):e.qualify('absent')
+
     def test_invalid_original_does_not_count_as_mutation_rejections(self):
         with patch.object(e,'validate',side_effect=ValueError('bad original')) as validate,patch.object(e.shutil,'copytree') as copy:
             with self.assertRaisesRegex(ValueError,'bad original'):e.qualify('absent')

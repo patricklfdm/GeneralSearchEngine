@@ -25,7 +25,9 @@ this owner's expected marker and no received data exists yet.
 
 After acquiring the exclusive scope lock, startup validates the complete finite
 tree before its first deletion. Outgoing children are `source-<uuid>`; incoming
-children are one `selected-<uuid>` containing bounded `source-<index>` directories.
+children are either direct `source-<uuid>` maintenance copies, or one
+`selected-<uuid>` containing bounded `source-<index>` directories. Incoming control
+work drains one layout before entering the other; a mixed layout is refused.
 Each source contains only `source.gscp` and hash-named application images. The
 existing six-source/seven-image counts and 32/64 MiB per-file limits still apply.
 The scope's control reservation precedes even creating an empty directory. Every
@@ -84,3 +86,54 @@ historical provenance, cross-view adoption, repeated-round source maintenance,
 learner/joint transitions, generalized voting/publication and the complete Phase 3
 distributed S/N mapping remain open. Frozen protocol formats and limits, V5.2,
 workflow and cloud behavior are unchanged.
+
+## Direct incoming maintenance recovery
+
+The historical matrix above covered outgoing direct copies and incoming nested
+SELECTED copies. Native `MembershipGenerationMaintenance` also receives original
+floor copies at `incoming/source-<uuid>`. The old cold scan refused that actual
+layout with `incoming scratch name/count`, preventing an endpoint from reopening
+after a process died during maintenance reception. This is a runtime recovery
+defect, independent of network delay; a fresh scratch path would evade ownership
+rather than repair recovery.
+
+The correction admits precisely those direct incoming source directories under
+the original marker, identity, role, path, inode and lock. It reuses the existing
+six-source/seven-image bounds, complete inventory validation, shared reservations,
+per-deletion rechecks and parent forces. Mixed direct/nested trees, links,
+unexpected members and excess counts remain errors before any staged deletion.
+Neither a complete nor a partial received copy becomes floor authority on reopen.
+
+The added process matrix explicitly selects `direct-incoming`: both halt and
+external SIGKILL at five real receive boundaries, followed by another process
+death during cleanup and recovery in a third JVM. Its distinct receipt and
+`--direct-incoming` reader mode prevent reinterpreting old histories or falling
+back from a failed original. The legacy twenty-case contract remains unchanged.
+The independent reader reconstructs the original bootstrap/grant/packet/image
+bytes before examining either crash, exact deletion progress and retained owners.
+
+The first extended process run also exposed a test-marker race: the parent saw
+the cut file after creation but before its JSON body was complete. The worker now
+writes a sibling file and atomically publishes the complete cut before halting
+or waiting for SIGKILL. A deterministic visibility check protects this handshake;
+no receive/cleanup cut, deadline or production durability operation changes.
+
+A separate integration check kills an actual direct receive at partial image,
+opens the same incoming path through `MembershipActivationEndpoint` and the actual
+journal owner, and checks that all durable replica files are unchanged. This
+qualifies endpoint reopening, not a complete interrupted maintenance transaction,
+whole automatic failover, power-loss safety or the full Phase 3 process matrix.
+Source-bound results and original failed regressions are retained in
+[the direct-recovery receipt](phase3-evidence/incoming-scratch.json).
+
+Validation covers 65 distinct focused Java methods and 13 Python tests. The
+first corrected Java run passed 58 of 64 methods: four TCP methods were blocked
+by sandbox socket permissions and both process matrices exposed the marker race.
+Targeted follow-ups passed all affected methods, the new marker check and the
+modified process consumers; the original failures remain retained. This is
+combined focused coverage, not a claim of one complete green reactor execution.
+The two successful matrices contain 30 cases and 90 fresh JVMs. Original-first
+replay and all 21 exact rejection mutations pass in normal and optimized Python;
+both wrong-mode attempts reject. The first archive omitted empty directories and
+correctly failed bootstrap replay. Its preserved replacement includes every
+original directory and passes replay after extraction into another location.

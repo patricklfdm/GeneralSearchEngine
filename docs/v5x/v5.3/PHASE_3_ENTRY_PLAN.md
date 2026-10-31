@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Incoming maintenance scratch recovery](PHASE_3_SCRATCH_RECOVERY.md#direct-incoming-maintenance-recovery)
+now accepts the actual direct receiving layout under the original owned scope.
+Its component/process evidence is separate from full automatic and joining
+qualification; Phase 3 remains **OPEN**.
+
 [Whole competing-owner replay](PHASE_3_COMPETING_REPLAY.md) qualifies the retained
 single-campaign three-owner BARRIER/DATA history independently of producer claims.
 All-profile, joining/joint, process-death and complete requirement-mapping gates

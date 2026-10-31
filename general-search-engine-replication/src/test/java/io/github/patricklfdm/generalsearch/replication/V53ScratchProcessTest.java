@@ -17,10 +17,18 @@ class V53ScratchProcessTest {
     static MembershipResources resources(){return new MembershipResources(512*MembershipResources.MIB);}
     static Map<String,Object> read(Path path)throws Exception{return object(parse(Files.readAllBytes(path),65536));}
     static void save(Path path,Object value)throws Exception{Files.write(path,canonical(value,65536));}
+    static void publishCut(Path path,Object value,Runnable beforePublish)throws Exception {
+        Path pending=path.resolveSibling(path.getFileName()+".pending");
+        Files.write(pending,canonical(value,65536),StandardOpenOption.CREATE_NEW,StandardOpenOption.WRITE);
+        beforePublish.run();Files.move(pending,path,StandardCopyOption.ATOMIC_MOVE);
+    }
     int child(Path raw,Path scope,MembershipScratch.Role role,String action,String cut,String mode,Path record)throws Exception {
+        return child(raw,scope,role,action,cut,mode,record,false);
+    }
+    int child(Path raw,Path scope,MembershipScratch.Role role,String action,String cut,String mode,Path record,boolean directIncoming)throws Exception {
         Path ready=record.resolveSibling(record.getFileName()+".ready"),result=record.resolveSibling(record.getFileName()+".json");
         var command=List.of(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData","-cp",System.getProperty("java.class.path"),
-                Worker.class.getName(),raw.toAbsolutePath().toString(),scope.toAbsolutePath().toString(),role.name(),action,cut,mode,ready.toString(),result.toString());
+                Worker.class.getName(),raw.toAbsolutePath().toString(),scope.toAbsolutePath().toString(),role.name(),action,cut,mode,ready.toString(),result.toString(),directIncoming?"direct-incoming":"original");
         var process=new ProcessBuilder(command).redirectOutput(record.resolveSibling(record.getFileName()+".stdout").toFile())
                 .redirectError(record.resolveSibling(record.getFileName()+".stderr").toFile()).start();
         try {
@@ -37,7 +45,13 @@ class V53ScratchProcessTest {
         }finally{if(process.isAlive()){process.destroyForcibly();assertTrue(process.waitFor(10,TimeUnit.SECONDS));}}
     }
     @Test void realReceivingDeathsAndRepeatedCleanupDeathsRetainAuthority()throws Exception {
-        Path evidence=Files.createDirectories(Path.of("target/v53-scratch-process/run-"+UUID.randomUUID()));
+        matrix(false);
+    }
+    @Test void directIncomingReceivingDeathsAndRepeatedCleanupDeathsRetainAuthority()throws Exception {
+        matrix(true);
+    }
+    void matrix(boolean directIncoming)throws Exception {
+        Path evidence=Files.createDirectories(Path.of("target/v53-scratch-"+(directIncoming?"direct-":"")+"process/run-"+UUID.randomUUID()));
         System.out.println("v53ScratchProcessEvidence="+evidence.toAbsolutePath());Path raw=Files.createDirectory(evidence.resolve("stable-3"));
         var f=new V53BootstrapPublicationTest.Fixture(Files.createDirectory(temp.resolve("group")),raw,3,false);var target=f.request.targets().getFirst();var cases=new ArrayList<Map<String,Object>>();
         try(var owner=f.open(target,"scratch-source");var export=owner.exportSource(owner.beginActivation().basis,BUDGET)) {
@@ -48,24 +62,25 @@ class V53ScratchProcessTest {
             save(raw.resolve("grant.json"),Map.of("root",export.context().root,"source",MembershipBootstrapSeed.identity(export.identity()),
                     "local",MembershipBootstrapSeed.identity(f.request.targets().get(1).identity()),"promise",export.promise().digest(),"basis",export.source().basis.digest(),"capsule",V53SourceReceiveTest.packetOffer(export).digest()));
             Path histories=Files.createDirectory(raw.resolve("crashes"));
-            for(var role:MembershipScratch.Role.values())for(String mode:List.of("halt","kill"))for(int n=0;n<RECEIVE.size();n++) {
+            for(var role:directIncoming?List.of(MembershipScratch.Role.INCOMING):List.of(MembershipScratch.Role.values()))for(String mode:List.of("halt","kill"))for(int n=0;n<RECEIVE.size();n++) {
                 String cut=RECEIVE.get(n),cleanup=CLEANUP.get(n),name=role.name().toLowerCase(Locale.ROOT)+"-"+mode+"-"+cut.toLowerCase(Locale.ROOT);
                 Path history=Files.createDirectory(histories.resolve(name)),scope=temp.resolve("scope-"+UUID.randomUUID());
-                int first=child(raw,scope,role,"receive",cut,mode,history.resolve("receive"));V53JournalApplicationTest.copy(scope,history.resolve("crashed"));
-                int second=child(raw,scope,role,"recover",cleanup,mode,history.resolve("cleanup"));V53JournalApplicationTest.copy(scope,history.resolve("interrupted"));
-                child(raw,scope,role,"recover","NONE","none",history.resolve("recover"));V53JournalApplicationTest.copy(scope,history.resolve("after"));
+                int first=child(raw,scope,role,"receive",cut,mode,history.resolve("receive"),directIncoming);V53JournalApplicationTest.copy(scope,history.resolve("crashed"));
+                int second=child(raw,scope,role,"recover",cleanup,mode,history.resolve("cleanup"),directIncoming);V53JournalApplicationTest.copy(scope,history.resolve("interrupted"));
+                child(raw,scope,role,"recover","NONE","none",history.resolve("recover"),directIncoming);V53JournalApplicationTest.copy(scope,history.resolve("after"));
                 assertEquals(Set.of("owner.json","scope.lock"),MembershipBasisSources.children(scope,8));
-                var row=Map.<String,Object>of("case",name,"role",role.name(),"mode",mode,"receiveCut",cut,"cleanupCut",cleanup,"receiveExit",first,"cleanupExit",second,"freshJvms",3,"status","PASS");
+                var row=new TreeMap<String,Object>(Map.of("case",name,"role",role.name(),"mode",mode,"receiveCut",cut,"cleanupCut",cleanup,"receiveExit",first,"cleanupExit",second,"freshJvms",3,"status","PASS"));
+                if(directIncoming)row.put("layout","direct-incoming");
                 save(history.resolve("case.json"),row);cases.add(row);
             }
         }
-        f.snapshot("after");save(evidence.resolve("receipt.json"),Map.of("schema","gse-v53-scratch-process-v1","status","PASS","cases",cases,
-                "freshJvms",60,"publicRuntime",false,"network",false,"scope","receiving-scratch-restart-only"));
+        f.snapshot("after");save(evidence.resolve("receipt.json"),Map.of("schema",directIncoming?"gse-v53-scratch-direct-process-v1":"gse-v53-scratch-process-v1","status","PASS","cases",cases,
+                "freshJvms",directIncoming?30:60,"publicRuntime",false,"network",false,"scope","receiving-scratch-restart-only"));
     }
     public static final class Worker {
         static Path ready;static String wanted,mode;
         static void cut(String point)throws Exception {
-            if(!point.equals(wanted))return;save(ready,Map.of("cut",point,"mode",mode));
+            if(!point.equals(wanted))return;publishCut(ready,Map.of("cut",point,"mode",mode),()->{});
             if(mode.equals("halt"))Runtime.getRuntime().halt(91);
             if(mode.equals("kill")){Thread.sleep(60000);throw new IllegalStateException("missing external SIGKILL");}
         }
@@ -75,6 +90,8 @@ class V53ScratchProcessTest {
         }
         public static void main(String[] args)throws Exception {
             Path raw=Path.of(args[0]),path=Path.of(args[1]);var role=MembershipScratch.Role.valueOf(args[2]);String action=args[3];wanted=args[4];mode=args[5];ready=Path.of(args[6]);Path result=Path.of(args[7]);
+            boolean directIncoming=args.length==9 && args[8].equals("direct-incoming");
+            if(directIncoming && role!=MembershipScratch.Role.INCOMING)throw new IllegalArgumentException("direct incoming role");
             var grant=read(raw.resolve("grant.json"));var source=MembershipContext.identity(object(grant.get("source")));var local=MembershipContext.identity(object(grant.get("local")));var budget=resources();
             var discarded=new ArrayList<Map<String,Object>>();
             try(var scope=MembershipScratch.open(path,(String)grant.get("root"),local,role,budget,()->{},event->{
@@ -85,7 +102,7 @@ class V53ScratchProcessTest {
                     var promise=decode(Files.readAllBytes(raw.resolve("exported/"+grant.get("promise")+".bin")),"records","PROMISE");
                     var basis=decode(Files.readAllBytes(raw.resolve("exported/"+grant.get("basis")+".bin")),"records","BASIS");
                     byte[] packet=Files.readAllBytes(raw.resolve("exported/"+grant.get("capsule")+".bin"));
-                    Path destination=role==MembershipScratch.Role.OUTGOING?path.resolve("source-"+UUID.randomUUID()):Files.createDirectory(path.resolve("selected-"+UUID.randomUUID())).resolve("source-1");
+                    Path destination=role==MembershipScratch.Role.OUTGOING || directIncoming?path.resolve("source-"+UUID.randomUUID()):Files.createDirectory(path.resolve("selected-"+UUID.randomUUID())).resolve("source-1");
                     long started=System.nanoTime();
                     try(var received=new MembershipSourceReceive(destination,(String)grant.get("root"),source,promise,basis,UUID.randomUUID(),
                             new MembershipSourceExport.Content((String)grant.get("capsule"),packet.length,MembershipTransfer.Kind.CAPSULE),budget,1024,System::nanoTime,started,BUDGET)) {
