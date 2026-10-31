@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining maintenance replay](PHASE_3_JOINING_MAINTENANCE_REPLAY.md) composes the
+same original discovery, complete-copy delivery and floor lifecycle observations.
+Continue with peer-observation/retention and fault/expiry boundaries, then the
+required process/profile and frozen mapping gates. Direct fixture floor calls
+remain explicitly separate from network maintenance; Phase 3 is not closed.
+
 [Joining control replay](PHASE_3_JOINING_CONTROL_REPLAY.md) now binds the eight
 remaining original control exports and six learner retention authorizations.
 Healthy content composition covers 361 sessions / 686 contents. Next qualify the

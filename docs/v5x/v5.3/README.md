@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Joining maintenance replay](PHASE_3_JOINING_MAINTENANCE_REPLAY.md) binds the
+original discovery hints to complete-copy acquisition and floor force/release
+lifetimes. Its 38 network floors and two direct fixture floors remain distinct.
+Peer-observation/retention composition, fault/expiry, process/profile and frozen
+mapping gates remain required; Phase 3 stays open.
+
 [Joining control replay](PHASE_3_JOINING_CONTROL_REPLAY.md) now composes the eight
 remaining control exports and six learner retention authorizations. Together with
 the earlier reader it covers all 361 content-bearing sessions / 686 contents in

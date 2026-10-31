@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining maintenance replay](PHASE_3_JOINING_MAINTENANCE_REPLAY.md) checks the
+healthy history's 55 discovery hints, 40 floor lifetimes and 96 complete copies,
+including actual transfer delivery, force/handoff and release ordering. The two
+direct fixture floors do not count as network acquisition. Broader retention,
+fault/expiry, process/profile and frozen mapping requirements remain open.
+
 [Joining control replay](PHASE_3_JOINING_CONTROL_REPLAY.md) closes the preceding
 healthy-history content gaps: eight control exports and six learner authorizations,
 including original retention force/ACK and retained-head causality. This does not

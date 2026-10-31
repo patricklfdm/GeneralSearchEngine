@@ -1,0 +1,190 @@
+{
+  "archive": {
+    "bytes": 34575547,
+    "entries": 16017,
+    "memberHashesVerified": true,
+    "negativeReplayRepeated": false,
+    "path": "target/v53-joining-maintenance-replay/sealed/joining-maintenance-replay.tar.gz",
+    "portableOriginal": "PASS",
+    "portableScopeStatus": "PASS",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "ecd5237b4f788557f1fa7e61b8c204532bb54adc66a1bda805f057148fe14085",
+    "sha256": "b6d8910298f7b2abc41b206d06eff47972411e9bcad7cd92be38702371e89f10",
+    "status": "PASS"
+  },
+  "archiveReceiptNote": "Archive reader contains the pre-seal receipt; finalized receipt is retained separately to avoid a self-referential archive hash.",
+  "baseHead": "b4f0118d2d3058e8a6f8edd76217fb37acbc9101",
+  "buildManifestSha256": "5c2fc5985a9f7beba7712365c4067b2fe523d986a4a1a1a55b479737b0810d95",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "0ec105fddb1184f2ead1946ae33d4bfba85f79dcd86b4dafcecbd600f1d916c1",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "28b2293293e0338044f2510e35619bd99548f93fbf4c7178971d6f82fa8d4380",
+    "docs/v5x/v5.3/PHASE_3_JOINING_MAINTENANCE_REPLAY.md": "bde7242a705a5e7b183b5e7ea9fad377b46b8bdd2c2e862eaa30a0b0e5f96477",
+    "docs/v5x/v5.3/README.md": "51b84b1ce05671602da7127f55569949cc524234979ae2d11ef8cb9667943e8f",
+    "scripts/v53/joining_maintenance_evidence.py": "aba0bf95c1a62e0ef6aa46351dbc41eae5ab768bb32f8d0ce936dc4e597f218b",
+    "scripts/v53/test_joining_maintenance_evidence.py": "32225c6380ee5f17afa764d921ec1da68c3c038a806a5112543c8e1a095d2f16"
+  },
+  "collectionSha256": "5a32e0a88bb8034de53ca1aecc5277372e04910ef04baae85c7143d5f6b1cbd7",
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1845,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "nativeExecution": {
+    "elapsedSeconds": 879.386,
+    "exit": 0
+  },
+  "newNativeExecutions": 0,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "physicalFilesPreservedInNegatives": true,
+  "prerequisiteReceipt": "docs/v5x/v5.3/phase3-evidence/joining-control-replay.json",
+  "prerequisiteReceiptSha256": "287c15cc239fcc9391de241cc8d519c7309198ab1415cf141415129823cfdb64",
+  "priorPhysicalNetworkExportControlPrecondition": true,
+  "processDeathQualified": false,
+  "producerHead": "9136083fb35318f74b4003b8aa61fee71a3725cc",
+  "producerPath": "target/v53-joining-history/original-9136083f",
+  "producerReceiptSha256": "cd566df3ce01bfce1e484226860e741b5a33981af50d512c204d49f49a428f8f",
+  "productionChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "case": "status-cut",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance exact discovery hint",
+        "status": "REJECTED"
+      },
+      {
+        "case": "status-ready",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance exact discovery hint",
+        "status": "REJECTED"
+      },
+      {
+        "case": "status-nonce",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance exact discovery hint",
+        "status": "REJECTED"
+      },
+      {
+        "case": "discovery-after-packet",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance acquisition before discovery",
+        "status": "REJECTED"
+      },
+      {
+        "case": "copy-after-reservation",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance copy delivered after floor",
+        "status": "REJECTED"
+      },
+      {
+        "case": "manifest-force",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance exact copy force/release order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "handoff-before-directory",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance exact copy force/release order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "authority-before-copies",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance exact copy force/release order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "release-before-force",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance exact copy force/release order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "release-member-count",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance exact copy force/release order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "retirement-before-floor",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance generation retirement lifetime",
+        "status": "REJECTED"
+      },
+      {
+        "case": "retirement-after-release",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance generation retirement lifetime",
+        "status": "REJECTED"
+      },
+      {
+        "case": "direct-copy-missing",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance direct original copy missing",
+        "status": "REJECTED"
+      },
+      {
+        "case": "unbound-floor",
+        "networkExportControlPrecondition": "PASS",
+        "reason": "joining maintenance unbound floor events",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "acquiredRemoteCopies": 52,
+      "completeCopies": 96,
+      "completePhysicalQualified": false,
+      "directFixtureFloors": 2,
+      "discoveryHints": 55,
+      "floorEvents": 3447,
+      "forceAndNetworkQualified": false,
+      "maintenanceForceQualified": true,
+      "networkFloors": 38,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "retiredGenerations": 35,
+      "scope": "one-native-ADD-discovery-and-complete-copy-floor-lifetimes",
+      "status": "PASS"
+    }
+  },
+  "qualificationSha256": "885ef851e101ab702f6bbbe6e3e60d7cedb1951f4143c9c7e60e05e34646a5e1",
+  "remaining": [
+    "peer-observation/retention composition",
+    "faulted/expired/cancelled export cases",
+    "process-death cases",
+    "all seven profiles",
+    "frozen acceptance mapping"
+  ],
+  "retainedDiagnostics": [
+    "inventory.log",
+    "replay-initial.stderr",
+    "replay-scopes.stderr",
+    "order-diagnostic.log",
+    "unit-initial.log"
+  ],
+  "schema": "gse-v53-joining-maintenance-replay-v1",
+  "scope": "one-native-ADD-discovery-and-complete-copy-floor-lifetimes",
+  "sourceSha256": "b507199f32c078a6f5a889ef008902185818d6184ec851c52307ae9a0c8e5b25",
+  "status": "PASS",
+  "testLogSha256": "9beca0e624e53f2396b8b2fdc422019e687ef4c52cb3a28a85843f2d42368a43",
+  "tests": {
+    "joiningPythonTests": 262,
+    "status": "PASS"
+  },
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+}
