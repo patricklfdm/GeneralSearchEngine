@@ -143,6 +143,10 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         ballot=Map.copyOf(object(selection.value().get("ballot")));var context=owner.activationContext();
         authority=context.authority();expectedCut=context.cut;carriedPending=selection.value().get("nextEntry")!=null;
         current();events.at("INSTALLED",selection);current();
+        // Installed activation is live before recovery/BARRIER grants READY.
+        // Notify even unselected current voters, then keep servicing liveness
+        // at unlocked recovery work boundaries under this same original cut.
+        if(workPulse!=null)sampleHeartbeat();
     }
     private Map<String,Object> activeOperation()throws IOException {
         var catalog=owner.activationContext().catalog;Object active=catalog.get("active");
@@ -375,12 +379,14 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         catch(IOException|RuntimeException|Error error){fail(error);throw error;}
         finally{leave();}
     }
-    /** Cooperatively service liveness on the single slot coordinator. Never
-     * sample from a peer worker, under the writer monitor, or during recovery.
-     * The ordinary current() guard still requires the exact original cut. */
+    /** Cooperatively service installed-campaign liveness on the single slot
+     * coordinator, including carried recovery and the initial fresh BARRIER.
+     * Never sample from peer workers or under the writer monitor. No heartbeat
+     * enables READY: current() still requires the exact installed original cut. */
     private void pulseWhileWorking()throws IOException {
         if(Thread.holdsLock(owner))return;
-        synchronized(this){if(runner!=Thread.currentThread() || workPulse==null || state!=State.READY || barrier==null)return;}
+        synchronized(this){if(runner!=Thread.currentThread() || workPulse==null
+                || !(state==State.RECOVERING || state==State.READY && barrier!=null))return;}
         time();workPulse.due(()->{sampleHeartbeat();});time();
     }
     private MembershipHeartbeatRound.Contact sampleHeartbeat()throws IOException {

@@ -6,7 +6,7 @@ import java.util.function.LongSupplier;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
 /** Serial scheduling only. The caller supplies the original lifetime and full
- * readiness guard; a due tick cannot create authority or renew that lifetime.
+ * installed-authority guard; a due tick cannot create READY or renew that lifetime.
  * One instance lives within the native round's existing metadata reservation. */
 final class MembershipWorkPulse {
     private final LongSupplier clock;

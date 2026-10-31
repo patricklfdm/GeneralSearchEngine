@@ -1,5 +1,11 @@
 # Bounded outgoing heartbeat samples
 
+This receipt describes the original stable, READY-only sampler. The later
+[recovery-heartbeat increment](PHASE_3_RECOVERY_HEARTBEAT.md) adds checked
+installed-campaign recovery and exact joint majorities, with at most five remote
+peers. The explicit API and the historical reader below still require READY;
+their original results are not complete recovery qualification.
+
 Phase 3 remains **OPEN**. `MembershipRoundDriver.heartbeat()` now samples the
 current stable voters concurrently, after the existing fresh-barrier readiness
 guard. It is an internal single-call component; automatic timer/campaign

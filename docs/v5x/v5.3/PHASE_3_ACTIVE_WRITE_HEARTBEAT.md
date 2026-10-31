@@ -1,5 +1,10 @@
 # Heartbeats during a native stable write
 
+This receipt describes the earlier READY-only integration. The later
+[recovery-heartbeat increment](PHASE_3_RECOVERY_HEARTBEAT.md) also services a
+validated installed campaign before READY and across joint recovery. The
+historical scope and results below remain bound to their original sources.
+
 Phase 3 remains **OPEN**. The [competing-campaign producer](PHASE_3_COMPETING_CAMPAIGNS.md)
 exposed a serialized DATA keeping the automatic owner away from its ordinary
 heartbeat loop. Cooperative progress now services a due heartbeat within that

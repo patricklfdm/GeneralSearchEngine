@@ -8,9 +8,10 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipContext.
 import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*;
 import static io.github.patricklfdm.generalsearch.replication.MembershipValidation.require;
 
-/** One bounded concurrent liveness sample of a guarded, already-ready leader.
+/** One bounded concurrent liveness sample of a guarded, installed proposer.
  * A responding majority is diagnostic only: no vote, copied floor, read lease
- * or readiness is created. The enclosing serialized owner supplies readiness. */
+ * or readiness is created. The serialized owner supplies the original installed
+ * authority guard; its separate recovery/BARRIER path alone enables READY. */
 final class MembershipHeartbeatRound implements AutoCloseable {
     record Contact(Set<String> responding,Map<String,Map<String,Object>> hints) {
         Contact {responding=Set.copyOf(responding);hints=Map.copyOf(hints);}
@@ -20,7 +21,7 @@ final class MembershipHeartbeatRound implements AutoCloseable {
     private final MembershipGrantJournal owner;
     private final MembershipResources resources;
     private final MembershipSourcePull.Link link;
-    private final MembershipSourcePull.Guard readiness;
+    private final MembershipSourcePull.Guard authority;
     private final MembershipContext context;
     private final MembershipIdentity local;
     private final Map<String,Object> ballot;
@@ -34,21 +35,21 @@ final class MembershipHeartbeatRound implements AutoCloseable {
     private boolean used;
 
     MembershipHeartbeatRound(MembershipGrantJournal owner,MembershipResources resources,ReplicationBounds bounds,
-            MembershipSourcePull.Link link,MembershipSourcePull.Guard readiness,LongSupplier clock,long started,long budget)throws IOException {
+            MembershipSourcePull.Link link,MembershipSourcePull.Guard authority,LongSupplier clock,long started,long budget)throws IOException {
         require(budget>0 && budget<Long.MAX_VALUE/2,"heartbeat round budget");
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);
-        this.link=Objects.requireNonNull(link);this.readiness=Objects.requireNonNull(readiness);this.clock=Objects.requireNonNull(clock);
+        this.link=Objects.requireNonNull(link);this.authority=Objects.requireNonNull(authority);this.clock=Objects.requireNonNull(clock);
         this.started=started;this.budget=budget;maximumAttempts=Math.min(3,bounds.maxRetryAttempts());
         maximumFrame=Math.min(HEADER_LIMIT,bounds.maxFrameBytes());
-        readiness.check();var state=owner.discoveryState(resources);context=state.context();ballot=state.ballot();local=owner.activationIdentity();
-        require(context.view.get("operation")==null && context.voters().contains(local.nodeId().value())
+        authority.check();var state=owner.discoveryState(resources);context=state.context();ballot=state.ballot();local=owner.activationIdentity();
+        require(context.voters().contains(local.nodeId().value())
                 && ballot.get("proposer").equals(local.nodeId().value()) && ballot.get("incarnation").equals(local.storageId().toString()),
-                "heartbeat round requires current stable proposer");
+                "heartbeat round requires current proposer");
         check();
     }
     private void check()throws IOException {
         waiting();
-        readiness.check();owner.checkActivationBallot(context.authority(),ballot);
+        authority.check();owner.checkActivationBallot(context.authority(),ballot);
         require(owner.activationContext().cut.equals(context.cut),"heartbeat round original cut changed");
         waiting();
     }
@@ -70,7 +71,7 @@ final class MembershipHeartbeatRound implements AutoCloseable {
         Attempt(MembershipIdentity peer,long sequence) {
             this.peer=peer;
             // Reserve the bounded request and queued reply before either exists
-            // in the transport callback. The queue has at most four peers.
+            // in the transport callback. A joint view has at most five peers.
             // Construction precedes the caller's smaller-frame rejection, so
             // reserve the full private header bound even for a tiny caller cap.
             reservation=resources.reserve(MembershipResources.Unit.CONTROL,"heartbeat-"+UUID.randomUUID(),2L*HEADER_LIMIT);
@@ -100,7 +101,7 @@ final class MembershipHeartbeatRound implements AutoCloseable {
                     }
                 }catch(Throwable rejected){error=rejected;}
                 synchronized(this){pending=null;if(!closed && !stopped) {
-                    // At most four outstanding callbacks, each of three finite
+                    // At most five outstanding callbacks, each of three finite
                     // attempts. The single runner consumes before any retry.
                     require(replies.offer(new Reply(peer.nodeId().value(),error==null?response:null,error)),"heartbeat reply capacity");
                 }}
@@ -109,7 +110,11 @@ final class MembershipHeartbeatRound implements AutoCloseable {
         @Override public synchronized void close(){stopped=true;if(pending!=null)pending.cancel(true);reservation.close();}
     }
     private boolean majority(Collection<String> names) {
-        return names.stream().filter(context.voters()::contains).count()>context.voters().size()/2;
+        for(String side:List.of("old","new")) {
+            var voters=nodes(context.view,side);
+            if(names.stream().filter(voters::contains).count()<=voters.size()/2)return false;
+        }
+        return true;
     }
     Contact run()throws IOException {
         synchronized(this){require(!used && !closed,"heartbeat round single use");used=true;}

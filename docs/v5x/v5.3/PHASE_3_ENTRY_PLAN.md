@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Recovery heartbeat progress](PHASE_3_RECOVERY_HEARTBEAT.md) samples after checked
+installation and at unlocked recovery boundaries. It does not grant READY or
+replace the fresh BARRIER. Joint samples check both original voter majorities;
+component qualification remains distinct from complete native/history acceptance.
+
 [Election/discovery scheduling](PHASE_3_ELECTION_DISCOVERY.md) rechecks expired
 decisions after prefix discovery and keeps drained, pre-adoption fencing in the
 same original election wait. Actual campaign recovery remains bounded; component

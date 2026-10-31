@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Recovery heartbeat progress](PHASE_3_RECOVERY_HEARTBEAT.md) extends automatic
+liveness to validated installation and recovery before READY. Joint contact
+requires both voter majorities; recovery and the fresh BARRIER still separately
+govern readiness. Phase 3 remains **OPEN**.
+
 [Election/discovery scheduling](PHASE_3_ELECTION_DISCOVERY.md) now distinguishes
 incoming pre-grant activity from a failed local campaign, and rechecks contact
 after prefix discovery. Original deadlines and actual campaign limits remain;

@@ -1,0 +1,411 @@
+{
+  "archive": {
+    "bytes": 8014428,
+    "files": 13021,
+    "path": "target/v53-recovery-heartbeat/qualification.tar.gz",
+    "sha256": "e8656acf797a05da7c20fc2f22fa242ded9511951c5c41a9d048b771dc8257c9",
+    "verification": "PASS"
+  },
+  "baseCommit": "90182500d648b941129b3595b847607f46b873e8",
+  "componentAcceptance": {
+    "failures": 0,
+    "labels": [
+      "recoverypulsefirst",
+      "recoverypulseregressions"
+    ],
+    "newChecks": 7,
+    "skipped": 0,
+    "status": "PASS",
+    "tests": 65
+  },
+  "executions": [
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53RecoveryHeartbeatTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "recoverypulseoriginal",
+      "requestedTests": [
+        "V53RecoveryHeartbeatTest#heldInitialBarrierStillSendsHeartbeatWithoutAdvertisingReadiness"
+      ],
+      "seconds": 70.23446489300113,
+      "skipped": 0,
+      "tests": 1
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JointHeartbeatTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53RecoveryHeartbeatTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53WorkPulseTest": 5
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "recoverypulsefirst",
+      "requestedTests": [
+        "V53RecoveryHeartbeatTest",
+        "V53JointHeartbeatTest",
+        "V53WorkPulseTest"
+      ],
+      "seconds": 166.10233176100883,
+      "skipped": 0,
+      "tests": 12
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53ActiveWriteHeartbeatTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53ElectionDiscoveryTest": 3,
+        "io.github.patricklfdm.generalsearch.replication.V53HeartbeatContactTest": 7,
+        "io.github.patricklfdm.generalsearch.replication.V53HeartbeatRoundTest": 16,
+        "io.github.patricklfdm.generalsearch.replication.V53HeartbeatTest": 9,
+        "io.github.patricklfdm.generalsearch.replication.V53NodeOwnerNetworkTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 13
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "recoverypulseregressions",
+      "requestedTests": [
+        "V53HeartbeatRoundTest",
+        "V53HeartbeatTest",
+        "V53HeartbeatContactTest",
+        "V53ActiveWriteHeartbeatTest",
+        "V53RoundDriverTest",
+        "V53ElectionDiscoveryTest",
+        "V53NodeOwnerNetworkTest"
+      ],
+      "seconds": 1220.0762855779903,
+      "skipped": 0,
+      "tests": 53
+    },
+    {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53CompetingNodeQualification": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "recoverypulsewhole",
+      "requestedTests": [
+        "V53CompetingNodeQualification"
+      ],
+      "seconds": 101.83354086699546,
+      "skipped": 0,
+      "tests": 1
+    }
+  ],
+  "legacyReadyReplay": {
+    "failure": "admitted exact applied-1: node-1",
+    "gap": {
+      "actualPrevious": null,
+      "actualRevision": 0,
+      "expectedPrevious": "b20e935fd1d678fc37d0bd940c92e765bb46b82aacb4146fee94f59dd376dd38",
+      "expectedRevision": 2,
+      "file": "peer-retention.gspr",
+      "negativeCasesExecuted": 0,
+      "node": "node-1",
+      "plansIdentical": true,
+      "reader": "scripts/v53/native_dispatch_evidence.py:maintenance",
+      "relaxedValidation": false,
+      "runtimeGenesisNoOpCommit": "bafce01ed",
+      "stage": "applied-1",
+      "status": "OPEN"
+    },
+    "negativesExecuted": 0,
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/recoverypulseregressions-546895c1/general-search-engine-replication/target/v53-native-dispatch/run-b8225953-14d2-40e0-8e45-97f33ae3bd19",
+    "status": "FAIL"
+  },
+  "originalComparison": {
+    "baseCommit": "90182500d648b941129b3595b847607f46b873e8",
+    "label": "recoverypulseoriginal",
+    "matchesBase": true,
+    "newTestOverlay": true,
+    "originalProductionAndPomInputs": 318
+  },
+  "paidCloud": false,
+  "pending": [
+    "generic original retention replay: genesis no-op, original-copy confirmation and force ordering",
+    "independent physical/network replay of successful automatic competition",
+    "native joint continuation, joining, process and all-profile Phase 3 acceptance"
+  ],
+  "phase3Complete": false,
+  "productionInputParity": 318,
+  "pushed": false,
+  "pythonAcceptance": {
+    "completeRuntimeQualification": false,
+    "contract": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1728,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "status": "PASS",
+    "suites": [
+      "scripts.v53.test_contract_check",
+      "scripts.v53.test_format_fixture",
+      "scripts.v53.test_heartbeat_round_evidence",
+      "scripts.v53.test_round_driver_evidence"
+    ],
+    "tests": 17
+  },
+  "schema": "gse-v53-recovery-heartbeat-evidence-v1",
+  "sourceFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipHeartbeatRound.java": "650fc3e7c02fa3cbf43355e505bdbf3829e0a65afce9f88b90137b4b8cecd91d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java": "07de8a6e8b7aa623c44bbd3b8f5942c40f07a21aae50742287ac3b62eb32fe0e",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipWorkPulse.java": "c845f5ef1bd29b8a47362fcff5dfe757251bca966c913075969b9d1871ed1efa",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JointHeartbeatTest.java": "07565b9df2b875458be4bdf90aa5af3b012fd17232065eb73b94a95b3c592347",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RecoveryHeartbeatTest.java": "5fe284680e1532b255b1c1fefb6b0ad761260f1060a015e6c516ed49202a5200"
+  },
+  "status": "PARTIAL",
+  "unchangedSnapshotInputs": true,
+  "wholeQualification": {
+    "clientMutationRetry": false,
+    "diagnostics": [
+      {
+        "losses": [],
+        "node": "node-1",
+        "rounds": 1,
+        "state": "READY"
+      },
+      {
+        "losses": [],
+        "node": "node-2",
+        "rounds": 1,
+        "state": "STARTING"
+      },
+      {
+        "losses": [],
+        "node": "node-3",
+        "rounds": 1,
+        "state": "STARTING"
+      }
+    ],
+    "drains": [
+      {
+        "failure": "",
+        "leases": 0,
+        "node": "node-3"
+      },
+      {
+        "failure": "",
+        "leases": 0,
+        "node": "node-2"
+      },
+      {
+        "failure": "",
+        "leases": 0,
+        "node": "node-1"
+      }
+    ],
+    "installedSpans": [
+      {
+        "ballot": {
+          "counter": 2,
+          "incarnation": "00000000-0000-0005-0000-000000000001",
+          "proposer": "node-1"
+        },
+        "ended": "before-ready",
+        "heartbeatSends": [
+          {
+            "cut": {
+              "entry": "f24520b22e8d5225ce60821bd68655cb3781977ac31cd910a5d68889785f5be3",
+              "index": 0,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            },
+            "recipient": "node-2",
+            "seconds": 20.313778516
+          },
+          {
+            "cut": {
+              "entry": "f24520b22e8d5225ce60821bd68655cb3781977ac31cd910a5d68889785f5be3",
+              "index": 0,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            },
+            "recipient": "node-3",
+            "seconds": 20.337541096
+          },
+          {
+            "cut": {
+              "entry": "f24520b22e8d5225ce60821bd68655cb3781977ac31cd910a5d68889785f5be3",
+              "index": 0,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            },
+            "recipient": "node-2",
+            "seconds": 25.490989243
+          },
+          {
+            "cut": {
+              "entry": "f24520b22e8d5225ce60821bd68655cb3781977ac31cd910a5d68889785f5be3",
+              "index": 0,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            },
+            "recipient": "node-3",
+            "seconds": 25.513669256
+          },
+          {
+            "cut": {
+              "entry": "f24520b22e8d5225ce60821bd68655cb3781977ac31cd910a5d68889785f5be3",
+              "index": 0,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            },
+            "recipient": "node-2",
+            "seconds": 30.726589596
+          },
+          {
+            "cut": {
+              "entry": "f24520b22e8d5225ce60821bd68655cb3781977ac31cd910a5d68889785f5be3",
+              "index": 0,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            },
+            "recipient": "node-3",
+            "seconds": 30.777378704
+          },
+          {
+            "cut": {
+              "entry": "f24520b22e8d5225ce60821bd68655cb3781977ac31cd910a5d68889785f5be3",
+              "index": 0,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            },
+            "recipient": "node-2",
+            "seconds": 36.481241483
+          },
+          {
+            "cut": {
+              "entry": "f24520b22e8d5225ce60821bd68655cb3781977ac31cd910a5d68889785f5be3",
+              "index": 0,
+              "view": {
+                "generation": 0,
+                "new": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "old": [
+                  "node-1",
+                  "node-2",
+                  "node-3"
+                ],
+                "operation": null
+              }
+            },
+            "recipient": "node-3",
+            "seconds": 36.624528688
+          }
+        ],
+        "installedSeconds": 20.22931844,
+        "node": "node-1",
+        "readySeconds": 43.060052131
+      }
+    ],
+    "label": "recoverypulsewhole",
+    "monotonicDiagnosticTimes": true,
+    "observations": [
+      {
+        "event": "START_COMPLETED",
+        "node": "node-1"
+      },
+      {
+        "event": "DATA_COMPLETED",
+        "node": "node-1"
+      }
+    ],
+    "physicalReplay": false,
+    "policyChanged": false,
+    "producerPassed": true,
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-native-cancellation/builds/recoverypulsewhole-7b9d83a4/general-search-engine-replication/target/v53-competing-node/run-5fabfa05-e46f-4639-818d-34da73d8fa8a",
+    "status": "PARTIAL"
+  }
+}
