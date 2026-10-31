@@ -84,8 +84,10 @@ retries in the whole history; those are not three injected losses. All fourteen
 negative cases and 307 joining Python tests passed. Source, build, raw history
 and reader are retained for hash-checked portable replay.
 
-CHUNK and TRANSFER_COMMIT remain
-pending complete native qualification. Healthy-history compatibility is checked
+The subsequent [complete three-reply matrix](PHASE_3_JOINING_FAULT_MATRIX.md)
+qualifies CHUNK and TRANSFER_COMMIT with two fresh complete histories from this
+same immutable producer source, then replays all three originals and 42 negatives
+after relocation. The first batch's receipt remains unchanged. Healthy-history compatibility is checked
 against the previously retained original execution, not another healthy rerun.
 
 This does not establish lost voting/publication ACKs, complete joining process

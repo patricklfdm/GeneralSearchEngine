@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
 import subprocess
@@ -81,6 +82,42 @@ def check_source(work, source):
         p = work / name
         need(p.is_file() and not p.is_symlink() and digest(p.read_bytes()) == expected,
              'source copy changed: ' + name)
+
+
+def read_recorded_source(producer):
+    """Bound and verify every immutable source member without executing it."""
+    producer=Path(producer);raw=snapshot.s.regular(producer/'source.json',8*snapshot.MIB)
+    def unique(rows):
+        need(len(rows)==len(dict(rows)),'recorded source duplicate key');return dict(rows)
+    source=json.loads(raw,object_pairs_hook=unique)
+    need(type(source) is dict and set(source)=={'head','files'} and type(source['head']) is str and
+         re.fullmatch('[0-9a-f]{40}',source['head']) and type(source['files']) is dict and 0<len(source['files'])<=20000,
+         'recorded source manifest')
+    files={};total=0;work=producer/'workspace'
+    need(work.is_dir() and not work.is_symlink(),'recorded source workspace')
+    # Validate the complete source before creating any new workspace. No receipt
+    # label can turn changed or linked bytes into the earlier producer source.
+    for name,digest_value in source['files'].items():
+        path=Path(name)
+        need(name and len(name)<=4096 and not path.is_absolute() and path.as_posix()==name and
+             '..' not in path.parts and '\\' not in name and type(digest_value) is str and
+             re.fullmatch('[0-9a-f]{64}',digest_value),'recorded source member path/hash')
+        need(all((work/parent).is_dir() and not (work/parent).is_symlink() for parent in path.parents),
+             'recorded source linked parent')
+        data=snapshot.s.regular(work/path,64*snapshot.MIB);total+=len(data)
+        need(total<=256*snapshot.MIB,'recorded source byte capacity')
+        need(digest(data)==digest_value,'recorded source changed: '+name);files[name]=data
+    return source,files
+
+
+def recorded_source(producer, destination):
+    """Copy an existing immutable producer source, never its generated state."""
+    source,files=read_recorded_source(producer);work=Path(producer)/'workspace'
+    destination.mkdir()
+    for name,data in files.items():
+        target=destination/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+        shutil.copymode(work/name,target)
+    return source
 
 
 def junit(reports):
@@ -192,13 +229,18 @@ def execute(command, work, log, *, stage='whole-joining'):
             raise
 
 
-def run(output, maven, *, fault=None):
+def run(output, maven, *, fault=None, source_from=None):
     need(fault in (None,'SOURCE_OFFER','CHUNK','TRANSFER_COMMIT'),'whole joining source fault selector')
-    output = Path(output).absolute(); output.mkdir(parents=True, exist_ok=False)
+    output = Path(output).absolute()
+    need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),'recorded source execution separation')
+    output.mkdir(parents=True, exist_ok=False)
     receipt = dict(schema=SCHEMA, status='RUNNING', executionStatus='NOT_RUN', nativeHistoryQualified=False,
                    phase3Complete=False, retries=0, sourceFault=fault)
     try:
-        work = output / 'workspace'; source = source_copy(ROOT, work); save(output / 'source.json', source)
+        work = output / 'workspace'
+        source = source_copy(ROOT, work) if source_from is None else recorded_source(source_from,work)
+        save(output / 'source.json', source)
+        if source_from is not None:receipt['sourceOrigin']='recorded-producer'
         receipt.update(sourceSha256=digest((output / 'source.json').read_bytes()), baseHead=source['head'])
         toolchain = subprocess.run([maven, '-version'], cwd=work, text=True, capture_output=True, timeout=30)
         save(output / 'toolchain.json', dict(exit=toolchain.returncode, stdout=toolchain.stdout, stderr=toolchain.stderr))
@@ -246,12 +288,13 @@ if __name__ == '__main__':
     parser.add_argument('output'); parser.add_argument('--maven', default='mvn')
     parser.add_argument('--collect', help='Only check an existing original history; does not run Java')
     parser.add_argument('--fault',choices=('SOURCE_OFFER','CHUNK','TRANSFER_COMMIT'),help='One declared lost initial learner reply in the complete history')
+    parser.add_argument('--source-from',help='Reuse only the exact immutable source of an earlier producer; create a fresh history')
     args = parser.parse_args()
     if args.collect:
-        need(args.fault is None,'collection cannot select a new fault')
+        need(args.fault is None and args.source_from is None,'collection cannot select a new fault/source')
         destination = Path(args.output)
         need(not destination.exists(), 'collection output already exists')
         value = collection(Path(args.collect))
         with destination.open('x') as stream: stream.write(json.dumps(value, sort_keys=True, indent=2) + '\n')
         print(json.dumps({k: v for k, v in value.items() if k not in ('inventory', 'ledger')}, sort_keys=True))
-    else: run(args.output, args.maven, fault=args.fault)
+    else: run(args.output, args.maven, fault=args.fault,source_from=args.source_from)

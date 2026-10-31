@@ -1,0 +1,502 @@
+{
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "aggregateSha256": "9d496fa0a38cd585feb750e4017b7e5e61659093de8c73d94fc602e1bb6f1cd1",
+    "bytes": 83505696,
+    "entries": 38921,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-fault-matrix/sealed/joining-fault-matrix.tar.gz",
+    "portableAggregate": "PASS",
+    "portableNegativeCases": 42,
+    "producerSourcesAndBuildsVerified": true,
+    "rawInventoriesVerified": true,
+    "readerSourceSha256": "2876b570de3a18d3b765ca62255b2691fd1c4740ca770b77303ab50cc180fb23",
+    "sha256": "c347c0e10224488bf1c38a44e08e625706c6b370c19d083d08ea4e3286ceb571",
+    "status": "PASS",
+    "workloadsRerun": false
+  },
+  "archiveReceiptNote": "The archived reader contains a COLLECTED pre-aggregate receipt. The finalized result and archive hash are retained separately to avoid a self-referential archive.",
+  "baseHead": "f368cf1f5fd4a00d02b86f5387de0322ea34da03",
+  "buildManifestSha256": "dfd5d7f6e556c2904c2f5608ecea5dd53dfa52312c3a5fbc597dc58ba051332a",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "e58afd6484c78e33e32eeba81a48cc5c7a8c7c7d57788970fb34bba69c478d4e",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "90519ba622fd1d7c8eff5ed9835f184d94599a0bb7b46f0863e704eea616372c",
+    "docs/v5x/v5.3/PHASE_3_JOINING_FAULT_MATRIX.md": "d85923a5722adde412c208d0edf18184d95467e514841646122fe0d58a496216",
+    "docs/v5x/v5.3/PHASE_3_JOINING_SOURCE_FAULTS.md": "8b1b3b6113ee73f9c7323d24755e3776d14d9380ef58d4e91ae66fcff40c34e1",
+    "docs/v5x/v5.3/README.md": "b313fab043a8ac13605bfefbb2c0623a45863d0fed3fd995ce7569f3e166db4f",
+    "scripts/v53/joining_fault_matrix.py": "9296345aa9a0dc196e61da23ec409d313cc1d0bfab19ea0bce192321f9be88f7",
+    "scripts/v53/joining_history_run.py": "51cea4314706df2c8c9fce4e34db4a1e4b9c63cb9513fcac2ddd1dfd181cd187",
+    "scripts/v53/test_joining_fault_matrix.py": "55dea8d103f1fff7d57e2908dfca3db0f21457a999022a4e343e823159abbce4",
+    "scripts/v53/test_joining_history_run.py": "7f189d46a95b0dfc59267599ee5e58a9a457bde3194005fa0ddf8f0f9505b2cf"
+  },
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1870,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "frozenParametersChanged": false,
+  "joiningSourceFaultMatrixQualified": true,
+  "launchControllerSha256": "a6008a18203448cbf714d7be6f83537b1a63a42028a7f5eaa4376b41db32b03c",
+  "nativeExecutions": [
+    {
+      "case": "SOURCE_OFFER",
+      "elapsedSeconds": 886.777,
+      "executedInThisBatch": false,
+      "method": "joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+      "producerPath": "target/v53-joining-source-loss/original-offer",
+      "reportSha256": "75c62a7ccce4bf4c99ca3413a16cf9ad10d0a8d2be45dd21ba36775fc55b72d0",
+      "retries": 0
+    },
+    {
+      "case": "CHUNK",
+      "elapsedSeconds": 895.914,
+      "executedInThisBatch": true,
+      "method": "joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+      "producerPath": "target/v53-joining-fault-matrix/chunk",
+      "reportSha256": "bb2abc345ff16d35523a9079897e0d98406fbcb3feb11538897aed1982ee6f40",
+      "retries": 0
+    },
+    {
+      "case": "TRANSFER_COMMIT",
+      "elapsedSeconds": 907.38,
+      "executedInThisBatch": true,
+      "method": "joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+      "producerPath": "target/v53-joining-fault-matrix/commit",
+      "reportSha256": "98dc69b4e3c0d59d948940f93491a2085de7795aedd036e285ffd245b0f025fc",
+      "retries": 0
+    }
+  ],
+  "paidCloud": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "producerBaseHead": "12f0b2ad08201185604e72ba57c46f53df6a8127",
+  "producerSourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c",
+  "productionChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "pythonLogSha256": "b1629cd0954a1e92754a9c02d82df3bebdd2f363d6d1c40ff7d4fd77215c51d0",
+  "qualification": {
+    "allMembershipProfilesQualified": false,
+    "buildSha256": "dfd5d7f6e556c2904c2f5608ecea5dd53dfa52312c3a5fbc597dc58ba051332a",
+    "cases": [
+      {
+        "case": "SOURCE_OFFER",
+        "originalPlanSha256": "e42713e3e06a822b09ccbd12af9855026ea421a6da881ee890ca90821b777191",
+        "producerReceiptSha256": "1c7986ac8cf7197f536cb1226c160d4e36b846174531c9c93fd8b6d5b0649058",
+        "qualification": {
+          "negatives": [
+            {
+              "case": "missing-declaration",
+              "reason": "joining fault declaration required",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-completion",
+              "reason": "joining source loss declaration order",
+              "status": "REJECTED"
+            },
+            {
+              "case": "duplicate-completion",
+              "reason": "joining source loss declaration order",
+              "status": "REJECTED"
+            },
+            {
+              "case": "renewed-start",
+              "reason": "joining source loss exact declaration",
+              "status": "REJECTED"
+            },
+            {
+              "case": "extended-budget",
+              "reason": "joining source loss exact declaration",
+              "status": "REJECTED"
+            },
+            {
+              "case": "wrong-reply-kind",
+              "reason": "joining source loss original learner reply",
+              "status": "REJECTED"
+            },
+            {
+              "case": "no-loss",
+              "reason": "joining source loss exact withheld count",
+              "status": "REJECTED"
+            },
+            {
+              "case": "false-delivery",
+              "reason": "joining delivery without original response",
+              "status": "REJECTED"
+            },
+            {
+              "case": "donor-force",
+              "reason": "joining source loss donor authority changed during retry",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-send",
+              "reason": "joining network receive without send",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-read",
+              "reason": "joining network response without request",
+              "status": "REJECTED"
+            },
+            {
+              "case": "new-client",
+              "reason": "joining source loss original client scope",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-retry",
+              "reason": "joining source loss exact retry count",
+              "status": "REJECTED"
+            },
+            {
+              "case": "changed-retry",
+              "reason": "joining source loss identical recovered response",
+              "status": "REJECTED"
+            }
+          ],
+          "original": {
+            "allMembershipProfilesQualified": false,
+            "committedTransfers": 686,
+            "completePhysicalQualified": false,
+            "deliveredResponses": 2208,
+            "exactTransferRetries": 3,
+            "forceAndNetworkQualified": false,
+            "joiningSourceFaultQualified": true,
+            "lossEvent": 5122,
+            "lostReplies": 1,
+            "peerLedgerPrecondition": {
+              "capturedLedgers": 19,
+              "chainSha256": "9ac3ed56adca3429f3aba15b245fb14e3c07d1c3273b4774032c1cf8cca6e584",
+              "completePhysicalQualified": false,
+              "durableWrites": 90,
+              "finalRevisions": {
+                "node-1": 40,
+                "node-2": 40,
+                "node-3": 0,
+                "node-4": 10
+              },
+              "forceAndNetworkQualified": false,
+              "ledgerComparisons": 97,
+              "openReseals": 8,
+              "peerLedgerCompositionQualified": true,
+              "phase3Complete": false,
+              "processDeathQualified": false,
+              "scope": "one-native-ADD-original-peer-ledger-chain",
+              "status": "PASS",
+              "writesByKind": {
+                "maintenance": 54,
+                "publication": 24,
+                "selected": 12
+              }
+            },
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "recoveredLostReplies": 1,
+            "rejectedTransferAttempts": 2,
+            "retryEvent": 5125,
+            "scope": "complete-3-ADD-initial-learner-reply-loss",
+            "sourceFault": "SOURCE_OFFER",
+            "status": "PASS",
+            "transferSessions": 363,
+            "transferredBytes": 3897617,
+            "wireExchanges": 2209
+          },
+          "originalPreserved": true
+        },
+        "status": "PASS"
+      },
+      {
+        "case": "CHUNK",
+        "originalPlanSha256": "877d519e259b2896e85d148011824ea05b0360ca1dbab70bd8d17e9993303fce",
+        "producerReceiptSha256": "ba2412663c8018706e360a02a9d45e7486ddf758e50922dc5a5232195d815772",
+        "qualification": {
+          "negatives": [
+            {
+              "case": "missing-declaration",
+              "reason": "joining fault declaration required",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-completion",
+              "reason": "joining source loss declaration order",
+              "status": "REJECTED"
+            },
+            {
+              "case": "duplicate-completion",
+              "reason": "joining source loss declaration order",
+              "status": "REJECTED"
+            },
+            {
+              "case": "renewed-start",
+              "reason": "joining source loss exact declaration",
+              "status": "REJECTED"
+            },
+            {
+              "case": "extended-budget",
+              "reason": "joining source loss exact declaration",
+              "status": "REJECTED"
+            },
+            {
+              "case": "wrong-reply-kind",
+              "reason": "joining source loss original learner reply",
+              "status": "REJECTED"
+            },
+            {
+              "case": "no-loss",
+              "reason": "joining source loss exact withheld count",
+              "status": "REJECTED"
+            },
+            {
+              "case": "false-delivery",
+              "reason": "joining delivery without original response",
+              "status": "REJECTED"
+            },
+            {
+              "case": "donor-force",
+              "reason": "joining source loss donor authority changed during retry",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-send",
+              "reason": "joining network receive without send",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-read",
+              "reason": "joining network response without request",
+              "status": "REJECTED"
+            },
+            {
+              "case": "new-client",
+              "reason": "joining source loss original client scope",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-retry",
+              "reason": "joining source loss exact retry count",
+              "status": "REJECTED"
+            },
+            {
+              "case": "changed-retry",
+              "reason": "joining source loss identical recovered response",
+              "status": "REJECTED"
+            }
+          ],
+          "original": {
+            "allMembershipProfilesQualified": false,
+            "committedTransfers": 686,
+            "completePhysicalQualified": false,
+            "deliveredResponses": 2208,
+            "exactTransferRetries": 3,
+            "forceAndNetworkQualified": false,
+            "joiningSourceFaultQualified": true,
+            "lossEvent": 5126,
+            "lostReplies": 1,
+            "peerLedgerPrecondition": {
+              "capturedLedgers": 19,
+              "chainSha256": "1b599dbe30a161dc6501368db8020af4cf851b3c001ee4e809c0d3e85f1a3054",
+              "completePhysicalQualified": false,
+              "durableWrites": 90,
+              "finalRevisions": {
+                "node-1": 40,
+                "node-2": 40,
+                "node-3": 0,
+                "node-4": 10
+              },
+              "forceAndNetworkQualified": false,
+              "ledgerComparisons": 97,
+              "openReseals": 8,
+              "peerLedgerCompositionQualified": true,
+              "phase3Complete": false,
+              "processDeathQualified": false,
+              "scope": "one-native-ADD-original-peer-ledger-chain",
+              "status": "PASS",
+              "writesByKind": {
+                "maintenance": 54,
+                "publication": 24,
+                "selected": 12
+              }
+            },
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "recoveredLostReplies": 1,
+            "rejectedTransferAttempts": 2,
+            "retryEvent": 5129,
+            "scope": "complete-3-ADD-initial-learner-reply-loss",
+            "sourceFault": "CHUNK",
+            "status": "PASS",
+            "transferSessions": 363,
+            "transferredBytes": 3897617,
+            "wireExchanges": 2209
+          },
+          "originalPreserved": true
+        },
+        "status": "PASS"
+      },
+      {
+        "case": "TRANSFER_COMMIT",
+        "originalPlanSha256": "0149c89511141986683ca227dc39add745505f5e750c5e5f91198e119a18aac5",
+        "producerReceiptSha256": "a9b404b71bc6f444ec003889120c7d2dfab84b6e348e4138574c3b53c601b1ec",
+        "qualification": {
+          "negatives": [
+            {
+              "case": "missing-declaration",
+              "reason": "joining fault declaration required",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-completion",
+              "reason": "joining source loss declaration order",
+              "status": "REJECTED"
+            },
+            {
+              "case": "duplicate-completion",
+              "reason": "joining source loss declaration order",
+              "status": "REJECTED"
+            },
+            {
+              "case": "renewed-start",
+              "reason": "joining source loss exact declaration",
+              "status": "REJECTED"
+            },
+            {
+              "case": "extended-budget",
+              "reason": "joining source loss exact declaration",
+              "status": "REJECTED"
+            },
+            {
+              "case": "wrong-reply-kind",
+              "reason": "joining source loss original learner reply",
+              "status": "REJECTED"
+            },
+            {
+              "case": "no-loss",
+              "reason": "joining source loss exact withheld count",
+              "status": "REJECTED"
+            },
+            {
+              "case": "false-delivery",
+              "reason": "joining delivery without original response",
+              "status": "REJECTED"
+            },
+            {
+              "case": "donor-force",
+              "reason": "joining source loss donor authority changed during retry",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-send",
+              "reason": "joining network receive without send",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-read",
+              "reason": "joining network response without request",
+              "status": "REJECTED"
+            },
+            {
+              "case": "new-client",
+              "reason": "joining source loss original client scope",
+              "status": "REJECTED"
+            },
+            {
+              "case": "missing-retry",
+              "reason": "joining source loss exact retry count",
+              "status": "REJECTED"
+            },
+            {
+              "case": "changed-retry",
+              "reason": "joining source loss identical recovered response",
+              "status": "REJECTED"
+            }
+          ],
+          "original": {
+            "allMembershipProfilesQualified": false,
+            "committedTransfers": 686,
+            "completePhysicalQualified": false,
+            "deliveredResponses": 2208,
+            "exactTransferRetries": 3,
+            "forceAndNetworkQualified": false,
+            "joiningSourceFaultQualified": true,
+            "lossEvent": 5130,
+            "lostReplies": 1,
+            "peerLedgerPrecondition": {
+              "capturedLedgers": 19,
+              "chainSha256": "4df7dab8646efd6cdb3c7b5e685404a4c22966d5ef9fa775454a9651a04debbb",
+              "completePhysicalQualified": false,
+              "durableWrites": 90,
+              "finalRevisions": {
+                "node-1": 40,
+                "node-2": 40,
+                "node-3": 0,
+                "node-4": 10
+              },
+              "forceAndNetworkQualified": false,
+              "ledgerComparisons": 97,
+              "openReseals": 8,
+              "peerLedgerCompositionQualified": true,
+              "phase3Complete": false,
+              "processDeathQualified": false,
+              "scope": "one-native-ADD-original-peer-ledger-chain",
+              "status": "PASS",
+              "writesByKind": {
+                "maintenance": 54,
+                "publication": 24,
+                "selected": 12
+              }
+            },
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "recoveredLostReplies": 1,
+            "rejectedTransferAttempts": 2,
+            "retryEvent": 5133,
+            "scope": "complete-3-ADD-initial-learner-reply-loss",
+            "sourceFault": "TRANSFER_COMMIT",
+            "status": "PASS",
+            "transferSessions": 363,
+            "transferredBytes": 3897617,
+            "wireExchanges": 2209
+          },
+          "originalPreserved": true
+        },
+        "status": "PASS"
+      }
+    ],
+    "joiningSourceFaultMatrixQualified": true,
+    "negativeCases": 42,
+    "phase3Complete": false,
+    "processDeathQualified": false,
+    "schema": "gse-v53-joining-fault-matrix-v1",
+    "scope": "complete-3-ADD-initial-learner-three-reply-losses",
+    "sourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c",
+    "status": "PASS",
+    "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b",
+    "wholeHistories": 3
+  },
+  "remaining": [
+    "other joining fault/expiry/cancellation composition",
+    "whole joining process deaths",
+    "all seven membership profiles",
+    "frozen S/N-family mapping"
+  ],
+  "schema": "gse-v53-joining-fault-matrix-review-v1",
+  "scope": "complete-3-ADD-initial-learner-three-reply-losses",
+  "sourceNote": "All three whole histories use the exact original producer snapshot, including its then-uncommitted native test instrumentation. The base HEAD alone is not the producer identity.",
+  "status": "PASS",
+  "tests": {
+    "joiningPythonTests": 327,
+    "nativeWholeHistories": 3,
+    "newNativeExecutions": 2,
+    "newPythonTests": 20,
+    "portableNegatives": 42
+  }
+}

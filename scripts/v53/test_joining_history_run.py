@@ -21,6 +21,60 @@ class JoiningHistoryRunTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
+    def source_producer(self):
+        producer=self.root/'producer';work=producer/'workspace';(work/'scripts').mkdir(parents=True)
+        (work/'scripts/tool.sh').write_bytes(b'original');(work/'scripts/tool.sh').chmod(0o755)
+        source=dict(head='a'*40,files={'scripts/tool.sh':h.digest(b'original')})
+        h.save(producer/'source.json',source);return producer,source
+
+    def test_recorded_source_copies_only_original_bytes_and_preserves_executable_mode(self):
+        producer,source=self.source_producer();(producer/'workspace/unrecorded.log').write_text('not source')
+        destination=self.root/'copy'
+        self.assertEqual(source,h.recorded_source(producer,destination));h.check_source(destination,source)
+        self.assertEqual(0o755,(destination/'scripts/tool.sh').stat().st_mode&0o777)
+        self.assertFalse((destination/'unrecorded.log').exists())
+        with self.assertRaises(FileExistsError):h.recorded_source(producer,destination)
+
+    def test_changed_recorded_source_fails_before_creating_new_workspace(self):
+        producer,_=self.source_producer();(producer/'workspace/scripts/tool.sh').write_bytes(b'changed')
+        with self.assertRaisesRegex(ValueError,'^recorded source changed:'):h.recorded_source(producer,self.root/'copy')
+        self.assertFalse((self.root/'copy').exists())
+
+    def test_recorded_source_cannot_escape_copy_or_follow_linked_parents(self):
+        producer,source=self.source_producer()
+        for name in ('../outside','/outside','scripts/../outside','scripts//tool.sh','scripts\\tool.sh'):
+            h.save(producer/'source.json',dict(source,files={name:h.digest(b'original')}))
+            with self.subTest(name=name),self.assertRaisesRegex(ValueError,'^recorded source member path/hash$'):
+                h.recorded_source(producer,self.root/'copy')
+        h.save(producer/'source.json',source)
+        folder=producer/'workspace/scripts';folder.rename(producer/'outside');folder.symlink_to(producer/'outside',target_is_directory=True)
+        with self.assertRaisesRegex(ValueError,'^recorded source linked parent$'):h.recorded_source(producer,self.root/'copy')
+        self.assertFalse((self.root/'copy').exists())
+
+    def test_duplicate_and_invalid_source_manifests_are_rejected(self):
+        producer,source=self.source_producer()
+        (producer/'source.json').write_text('{"head":"a","head":"b","files":{}}')
+        with self.assertRaisesRegex(ValueError,'^recorded source duplicate key$'):h.recorded_source(producer,self.root/'copy')
+        for changed in (dict(source,head='main'),dict(source,files={}),dict(source,extra=True)):
+            h.save(producer/'source.json',changed)
+            with self.assertRaisesRegex(ValueError,'^recorded source manifest$'):h.recorded_source(producer,self.root/'copy')
+
+    def test_new_execution_cannot_be_placed_inside_its_recorded_producer(self):
+        producer,_=self.source_producer()
+        with self.assertRaisesRegex(ValueError,'^recorded source execution separation$'):
+            h.run(producer/'nested','mvn',source_from=producer)
+        self.assertFalse((producer/'nested').exists())
+
+    def test_failed_recorded_execution_keeps_source_identity_and_does_not_read_current_git(self):
+        producer,source=self.source_producer();output=self.root/'run'
+        with patch.object(h,'source_copy') as git,patch.object(h,'execute',return_value=dict(exit=1)), \
+             patch.object(h.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout='test',stderr='')),redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(ValueError,'Maven failed'):h.run(output,'mvn',fault='CHUNK',source_from=producer)
+            git.assert_not_called()
+        self.assertEqual(source,json.loads((output/'source.json').read_text()))
+        receipt=json.loads((output/'receipt.json').read_text());self.assertEqual('recorded-producer',receipt['sourceOrigin'])
+        self.assertEqual(h.digest((producer/'source.json').read_bytes()),receipt['sourceSha256'])
+
     def test_unknown_fault_fails_before_creating_an_execution(self):
         output=self.root/'invalid'
         with self.assertRaisesRegex(ValueError,'^whole joining source fault selector$'):h.run(output,'mvn',fault='ACCEPT_ACK')

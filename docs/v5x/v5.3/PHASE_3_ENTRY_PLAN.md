@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining source-reply matrix](PHASE_3_JOINING_FAULT_MATRIX.md) requires all three
+complete initial offer/data/commit loss histories on one exact producer/build.
+Its original-first aggregate replays each full physical/peer chain and fourteen
+negatives after relocation. This one-profile gate does not replace the remaining
+joining faults/processes, all-seven-profile or frozen mapping requirements.
+
 [Complete joining source loss](PHASE_3_JOINING_SOURCE_FAULTS.md) now connects a
 single initial learner reply loss to the complete 3-to-4 ADD history. The reader
 retains original send/read/offer/delivery boundaries and requires an identical
