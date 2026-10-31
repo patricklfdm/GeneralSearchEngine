@@ -144,7 +144,7 @@ class Retirement:
 
     def run(self):
         self.records(); compared, keys = self.compare()
-        return dict(status='PASS', scope='native-ADD-original-retirement-and-owner', deletedOriginalMembers=len(self.removed),
+        return dict(status='PASS', scope='native-'+self.owner.replay.kind+'-original-retirement-and-owner', deletedOriginalMembers=len(self.removed),
             predecessorReservations=len(reservations(self.owner)), nativeReservations=len(native_storage(self.owner.installed, self.expected)),
             exactSidecarFamilies=len(self.expected)-1, comparedFiles=compared, preservedOriginalKeys=keys,
             oldOwnerSnapshots=self.owner.history.comparisons, joiningRetirementPhysicalQualified=True,
@@ -152,11 +152,12 @@ class Retirement:
             completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False)
 
 
-def validate(root):
+def validate(root, *, size=3, kind='ADD'):
     root = Path(root); original = s.collection.inventory(root)
-    placement.transition.publication.validate(root)
-    replay = s.Replay(root)
+    placement.transition.publication.validate(root, size=size, kind=kind)
+    replay = s.Replay(root, size=size, kind=kind)
     for index in range(1, 12): replay.step(index)
+    replay.publication_receipts = placement.transition.publication.CheckpointReceipts(root, replay)
     history = placement.History(root, replay); history.run()
     owner = placement.Placement(root, history); owner.run()
     result = Retirement(root, owner).run()

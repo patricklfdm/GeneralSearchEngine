@@ -104,8 +104,10 @@ executions, reader/source/build identities, regression results, retained failure
 and portable replay. Its flags distinguish supported profiles from executed
 profiles and these three scoped gates from complete Phase 3 qualification.
 
-Next generalize the joining initialization/continuation and maintenance readers,
-including unselected joining adoption and same-view recovery. Add original
+The subsequent [initialization reader](PHASE_3_JOINING_PROFILE_INITIALIZATION.md)
+generalizes placement, custody retirement and native initialization. Continue
+with continuation and maintenance, including unselected joining adoption and
+same-view recovery. Add original
 terminal observations and refusal binding for unsuccessful control attempts;
 keep the complete reader fail-closed until those attempts are explained. Then
 run the remaining complete profiles, fault/process compositions, both REMOVE

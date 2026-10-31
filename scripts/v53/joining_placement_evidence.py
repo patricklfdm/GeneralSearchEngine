@@ -80,7 +80,7 @@ class Placement:
         self.expected = {name: {'.': None} for name in PRESENT}
         self.identities = {name: {v['name']: v['identity'] for v in row.get('files', [])} for name, row in self.snap.identities.items()}
         self.state = self.replay.states[9]; self.operation = next(row for row in self.state['results'] if row['request']['number'] == self.state['active'])
-        self.request = self.operation['request']; self.joining = s.catalog.identities(self.state['identities'])['node-4']
+        self.request = self.operation['request']; self.joining = s.catalog.identities(self.state['identities'])[self.replay.joining]
         self.peer = s.catalog.identities(self.state['identities'])['node-1']
         prepared = self.replay.states[4]['results'][0]['prepared']
         self.receipt = f.encode('records', 'LEARNER', dict(root=self.replay.root, receipt=dict(root=self.replay.root,
@@ -180,7 +180,7 @@ class Placement:
             records={kind: encoded(raw) for kind, raw in dict({k: parts[k] for k in ('ENTRY', 'ACCEPT', 'PROOF', 'CERTIFICATE')},
                 CATALOG=self.replay.catalogs[9], CHECKPOINT=statement).items()}, payload=encoded(parts['PAYLOAD']))
         raw = self.disposition('pendingIntent', 8, dict(pending=pending))
-        ack = f.encode('records', 'CHECKPOINT_ACK', dict(root=self.replay.root, voter='node-4', incarnation=self.joining['storage'],
+        ack = f.encode('records', 'CHECKPOINT_ACK', dict(root=self.replay.root, voter=self.replay.joining, incarnation=self.joining['storage'],
             cut=self.state['cut'], statement=sha(statement)))
         marker = f.canonical(dict(schema='gse-v53-joining-retained-source/1.3', plan=sha(raw), planKey=self.key('pendingIntent', 'pending-intent.json'),
             sourceKey=self.key('pendingIntent', 'source'), receipt=sha(self.receipt), ack=sha(ack), ackKey=self.key('pendingIntent', 'joining-ack.gsr'),
@@ -248,18 +248,19 @@ class Placement:
 
     def run(self):
         self.preparation(); self.pending_and_intent(); self.stage(); self.ownership()
-        return dict(status='PASS', scope='native-ADD-original-joining-placement', placedRoots=len(PRESENT),
+        return dict(status='PASS', scope='native-'+self.replay.kind+'-original-joining-placement', placedRoots=len(PRESENT),
             comparedFiles=sum(raw is not None for files in self.expected.values() for raw in files.values()),
             oldOwnerSnapshots=self.history.comparisons, joiningPlacementPhysicalQualified=True,
             nativeInitializationQualified=False, completePhysicalQualified=False, forceAndNetworkQualified=False,
             processDeathQualified=False, phase3Complete=False)
 
 
-def validate(root):
+def validate(root, *, size=3, kind='ADD'):
     root = Path(root); original = s.collection.inventory(root)
-    transition.publication.validate(root)
-    replay = s.Replay(root)
+    transition.publication.validate(root, size=size, kind=kind)
+    replay = s.Replay(root, size=size, kind=kind)
     for index in range(1, 12): replay.step(index)
+    replay.publication_receipts = transition.publication.CheckpointReceipts(root, replay)
     history = History(root, replay); history.run()
     result = Placement(root, history).run()
     need(s.collection.inventory(root) == original, 'joining original changed during placement replay')

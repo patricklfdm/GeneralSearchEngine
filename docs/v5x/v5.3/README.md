@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Joining profile initialization](PHASE_3_JOINING_PROFILE_INITIALIZATION.md)
+extends original placement, custody retirement and native ledger/grant replay
+to all five explicit ADD/REPLACE profiles. Retained 3-REPLACE evidence and
+original-first rejection checks qualify this bounded stage; continuation,
+complete controls, maintenance/process and the full native profile cohort remain
+open. The aggregate remains PARTIAL.
+
 [Joining profile physical replay](PHASE_3_JOINING_PROFILE_PHYSICAL.md) extends
 slot-force, publication and bootstrap-to-INTENT storage readers to all five
 ADD/REPLACE profiles. Publication uses each publisher's original delivered ACK

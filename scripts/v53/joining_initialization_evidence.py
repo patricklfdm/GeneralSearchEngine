@@ -106,13 +106,15 @@ def prepare(files, ballot, observed, identifiers):
     return result, (basis, raw)
 
 
-def local_order(events):
+def local_order(events, *, joining='node-4'):
     """Bind the derived transaction and grant to their three original scopes."""
     need(type(events) is list and len(events) <= s.collection.HISTORY_ROWS and all(type(row) is dict for row in events),
          'joining initialization event collection bound')
     stages = ('initial-owner', 'retaining-owner', 'repeated-basis-owner')
+    need(all(row.get('node') == joining for row in events if row.get('scope') in stages),
+         'joining initialization original lifecycle owner')
     rows = {stage: [(index, row['event']) for index, row in enumerate(events)
-                   if row.get('node') == 'node-4' and row.get('scope') == stage and row['event'] != 'GRANT_CAPTURED'] for stage in stages}
+                   if row.get('node') == joining and row.get('scope') == stage and row['event'] != 'GRANT_CAPTURED'] for stage in stages}
     # A diagnostic copy marker is not a new protocol force boundary. The v2
     # collector binds its bytes separately; all actual callbacks stay exact.
     need(all(rows.values()) and rows[stages[0]][-1][0] < rows[stages[1]][0][0] < rows[stages[1]][-1][0] < rows[stages[2]][0][0],
@@ -144,6 +146,7 @@ class Initialization:
     def __init__(self, root, handoff):
         self.root, self.handoff = Path(root), handoff
         self.owner = handoff.owner; self.replay = self.owner.replay
+        self.voters = self.owner.history.voters
         self.group = copy.deepcopy(self.owner.history.group)
         self.joined = copy.deepcopy(handoff.expected['replica'])
         self.identifiers = set(); self.originals = []
@@ -152,13 +155,13 @@ class Initialization:
         """Optional original capture comparison, never a source of expected bytes."""
 
     def maintain(self, copies):
-        self.group = transition.maintenance(self.group)
+        self.group = transition.maintenance(self.group, voters=self.voters)
 
     def confirmations(self):
         wire = s.catalog.parse((self.root/'joining-head-wire.json').read_bytes())
-        need(type(wire) is list and len(wire) == 2, 'joining initialization original head exchange count')
+        need(type(wire) is list and len(wire) == len(self.voters), 'joining initialization original head exchange count')
         cap = disk.p.decode(self.owner.history.sources[8]['source.gscp'])['capsule']; traces = set()
-        for node, row in zip(transition.VOTERS, wire):
+        for node, row in zip(self.voters, wire):
             need(type(row) is dict and set(row) == {'request', 'response'}, 'joining initialization head exchange shape')
             query = f.decode(base64.b64decode(row['request'], validate=True), 'wire', 'LEARNER_HEAD_QUERY')
             trace = query['trace']; need(str(uuid.UUID(trace)) == trace and trace not in traces, 'joining initialization original head trace')
@@ -178,20 +181,20 @@ class Initialization:
                  'joining initialization exact confirmed learner plan')
 
     def old_preparation(self):
-        for node in transition.VOTERS:
+        for node in self.voters:
             files = self.group[node]; files[PEERS] = reconcile(files[PEERS], files, self.joined)
             if node == 'node-1':
                 need((self.root/'joining-floor-reconciled.json').read_bytes() == f.canonical(peers.decode(files[PEERS])['plan']),
                      'joining initialization exact reconciled peer plan')
-        copies = {n: self.group[n] for n in transition.VOTERS}; copies['node-4'] = self.joined
+        copies = {n: self.group[n] for n in self.voters}; copies[self.replay.joining] = self.joined
         view = disk.current(self.joined)[2]['capsule']['cut']['view']; s.catalog.majority(view, sorted(copies))
-        for node in transition.VOTERS:
+        for node in self.voters:
             files = self.group[node]
             for original in copies.values():
                 files[PEERS] = transition.observation.observe_same_cut(files[PEERS], files, original, defer_renewal=True)
         self.maintain(copies)
         ballot = next_ballot(self.group['node-1'])
-        for node in transition.VOTERS:
+        for node in self.voters:
             actual = disk.inventory(self.root/'before-joint-continuation'/node)
             self.group[node], source = prepare(self.group[node], ballot, actual['grants.gsr'], self.identifiers)
             self.prepared(node, self.group[node])
@@ -208,7 +211,7 @@ class Initialization:
         for name, raw in [('generation.gsr', self.joined[prefix+'generation.gsr']),
                           ('capsule.gscp', members['source.gscp']), ('ancestry.gsr', members['ancestry.gsr'])]:
             need((self.root/('joining-early-'+name)).read_bytes() == raw, 'joining initialization exact early joining copy')
-        ancestry = [disk.current(self.group[n])[1].get('ancestry.gsr', b'') for n in transition.VOTERS]
+        ancestry = [disk.current(self.group[n])[1].get('ancestry.gsr', b'') for n in self.voters]
         seed, initial = retention.derive(current, self.owner.joining, self.originals, confirmed_peers=True, source_ancestry=ancestry)
         need((self.root/'joining-retention-seed.json').read_bytes() == seed, 'joining initialization exact derived seed')
         for name, value in [('peers', peers.decode(initial[PEERS])['plan']), ('learner', learner.decode(initial[learner.FILE])['plan'])]:
@@ -241,19 +244,20 @@ class Initialization:
         self.confirmations(); self.old_preparation(); self.initialize(); self.grant_and_reopen()
         # An aggregate trace is bounded by the collection contract, not the
         # much smaller parser budget for one protocol message.
-        local_order(json.loads((self.root/'events.json').read_bytes()))
-        return dict(status='PASS', scope='native-ADD-original-joining-initialization', oldOwnerSnapshots=self.owner.history.comparisons+3,
+        local_order(s.collection.read_json(self.root, 'events.json', s.collection.EVENT_BYTES), joining=self.replay.joining)
+        return dict(status='PASS', scope='native-'+self.replay.kind+'-original-joining-initialization', oldOwnerSnapshots=self.owner.history.comparisons+len(self.group),
             nativeFamilies=len(self.handoff.expected), comparedNativeFiles=sum(raw is not None for files in self.handoff.expected.values() for raw in files.values()),
-            originalHeadExchanges=2, preparedOldSources=len(self.originals), initializedLedgers=3,
+            originalHeadExchanges=len(self.voters), preparedOldSources=len(self.originals), initializedLedgers=3,
             joiningInitializationPhysicalQualified=True, joiningInitializationLocalOrderQualified=True, completePhysicalQualified=False,
             forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False)
 
 
-def validate(root):
+def validate(root, *, size=3, kind='ADD'):
     root = Path(root); original = s.collection.inventory(root)
-    transition.publication.validate(root)
-    replay = s.Replay(root)
+    transition.publication.validate(root, size=size, kind=kind)
+    replay = s.Replay(root, size=size, kind=kind)
     for index in range(1, 12): replay.step(index)
+    replay.publication_receipts = transition.publication.CheckpointReceipts(root, replay)
     history = placement.History(root, replay); history.run()
     owner = placement.Placement(root, history); owner.run()
     handoff = retirement.Retirement(root, owner); handoff.run()
@@ -292,8 +296,11 @@ NEGATIVES = {
 }
 
 
-def mutate(root, name):
+def mutate(root, name, *, size=3, kind='ADD'):
     need(name in NEGATIVES, 'unknown joining initialization mutation')
+    from .joining_profile_evidence import topology
+    _, _, old, new = topology(str(size)+'-'+kind)
+    joining = new[-1]
     root = Path(root); native = root/'joining-originals-native'; node1 = root/'before-joint-continuation/node-1'
     node2 = root/'before-joint-continuation/node-2'; replica = native/'replica'
     def json_edit(path, action):
@@ -301,7 +308,7 @@ def mutate(root, name):
     def ledger(path, module, action):
         value = module.decode(path.read_bytes()); action(value); path.write_bytes(module.frame(value))
     def grants(path, action):
-        rows = disk.journal(path.read_bytes(), f.decode((path.parent/'node.gsr').read_bytes(), 'records', 'NODE')['root'], path.parent.name if path.parent != replica else 'node-4')
+        rows = disk.journal(path.read_bytes(), f.decode((path.parent/'node.gsr').read_bytes(), 'records', 'NODE')['root'], path.parent.name if path.parent != replica else joining)
         values = [(kind, value) for kind, _, value in rows]; action(values)
         path.write_bytes(b''.join(f.encode('records', kind, value) for kind, value in values))
     if name.startswith('head-'):
@@ -319,7 +326,7 @@ def mutate(root, name):
     elif name == 'old-premature-selection':
         def select(values):
             basis = values[-1][1]; sources = []
-            for node, directory in [('node-1', node1), ('node-2', node2), ('node-4', replica)]:
+            for node, directory in [(n, root/'before-joint-continuation'/n) for n in old[:size//2+1]]+[(joining, replica)]:
                 raw = next(raw for kind, raw, _ in reversed(disk.journal((directory/'grants.gsr').read_bytes(), basis['root'], node)) if kind == 'BASIS')
                 value = f.decode(raw, 'records', 'BASIS'); sources.append(dict(voter=node, basisId=value['basisId'], basisDigest=sha(raw)))
             values.append(('SELECTED', dict(root=basis['root'], view=basis['view'], ballot=basis['ballot'], cut=basis['cut'], nextEntry=None, sources=sources)))
@@ -366,7 +373,7 @@ def mutate(root, name):
             elif name == 'first-grant-force-reordered':
                 a, b = at('retaining-owner', 'BASIS_FORCED'), at('retaining-owner', 'SOURCE_DIRECTORY_FORCED'); events[a], events[b] = events[b], events[a]
             elif name == 'repeated-basis-rewritten':
-                pos = at('repeated-basis-owner', 'CURRENT_BEFORE_CAPTURE'); events.insert(pos+1, dict(node='node-4', scope='repeated-basis-owner', event='BASIS_FORCED'))
+                pos = at('repeated-basis-owner', 'CURRENT_BEFORE_CAPTURE'); events.insert(pos+1, dict(node=joining, scope='repeated-basis-owner', event='BASIS_FORCED'))
             else:
                 row = events.pop(at('repeated-basis-owner', 'CURRENT_VALIDATED')); events.insert(at('initial-owner', 'JOINING_RETENTION_BEFORE_RETURN'), row)
         path = root/'events.json'; events = json.loads(path.read_bytes()); change_events(events); path.write_bytes(f.canonical(events))

@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining profile initialization](PHASE_3_JOINING_PROFILE_INITIALIZATION.md)
+extends original placement, custody retirement and native ledger/grant replay
+to all five explicit ADD/REPLACE profiles. Retained 3-REPLACE evidence qualifies
+this stage with 21 original-first negatives; conditional profile coverage does
+not replace native execution. Continuation/adoption, complete control attempts,
+maintenance/peer histories and the full profile/process cohort stay deferred.
+
 [Joining profile physical replay](PHASE_3_JOINING_PROFILE_PHYSICAL.md) extends
 slot-force, publication and bootstrap-to-INTENT storage readers to all five
 ADD/REPLACE profiles. Publication uses each publisher's original delivered ACK

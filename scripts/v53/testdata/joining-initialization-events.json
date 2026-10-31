@@ -1,0 +1,681 @@
+{
+  "description": "Projected original local callback order for conditional reader regressions only; no native qualification authority.",
+  "originalEventsSha256": "330f2a1e0a28bde48272969beafe8cf78ba8c114bbbfbb06ac15beba986cceb8",
+  "rows": [
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINED_NATIVE_RECORD_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINED_NATIVE_DECISION_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINED_NATIVE_TRANSFERRED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "CURRENT_VALIDATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "CURRENT_FILES_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "CURRENT_GENERATION_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "CURRENT_SELECTOR_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "CURRENT_DIRECTORY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "ACCEPT_ACTIVE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "ACCEPT_ACTIVE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "FLOOR_COPY_BEFORE_RETURN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "FLOOR_COPY_BEFORE_RETURN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "FLOOR_COPY_BEFORE_RETURN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "FLOOR_COPY_BEFORE_RETURN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_SEED_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_SEED_PREFIX_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_SEED_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_SEED_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_SEED_CANDIDATE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_SEED_RENAMED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_SEED_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_PEERS_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_PEERS_PREFIX_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_PEERS_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_PEERS_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_PEERS_CANDIDATE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_PEERS_RENAMED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_PEERS_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_FUTURE_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_FUTURE_PREFIX_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_FUTURE_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_FUTURE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_FUTURE_CANDIDATE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_FUTURE_RENAMED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_FUTURE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_LEARNER_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_LEARNER_PREFIX_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_LEARNER_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_LEARNER_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_LEARNER_CANDIDATE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_LEARNER_RENAMED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_LEARNER_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_DONE_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_DONE_PREFIX_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_DONE_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_DONE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_DONE_CANDIDATE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_DONE_RENAMED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_DONE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "JOINING_RETENTION_BEFORE_RETURN"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "LEARNER_RETENTION_RECOVERY_ACTIVE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "LEARNER_RETENTION_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "RETENTION_RECOVERY_ACTIVE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "RETENTION_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "FUTURE_RETENTION_RECOVERY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "FUTURE_RETENTION_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "initial-owner",
+      "event": "FLOOR_COPY_BEFORE_RETURN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CURRENT_VALIDATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CURRENT_FILES_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CURRENT_GENERATION_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CURRENT_SELECTOR_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CURRENT_DIRECTORY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "JOINING_RETENTION_SEED_RECOVERY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "JOINING_RETENTION_SEED_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "JOINING_RETENTION_DONE_RECOVERY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "JOINING_RETENTION_DONE_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "LEARNER_RETENTION_RECOVERY_ACTIVE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "LEARNER_RETENTION_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "RETENTION_RECOVERY_ACTIVE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "RETENTION_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "FUTURE_RETENTION_RECOVERY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "FUTURE_RETENTION_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "ACCEPT_ACTIVE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "ACCEPT_ACTIVE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "ALLOCATOR_BEFORE_WRITE"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "ALLOCATOR_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "ALLOCATOR_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "ALLOCATOR_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "ALLOCATOR_RENAMED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "ALLOCATOR_DIRECTORY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "ALLOCATOR_BEFORE_RETURN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CURRENT_BEFORE_CAPTURE"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "PROMISE_BEFORE_WRITE"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "PROMISE_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "PROMISE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CAPTURE_INTENT_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CAPTURE_INTENT_PREFIX_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CAPTURE_INTENT_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CAPTURE_INTENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CAPTURE_INTENT_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_BEFORE_CREATE"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_PACKET_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_PACKET_PREFIX_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_PACKET_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_PACKET_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_IMAGE_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_IMAGE_PREFIX_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_IMAGE_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_IMAGE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_FILES_DIRECTORY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "SOURCE_DIRECTORY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "BASIS_BEFORE_WRITE"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "BASIS_PREFIX_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "BASIS_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "BASIS_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CAPTURE_INTENT_DELETED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "CAPTURE_INTENT_CLEARED"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "GRANT_BEFORE_RETURN"
+    },
+    {
+      "node": "node-4",
+      "scope": "retaining-owner",
+      "event": "FLOOR_COPY_BEFORE_RETURN"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "CURRENT_VALIDATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "CURRENT_FILES_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "CURRENT_GENERATION_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "CURRENT_SELECTOR_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "CURRENT_DIRECTORY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "JOINING_RETENTION_SEED_RECOVERY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "JOINING_RETENTION_SEED_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "JOINING_RETENTION_DONE_RECOVERY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "JOINING_RETENTION_DONE_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "LEARNER_RETENTION_RECOVERY_ACTIVE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "LEARNER_RETENTION_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "RETENTION_RECOVERY_ACTIVE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "RETENTION_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "FUTURE_RETENTION_RECOVERY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "FUTURE_RETENTION_RECOVERY_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "ACCEPT_ACTIVE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "ACCEPT_ACTIVE_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "CURRENT_BEFORE_CAPTURE"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "ALLOCATOR_BEFORE_WRITE"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "ALLOCATOR_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "ALLOCATOR_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "ALLOCATOR_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "ALLOCATOR_RENAMED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "ALLOCATOR_DIRECTORY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "repeated-basis-owner",
+      "event": "ALLOCATOR_BEFORE_RETURN"
+    }
+  ]
+}

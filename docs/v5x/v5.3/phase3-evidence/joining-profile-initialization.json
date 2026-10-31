@@ -1,0 +1,514 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "bytes": 10477507,
+    "files": 5747,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-profile-initialization-20261031/sealed/joining-profile-initialization.tar.gz",
+    "sha256": "dbff0b4c0e9dd2fd5b990365af7f795fbb3ab89da60b08ca1e7e976aa9e09a60"
+  },
+  "baseHead": "dba724a237df961d5f6bb4c40a0a24ae5f7de8d3",
+  "codeSha256": {
+    "scripts/v53/joining_initialization_evidence.py": "fad0be70335325f16b265e7a1c7ced64debcb73db2553e94410fb428412b7169",
+    "scripts/v53/joining_placement_evidence.py": "a7bd55661d6b7a7885858200b574bf16408b7d24ff1b467e5443018d417f2821",
+    "scripts/v53/joining_profile_initialization_evidence.py": "e07de0662b7a8b475fe8db5877a3ed5ce9f0f93d6e109179d17d2f0f3480ab31",
+    "scripts/v53/joining_retirement_evidence.py": "55811b095bb5b5afaba80280d720196795ff9bf33e0668f218f62b632d7e8716",
+    "scripts/v53/test_joining_profile_initialization_evidence.py": "1289f87a66a772a40587ef1c6cb330123a9c07a273db6289325ac48a6307cd93",
+    "scripts/v53/testdata/joining-initialization-events.json": "ec6fa3afb304e06fce9d73d3963632abe2b912b6619493c6436a33b61c8e3dfd"
+  },
+  "completePhysicalQualified": false,
+  "forceAndNetworkQualified": false,
+  "legacyThreeAdd": {
+    "result": {
+      "capturedLedgers": 19,
+      "chainSha256": "1b599dbe30a161dc6501368db8020af4cf851b3c001ee4e809c0d3e85f1a3054",
+      "completePhysicalQualified": false,
+      "durableWrites": 90,
+      "finalRevisions": {
+        "node-1": 40,
+        "node-2": 40,
+        "node-3": 0,
+        "node-4": 10
+      },
+      "forceAndNetworkQualified": false,
+      "ledgerComparisons": 97,
+      "openReseals": 8,
+      "peerLedgerCompositionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-ADD-original-peer-ledger-chain",
+      "status": "PASS",
+      "writesByKind": {
+        "maintenance": 54,
+        "publication": 24,
+        "selected": 12
+      }
+    },
+    "resultFile": {
+      "bytes": 558,
+      "path": "target/v53-joining-profile-initialization-20261031/legacy-peer.json",
+      "sha256": "2d87de19ab761c390904bb7bb181ff669e9b3b66bc578ab090c8554ab164376c"
+    },
+    "unchangedFromPriorBatch": true
+  },
+  "originalReplay": {
+    "buildSha256": "4eadadabf4e6d5d7600a7d7e583133bebfbb8d65f14a849255be92dad96f387c",
+    "nativeExecutionRerun": false,
+    "originalNativeReceipt": {
+      "baseHead": "0fbe629b8e9af1050c3f5bc5eb17a665e4a0f209",
+      "buildSha256": "4eadadabf4e6d5d7600a7d7e583133bebfbb8d65f14a849255be92dad96f387c",
+      "command": [
+        "/opt/maven/bin/mvn",
+        "-o",
+        "-B",
+        "-ntp",
+        "-f",
+        "reactor/pom.xml",
+        "-pl",
+        "../general-search-engine-replication",
+        "-am",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dtest=V53JoiningIntentExportTest#joiningProfileCompletesFinalAndRetainingColdRecovery",
+        "-Dv53.joining.profile=3-REPLACE",
+        "test"
+      ],
+      "completeExecutionRequested": true,
+      "execution": {
+        "elapsedSeconds": 704.872,
+        "exit": 0
+      },
+      "executionStatus": "PASS",
+      "finalAndColdReopenQualified": false,
+      "forceAndNetworkQualified": false,
+      "junit": {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+        "errors": 0,
+        "failures": 0,
+        "method": "joiningProfileCompletesFinalAndRetainingColdRecovery",
+        "skipped": 0,
+        "tests": 1
+      },
+      "negativeCases": 9,
+      "phase3Complete": false,
+      "profile": "3-REPLACE",
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-2a7ce2ac-88c0-4566-8a12-58f1cbe77fcd",
+      "replayExecution": {
+        "elapsedSeconds": 8.98,
+        "exit": 0
+      },
+      "replaySha256": "69b4a4c906d60e8cf7933a31832b291f5671c0cd63d08b8f3bfaf7376dc197ac",
+      "retries": 0,
+      "schema": "gse-v53-joining-profile-completion-v1",
+      "semanticChainQualified": true,
+      "semanticFinalAndColdQualified": true,
+      "sourceSha256": "a91a1be2836f71cfe8a9dcab53c70c21e9f7775bd56e2e1cf34b3c07c7cfc766",
+      "status": "PARTIAL",
+      "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+    },
+    "portableReplay": {
+      "assertionsDisabled": true,
+      "elapsedSeconds": 13.154,
+      "result": {
+        "bytes": 1823,
+        "path": "target/v53-joining-profile-initialization-20261031/sealed/portable.json",
+        "sha256": "30a5b183cd7714540f61b6dec398281ee9170ceb014217a8e9ff7c98190613a1"
+      }
+    },
+    "previousNativeExecution": true,
+    "profile": "3-REPLACE",
+    "rawUnchanged": true,
+    "result": {
+      "negatives": [
+        {
+          "case": "pending-retained-inode",
+          "gate": "placement",
+          "priorGates": [
+            "publication",
+            "transition"
+          ],
+          "reason": "joining placement exact family: pendingIntent",
+          "status": "REJECTED"
+        },
+        {
+          "case": "adopted-manifest-forgery",
+          "gate": "placement",
+          "priorGates": [
+            "publication",
+            "transition"
+          ],
+          "reason": "joining placement exact family: replica",
+          "status": "REJECTED"
+        },
+        {
+          "case": "premature-peer-ledger",
+          "gate": "placement",
+          "priorGates": [
+            "publication",
+            "transition"
+          ],
+          "reason": "joining placement exact family: replica",
+          "status": "REJECTED"
+        },
+        {
+          "case": "custody-missing-pending",
+          "gate": "placement",
+          "priorGates": [
+            "publication",
+            "transition"
+          ],
+          "reason": "joining placement exact family: custody",
+          "status": "REJECTED"
+        },
+        {
+          "case": "placement-move-order",
+          "gate": "placement",
+          "priorGates": [
+            "publication",
+            "transition"
+          ],
+          "reason": "joining placement exact family: placement",
+          "status": "REJECTED"
+        },
+        {
+          "case": "joined-record-inode",
+          "gate": "placement",
+          "priorGates": [
+            "publication",
+            "transition"
+          ],
+          "reason": "joining placement exact family: placement",
+          "status": "REJECTED"
+        },
+        {
+          "case": "deletion-live-generation",
+          "gate": "retirement",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement"
+          ],
+          "reason": "joining retirement exact family: retirement",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reservation-alias-images",
+          "gate": "retirement",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement"
+          ],
+          "reason": "joining retirement exact family: retirement",
+          "status": "REJECTED"
+        },
+        {
+          "case": "native-journal-charge",
+          "gate": "retirement",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement"
+          ],
+          "reason": "joining retirement exact family: nativeOwner",
+          "status": "REJECTED"
+        },
+        {
+          "case": "predecessor-payload-survives",
+          "gate": "retirement",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement"
+          ],
+          "reason": "joining retirement predecessor still present",
+          "status": "REJECTED"
+        },
+        {
+          "case": "generation-inode-replaced",
+          "gate": "retirement",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement"
+          ],
+          "reason": "joining retirement surviving original inode",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unowned-sidecar-file",
+          "gate": "retirement",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement"
+          ],
+          "reason": "joining retirement exact family: nativeOwner",
+          "status": "REJECTED"
+        },
+        {
+          "case": "head-foreign-owner",
+          "gate": "initialization",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement",
+            "retirement"
+          ],
+          "reason": "joining initialization exact original head exchange",
+          "status": "REJECTED"
+        },
+        {
+          "case": "old-standalone-source-changed",
+          "gate": "initialization",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement",
+            "retirement"
+          ],
+          "reason": "joining initialization exact retained old source: node-2",
+          "status": "REJECTED"
+        },
+        {
+          "case": "seed-changed",
+          "gate": "initialization",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement",
+            "retirement"
+          ],
+          "reason": "joining initialization exact derived seed",
+          "status": "REJECTED"
+        },
+        {
+          "case": "initialized-learner-debt-lost",
+          "gate": "initialization",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement",
+            "retirement"
+          ],
+          "reason": "joining derivation exact initial ledger: learner-retention.gslr",
+          "status": "REJECTED"
+        },
+        {
+          "case": "native-new-promise-changed",
+          "gate": "initialization",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement",
+            "retirement"
+          ],
+          "reason": "joining initialization exact frozen grant bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "native-source-image-changed",
+          "gate": "initialization",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement",
+            "retirement"
+          ],
+          "reason": "joining initialization exact native family: replica",
+          "status": "REJECTED"
+        },
+        {
+          "case": "native-extra-allocation",
+          "gate": "initialization",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement",
+            "retirement"
+          ],
+          "reason": "joining initialization exact native family: replica",
+          "status": "REJECTED"
+        },
+        {
+          "case": "initialization-force-missing",
+          "gate": "initialization",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement",
+            "retirement"
+          ],
+          "reason": "joining initialization original transaction force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "repeated-basis-rewritten",
+          "gate": "initialization",
+          "priorGates": [
+            "publication",
+            "transition",
+            "placement",
+            "retirement"
+          ],
+          "reason": "joining initialization original repeated basis order",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "gates": {
+          "initialization": {
+            "comparedNativeFiles": 33,
+            "completePhysicalQualified": false,
+            "forceAndNetworkQualified": false,
+            "initializedLedgers": 3,
+            "joiningInitializationLocalOrderQualified": true,
+            "joiningInitializationPhysicalQualified": true,
+            "nativeFamilies": 10,
+            "oldOwnerSnapshots": 72,
+            "originalHeadExchanges": 2,
+            "phase3Complete": false,
+            "preparedOldSources": 2,
+            "processDeathQualified": false,
+            "scope": "native-REPLACE-original-joining-initialization",
+            "status": "PASS"
+          },
+          "placement": {
+            "comparedFiles": 65,
+            "completePhysicalQualified": false,
+            "forceAndNetworkQualified": false,
+            "joiningPlacementPhysicalQualified": true,
+            "nativeInitializationQualified": false,
+            "oldOwnerSnapshots": 69,
+            "phase3Complete": false,
+            "placedRoots": 8,
+            "processDeathQualified": false,
+            "scope": "native-REPLACE-original-joining-placement",
+            "status": "PASS"
+          },
+          "retirement": {
+            "comparedFiles": 24,
+            "completePhysicalQualified": false,
+            "deletedOriginalMembers": 46,
+            "exactSidecarFamilies": 9,
+            "forceAndNetworkQualified": false,
+            "joiningRetirementPhysicalQualified": true,
+            "nativeInitializationQualified": false,
+            "nativeOwnerHandoffPhysicalQualified": true,
+            "nativeReservations": 4,
+            "oldOwnerSnapshots": 69,
+            "phase3Complete": false,
+            "predecessorReservations": 11,
+            "preservedOriginalKeys": 33,
+            "processDeathQualified": false,
+            "scope": "native-REPLACE-original-retirement-and-owner",
+            "status": "PASS"
+          }
+        },
+        "pendingQualification": [
+          "joining continuation/adoption",
+          "complete control attempts and export authority",
+          "maintenance and peer chain",
+          "process death",
+          "complete profile cohort",
+          "frozen mapping"
+        ],
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "3-REPLACE",
+        "scope": "original-placement-retirement-native-initialization",
+        "status": "PARTIAL"
+      }
+    },
+    "resultFile": {
+      "bytes": 6119,
+      "path": "target/v53-joining-profile-initialization-20261031/qualified-3-replace.json",
+      "sha256": "e99111d5386b86d78d59b717f9dabf666af38f88af7a1e799607dd1be81401ce"
+    },
+    "sourceAndBuildVerified": true,
+    "sourceSha256": "a91a1be2836f71cfe8a9dcab53c70c21e9f7775bd56e2e1cf34b3c07c7cfc766"
+  },
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "readerManifestSha256": "b5ec62605e0adf84a83f4e593de936574cf7cf1b93af206a2c2c469940c0bcfd",
+  "readerSupportedProfiles": [
+    "3-ADD",
+    "4-ADD",
+    "3-REPLACE",
+    "4-REPLACE",
+    "5-REPLACE"
+  ],
+  "remaining": [
+    "joining continuation and unselected adoption/installation physical derivation",
+    "original terminal observations for unanswered control attempts",
+    "maintenance and peer chains for other profiles",
+    "complete corrected-source native profile cohort",
+    "whole-history fault/process compositions",
+    "both REMOVE profiles",
+    "unchanged frozen S/N mapping"
+  ],
+  "retainedPriorFailure": {
+    "accepted": false,
+    "correctedSourceExecution": "DEFERRED",
+    "profile": "4-ADD",
+    "receipt": "docs/v5x/v5.3/phase3-evidence/joining-profile-physical.json",
+    "status": "FAIL"
+  },
+  "schema": "gse-v53-joining-profile-initialization-batch-v1",
+  "status": "PARTIAL",
+  "tests": {
+    "joiningPython": {
+      "errors": 0,
+      "failures": 0,
+      "log": {
+        "bytes": 2363,
+        "path": "target/v53-joining-profile-initialization-20261031/all-joining-python.log",
+        "sha256": "0d1b45e4b02a9a0251ad337ee02edbf654c7924e18c59e6aa0f31d56e49f5a39"
+      },
+      "tests": 374
+    },
+    "nativeReruns": 0,
+    "newProfileRegressions": {
+      "conditionalOnly": true,
+      "log": {
+        "bytes": 112,
+        "path": "target/v53-joining-profile-initialization-20261031/profile-python-v3.log",
+        "sha256": "a002f4de4301ec64bd0925efb2cca5c179ed8c371c055c55ba9056ca805777c6"
+      },
+      "profiles": 5,
+      "tests": 13
+    },
+    "optimizedProfileRegressions": {
+      "errors": 0,
+      "failures": 0,
+      "log": {
+        "bytes": 112,
+        "path": "target/v53-joining-profile-initialization-20261031/profile-python-optimized.log",
+        "sha256": "c930d53a7fde29d76c328dc6f3b3685b61dbd51d2cc6540c10ea124893064b6e"
+      },
+      "tests": 13
+    },
+    "originalBehavioralRegressions": {
+      "expectedFailure": true,
+      "failingSubcases": 6,
+      "log": {
+        "bytes": 6001,
+        "path": "target/v53-joining-profile-initialization-20261031/original-reader-regressions.log",
+        "sha256": "22f85e069a1591fc9a1234c1300db4b6f6aeaf846fccae3048d1c289d1e469f3"
+      },
+      "profiles": [
+        "4-ADD",
+        "4-REPLACE",
+        "5-REPLACE"
+      ],
+      "tests": 2
+    }
+  }
+}
