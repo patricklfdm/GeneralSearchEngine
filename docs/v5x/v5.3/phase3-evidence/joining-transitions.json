@@ -1,0 +1,208 @@
+{
+  "archive": {
+    "bytes": 10101932,
+    "files": 4288,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-transitions/joining-transition-replay.tar.gz",
+    "sha256": "9846d68a74895de9cf33b044d6afef0fa64d473d6101df2fad6be9e6d771abd0"
+  },
+  "changedSources": {
+    "scripts/v53/joining_transition_evidence.py": "180b9e32729fa98153d0ba80a3d9f68b2746f672e132b44a8859e87c5c565f54",
+    "scripts/v53/test_joining_transition_evidence.py": "4f56b098def10b3c9d902f7fe5d882357a56138d3b18042b3628444a0a7b6e6b"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1780,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "7407025b8126728a2cf11fad24c67611ff2b30362d952b2817493c94b0a4c152"
+  },
+  "forceAndNetworkQualified": false,
+  "limitations": [
+    "This gate composes bootstrap, four campaigns, maintenance and nine slots through old-voter INTENT for one original 3-ADD history.",
+    "Joining custody/native initialization, joint source preparation/recapture and the later FINAL/new-stable installations still require independent complete physical derivation.",
+    "Complete force/network causality for maintenance copies, transfers, deletion and receipts is not established by inventory replay.",
+    "The changed send/arrival producer requires a fresh whole execution; this batch replays unchanged df22c398 evidence without rerunning workload.",
+    "All seven profiles, process cuts and frozen requirement mappings remain open."
+  ],
+  "originalCollectionSha256": "94fa10496fcd2c8264b0daf7f82c1ccc3447e7a2efe391ef5d6c3ab78ba567f0",
+  "originalInventoryMatchesProducer": true,
+  "originalProducerReceipt": "target/v53-joining-history/original-df22c398/receipt.json",
+  "originalProducerReceiptSha256": "c252348418035ec86bbd440f1041ef228f90d35ccf09d5188a04b0750748fffc",
+  "originalProducerSource": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+  "originalRawArchive": {
+    "path": "target/v53-joining-catalog/joining-catalog-history.tar.gz",
+    "sha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f"
+  },
+  "phase3Complete": false,
+  "portableReplay": {
+    "elapsedSeconds": 120.707,
+    "negativeResultsIdentical": true,
+    "originalInventoryUnchanged": true,
+    "originalResultIdentical": true,
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "productionJavaChanged": false,
+  "python": {
+    "failures": 0,
+    "newLogSha256": "a5dc4b15d94cd4ac3b506a644244c00597c2741be25a3836aa4ae427acc71f6a",
+    "newTests": 11,
+    "status": "PASS",
+    "suites": [
+      {
+        "logSha256": "a4c6a521ce85ac9a9a221c3769caeb6a6d44e4fac99b7cb45730c15361dd6fbd",
+        "tests": 135
+      },
+      {
+        "logSha256": "d03ce458f2a6cd2b4f27522f3aacad03ce1872c028853507c3ad02ca621bdcad",
+        "tests": 5
+      }
+    ],
+    "tests": 140
+  },
+  "readerBaseHead": "4334d94cff7e42f6eb72de6023ca96eefe4d92c8",
+  "readerSha256": "180b9e32729fa98153d0ba80a3d9f68b2746f672e132b44a8859e87c5c565f54",
+  "readerSourceSha256": "ee08c9288a5517dc4447e9ecab07e275c135d907e6a364aef87365741ae868b8",
+  "readerSourceSnapshotPrecedesFinalReceipt": true,
+  "replay": {
+    "elapsedSeconds": 119.706,
+    "negatives": [
+      {
+        "case": "installed-extra-member",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: installed-3: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-selection-changed",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: installed-3: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-source-changed",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: installed-2: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-old-generation-lost",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: installed-2: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-peer-debt-erased",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: installed-2: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-learner-offer-erased",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: installed-3: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-future-revision",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: installed-2: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-allocator",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: installed-4: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-grants-truncated",
+        "publicationGate": "PASS",
+        "reason": "selected retention original grant history",
+        "status": "REJECTED"
+      },
+      {
+        "case": "installed-offline-owner-changed",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: installed-4: node-3",
+        "status": "REJECTED"
+      },
+      {
+        "case": "applied-peer-revision",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: applied-6: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "applied-peer-debt-erased",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: applied-6: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "applied-learner-obligation-erased",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: applied-9: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "source-retirement-skipped",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: applied-3: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "grant-retirement-skipped",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: applied-3: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "applied-orphan-directory",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: applied-5: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "applied-allocator",
+        "publicationGate": "PASS",
+        "reason": "joining exact transition inventory: applied-8: node-1",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "campaigns": 4,
+      "completePhysicalQualified": false,
+      "forceAndNetworkQualified": false,
+      "ownerSnapshotComparisons": 69,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "native-ADD-bootstrap-through-old-voter-INTENT",
+      "slots": 9,
+      "status": "PASS",
+      "throughIntentPhysicalQualified": true
+    }
+  },
+  "replaySha256": "fbb841f17b647d28600e11c7fba1498f0fc541798e019bc325fac6b96a41f44f",
+  "schema": "gse-v53-phase3-joining-transitions-v1",
+  "sourceDelta": {
+    "frozenInputsChanged": false,
+    "pomChanged": false,
+    "producerHead": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+    "productionJavaChanged": false,
+    "protectedChanges": [],
+    "protectedCount": 458,
+    "readerBaseHead": "4334d94cff7e42f6eb72de6023ca96eefe4d92c8",
+    "status": "PASS"
+  },
+  "status": "PARTIAL",
+  "throughIntentPhysicalQualified": true
+}

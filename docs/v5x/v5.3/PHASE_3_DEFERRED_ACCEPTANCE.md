@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining transition replay](PHASE_3_JOINING_TRANSITION_REPLAY.md) composes the
+original bootstrap, four installations, maintenance and first nine slots into
+69 exact old-voter inventory comparisons. Continue on the same original bytes
+through joining custody, joint source preparation/recapture and FINAL/new-stable
+installation; do not replace the remaining whole-history obligations with this
+prefix qualification. Seventeen additional negatives pass the earlier gate.
+
 [Joining publication inventory replay](PHASE_3_JOINING_PUBLICATION_REPLAY.md)
 now compares all 24 original applied-to-published inventories, with 26 exact
 semantic-preserving negatives. Reuse these original bytes while extending the

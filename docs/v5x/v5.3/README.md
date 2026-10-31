@@ -36,6 +36,11 @@ derives the exact 24 publication inventories and rejects 26 self-consistent
 mutations accepted by the prior semantic reader. Intervening physical state,
 complete network causality and process/profile qualification remain open.
 
+[Joining transition replay](PHASE_3_JOINING_TRANSITION_REPLAY.md) now connects
+bootstrap, four elections and maintenance through old-voter INTENT: 69 complete
+inventories and 17 additional negatives. Joining custody, joint source recapture
+and later installations remain the next physical integration boundary.
+
 [Three-owner automatic-history replay](PHASE_3_COMPETING_REPLAY.md) independently
 reconstructs the retained clean competition, its final files, all original sends
 and responses, heartbeat contact and publication dependencies. This one history

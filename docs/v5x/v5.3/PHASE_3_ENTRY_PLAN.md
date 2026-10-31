@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining transition replay](PHASE_3_JOINING_TRANSITION_REPLAY.md) now derives
+bootstrap, four elections and maintenance through the old owners' INTENT,
+matching 69 complete node inventories and rejecting 17 mutations that pass
+the earlier publication gate. Joining custody/native initialization, joint
+source preparation/recapture and the later two installations still need full
+physical derivation. Full network/process/profile qualification remains open.
+
 [Joining publication inventory replay](PHASE_3_JOINING_PUBLICATION_REPLAY.md)
 derives all 24 applied-to-published transitions in the original native ADD history,
 including exact packet objects, coverage, generations, ancestor obligations and
