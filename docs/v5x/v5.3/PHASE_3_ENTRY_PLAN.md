@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original transfer process recovery](PHASE_3_TRANSFER_PROCESS.md) now qualifies
+all 18 offer/data/commit halt/SIGKILL cases at stable sizes 3/4/5. Thirty-six fresh
+JVMs retain the same original donor disks across death/reopen; independent replay
+checks 126 attempts, lock/recovery observations and original received bytes, with
+23 exact evidence negatives. This is scoped transfer qualification, not complete
+joining-history, all-profile or frozen-mapping acceptance; Phase 3 remains open.
+
 [Original TCP transfer faults](PHASE_3_TRANSFER_FAULTS.md) now qualify nine
 fault/expiry/close cases at each of stable sizes 3, 4 and 5: 102 observed attempts,
 18 dropped replies and 24 terminal refusal probes, with original physical/wire

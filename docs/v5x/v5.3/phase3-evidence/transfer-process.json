@@ -1,0 +1,434 @@
+{
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "bytes": 29647656,
+    "entries": 18020,
+    "memberHashesVerified": true,
+    "negativeReplayRepeated": false,
+    "path": "target/v53-transfer-process-review/sealed/transfer-process.tar.gz",
+    "portableOriginal": "PASS",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "014e21aae633837e8636502653017d763b88ad7854b3b53bfc76459f3914da11",
+    "sha256": "72e50a6d473f0da7e188de87631a8d78aaad2a2843896243c30311e6020e9312",
+    "status": "PASS"
+  },
+  "archiveReceiptNote": "Archive reader contains the pre-seal receipt; final archive hashes are retained separately to avoid a self-referential hash.",
+  "baseHead": "9c5f55110aafbf1f355a6e4904f615b56bafdf5c",
+  "buildManifestSha256": "671afd3bbba8db66e98b81adf8b6e8b692b98cbabed9d1800cf82e8d6536e212",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "0be41ecc750b09a1b3e250b7ff21348bad37a8c77dbc3a16cebcd185e29f2ffe",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "00507a12395ac9e57ae024fd33c22c63b1136276d43c4a87539efc41d238aa8e",
+    "docs/v5x/v5.3/PHASE_3_TRANSFER_PROCESS.md": "656b38b872ad7b0a355ab9f6426aced09395f8ee79e6e216756577bf69dd48ab",
+    "docs/v5x/v5.3/README.md": "26757d6544ad35f02eefa1333f3bf7b3beb370ef0c51c4750de1920d129dc8f8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferProcessTest.java": "8a5ef1dac469ce255537c01c3084399ddc491ed544eda880fa8bd7e24ca34051",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransferProcessWorker.java": "fd69389a0ba93046f857ac68e52c99ff870a6754944c43fd0f94f5e5532a7485",
+    "scripts/v53/test_transfer_process_evidence.py": "4220745c80fd4431f80acae44ae6698163a990235f1c5f913bd88f930d0985dd",
+    "scripts/v53/transfer_process_evidence.py": "cc7ca9a2fa362fefbbc81a78f0fe83ab79a214165e7b5a450d77b7c81d988d2b"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1860,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "diagnosticsNote": "The first collector called a cold-only fixture snapshot with an open owner. Only the test collector changed; the successful matrix is one complete fresh execution, without splicing.",
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "nativeExecution": {
+    "elapsedSeconds": 107.832,
+    "method": "originalSourceSurvivesEveryTransferReplyProcessCut",
+    "reportSha256": "481d2124887c41312b12b1dff3ed4800d09bc31fc44d1e86b11a803fdf46ca91"
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "powerLossQualified": false,
+  "producerSourceSha256": "e697718fd16b0410c5717cc259b595fb7b068c6602531bae70d3c392a113294c",
+  "productionChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "pythonLogSha256": "ba8ac3b3190a99a3aa6b00013189f43dc647e671ff3c46a5451645391f0f0164",
+  "qualification": {
+    "negatives": [
+      {
+        "case": "scope",
+        "reason": "transfer process exact matrix receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-case",
+        "reason": "transfer process complete matrix inventory",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-interrupted",
+        "reason": "admitted exact interrupted: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-after",
+        "reason": "admitted exact after: node-1",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-record",
+        "reason": "transfer process original received bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "foreign-path",
+        "reason": "transfer process original path binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "same-pid",
+        "reason": "transfer process distinct workers",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-exit",
+        "reason": "transfer process exact exit receipt",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-recovery-force",
+        "reason": "transfer process exact worker lifecycle",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-lock",
+        "reason": "transfer process exact worker lifecycle",
+        "status": "REJECTED"
+      },
+      {
+        "case": "cut-before-response",
+        "reason": "transfer process exact held cut",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-source",
+        "reason": "transfer process retained source binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extended-deadline",
+        "reason": "transfer process original deadline",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-retry",
+        "reason": "transfer process immutable request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-response",
+        "reason": "transfer process original response bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "delivered-after-cut",
+        "reason": "transfer process interrupted TCP order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "non-io-failure",
+        "reason": "transfer process original IO failure",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-send",
+        "reason": "transfer process successful TCP order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "reused-transfer",
+        "reason": "transfer process fresh resumed transfer",
+        "status": "REJECTED"
+      },
+      {
+        "case": "client-leak",
+        "reason": "transfer process death release observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "server-leak",
+        "reason": "transfer process resumed drain",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-original-stdout",
+        "reason": "transfer process original pipe observations",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-stop",
+        "reason": "transfer process explicit resume stop",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "allMembershipProfilesQualified": false,
+      "cases": [
+        {
+          "attempts": 6,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "halt",
+            "point": "SOURCE_OFFER",
+            "size": 3
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 6,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "kill",
+            "point": "SOURCE_OFFER",
+            "size": 3
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 7,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "halt",
+            "point": "CHUNK",
+            "size": 3
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 7,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "kill",
+            "point": "CHUNK",
+            "size": 3
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 8,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "halt",
+            "point": "TRANSFER_COMMIT",
+            "size": 3
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 8,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "kill",
+            "point": "TRANSFER_COMMIT",
+            "size": 3
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 6,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "halt",
+            "point": "SOURCE_OFFER",
+            "size": 4
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 6,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "kill",
+            "point": "SOURCE_OFFER",
+            "size": 4
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 7,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "halt",
+            "point": "CHUNK",
+            "size": 4
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 7,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "kill",
+            "point": "CHUNK",
+            "size": 4
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 8,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "halt",
+            "point": "TRANSFER_COMMIT",
+            "size": 4
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 8,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "kill",
+            "point": "TRANSFER_COMMIT",
+            "size": 4
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 6,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "halt",
+            "point": "SOURCE_OFFER",
+            "size": 5
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 6,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "kill",
+            "point": "SOURCE_OFFER",
+            "size": 5
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 7,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "halt",
+            "point": "CHUNK",
+            "size": 5
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 7,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "kill",
+            "point": "CHUNK",
+            "size": 5
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 8,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "halt",
+            "point": "TRANSFER_COMMIT",
+            "size": 5
+          },
+          "status": "PASS"
+        },
+        {
+          "attempts": 8,
+          "interruptedReplies": 1,
+          "originalSourcePreserved": true,
+          "processes": 2,
+          "profile": {
+            "mode": "kill",
+            "point": "TRANSFER_COMMIT",
+            "size": 5
+          },
+          "status": "PASS"
+        }
+      ],
+      "completePhysicalQualified": false,
+      "forceAndNetworkQualified": false,
+      "interruptedReplies": 18,
+      "phase3Complete": false,
+      "powerLossQualified": false,
+      "processes": 36,
+      "scope": "original-donor-TCP-halt-SIGKILL-reopen",
+      "status": "PASS",
+      "transferProcessQualified": true
+    },
+    "originalPreserved": true
+  },
+  "qualificationSha256": "a074f0599b8b7a286efe8841e79ef4861a7ee7731304c98ea5a2fc49209ff69d",
+  "rawInventorySha256": "3d5ee52bf9a1aafcd523308b26e547249889ad9d46f1ee7b0dedd68d58725016",
+  "rawPath": "target/v53-transfer-process-review/workspace/general-search-engine-replication/target/v53-transfer-process/run-6331618b-8255-42a0-bfda-a37c0b947723",
+  "remaining": [
+    "complete joining-history fault/expiry/cancellation and force/network composition",
+    "joining-history process-cut qualification",
+    "all seven membership-change profiles",
+    "frozen acceptance mapping"
+  ],
+  "retainedFailures": [
+    "native.log",
+    "failed-native-test.java",
+    "failed-java-reports"
+  ],
+  "schema": "gse-v53-transfer-process-review-v1",
+  "scope": "original-donor-TCP-halt-SIGKILL-reopen",
+  "status": "PASS",
+  "tests": {
+    "childProcesses": 36,
+    "nativeCases": 18,
+    "nativeMethods": 1,
+    "newPythonTests": 16,
+    "pythonTotal": 51
+  },
+  "toolchainSha256": "bddeb1629e6de3901ab931960b8f4d29c9e68e4389f0c2a01f97f76a5fdcda16",
+  "transferProcessQualified": true
+}
