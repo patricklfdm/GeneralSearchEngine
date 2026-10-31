@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining placement replay](PHASE_3_JOINING_PLACEMENT_REPLAY.md) reconstructs all
+65 placed files across eight directory families, including original inode-bound
+custody and placement records. Continue from these derived files through actual
+retirement, native joining retention/grants, joint recapture and the last two
+installations. A placed inventory is not native initialization or Phase 3 closure.
+
 [Joining transition replay](PHASE_3_JOINING_TRANSITION_REPLAY.md) composes the
 original bootstrap, four installations, maintenance and first nine slots into
 69 exact old-voter inventory comparisons. Continue on the same original bytes

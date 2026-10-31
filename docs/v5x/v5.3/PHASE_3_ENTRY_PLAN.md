@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining placement replay](PHASE_3_JOINING_PLACEMENT_REPLAY.md) now derives all
+65 files in eight original joining directory families from the composed old
+history: learner/typed preparation, pending and published INTENT, adopted voter
+generation, custody and atomic placement. Retirement, native initialization,
+joint preparation/recapture and later installations still need full physical
+integration; complete force/network/process/profile qualification remains open.
+
 [Joining transition replay](PHASE_3_JOINING_TRANSITION_REPLAY.md) now derives
 bootstrap, four elections and maintenance through the old owners' INTENT,
 matching 69 complete node inventories and rejecting 17 mutations that pass

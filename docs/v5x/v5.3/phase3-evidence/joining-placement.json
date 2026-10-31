@@ -1,0 +1,225 @@
+{
+  "archive": {
+    "bytes": 10102675,
+    "files": 4295,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-placement/joining-placement-replay.tar.gz",
+    "sha256": "3925d18eeae43e8401909cdfe8f15f21170448c1a32ef566ca8ecc49824142f8"
+  },
+  "changedSources": {
+    "scripts/v53/joining_placement_evidence.py": "c725e7a7d37a0d1f1d9cd054fa47fa35fe254f2b8aed55bc7cc2856684740608",
+    "scripts/v53/test_joining_placement_evidence.py": "de3b4644accd65c1a02152b190c00290233b3f7fed3cddf6b8c9f412b0cff4d0"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1785,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "253e05d3398c2035cbaec4a4821eee9d99de3af7ca4b8813f866f9521ed57101"
+  },
+  "developmentFailuresRetained": [
+    "replay-first.log",
+    "replay-second.log",
+    "python-first.log",
+    "qualification.log",
+    "packaging-before-portable.json"
+  ],
+  "forceAndNetworkQualified": false,
+  "joiningPlacementPhysicalQualified": true,
+  "limitations": [
+    "This gate derives all 65 placed files in eight original joining families from the composed old-voter history for one 3-ADD execution.",
+    "Retirement/native-owner records and exact deletions, old-voter joint source preparation, joining retention/grants and later joint recapture/installations remain open.",
+    "Paths and inode keys are original observations. Derived byte equality is not proof of complete force/network order or process-crash safety.",
+    "The changed send/arrival fixture requires a fresh whole execution; the df22c398 workload was not rerun or stitched.",
+    "All seven profiles, remaining process cuts and frozen requirement mappings remain open."
+  ],
+  "nativeInitializationQualified": false,
+  "originalCollectionSha256": "94fa10496fcd2c8264b0daf7f82c1ccc3447e7a2efe391ef5d6c3ab78ba567f0",
+  "originalInventoryMatchesProducer": true,
+  "originalProducerReceipt": "target/v53-joining-history/original-df22c398/receipt.json",
+  "originalProducerReceiptSha256": "c252348418035ec86bbd440f1041ef228f90d35ccf09d5188a04b0750748fffc",
+  "originalProducerSource": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+  "originalRawArchive": {
+    "path": "target/v53-joining-catalog/joining-catalog-history.tar.gz",
+    "sha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f"
+  },
+  "phase3Complete": false,
+  "portableReplay": {
+    "elapsedSeconds": 208.304,
+    "negativeResultsIdentical": true,
+    "originalInventoryUnchanged": true,
+    "originalResultIdentical": true,
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "productionJavaChanged": false,
+  "python": {
+    "failures": 0,
+    "logSha256": "b82a3c3e9f0f9f995adc52c390cf8280a61476375a8eab244ff52a8b4fe025c0",
+    "newTests": 12,
+    "status": "PASS",
+    "tests": 112
+  },
+  "readerBaseHead": "7dccfbb60be6b1c8addc3303f6ce9de5c24baab6",
+  "readerSha256": "c725e7a7d37a0d1f1d9cd054fa47fa35fe254f2b8aed55bc7cc2856684740608",
+  "readerSourceSha256": "bb402acc4acfaf57c2fce868751882d6120b6bec4602e386141a8123649f7421",
+  "readerSourceSnapshotPrecedesFinalReceipt": true,
+  "replay": {
+    "elapsedSeconds": 200.37,
+    "negatives": [
+      {
+        "case": "learner-source-replaced",
+        "reason": "joining placement exact family: replica",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "typed-configuration",
+        "reason": "joining placement exact family: initialTyped",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "typed-prepared-location",
+        "reason": "joining placement exact family: initialTyped",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "pending-original-catalog",
+        "reason": "joining placement exact family: pendingIntent",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "pending-retained-inode",
+        "reason": "joining placement exact family: pendingIntent",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "intent-old-source",
+        "reason": "joining placement exact family: intent",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "intent-pending-link",
+        "reason": "joining placement exact family: intent",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "adopted-certificate",
+        "reason": "joining placement exact family: replica",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "adopted-ancestry-lost",
+        "reason": "joining placement original identity missing",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "adopted-manifest-forgery",
+        "reason": "joining placement exact family: replica",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "premature-peer-ledger",
+        "reason": "joining placement exact family: replica",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "stage-orphan",
+        "reason": "joining placement exact family: voterStage",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "moved-inode-replaced",
+        "reason": "joining placement exact family: voterStage",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "custody-missing-pending",
+        "reason": "joining placement exact family: custody",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "custody-move-inode",
+        "reason": "joining placement exact family: custody",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "placement-move-order",
+        "reason": "joining placement exact family: placement",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "placement-plan-inode",
+        "reason": "joining placement exact family: placement",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "joined-old-source",
+        "reason": "joining placement exact family: placement",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "joined-configuration",
+        "reason": "joining placement exact family: placement",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      },
+      {
+        "case": "joined-record-inode",
+        "reason": "joining placement exact family: placement",
+        "status": "REJECTED",
+        "transitionGate": "PASS"
+      }
+    ],
+    "original": {
+      "comparedFiles": 65,
+      "completePhysicalQualified": false,
+      "forceAndNetworkQualified": false,
+      "joiningPlacementPhysicalQualified": true,
+      "nativeInitializationQualified": false,
+      "oldOwnerSnapshots": 69,
+      "phase3Complete": false,
+      "placedRoots": 8,
+      "processDeathQualified": false,
+      "scope": "native-ADD-original-joining-placement",
+      "status": "PASS"
+    }
+  },
+  "replaySha256": "ca77d418237a96c939924eb33ffaf5ee6de8c79a99aba0a1558c1b3ee99aad2e",
+  "schema": "gse-v53-phase3-joining-placement-v1",
+  "sourceDelta": {
+    "frozenInputsChanged": false,
+    "pomChanged": false,
+    "producerHead": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+    "productionJavaChanged": false,
+    "protectedChanges": [],
+    "protectedCount": 458,
+    "readerBaseHead": "7dccfbb60be6b1c8addc3303f6ce9de5c24baab6",
+    "status": "PASS"
+  },
+  "status": "PARTIAL"
+}

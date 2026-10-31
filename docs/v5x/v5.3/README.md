@@ -41,6 +41,11 @@ bootstrap, four elections and maintenance through old-voter INTENT: 69 complete
 inventories and 17 additional negatives. Joining custody, joint source recapture
 and later installations remain the next physical integration boundary.
 
+[Joining placement replay](PHASE_3_JOINING_PLACEMENT_REPLAY.md) extends that
+history to all 65 original joining files across eight directory families,
+including typed/pending source provenance, adopted generation and custody/atomic
+placement. Retirement, native initialization and joint continuation remain open.
+
 [Three-owner automatic-history replay](PHASE_3_COMPETING_REPLAY.md) independently
 reconstructs the retained clean competition, its final files, all original sends
 and responses, heartbeat contact and publication dependencies. This one history
