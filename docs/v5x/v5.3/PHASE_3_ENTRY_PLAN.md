@@ -1,9 +1,14 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining source-retirement replay](PHASE_3_JOINING_SOURCE_RETIREMENT_REPLAY.md)
+now derives 16 governing floors/decisions and compares all 240 original retirement
+prefixes on a new complete `3-ADD` history. Complete cross-node force/network
+composition, process cuts, all seven profiles and frozen mapping remain required.
+
 [Source-retirement prefix capture](PHASE_3_SOURCE_RETIREMENT_CAPTURE.md) adds the
 missing original transient decision bytes and a separately derived per-prefix
-comparison API. Collection v3 requires these observations. Component checks pass;
-same-history floor/retirement derivation and full force/network closure remain open.
+comparison API. Collection v3 requires these observations. Component checks and
+the later same-history derivation pass; full force/network closure remains open.
 
 [Original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md) removes
 the intermediate-source projection on one new complete `3-ADD` history: 19

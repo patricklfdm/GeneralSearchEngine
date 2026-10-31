@@ -151,6 +151,9 @@ class Initialization:
     def prepared(self, node, files):
         """Optional original capture comparison, never a source of expected bytes."""
 
+    def maintain(self, copies):
+        self.group = transition.maintenance(self.group)
+
     def confirmations(self):
         wire = s.catalog.parse((self.root/'joining-head-wire.json').read_bytes())
         need(type(wire) is list and len(wire) == 2, 'joining initialization original head exchange count')
@@ -186,7 +189,7 @@ class Initialization:
             files = self.group[node]
             for original in copies.values():
                 files[PEERS] = transition.observation.observe_same_cut(files[PEERS], files, original, defer_renewal=True)
-        self.group = transition.maintenance(self.group)
+        self.maintain(copies)
         ballot = next_ballot(self.group['node-1'])
         for node in transition.VOTERS:
             actual = disk.inventory(self.root/'before-joint-continuation'/node)

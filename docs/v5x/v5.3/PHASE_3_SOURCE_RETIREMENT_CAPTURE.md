@@ -52,10 +52,11 @@ python3 -B -m scripts.v53.joining_source_retirement <component-raw> --qualify
 
 ## Remaining closure work
 
-The complete new joining fixture has not run in this batch. Its next uninterrupted
-execution will collect these prefixes. The following reader must derive the
+The complete new joining fixture did not run in this capture-implementation batch.
+Its later execution and [independent retirement replay](PHASE_3_JOINING_SOURCE_RETIREMENT_REPLAY.md)
+are recorded separately. That reader derives the
 original governing-floor copies and each source-retirement transaction from that
-same history, then feed those expectations to `compare`; collection alone must
+same history, then feeds those expectations to `compare`; collection alone must
 not qualify them. The prior `c8f5d616` archive cannot acquire new observations.
 
 Complete force/network composition, actual process-death boundaries, all seven

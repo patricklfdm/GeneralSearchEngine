@@ -1,0 +1,258 @@
+{
+  "archive": {
+    "bytes": 34467350,
+    "entries": 15995,
+    "memberHashesVerified": true,
+    "negativeReplayRepeated": false,
+    "path": "target/v53-joining-retirement-replay/sealed/joining-retirement-replay.tar.gz",
+    "portableOriginal": "PASS",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "911b8beee9e261c86adc0a174c06cfb0c95ed77391f12ecded6d35a8bad70812",
+    "sha256": "b0121a1761e702d3f27130500006b1210a5fbb7e1af1ebc92b8f251d9a0d8614",
+    "status": "PASS"
+  },
+  "baseHead": "9136083fb35318f74b4003b8aa61fee71a3725cc",
+  "buildManifestSha256": "5c2fc5985a9f7beba7712365c4067b2fe523d986a4a1a1a55b479737b0810d95",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "e164a6ef688eaeaccc879cd66ff87972a5bd26fb66e3fdcd73a7827cd23ce919",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "a46d85483cd438982b403877186afc53ac64db8442de6ecc103e0bf28ad79c67",
+    "docs/v5x/v5.3/PHASE_3_JOINING_SOURCE_RETIREMENT_REPLAY.md": "4f626847329b3915ec6feadb70bc2c10669662269847a1d2802f706ca3f7de57",
+    "docs/v5x/v5.3/PHASE_3_SOURCE_RETIREMENT_CAPTURE.md": "f94d10a76e162b49775caebaf718240af4865493bc35896a999333dc47360328",
+    "docs/v5x/v5.3/README.md": "2f173ce504645f2748a79be3a9fe3bc50e7ad95eb08189fcad6cac328cf82ab4",
+    "scripts/v53/joining_continuation_evidence.py": "b58dbe5736b4f439591a7a7856b04aa04a958052081e0dc947ad6d72d48c312d",
+    "scripts/v53/joining_initialization_evidence.py": "e7987ac17d3d0c33974ebe56c52337eedbfed4496684c52db0ba3ba16b723d6a",
+    "scripts/v53/joining_preparation_evidence.py": "0672fce4e8f186a50d99f75b5545626717a61c0a02337016fb111f4126247735",
+    "scripts/v53/joining_retirement_replay.py": "d78b7708e053bfe31d73f9f0893c3e04da735688db439cf83f5248f7f24bc60a",
+    "scripts/v53/joining_transition_evidence.py": "6c83340f578b06e1092788bb02878e554ca172aa2eafa19f71da6f973e620bcf",
+    "scripts/v53/test_joining_retirement_replay.py": "b6b438d649c6684ae2a0b135d49721f12966d231a824a9d647a05375ce854647"
+  },
+  "collection": {
+    "collectionComplete": true,
+    "events": 21576,
+    "finalIndex": 11,
+    "forceAndNetworkQualified": false,
+    "grants": {
+      "bytes": 2537346,
+      "captures": 19,
+      "forceAndNetworkQualified": false,
+      "intermediateBallot": 7,
+      "intermediatePreparationPhysicalQualified": false,
+      "nativeHistoryQualified": false,
+      "phase3Complete": false,
+      "scope": "original-grant-copy-collection",
+      "status": "PARTIAL"
+    },
+    "nativeHistoryQualified": false,
+    "phase3Complete": false,
+    "scope": "joining-history-collection-and-ledger-only",
+    "sourceRetirements": {
+      "capturedPrefixes": 240,
+      "forceAndNetworkQualified": false,
+      "independentlyDerived": false,
+      "phase3Complete": false,
+      "scope": "original-source-retirement-prefix-collection",
+      "status": "PARTIAL",
+      "transactions": 16
+    },
+    "status": "PARTIAL",
+    "wirePairs": 2208
+  },
+  "collectionSha256": "5a32e0a88bb8034de53ca1aecc5277372e04910ef04baae85c7143d5f6b1cbd7",
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1824,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "historicalCompatibility": {
+    "resultSha256": "170b608c08b0d9be84fc1307cd34125a3e30de85f6ef3b1a527cd41e48ae8196",
+    "scope": "unchanged-c8f5d616-preparation-reader",
+    "status": "PASS"
+  },
+  "historicalNewGateRefusal": {
+    "originalRaw": "target/v53-joining-history/original-c8f5d616/workspace/general-search-engine-replication/target/v53-native-dispatch/run-9c8f4826-6f15-45fa-b271-43402522d3bb",
+    "reason": "retirement capture collection missing",
+    "status": "REJECTED"
+  },
+  "limitations": [
+    "One complete 3-ADD history; no all-profile claim.",
+    "Governing copies and source-retirement transactions are independently derived; full cross-node force/network causality remains pending.",
+    "This healthy history has no unresolved accepted tail at source retirement; carried histories need their own ownership derivation.",
+    "Actual process cuts, all seven profiles and frozen requirement mapping remain pending.",
+    "Old histories remain immutable and cannot acquire the new original observations.",
+    "Reader snapshot precedes final receipt to avoid a circular archive digest."
+  ],
+  "originalInventorySha256": "ebf6ee85d4b3adbacc8de4515615c8cf1b921048d51d428820205f794c7c49c8",
+  "originalRaw": "target/v53-joining-history/original-9136083f/workspace/general-search-engine-replication/target/v53-native-dispatch/run-a976882d-1f80-4d89-a2be-0073e7d3fd3f",
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portableReplay": {
+    "fullRawInventoryUnchanged": true,
+    "negativeReplayRepeated": false,
+    "resultSha256": "4ed4abf84c442134eed7f2a71bfbf7c07136684bef15992a920fa67dc4e87702",
+    "scope": "relocated-original-from-frozen-reader",
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "producerReceipt": {
+    "baseHead": "9136083fb35318f74b4003b8aa61fee71a3725cc",
+    "buildSha256": "5c2fc5985a9f7beba7712365c4067b2fe523d986a4a1a1a55b479737b0810d95",
+    "collectionComplete": true,
+    "collectionExecution": {
+      "elapsedSeconds": 2.367,
+      "exit": 0
+    },
+    "collectionSha256": "5a32e0a88bb8034de53ca1aecc5277372e04910ef04baae85c7143d5f6b1cbd7",
+    "command": [
+      "/opt/maven/bin/mvn",
+      "-o",
+      "-B",
+      "-ntp",
+      "-f",
+      "reactor/pom.xml",
+      "-pl",
+      "../general-search-engine-replication",
+      "-am",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dtest=V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+      "test"
+    ],
+    "execution": {
+      "elapsedSeconds": 879.386,
+      "exit": 0
+    },
+    "executionStatus": "PASS",
+    "junit": {
+      "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+      "errors": 0,
+      "failures": 0,
+      "method": "joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+      "skipped": 0,
+      "tests": 1
+    },
+    "nativeHistoryQualified": false,
+    "phase3Complete": false,
+    "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-a976882d-1f80-4d89-a2be-0073e7d3fd3f",
+    "retries": 0,
+    "schema": "gse-v53-joining-history-collection-v3",
+    "sourceSha256": "b507199f32c078a6f5a889ef008902185818d6184ec851c52307ae9a0c8e5b25",
+    "status": "PARTIAL",
+    "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+  },
+  "productionJavaChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "python": {
+    "logSha256": "e6e2f4a50331a8f42262d80b09eb51fe469b546aba5eb32f9d6085975b2b5d6e",
+    "newTests": 12,
+    "status": "PASS",
+    "tests": 188
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "captureCollection": "PASS",
+        "case": "wrong-floor",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "wrong-selector",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "wrong-source-file",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "wrong-original-promise",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "early-journal",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_WRITTEN",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "wrong-deletion",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_FILE_DELETED",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "early-floor-release",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_FILE_DELETED",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "retained-decision",
+        "reason": "retirement capture exact prefix: SOURCE_RETIREMENT_CLEARED",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "missing-floor-force",
+        "reason": "joining retirement governing floor force order",
+        "status": "REJECTED"
+      },
+      {
+        "captureCollection": "PASS",
+        "case": "released-floor",
+        "reason": "joining retirement released governing floor",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "capturedGrantComparisons": 19,
+      "coldSnapshots": 2,
+      "completePhysicalQualified": false,
+      "finalCut": 11,
+      "forceAndNetworkQualified": false,
+      "governingFloorForceWindows": 16,
+      "intermediatePreparationPhysicalQualified": true,
+      "ownerSnapshotComparisons": 28,
+      "phase3Complete": false,
+      "precedingOwnerSnapshotComparisons": 72,
+      "processDeathQualified": false,
+      "publications": 2,
+      "scope": "native-ADD-derived-governing-floor-and-source-retirement",
+      "selectedInstallations": 2,
+      "sourceRetirementLocalOrderSegments": 16,
+      "sourceRetirementPhysicalQualified": true,
+      "sourceRetirementPrefixes": 240,
+      "sourceRetirementTransactions": 16,
+      "status": "PASS",
+      "unconditionalContinuationQualified": true
+    }
+  },
+  "qualificationSha256": "15769bfb8a4bd097c1dfc4a7ed8e221780c580cf3cd3cefbc011d40a06976538",
+  "retainedDevelopmentFailures": [
+    "target/v53-joining-retirement-replay/original-initial.stderr"
+  ],
+  "schema": "gse-v53-joining-retirement-replay-batch-v1",
+  "scope": "native-ADD-derived-governing-floor-and-source-retirement",
+  "sourceManifestSha256": "b507199f32c078a6f5a889ef008902185818d6184ec851c52307ae9a0c8e5b25",
+  "sourceRetirementPhysicalQualified": true,
+  "sourceSnapshotPrecedesFinalReceipt": true,
+  "status": "PARTIAL",
+  "workflowChanged": false
+}

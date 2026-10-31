@@ -1,10 +1,16 @@
 # V5.3 — controlled cluster operations
 
+[Joining source-retirement replay](PHASE_3_JOINING_SOURCE_RETIREMENT_REPLAY.md)
+now derives governing copies and all 16 source-retirement decisions on one new
+complete history, comparing 240 original prefixes through FINAL/BARRIER and
+cold reopen. Full cross-node force/network, process/profile and mapping gates
+remain open; Phase 3 is not closed.
+
 [Source-retirement prefix capture](PHASE_3_SOURCE_RETIREMENT_CAPTURE.md) now
 retains original transient decisions and every local deletion boundary with
 deduplicated file bytes. The real writer component and independent 15-prefix
-comparison pass; composing those decisions into the next complete joining
-history and full force/network qualification remain open.
+comparison pass; later whole-history composition is recorded above. Full
+force/network qualification remains open.
 
 [Original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md) now
 derives the previously missing intermediate sources on a fresh complete history.

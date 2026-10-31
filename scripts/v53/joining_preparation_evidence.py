@@ -124,14 +124,14 @@ class Continuation(c.Continuation):
         # Serving each new grant performs the governing-copy maintenance. Only
         # superseded sources with exact coverage may be retired. The newest
         # unselected preparation is still pinned until the next fresh grant.
-        for node in ('node-1','node-2'): self.group[node] = c.maintenance(self.group, node)
+        for node in ('node-1','node-2'): self.group[node] = self.maintenance(self.group, node)
         return boundary
 
     def run(self):
         boundary = self.preparation()
         counter = boundary['ballot']['counter']
         self.campaign(9, counter+1); self.slot(10)
-        for node in c.VOTERS: self.group[node] = c.maintenance(self.group, node)
+        for node in c.VOTERS: self.group[node] = self.maintenance(self.group, node)
         self.campaign(10, counter+2); self.slot(11)
         self.match('after-close'); self.joining_snapshot('joining-originals-stable-cold')
         c.cold_order(json.loads((self.root/'events.json').read_bytes()))

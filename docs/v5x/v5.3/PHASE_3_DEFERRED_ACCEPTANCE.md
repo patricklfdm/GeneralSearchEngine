@@ -1,18 +1,24 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining source-retirement replay](PHASE_3_JOINING_SOURCE_RETIREMENT_REPLAY.md)
+now consumes the newly collected v3 prefixes on one complete original history.
+Governing-copy bytes, 16 transient decisions and 240 retirement prefixes are
+independently derived. Next compose complete cross-node force/network causality,
+then qualify remaining process cuts, profiles and frozen mappings. Phase 3 stays
+**OPEN**; the prior component and archived-history limitations remain unchanged.
+
 [Source-retirement prefix capture](PHASE_3_SOURCE_RETIREMENT_CAPTURE.md) is now
-implemented and independently checked on one real writer transaction. Before
-another complete history is qualified, derive its governing floors and all source
-retirement prefixes, compose full transport/force causality, then run the remaining
-process/profile/mapping gates. New collection v3 observations cannot fill an older
-archive's missing transient decisions.
+implemented and independently checked on one real writer transaction, with later
+same-history derivation recorded above. Complete transport/force causality and
+process/profile/mapping gates remain pending. New collection v3 observations cannot
+fill an older archive's missing transient decisions.
 
 [Original joint preparation replay](PHASE_3_JOINING_PREPARATION_REPLAY.md) now
 uses one new uninterrupted `c8f5d616` execution with all 19 original grant copies.
 Intermediate preparation and continuation are independently derived through
-cut 11; the old conditional archive stays unchanged. Compose identity-bound
-transient decisions and complete force/network replay next, then the remaining
-process cuts, seven profiles and frozen mappings. Phase 3 remains **OPEN**.
+cut 11; the old conditional archive stays unchanged. Its later transient-decision
+successor is recorded above; complete force/network replay, remaining process cuts,
+seven profiles and frozen mappings remain open. Phase 3 remains **OPEN**.
 
 [Original grant capture](PHASE_3_JOINING_GRANT_CAPTURE.md) is implemented and
 checked with a small real writer exercise. The later complete early-start history

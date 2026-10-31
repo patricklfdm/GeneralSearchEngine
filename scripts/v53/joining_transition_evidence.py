@@ -32,7 +32,7 @@ def require_coverage(files):
     return confirmation.endpoints(packet, members.get('ancestry.gsr', b''))
 
 
-def maintenance(group):
+def maintenance(group, retiring=None, floor_copies=None):
     """Project observed copies and only superseded, covered local sources."""
     result = copy.deepcopy(group)
     for node in VOTERS:
@@ -57,6 +57,8 @@ def maintenance(group):
                 need(available.get(point['cut']['index']) == point, 'joining transition source retirement coverage')
                 retired.add(identifier)
         if retired:
+            if retiring is not None:
+                retiring(node, files, {n:group[n] for n in VOTERS} if floor_copies is None else floor_copies, retired)
             files = {name: raw for name, raw in files.items() if not (name.startswith('sources/') and name.split('/')[1] in retired)}
             rows = disk.journal(files['grants.gsr'], future.initial(files)['root'], node)
             # In this history no accepted tail or still-owned older basis remains.
@@ -107,8 +109,11 @@ class History:
     def prepared(self, node, files):
         """Optional whole-history comparison of the independently derived grant."""
 
+    def maintain(self):
+        self.group = maintenance(self.group)
+
     def campaign(self, ordinal):
-        if ordinal > 1: self.group = maintenance(self.group)
+        if ordinal > 1: self.maintain()
         group = {n: self.group[n] for n in VOTERS}
         current = disk.current(group['node-1'])[2]
         for files in group.values(): require_coverage(files)
@@ -134,7 +139,7 @@ class History:
         for node in VOTERS: self.group[node] = learner.offer(self.group[node], request, joining)
 
     def slot(self, index):
-        self.group = maintenance(self.group)
+        self.maintain()
         applied = copy.deepcopy(self.group); parts = self.replay.phases[index-1]
         for node in VOTERS:
             files = applied[node]; _, members, _ = disk.current(files)

@@ -79,7 +79,7 @@ def capture(files, ballot, observed_basis, identifiers):
     return init.prepare(files, ballot, files['grants.gsr']+promise+observed_basis, identifiers)
 
 
-def maintenance(group, node):
+def maintenance(group, node, retiring=None):
     """Conditional projection with exact derived copies, debt and source pins."""
     files = copy.deepcopy(group[node]); prefix, members, packet = disk.current(files)
     cap = packet['capsule']; owner = f.decode(files['node.gsr'], 'records', 'NODE')['identity']
@@ -112,6 +112,7 @@ def maintenance(group, node):
         need(value['ballot']['counter'] < latest['counter'] and available.get(point['cut']['index']) == point,
              'joining continuation source retirement coverage')
         retired.add(identifier)
+    if retired and retiring is not None: retiring(node, files, {n:group[n] for n in copies}, retired)
     files = {n: raw for n, raw in files.items() if not (n.startswith('sources/') and n.split('/')[1] in retired)}
     # Remove only complete obsolete source groups. Adopted fences and the
     # current generation's original promise remain pinned.
@@ -213,6 +214,9 @@ class Continuation:
     def prepared(self, node, files):
         """Optional complete producer capture; the historical reader has none."""
 
+    def maintenance(self, group, node):
+        return maintenance(group, node)
+
     def actual(self, label, node):
         if node != 'node-4': return disk.inventory(self.root/label/node)
         joining = 'joining-originals-continuation' if label == 'after-close' else 'joining-'+label.removeprefix('continuation-')
@@ -246,7 +250,7 @@ class Continuation:
             self.group[node], sources[node] = capture(self.group[node], ballot, observed, self.identifiers)
             self.prepared(node, self.group[node])
         selected = self.replay.phases[cut]['SELECTED']
-        maintained = {node: maintenance(self.group, node) for node in VOTERS}
+        maintained = {node: self.maintenance(self.group, node) for node in VOTERS}
         for node in VOTERS:
             self.group[node] = install(maintained[node], sources, selected)
         self.match(label)
@@ -257,7 +261,7 @@ class Continuation:
     def slot(self, index):
         # All selected owners complete maintenance before application. Copies
         # refer to complete preceding generations, never a claimed endpoint.
-        for node in VOTERS: self.group[node] = maintenance(self.group, node)
+        for node in VOTERS: self.group[node] = self.maintenance(self.group, node)
         parts = self.replay.phases[index-1]
         for node in VOTERS:
             files = self.group[node]; local = disk.current(files)[1]
@@ -273,7 +277,7 @@ class Continuation:
         boundary = preparation_boundary(self.root, self.group)
         need(boundary['ballot']['counter'] == 7, 'joining continuation original preparation counter')
         self.campaign(9, 8); self.slot(10)
-        for node in VOTERS: self.group[node] = maintenance(self.group, node)
+        for node in VOTERS: self.group[node] = self.maintenance(self.group, node)
         self.campaign(10, 9); self.slot(11)
         self.match('after-close')
         self.joining_snapshot('joining-originals-stable-cold')
