@@ -192,10 +192,11 @@ def execute(command, work, log, *, stage='whole-joining'):
             raise
 
 
-def run(output, maven):
+def run(output, maven, *, fault=None):
+    need(fault in (None,'SOURCE_OFFER','CHUNK','TRANSFER_COMMIT'),'whole joining source fault selector')
     output = Path(output).absolute(); output.mkdir(parents=True, exist_ok=False)
     receipt = dict(schema=SCHEMA, status='RUNNING', executionStatus='NOT_RUN', nativeHistoryQualified=False,
-                   phase3Complete=False, retries=0)
+                   phase3Complete=False, retries=0, sourceFault=fault)
     try:
         work = output / 'workspace'; source = source_copy(ROOT, work); save(output / 'source.json', source)
         receipt.update(sourceSha256=digest((output / 'source.json').read_bytes()), baseHead=source['head'])
@@ -205,6 +206,7 @@ def run(output, maven):
         receipt['toolchainSha256'] = digest((output / 'toolchain.json').read_bytes())
         command = [maven, '-o', '-B', '-ntp', '-f', 'reactor/pom.xml', '-pl', '../' + MODULE, '-am',
                    '-Dsurefire.failIfNoSpecifiedTests=false', '-Dtest=' + TEST, 'test']
+        if fault is not None: command.insert(-1,'-Dv53.joining.sourceFault='+fault)
         receipt['command'] = command; save(output / 'receipt.json', receipt)
         execution = execute(command, work, output / 'maven.log'); receipt['execution'] = execution
         save(output / 'execution.json', execution)
@@ -243,11 +245,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('output'); parser.add_argument('--maven', default='mvn')
     parser.add_argument('--collect', help='Only check an existing original history; does not run Java')
+    parser.add_argument('--fault',choices=('SOURCE_OFFER','CHUNK','TRANSFER_COMMIT'),help='One declared lost initial learner reply in the complete history')
     args = parser.parse_args()
     if args.collect:
+        need(args.fault is None,'collection cannot select a new fault')
         destination = Path(args.output)
         need(not destination.exists(), 'collection output already exists')
         value = collection(Path(args.collect))
         with destination.open('x') as stream: stream.write(json.dumps(value, sort_keys=True, indent=2) + '\n')
         print(json.dumps({k: v for k, v in value.items() if k not in ('inventory', 'ledger')}, sort_keys=True))
-    else: run(args.output, args.maven)
+    else: run(args.output, args.maven, fault=args.fault)

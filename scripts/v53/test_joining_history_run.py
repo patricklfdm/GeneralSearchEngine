@@ -21,6 +21,23 @@ class JoiningHistoryRunTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
+    def test_unknown_fault_fails_before_creating_an_execution(self):
+        output=self.root/'invalid'
+        with self.assertRaisesRegex(ValueError,'^whole joining source fault selector$'):h.run(output,'mvn',fault='ACCEPT_ACK')
+        self.assertFalse(output.exists())
+
+    def test_fault_selector_keeps_the_exact_whole_history_and_never_retries_failure(self):
+        for fault in ('SOURCE_OFFER','CHUNK','TRANSFER_COMMIT'):
+            output=self.root/fault
+            def source(repo,work):
+                work.mkdir();return dict(head='a'*40,files={})
+            with patch.object(h,'source_copy',side_effect=source),patch.object(h,'execute',return_value=dict(exit=1)) as execute, \
+                 patch.object(h.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout='test',stderr='')),redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(ValueError,'Maven failed'):h.run(output,'mvn',fault=fault)
+            execute.assert_called_once();command=execute.call_args.args[0]
+            self.assertEqual(['-Dv53.joining.sourceFault='+fault,'test'],command[-2:]);self.assertIn('-Dtest='+h.TEST,command)
+            receipt=json.loads((output/'receipt.json').read_text());self.assertEqual(fault,receipt['sourceFault']);self.assertEqual(0,receipt['retries'])
+
     def report(self, **changes):
         import xml.etree.ElementTree as ET
         attrs = dict(name=h.CLASS, tests='1', failures='0', errors='0', skipped='0'); attrs.update(changes)

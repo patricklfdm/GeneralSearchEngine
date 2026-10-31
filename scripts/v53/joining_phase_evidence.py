@@ -16,6 +16,7 @@ import tempfile
 from . import joining_catalog_evidence as semantic
 from . import discovered_selection_evidence as exchange
 from . import future_retention_evidence as future
+from . import joining_source_loss as loss
 
 f, need, sha, disk = semantic.f, semantic.need, semantic.sha, semantic.disk
 
@@ -33,9 +34,11 @@ def exchanges(events, wires, identities, root):
             need(set(row) == {'node', 'scope', 'event', 'request', 'kind', 'response', 'responseKind'},
                  'joining response event shape')
             positions[row['request'], row['response']].append((at, row['node']))
+    policy=loss.declaration(events)
     result = []; offered = {}
     for row in wires:
-        need(set(row) == {'request', 'response', 'withheld'} and row['withheld'] is False, 'joining original wire row')
+        need(set(row) == {'request', 'response', 'withheld'} and type(row['withheld']) is bool and
+             (row['withheld'] is False or policy is not None), 'joining original wire row')
         qraw, araw = [base64.b64decode(row[k], validate=True) for k in ('request', 'response')]
         qh, ah = sha(qraw), sha(araw)
         need(positions[qh, ah], 'joining missing original response')
@@ -52,12 +55,14 @@ def exchanges(events, wires, identities, root):
             need(observed['kind'] == kind and observed['responseKind'] == answer, 'joining response event kind')
         value = dict(kind=kind, answer=answer, request=q, response=a, requestHash=qh, responseHash=ah,
                      offered=at, delivered=None)
+        if row['withheld']:value['withheld']=True
         need(at not in offered, 'joining duplicate response position'); offered[at] = value; result.append(value)
     need(not any(positions.values()), 'joining unmatched original response')
     available = defaultdict(deque)
     for at, row in enumerate(events):
         if at in offered:
-            v = offered[at]; available[v['request']['sender']['node'], v['answer'], v['responseHash']].append(v)
+            v = offered[at]
+            if not v.get('withheld',False):available[v['request']['sender']['node'], v['answer'], v['responseHash']].append(v)
         if row.get('event') not in ('NETWORK_RECEIVED', 'AFTER_RESPONSE_READ'): continue
         scoped = row['event'] == 'AFTER_RESPONSE_READ'
         need(set(row) == ({'node', 'scope', 'event', 'request', 'kind', 'response', 'responseKind'} if scoped else
@@ -67,7 +72,8 @@ def exchanges(events, wires, identities, root):
         value = available[key].popleft()
         if scoped: need(row['request'] == value['requestHash'] and row['kind'] == value['kind'], 'joining delivery request binding')
         value['delivered'] = at
-    return sorted(result, key=lambda v: v['offered'])
+    result=sorted(result, key=lambda v: v['offered']);loss.responses(events,result)
+    return result
 
 
 def force_names():

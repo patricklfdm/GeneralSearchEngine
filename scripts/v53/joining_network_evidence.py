@@ -24,8 +24,8 @@ READS = {'NETWORK_REQUEST', 'AFTER_REQUEST_READ'}
 def causal(events, wires, identities, root):
     """Consume each actual send, server read, response and client read once.
 
-    Complete delivery is a requirement of this healthy fixture, not a claim
-    that a real network always delivers. A failed trace needs its own oracle.
+    Require complete delivery except for one explicitly declared initial
+    learner-source loss, paired with its next identical successful retry.
     """
     rows = phase.exchanges(events, wires, identities, root)
     offers = {v['offered']: v for v in rows}
@@ -44,7 +44,7 @@ def causal(events, wires, identities, root):
                  request['sender'] == identities.get(sender) and request['recipient'] == identities.get(peer),
                  'joining network send identity')
             prior = live.get(row['request'])
-            need(prior is None or prior.get('delivered', at) < at, 'joining network ambiguous overlapping retry')
+            need(prior is None or prior.get('finished', at) < at, 'joining network ambiguous overlapping retry')
             attempt = dict(sent=at, request=request, kind=kind, scope=row.get('scope'))
             live[row['request']] = attempt; pending[row['request']].append(attempt)
             sends += 1
@@ -64,14 +64,19 @@ def causal(events, wires, identities, root):
             attempt = accepted[digest].popleft()
             need(attempt['request'] == response['request'] and attempt['kind'] == response['kind'] and
                  attempt['receiverScope'] == row.get('scope'), 'joining network response request binding')
-            need(response['delivered'] is not None, 'joining network undelivered healthy response')
-            delivered = events[response['delivered']]
-            need(attempt['scope'] == delivered.get('scope'), 'joining network client lifetime')
             response.update(sent=attempt['sent'], received=attempt['received'])
-            attempt['delivered'] = response['delivered']
-            need(response['sent'] < response['received'] < at < response['delivered'], 'joining network causal order')
+            if response.get('withheld',False):
+                need(response['delivered'] is None and response['sent']<response['received']<at,'joining network withheld causal order')
+                attempt['finished']=at
+            else:
+                need(response['delivered'] is not None, 'joining network undelivered healthy response')
+                delivered = events[response['delivered']]
+                need(attempt['scope'] == delivered.get('scope'), 'joining network client lifetime')
+                attempt['finished'] = response['delivered']
+                need(response['sent'] < response['received'] < at < response['delivered'], 'joining network causal order')
     need(not any(pending.values()) and not any(accepted.values()) and sends == reads == len(rows),
          'joining network incomplete healthy exchange')
+    phase.loss.requests(events,rows)
     return rows
 
 
@@ -92,11 +97,19 @@ def transfers(rows, *, contents=None):
     for values in sessions.values():
         values.sort(key=lambda v: v['sent']); header = None; prior = None; sequence = 0
         active = None; identifiers = set(); terminal = False
-        for row in values:
+        for ordinal,row in enumerate(values):
             q, a = row['request'], row['response']; qp, ap = q['payload'], a['payload']
             context = {k:v for k,v in q.items() if k not in ('payload', 'sequence')}
             if header is None: header = context
             need(context == header, 'joining network transfer context')
+            if row.get('withheld',False):
+                need(prior is None or prior['delivered']<row['sent'],'joining network transfer next before delivery')
+                need(row['delivered'] is None and ordinal+1<len(values),'joining network unrecovered transfer loss')
+                retry=values[ordinal+1]
+                need(not retry.get('withheld',False) and retry['delivered'] is not None and row['offered']<retry['sent'] and
+                     row['requestHash']==retry['requestHash'] and row['responseHash']==retry['responseHash'] and
+                     row['request']==retry['request'] and row['response']==retry['response'],'joining network changed lost transfer retry')
+                retries+=1;continue
             if prior is not None:
                 need(prior['delivered'] < row['sent'], 'joining network transfer next before delivery')
                 if q['sequence'] == sequence:
@@ -246,7 +259,10 @@ def network(root):
     grant_result,bases = grants(root,events,rows)
     result.update(grant_result,**installations(root,events,rows,replay,bases))
     result.update(phase.phase_replay(events,rows,replay,phase.blocks(events,replay)))
-    return dict(result,wireExchanges=len(rows), sentRequests=len(rows), receivedRequests=len(rows), deliveredResponses=len(rows))
+    result.update(wireExchanges=len(rows),sentRequests=len(rows),receivedRequests=len(rows),deliveredResponses=sum(v['delivered'] is not None for v in rows))
+    policy=phase.loss.declaration(events)
+    if policy:result.update(sourceFault=policy['kind'],lostReplies=1,recoveredLostReplies=1)
+    return result
 
 
 def validate(root):

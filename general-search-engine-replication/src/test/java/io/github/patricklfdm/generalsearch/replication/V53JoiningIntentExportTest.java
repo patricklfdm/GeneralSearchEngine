@@ -130,6 +130,9 @@ class V53JoiningIntentExportTest {
     }
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup)throws Exception {
         assertTrue(!earlyStartup || remoteRetention && initializeJoined && continueJoint);
+        String sourceFault=System.getProperty("v53.joining.sourceFault","");
+        assertTrue(sourceFault.isEmpty() || earlyStartup && Set.of("SOURCE_OFFER","CHUNK","TRANSFER_COMMIT").contains(sourceFault),
+                "source fault requires the complete early-start joining history");
         var helper=new V53RoundDriverTest();helper.temp=temp;var network=new V53NativeDispatchTest();network.temp=temp;
         // The additional complete installation/cold-open scenario has one
         // declared owner lifetime from its start. Existing scenarios keep
@@ -166,9 +169,21 @@ class V53JoiningIntentExportTest {
                     n.bounds,AutomaticLeadershipPolicy.forBounds(n.bounds));
             if(earlyStartup)trace.retainGrants(n.grantCapture,request.replicaDirectory());
             if(earlyStartup)trace.retainRetirements(n.retirementCapture,request.replicaDirectory());
+            long sourceStarted=System.nanoTime();
             try(var source=new MembershipLearnerSource(request,targets.getFirst(),pool,n.bounds,trace.transport("learner-source"),
-                    ()->{},System::nanoTime,System.nanoTime(),BUDGET)) {
-                source.fetch(temp.resolve("receiving"));var plan=source.plan(trace.cut("learner-plan"));
+                    ()->{},System::nanoTime,sourceStarted,BUDGET)) {
+                if(!sourceFault.isEmpty()) {
+                    assertTrue(n.drop.compareAndSet("",sourceFault));
+                    n.events.add(Map.of("node","node-4","scope","learner-source","event","JOINING_SOURCE_FAULT_ARMED",
+                            "kind",sourceFault,"started",sourceStarted,"budget",BUDGET));
+                }
+                source.fetch(temp.resolve("receiving"));
+                if(!sourceFault.isEmpty()) {
+                    assertEquals("",n.drop.get(),"declared source reply loss was not reached");
+                    n.events.add(Map.of("node","node-4","scope","learner-source","event","JOINING_SOURCE_FAULT_COMPLETE",
+                            "kind",sourceFault,"started",sourceStarted,"budget",BUDGET));
+                }
+                var plan=source.plan(trace.cut("learner-plan"));
                 try(var store=source.admit(plan,trace.cut("learner-admission"))) {
                     source.close();
                     try(var typed=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store,1),builder().configuration(),config,trace.cut("learner-materialization"))) {

@@ -1,0 +1,257 @@
+{
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "bytes": 34675848,
+    "entries": 16068,
+    "memberHashesVerified": true,
+    "negativeReplayRepeated": false,
+    "path": "target/v53-joining-source-loss/sealed/joining-source-loss.tar.gz",
+    "portableOriginal": "PASS",
+    "portableScopeStatus": "PASS",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "e7560755dab49922c43fad5b1ea8615d18b75bc54274f31d2b23a2dc1b0911ac",
+    "sha256": "73e8d1737829944a3d6d87e2ab0249b08b833ea25745aca56c08ced9e669d6ff",
+    "status": "PASS"
+  },
+  "archiveReceiptNote": "The archived reader contains the pre-seal receipt; final archive hashes are retained separately to avoid a self-referential hash.",
+  "baseHead": "12f0b2ad08201185604e72ba57c46f53df6a8127",
+  "baselineRegressions": [
+    {
+      "baseline": "REJECTED",
+      "current": "PASS",
+      "kind": "SOURCE_OFFER",
+      "reason": "joining original wire row"
+    },
+    {
+      "baseline": "REJECTED",
+      "current": "PASS",
+      "kind": "CHUNK",
+      "reason": "joining original wire row"
+    },
+    {
+      "baseline": "REJECTED",
+      "current": "PASS",
+      "kind": "TRANSFER_COMMIT",
+      "reason": "joining original wire row"
+    }
+  ],
+  "buildManifestSha256": "dfd5d7f6e556c2904c2f5608ecea5dd53dfa52312c3a5fbc597dc58ba051332a",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "3805919c5a8678996ade03614cb128c893a62fccdfa5fa8e2297cf3fb482b552",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "51f64ca46e52f2a20c88da72f4161b296b9915b3b68f8c7097c822cf395556fa",
+    "docs/v5x/v5.3/PHASE_3_JOINING_SOURCE_FAULTS.md": "ef9f1104e01e74a5922f25430c18eaa69ac271bc979cb0f128858dadb9e508cf",
+    "docs/v5x/v5.3/README.md": "dfc122560ce0ab2c7ab0f842c2d3e1aee2361ed4e6a6dbe7364a95ecac7b4307",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "d7c33c007e49cdc12b988e53a73413b0cbfd8f1b911649f1c4bf49424e154a91",
+    "scripts/v53/joining_fault_evidence.py": "b2c8c5b6bcaebb233f3320e3a198b2f255cbb37a70277591340111e6968d0a74",
+    "scripts/v53/joining_history_run.py": "b254cd200f27b87b51f70b5820bdbd35b1eef3ea393909621f0d5ed05d756af4",
+    "scripts/v53/joining_network_evidence.py": "f87aa9ea3f2e630b201ee3e8876db490a3b2c9a072808ad883c3ace8186e4054",
+    "scripts/v53/joining_phase_evidence.py": "93984b8b7725bb08bcfc6934e3aefb66a84daff7143288c2f0dd02e2b1959890",
+    "scripts/v53/joining_source_loss.py": "4a08c49eca9c13f841b3a8e58dd572ca63dab7f22b844abbc6e1e3d0b24e0b1f",
+    "scripts/v53/test_joining_fault_evidence.py": "2f694065818d1880fea5851c7b4bf6755d6f942e24b6a78b3db1bed64cec0c35",
+    "scripts/v53/test_joining_history_run.py": "38055961074bd5cf13525335c7a2c9962b231f0769b48c337406e831db88bcd2",
+    "scripts/v53/test_joining_source_loss.py": "ebfd0e22be36164bcdbdc48775c216896664781699163685af7495808bb113b1"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1864,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "healthyRegression": {
+    "rerun": false,
+    "result": {
+      "capturedLedgers": 19,
+      "chainSha256": "280871d960e4948d946655ac821e4848e0e517f5ca76ca3757af299ab9958481",
+      "completePhysicalQualified": false,
+      "durableWrites": 90,
+      "finalRevisions": {
+        "node-1": 40,
+        "node-2": 40,
+        "node-3": 0,
+        "node-4": 10
+      },
+      "forceAndNetworkQualified": false,
+      "ledgerComparisons": 97,
+      "openReseals": 8,
+      "peerLedgerCompositionQualified": true,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "one-native-ADD-original-peer-ledger-chain",
+      "status": "PASS",
+      "writesByKind": {
+        "maintenance": 54,
+        "publication": 24,
+        "selected": 12
+      }
+    },
+    "source": "9136083fb35318f74b4003b8aa61fee71a3725cc"
+  },
+  "joiningSourceFaultQualified": true,
+  "nativeExecution": {
+    "elapsedSeconds": 886.777,
+    "method": "joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory",
+    "reportSha256": "75c62a7ccce4bf4c99ca3413a16cf9ad10d0a8d2be45dd21ba36775fc55b72d0",
+    "retries": 0,
+    "sourceFault": "SOURCE_OFFER"
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "producerSourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c",
+  "productionChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "pythonLogSha256": "2790829ef17dde6495cb206b1285a0fc146a2b1ecec837c299fa56ffe959ed3b",
+  "qualification": {
+    "negatives": [
+      {
+        "case": "missing-declaration",
+        "reason": "joining fault declaration required",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-completion",
+        "reason": "joining source loss declaration order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-completion",
+        "reason": "joining source loss declaration order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "renewed-start",
+        "reason": "joining source loss exact declaration",
+        "status": "REJECTED"
+      },
+      {
+        "case": "extended-budget",
+        "reason": "joining source loss exact declaration",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-reply-kind",
+        "reason": "joining source loss original learner reply",
+        "status": "REJECTED"
+      },
+      {
+        "case": "no-loss",
+        "reason": "joining source loss exact withheld count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "false-delivery",
+        "reason": "joining delivery without original response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "donor-force",
+        "reason": "joining source loss donor authority changed during retry",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-send",
+        "reason": "joining network receive without send",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-read",
+        "reason": "joining network response without request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "new-client",
+        "reason": "joining source loss original client scope",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-retry",
+        "reason": "joining source loss exact retry count",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-retry",
+        "reason": "joining source loss identical recovered response",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "allMembershipProfilesQualified": false,
+      "committedTransfers": 686,
+      "completePhysicalQualified": false,
+      "deliveredResponses": 2208,
+      "exactTransferRetries": 3,
+      "forceAndNetworkQualified": false,
+      "joiningSourceFaultQualified": true,
+      "lossEvent": 5122,
+      "lostReplies": 1,
+      "peerLedgerPrecondition": {
+        "capturedLedgers": 19,
+        "chainSha256": "9ac3ed56adca3429f3aba15b245fb14e3c07d1c3273b4774032c1cf8cca6e584",
+        "completePhysicalQualified": false,
+        "durableWrites": 90,
+        "finalRevisions": {
+          "node-1": 40,
+          "node-2": 40,
+          "node-3": 0,
+          "node-4": 10
+        },
+        "forceAndNetworkQualified": false,
+        "ledgerComparisons": 97,
+        "openReseals": 8,
+        "peerLedgerCompositionQualified": true,
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "scope": "one-native-ADD-original-peer-ledger-chain",
+        "status": "PASS",
+        "writesByKind": {
+          "maintenance": 54,
+          "publication": 24,
+          "selected": 12
+        }
+      },
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "recoveredLostReplies": 1,
+      "rejectedTransferAttempts": 2,
+      "retryEvent": 5125,
+      "scope": "complete-3-ADD-initial-learner-reply-loss",
+      "sourceFault": "SOURCE_OFFER",
+      "status": "PASS",
+      "transferSessions": 363,
+      "transferredBytes": 3897617,
+      "wireExchanges": 2209
+    },
+    "originalPreserved": true
+  },
+  "qualificationSha256": "7dcc0ac613ae345b7c7ee8f1a338bbe34dfac88210ed2570d0fa29a3b05da070",
+  "rawInventorySha256": "dd3eace6b50dd7ca71c5f70011e536400edd26973d29bfad3eeff749f4f38778",
+  "rawPath": "target/v53-joining-source-loss/original-offer/workspace/general-search-engine-replication/target/v53-native-dispatch/run-e9811c6e-d68a-493f-ab03-86a7f7ebaf24",
+  "remaining": [
+    "CHUNK and TRANSFER_COMMIT complete native histories",
+    "joining voting/fault/expiry/cancellation composition",
+    "joining process deaths",
+    "all seven membership profiles",
+    "frozen acceptance mapping"
+  ],
+  "schema": "gse-v53-joining-source-loss-review-v1",
+  "scope": "complete-3-ADD-initial-learner-reply-loss",
+  "status": "PASS",
+  "tests": {
+    "joiningPythonTests": 307,
+    "nativeHistories": 1,
+    "newTests": 21,
+    "syntheticReplyKinds": 3
+  },
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+}

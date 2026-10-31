@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Complete joining source loss](PHASE_3_JOINING_SOURCE_FAULTS.md) now connects a
+single initial learner reply loss to the complete 3-to-4 ADD history. The reader
+retains original send/read/offer/delivery boundaries and requires an identical
+recovered reply before continuing through the existing physical/peer chain.
+SOURCE_OFFER is this batch's native case; data/commit modes remain separately
+runnable. Remaining fault/process/profile and frozen mapping gates stay open.
+
 [Original transfer process recovery](PHASE_3_TRANSFER_PROCESS.md) now qualifies
 all 18 offer/data/commit halt/SIGKILL cases at stable sizes 3/4/5. Thirty-six fresh
 JVMs retain the same original donor disks across death/reopen; independent replay
