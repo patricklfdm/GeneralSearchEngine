@@ -126,6 +126,18 @@ final class MembershipFloor {
                     "catalog",capsule.terminal().catalog(),"snapshot",capsule.terminal().application());
         }
     }
+    /** A complete newer copy in the same governing view can protect the local
+     * floor only by proving its exact catalog/application anchor. A STATUS cut,
+     * larger index or foreign authority is not this proof. */
+    static void covers(MembershipCapsule current,Copy copy) {
+        copy.check();String node=copy.owner.nodeId().value();
+        require(copy.capsule.context.root.equals(current.context.root)
+                && copy.owner.equals(current.context.identities.get(node))
+                && copy.capsule.context.view.equals(current.context.view)
+                && number(copy.capsule.context.cut.get("index"))>=number(current.context.cut.get("index")),
+                "floor copy does not govern the local cut");
+        copy.capsule.verifyAncestry(copy.files.getOrDefault("ancestry.gsr",new byte[0]),List.of(current.terminal()));
+    }
     static Decoded create(MembershipRoot root,Copy localCopy,List<Copy> offered) {
         localCopy.check();var local=localCopy.owner;var current=localCopy.capsule;
         require(current.context.root.equals(root.manifestDigest()) && local.equals(current.context.identities.get(local.nodeId().value())),"floor local root/identity");
@@ -133,8 +145,7 @@ final class MembershipFloor {
         var copies=new TreeMap<String,Copy>();
         for(var copy:offered) {
             copy.check();String node=copy.owner.nodeId().value();
-            require(copy.capsule.context.root.equals(root.manifestDigest()) && copy.capsule.terminal().equals(current.terminal())
-                    && copy.owner.equals(current.context.identities.get(node)),"floor copy is not the exact current cut");
+            covers(current,copy);
             require(copies.putIfAbsent(node,copy)==null,"duplicate floor voter");
         }
         require(copies.containsKey(local.nodeId().value()) && Arrays.equals(copies.get(local.nodeId().value()).generation.bytes(),localCopy.generation.bytes()),

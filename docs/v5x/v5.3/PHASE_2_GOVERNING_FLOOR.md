@@ -1,5 +1,9 @@
 # Phase 2C4a — retained governing floor
 
+Phase 3 [amendment A70](PHASE_3_CONTRACT_AMENDMENTS.md) additionally permits a
+complete newer same-view original copy that proves the exact local anchor. The
+Phase 2 same-cut fixtures below retain their original scope and bytes.
+
 Status: local component qualification; Phase 2 remains **OPEN**. This batch
 establishes one retained floor from complete generation copies. It performs no
 retirement deletion and does not enable a network ACK or the public runtime.

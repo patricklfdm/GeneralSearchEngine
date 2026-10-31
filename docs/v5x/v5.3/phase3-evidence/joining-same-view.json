@@ -1,0 +1,317 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "bytes": 55180609,
+    "directories": 3662,
+    "directorySetVerified": true,
+    "elapsedSeconds": 12.116,
+    "files": 26413,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-same-view-20261031/sealed-v2/joining-same-view.tar.gz",
+    "sha256": "4cc52194187ef19dbab3e2293d6ca020a67f71026b044e9ae7d8b622c6513f24"
+  },
+  "archiveManifest": {
+    "bytes": 7276160,
+    "path": "target/v53-joining-same-view-20261031/sealed-v2/manifest.json",
+    "sha256": "c34384d7b55a09aee279b577cf10840159c8db51103f15ffa1dee0d52f8d0f18"
+  },
+  "baseHead": "d0729dd1e66005ac987823bee26242bf2b0894af",
+  "codeSha256": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipFloor.java": "46b118edd20dc8224b2e13e378d3d7945105b9e83e7a2a02ee6672eedff96c98",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java": "fba18ddf1e02f6f13898cc0b0f8cc3df89d405928e27a063e18bf881c099af4a",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "e0059da7de1d5d56ac833b259d0303257fd3b99bf52574e4d8930cdc1df0c0df",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FloorFilesTest.java": "12d77f0146022313f1bec408357e58442ef4f4e5129b1079b7f420c599cb51f2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53FloorTest.java": "8000c92a1060087dbc35029e870c06e7da666e541aabc3d658cdef3331131a6b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "57f066700ad80c596e58095e69a2437f0aeeb52cea6d61d0dca4f05db83a4bf5",
+    "scripts/v53/joining_profile_run.py": "083ce2f660f19a962bdca73c1d127f5c86e2be7cb057dc410066482d976c59b7",
+    "scripts/v53/joining_same_view_semantics.py": "03dda8dbd3b9833c9e5c9953a084e73e3473bba25d0debc9a172fdc22ea28e8c",
+    "scripts/v53/test_joining_same_view_semantics.py": "673c2d63610a1cd351696ab4d524d7b1a50a181d5740cb84cb3d692f32456632"
+  },
+  "completePhysicalQualified": false,
+  "deferred": [
+    "full unequal-source floor and selected installation byte derivation",
+    "maintenance, original force, network and control-export composition",
+    "whole-history faults and process-death cuts",
+    "complete current-source profile cohort including REMOVE",
+    "frozen acceptance mapping"
+  ],
+  "documentation": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1908,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "failedOriginal": {
+    "analysis": {
+      "bytes": 5419,
+      "path": "target/v53-joining-same-view-20261031/failed-original-analysis.json",
+      "sha256": "15fb7cef27b592f73e78aeeec1e4085d212632828ec5926758cb95a60197fa69"
+    },
+    "build": {
+      "bytes": 288598,
+      "path": "target/v53-joining-same-view-20261031/failed-build-retained.json",
+      "sha256": "111506de4b6d57d3bd289fc489a009543ae9e46485aefec2f533a791555f0b62"
+    },
+    "execution": {
+      "elapsedSeconds": 697.783,
+      "exit": 1
+    },
+    "originalModified": false,
+    "producerStatus": "FAIL",
+    "reason": "pre-grant original copies unavailable",
+    "receipt": {
+      "bytes": 1157,
+      "path": "target/v53-joining-same-view-20261031/native/receipt.json",
+      "sha256": "4f77bb1e1991c11069a1e1229f2950cdd41ec45680948d2532b75728bfe78dbd"
+    },
+    "relocatedRejection": {
+      "negativeCases": 0,
+      "originalUnchanged": true,
+      "reason": "joining snapshot directory",
+      "status": "REJECTED",
+      "type": "ValueError"
+    },
+    "sourceSha256": "205c0e5a9259d8bf35eca9f7bb5ca66fbc138476e994d383206c6e49aec00457"
+  },
+  "firstArchive": {
+    "archive": {
+      "bytes": 54771838,
+      "elapsedSeconds": 11.333,
+      "files": 26408,
+      "memberHashesVerified": true,
+      "path": "target/v53-joining-same-view-20261031/sealed/joining-same-view.tar.gz",
+      "sha256": "11c4ec892405e4e33de6c039ee4366f6830914483ca7f3b746644fe608de8b96"
+    },
+    "diagnostic": {
+      "bytes": 2471,
+      "path": "target/v53-joining-same-view-20261031/portable-replay.stderr",
+      "sha256": "bf711b989cd9828ebcf75490ad26549814c7bbfbbadd525f21fe7febed9b11fb"
+    },
+    "fileBytesChanged": false,
+    "reason": "empty source directories omitted by the local packing script",
+    "repair": "A separate v2 archive retains and verifies all original directories and files; no source or evidence reader was changed.",
+    "retained": true,
+    "status": "REJECTED"
+  },
+  "forceAndNetworkQualified": false,
+  "java": {
+    "fixtureCorrection": "The new floor-release test initially used the retirement-only opener; corrected to the existing maintenance opener. Both attempts are retained.",
+    "nativeTests": 1,
+    "originalRegression": {
+      "expected": true,
+      "log": {
+        "bytes": 6106,
+        "path": "target/v53-joining-same-view-20261031/floor-before.log",
+        "sha256": "f03ea9778259fcc7c9c6231f36e3557cdab9c6198397e82f5c6b0e9eae53feea"
+      },
+      "reason": "floor copy is not the exact current cut",
+      "status": "FAIL"
+    },
+    "status": "PASS",
+    "summary": {
+      "bytes": 15047,
+      "path": "target/v53-joining-same-view-20261031/java-validation.json",
+      "sha256": "0535096366b3ab1dd060953ebf8aad96e7bcd3b8bccbdc3c7a498e653b9ba943"
+    },
+    "uniqueFocusedTests": 82
+  },
+  "nativeExecution": {
+    "baseHead": "d0729dd1e66005ac987823bee26242bf2b0894af",
+    "build": {
+      "bytes": 288598,
+      "path": "target/v53-joining-same-view-20261031/native-covering-floor/build.json",
+      "sha256": "72a2992c984d1874256ab5d0c2379358c5e852080eb3cacc112124c438473bbc"
+    },
+    "buildSha256": "72a2992c984d1874256ab5d0c2379358c5e852080eb3cacc112124c438473bbc",
+    "command": [
+      "mvn",
+      "-o",
+      "-B",
+      "-ntp",
+      "-f",
+      "reactor/pom.xml",
+      "-pl",
+      "../general-search-engine-replication",
+      "-am",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dtest=V53JoiningIntentExportTest#joiningProfileRequiresSameViewFinalRecovery",
+      "-Dv53.joining.profile=3-REPLACE",
+      "test"
+    ],
+    "completeExecutionRequested": true,
+    "execution": {
+      "elapsedSeconds": 730.149,
+      "exit": 0
+    },
+    "executionStatus": "PASS",
+    "finalAndColdReopenQualified": false,
+    "forceAndNetworkQualified": false,
+    "junit": {
+      "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+      "errors": 0,
+      "failures": 0,
+      "method": "joiningProfileRequiresSameViewFinalRecovery",
+      "skipped": 0,
+      "tests": 1
+    },
+    "negativeCases": 17,
+    "phase3Complete": false,
+    "profile": "3-REPLACE",
+    "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "receipt": {
+      "bytes": 1755,
+      "path": "target/v53-joining-same-view-20261031/native-covering-floor/receipt.json",
+      "sha256": "cc9d49d6cbad9810cd53422912eb8eefc750790e294cc9ac61c14dc97585d58c"
+    },
+    "replayExecution": {
+      "elapsedSeconds": 28.42,
+      "exit": 0
+    },
+    "replaySha256": "a6f66db3f8fdbaf95fecf4f2fa3a1ff0c8c1562bb19122713c9a362479da9778",
+    "retries": 0,
+    "sameViewPhysicalQualified": false,
+    "sameViewRecoveryRequested": true,
+    "sameViewSemanticQualified": true,
+    "schema": "gse-v53-joining-profile-completion-v1",
+    "semanticChainQualified": true,
+    "semanticFinalAndColdQualified": true,
+    "source": {
+      "bytes": 606423,
+      "path": "target/v53-joining-same-view-20261031/native-covering-floor/source.json",
+      "sha256": "ab1b13b0d54ab5505dab93be8d48b003945c96216916d8b1bee847ffacea32e8"
+    },
+    "sourceSha256": "ab1b13b0d54ab5505dab93be8d48b003945c96216916d8b1bee847ffacea32e8",
+    "status": "PARTIAL",
+    "toolchain": {
+      "bytes": 370,
+      "path": "target/v53-joining-same-view-20261031/native-covering-floor/toolchain.json",
+      "sha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+    },
+    "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+  },
+  "observedMixedFloor": {
+    "independentlyDerived": false,
+    "local": "node-4",
+    "localCut": 10,
+    "observation": {
+      "bytes": 1997,
+      "path": "target/v53-joining-same-view-20261031/corrected-original-observations.json",
+      "sha256": "b6fbbd179a0e2010568559397e35fdd5f44b4bacbc7088063ed8825fcf0c7bc6"
+    },
+    "sourceCuts": {
+      "node-1": 11,
+      "node-4": 10
+    }
+  },
+  "phase3Complete": false,
+  "portable": {
+    "assertionsDisabled": true,
+    "exactOriginalResult": true,
+    "negativeCases": 17,
+    "reader": "unchanged frozen corrected execution source",
+    "rejectedFailedOriginal": {
+      "bytes": 144,
+      "path": "target/v53-joining-same-view-20261031/portable-v2-failed-original.json",
+      "sha256": "ddd65139ef1e601b12aa0caee1e4e4b53f25c5a1e53dd4795c352f03202e12f7"
+    },
+    "replay": {
+      "bytes": 2865,
+      "path": "target/v53-joining-same-view-20261031/portable-v2-replay.json",
+      "sha256": "a6f66db3f8fdbaf95fecf4f2fa3a1ff0c8c1562bb19122713c9a362479da9778"
+    },
+    "status": "PASS"
+  },
+  "processDeathQualified": false,
+  "python": {
+    "log": {
+      "bytes": 2528,
+      "path": "target/v53-joining-same-view-20261031/python-joining.log",
+      "sha256": "ed6c88563b0deb7fb62a1a6e3ed553da82fa6b1d9959b1a0be01bac24e28e753"
+    },
+    "newTests": 11,
+    "status": "PASS",
+    "tests": 441
+  },
+  "sameViewPhysicalQualified": false,
+  "sameViewSemanticQualified": true,
+  "schema": "gse-v53-joining-same-view-v1",
+  "scope": "complete-3-REPLACE-native-same-view-recovery-and-semantic-boundaries",
+  "semantics": {
+    "elapsedSeconds": 28.42,
+    "negativeCases": 17,
+    "replay": {
+      "bytes": 2865,
+      "path": "target/v53-joining-same-view-20261031/native-covering-floor/replay.json",
+      "sha256": "a6f66db3f8fdbaf95fecf4f2fa3a1ff0c8c1562bb19122713c9a362479da9778"
+    },
+    "result": {
+      "checkpointObservations": 47,
+      "completePhysicalQualified": false,
+      "controls": [
+        "BARRIER",
+        "RESERVE",
+        "BARRIER",
+        "PREPARE",
+        "BARRIER",
+        "READY",
+        "BARRIER",
+        "SEAL",
+        "INTENT",
+        "FINAL",
+        "BARRIER"
+      ],
+      "finalAndColdReopenQualified": false,
+      "forceAndNetworkQualified": false,
+      "internalReadyCuts": [
+        1,
+        3,
+        5,
+        7,
+        11
+      ],
+      "pendingQualification": [
+        "physical states",
+        "force and network",
+        "process death",
+        "frozen mapping"
+      ],
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "profile": "3-REPLACE",
+      "publicReady": false,
+      "sameViewPhysicalQualified": false,
+      "sameViewRecovery": {
+        "adoptedAtFinal": true,
+        "fromCut": 10,
+        "installedAtBarrier": true,
+        "proposer": "node-4",
+        "publicReady": false,
+        "selectedVoters": [
+          "node-1",
+          "node-4"
+        ],
+        "selectionSha256": "bd78990de0cecc32353527720cf97b1d21b4e27b6f1b118443df9a0f3fcb90a3",
+        "toCut": 11
+      },
+      "sameViewSemanticQualified": true,
+      "scope": "native-REPLACE-catalog-certificate-checkpoint-chain",
+      "selections": 6,
+      "semanticChainQualified": true,
+      "semanticFinalAndColdQualified": true,
+      "slots": 11,
+      "status": "PASS"
+    },
+    "status": "PASS"
+  },
+  "status": "PARTIAL"
+}

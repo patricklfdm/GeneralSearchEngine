@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Joining same-view recovery](PHASE_3_JOINING_SAME_VIEW.md) adds a complete
+FINAL-adoption/BARRIER-installation execution and fixes maintenance blocking on
+newer same-view peers. Exact original covering copies protect the local floor;
+full physical/network/process composition and Phase 3 closure remain open.
+
 [Joining profile network replay](PHASE_3_JOINING_PROFILE_NETWORK.md) composes
 physical continuation with complete attempted transport and original durable
 ACK checks. It binds the actual joining identity for all five ADD/REPLACE

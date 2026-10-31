@@ -1,5 +1,29 @@
 # V5.3 Phase 3 contract amendments
 
+## A70 — a complete same-view successor may protect the local floor
+
+Retain the exact local current generation as the FLOOR's local cut and reference.
+A remote complete original generation may be newer only within that same governing
+view and only when its verified capsule/ancestry proves the local cut, catalog and
+application exactly. Full original copy/force, permanent identity, member/image
+integrity and both-majority checks still apply. Hints, larger indices, bare hashes,
+cross-view copies and compacted histories missing that ancestor do not qualify.
+
+Preserve each source's actual generation/catalog/application reference; never relabel
+a newer generation as the older cut. Derive a retained floor's local anchor from its
+local voter row, not the first sorted remote row. Reopen validates the same complete
+containment proof. Same-cut records retain their original encoding.
+
+Maintenance may fetch these complete successors before retiring the covered inactive
+generation. Future peer endpoints do not enter the lagging local ledger: preserve
+its conservative debts until normal selected installation. New-peer reconciliation
+continues to require an exact joining copy. All copy reservations, force ordering,
+tail protection, resumable deletion, ballot fences and resource/time limits remain.
+There is no new wire/record kind, vote, READY authority or whole-history retry.
+
+See [joining same-view recovery](PHASE_3_JOINING_SAME_VIEW.md). Complete independent
+physical/network/process composition remains required before Phase 3 closure.
+
 ## A69 — discover and adopt before a fresh internal round
 
 The [discovered round entry](PHASE_3_DISCOVERED_ROUND.md) may perform one bounded

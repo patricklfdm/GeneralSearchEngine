@@ -2578,8 +2578,9 @@ final class MembershipGrantJournal implements AutoCloseable {
     }
     private void addFloorParent(Collection<MembershipCapsule.Anchor> parents) throws IOException {
         if(floors==null)return;var prior=floors.read();if(prior.isEmpty())return;
-        var value=prior.get().value();var first=object(list(value.get("sources")).getFirst());
-        parents.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)first.get("catalog"),(String)first.get("snapshot")));
+        var value=prior.get().value();var local=list(value.get("sources")).stream().map(MembershipFormat::object)
+                .filter(v->v.get("voter").equals(identity.nodeId().value())).findFirst().orElseThrow();
+        parents.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)local.get("catalog"),(String)local.get("snapshot")));
     }
     synchronized Optional<Decoded> governingFloor() throws IOException {require(floors!=null,"floor storage owner required");checkOwner();return floors.read();}
     /** Read-only admission hint; deletion still requires complete governing copies. */

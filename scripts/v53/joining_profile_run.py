@@ -17,6 +17,7 @@ from . import joining_completion_evidence as complete_reader
 METHOD='joiningProfilePublishesOriginalJointCheckpoint'
 TEST=h.CLASS.rsplit('.',1)[-1]+'#'+METHOD
 COMPLETE_METHOD='joiningProfileCompletesFinalAndRetainingColdRecovery'
+SAME_VIEW_METHOD='joiningProfileRequiresSameViewFinalRecovery'
 
 
 def junit(reports,method=METHOD):
@@ -29,10 +30,14 @@ def junit(reports,method=METHOD):
     return dict(className=h.CLASS,method=method,tests=1,failures=0,errors=0,skipped=0)
 
 
-def run(output,maven,profile,*,source_from=None,complete=False):
+def run(output,maven,profile,*,source_from=None,complete=False,same_view=False):
     e.topology(profile);output=Path(output).absolute()
+    h.need(not same_view or (complete and profile=='3-REPLACE'),'same-view execution requires complete 3-REPLACE')
     method=COMPLETE_METHOD if complete else METHOD
     reader=complete_reader if complete else e
+    if same_view:
+        from . import joining_same_view_semantics as reader
+        method=SAME_VIEW_METHOD
     stage='joining-complete' if complete else 'joining-prefix'
     h.need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),'recorded source execution separation')
     output.mkdir(parents=True,exist_ok=False)
@@ -40,6 +45,7 @@ def run(output,maven,profile,*,source_from=None,complete=False):
         completeExecutionRequested=complete,semanticFinalAndColdQualified=False,
         executionStatus='NOT_RUN',semanticChainQualified=False,finalAndColdReopenQualified=False,
         forceAndNetworkQualified=False,phase3Complete=False)
+    if same_view:receipt.update(sameViewRecoveryRequested=True,sameViewSemanticQualified=False,sameViewPhysicalQualified=False)
     try:
         work=output/'workspace';source=h.source_copy(h.ROOT,work) if source_from is None else h.recorded_source(source_from,work)
         h.save(output/'source.json',source);receipt.update(baseHead=source['head'],sourceSha256=h.digest((output/'source.json').read_bytes()))
@@ -67,9 +73,13 @@ def run(output,maven,profile,*,source_from=None,complete=False):
                result['original']['phase3Complete'] is False and result['original']['finalAndColdReopenQualified'] is False and
                result['original'].get('semanticFinalAndColdQualified',False)==complete and
                result['negatives']==[dict(case=k,status='REJECTED',reason=v) for k,v in reader.NEGATIVES.items()], 'joining prefix replay scope')
+        if same_view:
+            h.need(result['original'].get('sameViewSemanticQualified') is True and
+                   result['original'].get('sameViewPhysicalQualified') is False,'joining same-view replay scope')
         h.check_source(work,source)
         receipt.update(status='PARTIAL',semanticChainQualified=True,semanticFinalAndColdQualified=complete,negativeCases=len(result['negatives']),
                        replaySha256=h.digest((output/'replay.json').read_bytes()))
+        if same_view:receipt['sameViewSemanticQualified']=True
     except BaseException as error:
         if receipt['executionStatus']=='NOT_RUN':receipt['executionStatus']='FAIL'
         receipt.update(status='FAIL',failure=dict(type=type(error).__name__,message=str(error)));raise
@@ -80,5 +90,6 @@ def run(output,maven,profile,*,source_from=None,complete=False):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('output');p.add_argument('--profile',required=True,choices=e.PROFILES)
-    p.add_argument('--maven',default='mvn');p.add_argument('--source-from');p.add_argument('--complete',action='store_true');a=p.parse_args()
-    run(a.output,a.maven,a.profile,source_from=a.source_from,complete=a.complete)
+    p.add_argument('--maven',default='mvn');p.add_argument('--source-from');p.add_argument('--complete',action='store_true')
+    p.add_argument('--same-view',action='store_true');a=p.parse_args()
+    run(a.output,a.maven,a.profile,source_from=a.source_from,complete=a.complete,same_view=a.same_view)

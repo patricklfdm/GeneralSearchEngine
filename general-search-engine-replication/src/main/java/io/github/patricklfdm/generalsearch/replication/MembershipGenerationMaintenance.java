@@ -106,8 +106,7 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
                 installed.add((String)MembershipFormat.object(value).get("voter"));
             check();
         }
-        // The complete copies at this floor share the exact current application.
-        // Borrow its live physical bytes instead of creating one receiving image
+        // Borrow matching live physical bytes instead of creating one receiving image
         // per remote copy in addition to the separately accounted floor images.
         try(var images=owner.exportPrefix(MembershipContext.cutDigest(context.cut),ballot,
                 context.authority(),resources,clock,started,budget)) {
@@ -116,7 +115,12 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
             MembershipSourcePull source=null,generation=null;boolean retain=false;
             try {
                 var hint=discover(context.identities.get(node));check();
-                if(!hint.cut().equals(context.cut))continue;
+                // Hints only select a read route. A later same-view generation
+                // still needs a complete original copy proving the local anchor.
+                // New-peer reconciliation retains its exact joining-copy rule.
+                if(!MembershipFormat.object(hint.cut().get("view")).equals(context.view)
+                        || MembershipFormat.number(hint.cut().get("index"))<MembershipFormat.number(context.cut.get("index"))
+                        || joining.contains(node) && !hint.cut().equals(context.cut))continue;
                 source=prefix(hint);
                 try{source.fetchBorrowedPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);}
                 catch(MembershipSourcePull.MissingBorrowedImages missing) {
@@ -127,7 +131,8 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
                     source.fetchPrefix(scratch.resolve("source-"+UUID.randomUUID()),images);
                 }
                 generation=prefix(hint);var copy=generation.fetchGeneration(source);check();
-                require(copy.owner.equals(hint.peer()) && copy.capsule.terminal().equals(own.capsule.terminal()),"native maintenance exact original copy");
+                require(copy.owner.equals(hint.peer()),"native maintenance exact original copy");
+                MembershipFloor.covers(own.capsule,copy);
                 copies.add(copy);voters.add(node);receiving.put(copy.generation.digest(),List.of(generation,source));retain=true;
             }catch(MembershipTransport.Failure error) {
                 if(error.reason!=MembershipTransport.Reason.IO && error.reason!=MembershipTransport.Reason.DEADLINE
@@ -159,7 +164,13 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         // possibility. A publication ACK or STATUS hint cannot narrow the ledger.
         // If renewal debt is full, preserve the old ledger and its checkpoint
         // obligations. The independent forced floor still owns the exact copies.
-        for(var copy:copies){owner.retainMaintenancePeerObservation(copy);check();}
+        for(var copy:copies) {
+            // A later copy proves the lower floor, but the local capsule cannot
+            // yet represent that future endpoint in its peer-retention ledger.
+            // Keep its prior debt until selected installation catches up.
+            if(copy.capsule.terminal().equals(own.capsule.terminal()))owner.retainMaintenancePeerObservation(copy);
+            check();
+        }
         // The forced floor now owns every exact copy. Newly recorded observations
         // or the unchanged conservative obligations are durable. The sequential
         // handoff has already removed matching

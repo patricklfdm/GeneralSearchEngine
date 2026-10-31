@@ -58,6 +58,31 @@ class V53FloorTest {
         assertThrows(IllegalArgumentException.class,()->MembershipFloor.create(f.root(),current,List.of(current,current)));
         assertThrows(IllegalArgumentException.class,()->MembershipFloor.create(f.root(),current,List.of(current,old)));
     }
+    @Test void newerSameViewOriginalCopyMustProveTheExactLocalFloor()throws Exception {
+        var f=new V53CurrentGenerationFixture(3,7,false);
+        var local=copy(temp.resolve("local-final"),3,7,6);
+        var advanced=copy(temp.resolve("remote-barrier"),3,8,1);
+        advanced.capsule.verifyAncestry(new byte[0],List.of(local.capsule.terminal()));
+        var floor=MembershipFloor.create(f.root(),local,List.of(local,advanced));
+        MembershipFloor.verify(floor,f.root(),local,List.of(local,advanced));
+        assertEquals(local.capsule.context.cut,floor.value().get("cut"));
+        assertEquals("node-6",floor.value().get("node"));
+        assertEquals(advanced.reference(),list(floor.value().get("sources")).getFirst());
+        // A historical copy below the local cut, or a copy changing governing
+        // authority, cannot replace the same-view containing proof.
+        assertThrows(IllegalArgumentException.class,()->MembershipFloor.create(f.root(),advanced,List.of(local,advanced)));
+        var joint=copy(temp.resolve("remote-joint"),3,6,2);
+        assertThrows(IllegalArgumentException.class,()->MembershipFloor.create(f.root(),joint,List.of(joint,advanced)));
+    }
+    @Test void newerIndexWithoutTheExactCompactedAncestorIsNotACoveringCopy()throws Exception {
+        var f=new V53CurrentGenerationFixture(3,2,false);
+        var local=copy(temp.resolve("compact-local"),3,2,1);
+        var advanced=copy(temp.resolve("compact-remote"),3,5,2);
+        assertEquals(local.capsule.context.view,advanced.capsule.context.view);
+        assertTrue(MembershipFormat.number(advanced.capsule.context.cut.get("index"))>
+                MembershipFormat.number(local.capsule.context.cut.get("index")));
+        assertThrows(IllegalArgumentException.class,()->MembershipFloor.create(f.root(),local,List.of(local,advanced)));
+    }
     @Test void floorMustIncludeExactCurrentLocalCopyAndCannotBeRelabelled() throws Exception {
         var f=new V53CurrentGenerationFixture(3,7,false);var a=copy(temp.resolve("a"),3,7,1);var b=copy(temp.resolve("b"),3,7,2);var c=copy(temp.resolve("c"),3,7,6);
         assertThrows(IllegalArgumentException.class,()->MembershipFloor.create(f.root(),a,List.of(b,c)));

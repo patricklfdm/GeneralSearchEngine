@@ -115,6 +115,12 @@ class V53JoiningIntentExportTest {
         var profile=V53JoiningProfile.parse(System.getProperty("v53.joining.profile","3-ADD"));
         nativeJoining(true,true,true,true,true,true,true,true,true,profile,false);
     }
+    private boolean recoverAtFinal;
+    @Test void joiningProfileRequiresSameViewFinalRecovery()throws Exception {
+        var profile=V53JoiningProfile.parse(System.getProperty("v53.joining.profile","3-REPLACE"));
+        assertEquals("3-REPLACE",profile.name(),"declared same-view recovery profile");recoverAtFinal=true;
+        nativeJoining(true,true,true,true,true,true,true,true,true,profile,false);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
@@ -627,6 +633,25 @@ class V53JoiningIntentExportTest {
                 MembershipSlotDriver.Events slotEvents=(event,record,voters)->{
                     slotObservations(n,plan,config.materialization().directory()).at(event,record,voters);
                     if(event.equals("PUBLISHED"))System.out.println("v53JoiningContinuation=published index="+record.value().get("index"));
+                    if(recoverAtFinal && event.equals("PUBLISHED") && number(record.value().get("index"))==stableIndex-1) {
+                        // Catch up through original TCP bytes while FINAL is the
+                        // newest cut. The subsequent old-majority BARRIER leaves
+                        // this real joining owner one slot behind in the same view.
+                        try {
+                            var before=owner.activationContext().cut;
+                            assertEquals(stableIndex-2,number(before.get("index")));
+                            joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-before-final-prefix"));
+                            try(var recovery=new MembershipPrefixRecovery(owner,resources,n.bounds,transport::exchange,()->{},
+                                    temp.resolve("joining-at-final-prefix"),System::nanoTime,System.nanoTime(),budget)) {
+                                assertTrue(recovery.run().isPresent(),"FINAL requires real newer-authority adoption");
+                            }
+                            var after=owner.activationContext().cut;assertEquals(stableIndex-1,number(after.get("index")));
+                            Files.write(n.f.raw.resolve("joining-final-prefix.json"),canonical(Map.of("before",before,"after",after,
+                                    "adopted",true,"installed",false,"publicReady",false),8192));
+                            joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-after-final-prefix"));
+                            System.out.println("v53JoiningContinuation=same-view-prefix-recovered cut="+(stableIndex-1));
+                        }catch(Exception error){throw new java.io.IOException("same-view original FINAL prefix recovery",error);}
+                    }
                 };
                 try(var coordinated=joiningService?new MembershipJointContinuation<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,
                         n.transports.getFirst(),temp.resolve("joining-coordinated-round"),System::nanoTime,budget,2,
@@ -657,6 +682,7 @@ class V53JoiningIntentExportTest {
                 if(number(owner.activationContext().cut.get("index"))<stableIndex) {
                     joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-before-final-recovery"));
                     var guard=owner.activationContext();
+                    if(recoverAtFinal)assertEquals(stableIndex-1,number(guard.cut.get("index")),"same-view owner must retain FINAL");
                     boolean adopted;
                     try(var recovery=new MembershipPrefixRecovery(owner,resources,n.bounds,transport::exchange,()->{},
                             temp.resolve("joining-final-recovery"),System::nanoTime,System.nanoTime(),budget)) {
@@ -674,10 +700,16 @@ class V53JoiningIntentExportTest {
                         }
                     }
                     assertEquals(stableIndex,number(owner.activationContext().cut.get("index")));
+                    if(recoverAtFinal) {
+                        assertFalse(adopted,"same-view recovery cannot be newer-authority adoption");assertTrue(installed);
+                        assertEquals(guard.cut.get("view"),owner.activationContext().cut.get("view"));
+                        n.f.snapshot("same-view-installed");
+                    }
                     Files.write(n.f.raw.resolve("joining-final-recovery.json"),canonical(Map.of("before",guard.cut,"after",owner.activationContext().cut,
                             "adopted",adopted,"installed",installed,"publicReady",false),8192));
                     joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-after-final-recovery"));
                 }
+                if(recoverAtFinal)assertTrue(Files.isRegularFile(n.f.raw.resolve("joining-final-recovery-selection.gsr")),"same-view installation must execute");
                 assertEquals(n.owners.getFirst().activationContext().cut,owner.activationContext().cut);
                 assertEquals(new HashSet<>(profile.targets()),owner.activationContext().voters());
             }

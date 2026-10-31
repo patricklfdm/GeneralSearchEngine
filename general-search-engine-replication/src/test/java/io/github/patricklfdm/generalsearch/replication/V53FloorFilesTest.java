@@ -9,6 +9,47 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 
 class V53FloorFilesTest {
     @TempDir Path temp;
+    @Test void mixedCutFloorResumesOnlyItsOriginalCopiesAndSurvivesColdReopen()throws Exception {
+        var f=new V53CurrentGenerationFixture(3,8,false);
+        for(String point:List.of("FLOOR_MEMBER_WRITTEN","FLOOR_AUTHORITY_FORCED")) {
+            Path path=temp.resolve("mixed-"+point);var a=copy(path,7,1);var b=copy(temp.resolve("mixed-peer-"+point),8,2);
+            var budget=resources();byte[] floor=MembershipFloor.create(f.root(),a,List.of(a,b)).bytes();
+            try(var store=MembershipGrantJournal.openFloors(path,f.root(),V53DeclarationsTest.node(1),budget,f::verify,
+                    event->{if(event.equals(point))throw new java.io.IOException(point);})) {
+                assertThrows(java.io.IOException.class,()->store.establishFloor(List.of(a,b)));
+            }
+            assertEquals(0,budget.usage().leases());
+            try(var store=MembershipGrantJournal.openFloors(path,f.root(),V53DeclarationsTest.node(1),budget,f::verify,event->{})) {
+                assertArrayEquals(floor,store.establishFloor(List.of(a,b)).bytes());
+            }
+            try(var store=MembershipGrantJournal.openFloors(path,f.root(),V53DeclarationsTest.node(1),budget,f::verify,event->{})) {
+                assertArrayEquals(floor,store.governingFloor().orElseThrow().bytes());
+                assertEquals(7L,store.activationContext().cut.get("index"));
+            }
+            assertEquals(0,budget.usage().leases());
+            Path member=path.resolve("floor-copies").resolve(b.generation.digest()).resolve("source.gscp");
+            byte[] raw=Files.readAllBytes(member);raw[raw.length-1]^=1;Files.write(member,raw);
+            assertThrows(Exception.class,()->MembershipGrantJournal.openFloors(path,f.root(),V53DeclarationsTest.node(1),budget,f::verify,event->{}));
+            assertEquals(0,budget.usage().leases());
+        }
+    }
+    @Test void laterAuthorityAdoptionUsesTheLocalFloorAnchorNotTheFirstRemoteCopy()throws Exception {
+        Path path=temp.resolve("mixed-adoption");var local=copy(path,0,2);var advanced=copy(temp.resolve("advanced-first"),1,1);
+        var f=new V53AdoptionFenceFixture(3,6);f.owned.addAll(new V53CurrentGenerationFixture(3,1,false).fixture.owned);
+        MembershipCurrentGeneration.Verifier verifier=(r,p,i)->MembershipCapsule.verify(r,p,i,f.owned);
+        var budget=resources();byte[] floor;
+        try(var store=MembershipGrantJournal.openMaintenance(path,f.initial.root(),V53DeclarationsTest.node(2),budget,verifier,event->{})) {
+            floor=store.establishFloor(List.of(local,advanced)).bytes();
+            assertEquals(advanced.reference(),list(decode(floor,"records","FLOOR").value().get("sources")).getFirst());
+            store.adoptCurrent(f.remote.packet(),f.remote.source.images,List.of());
+        }
+        try(var store=MembershipGrantJournal.openMaintenance(path,f.initial.root(),V53DeclarationsTest.node(2),budget,verifier,event->{})) {
+            assertArrayEquals(floor,store.governingFloor().orElseThrow().bytes());
+            assertTrue(store.retireInactive().isPresent());store.releaseFloor();
+            assertTrue(store.governingFloor().isEmpty());assertEquals(6L,store.activationContext().cut.get("index"));
+        }
+        assertEquals(0,budget.usage().leases());
+    }
     @Test void sequentialHandoffForcesEachReplacementBeforeReleasingItsReceivingSlot()throws Exception {
         var fixture=new V53CurrentGenerationFixture(4,0,false);var helper=new V53FloorTest();Path path=temp.resolve("handoff");
         var copies=new ArrayList<MembershipFloor.Copy>();
