@@ -297,30 +297,38 @@ def lifecycle(root, replay):
     return ready
 
 
-def validate(root):
+def validate(root, *, size=3, kind='ADD'):
     root = Path(root); original = collection.inventory(root)
     indices = sorted(int(p.name.removeprefix('applied-')) for p in root.iterdir() if re.fullmatch(r'applied-[1-9][0-9]*', p.name))
     need(1 <= len(indices) <= 64 and indices == list(range(1, len(indices)+1)), 'joining complete consecutive applied history')
     need(sorted(p.name for p in root.iterdir() if re.fullmatch(r'published-[1-9][0-9]*', p.name)) ==
          sorted('published-' + str(i) for i in indices), 'joining complete publication history')
-    replay = Replay(root); kinds = [replay.step(i) for i in indices]
+    replay = Replay(root,size=size,kind=kind); kinds = [replay.step(i) for i in indices]
     need(tuple(k for k in kinds if k != 'BARRIER') == CONTROLS and kinds[0] == kinds[-1] == 'BARRIER' and
          kinds[-2] == 'FINAL' and kinds[kinds.index('INTENT')+1] == 'FINAL', 'joining complete control order')
     final = replay.states[-1]
     need(final['active'] is None and final['results'][0]['phase'] == 'COMPLETED' and
-         final['cut']['view']['old'] == final['cut']['view']['new'] == ['node-1', 'node-2', 'node-3', 'node-4'],
+         final['cut']['view']['old'] == final['cut']['view']['new'] == replay.targets,
          'joining final stable view')
-    for node in ('node-1', 'node-2'):
-        replay.packet(disk.current(disk.inventory(root / 'after-close' / node))[2], len(indices))
-    need(disk.inventory(root / 'after-close/node-3') == disk.inventory(root / 'before-network/node-3'), 'joining offline voter changed')
+    for node in replay.old[:size//2+1]:
+        files=disk.inventory(root/'after-close'/node); packet=disk.current(files)[2]
+        last=max(i for i,phase in enumerate(replay.phases,1) if node in
+                 [v['voter'] for v in f.decode(phase['CERTIFICATE'],'records','CERTIFICATE',replay.root)['proofs']])
+        through=packet['capsule']['cut']['index']
+        need(last<=through<=len(indices),'joining closed owner publication regressed')
+        need(f.decode(files['node.gsr'],'records','NODE',replay.root)['identity']==
+             catalog.identities(final['identities'])[node],'joining closed original identity')
+        replay.packet(packet,through)
+    for node in replay.offline:
+        need(disk.inventory(root/'after-close'/node)==disk.inventory(root/'before-network'/node),'joining offline voter changed')
     stable = joining.read(root / 'joining-originals-stable-cold')
     cold = disk.inventory(stable.root / 'replica')
     need(cold['root.gsr'] == replay.root_bytes and f.decode(cold['node.gsr'], 'records', 'NODE', replay.root)['identity'] ==
-         catalog.identities(final['identities'])['node-4'], 'joining retaining cold identity')
+         catalog.identities(final['identities'])[replay.joining], 'joining retaining cold identity')
     replay.packet(disk.current(cold)[2], len(indices)); ready = lifecycle(root, replay)
     need(collection.inventory(root) == original, 'joining original history changed during replay')
-    return dict(status='PASS', scope='native-ADD-catalog-certificate-checkpoint-chain', slots=len(indices), controls=kinds,
-        profile='3-ADD', selections=len(replay.selections), checkpointObservations=len(replay.acks), internalReadyCuts=ready, semanticChainQualified=True,
+    return dict(status='PASS', scope='native-'+kind+'-catalog-certificate-checkpoint-chain', slots=len(indices), controls=kinds,
+        profile=str(size)+'-'+kind, selections=len(replay.selections), checkpointObservations=len(replay.acks), internalReadyCuts=ready, semanticChainQualified=True,
         publicReady=False,
         completePhysicalQualified=False, forceAndNetworkQualified=False, processDeathQualified=False, phase3Complete=False)
 

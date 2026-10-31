@@ -1,5 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining profile completion](PHASE_3_JOINING_PROFILE_COMPLETION.md) extends all five
+ADD/REPLACE producers through FINAL, the new-view BARRIER and retaining cold
+reopen. Actual selected sets may omit the joining voter; its later recovery uses
+original TCP prefix acquisition or selected installation. A reproduced adoption
+defect now preserves exact verified local ancestry when the newer remote prefix
+omits it; the failed history remains retained. Complete current-source profile,
+physical/network/process and frozen-mapping qualification remain open.
+
 [Joining profile prefixes](PHASE_3_JOINING_PROFILES.md) extend the actual
 bootstrap-to-JOINT execution and original semantic reader to all five ADD/REPLACE
 profiles. Separate old/new majorities are preserved, including overlapping

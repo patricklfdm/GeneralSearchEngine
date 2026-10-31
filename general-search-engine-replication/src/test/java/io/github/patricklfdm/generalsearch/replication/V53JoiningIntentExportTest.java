@@ -111,6 +111,10 @@ class V53JoiningIntentExportTest {
         assertTrue(System.getProperty("v53.joining.sourceFault","").isEmpty(),"profile prefix does not select source faults");
         nativeJoining(true,true,false,false,false,false,false,false,false,profile,true);
     }
+    @Test void joiningProfileCompletesFinalAndRetainingColdRecovery()throws Exception {
+        var profile=V53JoiningProfile.parse(System.getProperty("v53.joining.profile","3-ADD"));
+        nativeJoining(true,true,true,true,true,true,true,true,true,profile,false);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
@@ -142,7 +146,6 @@ class V53JoiningIntentExportTest {
     private void nativeJoining(boolean retainPending,boolean publishJoint,boolean installJoined,boolean maintainJoined,boolean seedJoined,
             boolean initializeJoined,boolean continueJoint,boolean remoteRetention,boolean earlyStartup,V53JoiningProfile profile,boolean prefixOnly)throws Exception {
         assertTrue(!prefixOnly || retainPending && publishJoint && !installJoined && !continueJoint && !earlyStartup);
-        assertTrue(profile.name().equals("3-ADD") || prefixOnly,"complete profile continuation is a separate gate");
         assertTrue(!earlyStartup || remoteRetention && initializeJoined && continueJoint);
         String sourceFault=System.getProperty("v53.joining.sourceFault","");
         assertTrue(sourceFault.isEmpty() || earlyStartup && Set.of("SOURCE_OFFER","CHUNK","TRANSFER_COMMIT").contains(sourceFault),
@@ -193,13 +196,13 @@ class V53JoiningIntentExportTest {
                     ()->{},System::nanoTime,sourceStarted,BUDGET)) {
                 if(!sourceFault.isEmpty()) {
                     assertTrue(n.drop.compareAndSet("",sourceFault));
-                    n.events.add(Map.of("node","node-4","scope","learner-source","event","JOINING_SOURCE_FAULT_ARMED",
+                    n.events.add(Map.of("node",profile.joining(),"scope","learner-source","event","JOINING_SOURCE_FAULT_ARMED",
                             "kind",sourceFault,"started",sourceStarted,"budget",BUDGET));
                 }
                 source.fetch(temp.resolve("receiving"));
                 if(!sourceFault.isEmpty()) {
                     assertEquals("",n.drop.get(),"declared source reply loss was not reached");
-                    n.events.add(Map.of("node","node-4","scope","learner-source","event","JOINING_SOURCE_FAULT_COMPLETE",
+                    n.events.add(Map.of("node",profile.joining(),"scope","learner-source","event","JOINING_SOURCE_FAULT_COMPLETE",
                             "kind",sourceFault,"started",sourceStarted,"budget",BUDGET));
                 }
                 var plan=source.plan(trace.cut("learner-plan"));
@@ -329,7 +332,7 @@ class V53JoiningIntentExportTest {
                                                     try(var probe=new MembershipLearnerHeadProbe(sourceOwner,joining,sourcePool,n.bounds,
                                                             n.transports.get(voter)::exchange,System::nanoTime,System.nanoTime(),BUDGET)) {
                                                         var received=probe.run();assertEquals(sealedIndex,number(received.endpoint().cut().get("index")));
-                                                        assertThrows(IllegalArgumentException.class,()->received.confirmation(n.owners.get(1-voter),n.resources.get(1-voter)));
+                                                        assertThrows(IllegalArgumentException.class,()->received.confirmation(n.owners.get(profile.otherOld(voter)),n.resources.get(profile.otherOld(voter))));
                                                         var confirmed=sourceOwner.retainLearnerConfirmation(received);
                                                         assertEquals(List.of(sealedIndex),confirmed.plan().recorded().stream().map(a->number(a.cut().get("index"))).toList());
                                                         var ledger=object(parse(confirmed.plan().bytes(),MembershipLearnerRetentionPlan.MAXIMUM));
@@ -359,8 +362,8 @@ class V53JoiningIntentExportTest {
                                             }
                                             assertEquals(originalLedger,owner.learnerRetentionState());
                                             Files.write(n.f.raw.resolve("joining-head-wire.json"),canonical(confirmationWire,1024*1024));
-                                            assertEquals(2,confirmationWire.size());
-                                            System.out.println("v53JoiningIntentStage=both-old-voters-confirmed-original-sealed-source");
+                                            assertEquals(profile.majority(),confirmationWire.size());
+                                            System.out.println("v53JoiningIntentStage=selected-old-voters-confirmed-original-sealed-source");
                                             try(var published=new MembershipLearnerProgress(retained,targets.getFirst(),n.bounds,
                                                     trace.transport("published-progress"),System::nanoTime,System.nanoTime(),BUDGET)) {
                                                 published.fetch(temp.resolve("joining-published-progress"));
@@ -381,7 +384,7 @@ class V53JoiningIntentExportTest {
                                                             assertEquals(1,pool.usage().counts().get(MembershipResources.Unit.GENERATION));
                                                             assertFalse(pool.usage().counts().containsKey(MembershipResources.Unit.SOURCE));
                                                             if(maintainJoined) {
-                                                                assertEquals(Set.of("node-4"),owner.maintenanceJoiningPeers());
+                                                                assertEquals(Set.of(profile.joining()),owner.maintenanceJoiningPeers());
                                                                 var beforePeers=owner.peerRetentionState();
                                                                 var permission=owner.publishedMaintenance(resources);permission.check();
                                                                 assertEquals(beforePeers,owner.peerRetentionState());
@@ -389,8 +392,7 @@ class V53JoiningIntentExportTest {
                                                                 assertEquals(beforePeers,owner.peerRetentionState());
                                                                 // Every copy comes from its actual still-open native
                                                                 // owner, including the newly installed joining root.
-                                                                owner.establishFloor(List.of(owner.floorCopyCurrent(),
-                                                                        n.owners.get(1).floorCopyCurrent(),journal.floorCopyCurrent()));
+                                                                owner.establishFloor(joiningFloorCopies(n,journal));
                                                                 permission.check();owner.reconcileMaintenancePeers();permission.check();
                                                                 assertTrue(owner.maintenanceJoiningPeers().isEmpty());
                                                                 var reconciled=owner.peerRetentionState();
@@ -404,8 +406,8 @@ class V53JoiningIntentExportTest {
                                                                 System.out.println("v53JoiningIntentStage=actual-joining-floor-reconciled");
                                                             }
                                                             if(seedJoined) {
-                                                                var copies=List.of(owner.floorCopyCurrent(),n.owners.get(1).floorCopyCurrent(),journal.floorCopyCurrent());
-                                                                for(int i=0;i<2;i++) {
+                                                                var copies=joiningFloorCopies(n,journal);
+                                                                for(int i:n.voters) {
                                                                     var old=n.owners.get(i);var seedMaintenance=old.publishedMaintenance(n.resources.get(i));
                                                                     if(i!=0)old.establishFloor(copies);
                                                                     // This is optional maintenance after forcing the complete
@@ -470,7 +472,7 @@ class V53JoiningIntentExportTest {
                                                                 }else {
                                                                     long counter=owner.reserveCounter();var ballot=Map.<String,Object>of("counter",counter,
                                                                             "proposer",owner.activationIdentity().nodeId().value(),"incarnation",owner.activationIdentity().storageId().toString());
-                                                                    for(int i=0;i<2;i++){n.owners.get(i).prepareCurrent(ballot);originals.add(n.owners.get(i).originalSource());}
+                                                                    for(int i:n.voters){n.owners.get(i).prepareCurrent(ballot);originals.add(n.owners.get(i).originalSource());}
                                                                 }
                                                                 assertThrows(IllegalArgumentException.class,()->owner.joiningRetentionSeed(originals));
                                                                 var beforeSeed=earlyStartup?null:V53ReplayFilesTest.files(request.replicaDirectory());
@@ -519,7 +521,7 @@ class V53JoiningIntentExportTest {
                                                             if(!seedJoined || initializeJoined)nativeCounter=active.reserveCounter();
                                                             nativeBasis=active.prepareCurrent(Map.of("counter",nativeCounter,
                                                                     "proposer",joining.nodeId().value(),"incarnation",joining.storageId().toString()));
-                                                            assertEquals("BASIS",nativeBasis.kind());assertEquals("node-4",nativeBasis.value().get("voter"));
+                                                            assertEquals("BASIS",nativeBasis.kind());assertEquals(profile.joining(),nativeBasis.value().get("voter"));
                                                             if(initializeJoined)assertJoinedRetention(active,seedFrom(n.f.raw),joining);
                                                             new V53MembershipOwnershipTest().probe(request.replicaDirectory().resolve("replica.lock"));
                                                             }
@@ -541,7 +543,7 @@ class V53JoiningIntentExportTest {
                                             System.out.println("v53JoiningIntentStage=actual-joined-native-cold-reopened");
                                             if(continueJoint) {
                                                 round.close();n.f.snapshot("before-joint-continuation");
-                                                continueJoint(n,plan,pool,config,lifetime,remoteRetention,trace);
+                                                continueJoint(n,plan,pool,config,lifetime,remoteRetention,trace,profile);
                                             }
                                         }
                                     }
@@ -559,6 +561,11 @@ class V53JoiningIntentExportTest {
             assertEquals(0,pool.usage().leases());
         }
     }
+    private static List<MembershipFloor.Copy> joiningFloorCopies(V53NativeDispatchTest.Network n,MembershipGrantJournal joining)throws Exception {
+        var copies=new ArrayList<MembershipFloor.Copy>();
+        for(int voter:n.voters)copies.add(n.owners.get(voter).floorCopyCurrent());
+        copies.add(joining.floorCopyCurrent());return List.copyOf(copies);
+    }
     private static void probeOldLocks(V53NativeDispatchTest.Network n)throws Exception {
         new V53MembershipOwnershipTest().probe(n.f.request.targets().stream()
                 .map(t->t.replicaDirectory().resolve("replica.lock")).toArray(Path[]::new));
@@ -566,11 +573,12 @@ class V53JoiningIntentExportTest {
     /** One original history: the new voter uses its existing permanent endpoint
      * and retaining cold owner. The native round chooses FINAL and the barrier. */
     private void continueJoint(V53NativeDispatchTest.Network n,MembershipLearnerPlan plan,MembershipResources resources,
-            MembershipReplicaConfig<Integer,Doc> config,long budget,boolean joiningService,V53JoiningTrace trace)throws Exception {
+            MembershipReplicaConfig<Integer,Doc> config,long budget,boolean joiningService,V53JoiningTrace trace,V53JoiningProfile profile)throws Exception {
         long stableIndex=number(n.owners.getFirst().activationContext().cut.get("index"))+2;
         var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
         var events=new ArrayList<Object>();var failures=Collections.synchronizedList(new ArrayList<Object>());
         var result=new TreeMap<String,Object>();result.put("status","FAIL");result.put("publicReady",false);
+        var selections=new ArrayList<Object>();var currentSelected=new java.util.concurrent.atomic.AtomicReference<Set<String>>();
         try(var owner=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,trace.cut("continuation-owner"))) {
             var link=new java.util.concurrent.atomic.AtomicReference<MembershipTransport>();
             MembershipSourcePull.Link outgoing=(peer,request,kind,deadline)->{
@@ -592,24 +600,27 @@ class V53JoiningIntentExportTest {
                     if(event.equals("BEFORE_RESPONSE_WRITE"))wire.add(V53SelectedPullTest.wire(request,response));
                 })) {
                 link.set(transport);if(joiningService){assertEquals(MembershipEndpointHandoff.State.ACTIVE,joined.state());assertNotNull(joined.votingEndpoint());}
-                assertTrue(n.transports.get(2).usage().closed());probeOldLocks(n);
+                for(int i=profile.majority();i<profile.size();i++)assertTrue(n.transports.get(i).usage().closed());probeOldLocks(n);
                 new V53MembershipOwnershipTest().probe(config.replicaDirectory().resolve("replica.lock"));
                 MembershipRoundDriver.Events roundEvents=(event,record)->{
                     n.events.add(Map.of("node","node-1","event","JOINING_ROUND_"+event,"record",record.digest(),
                             "bytes",Base64.getEncoder().encodeToString(record.bytes())));
                     events.add(Map.of("event",event,"bytes",Base64.getEncoder().encodeToString(record.bytes()),"sha256",record.digest()));
                     if(event.equals("INSTALLED")) {
-                        assertEquals(Set.of("node-1","node-2","node-4"),list(record.value().get("sources")).stream()
-                                .map(v->(String)object(v).get("voter")).collect(java.util.stream.Collectors.toSet()));
+                        var selected=profile.selected(n.owners.getFirst().activationContext().view,record);
+                        currentSelected.set(selected);
                         long index=number(object(record.value().get("cut")).get("index"));
-                        for(int i=0;i<2;i++) {
+                        selections.add(Map.of("cut",index,"voters",selected.stream().sorted().toList(),"selection",record.digest()));
+                        for(int i:n.voters)if(selected.contains("node-"+(i+1))) {
                             assertArrayEquals(record.bytes(),n.owners.get(i).originalSelection().orElseThrow().bytes());
                             Files.write(n.f.raw.resolve("continuation-grants-"+index+"-node-"+(i+1)+".gsr"),
                                     AdmissionPaths.read(n.f.request.targets().get(i).replicaDirectory().resolve("grants.gsr"),MembershipGrantJournal.MAXIMUM));
                         }
-                        assertArrayEquals(record.bytes(),owner.originalSelection().orElseThrow().bytes());
-                        Files.write(n.f.raw.resolve("continuation-grants-"+index+"-node-4.gsr"),
-                                AdmissionPaths.read(config.replicaDirectory().resolve("grants.gsr"),MembershipGrantJournal.MAXIMUM));
+                        if(selected.contains(profile.joining())) {
+                            assertArrayEquals(record.bytes(),owner.originalSelection().orElseThrow().bytes());
+                            Files.write(n.f.raw.resolve("continuation-grants-"+index+"-"+profile.joining()+".gsr"),
+                                    AdmissionPaths.read(config.replicaDirectory().resolve("grants.gsr"),MembershipGrantJournal.MAXIMUM));
+                        }
                         try {
                             n.f.snapshot("continuation-installed-"+index);
                             joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-installed-"+index));
@@ -632,16 +643,47 @@ class V53JoiningIntentExportTest {
                     else {assertEquals(MembershipRoundDriver.State.READY,continuation.state());assertArrayEquals(barrier.bytes(),continuation.readiness().bytes());}
                     var context=n.owners.getFirst().activationContext();assertEquals(stableIndex,number(context.cut.get("index")));
                     assertNull(context.view.get("operation"));assertEquals(context.view.get("old"),context.view.get("new"));
-                    assertEquals(Set.of("node-1","node-2","node-3","node-4"),context.voters());
-                    assertEquals(context.cut,n.owners.get(1).activationContext().cut);assertEquals(context.cut,owner.activationContext().cut);
-                    assertEquals(0L,number(n.owners.get(2).activationContext().cut.get("index")));assertTrue(n.transports.get(2).usage().closed());
+                    assertEquals(new HashSet<>(profile.targets()),context.voters());
+                    for(int i:n.voters)if(currentSelected.get().contains("node-"+(i+1)))assertEquals(context.cut,n.owners.get(i).activationContext().cut);
+                    for(int i=profile.majority();i<profile.size();i++) {
+                        assertEquals(0L,number(n.owners.get(i).activationContext().cut.get("index")));assertTrue(n.transports.get(i).usage().closed());
+                    }
                     assertEquals("COMPLETED",object(list(context.catalog.get("results")).getFirst()).get("phase"));
                     owner.peerRetentionState();owner.learnerRetentionState();owner.futureRetentionState();
                     result.put("status","CONTINUED");result.put("cut",context.cut);result.put("catalog",n.owners.getFirst().activationCapsule().terminal().catalog());
-                    result.put("barrier",Base64.getEncoder().encodeToString(barrier.bytes()));result.put("actualNewVoter","node-4");
-                    result.put("offlineOldVoter","node-3");result.put("automaticFinalAndBarrier",true);result.put("coordinatedPreparationAndCompletion",joiningService);
+                    result.put("barrier",Base64.getEncoder().encodeToString(barrier.bytes()));result.put("actualNewVoter",profile.joining());
+                    result.put("offlineOldVoter","node-"+profile.size());result.put("profile",profile.name());result.put("selections",selections);result.put("automaticFinalAndBarrier",true);result.put("coordinatedPreparationAndCompletion",joiningService);
                     probeOldLocks(n);new V53MembershipOwnershipTest().probe(config.replicaDirectory().resolve("replica.lock"));
                 }
+                // A valid overlapping majority may omit the joining voter. Recover
+                // from real remote bytes after the old round has drained; do not
+                // require an extra voter or copy a newer checkpoint into its owner.
+                if(number(owner.activationContext().cut.get("index"))<stableIndex) {
+                    joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-before-final-recovery"));
+                    var guard=owner.activationContext();
+                    boolean adopted;
+                    try(var recovery=new MembershipPrefixRecovery(owner,resources,n.bounds,transport::exchange,()->{},
+                            temp.resolve("joining-final-recovery"),System::nanoTime,System.nanoTime(),budget)) {
+                        adopted=recovery.run().isPresent();
+                    }
+                    // Discovery adopts only a newer authority. A voter already at
+                    // FINAL can acquire the same-view BARRIER by ordinary selected
+                    // installation; this does not publish another workload slot.
+                    boolean installed=false;
+                    if(number(owner.activationContext().cut.get("index"))<stableIndex) {
+                        try(var recovery=new MembershipActivationDriver(owner,joiningService?joined.votingEndpoint():endpoint,resources,n.bounds,
+                                transport::exchange,List.of(),List.of(),temp.resolve("joining-final-installation"),System::nanoTime,budget,2)) {
+                            var selection=recovery.run(System.nanoTime());installed=true;
+                            Files.write(n.f.raw.resolve("joining-final-recovery-selection.gsr"),selection.bytes());
+                        }
+                    }
+                    assertEquals(stableIndex,number(owner.activationContext().cut.get("index")));
+                    Files.write(n.f.raw.resolve("joining-final-recovery.json"),canonical(Map.of("before",guard.cut,"after",owner.activationContext().cut,
+                            "adopted",adopted,"installed",installed,"publicReady",false),8192));
+                    joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-after-final-recovery"));
+                }
+                assertEquals(n.owners.getFirst().activationContext().cut,owner.activationContext().cut);
+                assertEquals(new HashSet<>(profile.targets()),owner.activationContext().voters());
             }
         }catch(Exception|Error error){result.put("status","FAIL");result.put("failure",error.toString());throw error;}
         finally {

@@ -28,6 +28,28 @@ class V53JoiningProfileTest {
         if(profile.kind()==MembershipChangeKind.REPLACE)assertFalse(profile.targets().contains("node-"+profile.size()));
     }
     @TempDir Path temp;
+    @ParameterizedTest
+    @CsvSource({"3-ADD", "4-ADD", "3-REPLACE", "4-REPLACE", "5-REPLACE"})
+    void continuationUsesActualQuorumsAndNeverOfflineOwners(String name) {
+        var p=V53JoiningProfile.parse(name);var old=new ArrayList<String>();
+        for(int i=1;i<=p.size();i++)old.add("node-"+i);
+        var joint=Map.<String,Object>of("old",old,"new",p.targets());
+        var all=new ArrayList<>(p.oldVoters());all.add(p.joining());
+        assertEquals(Set.copyOf(all),p.selected(joint,all));
+        if(p.requiresJoiningAck())assertThrows(IllegalArgumentException.class,()->p.selected(joint,p.oldVoters()));
+        else assertEquals(Set.copyOf(p.oldVoters()),p.selected(joint,p.oldVoters()));
+        var shortOld=new ArrayList<>(all);shortOld.remove("node-2");
+        assertThrows(IllegalArgumentException.class,()->p.selected(joint,shortOld));
+        var offline=new ArrayList<>(all);offline.add("node-"+p.size());Collections.sort(offline);
+        assertThrows(IllegalArgumentException.class,()->p.selected(joint,offline));
+        var duplicate=new ArrayList<>(all);duplicate.add(p.joining());
+        assertThrows(IllegalArgumentException.class,()->p.selected(joint,duplicate));
+        for(int voter:p.liveIndices())assertTrue(p.liveIndices().contains(p.otherOld(voter)) && voter!=p.otherOld(voter));
+        assertThrows(IllegalArgumentException.class,()->p.otherOld(p.size()-1));
+        var stable=Map.<String,Object>of("old",p.targets(),"new",p.targets());
+        var majority=new ArrayList<>(all.subList(0,p.targets().size()/2));majority.add(p.joining());
+        assertEquals(Set.copyOf(majority),p.selected(stable,majority));
+    }
     @Test void pendingSnapshotCopiesOriginalFilesWithoutInventingPlacementCustody()throws Exception {
         var change=new MembershipChangeRequest(V53DeclarationsTest.id(1),V53DeclarationsTest.HASH,MembershipChangeKind.ADD,V53DeclarationsTest.members(4));
         var request=new MembershipLearnerRequest(V53DeclarationsTest.ROOT,V53DeclarationsTest.node(4),change,temp.resolve("replica"),temp.resolve("operation"));

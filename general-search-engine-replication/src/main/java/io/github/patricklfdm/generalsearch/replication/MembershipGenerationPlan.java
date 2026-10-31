@@ -71,6 +71,25 @@ final class MembershipGenerationPlan {
         for(var bridge:bridges){bytes.writeBytes(bridge.statement.bytes());for(var ack:bridge.acknowledgements)bytes.writeBytes(ack.bytes());}
         require(bytes.size()<=96*1024,"generation ancestry bytes");return bytes.toByteArray();
     }
+    record Adoption(MembershipCapsule capsule,List<MembershipSelection.Bridge> bridges) {}
+    /** A newer authority need not carry this owner's older retained grants.
+     * Inherit only its independently verified missing parents, whose original
+     * upper endpoints still occur in the incoming prefix. No RANGE is renewed. */
+    static Adoption adoption(MembershipCapsule incoming,List<MembershipSelection.Bridge> remote,
+            Collection<MembershipCapsule.Anchor> parents,MembershipCapsule local,byte[] localAncestry) {
+        incoming.verifyAncestry(ancestry(remote),List.of());
+        var starts=new HashSet<Map<String,Object>>();
+        remote.forEach(b->starts.add(object(b.statement.value().get("start"))));
+        var needed=new HashSet<Map<String,Object>>();
+        for(var parent:parents)if(incoming.anchor(number(parent.cut().get("index")))==null && !starts.contains(parent.cut()))
+            needed.add(parent.cut());
+        var inherited=local.verifiedAncestry(localAncestry).stream()
+                .filter(b->needed.contains(object(b.statement.value().get("start")))).toList();
+        var combined=new ArrayList<>(remote);combined.addAll(inherited);byte[] bytes=ancestry(combined);
+        var complete=inherited.isEmpty()?incoming:incoming.inheritingAncestry(local,inherited);
+        complete.verifyAncestry(bytes,parents);
+        return new Adoption(complete,List.copyOf(combined));
+    }
     record Installation(MembershipSelection.Decision decision,List<MembershipSelection.Bridge> bridges) {}
     /** Selected-source ancestry decides the vote; existing local ancestry only
      * preserves independently retained parents while installing that exact vote.

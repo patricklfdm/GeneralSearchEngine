@@ -29,4 +29,20 @@ record V53JoiningProfile(int size, MembershipChangeKind kind) {
     boolean requiresJoiningAck() {
         return oldVoters().stream().filter(targets()::contains).count() < targets().size() / 2 + 1;
     }
+    int otherOld(int voter) {
+        if (!liveIndices().contains(voter)) throw new IllegalArgumentException("joining live old voter");
+        return voter == 0 ? 1 : 0;
+    }
+    Set<String> selected(Map<String,Object> view, MembershipFormat.Decoded record) {
+        var voters=MembershipFormat.list(record.value().get("sources")).stream()
+                .map(v->(String)MembershipFormat.object(v).get("voter")).toList();
+        return selected(view,voters);
+    }
+    Set<String> selected(Map<String,Object> view, List<String> voters) {
+        var available=new HashSet<>(oldVoters());available.add(joining());
+        if (!voters.contains("node-1") || !available.containsAll(voters))
+            throw new IllegalArgumentException("joining original available selection");
+        MembershipContext.quorum(view,voters);
+        return Set.copyOf(voters);
+    }
 }

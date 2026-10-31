@@ -3244,7 +3244,8 @@ final class MembershipGrantJournal implements AutoCloseable {
             ancestors.add(futureRetention.state().target());
             futureRetention.state().peers.forEach(peer->ancestors.add(peer.lower()));
         }
-        incoming.verifyAncestry(MembershipGenerationPlan.ancestry(bridges),ancestors);
+        var adoption=MembershipGenerationPlan.adoption(incoming,bridges,ancestors,current.capsule,current.ancestry());
+        incoming=adoption.capsule();bridges=adoption.bridges();
         if(learnerRetention!=null)learnerRetention.state().plan().required(incoming,MembershipGenerationPlan.ancestry(bridges));
         var certificate=incoming.membershipCertificateFence().orElseThrow(()->new IllegalArgumentException("no authenticated membership certificate fence"));
         if(current.adopted && current.capsule.sameProvenPrefix(packet)) {

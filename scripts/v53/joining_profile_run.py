@@ -1,7 +1,8 @@
-"""Run one immutable ADD/REPLACE prefix; preserve failures and minute progress.
+"""Run one immutable ADD/REPLACE history; preserve failures and minute progress.
 
 Each invocation is a fresh whole prefix, without retries or shared lease/history.
-It ends at JOINT, deliberately separate from the existing complete 3-ADD runner.
+The default ends at JOINT; --complete includes FINAL and retaining cold recovery.
+Both remain separate from complete physical/network/process qualification.
 """
 import argparse
 import json
@@ -11,26 +12,32 @@ import sys
 import xml.etree.ElementTree as ET
 from . import joining_history_run as h
 from . import joining_profile_evidence as e
+from . import joining_completion_evidence as complete_reader
 
 METHOD='joiningProfilePublishesOriginalJointCheckpoint'
 TEST=h.CLASS.rsplit('.',1)[-1]+'#'+METHOD
+COMPLETE_METHOD='joiningProfileCompletesFinalAndRetainingColdRecovery'
 
 
-def junit(reports):
+def junit(reports,method=METHOD):
     paths=sorted(reports.glob('TEST-*.xml'));h.need(len(paths)==1,'joining prefix exact test report')
     suite=ET.parse(paths[0]).getroot();cases=suite.findall('testcase')
     h.need(suite.get('name')==h.CLASS and suite.get('tests')=='1' and
            all(suite.get(k)=='0' for k in ('failures','errors','skipped')) and len(cases)==1 and
-           cases[0].get('classname')==h.CLASS and cases[0].get('name')==METHOD and
+           cases[0].get('classname')==h.CLASS and cases[0].get('name')==method and
            not any(cases[0].find(k) is not None for k in ('failure','error','skipped')),'joining prefix exact passing test')
-    return dict(className=h.CLASS,method=METHOD,tests=1,failures=0,errors=0,skipped=0)
+    return dict(className=h.CLASS,method=method,tests=1,failures=0,errors=0,skipped=0)
 
 
-def run(output,maven,profile,*,source_from=None):
+def run(output,maven,profile,*,source_from=None,complete=False):
     e.topology(profile);output=Path(output).absolute()
+    method=COMPLETE_METHOD if complete else METHOD
+    reader=complete_reader if complete else e
+    stage='joining-complete' if complete else 'joining-prefix'
     h.need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),'recorded source execution separation')
     output.mkdir(parents=True,exist_ok=False)
-    receipt=dict(schema='gse-v53-joining-profile-prefix-v1',status='RUNNING',profile=profile,retries=0,
+    receipt=dict(schema='gse-v53-joining-profile-'+('completion' if complete else 'prefix')+'-v1',status='RUNNING',profile=profile,retries=0,
+        completeExecutionRequested=complete,semanticFinalAndColdQualified=False,
         executionStatus='NOT_RUN',semanticChainQualified=False,finalAndColdReopenQualified=False,
         forceAndNetworkQualified=False,phase3Complete=False)
     try:
@@ -41,26 +48,27 @@ def run(output,maven,profile,*,source_from=None):
         h.need(toolchain.returncode==0,'joining prefix toolchain unavailable')
         receipt['toolchainSha256']=h.digest((output/'toolchain.json').read_bytes())
         command=[maven,'-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
-                 '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+TEST,'-Dv53.joining.profile='+profile,'test']
+                 '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+h.CLASS.rsplit('.',1)[-1]+'#'+method,'-Dv53.joining.profile='+profile,'test']
         receipt['command']=command;h.save(output/'receipt.json',receipt)
-        execution=h.execute(command,work,output/'maven.log',stage='joining-prefix-'+profile)
+        execution=h.execute(command,work,output/'maven.log',stage=stage+'-'+profile)
         receipt['execution']=execution;h.save(output/'execution.json',execution);h.check_source(work,source)
         h.need(execution['exit']==0,'joining prefix Maven failed; original retained')
-        receipt['junit']=junit(work/h.MODULE/'target/surefire-reports');receipt['executionStatus']='PASS'
+        receipt['junit']=junit(work/h.MODULE/'target/surefire-reports',method);receipt['executionStatus']='PASS'
         build={name:h.inventory(work/name) for name in ('target/classes',h.MODULE+'/target/classes',h.MODULE+'/target/test-classes')}
         h.save(output/'build.json',build);receipt['buildSha256']=h.digest((output/'build.json').read_bytes())
         roots=sorted((work/h.MODULE/'target/v53-native-dispatch').glob('run-*'))
         h.need(len(roots)==1,'joining prefix exact original history');receipt['raw']=roots[0].relative_to(output).as_posix()
         # Replay uses its frozen reader, never the possibly edited working tree.
-        replay=h.execute([sys.executable,'-B','-m','scripts.v53.joining_profile_evidence',str(roots[0]),'--profile',profile,'--qualify'],
-                         work,output/'replay.json',stage='joining-prefix-replay')
+        replay=h.execute([sys.executable,'-B','-m',reader.__name__,str(roots[0]),'--profile',profile,'--qualify'],
+                         work,output/'replay.json',stage=stage+'-replay')
         receipt['replayExecution']=replay;h.need(replay['exit']==0,'joining prefix replay failed; original retained')
         result=json.loads((output/'replay.json').read_bytes())
         h.need(result['original']['status']=='PASS' and result['original']['profile']==profile and
                result['original']['phase3Complete'] is False and result['original']['finalAndColdReopenQualified'] is False and
-               result['negatives']==[dict(case=k,status='REJECTED',reason=v) for k,v in e.NEGATIVES.items()], 'joining prefix replay scope')
+               result['original'].get('semanticFinalAndColdQualified',False)==complete and
+               result['negatives']==[dict(case=k,status='REJECTED',reason=v) for k,v in reader.NEGATIVES.items()], 'joining prefix replay scope')
         h.check_source(work,source)
-        receipt.update(status='PARTIAL',semanticChainQualified=True,negativeCases=len(result['negatives']),
+        receipt.update(status='PARTIAL',semanticChainQualified=True,semanticFinalAndColdQualified=complete,negativeCases=len(result['negatives']),
                        replaySha256=h.digest((output/'replay.json').read_bytes()))
     except BaseException as error:
         if receipt['executionStatus']=='NOT_RUN':receipt['executionStatus']='FAIL'
@@ -72,5 +80,5 @@ def run(output,maven,profile,*,source_from=None):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('output');p.add_argument('--profile',required=True,choices=e.PROFILES)
-    p.add_argument('--maven',default='mvn');p.add_argument('--source-from');a=p.parse_args()
-    run(a.output,a.maven,a.profile,source_from=a.source_from)
+    p.add_argument('--maven',default='mvn');p.add_argument('--source-from');p.add_argument('--complete',action='store_true');a=p.parse_args()
+    run(a.output,a.maven,a.profile,source_from=a.source_from,complete=a.complete)

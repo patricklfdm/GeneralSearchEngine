@@ -1,0 +1,614 @@
+{
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "bytes": 74151488,
+    "entries": 35536,
+    "failedOriginalVerified": true,
+    "memberHashesVerified": true,
+    "path": "target/v53-joining-profile-completion-20261031/sealed/joining-profile-completion.tar.gz",
+    "phase3Complete": false,
+    "portableReplays": {
+      "3-REPLACE": {
+        "negatives": [
+          {
+            "case": "missing-applied-slot",
+            "reason": "joining complete consecutive applied history",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-published-slot",
+            "reason": "joining complete publication history",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-joining-ack",
+            "reason": "joining retained pending ACK bytes",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-applied-catalog",
+            "reason": "joining independently reduced applied end",
+            "status": "REJECTED"
+          },
+          {
+            "case": "changed-offline-owner",
+            "reason": "joining offline voter changed",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-final-ready",
+            "reason": "joining complete round lifecycle",
+            "status": "REJECTED"
+          },
+          {
+            "case": "final-wrong-binding",
+            "reason": "final binding",
+            "status": "REJECTED"
+          },
+          {
+            "case": "duplicate-accepts",
+            "reason": "quorum identity/order",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-cold-original",
+            "reason": "joining snapshot copied inventory",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "checkpointObservations": 47,
+          "completePhysicalQualified": false,
+          "controls": [
+            "BARRIER",
+            "RESERVE",
+            "BARRIER",
+            "PREPARE",
+            "BARRIER",
+            "READY",
+            "BARRIER",
+            "SEAL",
+            "INTENT",
+            "FINAL",
+            "BARRIER"
+          ],
+          "finalAndColdReopenQualified": false,
+          "forceAndNetworkQualified": false,
+          "internalReadyCuts": [
+            1,
+            3,
+            5,
+            7,
+            11
+          ],
+          "pendingQualification": [
+            "physical states",
+            "force and network",
+            "process death",
+            "frozen mapping"
+          ],
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "3-REPLACE",
+          "publicReady": false,
+          "scope": "native-REPLACE-catalog-certificate-checkpoint-chain",
+          "selections": 6,
+          "semanticChainQualified": true,
+          "semanticFinalAndColdQualified": true,
+          "slots": 11,
+          "status": "PASS"
+        }
+      }
+    },
+    "readerSourceSha256": "3f545f14d362e0ad31160a18ba90279e282ffe799297243ad354ee47be274890",
+    "sha256": "aaf98dbd49db08c6e9853ec17690b75d3b7902e830cdc83c202df41f61b51041",
+    "sourceAndBuildVerified": true,
+    "status": "PASS",
+    "workloadsRerun": false
+  },
+  "baseHead": "0fbe629b8e9af1050c3f5bc5eb17a665e4a0f209",
+  "baselineRetirement": {
+    "correction": "assert exact original bytes for carried and covered tails; add three missing-object rejection fixtures",
+    "path": "target/v53-joining-profile-completion-20261031/baseline-retirement",
+    "productionRetirementChanged": false,
+    "reason": "obsolete assertion expected deletion refusal despite original covered-tail objects retained by installation",
+    "sourceSha256": "8f0ca875c8a545bc0e895f6599f8ead64a33ae67794bd53c764e53915e555a83",
+    "status": "REPRODUCED_ON_UNCHANGED_PARENT"
+  },
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "518adcf66b5f2e7e54a35590474873ff487cf63c66437186d8212ca0b62915c5",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "f6e6011e96a376a3a5850268a7417091c58dbf5945c12ed42850d7dc2776864f",
+    "docs/v5x/v5.3/PHASE_3_JOINING_PROFILE_COMPLETION.md": "9fd50859c95291b82ca4a11abc5e5f821e23a0d971eae33042010c3bc7dff70e",
+    "docs/v5x/v5.3/README.md": "0ba3a3e34080946b37b8f72139512bc0ea7466218344e167d601ca4e458c4b2d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java": "b8e38b482ff410afc605e7015c5f7fe430da3df3c05a2e1acc3ae2b2bce9995d",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "94934e758430bc7fada929c6e35543c4ce61b79ce41843148220630c540459f7",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdoptionAncestryPlanTest.java": "f6df9946abe580eb79fcfed4713cc2f1b25eb7831285803891c329e902ba2989",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53AdoptionAncestryTest.java": "6d8c303266aff7bf025441139dae0937f5235e06a3b9a0a4ffbb5a10afa3e713",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "aedca6f9e77f217f7464345a956bbf136183cefde698d07e22cd427882364f1f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningProfile.java": "949e464aada9b2a98060ed90673bfb591e976bfb40a324fa2317e6790dd398aa",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningProfileTest.java": "66b7a1675159bb8b089077225f0f3f85fb8bde8b1231de8a4115ff72916ffce2",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementTailTest.java": "487a084720f0053f952f7cc5314b417b11b48798fe05739c942b83586d7bec7c",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementTest.java": "a64f835c94c630e18dc072c10a297a02e86ee7f2463e1034338c70534690692c",
+    "scripts/v53/joining_catalog_evidence.py": "07653a174af289f6d74bb72f49d1ccfc0fa5f3707248c8b22e6e82dae8945211",
+    "scripts/v53/joining_completion_evidence.py": "f16181fcbc8b64422b4f77464f43067154dfaffd1a37e6e0637a479ff61968f2",
+    "scripts/v53/joining_profile_run.py": "3f755b2f6454b6c59cdd250dcd2f4f4057e604ccc6bf2907dcb5c0882288941f",
+    "scripts/v53/test_joining_completion_evidence.py": "b5d68ea4c3ce680b45e1312a50b585a6ba811e74a0b190fc280552ec25f1a349"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1879,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "failedNativeOriginal": {
+    "continuation": {
+      "actualNewVoter": "node-4",
+      "automaticFinalAndBarrier": true,
+      "barrier": "R1NSUAABAAMAGgAAAAAEgTvofxNlP/1JAJx1u30/BTL3uv8db0HCOLQ8uGEn7wFpeyJiYWxsb3QiOnsiY291bnRlciI6OSwiaW5jYXJuYXRpb24iOiIwMDAwMDAwMC0wMDAwLTAwMDUtMDAwMC0wMDAwMDAwMDAwMDEiLCJwcm9wb3NlciI6Im5vZGUtMSJ9LCJwYXlsb2FkIjp7ImNlcnRpZmljYXRlIjoiOTg4ZTQ4MzFjZGY1NjMxZDk3ZmVjODA1ODdmNTE5ODMwMDEyNjkxNGJmOWU0ZmRmNjE1YTk5OWNjZjU5ZDA1MyIsImdlbmVyYXRpb24iOiI3YTIxYmZhYmE2OWNkNzAwYWViNjdjMzU5YWUzYzU2N2QzNzY1ZGE3MWQ4ZTY4YTc0ZmZhNGFjZTk4YzIwY2IxIiwicHVibGlzaGVkIjp7ImFwcGxpY2F0aW9uIjoiOGQyNzM4OGEyMGVhNjBhY2I4OTJiOTYxMDM5ZTA2Y2RmMmY5Y2VmYzQxODYzOGM1NTY3NDM4NTFkZjIwMDI3NiIsImNhdGFsb2ciOiJhOTI4NDlmYjZkZjhjYWZjNGQyZTk5Nzg1NDdjNTM5MTk5ZDhkYzI1Yzc5NzYzZWJkNjk3MDAzNzMyNzIwMmZhIiwiY3V0Ijp7ImVudHJ5IjoiNWQ2ZTM2ODM4YmI1Njc4YjQ4NzQwNDhkNjYzNGY2MzU1OTIzZWRhZThjOWQzZDljZmI1NDA4MGY4OThjMmU3MyIsImluZGV4IjoxMSwidmlldyI6eyJnZW5lcmF0aW9uIjoxLCJuZXciOlsibm9kZS0xIiwibm9kZS0yIiwibm9kZS00Il0sIm9sZCI6WyJub2RlLTEiLCJub2RlLTIiLCJub2RlLTQiXSwib3BlcmF0aW9uIjpudWxsfX19LCJzZWxlY3Rpb24iOiI5MGIwNTdkNTY1ZDJlZmYxMzNkNTA4MDlkYWM5ZThmYmUwZWVhZjMyZDE2ZjhlMWM0MDg5OGM3MzIwYTNhMDAwIn0sInJlY2lwaWVudCI6eyJob3N0IjoiMTI3LjAuMC4xIiwibm9kZSI6Im5vZGUtMSIsInBvcnQiOjM1NDM1LCJzdG9yYWdlIjoiMDAwMDAwMDAtMDAwMC0wMDA1LTAwMDAtMDAwMDAwMDAwMDAxIn0sInJvb3QiOiI1MjMxYTFiMzJlZDVmMDgzNmJkYWJlN2YzOGNkNThhNTg4YWI5OGQ0NzU2ZDc4OTdhZjNhYjY2NzcyYTA2OTBiIiwic2VuZGVyIjp7Imhvc3QiOiIxMjcuMC4wLjEiLCJub2RlIjoibm9kZS0xIiwicG9ydCI6MzU0MzUsInN0b3JhZ2UiOiIwMDAwMDAwMC0wMDAwLTAwMDUtMDAwMC0wMDAwMDAwMDAwMDEifSwic2VxdWVuY2UiOjEsInRyYWNlIjoiODIyY2MwMTEtMDgzMy00MjE3LTkzNzItNjI0YTM2ZTI0YjRiIiwidmlldyI6IjZhODA0NmQ1YzE1YWZhZGExZTI4N2EwNjIyYWQ4ODdhYmVkMjAzNjE3NjE2OWM0MjlmYTA2MDA1NTgxZTg2MTkifQ==",
+      "catalog": "a92849fb6df8cafc4d2e9978547c539199d8dc25c79763ebd6970037327202fa",
+      "coordinatedPreparationAndCompletion": true,
+      "cut": {
+        "entry": "5d6e36838bb5678b4874048d6634f6355923edae8c9d3d9cfb54080f898c2e73",
+        "index": 11,
+        "view": {
+          "generation": 1,
+          "new": [
+            "node-1",
+            "node-2",
+            "node-4"
+          ],
+          "old": [
+            "node-1",
+            "node-2",
+            "node-4"
+          ],
+          "operation": null
+        }
+      },
+      "failure": "java.lang.IllegalArgumentException: generation did not preserve original proven parent",
+      "offlineOldVoter": "node-3",
+      "profile": "3-REPLACE",
+      "publicReady": false,
+      "selections": [
+        {
+          "cut": 9,
+          "selection": "63db4c8df7df3065b35e2d95fc7c4d24e81b31dbac48c828c13caf71e1952da8",
+          "voters": [
+            "node-1",
+            "node-2"
+          ]
+        },
+        {
+          "cut": 10,
+          "selection": "90b057d565d2eff133d50809dac9e8fbe0eeaf32d16f8e1c40898c7320a3a000",
+          "voters": [
+            "node-1",
+            "node-2"
+          ]
+        }
+      ],
+      "status": "FAIL"
+    },
+    "neverResumed": true,
+    "path": "target/v53-joining-completion/complete-3-replace",
+    "raw": "target/v53-joining-completion/complete-3-replace/workspace/general-search-engine-replication/target/v53-native-dispatch/run-3a1caf1b-1fbd-4189-b1c9-552eada49097",
+    "rawInventory": {
+      "bytes": 26391887,
+      "files": 3891,
+      "sha256": "4bdf68a4810f54e8e6f5ab9e398c39294a9670cf56ab87010fa650ea05d97cd4"
+    },
+    "receiptSha256": "4f8d80ec47a87bc59ed7de9d6af2e7a919a8909feb75f72471407208896908af",
+    "retainedIndex": {
+      "path": "target/v53-joining-profile-completion-20261031/original-failure.json",
+      "sha256": "88bf4079a35b9e8f40bb0b5aef7c529b0f0ffd569cc509f69ecac5670fe5300e"
+    },
+    "sourceSha256": "156b18bf7c02e2b5a84a4a4d2035985cd175ff2816984cc1bdfb0ef1609e2ac6",
+    "status": "FAIL"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "nativeExecution": {
+    "elapsedSeconds": 701.439,
+    "junitSha256": "b2c6e8bee0db7dc5b79033025a31d9dfe4d6613d7694c1f195cbf69f4c66f1e0",
+    "path": "target/v53-joining-profile-completion-20261031/corrected-3-replace",
+    "receipt": {
+      "baseHead": "0fbe629b8e9af1050c3f5bc5eb17a665e4a0f209",
+      "buildSha256": "4eadadabf4e6d5d7600a7d7e583133bebfbb8d65f14a849255be92dad96f387c",
+      "command": [
+        "/opt/maven/bin/mvn",
+        "-o",
+        "-B",
+        "-ntp",
+        "-f",
+        "reactor/pom.xml",
+        "-pl",
+        "../general-search-engine-replication",
+        "-am",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "-Dtest=V53JoiningIntentExportTest#joiningProfileCompletesFinalAndRetainingColdRecovery",
+        "-Dv53.joining.profile=3-REPLACE",
+        "test"
+      ],
+      "completeExecutionRequested": true,
+      "execution": {
+        "elapsedSeconds": 704.872,
+        "exit": 0
+      },
+      "executionStatus": "PASS",
+      "finalAndColdReopenQualified": false,
+      "forceAndNetworkQualified": false,
+      "junit": {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest",
+        "errors": 0,
+        "failures": 0,
+        "method": "joiningProfileCompletesFinalAndRetainingColdRecovery",
+        "skipped": 0,
+        "tests": 1
+      },
+      "negativeCases": 9,
+      "phase3Complete": false,
+      "profile": "3-REPLACE",
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-2a7ce2ac-88c0-4566-8a12-58f1cbe77fcd",
+      "replayExecution": {
+        "elapsedSeconds": 8.98,
+        "exit": 0
+      },
+      "replaySha256": "69b4a4c906d60e8cf7933a31832b291f5671c0cd63d08b8f3bfaf7376dc197ac",
+      "retries": 0,
+      "schema": "gse-v53-joining-profile-completion-v1",
+      "semanticChainQualified": true,
+      "semanticFinalAndColdQualified": true,
+      "sourceSha256": "a91a1be2836f71cfe8a9dcab53c70c21e9f7775bd56e2e1cf34b3c07c7cfc766",
+      "status": "PARTIAL",
+      "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+    },
+    "receiptSha256": "be0b18095e0746ee9a42691a9e553315676e9193464ddd47fdf22fc81392f038"
+  },
+  "paidCloud": false,
+  "pendingCompleteNativeProfiles": [
+    "3-ADD",
+    "4-ADD",
+    "4-REPLACE",
+    "5-REPLACE"
+  ],
+  "phase3Complete": false,
+  "priorOriginalReplay": {
+    "buildSha256": "dfd5d7f6e556c2904c2f5608ecea5dd53dfa52312c3a5fbc597dc58ba051332a",
+    "catalog": {
+      "negatives": [
+        {
+          "case": "missing-applied-slot",
+          "reason": "joining complete consecutive applied history",
+          "status": "REJECTED"
+        },
+        {
+          "case": "entry-parent",
+          "reason": "joining original governing entry",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proof-receipt",
+          "reason": "joining original phased receipt",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-accepts",
+          "reason": "quorum identity/order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "learner-votes-before-intent",
+          "reason": "quorum identity/order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "joint-old-majority-only",
+          "reason": "both governing majorities",
+          "status": "REJECTED"
+        },
+        {
+          "case": "ready-wrong-revision",
+          "reason": "ready exact prepared identity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-wrong-binding",
+          "reason": "final binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-applied-catalog",
+          "reason": "joining independently reduced applied end",
+          "status": "REJECTED"
+        },
+        {
+          "case": "joint-checkpoint-old-majority-only",
+          "reason": "both governing majorities",
+          "status": "REJECTED"
+        },
+        {
+          "case": "hidden-membership-boundary",
+          "reason": "joining capsule membership coverage",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-checkpoint-ack",
+          "reason": "quorum identity/order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "offline-voter-changed",
+          "reason": "joining offline voter changed",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-final-ready",
+          "reason": "joining complete round lifecycle",
+          "status": "REJECTED"
+        },
+        {
+          "case": "ready-before-barrier",
+          "reason": "joining readiness before stable barrier",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "checkpointObservations": 49,
+        "completePhysicalQualified": false,
+        "controls": [
+          "BARRIER",
+          "RESERVE",
+          "BARRIER",
+          "PREPARE",
+          "BARRIER",
+          "READY",
+          "BARRIER",
+          "SEAL",
+          "INTENT",
+          "FINAL",
+          "BARRIER"
+        ],
+        "forceAndNetworkQualified": false,
+        "internalReadyCuts": [
+          1,
+          3,
+          5,
+          7,
+          11
+        ],
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "3-ADD",
+        "publicReady": false,
+        "scope": "native-ADD-catalog-certificate-checkpoint-chain",
+        "selections": 6,
+        "semanticChainQualified": true,
+        "slots": 11,
+        "status": "PASS"
+      }
+    },
+    "completion": {
+      "negatives": [
+        {
+          "case": "missing-applied-slot",
+          "reason": "joining complete consecutive applied history",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-published-slot",
+          "reason": "joining complete publication history",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-joining-ack",
+          "reason": "joining retained pending ACK bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-applied-catalog",
+          "reason": "joining independently reduced applied end",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-offline-owner",
+          "reason": "joining offline voter changed",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-final-ready",
+          "reason": "joining complete round lifecycle",
+          "status": "REJECTED"
+        },
+        {
+          "case": "final-wrong-binding",
+          "reason": "final binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-accepts",
+          "reason": "quorum identity/order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-cold-original",
+          "reason": "joining snapshot copied inventory",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "checkpointObservations": 49,
+        "completePhysicalQualified": false,
+        "controls": [
+          "BARRIER",
+          "RESERVE",
+          "BARRIER",
+          "PREPARE",
+          "BARRIER",
+          "READY",
+          "BARRIER",
+          "SEAL",
+          "INTENT",
+          "FINAL",
+          "BARRIER"
+        ],
+        "finalAndColdReopenQualified": false,
+        "forceAndNetworkQualified": false,
+        "internalReadyCuts": [
+          1,
+          3,
+          5,
+          7,
+          11
+        ],
+        "pendingQualification": [
+          "physical states",
+          "force and network",
+          "process death",
+          "frozen mapping"
+        ],
+        "phase3Complete": false,
+        "processDeathQualified": false,
+        "profile": "3-ADD",
+        "publicReady": false,
+        "scope": "native-ADD-catalog-certificate-checkpoint-chain",
+        "selections": 6,
+        "semanticChainQualified": true,
+        "semanticFinalAndColdQualified": true,
+        "slots": 11,
+        "status": "PASS"
+      }
+    },
+    "originalProducer": "target/v53-joining-fault-matrix/chunk",
+    "sourceSha256": "2415c6ab384332c59f6ca74cf7850e148eed5ffd7d220aca29aabeb2670ec10c"
+  },
+  "processDeathQualified": false,
+  "producerReaderSourceDifferences": [
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md",
+    "docs/v5x/v5.3/PHASE_3_JOINING_PROFILE_COMPLETION.md",
+    "docs/v5x/v5.3/README.md",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementTailTest.java",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RetirementTest.java"
+  ],
+  "productionChanged": true,
+  "protectedInputs": {
+    "count": 705,
+    "intentionalProductionChanges": {
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationPlan.java": {
+        "after": "b8e38b482ff410afc605e7015c5f7fe430da3df3c05a2e1acc3ae2b2bce9995d",
+        "before": "67ab7b2d94efb244d1103532e90840d3279d171a1435c93d5857caec42231f08"
+      },
+      "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": {
+        "after": "94934e758430bc7fada929c6e35543c4ce61b79ce41843148220630c540459f7",
+        "before": "0a236cb7a5f62d9dc249f778ea9748bfdcbb6cb9d67b24d95de8e2e54a403b57"
+      }
+    },
+    "remainingInputsUnchanged": true,
+    "retainedIndex": {
+      "path": "target/v53-joining-profile-completion-20261031/protected-inputs-after.json",
+      "sha256": "4ee01c09f66dec33aaa914ef00235272ce53f104658e44cdfb896198d18e3e0d"
+    },
+    "status": "PASS"
+  },
+  "remaining": [
+    "whole current-source joining profile cohort",
+    "profile physical and force/network derivation including unselected recovery",
+    "full fault/process composition",
+    "two REMOVE profiles",
+    "unchanged frozen S/N mapping"
+  ],
+  "sandboxRun": {
+    "permittedTcpRerun": "PASS",
+    "reason": "six earlier local-port cases returned Socket Operation not permitted",
+    "retainedLog": "target/v53-joining-profile-completion-20261031/java-regressions.log",
+    "status": "ENVIRONMENT_FAILURE"
+  },
+  "schema": "gse-v53-joining-profile-completion-batch-v1",
+  "scope": "five-profile complete producer, local-ancestry adoption correction and original semantic replay; one corrected local REPLACE execution",
+  "sourceNote": "The immutable complete producer includes the corrected adoption runtime. Later changes affect only documentation and the separate retirement regression fixtures; production code, native producer and semantic reader match. Source/build identities and failed originals are retained separately. The full current-source profile cohort and physical/network/process qualification remain deferred.",
+  "status": "PARTIAL",
+  "tests": {
+    "adoptionRegressionsFailBeforePassAfter": 3,
+    "correctedCompleteNativeHistories": 1,
+    "focusedJava": {
+      "reports": [
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53AdoptionAncestryTest",
+          "sha256": "718a546e0df419b5385440d0bdfe90094f4dbe1a2f9a8627a3ee94aeb63de9f6",
+          "tests": 3
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53AdoptionAncestryPlanTest",
+          "sha256": "fd78e7c89edaab6b3de04455ef64c3fb103b2ecdbcfe537c326a5b51643dbb24",
+          "tests": 6
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53AdoptionInstallTest",
+          "sha256": "03f99abab89158e0cd29003c49b7b3e813ebbbbf459bd530028a3845f38f3245",
+          "tests": 11
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53VerifiedAdoptionTest",
+          "sha256": "0e1b4434c7215569fc838781c4d86743ed397193ea72fe56e74b0f32e54a32ec",
+          "tests": 4
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53VerifiedAncestryTest",
+          "sha256": "ae83ef699506724d90fa6f1b762a7b584b5e18169bad8b59ffa1bca9947e56fc",
+          "tests": 6
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53InstallationAncestryTest",
+          "sha256": "57fc27d0008356876c2cbad1f75dc1f4e0a8fbcf8751cbb1435987a5b1893e1e",
+          "tests": 5
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53PrefixRecoveryTest",
+          "sha256": "c017568ef27f0030bcfa20874a729ef901f99198560d2e957efd586a5b713e0a",
+          "tests": 11
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53RetirementTest",
+          "sha256": "ec8a636a343430d3e1c51326c202166e14c9bdf010ddf1ac4281c072e7d51f09",
+          "tests": 11
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53RetirementTailTest",
+          "sha256": "5a46c0ef2e4d4739e5caaf51cecebe687c328b93801b6cd0ffe50ed27898806f",
+          "tests": 3
+        },
+        {
+          "className": "io.github.patricklfdm.generalsearch.replication.V53JoiningProfileTest",
+          "sha256": "69339658950b8757e81040b3fcca2174698a823711661c47380de40dead8813d",
+          "tests": 12
+        }
+      ],
+      "scope": "focused class receipts across named runs; full reactor not executed",
+      "status": "PASS",
+      "tests": 72
+    },
+    "joiningPython": 343,
+    "newAdoptionNegatives": 6,
+    "newJavaProfileCases": 5,
+    "newPython": 6,
+    "newRetirementMissingObjectCases": 3,
+    "portableNegatives": 9,
+    "priorCatalogNegatives": 15,
+    "priorCompletionNegatives": 9
+  },
+  "validationLogs": {
+    "adoption-after.log": "84b779791feba51de550c5dbb80bd8cc2ec5d971e63fd1c1c278149ac9ff9563",
+    "adoption-before.log": "6a290d6f9e61d53793fabde3022a86bb3616f19fc9d1dacb2338b85743070883",
+    "adoption-negatives.log": "653de33f045ab8fa42b2d061c3776893120631ee07c4eee2ab2034040a694371",
+    "baseline-retirement.log": "0b54a90dda92606d4cc16b64eba95d3aa1aa00c58bb418975a76e84a873d1795",
+    "python-after-fix.log": "57944d6f0b2b9d0ad83e463297bc2a715d8e6364afd3d2e7d6683f5be441a1cf",
+    "recovery-retirement-after.log": "6e32105afe3cfc180fc8c5ce3793e74e9bbb9d8615f060bf884ded7e568a5b8e",
+    "retirement-current.log": "4189bce3426e1e39afa405d38e79a586f7da34d9d1f76f8c0bf7d05aae702520"
+  },
+  "workflowsDispatched": false
+}

@@ -117,7 +117,7 @@ class V53RetirementTest {
         }
         try(var store=open(path,resources(),e->{})){assertFalse(store.retireInactive().isPresent());assertNotNull(store.floorCopyCurrent());}
     }
-    @Test void aboveFloorOwnedTailRequiresItsExactActiveCopy()throws Exception {
+    @Test void installationPreservesAboveFloorBytesForBothCarriedAndCoveredTails()throws Exception {
         for(boolean preserve:List.of(false,true)) {
             Path path=temp.resolve("tail-"+preserve);var initial=new V53CurrentGenerationFixture(3,0,true);initial.provision(path);
             var fixture=new V53GenerationInstallFixture(3,0,preserve?0:1,true);var peer=new V53FloorTest().copy(temp.resolve("peer-"+preserve),3,0,2);
@@ -125,13 +125,14 @@ class V53RetirementTest {
                 store.establishFloor(List.of(store.floorCopyCurrent(),peer));store.prepareCurrent(initial.fixture.source.ballot(20));
                 var offers=List.of(store.originalSource(),fixture.remote(2,20,false));store.selectCurrent(offers,List.of());
                 store.installCurrent(offers,List.of(),fixture.images());byte[] tail=Files.readAllBytes(path.resolve("generations/a/owned-tail.gsr"));
-                if(preserve) {
-                    assertTrue(store.retireInactive().isPresent());assertArrayEquals(tail,Files.readAllBytes(path.resolve("generations/b/owned-tail.gsr")));
-                    assertFalse(Files.exists(path.resolve("generations/a")));
-                }else {
-                    assertThrows(IllegalArgumentException.class,store::retireInactive);assertArrayEquals(tail,Files.readAllBytes(path.resolve("generations/a/owned-tail.gsr")));
-                    assertFalse(Files.exists(path.resolve("retirement")));
-                }
+                var current=store.floorCopyCurrent();var accept=decode(tail,"records","ACCEPT");
+                var entry=decode(initial.admitted.packet.objectBytes((String)accept.value().get("entry")),"records","ENTRY");
+                for(String hash:List.of(accept.digest(),entry.digest(),(String)entry.value().get("payload")))
+                    assertArrayEquals(initial.admitted.packet.objectBytes(hash),current.capsule.packet.objectBytes(hash));
+                assertEquals(preserve,store.currentOwnedTail().isPresent());
+                assertTrue(store.retireInactive().isPresent());
+                if(preserve)assertArrayEquals(tail,Files.readAllBytes(path.resolve("generations/b/owned-tail.gsr")));
+                assertFalse(Files.exists(path.resolve("generations/a")));assertFalse(Files.exists(path.resolve("retirement")));
             }
         }
     }
