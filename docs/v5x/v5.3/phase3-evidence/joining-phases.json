@@ -1,0 +1,218 @@
+{
+  "archive": {
+    "bytes": 10051992,
+    "files": 4280,
+    "memberHashesVerified": true,
+    "originalRawArchive": "target/v53-joining-catalog/joining-catalog-history.tar.gz",
+    "originalRawArchiveSha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f",
+    "path": "target/v53-joining-network/joining-phase-replay.tar.gz",
+    "sha256": "f221e38b5b90ccbbb3829783bff36c49a77e785ee680f911afca2da1f5cb7111"
+  },
+  "changedSources": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "7cee922606584b1fed0aa161c41b1a43531e5e5da63c9cdc05db2941217db6cc",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTrace.java": "7f71d6fcd738acdd13a6624226ea79e5403bb6e532e876eae8bf1279f58f0a4f",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTraceTest.java": "941f0337330854bc1f96c3eb65061ae43c122fbe03cd2d96e6d5e3060b32e7a6",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "fa49ea7f2328f9f13fd38fd3ae99dd4bfba4de54ff4bef631a7cef87a24ea19f",
+    "scripts/v53/joining_phase_evidence.py": "8e18ec3df565b8e989e6213bffae895338b348ec10ba2b1290ed56bbfaf5b160",
+    "scripts/v53/test_joining_phase_evidence.py": "c3d1c6afc5a31f5d665623c613441edf5452e3d035403164349ddc313c85f23e"
+  },
+  "completePhysicalQualified": false,
+  "contract": {
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1769,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "daceabc35e6e488d8c67f61847b83b592c7b44ff6fc68d930bbbc30c2cb129b7"
+  },
+  "forceAndNetworkQualified": false,
+  "freshWholeExecutionForChangedFixture": "PENDING",
+  "java": {
+    "logSha256": "31ee510bb1e7d72d730db530e979896c25e66e6a886772a0398ec9ad87d4b292",
+    "status": "PASS",
+    "tests": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "name": "V53JoiningTraceTest",
+        "skipped": 0,
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "name": "V53EvidenceArrayTest",
+        "skipped": 0,
+        "tests": 4
+      }
+    ]
+  },
+  "limitations": [
+    "The existing df22c398 original qualifies the declared slot-force/ACK and future-proof promotion scope only.",
+    "The original producer lacks complete old-owner send/arrival callbacks; those observations cannot be reconstructed from responses.",
+    "The current test-only observation extension requires its own complete original execution, deferred until the full reader is ready.",
+    "Activation/source-transfer causality, all attempts, complete physical ownership/generation/reclamation, process cuts and all seven profiles remain open."
+  ],
+  "originalProducerReceipt": "target/v53-joining-history/original-df22c398/receipt.json",
+  "originalProducerReceiptSha256": "c252348418035ec86bbd440f1041ef228f90d35ccf09d5188a04b0750748fffc",
+  "originalProducerSource": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+  "phase3Complete": false,
+  "portableReplay": {
+    "elapsedSeconds": 5.438,
+    "originalResultIdentical": true,
+    "producerArchiveSha256": "ac696a02117a552a2e8282cee5c11433011af189b3b73ad826d8e75c8ede5b9f",
+    "rawInventoryUnchanged": true,
+    "sourceSha256": "f2a3cfb2201839ce20c4746e2367557d3f07237428eca5311abf9b37201f8624",
+    "status": "PASS"
+  },
+  "priorDevelopmentFailuresRetained": [
+    {
+      "path": "target/v53-joining-network/java.log",
+      "reason": "New unit test initially omitted its checked-exception declaration; fixed before passing Java validation."
+    },
+    {
+      "path": "target/v53-joining-network/qualification-final.log",
+      "reason": "Initial stronger reader expected a standalone future BEFORE_RETURN callback during publication clearing; corrected to the actual clearing API, retaining file/rename/parent force checks."
+    }
+  ],
+  "processDeathQualified": false,
+  "productionJavaChanged": false,
+  "python": {
+    "failures": 0,
+    "logSha256": "9bb310f6dca1af14b33ae22cfd88f8c250d9ff9d3f57699e6512740b0a3fa20c",
+    "newTests": 14,
+    "status": "PASS",
+    "tests": 90
+  },
+  "readerBaseHead": "164a60c9016a1e899578d4237ad3033d7c8663c3",
+  "readerSha256": "8e18ec3df565b8e989e6213bffae895338b348ec10ba2b1290ed56bbfaf5b160",
+  "readerSourceSha256": "f2a3cfb2201839ce20c4746e2367557d3f07237428eca5311abf9b37201f8624",
+  "replay": {
+    "elapsedSeconds": 103.06,
+    "negatives": [
+      {
+        "case": "accept-force-missing",
+        "reason": "joining exact slot force order: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proof-parent-force-missing",
+        "reason": "joining exact slot force order: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "apply-ack-force-missing",
+        "reason": "joining exact slot force order: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "apply-metadata-force-missing",
+        "reason": "joining applied metadata force sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publication-before-retirement",
+        "reason": "joining exact slot force order: node-2",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joining-owner-force-missing",
+        "reason": "joining exact slot force order: node-4",
+        "status": "REJECTED"
+      },
+      {
+        "case": "joining-wrong-owner-lifetime",
+        "reason": "joining force owner lifetime",
+        "status": "REJECTED"
+      },
+      {
+        "case": "duplicate-delivery",
+        "reason": "joining delivery without original response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-wire-response",
+        "reason": "joining unmatched original response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-response-event",
+        "reason": "joining missing original response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "accept-ack-before-force",
+        "reason": "joining force before delivered phase ACK",
+        "status": "REJECTED"
+      },
+      {
+        "case": "publish-before-future-delivery",
+        "reason": "joining publication before delivered future quorum",
+        "status": "REJECTED"
+      },
+      {
+        "case": "future-parent-force-missing",
+        "reason": "joining future write/force/rename sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "future-file-force-missing",
+        "reason": "joining future write/force/rename sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "generation-parent-force-missing",
+        "reason": "joining published generation force sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "future-promotion-bytes",
+        "reason": "joining exact future proof promotion",
+        "status": "REJECTED"
+      },
+      {
+        "case": "future-ack-wrong-digest",
+        "reason": "joining original phase ACK",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "boundPhaseResponses": 71,
+      "completePhysicalQualified": false,
+      "deliveredResponses": 2208,
+      "forceAndNetworkQualified": false,
+      "futureTargets": 13,
+      "ownedSlotTransactions": 24,
+      "phase3Complete": false,
+      "processDeathQualified": false,
+      "scope": "native-ADD-forced-slot-phases-and-delivered-ACKs",
+      "slots": 11,
+      "status": "PASS",
+      "wireResponses": 2211
+    },
+    "readerSha256": "8e18ec3df565b8e989e6213bffae895338b348ec10ba2b1290ed56bbfaf5b160"
+  },
+  "replaySha256": "df8888a428ecf698fcd592add3e1aa68b87aa749241a47e3049eb40b5460f194",
+  "schema": "gse-v53-phase3-joining-phases-v1",
+  "sourceDelta": {
+    "changedJava": [
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTrace.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningTraceTest.java",
+      "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java"
+    ],
+    "frozenInputsChanged": false,
+    "pomChanged": false,
+    "producerHead": "df22c3987ab7f1e6af47fae83bc2e1becc51bf35",
+    "productionJavaChanged": false,
+    "protectedCount": 319,
+    "readerBaseHead": "164a60c9016a1e899578d4237ad3033d7c8663c3",
+    "status": "PASS"
+  },
+  "status": "PARTIAL"
+}

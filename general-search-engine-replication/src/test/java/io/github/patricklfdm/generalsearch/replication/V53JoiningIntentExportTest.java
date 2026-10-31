@@ -138,6 +138,9 @@ class V53JoiningIntentExportTest {
         try(var n=network.new Network(3,helper.controlBounds(),lifetime,f->{
             for(var target:f.request.targets())try(var owner=f.open(target,"initialize-learners")){owner.initializeLearnerRetention();}
         },true);var round=helper.driver(n,MembershipRoundDriver.Events.NONE,lifetime)) {
+            // Preserve original attempts and receives for full causal replay.
+            // Older fixture families retain their existing trace vocabulary.
+            n.observeRequests=earlyStartup;
             // The short Network.activate helper fixes a 180-second campaign.
             // This complete typed-learner history uses one declared
             // owner lifetime from its start, without extending any RPC timeout.

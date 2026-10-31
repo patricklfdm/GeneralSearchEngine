@@ -26,6 +26,11 @@ chain](PHASE_3_JOINING_CATALOG_REPLAY.md) now pass one native `3-ADD` history an
 15 semantic negatives, alongside 15 ledger negatives. Complete physical/force/
 network replay and all profiles remain open; Phase 3 is **OPEN**.
 
+[Joining slot force/ACK replay](PHASE_3_JOINING_PHASE_REPLAY.md) now checks all
+eleven slots, 24 owned transactions and 13 future-retention targets against the
+same original history. Complete request-attempt observations are added to the
+test fixture for its next execution; the old history cannot supply missing sends.
+
 [Three-owner automatic-history replay](PHASE_3_COMPETING_REPLAY.md) independently
 reconstructs the retained clean competition, its final files, all original sends
 and responses, heartbeat contact and publication dependencies. This one history

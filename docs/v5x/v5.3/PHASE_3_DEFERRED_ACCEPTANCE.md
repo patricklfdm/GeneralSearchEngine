@@ -1,5 +1,13 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining slot force/ACK replay](PHASE_3_JOINING_PHASE_REPLAY.md) qualifies the
+eleven-slot force/response boundary on the existing `df22c398` original. For full
+network causality, execute the updated early-start fixture once with complete
+old-node send/arrival observations, then independently replay that whole new
+history. The current pass does not stand in for that execution. Do not stitch
+the old responses to new request observations; complete physical state and
+activation/transfer causality remain separate requirements.
+
 [Complete joining execution and catalog replay](PHASE_3_JOINING_CATALOG_REPLAY.md)
 now retain one successful whole `3-ADD` history on `df22c398`, including all global
 events and stage snapshots. Its independent catalog/certificate/checkpoint and

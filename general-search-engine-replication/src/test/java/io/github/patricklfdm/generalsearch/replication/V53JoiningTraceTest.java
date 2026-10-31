@@ -7,6 +7,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static io.github.patricklfdm.generalsearch.replication.V53ActivationTest.response;
 
 class V53JoiningTraceTest {
+    @Test void oldRequestObservationsKeepUnansweredAttemptsWithoutInventingResponses()throws Exception {
+        var events=new ArrayList<Map<String,Object>>();var request=V53MembershipWireTest.sample("PREPARE");
+        for(int attempt=0;attempt<2;attempt++)V53JoiningTrace.requestObservation(events,"node-1","BEFORE_REQUEST_WRITE",request);
+        V53JoiningTrace.requestObservation(events,"node-2","AFTER_REQUEST_READ",request);
+        V53JoiningTrace.requestObservation(events,"node-2","BEFORE_RESPONSE_WRITE",request);
+        V53JoiningTrace.requestObservation(events,"node-1","AFTER_RESPONSE_READ",request);
+        assertEquals(List.of("NETWORK_SEND","NETWORK_SEND","NETWORK_REQUEST"),events.stream().map(v->v.get("event")).toList());
+        assertEquals(events.get(0),events.get(1));
+        assertArrayEquals(request.bytes(),Base64.getDecoder().decode((String)events.getFirst().get("bytes")));
+        assertEquals(request.digest(),events.getLast().get("request"));
+        assertFalse(events.getLast().containsKey("bytes"));
+        assertTrue(events.stream().noneMatch(v->v.containsKey("response")));
+    }
     @Test void callbacksKeepActualForceAndResponseOrderAcrossOwners()throws Exception {
         var events=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
         var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());

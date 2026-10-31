@@ -41,6 +41,7 @@ class V53NativeDispatchTest {
         final AtomicReference<String> drop=new AtomicReference<>("");
         final AtomicReference<java.util.function.BiFunction<Decoded,Decoded,Decoded>> response=new AtomicReference<>((request,reply)->reply);
         final AtomicReference<java.util.function.Consumer<Decoded>> beforeSend=new AtomicReference<>(request->{});
+        volatile boolean observeRequests;
         final AtomicReference<MembershipBallotAllocator.Cut> hook=new AtomicReference<>(event->{});
         final AtomicBoolean holdNextQuery=new AtomicBoolean();
         final CountDownLatch queryEntered=new CountDownLatch(1);
@@ -97,6 +98,7 @@ class V53NativeDispatchTest {
                 MembershipTransport.Events transportEvents=(event,request,response)->{
                             diagnostic(owner.activationIdentity().nodeId().value(),event,request,null);
                             if(event.equals("BEFORE_REQUEST_WRITE"))beforeSend.get().accept(request);
+                            if(observeRequests)V53JoiningTrace.requestObservation(events,owner.activationIdentity().nodeId().value(),event,request);
                             if(event.equals("BEFORE_REQUEST_WRITE") && request.kind().equals("PUBLISH"))events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","PUBLICATION_SEND_BOUNDARY","request",request.digest()));
                             if(event.equals("AFTER_RESPONSE_READ"))events.add(Map.of("node",owner.activationIdentity().nodeId().value(),"event","NETWORK_RECEIVED","kind",response.kind(),"response",response.digest()));
                             if(event.equals("BEFORE_RESPONSE_WRITE")) {

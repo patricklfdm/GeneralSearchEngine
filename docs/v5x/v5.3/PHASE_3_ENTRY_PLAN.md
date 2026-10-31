@@ -1,5 +1,12 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining slot force/ACK replay](PHASE_3_JOINING_PHASE_REPLAY.md) adds original
+response/delivery matching, every slot's vote/application/publication force order
+and independently reconstructed future-proof promotion. It does not complete
+physical or network replay: the old producer lacks complete old-node sends and
+arrivals. The test-only observation extension needs a fresh whole execution;
+retain the existing original and do not invent those missing events.
+
 [Complete joining execution and catalog replay](PHASE_3_JOINING_CATALOG_REPLAY.md)
 now pass one original `3-ADD` history through FINAL, new-view BARRIER, cold reopen
 and close. Independent replay covers eleven slots, six selections, 49 checkpoint

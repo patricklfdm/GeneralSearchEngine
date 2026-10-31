@@ -15,6 +15,14 @@ final class V53JoiningTrace {
         Objects.requireNonNull(scope);
         return event->events.add(Map.of("node",node,"scope",scope,"event",event));
     }
+    /** Optional old-owner request observations. Keep their existing response
+     * callbacks untouched; an attempted write is not proof of delivery. */
+    static void requestObservation(List<Map<String,Object>> events,String node,String event,Decoded request) {
+        if(event.equals("BEFORE_REQUEST_WRITE"))events.add(Map.of("node",node,"event","NETWORK_SEND",
+                "request",request.digest(),"kind",request.kind(),"bytes",Base64.getEncoder().encodeToString(request.bytes())));
+        else if(event.equals("AFTER_REQUEST_READ"))events.add(Map.of("node",node,"event","NETWORK_REQUEST",
+                "request",request.digest(),"kind",request.kind()));
+    }
     MembershipTransport.Events transport(String scope) {
         Objects.requireNonNull(scope);
         return (event,request,response)->{
