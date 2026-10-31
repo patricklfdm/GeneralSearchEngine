@@ -1,0 +1,376 @@
+"""One original healthy ADD: transport causality, transfers and durable ACKs.
+
+Run the complete derived-state reader first. Observed wire bytes do not create
+authority; permanent identities do not imply a peer was eligible at every cut.
+This gate does not yet qualify every export's temporal authority or process cuts.
+"""
+import argparse
+import base64
+from collections import defaultdict, deque
+import json
+from pathlib import Path
+import shutil
+import tempfile
+
+from . import joining_retirement_replay as physical
+from . import joining_phase_evidence as phase
+
+p, s, f, disk, need, sha = physical.p, physical.s, physical.f, physical.disk, physical.need, physical.sha
+wire = phase.exchange.d.transfer.t.wire
+SENDS = {'NETWORK_SEND', 'BEFORE_REQUEST_WRITE'}
+READS = {'NETWORK_REQUEST', 'AFTER_REQUEST_READ'}
+
+
+def causal(events, wires, identities, root):
+    """Consume each actual send, server read, response and client read once.
+
+    Complete delivery is a requirement of this healthy fixture, not a claim
+    that a real network always delivers. A failed trace needs its own oracle.
+    """
+    rows = phase.exchanges(events, wires, identities, root)
+    offers = {v['offered']: v for v in rows}
+    pending, accepted = defaultdict(deque), defaultdict(deque)
+    sends = reads = 0; live = {}
+    for at, row in enumerate(events):
+        event = row.get('event')
+        if event in SENDS:
+            scoped = event == 'BEFORE_REQUEST_WRITE'
+            need(set(row) == {'node', 'event', 'request', 'kind', 'bytes'} | ({'scope'} if scoped else set()),
+                 'joining network send shape')
+            kind, request = wire(row['bytes']); raw = base64.b64decode(row['bytes'], validate=True)
+            sender, peer = request['sender']['node'], request['recipient']['node']
+            need(sha(raw) == row['request'] and kind == row['kind'], 'joining network send bytes')
+            need(row['node'] == sender and sender != peer and request['root'] == root and
+                 request['sender'] == identities.get(sender) and request['recipient'] == identities.get(peer),
+                 'joining network send identity')
+            prior = live.get(row['request'])
+            need(prior is None or prior.get('delivered', at) < at, 'joining network ambiguous overlapping retry')
+            attempt = dict(sent=at, request=request, kind=kind, scope=row.get('scope'))
+            live[row['request']] = attempt; pending[row['request']].append(attempt)
+            sends += 1
+        elif event in READS:
+            scoped = event == 'AFTER_REQUEST_READ'
+            need(set(row) == {'node', 'event', 'request', 'kind'} | ({'scope'} if scoped else set()),
+                 'joining network request shape')
+            need(pending[row['request']], 'joining network receive without send')
+            attempt = pending[row['request']].popleft()
+            need(row['node'] == attempt['request']['recipient']['node'] and row['kind'] == attempt['kind'],
+                 'joining network request binding')
+            attempt.update(received=at, receiverScope=row.get('scope'))
+            accepted[row['request']].append(attempt); reads += 1
+        if at in offers:
+            response = offers[at]; digest = response['requestHash']
+            need(accepted[digest], 'joining network response without request')
+            attempt = accepted[digest].popleft()
+            need(attempt['request'] == response['request'] and attempt['kind'] == response['kind'] and
+                 attempt['receiverScope'] == row.get('scope'), 'joining network response request binding')
+            need(response['delivered'] is not None, 'joining network undelivered healthy response')
+            delivered = events[response['delivered']]
+            need(attempt['scope'] == delivered.get('scope'), 'joining network client lifetime')
+            response.update(sent=attempt['sent'], received=attempt['received'])
+            attempt['delivered'] = response['delivered']
+            need(response['sent'] < response['received'] < at < response['delivered'], 'joining network causal order')
+    need(not any(pending.values()) and not any(accepted.values()) and sends == reads == len(rows),
+         'joining network incomplete healthy exchange')
+    return rows
+
+
+def transfers(rows):
+    """Check bytes/offsets/extent/commit, keeping rejections out of success.
+
+    This proves transcript integrity. An offer's reference alone is not proof
+    that its exporter owned that object at this time; that is a separate gate.
+    """
+    sessions = defaultdict(list)
+    for row in rows:
+        if row['kind'] not in ('CHUNK', 'TRANSFER_COMMIT'): continue
+        q = row['request']
+        # Group by trace and endpoints; changing root/view/ballot within a
+        # session must fail, rather than silently create a different session.
+        sessions[q['sender']['node'], q['recipient']['node'], q['trace']].append(row)
+    complete = retries = rejected = total = 0
+    for values in sessions.values():
+        values.sort(key=lambda v: v['sent']); header = None; prior = None; sequence = 0
+        active = None; identifiers = set(); terminal = False
+        for row in values:
+            q, a = row['request'], row['response']; qp, ap = q['payload'], a['payload']
+            context = {k:v for k,v in q.items() if k not in ('payload', 'sequence')}
+            if header is None: header = context
+            need(context == header, 'joining network transfer context')
+            if prior is not None:
+                need(prior['delivered'] < row['sent'], 'joining network transfer next before delivery')
+                if q['sequence'] == sequence:
+                    need(row['requestHash'] == prior['requestHash'] and row['responseHash'] == prior['responseHash'],
+                         'joining network changed transfer retry')
+                    retries += 1; prior = row; continue
+            need(not terminal and q['sequence'] == sequence+1, 'joining network transfer sequence')
+            sequence += 1
+            if row['answer'] == 'REJECT':
+                need(active is None and row['kind'] == 'CHUNK' and sequence == 1,
+                     'joining network rejected transfer state')
+                terminal = True; rejected += 1
+            elif row['answer'] == 'SOURCE_OFFER':
+                need(active is None and row['kind'] == 'CHUNK' and qp['id'] not in identifiers and
+                     qp == dict(id=ap['id'], action='REQUEST', offset=0, digest=qp['digest'], bytes=''),
+                     'joining network source offer')
+                need(0 <= ap['bytes'] <= 64*p.captures.MIB and ap['kind'] in ('RECORD','CAPSULE','APPLICATION'),
+                     'joining network transfer bound')
+                active = dict(ap, parts=bytearray()); identifiers.add(qp['id'])
+            elif row['answer'] == 'CHUNK':
+                need(active is not None and row['kind'] == 'CHUNK', 'joining network chunk without offer')
+                offset = len(active['parts']); chunk = base64.b64decode(ap['bytes'], validate=True)
+                need(qp == dict(id=active['id'], action='REQUEST', offset=offset, digest=active['digest'], bytes='') and
+                     ap == dict(id=active['id'], action='DATA', offset=offset, digest=sha(chunk), bytes=ap['bytes']) and
+                     0 < len(chunk) <= 4*p.captures.MIB and offset+len(chunk) <= active['bytes'],
+                     'joining network exact transfer chunk')
+                active['parts'].extend(chunk)
+            else:
+                need(active is not None and row['kind'] == row['answer'] == 'TRANSFER_COMMIT',
+                     'joining network commit without offer')
+                need(qp == ap == dict(id=active['id'], digest=active['digest']) and
+                     len(active['parts']) == active['bytes'] and sha(active['parts']) == active['digest'],
+                     'joining network complete transfer commit')
+                total += len(active['parts']); complete += 1; active = None
+            prior = row
+        need(active is None, 'joining network incomplete transfer')
+    return dict(transferSessions=len(sessions), committedTransfers=complete, transferredBytes=total,
+                exactTransferRetries=retries, rejectedTransferAttempts=rejected)
+
+
+def interval(events, node, lower, upper, names, reason, scope=None):
+    rows = [row for at,row in enumerate(events) if lower < at < upper and row.get('node') == node and row.get('event') in names]
+    need([row['event'] for row in rows] == names and all(row.get('scope') == scope for row in rows), reason)
+
+
+def grants(root, events, rows):
+    """The physical reader already compared all captured grants to derivation."""
+    captures = p.captures.collect(root, events); by_key = {}; by_basis = {}; used = set()
+    for capture in captures:
+        node = capture['node']; files = disk.inventory(Path(root)/capture['capture']/'replica')
+        journal = disk.journal(files['grants.gsr'], capture['root'], node)
+        promise, basis = journal[-2][1], journal[-1][1]
+        scope = None if capture['scope'] == 'network-owner' else capture['scope']
+        starts = [at for at,row in enumerate(events[:capture['returnEvent']]) if row.get('node') == node and
+                  row.get('scope') == scope and row.get('event') == 'CURRENT_BEFORE_CAPTURE']
+        need(starts, 'joining network grant start absent'); start = starts[-1]
+        packet = disk.p.decode(files['sources/'+capture['basisId']+'/source.gscp'])
+        names = ['PROMISE_FORCED','CAPTURE_INTENT_FORCED','CAPTURE_INTENT_PARENT_FORCED','SOURCE_PACKET_FORCED']
+        names += ['SOURCE_IMAGE_FORCED']*len(packet['images'])
+        names += ['SOURCE_FILES_DIRECTORY_FORCED','SOURCE_DIRECTORY_FORCED','BASIS_FORCED','CAPTURE_INTENT_CLEARED']
+        interval(events,node,start,capture['returnEvent'],names,'joining network durable grant order',scope)
+        key = node, f.canonical(capture['ballot'])
+        need(key not in by_key and capture['basisSha256'] not in by_basis,'joining network duplicate grant')
+        value = dict(capture, start=start, promise=sha(promise), basis=sha(basis), view=journal[-1][2]['view'])
+        by_key[key] = value; by_basis[value['basis']] = value
+    for row in rows:
+        if row['kind'] != 'PREPARE': continue
+        q, a = row['request'], row['response']; key = q['sender']['node'], f.canonical(q['ballot'])
+        peer_key = q['recipient']['node'], f.canonical(q['ballot'])
+        need(row['answer'] == 'PROMISE' and key in by_key and peer_key in by_key, 'joining network original prepare grant')
+        own, peer = by_key[key], by_key[peer_key]
+        need(q['payload'] == dict(promise=own['promise']) and a['payload'] == dict(basis=peer['basis']) and
+             q['view'] == own['view'] == peer['view'],
+             'joining network prepare authority')
+        need(peer_key not in used and own['capturedEvent'] < row['sent'] and
+             row['received'] < peer['start'] < peer['returnEvent'] < peer['capturedEvent'] < row['offered'],
+             'joining network force before promise reply')
+        used.add(peer_key)
+    # The joining initializer's own grant is local. Every other non-proposer
+    # grant is issued by one observed PREPARE, not an unexplained extra grant.
+    required = {key for key,v in by_key.items() if v['node'] != v['ballot']['proposer']}
+    need(used == required, 'joining network unbound peer grant')
+    return dict(forcedGrants=len(captures), boundPromiseReplies=len(used)), by_basis
+
+
+def installations(root, events, rows, replay, bases):
+    selections = {sha(parts['SELECTED']): f.decode(parts['SELECTED'],'records','SELECTED') for parts in replay.phases}
+    forced = {}; count = 0; used = set()
+    for node in {source['voter'] for selected in selections.values() for source in selected['sources']}:
+        expected = [(h,v) for h,v in selections.items() if node in [source['voter'] for source in v['sources']]]
+        actual = [(at,v) for at,v in enumerate(events) if v.get('node') == node and v['event'] == 'SELECTED_FORCED']
+        need(len(expected) == len(actual),'joining network complete selection forces')
+        for (digest,selected),(at,event) in zip(expected,actual):
+            need(event.get('scope') == ('continuation-owner' if node == 'node-4' else None),
+                 'joining network selection lifetime')
+            forced[node,digest] = at
+            for source in selected['sources']:
+                grant = bases.get(source['basisDigest'])
+                need(grant is not None and grant['node'] == source['voter'] and grant['basisId'] == source['basisId'] and
+                     grant['ballot'] == selected['ballot'] and grant['capturedEvent'] < at,
+                     'joining network selection before original grants')
+                if node == selected['ballot']['proposer'] and source['voter'] != node:
+                    replies = [v for v in rows if v['kind'] == 'PREPARE' and v['request']['sender']['node'] == node and
+                               v['response']['payload'] == dict(basis=source['basisDigest'])]
+                    need(len(replies) == 1 and replies[0]['delivered'] < at,
+                         'joining network selection before delivered promises')
+    for row in rows:
+        if row['kind'] != 'SELECTED': continue
+        q, a = row['request'], row['response']; digest = q['payload']['selection']; selected = selections.get(digest)
+        need(selected is not None and row['answer'] == 'INSTALL_ACK' and q['payload'] == dict(selection=digest) and
+             q['ballot'] == selected['ballot'] and q['view'] == selected['view'] and
+             a['payload'] == dict(selection=digest, cut=selected['cut']), 'joining network installation authority')
+        node = q['recipient']['node']; scope = 'continuation-owner' if node == 'node-4' else None
+        need((node,digest) not in used and forced[q['sender']['node'],digest] < row['sent'] and
+             row['received'] < forced[node,digest] < row['offered'], 'joining network selected propagation order')
+        used.add((node,digest))
+        cut = selected['cut']['index']
+        labels = {0:'installed',2:'installed-2',4:'installed-3',6:'installed-4',9:'continuation-installed-9',10:'continuation-installed-10'}
+        need(cut in labels,'joining network known installation snapshot')
+        directory = Path(root)/(f'joining-installed-{cut}/replica' if node == 'node-4' else labels[cut]+'/'+node)
+        # Every snapshot is first compared against independent derivation by
+        # physical.validate. Its member count now determines required forces.
+        _,members,packet = disk.current(disk.inventory(directory))
+        need(sha(members['selected.gsr']) == digest,'joining network installed selection bytes')
+        names = ['SELECTED_FORCED','SELECTED_BEFORE_RETURN','INSTALL_RESERVED','INSTALL_MANIFEST_FORCED']
+        names += ['INSTALL_IMAGE_FORCED' if name.endswith('.image') else 'INSTALL_MEMBER_FORCED' for name in sorted(members)]
+        names += ['INSTALL_GENERATION_FORCED','INSTALL_SELECTOR_FORCED','INSTALL_SELECTOR_RENAMED','INSTALL_PARENT_FORCED',
+                  'CURRENT_FILES_FORCED','CURRENT_GENERATION_FORCED','CURRENT_SELECTOR_FORCED','CURRENT_DIRECTORY_FORCED','INSTALL_BEFORE_RETURN']
+        interval(events,node,row['received'],row['offered'],names,'joining network durable installation order',scope)
+        count += 1
+    need(used == {(node,h) for (node,h) in forced if node != selections[h]['ballot']['proposer']},
+         'joining network missing selected propagation')
+    return dict(boundInstallReplies=count, forcedSelections=len(forced))
+
+
+def network(root):
+    """Only called standalone after the original physical precondition passes."""
+    root = Path(root); replay = s.Replay(root)
+    for index in range(1,12): replay.step(index)
+    events = s.collection.read_json(root,'events.json',8*p.captures.MIB)
+    wires = s.collection.read_json(root,'wire.json',16*p.captures.MIB)
+    identities = s.catalog.identities(replay.states[-1]['identities'])
+    rows = causal(events,wires,identities,replay.root)
+    result = transfers(rows)
+    grant_result,bases = grants(root,events,rows)
+    result.update(grant_result,**installations(root,events,rows,replay,bases))
+    result.update(phase.phase_replay(events,rows,replay,phase.blocks(events,replay)))
+    return dict(result,wireExchanges=len(rows), sentRequests=len(rows), receivedRequests=len(rows), deliveredResponses=len(rows))
+
+
+def validate(root):
+    root = Path(root); before = s.collection.inventory(root)
+    derived = physical.validate(root)
+    result = network(root)
+    need(s.collection.inventory(root) == before,'joining network original changed')
+    return dict(status='PASS',scope='native-ADD-complete-observed-network-and-durable-ACKs',**result,
+        physicalPrecondition=derived['scope'], sourceRetirementPhysicalQualified=True,
+        completePhysicalQualified=False,forceAndNetworkQualified=False,processDeathQualified=False,phase3Complete=False)
+
+
+NEGATIVES = {
+    'missing-send':'joining network receive without send',
+    'missing-request':'joining network response without request',
+    'late-request':'joining network response without request',
+    'overlapping-retry':'joining network ambiguous overlapping retry',
+    'wrong-send-owner':'joining network send identity',
+    'wrong-send-kind':'joining network send bytes',
+    'wrong-server-lifetime':'joining network response request binding',
+    'wrong-client-lifetime':'joining network client lifetime',
+    'missing-delivery':'joining network undelivered healthy response',
+    'missing-grant-force':'joining network durable grant order',
+    'early-promise':'joining network force before promise reply',
+    'wrong-promise-authority':'joining network prepare authority',
+    'wrong-prepare-view':'joining network prepare authority',
+    'early-selection':'joining network selection before delivered promises',
+    'early-propagation':'joining network selected propagation order',
+    'missing-install-image-force':'joining network durable installation order',
+    'wrong-install-cut':'joining network installation authority',
+    'changed-chunk':'joining network complete transfer commit',
+    'wrong-offer-extent':'joining network complete transfer commit',
+    'wrong-commit':'joining network complete transfer commit',
+    'transfer-sequence-gap':'joining network transfer sequence',
+    'transfer-before-delivery':'joining network transfer next before delivery',
+}
+
+
+def mutate(root, name):
+    events=s.collection.read_json(root,'events.json',8*p.captures.MIB)
+    wires=s.collection.read_json(root,'wire.json',16*p.captures.MIB)
+    def at(event,node=None):
+        return next(i for i,v in enumerate(events) if v['event']==event and (node is None or v['node']==node))
+    def replace(row,side,kind,value):
+        old=sha(base64.b64decode(row[side]));raw=f.encode('wire',kind,value);new=sha(raw)
+        row[side]=base64.b64encode(raw).decode()
+        for event in events:
+            if event.get(side)==old:
+                event[side]=new
+                if side=='request' and event['event'] in SENDS:event['bytes']=row[side]
+                if side=='response' and 'responseKind' in event:event['responseKind']=kind
+                if side=='response' and event['event']=='NETWORK_RECEIVED':event['kind']=kind
+    def first(kind,answer=None):
+        return next(row for row in wires if wire(row['request'])[0]==kind and (answer is None or wire(row['response'])[0]==answer))
+    if name=='missing-send':events.pop(at('NETWORK_SEND'))
+    elif name=='missing-request':events.pop(at('NETWORK_REQUEST'))
+    elif name=='late-request':
+        row=events.pop(at('NETWORK_REQUEST'))
+        reply=next(i for i,v in enumerate(events) if v['event']=='WIRE_RESPONSE' and v['request']==row['request'])
+        events.insert(reply+1,row)
+    elif name=='overlapping-retry':
+        i=at('NETWORK_SEND');events.insert(i,dict(events[i]))
+    elif name=='wrong-send-owner':events[at('NETWORK_SEND')]['node']='node-3'
+    elif name=='wrong-send-kind':events[at('NETWORK_SEND')]['kind']='PROOF'
+    elif name=='wrong-server-lifetime':events[at('AFTER_REQUEST_READ')]['scope']='changed-lifetime'
+    elif name=='wrong-client-lifetime':events[at('AFTER_RESPONSE_READ')]['scope']='changed-lifetime'
+    elif name=='missing-delivery':events.pop(at('NETWORK_RECEIVED'))
+    elif name=='missing-grant-force':events.pop(at('BASIS_FORCED','node-2'))
+    elif name=='early-promise':
+        row=first('PREPARE');digest=sha(base64.b64decode(row['response']))
+        pos=next(i for i,v in enumerate(events) if v['event']=='WIRE_RESPONSE' and v['response']==digest)
+        offered=events.pop(pos);events.insert(at('BASIS_FORCED','node-2'),offered)
+    elif name=='early-selection':
+        row=events.pop(at('SELECTED_FORCED','node-1'))
+        pos=next(i for i,v in enumerate(events) if v['event']=='NETWORK_RECEIVED' and v['kind']=='PROMISE')
+        events.insert(pos,row)
+    elif name=='early-propagation':
+        row=events.pop(at('SELECTED_FORCED','node-1'))
+        pos=next(i for i,v in enumerate(events) if v['event']=='NETWORK_SEND' and v['kind']=='SELECTED')
+        events.insert(pos+1,row)
+    elif name=='missing-install-image-force':events.pop(at('INSTALL_IMAGE_FORCED','node-2'))
+    elif name=='transfer-before-delivery':
+        pos=next(i for i,v in enumerate(events) if v['event']=='NETWORK_SEND' and v['kind']=='CHUNK' and
+                 wire(v['bytes'])[1]['sequence']==2)
+        row=events.pop(pos)
+        pos=max(i for i,v in enumerate(events[:pos]) if v['event']=='NETWORK_RECEIVED' and v['node']==row['node'])
+        events.insert(pos,row)
+    else:
+        kind='PREPARE' if name in ('wrong-promise-authority','wrong-prepare-view') else 'SELECTED' if name=='wrong-install-cut' else 'TRANSFER_COMMIT' if name=='wrong-commit' else 'CHUNK'
+        answer='SOURCE_OFFER' if name=='wrong-offer-extent' else 'CHUNK' if name in ('changed-chunk','transfer-sequence-gap') else None
+        row=first(kind,answer);rk,q=wire(row['request']);ak,a=wire(row['response'])
+        if name=='wrong-promise-authority':a['payload']['basis']='f'*64
+        elif name=='wrong-prepare-view':
+            q['view']=a['view']='f'*64;replace(row,'request',rk,q)
+        elif name=='wrong-install-cut':a['payload']['cut']['index']+=1
+        elif name=='wrong-offer-extent':a['payload']['bytes']+=1
+        elif name=='wrong-commit':a['payload']['digest']='f'*64
+        elif name=='transfer-sequence-gap':
+            q['sequence']+=1;a['sequence']+=1;replace(row,'request',rk,q)
+        elif name=='changed-chunk':
+            data=bytearray(base64.b64decode(a['payload']['bytes']));data[0]^=1
+            a['payload'].update(bytes=base64.b64encode(data).decode(),digest=sha(data))
+        else:raise ValueError('unknown joining network mutation: '+name)
+        replace(row,'response',ak,a)
+    (root/'events.json').write_bytes(f.canonical(events));(root/'wire.json').write_bytes(f.canonical(wires))
+
+
+def qualify(root):
+    root=Path(root);original=validate(root);before=s.collection.inventory(root);results=[]
+    # Mutations alter observations only. Reuse the passing derivation only if
+    # every physical file and directory remains byte-for-byte unchanged.
+    files={k:v for k,v in before['files'].items() if k not in ('events.json','wire.json')}
+    for name,reason in NEGATIVES.items():
+        with tempfile.TemporaryDirectory(prefix='v53-joining-network-negative-') as temp:
+            changed=Path(temp)/'raw';shutil.copytree(root,changed);mutate(changed,name)
+            after=s.collection.inventory(changed)
+            need({k:v for k,v in after['files'].items() if k not in ('events.json','wire.json')}==files and
+                 before['directories']==after['directories'],'joining network negative changed physical inputs')
+            try:network(changed)
+            except ValueError as error:need(str(error)==reason,'joining unrelated network negative: '+name+': '+str(error))
+            else:raise ValueError('joining network mutation accepted: '+name)
+        results.append(dict(case=name,status='REJECTED',reason=reason))
+    need(s.collection.inventory(root)==before,'joining network negative changed original')
+    return dict(original=original,negatives=results)
+
+
+if __name__ == '__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('root');parser.add_argument('--qualify',action='store_true');args=parser.parse_args()
+    print(json.dumps((qualify if args.qualify else validate)(args.root),sort_keys=True))

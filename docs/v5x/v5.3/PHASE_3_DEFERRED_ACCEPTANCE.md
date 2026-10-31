@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining network replay](PHASE_3_JOINING_NETWORK_REPLAY.md) reuses the same original
+history and qualifies complete observed transport pairing, transfer integrity,
+19 grants, 14 selection forces and eight installation ACKs. Next bind complete
+temporal export authority and remaining maintenance/learner control boundaries,
+then the process/profile and frozen-mapping gates. Phase 3 remains **OPEN**.
+
 [Joining source-retirement replay](PHASE_3_JOINING_SOURCE_RETIREMENT_REPLAY.md)
 now consumes the newly collected v3 prefixes on one complete original history.
 Governing-copy bytes, 16 transient decisions and 240 retirement prefixes are

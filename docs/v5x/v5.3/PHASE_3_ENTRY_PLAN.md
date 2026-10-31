@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining network replay](PHASE_3_JOINING_NETWORK_REPLAY.md) now qualifies complete
+observed transport pairing, transfer integrity and durable grant/selection/install
+ACK causality on the existing complete `3-ADD` history. Complete temporal export
+authorization and remaining control boundaries, process cuts, all seven profiles
+and frozen mapping remain required. No closure flag is promoted by this gate.
+
 [Joining source-retirement replay](PHASE_3_JOINING_SOURCE_RETIREMENT_REPLAY.md)
 now derives 16 governing floors/decisions and compares all 240 original retirement
 prefixes on a new complete `3-ADD` history. Complete cross-node force/network

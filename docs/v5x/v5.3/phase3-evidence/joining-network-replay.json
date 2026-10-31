@@ -1,0 +1,216 @@
+{
+  "archive": {
+    "bytes": 34478579,
+    "entries": 15995,
+    "memberHashesVerified": true,
+    "negativeReplayRepeated": false,
+    "path": "target/v53-joining-network-replay/sealed/joining-network-replay.tar.gz",
+    "portableOriginal": "PASS",
+    "producerSourceAndBuildVerified": true,
+    "rawFilesAndDirectoriesMatch": true,
+    "readerSourceSha256": "b3361d9e361816e3f1356ab9abf5a715d2387fd25db5c63154669a448f338e88",
+    "sha256": "1473448d754f6aee0aa74ed335aee07ac58195bb22b54091ba8bbcd7d150cab5",
+    "status": "PASS"
+  },
+  "archiveReceiptNote": "Archive reader contains the pre-seal receipt; the finalized receipt is retained separately to avoid a self-referential archive hash.",
+  "baseHead": "adf8edc9ffae1edab0657783d18f8ebce0b36b99",
+  "buildManifestSha256": "5c2fc5985a9f7beba7712365c4067b2fe523d986a4a1a1a55b479737b0810d95",
+  "changedSources": {
+    "docs/v5x/v5.3/PHASE_3_DEFERRED_ACCEPTANCE.md": "b0bc3d75b4824597bb00050173b27a566d437319f34009dbbdbb2d6a665cf364",
+    "docs/v5x/v5.3/PHASE_3_ENTRY_PLAN.md": "7a38344392e7da585d3cf07d435adabdd806fbf28388aa070605f1c74788df60",
+    "docs/v5x/v5.3/PHASE_3_JOINING_NETWORK_REPLAY.md": "812c3db8ecd48d5d7cdf7758c1778f3b4b9b229d9788dcb312a65866918aeb60",
+    "docs/v5x/v5.3/README.md": "5245e7d028a4438639cf85a098f77da9149c68fb875273a302f5ad8caf94f8aa",
+    "scripts/v53/joining_network_evidence.py": "f8855c626eb34653af62e6ce8bcf04bd3e23ece47202ebf0b2152999edc4062e",
+    "scripts/v53/test_joining_network_evidence.py": "15d7b18d2c8f51447008a5933a5a58f9b07d13e83a7b86e8f5c71f1d0665595b"
+  },
+  "collectionSha256": "5a32e0a88bb8034de53ca1aecc5277372e04910ef04baae85c7143d5f6b1cbd7",
+  "completePhysicalQualified": false,
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 1830,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "forceAndNetworkQualified": false,
+  "frozenParametersChanged": false,
+  "nativeExecution": {
+    "elapsedSeconds": 879.386,
+    "exit": 0
+  },
+  "newNativeExecutions": 0,
+  "paidCloud": false,
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "producerHead": "9136083fb35318f74b4003b8aa61fee71a3725cc",
+  "producerPath": "target/v53-joining-history/original-9136083f",
+  "producerReceiptSha256": "cd566df3ce01bfce1e484226860e741b5a33981af50d512c204d49f49a428f8f",
+  "productionChanged": false,
+  "protectedInputs": {
+    "changes": [],
+    "count": 705
+  },
+  "qualification": {
+    "negatives": [
+      {
+        "case": "missing-send",
+        "reason": "joining network receive without send",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-request",
+        "reason": "joining network response without request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "late-request",
+        "reason": "joining network response without request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "overlapping-retry",
+        "reason": "joining network ambiguous overlapping retry",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-send-owner",
+        "reason": "joining network send identity",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-send-kind",
+        "reason": "joining network send bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-server-lifetime",
+        "reason": "joining network response request binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-client-lifetime",
+        "reason": "joining network client lifetime",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-delivery",
+        "reason": "joining network undelivered healthy response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-grant-force",
+        "reason": "joining network durable grant order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-promise",
+        "reason": "joining network force before promise reply",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-promise-authority",
+        "reason": "joining network prepare authority",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-prepare-view",
+        "reason": "joining network prepare authority",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-selection",
+        "reason": "joining network selection before delivered promises",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-propagation",
+        "reason": "joining network selected propagation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-install-image-force",
+        "reason": "joining network durable installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-install-cut",
+        "reason": "joining network installation authority",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-chunk",
+        "reason": "joining network complete transfer commit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-offer-extent",
+        "reason": "joining network complete transfer commit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-commit",
+        "reason": "joining network complete transfer commit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "transfer-sequence-gap",
+        "reason": "joining network transfer sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "transfer-before-delivery",
+        "reason": "joining network transfer next before delivery",
+        "status": "REJECTED"
+      }
+    ],
+    "original": {
+      "boundInstallReplies": 8,
+      "boundPhaseResponses": 69,
+      "boundPromiseReplies": 10,
+      "committedTransfers": 686,
+      "completePhysicalQualified": false,
+      "deliveredResponses": 2208,
+      "exactTransferRetries": 2,
+      "forceAndNetworkQualified": false,
+      "forcedGrants": 19,
+      "forcedSelections": 14,
+      "futureTargets": 13,
+      "ownedSlotTransactions": 24,
+      "phase3Complete": false,
+      "physicalPrecondition": "native-ADD-derived-governing-floor-and-source-retirement",
+      "processDeathQualified": false,
+      "receivedRequests": 2208,
+      "rejectedTransferAttempts": 2,
+      "scope": "native-ADD-complete-observed-network-and-durable-ACKs",
+      "sentRequests": 2208,
+      "slots": 11,
+      "sourceRetirementPhysicalQualified": true,
+      "status": "PASS",
+      "transferSessions": 363,
+      "transferredBytes": 3897617,
+      "wireExchanges": 2208
+    }
+  },
+  "qualificationSha256": "8a12df97b6e1e391d92b2e1453c66af6b0ed151d16c12b6dc2fd4cccd93a9173",
+  "rawPath": "target/v53-joining-history/original-9136083f/workspace/general-search-engine-replication/target/v53-native-dispatch/run-a976882d-1f80-4d89-a2be-0073e7d3fd3f",
+  "retainedInitialFailure": {
+    "path": "target/v53-joining-network-replay/qualification-initial.stderr",
+    "reason": "late-request mutation targeted a nested response; corrected construction",
+    "sha256": "bbea80aa6fe742408ce25ccd3cf62a28c4a734613943fd46c9019c1137e5c53a"
+  },
+  "schema": "gse-v53-joining-network-replay-v1",
+  "scope": "one-original-native-ADD-network-replay",
+  "sourceManifestSha256": "b507199f32c078a6f5a889ef008902185818d6184ec851c52307ae9a0c8e5b25",
+  "status": "PASS",
+  "tests": {
+    "logSha256": "b0f513ada0c3ed069fc6ab6025fb8c524a21e332fe52d26a89e8e7aa4e104416",
+    "newTests": 23,
+    "status": "PASS",
+    "tests": 211
+  },
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b",
+  "workflowChanged": false
+}

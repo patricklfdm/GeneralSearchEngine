@@ -1,5 +1,12 @@
 # V5.3 — controlled cluster operations
 
+[Joining network replay](PHASE_3_JOINING_NETWORK_REPLAY.md) now binds all 2,208
+observed exchanges to their send/read/response/delivery boundaries on the existing
+complete history. It checks transfer integrity, 19 durable grants, 14 selections
+and eight installation ACKs alongside the original slot-phase oracle. Complete
+temporal export/control qualification, process/profile and mapping gates remain
+open; Phase 3 is not closed.
+
 [Joining source-retirement replay](PHASE_3_JOINING_SOURCE_RETIREMENT_REPLAY.md)
 now derives governing copies and all 16 source-retirement decisions on one new
 complete history, comparing 240 original prefixes through FINAL/BARRIER and
