@@ -1,0 +1,201 @@
+{
+  "archive": {
+    "archiveContentVerified": true,
+    "bytes": 14828330,
+    "directories": 4055,
+    "files": 17843,
+    "independentProtocolReplay": false,
+    "path": "target/v53-joining-requalification/maintenance-qualification.tar.gz",
+    "sha256": "dfe6515e6f2319c4e634e324f461eae83100e971fcb3df54b73ecb766e634f36"
+  },
+  "baseCommit": "7d6d4f09f347f38fd68d57189cfee5c4c2f88fd5",
+  "componentStatus": "PASS",
+  "correctedCode": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGenerationMaintenance.java": "17f71572711a2d6924ec7efb9a16b6fbcdc4ad7132df305828f7ac319ed8c485",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "0a236cb7a5f62d9dc249f778ea9748bfdcbb6cb9d67b24d95de8e2e54a403b57",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipPeerRetentionPlan.java": "056b55da0d11dacf815e55ab20be4c804f15cd11029843fb1e8ca016bc0c4d86",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipRoundDriver.java": "8f0946bfafff679c232ab8bf12c302aa65948c72574456937c332c8768fc7442",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "5fe2a9c28bb8aa547062237143516c5c160902d1a5abf2af0ca9f9395c87035d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaintenanceObservationTest.java": "3805525d0e944f3eed0de10cfd7e81e67b78d1eef2d542a65afdd2abce87069a",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53MaintenanceRoundTest.java": "c7390c0749dd708479f2bc0f472521a6739b812fcc2f084902fa58f7d1f7c3d8",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RoundDriverTest.java": "11ae6429ef0ebab6bfd8fe57b65494f4438ecbeeba8629f10e35ba29e062255c",
+    "scripts/v53/peer_observation_evidence.py": "0c0c58d7e2cec5e975164410a86eac01e6a30bbd66e845b49e71cd3725c40bdb",
+    "scripts/v53/test_peer_observation_evidence.py": "f7066fa0ab25e79c096b6919ac63ca35efee8c0aa214a2185d48b35aa3e526ce"
+  },
+  "distinctPassingJavaMethods": 16,
+  "executions": {
+    "joint-maintenance": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "joint-maintenance",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#minimalOldMajorityPublishesJointUsingTheActualJoiningEndpoint"
+      ],
+      "seconds": 133.2125404230028,
+      "skipped": 0,
+      "tests": 1
+    },
+    "native": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "native",
+      "requestedTests": [
+        "V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory"
+      ],
+      "seconds": 114.5063614579849,
+      "skipped": 0,
+      "tests": 1
+    },
+    "observation-control": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceObservationTest": 2
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "observation-control",
+      "requestedTests": [
+        "V53MaintenanceObservationTest"
+      ],
+      "seconds": 78.70496381199337,
+      "skipped": 0,
+      "tests": 2
+    },
+    "observation-final": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceObservationTest": 2
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "observation-final",
+      "requestedTests": [
+        "V53MaintenanceObservationTest"
+      ],
+      "seconds": 154.47238625297905,
+      "skipped": 0,
+      "tests": 2
+    },
+    "observation-green": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceObservationTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53PeerConfirmationTest": 4,
+        "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest": 6
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "observation-green",
+      "requestedTests": [
+        "V53MaintenanceObservationTest",
+        "V53PeerConfirmationTest",
+        "V53PeerRetentionPlanTest"
+      ],
+      "seconds": 254.2392398189986,
+      "skipped": 0,
+      "tests": 11
+    },
+    "observation-red": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceObservationTest": 1
+      },
+      "exit": 1,
+      "failures": 1,
+      "label": "observation-red",
+      "requestedTests": [
+        "V53MaintenanceObservationTest"
+      ],
+      "seconds": 36.933447042974876,
+      "skipped": 0,
+      "tests": 1
+    },
+    "refresh": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceRoundTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "refresh",
+      "requestedTests": [
+        "V53MaintenanceRoundTest",
+        "V53JoiningIntentExportTest#minimalOldMajorityPublishesJointUsingTheActualJoiningEndpoint"
+      ],
+      "seconds": 608.2400518349896,
+      "skipped": 0,
+      "tests": 2
+    },
+    "refresh-fault": {
+      "classes": {
+        "io.github.patricklfdm.generalsearch.replication.V53MaintenanceRoundTest": 1,
+        "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest": 1
+      },
+      "exit": 0,
+      "failures": 0,
+      "label": "refresh-fault",
+      "requestedTests": [
+        "V53MaintenanceRoundTest#failedFreshInstallationCannotAcceptOrReplayTheWaitingCommand",
+        "V53RoundDriverTest#activationFreshBarrierAndSequentialDataHaveOneGuardedOwner"
+      ],
+      "seconds": 142.0538589229982,
+      "skipped": 0,
+      "tests": 2
+    }
+  },
+  "failuresPreserved": {
+    "jointMaintenance": "Deferral alone is insufficient: READY reached future intent earlier dispatch unresolved before publication. Original receipt remains FAIL.",
+    "native": "Original 7d6d4f09 whole early-start joining: peer retention pending renewal capacity after cut 3 publication.",
+    "observationControl": "Final regression fixture with only optional deferral disabled: exact peer retention pending renewal capacity reproduced.",
+    "observationRed": "Initial regression fixture incorrectly required ancestry.gsr at an implicit capsule anchor; preserved NullPointerException, not counted as causal regression."
+  },
+  "fullJoiningHistoryQualified": false,
+  "independentFullHistoryReplay": false,
+  "limits": {
+    "activationAttemptsUnchanged": true,
+    "clientMutationReplay": false,
+    "endpointAndRenewalCountsUnchanged": true,
+    "freshRefreshesPerInvocation": 1,
+    "metadataAndImageBoundsUnchanged": true,
+    "originalLifetimePreserved": true
+  },
+  "passingJavaMethods": [
+    "io.github.patricklfdm.generalsearch.replication.V53JoiningIntentExportTest#minimalOldMajorityPublishesJointUsingTheActualJoiningEndpoint",
+    "io.github.patricklfdm.generalsearch.replication.V53MaintenanceObservationTest#optionalMaintenancePreservesFullDebtUntilVerifiedSelection",
+    "io.github.patricklfdm.generalsearch.replication.V53MaintenanceObservationTest#optionalObservationStillRejectsForeignCopiesAndKeepsGenesisIdempotent",
+    "io.github.patricklfdm.generalsearch.replication.V53MaintenanceRoundTest#continuousCommandsReconcileBeforeAcceptAndKeepOriginalDeadline",
+    "io.github.patricklfdm.generalsearch.replication.V53MaintenanceRoundTest#failedFreshInstallationCannotAcceptOrReplayTheWaitingCommand",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerConfirmationTest#completeCopyConfirmationDischargesStaleSelectedEndpoints",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerConfirmationTest#conflictsInDischargedHistoryStillRefuseAndGenesisIsIdempotent",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerConfirmationTest#decodedConfirmationCannotDischargeWithoutOriginalProvenance",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerConfirmationTest#originalManifestBindingsAndCanonicalEncodingAreRequired",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest#actualNativePublicationKeepsARealEarlierOwnerCopy",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest#genesisAndDispatchPreserveOldPossibilityUntilRealCopyAdvances",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest#learnerRequiresActualJointCopyAndRemovalWaitsForFinal",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest#missingExactAncestryAndForeignIdentityOrRootAreRejected",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest#removalAndAdditionReconcileOnlyAuthenticatedConfigurations",
+    "io.github.patricklfdm.generalsearch.replication.V53PeerRetentionPlanTest#staleClaimsCannotEraseAmbiguousEndpointsAndMergeRequiresActualProgress",
+    "io.github.patricklfdm.generalsearch.replication.V53RoundDriverTest#activationFreshBarrierAndSequentialDataHaveOneGuardedOwner"
+  ],
+  "phase3Complete": false,
+  "python": {
+    "failures": 0,
+    "log": "target/v53-joining-requalification/python-tests.log",
+    "sha256": "32f8926cea2c6f6e1231b4d6933eb45048f6ff206270f49ad18c248b65513660",
+    "tests": 14
+  },
+  "remaining": [
+    "Full early-start joining initialization, FINAL/BARRIER and cold reopen on corrected source.",
+    "Independent physical/network/force replay of additional fresh elections and joining history.",
+    "All membership profiles, process-death cases and complete Phase 3 requirement mapping.",
+    "Measure election/BARRIER overhead; no throughput or failover SLA claim."
+  ],
+  "schema": "gse-v53-maintenance-observations-qualification-v1",
+  "sourceQualification": {
+    "refresh": "Runtime matches final source except one comment wrap; original diff retained.",
+    "refreshFault": "All four changed production files byte-identical to final source."
+  },
+  "status": "PARTIAL"
+}

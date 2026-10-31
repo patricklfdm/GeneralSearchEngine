@@ -167,6 +167,10 @@ final class MembershipPeerRetentionPlan {
         var value=peers.get(peer.nodeId().value());require(value!=null && value.identity.equals(peer),"peer retention unknown identity");
         return value.possible;
     }
+    /** Scheduling hint only. No debt is released until verified source merge. */
+    boolean observationReconciliationRequired() {
+        return peers.values().stream().anyMatch(peer->peer.renewals.size()==2);
+    }
     /** The future sender must force this result before allowing that target to install.
      * No second target is admitted while any earlier dispatch remains ambiguous. */
     MembershipPeerRetentionPlan dispatch(MembershipCapsule current,byte[] ancestry,MembershipIdentity peer) {
@@ -221,6 +225,15 @@ final class MembershipPeerRetentionPlan {
     /** An actual newer complete copy rules out older states, but an old copy cannot
      * cancel a still-in-flight target. STATUS and arbitrary cut maps are not inputs. */
     MembershipPeerRetentionPlan observe(MembershipCapsule current,byte[] ancestry,MembershipFloor.Copy copy) {
+        return observe(current,ancestry,copy,false);
+    }
+    /** Floor maintenance may keep the older conservative ledger when a new
+     * observation would exceed renewal debt. It must not erase that debt or
+     * manufacture a confirmation; a verified selected-source merge releases it. */
+    MembershipPeerRetentionPlan observeForMaintenance(MembershipCapsule current,byte[] ancestry,MembershipFloor.Copy copy) {
+        return observe(current,ancestry,copy,true);
+    }
+    private MembershipPeerRetentionPlan observe(MembershipCapsule current,byte[] ancestry,MembershipFloor.Copy copy,boolean deferRenewal) {
         context(current,ancestry,true);copy(current,ancestry,copy);var old=possible(copy.owner);var observed=copy.capsule.terminal();
         if(index(observed)<index(old.getFirst()))return this;
         // Genesis cannot discharge an older endpoint. Keep unchanged legacy
@@ -232,6 +245,9 @@ final class MembershipPeerRetentionPlan {
         var prior=peers.get(copy.owner.nodeId().value());var renewals=new TreeMap<Long,MembershipCapsule.Anchor>();
         prior.renewals.forEach(a->renewals.put(index(a),a));old.stream().filter(a->index(a)<index(observed)).forEach(a->renewals.put(index(a),a));
         var proof=MembershipPeerConfirmation.observed(copy);
+        // All original copy/identity/history checks above still run. This is
+        // only a no-write deferral of optional progress, never capacity relief.
+        if(deferRenewal && renewals.size()>2)return this;
         // An equivalent later manifest need not rewrite an already confirmed
         // endpoint. The original bytes are sufficient and remain immutable.
         if(prior.confirmation!=null && prior.confirmation.endpoint.equals(observed))proof=prior.confirmation;

@@ -58,5 +58,28 @@ class PeerObservationEvidenceTest(unittest.TestCase):
             with self.assertRaises(KeyError):e.observe_same_cut(b'not-authority',{}, {})
             projection.assert_not_called()
 
+    def test_explicit_maintenance_defers_third_renewal_without_any_write(self):
+        state,generation=fixture();peer=state['plan']['peers'][2]['identity']
+        record=e.f.decode(generation,'records','GENERATION');record['cut']['index']=3
+        observed=e.f.encode('records','GENERATION',record)
+        for later in (False,True):
+            before=copy.deepcopy(state)
+            if later:before['plan']['peers'][2]['possible'].append({k:record[k] for k in ('cut','catalog','application')})
+            raw=e.r.frame(before)
+            self.assertEqual(raw,e._observed(raw,peer,observed,defer_renewal=True))
+            with self.assertRaisesRegex(ValueError,'renewal capacity'):e._observed(raw,peer,observed)
+
+    def test_full_debt_does_not_suppress_original_validation(self):
+        state,generation=fixture();peer=state['plan']['peers'][2]['identity']
+        record=e.f.decode(generation,'records','GENERATION');record['cut']['index']=3
+        for field,value in (('root','f'*64),('node','node-2')):
+            bad=dict(record,**{field:value})
+            with self.subTest(field=field),self.assertRaisesRegex(ValueError,'root/identity'):
+                e._observed(e.r.frame(state),peer,e.f.encode('records','GENERATION',bad),defer_renewal=True)
+        state['plan']['peers'][2]['possible'].append({k:record[k] for k in ('cut','catalog','application')})
+        record['catalog']='f'*64
+        with self.assertRaisesRegex(ValueError,'conflicting endpoint'):
+            e._observed(e.r.frame(state),peer,e.f.encode('records','GENERATION',record),defer_renewal=True)
+
 
 if __name__=='__main__':unittest.main()

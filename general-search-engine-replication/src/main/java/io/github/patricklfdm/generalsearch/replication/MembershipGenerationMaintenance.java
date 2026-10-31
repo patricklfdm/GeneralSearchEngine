@@ -157,9 +157,12 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
         owner.reconcileMaintenancePeers();check();
         // Only these complete original copies can rule out an earlier remote
         // possibility. A publication ACK or STATUS hint cannot narrow the ledger.
-        for(var copy:copies){owner.retainPeerObservation(copy);check();}
-        // The forced floor now owns every exact copy, and the peer observations
-        // are durable. The sequential handoff has already removed matching
+        // If renewal debt is full, preserve the old ledger and its checkpoint
+        // obligations. The independent forced floor still owns the exact copies.
+        for(var copy:copies){owner.retainMaintenancePeerObservation(copy);check();}
+        // The forced floor now owns every exact copy. Newly recorded observations
+        // or the unchanged conservative obligations are durable. The sequential
+        // handoff has already removed matching
         // receiving scratch; defensively drain anything still registered before
         // retirement reserves its saved original.
         List<MembershipSourcePull> received;

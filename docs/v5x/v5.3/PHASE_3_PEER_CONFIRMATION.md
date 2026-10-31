@@ -36,6 +36,11 @@ ACKs. At most two strictly ordered lower renewals are retained; a third refuses
 before a new ledger is installed. This follows the existing
 [learner confirmation](PHASE_3_LEARNER_CONFIRMATION.md) obligation model.
 
+[Continuous maintenance](PHASE_3_MAINTENANCE_OBSERVATIONS.md) now defers optional
+observation when it would require a third renewal, retaining the entire previous
+ledger. The explicit observation API still refuses; only verified source
+reconciliation discharges the retained debt.
+
 The peer plan remains bounded by 32 KiB and its owner file by 64 KiB. The manifest
 encoding is individually bounded and the complete plan must also fit its existing
 limit; a large union of manifests can be refused. No claim is made that every

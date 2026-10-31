@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Bounded maintenance observations](PHASE_3_MAINTENANCE_OBSERVATIONS.md) defer
+optional narrowing when renewal debt is full, preserving the exact old ledger
+and all checkpoint obligations. A pre-command fresh election and BARRIER perform
+the required source reconciliation. The current whole joining run exposed this
+capacity mechanism; complete corrected-history qualification remains separate.
+
 [Incoming maintenance scratch recovery](PHASE_3_SCRATCH_RECOVERY.md#direct-incoming-maintenance-recovery)
 now accepts the actual direct receiving layout under the original owned scope.
 Its component/process evidence is separate from full automatic and joining

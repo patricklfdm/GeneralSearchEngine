@@ -139,6 +139,7 @@ class V53JoiningIntentExportTest {
             var request=new MembershipLearnerRequest(n.f.result.root(),joining,change,temp.resolve("learner"),temp.resolve("operation"));
             round.submit("RESERVE",canonical(Map.of("request",MembershipLearnerDiscovery.request(change)),8192));
             round.submit("PREPARE",canonical(Map.of("number",1L,"revision",1L),8192));
+            long preparedIndex=number(owner.activationContext().cut.get("index"));
             System.out.println("v53JoiningIntentStage=prepared");
             var pool=new MembershipResources(512*MembershipResources.MIB);
             var config=new MembershipReplicaConfig<>(request.root(),joining,List.of(),request.replicaDirectory(),storage(temp.resolve("core"),2),
@@ -150,7 +151,9 @@ class V53JoiningIntentExportTest {
                     source.close();
                     try(var typed=MembershipLearnerMaterialization.prepare(MembershipLearnerPreparation.from(store,1),builder().configuration(),config,e->{})) {
                         round.submit("READY",canonical(Map.of("number",1L,"receipt",typed.receipt().value().get("receipt")),8192));
+                        round.maintainReady(); // Preserve real pre-SEAL retention reconciliation and its fresh BARRIER.
                         publish(n,"SEAL",Map.of("number",1L));var before=owner.activationContext();var first=initial(request,targets.getFirst(),before.cut);
+                        long sealedIndex=number(before.cut.get("index"));
                         System.out.println("v53JoiningIntentStage=sealed");
                         if(installJoined)assertThrows(IllegalArgumentException.class,()->owner.publishedLearnerSource(joining,resources));
                         // A SEALED catalog alone cannot mint an original pending source.
@@ -254,15 +257,15 @@ class V53JoiningIntentExportTest {
                                             })) {
                                                 for(int voter:n.voters) {
                                                     var sourceOwner=n.owners.get(voter);var sourcePool=n.resources.get(voter);
-                                                    assertEquals(List.of(3L,5L),sourceOwner.learnerRetentionState().plan().recorded().stream().map(a->number(a.cut().get("index"))).toList());
+                                                    assertEquals(List.of(preparedIndex,sealedIndex),sourceOwner.learnerRetentionState().plan().recorded().stream().map(a->number(a.cut().get("index"))).toList());
                                                     try(var probe=new MembershipLearnerHeadProbe(sourceOwner,joining,sourcePool,n.bounds,
                                                             n.transports.get(voter)::exchange,System::nanoTime,System.nanoTime(),BUDGET)) {
-                                                        var received=probe.run();assertEquals(5L,number(received.endpoint().cut().get("index")));
+                                                        var received=probe.run();assertEquals(sealedIndex,number(received.endpoint().cut().get("index")));
                                                         assertThrows(IllegalArgumentException.class,()->received.confirmation(n.owners.get(1-voter),n.resources.get(1-voter)));
                                                         var confirmed=sourceOwner.retainLearnerConfirmation(received);
-                                                        assertEquals(List.of(5L),confirmed.plan().recorded().stream().map(a->number(a.cut().get("index"))).toList());
+                                                        assertEquals(List.of(sealedIndex),confirmed.plan().recorded().stream().map(a->number(a.cut().get("index"))).toList());
                                                         var ledger=object(parse(confirmed.plan().bytes(),MembershipLearnerRetentionPlan.MAXIMUM));
-                                                        assertEquals(List.of(3L),list(ledger.get("renewals")).stream().map(v->number(object(object(v).get("cut")).get("index"))).toList());
+                                                        assertEquals(List.of(preparedIndex),list(ledger.get("renewals")).stream().map(v->number(object(object(v).get("cut")).get("index"))).toList());
                                                         assertTrue(ledger.containsKey("confirmation"));
                                                         Files.write(n.f.raw.resolve("joining-confirmed-node-"+(voter+1)+".json"),canonical(ledger,MembershipLearnerRetentionPlan.MAXIMUM));
                                                     }
@@ -294,7 +297,7 @@ class V53JoiningIntentExportTest {
                                                     MembershipTransport.Events.NONE,System::nanoTime,System.nanoTime(),BUDGET)) {
                                                 published.fetch(temp.resolve("joining-published-progress"));
                                                 assertEquals(originalLedger,owner.learnerRetentionState(),"configured-member read does not add learner uncertainty");
-                                                assertEquals(6L,number(published.source().capsule.context.cut.get("index")));
+                                                assertEquals(sealedIndex+1,number(published.source().capsule.context.cut.get("index")));
                                                 System.out.println("v53JoiningIntentStage=original-joint-source-received");
                                                 try(var intent=published.retainPublishedIntent(e->{})) {
                                                     published.close();
@@ -323,7 +326,7 @@ class V53JoiningIntentExportTest {
                                                                 permission.check();owner.reconcileMaintenancePeers();permission.check();
                                                                 assertTrue(owner.maintenanceJoiningPeers().isEmpty());
                                                                 var reconciled=owner.peerRetentionState();
-                                                                assertEquals(List.of(6L),reconciled.plan().possible(joining).stream().map(a->number(a.cut().get("index"))).toList());
+                                                                assertEquals(List.of(sealedIndex+1),reconciled.plan().possible(joining).stream().map(a->number(a.cut().get("index"))).toList());
                                                                 for(var old:n.f.request.targets())assertEquals(beforePeers.plan().possible(old.identity()),
                                                                         reconciled.plan().possible(old.identity()),"adding a peer cannot erase old uncertainty");
                                                                 owner.reconcileMaintenancePeers();assertEquals(reconciled,owner.peerRetentionState());
@@ -493,6 +496,7 @@ class V53JoiningIntentExportTest {
      * and retaining cold owner. The native round chooses FINAL and the barrier. */
     private void continueJoint(V53NativeDispatchTest.Network n,MembershipLearnerPlan plan,MembershipResources resources,
             MembershipReplicaConfig<Integer,Doc> config,long budget,boolean joiningService)throws Exception {
+        long stableIndex=number(n.owners.getFirst().activationContext().cut.get("index"))+2;
         var wire=Collections.synchronizedList(new ArrayList<Map<String,Object>>());
         var events=new ArrayList<Object>();var failures=Collections.synchronizedList(new ArrayList<Object>());
         var result=new TreeMap<String,Object>();result.put("status","FAIL");result.put("publicReady",false);
@@ -547,7 +551,7 @@ class V53JoiningIntentExportTest {
                     var barrier=joiningService?coordinated.start():continuation.start();
                     if(joiningService){assertEquals(MembershipJointContinuation.State.READY,coordinated.state());assertArrayEquals(barrier.bytes(),coordinated.readiness().bytes());}
                     else {assertEquals(MembershipRoundDriver.State.READY,continuation.state());assertArrayEquals(barrier.bytes(),continuation.readiness().bytes());}
-                    var context=n.owners.getFirst().activationContext();assertEquals(8L,number(context.cut.get("index")));
+                    var context=n.owners.getFirst().activationContext();assertEquals(stableIndex,number(context.cut.get("index")));
                     assertNull(context.view.get("operation"));assertEquals(context.view.get("old"),context.view.get("new"));
                     assertEquals(Set.of("node-1","node-2","node-3","node-4"),context.voters());
                     assertEquals(context.cut,n.owners.get(1).activationContext().cut);assertEquals(context.cut,owner.activationContext().cut);
@@ -570,7 +574,7 @@ class V53JoiningIntentExportTest {
         }
         assertEquals(0,resources.usage().leases());
         try(var owner=MembershipGrantJournal.reopenJoinedRetaining(plan,resources,builder().configuration(),config,e->{})) {
-            assertEquals(8L,number(owner.activationContext().cut.get("index")));owner.peerRetentionState();owner.learnerRetentionState();owner.futureRetentionState();
+            assertEquals(stableIndex,number(owner.activationContext().cut.get("index")));owner.peerRetentionState();owner.learnerRetentionState();owner.futureRetentionState();
         }catch(Exception|Error error){result.put("status","FAIL");result.put("failure",error.toString());
             Files.write(n.f.raw.resolve("joining-continuation-result.json"),canonical(result,65536));throw error;
         }

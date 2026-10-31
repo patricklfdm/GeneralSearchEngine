@@ -954,6 +954,14 @@ final class MembershipGrantJournal implements AutoCloseable {
         if(Arrays.equals(plan.bytes(),before.plan().bytes()))return before;
         return retainPeerPlan(plan);
     }
+    synchronized MembershipPeerRetentionFiles.State retainMaintenancePeerObservation(MembershipFloor.Copy copy)throws IOException {
+        var before=peerRetentionState();var plan=before.plan().observeForMaintenance(current.capsule,current.ancestry(),copy);
+        if(Arrays.equals(plan.bytes(),before.plan().bytes()))return before;
+        return retainPeerPlan(plan);
+    }
+    synchronized boolean peerObservationReconciliationRequired()throws IOException {
+        return peerRetentionState().plan().observationReconciliationRequired();
+    }
     synchronized MembershipPeerRetentionFiles.State reconcilePeerRetention(List<MembershipFloor.Copy> joining)throws IOException {
         var plan=peerRetentionState().plan();return retainPeerPlan(plan.reconcile(current.capsule,current.ancestry(),joining));
     }

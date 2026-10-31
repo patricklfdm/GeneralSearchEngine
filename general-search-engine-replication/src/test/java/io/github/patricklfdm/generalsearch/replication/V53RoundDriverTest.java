@@ -31,6 +31,7 @@ class V53RoundDriverTest {
         return driver(n,callback,V53NativeDispatchTest.BUDGET);
     }
     MembershipRoundDriver<?,?> driver(V53NativeDispatchTest.Network n,MembershipRoundDriver.Events callback,long budget)throws Exception {
+        var installations=new AtomicInteger();
         return new MembershipRoundDriver<>(n.owners.getFirst(),n.endpoints.getFirst(),n.resources.getFirst(),n.bounds,n.transports.getFirst(),
                 temp.resolve("round-"+UUID.randomUUID()),()->System.nanoTime()+n.offset.get(),budget,2,
                 builder().configuration(),n.f.request.targets().getFirst().materialization(),(event,record)->{
@@ -39,8 +40,9 @@ class V53RoundDriverTest {
                     if(event.equals("INSTALLED")) {
                         n.selected=record;n.ballot=object(record.value().get("ballot"));
                         n.voters=list(record.value().get("sources")).stream().map(v->Integer.parseInt(((String)object(v).get("voter")).substring(5))-1).sorted().toList();
-                        try{n.f.snapshot("installed");}catch(Exception error){throw new IOException(error);}
-                        Files.write(n.f.raw.resolve("selected.gsr"),record.bytes());
+                        int installation=installations.incrementAndGet();String suffix=installation==1?"":"-"+installation;
+                        try{n.f.snapshot("installed"+suffix);}catch(Exception error){throw new IOException(error);}
+                        Files.write(n.f.raw.resolve("selected"+suffix+".gsr"),record.bytes());
                     }
                     if(event.equals("SLOT_BEGIN"))n.events.add(Map.of("node","node-1","event",event,"index",record.value().get("index")));
                     callback.at(event,record);

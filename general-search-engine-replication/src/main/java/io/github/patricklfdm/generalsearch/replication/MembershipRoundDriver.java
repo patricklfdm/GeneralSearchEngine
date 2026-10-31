@@ -351,12 +351,31 @@ final class MembershipRoundDriver<K,T> implements AutoCloseable {
         validateInput(kind,bytes,bounds);
         enter(State.READY);
         try(var payloadLease=resources.reserve(MembershipResources.Unit.CONTROL,"round-input",Math.max(1,bytes.length))) {
-            current();byte[] payload=bytes.clone();
+            current();byte[] payload=bytes.clone();maintainReadyRetention();
             if(kind.equals("SEAL")){transition(State.RECOVERING);synchronized(this){barrier=null;}}
             var done=publish(entry(kind,payload),payload);
             if(kind.equals("SEAL"))recoverAndReady();
             return done;
         }catch(IOException|RuntimeException|Error error){fail(error);throw error;}
+        finally{leave();}
+    }
+    /** Before accepting a new command, settle current copies and, at most once,
+     * reconcile full renewal debt through a real fresh campaign and BARRIER.
+     * The old deadline and activation attempt bound apply to the entire call.
+     * No business entry exists yet, so this never replays a client mutation. */
+    private void maintainReadyRetention()throws IOException {
+        current();endpoint.maintainInstalled(this::pulseWhileWorking);current();
+        if(owner.peerObservationReconciliationRequired()) {
+            activate();recoverAndReady();current();
+            require(!owner.peerObservationReconciliationRequired(),"native round retention reconciliation incomplete");
+        }
+    }
+    /** Same serialized pre-command boundary for a private lifecycle coordinator.
+     * Returned readiness still requires the normal current() check on use. */
+    Decoded maintainReady()throws IOException {
+        enter(State.READY);
+        try{maintainReadyRetention();current();return barrier;}
+        catch(IOException|RuntimeException|Error error){fail(error);throw error;}
         finally{leave();}
     }
     static void validateInput(String kind,byte[] bytes,ReplicationBounds bounds) {

@@ -1,5 +1,16 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Maintenance renewal reconciliation](PHASE_3_MAINTENANCE_OBSERVATIONS.md) now
+refreshes the real selection and BARRIER before accepting a new command when
+renewal debt is full. Retain every additional installation, original selected
+record and checkpoint obligation in the complete early-start joining history.
+Run `V53JoiningIntentExportTest#joiningInitializerStartsBeforeOldPreparationAndCompletesNativeHistory`
+through initialization, FINAL/BARRIER and cold reopen on one original filesystem;
+the shorter JOINT publication pass cannot be stitched into that later history.
+Extend independent replay for these additional selections and native confirmed
+joining ledgers before claiming whole-history acceptance. Performance overhead,
+all profiles and process-death qualification remain separate gates.
+
 [Peer confirmation](PHASE_3_PEER_CONFIRMATION.md) adds a focused native
 bootstrap/three-election/publication replay. Preserve every original generation,
 local renewal debt, frozen source and selected completion when extending this to

@@ -12,7 +12,7 @@ from . import round_storage_evidence as c
 f, r, need = confirmation.f, confirmation.r, confirmation.need
 
 
-def _observed(before, identity, generation):
+def _observed(before, identity, generation, *, defer_renewal=False):
     """Expected ledger bytes; generation must come from original replay."""
     state = r.decode(before); plan = copy.deepcopy(state['plan']); confirmation.plan(plan)
     point = confirmation.confirmation(base64.b64encode(generation).decode(), state['root'], identity)
@@ -31,6 +31,9 @@ def _observed(before, identity, generation):
             need(value['cut']['index'] not in renewals or renewals[value['cut']['index']] == value,
                  'observed copy conflicting renewal')
             renewals[value['cut']['index']] = value
+    # Explicit maintenance semantics only: preserve the entire original ledger,
+    # including revision and any later target. Never discard debt to make room.
+    if defer_renewal and len(renewals) > 2: return before
     proof = base64.b64encode(generation).decode()
     if 'confirmation' in row and confirmation.confirmation(row['confirmation'], state['root'], identity) == point:
         # The previous proof was already derived by the enclosing original
@@ -46,7 +49,7 @@ def _observed(before, identity, generation):
     return r.frame(dict(state, revision=state['revision']+1, previous=r.sha(before), plan=plan))
 
 
-def observe_same_cut(before, local_files, original_files):
+def observe_same_cut(before, local_files, original_files, *, defer_renewal=False):
     """Only complete exact-current original copies can enter this projection."""
     _, _, local = c.current(local_files)
     prefix, _, packet = c.current(original_files)
@@ -56,4 +59,4 @@ def observe_same_cut(before, local_files, original_files):
     need(state['owner'] == owner and state['root'] == local['capsule']['root'] == packet['capsule']['root']
          and state['plan']['view'] == local['capsule']['cut']['view']
          and c.anchor(local['capsule']) == c.anchor(packet['capsule']), 'observed copy exact current original')
-    return _observed(before, identity, generation)
+    return _observed(before, identity, generation, defer_renewal=defer_renewal)

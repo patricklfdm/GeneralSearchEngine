@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Bounded maintenance observations](PHASE_3_MAINTENANCE_OBSERVATIONS.md) preserve
+the existing conservative ledger when another observation would exceed renewal
+debt and reconcile through a fresh actual election before accepting another
+command. Strict observation and verified selected-source discharge remain required;
+component checks do not close the joining/joint history or Phase 3.
+
 [Incoming maintenance scratch recovery](PHASE_3_SCRATCH_RECOVERY.md#direct-incoming-maintenance-recovery)
 now accepts the actual direct receiving layout under the original owned scope.
 Its component/process evidence is separate from full automatic and joining
