@@ -23,13 +23,15 @@ t, peers, learner, future, PEERS = init.transition, init.peers, init.learner, in
 VOTERS = ('node-1', 'node-2', 'node-4')
 
 
-def cold_order(events):
+def cold_order(events, *, joining='node-4'):
     expected = ['CURRENT_VALIDATED', 'CURRENT_FILES_FORCED', 'CURRENT_GENERATION_FORCED', 'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED']
     expected += ['JOINING_RETENTION_'+name+'_RECOVERY_'+phase for name in ('SEED', 'DONE') for phase in ('FORCED', 'PARENT_FORCED')]
     expected += [prefix+phase for prefix in ('LEARNER_RETENTION_RECOVERY_', 'RETENTION_RECOVERY_') for phase in ('ACTIVE_FORCED', 'PARENT_FORCED')]
     expected += ['FUTURE_RETENTION_RECOVERY_FORCED', 'FUTURE_RETENTION_RECOVERY_PARENT_FORCED', 'ACCEPT_ACTIVE_FORCED', 'ACCEPT_ACTIVE_PARENT_FORCED',
                  'FIXTURE_OPEN_RETURNED', 'FIXTURE_CLOSE_RETURNED']
-    need([row['event'] for row in events if row.get('node') == 'node-4' and row.get('scope') == 'stable-cold-owner'] == expected,
+    need(all(row.get('node') == joining for row in events if row.get('scope') == 'stable-cold-owner'),
+         'joining continuation original cold owner')
+    need([row['event'] for row in events if row.get('node') == joining and row.get('scope') == 'stable-cold-owner'] == expected,
          'joining continuation original cold reseal order')
 
 
@@ -79,22 +81,33 @@ def capture(files, ballot, observed_basis, identifiers):
     return init.prepare(files, ballot, files['grants.gsr']+promise+observed_basis, identifiers)
 
 
-def maintenance(group, node, retiring=None):
+def reconcile(files):
+    """Drop removed identities only under independently derived stable FINAL."""
+    files = dict(files); cap = disk.current(files)[2]['capsule']
+    state = peers.decode(files[PEERS]); plan = copy.deepcopy(state['plan'])
+    if plan['view'] == cap['cut']['view']: return files
+    available = t.require_coverage(files)
+    for row in plan['peers']:
+        for point in [*row.get('renewals', []), *row['possible']]:
+            need(available.get(point['cut']['index']) == point, 'joining continuation reconciliation coverage')
+    known = {row['identity']['node'] for row in plan['peers']}
+    wanted = set(cap['cut']['view']['old']+cap['cut']['view']['new'])
+    need(wanted <= known and (known == wanted or cap['cut']['view']['operation'] is None),
+         'joining continuation reconciliation identity set')
+    plan.update(view=cap['cut']['view'], peers=[row for row in plan['peers'] if row['identity']['node'] in wanted])
+    files[PEERS] = peers.frame(dict(state, revision=state['revision']+1, previous=sha(files[PEERS]), plan=plan))
+    return files
+
+
+def maintenance(group, node, retiring=None, *, voters=VOTERS):
     """Conditional projection with exact derived copies, debt and source pins."""
     files = copy.deepcopy(group[node]); prefix, members, packet = disk.current(files)
     cap = packet['capsule']; owner = f.decode(files['node.gsr'], 'records', 'NODE')['identity']
     need(files['pending.accept'] == disk.EMPTY and not any(n == 'applied-end' or n.startswith('applied-end/') for n in files),
          'joining continuation maintenance unsettled authority')
     t.publication.phases.empty_future(files[future.FILE], files)
-    state = peers.decode(files[PEERS]); plan = copy.deepcopy(state['plan'])
-    # FINAL changes the view before the next maintenance. Reconcile its exact
-    # permanent voter set while preserving all existing endpoint uncertainty.
-    if plan['view'] != cap['cut']['view']:
-        need(sorted(v['identity']['node'] for v in plan['peers']) == sorted(set(cap['cut']['view']['old']+cap['cut']['view']['new'])),
-             'joining continuation reconciliation identity set')
-        plan['view'] = cap['cut']['view']
-        files[PEERS] = peers.frame(dict(state, revision=state['revision']+1, previous=sha(files[PEERS]), plan=plan))
-    copies = [node, *[n for n in VOTERS if n != node]]
+    files = reconcile(files)
+    copies = [node, *[n for n in voters if n != node]]
     s.catalog.majority(cap['cut']['view'], sorted(copies))
     for peer in copies:
         files[PEERS] = t.observation.observe_same_cut(files[PEERS], files, group[peer], defer_renewal=True)
@@ -208,17 +221,19 @@ class Continuation:
     def __init__(self, root, initialization):
         self.root, self.initialization = Path(root), initialization
         self.replay = initialization.replay
-        self.group = copy.deepcopy(initialization.group); self.group['node-4'] = copy.deepcopy(initialization.joined)
+        self.joining = self.replay.joining
+        self.voters = (*initialization.voters, self.joining)
+        self.group = copy.deepcopy(initialization.group); self.group[self.joining] = copy.deepcopy(initialization.joined)
         self.identifiers = set(initialization.identifiers); self.comparisons = 0
 
     def prepared(self, node, files):
         """Optional complete producer capture; the historical reader has none."""
 
     def maintenance(self, group, node):
-        return maintenance(group, node)
+        return maintenance(group, node, voters=self.voters)
 
     def actual(self, label, node):
-        if node != 'node-4': return disk.inventory(self.root/label/node)
+        if node != self.joining: return disk.inventory(self.root/label/node)
         joining = 'joining-originals-continuation' if label == 'after-close' else 'joining-'+label.removeprefix('continuation-')
         return disk.inventory(self.root/joining/'replica')
 
@@ -232,7 +247,7 @@ class Continuation:
 
     def joining_snapshot(self, label):
         snap = init.placement.snapshot.read(self.root/label)
-        expected = dict(self.initialization.handoff.expected, replica=self.group['node-4'])
+        expected = dict(self.initialization.handoff.expected, replica=self.group[self.joining])
         need({n for n,v in snap.identities.items() if v['present']} == set(expected), 'joining continuation family inventory')
         for family, files in expected.items():
             actual = {v['name']:None if 'directory' in v['identity'] else snap.member(family, v['name'])
@@ -245,30 +260,30 @@ class Continuation:
     def campaign(self, cut, counter):
         sources = {}; label = 'continuation-installed-'+str(cut)
         ballot = dict(counter=counter, proposer='node-1', incarnation=f.decode(self.group['node-1']['node.gsr'], 'records', 'NODE')['identity']['storage'])
-        for node in VOTERS:
+        for node in self.voters:
             observed = disk.current(self.actual(label, node))[1]['basis.gsr']
             self.group[node], sources[node] = capture(self.group[node], ballot, observed, self.identifiers)
             self.prepared(node, self.group[node])
         selected = self.replay.phases[cut]['SELECTED']
-        maintained = {node: self.maintenance(self.group, node) for node in VOTERS}
-        for node in VOTERS:
+        maintained = {node: self.maintenance(self.group, node) for node in self.voters}
+        for node in self.voters:
             self.group[node] = install(maintained[node], sources, selected)
         self.match(label)
-        for node in VOTERS:
+        for node in self.voters:
             need((self.root/f'continuation-grants-{cut}-{node}.gsr').read_bytes() == self.group[node]['grants.gsr'],
                  'joining continuation exact standalone grants')
 
     def slot(self, index):
         # All selected owners complete maintenance before application. Copies
         # refer to complete preceding generations, never a claimed endpoint.
-        for node in VOTERS: self.group[node] = self.maintenance(self.group, node)
+        for node in self.voters: self.group[node] = self.maintenance(self.group, node)
         parts = self.replay.phases[index-1]
-        for node in VOTERS:
+        for node in self.voters:
             files = self.group[node]; local = disk.current(files)[1]
             files['pending.accept'] = s.packed_phases(dict(parts, SELECTOR=files['selector.gsr'], PROMISE=local['promise.gsr'], SELECTED=local['selected.gsr']))
             files.update(t.applied_end(self.replay, files, index, node))
         self.match('applied-'+str(index))
-        for node in VOTERS: self.group[node] = t.publication.expected_publication(self.replay, self.group[node], index, node)
+        for node in self.voters: self.group[node] = t.publication.expected_publication(self.replay, self.group[node], index, node)
         self.match('published-'+str(index))
 
     def run(self):

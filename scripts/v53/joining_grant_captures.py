@@ -126,8 +126,8 @@ def collect(raw, events):
     return rows
 
 
-def require_intermediate(raw, rows):
-    """The full 3-ADD producer must retain both pre-activation old grants.
+def require_intermediate(raw, rows, *, voters=('node-1', 'node-2')):
+    """Require pre-activation grants for every declared old-majority owner.
 
     Counters come from the original pre-continuation snapshot, not a ready flag
     or a hard-coded ballot. This checks presence only; no historical derivation.
@@ -139,7 +139,7 @@ def require_intermediate(raw, rows):
     records = disk.journal(node1['grants.gsr'], allocator['root'], identity['node'])
     counter = max([allocator['counter'], *[v['ballot']['counter'] for _, _, v in records]])+1
     ballot = dict(counter=counter, proposer=identity['node'], incarnation=identity['storage'])
-    for owner in ('node-1', 'node-2'):
+    for owner in voters:
         files, _, _ = inventory(before/owner)
         actual = f.decode(files['node.gsr'], 'records', 'NODE', allocator['root'])['identity']
         for wanted in (ballot, dict(ballot, counter=counter+1)):

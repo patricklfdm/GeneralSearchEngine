@@ -4,7 +4,8 @@ The placement, custody retirement and native initialization readers now use the
 explicit `3-ADD`, `4-ADD`, `3-REPLACE`, `4-REPLACE` or `5-REPLACE` profile. This
 extends the [publication/old-voter prefix](PHASE_3_JOINING_PROFILE_PHYSICAL.md)
 through the original joining owner's first retaining reopen and repeated basis.
-The aggregate returns **PARTIAL**. Continuation, later adoption/installation,
+The aggregate returns **PARTIAL**. The subsequent scoped [continuation/adoption
+reader](PHASE_3_JOINING_PROFILE_CONTINUATION.md) is separate. Same-view installation,
 complete control attempts, maintenance/peer chains and process recovery remain
 separate qualifications. No runtime Java, workflow, workload or budget changes
 are part of this batch.

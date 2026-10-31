@@ -20,10 +20,10 @@ init, s, f, disk, need, sha = c.init, c.s, c.f, c.disk, c.need, c.sha
 
 
 class Captures:
-    def __init__(self, root, events):
+    def __init__(self, root, events, *, voters=('node-1', 'node-2')):
         self.root = Path(root)
         rows = captures.collect(root, events)
-        self.counter = captures.require_intermediate(root, rows)
+        self.counter = captures.require_intermediate(root, rows, voters=voters)
         self.by_ballot = {(v['node'], f.canonical(v['ballot'])):v for v in rows}
         need(len(self.by_ballot) == len(rows), 'joining preparation duplicate observed grant')
         self.used = set(); self.comparisons = 0; self.derived = {}
@@ -47,9 +47,9 @@ class Captures:
     def complete(self):
         need(self.used == self.by_ballot.keys(), 'joining preparation underived captured grant')
 
-    def retirement_order(self, events, final):
+    def retirement_order(self, events, final, *, owners=c.VOTERS):
         self.complete(); segments = 0
-        for node in c.VOTERS:
+        for node in owners:
             keys = sorted((k for k in self.by_ballot if k[0] == node), key=lambda k:self.by_ballot[k]['capturedEvent'])
             for i, key in enumerate(keys):
                 before = self.derived[key]; start = self.by_ballot[key]['capturedEvent']

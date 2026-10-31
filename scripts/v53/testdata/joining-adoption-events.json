@@ -1,0 +1,163 @@
+{
+  "scope": "conditional original callback projection; not a new native execution",
+  "sourceSha256": "a91a1be2836f71cfe8a9dcab53c70c21e9f7775bd56e2e1cf34b3c07c7cfc766",
+  "memberNames": [
+    "8f58c5dc2b81993b9a522b76949e046b5677746f8afbd0bc33124188f0d1e2c4.image",
+    "adopted-certificate.gsr",
+    "ancestry.gsr",
+    "promise.gsr",
+    "source.gscp"
+  ],
+  "rows": [
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "ADOPTION_INSTALL_VALIDATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "PROMISE_BEFORE_WRITE"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "PROMISE_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "PROMISE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "ADOPTION_INSTALL_FENCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_RESERVED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_DIRECTORY_CREATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MANIFEST_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MANIFEST_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_IMAGE_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_IMAGE_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MEMBER_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MEMBER_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MEMBER_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MEMBER_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MEMBER_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MEMBER_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MEMBER_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_MEMBER_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_GENERATION_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_SELECTOR_WRITTEN"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_SELECTOR_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_SELECTOR_RENAMED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "INSTALL_PARENT_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "CURRENT_VALIDATED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "CURRENT_FILES_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "CURRENT_GENERATION_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "CURRENT_SELECTOR_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "CURRENT_DIRECTORY_FORCED"
+    },
+    {
+      "node": "node-4",
+      "scope": "continuation-owner",
+      "event": "ADOPTION_INSTALL_BEFORE_RETURN"
+    }
+  ]
+}

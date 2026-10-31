@@ -1,5 +1,12 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining profile continuation](PHASE_3_JOINING_PROFILE_CONTINUATION.md)
+derives the actual selected cohort through FINAL/BARRIER and the unselected
+joiner's newer-authority adoption. Retained 3-REPLACE and legacy 3-ADD histories
+are replayed without a new native execution. Same-view installation, complete
+control attempts, maintenance/peer composition, process cuts and current-source
+profile/mapping qualification remain open; the aggregate stays PARTIAL.
+
 [Joining profile initialization](PHASE_3_JOINING_PROFILE_INITIALIZATION.md)
 extends original placement, custody retirement and native ledger/grant replay
 to all five explicit ADD/REPLACE profiles. Retained 3-REPLACE evidence qualifies
