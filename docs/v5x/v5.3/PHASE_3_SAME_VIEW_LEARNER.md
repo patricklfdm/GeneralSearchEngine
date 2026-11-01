@@ -84,3 +84,6 @@ and frozen acceptance mapping remain required. `sameViewPhysicalQualified`,
 and `phase3Complete` remain false.
 
 No production Java, workflow, POM, protocol, resource/timing or paid-cloud changes.
+
+The subsequent [ballot-force audit](PHASE_3_SAME_VIEW_BALLOT.md) qualifies
+continuous allocator/promise ordering and records the reproduced prior gap.

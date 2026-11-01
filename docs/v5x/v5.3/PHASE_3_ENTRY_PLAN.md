@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Same-view ballot forces](PHASE_3_SAME_VIEW_BALLOT.md) close a reproduced
+allocator-callback validation gap, deriving all reservations and promises from
+the original continuous history. Whole-history coverage, profile/process and
+frozen-mapping qualification remain open.
+
 [Same-view learner retention](PHASE_3_SAME_VIEW_LEARNER.md) adds continuous
 recording, retained-head confirmation and selected-merge revisions, with exact
 original grant/reopen comparisons and separate admission custody. Whole-history

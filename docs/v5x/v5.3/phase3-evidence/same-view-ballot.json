@@ -1,0 +1,701 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeWorkload": false,
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "archive": {
+    "bytes": 20001588,
+    "directories": 1206,
+    "directorySetVerified": true,
+    "elapsedSeconds": 3.879,
+    "files": 8696,
+    "memberHashesVerified": true,
+    "path": "target/v53-ballot-authority-20261101/sealed/same-view-ballot.tar.gz",
+    "sha256": "2c87674e0f9ff2b20a7d2cad6b6c0aab3adfb36de113086c629e51a5bd6e9362"
+  },
+  "archiveManifest": {
+    "bytes": 1844776,
+    "path": "target/v53-ballot-authority-20261101/sealed/manifest.json",
+    "sha256": "9ba3b547add54fea40991efb968e7af074307a937cc2e229480eee33f0950a9e"
+  },
+  "ballotForceQualified": true,
+  "baseHead": "e748414d8baf95cb4aad202d292efaac47ef0fb4",
+  "completePhysicalQualified": false,
+  "coverageAudit": {
+    "allocatorGapFixed": true,
+    "file": {
+      "bytes": 28959,
+      "path": "target/v53-ballot-authority-20261101/coverage-audit.json",
+      "sha256": "44ffa50427531fcb5243685c03108709090cfe4920195c4f36fadd792706cb7e"
+    },
+    "originalEventNames": 688,
+    "originalEvents": 18529,
+    "proposerLocalInstallationGapFixed": false,
+    "reproductions": [
+      {
+        "acceptedByPriorReader": true,
+        "event": "ALLOCATOR_FORCED",
+        "eventIndex": 42,
+        "eventsSha256": "55ed0131fd0412f5fd717113906aa63205b84f4b2b7ecabfd238dedff46eb5c9",
+        "execution": {
+          "elapsedSeconds": 46.338,
+          "exit": 0
+        },
+        "file": "audit-missing-allocator-force-events.json",
+        "log": "audit-original-reader.log",
+        "originalFilesAndOtherObservationsUnchanged": true,
+        "reader": "scripts.v53.joining_same_view_learner",
+        "readerHead": "e748414d8baf95cb4aad202d292efaac47ef0fb4",
+        "removed": {
+          "event": "ALLOCATOR_FORCED",
+          "node": "node-1"
+        }
+      },
+      {
+        "acceptedByPriorReader": true,
+        "event": "INSTALL_IMAGE_FORCED",
+        "eventIndex": 248,
+        "eventsSha256": "4d42ba5c2db3d41c9dee1bcc3ec35b8f549897ef115aa58d5766191f45f04824",
+        "execution": {
+          "elapsedSeconds": 48.242,
+          "exit": 0
+        },
+        "file": "audit-missing-proposer-install-events.json",
+        "log": "audit-proposer-install.log",
+        "originalFilesAndOtherObservationsUnchanged": true,
+        "reader": "scripts.v53.joining_same_view_learner",
+        "readerHead": "e748414d8baf95cb4aad202d292efaac47ef0fb4",
+        "removed": {
+          "event": "INSTALL_IMAGE_FORCED",
+          "node": "node-1"
+        }
+      }
+    ],
+    "wholeHistoryCoverageQualified": false
+  },
+  "deferred": [
+    "ordinary proposer-local installation force binding",
+    "remaining whole-history callback/authority coverage audit",
+    "full current-source profile cohort including REMOVE",
+    "whole-history faults and process cuts",
+    "frozen acceptance mapping"
+  ],
+  "diagnostics": {
+    "developmentNegatives": {
+      "bytes": 4167,
+      "path": "target/v53-ballot-authority-20261101/development-negatives.log",
+      "sha256": "ab575a33616314ff864a4f0981a51350ee2ffd386fcb413c80ea70464137d02b"
+    },
+    "developmentReplay": {
+      "bytes": 462,
+      "path": "target/v53-ballot-authority-20261101/development-02.log",
+      "sha256": "8c81c1adbd983b1b20b3cd190923e4180fa1cf24f11591f4ffd6095c75a732fb"
+    },
+    "failedDevelopmentReplay": {
+      "bytes": 1057,
+      "path": "target/v53-ballot-authority-20261101/development-01.log",
+      "sha256": "fdb9934d1a3ebf2de5385f43e990ceba03908c9e51d698a34d3958a9b02404ce"
+    },
+    "path": "target/v53-ballot-authority-20261101"
+  },
+  "documentContract": {
+    "path": "target/v53-ballot-authority-20261101/document-contract.json",
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1944,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "48a3191fc8421d582efc8930d87f886b618daa4fa931c09c3577dc7ab99b83d1"
+  },
+  "forceAndNetworkQualified": false,
+  "futureLedgerCompositionQualified": true,
+  "learnerLedgerCompositionQualified": true,
+  "nativeInput": {
+    "inventory": {
+      "bytes": 589747,
+      "path": "target/v53-ballot-authority-20261101/input-inventory.json",
+      "sha256": "6fbfa9544f774c5282f5cdd57b0c3aca05ca85fcc25e5ec8e967c2fab4d2224d"
+    },
+    "nativeRerun": false,
+    "priorLearnerReceipt": {
+      "bytes": 25525,
+      "path": "docs/v5x/v5.3/phase3-evidence/same-view-learner.json",
+      "sha256": "3d0721271d0dc5e266322e1fa7cf06416a81e6a178e2775ec0638e5344155a70"
+    },
+    "raw": "target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "sameOriginal": true
+  },
+  "phase3Complete": false,
+  "portable": {
+    "exactOriginalResult": true,
+    "execution": {
+      "elapsedSeconds": 52.797,
+      "exit": 0,
+      "frozenSourceUnchanged": true,
+      "inputInventoryUnchanged": true
+    },
+    "file": {
+      "bytes": 9022,
+      "path": "target/v53-ballot-authority-20261101/portable.json",
+      "sha256": "1198d86da295eaa28fd7ab14a857fa76033e35496a9dd628dff2679a564fdc14"
+    },
+    "pythonAssertionsDisabled": true
+  },
+  "processDeathQualified": false,
+  "profile": "3-REPLACE",
+  "python": {
+    "errors": 0,
+    "execution": {
+      "elapsedSeconds": 6.275,
+      "exit": 0
+    },
+    "failures": 0,
+    "focusedTests": 17,
+    "log": {
+      "bytes": 2620,
+      "path": "target/v53-ballot-authority-20261101/python-frozen.log",
+      "sha256": "8ba99f45ef3c2b98671abb813cd0af46cc34debc805a46dfa44b46e7cbfc8676"
+    },
+    "tests": 533
+  },
+  "qualification": {
+    "execution": {
+      "elapsedSeconds": 86.264,
+      "exit": 0,
+      "frozenSourceUnchanged": true,
+      "inputInventoryUnchanged": true
+    },
+    "file": {
+      "bytes": 18184,
+      "path": "target/v53-ballot-authority-20261101/reader/qualified.json",
+      "sha256": "1b9a0e28bdc9f730a23a38d32ec55a6f42a8106a1fef46bfff2d349882631775"
+    },
+    "result": {
+      "mutatedPrerequisiteReplayed": false,
+      "negativePrecondition": "full original learner/authority chain; unchanged original files, wire and other observations",
+      "negatives": [
+        {
+          "case": "directory-force-missing",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocator force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-return",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocator force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-local-reservation",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocation before local grant",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force-missing",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocator force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "foreign-owner",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot allocator event shape",
+          "status": "REJECTED"
+        },
+        {
+          "case": "forged-field",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot allocator event shape",
+          "status": "REJECTED"
+        },
+        {
+          "case": "incomplete-write",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot incomplete allocation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise-force-before-write",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact promise force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise-write-missing",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact promise force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "promise-wrong-scope",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact promise force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "rename-before-force",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocator force order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reservation-after-grant",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocation before local grant",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reservation-before-open",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot exact allocation before local grant",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-promise",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot unbound promise forces",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-reservation",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot unbound allocations",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unknown-allocator-event",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot unsupported allocator event",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unused-after-owner",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot retained unused reservation lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unused-before-repeated-read",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot retained unused reservation lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-joining-scope",
+          "mutationScope": "allocator-and-promise-callbacks-only",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining ballot allocator owner scope",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "ballot": {
+          "allocatorComparisons": 87,
+          "ballotForceQualified": true,
+          "chainSha256": "797a8ab8b928057d439ade77ee7ee684a51bdb664e79141524320b4f15a0bec7",
+          "completePhysicalQualified": false,
+          "finalCounters": {
+            "node-1": 9,
+            "node-2": 1,
+            "node-3": 1,
+            "node-4": 9
+          },
+          "forcedPromises": 20,
+          "phase3Complete": false,
+          "reservations": 11,
+          "sameViewPhysicalQualified": false,
+          "scope": "one-native-REPLACE-continuous-ballot",
+          "selfGrants": 10,
+          "status": "PASS",
+          "unusedReservations": 1
+        },
+        "ballotForceQualified": true,
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "phase3Complete": false,
+        "precondition": {
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "futureLedgerCompositionQualified": true,
+          "learner": {
+            "admissionCustodyEvents": 11,
+            "capturedLedgers": 19,
+            "chainSha256": "1b012473998f3ada4676c7def5033431d66b2986e20d132a1c2566c67461345f",
+            "completePhysicalQualified": false,
+            "durableWrites": 9,
+            "finalRevisions": {
+              "node-1": 4,
+              "node-2": 4,
+              "node-3": 0,
+              "node-4": 1
+            },
+            "learnerLedgerCompositionQualified": true,
+            "ledgerComparisons": 98,
+            "openReseals": 8,
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "sameViewPhysicalQualified": false,
+            "scope": "one-native-REPLACE-continuous-learner-ledger",
+            "selectedTransitions": 14,
+            "status": "PASS",
+            "writesByKind": {
+              "confirm": 2,
+              "record": 4,
+              "selected": 3
+            }
+          },
+          "learnerLedgerCompositionQualified": true,
+          "phase3Complete": false,
+          "precondition": {
+            "completePhysicalQualified": false,
+            "forceAndNetworkQualified": false,
+            "future": {
+              "chainSha256": "0d954936c039000563c01ceda2a353461647893379ea67d8ae7ae367a2007867",
+              "completePhysicalQualified": false,
+              "durableWrites": 44,
+              "finalRevisions": {
+                "node-1": 22,
+                "node-2": 22,
+                "node-3": 0,
+                "node-4": 0
+              },
+              "futureLedgerCompositionQualified": true,
+              "learnerLedgerCompositionQualified": false,
+              "ledgerComparisons": 78,
+              "openReseals": 8,
+              "phase3Complete": false,
+              "processDeathQualified": false,
+              "scope": "one-native-REPLACE-continuous-future-ledger",
+              "status": "PASS",
+              "writesByKind": {
+                "clear": 22,
+                "record": 22
+              }
+            },
+            "futureLedgerCompositionQualified": true,
+            "learnerLedgerCompositionQualified": false,
+            "phase3Complete": false,
+            "precondition": {
+              "completePhysicalQualified": false,
+              "controls": {
+                "allExportFamiliesQualified": false,
+                "completePhysicalQualified": false,
+                "confirmedHeads": 2,
+                "controls": {
+                  "completion": 2,
+                  "intent": 2,
+                  "preparation": 1,
+                  "retention": 2,
+                  "root": 1
+                },
+                "forceAndNetworkQualified": false,
+                "learnerSessions": {
+                  "published": 2,
+                  "recorded": 4
+                },
+                "observedCommittedContents": 524,
+                "observedContentSessions": 280,
+                "observedControlExportsQualified": true,
+                "observedLearnerRetentionQualified": true,
+                "phase3Complete": false,
+                "processDeathQualified": false,
+                "retentionRounds": 2,
+                "scope": "one-native-REPLACE-original-control-exports-and-learner-retention",
+                "status": "PASS"
+              },
+              "discoveryHints": 42,
+              "exports": {
+                "allExportFamiliesQualified": false,
+                "boundSessions": {
+                  "current-generation": 74,
+                  "frozen-source": 14,
+                  "journal": 16,
+                  "learner-current-content": 6,
+                  "native-applied-checkpoint": 23,
+                  "native-vote-receipt": 66,
+                  "pending-payload": 6,
+                  "pending-record": 44,
+                  "published-local-checkpoint": 2,
+                  "published-record": 21
+                },
+                "boundTransfers": {
+                  "current-generation": 269,
+                  "frozen-source": 42,
+                  "journal": 16,
+                  "learner-current-content": 27,
+                  "native-applied-checkpoint": 23,
+                  "native-vote-receipt": 66,
+                  "pending-payload": 6,
+                  "pending-record": 44,
+                  "published-local-checkpoint": 2,
+                  "published-record": 21
+                },
+                "completePhysicalQualified": false,
+                "forceAndNetworkQualified": false,
+                "generationWindows": 40,
+                "joiningExportLifetimes": 5,
+                "learnerRetentionAuthorizationQualified": false,
+                "phase3Complete": false,
+                "processDeathQualified": false,
+                "recordWindows": 361,
+                "scope": "native-REPLACE-temporal-exports-and-original-record-capabilities",
+                "sourceWindows": 19,
+                "status": "PARTIAL",
+                "unqualifiedSessionCount": 8,
+                "unqualifiedSessions": [
+                  {
+                    "firstEvent": 5119,
+                    "firstKind": "ROOT",
+                    "owner": "node-1",
+                    "reader": "node-4",
+                    "reference": "d05910940d0cb9a9a4719da1d9f7e2dba369a3ce297dd57c15818c618d82dc9d",
+                    "trace": "34256a74-989d-4789-8b7f-7a624e2c9916",
+                    "transfers": 1
+                  },
+                  {
+                    "firstEvent": 12315,
+                    "firstKind": "unframed-record",
+                    "owner": "node-1",
+                    "reader": "node-4",
+                    "reference": "f29197a58169ca016fa86403fa5d934ac1b35ab0f6c7b23095eefab35024128a",
+                    "trace": "a9da593d-56e9-4f55-886b-dea61fb00b3b",
+                    "transfers": 1
+                  },
+                  {
+                    "firstEvent": 12335,
+                    "firstKind": "unframed-record",
+                    "owner": "node-1",
+                    "reader": "node-4",
+                    "reference": "f29197a58169ca016fa86403fa5d934ac1b35ab0f6c7b23095eefab35024128a",
+                    "trace": "b25d589c-d382-41da-91ef-fc6e1bee38a0",
+                    "transfers": 1
+                  },
+                  {
+                    "firstEvent": 13546,
+                    "firstKind": "unframed-record",
+                    "owner": "node-1",
+                    "reader": "node-4",
+                    "reference": "5ffffff579a259850aa8d743a10a02705f286297958982be8e8c5b52d8a92091",
+                    "trace": "24823b85-b2c8-46ae-b799-ca30fcd9e8d4",
+                    "transfers": 1
+                  },
+                  {
+                    "firstEvent": 13558,
+                    "firstKind": "unframed-record",
+                    "owner": "node-1",
+                    "reader": "node-4",
+                    "reference": "3deda0a734e964f1a9ef13355d09934339d82d6b387cc59f9a24da9e67a2b8cc",
+                    "trace": "98f93c11-567c-4a52-91b8-cda97341aa9b",
+                    "transfers": 1
+                  },
+                  {
+                    "firstEvent": 13570,
+                    "firstKind": "unframed-record",
+                    "owner": "node-2",
+                    "reader": "node-4",
+                    "reference": "3deda0a734e964f1a9ef13355d09934339d82d6b387cc59f9a24da9e67a2b8cc",
+                    "trace": "c366b1ed-dacd-44be-900d-caae7143be02",
+                    "transfers": 1
+                  },
+                  {
+                    "firstEvent": 13625,
+                    "firstKind": "unframed-record",
+                    "owner": "node-4",
+                    "reader": "node-1",
+                    "reference": "a7e7a7837c54711995db4c8abd0c7ad66d300d02108c2918f619f8c5c5044d87",
+                    "trace": "c1eb25bf-270e-43d4-97a8-1a7b0b9b9a26",
+                    "transfers": 1
+                  },
+                  {
+                    "firstEvent": 14238,
+                    "firstKind": "unframed-record",
+                    "owner": "node-4",
+                    "reader": "node-1",
+                    "reference": "a7e7a7837c54711995db4c8abd0c7ad66d300d02108c2918f619f8c5c5044d87",
+                    "trace": "c2335094-c5a8-4d43-8c11-38dab42f8a44",
+                    "transfers": 1
+                  }
+                ],
+                "unqualifiedTransfers": 8
+              },
+              "forceAndNetworkQualified": false,
+              "learnerLedgerCompositionQualified": false,
+              "maintenance": {
+                "acquiredRemoteCopies": 36,
+                "completeCopies": 78,
+                "directFixtureFloors": 2,
+                "floorEvents": 2940,
+                "networkFloors": 36,
+                "retiredGenerations": 34
+              },
+              "maintenanceForceQualified": true,
+              "observedExportAuthorityQualified": true,
+              "peerLedgerCompositionQualified": true,
+              "peers": {
+                "capturedLedgers": 19,
+                "chainSha256": "aa9cd01a0ace75adabbeb84763ba83f1b2c5c652af9414d76f7502324031f4ef",
+                "completePhysicalQualified": false,
+                "durableWrites": 84,
+                "finalRevisions": {
+                  "node-1": 42,
+                  "node-2": 39,
+                  "node-3": 0,
+                  "node-4": 3
+                },
+                "forceAndNetworkQualified": false,
+                "ledgerComparisons": 93,
+                "openReseals": 8,
+                "peerLedgerCompositionQualified": true,
+                "phase3Complete": false,
+                "processDeathQualified": false,
+                "scope": "one-native-REPLACE-original-peer-ledger-chain",
+                "status": "PASS",
+                "writesByKind": {
+                  "maintenance": 50,
+                  "publication": 22,
+                  "selected": 12
+                }
+              },
+              "phase3Complete": false,
+              "precondition": {
+                "completeControlExportQualified": false,
+                "completePhysicalQualified": false,
+                "durableACKsQualified": true,
+                "forceAndNetworkQualified": false,
+                "maintenanceAndPeerCompositionQualified": false,
+                "network": {
+                  "boundInstallReplies": 7,
+                  "boundPhaseResponses": 55,
+                  "boundPromiseReplies": 9,
+                  "committedTransfers": 524,
+                  "deliveredResponses": 1693,
+                  "exactTransferRetries": 2,
+                  "failedAttempts": 5,
+                  "forcedGrants": 19,
+                  "forcedSelections": 14,
+                  "futureTargets": 11,
+                  "ownedSlotTransactions": 22,
+                  "receivedRequests": 1698,
+                  "recoveryInstallReplies": 1,
+                  "recoveryLocalInstallations": 1,
+                  "rejectedTransferAttempts": 2,
+                  "responseLessFailures": 5,
+                  "sentRequests": 1698,
+                  "slots": 11,
+                  "terminalObservations": 10,
+                  "transferSessions": 282,
+                  "transferredBytes": 2192253,
+                  "wireExchanges": 1693
+                },
+                "observedNetworkQualified": true,
+                "phase3Complete": false,
+                "physicalContinuation": {
+                  "adoption": {
+                    "inheritedLocalBridges": 1,
+                    "promiseAppended": true,
+                    "remoteBridges": 0,
+                    "requiredParents": 4
+                  },
+                  "capturedGrantComparisons": 19,
+                  "completePhysicalQualified": false,
+                  "finalCut": 11,
+                  "forceAndNetworkQualified": false,
+                  "governingFloorForceWindows": 15,
+                  "ownerSnapshotComparisons": 28,
+                  "phase3Complete": false,
+                  "processDeathQualified": false,
+                  "profile": "3-REPLACE",
+                  "recovery": {
+                    "fromCut": 10,
+                    "longest": "node-1",
+                    "proposer": "node-4",
+                    "selectedVoters": [
+                      "node-1",
+                      "node-4"
+                    ],
+                    "toCut": 11
+                  },
+                  "sameViewPhysicalQualified": false,
+                  "sameViewStorageQualified": true,
+                  "scope": "original-same-view-selected-recovery",
+                  "sourceRetirementLocalOrderSegments": 15,
+                  "sourceRetirementPrefixes": 225,
+                  "sourceRetirementTransactions": 15,
+                  "status": "PARTIAL"
+                },
+                "processDeathQualified": false,
+                "profile": "3-REPLACE",
+                "recoveryLocalInstallationQualified": true,
+                "sameViewPhysicalQualified": false,
+                "scope": "original-same-view-network-and-durable-ACKs",
+                "status": "PARTIAL"
+              },
+              "processDeathQualified": false,
+              "profile": "3-REPLACE",
+              "sameViewPhysicalQualified": false,
+              "scope": "original-same-view-export-and-maintenance-authority",
+              "status": "PARTIAL"
+            },
+            "processDeathQualified": false,
+            "sameViewPhysicalQualified": false,
+            "status": "PARTIAL"
+          },
+          "processDeathQualified": false,
+          "sameViewPhysicalQualified": false,
+          "status": "PARTIAL"
+        },
+        "processDeathQualified": false,
+        "sameViewPhysicalQualified": false,
+        "status": "PARTIAL"
+      }
+    }
+  },
+  "reader": {
+    "codeSha256": {
+      "joining_same_view_ballot.py": "63fca7424fea7ddb0d6e4bb8b9cf8fcb2fed57afb702133b82034675f0b1e7de",
+      "test_joining_same_view_ballot.py": "c84f4b2622d4d78c97dabb7e02d9d9922450aff1b2ef44fccecc404d4ffec02f"
+    },
+    "frozenSourceUnchanged": true,
+    "python": {
+      "executable": "/usr/bin/python3",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "version": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+    },
+    "source": {
+      "bytes": 609444,
+      "path": "target/v53-ballot-authority-20261101/reader/source.json",
+      "sha256": "b46c929bc39f8b3fc7dba7930ec78c150276a386b1e4598df03816c2f0a61cba"
+    }
+  },
+  "sameViewPhysicalQualified": false,
+  "schema": "gse-v53-same-view-ballot-batch-v1",
+  "status": "PARTIAL"
+}
