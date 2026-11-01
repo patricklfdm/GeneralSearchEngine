@@ -1,0 +1,664 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "productionJavaChanged": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "archive": {
+    "buildEqual": true,
+    "bytes": 41566400,
+    "developmentDiagnosticsRetained": true,
+    "directories": 2658,
+    "directorySetVerified": true,
+    "files": 20172,
+    "memberHashesVerified": true,
+    "path": "target/v53-remove-exports-20261101/sealed/remove-exports.tar.gz",
+    "producerSourcesEqual": true,
+    "sha256": "355e824a05e1fd41fa69966efdc219a3e6f76d03d7e4e9530767da39839da13d",
+    "toolchainEqual": true
+  },
+  "archiveManifest": {
+    "bytes": 4401114,
+    "path": "target/v53-remove-exports-20261101/sealed/manifest.json",
+    "sha256": "c63a29340fe241f9fdcf390bc97c14a894345d4610aa6a3b049899dab1094f36"
+  },
+  "baseHead": "024e73157d6329d380e8e5e963a106648b01513d",
+  "buildSha256": "c94c0aca365013555b462e3af081e5aac1e12cf782b107d985bd4e57110c5255",
+  "codeSha256": {
+    "scripts/v53/joining_export_evidence.py": "f4505083b656ae83a7dbca830ac015775da9535ec9eb5a333fb6b10f04807e63",
+    "scripts/v53/remove_export_evidence.py": "42234b240d01ba839bb46a29bf6d0e1bc1d5f660cd1fa8c93e26d85f7774aa1b",
+    "scripts/v53/test_remove_export_evidence.py": "736f0908bf580724ae769b9dc34fea3a11b9e5f69331984926f46be486caa1a3"
+  },
+  "diagnostics": {
+    "initialAcceptedMutation": {
+      "bytes": 1111,
+      "path": "target/v53-remove-exports-20261101/development-2.log",
+      "sha256": "5ebb6abb0e409533bca01465dc3db4ce09fc5a53e6914ad59a6d1d9ae869d2b9"
+    },
+    "note": "The source-retirement mutation initially selected an earlier equal event. It now targets the exact derived retirement occurrence; the regression and actual mutation reject after that boundary. Development logs are retained; no native workload rerun."
+  },
+  "members": [
+    {
+      "execution": {
+        "elapsedSeconds": 167.738,
+        "exit": 0
+      },
+      "nativeExecutionRepeated": false,
+      "negativeCases": [
+        {
+          "case": "generation-alias",
+          "networkPrecondition": "PASS",
+          "reason": "joining export current generation alias",
+          "status": "REJECTED"
+        },
+        {
+          "case": "generation-bytes",
+          "networkPrecondition": "PASS",
+          "reason": "joining export exact current generation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-alias",
+          "networkPrecondition": "PASS",
+          "reason": "joining export original source alias",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-ballot",
+          "networkPrecondition": "PASS",
+          "reason": "joining export original source view/ballot",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-promise",
+          "networkPrecondition": "PASS",
+          "reason": "joining export exact frozen source",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-after-retirement",
+          "networkPrecondition": "PASS",
+          "reason": "joining export inactive frozen source",
+          "status": "REJECTED"
+        },
+        {
+          "case": "receipt-alias",
+          "networkPrecondition": "PASS",
+          "reason": "joining export unavailable original record",
+          "status": "REJECTED"
+        },
+        {
+          "case": "receipt-voter",
+          "networkPrecondition": "PASS",
+          "reason": "joining export exact live record",
+          "status": "REJECTED"
+        },
+        {
+          "case": "receipt-before-force",
+          "networkPrecondition": "PASS",
+          "reason": "joining export unavailable original record",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-view",
+          "networkPrecondition": "PASS",
+          "reason": "joining export record original context",
+          "status": "REJECTED"
+        },
+        {
+          "case": "completed-checkpoint-voter",
+          "networkPrecondition": "PASS",
+          "reason": "joining export exact completed checkpoint",
+          "status": "REJECTED"
+        },
+        {
+          "case": "discovery-after-packet",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance acquisition before discovery",
+          "status": "REJECTED"
+        },
+        {
+          "case": "copy-after-reservation",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance copy delivered after floor",
+          "status": "REJECTED"
+        },
+        {
+          "case": "manifest-force",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "handoff-before-directory",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "authority-before-copies",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "release-before-force",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "release-member-count",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retirement-before-floor",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance generation retirement lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retirement-after-release",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance generation retirement lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-floor",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance unbound floor events",
+          "status": "REJECTED"
+        },
+        {
+          "case": "all-floors-missing",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance complete original floors",
+          "status": "REJECTED"
+        }
+      ],
+      "originalInventory": {
+        "bytes": 569235,
+        "path": "target/v53-remove-network-20261101/native-4/inventory.json",
+        "sha256": "21dfc3eec326ac74fcc6408964b0d13f40c917d74c90fe630ab19799c3bbe12f"
+      },
+      "portable": {
+        "bytes": 6785,
+        "path": "target/v53-remove-exports-20261101/portable-4.json",
+        "sha256": "ce8093b05f79cf4cb5e3faa40fa6ae30ad0b4b64621b85e1ba9a64cba735e0e0"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 159.326,
+        "exit": 0
+      },
+      "producerReceipt": {
+        "bytes": 1661,
+        "path": "target/v53-remove-network-20261101/native-4/receipt.json",
+        "sha256": "357978bc7dddf7d6af29dc64e40bbda3368499ff26f7ca0b4694a6c94ebfa7b3"
+      },
+      "profile": "4-REMOVE",
+      "qualification": {
+        "bytes": 6785,
+        "path": "target/v53-remove-exports-20261101/exports-4.json",
+        "sha256": "ce8093b05f79cf4cb5e3faa40fa6ae30ad0b4b64621b85e1ba9a64cba735e0e0"
+      },
+      "raw": "target/v53-remove-network-20261101/native-4/workspace/general-search-engine-replication/target/v53-native-dispatch/run-73bddafa-6061-48c0-9efe-9b344ba1acca",
+      "result": {
+        "acquiredRemoteCopies": 22,
+        "boundSessions": {
+          "current-generation": 44,
+          "frozen-source": 14,
+          "journal": 10,
+          "native-applied-checkpoint": 6,
+          "native-vote-receipt": 42,
+          "pending-payload": 4,
+          "pending-record": 20,
+          "published-local-checkpoint": 4,
+          "published-record": 1
+        },
+        "boundTransfers": {
+          "current-generation": 140,
+          "frozen-source": 42,
+          "journal": 10,
+          "native-applied-checkpoint": 6,
+          "native-vote-receipt": 42,
+          "pending-payload": 4,
+          "pending-record": 20,
+          "published-local-checkpoint": 4,
+          "published-record": 1
+        },
+        "completeCopies": 35,
+        "completeCopyFloorLifetimesQualified": true,
+        "directFixtureFloors": 0,
+        "discoveryHints": 22,
+        "floorEvents": 1148,
+        "generationWindows": 20,
+        "networkFloors": 13,
+        "observedExportAuthorityQualified": true,
+        "phase3Complete": false,
+        "precondition": {
+          "completeExportAuthorityQualified": false,
+          "durableActivationAndSlotACKsQualified": true,
+          "maintenanceCompositionQualified": false,
+          "network": {
+            "boundFailedControls": 15,
+            "boundInstallReplies": 5,
+            "boundPhaseResponses": 29,
+            "boundStatusReplies": 22,
+            "committedTransfers": 269,
+            "completeSlotStorageCallbacks": 1120,
+            "deliveredResponses": 868,
+            "exactTransferRetries": 0,
+            "failedAttempts": 15,
+            "futureTargets": 5,
+            "originalGrants": 8,
+            "ownedSlotTransactions": 8,
+            "proposerInstallations": 3,
+            "receivedRequests": 883,
+            "rejectedTransferAttempts": 0,
+            "sentRequests": 883,
+            "slots": 3,
+            "terminalObservations": 30,
+            "transferSessions": 145,
+            "transferredBytes": 1579704,
+            "wireExchanges": 868
+          },
+          "observedAttemptsQualified": true,
+          "phase3Complete": false,
+          "physical": {
+            "automaticOperationCompletion": true,
+            "internalReady": true,
+            "kind": "REMOVE",
+            "original": {
+              "activations": 3,
+              "kind": "REMOVE",
+              "phase3Complete": false,
+              "physicalQualified": true,
+              "publicReady": false,
+              "publicationBoundaryQualified": true,
+              "publishedSlots": [
+                5,
+                6,
+                7
+              ],
+              "status": "PASS"
+            },
+            "phase3Complete": false,
+            "profile": "4-REMOVE",
+            "publicReady": false,
+            "status": "PASS"
+          },
+          "processDeathQualified": false,
+          "profile": "4-REMOVE",
+          "status": "PARTIAL"
+        },
+        "processDeathQualified": false,
+        "profile": "4-REMOVE",
+        "recordWindows": 106,
+        "retentionRevisionCompositionQualified": false,
+        "retiredGenerations": 13,
+        "sourceWindows": 12,
+        "status": "PARTIAL",
+        "unqualifiedTransfers": 0
+      }
+    },
+    {
+      "execution": {
+        "elapsedSeconds": 223.544,
+        "exit": 0
+      },
+      "nativeExecutionRepeated": false,
+      "negativeCases": [
+        {
+          "case": "generation-alias",
+          "networkPrecondition": "PASS",
+          "reason": "joining export current generation alias",
+          "status": "REJECTED"
+        },
+        {
+          "case": "generation-bytes",
+          "networkPrecondition": "PASS",
+          "reason": "joining export exact current generation",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-alias",
+          "networkPrecondition": "PASS",
+          "reason": "joining export original source alias",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-ballot",
+          "networkPrecondition": "PASS",
+          "reason": "joining export original source view/ballot",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-promise",
+          "networkPrecondition": "PASS",
+          "reason": "joining export exact frozen source",
+          "status": "REJECTED"
+        },
+        {
+          "case": "source-after-retirement",
+          "networkPrecondition": "PASS",
+          "reason": "joining export inactive frozen source",
+          "status": "REJECTED"
+        },
+        {
+          "case": "receipt-alias",
+          "networkPrecondition": "PASS",
+          "reason": "joining export unavailable original record",
+          "status": "REJECTED"
+        },
+        {
+          "case": "receipt-voter",
+          "networkPrecondition": "PASS",
+          "reason": "joining export exact live record",
+          "status": "REJECTED"
+        },
+        {
+          "case": "receipt-before-force",
+          "networkPrecondition": "PASS",
+          "reason": "joining export unavailable original record",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-view",
+          "networkPrecondition": "PASS",
+          "reason": "joining export record original context",
+          "status": "REJECTED"
+        },
+        {
+          "case": "completed-checkpoint-voter",
+          "networkPrecondition": "PASS",
+          "reason": "joining export exact completed checkpoint",
+          "status": "REJECTED"
+        },
+        {
+          "case": "discovery-after-packet",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance acquisition before discovery",
+          "status": "REJECTED"
+        },
+        {
+          "case": "copy-after-reservation",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance copy delivered after floor",
+          "status": "REJECTED"
+        },
+        {
+          "case": "manifest-force",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "handoff-before-directory",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "authority-before-copies",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "release-before-force",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "release-member-count",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance exact copy force/release order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retirement-before-floor",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance generation retirement lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "retirement-after-release",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance generation retirement lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-floor",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance unbound floor events",
+          "status": "REJECTED"
+        },
+        {
+          "case": "all-floors-missing",
+          "networkPrecondition": "PASS",
+          "reason": "joining maintenance complete original floors",
+          "status": "REJECTED"
+        }
+      ],
+      "originalInventory": {
+        "bytes": 704124,
+        "path": "target/v53-remove-network-20261101/native-5/inventory.json",
+        "sha256": "e50510d1ad9727bd750abd6577e08ed5630564a345e8e4603627624800813e23"
+      },
+      "portable": {
+        "bytes": 6789,
+        "path": "target/v53-remove-exports-20261101/portable-5.json",
+        "sha256": "3c14917ab38c579f6720d92fbe13999365c136426b91530f6a1702270e127f54"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 217.924,
+        "exit": 0
+      },
+      "producerReceipt": {
+        "bytes": 1660,
+        "path": "target/v53-remove-network-20261101/native-5/receipt.json",
+        "sha256": "1f351e1b576ededf48a75fdfca14b17f932f01bf13bc91566fc6e8dfa422d27e"
+      },
+      "profile": "5-REMOVE",
+      "qualification": {
+        "bytes": 6789,
+        "path": "target/v53-remove-exports-20261101/exports-5.json",
+        "sha256": "3c14917ab38c579f6720d92fbe13999365c136426b91530f6a1702270e127f54"
+      },
+      "raw": "target/v53-remove-network-20261101/native-5/workspace/general-search-engine-replication/target/v53-native-dispatch/run-8c906efa-4237-4c91-9d0a-241a85809199",
+      "result": {
+        "acquiredRemoteCopies": 30,
+        "boundSessions": {
+          "current-generation": 60,
+          "frozen-source": 18,
+          "journal": 12,
+          "native-applied-checkpoint": 9,
+          "native-vote-receipt": 54,
+          "pending-payload": 4,
+          "pending-record": 24,
+          "published-local-checkpoint": 6,
+          "published-record": 3
+        },
+        "boundTransfers": {
+          "current-generation": 192,
+          "frozen-source": 54,
+          "journal": 12,
+          "native-applied-checkpoint": 9,
+          "native-vote-receipt": 54,
+          "pending-payload": 4,
+          "pending-record": 24,
+          "published-local-checkpoint": 6,
+          "published-record": 3
+        },
+        "completeCopies": 45,
+        "completeCopyFloorLifetimesQualified": true,
+        "directFixtureFloors": 0,
+        "discoveryHints": 30,
+        "floorEvents": 1449,
+        "generationWindows": 23,
+        "networkFloors": 15,
+        "observedExportAuthorityQualified": true,
+        "phase3Complete": false,
+        "precondition": {
+          "completeExportAuthorityQualified": false,
+          "durableActivationAndSlotACKsQualified": true,
+          "maintenanceCompositionQualified": false,
+          "network": {
+            "boundFailedControls": 28,
+            "boundInstallReplies": 6,
+            "boundPhaseResponses": 36,
+            "boundStatusReplies": 30,
+            "committedTransfers": 358,
+            "completeSlotStorageCallbacks": 1260,
+            "deliveredResponses": 1152,
+            "exactTransferRetries": 0,
+            "failedAttempts": 28,
+            "futureTargets": 6,
+            "originalGrants": 9,
+            "ownedSlotTransactions": 9,
+            "proposerInstallations": 3,
+            "receivedRequests": 1180,
+            "rejectedTransferAttempts": 0,
+            "sentRequests": 1180,
+            "slots": 3,
+            "terminalObservations": 56,
+            "transferSessions": 190,
+            "transferredBytes": 2417186,
+            "wireExchanges": 1152
+          },
+          "observedAttemptsQualified": true,
+          "phase3Complete": false,
+          "physical": {
+            "automaticOperationCompletion": true,
+            "internalReady": true,
+            "kind": "REMOVE",
+            "original": {
+              "activations": 3,
+              "kind": "REMOVE",
+              "phase3Complete": false,
+              "physicalQualified": true,
+              "publicReady": false,
+              "publicationBoundaryQualified": true,
+              "publishedSlots": [
+                5,
+                6,
+                7
+              ],
+              "status": "PASS"
+            },
+            "phase3Complete": false,
+            "profile": "5-REMOVE",
+            "publicReady": false,
+            "status": "PASS"
+          },
+          "processDeathQualified": false,
+          "profile": "5-REMOVE",
+          "status": "PARTIAL"
+        },
+        "processDeathQualified": false,
+        "profile": "5-REMOVE",
+        "recordWindows": 119,
+        "retentionRevisionCompositionQualified": false,
+        "retiredGenerations": 15,
+        "sourceWindows": 14,
+        "status": "PARTIAL",
+        "unqualifiedTransfers": 0
+      }
+    }
+  ],
+  "newNativeExecutions": 0,
+  "originalNativeHistories": 2,
+  "originalsUnchanged": true,
+  "portable": {
+    "assertionsDisabled": true,
+    "exactResults": true,
+    "originalsUnchanged": true,
+    "sourceUnchanged": true
+  },
+  "priorNetworkReceipt": {
+    "bytes": 10100,
+    "path": "docs/v5x/v5.3/phase3-evidence/remove-network.json",
+    "sha256": "328bde706c8cc416c0ddfa8c322b3dc6c3f7593c76a188ba19c3409cb9912e87"
+  },
+  "producerSourceSha256": "32893ac7ebd4fec771e57bcc8de78974ce5545aed6e37736a4208c96a6780b87",
+  "producerToReaderDelta": {
+    "bytes": 1792,
+    "path": "target/v53-remove-exports-20261101/source-delta.json",
+    "sha256": "3a357ba30baf94c4da3ecd1c03a5937c93eff7e2e95fc60c6b0e6da665688dec"
+  },
+  "profiles": [
+    "4-REMOVE",
+    "5-REMOVE"
+  ],
+  "qualification": {
+    "allSevenProfiles": false,
+    "completeCopyFloorLifetimes": true,
+    "completeRetirementTransactions": false,
+    "observedExportAuthority": true,
+    "phase3Complete": false,
+    "processDeath": false,
+    "publicRuntime": false,
+    "retentionRevisionComposition": false
+  },
+  "readerSource": {
+    "bytes": 611824,
+    "path": "target/v53-remove-exports-20261101/reader/source.json",
+    "sha256": "9fea821a558b045a97ca0d3fe3ef55e5f3b28e604134ec4b6851cdf94845e7b6"
+  },
+  "regression": {
+    "focusedTests": 50,
+    "legacyExecution": {
+      "elapsedSeconds": 32.517,
+      "exit": 0
+    },
+    "legacyHistoricalSourceOnly": true,
+    "legacyInventory": {
+      "bytes": 563164,
+      "path": "target/v53-remove-exports-20261101/legacy-inventory.json",
+      "sha256": "02603a188fe775a8842f38a314c13cf2bea9fc6d3c34ef1d5cb5f580584626a0"
+    },
+    "legacyMatchesPreviousExactly": true,
+    "legacyResult": {
+      "bytes": 2981,
+      "path": "target/v53-remove-exports-20261101/legacy-exports.log",
+      "sha256": "86875ac37e578e9e8cd0acf0fd2a8b33229208f58d1809a44ba47536c8b0d369"
+    },
+    "log": {
+      "bytes": 2771,
+      "path": "target/v53-remove-exports-20261101/python-all.log",
+      "sha256": "de1978f656310e841d232dfbe33294b683f982158dfb6e3bd142144043aedb8a"
+    },
+    "negativeCases": 44,
+    "newTests": 14,
+    "pythonTests": 683
+  },
+  "remaining": [
+    "continuous peer/future-retention revisions and recovery",
+    "complete retirement transaction callbacks",
+    "fresh-process fault histories",
+    "current-source seven-profile matrix",
+    "automatic election scheduling",
+    "frozen acceptance mapping"
+  ],
+  "schema": "gse-v53-remove-exports-batch-v1",
+  "status": "PARTIAL",
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b",
+  "totals": {
+    "acquiredRemoteCopies": 52,
+    "boundSessions": 335,
+    "boundTransfers": 627,
+    "completeCopies": 80,
+    "floorEvents": 2597,
+    "generationWindows": 43,
+    "networkFloors": 28,
+    "recordWindows": 225,
+    "retiredGenerations": 28,
+    "sourceWindows": 26,
+    "unqualifiedTransfers": 0
+  }
+}

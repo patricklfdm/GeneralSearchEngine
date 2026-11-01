@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[REMOVE export and floor lifetimes](PHASE_3_REMOVE_EXPORTS.md) bind every committed
+transfer in the two retained original histories and derive all 28 complete-copy
+floors from actual acquisition, force and release events. Retention revisions,
+retirement transactions, process/profile and frozen-mapping gates remain open.
+
 [REMOVE attempted transport](PHASE_3_REMOVE_NETWORK.md) binds complete observed
 requests and failure terminals to original grants, installation and slot replies.
 Export/maintenance lifetime composition and complete Phase 3 qualification remain

@@ -188,7 +188,7 @@ def next_promise(events,node,start,end):
     return min([end]+[at for at,row in enumerate(events) if at>start and row.get('node')==node and row['event']=='PROMISE_FORCED'])
 
 
-def record_windows(root,events,model,windows,sources,*,recovery=None):
+def record_windows(root,events,model,windows,sources,*,recovery=None,nodes=('node-1','node-2','node-4')):
     result=[]
     def add(node,start,end,raw,*,reference=None,ballot=None,view=None,family='record'):
         if raw:result.append(dict(node=node,start=start,end=end,raw=raw,reference=reference or sha(raw),
@@ -201,7 +201,7 @@ def record_windows(root,events,model,windows,sources,*,recovery=None):
     if recovery is not None:
         need(sha(recovery) not in selected,'joining export duplicate recovery selection')
         selected[sha(recovery)]=recovery
-    for node in ('node-1','node-2','node-4'):
+    for node in nodes:
         originals=[raw for raw in selected.values() if node in [s['voter'] for s in f.decode(raw,'records','SELECTED')['sources']]]
         forced=[at for at,row in enumerate(events) if row.get('node')==node and row['event']=='SELECTED_FORCED']
         need(len(originals)==len(forced),'joining export journal selection timeline')
@@ -358,20 +358,22 @@ NEGATIVES={
 }
 
 
-def mutate(root,name,*,kind='ADD',recovery=None):
+def mutate(root,name,*,kind='ADD',recovery=None,reader=None):
     events=n.s.collection.read_json(root,'events.json',n.s.collection.EVENT_BYTES)
     wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
-    model=n.s.Replay(root,kind=kind)
-    for index in range(1,12):model.step(index)
-    rows=n.causal(events,wires,n.s.catalog.identities(model.states[-1]['identities']),model.root)
-    contents=[];n.transfers(rows,contents=contents);groups=sessions(contents)
+    if reader is None:
+        model=n.s.Replay(root,kind=kind)
+        for index in range(1,12):model.step(index)
+        rows=n.causal(events,wires,n.s.catalog.identities(model.states[-1]['identities']),model.root)
+        contents=[];n.transfers(rows,contents=contents);groups=sessions(contents)
+    else:model,rows,groups=reader.model,reader.rows,reader.groups
     if name.startswith('generation-'):values=next(v for v in groups if record_kind(v[0]['raw'])=='GENERATION')
     elif name.startswith('source-'):values=next(v for v in groups if record_kind(v[0]['raw'])=='BASIS')
     elif name.startswith('receipt-'):values=next(v for v in groups if native_receipt(v[0]['raw']))
     elif name=='record-view':values=next(v for v in groups if record_kind(v[0]['raw'])=='ENTRY')
     elif name=='pending-after-retain':values=next(v for v in groups if v[0]['raw']==pending_ack(model))
     else:
-        windows=generation_windows(root,events,model,recovery=recovery)
+        windows=generation_windows(root,events,model,recovery=recovery) if reader is None else reader.windows
         values=next(v for v in groups if record_kind(v[0]['raw'])=='CHECKPOINT_ACK' and
             v[0]['offer']['request']['recipient']['node']!='node-4' and v[0]['offer']['request']['view']!=
             n.s.catalog.authority(model.root,current(windows,v[0]['offer']['request']['recipient']['node'],
@@ -384,12 +386,16 @@ def mutate(root,name,*,kind='ADD',recovery=None):
                 event[side]=sha(raw)
                 if side=='request' and event['event'] in n.SENDS:event['bytes']=row[side]
     if name in ('source-after-retirement','receipt-before-force','pending-after-retain'):
+        retirement=None
+        if name=='source-after-retirement' and reader is not None:
+            source=next(v for v in reader.sources if v['node']==owner and sha(v['basis'])==q['payload']['digest'])
+            need(source['end']<len(events),'export mutation requires actually retired source');retirement=events[source['end']]
         exchanges=[v for v in rows if v['request']['trace']==trace and v['request']['recipient']['node']==owner]
         requests={v['requestHash'] for v in exchanges};responses={v['responseHash'] for v in exchanges}
         moving=[v for v in events if v.get('request') in requests or v.get('response') in responses]
         events=[v for v in events if v.get('request') not in requests and v.get('response') not in responses]
         point='SOURCE_RETIREMENT_CREATED' if name=='source-after-retirement' else 'ACCEPT_BEFORE_RETURN' if name=='receipt-before-force' else 'LEARNER_JOINING_RETAIN_CREATED'
-        at=next(i for i,v in enumerate(events) if v.get('node')==owner and v['event']==point)
+        at=next(i for i,v in enumerate(events) if v is retirement) if retirement is not None else next(i for i,v in enumerate(events) if v.get('node')==owner and v['event']==point)
         if name!='receipt-before-force':at+=1
         events[at:at]=moving
     elif name in ('generation-alias','source-alias','receipt-alias'):
@@ -407,12 +413,12 @@ def mutate(root,name,*,kind='ADD',recovery=None):
         target=values[1] if name=='source-promise' else values[0];raw=target['raw'];kind=record_kind(raw)
         if kind:
             value=f.decode(raw,'records',kind)
-            if name=='generation-bytes':value['node']='node-3'
-            elif name=='source-promise':value['basisId']='00000000-0000-0000-0000-000000000001'
-            else:value['voter']='node-3'
+            if name=='generation-bytes':value['node']='node-3' if value['node']!='node-3' else 'node-2'
+            elif name=='source-promise':value['basisId']='00000000-0000-0000-0000-000000000001' if value['basisId']!='00000000-0000-0000-0000-000000000001' else '00000000-0000-0000-0000-000000000002'
+            else:value['voter']='node-3' if value['voter']!='node-3' else 'node-2'
             changed=f.encode('records',kind,value)
         else:
-            value=json.loads(raw);value['voter']='node-3';changed=f.canonical(value)
+            value=json.loads(raw);value['voter']='node-3' if value['voter']!='node-3' else 'node-2';changed=f.canonical(value)
         identifier=target['offer']['request']['payload']['id'];data_rows=0
         for row in wires:
             request_kind,request=n.wire(row['request']);answer,response=n.wire(row['response'])
