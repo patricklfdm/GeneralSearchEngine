@@ -92,7 +92,7 @@ def force_names():
 
 def blocks(events, replay):
     result = {}; critical = force_names()
-    nodes=(*replay.old,replay.joining)
+    nodes=replay.old if replay.joining is None else (*replay.old,replay.joining)
     need(all(v.get('node') in nodes for v in events if v.get('event') in critical), 'joining slot force unknown owner')
     for node in nodes:
         indices = [i for i, raw in enumerate(replay.phases, 1)
@@ -206,10 +206,14 @@ def phase_replay(events, rows, replay, physical):
                 disk.current(pub[node])[1], f.decode(parts['ENTRY'], 'records', 'ENTRY')['kind'])
         for target in targets:
             identity = semantic.catalog.identities(replay.states[index]['identities'])[target]
+            # A separately derived REMOVE history can retain an older possible
+            # endpoint when renewal capacity is full. It comes from the exact
+            # applied ledger, never from the incoming intent or claimed ACK.
+            lower = replay.future_lower(index,target) if hasattr(replay,'future_lower') else parent
             intent = dict(selection=sha(parts['SELECTED']), certificate=sha(parts['CERTIFICATE']), peer=identity,
-                          lower=parent, parent=parent, upper=upper)
+                          lower=lower, parent=parent, upper=upper)
             for node in voters:
-                peer_points[node].append(dict(identity=identity, lower=parent))
+                peer_points[node].append(dict(identity=identity, lower=lower))
                 meta = metadata[node] = dict(metadata[node], revision=metadata[node]['revision']+1,
                     previous=sha(current[node]), parent=parent, peers=list(peer_points[node]))
                 current[node] = future.frame(meta, originals[node])

@@ -100,6 +100,9 @@ class V53TransitionRoundDriverTest {
         assertTrue(Set.of("4-REMOVE","5-REMOVE").contains(profile),"exact REMOVE profile");
         int size=profile.charAt(0)-'0';var ordinal=new AtomicInteger();
         try(var n=network("SEALED",size);var round=driver(n,ordinal,MembershipRoundDriver.Events.NONE)) {
+            // Observe every attempted exchange before the first native campaign.
+            // Responses alone cannot establish delivery or account for failures.
+            n.observeRequests=true;
             var completed=round.start();assertEquals("PUBLISH_ACK",completed.kind());assertEquals(3,ordinal.get());
             assertEquals(MembershipRoundDriver.State.READY,round.state());assertArrayEquals(completed.bytes(),round.readiness().bytes());
             var context=n.owners.getFirst().activationContext();assertEquals(7L,context.cut.get("index"));

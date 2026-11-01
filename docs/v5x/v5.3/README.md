@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[REMOVE attempted transport](PHASE_3_REMOVE_NETWORK.md) binds complete observed
+requests and failure terminals to original grants, installation and slot replies.
+Export/maintenance lifetime composition and complete Phase 3 qualification remain
+open; the earlier response-only histories retain their physical scope.
+
 [Continuous REMOVE profiles](PHASE_3_REMOVE_PROFILES.md) add explicit four- and
 five-voter execution and independent physical/lifecycle replay through original
 INTENT, FINAL and a new-stable BARRIER. Complete network/process, all-profile and

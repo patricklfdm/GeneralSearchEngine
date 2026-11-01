@@ -1,0 +1,285 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "productionJavaChanged": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "archive": {
+    "buildEqual": true,
+    "bytes": 65433825,
+    "directories": 3224,
+    "directorySetVerified": true,
+    "files": 29050,
+    "initialReaderFailureRetained": true,
+    "memberHashesVerified": true,
+    "path": "target/v53-remove-network-20261101/sealed/remove-network.tar.gz",
+    "producerSourcesEqual": true,
+    "sha256": "c3014dd3fdd50820baee4617ade202ba26569ab27a2636a977092ef209baa0bf",
+    "toolchainEqual": true
+  },
+  "archiveManifest": {
+    "bytes": 6468429,
+    "path": "target/v53-remove-network-20261101/sealed/manifest.json",
+    "sha256": "5e98f3448993148d476cef55b961d2d119b1924408b0cd48e1a01d8d98a20388"
+  },
+  "baseHead": "49079a0e2fc92170b87d4253cb5db989d0111974",
+  "buildEqual": true,
+  "buildSha256": "c94c0aca365013555b462e3af081e5aac1e12cf782b107d985bd4e57110c5255",
+  "codeSha256": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionRoundDriverTest.java": "cb9471756afbd2b6521ae2853798a6ef845bbb76570d166539778d0b4eeddd1f",
+    "scripts/v53/joining_phase_evidence.py": "eb62ebf4f5a42a11507cb893479924f951fa783a65db622234a33610537c617f",
+    "scripts/v53/remove_network_evidence.py": "7bf248ed4ce47569d082ebce0de90105567d3dcace782d4ccbc6f6efc736719c",
+    "scripts/v53/test_remove_network_evidence.py": "2ae1097001e18b5b30601f320404b442e95e459be743a5b0f0a27a5db6f408d0"
+  },
+  "corrections": {
+    "developmentFailures": [
+      {
+        "bytes": 1224,
+        "path": "target/v53-remove-network-20261101/network-5-development-2.log",
+        "sha256": "8b7c308616966348be46af907ccd910c72eb5427d429771dace331ecfa2d49e0"
+      },
+      {
+        "bytes": 916,
+        "path": "target/v53-remove-network-20261101/network-5-development-3.log",
+        "sha256": "f29a9c26f26d984fb22e0d0812d6e2833287d4b9360dd10ab297e7f22dbb5df7"
+      }
+    ],
+    "initialFailedReaderRetained": true,
+    "initialFailure": {
+      "bytes": 1507,
+      "path": "target/v53-remove-network-20261101/network-5-positive.log",
+      "sha256": "c98fb0c898addd1a4a4d36d62cf3658efc505dbc8f996d2772b13d85ae94eef0"
+    },
+    "initialReaderSource": {
+      "bytes": 611468,
+      "path": "target/v53-remove-network-20261101/reader/source.json",
+      "sha256": "87f525a3ab3b0ae8ba4102225903f077598e16c21c15e97beb35d84069ab248b"
+    },
+    "nativeRerun": false,
+    "productionJavaChanged": false,
+    "reason": "New reader assumed sequence 1 for all recipients; activation and future quorum allocate distinct peer sequences. A result assembly error was also corrected. Original runtime histories passed and were not rerun."
+  },
+  "members": [
+    {
+      "nativeExecution": {
+        "elapsedSeconds": 328.579,
+        "exit": 0
+      },
+      "network": {
+        "boundFailedControls": 15,
+        "boundInstallReplies": 5,
+        "boundPhaseResponses": 29,
+        "boundStatusReplies": 22,
+        "committedTransfers": 269,
+        "completeSlotStorageCallbacks": 1120,
+        "deliveredResponses": 868,
+        "exactTransferRetries": 0,
+        "failedAttempts": 15,
+        "futureTargets": 5,
+        "originalGrants": 8,
+        "ownedSlotTransactions": 8,
+        "proposerInstallations": 3,
+        "receivedRequests": 883,
+        "rejectedTransferAttempts": 0,
+        "sentRequests": 883,
+        "slots": 3,
+        "terminalObservations": 30,
+        "transferSessions": 145,
+        "transferredBytes": 1579704,
+        "wireExchanges": 868
+      },
+      "networkExecution": {
+        "elapsedSeconds": 144.742,
+        "exit": 0
+      },
+      "networkNegatives": 60,
+      "networkReplay": {
+        "bytes": 10110,
+        "path": "target/v53-remove-network-20261101/network-4-final.json",
+        "sha256": "67e4f42456a14a528300f7c9cd6a241fb2a302ef474341f228fadb10b7f6e6ea"
+      },
+      "originalInventory": {
+        "bytes": 569235,
+        "path": "target/v53-remove-network-20261101/native-4/inventory.json",
+        "sha256": "21dfc3eec326ac74fcc6408964b0d13f40c917d74c90fe630ab19799c3bbe12f"
+      },
+      "physicalExecution": {
+        "elapsedSeconds": 33.918,
+        "exit": 0
+      },
+      "physicalNegatives": 16,
+      "portable": {
+        "bytes": 10110,
+        "path": "target/v53-remove-network-20261101/portable-4.json",
+        "sha256": "67e4f42456a14a528300f7c9cd6a241fb2a302ef474341f228fadb10b7f6e6ea"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 144.407,
+        "exit": 0
+      },
+      "profile": "4-REMOVE",
+      "raw": "target/v53-remove-network-20261101/native-4/workspace/general-search-engine-replication/target/v53-native-dispatch/run-73bddafa-6061-48c0-9efe-9b344ba1acca",
+      "receipt": {
+        "bytes": 1661,
+        "path": "target/v53-remove-network-20261101/native-4/receipt.json",
+        "sha256": "357978bc7dddf7d6af29dc64e40bbda3368499ff26f7ca0b4694a6c94ebfa7b3"
+      }
+    },
+    {
+      "nativeExecution": {
+        "elapsedSeconds": 387.72,
+        "exit": 0
+      },
+      "network": {
+        "boundFailedControls": 28,
+        "boundInstallReplies": 6,
+        "boundPhaseResponses": 36,
+        "boundStatusReplies": 30,
+        "committedTransfers": 358,
+        "completeSlotStorageCallbacks": 1260,
+        "deliveredResponses": 1152,
+        "exactTransferRetries": 0,
+        "failedAttempts": 28,
+        "futureTargets": 6,
+        "originalGrants": 9,
+        "ownedSlotTransactions": 9,
+        "proposerInstallations": 3,
+        "receivedRequests": 1180,
+        "rejectedTransferAttempts": 0,
+        "sentRequests": 1180,
+        "slots": 3,
+        "terminalObservations": 56,
+        "transferSessions": 190,
+        "transferredBytes": 2417186,
+        "wireExchanges": 1152
+      },
+      "networkExecution": {
+        "elapsedSeconds": 192.735,
+        "exit": 0
+      },
+      "networkNegatives": 60,
+      "networkReplay": {
+        "bytes": 10114,
+        "path": "target/v53-remove-network-20261101/network-5-final.json",
+        "sha256": "5c153efba680a896b1de1c0e30548c5f58ae8bae7d21a9ba5666d579fed82509"
+      },
+      "originalInventory": {
+        "bytes": 704124,
+        "path": "target/v53-remove-network-20261101/native-5/inventory.json",
+        "sha256": "e50510d1ad9727bd750abd6577e08ed5630564a345e8e4603627624800813e23"
+      },
+      "physicalExecution": {
+        "elapsedSeconds": 45.199,
+        "exit": 0
+      },
+      "physicalNegatives": 16,
+      "portable": {
+        "bytes": 10114,
+        "path": "target/v53-remove-network-20261101/portable-5.json",
+        "sha256": "5c153efba680a896b1de1c0e30548c5f58ae8bae7d21a9ba5666d579fed82509"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 185.272,
+        "exit": 0
+      },
+      "profile": "5-REMOVE",
+      "raw": "target/v53-remove-network-20261101/native-5/workspace/general-search-engine-replication/target/v53-native-dispatch/run-8c906efa-4237-4c91-9d0a-241a85809199",
+      "receipt": {
+        "bytes": 1660,
+        "path": "target/v53-remove-network-20261101/native-5/receipt.json",
+        "sha256": "1f351e1b576ededf48a75fdfca14b17f932f01bf13bc91566fc6e8dfa422d27e"
+      }
+    }
+  ],
+  "nativeHistories": 2,
+  "nativeRetries": 0,
+  "originalsUnchanged": true,
+  "portable": {
+    "assertionsDisabled": true,
+    "exactResults": true,
+    "originalsUnchanged": true,
+    "sourceUnchanged": true
+  },
+  "producerSourceSha256": "32893ac7ebd4fec771e57bcc8de78974ce5545aed6e37736a4208c96a6780b87",
+  "producerToReaderDelta": {
+    "bytes": 1100,
+    "path": "target/v53-remove-network-20261101/source-delta.json",
+    "sha256": "20ab5e58bc86c4a9f2aa92813d87e2171cf8d3b32b4c1351463038bc70ab27d0"
+  },
+  "profiles": [
+    "4-REMOVE",
+    "5-REMOVE"
+  ],
+  "qualification": {
+    "allSevenProfiles": false,
+    "completeExportAuthority": false,
+    "durableActivationAndSlotACKs": true,
+    "maintenanceComposition": false,
+    "observedAttempts": true,
+    "originalPhysical": true,
+    "phase3Complete": false,
+    "processDeath": false,
+    "publicRuntime": false
+  },
+  "readerSource": {
+    "bytes": 611468,
+    "path": "target/v53-remove-network-20261101/reader-v3/source.json",
+    "sha256": "b6d1f3a42be89457cba892b7398a8f99fa6a5beac363c3c3c771876cddfea61d"
+  },
+  "regression": {
+    "errors": 0,
+    "failures": 0,
+    "legacyExecution": {
+      "elapsedSeconds": 6.275,
+      "exit": 0
+    },
+    "legacyHistoricalSourceOnly": true,
+    "legacyInventory": {
+      "bytes": 563164,
+      "path": "target/v53-remove-network-20261101/legacy-inventory.json",
+      "sha256": "02603a188fe775a8842f38a314c13cf2bea9fc6d3c34ef1d5cb5f580584626a0"
+    },
+    "legacyPhaseReplay": {
+      "bytes": 407,
+      "path": "target/v53-remove-network-20261101/legacy-phase-final.log",
+      "sha256": "725c52baf08f297ef130e2c6732a1e0bcbf1451e55158a601539e8c760c78236"
+    },
+    "log": {
+      "bytes": 2757,
+      "path": "target/v53-remove-network-20261101/python-final-v3.log",
+      "sha256": "21cae45556e2a9405e5834485563152a74fc1c9974518383e2b94f0c35de24a4"
+    },
+    "networkNegatives": 120,
+    "physicalNegatives": 32,
+    "pythonTests": 669
+  },
+  "remaining": [
+    "original export capability lifetimes",
+    "complete maintenance/retention callback composition",
+    "fresh-process fault matrix",
+    "native removed-proposer/follower variants",
+    "current-source ADD/REPLACE cohort",
+    "autonomous election scheduling",
+    "frozen Phase 3 acceptance mapping"
+  ],
+  "schema": "gse-v53-remove-network-batch-v1",
+  "sourceEqual": true,
+  "status": "PARTIAL",
+  "toolchainEqual": true,
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b",
+  "totals": {
+    "boundInstallReplies": 11,
+    "committedTransfers": 627,
+    "completeSlotStorageCallbacks": 2380,
+    "deliveredResponses": 2020,
+    "failedAttempts": 43,
+    "originalGrants": 17,
+    "ownedSlotTransactions": 17,
+    "proposerInstallations": 6,
+    "receivedRequests": 2063,
+    "sentRequests": 2063,
+    "terminalObservations": 86
+  }
+}
