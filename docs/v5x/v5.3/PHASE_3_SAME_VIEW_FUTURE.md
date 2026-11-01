@@ -80,3 +80,7 @@ mapping remain open. `learnerLedgerCompositionQualified`,
 `processDeathQualified` and `phase3Complete` remain false.
 
 No production Java, workflow, POM, frozen resource/timing or paid-cloud changes.
+
+[Continuous learner retention](PHASE_3_SAME_VIEW_LEARNER.md) subsequently binds
+the same original GSLR chain and admission custody callbacks. Whole-history and
+full profile/process qualification remain separate.

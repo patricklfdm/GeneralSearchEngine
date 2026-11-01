@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Same-view learner retention](PHASE_3_SAME_VIEW_LEARNER.md) adds continuous
+recording, retained-head confirmation and selected-merge revisions, with exact
+original grant/reopen comparisons and separate admission custody. Whole-history
+coverage, profile/process and frozen-mapping qualification remain open.
+
 [Same-view future retention](PHASE_3_SAME_VIEW_FUTURE.md) adds continuous
 original GSFT revisions, all recording/clearing forces and original reopen
 ordering. Learner-ledger, full profile/process and frozen-mapping qualification
