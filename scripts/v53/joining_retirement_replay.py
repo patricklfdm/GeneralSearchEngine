@@ -41,7 +41,7 @@ def governing(files,copies,node):
     return files
 
 
-def decision(files,node,identifier):
+def decision(files,node,identifier,*,coverage=None):
     """Exact old grant plus a new decision, derived before any deletion."""
     _,current,packet=disk.current(files);cap=packet['capsule']
     rows=disk.journal(files['grants.gsr'],cap['root'],node)
@@ -56,7 +56,8 @@ def decision(files,node,identifier):
          'joining retirement pinned original source')
     prefix='sources/'+identifier+'/'
     source=disk.p.decode(files[prefix+'source.gscp']);disk.p.bind(source,basis)
-    available=t.require_coverage(files);point=disk.anchor(source['capsule'])
+    available=t.require_coverage(files) if coverage is None else coverage
+    point=disk.anchor(source['capsule'])
     need(available.get(point['cut']['index'])==point and source['capsule']['root']==cap['root'],
          'joining retirement governing source coverage')
     need(group[1][2]['accepted'] is None, 'joining retirement joining fixture unresolved tail')

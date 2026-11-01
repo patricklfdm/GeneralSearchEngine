@@ -1,9 +1,14 @@
 # V5.3 — controlled cluster operations
 
+[Complete observed REMOVE retirement](PHASE_3_REMOVE_RETIREMENT.md) derives all
+1637 callbacks across 28 generation and 17 source retirements, including the
+capacity-driven borrowing decision. Transient retirement captures, process/profile
+qualification and frozen acceptance mapping remain open.
+
 [Continuous REMOVE retention](PHASE_3_REMOVE_RETENTION.md) derives peer and future
 revision chains across the same original three-campaign histories, including
-all original opens and inactive voters. Complete retirement transactions,
-process/profile gates and frozen acceptance mapping remain open.
+all original opens and inactive voters. The retirement callback extension is
+recorded above; process/profile gates and frozen acceptance mapping remain open.
 
 [REMOVE export and floor lifetimes](PHASE_3_REMOVE_EXPORTS.md) bind every committed
 transfer in the two retained original histories and derive all 28 complete-copy

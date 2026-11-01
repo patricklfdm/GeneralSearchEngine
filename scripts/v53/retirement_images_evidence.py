@@ -46,14 +46,16 @@ def plan(directory,case):
     return initial,original,record,floor,selector,g.f.canonical(bound)
 
 
-def transaction(state,original,record,binding,borrow):
-    if not borrow:return old.transaction(state,original,record)
+def transaction(state,original,record,binding,borrow,*,slot='a'):
+    need(slot in ('a','b'),'retirement transaction slot')
+    if not borrow:return old.transaction(state,original,record,slot=slot)
+    generation='generations/'+slot
     state=dict(state);steps=[]
     def event(name):steps.append((name,dict(state)))
     def directory(name,point):state[name]=dict(directory=True);event(point)
     def write(name,raw,point):state[name]=old.entry(raw);event(point+'_WRITTEN');event(point+'_FORCED')
     def remove(name,point):state.pop(name);event(point)
-    if 'generations/a' not in state and 'retirement/retirement.gsr' not in state:
+    if generation not in state and 'retirement/retirement.gsr' not in state:
         if 'retirement' in state:remove('retirement','RETIREMENT_CLEARED')
         return steps,None
     if 'retirement/retirement.gsr' not in state:
@@ -69,11 +71,11 @@ def transaction(state,original,record,binding,borrow):
     else:
         if BINDING in state:event('RETIREMENT_BORROWED_IMAGES_FORCED')
         event('RETIREMENT_AUTHORITY_RESEALED')
-    if 'generations/a' in state:
+    if generation in state:
         event('RETIREMENT_DELETE_VALIDATED')
         for name in sorted(original):
-            if 'generations/a/'+name in state:remove('generations/a/'+name,'RETIREMENT_FILE_DELETED')
-        remove('generations/a','RETIREMENT_DIRECTORY_DELETED')
+            if generation+'/'+name in state:remove(generation+'/'+name,'RETIREMENT_FILE_DELETED')
+        remove(generation,'RETIREMENT_DIRECTORY_DELETED')
     for name in sorted(original):
         if 'retirement/source/'+name in state:remove('retirement/source/'+name,'RETIREMENT_SAVED_FILE_DELETED')
     if 'retirement/source' in state:remove('retirement/source','RETIREMENT_SAVED_DIRECTORY_DELETED')
