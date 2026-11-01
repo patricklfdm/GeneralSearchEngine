@@ -18,13 +18,17 @@ import static io.github.patricklfdm.generalsearch.admission.OfflineApplication.*
 class V53TransitionRoundDriverTest {
     @TempDir Path temp;
     V53NativeDispatchTest.Network network(String phase)throws Exception {
+        return network(phase,4);
+    }
+    V53NativeDispatchTest.Network network(String phase,int size)throws Exception {
+        assertTrue(size==4 || size==5,"REMOVE original voter count");
         var helper=new V53NativeDispatchTest();helper.temp=temp;var b=ReplicationBounds.defaults();
         var bounds=new ReplicationBounds(b.maxFrameBytes(),b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
                 b.maxRetryAttempts(),30_000,b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
-        return helper.new Network(4,bounds,TimeUnit.MINUTES.toNanos(10),f->{
+        return helper.new Network(size,bounds,TimeUnit.MINUTES.toNanos(10),f->{
             var walk=new V53AdmittedCrossViewTest.Walk(f);
             var request=Map.of("root",f.result.root().manifestDigest(),"expected",walk.current().authority(),"number",1L,"kind","REMOVE",
-                    "target",f.request.targets().subList(0,3).stream().map(t->MembershipBootstrapSeed.identity(t.identity())).toList());
+                    "target",f.request.targets().subList(0,size-1).stream().map(t->MembershipBootstrapSeed.identity(t.identity())).toList());
             walk.publish("RESERVE",Map.of("request",request));walk.publish("PREPARE",Map.of("number",1L,"revision",1L));
             walk.publish("READY",V53ContextFixture.map("number",1L,"receipt",null));
             if(!phase.equals("READY"))walk.publish("SEAL",Map.of("number",1L));
@@ -89,6 +93,25 @@ class V53TransitionRoundDriverTest {
                 Files.write(n.f.raw.resolve("transition-round-result.json"),canonical(Map.of("status","PASS","kind","REMOVE","activations",3,
                         "internalReady",true,"publicReady",false,"originalBudgetSeconds",600),4096));
 
+        }
+    }
+    @Test void removalProfileCompletesOneOriginalRoundLifetime()throws Exception {
+        String profile=System.getProperty("v53.remove.profile","4-REMOVE");
+        assertTrue(Set.of("4-REMOVE","5-REMOVE").contains(profile),"exact REMOVE profile");
+        int size=profile.charAt(0)-'0';var ordinal=new AtomicInteger();
+        try(var n=network("SEALED",size);var round=driver(n,ordinal,MembershipRoundDriver.Events.NONE)) {
+            var completed=round.start();assertEquals("PUBLISH_ACK",completed.kind());assertEquals(3,ordinal.get());
+            assertEquals(MembershipRoundDriver.State.READY,round.state());assertArrayEquals(completed.bytes(),round.readiness().bytes());
+            var context=n.owners.getFirst().activationContext();assertEquals(7L,context.cut.get("index"));
+            assertNull(context.catalog.get("active"));
+            assertEquals("COMPLETED",object(list(context.catalog.get("results")).getLast()).get("phase"));
+            var expected=java.util.stream.IntStream.range(1,size).mapToObj(i->"node-"+i).toList();
+            assertEquals(expected,list(context.view.get("old")));assertEquals(expected,list(context.view.get("new")));
+            assertNull(context.view.get("operation"));
+            assertEquals(size/2+1,list(decode(Files.readAllBytes(n.f.raw.resolve("selected-1.gsr")),"records","SELECTED").value().get("sources")).size());
+            assertEquals((size-1)/2+1,n.voters.size());
+            Files.write(n.f.raw.resolve("transition-round-result.json"),canonical(Map.of("status","PASS","kind","REMOVE","profile",profile,
+                    "activations",3,"internalReady",true,"publicReady",false,"originalBudgetSeconds",600),4096));
         }
     }
     @Test void originalJointConfigurationFinishesBeforeItsFirstBarrier()throws Exception {

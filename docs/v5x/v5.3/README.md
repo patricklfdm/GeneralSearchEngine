@@ -1,5 +1,10 @@
 # V5.3 — controlled cluster operations
 
+[Continuous REMOVE profiles](PHASE_3_REMOVE_PROFILES.md) add explicit four- and
+five-voter execution and independent physical/lifecycle replay through original
+INTENT, FINAL and a new-stable BARRIER. Complete network/process, all-profile and
+frozen-mapping qualification remain open.
+
 [Complete slot storage](PHASE_3_SLOT_STORAGE.md) closes three reproduced
 publication/retirement callback gaps and checks full vote, application and
 publication transactions against original inventories. Native profile/process

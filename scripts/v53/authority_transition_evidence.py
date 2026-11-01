@@ -19,9 +19,10 @@ b,c,e,f,need=d.b,d.c,d.e,d.f,d.need
 VOTERS=('node-1','node-2','node-3')
 
 
-def prelude(root,kind):
+def prelude(root,kind,*,size=4):
     need(kind in ('READY','INTENT','FINAL'),'transition preparation profile')
-    group=d.s.initialize(b.original(root,4,False))
+    need(type(size) is int and size in (4,5),'transition REMOVE voter count')
+    group=d.s.initialize(b.original(root,size,False))
     group={n:dict(v,**{d.future.FILE:d.future.frame(d.future.initial(v),{})}) for n,v in group.items()}
     prepared,selected,installed=d.s.campaign(root,group,2,'round-1-prepared',selected_prefix=d.slot.prefix)
     for label,states in [('prepared',prepared),('selected',selected),('installed',installed),('settled',b.settled(installed))]:
@@ -31,7 +32,7 @@ def prelude(root,kind):
     for phase in ('prepare','select','install'):walk.phase(phase+'-1',walk.active)
     walk.history=f.decode(group['node-1']['root.gsr'],'records','ROOT')['historyId']
     _,_,cap,cat=walk.state()
-    request=dict(root=cap['root'],expected=e.authority(cap['root'],cap['cut']['view']),number=1,kind='REMOVE',target=cat['identities'][:3])
+    request=dict(root=cap['root'],expected=e.authority(cap['root'],cap['cut']['view']),number=1,kind='REMOVE',target=cat['identities'][:size-1])
     controls=[('RESERVE',dict(request=request)),('PREPARE',dict(number=1,revision=1)),
               ('READY',dict(number=1,receipt=None))]
     if kind!='READY':controls.append(('SEAL',dict(number=1)))

@@ -14,9 +14,14 @@ import tempfile
 from . import authority_transition_evidence as a
 
 b,c,d,e,f,need=a.b,a.c,a.d,a.e,a.f,a.need
-PROFILES=(('INTENT',('node-1','node-2','node-3')),
-          ('FINAL',('node-1','node-2','node-3')),
-          ('BARRIER',('node-1','node-2')))
+def topology(size):
+    need(type(size) is int and size in (4,5),'continuous REMOVE voter count')
+    old=tuple('node-'+str(i+1) for i in range(size//2+1))
+    new=tuple('node-'+str(i+1) for i in range((size-1)//2+1))
+    return (('INTENT',old),('FINAL',old),('BARRIER',new))
+
+
+PROFILES=topology(4)
 
 
 def reconcile(group,voters):
@@ -32,15 +37,21 @@ def reconcile(group,voters):
     return result
 
 
-def install(root,group,ordinal,voters):
+def install(root,group,ordinal,voters,*,current_maintenance=False):
+    from . import remove_maintenance_evidence as maintenance
     group=reconcile(group,voters)
-    if ordinal>1:
+    if ordinal>1 and current_maintenance:
+        group=maintenance.maintenance(group,voters)
+    elif ordinal>1:
         group=a.maintenance(group,voters)
         # The complete current quorum supports retirement of the inactive
         # generation and strictly older sources. The current original grant,
         # selection and its source remain owned; no vote authority is invented.
         group.update(b.settled({n:group[n] for n in voters}))
-    _,_,installed=d.s.campaign(root,{n:group[n] for n in voters},ordinal+2,'installed-'+str(ordinal),selected_prefix=d.slot.prefix)
+    options={}
+    if current_maintenance:
+        options=dict(merge_ledgers=lambda before,sources:maintenance.merge(group,before,sources))
+    _,_,installed=d.s.campaign(root,{n:group[n] for n in voters},ordinal+2,'installed-'+str(ordinal),selected_prefix=d.slot.prefix,**options)
     group=dict(group,**installed);b.match(root,'installed-'+str(ordinal),group)
     chosen=c.current(group['node-1'])[1]['selected.gsr']
     need((root/f'selected-{ordinal}.gsr').read_bytes()==chosen,'continuous original selection')
@@ -108,13 +119,13 @@ def publication(root,slot,ordinal):
     need(received==set(voters[1:]),'continuous all publication acknowledgements')
 
 
-def history(root, result_file):
+def history(root, result_file, *, size=4, current_maintenance=False):
     """Shared original-byte reduction; callers separately enforce their scope.
 
     Only the declared result filename varies. Sources, traces, images, quorums
     and exact inventories are still reduced from the same unmodified directory.
     """
-    root=Path(root)
+    root=Path(root);profiles=topology(size)
     need(result_file in ('continuous-result.json','transition-round-result.json'),'continuous result filename')
     need(root.is_dir() and not root.is_symlink(),'continuous regular original inventory')
     total=0
@@ -134,11 +145,15 @@ def history(root, result_file):
     b.selection.layout(root,expected,'continuous transition')
     for name in ('events','wire','failures'):
         values=d.read(root/(name+'.json'));need(type(values) is list and len(values)<=32768,'continuous bounded traces')
-    walk=a.prelude(root,'INTENT');native=NativeSlot.__new__(NativeSlot);native.__dict__.update(walk.__dict__)
-    for ordinal,(kind,voters) in enumerate(PROFILES,1):
-        native.group=install(root,native.group,ordinal,voters)
-        maintenance_boundaries(root,ordinal,voters)
-        native.group=a.maintenance(native.group,voters);native.active=list(voters);native.voters=voters;native.first=None
+    walk=a.prelude(root,'INTENT',size=size);native=NativeSlot.__new__(NativeSlot);native.__dict__.update(walk.__dict__)
+    for ordinal,(kind,voters) in enumerate(profiles,1):
+        native.group=install(root,native.group,ordinal,voters,current_maintenance=current_maintenance)
+        from . import remove_maintenance_evidence as maintenance
+        preceding=native.group
+        native.group=(maintenance.maintenance if current_maintenance else a.maintenance)(preceding,voters)
+        if current_maintenance:maintenance.boundaries(root,ordinal,voters,preceding,native.group)
+        else:maintenance_boundaries(root,ordinal,voters)
+        native.active=list(voters);native.voters=voters;native.first=None
         operation=native.state()[3]['results'][-1]
         command=dict(sealed={k:operation[k] for k in ('request','prepared','receipt')}) if kind=='INTENT' else (
             dict(binding=operation['binding']) if kind=='FINAL' else None)

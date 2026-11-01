@@ -1,0 +1,442 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "productionJavaChanged": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "archive": {
+    "buildEqual": true,
+    "bytes": 41277133,
+    "correctedReaderSeparate": true,
+    "directories": 2677,
+    "directorySetVerified": true,
+    "files": 20247,
+    "memberHashesVerified": true,
+    "originalFailedReplaysRetained": true,
+    "path": "target/v53-remove-profiles-20261101/sealed/remove-profiles.tar.gz",
+    "producerSourcesEqual": true,
+    "sha256": "ef2bbc8ae4afaa6281c209a89194fb90d6422a2cd883d93f39b044152b260fca",
+    "toolchainEqual": true
+  },
+  "archiveManifest": {
+    "bytes": 4417836,
+    "path": "target/v53-remove-profiles-20261101/sealed/manifest.json",
+    "sha256": "c70849cf1ed57d9108074c7556973cbb5618bc4910395be021cba529edc041b6"
+  },
+  "baseHead": "5dc0a5b08cd49842bdb9a55aa538e5f43cc1e310",
+  "buildEqual": true,
+  "buildSha256": "9902f247f07802c2f26e32eaf4d71c48d55aeb77f57e2dee929b9db29136e452",
+  "codeSha256": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionRoundDriverTest.java": "3db75df28370618cd4b844261788c16a9f5be2c904518669493c01b5254f2c96",
+    "scripts/v53/authority_transition_evidence.py": "e000776a6f8fdd4a288c2530e901d293a8bb6c339f46e9f8ff3b5da3f2922104",
+    "scripts/v53/continuous_transition_evidence.py": "9f4fd081f5394e130eb6894534d85535b5bddbe4cfd2009549c0d069abcee3b6",
+    "scripts/v53/remove_maintenance_evidence.py": "b3904d7c9957551675658953868c663cece30ab13cead3afbf5fddb7e3a7f621",
+    "scripts/v53/remove_profile_run.py": "69ccc8daf1d9e8d0b92bda0c7834437732f4aff871804d701a6e673fca3d7440",
+    "scripts/v53/transition_round_evidence.py": "b15872a2c542ac62c35e4e529ddfc5560e8ea64390e7e4c3144632a74aa32c65"
+  },
+  "correctedReaderSource": {
+    "bytes": 610994,
+    "path": "target/v53-remove-profiles-20261101/corrected-reader/source.json",
+    "sha256": "8e571da344ab5e45799e62d2ab8baecf3416a36dc5f146f3f43cc3e44f0c2f40"
+  },
+  "correction": {
+    "originalFailureRetained": true,
+    "productionJavaChanged": false,
+    "reason": "Legacy REMOVE reader omitted confirmed copy/renewal ledgers and post-install superseded-source retirement. Explicit profiles use separately frozen current maintenance projection.",
+    "workloadRerun": false
+  },
+  "legacy": {
+    "execution": {
+      "elapsedSeconds": 20.347,
+      "exit": 0
+    },
+    "negativeCases": 10,
+    "newExecution": false,
+    "original": "target/v53-native-departure/current-round-replay/controlled/raw",
+    "originalInventory": {
+      "bytes": 578685,
+      "path": "target/v53-remove-profiles-20261101/legacy-inventory.json",
+      "sha256": "0f24fd8bb3374765816f3a10a24ffb35f51cd3212cfb2b913e300515e6baac52"
+    },
+    "result": {
+      "bytes": 1344,
+      "path": "target/v53-remove-profiles-20261101/legacy-original.json",
+      "sha256": "60f8fee4dd09b0981259ee2d475082175af6870edaa5f3feb0bda20d95033da8"
+    }
+  },
+  "members": [
+    {
+      "correctedReplay": {
+        "bytes": 2025,
+        "path": "target/v53-remove-profiles-20261101/corrected-4.json",
+        "sha256": "aad9926b5e5a621e5d1326ac4d47c9f6ea3a97446990a0fa183615b64f72087b"
+      },
+      "correctedReplayExecution": {
+        "elapsedSeconds": 35.625,
+        "exit": 0
+      },
+      "execution": {
+        "elapsedSeconds": 322.708,
+        "exit": 0
+      },
+      "failedReplay": {
+        "bytes": 2242,
+        "path": "target/v53-remove-profiles-20261101/native-4/replay.json",
+        "sha256": "9fe2fe7ec93a30128f1d3ffa6a41338637683342a6826178544fc9e80428ebc1"
+      },
+      "failedReplayExecution": {
+        "elapsedSeconds": 0.865,
+        "exit": 1
+      },
+      "originalFailedReceipt": {
+        "bytes": 1647,
+        "path": "target/v53-remove-profiles-20261101/native-4/receipt.json",
+        "sha256": "cf84c927d1e941920659e2eecf2f6a6dd8c9f57645bed4d7a7e15db50e8c5088"
+      },
+      "originalInventory": {
+        "bytes": 569235,
+        "path": "target/v53-remove-profiles-20261101/native-4/inventory.json",
+        "sha256": "526a8c9c4aaed947ff9e764d45969ed7df24d681cda32f0e812686674cfd7190"
+      },
+      "portable": {
+        "bytes": 2025,
+        "path": "target/v53-remove-profiles-20261101/portable-4.json",
+        "sha256": "aad9926b5e5a621e5d1326ac4d47c9f6ea3a97446990a0fa183615b64f72087b"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 34.119,
+        "exit": 0
+      },
+      "profile": "4-REMOVE",
+      "raw": "target/v53-remove-profiles-20261101/native-4/workspace/general-search-engine-replication/target/v53-native-dispatch/run-d57db4c4-e24e-4c7b-bd33-6d8d001e19fa",
+      "result": {
+        "negatives": [
+          {
+            "case": "missing-reactivation",
+            "reason": "transition round exact lifecycle",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-ready",
+            "reason": "transition round exact lifecycle",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-ready",
+            "reason": "transition round readiness after fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-selection",
+            "reason": "transition round original selection",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-ballot",
+            "reason": "transition round original completion",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-completion",
+            "reason": "transition round original completion",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-entry",
+            "reason": "transition round original entry",
+            "status": "REJECTED"
+          },
+          {
+            "case": "public-service",
+            "reason": "transition round scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-budget",
+            "reason": "transition round scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "physical-selector",
+            "reason": "admitted exact published-7: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-source-force",
+            "reason": "REMOVE maintenance exact pre-slot retirement: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-floor-release",
+            "reason": "REMOVE maintenance exact pre-slot retirement: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unexpected-pregrant-source",
+            "reason": "REMOVE maintenance exact pre-grant retirement: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-source",
+            "reason": "admitted exact applied-5: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "peer-confirmation",
+            "reason": "admitted exact applied-5: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "peer-renewal",
+            "reason": "admitted exact applied-5: node-1",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "automaticOperationCompletion": true,
+          "internalReady": true,
+          "kind": "REMOVE",
+          "original": {
+            "activations": 3,
+            "kind": "REMOVE",
+            "phase3Complete": false,
+            "physicalQualified": true,
+            "publicReady": false,
+            "publicationBoundaryQualified": true,
+            "publishedSlots": [
+              5,
+              6,
+              7
+            ],
+            "status": "PASS"
+          },
+          "phase3Complete": false,
+          "profile": "4-REMOVE",
+          "publicReady": false,
+          "status": "PASS"
+        }
+      }
+    },
+    {
+      "correctedReplay": {
+        "bytes": 2025,
+        "path": "target/v53-remove-profiles-20261101/corrected-5.json",
+        "sha256": "1f9607250fa481fe2976c288d005265021220cdbd2eb151e4f2c79d7f37384ea"
+      },
+      "correctedReplayExecution": {
+        "elapsedSeconds": 44.985,
+        "exit": 0
+      },
+      "execution": {
+        "elapsedSeconds": 403.748,
+        "exit": 0
+      },
+      "failedReplay": {
+        "bytes": 2242,
+        "path": "target/v53-remove-profiles-20261101/native-5/replay.json",
+        "sha256": "0016cfa379005e32bd91a52a4291cb30ac1b7c717e41f0b8a944212466596d26"
+      },
+      "failedReplayExecution": {
+        "elapsedSeconds": 0.915,
+        "exit": 1
+      },
+      "originalFailedReceipt": {
+        "bytes": 1647,
+        "path": "target/v53-remove-profiles-20261101/native-5/receipt.json",
+        "sha256": "a6596789eb665f6a96fcc752f188dec6defaa7a084c34cc90413e495cf08d226"
+      },
+      "originalInventory": {
+        "bytes": 704124,
+        "path": "target/v53-remove-profiles-20261101/native-5/inventory.json",
+        "sha256": "25954d9cc7a85a0ae30532c56af3f40835f30c6610e3529a130945091a4e79b2"
+      },
+      "portable": {
+        "bytes": 2025,
+        "path": "target/v53-remove-profiles-20261101/portable-5.json",
+        "sha256": "1f9607250fa481fe2976c288d005265021220cdbd2eb151e4f2c79d7f37384ea"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 42.635,
+        "exit": 0
+      },
+      "profile": "5-REMOVE",
+      "raw": "target/v53-remove-profiles-20261101/native-5/workspace/general-search-engine-replication/target/v53-native-dispatch/run-8b251a6e-1d6c-458b-97e9-5d2ea7ca20a6",
+      "result": {
+        "negatives": [
+          {
+            "case": "missing-reactivation",
+            "reason": "transition round exact lifecycle",
+            "status": "REJECTED"
+          },
+          {
+            "case": "early-ready",
+            "reason": "transition round exact lifecycle",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-ready",
+            "reason": "transition round readiness after fresh barrier",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-selection",
+            "reason": "transition round original selection",
+            "status": "REJECTED"
+          },
+          {
+            "case": "old-ballot",
+            "reason": "transition round original completion",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-completion",
+            "reason": "transition round original completion",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-entry",
+            "reason": "transition round original entry",
+            "status": "REJECTED"
+          },
+          {
+            "case": "public-service",
+            "reason": "transition round scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "wrong-budget",
+            "reason": "transition round scope",
+            "status": "REJECTED"
+          },
+          {
+            "case": "physical-selector",
+            "reason": "admitted exact published-7: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "missing-source-force",
+            "reason": "REMOVE maintenance exact pre-slot retirement: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "late-floor-release",
+            "reason": "REMOVE maintenance exact pre-slot retirement: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "unexpected-pregrant-source",
+            "reason": "REMOVE maintenance exact pre-grant retirement: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "stale-source",
+            "reason": "admitted exact applied-5: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "peer-confirmation",
+            "reason": "admitted exact applied-5: node-1",
+            "status": "REJECTED"
+          },
+          {
+            "case": "peer-renewal",
+            "reason": "admitted exact applied-5: node-1",
+            "status": "REJECTED"
+          }
+        ],
+        "original": {
+          "automaticOperationCompletion": true,
+          "internalReady": true,
+          "kind": "REMOVE",
+          "original": {
+            "activations": 3,
+            "kind": "REMOVE",
+            "phase3Complete": false,
+            "physicalQualified": true,
+            "publicReady": false,
+            "publicationBoundaryQualified": true,
+            "publishedSlots": [
+              5,
+              6,
+              7
+            ],
+            "status": "PASS"
+          },
+          "phase3Complete": false,
+          "profile": "5-REMOVE",
+          "publicReady": false,
+          "status": "PASS"
+        }
+      }
+    }
+  ],
+  "nativeHistories": 2,
+  "nativeTests": 2,
+  "negativeCases": 32,
+  "originalsUnchanged": true,
+  "portable": {
+    "assertionsDisabled": true,
+    "exactResults": true,
+    "originalsUnchanged": true,
+    "sourceUnchanged": true
+  },
+  "producerSourceSha256": "14b138d0303ee22a65b2572177cc175d84dc7314e4343bca8ee2cb6a57472979",
+  "producerToReaderDelta": {
+    "bytes": 1762,
+    "path": "target/v53-remove-profiles-20261101/source-delta.json",
+    "sha256": "072431096f0b5804c24e430ba226a6aefea49bd797f4482cdbc1ddd93dfbba63"
+  },
+  "profiles": [
+    "4-REMOVE",
+    "5-REMOVE"
+  ],
+  "qualification": {
+    "allSevenProfiles": false,
+    "automaticOperationCompletion": true,
+    "completeNetwork": false,
+    "continuousOriginalPhysical": true,
+    "phase3Complete": false,
+    "processDeath": false,
+    "publicRuntime": false
+  },
+  "regression": {
+    "errors": 0,
+    "failures": 0,
+    "finalTestSources": [
+      {
+        "bytes": 7150,
+        "path": "scripts/v53/test_remove_profile_run.py",
+        "sha256": "066d412db4bc95bfed7b1aaf497403280ba089723e74018d700b0a1ed9df1dda"
+      },
+      {
+        "bytes": 8272,
+        "path": "scripts/v53/test_remove_maintenance_evidence.py",
+        "sha256": "e5e256365841fe7c8a5205c6ee58e3ac8dcacdbd76b7b12b4189445244b80cc1"
+      }
+    ],
+    "log": {
+      "bytes": 2740,
+      "path": "target/v53-remove-profiles-20261101/python-final-all.log",
+      "sha256": "69d047b3af1e7874d54ed9242c3aff703c43bd9ca0440ff4e0b0290421fcfb42"
+    },
+    "newMaintenanceTests": 14,
+    "newRunnerTests": 11,
+    "note": "Two runner failure tests followed producer freeze; four source-pin tests followed corrected-reader freeze. Measured Java and replay code stayed unchanged after their respective freezes.",
+    "pythonTests": 653
+  },
+  "remaining": [
+    "complete attempted transport and callback composition",
+    "fresh-process fault matrix",
+    "native removed-proposer/follower variants for both sizes",
+    "current-source ADD/REPLACE cohort",
+    "autonomous election scheduling",
+    "frozen Phase 3 acceptance mapping"
+  ],
+  "schema": "gse-v53-remove-profiles-batch-v1",
+  "sourceEqual": true,
+  "status": "PARTIAL",
+  "toolchainEqual": true,
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b"
+}
