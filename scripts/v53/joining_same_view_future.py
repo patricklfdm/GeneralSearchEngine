@@ -24,13 +24,13 @@ RETURNS=['FUTURE_RETENTION_BEFORE_RETURN','FUTURE_RETENTION_ACK_BEFORE_RETURN',
          'FUTURE_RETENTION_PROMOTED','FUTURE_RETENTION_CLEARED']
 
 
-def observations(events):
+def observations(events, *, joining='node-4'):
     active={};transactions=[];used=set()
     for at,row in enumerate(events):
         point=row['event']
         if not point.startswith('FUTURE_RETENTION_'):continue
         need(point in WRITES+RESEAL+RETURNS,'joining future unsupported event')
-        need(set(row)==({'node','event','scope'} if row.get('node')=='node-4' else {'node','event'}),
+        need(set(row)==({'node','event','scope'} if row.get('node')==joining else {'node','event'}),
              'joining future event shape')
         if point not in WRITES:continue
         node=row['node'];pending=active.setdefault(node,[])
@@ -105,7 +105,8 @@ class Replay:
             tx=all_tx[ordinal];finish=self.callback(node,RETURNS[0],tx['end'],all_tx[ordinal+1]['start'] if ordinal+1<len(all_tx) else upper)
             ack=self.callback(node,RETURNS[1],finish,all_tx[ordinal+1]['start'] if ordinal+1<len(all_tx) else upper)
             bound=self.transaction(node,lower if ordinal==0 else all_tx[ordinal-1]['end'],finish)
-            peers.append(dict(identity=ids[target],lower=parent));before=self.state[node]
+            lower_point=self.model.future_lower(index,target) if hasattr(self.model,'future_lower') else parent
+            peers.append(dict(identity=ids[target],lower=lower_point));before=self.state[node]
             meta=dict(before['meta'],revision=before['meta']['revision']+1,previous=sha(before['raw']),parent=parent,peers=list(peers))
             self.change(node,meta,originals,bound,'record',index)
             # Exact request/reply bytes and the delivered quorum are already
@@ -215,9 +216,9 @@ NEGATIVES={
 }
 
 
-def mutate(root,name):
+def mutate(root,name,*,reader=None):
     need(name in NEGATIVES,'joining future unknown negative')
-    reader=Replay(root);reader.run();events=reader.events
+    reader=Replay(root) if reader is None else reader;reader.run();events=reader.events
     record=next(v for v in reader.steps if v['kind']=='record')
     clear=next(v for v in reader.steps if v['kind']=='clear')
     def write(step):return [v for v in events[step['start']:step['end']+1] if v.get('node')==step['node'] and v['event'] in WRITES]

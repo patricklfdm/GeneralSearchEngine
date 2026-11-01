@@ -1,0 +1,1063 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "productionJavaChanged": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "archive": {
+    "buildEqual": true,
+    "bytes": 41564797,
+    "developmentDiagnosticsRetained": true,
+    "directories": 2658,
+    "directorySetVerified": true,
+    "files": 20177,
+    "memberHashesVerified": true,
+    "path": "target/v53-remove-retention-20261101/sealed/remove-retention.tar.gz",
+    "producerSourcesEqual": true,
+    "sha256": "762bf442f9ff296f4e15ea552f5be2b0e1b32c4b03eb57c6409f774494a7f31c",
+    "toolchainEqual": true
+  },
+  "archiveManifest": {
+    "bytes": 4402093,
+    "path": "target/v53-remove-retention-20261101/sealed/manifest.json",
+    "sha256": "286be87bcdc922ea4b54d4599c6e46eacc78cc71f85b6c2b7a7550ed96340823"
+  },
+  "baseHead": "2e71116c7b033e6592b59e6d87c71be2c00ecf37",
+  "buildSha256": "c94c0aca365013555b462e3af081e5aac1e12cf782b107d985bd4e57110c5255",
+  "codeSha256": {
+    "scripts/v53/joining_same_view_future.py": "9f5ea9bc5ae006fa6804386853e976ca1bf9cc9462664c5b4edad1bca7648350",
+    "scripts/v53/remove_retention_evidence.py": "9f070cd42c8f85ca006d809a10736a86260447feeed2b82c8c8a57dcabba819b",
+    "scripts/v53/test_remove_retention_evidence.py": "f3e9f0ae271ad6af65d87a5be7c398080ed144df6ebdded222d9992953eb4e36"
+  },
+  "diagnostics": {
+    "initialDerivationFailure": {
+      "bytes": 947,
+      "path": "target/v53-remove-retention-20261101/development-1.log",
+      "sha256": "2b63a9d5246b4d9afdaf14ee9a7da0c33bc833770fabe790ed99f9a506c16231"
+    },
+    "note": "The initial reader incorrectly initialized the peer plan from network cut 4. Original preparation retains its bootstrap revision-zero plan. The corrected reader derives the bootstrap and carries subsequent revisions; all development diagnostics are retained and no native experiment was rerun."
+  },
+  "members": [
+    {
+      "execution": {
+        "elapsedSeconds": 132.486,
+        "exit": 0
+      },
+      "nativeExecutionRepeated": false,
+      "negativeCases": [
+        {
+          "case": "ack-before-return",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact completion lifetime: FUTURE_RETENTION_ACK_BEFORE_RETURN",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "clear-after-completion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact bounded write count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "clear-before-promotion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact bounded write count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "event-forged-field",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future event shape",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "event-forged-owner-scope",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future event shape",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-after-publication",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact recording count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-return-before-force",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact completion lifetime: FUTURE_RETENTION_BEFORE_RETURN",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-write-duplicated",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact recording count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-write-omitted",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact recording count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "rename-before-force",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact write force order",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reopen-after-accept",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future reopen before accept recovery",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reopen-parent-before-file",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future reopen force order",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reopen-parent-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact reopen count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-reopen",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future unbound completion/reopen",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-return",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future unbound completion/reopen",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future unbound durable writes",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unsupported-recovery",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future unsupported event",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "write-force-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact write force order",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "write-truncated",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future incomplete durable write",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "candidate-parent-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact write force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "completion-forged-scope",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE peer event shape",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer publication durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact write force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "foreign-write-owner",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE peer event shape",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "incomplete-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer incomplete durable write",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-after-retirement",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer maintenance durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-before-floor",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer maintenance durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-omit-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer maintenance durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "publication-after-promotion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer publication durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "publication-before-retirement",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer publication durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "rename-before-force",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact write force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reseal-after-future-recovery",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer open reseal force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reseal-parent-before-active",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer open reseal force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reseal-parent-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact open reseal count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "selected-before-force",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer selected durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "selected-before-install",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer selected durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "selected-without-completion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer selected completion count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-completion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer unbound selected completions",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-reseal",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact open reseal count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer unbound durable writes",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "write-forged-field",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE peer event shape",
+          "stage": "peers",
+          "status": "REJECTED"
+        }
+      ],
+      "originalInventory": {
+        "bytes": 569235,
+        "path": "target/v53-remove-network-20261101/native-4/inventory.json",
+        "sha256": "21dfc3eec326ac74fcc6408964b0d13f40c917d74c90fe630ab19799c3bbe12f"
+      },
+      "portable": {
+        "bytes": 13381,
+        "path": "target/v53-remove-retention-20261101/portable-4.json",
+        "sha256": "f5e8dc9d58a7137de513cf00ee375c132c09e06a3d664fbb6757b4d0541d6e5a"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 122.318,
+        "exit": 0
+      },
+      "producerReceipt": {
+        "bytes": 1661,
+        "path": "target/v53-remove-network-20261101/native-4/receipt.json",
+        "sha256": "357978bc7dddf7d6af29dc64e40bbda3368499ff26f7ca0b4694a6c94ebfa7b3"
+      },
+      "profile": "4-REMOVE",
+      "qualification": {
+        "bytes": 13381,
+        "path": "target/v53-remove-retention-20261101/retention-4.json",
+        "sha256": "f5e8dc9d58a7137de513cf00ee375c132c09e06a3d664fbb6757b4d0541d6e5a"
+      },
+      "raw": "target/v53-remove-network-20261101/native-4/workspace/general-search-engine-replication/target/v53-native-dispatch/run-73bddafa-6061-48c0-9efe-9b344ba1acca",
+      "result": {
+        "completeRetirementTransactions": false,
+        "future": {
+          "chainSha256": "efc21869640cd1fc9ca8327a04b7320de7216227746f62594ab595c6900d20f1",
+          "durableWrites": 22,
+          "finalRevisions": {
+            "node-1": 8,
+            "node-2": 8,
+            "node-3": 6,
+            "node-4": 0
+          },
+          "ledgerComparisons": 36,
+          "openReseals": 4,
+          "status": "PASS",
+          "writesByKind": {
+            "clear": 8,
+            "record": 14
+          }
+        },
+        "peers": {
+          "capturedLedgers": 8,
+          "chainSha256": "7d17408230b1ad5abb836b11727f3c2e1eaac674dc52af22e4a887d3d9ba4c2e",
+          "durableWrites": 40,
+          "finalRevisions": {
+            "node-1": 15,
+            "node-2": 15,
+            "node-3": 10,
+            "node-4": 0
+          },
+          "ledgerComparisons": 44,
+          "openReseals": 4,
+          "status": "PASS",
+          "writesByKind": {
+            "maintenance": 27,
+            "publication": 8,
+            "selected": 5
+          }
+        },
+        "phase3Complete": false,
+        "precondition": {
+          "acquiredRemoteCopies": 22,
+          "boundSessions": {
+            "current-generation": 44,
+            "frozen-source": 14,
+            "journal": 10,
+            "native-applied-checkpoint": 6,
+            "native-vote-receipt": 42,
+            "pending-payload": 4,
+            "pending-record": 20,
+            "published-local-checkpoint": 4,
+            "published-record": 1
+          },
+          "boundTransfers": {
+            "current-generation": 140,
+            "frozen-source": 42,
+            "journal": 10,
+            "native-applied-checkpoint": 6,
+            "native-vote-receipt": 42,
+            "pending-payload": 4,
+            "pending-record": 20,
+            "published-local-checkpoint": 4,
+            "published-record": 1
+          },
+          "completeCopies": 35,
+          "completeCopyFloorLifetimesQualified": true,
+          "directFixtureFloors": 0,
+          "discoveryHints": 22,
+          "floorEvents": 1148,
+          "generationWindows": 20,
+          "networkFloors": 13,
+          "observedExportAuthorityQualified": true,
+          "phase3Complete": false,
+          "precondition": {
+            "completeExportAuthorityQualified": false,
+            "durableActivationAndSlotACKsQualified": true,
+            "maintenanceCompositionQualified": false,
+            "network": {
+              "boundFailedControls": 15,
+              "boundInstallReplies": 5,
+              "boundPhaseResponses": 29,
+              "boundStatusReplies": 22,
+              "committedTransfers": 269,
+              "completeSlotStorageCallbacks": 1120,
+              "deliveredResponses": 868,
+              "exactTransferRetries": 0,
+              "failedAttempts": 15,
+              "futureTargets": 5,
+              "originalGrants": 8,
+              "ownedSlotTransactions": 8,
+              "proposerInstallations": 3,
+              "receivedRequests": 883,
+              "rejectedTransferAttempts": 0,
+              "sentRequests": 883,
+              "slots": 3,
+              "terminalObservations": 30,
+              "transferSessions": 145,
+              "transferredBytes": 1579704,
+              "wireExchanges": 868
+            },
+            "observedAttemptsQualified": true,
+            "phase3Complete": false,
+            "physical": {
+              "automaticOperationCompletion": true,
+              "internalReady": true,
+              "kind": "REMOVE",
+              "original": {
+                "activations": 3,
+                "kind": "REMOVE",
+                "phase3Complete": false,
+                "physicalQualified": true,
+                "publicReady": false,
+                "publicationBoundaryQualified": true,
+                "publishedSlots": [
+                  5,
+                  6,
+                  7
+                ],
+                "status": "PASS"
+              },
+              "phase3Complete": false,
+              "profile": "4-REMOVE",
+              "publicReady": false,
+              "status": "PASS"
+            },
+            "processDeathQualified": false,
+            "profile": "4-REMOVE",
+            "status": "PARTIAL"
+          },
+          "processDeathQualified": false,
+          "profile": "4-REMOVE",
+          "recordWindows": 106,
+          "retentionRevisionCompositionQualified": false,
+          "retiredGenerations": 13,
+          "sourceWindows": 12,
+          "status": "PARTIAL",
+          "unqualifiedTransfers": 0
+        },
+        "processDeathQualified": false,
+        "profile": "4-REMOVE",
+        "retentionRevisionCompositionQualified": true,
+        "status": "PARTIAL"
+      }
+    },
+    {
+      "execution": {
+        "elapsedSeconds": 172.148,
+        "exit": 0
+      },
+      "nativeExecutionRepeated": false,
+      "negativeCases": [
+        {
+          "case": "ack-before-return",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact completion lifetime: FUTURE_RETENTION_ACK_BEFORE_RETURN",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "clear-after-completion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact bounded write count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "clear-before-promotion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact bounded write count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "event-forged-field",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future event shape",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "event-forged-owner-scope",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future event shape",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-after-publication",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact recording count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-return-before-force",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact completion lifetime: FUTURE_RETENTION_BEFORE_RETURN",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-write-duplicated",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact recording count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "record-write-omitted",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact recording count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "rename-before-force",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact write force order",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reopen-after-accept",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future reopen before accept recovery",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reopen-parent-before-file",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future reopen force order",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reopen-parent-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact reopen count",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-reopen",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future unbound completion/reopen",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-return",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future unbound completion/reopen",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future unbound durable writes",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unsupported-recovery",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future unsupported event",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "write-force-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future exact write force order",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "write-truncated",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining future incomplete durable write",
+          "stage": "future",
+          "status": "REJECTED"
+        },
+        {
+          "case": "candidate-parent-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact write force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "completion-forged-scope",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE peer event shape",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer publication durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "force-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact write force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "foreign-write-owner",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE peer event shape",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "incomplete-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer incomplete durable write",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-after-retirement",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer maintenance durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-before-floor",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer maintenance durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "maintenance-omit-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer maintenance durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "publication-after-promotion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer publication durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "publication-before-retirement",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer publication durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "rename-before-force",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact write force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reseal-after-future-recovery",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer open reseal force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reseal-parent-before-active",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer open reseal force order",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "reseal-parent-missing",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact open reseal count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "selected-before-force",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer selected durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "selected-before-install",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer selected durable write count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "selected-without-completion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer selected completion count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-completion",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer unbound selected completions",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-reseal",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer exact open reseal count",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "unbound-write",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "joining peer unbound durable writes",
+          "stage": "peers",
+          "status": "REJECTED"
+        },
+        {
+          "case": "write-forged-field",
+          "originalFilesAndOtherObservationsUnchanged": true,
+          "reason": "REMOVE peer event shape",
+          "stage": "peers",
+          "status": "REJECTED"
+        }
+      ],
+      "originalInventory": {
+        "bytes": 704124,
+        "path": "target/v53-remove-network-20261101/native-5/inventory.json",
+        "sha256": "e50510d1ad9727bd750abd6577e08ed5630564a345e8e4603627624800813e23"
+      },
+      "portable": {
+        "bytes": 13427,
+        "path": "target/v53-remove-retention-20261101/portable-5.json",
+        "sha256": "bdccef8fea20af379acdfa8386e3ccaffd79426b2c5bd56e9cd06d8eea32edb1"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 160.929,
+        "exit": 0
+      },
+      "producerReceipt": {
+        "bytes": 1660,
+        "path": "target/v53-remove-network-20261101/native-5/receipt.json",
+        "sha256": "1f351e1b576ededf48a75fdfca14b17f932f01bf13bc91566fc6e8dfa422d27e"
+      },
+      "profile": "5-REMOVE",
+      "qualification": {
+        "bytes": 13427,
+        "path": "target/v53-remove-retention-20261101/retention-5.json",
+        "sha256": "bdccef8fea20af379acdfa8386e3ccaffd79426b2c5bd56e9cd06d8eea32edb1"
+      },
+      "raw": "target/v53-remove-network-20261101/native-5/workspace/general-search-engine-replication/target/v53-native-dispatch/run-8c906efa-4237-4c91-9d0a-241a85809199",
+      "result": {
+        "completeRetirementTransactions": false,
+        "future": {
+          "chainSha256": "8bdd170c7a01b8c702065f018b32b25a2b25f85f2c7ece603e201eb3331b1851",
+          "durableWrites": 27,
+          "finalRevisions": {
+            "node-1": 9,
+            "node-2": 9,
+            "node-3": 9,
+            "node-4": 0,
+            "node-5": 0
+          },
+          "ledgerComparisons": 42,
+          "openReseals": 5,
+          "status": "PASS",
+          "writesByKind": {
+            "clear": 9,
+            "record": 18
+          }
+        },
+        "peers": {
+          "capturedLedgers": 9,
+          "chainSha256": "67f0a56657ab4eddc7b08df2124ff084ef38b648faafd739104dcf288973e45c",
+          "durableWrites": 48,
+          "finalRevisions": {
+            "node-1": 16,
+            "node-2": 16,
+            "node-3": 16,
+            "node-4": 0,
+            "node-5": 0
+          },
+          "ledgerComparisons": 51,
+          "openReseals": 5,
+          "status": "PASS",
+          "writesByKind": {
+            "maintenance": 33,
+            "publication": 9,
+            "selected": 6
+          }
+        },
+        "phase3Complete": false,
+        "precondition": {
+          "acquiredRemoteCopies": 30,
+          "boundSessions": {
+            "current-generation": 60,
+            "frozen-source": 18,
+            "journal": 12,
+            "native-applied-checkpoint": 9,
+            "native-vote-receipt": 54,
+            "pending-payload": 4,
+            "pending-record": 24,
+            "published-local-checkpoint": 6,
+            "published-record": 3
+          },
+          "boundTransfers": {
+            "current-generation": 192,
+            "frozen-source": 54,
+            "journal": 12,
+            "native-applied-checkpoint": 9,
+            "native-vote-receipt": 54,
+            "pending-payload": 4,
+            "pending-record": 24,
+            "published-local-checkpoint": 6,
+            "published-record": 3
+          },
+          "completeCopies": 45,
+          "completeCopyFloorLifetimesQualified": true,
+          "directFixtureFloors": 0,
+          "discoveryHints": 30,
+          "floorEvents": 1449,
+          "generationWindows": 23,
+          "networkFloors": 15,
+          "observedExportAuthorityQualified": true,
+          "phase3Complete": false,
+          "precondition": {
+            "completeExportAuthorityQualified": false,
+            "durableActivationAndSlotACKsQualified": true,
+            "maintenanceCompositionQualified": false,
+            "network": {
+              "boundFailedControls": 28,
+              "boundInstallReplies": 6,
+              "boundPhaseResponses": 36,
+              "boundStatusReplies": 30,
+              "committedTransfers": 358,
+              "completeSlotStorageCallbacks": 1260,
+              "deliveredResponses": 1152,
+              "exactTransferRetries": 0,
+              "failedAttempts": 28,
+              "futureTargets": 6,
+              "originalGrants": 9,
+              "ownedSlotTransactions": 9,
+              "proposerInstallations": 3,
+              "receivedRequests": 1180,
+              "rejectedTransferAttempts": 0,
+              "sentRequests": 1180,
+              "slots": 3,
+              "terminalObservations": 56,
+              "transferSessions": 190,
+              "transferredBytes": 2417186,
+              "wireExchanges": 1152
+            },
+            "observedAttemptsQualified": true,
+            "phase3Complete": false,
+            "physical": {
+              "automaticOperationCompletion": true,
+              "internalReady": true,
+              "kind": "REMOVE",
+              "original": {
+                "activations": 3,
+                "kind": "REMOVE",
+                "phase3Complete": false,
+                "physicalQualified": true,
+                "publicReady": false,
+                "publicationBoundaryQualified": true,
+                "publishedSlots": [
+                  5,
+                  6,
+                  7
+                ],
+                "status": "PASS"
+              },
+              "phase3Complete": false,
+              "profile": "5-REMOVE",
+              "publicReady": false,
+              "status": "PASS"
+            },
+            "processDeathQualified": false,
+            "profile": "5-REMOVE",
+            "status": "PARTIAL"
+          },
+          "processDeathQualified": false,
+          "profile": "5-REMOVE",
+          "recordWindows": 119,
+          "retentionRevisionCompositionQualified": false,
+          "retiredGenerations": 15,
+          "sourceWindows": 14,
+          "status": "PARTIAL",
+          "unqualifiedTransfers": 0
+        },
+        "processDeathQualified": false,
+        "profile": "5-REMOVE",
+        "retentionRevisionCompositionQualified": true,
+        "status": "PARTIAL"
+      }
+    }
+  ],
+  "newNativeExecutions": 0,
+  "originalNativeHistories": 2,
+  "originalsUnchanged": true,
+  "portable": {
+    "assertionsDisabled": true,
+    "exactResults": true,
+    "originalsUnchanged": true,
+    "sourceUnchanged": true
+  },
+  "priorExportReceipt": {
+    "bytes": 22768,
+    "path": "docs/v5x/v5.3/phase3-evidence/remove-exports.json",
+    "sha256": "12819fae094034115d8e43640caed8f50b710d40e9a5a79b43ae3844d43754e9"
+  },
+  "producerSourceSha256": "32893ac7ebd4fec771e57bcc8de78974ce5545aed6e37736a4208c96a6780b87",
+  "producerToReaderDelta": {
+    "bytes": 2803,
+    "path": "target/v53-remove-retention-20261101/source-delta.json",
+    "sha256": "c021ac9ea5a4fa3a9e8d798901b4522bd6d99ae49dc74a82e15f62e5f5cce2ce"
+  },
+  "profiles": [
+    "4-REMOVE",
+    "5-REMOVE"
+  ],
+  "qualification": {
+    "allSevenProfiles": false,
+    "completeRetirementTransactions": false,
+    "futureRevisionComposition": true,
+    "inProcessOpenReseals": true,
+    "peerRevisionComposition": true,
+    "phase3Complete": false,
+    "processDeath": false,
+    "publicRuntime": false
+  },
+  "readerSource": {
+    "bytes": 612418,
+    "path": "target/v53-remove-retention-20261101/reader/source.json",
+    "sha256": "290fa65f022c605cd873e16723e3347401c084f644df3196ee3d19b9e41d0188"
+  },
+  "regression": {
+    "focusedLog": {
+      "bytes": 151,
+      "path": "target/v53-remove-retention-20261101/focused-final.log",
+      "sha256": "c71eaed1e4cd1fa7962ec1fe6bbd3696f70b524bff1681d7b4749e65e2e7b5d5"
+    },
+    "focusedTests": 52,
+    "legacyHistoricalSourceOnly": true,
+    "legacyInventory": {
+      "bytes": 589747,
+      "path": "target/v53-remove-retention-20261101/legacy-inventory.json",
+      "sha256": "6fbfa9544f774c5282f5cdd57b0c3aca05ca85fcc25e5ec8e967c2fab4d2224d"
+    },
+    "legacyMatchesPreviousExactly": true,
+    "legacyResult": {
+      "bytes": 520,
+      "path": "target/v53-remove-retention-20261101/legacy-future.log",
+      "sha256": "73a139f19fa7378e30b20b485831fafbe7b0b723f1f73c6d918cd30291c6aa92"
+    },
+    "log": {
+      "bytes": 3672,
+      "path": "target/v53-remove-retention-20261101/python-final.log",
+      "sha256": "24eee8b1019cc4de98311649fd38eb6bac5efec1207a8e3e882e4b42ac046080"
+    },
+    "negativeCases": 82,
+    "newTests": 13,
+    "pythonTests": 1582
+  },
+  "remaining": [
+    "complete generation/source retirement transaction callbacks",
+    "fresh-process fault histories",
+    "current-source seven-profile matrix",
+    "automatic election scheduling",
+    "frozen acceptance mapping"
+  ],
+  "schema": "gse-v53-remove-retention-batch-v1",
+  "status": "PARTIAL",
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b",
+  "totals": {
+    "future": {
+      "durableWrites": 49,
+      "ledgerComparisons": 78,
+      "openReseals": 9
+    },
+    "peers": {
+      "durableWrites": 88,
+      "ledgerComparisons": 95,
+      "openReseals": 9
+    }
+  }
+}

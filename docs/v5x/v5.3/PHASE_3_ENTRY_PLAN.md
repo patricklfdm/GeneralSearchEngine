@@ -1,9 +1,14 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Continuous REMOVE retention](PHASE_3_REMOVE_RETENTION.md) derives peer and future
+revision chains across the same original three-campaign histories, including
+all original opens and inactive voters. Complete retirement transactions,
+process/profile gates and frozen acceptance mapping remain open.
+
 [REMOVE export and floor lifetimes](PHASE_3_REMOVE_EXPORTS.md) bind every committed
 transfer in the two retained original histories and derive all 28 complete-copy
-floors from actual acquisition, force and release events. Retention revisions,
-retirement transactions, process/profile and frozen-mapping gates remain open.
+floors from actual acquisition, force and release events. That earlier receipt
+covers exports/floors; continuous retention composition is recorded above.
 
 [REMOVE attempted transport](PHASE_3_REMOVE_NETWORK.md) binds complete observed
 requests and failure terminals to original grants, installation and slot replies.
