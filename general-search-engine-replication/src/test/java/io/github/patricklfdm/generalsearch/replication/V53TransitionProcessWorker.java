@@ -17,7 +17,13 @@ public final class V53TransitionProcessWorker {
         System.out.println(kind+" "+(value instanceof String text?text:new String(canonical(value,16*1024*1024),java.nio.charset.StandardCharsets.UTF_8)));
         System.out.flush();
     }
+    private static MembershipGrantJournal opened(MembershipGrantJournal owner,String mode,boolean observed)throws Exception {
+        try{if(observed)snapshot(mode+"-opened-0");return owner;}
+        catch(Exception|Error failure){try{owner.close();}catch(Exception close){failure.addSuppressed(close);}throw failure;}
+    }
     public static void main(String[] args)throws Exception {
+        require(args.length==7 || args.length==8 && args[7].equals("retirement"),"transition worker arguments");
+        boolean retirement=args.length==8;
         Path path=Path.of(args[0]),application=Path.of(args[1]),raw=Path.of(args[2]),scratch=Path.of(args[6]);
         String mode=args[3],point=args[5];long wanted=Long.parseLong(args[4]);
         require(Set.of("halt","kill","resume").contains(mode),"transition worker mode");
@@ -29,14 +35,14 @@ public final class V53TransitionProcessWorker {
         var b=ReplicationBounds.defaults();var bounds=new ReplicationBounds(b.maxFrameBytes(),b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
                 b.maxRetryAttempts(),30_000,b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
         long budget=TimeUnit.MINUTES.toNanos(10);var link=new AtomicReference<MembershipTransport>();
-        try(var owner=MembershipGrantJournal.openRetainingFuturePeers(path,application,history,identity,resources,MembershipGrantJournal.MAXIMUM,event->{
+        try(var owner=opened(MembershipGrantJournal.openRetainingFuturePeers(path,application,history,identity,resources,MembershipGrantJournal.MAXIMUM,event->{
             line("STORE",Map.of("event",event,"index",index.get()));
             if(!mode.equals("resume") && index.get()==wanted && event.equals(point)) {
                 line("CUT",Map.of("index",index.get(),"event",event));
                 if(mode.equals("halt"))Runtime.getRuntime().halt(23);
                 try{new CountDownLatch(1).await();}catch(InterruptedException error){Thread.currentThread().interrupt();throw new java.io.IOException(error);}
             }
-        });var endpoint=new MembershipActivationEndpoint(owner,resources,bounds,(peer,request,kind,deadline)->link.get().exchange(peer,request,kind,deadline),
+        }),mode,retirement);var endpoint=new MembershipActivationEndpoint(owner,resources,bounds,(peer,request,kind,deadline)->link.get().exchange(peer,request,kind,deadline),
                 List.of(),List.of(),scratch.resolve("incoming"),System::nanoTime,budget,builder().configuration(),storage(application,2));
             var transport=new MembershipTransport(owner.activationCapsule(),identity,bounds,resources,endpoint,(event,request,response)->{
                 if(event.equals("BEFORE_REQUEST_WRITE") || event.equals("AFTER_REQUEST_READ"))line(event,Base64.getEncoder().encodeToString(request.bytes()));

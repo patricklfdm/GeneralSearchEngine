@@ -314,15 +314,15 @@ final class MembershipGrantJournal implements AutoCloseable {
     static MembershipGrantJournal openRetainingPeers(Path requested,Path materialization,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,int maximum,MembershipBallotAllocator.Cut cut)throws IOException {
         var owner=openBootstrapped(requested,materialization,root,identity,resources,maximum,cut);
-        try{owner.initializePeerRetention();return owner;}
+        try{owner.initializePeerRetention();owner.recoverInterruptedRetirement();return owner;}
         catch(IOException|RuntimeException|Error error){try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     /** Required future-intent entry. Missing state cannot be recreated from a
      * later tip; legacy component opens do not replace this automatic-owner entry. */
     static MembershipGrantJournal openRetainingFuturePeers(Path requested,Path materialization,MembershipRoot root,MembershipIdentity identity,
             MembershipResources resources,int maximum,MembershipBallotAllocator.Cut cut)throws IOException {
-        var owner=openRetainingPeers(requested,materialization,root,identity,resources,maximum,cut);
-        try{owner.initializeFutureRetention();return owner;}
+        var owner=openBootstrapped(requested,materialization,root,identity,resources,maximum,cut);
+        try{owner.initializePeerRetention();owner.initializeFutureRetention();owner.recoverInterruptedRetirement();return owner;}
         catch(IOException|RuntimeException|Error error){try{owner.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     private static MembershipGrantJournal openGenerations(Path requested,MembershipRoot root,MembershipIdentity identity,
@@ -898,8 +898,8 @@ final class MembershipGrantJournal implements AutoCloseable {
             MembershipReplicaConfig<K,T> config,MembershipBallotAllocator.Cut cut)throws IOException {
         require(MembershipJoiningRetentionFiles.present(plan.request().replicaDirectory()),"joining retention original decision missing");
         var journal=reopenJoined(plan,resources,captured,config,cut);
-        try{require(journal.joiningRetention!=null,"joining retention original decision missing");return journal;}
-        catch(RuntimeException|Error error){try{journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
+        try{require(journal.joiningRetention!=null,"joining retention original decision missing");journal.recoverInterruptedRetirement();return journal;}
+        catch(IOException|RuntimeException|Error error){try{journal.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
     }
     synchronized void initializeJoinedRetention(List<MembershipSelection.Source> originals)throws IOException {
         checkBaseOwner();require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
@@ -2583,6 +2583,19 @@ final class MembershipGrantJournal implements AutoCloseable {
         parents.add(new MembershipCapsule.Anchor(object(value.get("cut")),(String)local.get("catalog"),(String)local.get("snapshot")));
     }
     synchronized Optional<Decoded> governingFloor() throws IOException {require(floors!=null,"floor storage owner required");checkOwner();return floors.read();}
+    /** Reuse only the complete original floor of this exact local generation.
+     * A reopened floor already owns its image/source charges; another receiving
+     * cohort cannot be layered on top or replace its original proposal. */
+    synchronized List<MembershipFloor.Copy> retainedMaintenanceCopies()throws IOException {
+        require(ownedHistory && floors!=null,"native maintenance floor owner required");
+        checkOwner();applicationReferencesIdle();rotationIdle();
+        require(!floors.pending() && !retirement.pending(),"native maintenance floor recovery required");
+        var retained=floors.retained();if(retained.isEmpty())return List.of();
+        var local=retained.get().copies().stream().filter(copy->copy.owner.equals(identity)).findFirst().orElseThrow();
+        require(Arrays.equals(local.generation.bytes(),current.manifest.bytes()) && local.capsule.terminal().equals(current.capsule.terminal()),
+                "native maintenance retained floor generation changed");
+        checkOwner();return retained.get().copies();
+    }
     /** Read-only admission hint; deletion still requires complete governing copies. */
     synchronized boolean nativeGenerationMaintenanceRequired()throws IOException {
         require(ownedHistory && inactive!=null && retirement!=null && floors!=null,"native generation maintenance owner required");
@@ -2739,6 +2752,14 @@ final class MembershipGrantJournal implements AutoCloseable {
         require(pendingAccept==null || !voteReferencesInactive(pendingAccept.active()),"original pending vote pins inactive generation until reacceptance");
         rotationIdle();
         return retireInactiveChecked();
+    }
+    /** Automatic entries finish only an already-started local transaction after
+     * required retention originals have been admitted. Do not establish a floor,
+     * select another generation or release the governing copies during open.
+     * Component opens keep their explicit maintenance/recovery contract. */
+    private void recoverInterruptedRetirement()throws IOException {
+        require(ownedHistory && retirement!=null,"native retirement recovery owner required");
+        if(retirement.pending())retireInactive();
     }
     synchronized Optional<Decoded> retireContextOriginal()throws IOException {
         contextMaintenanceIdle();return retireInactiveChecked();

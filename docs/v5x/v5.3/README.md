@@ -1,5 +1,9 @@
 # V5.3 — controlled cluster operations
 
+[Interrupted REMOVE retirement recovery](PHASE_3_REMOVE_PROCESS.md) fixes the
+automatic entry's pending-retirement recovery gap and adds separately selectable
+native process cases. Whole process/physical qualification remains OPEN.
+
 [Original REMOVE retirement file prefixes](PHASE_3_REMOVE_PREFIXES.md) now compare
 all 1,637 captured intermediate inventories in two new complete histories against
 independently derived transactions. Fresh-process recovery, the complete profile

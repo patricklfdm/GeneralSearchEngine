@@ -90,10 +90,15 @@ final class MembershipGenerationMaintenance implements AutoCloseable {
     void run()throws IOException {
         synchronized(this){require(!used && !closed,"native maintenance single use/closed");used=true;}
         check();if(!(published==null?owner.nativeGenerationMaintenanceRequired():owner.publishedMaintenanceRequired()))return;
-        var own=owner.floorCopyCurrent();var copies=new ArrayList<MembershipFloor.Copy>();copies.add(own);
+        var own=owner.floorCopyCurrent();var retained=owner.retainedMaintenanceCopies();
+        var copies=new ArrayList<MembershipFloor.Copy>(retained);if(copies.isEmpty())copies.add(own);
         var receiving=new HashMap<String,List<MembershipSourcePull>>();
-        var voters=new TreeSet<String>();voters.add(own.owner.nodeId().value());
+        var voters=new TreeSet<String>();for(var copy:copies)voters.add(copy.owner.nodeId().value());
         var joining=owner.maintenanceJoiningPeers();
+        // Existing complete originals are the authority, not cached hints. Do
+        // not acquire a second receiving cohort over their retained charges or
+        // extend an already forced proposal with a different set of copies.
+        require(retained.isEmpty() || quorum(voters) && voters.containsAll(joining),"native maintenance retained floor quorum/joining");
         // The installed cohort has just acknowledged this selected cut. Prefer
         // it over unrelated voters, but still acquire every complete original
         // copy: neither that ACK nor this ordering is floor authority. A new

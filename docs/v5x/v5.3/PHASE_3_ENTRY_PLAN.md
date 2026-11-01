@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Interrupted REMOVE retirement recovery](PHASE_3_REMOVE_PROCESS.md) connects
+retaining automatic entries to the existing pending generation-retirement
+transaction after a real proposer restart exposed the gap. Independent process
+replay, the declared process matrix and full Phase 3 qualification remain OPEN.
+
 [Original REMOVE retirement file prefixes](PHASE_3_REMOVE_PREFIXES.md) now compare
 all 1,637 captured intermediate inventories in two new complete histories against
 independently derived transactions. Fresh-process recovery, the complete profile

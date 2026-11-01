@@ -1,0 +1,207 @@
+{
+  "archive": {
+    "allFiles": 79909,
+    "bytes": 146295137,
+    "path": "target/v53-remove-process-20261102/remove-process-recovery.tar.gz",
+    "producerFiles": 79904,
+    "sha256": "84e33242bb9fa02124d0d8c2146632c88604d083040b018ebfce05bc079b92b8"
+  },
+  "automaticRetries": 0,
+  "baseHead": "81e59e04",
+  "case": "4-REMOVE,RETIREMENT_BORROW_PREFIX_WRITTEN,kill",
+  "declaredCases": 52,
+  "distinctSuccessfulCases": 1,
+  "executions": {
+    "component-corrected": {
+      "buildSha256": "cfd028ed55e1030e1dd234970c83461cade506d58890504b27546972d67b0456",
+      "execution": {
+        "elapsedSeconds": 276.88,
+        "exit": 0
+      },
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53MembershipOwnershipTest",
+          "skipped": "0",
+          "tests": "4"
+        },
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53NativeRetirementRecoveryTest",
+          "skipped": "0",
+          "tests": "7"
+        },
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementProcessProfilesTest",
+          "skipped": "0",
+          "tests": "2"
+        },
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53RetirementImagesTest",
+          "skipped": "0",
+          "tests": "8"
+        },
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53RetirementTest",
+          "skipped": "0",
+          "tests": "11"
+        }
+      ],
+      "sourceSha256": "cbc2cf1c983560d1c3d1fbb9284eafc7ea588d9b926e7acab4ce26a12343b3e7"
+    },
+    "component-floor-reuse": {
+      "buildSha256": "360b4a4807aeb28aef17e67391c16afb697c61e4a763cf3eda821f7db78d4345",
+      "execution": {
+        "elapsedSeconds": 236.563,
+        "exit": 0
+      },
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53NativeRetirementRecoveryTest",
+          "skipped": "0",
+          "tests": "8"
+        },
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementProcessProfilesTest",
+          "skipped": "0",
+          "tests": "2"
+        }
+      ],
+      "sourceSha256": "ac9b251577d1196dcb271d8b293b3b4217d670b9e1f65140506b9f5dbd8bae35"
+    },
+    "component-original": {
+      "buildSha256": "1949f46bd773e8c1d4a5ded0362864e99d2dbf6cf971550b13d37dea19120245",
+      "execution": {
+        "elapsedSeconds": 156.726,
+        "exit": 1
+      },
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "6",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53NativeRetirementRecoveryTest",
+          "skipped": "0",
+          "tests": "6"
+        }
+      ],
+      "sourceSha256": "675a0ff5110614e0131b7fecfe9dc91a9902b76ab855ac4171881e56ea388206"
+    },
+    "pilot-corrected": {
+      "buildSha256": "cfd028ed55e1030e1dd234970c83461cade506d58890504b27546972d67b0456",
+      "execution": {
+        "elapsedSeconds": 182.019,
+        "exit": 1
+      },
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "1",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementProcessTest",
+          "skipped": "0",
+          "tests": "1"
+        }
+      ],
+      "sourceSha256": "cbc2cf1c983560d1c3d1fbb9284eafc7ea588d9b926e7acab4ce26a12343b3e7"
+    },
+    "pilot-floor-reuse": {
+      "buildSha256": "360b4a4807aeb28aef17e67391c16afb697c61e4a763cf3eda821f7db78d4345",
+      "execution": {
+        "elapsedSeconds": 374.548,
+        "exit": 0
+      },
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementProcessTest",
+          "skipped": "0",
+          "tests": "1"
+        }
+      ],
+      "sourceSha256": "ac9b251577d1196dcb271d8b293b3b4217d670b9e1f65140506b9f5dbd8bae35"
+    },
+    "pilot-lock-corrected": {
+      "buildSha256": "7a10c444139139b2de4f417afc0e389d4be085a57c7ccbf1373e87db098cb38e",
+      "execution": {
+        "elapsedSeconds": 173.104,
+        "exit": 1
+      },
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "1",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementProcessTest",
+          "skipped": "0",
+          "tests": "1"
+        }
+      ],
+      "sourceSha256": "a053d42d5e2b49e05196bbad1c8aa2a961cb209f9a0a6ad4c78989d78dbbadb3"
+    },
+    "pilot-original": {
+      "buildSha256": "13a68899f1b6c291abf992b0cc0b10ae1e1a33e3a171c2bc6676065a0274200a",
+      "execution": {
+        "elapsedSeconds": 161.842,
+        "exit": 1
+      },
+      "junit": [
+        {
+          "errors": "0",
+          "failures": "0",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementProcessProfilesTest",
+          "skipped": "0",
+          "tests": "2"
+        },
+        {
+          "errors": "0",
+          "failures": "1",
+          "name": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementProcessTest",
+          "skipped": "0",
+          "tests": "1"
+        }
+      ],
+      "sourceSha256": "9cf0c8f3f0d218445497402fd0b357797916233d1edd854df9e9596bcccc8f24"
+    }
+  },
+  "fixes": [
+    "resume pending generation retirement at retaining native entry",
+    "reuse complete exact-generation floor without another receiving cohort"
+  ],
+  "nativeDiagnosticExecutions": 4,
+  "phase3Complete": false,
+  "physicalHistoryQualified": false,
+  "portableCollection": {
+    "collectionEqual": true,
+    "optimizedPython": true,
+    "phase3Complete": false,
+    "physicalHistoryQualified": false,
+    "processDeathQualified": false,
+    "status": "PARTIAL"
+  },
+  "processDeathQualified": false,
+  "python": {
+    "focusedTests": 18,
+    "fullTests": 1617,
+    "status": "PASS"
+  },
+  "remaining": [
+    "independent original physical/history/process reduction",
+    "52-case same-source process matrix",
+    "current-source seven-profile cohort",
+    "frozen acceptance mapping"
+  ],
+  "schema": "gse-v53-remove-process-recovery-batch-v1",
+  "scope": "automatic-open-and-retained-floor-recovery",
+  "status": "PARTIAL"
+}

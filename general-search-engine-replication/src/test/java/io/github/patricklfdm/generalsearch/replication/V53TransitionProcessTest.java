@@ -27,18 +27,24 @@ class V53TransitionProcessTest {
     }
     @ParameterizedTest @MethodSource("cuts")
     void sameOperationResumesAfterNativeProposerDeath(long index,String point,String mode)throws Exception {
+        execute(4,index,point,mode,Path.of("target/v53-transition-process/run-"+UUID.randomUUID()),false);
+    }
+    void execute(int size,long index,String point,String mode,Path destination,boolean retirement)throws Exception {
         var helper=new V53TransitionRoundDriverTest();helper.temp=temp;
-        Path raw=Files.createDirectories(Path.of("target/v53-transition-process/run-"+UUID.randomUUID()));
+        Path raw=Files.createDirectories(destination);
         System.out.println("v53TransitionProcessEvidence="+raw.toAbsolutePath());
         Path history=null;
-        Files.write(raw.resolve("profile.json"),canonical(Map.of("index",index,"point",point,"mode",mode),4096));
-        try(var network=helper.network("SEALED")) {
+        var profile=new TreeMap<String,Object>();profile.put("index",index);profile.put("point",point);profile.put("mode",mode);
+        if(retirement){profile.put("schema","gse-v53-remove-retirement-process-v1");profile.put("profile",size+"-REMOVE");}
+        Files.write(raw.resolve("profile.json"),canonical(profile,4096));
+        try(var network=helper.network("SEALED",size)) {
+            network.observeRequests=retirement;
             var target=network.f.request.targets().getFirst();history=network.f.raw;
             Files.writeString(raw.resolve("native-history.txt"),history.toAbsolutePath()+"\n");
             network.endpoints.getFirst().close();network.transports.getFirst().close();network.owners.getFirst().close();
             network.f.snapshot("before-child");
             Path attempt=Files.createDirectory(raw.resolve("interrupted-worker"));
-            var child=process(target,attempt,mode,index,point,temp.resolve("child-"+UUID.randomUUID()));
+            var child=process(target,attempt,mode,index,point,temp.resolve("child-"+UUID.randomUUID()),retirement);
             try {
                 await(child,attempt,"CUT ",network);
                 assertFalse(Files.exists(attempt.resolve("ready.json")),"interrupted transition admitted service");
@@ -47,13 +53,13 @@ class V53TransitionProcessTest {
                         try(var unexpected=network.f.open(target,"live-proposer-lock")){fail("live proposer lost its lock");}
                     });
                     assertEquals(ReplicationException.Reason.STORAGE_FAILURE,locked.reason());
-                    assertEquals("offline authority is owned by another process",locked.getMessage());
+                    assertEquals("membership file already owned",locked.getMessage());
                     child.destroyForcibly();
                 }
                 assertTrue(child.waitFor(15,TimeUnit.SECONDS));assertEquals(mode.equals("halt")?23:137,child.exitValue(),Files.readString(attempt.resolve("stderr")));
                 network.f.snapshot("interrupted");
                 Path recovered=Files.createDirectory(raw.resolve("resumed-worker"));
-                var resumed=process(target,recovered,"resume",index,"none",temp.resolve("child-"+UUID.randomUUID()));
+                var resumed=process(target,recovered,"resume",index,"none",temp.resolve("child-"+UUID.randomUUID()),retirement);
                 try {
                     await(resumed,recovered,"READY resume",network);
                     resumed.getOutputStream().write('s');resumed.getOutputStream().flush();
@@ -85,7 +91,7 @@ class V53TransitionProcessTest {
             for(String line:Files.readString(out).split("\n"))if(line.startsWith("SNAPSHOT ")) {
                 String stage=line.substring("SNAPSHOT ".length());
                 if(recorded.add(stage)) {
-                    assertTrue(stage.matches("(halt|kill|resume)-(installed|applied|published)-[1-7]"),"unsafe snapshot stage");
+                    assertTrue(stage.matches("(halt|kill|resume)-((installed|applied|published)-[1-7]|opened-0)"),"unsafe snapshot stage");
                     network.f.snapshot(stage);child.getOutputStream().write('c');child.getOutputStream().flush();
                 }
             }
@@ -95,9 +101,14 @@ class V53TransitionProcessTest {
         assertTrue(text.contains(marker),Files.readString(err)+"\n"+text.substring(Math.max(0,text.length()-6000)));
     }
     static Process process(MembershipBootstrapTarget<?,?> target,Path evidence,String mode,long index,String point,Path scratch)throws Exception {
-        return new ProcessBuilder(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData","-cp",System.getProperty("java.class.path"),
+        return process(target,evidence,mode,index,point,scratch,false);
+    }
+    static Process process(MembershipBootstrapTarget<?,?> target,Path evidence,String mode,long index,String point,Path scratch,boolean retirement)throws Exception {
+        var command=new ArrayList<>(List.of(Path.of(System.getProperty("java.home"),"bin/java").toString(),"-XX:-UsePerfData","-cp",System.getProperty("java.class.path"),
                 V53TransitionProcessWorker.class.getName(),target.replicaDirectory().toString(),target.materialization().directory().toString(),
-                evidence.toAbsolutePath().toString(),mode,Long.toString(index),point,scratch.toString())
+                evidence.toAbsolutePath().toString(),mode,Long.toString(index),point,scratch.toString()));
+        if(retirement)command.add("retirement");
+        return new ProcessBuilder(command)
                 .redirectOutput(evidence.resolve("stdout").toFile()).redirectError(evidence.resolve("stderr").toFile()).start();
     }
 }
