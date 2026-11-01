@@ -64,6 +64,8 @@ def revision(before,after):
 
 
 class Replay(m.Replay):
+    expected_write_counts=dict(maintenance=54,selected=12,publication=24)
+
     def __init__(self,root):
         super().__init__(root);self.floor_inputs=[];self.state={};self.steps=[];self.used=set();self.files_cache={};self.comparisons=0
         self.tx=transactions(self.events);self.completions=set();self.reseals=reseal_lifetimes(self.events)
@@ -204,8 +206,9 @@ class Replay(m.Replay):
             path='joining-originals-stable-cold/replica' if node=='node-4' else 'after-close/'+node
             self.compare(node,disk.inventory(self.root/path)[FILE],'cold')
         counts=Counter(v['kind'] for v in self.steps)
-        need(counts==dict(maintenance=54,selected=12,publication=24),'joining peer complete original write composition')
-        return dict(status='PASS',scope='one-native-ADD-original-peer-ledger-chain',durableWrites=len(self.steps),
+        if self.expected_write_counts is not None:
+            need(counts==self.expected_write_counts,'joining peer complete original write composition')
+        return dict(status='PASS',scope='one-native-'+self.kind+'-original-peer-ledger-chain',durableWrites=len(self.steps),
                     writesByKind=dict(counts),ledgerComparisons=self.comparisons,capturedLedgers=len(self.sources),
                     openReseals=len(self.reseals),
                     finalRevisions={n:peers.decode(raw)['revision'] for n,raw in self.state.items()},
@@ -246,9 +249,9 @@ NEGATIVES={
 }
 
 
-def mutate(root,name):
+def mutate(root,name,*,reader=None):
     need(name in NEGATIVES,'joining peer unknown negative')
-    reader=Replay(root);reader.run();events=reader.events
+    reader=Replay(root) if reader is None else reader;reader.run();events=reader.events
     def selected(kind):return next(v for v in reader.steps if v['kind']==kind)
     def rows(step):return [v for v in events[step['start']:step['end']+1] if v.get('node')==step['node'] and v['event'] in WRITES]
     def move(values,target,after=False):

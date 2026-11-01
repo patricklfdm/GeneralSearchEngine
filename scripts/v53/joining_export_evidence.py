@@ -25,7 +25,7 @@ def record_kind(raw):
     need(kind is not None,'joining export record kind');f.decode(raw,'records',kind);return kind
 
 
-def generation_windows(root,events,replay):
+def generation_windows(root,events,replay,*,recovery=None):
     """Snapshots are accepted only after independent physical derivation."""
     result=[]
     for node in ('node-1','node-2','node-4'):
@@ -40,9 +40,18 @@ def generation_windows(root,events,replay):
             if node in [v['voter'] for v in cert['proofs']]:
                 path=f'joining-published-{index}/replica' if node=='node-4' else f'published-{index}/{node}'
                 changes.append(('PUBLICATION_BEFORE_RETURN',path))
+            if recovery is not None and node==replay.joining and index==10:
+                changes.append(('ADOPTION_INSTALL_BEFORE_RETURN','joining-after-final-prefix/replica'))
+        if recovery is not None:
+            chosen=f.decode(recovery,'records','SELECTED',replay.root)
+            need(chosen['cut']==replay.states[11]['cut'] and chosen['ballot']['proposer']==replay.joining,
+                 'joining export same-view recovery selection')
+            if node in [v['voter'] for v in chosen['sources']]:
+                path='joining-after-final-recovery/replica' if node==replay.joining else 'same-view-installed/'+node
+                changes.append(('INSTALL_BEFORE_RETURN',path))
         renames=[at for at,row in enumerate(events) if row.get('node')==node and row['event']=='INSTALL_SELECTOR_RENAMED']
         returns=[(at,row['event']) for at,row in enumerate(events) if row.get('node')==node and
-                 row['event'] in ('INSTALL_BEFORE_RETURN','PUBLICATION_BEFORE_RETURN')]
+                 row['event'] in ('INSTALL_BEFORE_RETURN','PUBLICATION_BEFORE_RETURN','ADOPTION_INSTALL_BEFORE_RETURN')]
         need(len(renames)==len(returns)==len(changes) and [point for _,point in returns]==[point for point,_ in changes],
              'joining export complete generation timeline')
         if node=='node-4':
@@ -179,7 +188,7 @@ def next_promise(events,node,start,end):
     return min([end]+[at for at,row in enumerate(events) if at>start and row.get('node')==node and row['event']=='PROMISE_FORCED'])
 
 
-def record_windows(root,events,model,windows,sources):
+def record_windows(root,events,model,windows,sources,*,recovery=None):
     result=[]
     def add(node,start,end,raw,*,reference=None,ballot=None,view=None,family='record'):
         if raw:result.append(dict(node=node,start=start,end=end,raw=raw,reference=reference or sha(raw),
@@ -189,6 +198,9 @@ def record_windows(root,events,model,windows,sources):
     for source in sources:
         add(source['node'],source['start'],source['end'],source['promise'],family='journal')
     selected={sha(parts['SELECTED']):parts['SELECTED'] for parts in model.phases}
+    if recovery is not None:
+        need(sha(recovery) not in selected,'joining export duplicate recovery selection')
+        selected[sha(recovery)]=recovery
     for node in ('node-1','node-2','node-4'):
         originals=[raw for raw in selected.values() if node in [s['voter'] for s in f.decode(raw,'records','SELECTED')['sources']]]
         forced=[at for at,row in enumerate(events) if row.get('node')==node and row['event']=='SELECTED_FORCED']
@@ -290,15 +302,15 @@ def authorize_pending(values,events,model):
     exact(values,[(sha(raw),raw,'RECORD')],'joining export exact pending ACK')
 
 
-def replay(root):
-    root=Path(root);model=n.s.Replay(root)
+def replay(root,*,kind='ADD',recovery=None):
+    profile_kind=kind;root=Path(root);model=n.s.Replay(root,kind=kind)
     for index in range(1,12):model.step(index)
     events=n.s.collection.read_json(root,'events.json',n.s.collection.EVENT_BYTES)
     wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
     identities=n.s.catalog.identities(model.states[-1]['identities'])
     rows=n.causal(events,wires,identities,model.root);contents=[];n.transfers(rows,contents=contents)
-    generations=generation_windows(root,events,model);sources=source_windows(root,events)
-    records=record_windows(root,events,model,generations,sources)
+    generations=generation_windows(root,events,model,recovery=recovery);sources=source_windows(root,events)
+    records=record_windows(root,events,model,generations,sources,recovery=recovery)
     covered=Counter();transfers=Counter();remaining=[]
     for values in sessions(contents):
         first=values[0];kind=record_kind(first['raw']);scope=None
@@ -317,7 +329,7 @@ def replay(root):
             remaining.append(dict(owner=q['recipient']['node'],reader=q['sender']['node'],trace=q['trace'],
                 firstEvent=first['offer']['sent'],reference=q['payload']['digest'],firstKind=kind or 'unframed-record',transfers=len(values)))
     need(covered['current-generation']>0 and covered['frozen-source']>0,'joining export target families absent')
-    return dict(status='PARTIAL',scope='native-ADD-temporal-exports-and-original-record-capabilities',
+    return dict(status='PARTIAL',scope='native-'+profile_kind+'-temporal-exports-and-original-record-capabilities',
         generationWindows=len(generations),sourceWindows=len(sources),recordWindows=len(records),boundSessions=dict(covered),
         boundTransfers=dict(transfers),unqualifiedSessions=remaining,unqualifiedSessionCount=len(remaining),
         unqualifiedTransfers=sum(v['transfers'] for v in remaining),allExportFamiliesQualified=False,
@@ -346,10 +358,10 @@ NEGATIVES={
 }
 
 
-def mutate(root,name):
+def mutate(root,name,*,kind='ADD',recovery=None):
     events=n.s.collection.read_json(root,'events.json',n.s.collection.EVENT_BYTES)
     wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
-    model=n.s.Replay(root)
+    model=n.s.Replay(root,kind=kind)
     for index in range(1,12):model.step(index)
     rows=n.causal(events,wires,n.s.catalog.identities(model.states[-1]['identities']),model.root)
     contents=[];n.transfers(rows,contents=contents);groups=sessions(contents)
@@ -359,7 +371,7 @@ def mutate(root,name):
     elif name=='record-view':values=next(v for v in groups if record_kind(v[0]['raw'])=='ENTRY')
     elif name=='pending-after-retain':values=next(v for v in groups if v[0]['raw']==pending_ack(model))
     else:
-        windows=generation_windows(root,events,model)
+        windows=generation_windows(root,events,model,recovery=recovery)
         values=next(v for v in groups if record_kind(v[0]['raw'])=='CHECKPOINT_ACK' and
             v[0]['offer']['request']['recipient']['node']!='node-4' and v[0]['offer']['request']['view']!=
             n.s.catalog.authority(model.root,current(windows,v[0]['offer']['request']['recipient']['node'],

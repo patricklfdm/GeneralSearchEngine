@@ -101,14 +101,14 @@ def fragment(source):
 
 
 class Replay:
-    def __init__(self,root):
-        self.root=Path(root);self.model=n.s.Replay(root)
+    def __init__(self,root,*,kind='ADD',recovery=None):
+        self.kind=kind;self.root=Path(root);self.model=n.s.Replay(root,kind=kind)
         for index in range(1,12):self.model.step(index)
         self.events=n.s.collection.read_json(self.root,'events.json',n.s.collection.EVENT_BYTES)
         wires=n.s.collection.read_json(self.root,'wire.json',n.s.collection.WIRE_BYTES)
         self.rows=n.causal(self.events,wires,n.s.catalog.identities(self.model.states[-1]['identities']),self.model.root)
         contents=[];n.transfers(self.rows,contents=contents);self.groups=e.sessions(contents)
-        self.windows=e.generation_windows(root,self.events,self.model);self.sources=e.source_windows(root,self.events)
+        self.windows=e.generation_windows(root,self.events,self.model,recovery=recovery);self.sources=e.source_windows(root,self.events)
         self.phases=n.phase.blocks(self.events,self.model);self.recordings=[];self.confirmations={}
 
     def current(self,node,start,end):return e.current(self.windows,node,start,end)
@@ -255,7 +255,7 @@ class Replay:
         need(controls==dict(root=1,intent=2,preparation=1,retention=2,completion=2),'joining control complete export families')
         need(used=={(v['owner'],v['reader'],v['trace']) for v in prior['unqualifiedSessions']},'joining control complete export coverage')
         need(learners==dict(recorded=4,published=2),'joining control complete learner authorization')
-        return dict(status='PASS',scope='one-native-ADD-original-control-exports-and-learner-retention',controls=dict(controls),learnerSessions=dict(learners),
+        return dict(status='PASS',scope='one-native-'+self.kind+'-original-control-exports-and-learner-retention',controls=dict(controls),learnerSessions=dict(learners),
             retentionRounds=len(self.recordings),confirmedHeads=len(self.confirmations),observedContentSessions=sum(prior['boundSessions'].values())+len(used),
             observedCommittedContents=sum(prior['boundTransfers'].values())+prior['unqualifiedTransfers'],observedControlExportsQualified=True,
             observedLearnerRetentionQualified=True,allExportFamiliesQualified=False,completePhysicalQualified=False,forceAndNetworkQualified=False,
@@ -288,8 +288,8 @@ NEGATIVES={
 }
 
 
-def mutate(root,name):
-    root=Path(root);reader=Replay(root);events=reader.events
+def mutate(root,name,*,kind='ADD',recovery=None):
+    root=Path(root);reader=Replay(root,kind=kind,recovery=recovery);events=reader.events
     wires=n.s.collection.read_json(root,'wire.json',n.s.collection.WIRE_BYTES)
     def replace(row,side,kind,value):
         old=sha(base64.b64decode(row[side]));raw=f.encode('wire',kind,value);row[side]=encoded(raw)

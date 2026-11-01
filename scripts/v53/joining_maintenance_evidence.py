@@ -73,6 +73,19 @@ def retirement_order(events,node,start,end,scope):
 
 
 class Replay(c.Replay):
+    expected_status_count=55
+    expected_floor_counts=(38,2,96,52)
+
+    def governing(self,copies,own):same_cut(copies,own)
+
+    def discovery(self,statuses,packet,q,remote):
+        need(len(statuses)==1,'joining maintenance acquisition before discovery')
+        row=statuses[0]
+        need(row['delivered']<packet[0]['offer']['sent'] and row['response']['payload']['cut']==remote['packet']['capsule']['cut'] and
+             row['request']['view']==q['view'] and row['request']['ballot']==q['ballot'],
+             'joining maintenance acquisition before discovery')
+        return row
+
     def statuses(self):
         self.status_rows=[]
         for row in self.rows:
@@ -90,7 +103,8 @@ class Replay(c.Replay):
                 need(self.events[row['received']].get('scope')=='continuation-endpoint','joining maintenance discovery endpoint')
                 c.owner_lifetime(self.events,'node-4','continuation-owner',row['received'],row['offered'])
             self.status_rows.append(row)
-        need(len(self.status_rows)==55,'joining maintenance complete discovery observations')
+        if self.expected_status_count is not None:
+            need(len(self.status_rows)==self.expected_status_count,'joining maintenance complete discovery observations')
 
     def acquired(self,own,lower,start):
         node=own['node'];copies={node:own};used=[]
@@ -111,16 +125,14 @@ class Replay(c.Replay):
                  packet[0]['offer']['request']['view']==q['view'] and packet[0]['offer']['request']['ballot']==q['ballot'],
                  'joining maintenance original packet correlation')
             statuses=[v for v in self.status_rows if v['request']['sender']==q['sender'] and v['request']['recipient']==q['recipient'] and
-                      lower<v['sent'] and v['delivered']<packet[0]['offer']['sent']]
-            need(len(statuses)==1 and statuses[0]['response']['payload']['cut']==remote['packet']['capsule']['cut'] and
-                 statuses[0]['request']['view']==q['view'] and statuses[0]['request']['ballot']==q['ballot'],
-                 'joining maintenance acquisition before discovery')
+                      lower<v['sent']<packet[0]['offer']['sent']]
+            discovery=self.discovery(statuses,packet,q,remote)
             # Packet-only transfer borrows actual local image bytes. The
             # matching terminal application hash alone cannot create an image.
             for digest,size in remote['packet']['images'].items():
                 raw=own['members'].get(digest+'.image')
                 need(raw is not None and len(raw)==size and sha(raw)==digest,'joining maintenance missing borrowed original image')
-            e.authorize_generation(values,self.windows);copies[peer]=remote;used.append(statuses[0]['requestHash'])
+            e.authorize_generation(values,self.windows);copies[peer]=remote;used.append(discovery['requestHash'])
         need(len(copies)>1,'joining maintenance absent acquired copies')
         return copies,used
 
@@ -157,7 +169,7 @@ class Replay(c.Replay):
                 copies,new=self.acquired(own,lower,start)
                 need(not used.intersection(new),'joining maintenance discovery reused by floor');used.update(new);network+=1
             else:copies=self.direct(own,start);direct+=1
-            same_cut(copies,own)
+            self.governing(copies,own)
             need([v['event'] for _,v in actual]==floor_events(copies,node,is_network) and all(v.get('scope')==scope for _,v in actual),
                  'joining maintenance exact copy force/release order')
             if node=='node-4':c.owner_lifetime(self.events,node,'continuation-owner',start,end)
@@ -165,7 +177,8 @@ class Replay(c.Replay):
             covered.update(i for i,_ in actual);copies_total+=len(copies);previous[node]=end
         eligible={i for i,v in enumerate(self.events) if v['event'].startswith('FLOOR_') and v['event']!='FLOOR_COPY_BEFORE_RETURN'}
         need(covered==eligible,'joining maintenance unbound floor events')
-        need((network,direct,copies_total,len(used))==(38,2,96,52),'joining maintenance complete original floors')
+        if self.expected_floor_counts is not None:
+            need((network,direct,copies_total,len(used))==self.expected_floor_counts,'joining maintenance complete original floors')
         return dict(networkFloors=network,directFixtureFloors=direct,completeCopies=copies_total,acquiredRemoteCopies=len(used),
                     retiredGenerations=generations,floorEvents=len(covered))
 
@@ -202,8 +215,8 @@ NEGATIVES={
 }
 
 
-def mutate(root,name):
-    root=Path(root);reader=Replay(root);events=reader.events
+def mutate(root,name,*,reader=None):
+    root=Path(root);reader=Replay(root) if reader is None else reader;events=reader.events
     if name.startswith('status-'):
         wires=json.loads((root/'wire.json').read_bytes());row=next(v for v in wires if n.wire(v['request'])[0]=='STATUS_PROBE')
         old=sha(base64.b64decode(row['response']));kind,body=n.wire(row['response'])

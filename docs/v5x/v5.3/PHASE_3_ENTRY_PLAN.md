@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Same-view authority composition](PHASE_3_SAME_VIEW_AUTHORITY.md) adds original
+export lifetimes, complete-copy FLOOR acquisition/release and the continuous
+peer-ledger chain to the retained REPLACE recovery. Learner/future force chains,
+profile/process qualification and frozen acceptance mapping remain open.
+
 [Same-view network replay](PHASE_3_SAME_VIEW_NETWORK.md) now composes the original
 storage derivation with grants, transport, remote installation ACKs and the
 joining proposer’s local installation order. Full export/maintenance, profile

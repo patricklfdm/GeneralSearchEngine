@@ -81,3 +81,7 @@ cuts and frozen acceptance mapping are still required.
 
 No Java runtime, wire format, workflow, POM, resource limit or time budget changes.
 No paid cloud, push or workflow dispatch is part of this batch.
+
+The subsequent [authority composition](PHASE_3_SAME_VIEW_AUTHORITY.md) checks
+original export lifetimes, covering-copy maintenance and the peer-ledger chain.
+Its remaining learner/future force and whole-profile/process limits are explicit.
