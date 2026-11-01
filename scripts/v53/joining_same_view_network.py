@@ -17,6 +17,19 @@ from . import joining_profile_network_evidence as profiles
 
 need, collection, f, sha = network.need, network.s.collection, network.f, network.sha
 SELECTION = 'joining-final-recovery-selection.gsr'
+PROPOSER_NEGATIVES = {
+    'proposer-selection-return-missing':'joining network proposer selection return',
+    'proposer-selection-return-after-send':'joining network proposer selection return',
+    'proposer-image-force-missing':'joining network proposer complete installation order',
+    'proposer-member-force-missing':'joining network proposer complete installation order',
+    'proposer-parent-force-missing':'joining network proposer complete installation order',
+    'proposer-current-force-missing':'joining network proposer complete installation order',
+    'proposer-install-return-missing':'joining network proposer complete installation order',
+    'proposer-duplicate-force':'joining network proposer complete installation order',
+    'proposer-before-ACK':'joining network proposer installation after ACKs',
+    'proposer-after-slot':'joining network proposer complete installation order',
+    'proposer-wrong-scope':'joining network proposer complete installation order',
+}
 NEGATIVES = {
     'recovery-early-selection':'joining network selection before delivered promises',
     'recovery-missing-grant-force':'joining network durable grant order',
@@ -58,6 +71,33 @@ def move_before(events,index,before):
 
 def mutate(root,name):
     root=Path(root)
+    if name in PROPOSER_NEGATIVES:
+        events=collection.read_json(root,'events.json',collection.EVENT_BYTES)
+        def first(point):return next(v for v in events if v.get('node')=='node-1' and v['event']==point)
+        def position(row):return next(i for i,v in enumerate(events) if v is row)
+        point={'proposer-selection-return-missing':'SELECTED_BEFORE_RETURN',
+               'proposer-image-force-missing':'INSTALL_IMAGE_FORCED','proposer-member-force-missing':'INSTALL_MEMBER_FORCED',
+               'proposer-parent-force-missing':'INSTALL_PARENT_FORCED','proposer-current-force-missing':'CURRENT_GENERATION_FORCED',
+               'proposer-install-return-missing':'INSTALL_BEFORE_RETURN'}
+        if name in point:
+            # CURRENT recovery also appears before the first selection. Remove
+            # the occurrence belonging to the actual proposer installation.
+            lower=position(first('SELECTED_FORCED'))
+            row=next(v for v in events[lower+1:] if v.get('node')=='node-1' and v['event']==point[name])
+            events.pop(position(row))
+        elif name=='proposer-duplicate-force':
+            row=first('INSTALL_MEMBER_FORCED');events.insert(position(row),dict(row))
+        elif name=='proposer-before-ACK':
+            ack=next(v for v in events if v.get('node')=='node-1' and v['event']=='NETWORK_RECEIVED' and v['kind']=='INSTALL_ACK')
+            move_before(events,position(first('INSTALL_RESERVED')),ack)
+        elif name=='proposer-after-slot':
+            row=first('INSTALL_BEFORE_RETURN');events.pop(position(row));at=position(first('ACCEPT_VALIDATED'));events.insert(at+1,row)
+        elif name=='proposer-selection-return-after-send':
+            row=first('SELECTED_BEFORE_RETURN');events.pop(position(row))
+            sent=next(v for v in events if v.get('node')=='node-1' and v['event']=='NETWORK_SEND' and v['kind']=='SELECTED')
+            events.insert(position(sent)+1,row)
+        else:first('INSTALL_MEMBER_FORCED')['scope']='foreign-owner'
+        (root/'events.json').write_bytes(f.canonical(events));return
     if name not in NEGATIVES:profiles.mutate(root,name);return
     events=collection.read_json(root,'events.json',collection.EVENT_BYTES)
     wires=collection.read_json(root,'wire.json',collection.WIRE_BYTES)
@@ -108,7 +148,7 @@ def mutate(root,name):
 def qualify(root,progress=None):
     root=Path(root);original=validate(root);before=collection.inventory(root);results=[]
     if progress:progress(dict(stage='original',status='PASS'))
-    cases={**network.NEGATIVES,**NEGATIVES}
+    cases={**network.NEGATIVES,**NEGATIVES,**PROPOSER_NEGATIVES}
     if profiles.terminal_pair(root) is not None:cases.update(profiles.TERMINAL_NEGATIVES)
     files={k:v for k,v in before['files'].items() if k not in ('events.json','wire.json')}
     for name,reason in cases.items():

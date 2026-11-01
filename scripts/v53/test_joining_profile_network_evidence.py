@@ -20,7 +20,7 @@ class JoiningProfileNetworkEvidenceTest(unittest.TestCase):
         replay=SimpleNamespace(joining=joining,phases=[{'SELECTED':raw}])
         bases={v['basisDigest']:dict(node=v['voter'],basisId=v['basisId'],ballot=selected['ballot'],capturedEvent=0) for v in selected['sources']}
         members={'selected.gsr':raw,'original.image':b'conditional'}
-        events=[dict(event='CAPTURED'),dict(node='node-1',event='SELECTED_FORCED')]
+        events=[dict(event='CAPTURED'),dict(node='node-1',event='SELECTED_FORCED'),dict(node='node-1',event='SELECTED_BEFORE_RETURN')]
         rows=[dict(kind='PREPARE',request=dict(sender=dict(node='node-1')),
                    response=dict(payload=dict(basis=v['basisDigest'])),delivered=0)
               for v in selected['sources'] if v['voter']!='node-1']
@@ -35,9 +35,11 @@ class JoiningProfileNetworkEvidenceTest(unittest.TestCase):
                 if node==joining:row['scope']='wrong-owner' if change_scope else 'continuation-owner'
                 events.append(row)
             offered=len(events);events.append(dict(event='REPLY'))
-            rows.append(dict(kind='SELECTED',answer='INSTALL_ACK',sent=sent,received=received,offered=offered,
+            delivered=len(events);events.append(dict(event='DELIVERED'))
+            rows.append(dict(kind='SELECTED',answer='INSTALL_ACK',sent=sent,received=received,offered=offered,delivered=delivered,
                 request=dict(sender=dict(node='node-1'),recipient=dict(node=node),ballot=selected['ballot'],view=selected['view'],payload=dict(selection=digest)),
                 response=dict(payload=dict(selection=digest,cut=selected['cut']))))
+        events.extend(dict(node='node-1',event=p) for p in [*n.install_forces(members),'ACCEPT_VALIDATED'])
         with patch.object(n.disk,'inventory',side_effect=lambda p:p) as inventory, \
              patch.object(n.disk,'current',return_value=('',members,{})):
             result=n.installations('/original',events,rows,replay,bases)
@@ -47,7 +49,7 @@ class JoiningProfileNetworkEvidenceTest(unittest.TestCase):
         for profile in e.PROFILES:
             with self.subTest(profile=profile):
                 result,paths,joining,count=self.installation(profile)
-                self.assertEqual(dict(boundInstallReplies=count-1,forcedSelections=count),result)
+                self.assertEqual(dict(boundInstallReplies=count-1,forcedSelections=count,proposerLocalInstallations=1),result)
                 self.assertIn('/original/joining-installed-9/replica',paths)
                 self.assertNotIn('/original/continuation-installed-9/'+joining,paths)
 

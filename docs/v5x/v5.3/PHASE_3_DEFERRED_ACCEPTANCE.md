@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Proposer installation forces](PHASE_3_PROPOSER_INSTALLATION.md) close the
+second reproduced callback gap: ordinary local installation now requires every
+selected peer ACK and its complete force sequence before the first slot. Full
+coverage, current-source profile/process and frozen-mapping gates remain open.
+
 [Same-view ballot forces](PHASE_3_SAME_VIEW_BALLOT.md) close a reproduced
 allocator-callback validation gap, deriving all reservations and promises from
 the original continuous history. Whole-history coverage, profile/process and

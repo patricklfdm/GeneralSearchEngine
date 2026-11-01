@@ -57,7 +57,7 @@ class JoiningSameViewNetworkTest(unittest.TestCase):
 
     def test_explicit_recovery_binds_remote_ACK_and_local_installation_snapshots(self):
         result,paths=self.check(fixture())
-        self.assertEqual(dict(boundInstallReplies=1,forcedSelections=2,recoveryInstallReplies=1,recoveryLocalInstallations=1),result)
+        self.assertEqual(dict(boundInstallReplies=1,forcedSelections=2,proposerLocalInstallations=0,recoveryInstallReplies=1,recoveryLocalInstallations=1),result)
         self.assertEqual(['/original/same-view-installed/node-1','/original/joining-after-final-recovery/replica'],paths)
 
     def test_ordinary_reader_does_not_silently_accept_additional_recovery(self):
@@ -134,7 +134,7 @@ class JoiningSameViewNetworkTest(unittest.TestCase):
         if alter=='file':after['files']['original']='changed'
         if alter=='directory':after['directories']=[]
         with patch.object(gate,'validate',return_value={}),patch.object(gate.profiles,'terminal_pair',return_value=None), \
-                patch.dict(gate.network.NEGATIVES,{},clear=True),patch.dict(gate.NEGATIVES,{'conditional':'expected'},clear=True), \
+                patch.dict(gate.network.NEGATIVES,{},clear=True),patch.dict(gate.NEGATIVES,{'conditional':'expected'},clear=True),patch.dict(gate.PROPOSER_NEGATIVES,{},clear=True), \
                 patch.object(gate.collection,'inventory',side_effect=[before,after,before]),patch.object(gate.shutil,'copytree'), \
                 patch.object(gate,'mutate'),patch.object(gate,'observed',side_effect=None if accepted else ValueError(error or 'expected')):
             return gate.qualify('/unused')

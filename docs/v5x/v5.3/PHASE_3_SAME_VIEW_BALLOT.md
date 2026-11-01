@@ -82,3 +82,6 @@ frozen acceptance mapping remain required. All full physical/network/process
 and Phase 3 completion flags stay false.
 
 No Java, POM, workflow, production bounds or cloud experiment changes.
+
+The subsequent [proposer-installation correction](PHASE_3_PROPOSER_INSTALLATION.md)
+closes the second reproduced gap through the shared network reader.

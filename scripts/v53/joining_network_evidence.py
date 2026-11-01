@@ -71,6 +71,20 @@ def install_forces(members):
                    'CURRENT_FILES_FORCED','CURRENT_GENERATION_FORCED','CURRENT_SELECTOR_FORCED','CURRENT_DIRECTORY_FORCED','INSTALL_BEFORE_RETURN']
 
 
+def proposer_forces(events,node,scope,selected_at,upper,replies,members):
+    """Local installation follows every selected peer's original delivered ACK."""
+    need(replies and all(type(v.get('delivered')) is int for v in replies),
+         'joining network proposer delivered ACKs')
+    interval(events,node,selected_at,min(v['sent'] for v in replies),
+             ['SELECTED_BEFORE_RETURN'],'joining network proposer selection return',scope)
+    names=install_forces(members)
+    points=[at for at,v in enumerate(events) if selected_at<at<upper and v.get('node')==node and v['event'] in names]
+    need(points and min(points)>max(v['delivered'] for v in replies),
+         'joining network proposer installation after ACKs')
+    interval(events,node,selected_at,upper,['SELECTED_BEFORE_RETURN',*names],
+             'joining network proposer complete installation order',scope)
+
+
 def installations(root, events, rows, replay, bases, *, recovery=None):
     selections = {sha(parts['SELECTED']): f.decode(parts['SELECTED'],'records','SELECTED') for parts in replay.phases}
     recovery_digest = None
@@ -86,6 +100,7 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
         need(recovery_digest not in selections,'joining network duplicate recovery selection')
         selections[recovery_digest] = selected
     forced = {}; count = 0; used = set()
+    labels = {0:'installed',2:'installed-2',4:'installed-3',6:'installed-4',9:'continuation-installed-9',10:'continuation-installed-10'}
     for node in {source['voter'] for selected in selections.values() for source in selected['sources']}:
         expected = [(h,v) for h,v in selections.items() if node in [source['voter'] for source in v['sources']]]
         actual = [(at,v) for at,v in enumerate(events) if v.get('node') == node and v['event'] == 'SELECTED_FORCED']
@@ -117,7 +132,6 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
              row['received'] < forced[node,digest] < row['offered'], 'joining network selected propagation order')
         used.add((node,digest))
         cut = selected['cut']['index']
-        labels = {0:'installed',2:'installed-2',4:'installed-3',6:'installed-4',9:'continuation-installed-9',10:'continuation-installed-10'}
         if digest == recovery_digest:
             directory = Path(root)/'same-view-installed'/node
         else:
@@ -133,7 +147,20 @@ def installations(root, events, rows, replay, bases, *, recovery=None):
     need(used == {(node,h) for (node,h) in forced if node != selections[h]['ballot']['proposer']},
          'joining network missing selected propagation')
     need(sum(v['event']=='SELECTED_FORCED' for v in events)==len(forced),'joining network unbound selection force')
-    result = dict(boundInstallReplies=count, forcedSelections=len(forced))
+    local_count=0
+    for digest,selected in selections.items():
+        if digest==recovery_digest:continue  # separately bounded by cold reopen below
+        node=selected['ballot']['proposer'];scope='continuation-owner' if node==replay.joining else None
+        selected_at=forced[node,digest];cut=selected['cut']['index']
+        replies=[v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=digest)]
+        boundaries=[at for at,v in enumerate(events) if at>selected_at and v.get('node')==node and v['event']=='ACCEPT_VALIDATED']
+        need(boundaries,'joining network proposer next slot boundary')
+        need(cut in labels,'joining network known installation snapshot')
+        directory=Path(root)/(f'joining-installed-{cut}/replica' if node==replay.joining else labels[cut]+'/'+node)
+        members=disk.current(disk.inventory(directory))[1]
+        need(sha(members['selected.gsr'])==digest,'joining network proposer installed selection bytes')
+        proposer_forces(events,node,scope,selected_at,min(boundaries),replies,members);local_count+=1
+    result = dict(boundInstallReplies=count, forcedSelections=len(forced),proposerLocalInstallations=local_count)
     if recovery_digest is not None:
         node = replay.joining; scope = 'continuation-owner'
         replies = [v for v in rows if v['kind']=='SELECTED' and v['request']['payload']==dict(selection=recovery_digest)]

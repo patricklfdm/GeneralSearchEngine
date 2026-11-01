@@ -1,0 +1,923 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeWorkload": false,
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "archive": {
+    "bytes": 19572118,
+    "directories": 1206,
+    "directorySetVerified": true,
+    "elapsedSeconds": 3.835,
+    "files": 8703,
+    "memberHashesVerified": true,
+    "path": "target/v53-proposer-install-20261101/sealed/proposer-installation.tar.gz",
+    "sha256": "c9a691627c7915aa3048c4eaa76697cb4feb53256500a99a8ee29cd4e6c8d25f"
+  },
+  "archiveManifest": {
+    "bytes": 1846038,
+    "path": "target/v53-proposer-install-20261101/sealed/manifest.json",
+    "sha256": "decbb1495b52dd9b5d818d61c8f9019cb0d634b4dd7697c234964e3602fe77c9"
+  },
+  "baseHead": "552d900bd4e7d9f5601ae22647faf9d157a33c24",
+  "completePhysicalQualified": false,
+  "deferred": [
+    "remaining whole-history callback/authority coverage audit",
+    "full current-source profile cohort including REMOVE",
+    "whole-history faults and process cuts",
+    "frozen acceptance mapping"
+  ],
+  "diagnostics": {
+    "correctedFixtures": {
+      "bytes": 236,
+      "path": "target/v53-proposer-install-20261101/python-focused-02.log",
+      "sha256": "2c7fc541ca584a880d8ac935bad6a82bf753fc3f7c948e6ec5aaaa82036ab507"
+    },
+    "developmentNegatives": {
+      "bytes": 1383,
+      "path": "target/v53-proposer-install-20261101/development-negatives.log",
+      "sha256": "0602017cf244685c31fb0153aef70289c6a3624ed967d43b3bc806240a97e521"
+    },
+    "initialFixtureFailure": {
+      "bytes": 2550,
+      "path": "target/v53-proposer-install-20261101/python-focused.log",
+      "sha256": "42b28f93a538deccad17e785ac15275a9d5a987e4aeec68a81f0f17b0487c539"
+    },
+    "path": "target/v53-proposer-install-20261101"
+  },
+  "documentContract": {
+    "path": "target/v53-proposer-install-20261101/document-contract.json",
+    "result": {
+      "byteFixtures": 56,
+      "commandFixtures": 9,
+      "localLinks": 1950,
+      "measurementHistories": 36,
+      "negatives": 24,
+      "readTokenFixtures": 1,
+      "scenarios": 10,
+      "status": "PASS"
+    },
+    "sha256": "8f05c1a872e6570a2c892482eb3ef95753a64fbdcd53f4ac7fd9d905c8f49125"
+  },
+  "forceAndNetworkQualified": false,
+  "fullComposition": {
+    "execution": {
+      "elapsedSeconds": 52.398,
+      "exit": 0,
+      "frozenSourceUnchanged": true,
+      "inputInventoryUnchanged": true
+    },
+    "file": {
+      "bytes": 9055,
+      "path": "target/v53-proposer-install-20261101/reader/full-chain.json",
+      "sha256": "27c2e6ebb8d1f7ae7f41ffb5ea3be6dc1e12423fb1e6e40ceeea8af336b8f786"
+    },
+    "result": {
+      "ballot": {
+        "allocatorComparisons": 87,
+        "ballotForceQualified": true,
+        "chainSha256": "797a8ab8b928057d439ade77ee7ee684a51bdb664e79141524320b4f15a0bec7",
+        "completePhysicalQualified": false,
+        "finalCounters": {
+          "node-1": 9,
+          "node-2": 1,
+          "node-3": 1,
+          "node-4": 9
+        },
+        "forcedPromises": 20,
+        "phase3Complete": false,
+        "reservations": 11,
+        "sameViewPhysicalQualified": false,
+        "scope": "one-native-REPLACE-continuous-ballot",
+        "selfGrants": 10,
+        "status": "PASS",
+        "unusedReservations": 1
+      },
+      "ballotForceQualified": true,
+      "completePhysicalQualified": false,
+      "forceAndNetworkQualified": false,
+      "phase3Complete": false,
+      "precondition": {
+        "completePhysicalQualified": false,
+        "forceAndNetworkQualified": false,
+        "futureLedgerCompositionQualified": true,
+        "learner": {
+          "admissionCustodyEvents": 11,
+          "capturedLedgers": 19,
+          "chainSha256": "1b012473998f3ada4676c7def5033431d66b2986e20d132a1c2566c67461345f",
+          "completePhysicalQualified": false,
+          "durableWrites": 9,
+          "finalRevisions": {
+            "node-1": 4,
+            "node-2": 4,
+            "node-3": 0,
+            "node-4": 1
+          },
+          "learnerLedgerCompositionQualified": true,
+          "ledgerComparisons": 98,
+          "openReseals": 8,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "sameViewPhysicalQualified": false,
+          "scope": "one-native-REPLACE-continuous-learner-ledger",
+          "selectedTransitions": 14,
+          "status": "PASS",
+          "writesByKind": {
+            "confirm": 2,
+            "record": 4,
+            "selected": 3
+          }
+        },
+        "learnerLedgerCompositionQualified": true,
+        "phase3Complete": false,
+        "precondition": {
+          "completePhysicalQualified": false,
+          "forceAndNetworkQualified": false,
+          "future": {
+            "chainSha256": "0d954936c039000563c01ceda2a353461647893379ea67d8ae7ae367a2007867",
+            "completePhysicalQualified": false,
+            "durableWrites": 44,
+            "finalRevisions": {
+              "node-1": 22,
+              "node-2": 22,
+              "node-3": 0,
+              "node-4": 0
+            },
+            "futureLedgerCompositionQualified": true,
+            "learnerLedgerCompositionQualified": false,
+            "ledgerComparisons": 78,
+            "openReseals": 8,
+            "phase3Complete": false,
+            "processDeathQualified": false,
+            "scope": "one-native-REPLACE-continuous-future-ledger",
+            "status": "PASS",
+            "writesByKind": {
+              "clear": 22,
+              "record": 22
+            }
+          },
+          "futureLedgerCompositionQualified": true,
+          "learnerLedgerCompositionQualified": false,
+          "phase3Complete": false,
+          "precondition": {
+            "completePhysicalQualified": false,
+            "controls": {
+              "allExportFamiliesQualified": false,
+              "completePhysicalQualified": false,
+              "confirmedHeads": 2,
+              "controls": {
+                "completion": 2,
+                "intent": 2,
+                "preparation": 1,
+                "retention": 2,
+                "root": 1
+              },
+              "forceAndNetworkQualified": false,
+              "learnerSessions": {
+                "published": 2,
+                "recorded": 4
+              },
+              "observedCommittedContents": 524,
+              "observedContentSessions": 280,
+              "observedControlExportsQualified": true,
+              "observedLearnerRetentionQualified": true,
+              "phase3Complete": false,
+              "processDeathQualified": false,
+              "retentionRounds": 2,
+              "scope": "one-native-REPLACE-original-control-exports-and-learner-retention",
+              "status": "PASS"
+            },
+            "discoveryHints": 42,
+            "exports": {
+              "allExportFamiliesQualified": false,
+              "boundSessions": {
+                "current-generation": 74,
+                "frozen-source": 14,
+                "journal": 16,
+                "learner-current-content": 6,
+                "native-applied-checkpoint": 23,
+                "native-vote-receipt": 66,
+                "pending-payload": 6,
+                "pending-record": 44,
+                "published-local-checkpoint": 2,
+                "published-record": 21
+              },
+              "boundTransfers": {
+                "current-generation": 269,
+                "frozen-source": 42,
+                "journal": 16,
+                "learner-current-content": 27,
+                "native-applied-checkpoint": 23,
+                "native-vote-receipt": 66,
+                "pending-payload": 6,
+                "pending-record": 44,
+                "published-local-checkpoint": 2,
+                "published-record": 21
+              },
+              "completePhysicalQualified": false,
+              "forceAndNetworkQualified": false,
+              "generationWindows": 40,
+              "joiningExportLifetimes": 5,
+              "learnerRetentionAuthorizationQualified": false,
+              "phase3Complete": false,
+              "processDeathQualified": false,
+              "recordWindows": 361,
+              "scope": "native-REPLACE-temporal-exports-and-original-record-capabilities",
+              "sourceWindows": 19,
+              "status": "PARTIAL",
+              "unqualifiedSessionCount": 8,
+              "unqualifiedSessions": [
+                {
+                  "firstEvent": 5119,
+                  "firstKind": "ROOT",
+                  "owner": "node-1",
+                  "reader": "node-4",
+                  "reference": "d05910940d0cb9a9a4719da1d9f7e2dba369a3ce297dd57c15818c618d82dc9d",
+                  "trace": "34256a74-989d-4789-8b7f-7a624e2c9916",
+                  "transfers": 1
+                },
+                {
+                  "firstEvent": 12315,
+                  "firstKind": "unframed-record",
+                  "owner": "node-1",
+                  "reader": "node-4",
+                  "reference": "f29197a58169ca016fa86403fa5d934ac1b35ab0f6c7b23095eefab35024128a",
+                  "trace": "a9da593d-56e9-4f55-886b-dea61fb00b3b",
+                  "transfers": 1
+                },
+                {
+                  "firstEvent": 12335,
+                  "firstKind": "unframed-record",
+                  "owner": "node-1",
+                  "reader": "node-4",
+                  "reference": "f29197a58169ca016fa86403fa5d934ac1b35ab0f6c7b23095eefab35024128a",
+                  "trace": "b25d589c-d382-41da-91ef-fc6e1bee38a0",
+                  "transfers": 1
+                },
+                {
+                  "firstEvent": 13546,
+                  "firstKind": "unframed-record",
+                  "owner": "node-1",
+                  "reader": "node-4",
+                  "reference": "5ffffff579a259850aa8d743a10a02705f286297958982be8e8c5b52d8a92091",
+                  "trace": "24823b85-b2c8-46ae-b799-ca30fcd9e8d4",
+                  "transfers": 1
+                },
+                {
+                  "firstEvent": 13558,
+                  "firstKind": "unframed-record",
+                  "owner": "node-1",
+                  "reader": "node-4",
+                  "reference": "3deda0a734e964f1a9ef13355d09934339d82d6b387cc59f9a24da9e67a2b8cc",
+                  "trace": "98f93c11-567c-4a52-91b8-cda97341aa9b",
+                  "transfers": 1
+                },
+                {
+                  "firstEvent": 13570,
+                  "firstKind": "unframed-record",
+                  "owner": "node-2",
+                  "reader": "node-4",
+                  "reference": "3deda0a734e964f1a9ef13355d09934339d82d6b387cc59f9a24da9e67a2b8cc",
+                  "trace": "c366b1ed-dacd-44be-900d-caae7143be02",
+                  "transfers": 1
+                },
+                {
+                  "firstEvent": 13625,
+                  "firstKind": "unframed-record",
+                  "owner": "node-4",
+                  "reader": "node-1",
+                  "reference": "a7e7a7837c54711995db4c8abd0c7ad66d300d02108c2918f619f8c5c5044d87",
+                  "trace": "c1eb25bf-270e-43d4-97a8-1a7b0b9b9a26",
+                  "transfers": 1
+                },
+                {
+                  "firstEvent": 14238,
+                  "firstKind": "unframed-record",
+                  "owner": "node-4",
+                  "reader": "node-1",
+                  "reference": "a7e7a7837c54711995db4c8abd0c7ad66d300d02108c2918f619f8c5c5044d87",
+                  "trace": "c2335094-c5a8-4d43-8c11-38dab42f8a44",
+                  "transfers": 1
+                }
+              ],
+              "unqualifiedTransfers": 8
+            },
+            "forceAndNetworkQualified": false,
+            "learnerLedgerCompositionQualified": false,
+            "maintenance": {
+              "acquiredRemoteCopies": 36,
+              "completeCopies": 78,
+              "directFixtureFloors": 2,
+              "floorEvents": 2940,
+              "networkFloors": 36,
+              "retiredGenerations": 34
+            },
+            "maintenanceForceQualified": true,
+            "observedExportAuthorityQualified": true,
+            "peerLedgerCompositionQualified": true,
+            "peers": {
+              "capturedLedgers": 19,
+              "chainSha256": "aa9cd01a0ace75adabbeb84763ba83f1b2c5c652af9414d76f7502324031f4ef",
+              "completePhysicalQualified": false,
+              "durableWrites": 84,
+              "finalRevisions": {
+                "node-1": 42,
+                "node-2": 39,
+                "node-3": 0,
+                "node-4": 3
+              },
+              "forceAndNetworkQualified": false,
+              "ledgerComparisons": 93,
+              "openReseals": 8,
+              "peerLedgerCompositionQualified": true,
+              "phase3Complete": false,
+              "processDeathQualified": false,
+              "scope": "one-native-REPLACE-original-peer-ledger-chain",
+              "status": "PASS",
+              "writesByKind": {
+                "maintenance": 50,
+                "publication": 22,
+                "selected": 12
+              }
+            },
+            "phase3Complete": false,
+            "precondition": {
+              "completeControlExportQualified": false,
+              "completePhysicalQualified": false,
+              "durableACKsQualified": true,
+              "forceAndNetworkQualified": false,
+              "maintenanceAndPeerCompositionQualified": false,
+              "network": {
+                "boundInstallReplies": 7,
+                "boundPhaseResponses": 55,
+                "boundPromiseReplies": 9,
+                "committedTransfers": 524,
+                "deliveredResponses": 1693,
+                "exactTransferRetries": 2,
+                "failedAttempts": 5,
+                "forcedGrants": 19,
+                "forcedSelections": 14,
+                "futureTargets": 11,
+                "ownedSlotTransactions": 22,
+                "proposerLocalInstallations": 6,
+                "receivedRequests": 1698,
+                "recoveryInstallReplies": 1,
+                "recoveryLocalInstallations": 1,
+                "rejectedTransferAttempts": 2,
+                "responseLessFailures": 5,
+                "sentRequests": 1698,
+                "slots": 11,
+                "terminalObservations": 10,
+                "transferSessions": 282,
+                "transferredBytes": 2192253,
+                "wireExchanges": 1693
+              },
+              "observedNetworkQualified": true,
+              "phase3Complete": false,
+              "physicalContinuation": {
+                "adoption": {
+                  "inheritedLocalBridges": 1,
+                  "promiseAppended": true,
+                  "remoteBridges": 0,
+                  "requiredParents": 4
+                },
+                "capturedGrantComparisons": 19,
+                "completePhysicalQualified": false,
+                "finalCut": 11,
+                "forceAndNetworkQualified": false,
+                "governingFloorForceWindows": 15,
+                "ownerSnapshotComparisons": 28,
+                "phase3Complete": false,
+                "processDeathQualified": false,
+                "profile": "3-REPLACE",
+                "recovery": {
+                  "fromCut": 10,
+                  "longest": "node-1",
+                  "proposer": "node-4",
+                  "selectedVoters": [
+                    "node-1",
+                    "node-4"
+                  ],
+                  "toCut": 11
+                },
+                "sameViewPhysicalQualified": false,
+                "sameViewStorageQualified": true,
+                "scope": "original-same-view-selected-recovery",
+                "sourceRetirementLocalOrderSegments": 15,
+                "sourceRetirementPrefixes": 225,
+                "sourceRetirementTransactions": 15,
+                "status": "PARTIAL"
+              },
+              "processDeathQualified": false,
+              "profile": "3-REPLACE",
+              "recoveryLocalInstallationQualified": true,
+              "sameViewPhysicalQualified": false,
+              "scope": "original-same-view-network-and-durable-ACKs",
+              "status": "PARTIAL"
+            },
+            "processDeathQualified": false,
+            "profile": "3-REPLACE",
+            "sameViewPhysicalQualified": false,
+            "scope": "original-same-view-export-and-maintenance-authority",
+            "status": "PARTIAL"
+          },
+          "processDeathQualified": false,
+          "sameViewPhysicalQualified": false,
+          "status": "PARTIAL"
+        },
+        "processDeathQualified": false,
+        "sameViewPhysicalQualified": false,
+        "status": "PARTIAL"
+      },
+      "processDeathQualified": false,
+      "sameViewPhysicalQualified": false,
+      "status": "PARTIAL"
+    }
+  },
+  "legacy": {
+    "currentSourceCohortQualified": false,
+    "execution": {
+      "elapsedSeconds": 23.051,
+      "exit": 0,
+      "frozenSourceUnchanged": true,
+      "inputInventoryUnchanged": true
+    },
+    "file": {
+      "bytes": 798,
+      "path": "target/v53-proposer-install-20261101/reader/legacy.json",
+      "sha256": "9be448078bd5c8f5c32c1933c387f99ab58a69f78e750594e098bd0f1168b0d0"
+    },
+    "historicalSourceOnly": true,
+    "inventory": {
+      "bytes": 563164,
+      "path": "target/v53-proposer-install-20261101/legacy-inventory.json",
+      "sha256": "02603a188fe775a8842f38a314c13cf2bea9fc6d3c34ef1d5cb5f580584626a0"
+    },
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-history/original-9136083f/workspace/general-search-engine-replication/target/v53-native-dispatch/run-a976882d-1f80-4d89-a2be-0073e7d3fd3f",
+    "result": {
+      "boundInstallReplies": 8,
+      "boundPhaseResponses": 69,
+      "boundPromiseReplies": 10,
+      "committedTransfers": 686,
+      "completePhysicalQualified": false,
+      "deliveredResponses": 2208,
+      "exactTransferRetries": 2,
+      "forceAndNetworkQualified": false,
+      "forcedGrants": 19,
+      "forcedSelections": 14,
+      "futureTargets": 13,
+      "ownedSlotTransactions": 24,
+      "phase3Complete": false,
+      "physicalPrecondition": "native-ADD-derived-governing-floor-and-source-retirement",
+      "processDeathQualified": false,
+      "proposerLocalInstallations": 6,
+      "receivedRequests": 2208,
+      "rejectedTransferAttempts": 2,
+      "scope": "native-ADD-complete-observed-network-and-durable-ACKs",
+      "sentRequests": 2208,
+      "slots": 11,
+      "sourceRetirementPhysicalQualified": true,
+      "status": "PASS",
+      "transferSessions": 363,
+      "transferredBytes": 3897617,
+      "wireExchanges": 2208
+    }
+  },
+  "nativeInput": {
+    "inventory": {
+      "bytes": 589747,
+      "path": "target/v53-proposer-install-20261101/input-inventory.json",
+      "sha256": "6fbfa9544f774c5282f5cdd57b0c3aca05ca85fcc25e5ec8e967c2fab4d2224d"
+    },
+    "nativeRerun": false,
+    "priorBallotReceipt": {
+      "bytes": 27505,
+      "path": "docs/v5x/v5.3/phase3-evidence/same-view-ballot.json",
+      "sha256": "4a7302aa52d014ba4e56f245f8aa8cc87674e642fc6bdb609a7c3b0cd08f84f2"
+    },
+    "raw": "target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "sameOriginal": true
+  },
+  "phase3Complete": false,
+  "portable": {
+    "exactOriginalResult": true,
+    "execution": {
+      "elapsedSeconds": 51.9,
+      "exit": 0,
+      "frozenSourceUnchanged": true,
+      "inputInventoryUnchanged": true
+    },
+    "file": {
+      "bytes": 9055,
+      "path": "target/v53-proposer-install-20261101/portable.json",
+      "sha256": "27c2e6ebb8d1f7ae7f41ffb5ea3be6dc1e12423fb1e6e40ceeea8af336b8f786"
+    },
+    "pythonAssertionsDisabled": true
+  },
+  "priorGap": {
+    "execution": {
+      "elapsedSeconds": 48.242,
+      "exit": 0
+    },
+    "log": {
+      "bytes": 8316,
+      "path": "target/v53-proposer-install-20261101/prior-audit-proposer-install.log",
+      "sha256": "aaeddb473e94613a96c86028d58888b7f7d2d1b7211a836b376db5b4d7556c49"
+    },
+    "mutatedEvents": {
+      "bytes": 3507382,
+      "path": "target/v53-proposer-install-20261101/prior-audit-missing-proposer-install-events.json",
+      "sha256": "4d42ba5c2db3d41c9dee1bcc3ec35b8f549897ef115aa58d5766191f45f04824"
+    },
+    "rejectedByNewCase": "proposer-image-force-missing"
+  },
+  "processDeathQualified": false,
+  "profile": "3-REPLACE",
+  "proposerLocalInstallationQualified": true,
+  "python": {
+    "errors": 0,
+    "execution": {
+      "elapsedSeconds": 6.224,
+      "exit": 0
+    },
+    "failures": 0,
+    "log": {
+      "bytes": 2628,
+      "path": "target/v53-proposer-install-20261101/python-frozen.log",
+      "sha256": "96b724ab01a0577524d54331401f045fdf50cdef1c473fabf0e819a39300c4a7"
+    },
+    "newFocusedTests": 8,
+    "tests": 541
+  },
+  "qualification": {
+    "execution": {
+      "elapsedSeconds": 253.185,
+      "exit": 0,
+      "frozenSourceUnchanged": true,
+      "inputInventoryUnchanged": true
+    },
+    "file": {
+      "bytes": 15148,
+      "path": "target/v53-proposer-install-20261101/reader/network-qualification.json",
+      "sha256": "0e24fcf3774f4e4b11d9efa39e0055477bd15748adfcca01d239d14005ec633d"
+    },
+    "result": {
+      "negatives": [
+        {
+          "case": "missing-send",
+          "reason": "joining network receive without send",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-request",
+          "reason": "joining network response without request",
+          "status": "REJECTED"
+        },
+        {
+          "case": "late-request",
+          "reason": "joining network response without request",
+          "status": "REJECTED"
+        },
+        {
+          "case": "overlapping-retry",
+          "reason": "joining network ambiguous overlapping retry",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-send-owner",
+          "reason": "joining network send identity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-send-kind",
+          "reason": "joining network send bytes",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-server-lifetime",
+          "reason": "joining network response request binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-client-lifetime",
+          "reason": "joining network client lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-delivery",
+          "reason": "joining network undelivered healthy response",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-grant-force",
+          "reason": "joining network durable grant order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-promise",
+          "reason": "joining network force before promise reply",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-promise-authority",
+          "reason": "joining network prepare authority",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-prepare-view",
+          "reason": "joining network prepare authority",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-selection",
+          "reason": "joining network selection before delivered promises",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-propagation",
+          "reason": "joining network selected propagation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-install-image-force",
+          "reason": "joining network durable installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-install-cut",
+          "reason": "joining network installation authority",
+          "status": "REJECTED"
+        },
+        {
+          "case": "changed-chunk",
+          "reason": "joining network complete transfer commit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-offer-extent",
+          "reason": "joining network complete transfer commit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-commit",
+          "reason": "joining network complete transfer commit",
+          "status": "REJECTED"
+        },
+        {
+          "case": "transfer-sequence-gap",
+          "reason": "joining network transfer sequence",
+          "status": "REJECTED"
+        },
+        {
+          "case": "transfer-before-delivery",
+          "reason": "joining network transfer next before delivery",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-early-selection",
+          "reason": "joining network selection before delivered promises",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-grant-force",
+          "reason": "joining network durable grant order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-remote-image-force",
+          "reason": "joining network durable installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-early-ACK",
+          "reason": "joining network durable installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-wrong-ACK-cut",
+          "reason": "joining network installation authority",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-local-selection-return",
+          "reason": "joining network recovery local selection return",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-local-reservation",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-local-before-delivered-ACK",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-local-wrong-lifetime",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-missing-local-member-force",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-duplicate-local-force",
+          "reason": "joining network recovery local installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "recovery-unbound-selection-force",
+          "reason": "joining network unbound selection force",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-selection-return-missing",
+          "reason": "joining network proposer selection return",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-selection-return-after-send",
+          "reason": "joining network proposer selection return",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-image-force-missing",
+          "reason": "joining network proposer complete installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-member-force-missing",
+          "reason": "joining network proposer complete installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-parent-force-missing",
+          "reason": "joining network proposer complete installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-current-force-missing",
+          "reason": "joining network proposer complete installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-install-return-missing",
+          "reason": "joining network proposer complete installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-duplicate-force",
+          "reason": "joining network proposer complete installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-before-ACK",
+          "reason": "joining network proposer installation after ACKs",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-after-slot",
+          "reason": "joining network proposer complete installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "proposer-wrong-scope",
+          "reason": "joining network proposer complete installation order",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-caller-missing",
+          "reason": "joining failure missing caller terminal",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-receiver-missing",
+          "reason": "joining failure missing receiver terminal",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-caller-foreign",
+          "reason": "joining failure sender lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-receiver-foreign",
+          "reason": "joining failure receiver lifetime",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-caller-duplicate",
+          "reason": "joining duplicate outbound terminal",
+          "status": "REJECTED"
+        },
+        {
+          "case": "terminal-receiver-duplicate",
+          "reason": "joining duplicate inbound terminal",
+          "status": "REJECTED"
+        }
+      ],
+      "original": {
+        "completeControlExportQualified": false,
+        "completePhysicalQualified": false,
+        "durableACKsQualified": true,
+        "forceAndNetworkQualified": false,
+        "maintenanceAndPeerCompositionQualified": false,
+        "network": {
+          "boundInstallReplies": 7,
+          "boundPhaseResponses": 55,
+          "boundPromiseReplies": 9,
+          "committedTransfers": 524,
+          "deliveredResponses": 1693,
+          "exactTransferRetries": 2,
+          "failedAttempts": 5,
+          "forcedGrants": 19,
+          "forcedSelections": 14,
+          "futureTargets": 11,
+          "ownedSlotTransactions": 22,
+          "proposerLocalInstallations": 6,
+          "receivedRequests": 1698,
+          "recoveryInstallReplies": 1,
+          "recoveryLocalInstallations": 1,
+          "rejectedTransferAttempts": 2,
+          "responseLessFailures": 5,
+          "sentRequests": 1698,
+          "slots": 11,
+          "terminalObservations": 10,
+          "transferSessions": 282,
+          "transferredBytes": 2192253,
+          "wireExchanges": 1693
+        },
+        "observedNetworkQualified": true,
+        "phase3Complete": false,
+        "physicalContinuation": {
+          "adoption": {
+            "inheritedLocalBridges": 1,
+            "promiseAppended": true,
+            "remoteBridges": 0,
+            "requiredParents": 4
+          },
+          "capturedGrantComparisons": 19,
+          "completePhysicalQualified": false,
+          "finalCut": 11,
+          "forceAndNetworkQualified": false,
+          "governingFloorForceWindows": 15,
+          "ownerSnapshotComparisons": 28,
+          "phase3Complete": false,
+          "processDeathQualified": false,
+          "profile": "3-REPLACE",
+          "recovery": {
+            "fromCut": 10,
+            "longest": "node-1",
+            "proposer": "node-4",
+            "selectedVoters": [
+              "node-1",
+              "node-4"
+            ],
+            "toCut": 11
+          },
+          "sameViewPhysicalQualified": false,
+          "sameViewStorageQualified": true,
+          "scope": "original-same-view-selected-recovery",
+          "sourceRetirementLocalOrderSegments": 15,
+          "sourceRetirementPrefixes": 225,
+          "sourceRetirementTransactions": 15,
+          "status": "PARTIAL"
+        },
+        "processDeathQualified": false,
+        "profile": "3-REPLACE",
+        "recoveryLocalInstallationQualified": true,
+        "sameViewPhysicalQualified": false,
+        "scope": "original-same-view-network-and-durable-ACKs",
+        "status": "PARTIAL"
+      }
+    }
+  },
+  "reader": {
+    "codeSha256": {
+      "joining_network_evidence.py": "5b4ae38d88299cf8fff3b991ce8278552e08762e874858f936b265ce7410db66",
+      "joining_same_view_network.py": "f1f1400c7e4c934625a46795feaef0d65c85240d50c63a89daa76598a4d06fbc",
+      "test_joining_profile_network_evidence.py": "142c9bce18da7d36b00b07f73884d304dc7269da0d37b738a61ce85b6ff47048",
+      "test_joining_proposer_installations.py": "7f6ca8600951e7a08d1e7e515bc68788a5d609bc409c29fcbba30a218a70abdf",
+      "test_joining_same_view_network.py": "e17481b6de4162d0da4009dc378fac601d33af0bf86746ba14e2e85ff02e31a3"
+    },
+    "frozenSourceUnchanged": true,
+    "python": {
+      "executable": "/usr/bin/python3",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "version": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+    },
+    "source": {
+      "bytes": 609819,
+      "path": "target/v53-proposer-install-20261101/reader/source.json",
+      "sha256": "e32510498f583ffa20e7727ee9d186ea58643fb482ec300e9dbae9a19afa8219"
+    }
+  },
+  "sameViewPhysicalQualified": false,
+  "schema": "gse-v53-proposer-installation-batch-v1",
+  "status": "PARTIAL"
+}
