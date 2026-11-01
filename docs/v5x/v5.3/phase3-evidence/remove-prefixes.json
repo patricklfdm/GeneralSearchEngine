@@ -1,0 +1,838 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "productionJavaChanged": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "archive": {
+    "buildEqual": true,
+    "bytes": 43358423,
+    "directories": 2664,
+    "exactExtractedInventory": true,
+    "files": 22262,
+    "path": "target/v53-remove-prefixes-20261101/sealed/remove-prefixes.tar.gz",
+    "producerSourceEqual": true,
+    "sha256": "862f546420316e6dd14aa3784a9a737ea89d1e517322474e6570b7b22947da47",
+    "toolchainEqual": true
+  },
+  "archiveManifest": {
+    "bytes": 4763047,
+    "path": "target/v53-remove-prefixes-20261101/sealed/manifest.json",
+    "sha256": "ecb1540324a8e8f1c6e828350073eb2a8e4ff34a4c31f50dca20f98f7df98839"
+  },
+  "baseHead": "2bf649618f7a0c1456f4f2a80669ac196185ed9a",
+  "buildSha256": "928e7de04c33f6eb085ccb434619c11afe9b5517d4b16d0c1c2fb918d85e15c0",
+  "codeSha256": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NativeDispatchTest.java": "aefa78df02001260176ea650d76cdd9aaf8a98bfa2b03b5c3152d322ac19cae5",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCapture.java": "caefce30b51e07fc4a2f32764707af9bbe09a79d7e2e804ee88558e367dbd21b",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53RemoveRetirementCaptureTest.java": "70b3edbcb9617d23861ddd083f9a65e9bfb9e9fd1443ced878e91413d51a99e9",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53TransitionRoundDriverTest.java": "872c331a4c5f4011bf9fdf0c767db300ff287f30004a87182b16b0cf4da4eea9",
+    "scripts/v53/remove_profile_run.py": "599e44024184d0a57e60a0551727449735526b4888798dfdcda591d6632d7996",
+    "scripts/v53/remove_retirement_evidence.py": "c6e5310b457f30be46b16cc33eaf5dafb86a1c25591de8236ffb05823298ad14",
+    "scripts/v53/remove_retirement_prefixes.py": "1e1670ed5e005f9b62983a427fb2a248c58dc85b44b5acbb29d9c7dc962364e7",
+    "scripts/v53/test_remove_profile_run.py": "2293acc1aafbc4100a1a5cf55161ffd6b6a89ea7c6b1d070feba4b67fb589097",
+    "scripts/v53/test_remove_retirement_prefixes.py": "39af1841433c8d369d5e8b69e2babdea886c1571f4ffee7f3183c7bde39dc6ac"
+  },
+  "componentTests": {
+    "reports": [
+      {
+        "errors": "0",
+        "failures": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53RemoveRetirementCaptureTest",
+        "skipped": "0",
+        "tests": "3",
+        "time": "2.154"
+      },
+      {
+        "errors": "0",
+        "failures": "0",
+        "name": "io.github.patricklfdm.generalsearch.replication.V53SourceRetirementCaptureTest",
+        "skipped": "0",
+        "tests": "2",
+        "time": "1.181"
+      }
+    ],
+    "sourceSha256": "22f48bca68c975ad7d5262f638d39ade307025fb40ebee44d8159bb7847d7554",
+    "status": "PASS"
+  },
+  "members": [
+    {
+      "captureInventory": {
+        "bytes": 98766,
+        "path": "target/v53-remove-prefixes-20261101/native-4/capture-inventory.json",
+        "sha256": "6fb750b9c1967e9048253c70dc6a0fd6cb2ab5b46b68da4dccd078d5b4336c81"
+      },
+      "captures": "workspace/general-search-engine-replication/target/v53-native-dispatch/retirement-captures-run-aeca2e98-0734-46f3-b1b3-b8c08110a09f",
+      "formal": {
+        "bytes": 9080,
+        "path": "target/v53-remove-prefixes-20261101/formal-4.json",
+        "sha256": "c28f0e1832e2ecb53a2e6f1a9da8871dc63a6e472ada28f178050aacc82fd519"
+      },
+      "formalExecution": {
+        "elapsedSeconds": 63.219,
+        "exit": 0
+      },
+      "initialReaderFailure": "REMOVE prefix unbound observation",
+      "initialReaderStatus": "FAIL",
+      "junit": {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransitionRoundDriverTest",
+        "errors": 0,
+        "failures": 0,
+        "method": "removalProfileCompletesOneOriginalRoundLifetime",
+        "skipped": 0,
+        "tests": 1
+      },
+      "nativeExecution": {
+        "elapsedSeconds": 348.811,
+        "exit": 0
+      },
+      "nativeExecutionRepeated": false,
+      "negativeCases": [
+        {
+          "case": "missing-copy",
+          "reason": "REMOVE prefix exact sidecar layout",
+          "status": "REJECTED"
+        },
+        {
+          "case": "history-binding",
+          "reason": "REMOVE prefix original history binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "profile-binding",
+          "reason": "REMOVE prefix collection header",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-index",
+          "reason": "REMOVE prefix metadata shape/index",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-callback",
+          "reason": "REMOVE prefix original callback",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-object",
+          "reason": "REMOVE prefix missing object/size",
+          "status": "REJECTED"
+        },
+        {
+          "case": "altered-object",
+          "reason": "REMOVE prefix object identity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-object",
+          "reason": "REMOVE prefix unobserved object",
+          "status": "REJECTED"
+        },
+        {
+          "case": "boolean-size",
+          "reason": "REMOVE prefix missing object/size",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-owner",
+          "reason": "REMOVE prefix original owner records",
+          "status": "REJECTED"
+        },
+        {
+          "case": "borrowed-prefix",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_BORROW_PREFIX_WRITTEN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-floor",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_PROPOSAL_WRITTEN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-generation-delete",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_DELETE_VALIDATED",
+          "status": "REJECTED"
+        },
+        {
+          "case": "late-generation-delete",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_FILE_DELETED",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-journal-rotation",
+          "reason": "REMOVE prefix exact original state: SOURCE_RETIREMENT_WRITTEN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "leftover-saved-file",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_BEFORE_RETURN",
+          "status": "REJECTED"
+        }
+      ],
+      "originalInventory": {
+        "bytes": 569235,
+        "path": "target/v53-remove-prefixes-20261101/native-4/inventory.json",
+        "sha256": "c93d87a12f0ca37d8e495dded92307e442b5b52ea44c39abc8e813181178fd4e"
+      },
+      "portable": {
+        "bytes": 9080,
+        "path": "target/v53-remove-prefixes-20261101/portable-4.json",
+        "sha256": "c28f0e1832e2ecb53a2e6f1a9da8871dc63a6e472ada28f178050aacc82fd519"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 61.266,
+        "exit": 0
+      },
+      "producerReceipt": {
+        "bytes": 2119,
+        "path": "target/v53-remove-prefixes-20261101/native-4/receipt.json",
+        "sha256": "227bd289d9282ef69fc472ea961ebb23023200e742337c48348b6b1f28001fa1"
+      },
+      "profile": "4-REMOVE",
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-aeca2e98-0734-46f3-b1b3-b8c08110a09f",
+      "result": {
+        "borrowedGenerations": 6,
+        "callbacks": 761,
+        "capturedPrefixes": 761,
+        "completeObservedRetirementCallbacksQualified": true,
+        "generationMembers": 102,
+        "generations": 13,
+        "peerPrecondition": {
+          "capturedLedgers": 8,
+          "chainSha256": "9a23a42e3788a586015bde7e23215e2f24d64279fb6ae795c166c7fd6ed9f1e0",
+          "durableWrites": 40,
+          "finalRevisions": {
+            "node-1": 15,
+            "node-2": 15,
+            "node-3": 10,
+            "node-4": 0
+          },
+          "ledgerComparisons": 44,
+          "openReseals": 4,
+          "status": "PASS",
+          "writesByKind": {
+            "maintenance": 27,
+            "publication": 8,
+            "selected": 5
+          }
+        },
+        "phase3Complete": false,
+        "physicalImagePeak": 7,
+        "precondition": {
+          "borrowedGenerations": 6,
+          "callbacks": 761,
+          "completeObservedRetirementCallbacksQualified": true,
+          "generationMembers": 102,
+          "generations": 13,
+          "peerPrecondition": {
+            "capturedLedgers": 8,
+            "chainSha256": "9a23a42e3788a586015bde7e23215e2f24d64279fb6ae795c166c7fd6ed9f1e0",
+            "durableWrites": 40,
+            "finalRevisions": {
+              "node-1": 15,
+              "node-2": 15,
+              "node-3": 10,
+              "node-4": 0
+            },
+            "ledgerComparisons": 44,
+            "openReseals": 4,
+            "status": "PASS",
+            "writesByKind": {
+              "maintenance": 27,
+              "publication": 8,
+              "selected": 5
+            }
+          },
+          "phase3Complete": false,
+          "physicalImagePeak": 7,
+          "precondition": {
+            "completeRetirementTransactions": false,
+            "future": {
+              "chainSha256": "cf306d7158aab5c5f275dccc028fa106306d0dbd395beae4326ef37e99363449",
+              "durableWrites": 22,
+              "finalRevisions": {
+                "node-1": 8,
+                "node-2": 8,
+                "node-3": 6,
+                "node-4": 0
+              },
+              "ledgerComparisons": 36,
+              "openReseals": 4,
+              "status": "PASS",
+              "writesByKind": {
+                "clear": 8,
+                "record": 14
+              }
+            },
+            "peers": {
+              "capturedLedgers": 8,
+              "chainSha256": "9a23a42e3788a586015bde7e23215e2f24d64279fb6ae795c166c7fd6ed9f1e0",
+              "durableWrites": 40,
+              "finalRevisions": {
+                "node-1": 15,
+                "node-2": 15,
+                "node-3": 10,
+                "node-4": 0
+              },
+              "ledgerComparisons": 44,
+              "openReseals": 4,
+              "status": "PASS",
+              "writesByKind": {
+                "maintenance": 27,
+                "publication": 8,
+                "selected": 5
+              }
+            },
+            "phase3Complete": false,
+            "precondition": {
+              "acquiredRemoteCopies": 22,
+              "boundSessions": {
+                "current-generation": 44,
+                "frozen-source": 14,
+                "journal": 10,
+                "native-applied-checkpoint": 6,
+                "native-vote-receipt": 42,
+                "pending-payload": 4,
+                "pending-record": 20,
+                "published-local-checkpoint": 4,
+                "published-record": 1
+              },
+              "boundTransfers": {
+                "current-generation": 140,
+                "frozen-source": 42,
+                "journal": 10,
+                "native-applied-checkpoint": 6,
+                "native-vote-receipt": 42,
+                "pending-payload": 4,
+                "pending-record": 20,
+                "published-local-checkpoint": 4,
+                "published-record": 1
+              },
+              "completeCopies": 35,
+              "completeCopyFloorLifetimesQualified": true,
+              "directFixtureFloors": 0,
+              "discoveryHints": 22,
+              "floorEvents": 1148,
+              "generationWindows": 20,
+              "networkFloors": 13,
+              "observedExportAuthorityQualified": true,
+              "phase3Complete": false,
+              "precondition": {
+                "completeExportAuthorityQualified": false,
+                "durableActivationAndSlotACKsQualified": true,
+                "maintenanceCompositionQualified": false,
+                "network": {
+                  "boundFailedControls": 15,
+                  "boundInstallReplies": 5,
+                  "boundPhaseResponses": 29,
+                  "boundStatusReplies": 22,
+                  "committedTransfers": 269,
+                  "completeSlotStorageCallbacks": 1120,
+                  "deliveredResponses": 868,
+                  "exactTransferRetries": 0,
+                  "failedAttempts": 15,
+                  "futureTargets": 5,
+                  "originalGrants": 8,
+                  "ownedSlotTransactions": 8,
+                  "proposerInstallations": 3,
+                  "receivedRequests": 883,
+                  "rejectedTransferAttempts": 0,
+                  "sentRequests": 883,
+                  "slots": 3,
+                  "terminalObservations": 30,
+                  "transferSessions": 145,
+                  "transferredBytes": 1579704,
+                  "wireExchanges": 868
+                },
+                "observedAttemptsQualified": true,
+                "phase3Complete": false,
+                "physical": {
+                  "automaticOperationCompletion": true,
+                  "internalReady": true,
+                  "kind": "REMOVE",
+                  "original": {
+                    "activations": 3,
+                    "kind": "REMOVE",
+                    "phase3Complete": false,
+                    "physicalQualified": true,
+                    "publicReady": false,
+                    "publicationBoundaryQualified": true,
+                    "publishedSlots": [
+                      5,
+                      6,
+                      7
+                    ],
+                    "status": "PASS"
+                  },
+                  "phase3Complete": false,
+                  "profile": "4-REMOVE",
+                  "publicReady": false,
+                  "status": "PASS"
+                },
+                "processDeathQualified": false,
+                "profile": "4-REMOVE",
+                "status": "PARTIAL"
+              },
+              "processDeathQualified": false,
+              "profile": "4-REMOVE",
+              "recordWindows": 106,
+              "retentionRevisionCompositionQualified": false,
+              "retiredGenerations": 13,
+              "sourceWindows": 12,
+              "status": "PARTIAL",
+              "unqualifiedTransfers": 0
+            },
+            "processDeathQualified": false,
+            "profile": "4-REMOVE",
+            "retentionRevisionCompositionQualified": true,
+            "status": "PARTIAL"
+          },
+          "processDeathQualified": false,
+          "profile": "4-REMOVE",
+          "sources": 8,
+          "status": "PARTIAL",
+          "transactionChainSha256": "3e0eecf86b1789b895b95b76397d1ea90e253ca0612d624dac7ecc3a55c49a70",
+          "transientRetirementBytesQualified": false
+        },
+        "processDeathQualified": false,
+        "profile": "4-REMOVE",
+        "sources": 8,
+        "status": "PARTIAL",
+        "transactionChainSha256": "3e0eecf86b1789b895b95b76397d1ea90e253ca0612d624dac7ecc3a55c49a70",
+        "transientRetirementBytesQualified": true
+      }
+    },
+    {
+      "captureInventory": {
+        "bytes": 113014,
+        "path": "target/v53-remove-prefixes-20261101/native-5/capture-inventory.json",
+        "sha256": "39a4f0d123a5ff9f9b9b8746f1eff7c12e093e3bb130185f351b63368c316cdc"
+      },
+      "captures": "workspace/general-search-engine-replication/target/v53-native-dispatch/retirement-captures-run-c21fe3c8-c655-4fa5-9ba0-c670e6f9390c",
+      "formal": {
+        "bytes": 9178,
+        "path": "target/v53-remove-prefixes-20261101/formal-5.json",
+        "sha256": "ef59fcbe691b4b01bd30b3d21a2e81ebcb9b0159272ac0a0caa03d4d6713c79b"
+      },
+      "formalExecution": {
+        "elapsedSeconds": 80.307,
+        "exit": 0
+      },
+      "initialReaderFailure": "REMOVE prefix unbound observation",
+      "initialReaderStatus": "FAIL",
+      "junit": {
+        "className": "io.github.patricklfdm.generalsearch.replication.V53TransitionRoundDriverTest",
+        "errors": 0,
+        "failures": 0,
+        "method": "removalProfileCompletesOneOriginalRoundLifetime",
+        "skipped": 0,
+        "tests": 1
+      },
+      "nativeExecution": {
+        "elapsedSeconds": 427.579,
+        "exit": 0
+      },
+      "nativeExecutionRepeated": false,
+      "negativeCases": [
+        {
+          "case": "missing-copy",
+          "reason": "REMOVE prefix exact sidecar layout",
+          "status": "REJECTED"
+        },
+        {
+          "case": "history-binding",
+          "reason": "REMOVE prefix original history binding",
+          "status": "REJECTED"
+        },
+        {
+          "case": "profile-binding",
+          "reason": "REMOVE prefix collection header",
+          "status": "REJECTED"
+        },
+        {
+          "case": "duplicate-index",
+          "reason": "REMOVE prefix metadata shape/index",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-callback",
+          "reason": "REMOVE prefix original callback",
+          "status": "REJECTED"
+        },
+        {
+          "case": "missing-object",
+          "reason": "REMOVE prefix missing object/size",
+          "status": "REJECTED"
+        },
+        {
+          "case": "altered-object",
+          "reason": "REMOVE prefix object identity",
+          "status": "REJECTED"
+        },
+        {
+          "case": "extra-object",
+          "reason": "REMOVE prefix unobserved object",
+          "status": "REJECTED"
+        },
+        {
+          "case": "boolean-size",
+          "reason": "REMOVE prefix missing object/size",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-owner",
+          "reason": "REMOVE prefix original owner records",
+          "status": "REJECTED"
+        },
+        {
+          "case": "borrowed-prefix",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_BORROW_PREFIX_WRITTEN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "wrong-floor",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_PROPOSAL_WRITTEN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-generation-delete",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_DELETE_VALIDATED",
+          "status": "REJECTED"
+        },
+        {
+          "case": "late-generation-delete",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_FILE_DELETED",
+          "status": "REJECTED"
+        },
+        {
+          "case": "early-journal-rotation",
+          "reason": "REMOVE prefix exact original state: SOURCE_RETIREMENT_WRITTEN",
+          "status": "REJECTED"
+        },
+        {
+          "case": "leftover-saved-file",
+          "reason": "REMOVE prefix exact original state: RETIREMENT_BEFORE_RETURN",
+          "status": "REJECTED"
+        }
+      ],
+      "originalInventory": {
+        "bytes": 704124,
+        "path": "target/v53-remove-prefixes-20261101/native-5/inventory.json",
+        "sha256": "23b212254c3c1820c2b9ee2cc118d34b72d8ed8983d79fad8fab0a9c8d7acc56"
+      },
+      "portable": {
+        "bytes": 9178,
+        "path": "target/v53-remove-prefixes-20261101/portable-5.json",
+        "sha256": "ef59fcbe691b4b01bd30b3d21a2e81ebcb9b0159272ac0a0caa03d4d6713c79b"
+      },
+      "portableExecution": {
+        "elapsedSeconds": 78.647,
+        "exit": 0
+      },
+      "producerReceipt": {
+        "bytes": 2119,
+        "path": "target/v53-remove-prefixes-20261101/native-5/receipt.json",
+        "sha256": "b43d5bbba5403df269b171d81c46741263aa620036fa7fc6619a726ebb05b5ae"
+      },
+      "profile": "5-REMOVE",
+      "raw": "workspace/general-search-engine-replication/target/v53-native-dispatch/run-c21fe3c8-c655-4fa5-9ba0-c670e6f9390c",
+      "result": {
+        "borrowedGenerations": 9,
+        "callbacks": 876,
+        "capturedPrefixes": 876,
+        "completeObservedRetirementCallbacksQualified": true,
+        "generationMembers": 117,
+        "generations": 15,
+        "peerPrecondition": {
+          "capturedLedgers": 9,
+          "chainSha256": "c66fb83b6669754db05485d795e97eac03fb24bc3b5cf37197a2fcf28390976f",
+          "durableWrites": 48,
+          "finalRevisions": {
+            "node-1": 16,
+            "node-2": 16,
+            "node-3": 16,
+            "node-4": 0,
+            "node-5": 0
+          },
+          "ledgerComparisons": 51,
+          "openReseals": 5,
+          "status": "PASS",
+          "writesByKind": {
+            "maintenance": 33,
+            "publication": 9,
+            "selected": 6
+          }
+        },
+        "phase3Complete": false,
+        "physicalImagePeak": 7,
+        "precondition": {
+          "borrowedGenerations": 9,
+          "callbacks": 876,
+          "completeObservedRetirementCallbacksQualified": true,
+          "generationMembers": 117,
+          "generations": 15,
+          "peerPrecondition": {
+            "capturedLedgers": 9,
+            "chainSha256": "c66fb83b6669754db05485d795e97eac03fb24bc3b5cf37197a2fcf28390976f",
+            "durableWrites": 48,
+            "finalRevisions": {
+              "node-1": 16,
+              "node-2": 16,
+              "node-3": 16,
+              "node-4": 0,
+              "node-5": 0
+            },
+            "ledgerComparisons": 51,
+            "openReseals": 5,
+            "status": "PASS",
+            "writesByKind": {
+              "maintenance": 33,
+              "publication": 9,
+              "selected": 6
+            }
+          },
+          "phase3Complete": false,
+          "physicalImagePeak": 7,
+          "precondition": {
+            "completeRetirementTransactions": false,
+            "future": {
+              "chainSha256": "126c643d27b46ce3bfa2aa1001ae8bb0f825ae40f7c29cd102b743dae17cf61b",
+              "durableWrites": 27,
+              "finalRevisions": {
+                "node-1": 9,
+                "node-2": 9,
+                "node-3": 9,
+                "node-4": 0,
+                "node-5": 0
+              },
+              "ledgerComparisons": 42,
+              "openReseals": 5,
+              "status": "PASS",
+              "writesByKind": {
+                "clear": 9,
+                "record": 18
+              }
+            },
+            "peers": {
+              "capturedLedgers": 9,
+              "chainSha256": "c66fb83b6669754db05485d795e97eac03fb24bc3b5cf37197a2fcf28390976f",
+              "durableWrites": 48,
+              "finalRevisions": {
+                "node-1": 16,
+                "node-2": 16,
+                "node-3": 16,
+                "node-4": 0,
+                "node-5": 0
+              },
+              "ledgerComparisons": 51,
+              "openReseals": 5,
+              "status": "PASS",
+              "writesByKind": {
+                "maintenance": 33,
+                "publication": 9,
+                "selected": 6
+              }
+            },
+            "phase3Complete": false,
+            "precondition": {
+              "acquiredRemoteCopies": 30,
+              "boundSessions": {
+                "current-generation": 60,
+                "frozen-source": 18,
+                "journal": 12,
+                "native-applied-checkpoint": 9,
+                "native-vote-receipt": 54,
+                "pending-payload": 4,
+                "pending-record": 24,
+                "published-local-checkpoint": 6,
+                "published-record": 3
+              },
+              "boundTransfers": {
+                "current-generation": 192,
+                "frozen-source": 54,
+                "journal": 12,
+                "native-applied-checkpoint": 9,
+                "native-vote-receipt": 54,
+                "pending-payload": 4,
+                "pending-record": 24,
+                "published-local-checkpoint": 6,
+                "published-record": 3
+              },
+              "completeCopies": 45,
+              "completeCopyFloorLifetimesQualified": true,
+              "directFixtureFloors": 0,
+              "discoveryHints": 30,
+              "floorEvents": 1449,
+              "generationWindows": 23,
+              "networkFloors": 15,
+              "observedExportAuthorityQualified": true,
+              "phase3Complete": false,
+              "precondition": {
+                "completeExportAuthorityQualified": false,
+                "durableActivationAndSlotACKsQualified": true,
+                "maintenanceCompositionQualified": false,
+                "network": {
+                  "boundFailedControls": 28,
+                  "boundInstallReplies": 6,
+                  "boundPhaseResponses": 36,
+                  "boundStatusReplies": 30,
+                  "committedTransfers": 358,
+                  "completeSlotStorageCallbacks": 1260,
+                  "deliveredResponses": 1152,
+                  "exactTransferRetries": 0,
+                  "failedAttempts": 28,
+                  "futureTargets": 6,
+                  "originalGrants": 9,
+                  "ownedSlotTransactions": 9,
+                  "proposerInstallations": 3,
+                  "receivedRequests": 1180,
+                  "rejectedTransferAttempts": 0,
+                  "sentRequests": 1180,
+                  "slots": 3,
+                  "terminalObservations": 56,
+                  "transferSessions": 190,
+                  "transferredBytes": 2417186,
+                  "wireExchanges": 1152
+                },
+                "observedAttemptsQualified": true,
+                "phase3Complete": false,
+                "physical": {
+                  "automaticOperationCompletion": true,
+                  "internalReady": true,
+                  "kind": "REMOVE",
+                  "original": {
+                    "activations": 3,
+                    "kind": "REMOVE",
+                    "phase3Complete": false,
+                    "physicalQualified": true,
+                    "publicReady": false,
+                    "publicationBoundaryQualified": true,
+                    "publishedSlots": [
+                      5,
+                      6,
+                      7
+                    ],
+                    "status": "PASS"
+                  },
+                  "phase3Complete": false,
+                  "profile": "5-REMOVE",
+                  "publicReady": false,
+                  "status": "PASS"
+                },
+                "processDeathQualified": false,
+                "profile": "5-REMOVE",
+                "status": "PARTIAL"
+              },
+              "processDeathQualified": false,
+              "profile": "5-REMOVE",
+              "recordWindows": 119,
+              "retentionRevisionCompositionQualified": false,
+              "retiredGenerations": 15,
+              "sourceWindows": 14,
+              "status": "PARTIAL",
+              "unqualifiedTransfers": 0
+            },
+            "processDeathQualified": false,
+            "profile": "5-REMOVE",
+            "retentionRevisionCompositionQualified": true,
+            "status": "PARTIAL"
+          },
+          "processDeathQualified": false,
+          "profile": "5-REMOVE",
+          "sources": 9,
+          "status": "PARTIAL",
+          "transactionChainSha256": "ce423ae0748d2538e8fa2dcc0a802a2b939ffcf77e9096133b8e691cb5a4cb53",
+          "transientRetirementBytesQualified": false
+        },
+        "processDeathQualified": false,
+        "profile": "5-REMOVE",
+        "sources": 9,
+        "status": "PARTIAL",
+        "transactionChainSha256": "ce423ae0748d2538e8fa2dcc0a802a2b939ffcf77e9096133b8e691cb5a4cb53",
+        "transientRetirementBytesQualified": true
+      }
+    }
+  ],
+  "nativeHistories": 2,
+  "nativeRetries": 0,
+  "portable": {
+    "assertionsDisabled": true,
+    "exactResults": true,
+    "originalsUnchanged": true,
+    "sourceUnchanged": true
+  },
+  "producerSourceSha256": "22f48bca68c975ad7d5262f638d39ade307025fb40ebee44d8159bb7847d7554",
+  "profiles": [
+    "4-REMOVE",
+    "5-REMOVE"
+  ],
+  "qualification": {
+    "allSevenProfiles": false,
+    "completeObservedRetirementCallbacks": true,
+    "originalTransientRetirementBytes": true,
+    "phase3Complete": false,
+    "processDeath": false,
+    "publicRuntime": false
+  },
+  "readerSource": {
+    "bytes": 613795,
+    "path": "target/v53-remove-prefixes-20261101/reader/source.json",
+    "sha256": "d031f429f439fe46377ad17190406c09f681668dd67a386dff5ece63b1c287dd"
+  },
+  "regression": {
+    "focusedLog": {
+      "bytes": 133,
+      "path": "target/v53-remove-prefixes-20261101/focused-final.log",
+      "sha256": "a91ed9ff8b2f6f26c52b1d2764037bc37a9632794e32c3237f37f8fb4aaff060"
+    },
+    "focusedTests": 34,
+    "legacyExactResult": {
+      "bytes": 5589,
+      "path": "target/v53-remove-prefixes-20261101/legacy.json",
+      "sha256": "654461fcd7287ae443bbb89344e169b9795c2749f98acf886043ebc13cdc8188"
+    },
+    "negativeCases": 32,
+    "newJavaTests": 3,
+    "newPythonTests": 10,
+    "originalDiagnosis": {
+      "bytes": 252,
+      "path": "target/v53-remove-prefixes-20261101/development-prefix-diagnostic.json",
+      "sha256": "88e04ff5218f1a5ab89a87e268dc97c3bf4ed7010d4dde7d1564a7c961eaf9d7"
+    },
+    "originalFailure": {
+      "bytes": 948,
+      "path": "target/v53-remove-prefixes-20261101/regression-original.log",
+      "sha256": "d4e740f7649bdcfa620b4eb8e58846823a3dccd829818b49624495ca30719905"
+    },
+    "pythonLog": {
+      "bytes": 3694,
+      "path": "target/v53-remove-prefixes-20261101/python-final.log",
+      "sha256": "305c605000cdac20c4977301eed776d5cdc118132ae4bd031b237f727c43c7ad"
+    },
+    "pythonTests": 1605
+  },
+  "remaining": [
+    "fresh-process retirement interruption/recovery",
+    "current-source complete seven-profile cohort",
+    "automatic lifecycle composition across transitions",
+    "frozen acceptance mapping"
+  ],
+  "schema": "gse-v53-remove-retirement-prefix-batch-v1",
+  "sourceDelta": {
+    "bytes": 602,
+    "path": "target/v53-remove-prefixes-20261101/source-delta.json",
+    "sha256": "2c87d19766f1f5944604e3801cfcb18a198aa05071ac0a53dc96c293555a08d5"
+  },
+  "status": "PARTIAL",
+  "toolchainSha256": "f11eb6461b7ddf8285434120fba9a2d193578fe664a760ab2cda29b0ba6e5a7b",
+  "totals": {
+    "borrowedGenerations": 15,
+    "callbacks": 1637,
+    "capturedPrefixes": 1637,
+    "generationMembers": 219,
+    "generations": 28,
+    "sources": 17
+  }
+}

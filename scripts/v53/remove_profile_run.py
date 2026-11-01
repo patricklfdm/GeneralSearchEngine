@@ -27,14 +27,16 @@ def junit(reports):
     return dict(className=CLASS,method=METHOD,tests=1,failures=0,errors=0,skipped=0)
 
 
-def run(output,maven,profile,*,source_from=None):
+def run(output,maven,profile,*,source_from=None,retirement_captures=False):
     h.need(profile in reader.PROFILES,'REMOVE exact profile')
+    h.need(type(retirement_captures) is bool,'REMOVE capture option')
     output=Path(output).absolute()
     h.need(source_from is None or not output.resolve().is_relative_to(Path(source_from).resolve()),'REMOVE source separation')
     output.mkdir(parents=True,exist_ok=False)
     receipt=dict(schema=SCHEMA,status='RUNNING',profile=profile,retries=0,executionStatus='NOT_RUN',
         continuousOriginalQualified=False,automaticOperationCompletion=False,publicRuntimeQualified=False,
         completeNetworkQualified=False,processDeathQualified=False,phase3Complete=False)
+    if retirement_captures:receipt.update(retirementCapturesRequested=True,transientRetirementBytesQualified=False)
     try:
         work=output/'workspace'
         source=h.source_copy(h.ROOT,work) if source_from is None else h.recorded_source(source_from,work)
@@ -45,6 +47,7 @@ def run(output,maven,profile,*,source_from=None):
         command=[maven,'-o','-B','-ntp','-f','reactor/pom.xml','-pl','../'+h.MODULE,'-am',
                  '-Dsurefire.failIfNoSpecifiedTests=false','-Dtest='+CLASS.rsplit('.',1)[-1]+'#'+METHOD,
                  '-Dv53.remove.profile='+profile,'test']
+        if retirement_captures:command.insert(-1,'-Dv53.remove.retirement.captures=true')
         receipt['command']=command;h.save(output/'receipt.json',receipt)
         execution=h.execute(command,work,output/'maven.log',stage='REMOVE-'+profile)
         receipt['execution']=execution;h.save(output/'execution.json',execution);h.check_source(work,source)
@@ -66,6 +69,19 @@ def run(output,maven,profile,*,source_from=None):
         h.check_source(work,source);h.need(h.inventory(raw)==original,'REMOVE original changed')
         receipt.update(status='PARTIAL',continuousOriginalQualified=True,automaticOperationCompletion=True,
                        negativeCases=len(result['negatives']),replaySha256=h.digest((output/'replay.json').read_bytes()))
+        if retirement_captures:
+            captures=raw.with_name('retirement-captures-'+raw.name)
+            captured=h.inventory(captures);h.save(output/'capture-inventory.json',captured)
+            receipt['captures']=captures.relative_to(output).as_posix()
+            execution=h.execute([sys.executable,'-B','-m','scripts.v53.remove_retirement_prefixes',str(raw),str(captures),'--profile',profile],
+                                work,output/'retirement-prefixes.json',stage='REMOVE-original-prefixes-'+profile)
+            receipt['prefixExecution']=execution;h.need(execution['exit']==0,'REMOVE prefix replay failed; original retained')
+            result=json.loads((output/'retirement-prefixes.json').read_bytes())
+            h.need(result['status']=='PARTIAL' and result['profile']==profile and result['transientRetirementBytesQualified'] is True and
+                   result['processDeathQualified'] is False and result['phase3Complete'] is False,'REMOVE prefix replay scope')
+            h.check_source(work,source);h.need(h.inventory(captures)==captured and h.inventory(raw)==original,'REMOVE captured original changed')
+            receipt.update(transientRetirementBytesQualified=True,capturedPrefixes=result['capturedPrefixes'],
+                           prefixReplaySha256=h.digest((output/'retirement-prefixes.json').read_bytes()))
     except BaseException as error:
         if receipt['executionStatus']=='NOT_RUN':receipt['executionStatus']='FAIL'
         receipt.update(status='FAIL',failure=dict(type=type(error).__name__,message=str(error)));raise
@@ -76,5 +92,5 @@ def run(output,maven,profile,*,source_from=None):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('output');p.add_argument('--profile',required=True,choices=reader.PROFILES)
-    p.add_argument('--maven',default='mvn');p.add_argument('--source-from');a=p.parse_args()
-    run(a.output,a.maven,a.profile,source_from=a.source_from)
+    p.add_argument('--maven',default='mvn');p.add_argument('--source-from');p.add_argument('--retirement-captures',action='store_true');a=p.parse_args()
+    run(a.output,a.maven,a.profile,source_from=a.source_from,retirement_captures=a.retirement_captures)

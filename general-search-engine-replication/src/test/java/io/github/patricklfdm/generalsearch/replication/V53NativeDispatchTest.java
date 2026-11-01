@@ -44,6 +44,7 @@ class V53NativeDispatchTest {
         volatile boolean observeRequests;
         volatile V53GrantCapture grantCapture;
         volatile V53SourceRetirementCapture retirementCapture;
+        volatile V53RemoveRetirementCapture removeRetirementCapture;
         final AtomicReference<MembershipBallotAllocator.Cut> hook=new AtomicReference<>(event->{});
         final AtomicBoolean holdNextQuery=new AtomicBoolean();
         final CountDownLatch queryEntered=new CountDownLatch(1);
@@ -74,7 +75,9 @@ class V53NativeDispatchTest {
             for(var target:f.request.targets()) {
                 var budget=new MembershipResources(512*MembershipResources.MIB);resources.add(budget);links.add(new AtomicReference<>());
                 owners.add(MembershipGrantJournal.openRetainingFuturePeers(target.replicaDirectory(),target.materialization().directory(),f.result.root(),target.identity(),budget,
-                        MembershipGrantJournal.MAXIMUM,event->{events.add(Map.of("node",target.identity().nodeId().value(),"event",event));
+                        MembershipGrantJournal.MAXIMUM,event->{
+                            int eventIndex;synchronized(events){eventIndex=events.size();events.add(Map.of("node",target.identity().nodeId().value(),"event",event));}
+                            var remove=removeRetirementCapture;if(remove!=null)remove.at(target.identity().nodeId().value(),target.replicaDirectory(),event,eventIndex);
                             var capture=grantCapture;if(capture!=null)capture.at(target.identity().nodeId().value(),"network-owner",target.replicaDirectory(),event);
                             var retirement=retirementCapture;if(retirement!=null)retirement.at(target.identity().nodeId().value(),"network-owner",target.replicaDirectory(),event);
                             if(target.identity().nodeId().value().equals("node-2"))hook.get().at(event);}));

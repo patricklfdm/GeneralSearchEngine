@@ -26,6 +26,21 @@ class RemoveProfileRunTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'^REMOVE exact profile$'):r.run(output,'mvn',profile)
             self.assertFalse(output.exists());execute.assert_not_called()
 
+    def test_capture_flag_is_typed_and_explicitly_sent_without_retry_on_failure(self):
+        with tempfile.TemporaryDirectory() as temp,patch.object(r.h,'execute') as execute:
+            for flag in (1,None,'true'):
+                with self.assertRaisesRegex(ValueError,'^REMOVE capture option$'):r.run(Path(temp)/'new','mvn','4-REMOVE',retirement_captures=flag)
+            execute.assert_not_called()
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)/'failed'
+            def source(repo,work):work.mkdir();return dict(head='a'*40,files={})
+            with patch.object(r.h,'source_copy',side_effect=source),patch.object(r.h,'execute',return_value=dict(exit=1)) as execute, \
+                 patch.object(r.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout='toolchain',stderr='')),redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(ValueError,'^REMOVE Maven failed;'):r.run(output,'mvn','4-REMOVE',retirement_captures=True)
+            execute.assert_called_once();self.assertIn('-Dv53.remove.retirement.captures=true',execute.call_args.args[0])
+            receipt=json.loads((output/'receipt.json').read_bytes());self.assertTrue(receipt['retirementCapturesRequested'])
+            self.assertFalse(receipt['transientRetirementBytesQualified']);self.assertEqual(0,receipt['retries'])
+
     def test_existing_output_cannot_be_overwritten(self):
         with tempfile.TemporaryDirectory() as temp,patch.object(r.h,'execute') as execute:
             with self.assertRaises(FileExistsError):r.run(temp,'mvn','5-REMOVE')

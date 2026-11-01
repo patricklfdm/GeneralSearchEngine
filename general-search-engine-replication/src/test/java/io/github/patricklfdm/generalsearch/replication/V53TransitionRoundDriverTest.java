@@ -99,7 +99,11 @@ class V53TransitionRoundDriverTest {
         String profile=System.getProperty("v53.remove.profile","4-REMOVE");
         assertTrue(Set.of("4-REMOVE","5-REMOVE").contains(profile),"exact REMOVE profile");
         int size=profile.charAt(0)-'0';var ordinal=new AtomicInteger();
+        V53RemoveRetirementCapture captures=null;
         try(var n=network("SEALED",size);var round=driver(n,ordinal,MembershipRoundDriver.Events.NONE)) {
+            if(Boolean.getBoolean("v53.remove.retirement.captures")) {
+                captures=new V53RemoveRetirementCapture(n.f.raw);n.removeRetirementCapture=captures;
+            }
             // Observe every attempted exchange before the first native campaign.
             // Responses alone cannot establish delivery or account for failures.
             n.observeRequests=true;
@@ -116,6 +120,7 @@ class V53TransitionRoundDriverTest {
             Files.write(n.f.raw.resolve("transition-round-result.json"),canonical(Map.of("status","PASS","kind","REMOVE","profile",profile,
                     "activations",3,"internalReady",true,"publicReady",false,"originalBudgetSeconds",600),4096));
         }
+        if(captures!=null)captures.finish(profile);
     }
     @Test void originalJointConfigurationFinishesBeforeItsFirstBarrier()throws Exception {
         var ordinal=new AtomicInteger();

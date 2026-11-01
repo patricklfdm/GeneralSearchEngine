@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Original REMOVE retirement file prefixes](PHASE_3_REMOVE_PREFIXES.md) now compare
+all 1,637 captured intermediate inventories in two new complete histories against
+independently derived transactions. Fresh-process recovery, the complete profile
+cohort and frozen acceptance mapping remain open.
+
 [Complete observed REMOVE retirement](PHASE_3_REMOVE_RETIREMENT.md) derives all
 1637 callbacks across 28 generation and 17 source retirements, including the
 capacity-driven borrowing decision. Transient retirement captures, process/profile

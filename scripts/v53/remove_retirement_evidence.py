@@ -91,6 +91,9 @@ class Replay(r.PeerReplay):
     def floor(self,row):
         super().floor(row);self.maintained[row['start']]=self.state[row['own']['node']]
 
+    def transaction(self,node,kind,actual,expected):
+        """Optional original-prefix comparison; callback-only replay stays scoped."""
+
     def run(self):
         peer_result=super().run();bound=set();counts=Counter();peak=0
         for row in self.floor_inputs:
@@ -109,6 +112,9 @@ class Replay(r.PeerReplay):
             actual=[(i,v) for i,v in enumerate(self.events) if lower<i<upper and v.get('node')==node and v['event'].startswith(PREFIXES)]
             need([v['event'] for _,v in actual]==expected,'REMOVE retirement complete transaction callbacks')
             need(all(set(v)=={'node','event'} for _,v in actual),'REMOVE retirement callback shape')
+            self.transaction(node,'generation',actual[:len(steps)],steps);cursor=len(steps)
+            for decision in decisions:
+                count=len(decision['steps']);self.transaction(node,'source',actual[cursor:cursor+count],decision['steps']);cursor+=count
             bound.update(i for i,_ in actual);counts.update(dict(generations=1,sources=len(decisions),borrowedGenerations=int(details['borrowedImages']),
                 generationMembers=details['members'],callbacks=len(expected)))
             peak=max(peak,details['physicalImagesPeak'])
