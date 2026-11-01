@@ -1,5 +1,10 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Same-view future retention](PHASE_3_SAME_VIEW_FUTURE.md) adds continuous
+original GSFT revisions, all recording/clearing forces and original reopen
+ordering. Learner-ledger, full profile/process and frozen-mapping qualification
+remain open; Phase 3 is not closed.
+
 [Same-view authority composition](PHASE_3_SAME_VIEW_AUTHORITY.md) adds original
 export lifetimes, complete-copy FLOOR acquisition/release and the continuous
 peer-ledger chain to the retained REPLACE recovery. Learner/future force chains,

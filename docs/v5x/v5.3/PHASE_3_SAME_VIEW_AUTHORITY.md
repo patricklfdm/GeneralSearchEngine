@@ -122,3 +122,7 @@ profile cohort including REMOVE, or the frozen acceptance mapping.
 
 No production Java, wire format, workflow, POM, resource or timing changes, and no
 native workload rerun, push, workflow dispatch or paid cloud operation.
+
+[Continuous future retention](PHASE_3_SAME_VIEW_FUTURE.md) subsequently binds
+the original recording/clearing revisions and reopen forces. Learner and complete
+profile/process qualification remain separate.
