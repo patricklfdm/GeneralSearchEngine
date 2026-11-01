@@ -135,6 +135,7 @@ class JoiningSameViewNetworkTest(unittest.TestCase):
         if alter=='directory':after['directories']=[]
         with patch.object(gate,'validate',return_value={}),patch.object(gate.profiles,'terminal_pair',return_value=None), \
                 patch.dict(gate.network.NEGATIVES,{},clear=True),patch.dict(gate.NEGATIVES,{'conditional':'expected'},clear=True),patch.dict(gate.PROPOSER_NEGATIVES,{},clear=True), \
+                patch.dict(gate.slots.NEGATIVES,{},clear=True), \
                 patch.object(gate.collection,'inventory',side_effect=[before,after,before]),patch.object(gate.shutil,'copytree'), \
                 patch.object(gate,'mutate'),patch.object(gate,'observed',side_effect=None if accepted else ValueError(error or 'expected')):
             return gate.qualify('/unused')

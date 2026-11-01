@@ -17,6 +17,7 @@ from . import joining_catalog_evidence as semantic
 from . import discovered_selection_evidence as exchange
 from . import future_retention_evidence as future
 from . import joining_source_loss as loss
+from . import joining_slot_storage as slot_storage
 
 f, need, sha, disk = semantic.f, semantic.need, semantic.sha, semantic.disk
 
@@ -137,7 +138,7 @@ def forced_interval(events, node, lower, upper, names, reason, times=1):
 
 
 def phase_replay(events, rows, replay, physical):
-    used = set(); target_count = 0
+    used = set(); target_count = 0; storage_callbacks = 0
     for index, parts in enumerate(replay.phases, 1):
         cert = f.decode(parts['CERTIFICATE'], 'records', 'CERTIFICATE'); selected = f.decode(parts['SELECTED'], 'records', 'SELECTED')
         voters = [v['voter'] for v in cert['proofs']]; leader = physical[index, 'node-1']
@@ -200,6 +201,9 @@ def phase_replay(events, rows, replay, physical):
                 ['INSTALL_MANIFEST_FORCED', 'INSTALL_IMAGE_FORCED', 'INSTALL_GENERATION_FORCED', 'INSTALL_SELECTOR_FORCED',
                  'INSTALL_SELECTOR_RENAMED', 'INSTALL_PARENT_FORCED', 'CURRENT_FILES_FORCED', 'CURRENT_GENERATION_FORCED',
                  'CURRENT_SELECTOR_FORCED', 'CURRENT_DIRECTORY_FORCED'], 'joining published generation force sequence')
+            storage_callbacks += slot_storage.validate_slot(events, node,
+                'continuation-owner' if node == replay.joining else None, own, ends[node],
+                disk.current(pub[node])[1], f.decode(parts['ENTRY'], 'records', 'ENTRY')['kind'])
         for target in targets:
             identity = semantic.catalog.identities(replay.states[index]['identities'])[target]
             intent = dict(selection=sha(parts['SELECTED']), certificate=sha(parts['CERTIFICATE']), peer=identity,
@@ -242,7 +246,8 @@ def phase_replay(events, rows, replay, physical):
              'joining completed publication before next slot')
     bound = {'ACCEPT', 'PROOF', 'APPLY', 'PUBLISH', 'FUTURE_RETENTION_INTENT'}
     need(used == {v['offered'] for v in rows if v['kind'] in bound}, 'joining unbound phase exchange')
-    return dict(slots=len(replay.phases),ownedSlotTransactions=len(physical),boundPhaseResponses=len(used),futureTargets=target_count)
+    return dict(slots=len(replay.phases),ownedSlotTransactions=len(physical),boundPhaseResponses=len(used),futureTargets=target_count,
+                completeSlotStorageCallbacks=storage_callbacks)
 
 
 def validate(root, *, size=3, kind='ADD'):

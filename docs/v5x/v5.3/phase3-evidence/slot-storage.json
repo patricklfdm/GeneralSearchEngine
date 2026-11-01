@@ -1,0 +1,665 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeWorkload": false,
+    "paidCloud": false,
+    "push": false,
+    "workflowDispatch": false
+  },
+  "archive": {
+    "bytes": 34247997,
+    "directories": 1504,
+    "directorySetVerified": true,
+    "elapsedSeconds": 6.308,
+    "files": 13149,
+    "memberHashesVerified": true,
+    "path": "target/v53-slot-storage-20261101/sealed/slot-storage.tar.gz",
+    "sha256": "c9eddf4f368afc7dc616abe9a50b5f651cfae02d33c687c31c0267cb3e5bbee8"
+  },
+  "archiveManifest": {
+    "bytes": 2844542,
+    "path": "target/v53-slot-storage-20261101/sealed/manifest.json",
+    "sha256": "5b64b130297b59f56a82f34d956338b5e76f296b20ced358d82646cebce4d599"
+  },
+  "baseHead": "3eb4b1ab67c95a50e1b20fc7f19895b289c20697",
+  "completePhysicalQualified": false,
+  "deferred": [
+    "remaining whole-history authority/callback coverage",
+    "current-source native profiles including REMOVE",
+    "DATA and interrupted/resumed transaction composition",
+    "whole-history fault and process cuts",
+    "frozen acceptance mapping"
+  ],
+  "diagnostics": {
+    "initialControlDeclarationFailure": {
+      "bytes": 1825,
+      "path": "target/v53-slot-storage-20261101/development-reader.log",
+      "sha256": "053da42da89665c9ec640cc42517df70c26f081b7d49477007f2ba4e91034b4f"
+    },
+    "noncanonicalAudit": {
+      "bytes": 750,
+      "path": "target/v53-slot-storage-20261101/coverage-audit.json",
+      "sha256": "53cc5ad8441209e4bfee92e5e0518f3d99ec95222708d1bcbc8c68670e21d1cc"
+    },
+    "path": "target/v53-slot-storage-20261101"
+  },
+  "forceAndNetworkQualified": false,
+  "fullComposition": {
+    "execution": {
+      "elapsedSeconds": 52.26,
+      "exit": 0
+    },
+    "file": {
+      "bytes": 9093,
+      "path": "target/v53-slot-storage-20261101/reader/full-chain.log",
+      "sha256": "147add4b43cc6aafdf6dffd5517b0a8226dd018c72d4117a2de520a02329a15b"
+    },
+    "status": "PARTIAL"
+  },
+  "legacy": {
+    "completeSlotStorageCallbacks": 3680,
+    "currentSourceCohortQualified": false,
+    "execution": {
+      "elapsedSeconds": 23.078,
+      "exit": 0
+    },
+    "file": {
+      "bytes": 836,
+      "path": "target/v53-slot-storage-20261101/reader/legacy.log",
+      "sha256": "a8e262b5092694b5f8bf5f828395ed32c21c7f4b9909c6f0dc69b265a92ad469"
+    },
+    "historicalSourceOnly": true,
+    "inventory": {
+      "bytes": 563164,
+      "path": "target/v53-slot-storage-20261101/legacy-inventory.json",
+      "sha256": "02603a188fe775a8842f38a314c13cf2bea9fc6d3c34ef1d5cb5f580584626a0"
+    },
+    "ownedSlotTransactions": 24,
+    "raw": "/home/klfdm/perception/GeneralSearchEngine/target/v53-joining-history/original-9136083f/workspace/general-search-engine-replication/target/v53-native-dispatch/run-a976882d-1f80-4d89-a2be-0073e7d3fd3f",
+    "slots": 11
+  },
+  "nativeInput": {
+    "inventory": {
+      "bytes": 589747,
+      "path": "target/v53-slot-storage-20261101/input-inventory.json",
+      "sha256": "6fbfa9544f774c5282f5cdd57b0c3aca05ca85fcc25e5ec8e967c2fab4d2224d"
+    },
+    "nativeRerun": false,
+    "previousReceipt": {
+      "bytes": 33338,
+      "path": "docs/v5x/v5.3/phase3-evidence/proposer-installation.json",
+      "sha256": "0c4395863e3d2234fc60e7ce3a43b58dfb5d7fae8200f489c94fa1e03f7cfeac"
+    },
+    "raw": "target/v53-joining-same-view-20261031/native-covering-floor/workspace/general-search-engine-replication/target/v53-native-dispatch/run-82318ea9-59d7-4c20-9188-a008f4e63b63",
+    "sameOriginal": true
+  },
+  "originalControlSlotStorageQualified": true,
+  "originalGaps": {
+    "audit": {
+      "bytes": 753,
+      "path": "target/v53-slot-storage-20261101/coverage-audit-canonical.json",
+      "sha256": "8fd4a6e1abbd108feff30d2ddb2f23f4eb374af6a5feba8906b14715e1a50f3e"
+    },
+    "cases": [
+      {
+        "case": "publication-member-force",
+        "elapsedSeconds": 54.747,
+        "execution": {
+          "bytes": 240,
+          "path": "target/v53-slot-storage-20261101/prior-audit-canonical/publication-member-force/execution.json",
+          "sha256": "5c69f20fbad51658127a1ed9808b14a16a4beae2554085135620a9bba42a402a"
+        },
+        "exit": 0,
+        "log": {
+          "bytes": 9055,
+          "path": "target/v53-slot-storage-20261101/prior-audit-canonical/publication-member-force/reader.log",
+          "sha256": "868c32633563402b7c1fb6bec4bb2d999cd992fb3ac5e45ad6c1f4bd716e49db"
+        },
+        "mutatedEvents": {
+          "bytes": 3507381,
+          "path": "target/v53-slot-storage-20261101/prior-audit-canonical/publication-member-force/raw/events.json",
+          "sha256": "3bced09942d350cf7032fa47e6d003bef28ecd29b63fe193108cec9b94f56274"
+        },
+        "newRejection": "joining slot complete publication storage order",
+        "removedEvent": {
+          "event": "INSTALL_MEMBER_FORCED",
+          "node": "node-1"
+        }
+      },
+      {
+        "case": "covered-vote-parent-force",
+        "elapsedSeconds": 54.615,
+        "execution": {
+          "bytes": 245,
+          "path": "target/v53-slot-storage-20261101/prior-audit-canonical/covered-vote-parent-force/execution.json",
+          "sha256": "7ad5275518e7d736af736e0598225647aeb9819213091b54516d0a98fda035d6"
+        },
+        "exit": 0,
+        "log": {
+          "bytes": 9055,
+          "path": "target/v53-slot-storage-20261101/prior-audit-canonical/covered-vote-parent-force/reader.log",
+          "sha256": "868c32633563402b7c1fb6bec4bb2d999cd992fb3ac5e45ad6c1f4bd716e49db"
+        },
+        "mutatedEvents": {
+          "bytes": 3507376,
+          "path": "target/v53-slot-storage-20261101/prior-audit-canonical/covered-vote-parent-force/raw/events.json",
+          "sha256": "8f885f6eb74fbc87aa1303793aecd062ee240791ef4bc69194224a1654b6794c"
+        },
+        "newRejection": "joining slot complete covered retirement order",
+        "removedEvent": {
+          "event": "COVERED_VOTE_PARENT_FORCED",
+          "node": "node-1"
+        }
+      },
+      {
+        "case": "covered-end-deletion",
+        "elapsedSeconds": 54.62,
+        "execution": {
+          "bytes": 242,
+          "path": "target/v53-slot-storage-20261101/prior-audit-canonical/covered-end-deletion/execution.json",
+          "sha256": "702536ec5256a79194b1d2a1834e60e415f538322f47144f7fc7c3315147762b"
+        },
+        "exit": 0,
+        "log": {
+          "bytes": 9055,
+          "path": "target/v53-slot-storage-20261101/prior-audit-canonical/covered-end-deletion/reader.log",
+          "sha256": "868c32633563402b7c1fb6bec4bb2d999cd992fb3ac5e45ad6c1f4bd716e49db"
+        },
+        "mutatedEvents": {
+          "bytes": 3507378,
+          "path": "target/v53-slot-storage-20261101/prior-audit-canonical/covered-end-deletion/raw/events.json",
+          "sha256": "0687c9368c17c817a7141fb8f4c951aee276dbfe754bc5178fc060d196cbea6c"
+        },
+        "newRejection": "joining slot complete covered retirement order",
+        "removedEvent": {
+          "event": "COVERED_END_FILE_DELETED",
+          "node": "node-1"
+        }
+      }
+    ],
+    "source": {
+      "bytes": 609951,
+      "path": "target/v53-slot-storage-20261101/prior-reader/source.json",
+      "sha256": "7fea5fb7a1e9f4d98698d3643c3ca0ddc29ab66a319b5bb0ea1cd207f512a1e2"
+    }
+  },
+  "phase3Complete": false,
+  "portable": {
+    "assertionsDisabled": true,
+    "exactResult": true,
+    "execution": {
+      "elapsedSeconds": 52.798,
+      "exit": 0
+    },
+    "file": {
+      "bytes": 9093,
+      "path": "target/v53-slot-storage-20261101/portable.log",
+      "sha256": "147add4b43cc6aafdf6dffd5517b0a8226dd018c72d4117a2de520a02329a15b"
+    },
+    "frozenSourceUnchanged": true,
+    "originalUnchanged": true
+  },
+  "processDeathQualified": false,
+  "profile": "3-REPLACE",
+  "python": {
+    "errors": 0,
+    "execution": {
+      "elapsedSeconds": 6.022,
+      "exit": 0
+    },
+    "failures": 0,
+    "log": {
+      "bytes": 2640,
+      "path": "target/v53-slot-storage-20261101/reader/python.log",
+      "sha256": "a5c20e038de013e594edfd0b11dec23ba6ceff73bf76864a492066406b46e02d"
+    },
+    "newTests": 12,
+    "tests": 553
+  },
+  "qualification": {
+    "execution": {
+      "elapsedSeconds": 367.727,
+      "exit": 0
+    },
+    "file": {
+      "bytes": 22352,
+      "path": "target/v53-slot-storage-20261101/reader/network-qualification.log",
+      "sha256": "451c37f60e7ef17c1efffb663a9b3d7ca426ffefa5a8954f9fe4f75820c7f912"
+    },
+    "negatives": [
+      {
+        "case": "missing-send",
+        "reason": "joining network receive without send",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-request",
+        "reason": "joining network response without request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "late-request",
+        "reason": "joining network response without request",
+        "status": "REJECTED"
+      },
+      {
+        "case": "overlapping-retry",
+        "reason": "joining network ambiguous overlapping retry",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-send-owner",
+        "reason": "joining network send identity",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-send-kind",
+        "reason": "joining network send bytes",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-server-lifetime",
+        "reason": "joining network response request binding",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-client-lifetime",
+        "reason": "joining network client lifetime",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-delivery",
+        "reason": "joining network undelivered healthy response",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-grant-force",
+        "reason": "joining network durable grant order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-promise",
+        "reason": "joining network force before promise reply",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-promise-authority",
+        "reason": "joining network prepare authority",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-prepare-view",
+        "reason": "joining network prepare authority",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-selection",
+        "reason": "joining network selection before delivered promises",
+        "status": "REJECTED"
+      },
+      {
+        "case": "early-propagation",
+        "reason": "joining network selected propagation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "missing-install-image-force",
+        "reason": "joining network durable installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-install-cut",
+        "reason": "joining network installation authority",
+        "status": "REJECTED"
+      },
+      {
+        "case": "changed-chunk",
+        "reason": "joining network complete transfer commit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-offer-extent",
+        "reason": "joining network complete transfer commit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "wrong-commit",
+        "reason": "joining network complete transfer commit",
+        "status": "REJECTED"
+      },
+      {
+        "case": "transfer-sequence-gap",
+        "reason": "joining network transfer sequence",
+        "status": "REJECTED"
+      },
+      {
+        "case": "transfer-before-delivery",
+        "reason": "joining network transfer next before delivery",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-early-selection",
+        "reason": "joining network selection before delivered promises",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-missing-grant-force",
+        "reason": "joining network durable grant order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-missing-remote-image-force",
+        "reason": "joining network durable installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-early-ACK",
+        "reason": "joining network durable installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-wrong-ACK-cut",
+        "reason": "joining network installation authority",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-missing-local-selection-return",
+        "reason": "joining network recovery local selection return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-missing-local-reservation",
+        "reason": "joining network recovery local installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-local-before-delivered-ACK",
+        "reason": "joining network recovery local installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-local-wrong-lifetime",
+        "reason": "joining network recovery local installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-missing-local-member-force",
+        "reason": "joining network recovery local installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-duplicate-local-force",
+        "reason": "joining network recovery local installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "recovery-unbound-selection-force",
+        "reason": "joining network unbound selection force",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-selection-return-missing",
+        "reason": "joining network proposer selection return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-selection-return-after-send",
+        "reason": "joining network proposer selection return",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-image-force-missing",
+        "reason": "joining network proposer complete installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-member-force-missing",
+        "reason": "joining network proposer complete installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-parent-force-missing",
+        "reason": "joining network proposer complete installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-current-force-missing",
+        "reason": "joining network proposer complete installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-install-return-missing",
+        "reason": "joining network proposer complete installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-duplicate-force",
+        "reason": "joining network proposer complete installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-before-ACK",
+        "reason": "joining network proposer installation after ACKs",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-after-slot",
+        "reason": "joining network proposer complete installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "proposer-wrong-scope",
+        "reason": "joining network proposer complete installation order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-accept-prefix",
+        "reason": "joining slot complete accept storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-proof-created",
+        "reason": "joining slot complete proof storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-certificate-written",
+        "reason": "joining slot complete certificate storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-replay-reservation",
+        "reason": "joining slot complete application storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-replay-claim-written",
+        "reason": "joining slot complete application storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-replay-deletion",
+        "reason": "joining slot complete application storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-replay-duplicate-deletion",
+        "reason": "joining slot complete application storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-apply-created",
+        "reason": "joining slot complete application storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-apply-image-prefix",
+        "reason": "joining slot complete application storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-apply-parent-written",
+        "reason": "joining slot complete application storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-apply-ancestor-written",
+        "reason": "joining slot complete application storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-apply-duplicate-created",
+        "reason": "joining slot complete application storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-publication-member-force",
+        "reason": "joining slot complete publication storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-publication-image-written",
+        "reason": "joining slot complete publication storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-publication-selector-written",
+        "reason": "joining slot complete publication storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-publication-current-validated",
+        "reason": "joining slot complete publication storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-publication-duplicate-member",
+        "reason": "joining slot complete publication storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-publication-wrong-scope",
+        "reason": "joining slot complete publication storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-publication-member-before-write",
+        "reason": "joining slot complete publication storage order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-covered-end-before-delete",
+        "reason": "joining slot complete covered retirement order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-covered-end-deletion",
+        "reason": "joining slot complete covered retirement order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-covered-directory-deletion",
+        "reason": "joining slot complete covered retirement order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-covered-vote-prefix",
+        "reason": "joining slot complete covered retirement order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-covered-vote-parent-force",
+        "reason": "joining slot complete covered retirement order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-covered-duplicate-deletion",
+        "reason": "joining slot complete covered retirement order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "slot-covered-vote-wrong-scope",
+        "reason": "joining slot complete covered retirement order",
+        "status": "REJECTED"
+      },
+      {
+        "case": "terminal-caller-missing",
+        "reason": "joining failure missing caller terminal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "terminal-receiver-missing",
+        "reason": "joining failure missing receiver terminal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "terminal-caller-foreign",
+        "reason": "joining failure sender lifetime",
+        "status": "REJECTED"
+      },
+      {
+        "case": "terminal-receiver-foreign",
+        "reason": "joining failure receiver lifetime",
+        "status": "REJECTED"
+      },
+      {
+        "case": "terminal-caller-duplicate",
+        "reason": "joining duplicate outbound terminal",
+        "status": "REJECTED"
+      },
+      {
+        "case": "terminal-receiver-duplicate",
+        "reason": "joining duplicate inbound terminal",
+        "status": "REJECTED"
+      }
+    ],
+    "network": {
+      "boundInstallReplies": 7,
+      "boundPhaseResponses": 55,
+      "boundPromiseReplies": 9,
+      "committedTransfers": 524,
+      "completeSlotStorageCallbacks": 3400,
+      "deliveredResponses": 1693,
+      "exactTransferRetries": 2,
+      "failedAttempts": 5,
+      "forcedGrants": 19,
+      "forcedSelections": 14,
+      "futureTargets": 11,
+      "ownedSlotTransactions": 22,
+      "proposerLocalInstallations": 6,
+      "receivedRequests": 1698,
+      "recoveryInstallReplies": 1,
+      "recoveryLocalInstallations": 1,
+      "rejectedTransferAttempts": 2,
+      "responseLessFailures": 5,
+      "sentRequests": 1698,
+      "slots": 11,
+      "terminalObservations": 10,
+      "transferSessions": 282,
+      "transferredBytes": 2192253,
+      "wireExchanges": 1693
+    },
+    "newNegativeCases": 26
+  },
+  "reader": {
+    "codeSha256": {
+      "joining_phase_evidence.py": "586c212edb7c94dfdff7a0f35b35c7f3a69d135f61a5ac0fd365385fd5e20227",
+      "joining_same_view_network.py": "28471a8ac94417d4580b3b2be275291bbb43c1c49a80932ac39e41d2a0ab0c08",
+      "joining_slot_storage.py": "11b0cbc1435a44de7e64dd47a2928209a497f627411c01bfda8c237bdc99e1c5",
+      "test_joining_same_view_network.py": "30db3d747e3f3cf85df30b7d3d3c7bbb22a806d073a593802cc712a8cfa80481",
+      "test_joining_slot_storage.py": "aa6d078a9388d6ef607d628344f42515550317a628a3fc0b3bfe18b987335021"
+    },
+    "frozenSourceUnchanged": true,
+    "python": {
+      "executable": "/usr/bin/python3",
+      "version": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+    },
+    "source": {
+      "bytes": 610178,
+      "path": "target/v53-slot-storage-20261101/reader/source.json",
+      "sha256": "23a55e9e51c8f1ba89d4e3ec7f6c4152076da06a8b8c29dfb17cbe267ce81fee"
+    }
+  },
+  "schema": "gse-v53-slot-storage-batch-v1",
+  "status": "PARTIAL"
+}

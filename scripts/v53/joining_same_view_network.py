@@ -14,6 +14,7 @@ import tempfile
 from . import joining_same_view_physical as physical
 from . import joining_network_evidence as network
 from . import joining_profile_network_evidence as profiles
+from . import joining_slot_storage as slots
 
 need, collection, f, sha = network.need, network.s.collection, network.f, network.sha
 SELECTION = 'joining-final-recovery-selection.gsr'
@@ -71,6 +72,9 @@ def move_before(events,index,before):
 
 def mutate(root,name):
     root=Path(root)
+    if name in slots.NEGATIVES:
+        events=collection.read_json(root,'events.json',collection.EVENT_BYTES)
+        slots.mutate(events,name);(root/'events.json').write_bytes(f.canonical(events));return
     if name in PROPOSER_NEGATIVES:
         events=collection.read_json(root,'events.json',collection.EVENT_BYTES)
         def first(point):return next(v for v in events if v.get('node')=='node-1' and v['event']==point)
@@ -148,7 +152,7 @@ def mutate(root,name):
 def qualify(root,progress=None):
     root=Path(root);original=validate(root);before=collection.inventory(root);results=[]
     if progress:progress(dict(stage='original',status='PASS'))
-    cases={**network.NEGATIVES,**NEGATIVES,**PROPOSER_NEGATIVES}
+    cases={**network.NEGATIVES,**NEGATIVES,**PROPOSER_NEGATIVES,**slots.NEGATIVES}
     if profiles.terminal_pair(root) is not None:cases.update(profiles.TERMINAL_NEGATIVES)
     files={k:v for k,v in before['files'].items() if k not in ('events.json','wire.json')}
     for name,reason in cases.items():

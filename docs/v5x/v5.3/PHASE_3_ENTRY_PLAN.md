@@ -1,5 +1,10 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Complete slot storage](PHASE_3_SLOT_STORAGE.md) closes three reproduced
+publication/retirement callback gaps and checks full vote, application and
+publication transactions against original inventories. Native profile/process
+and complete Phase 3 qualification remain open.
+
 [Proposer installation forces](PHASE_3_PROPOSER_INSTALLATION.md) close the
 second reproduced callback gap: ordinary local installation now requires every
 selected peer ACK and its complete force sequence before the first slot. Full
