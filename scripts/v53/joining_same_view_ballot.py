@@ -12,11 +12,44 @@ import sys
 import tempfile
 
 from . import joining_same_view_learner as prior
+from .grant_evidence import order as ballot_order
 
 a, f, disk, need, sha = prior.a, prior.f, prior.disk, prior.need, prior.sha
 WRITES = ['ALLOCATOR_' + p for p in ('BEFORE_WRITE', 'CREATED', 'WRITTEN', 'FORCED',
                                      'RENAMED', 'DIRECTORY_FORCED', 'BEFORE_RETURN')]
 PROMISE = ['PROMISE_BEFORE_WRITE', 'PROMISE_WRITTEN', 'PROMISE_FORCED']
+ADOPTION = ['ADOPTION_INSTALL_VALIDATED','ADOPTION_INSTALL_FENCED','ADOPTION_INSTALL_BEFORE_RETURN']
+
+
+def membership_fence(packet,members,root):
+    certificates=[]
+    for item in packet['capsule']['items']:
+        if item['kind']!='MEMBERSHIP':continue
+        raw=packet['objects'].get(item['certificate'])
+        need(raw is not None and sha(raw)==item['certificate'],'joining ballot original membership certificate')
+        certificates.append((raw,f.decode(raw,'records','CERTIFICATE',root)))
+    need(certificates,'joining ballot missing membership fence')
+    _,(raw,value)=max(enumerate(certificates),key=lambda v:(ballot_order(v[1][1]['ballot']),v[0]))
+    need(members.get('adopted-certificate.gsr')==raw,'joining ballot exact adopted membership fence')
+    return raw,value
+
+
+def adoption_transactions(events,windows,owners,joining):
+    originals={v['start']:v for v in windows if v['start']>=0 and events[v['start']]['event']==ADOPTION[-1]}
+    pending={};result=[]
+    for at,row in enumerate(events):
+        if row['event'] not in ADOPTION:continue
+        node=row.get('node');scope='continuation-owner' if node==joining else None
+        need(node in owners and row==dict(node=node,event=row['event'],**({} if scope is None else dict(scope=scope))),
+             'joining ballot adoption owner scope')
+        held=pending.setdefault(node,[])
+        need(row['event']==ADOPTION[len(held)],'joining ballot exact adoption boundary order')
+        held.append(at)
+        if len(held)==3:
+            need(at in originals and originals[at]['node']==node,'joining ballot original adopted generation')
+            result.append(dict(node=node,scope=scope,start=held[0],fenced=held[1],end=at,own=originals[at]));del pending[node]
+    need(not pending and {v['end'] for v in result}==set(originals),'joining ballot incomplete adoption boundary')
+    return result
 
 
 def allocations(events, owners, joining):
@@ -68,12 +101,13 @@ class State:
 
 
 class Replay:
-    def __init__(self, root):
-        self.root = Path(root); self.base = a.Replay(root); self.model = self.base.model; self.events = self.base.events
+    def __init__(self, root, *, base=None):
+        self.root = Path(root); self.base = a.Replay(root) if base is None else base; self.model = self.base.model; self.events = self.base.events
         self.owners = (*self.model.old, self.model.joining)
         self.tx = allocations(self.events, self.owners, self.model.joining)
         self.captures = a.physical.p.captures.collect(root, self.events)
         self.state = State(self.model.root); self.used = set(); self.promise_points = set(); self.self_grants = 0
+        self.promise_history=[];self.adoption_fences=[]
 
     def one(self, node, name, scope):
         points = [i for i, v in enumerate(self.events) if v.get('node') == node and v['event'] == name and v.get('scope') == scope]
@@ -88,6 +122,40 @@ class Replay:
         need(not self.promise_points.intersection(i for i, _ in rows), 'joining ballot reused promise forces')
         self.promise_points.update(i for i, _ in rows)
         actions.append((rows[-1][0], 'promise', (node, ballot['counter'])))
+        return rows[-1][0]
+
+    def adoptions(self,actions):
+        for source in self.base.sources:
+            cap=next(v for v in self.captures if v['node']==source['node'] and v['capturedEvent']==source['start'])
+            points=[i for i in self.promise_points if i<cap['returnEvent'] and self.events[i].get('node')==source['node'] and self.events[i]['event']=='PROMISE_FORCED']
+            need(points,'joining ballot original grant promise witness')
+            self.promise_history.append((max(points),source['node'],source['promise']))
+        for tx in adoption_transactions(self.events,self.base.windows,self.owners,self.model.joining):
+            node=tx['node'];own=tx['own'];raw,certificate=membership_fence(own['packet'],own['members'],self.model.root)
+            index=certificate['index']
+            need(1<=index<=len(self.model.phases) and self.model.phases[index-1]['CERTIFICATE']==raw,
+                 'joining ballot adopted certificate original history')
+            previous=[v for v in self.promise_history if v[1]==node and v[0]<tx['start']]
+            need(previous,'joining ballot adoption missing original prior promise')
+            before=max(previous,key=lambda v:v[0])[2];old=f.decode(before,'records','PROMISE',self.model.root)
+            expected=before
+            if ballot_order(old['ballot'])<ballot_order(certificate['ballot']):
+                expected=f.encode('records','PROMISE',dict(root=self.model.root,view=certificate['authority'],ballot=certificate['ballot'],basisId=None))
+            need(own['members']['promise.gsr']==expected,'joining ballot exact original adoption promise')
+            value=f.decode(expected,'records','PROMISE',self.model.root);changed=expected!=before
+            if changed:
+                at=self.promise(node,tx['scope'],tx['start'],tx['fenced'],value['ballot'],actions)
+                self.promise_history.append((at,node,expected))
+            else:
+                need(not any(tx['start']<i<tx['fenced'] and v.get('node')==node and v['event'] in PROMISE for i,v in enumerate(self.events)),
+                     'joining ballot unchanged adoption wrote promise')
+            if node==self.model.joining:a.c.owner_lifetime(self.events,node,tx['scope'],tx['start'],tx['end'])
+            actions.append((tx['fenced'],'fence',(node,value['ballot']['counter'])))
+            self.adoption_fences.append(dict(node=node,start=tx['start'],end=tx['end'],cut=own['packet']['capsule']['cut']['index'],
+                certificateIndex=index,certificate=sha(raw),priorPromise=sha(before),promise=sha(expected),promiseAppended=changed))
+
+    def fence(self,node,counter):
+        need(self.state.observed.get(node)==counter,'joining ballot adoption observed promise')
 
     def original(self, node, path, label):
         self.state.compare(node, disk.inventory(self.root/path)['allocator.gsr'], label)
@@ -122,11 +190,19 @@ class Replay:
             journal = disk.journal(files['grants.gsr'], self.model.root, node)
             observed = max([0, *[v['ballot']['counter'] for _, _, v in journal]])
             self.state.seed(node, value['counter'], observed); self.original(node, 'before-network/'+node, 'bootstrap')
+            promises=[raw for kind,raw,_ in journal if kind=='PROMISE']
+            if promises:self.promise_history.append((-1,node,promises[-1]))
         joining = self.model.joining; actions = []
         # Placement derives this adopted allocator from the original JOINT
         # certificate; it is not another reservation and does not grant a vote.
         joined = self.one(joining, 'JOINED_NATIVE_TRANSFERRED', 'initial-owner')
-        certificate = f.decode(self.model.phases[8]['CERTIFICATE'], 'records', 'CERTIFICATE')
+        placed=disk.inventory(self.root/'joining-originals-placed/replica');_,members,packet=disk.current(placed)
+        raw,certificate=membership_fence(packet,members,self.model.root);index=certificate['index']
+        need(index==packet['capsule']['cut']['index'] and 1<=index<=len(self.model.phases) and self.model.phases[index-1]['CERTIFICATE']==raw,
+             'joining ballot placed original joint certificate')
+        promise=f.encode('records','PROMISE',dict(root=self.model.root,view=certificate['authority'],ballot=certificate['ballot'],basisId=None))
+        need(members['promise.gsr']==promise,'joining ballot placed original promise')
+        self.promise_history.append((joined,joining,promise))
         counter = certificate['ballot']['counter']
         actions.append((joined, 'seed', (joining, counter, counter)))
         actions.append((joined, 'original', (joining, 'joining-originals-placed/replica', 'placed')))
@@ -143,12 +219,9 @@ class Replay:
             if tx['node'] == joining:
                 a.c.owner_lifetime(self.events, joining, tx['scope'], tx['start'], tx['end'])
         actions.extend((v['end'], 'reserve', (v,)) for v in self.tx)
-        # The verified newer-authority adoption appends an observation fence.
-        # Its promise advances the next allocation even without a local grant.
-        start = self.one(joining, 'ADOPTION_INSTALL_VALIDATED', 'continuation-owner')
-        end = self.one(joining, 'ADOPTION_INSTALL_FENCED', 'continuation-owner')
-        adopted = f.decode(self.model.phases[9]['CERTIFICATE'], 'records', 'CERTIFICATE')
-        self.promise(joining, 'continuation-owner', start, end, adopted['ballot'], actions)
+        # Bind actual adopted generations. A retained stronger promise is not
+        # another durable append, and ADD need not adopt at all.
+        self.adoptions(actions)
         need(self.promise_points == {i for i, v in enumerate(self.events) if v['event'] in PROMISE},
              'joining ballot unbound promise forces')
         for (index, node), points in self.base.phases.items():
@@ -164,7 +237,7 @@ class Replay:
             getattr(self.state if kind in ('seed', 'promise', 'reserve', 'compare') else self, kind)(*args)
         for node in self.owners:
             self.original(node, 'joining-originals-stable-cold/replica' if node == joining else 'after-close/'+node, 'cold')
-        return dict(status='PASS', scope='one-native-REPLACE-continuous-ballot', reservations=len(self.tx),
+        return dict(status='PASS', scope='one-native-'+self.model.kind+'-continuous-ballot', reservations=len(self.tx),
                     selfGrants=self.self_grants, unusedReservations=1, forcedPromises=len(self.promise_points)//3,
                     allocatorComparisons=self.state.comparisons, finalCounters=self.state.counters,
                     chainSha256=sha(f.canonical(self.state.steps)), ballotForceQualified=True,
@@ -208,10 +281,10 @@ NEGATIVES = {
 def relevant(row): return row['event'].startswith('ALLOCATOR_') or row['event'] in PROMISE
 
 
-def mutate(root, name):
+def mutate(root, name, *, reader=None):
     need(name in NEGATIVES, 'joining ballot unknown negative'); root = Path(root)
-    events = a.n.s.collection.read_json(root, 'events.json', a.n.s.collection.EVENT_BYTES)
-    tx = allocations(events, ('node-1', 'node-2', 'node-3', 'node-4'), 'node-4')
+    reader=Replay(root) if reader is None else reader;events=reader.events;tx=reader.tx
+    proposer=tx[0]['node'];other=next(n for n in reader.owners if n not in (proposer,reader.model.joining))
     def values(t): return [v for v in events[t['start']:t['end']+1] if v.get('node') == t['node'] and v['event'] in WRITES]
     def move(rows, target, after=False):
         ids = {id(v) for v in rows}; events[:] = [v for v in events if id(v) not in ids]
@@ -223,22 +296,23 @@ def mutate(root, name):
     elif name == 'directory-force-missing': remove(first[5])
     elif name == 'duplicate-return': move([dict(first[-1])], first[-1])
     elif name == 'incomplete-write': remove(events[tx[-1]['end']])
-    elif name == 'unknown-allocator-event': events.append(dict(node='node-1', event='ALLOCATOR_IGNORED'))
+    elif name == 'unknown-allocator-event': events.append(dict(node=proposer, event='ALLOCATOR_IGNORED'))
     elif name == 'foreign-owner': first[0]['node'] = 'node-9'
     elif name == 'forged-field': first[0]['counter'] = 2
     elif name == 'wrong-joining-scope':
         for v in spare: v['scope'] = 'initial-owner'
-    elif name == 'reservation-after-grant': move(first, next(v for v in events if v['event'] == 'GRANT_BEFORE_RETURN'), True)
+    elif name == 'reservation-after-grant': move(first, next(v for v in events if v.get('node')==proposer and v['event'] == 'GRANT_BEFORE_RETURN'), True)
     elif name == 'reservation-before-open': move(first, events[0])
     elif name == 'extra-local-reservation': move([dict(v) for v in first], first[0])
-    elif name == 'unbound-reservation': events.extend(dict(node='node-2', event=p) for p in WRITES)
+    elif name == 'unbound-reservation': events.extend(dict(node=other, event=p) for p in WRITES)
     elif name.startswith('unused-'):
         scope = 'repeated-basis-owner' if name == 'unused-before-repeated-read' else 'continuation-owner'
-        target = next(v for v in events if v.get('scope') == scope and v['event'] == 'CURRENT_BEFORE_CAPTURE')
+        target = next(v for v in events if v.get('node')==reader.model.joining and v.get('scope') == scope and
+                      (name=='unused-after-owner' or v['event'] == 'CURRENT_BEFORE_CAPTURE'))
         move(spare, target, name == 'unused-after-owner')
-    elif name == 'unbound-promise': events.extend(dict(node='node-2', event=p) for p in PROMISE)
+    elif name == 'unbound-promise': events.extend(dict(node=other, event=p) for p in PROMISE)
     else:
-        rows = [next(v for v in events if v.get('node') == 'node-1' and v['event'] == p) for p in PROMISE]
+        rows = [next(v for v in events if v.get('node') == proposer and v['event'] == p) for p in PROMISE]
         if name == 'promise-write-missing': remove(rows[1])
         elif name == 'promise-force-before-write': move([rows[2]], rows[1])
         else: rows[0]['scope'] = 'foreign-owner'

@@ -88,8 +88,9 @@ These results do not establish new larger-profile native or process execution.
 
 ## Remaining closure and rollback
 
-Profile ballot composition, final-source seven-profile/native process and fault
-cohorts, combined resource bounds and frozen S/N coverage remain OPEN. Phase 3
+[Profile ballot composition](PHASE_3_PROFILE_BALLOTS.md) is now recorded separately.
+Final-source seven-profile/native process and fault cohorts, combined resource
+bounds and frozen S/N coverage remain OPEN. Phase 3
 is not complete. This batch changes evidence readers and tests only; Java,
 POMs, workflows, persisted formats, workloads and timing/resource limits are
 unchanged. Long complete cohorts remain in the deferred hosted acceptance plan.

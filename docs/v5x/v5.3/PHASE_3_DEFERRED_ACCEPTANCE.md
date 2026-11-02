@@ -1,16 +1,20 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Profile ballot composition](PHASE_3_PROFILE_BALLOTS.md) now binds allocator and
+promise forces to actual owners and original membership certificates. Adoption
+preserves a stronger local promise; ADD may have no adoption. The final-source
+seven-profile/process cohorts, combined bounds and frozen S/N coverage remain OPEN.
+
 [Profile future and learner ledgers](PHASE_3_PROFILE_LEDGERS.md) now derive
 continuous revisions across actual owner lifetimes. Multi-recipient learner
 rounds consume one local write and each original remote write separately;
-future ACKs precede every matching send. Profile ballot composition and the
-final-source seven-profile/process cohorts remain OPEN.
+future ACKs precede every matching send. Profile ballot composition is recorded
+above; the final-source seven-profile/process cohorts remain OPEN.
 
 [Profile continuous peer ledgers](PHASE_3_PROFILE_PEERS.md) now bind every old
 voter and actual joining owner to continuous revisions, original forces, reseals
-and cold bytes, including an explicit adoption comparison. Larger-profile
-ballot composition and the final-source cohort remain OPEN; future/learner
-composition is recorded above.
+and cold bytes, including an explicit adoption comparison. Ballot and
+future/learner composition are recorded above; the final-source cohort remains OPEN.
 
 [Profile maintenance authority](PHASE_3_PROFILE_MAINTENANCE.md) now verifies
 actual old/new majorities, complete original copies and every floor lifecycle.

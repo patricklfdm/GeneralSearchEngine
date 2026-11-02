@@ -1,0 +1,333 @@
+{
+  "actions": {
+    "localCommit": true,
+    "nativeRerun": false,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false
+  },
+  "allMembershipProfilesQualified": false,
+  "archive": {
+    "allMembershipProfilesQualified": false,
+    "archiveBytes": 30631031,
+    "archiveSha256": "787f895aabe03ba64cdbdc5a49a9b2d15c2ff341800d4c77d2e9891206fdc9a9",
+    "directories": 2916,
+    "exactNegatives": 59,
+    "files": 16935,
+    "identicalResults": true,
+    "manifest": {
+      "bytes": 2655645,
+      "path": "target/v53-profile-ballots-20261102/v3/artifact/manifest.json",
+      "sha256": "7e720b0507d3cfb35ec2b6d99acba21ea6b04c4d2800f9dbc8f4c0339b1ee81f"
+    },
+    "nativeRerun": false,
+    "notApplicable": 2,
+    "path": "target/v53-profile-ballots-20261102/v3/artifact/bundle.tar.gz",
+    "phase3Complete": false,
+    "portable": {
+      "legacy": {
+        "elapsedSeconds": 77.91,
+        "exit": 0
+      },
+      "replace": {
+        "elapsedSeconds": 61.567,
+        "exit": 0
+      },
+      "same-view": {
+        "elapsedSeconds": 55.893,
+        "exit": 0
+      }
+    },
+    "pythonSeconds": 108.512,
+    "pythonTests": 1893,
+    "status": "PASS",
+    "unchangedOriginals": true
+  },
+  "authorityAudit": {
+    "clarification": "Terminal cut 11 legitimately uses membership certificate 10; highest membership ballot, last tie, determines the fence, not terminal index",
+    "path": {
+      "bytes": 8015,
+      "path": "target/v53-profile-ballots-20261102/original-authority-audit.json",
+      "sha256": "27d076473ea605e3a8e3f2d9fa017b1f9303cbe2c8d106371fbed76a3e9dd528"
+    }
+  },
+  "ballotCompositionQualified": true,
+  "baseHead": "d54479a2059e1e2e0cb1bc86154b76310a21509d",
+  "chainCompatibility": {
+    "correctedAddResult": {
+      "allocatorComparisons": 90,
+      "ballotForceQualified": true,
+      "chainSha256": "0fd8bb2613688cbe3bb7b401120ce989d4e3606cdf08ec0a76742cefe8da103b",
+      "completePhysicalQualified": false,
+      "finalCounters": {
+        "node-1": 9,
+        "node-2": 1,
+        "node-3": 1,
+        "node-4": 7
+      },
+      "forcedPromises": 19,
+      "phase3Complete": false,
+      "reservations": 10,
+      "sameViewPhysicalQualified": false,
+      "scope": "one-native-ADD-continuous-ballot",
+      "selfGrants": 9,
+      "status": "PASS",
+      "unusedReservations": 1
+    },
+    "everyReplaceBallotFieldIdentical": true,
+    "previousAddFailure": {
+      "message": "joining ballot exact lifecycle boundary: ADOPTION_INSTALL_VALIDATED",
+      "type": "ValueError"
+    },
+    "previousAudit": "/home/klfdm/perception/GeneralSearchEngine/target/v53-profile-ledgers-20261102/next-ballot-audit.json",
+    "previousSha256": "0136211b83f91ee3403de62b25f72447e6d3aba70dbf3cc927860bd4b3f11fc7",
+    "receipt": {
+      "bytes": 989,
+      "path": "target/v53-profile-ballots-20261102/v3/ballot-chain-compatibility.json",
+      "sha256": "f015969419efbf819567972bfe3f7cbf7f54b287c9c80c46000c928fd98f19c4"
+    },
+    "status": "PASS"
+  },
+  "currentSourceNativeCohortQualified": false,
+  "firstCollectionAttempt": {
+    "log": {
+      "bytes": 1558,
+      "path": "target/v53-profile-ballots-20261102/qualification.log",
+      "sha256": "1ca45b631f407ef53e08abdca929b9053ef6a3a27bba8278f9845a372581f570"
+    },
+    "reason": "collector input path typo; no original replay started",
+    "status": "FAIL"
+  },
+  "firstQualificationAttempt": {
+    "legacy": {
+      "bytes": 17214,
+      "path": "target/v53-profile-ballots-20261102/v2/legacy.log",
+      "sha256": "a122ce239e38e92ca514cbd23484e336070bfb3b2d8c9de50656fbf552255dd5"
+    },
+    "log": {
+      "bytes": 2884,
+      "path": "target/v53-profile-ballots-20261102/v2/qualification.log",
+      "sha256": "72e18357447a10536361a2c6f50d40a2f70eed4076da5ce7b63f19c4e2fea039"
+    },
+    "reader": {
+      "bytes": 625417,
+      "path": "target/v53-profile-ballots-20261102/v2/reader/source.json",
+      "sha256": "00721b97f5593d1aa1255f667be1142aa812ee9b3f93731586d0da55b16f3be0"
+    },
+    "reason": "unused-after-owner mutation required a same-view-only capture absent from the retained ordinary 3-REPLACE history",
+    "replace": {
+      "bytes": 5451,
+      "path": "target/v53-profile-ballots-20261102/v2/replace.log",
+      "sha256": "f3be6e8fe3a998e9f5cbb4d7e0b2ba49f8970418141e4ed2cad53e06d7dbcd9b"
+    },
+    "status": "FAIL"
+  },
+  "negativeScope": {
+    "applicabilityExceptions": [
+      "No original adoption transaction",
+      "No original adoption promise append"
+    ],
+    "missingTargetsFail": true,
+    "mutatedPrerequisiteReplayed": false,
+    "originalFirst": true,
+    "physicalWireAndOtherEventsUnchanged": true
+  },
+  "originalReplays": {
+    "legacy": {
+      "adoptionFences": [],
+      "ballot": {
+        "allocatorComparisons": 90,
+        "ballotForceQualified": true,
+        "chainSha256": "0fd8bb2613688cbe3bb7b401120ce989d4e3606cdf08ec0a76742cefe8da103b",
+        "completePhysicalQualified": false,
+        "finalCounters": {
+          "node-1": 9,
+          "node-2": 1,
+          "node-3": 1,
+          "node-4": 7
+        },
+        "forcedPromises": 19,
+        "phase3Complete": false,
+        "reservations": 10,
+        "sameViewPhysicalQualified": false,
+        "scope": "one-native-ADD-continuous-ballot",
+        "selfGrants": 9,
+        "status": "PASS",
+        "unusedReservations": 1
+      },
+      "execution": {
+        "elapsedSeconds": 227.598,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 573262,
+        "path": "target/v53-profile-ballots-20261102/v3/legacy-inputs.json",
+        "sha256": "97c32eafa035d70a610b80bf3fbc2d49e5993e97c72dad590cab1d36e590718d"
+      },
+      "notApplicable": 2,
+      "rejected": 19,
+      "result": {
+        "bytes": 19012,
+        "path": "target/v53-profile-ballots-20261102/v3/legacy.json",
+        "sha256": "32cf467d78417deb9894f7cd020a63df932f017a7ff25562ad679ad3a2c1efbf"
+      }
+    },
+    "replace": {
+      "adoptionFences": [
+        {
+          "certificate": "a1ec54313c565954da71eb134225bd3faa3a77db46e5d6987aa5226748bc5b0c",
+          "certificateIndex": 10,
+          "cut": 11,
+          "end": 17778,
+          "node": "node-4",
+          "priorPromise": "e746acdafdee065eb147946331ea3842a79c92a79415020d050bc248014d4185",
+          "promise": "a5d50be08487067afeb9a50ea028efe7e499b04a4a7a60510a3ec31924f9306a",
+          "promiseAppended": true,
+          "start": 17749
+        }
+      ],
+      "ballot": {
+        "allocatorComparisons": 83,
+        "ballotForceQualified": true,
+        "chainSha256": "3d519975bff705227b3e3d201fa24f9f120c3e974fba534e1501f4574118a801",
+        "completePhysicalQualified": false,
+        "finalCounters": {
+          "node-1": 9,
+          "node-2": 1,
+          "node-3": 1,
+          "node-4": 7
+        },
+        "forcedPromises": 18,
+        "phase3Complete": false,
+        "reservations": 10,
+        "sameViewPhysicalQualified": false,
+        "scope": "one-native-REPLACE-continuous-ballot",
+        "selfGrants": 9,
+        "status": "PASS",
+        "unusedReservations": 1
+      },
+      "execution": {
+        "elapsedSeconds": 189.331,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 558304,
+        "path": "target/v53-profile-ballots-20261102/v3/replace-inputs.json",
+        "sha256": "84d9e7f36e165b68d6d26c83b2ea9b8c7eab5c24e69decc214d9e538e6764a3c"
+      },
+      "notApplicable": 0,
+      "rejected": 21,
+      "result": {
+        "bytes": 20160,
+        "path": "target/v53-profile-ballots-20261102/v3/replace.json",
+        "sha256": "d7fc3a24bbde12e631b9f47cb73d1136015ab003526a6b1656eacdd09fb290d4"
+      }
+    },
+    "same-view": {
+      "ballot": {
+        "allocatorComparisons": 87,
+        "ballotForceQualified": true,
+        "chainSha256": "797a8ab8b928057d439ade77ee7ee684a51bdb664e79141524320b4f15a0bec7",
+        "completePhysicalQualified": false,
+        "finalCounters": {
+          "node-1": 9,
+          "node-2": 1,
+          "node-3": 1,
+          "node-4": 9
+        },
+        "forcedPromises": 20,
+        "phase3Complete": false,
+        "reservations": 11,
+        "sameViewPhysicalQualified": false,
+        "scope": "one-native-REPLACE-continuous-ballot",
+        "selfGrants": 10,
+        "status": "PASS",
+        "unusedReservations": 1
+      },
+      "execution": {
+        "elapsedSeconds": 163.89,
+        "exit": 0
+      },
+      "inputInventory": {
+        "bytes": 600356,
+        "path": "target/v53-profile-ballots-20261102/v3/same-view-inputs.json",
+        "sha256": "efc38f2303e5129c11d042153170d210a7ad40997206981f5e9b89f5babc8e9b"
+      },
+      "notApplicable": 0,
+      "rejected": 19,
+      "result": {
+        "bytes": 18630,
+        "path": "target/v53-profile-ballots-20261102/v3/same-view.json",
+        "sha256": "714a926e946e80c1699a083c0aadb4b693321fa6765b19fa53a9bbe82ad3bb1a"
+      }
+    }
+  },
+  "phase3Complete": false,
+  "processDeathQualified": false,
+  "python": {
+    "focusedLog": {
+      "bytes": 137,
+      "path": "target/v53-profile-ballots-20261102/focused-corrected.log",
+      "sha256": "a95f9c7e341ae65253c65ca6597502efb2232ecb4d0d5a47a7512a87ea3c8788"
+    },
+    "log": {
+      "bytes": 3983,
+      "path": "target/v53-profile-ballots-20261102/v3/python-tests.log",
+      "sha256": "84e2de4f6153ead83dbb37a78d580d3bfbfe2c03f658101d952b29ae0b1d3356"
+    },
+    "newTests": 21,
+    "seconds": 108.512,
+    "tests": 1893
+  },
+  "reader": {
+    "code": {
+      "scripts/v53/joining_profile_ballot_evidence.py": "1948145470295883d751ca334a3b88c234f3a25d6e77d13332b5396e4ed7eb4d",
+      "scripts/v53/joining_same_view_ballot.py": "d02ac57c4309d2c5c828661fd3062599a44b0e79a75da4837f83055d554f2916",
+      "scripts/v53/test_joining_profile_ballot_evidence.py": "c1ad5a3536a4000afaaafe8ed4ec6e18dc69a843ea02043b6cb26ed83827d9ce"
+    },
+    "manifest": {
+      "bytes": 625659,
+      "path": "target/v53-profile-ballots-20261102/v3/reader/source.json",
+      "sha256": "8da7d98622428a59242fd09ffa19a60235627b3531e463e7628c8057a193ac7c"
+    }
+  },
+  "regression": {
+    "correctedPass": true,
+    "driver": {
+      "bytes": 1171,
+      "path": "target/v53-profile-ballots-20261102/v3/regression.py",
+      "sha256": "33fecc3f5d79f0ff0c502c2bed7a092faa6a1faf1131863f50549f47b76d5f09"
+    },
+    "log": {
+      "bytes": 1499,
+      "path": "target/v53-profile-ballots-20261102/v3/regression.log",
+      "sha256": "55903e435847e9832db4e0b48333f4ca4b5454ed2d225918cd6e7e5d66501371"
+    },
+    "measurementRerun": false,
+    "originalExpectedError": "StopIteration",
+    "originalReader": {
+      "bytes": 625417,
+      "path": "target/v53-profile-ballots-20261102/v2/reader/source.json",
+      "sha256": "00721b97f5593d1aa1255f667be1142aa812ee9b3f93731586d0da55b16f3be0"
+    },
+    "status": "PASS"
+  },
+  "remaining": [
+    "Final-source seven-profile and process/fault cohorts",
+    "Combined bounds and frozen S/N mapping"
+  ],
+  "sameViewCompatibility": {
+    "everyFieldIdentical": true,
+    "previous": "/home/klfdm/perception/GeneralSearchEngine/target/v53-profile-ledgers-20261102/v2/same-view.json",
+    "receipt": {
+      "bytes": 168,
+      "path": "target/v53-profile-ballots-20261102/v3/same-view-compatibility.json",
+      "sha256": "fd5a437824cc7c0574e0882e92a21de1f5f5f2607f3fc1ee9816b8f9ca5aebd6"
+    },
+    "status": "PASS"
+  },
+  "schema": "gse-v53-profile-ballots-entry-v1",
+  "status": "PARTIAL"
+}
