@@ -84,6 +84,11 @@ quorum authority. The receipt/archive retain producer snapshots, raw histories,
 initial failed reader diagnostics, corrected reader sources, test reports and
 per-file hashes without JARs or class files.
 
+[Rename-boundary process recovery](PHASE_3_NODE_RENAME_PROCESS.md) extends this
+reader to the earlier atomic-replacement boundary while retaining these original
+parent-forced case results. Its process-loss evidence cannot infer a directory
+force or host power-loss durability.
+
 ## Remaining scope and rollback
 
 Other installation/publication crash cuts, competing automatic candidates,

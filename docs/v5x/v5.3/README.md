@@ -1,5 +1,11 @@
 # V5.3 — controlled cluster operations
 
+[Native rename interruption](PHASE_3_NODE_RENAME_PROCESS.md) implements four
+process cuts and fixes repeated-installation and large-trace observation. One
+local history completed; another failed its unchanged startup bound. Independent
+qualification remains blocked on current peer-ledger/reconciliation modeling;
+producer success does not close this gate or Phase 3.
+
 [Hosted joining reply-loss qualification](PHASE_3_JOINING_FAULT_HOSTED.md) now
 connects one prepared source/build to three complete originals and three
 independent downloaded verifiers. Exact fault and ballot negative vectors,

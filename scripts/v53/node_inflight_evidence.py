@@ -19,15 +19,31 @@ from . import node_process_evidence as process
 
 n, b, c, e, f, need = p.n, p.b, p.c, p.e, p.f, p.need
 CUTS = ('ACCEPT_PARENT_FORCED', 'PROOF_PARENT_FORCED')
+RENAME_CUTS = ('ACCEPT_RENAMED', 'PROOF_RENAMED')
+
+
+def pending_phase(point):
+    need(point in (*CUTS, *RENAME_CUTS), 'inflight original crash point')
+    return 'ACCEPT' if point in (CUTS[0], RENAME_CUTS[0]) else 'PROOF'
+
+
+def rename_prefix(events, point):
+    """A process-visible rename is not a directory force or an ACK."""
+    phase = pending_phase(point)
+    if point not in RENAME_CUTS: return
+    observed = [v['event'] for v in events if v['node'] == 'node-1' and v['event'].startswith(phase+'_')]
+    expected = [phase+'_'+v for v in ('VALIDATED', 'CANDIDATE_CREATED', 'PREFIX_WRITTEN',
+        'CANDIDATE_WRITTEN', 'CANDIDATE_FORCED', 'CANDIDATE_PARENT_FORCED', 'RENAMED')]
+    need(observed == expected, 'inflight exact pre-directory-force prefix')
 
 
 class Service(p.Service):
     def interrupt(self, point):
-        need(point in CUTS, 'inflight original crash point')
+        phase = pending_phase(point)
         self.point = point; self.old_voters = self.voters
         before = self.group; maintained = p.p.t.maintenance(before, self.voters)
         self.group = dict(before)
-        names = ('node-1',) if point == CUTS[0] else self.voters
+        names = ('node-1',) if phase == 'ACCEPT' else self.voters
         for node in names: self.group[node] = maintained[node]
         _, local, packet = c.current(self.group['node-1']); cap = packet['capsule']
         selected = f.decode(local['selected.gsr'], 'records', 'SELECTED')
@@ -43,7 +59,7 @@ class Service(p.Service):
         for node in names:
             files = self.group[node]; _, members, _ = c.current(files)
             vote = e.container([files['selector.gsr'], members['promise.gsr'], members['selected.gsr'], self.carried, accept], self.body)
-            phases = ('PROOF',) if node == 'node-1' and point == CUTS[1] else ()
+            phases = ('PROOF',) if node == 'node-1' and phase == 'PROOF' else ()
             if phases: vote += proof; vote = vote[:8]+struct.pack('>I', len(vote))+vote[12:]
             self.group[node] = dict(files, **{'pending.accept': vote}); self.pending_phases[node] = phases
         b.match(self.root, 'before-reopen', self.group)
@@ -158,7 +174,7 @@ def lifecycle(root, point):
     death, opened = marks[8][0],marks[9][0]
     # Recovery forces the original pending phase. A retained PROOF must not be
     # treated as the empty/ACCEPT recovery used by the completed-DATA fixture.
-    phase = 'PROOF' if point == CUTS[1] else 'ACCEPT'
+    phase = pending_phase(point)
     reopen = (*p.wait.REOPEN[:-2], phase+'_ACTIVE_FORCED', phase+'_ACTIVE_PARENT_FORCED')
     need(events[death+1:opened] == [dict(node='node-1',incarnation=2,event=event) for event in reopen], 'inflight exact original reopen')
     for at,row in enumerate(events):
@@ -210,23 +226,25 @@ def interrupted(root, events, entries, start, stop, identities, point):
     selected=f.decode(c.current(before['node-1'])[1]['selected.gsr'],'records','SELECTED');ballot=selected['ballot']
     voters=tuple(v['voter'] for v in selected['sources']);peer=voters[1]
     phase=a.Phase(events,entries,start,stop,identities)
-    for node in (('node-1',) if point==CUTS[0] else voters):
-        a.maintenance(phase,before,node,ballot,start,phase.at(node,'ACCEPT_PARENT_FORCED'),voters=voters)
-        phase.ordered(node,['ACCEPT_CANDIDATE_FORCED','ACCEPT_PARENT_FORCED'])
+    pending = pending_phase(point);rename_prefix(events[start+1:stop],point)
+    for node in (('node-1',) if pending=='ACCEPT' else voters):
+        end = point if node=='node-1' and pending=='ACCEPT' else 'ACCEPT_PARENT_FORCED'
+        a.maintenance(phase,before,node,ballot,start,phase.at(node,end),voters=voters)
+        phase.ordered(node,['ACCEPT_CANDIDATE_FORCED',end])
     need(not any(v['event'].startswith(('CERTIFICATE_','APPLY_','PUBLICATION_')) for v in events[start+1:stop]),'inflight no premature publication')
-    if point==CUTS[0]:
+    if pending=='ACCEPT':
         need(not any(v['event'].startswith('PROOF_') for v in events[start+1:stop]),'inflight no proof before interrupted accept')
     else:
         frames,_=c.pending(after['node-1']['pending.accept'],('PROOF',))
         def observed(node):return f.canonical(dict(root=selected['root'],voter=node,incarnation=identities[node]['storage'],phase='ACCEPT',record=e.digest(frames['ACCEPT'])))
-        lower=phase.at('node-1','ACCEPT_PARENT_FORCED');remote=phase.at(peer,'ACCEPT_PARENT_FORCED');upper=phase.at('node-1','PROOF_PARENT_FORCED')
+        lower=phase.at('node-1','ACCEPT_PARENT_FORCED');remote=phase.at(peer,'ACCEPT_PARENT_FORCED');upper=phase.at('node-1',point)
         for kind in ('ACCEPT','ENTRY','PAYLOAD'):
             phase.transfer(peer,'node-1',a.record(frames[kind]),ballot,lower,remote)
         phase.transfer(peer,'node-1',a.record(observed('node-1'),True),ballot,lower,remote)
         phase.transfer('node-1',peer,a.record(observed(peer),True),ballot,remote,upper)
         phase.control('ACCEPT','node-1',peer,dict(acceptance=e.digest(frames['ACCEPT'])),'ACCEPT_ACK',
             dict(entry=e.digest(frames['ENTRY']),receipt=e.digest(observed(peer))),ballot,remote,upper)
-        phase.ordered('node-1',['PROOF_CANDIDATE_FORCED','PROOF_PARENT_FORCED'])
+        phase.ordered('node-1',['PROOF_CANDIDATE_FORCED',point])
         need(not any(v['node']!= 'node-1' and v['event'].startswith('PROOF_') for v in events[start+1:stop]),'inflight proof not yet dispatched')
     return phase.finish()
 
@@ -260,7 +278,7 @@ def network(root, originals, death, point):
 
 def validate(root):
     root=Path(root);process.inventory(root);raw=root/'history';result=n.read(root/'process/result.json');point=result.get('cut')
-    need(point in CUTS,'inflight original crash point');physical(raw,point);events,death=lifecycle(raw,point)
+    pending_phase(point);physical(raw,point);events,death=lifecycle(raw,point)
     replay=network(raw,events,death,point);process.configuration(root)
     rows=process.children(result,cut=point);messages=process.observations(root,rows,cut=point)
     need(n.read(raw/'node-result.json')==dict(status='PARTIAL',producerPassed=True,coldReopens=1,barriers=2,dataCalls=2,
@@ -293,11 +311,41 @@ NEGATIVES = {
     'wrong-reopen-phase':'inflight exact original reopen',
 }
 
+RENAME_NEGATIVES = {
+    'invented-parent-force': 'inflight exact pre-directory-force prefix',
+    'missing-candidate-force': 'inflight exact pre-directory-force prefix',
+}
+
+
+def negative_cases(point):
+    pending_phase(point)
+    cases = dict(NEGATIVES)
+    if point in RENAME_CUTS:
+        cases['wrong-cut-event'] = 'inflight exact pre-directory-force prefix'
+        cases.update(RENAME_NEGATIVES)
+    return cases
+
 
 def mutate(root, name):
     if name in process.NEGATIVES:
         process.mutate(root,name); return
     raw=root/'history'
+    if name in RENAME_NEGATIVES:
+        point=n.read(root/'process/result.json')['cut'];need(point in RENAME_CUTS,'inflight rename mutation scope')
+        phase=pending_phase(point);event=dict(node='node-1',incarnation=1,event=phase+'_PARENT_FORCED')
+        path=raw/'events.json';events=n.read(path);death=next(i for i,v in enumerate(events) if v['event']=='NODE_CRASH')
+        begin=max(i for i,v in enumerate(events[:death]) if v['event']=='ROUND_SLOT_BEGIN')
+        if name=='invented-parent-force': events.insert(death,event)
+        else:
+            at=next(i for i in range(begin,death) if events[i]['node']=='node-1' and events[i]['event']==phase+'_CANDIDATE_FORCED')
+            events.pop(at)
+        path.write_bytes(f.canonical(events))
+        path=root/'process/life-1.jsonl';messages=process.transcript(path)
+        if name=='invented-parent-force':messages.insert(-1,dict(action='event',value=event))
+        else:
+            at=max(i for i,v in enumerate(messages) if v['action']=='event' and v['value']['event']==phase+'_CANDIDATE_FORCED')
+            messages.pop(at)
+        path.write_bytes(b'\n'.join(f.canonical(v) for v in messages)+b'\n');return
     files={'interrupted-vote':'before-reopen/node-1/pending.accept','unexpected-follower-vote':'before-reopen/node-3/pending.accept',
         'installed-tail':'installed-2/node-1/sources/extra','reaccepted-vote':'applied-2/node-1/pending.accept','wrong-fresh-barrier':'published-3/node-1/selector.gsr'}
     if name in files:(raw/files[name]).write_bytes(b'changed');return
@@ -307,7 +355,9 @@ def mutate(root, name):
     if name=='missing-send':net.mutate(raw,name);return
     if name=='wrong-cut-event':
         path=root/'process/life-1.jsonl';messages=process.transcript(path)
-        event=dict(node='node-1',incarnation=1,event='ACCEPT_BEFORE_RETURN');messages.insert(-1,dict(action='event',value=event))
+        point=n.read(root/'process/result.json')['cut']
+        phase=pending_phase(point) if point in RENAME_CUTS else 'ACCEPT'
+        event=dict(node='node-1',incarnation=1,event=phase+'_BEFORE_RETURN');messages.insert(-1,dict(action='event',value=event))
         path.write_bytes(b'\n'.join(f.canonical(v) for v in messages)+b'\n')
         path=raw/'events.json';events=n.read(path);at=next(i for i,v in enumerate(events) if v['event']=='NODE_CRASH')
         events.insert(at,event);path.write_bytes(f.canonical(events));return
@@ -338,7 +388,7 @@ def mutate(root, name):
 
 def qualify(root):
     root=Path(root);original=validate(root);negatives=[]
-    for name,reason in NEGATIVES.items():
+    for name,reason in negative_cases(original['cut']).items():
         with tempfile.TemporaryDirectory(prefix='v53-node-inflight-negative-') as temp:
             path=Path(temp)/'raw';shutil.copytree(root,path);mutate(path,name)
             try:validate(path)

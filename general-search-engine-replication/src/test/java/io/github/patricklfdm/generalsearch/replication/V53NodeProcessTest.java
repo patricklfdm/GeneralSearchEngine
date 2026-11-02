@@ -95,8 +95,11 @@ class V53NodeProcessTest {
             }finally {
                 for(var child:children)if(child.isAlive()){child.destroyForcibly();assertTrue(child.waitFor(10,TimeUnit.SECONDS));}
                 IOException closing=null;for(var node:followers.reversed())try{node.close();assertEquals(0,node.usage().leases());}catch(IOException error){if(closing==null)closing=error;else closing.addSuppressed(error);}
-                Files.write(raw.resolve("events.json"),canonical(events,16*1024*1024));Files.write(raw.resolve("wire.json"),canonical(wire,32*1024*1024));f.snapshot("after-close");V53NativeApplicationTest.save(f);
-                Files.write(raw.resolve("node-result.json"),canonical(Map.of("status","PARTIAL","producerPassed",success && closing==null,"coldReopens",1,"barriers",2,"dataCalls",2,
+                Files.write(raw.resolve("events.json"),V53EvidenceArray.encode(events,16*1024*1024));Files.write(raw.resolve("wire.json"),V53EvidenceArray.encode(wire,32*1024*1024));f.snapshot("after-close");V53NativeApplicationTest.save(f);
+                long barriers=events.stream().filter(v->v.get("event").equals("ROUND_SLOT_BEGIN"))
+                        .map(v->decode(Base64.getDecoder().decode((String)v.get("bytes")),"records","ENTRY"))
+                        .filter(v->v.value().get("kind").equals("BARRIER")).count();
+                Files.write(raw.resolve("node-result.json"),canonical(Map.of("status","PARTIAL","producerPassed",success && closing==null,"coldReopens",1,"barriers",barriers,"dataCalls",2,
                         "physicalReplay",false,"processRestart",true,"phase3Complete",false,"serviceBudgetNanos",V53NodeOwnerNetworkTest.BUDGET),4096));
                 Files.write(processes.resolve("result.json"),canonical(Map.of("mode",mode,"cut",point,"children",records,"status",success && closing==null?"PARTIAL":"FAIL","powerLoss",false,"phase3Complete",false),65536));
                 if(closing!=null)throw closing;

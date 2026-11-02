@@ -1,0 +1,295 @@
+{
+  "actions": {
+    "localCommit": true,
+    "paidCloud": false,
+    "pomChanged": false,
+    "push": false,
+    "runtimeJavaChanged": false,
+    "workflowChanged": false,
+    "workflowDispatch": false
+  },
+  "attempts": [
+    {
+      "exit": 1,
+      "logSha256": "86db153877ed1ebbdd2d13ae46e077679fa95af830cba602d7b8c9a6c97c0504",
+      "name": "sandbox",
+      "reason": "four SocketException errors before bootstrap"
+    },
+    {
+      "classCounts": {
+        "general-search-engine-replication/target/classes": 623,
+        "general-search-engine-replication/target/test-classes": 768,
+        "target/classes": 398
+      },
+      "classesSha256": "8558626a032c5b6cf9df8379a874e54fe01204715bde34f8055b662e325eba73",
+      "execution": {
+        "elapsedSeconds": 345.897,
+        "exit": 143
+      },
+      "name": "native-permitted",
+      "reason": "installation snapshot collision; remaining cases stopped",
+      "sourceFiles": 4572,
+      "sourceManifestSha256": "af90a4dd6307a8a76ed59a217cab2ba56b5695e4c7bc1fae350749a57692aa2e"
+    },
+    {
+      "classCounts": {
+        "general-search-engine-replication/target/classes": 623,
+        "general-search-engine-replication/target/test-classes": 769,
+        "target/classes": 398
+      },
+      "classesSha256": "38fe5835b8dd7990c4ae37f2f348d7982d00cb8122df22aac99a5de7d04d16bc",
+      "execution": {
+        "elapsedSeconds": 239.373,
+        "exit": 1
+      },
+      "name": "capture-corrected",
+      "reason": "complete client history reached; aggregate trace JSON token budget failed",
+      "sourceFiles": 4574,
+      "sourceManifestSha256": "2bfed74525a30e44bd72c7c4cf0cb0adfe560d1bc1ce104e1075e6893ba22da7"
+    },
+    {
+      "classCounts": {
+        "general-search-engine-replication/target/classes": 623,
+        "general-search-engine-replication/target/test-classes": 769,
+        "target/classes": 398
+      },
+      "classesSha256": "e2718187ee8d40599c27d7a4128b09b3f1ae79bc39aaba64ef41fc134f8578cf",
+      "execution": {
+        "elapsedSeconds": 479.058,
+        "exit": 1
+      },
+      "name": "bounded-capture",
+      "reason": "7 Java unit tests and PROOF history pass; ACCEPT startup timeout makes combined Maven FAIL",
+      "sourceFiles": 4574,
+      "sourceManifestSha256": "710e123991542553ea2e508bb5ebf1339563a93a23e81408b7ccbc14276ba3c6"
+    }
+  ],
+  "baseHead": "608de6a3467275a580ba1dbb45677d5229ae8294",
+  "changedImplementation": {
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeProcessObservationTest.java": "90484ccf4ae328f53173c261b5e97c3a6be9426c3f28e2499f3a4c1561f97fbd",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeProcessTest.java": "e14bd53d24132204c4bf50a6b53ea75b6a77617b6b25f2abdb64b4f4f857a2f5",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeProcessWorker.java": "7ca5126b7fdc374b6c06c0c762911e59fd55680c771a48393ccc159c2b6c949d",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53NodeRenameProcessTest.java": "002964b243a547eb2b63e1da826d0e3fd983b2c6850349216987c4d6d05d2057",
+    "scripts/v53/node_inflight_evidence.py": "3570f2bd4f3a88e8c326cad1838f0ead41d7b025dcae8263a314ec36eff5427a",
+    "scripts/v53/test_node_rename_evidence.py": "df0a9ef82a4025a939e83445c3104fb41cf9ff86f04e369ec266adefb99974d0"
+  },
+  "contract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2126,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "currentReplay": {
+    "diagnosticDifference": "target/v53-node-rename-20261102/physical-diagnostic-1/summary.json",
+    "diagnosticOriginal": "target/v53-node-rename-20261102/proof-original-1.stderr",
+    "draft": "target/v53-node-rename-20261102/reconciliation-reader-draft",
+    "originalRewritten": false,
+    "reason": "legacy peer-observation model invents revision 2 at genesis; current bytes retain revision 0",
+    "status": "NOT_QUALIFIED"
+  },
+  "evidence": "target/v53-node-rename-20261102",
+  "finalNativeJunit": [
+    {
+      "cases": [
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53EvidenceArrayTest",
+          "name": "completeTraceExceedsOneMessageTokensWithoutLosingAnyOrderedRow",
+          "time": "0.019"
+        },
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53EvidenceArrayTest",
+          "name": "aggregateHistoryRowLimitIsIndependentOfPerMessageTokens",
+          "time": "0.021"
+        },
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53EvidenceArrayTest",
+          "name": "individualRecordsKeepTheOriginalTokenDepthAndFieldChecks",
+          "time": "0.003"
+        },
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53EvidenceArrayTest",
+          "name": "aggregateByteLimitStillIncludesDelimitersAndEmptyArray",
+          "time": "0.002"
+        },
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53EvidenceArrayTest",
+          "name": "largerProfileTraceExceedsLegacyEnvelopeWithoutChangingAnyRow",
+          "time": "0.097"
+        },
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53EvidenceArrayTest",
+          "name": "existingSmallHistoriesKeepIdenticalCanonicalBytes",
+          "time": "0.001"
+        }
+      ],
+      "errors": 0,
+      "failures": 0,
+      "name": "io.github.patricklfdm.generalsearch.replication.V53EvidenceArrayTest",
+      "seconds": "0.148",
+      "sha256": "d221d1a9b55bd6016c659cbf7534a6203371f12071b3b27b71aa9ad0c07b15b1",
+      "skipped": 0,
+      "tests": 6
+    },
+    {
+      "cases": [
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeRenameProcessTest",
+          "name": "haltAfterAcceptRename",
+          "time": "237.789"
+        },
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeRenameProcessTest",
+          "name": "killAfterProofRename",
+          "time": "231.262"
+        }
+      ],
+      "errors": 0,
+      "failures": 1,
+      "name": "io.github.patricklfdm.generalsearch.replication.V53NodeRenameProcessTest",
+      "seconds": "469.057",
+      "sha256": "23ee5ab446060346bba408e0943a946eb328cb2bb034a09b6c9f2a47423b7d9a",
+      "skipped": 0,
+      "tests": 2
+    },
+    {
+      "cases": [
+        {
+          "classname": "io.github.patricklfdm.generalsearch.replication.V53NodeProcessObservationTest",
+          "name": "repeatedInstallationsInOneChildHaveDistinctSnapshotIdentities",
+          "time": "0.048"
+        }
+      ],
+      "errors": 0,
+      "failures": 0,
+      "name": "io.github.patricklfdm.generalsearch.replication.V53NodeProcessObservationTest",
+      "seconds": "0.063",
+      "sha256": "65c96f5f26ef1f6b40674a71e8eb875953b42a2a417fb4c3e2013b019d5abcac",
+      "skipped": 0,
+      "tests": 1
+    }
+  ],
+  "finalReader": {
+    "diagnosticExtensionCommitted": false,
+    "manifest": "target/v53-node-rename-20261102/final-reader-manifest.json",
+    "sha256": "c729d1d3f636fb85f9befc0376d77e7d7c272698b12b7be9b446723a63fb4f2a"
+  },
+  "fixtureMatrix": [
+    {
+      "cut": "ACCEPT_RENAMED",
+      "mode": "halt",
+      "reason": "startup exceeded unchanged 180-second bound after additional campaign",
+      "status": "FAIL"
+    },
+    {
+      "cut": "ACCEPT_RENAMED",
+      "mode": "kill",
+      "status": "DEFERRED"
+    },
+    {
+      "cut": "PROOF_RENAMED",
+      "mode": "halt",
+      "status": "DEFERRED"
+    },
+    {
+      "cut": "PROOF_RENAMED",
+      "mode": "kill",
+      "status": "PRODUCER_PASS_NOT_QUALIFIED"
+    }
+  ],
+  "fullNativeQualification": false,
+  "legacyReplay": {
+    "cases": [
+      {
+        "case": "accept_parent_forced-kill",
+        "negatives": 20,
+        "seconds": 25.15,
+        "status": "PASS"
+      },
+      {
+        "case": "accept_parent_forced-halt",
+        "negatives": 20,
+        "seconds": 24.68,
+        "status": "PASS"
+      },
+      {
+        "case": "proof_parent_forced-halt",
+        "negatives": 20,
+        "seconds": 24.138,
+        "status": "PASS"
+      },
+      {
+        "case": "proof_parent_forced-kill",
+        "negatives": 20,
+        "seconds": 23.936,
+        "status": "PASS"
+      }
+    ],
+    "currentRuntimeQualified": false,
+    "exactPreviousResults": true,
+    "status": "PASS"
+  },
+  "phase3Complete": false,
+  "protectedFiles": {
+    "files": {
+      ".github/workflows/ci.yml": "e6bec4aab5e4a56f5a1c5082fe222938280e93e8180798841e9f6dcf7f95566c",
+      "docs/v5x/v5.3/acceptance-plan.json": "211124a4d4f257f09f011ddadf08c979d328a6906234b2b537f6bbefb2846717",
+      "general-search-engine-replication/pom.xml": "89464f59e787a6c304a393c366e4945deaea3ea82653a501f0dca7dbfa071057",
+      "pom.xml": "018c326ad09234c4a84c6469fe3477bf3d2936ef99bddfc6a6c60bbe4ed39f6c",
+      "reactor/pom.xml": "d0d46a2df83eb37a4a2eb1d3546f0b528124480fa30a391071e838eb9f7ab08c"
+    },
+    "runtimeJavaChanged": false,
+    "status": "PASS"
+  },
+  "remaining": [
+    "current peer-observation/confirmation and pre-command maintenance physical model",
+    "original-first complete wire/process replay and negatives against unchanged passing raw",
+    "diagnose retained startup failure without rerunning to green or assuming scheduler cause",
+    "remaining rename combinations and final-source hosted cohorts",
+    "joining process composition, combined bounds and frozen S/N audit"
+  ],
+  "schema": "gse-v53-node-rename-process-v1",
+  "scope": "process capture and exact rename-prefix implementation; current whole-history peer-ledger replay pending",
+  "scopedDiagnostics": [
+    {
+      "case": "proof_renamed-kill",
+      "fullQualification": false,
+      "path": "target/v53-node-rename-20261102/bounded-capture/workspace/general-search-engine-replication/target/v53-node-process/run-2180ebef-ec96-4189-985b-3556ffe52bae",
+      "prefixOnly": "PASS",
+      "processExitsAndLocksOnly": "PASS",
+      "producer": "PARTIAL"
+    },
+    {
+      "case": "accept_renamed-halt",
+      "fullQualification": false,
+      "path": "target/v53-node-rename-20261102/bounded-capture/workspace/general-search-engine-replication/target/v53-node-process/run-c6a01ef7-70ee-4e83-b8ea-da6bc90dd91b",
+      "prefixOnly": "PASS",
+      "processExitsAndLocksOnly": "NOT_QUALIFIED",
+      "producer": "FAIL"
+    }
+  ],
+  "status": "PARTIAL",
+  "tests": {
+    "final-focused.log": {
+      "seconds": 0.016,
+      "sha256": "31dfe73ed21186c7594debf943f1114f91aaa28dd1d704e9a4eaca2f390973fc",
+      "status": "PASS",
+      "tests": 23
+    },
+    "final-optimized.log": {
+      "seconds": 0.017,
+      "sha256": "e3696a1520e8ea772bdf7fb92917b2c72fb43f85b9b3c823f741f4cb0443ca83",
+      "status": "PASS",
+      "tests": 23
+    },
+    "python-final.log": {
+      "seconds": 102.172,
+      "sha256": "8d3ffbdee73495fea3d42b9435ae37ff93e5ec190a28a9d6a9b2c09ee8ddf2b1",
+      "status": "PASS",
+      "tests": 2001
+    }
+  }
+}

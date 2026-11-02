@@ -15,6 +15,7 @@ import static io.github.patricklfdm.generalsearch.replication.MembershipFormat.*
 public final class V53NodeProcessWorker {
     @FunctionalInterface interface Sink {void accept(String action,Object value)throws IOException;}
     static MembershipNodeOwner.Hooks hooks(String name,int life,Sink sink) {
+        var installation=new AtomicLong(life-1);
         return new MembershipNodeOwner.Hooks(event->sink.accept("event",Map.of("node",name,"incarnation",life,"event",event)),
             (event,request,response)->{
                 if(event.equals("BEFORE_REQUEST_WRITE"))sink.accept("event",Map.of("node",name,"incarnation",life,"event","NETWORK_SEND",
@@ -28,7 +29,7 @@ public final class V53NodeProcessWorker {
                 }
             },(event,record)->{
                 sink.accept("event",Map.of("node",name,"incarnation",life,"event","ROUND_"+event,"record",record.digest(),"bytes",Base64.getEncoder().encodeToString(record.bytes())));
-                if(event.equals("INSTALLED"))sink.accept("installed",Map.of("number",life,"bytes",Base64.getEncoder().encodeToString(record.bytes())));
+                if(event.equals("INSTALLED"))sink.accept("installed",Map.of("number",installation.incrementAndGet(),"bytes",Base64.getEncoder().encodeToString(record.bytes())));
             },(event,record,voters)->{
                 if(event.equals("FUTURE_QUORUM_COMPLETE"))sink.accept("event",Map.of("node",name,"event",event,"index",record.value().get("index"),"voters",voters.stream().sorted().toList()));
                 if(event.equals("APPLIED") || event.equals("PUBLISHED"))sink.accept("snapshot",event.toLowerCase(Locale.ROOT)+"-"+record.value().get("index"));
@@ -50,7 +51,7 @@ public final class V53NodeProcessWorker {
     }
     public static void main(String[] args)throws Exception {
         Path spec=Path.of(args[0]);int life=Integer.parseInt(args[1]);String mode=args[2],point=args.length==4?args[3]:"AFTER_DATA_RETURN";
-        if(!Set.of("AFTER_DATA_RETURN","ACCEPT_PARENT_FORCED","PROOF_PARENT_FORCED").contains(point))throw new AssertionError("unknown crash boundary");
+        if(!Set.of("AFTER_DATA_RETURN","ACCEPT_PARENT_FORCED","PROOF_PARENT_FORCED","ACCEPT_RENAMED","PROOF_RENAMED").contains(point))throw new AssertionError("unknown crash boundary");
         var values=object(parse(Files.readAllBytes(spec),65536));var paths=list(values.get("nodes")).stream().map(MembershipFormat::object).toList();
         var identities=new ArrayList<MembershipIdentity>();
         for(var path:paths)identities.add(MembershipContext.identity(object(decode(Files.readAllBytes(Path.of((String)path.get("replica")).resolve("node.gsr")),"records","NODE").value().get("identity"))));
