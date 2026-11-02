@@ -1,5 +1,11 @@
 # Phase 3 implementation and deferred hosted acceptance
 
+[Joining initialization process capture](PHASE_3_JOINING_INITIALIZATION_PROCESS.md)
+declares 36 initial write cuts, two death modes and five ADD/REPLACE profiles.
+Whole histories retain original custody across child death and native continuation.
+Transaction-prefix replay alone is PARTIAL; full process/network composition and
+the final-source execution catalogue remain deferred, with no Phase 3 closure.
+
 [Late unused PREPARE replay](PHASE_3_NODE_LATE_PREPARE.md) adds an explicitly
 undelivered reply path to the successful post-allocation ACCEPT/halt original.
 The other two rename combinations, final-source cohorts and Phase 3 closure

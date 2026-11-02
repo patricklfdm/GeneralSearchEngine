@@ -39,7 +39,7 @@ final class MembershipJoiningPreparationDiscovery implements AutoCloseable {
     }
     private void check()throws IOException {
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"joining discovery closed/original deadline");guard.check();
-        owner.checkActivationBallot(context.authority(),fence);require(owner.activationContext().cut.equals(context.cut),"joining discovery original cut changed");
+        owner.checkReadOnlyBallot(context.authority(),fence);require(owner.readOnlyCapsule().context.cut.equals(context.cut),"joining discovery original cut changed");
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"joining discovery closed/original deadline");
     }
     MembershipJoiningRetentionCampaign.Hint find()throws IOException {

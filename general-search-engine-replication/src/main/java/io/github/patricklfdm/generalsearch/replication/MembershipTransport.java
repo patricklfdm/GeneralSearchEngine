@@ -67,7 +67,7 @@ final class MembershipTransport implements AutoCloseable {
     /** Resolve new permanent reservations only from this exclusive owner's verified catalog. */
     MembershipTransport(MembershipGrantJournal owner,ReplicationBounds bounds,MembershipResources resources,
             Handler handler,Events events)throws IOException {
-        this(owner.activationCapsule(),owner.activationIdentity(),bounds,resources,handler,events,owner::activationCapsule,null,null,LearnerRead.PREFIX);
+        this(owner.readOnlyCapsule(),owner.activationIdentity(),bounds,resources,handler,events,owner::readOnlyCapsule,null,null,LearnerRead.PREFIX);
     }
     /** Contact-only client. No listener or locally fabricated voter/catalog is created. */
     static MembershipTransport learner(MembershipLearnerRequest request,ReplicationBounds bounds,

@@ -844,7 +844,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         joinedOwner.unused();return seed;
     }
     private void checkJoiningRetentionUnused()throws IOException {
-        checkOwner();require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
+        checkReadOnlyOwner();require(ownedHistory && joinedOwner!=null,"joining retention original native owner required");
         require(peerRetention==null && futureRetention==null && learnerRetention==null,"joining retention already initialized");
         for(String name:List.of(MembershipPeerRetentionFiles.FILE,MembershipPeerRetentionFiles.NEXT,
                 MembershipLearnerRetentionFiles.FILE,MembershipLearnerRetentionFiles.NEXT,
@@ -859,7 +859,7 @@ final class MembershipGrantJournal implements AutoCloseable {
         private final Map<String,Object> fence;
         private JoiningRetentionPreparation()throws IOException {ancestry=current.ancestry();fence=discoveryState(resources).ballot();}
         void check()throws IOException {synchronized(MembershipGrantJournal.this){checkJoiningRetentionUnused();
-            require(current==generation,"joining retention installation changed");checkActivationBallot(capsule.context.authority(),fence);}}
+            require(current==generation,"joining retention installation changed");checkReadOnlyBallot(capsule.context.authority(),fence);}}
     }
     synchronized JoiningRetentionPreparation joiningRetentionPreparation(MembershipResources budget)throws IOException {
         checkJoiningRetentionUnused();require(resources==budget,"joining retention actual resource owner");
@@ -2565,6 +2565,18 @@ final class MembershipGrantJournal implements AutoCloseable {
         checkWithoutRetirement();if(retirement!=null)retirement.check();
         require(joiningRetention==null || joiningRetentionInProgress || joiningRetention.ready(),"joining retention initialization must complete before native use");
     }
+    /** A torn seed may only reacquire its exact original initialization bytes.
+     * Preserve every ownership/inventory check and reject any ledger/native use.
+     * No writer, grant, installation, scratch or readiness path uses this guard. */
+    private void checkReadOnlyOwner()throws IOException {
+        checkWithoutRetirement();if(retirement!=null)retirement.check();
+        if(joiningRetention!=null && !joiningRetentionInProgress && !joiningRetention.ready()) {
+            require(ownedHistory && joinedOwner!=null && !joiningRetention.hasSeed()
+                    && peerRetention==null && learnerRetention==null && futureRetention==null
+                    && !MembershipJoiningRetentionFiles.ledgersPresent(directory),"joining read requires original incomplete unused seed");
+            joinedOwner.unused();
+        }
+    }
     private void sourceIdle(){contextTransactionIdle();applicationRetirementIdle();require(!carriedVoteUntransferred(),"carried vote must transfer before another authority change");if(pendingAccept!=null)require(!pendingAccept.pending(),"pending ACCEPT requires exact original completion");if(capture!=null)require(!capture.pending(),"pending source capture must finish before authority changes");if(sourceRetirement!=null)require(!sourceRetirement.pending(),"pending source retirement must finish before authority changes");}
     private void rotationIdle(){sourceIdle();if(floors!=null)require(!floors.releasing(),"pending floor release must finish before authority changes");if(rotation!=null)require(!rotation.pending(),"pending journal rotation must finish before authority changes");}
     private void floorIdle() throws IOException {
@@ -3111,19 +3123,25 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized MembershipContext activationContext() throws IOException {
         require(current!=null,"current generation required");checkOwner();return current.capsule.context;
     }
+    synchronized MembershipCapsule readOnlyCapsule()throws IOException {
+        require(current!=null,"current generation required");checkReadOnlyOwner();return current.capsule;
+    }
+    synchronized void checkReadOnlyBallot(String view,Map<String,Object> ballot)throws IOException {
+        require(current!=null && current.capsule.context.authority().equals(view),"activation view changed");checkReadOnlyOwner();fence(ballot);
+    }
     record DiscoveryState(MembershipContext context,Map<String,Object> ballot) {}
     /** Reuse the actual observed root fence for correlation; discovery must not
      * allocate a new ballot or require its own PREPARE before finding a newer view. */
     synchronized DiscoveryState discoveryState(MembershipResources budget)throws IOException {
-        require(current!=null && resources==budget,"discovery requires actual storage resource owner");checkOwner();
+        require(current!=null && resources==budget,"discovery requires actual storage resource owner");checkReadOnlyOwner();
         var bound=observed.get();require(bound!=null,"discovery requires initialized root fence");
         return new DiscoveryState(current.capsule.context,Map.copyOf(bound));
     }
     /** Read the actual forced current cut without allocating a ballot or granting a
      * vote. Cross-view discovery must not use current-voter wire admission. */
     synchronized Decoded discoveryStatus(MembershipIdentity sender,Decoded request)throws IOException {
-        require(current!=null,"current generation required");checkOwner();
-        var reply=MembershipDiscovery.answer(current.capsule.context,identity,sender,request);checkOwner();return reply;
+        require(current!=null,"current generation required");checkReadOnlyOwner();
+        var reply=MembershipDiscovery.answer(current.capsule.context,identity,sender,request);checkReadOnlyOwner();return reply;
     }
     /** Fence authenticated current-view liveness before waiting for the writer.
      * No promise, basis, selected record, cut or persisted timer is written. */
@@ -3373,7 +3391,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     /** Read-only current generation, requiring neither PREPARE nor a frozen BASIS. */
     synchronized MembershipPrefixExport exportPrefix(String cut,Map<String,Object> ballot,String view,
             MembershipResources budget,LongSupplier clock,long started,long limit)throws IOException {
-        require(current!=null && resources==budget,"prefix export actual shared owner required");checkOwner();
+        require(current!=null && resources==budget,"prefix export actual shared owner required");checkReadOnlyOwner();
         for(var old:List.copyOf(prefixExports))if(old.expired() || old.generation!=current)releasePrefixExport(old);
         require(MembershipPrefixExport.reference(current.capsule.context,cut),"prefix cut changed");
         require(prefixExports.size()<6,"prefix export owner capacity");
@@ -3387,7 +3405,7 @@ final class MembershipGrantJournal implements AutoCloseable {
     synchronized void checkPrefixExport(MembershipPrefixExport export)throws IOException {
         try {
             require(prefixExports.contains(export) && !export.expired() && current==export.generation,"prefix export closed/expired/replaced");
-            checkOwner();require(!export.expired(),"prefix export deadline after owner check");
+            checkReadOnlyOwner();require(!export.expired(),"prefix export deadline after owner check");
         }catch(IOException|RuntimeException error){releasePrefixExport(export);throw error;}
     }
     synchronized void releasePrefixExport(MembershipPrefixExport export){prefixExports.remove(export);export.revoke();}

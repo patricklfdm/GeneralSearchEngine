@@ -55,9 +55,9 @@ final class MembershipSourcePull implements AutoCloseable {
     static MembershipSourcePull prefix(MembershipGrantJournal owner,MembershipDiscovery.Hint hint,MembershipResources resources,
             ReplicationBounds bounds,Link link,Guard guard,LongSupplier clock,long started,long budget)throws IOException {
         synchronized(owner) {
-            var state=owner.discoveryState(resources);var capsule=owner.activationCapsule();
+            var state=owner.discoveryState(resources);var capsule=owner.readOnlyCapsule();
             return new MembershipSourcePull(capsule,owner.activationIdentity(),hint.peer(),state.ballot(),UUID.randomUUID(),resources,bounds,link,
-                    ()->{guard.check();owner.checkActivationBallot(state.context().authority(),state.ballot());},clock,started,budget,hint.cut());
+                    ()->{guard.check();owner.checkReadOnlyBallot(state.context().authority(),state.ballot());},clock,started,budget,hint.cut());
         }
     }
     private MembershipSourcePull(MembershipCapsule verified,MembershipIdentity local,MembershipIdentity source,Map<String,Object> ballot,UUID session,

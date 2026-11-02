@@ -121,6 +121,14 @@ class V53JoiningIntentExportTest {
         assertEquals("3-REPLACE",profile.name(),"declared same-view recovery profile");recoverAtFinal=true;
         nativeJoining(true,true,true,true,true,true,true,true,true,profile,false);
     }
+    private V53JoiningInitializationProcess.Case initializationProcess;
+    @Test
+    @org.junit.jupiter.api.condition.EnabledIfSystemProperty(named="v53.joining.process",matches=".+")
+    void joiningRetentionResumesAfterNativeProcessDeathThenCompletesFinal()throws Exception {
+        initializationProcess=V53JoiningInitializationProcess.Case.parse(System.getProperty("v53.joining.process"));
+        var profile=V53JoiningProfile.parse(System.getProperty("v53.joining.profile","3-ADD"));
+        nativeJoining(true,true,true,true,true,true,true,true,false,profile,false);
+    }
     private void nativeJoining(boolean retainPending)throws Exception {
         nativeJoining(retainPending,false);
     }
@@ -170,8 +178,9 @@ class V53JoiningIntentExportTest {
         },true);var round=helper.driver(n,MembershipRoundDriver.Events.NONE,lifetime)) {
             // Preserve original attempts and receives for full causal replay.
             // Older fixture families retain their existing trace vocabulary.
-            n.observeRequests=earlyStartup || prefixOnly;
-            if(earlyStartup) {
+            n.observeRequests=earlyStartup || prefixOnly || initializationProcess!=null;
+            if(initializationProcess!=null)n.recordProcesses(n.f.raw.resolve("process-trace.jsonl"));
+            if(earlyStartup || initializationProcess!=null) {
                 n.grantCapture=new V53GrantCapture(n.f.raw,n.events);
                 n.retirementCapture=new V53SourceRetirementCapture(n.f.raw,n.events);
             }
@@ -195,8 +204,8 @@ class V53JoiningIntentExportTest {
             var pool=new MembershipResources(512*MembershipResources.MIB);
             var config=new MembershipReplicaConfig<>(request.root(),joining,List.of(),request.replicaDirectory(),storage(temp.resolve("core"),2),
                     n.bounds,AutomaticLeadershipPolicy.forBounds(n.bounds));
-            if(earlyStartup)trace.retainGrants(n.grantCapture,request.replicaDirectory());
-            if(earlyStartup)trace.retainRetirements(n.retirementCapture,request.replicaDirectory());
+            if(earlyStartup || initializationProcess!=null)trace.retainGrants(n.grantCapture,request.replicaDirectory());
+            if(earlyStartup || initializationProcess!=null)trace.retainRetirements(n.retirementCapture,request.replicaDirectory());
             long sourceStarted=System.nanoTime();
             try(var source=new MembershipLearnerSource(request,targets.getFirst(),pool,n.bounds,trace.transport("learner-source"),
                     ()->{},System::nanoTime,sourceStarted,BUDGET)) {
@@ -492,7 +501,20 @@ class V53JoiningIntentExportTest {
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gsr"),frozenOriginal.basis.bytes());
                                                                     Files.write(n.f.raw.resolve("joining-retention-"+name+".gscp"),frozenOriginal.capsule.packet.bytes());}
                                                                 if(initializeJoined) {
-                                                                    if(remoteRetention) {
+                                                                    if(initializationProcess!=null) {
+                                                                        assertTrue(remoteRetention && continueJoint && !earlyStartup);
+                                                                        transport.close();joiningEndpoint.close();journal.close();
+                                                                        V53JoiningInitializationProcess.run(n.f.raw,
+                                                                            new V53JoiningInitializationProcess.Spec(plan,config.materialization().directory(),owner.activationIdentity()),
+                                                                            initializationProcess,stageName->{
+                                                                                n.f.snapshot("process-"+stageName);
+                                                                                joinedSnapshot(plan,config.materialization().directory(),n.f.raw.resolve("joining-process-"+stageName));
+                                                                            },retentionPreparation::probeInitialized);
+                                                                        try(var recoveredInitialization=MembershipGrantJournal.reopenJoinedRetaining(plan,pool,builder().configuration(),config,trace.cut("process-retention-observe"))) {
+                                                                            assertJoinedRetention(recoveredInitialization,seed.bytes(),joining);
+                                                                        }
+                                                                        Files.write(n.f.raw.resolve("joining-retention-wire.json"),canonical(seedWire,8*1024*1024));
+                                                                    }else if(remoteRetention) {
                                                                         if(earlyStartup) {
                                                                             long left=BUDGET-(System.nanoTime()-retentionStarted);assertTrue(left>0,"original initialization budget remains");
                                                                             initializing.get(left,TimeUnit.NANOSECONDS);

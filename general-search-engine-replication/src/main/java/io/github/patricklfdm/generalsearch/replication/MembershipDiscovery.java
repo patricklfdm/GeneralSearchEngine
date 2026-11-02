@@ -42,7 +42,7 @@ final class MembershipDiscovery implements AutoCloseable {
     private void check()throws IOException {
         if(closed)guard.check(); // Preserve a positively revoked parent on drain.
         long elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"discovery closed/original deadline");
-        guard.check();owner.checkActivationBallot(context.authority(),ballot);
+        guard.check();owner.checkReadOnlyBallot(context.authority(),ballot);
         elapsed=clock.getAsLong()-started;require(!closed && elapsed>=0 && elapsed<budget,"discovery closed/original deadline");
     }
     /** Authenticate the directory identities, not current-voter eligibility. A removed

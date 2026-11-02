@@ -156,8 +156,8 @@ def framed(magic, body):
     return struct.pack('>IHHI',magic,1,3,44+len(body))+bytes.fromhex(sha(body))+body
 
 
-def transaction(snap, seed, initial):
-    """Compare bytes to independently derived expectations, including original keys."""
+def transaction_frames(snap, seed, initial):
+    """Derive transaction bytes using retained original identities, never copy inodes."""
     read=lambda family,name:snapshot.s.e.parse(snap.member(family,name))
     identity=lambda family,name:next(v['identity'] for v in snap.identities[family]['files'] if v['name']==name)
     joined=read('placement','joined.json');native=read('nativeOwner','native.json')
@@ -175,18 +175,25 @@ def transaction(snap, seed, initial):
     metadata=dict(schema='gse-v53-joining-retention/1.3',root=joined['root'],owner=joined['identity'],native=binding,
                   fileKey=identity('replica',DECISION)['key'])
     decision=framed(0x47534a52,part(f.canonical(metadata))+part(seed)+b''.join(part(initial[n]) for n in LEDGERS))
-    need(snap.member('replica',DECISION)==decision, 'joining derivation exact original decision')
     done=dict(metadata,schema='gse-v53-joining-retention-done/1.3',fileKey=identity('replica',DONE)['key'],
               seed=sha(decision),seedKey=metadata['fileKey'],files=[dict(name=n,sha256=sha(initial[n])) for n in LEDGERS])
-    need(snap.member('replica',DONE)==framed(0x47534a44,f.canonical(done)), 'joining derivation exact original completion')
+    return {DECISION:decision,DONE:framed(0x47534a44,f.canonical(done)),**initial}
+
+
+def transaction(snap, seed, initial):
+    """Compare bytes to independently derived expectations, including original keys."""
+    expected=transaction_frames(snap,seed,initial)
+    need(snap.member('replica',DECISION)==expected[DECISION], 'joining derivation exact original decision')
+    need(snap.member('replica',DONE)==expected[DONE], 'joining derivation exact original completion')
     names={v['name'] for v in snap.identities['replica']['files']}
     need(not names & {'joining-retention.next.gsjr','joining-retention.done.next.gsjr','peer-retention.next.gspr',
                       'future-retention.next.gsft','learner-retention.next.gslr'}, 'joining derivation incomplete transaction')
     for name in LEDGERS:need(snap.member('replica',name)==initial[name], 'joining derivation exact initial ledger: '+name)
 
 
-def validate(root, *, confirmed_peers=False):
-    root=Path(root);snap=snapshot.read(root/'joining-originals-native')
+def original_derivation(root, snap, *, confirmed_peers=False):
+    """Read the old majority's original grants, source packets and endpoint ancestry."""
+    root=Path(root)
     files={v['name']:snap.member('replica',v['name']) for v in snap.identities['replica']['files'] if 'directory' not in v['identity']}
     prefix,_,current=physical.current(files);joining=f.decode(files['node.gsr'],'records','NODE')['identity']
     joined=snapshot.s.e.parse(snap.member('placement','joined.json'))
@@ -213,8 +220,14 @@ def validate(root, *, confirmed_peers=False):
         originals.append((raw,data))
     seed,initial=derive(current,joining,originals,confirmed_peers=confirmed_peers,
                         source_ancestry=ancestry if confirmed_peers else None)
+    return seed,initial,len(originals)
+
+
+def validate(root, *, confirmed_peers=False):
+    root=Path(root);snap=snapshot.read(root/'joining-originals-native')
+    seed,initial,count=original_derivation(root,snap,confirmed_peers=confirmed_peers)
     transaction(snap,seed,initial)
-    return dict(status='PARTIAL',scope='original-source-bound-joining-ledgers',oldSources=len(originals),
+    return dict(status='PARTIAL',scope='original-source-bound-joining-ledgers',oldSources=count,
                 seedSha256=sha(seed),initialLedgers={n:sha(v) for n,v in initial.items()},
                 originalSourceBindingsVerified=True,initialLedgerBytesVerified=True,
                 confirmedPeerProjection=confirmed_peers,originalEndpointBindingsVerified=confirmed_peers,

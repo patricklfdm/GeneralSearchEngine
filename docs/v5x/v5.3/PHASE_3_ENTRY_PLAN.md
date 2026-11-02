@@ -1,5 +1,11 @@
 # V5.3 Phase 3 entry and closure checklist
 
+[Joining initialization process capture](PHASE_3_JOINING_INITIALIZATION_PROCESS.md)
+now keeps the old majority alive while a fresh joining JVM dies and reopens its
+original roots before FINAL/BARRIER continuation. Independent transaction-prefix
+replay is available; full native/network composition and the 360-case final-source
+catalogue remain OPEN. Development collection is PARTIAL, not Phase 3 closure.
+
 [The node rename matrix](PHASE_3_NODE_RENAME_MATRIX.md) now binds all four
 halt/SIGKILL combinations to one source/build/toolchain/reader, with whole-history
 capture and independent downloaded replay. Its opt-in hosted workflow is ready

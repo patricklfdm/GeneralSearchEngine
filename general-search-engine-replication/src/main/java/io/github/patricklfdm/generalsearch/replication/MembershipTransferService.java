@@ -64,7 +64,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
         this.owner=Objects.requireNonNull(owner);this.resources=Objects.requireNonNull(resources);this.bounds=Objects.requireNonNull(bounds);
         this.guard=Objects.requireNonNull(guard);this.clock=Objects.requireNonNull(clock);this.started=started;this.budget=budget;
         this.events=Objects.requireNonNull(events);this.preparations=preparations;
-        context=publication==null?owner.activationContext():publication.before.context;identity=owner.activationIdentity();if(!prefix)context.ballot(ballot,true);this.ballot=Map.copyOf(ballot);
+        context=publication==null?(prefix?owner.readOnlyCapsule().context:owner.activationContext()):publication.before.context;identity=owner.activationIdentity();if(!prefix)context.ballot(ballot,true);this.ballot=Map.copyOf(ballot);
         learnerServing=learnerLink==null?null:new MembershipLearnerRetentionServing(owner,context,resources,learnerLink,clock,started,budget);
         frameLimit=Math.min(FRAME,bounds.maxFrameBytes());chunkLimit=Math.min(4*1024*1024,bounds.snapshotChunkBytes());
         require(frameLimit>=4096,"transfer service frame limit");guard.check();time();
@@ -76,7 +76,7 @@ final class MembershipTransferService implements MembershipTransport.Handler,Aut
     /** Called by the runtime's existing periodic loop; this service creates no background thread. */
     boolean poll(){if(expired())close();return !closed;}
     private void live()throws IOException {
-        try{time();guard.check();if(prefix)require(owner.activationContext().cut.equals(context.cut),"prefix service cut changed");time();}
+        try{time();guard.check();if(prefix)require(owner.readOnlyCapsule().context.cut.equals(context.cut),"prefix service cut changed");time();}
         catch(IOException|RuntimeException error){close();throw error;}
     }
     private final class Entry {

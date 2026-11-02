@@ -1,0 +1,219 @@
+{
+  "baseHead": "aace5fd86430e66ea7dfc50c1518861498b28565",
+  "declaredCases": 360,
+  "documentationContract": {
+    "byteFixtures": 56,
+    "commandFixtures": 9,
+    "localLinks": 2162,
+    "measurementHistories": 36,
+    "negatives": 24,
+    "readTokenFixtures": 1,
+    "scenarios": 10,
+    "status": "PASS"
+  },
+  "environmentFailureNote": "The latter two logs include socket denial inside the sandbox; the subsequent permitted TCP suite passed.",
+  "finalSourceCohort": false,
+  "fullPythonSuiteBeforeFinalNegativeAndTypeRegressions": true,
+  "hostedExecution": "NOT_RUN",
+  "implementationFiles": {
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipDiscovery.java": "858bcbd0672cd01a6edf910ee58636b3383d8c9486c025d5b6a0b32d853f9508",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java": "b2dc53ab8e3ea0609280477b49b512fe10578263fce1fbec31719510106d0453",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparationDiscovery.java": "964e62fa4cd93a8b2bfa86d8b087a2ef9c007399faeeb428d9da1fad0179b398",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparationRendezvous.java": "b19e0877ee76c2d5c9cde4af697006154e5b8931cf57f2b0ed586fb5e6b0e156",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java": "e273ed967064fc057e8630c11ac684c5e2eab6f2b29e5061c5905e1776e944da",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java": "e4d62738e9e993c79953046ad59322cfdae3e944d62ced50f858e49955c8bd7f",
+    "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java": "d597635d8daf29f1df6690f214c23909455578a4f0ff1f296a21cda17d084671",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningInitializationHarnessTest.java": "7dd65f9dc915a592efd602a03b81da4942b70141937c7735a421195cdf555e67",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningInitializationProcess.java": "ef2a4138fb252c8028315aadbaa17f3129879eae9311dc9a68c745ffc3c7c331",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningInitializationWorker.java": "35e0751a7119f2160262566095eaa000ba5bc383173c63763a0684c266ae9f82",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningIntentExportTest.java": "57c1c24f85b4ced4ea89706af6b325be9c19ab19cb66b33ac4ce94ac8d281656",
+    "general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/replication/V53JoiningPartialRecoveryTest.java": "c4bdd89c3de7f0afe5ed5a82dca16c23d248f761c7c4f204e44f1b2fee50e48b",
+    "scripts/v53/joining_initialization_process_evidence.py": "32af7c6256a263c4f289e57282136aefaf96d80702f6f80bdf8554b0e68bfdea",
+    "scripts/v53/joining_process_run.py": "77a49a011383a074edcc41fae2883c6e12a17f5843884507d7f94911c71b10fb",
+    "scripts/v53/joining_retention_evidence.py": "ad7106c6c040faf0adab2a390286526dc4e533c4cc230c10ba26bdacd96d74dd",
+    "scripts/v53/test_joining_initialization_process_evidence.py": "0502f65c7dc0d188de8ea651c9b2de2d228afc8973d8f7cc87b17c20bc6c1499",
+    "scripts/v53/test_joining_process_run.py": "6a9b1768f3369795b530c855aabfe59db42f690c0bf035c413e28d440b200945"
+  },
+  "nativeDevelopmentHistories": [
+    {
+      "execution": {
+        "elapsedSeconds": 528.457,
+        "exit": 1
+      },
+      "executionStatus": "FAIL",
+      "failure": "incomplete joining seed blocks read-only endpoint recovery",
+      "finalSourceCohort": false,
+      "producer": "target/v53-joining-process/native-seed-prefix-halt",
+      "receiptSha256": "c690aa6fbba6a4d98e1998092dd3b57d32d14a36e7720676fb3ecc93c964bd56",
+      "runtimeDriftFromCurrent": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipDiscovery.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipGrantJournal.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparationDiscovery.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparationRendezvous.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipSourcePull.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransferService.java",
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipTransport.java"
+      ],
+      "scope": "FAIL",
+      "sourceSha256": "b47d9f20b0b542ff4201767fa491dcffb56edb084ce922191d063fab7468df5d",
+      "stderrSha256": "fd9f2763ac368de38982b4505d8e1acae4e75a848583ace4a572a6f52178faa3"
+    },
+    {
+      "buildSha256": "c1af9128b548aae4d796e204478c6c207681d6529c9e4a0f78d07a13457391cc",
+      "collectionSha256": "7a0e421c0fdef0a268c1720274ee440237a8a605db564ec3991e97e5be88e787",
+      "execution": {
+        "elapsedSeconds": 894.984,
+        "exit": 0
+      },
+      "executionStatus": "PASS",
+      "finalSourceCohort": false,
+      "producer": "target/v53-joining-process/native-seed-prefix-halt-corrected",
+      "receiptSha256": "b1d2cbc4340132dfc3e4c3388895ec35a2745db3a3c26968050fa80189f5eef5",
+      "runtimeDriftFromCurrent": [
+        "general-search-engine-replication/src/main/java/io/github/patricklfdm/generalsearch/replication/MembershipJoiningPreparationDiscovery.java"
+      ],
+      "scope": "PARTIAL",
+      "sourceSha256": "6ed68cd14ea55c7879ed2a18dd2e6f476857280cbf1de97add60cae022f4fab7"
+    }
+  ],
+  "negativeResults": [
+    {
+      "case": "changed-prefix",
+      "reason": "joining initialization interrupted bytes or inode",
+      "status": "REJECTED"
+    },
+    {
+      "case": "replaced-inode",
+      "reason": "joining initialization interrupted bytes or inode",
+      "status": "REJECTED"
+    },
+    {
+      "case": "missing-first-callback",
+      "reason": "joining initialization first force prefix",
+      "status": "REJECTED"
+    },
+    {
+      "case": "reordered-recovery",
+      "reason": "joining initialization recovery force sequence",
+      "status": "REJECTED"
+    },
+    {
+      "case": "wrong-callback-owner",
+      "reason": "joining initialization callback owner",
+      "status": "REJECTED"
+    },
+    {
+      "case": "changed-initial-ledger",
+      "reason": "joining derivation exact initial ledger: future-retention.gsft",
+      "status": "REJECTED"
+    },
+    {
+      "case": "changed-closed-custody",
+      "reason": "joining initialization unrelated custody changed",
+      "status": "REJECTED"
+    },
+    {
+      "case": "premature-public-ready",
+      "reason": "joining process recovered endpoint observation",
+      "status": "REJECTED"
+    },
+    {
+      "case": "changed-ready-cut",
+      "reason": "joining initialization recovered cut",
+      "status": "REJECTED"
+    }
+  ],
+  "optInIsolation": {
+    "noNewNativeHistories": true,
+    "runs": [
+      "run-33150739-5abd-4858-b0cf-574fe3b99918",
+      "run-3cd13d51-82d1-4db7-9008-21ad0d636419",
+      "run-3d560cc1-b665-4d55-a569-6840c1b7eb1b",
+      "run-cbe94d8c-a040-450b-ad87-ac6f9fc8dfc3",
+      "run-ded27339-666b-488b-b4ca-66aa9cb27f5b",
+      "run-ec4f3ea5-4c92-45e9-8e46-0aaf83cd44c7",
+      "run-ee2a4e64-2e0c-4549-ab99-9c407d412c0f",
+      "run-ef12a2ae-2d94-48a0-9ca4-3ba090afad2c",
+      "run-fbbee2fa-6cae-42f8-8510-e5585b4b1724"
+    ],
+    "skipped": 1,
+    "tests": 1
+  },
+  "paidCloud": false,
+  "phase3Complete": false,
+  "portableReplay": {
+    "archiveSha256": "ba2c5c8d5d2dcd68e379cc68c1c7d072c4734b77a5684fa8753b2d30df4f8318",
+    "hostedExecution": false,
+    "phase3Complete": false,
+    "sameResult": true,
+    "scope": "local-archive-transaction-replay",
+    "status": "PASS"
+  },
+  "remaining": [
+    "whole-history network/process composition",
+    "final-source complete 360-case catalogue",
+    "frozen S/N closure mapping",
+    "remaining Phase 3 gates"
+  ],
+  "retainedFailures": [
+    "focused-java.log",
+    "focused-java-corrected.log",
+    "initialization-tests.log",
+    "read-only-recovery-java.log",
+    "partial-recovery-java.log"
+  ],
+  "schema": "gse-v53-joining-initialization-process-development-v1",
+  "scope": "capture-runtime-correction-and-independent-transaction-replay",
+  "status": "PASS",
+  "tests": {
+    "byte-retention-java.log": {
+      "sha256": "f395f0d2093842025bebaa314da1602eb0b6e4245fb36fc6f663ac4f50d0f42b",
+      "status": "PASS",
+      "tests": 15
+    },
+    "initialization-optimized-exact.log": {
+      "seconds": 0.454,
+      "sha256": "447e7ef3d58283e8ecc4a96847d72dc39332b5ace26de8ef96bfbc6fb5091811",
+      "status": "PASS",
+      "tests": 30
+    },
+    "initialization-tests-exact.log": {
+      "seconds": 0.52,
+      "sha256": "51a7cf29af3d6da90dd1c3ed5f9dd64417f8203813dfb656449bf87827d2006c",
+      "status": "PASS",
+      "tests": 30
+    },
+    "partial-higher-ballot-final.log": {
+      "sha256": "f8dc0d7668f50bb14ae03e91d6b97a2141b4141e285b38ebe409afa5b6d25bd2",
+      "status": "PASS",
+      "tests": 1
+    },
+    "python-suite.log": {
+      "seconds": 112.045,
+      "sha256": "e6e7dca460eb21c66446a7ff3d7f3a6f187a722bb337cb70541007bde630db34",
+      "status": "PASS",
+      "tests": 2082
+    },
+    "read-only-tcp-regression.log": {
+      "sha256": "7485ee062c3f417ee564ea32ba6f9b40615b05d6d428dbf56742673aaa6ed1eb",
+      "status": "PASS",
+      "tests": 105
+    }
+  },
+  "transactionReplay": {
+    "case": "3-ADD,JOINING_RETENTION_SEED_PREFIX_WRITTEN,halt",
+    "firstCallbacks": 2,
+    "forcePrefixVerified": true,
+    "nativeHistoryQualified": false,
+    "networkQualified": false,
+    "oldSources": 2,
+    "originalInodesPreserved": true,
+    "originalTransactionVerified": true,
+    "phase3Complete": false,
+    "processDeathQualified": false,
+    "recoveryCallbacks": 34,
+    "scope": "original-joining-initialization-transaction",
+    "seedSha256": "d3e651a98088a430ca1b37f7f96c2af51fccf4065da9f4e0d6aeb66dfa2e274d",
+    "status": "PARTIAL"
+  }
+}
